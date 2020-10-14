@@ -1,7 +1,7 @@
 import uk.gov.hmrc.DefaultBuildSettings.integrationTestSettings
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 
-val appName = "income-tax-submission-frontend"
+val appName = "personal-income-tax-submission-frontend"
 
 val silencerVersion = "1.7.0"
 
