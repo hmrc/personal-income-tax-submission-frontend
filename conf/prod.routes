@@ -1,5 +1,5 @@
 # Add all the application routes to the app.routes file
-->         /personal-income-tax-submission-frontend              app.Routes
-->         /                          health.Routes
+->         /report-quarterly/income-and-expenses/submissions        app.Routes
+->         /                                                        health.Routes
 
-GET        /admin/metrics             com.kenshoo.play.metrics.MetricsController.metrics
+GET        /admin/metrics                                           com.kenshoo.play.metrics.MetricsController.metrics
