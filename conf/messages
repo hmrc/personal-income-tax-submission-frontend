@@ -1,6 +1,4 @@
-service.name = personal-income-tax-submission-frontend
-service.homePageUrl = /personal-income-tax-submission-frontend
-service.text = This is your new service
+service.name = Income Tax Submission
 
 footer.cookies.text = Cookies
 footer.cookies.url = /help/cookies
@@ -10,3 +8,14 @@ footer.termsConditions.text = Terms and conditions
 footer.termsConditions.url = /help/terms-and-conditions
 footer.govukHelp.text = Help using GOV.UK
 footer.govukHelp.url = https://www.gov.uk/help
+
+common.back = Back
+common.yes = Yes
+common.no = No
+common.continue = Continue
+
+dividends.receive.dividends = Dividends
+dividends.receive.heading.client = Did you receive any dividends from authorised unit trust, open-ended investment companies or investment trust?
+dividends.receive.heading.agent = Did your client receive any dividends from authorised unit trust, open-ended investment companies or investment trust?
+
+dividends.receive.errors.noChoice = Select yes if dividends were received trusts or investment companies

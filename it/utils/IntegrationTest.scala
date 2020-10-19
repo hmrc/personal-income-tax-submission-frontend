@@ -16,22 +16,32 @@
 
 package utils
 
+import akka.actor.ActorSystem
+import akka.stream.{ActorMaterializer, Materializer}
 import config.AppConfig
 import helpers.WireMockHelper
+import models.User
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.{Application, Environment, Mode}
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.mvc.{AnyContent, Result}
+import play.api.{Application, Environment, Mode}
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.{Await, Awaitable}
 import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
 
-trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with WireMockHelper with BeforeAndAfterAll{
+trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneServerPerSuite with WireMockHelper with BeforeAndAfterAll{
 
+  implicit lazy val user: User[AnyContent] = new User[AnyContent]("1234567890", None)
+
+  implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
   implicit val emptyHeaderCarrier: HeaderCarrier = HeaderCarrier()
+
+  implicit val actorSystem: ActorSystem = ActorSystem()
+  implicit val materializer: Materializer = ActorMaterializer()
 
   def await[T](awaitable: Awaitable[T]): T = Await.result(awaitable, Duration.Inf)
 
@@ -39,7 +49,9 @@ trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneAppPerSuite
     "auditing.enabled" -> "false",
     "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck",
     "microservice.services.income-tax-submission.host" -> wiremockHost,
-    "microservice.services.income-tax-submission.port" -> wiremockPort.toString
+    "microservice.services.income-tax-submission.port" -> wiremockPort.toString,
+    "microservice.services.auth.host" -> wiremockHost,
+    "microservice.services.auth.port" -> wiremockPort.toString
   )
 
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
@@ -59,5 +71,11 @@ trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneAppPerSuite
     super.afterAll()
   }
 
+  def status(awaitable: Future[Result]): Int = await(awaitable).header.status
+
+  def bodyOf(awaitable: Future[Result]): String = {
+    val awaited = await(awaitable)
+    await(awaited.body.consumeData.map(_.utf8String))
+  }
 
 }
