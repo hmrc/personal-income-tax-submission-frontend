@@ -20,26 +20,30 @@ import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import forms.YesNoForm
 import javax.inject.Inject
+import models.formatHelpers.YesNoModel
+import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import views.html.dividends.ReceiveDividendsView
+import views.html.dividends.ReceiveUkDividendsView
 
 class ReceiveDividendsController @Inject()(
                                             cc: MessagesControllerComponents,
                                             authAction: AuthorisedAction,
-                                            receiveDividendsView: ReceiveDividendsView,
+                                            receiveUkDividendsView: ReceiveUkDividendsView,
                                             implicit val appConfig: AppConfig
                                           ) extends FrontendController(cc) with I18nSupport {
 
+  val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("dividends.uk-dividends.errors.noChoice")
+
   def show: Action[AnyContent] = authAction { implicit user =>
-    Ok(receiveDividendsView("dividends.receive.heading." + (if(user.isAgent) "agent" else "client"), YesNoForm.yesNoForm))
+    Ok(receiveUkDividendsView("dividends.uk-dividends.heading." + (if(user.isAgent) "agent" else "individual"), yesNoForm))
   }
 
   def submit: Action[AnyContent] = authAction { implicit user =>
-    YesNoForm.yesNoForm.bindFromRequest().fold (
+    yesNoForm.bindFromRequest().fold (
       {
-        formWithErrors => BadRequest(receiveDividendsView("dividends.receive.heading." + (if(user.isAgent) "agent" else "client"), formWithErrors))
+        formWithErrors => BadRequest(receiveUkDividendsView("dividends.uk-dividends.heading." + (if(user.isAgent) "agent" else "individual"), formWithErrors))
       },
       {
         yesNoForm => Ok("Next Page")

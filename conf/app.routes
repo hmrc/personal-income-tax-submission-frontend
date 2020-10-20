@@ -1,9 +1,9 @@
 # microservice specific routes
 
-->          /govuk-frontend                   govuk.Routes
-->          /hmrc-frontend                    hmrcfrontend.Routes
+->          /govuk-frontend                govuk.Routes
+->          /hmrc-frontend                 hmrcfrontend.Routes
 
-GET         /dividends/other-dividends        controllers.ReceiveDividendsController.show()
-POST        /dividends/other-dividends        controllers.ReceiveDividendsController.submit()
+GET         /dividends/uk-dividends        controllers.ReceiveDividendsController.show()
+POST        /dividends/uk-dividends        controllers.ReceiveDividendsController.submit()
 
-GET         /assets/*file                     controllers.Assets.versioned(path = "/public", file: Asset)
+GET         /assets/*file                  controllers.Assets.versioned(path = "/public", file: Asset)

@@ -23,6 +23,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import common.{EnrolmentIdentifiers, EnrolmentKeys}
 import play.api.http.Status._
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.auth.core.AffinityGroup
@@ -116,6 +117,16 @@ trait WireMockHelper {
     )
   )
 
+  private val asAgentEnrolment = Json.obj(
+    "key" -> EnrolmentKeys.Agent,
+    "identifiers" -> Json.arr(
+      Json.obj(
+        "key" -> EnrolmentIdentifiers.agentReference,
+        "value" -> "XARN1234567"
+      )
+    )
+  )
+
   private def successfulAuthResponse(affinityGroup: Option[AffinityGroup], enrolments: JsObject*): JsObject = {
     affinityGroup match {
       case Some(group) => Json.obj(
@@ -130,6 +141,10 @@ trait WireMockHelper {
 
   def authoriseIndividual(): StubMapping = {
     stubPost(authoriseUri, OK, Json.prettyPrint(successfulAuthResponse(Some(AffinityGroup.Individual), mtditEnrolment)))
+  }
+
+  def authoriseAgent(): StubMapping = {
+    stubPost(authoriseUri, OK, Json.prettyPrint(successfulAuthResponse(Some(AffinityGroup.Agent), Seq(asAgentEnrolment, mtditEnrolment): _*)))
   }
 
 }

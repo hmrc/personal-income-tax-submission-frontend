@@ -17,14 +17,18 @@
 package views.dividends
 
 import forms.YesNoForm
+import models.formatHelpers.YesNoModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import play.api.data.FormError
+import play.api.data.{Form, FormError}
 import utils.ViewTest
-import views.html.dividends.ReceiveDividendsView
+import views.html.dividends.ReceiveUkDividendsView
 
 class ReceiveDividendsViewSpec extends ViewTest {
-  lazy val receiveDividendsView: ReceiveDividendsView = app.injector.instanceOf[ReceiveDividendsView]
+
+  lazy val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("Select yes if dividends were received trusts or investment companies")
+
+  lazy val receiveUkDividendsView: ReceiveUkDividendsView = app.injector.instanceOf[ReceiveUkDividendsView]
 
   val h1Selector = "h1"
   val captionSelector = ".govuk-caption-l"
@@ -42,12 +46,11 @@ class ReceiveDividendsViewSpec extends ViewTest {
 
       "there are no form errors" which {
 
-        lazy val view = receiveDividendsView("Some Title", YesNoForm.yesNoForm)(user, implicitly, mockAppConfig)
+        lazy val view = receiveUkDividendsView("Some Title", yesNoForm)(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         val expectedTitle = "Some Title"
-        val expectedH1 = "Did you receive any dividends from authorised unit trust, " +
-          "open-ended investment companies or investment trust?"
+        val expectedH1 = "Did you receive any dividends from companies in the UK?"
         val expectedCaption = "Dividends"
 
         "contains the correct title" in {
@@ -82,21 +85,20 @@ class ReceiveDividendsViewSpec extends ViewTest {
 
       "there are no form errors" which {
 
-        lazy val view = receiveDividendsView(
+        lazy val view = receiveUkDividendsView(
           "Some Title",
-          YesNoForm.yesNoForm.copy(
-            errors = Seq(FormError("yes_no", "Select yes if dividends were received trusts or investment companies")))
+          yesNoForm.copy(
+            errors = Seq(FormError("yes_no", "Select yes if dividends were received from the UK")))
         )(user, implicitly, mockAppConfig)
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         val expectedTitle = "Some Title"
-        val expectedH1 = "Did you receive any dividends from authorised unit trust, " +
-          "open-ended investment companies or investment trust?"
+        val expectedH1 = "Did you receive any dividends from companies in the UK?"
         val expectedCaption = "Dividends"
 
         val expectedErrorTitle = "There is a problem"
-        val expectedErrorText = "Select yes if dividends were received trusts or investment companies"
+        val expectedErrorText = "Select yes if dividends were received from the UK"
 
         "contains the correct title" in {
           document.title shouldBe expectedTitle
@@ -142,12 +144,11 @@ class ReceiveDividendsViewSpec extends ViewTest {
 
       "there are no form errors" which {
 
-        lazy val view = receiveDividendsView("Some Title", YesNoForm.yesNoForm)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+        lazy val view = receiveUkDividendsView("Some Title", yesNoForm)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         val expectedTitle = "Some Title"
-        val expectedH1 = "Did your client receive any dividends from authorised unit trust, " +
-          "open-ended investment companies or investment trust?"
+        val expectedH1 = "Did your client receive any dividends from companies in the UK?"
         val expectedCaption = "Dividends"
 
         "contains the correct title" in {
@@ -180,23 +181,22 @@ class ReceiveDividendsViewSpec extends ViewTest {
 
     "correctly render with errors as an agent" when {
 
-      "there are no form errors" which {
+      "there is a form error" which {
 
-        lazy val view = receiveDividendsView(
+        lazy val view = receiveUkDividendsView(
           "Some Title",
-          YesNoForm.yesNoForm.copy(
-            errors = Seq(FormError("yes_no", "Select yes if dividends were received trusts or investment companies")))
+          yesNoForm.copy(
+            errors = Seq(FormError("yes_no", "Select yes if dividends were received from the UK")))
         )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         val expectedTitle = "Some Title"
-        val expectedH1 = "Did your client receive any dividends from authorised unit trust, " +
-          "open-ended investment companies or investment trust?"
+        val expectedH1 = "Did your client receive any dividends from companies in the UK?"
         val expectedCaption = "Dividends"
 
         val expectedErrorTitle = "There is a problem"
-        val expectedErrorText = "Select yes if dividends were received trusts or investment companies"
+        val expectedErrorText = "Select yes if dividends were received from the UK"
 
         "contains the correct title" in {
           document.title shouldBe expectedTitle

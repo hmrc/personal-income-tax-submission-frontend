@@ -17,12 +17,14 @@
 package forms
 
 import models.formatHelpers.YesNoModel
-import play.api.data.FormError
+import play.api.data.{Form, FormError}
 import utils.UnitTest
 import YesNoForm._
 import YesNoForm.{no => nope}
 
 class YesNoFormSpec extends UnitTest {
+
+  val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("someError")
 
   "YesNoForm" should {
 
@@ -31,7 +33,7 @@ class YesNoFormSpec extends UnitTest {
       "the answer is yes" in {
 
         val expectedResult = YesNoModel(yes)
-        val result = YesNoForm.yesNoForm.bind(Map(yesNo -> yes)).get
+        val result = yesNoForm.bind(Map(yesNo -> yes)).get
 
         result shouldBe expectedResult
       }
@@ -47,20 +49,20 @@ class YesNoFormSpec extends UnitTest {
     }
 
     "return a map on unbind" in {
-      YesNoForm.formatter.unbind("yes_no", YesNoModel("SomeError")) shouldBe Map("yes_no" -> "SomeError")
+      YesNoForm.formatter("SomeError").unbind("yes_no", YesNoModel("SomeError")) shouldBe Map("yes_no" -> "SomeError")
     }
 
     "return an error" when {
 
       "no option is returned" in {
-        val expectedResult = Seq(FormError(yesNo, Seq("dividends.receive.errors.noChoice")))
+        val expectedResult = Seq(FormError(yesNo, Seq("someError")))
         val result = yesNoForm.bind(Map[String, String]()).errors
 
         result shouldBe expectedResult
       }
 
       "an option that isn't yes or no is returned" in {
-        val expectedResult = Seq(FormError(yesNo, Seq("dividends.receive.errors.noChoice")))
+        val expectedResult = Seq(FormError(yesNo, Seq("someError")))
         val result = yesNoForm.bind(Map[String, String](yesNo -> "asdf")).errors
 
         result shouldBe expectedResult

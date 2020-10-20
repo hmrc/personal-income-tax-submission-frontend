@@ -28,17 +28,17 @@
             <span class="govuk-visually-hidden">Error:</span>@messages(error.message)
         </span>
     }
-    <fieldset class="govuk-fieldset" aria-describedby="changed-name-hint">
+    <fieldset class="govuk-fieldset" aria-describedby="@{id}_yes_no">
         <div class="govuk-radios govuk-radios--inline">
             <div class="govuk-radios__item">
                 <input class="govuk-radios__input" id="@{id}_yes" name="yes_no" type="radio" value="yes">
-                <label class="govuk-label govuk-radios__label" for="changed-name">
+                <label class="govuk-label govuk-radios__label" for="@{id}_yes">
                     @messages("common.yes")
                 </label>
             </div>
             <div class="govuk-radios__item">
                 <input class="govuk-radios__input" id="@{id}_no" name="yes_no" type="radio" value="no">
-                <label class="govuk-label govuk-radios__label" for="changed-name-2">
+                <label class="govuk-label govuk-radios__label" for="@{id}_yes">
                     @messages("common.no")
                 </label>
             </div>

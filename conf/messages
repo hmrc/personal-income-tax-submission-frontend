@@ -1,4 +1,4 @@
-service.name = Income Tax Submission
+service.name = Income Tax Return
 
 footer.cookies.text = Cookies
 footer.cookies.url = /help/cookies
@@ -14,8 +14,13 @@ common.yes = Yes
 common.no = No
 common.continue = Continue
 
-dividends.receive.dividends = Dividends
-dividends.receive.heading.client = Did you receive any dividends from authorised unit trust, open-ended investment companies or investment trust?
-dividends.receive.heading.agent = Did your client receive any dividends from authorised unit trust, open-ended investment companies or investment trust?
+dividends.uk-dividends.dividends = Dividends
+dividends.uk-dividends.heading.individual = Did you receive any dividends from companies in the UK?
+dividends.uk-dividends.heading.agent = Did your client receive any dividends from companies in the UK?
+dividends.uk-dividends.sub-heading = Your dividend voucher will show your shares in the company, the dividend rate and the dividends received.
+dividends.uk-dividends.errors.noChoice = Select yes if dividends were received from the UK
 
-dividends.receive.errors.noChoice = Select yes if dividends were received trusts or investment companies
+dividends.other-dividends.dividends = Dividends
+dividends.other-dividends.heading.individual = Did you receive any dividends from authorised unit trust, open-ended investment companies or investment trust?
+dividends.other-dividends.heading.agent = Did your client receive any dividends from authorised unit trust, open-ended investment companies or investment trust?
+dividends.other-dividends.errors.noChoice = Select yes if dividends were received trusts or investment companies

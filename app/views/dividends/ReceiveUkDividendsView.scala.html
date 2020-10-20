@@ -29,7 +29,7 @@
 }
 
 @headingForUse = @{
-    if(user.isAgent) messages("dividends.receive.heading.agent") else messages("dividends.receive.heading.client")
+    if(user.isAgent) messages("dividends.uk-dividends.heading.agent") else messages("dividends.uk-dividends.heading.individual")
 }
 
 @layout(pageTitle = Some(pageTitleToUse)) {
@@ -37,10 +37,11 @@
 
     @errorSummary(form.errors)
 
-    <span class="govuk-caption-l govuk-!-margin-top-8">@messages("dividends.receive.dividends")</span>
-    <h1 class="govuk-heading-l">@headingForUse</h1>
+    <span class="govuk-caption-l govuk-!-margin-top-8">@messages("dividends.uk-dividends.dividends")</span>
+    <h1 class="govuk-heading-l govuk-!-margin-bottom-3">@headingForUse</h1>
+    <span class="govuk-caption-m govuk-!-margin-bottom-4">@messages("dividends.uk-dividends.sub-heading")</span>
 
-    @formWithCsrf(action = controllers.routes.ReceiveDividendsController.submit(), 'novalidate -> "novalidate") {
+    @formWithCsrf(action = controllers.routes.ReceiveDividendsController.submit()) {
         @yesNoChoice("yes_no", form)
 
         <button class="govuk-button" type="submit" id="continue">
