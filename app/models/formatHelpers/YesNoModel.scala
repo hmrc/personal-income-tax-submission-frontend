@@ -14,15 +14,6 @@
  * limitations under the License.
  */
 
-package config
+package models.formatHelpers
 
-import com.google.inject.AbstractModule
-import play.api.i18n.Messages
-
-class Modules extends AbstractModule {
-
-  override def configure(): Unit = {
-    bind(classOf[AppConfig]).to(classOf[FrontendAppConfig]).asEagerSingleton()
-  }
-
-}
+case class YesNoModel(yesNoValue: String)

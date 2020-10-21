@@ -19,10 +19,14 @@ package helpers
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, delete, equalTo, get, getRequestedFor, patch, post, postRequestedFor, put, stubFor, urlEqualTo, urlMatching, verify}
+import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import common.{EnrolmentIdentifiers, EnrolmentKeys}
+import play.api.http.Status._
+import play.api.libs.json.{JsObject, Json}
+import uk.gov.hmrc.auth.core.AffinityGroup
 
 trait WireMockHelper {
 
@@ -101,5 +105,46 @@ trait WireMockHelper {
       )
     )
 
+  private val authoriseUri = "/auth/authorise"
+
+  private val mtditEnrolment = Json.obj(
+    "key" -> "HMRC-MTD-IT",
+    "identifiers" -> Json.arr(
+      Json.obj(
+        "key" -> "MTDITID",
+        "value" -> "1234567890"
+      )
+    )
+  )
+
+  private val asAgentEnrolment = Json.obj(
+    "key" -> EnrolmentKeys.Agent,
+    "identifiers" -> Json.arr(
+      Json.obj(
+        "key" -> EnrolmentIdentifiers.agentReference,
+        "value" -> "XARN1234567"
+      )
+    )
+  )
+
+  private def successfulAuthResponse(affinityGroup: Option[AffinityGroup], enrolments: JsObject*): JsObject = {
+    affinityGroup match {
+      case Some(group) => Json.obj(
+        "affinityGroup" -> affinityGroup,
+        "allEnrolments" -> enrolments
+      )
+      case _ => Json.obj(
+        "allEnrolments" -> enrolments
+      )
+    }
+  }
+
+  def authoriseIndividual(): StubMapping = {
+    stubPost(authoriseUri, OK, Json.prettyPrint(successfulAuthResponse(Some(AffinityGroup.Individual), mtditEnrolment)))
+  }
+
+  def authoriseAgent(): StubMapping = {
+    stubPost(authoriseUri, OK, Json.prettyPrint(successfulAuthResponse(Some(AffinityGroup.Agent), Seq(asAgentEnrolment, mtditEnrolment): _*)))
+  }
 
 }

@@ -1,0 +1,51 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import views.html.headerFooterTemplate.Layout
+@import views.html.templates.helpers.BackLink
+@import views.html.templates.helpers.ErrorSummaryDisplay
+@import views.html.templates.inputs.YesNoChoice
+@import models.formatHelpers.YesNoModel
+
+@this(layout: Layout, backLink: BackLink, yesNoChoice: YesNoChoice, formWithCsrf: FormWithCSRF, errorSummary: ErrorSummaryDisplay)
+
+@(pageTitle: String, form: Form[YesNoModel])(implicit user: User[_], messages: Messages, appConfig: AppConfig)
+
+@pageTitleToUse = @{
+    messages(pageTitle)
+}
+
+@headingForUse = @{
+    if(user.isAgent) messages("dividends.uk-dividends.heading.agent") else messages("dividends.uk-dividends.heading.individual")
+}
+
+@layout(pageTitle = Some(pageTitleToUse)) {
+    @backLink(appConfig.incomeTaxSubmissionOverviewUrl)
+
+    @errorSummary(form.errors, Some("yes_no_yes"))
+
+    <span class="govuk-caption-l govuk-!-margin-top-8">@messages("dividends.uk-dividends.dividends")</span>
+    <h1 class="govuk-heading-l govuk-!-margin-bottom-3">@headingForUse</h1>
+    <span class="govuk-caption-m govuk-!-margin-bottom-4">@messages("dividends.uk-dividends.sub-heading")</span>
+
+    @formWithCsrf(action = controllers.routes.ReceiveUkDividendsController.submit()) {
+        @yesNoChoice("yes_no", form)
+
+        <button class="govuk-button" type="submit" id="continue">
+            @messages("common.continue")
+        </button>
+    }
+}

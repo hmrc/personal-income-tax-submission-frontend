@@ -1,6 +1,4 @@
-service.name = personal-income-tax-submission-frontend
-service.homePageUrl = /personal-income-tax-submission-frontend
-service.text = This is your new service
+service.name = Income Tax Return
 
 footer.cookies.text = Cookies
 footer.cookies.url = /help/cookies
@@ -10,3 +8,19 @@ footer.termsConditions.text = Terms and conditions
 footer.termsConditions.url = /help/terms-and-conditions
 footer.govukHelp.text = Help using GOV.UK
 footer.govukHelp.url = https://www.gov.uk/help
+
+common.back = Back
+common.yes = Yes
+common.no = No
+common.continue = Continue
+
+dividends.uk-dividends.dividends = Dividends
+dividends.uk-dividends.heading.individual = Did you receive any dividends from companies in the UK?
+dividends.uk-dividends.heading.agent = Did your client receive any dividends from companies in the UK?
+dividends.uk-dividends.sub-heading = Your dividend voucher will show your shares in the company, the dividend rate and the dividends received.
+dividends.uk-dividends.errors.noChoice = Select yes if dividends were received from the UK
+
+dividends.other-dividends.dividends = Dividends
+dividends.other-dividends.heading.individual = Did you receive any dividends from authorised unit trust, open-ended investment companies or investment trust?
+dividends.other-dividends.heading.agent = Did your client receive any dividends from authorised unit trust, open-ended investment companies or investment trust?
+dividends.other-dividends.errors.noChoice = Select yes if dividends were received trusts or investment companies

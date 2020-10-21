@@ -69,9 +69,9 @@ class AuthorisedAction @Inject()(
     val neededKey = if (isAgent) EnrolmentKeys.Agent else EnrolmentKeys.Individual
     val neededIdentifier = if (isAgent) EnrolmentIdentifiers.agentReference else EnrolmentIdentifiers.individualId
 
-    enrolmentGetIdentifierValue(neededKey, neededIdentifier, enrolments).fold(
+    enrolmentGetIdentifierValue(neededKey, neededIdentifier, enrolments).fold{
       Future.successful(Unauthorized("No relevant identifier. Is agent: " + isAgent))
-    ) { userId =>
+    } { userId =>
       if (isAgent) agentAuthentication(block, userId) else individualAuthentication(block, enrolments, userId)
     }
 
