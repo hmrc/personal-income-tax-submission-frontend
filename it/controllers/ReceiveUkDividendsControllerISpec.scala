@@ -24,10 +24,10 @@ import play.api.http.Status._
 import play.api.libs.ws.{WSClient, WSResponse}
 import utils.IntegrationTest
 
-class ReceiveDividendsControllerISpec extends IntegrationTest {
+class ReceiveUkDividendsControllerISpec extends IntegrationTest {
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
-  lazy val controller: ReceiveDividendsController = app.injector.instanceOf[ReceiveDividendsController]
+  lazy val controller: ReceiveUkDividendsController = app.injector.instanceOf[ReceiveUkDividendsController]
 
   "as an individual" when {
 

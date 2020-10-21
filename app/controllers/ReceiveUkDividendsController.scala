@@ -27,7 +27,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.ReceiveUkDividendsView
 
-class ReceiveDividendsController @Inject()(
+class ReceiveUkDividendsController @Inject()(
                                             cc: MessagesControllerComponents,
                                             authAction: AuthorisedAction,
                                             receiveUkDividendsView: ReceiveUkDividendsView,
