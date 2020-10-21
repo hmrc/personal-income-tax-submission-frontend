@@ -26,7 +26,7 @@ import views.html.dividends.ReceiveUkDividendsView
 
 class ReceiveUkDividendsViewSpec extends ViewTest {
 
-  lazy val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("Select yes if dividends were received trusts or investment companies")
+  lazy val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("Select yes if dividends were received from the UK")
 
   lazy val receiveUkDividendsView: ReceiveUkDividendsView = app.injector.instanceOf[ReceiveUkDividendsView]
 

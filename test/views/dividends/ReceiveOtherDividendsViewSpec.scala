@@ -50,7 +50,7 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         val expectedTitle = "Some Title"
-        val expectedH1 = "Did you receive any dividends from authorised unit trust, open-ended investment companies or investment trust?"
+        val expectedH1 = "Did you receive any dividends from authorised unit trusts, open-ended investment companies or investment trusts?"
         val expectedCaption = "Dividends"
 
         "contains the correct title" in {
@@ -94,7 +94,7 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         val expectedTitle = "Some Title"
-        val expectedH1 = "Did you receive any dividends from authorised unit trust, open-ended investment companies or investment trust?"
+        val expectedH1 = "Did you receive any dividends from authorised unit trusts, open-ended investment companies or investment trusts?"
         val expectedCaption = "Dividends"
 
         val expectedErrorTitle = "There is a problem"
@@ -148,7 +148,7 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         val expectedTitle = "Some Title"
-        val expectedH1 = "Did your client receive any dividends from authorised unit trust, open-ended investment companies or investment trust?"
+        val expectedH1 = "Did your client receive any dividends from authorised unit trusts, open-ended investment companies or investment trusts?"
         val expectedCaption = "Dividends"
 
         "contains the correct title" in {
@@ -192,7 +192,7 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         val expectedTitle = "Some Title"
-        val expectedH1 = "Did your client receive any dividends from authorised unit trust, open-ended investment companies or investment trust?"
+        val expectedH1 = "Did your client receive any dividends from authorised unit trusts, open-ended investment companies or investment trusts?"
         val expectedCaption = "Dividends"
 
         val expectedErrorTitle = "There is a problem"

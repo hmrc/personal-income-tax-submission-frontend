@@ -21,6 +21,6 @@ dividends.uk-dividends.sub-heading = Your dividend voucher will show your shares
 dividends.uk-dividends.errors.noChoice = Select yes if dividends were received from the UK
 
 dividends.other-dividends.dividends = Dividends
-dividends.other-dividends.heading.individual = Did you receive any dividends from authorised unit trust, open-ended investment companies or investment trust?
-dividends.other-dividends.heading.agent = Did your client receive any dividends from authorised unit trust, open-ended investment companies or investment trust?
+dividends.other-dividends.heading.individual = Did you receive any dividends from authorised unit trusts, open-ended investment companies or investment trusts?
+dividends.other-dividends.heading.agent = Did your client receive any dividends from authorised unit trusts, open-ended investment companies or investment trusts?
 dividends.other-dividends.errors.noChoice = Select yes if dividends were received trusts or investment companies
