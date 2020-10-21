@@ -9,4 +9,8 @@ POST        /dividends/uk-dividends           controllers.ReceiveUkDividendsCont
 GET         /dividends/other-dividends        controllers.ReceiveOtherDividendsController.show()
 POST        /dividends/other-dividends        controllers.ReceiveOtherDividendsController.submit()
 
-GET         /assets/*file                     controllers.Assets.versioned(path = "/public", file: Asset)
+GET         /dividends/uk-dividends-amount        controllers.UkDividendsAmountController.show()
+POST        /dividends/uk-dividends-amount        controllers.UkDividendsAmountController.submit()
+
+
+GET        /assets/*file               controllers.Assets.versioned(path = "/public", file: Asset)

@@ -24,3 +24,9 @@ dividends.other-dividends.dividends = Dividends
 dividends.other-dividends.heading.individual = Did you receive any dividends from authorised unit trusts, open-ended investment companies or investment trusts?
 dividends.other-dividends.heading.agent = Did your client receive any dividends from authorised unit trusts, open-ended investment companies or investment trusts?
 dividends.other-dividends.errors.noChoice = Select yes if dividends were received trusts or investment companies
+
+dividends.uk.dividends = Dividends
+dividends.uk.heading = What is the amount of dividends earned from companies in the UK?
+
+error.currency.invalid_number = The amount of dividends earned must be a number
+error.currency.empty = Enter the amount of dividends earned

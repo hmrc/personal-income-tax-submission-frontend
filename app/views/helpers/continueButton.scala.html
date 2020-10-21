@@ -14,23 +14,7 @@
  * limitations under the License.
  *@
 
-@import views.headerFooterTemplate.FooterLinks
-@import views.html.headerFooterTemplate.Head
+@(alternativeText: Option[String] = None)(implicit messages: Messages)
 
-@this(
-        govukLayout: GovukLayout,
-        head: Head
-)
+<button formnovalidate class="govuk-button" type="submit" id="continue">@alternativeText.fold(messages("common.continue"))(x => x)</button>
 
-@(pageTitle: Option[String] = None,
-        headBlock: Option[Html] = None,
-        scriptsBlock: Option[Html] = None
-)(contentBlock: Html)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
-
-    @govukLayout(
-        pageTitle = pageTitle,
-        headBlock = Some(head(headBlock)),
-        scriptsBlock = scriptsBlock,
-        beforeContentBlock = None,
-        footerItems = FooterLinks()
-    )(contentBlock)
