@@ -24,7 +24,7 @@ import play.api.data.{Form, FormError}
 import utils.ViewTest
 import views.html.dividends.ReceiveUkDividendsView
 
-class ReceiveDividendsViewSpec extends ViewTest {
+class ReceiveUkDividendsViewSpec extends ViewTest {
 
   lazy val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("Select yes if dividends were received trusts or investment companies")
 
