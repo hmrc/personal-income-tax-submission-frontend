@@ -23,7 +23,6 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 trait AppConfig {
   val footerLinkItems: Seq[String]
-
   val signInContinueUrl: String
   val signInUrl: String
 }

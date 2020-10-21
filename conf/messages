@@ -1,6 +1,9 @@
-service.name = personal-income-tax-submission-frontend
+service.name = Income Tax Submission
 service.homePageUrl = /personal-income-tax-submission-frontend
 service.text = This is your new service
+
+common.back = Back
+common.continue = Continue
 
 footer.cookies.text = Cookies
 footer.cookies.url = /help/cookies
@@ -10,3 +13,12 @@ footer.termsConditions.text = Terms and conditions
 footer.termsConditions.url = /help/terms-and-conditions
 footer.govukHelp.text = Help using GOV.UK
 footer.govukHelp.url = https://www.gov.uk/help
+
+
+dividends.uk.dividends = Dividends
+dividends.uk.heading = What is the amount of dividends earned from companies in the UK?
+
+
+
+error.currency.invalid_number = The amount of dividends earned must be a number
+error.currency.empty = Enter the amount of dividends earned

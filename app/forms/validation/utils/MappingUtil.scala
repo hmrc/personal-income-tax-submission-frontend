@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,17 +12,25 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import views.html.headerFooterTemplate.Layout
+package forms.validation.utils
 
-@this(layout: Layout)
+import play.api.data.Forms._
+import play.api.data._
 
-@(pageTitle: String, heading: String, message: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+object MappingUtil {
 
-@layout(pageTitle = Some(pageTitle)) {
- <h1 class="govuk-heading-xl">@{Text(heading).asHtml}</h1>
- <p class="govuk-body">@{Text(message).asHtml}</p>
+  val trimmedText: Mapping[String] = default(text, "").transform(_.trim, identity)
 
+  val oText: Mapping[Option[String]] = optional(text)
+
+  implicit class OTextUtil(mapping: Mapping[Option[String]]) {
+    def toText: Mapping[String] =
+      mapping.transform(
+        x => x.fold("")(x => x),
+        x => Some(x)
+      )
+  }
 
 }
