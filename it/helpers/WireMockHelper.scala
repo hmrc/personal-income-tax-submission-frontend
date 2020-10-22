@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2020 HM Revenue & Customs
  *
@@ -148,3 +149,4 @@ trait WireMockHelper {
   }
 
 }
+
