@@ -58,3 +58,4 @@ class UkDividendsAmountController @Inject()(
   }
 
 }
+

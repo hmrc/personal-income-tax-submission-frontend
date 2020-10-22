@@ -210,3 +210,4 @@ class ReceiveDividendsAmountViewSpec extends ViewTest {
   }
 
 }
+

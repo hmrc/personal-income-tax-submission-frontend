@@ -39,7 +39,7 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
   def element(selector: String)(implicit document: Document): Element = {
     val elements = document.select(selector)
 
-    if(elements.size() == 0) {
+    if (elements.size() == 0) {
       fail(s"No elements exist with the selector '$selector'")
     }
 
@@ -49,4 +49,5 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
   def elementExist(selector: String)(implicit document: Document): Boolean = {
     !document.select(selector).isEmpty
   }
+}
 

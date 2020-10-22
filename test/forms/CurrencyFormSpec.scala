@@ -68,3 +68,4 @@ class CurrencyFormSpec extends UnitTest {
     }
   }
 }
+

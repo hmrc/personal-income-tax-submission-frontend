@@ -149,3 +149,4 @@ trait WireMockHelper {
   }
 
 }
+

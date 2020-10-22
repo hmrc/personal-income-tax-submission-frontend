@@ -38,3 +38,4 @@ class CurrencyModelSpec extends UnitTest {
   }
 
 }
+

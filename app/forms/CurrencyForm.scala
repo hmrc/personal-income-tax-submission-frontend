@@ -41,3 +41,4 @@ object CurrencyForm {
     )(CurrencyModel.apply)(CurrencyModel.unapply)
   )
 }
+

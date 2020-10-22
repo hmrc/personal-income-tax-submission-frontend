@@ -79,3 +79,4 @@ trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneServerPerSu
   }
 
 }
+

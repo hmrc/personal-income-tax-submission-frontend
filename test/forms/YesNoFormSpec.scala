@@ -71,3 +71,4 @@ class YesNoFormSpec extends UnitTest {
 
   }
 }
+

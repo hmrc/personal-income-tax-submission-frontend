@@ -45,3 +45,4 @@ object PlaySessionCookieBaker {
     cookieValue(additionalData)
   }
 }
+
