@@ -19,18 +19,17 @@
 @import forms.CurrencyForm._
 @import play.api.mvc.Request
 @import play.api.i18n.Messages
-@import views.html.helpers.inputHelper
-@import views.html.helpers.ErrorSummaryDisplay
-@import views.html.helpers.back_link
-@import views.html.helper.form
-@import views.html.helpers.continueButton
+@import views.html.templates.helpers.inputHelper
+@import views.html.templates.helpers.ErrorSummaryDisplay
+@import views.html.templates.helpers.BackLink
+@import views.html.templates.helpers.ContinueButton
 
-@this(layout: Layout, formWithCSRF: FormWithCSRF, errorSummaryDisplay: ErrorSummaryDisplay )
+@this(layout: Layout, backLink: BackLink, formWithCSRF: FormWithCSRF, errorSummaryDisplay: ErrorSummaryDisplay )
 @(ukDividendsAmountForm: Form[CurrencyModel], postAction: Call, backUrl: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @layout(pageTitle = Some("")){
 
- @back_link(backUrl)
+ @backLink(backUrl)
 
  @errorSummaryDisplay(ukDividendsAmountForm.errors)
 
@@ -48,7 +47,7 @@
 
   </div>
 
-  @continueButton()
+  @ContinueButton()
  }
 
 }

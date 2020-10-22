@@ -126,4 +126,3 @@ class StringConstraintsSpec extends Constraints with WordSpecLike with Matchers 
   }
 
 }
-\

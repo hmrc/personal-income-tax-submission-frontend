@@ -17,7 +17,6 @@
 package config
 
 import com.google.inject.AbstractModule
-import play.api.i18n.Messages
 
 class Modules extends AbstractModule {
 

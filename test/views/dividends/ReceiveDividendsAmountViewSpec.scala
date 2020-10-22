@@ -37,7 +37,6 @@ import models.CurrencyModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.data.{Form, FormError}
-import play.api.test.FakeRequest
 import utils.ViewTest
 import views.html.dividends.UkDividendsViewAmount
 
