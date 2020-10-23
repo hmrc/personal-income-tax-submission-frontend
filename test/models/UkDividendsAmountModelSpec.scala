@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,25 +12,30 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import views.headerFooterTemplate.FooterLinks
-@import views.html.headerFooterTemplate.Head
+package models
 
-@this(
-        govukLayout: GovukLayout,
-        head: Head
-)
+import play.api.libs.json.{JsObject, Json}
+import utils.UnitTest
 
-@(pageTitle: Option[String] = None,
-        headBlock: Option[Html] = None,
-        scriptsBlock: Option[Html] = None
-)(contentBlock: Html)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+class UkDividendsAmountModelSpec extends UnitTest {
 
-    @govukLayout(
-        pageTitle = pageTitle,
-        headBlock = Some(head(headBlock)),
-        scriptsBlock = scriptsBlock,
-        beforeContentBlock = None,
-        footerItems = FooterLinks()
-    )(contentBlock)
+  val model: UkDividendsAmountModel = UkDividendsAmountModel("")
+  val jsonModel: JsObject = Json.obj(
+    "amount" -> ""
+  )
+
+  "DividendsModel" should {
+
+    "parse to Json" in {
+      Json.toJson(model) shouldBe jsonModel
+    }
+
+    "parse from Json" in {
+      jsonModel.as[UkDividendsAmountModel]
+    }
+  }
+
+}
+
