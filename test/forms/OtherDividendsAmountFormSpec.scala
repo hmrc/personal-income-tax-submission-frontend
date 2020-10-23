@@ -16,27 +16,27 @@
 
 package forms
 
-import forms.UkDividendsAmountForm._
+import forms.OtherDividendsAmountForm._
 import models.CurrencyAmountModel
 import play.api.data.{Form, FormError}
 import utils.UnitTest
 
 
-class UkDividendsAmountFormSpec extends UnitTest {
+class OtherDividendsAmountFormSpec extends UnitTest {
 
   def form: Form[CurrencyAmountModel] = {
-    UkDividendsAmountForm.ukDividendsAmountForm()
+    OtherDividendsAmountForm.otherDividendsAmountForm()
   }
 
   lazy val testCurrencyValid = "1000"
   lazy val testCurrencyEmpty = ""
   lazy val testCurrencyInvalidInt = "!"
 
-  "UkDividendsFormSpec" should {
+  "OtherDividendsFormSpec" should {
 
     "correctly validate a currency" when {
       "a valid currency is entered" in {
-        val testInput = Map(ukDividendsAmount -> testCurrencyValid)
+        val testInput = Map(otherDividendsAmount -> testCurrencyValid)
         val expected = CurrencyAmountModel(testCurrencyValid)
         val actual = form.bind(testInput).value
 
@@ -45,22 +45,22 @@ class UkDividendsAmountFormSpec extends UnitTest {
     }
 
     "invalidate an empty currency" in {
-      val testInput = Map(ukDividendsAmount -> testCurrencyEmpty)
+      val testInput = Map(otherDividendsAmount -> testCurrencyEmpty)
 
       val emptyTest = form.bind(testInput)
-      emptyTest.errors should contain(FormError(ukDividendsAmount, "dividends.uk-dividends-amount.error.empty"))
+      emptyTest.errors should contain(FormError(otherDividendsAmount, "dividends.other-dividends-amount.error.empty"))
     }
 
     "invalidate a currency that includes invalid characters" in {
 
-      val testInput = Map(ukDividendsAmount -> testCurrencyInvalidInt)
+      val testInput = Map(otherDividendsAmount -> testCurrencyInvalidInt)
 
       val invalidCharTest = form.bind(testInput)
-      invalidCharTest.errors should contain(FormError(ukDividendsAmount, "dividends.error.invalid_number"))
+      invalidCharTest.errors should contain(FormError(otherDividendsAmount, "dividends.error.invalid_number"))
     }
 
     "remove a leading space from a currency" in {
-      val testInput = Map(ukDividendsAmount -> (" " + testCurrencyValid))
+      val testInput = Map(otherDividendsAmount -> (" " + testCurrencyValid))
       val expected = CurrencyAmountModel(testCurrencyValid)
       val leadingSpaceTest = form.bind(testInput).value
 

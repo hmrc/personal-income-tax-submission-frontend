@@ -16,10 +16,26 @@
 
 package models
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{JsObject, Json}
+import utils.UnitTest
 
-case class UkDividendsAmountModel(amount: String)
+class CurrencyAmountModelSpec extends UnitTest {
 
-object UkDividendsAmountModel {
-  implicit val format: OFormat[UkDividendsAmountModel] = Json.format[UkDividendsAmountModel]
+  val model: CurrencyAmountModel = CurrencyAmountModel("")
+  val jsonModel: JsObject = Json.obj(
+    "amount" -> ""
+  )
+
+  "CurrencyAmountModel" should {
+
+    "parse to Json" in {
+      Json.toJson(model) shouldBe jsonModel
+    }
+
+    "parse from Json" in {
+      jsonModel.as[CurrencyAmountModel]
+    }
+  }
+
 }
+

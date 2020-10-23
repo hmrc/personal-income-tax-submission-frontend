@@ -16,19 +16,19 @@
 
 package views.dividends
 
-import forms.UkDividendsAmountForm
+import forms.OtherDividendsAmountForm
 import models.CurrencyAmountModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.data.{Form, FormError}
 import utils.ViewTest
-import views.html.dividends.UkDividendsAmountView
+import views.html.dividends.OtherDividendsAmountView
 
-class UkDividendsAmountViewSpec extends ViewTest {
+class OtherDividendsAmountViewSpec extends ViewTest {
 
-  lazy val ukDividendsAmountForm: Form[CurrencyAmountModel] = UkDividendsAmountForm.ukDividendsAmountForm()
+  lazy val otherDividendsAmountForm: Form[CurrencyAmountModel] = OtherDividendsAmountForm.otherDividendsAmountForm()
 
-  lazy val ukDividendsAmountView: UkDividendsAmountView = app.injector.instanceOf[UkDividendsAmountView]
+  lazy val otherDividendsAmountView: OtherDividendsAmountView = app.injector.instanceOf[OtherDividendsAmountView]
 
   val h1Selector = "h1"
   val captionSelector = ".govuk-caption-l"
@@ -39,19 +39,19 @@ class UkDividendsAmountViewSpec extends ViewTest {
   val errorSummaryTitle = ".govuk-error-summary__title"
   val errorSummaryText = ".govuk-error-summary__body"
 
-  val expectedH1 = "What is the amount of dividends earned from companies in the UK?"
+  val expectedH1 = "What is the amount of dividends from authorised unit trusts, open-ended investment companies or investment trusts?"
   val expectedCaption = "Dividends"
 
   val expectedErrorTitle = "There is a problem"
-  val expectedErrorText = "Enter the amount of dividends earned from the UK"
+  val expectedErrorText = "Enter the amount of dividends received from trusts or investment companies"
 
-  "UkDividendsAmountView" should {
+  "OtherDividendsAmountView" should {
 
     "correctly render with no errors as an individual" when {
 
       "there are no form errors" which {
 
-        lazy val view = ukDividendsAmountView(ukDividendsAmountForm, testCall, testBackUrl)(user, implicitly, mockAppConfig)
+        lazy val view = otherDividendsAmountView(otherDividendsAmountForm, testCall, testBackUrl)(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         "contain the correct h1" in {
@@ -78,8 +78,8 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
       "there are no form errors" which {
 
-        lazy val view = ukDividendsAmountView(
-          ukDividendsAmountForm.copy(errors = Seq(FormError("amount", "Enter the amount of dividends earned from the UK"))),
+        lazy val view = otherDividendsAmountView(
+          otherDividendsAmountForm.copy(errors = Seq(FormError("amount", "Enter the amount of dividends received from trusts or investment companies"))),
           testCall,
           testBackUrl
         )(user, implicitly, mockAppConfig)
@@ -122,7 +122,12 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
       "there are no form errors" which {
 
-        lazy val view = ukDividendsAmountView(ukDividendsAmountForm, testCall, testBackUrl)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+        lazy val view = otherDividendsAmountView(
+          otherDividendsAmountForm,
+          testCall,
+          testBackUrl
+        )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         "contain the correct h1" in {
@@ -149,9 +154,9 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
       "there is a form error" which {
 
-        lazy val view = ukDividendsAmountView(
-          ukDividendsAmountForm.copy(
-            errors = Seq(FormError("amount", "Enter the amount of dividends earned from the UK"))),
+        lazy val view = otherDividendsAmountView(
+          otherDividendsAmountForm.copy(
+            errors = Seq(FormError("amount", "Enter the amount of dividends received from trusts or investment companies"))),
             testCall,
             testBackUrl
         )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
