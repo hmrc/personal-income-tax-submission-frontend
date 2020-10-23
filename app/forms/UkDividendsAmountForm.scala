@@ -19,26 +19,26 @@ package forms
 import forms.validation.StringConstraints._
 import forms.validation.utils.ConstraintUtil._
 import forms.validation.utils.MappingUtil._
-import models.CurrencyModel
+import models.UkDividendsAmountModel
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import play.api.data.validation.Constraint
 
-object CurrencyForm {
+object UkDividendsAmountForm {
 
-  val currencyAmount: String = "amount"
-
-
-  val amountNotEmpty: Constraint[String] = nonEmpty("error.currency.empty")
-  val amountValidInt: Constraint[String] = validateInt("error.currency.invalid_number")
+  val ukDividendsAmount: String = "amount"
 
 
-  def currencyAmountForm(): Form[CurrencyModel] = Form(
+  val amountNotEmpty: Constraint[String] = nonEmpty("dividends.uk-dividends-amount.error.empty")
+  val amountValidInt: Constraint[String] = validateInt("dividends.error.invalid_number")
+
+
+  def ukDividendsAmountForm(): Form[UkDividendsAmountModel] = Form(
     mapping(
-      currencyAmount -> trimmedText.verifying(
+      ukDividendsAmount -> trimmedText.verifying(
         amountNotEmpty andThen amountValidInt
       )
-    )(CurrencyModel.apply)(CurrencyModel.unapply)
+    )(UkDividendsAmountModel.apply)(UkDividendsAmountModel.unapply)
   )
 }
 

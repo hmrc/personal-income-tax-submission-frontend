@@ -19,9 +19,9 @@ package models
 import play.api.libs.json.{JsObject, Json}
 import utils.UnitTest
 
-class CurrencyModelSpec extends UnitTest {
+class UkDividendsAmountModelSpec extends UnitTest {
 
-  val model: CurrencyModel = CurrencyModel("")
+  val model: UkDividendsAmountModel = UkDividendsAmountModel("")
   val jsonModel: JsObject = Json.obj(
     "amount" -> ""
   )
@@ -33,7 +33,7 @@ class CurrencyModelSpec extends UnitTest {
     }
 
     "parse from Json" in {
-      jsonModel.as[CurrencyModel]
+      jsonModel.as[UkDividendsAmountModel]
     }
   }
 

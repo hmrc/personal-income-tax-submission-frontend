@@ -18,36 +18,36 @@ package controllers
 
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
-import forms.CurrencyForm
+import forms.UkDividendsAmountForm
 import javax.inject.Inject
-import models.CurrencyModel
+import models.UkDividendsAmountModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request}
 import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import views.html.dividends.UkDividendsViewAmount
+import views.html.dividends.UkDividendsAmountView
 
 class UkDividendsAmountController @Inject()(
                                              cc: MessagesControllerComponents,
                                              authAction: AuthorisedAction,
-                                             ukDividendsView: UkDividendsViewAmount,
+                                             ukDividendsAmountView: UkDividendsAmountView,
                                              implicit val appConfig: AppConfig
                                           ) extends FrontendController(cc) with I18nSupport {
 
-  def view(uKDividendsForm: Form[CurrencyModel])(implicit request: Request[AnyContent]): Html =
-    ukDividendsView(
-      ukDividendsAmountForm = uKDividendsForm,
+  def view(ukDividendsAmountForm: Form[UkDividendsAmountModel])(implicit request: Request[AnyContent]): Html =
+    ukDividendsAmountView(
+      ukDividendsAmountForm = ukDividendsAmountForm,
       postAction = controllers.routes.UkDividendsAmountController.submit(),
       backUrl = ""
     )
 
   def show: Action[AnyContent] = authAction { implicit user =>
-    Ok(view(CurrencyForm.currencyAmountForm()))
+    Ok(view(UkDividendsAmountForm.ukDividendsAmountForm()))
   }
 
   def submit: Action[AnyContent] = authAction { implicit user =>
-    CurrencyForm.currencyAmountForm.bindFromRequest().fold (
+    UkDividendsAmountForm.ukDividendsAmountForm.bindFromRequest().fold (
       {
         formWithErrors => BadRequest(view(formWithErrors))
       },

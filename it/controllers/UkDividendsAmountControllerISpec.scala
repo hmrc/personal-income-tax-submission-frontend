@@ -3,7 +3,7 @@
 package controllers
 
 import common.SessionValues
-import forms.CurrencyForm
+import forms.UkDividendsAmountForm
 import helpers.PlaySessionCookieBaker
 import play.api.http.HeaderNames
 import play.api.http.Status._
@@ -40,7 +40,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest {
           authoriseIndividual()
           await(
             wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/dividends/uk-dividends-amount")
-              .post(Map(CurrencyForm.currencyAmount -> "123"))
+              .post(Map(UkDividendsAmountForm.ukDividendsAmount -> "123"))
           )
         }
 
@@ -96,7 +96,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest {
             await(
               wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/dividends/uk-dividends-amount")
                 .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-                .post(Map(CurrencyForm.currencyAmount -> "123"))
+                .post(Map(UkDividendsAmountForm.ukDividendsAmount -> "123"))
             )
           }
 

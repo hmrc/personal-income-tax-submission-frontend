@@ -18,8 +18,8 @@ package models
 
 import play.api.libs.json.{Json, OFormat}
 
-case class CurrencyModel(amount: String)
+case class UkDividendsAmountModel(amount: String)
 
-object CurrencyModel {
-  implicit val format: OFormat[CurrencyModel] = Json.format[CurrencyModel]
+object UkDividendsAmountModel {
+  implicit val format: OFormat[UkDividendsAmountModel] = Json.format[UkDividendsAmountModel]
 }
