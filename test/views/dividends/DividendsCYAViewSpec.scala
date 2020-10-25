@@ -23,7 +23,6 @@ import utils.ViewTest
 import views.html.dividends.DividendsCYAView
 
 class DividendsCYAViewSpec extends ViewTest {
-
   val titleSelector = "h1"
   val captionSelector = ".govuk-caption-l"
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.dividends
 
 import common.SessionValues
 import helpers.PlaySessionCookieBaker

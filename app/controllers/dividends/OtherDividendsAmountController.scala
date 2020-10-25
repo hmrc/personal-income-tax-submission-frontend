@@ -14,48 +14,55 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.dividends
 
+import common.SessionValues
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
-import forms.UkDividendsAmountForm
+import forms.OtherDividendsAmountForm
 import javax.inject.Inject
-import models.CurrencyAmountModel
+import models.{CurrencyAmountModel, DividendsCheckYourAnswersModel}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request}
 import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import views.html.dividends.UkDividendsAmountView
+import views.html.dividends.OtherDividendsAmountView
 
-class UkDividendsAmountController @Inject()(
+class OtherDividendsAmountController @Inject()(
                                              cc: MessagesControllerComponents,
                                              authAction: AuthorisedAction,
-                                             ukDividendsAmountView: UkDividendsAmountView,
+                                             otherDividendsAmountView: OtherDividendsAmountView,
                                              implicit val appConfig: AppConfig
-                                          ) extends FrontendController(cc) with I18nSupport {
+                                           ) extends FrontendController(cc) with I18nSupport {
 
-  def view(ukDividendsAmountForm: Form[CurrencyAmountModel])(implicit request: Request[AnyContent]): Html =
-    ukDividendsAmountView(
-      ukDividendsAmountForm = ukDividendsAmountForm,
-      postAction = controllers.routes.UkDividendsAmountController.submit(),
-      backUrl = ""
+  def view(otherDividendsAmountForm: Form[CurrencyAmountModel])(implicit request: Request[AnyContent]): Html =
+    otherDividendsAmountView(
+      otherDividendsAmountForm = otherDividendsAmountForm,
+      postAction = controllers.dividends.routes.OtherDividendsAmountController.submit(),
+      backUrl = controllers.dividends.routes.ReceiveOtherDividendsController.show().url
     )
 
   def show: Action[AnyContent] = authAction { implicit user =>
-    Ok(view(UkDividendsAmountForm.ukDividendsAmountForm()))
+    Ok(view(OtherDividendsAmountForm.otherDividendsAmountForm()))
   }
 
   def submit: Action[AnyContent] = authAction { implicit user =>
-    UkDividendsAmountForm.ukDividendsAmountForm.bindFromRequest().fold (
+    OtherDividendsAmountForm.otherDividendsAmountForm().bindFromRequest().fold (
       {
         formWithErrors => BadRequest(view(formWithErrors))
       },
       {
-        form => Ok("Next Page")
+        model =>
+          DividendsCheckYourAnswersModel.fromSession().fold {
+            Redirect(appConfig.incomeTaxSubmissionOverviewUrl)
+          } {
+            cyaModel =>
+              Redirect(controllers.dividends.routes.DividendsCYAController.show())
+                .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherDividendsAmount = Some(BigDecimal(model.amount))).asJsonString)
+          }
       }
     )
   }
 
 }
-

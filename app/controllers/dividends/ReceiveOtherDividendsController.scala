@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.dividends
 
+import common.SessionValues
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import forms.YesNoForm
 import javax.inject.Inject
+import models.DividendsCheckYourAnswersModel
 import models.formatHelpers.YesNoModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
@@ -48,7 +50,19 @@ class ReceiveOtherDividendsController @Inject()(
         )
       },
       {
-        yesNoForm => Ok("Next Page")
+        yesNoModel =>
+          val cyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel.fromSession() match {
+            case Some(model) => model
+            case None => DividendsCheckYourAnswersModel()
+          }
+
+          if (yesNoModel.asBoolean) {
+            Redirect(controllers.dividends.routes.OtherDividendsAmountController.show())
+              .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherDividends = true).asJsonString)
+          } else {
+            Redirect(controllers.dividends.routes.DividendsCYAController.show())
+              .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherDividends = false, otherDividendsAmount = None).asJsonString)
+          }
       }
     )
   }

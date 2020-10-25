@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.dividends
 
 import common.SessionValues
 import forms.YesNoForm
@@ -49,16 +49,20 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest {
 
     ".submit" should {
 
-      s"return an OK($OK) status" in {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(
-            wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/dividends/uk-dividends")
-              .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
-          )
+      s"return an OK($OK) status" when {
+
+        "there is no CYA data in session" in {
+          lazy val result: WSResponse = {
+            authoriseIndividual()
+            await(
+              wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/dividends/uk-dividends")
+                .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
+            )
+          }
+
+          result.status shouldBe OK
         }
 
-        result.status shouldBe OK
       }
 
       s"return a BAD_REQUEST($BAD_REQUEST) status" in {

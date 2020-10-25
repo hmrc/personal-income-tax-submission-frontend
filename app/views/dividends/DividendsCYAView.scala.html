@@ -29,22 +29,22 @@
     s"£$amount"
 }
 
-@layout(pageTitle = Some(messages("dividends.cya.title")), backLinkUrl = Some("#")) {
+@layout(pageTitle = Some(messages("dividends.cya.title")), backLinkUrl = Some(controllers.dividends.routes.ReceiveOtherDividendsController.show().url)) {
 
     <div class="govuk-caption-l">@messages("dividends.caption")</div>
     <h1 class="govuk-heading-l">@messages("dividends.cya.h1")</h1>
 
     <dl class="govuk-summary-list">
-        @cyaRow("dividends.cya.questions.1", trueFalseToYesNo(cya.ukDividends), controllers.routes.ReceiveUkDividendsController.show())
+        @cyaRow("dividends.cya.questions.1", trueFalseToYesNo(cya.ukDividends), controllers.dividends.routes.ReceiveUkDividendsController.show())
         @if(cya.ukDividends) {
             @cya.ukDividendsAmount.map { amount =>
-                @cyaRow("dividends.cya.questions.2", bigDecimalToCurrency(amount), controllers.routes.UkDividendsAmountController.show())
+                @cyaRow("dividends.cya.questions.2", bigDecimalToCurrency(amount), controllers.dividends.routes.UkDividendsAmountController.show())
             }
         }
-        @cyaRow("dividends.cya.questions.3", trueFalseToYesNo(cya.otherDividends), controllers.routes.ReceiveOtherDividendsController.show())
+        @cyaRow("dividends.cya.questions.3", trueFalseToYesNo(cya.otherDividends), controllers.dividends.routes.ReceiveOtherDividendsController.show())
         @if(cya.otherDividends) {
             @cya.otherDividendsAmount.map { amount =>
-                @cyaRow("dividends.cya.questions.4", bigDecimalToCurrency(amount), controllers.routes.OtherDividendsAmountController.show())
+                @cyaRow("dividends.cya.questions.4", bigDecimalToCurrency(amount), controllers.dividends.routes.OtherDividendsAmountController.show())
             }
         }
     </dl>
