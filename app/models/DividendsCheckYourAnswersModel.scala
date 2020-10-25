@@ -14,10 +14,17 @@
  * limitations under the License.
  */
 
-package common
+package models
 
-object SessionValues {
-  val CLIENT_MTDITID = "MTDITID"
+import play.api.libs.json.{Json, OFormat}
 
-  val DIVIDENDS_CYA = "DIVIDENDS_CYA"
+case class DividendsCheckYourAnswersModel(
+                                      ukDividends: Boolean = false,
+                                      ukDividendsAmount: Option[BigDecimal] = None,
+                                      otherDividends: Boolean = false,
+                                      otherDividendsAmount: Option[BigDecimal] = None
+                                    )
+
+object DividendsCheckYourAnswersModel {
+  implicit val formats: OFormat[DividendsCheckYourAnswersModel] = Json.format[DividendsCheckYourAnswersModel]
 }
