@@ -18,7 +18,7 @@ package controllers
 
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
-import forms.UkDividendsAmountForm
+import forms.OtherDividendsAmountForm
 import javax.inject.Inject
 import models.CurrencyAmountModel
 import play.api.data.Form
@@ -26,28 +26,28 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request}
 import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import views.html.dividends.UkDividendsAmountView
+import views.html.dividends.OtherDividendsAmountView
 
-class UkDividendsAmountController @Inject()(
+class OtherDividendsAmountController @Inject()(
                                              cc: MessagesControllerComponents,
                                              authAction: AuthorisedAction,
-                                             ukDividendsAmountView: UkDividendsAmountView,
+                                             otherDividendsAmountView: OtherDividendsAmountView,
                                              implicit val appConfig: AppConfig
-                                          ) extends FrontendController(cc) with I18nSupport {
+                                           ) extends FrontendController(cc) with I18nSupport {
 
-  def view(ukDividendsAmountForm: Form[CurrencyAmountModel])(implicit request: Request[AnyContent]): Html =
-    ukDividendsAmountView(
-      ukDividendsAmountForm = ukDividendsAmountForm,
-      postAction = controllers.routes.UkDividendsAmountController.submit(),
+  def view(otherDividendsAmountForm: Form[CurrencyAmountModel])(implicit request: Request[AnyContent]): Html =
+    otherDividendsAmountView(
+      otherDividendsAmountForm = otherDividendsAmountForm,
+      postAction = controllers.routes.OtherDividendsAmountController.submit(),
       backUrl = ""
     )
 
   def show: Action[AnyContent] = authAction { implicit user =>
-    Ok(view(UkDividendsAmountForm.ukDividendsAmountForm()))
+    Ok(view(OtherDividendsAmountForm.otherDividendsAmountForm()))
   }
 
   def submit: Action[AnyContent] = authAction { implicit user =>
-    UkDividendsAmountForm.ukDividendsAmountForm.bindFromRequest().fold (
+    OtherDividendsAmountForm.otherDividendsAmountForm.bindFromRequest().fold (
       {
         formWithErrors => BadRequest(view(formWithErrors))
       },
@@ -58,4 +58,3 @@ class UkDividendsAmountController @Inject()(
   }
 
 }
-
