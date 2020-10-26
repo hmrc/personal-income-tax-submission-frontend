@@ -29,6 +29,7 @@ dividends.uk-dividends-amount.heading = What is the amount of dividends earned f
 dividends.uk-dividends-amount.error.empty = Enter the amount of dividends earned from the UK
 
 dividends.other-dividends-amount.heading = What is the amount of dividends from authorised unit trusts, open-ended investment companies or investment trusts?
+dividends.other-dividends-amount.form.caption = Enter the amount of dividends as shown  on your dividend voucher.
 dividends.other-dividends-amount.error.empty = Enter the amount of dividends received from trusts or investment companies
 
 dividends.error.invalid_number = Enter an amount using numbers 0 to 9
