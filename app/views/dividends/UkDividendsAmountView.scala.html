@@ -27,13 +27,11 @@
 @this(layout: Layout, backLink: BackLink, formWithCSRF: FormWithCSRF, errorSummaryDisplay: ErrorSummaryDisplay )
 @(ukDividendsAmountForm: Form[CurrencyAmountModel], postAction: Call, backUrl: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@layout(pageTitle = Some("")){
-
- @backLink(backUrl)
+@layout(pageTitle = Some(""), backLinkUrl = Some(backUrl)){
 
  @errorSummaryDisplay(ukDividendsAmountForm.errors)
 
- <span class="govuk-caption-l govuk-!-margin-top-8">@messages("dividends.caption")</span>
+ <span class="govuk-caption-l">@messages("dividends.caption")</span>
  <h1 class="govuk-heading-l">@messages("dividends.uk-dividends-amount.heading")</h1>
 
  @formWithCSRF(action = postAction) {

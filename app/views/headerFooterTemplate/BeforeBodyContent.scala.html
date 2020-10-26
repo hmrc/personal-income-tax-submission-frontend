@@ -14,11 +14,13 @@
  * limitations under the License.
  *@
 
-@this()
+@import views.html.templates.helpers.BetaBar
+@import views.html.templates.helpers.BackLink
 
-@(headBlock: Option[Html] = None)
-@headBlock
-<!--[if lte IE 8]><script src='@controllers.routes.Assets.versioned("javascripts/html5shiv.min.js")'></script><![endif]-->
-<!--[if lte IE 8]><link href='@controllers.routes.Assets.versioned("stylesheets/application-ie-8.css")' rel="stylesheet" type="text/css" /><![endif]-->
-<!--[if gt IE 8]><!--><link href='@controllers.routes.Assets.versioned("stylesheets/application.css")' media="screen" rel="stylesheet" type="text/css" /><!--<![endif]-->
-<link rel="stylesheet" href=@routes.Assets.versioned("stylesheets/banner-panel.css")>
+@this(betaBar: BetaBar, backLink: BackLink)
+
+@(backLinkString: Option[String] = None )(implicit messages: Messages)
+
+@betaBar()
+
+@if(backLinkString.isDefined){ @backLink(backLinkString.get)}

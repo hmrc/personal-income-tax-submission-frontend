@@ -16,13 +16,18 @@
 
 @import views.headerFooterTemplate.FooterLinks
 @import views.html.headerFooterTemplate.Head
+@import views.html.headerFooterTemplate.BeforeBodyContent
+
 
 @this(
         govukLayout: GovukLayout,
-        head: Head
+        head: Head,
+        beforeBodyContent: BeforeBodyContent
 )
 
+
 @(pageTitle: Option[String] = None,
+        backLinkUrl: Option[String] = None,
         headBlock: Option[Html] = None,
         scriptsBlock: Option[Html] = None
 )(contentBlock: Html)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
@@ -31,6 +36,6 @@
         pageTitle = pageTitle,
         headBlock = Some(head(headBlock)),
         scriptsBlock = scriptsBlock,
-        beforeContentBlock = None,
+        beforeContentBlock = Some(beforeBodyContent(backLinkUrl)),
         footerItems = FooterLinks()
     )(contentBlock)
