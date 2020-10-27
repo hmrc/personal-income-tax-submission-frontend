@@ -20,21 +20,21 @@ import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
 import com.codahale.metrics.SharedMetricRegistries
 import common.{EnrolmentIdentifiers, EnrolmentKeys}
+import config.{AppConfig, MockAppConfig}
+import controllers.predicates.AuthorisedAction
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.mvc.{AnyContentAsEmpty, ControllerComponents, Result}
 import play.api.test.{FakeRequest, Helpers}
+import services.AuthService
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Retrieval, ~}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.tools.Stubs.stubMessagesControllerComponents
-import config.{AppConfig, MockAppConfig}
-import controllers.predicates.AuthorisedAction
-import services.AuthService
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
@@ -68,6 +68,10 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
   def bodyOf(awaitable: Future[Result]): String = {
     val awaited = await(awaitable)
     await(awaited.body.consumeData.map(_.utf8String))
+  }
+
+  def redirectUrl(awaitable: Future[Result]): String = {
+    await(awaitable).header.headers.getOrElse("Location", "/")
   }
 
   //noinspection ScalaStyle

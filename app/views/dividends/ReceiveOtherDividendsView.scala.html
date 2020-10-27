@@ -31,14 +31,14 @@
     if(user.isAgent) messages("dividends.other-dividends.heading.agent") else messages("dividends.other-dividends.heading.individual")
 }
 
-@layout(pageTitle = Some(pageTitleToUse), backLinkUrl = Some(appConfig.incomeTaxSubmissionOverviewUrl)) {
+@layout(pageTitle = Some(pageTitleToUse), backLinkUrl = Some(controllers.dividends.routes.ReceiveUkDividendsController.show().url)) {
 
     @errorSummary(form.errors, Some("yes_no_yes"))
 
     <span class="govuk-caption-l">@messages("dividends.caption")</span>
     <h1 class="govuk-heading-l govuk-!-margin-bottom-3">@headingForUse</h1>
 
-    @formWithCsrf(action = controllers.routes.ReceiveOtherDividendsController.submit()) {
+    @formWithCsrf(action = controllers.dividends.routes.ReceiveOtherDividendsController.submit()) {
         @yesNoChoice("yes_no", form)
 
         <button class="govuk-button" type="submit" id="continue">

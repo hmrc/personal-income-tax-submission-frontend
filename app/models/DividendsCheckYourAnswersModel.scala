@@ -16,15 +16,29 @@
 
 package models
 
+import common.SessionValues
 import play.api.libs.json.{Json, OFormat}
+import play.api.mvc.Call
 
 case class DividendsCheckYourAnswersModel(
                                       ukDividends: Boolean = false,
                                       ukDividendsAmount: Option[BigDecimal] = None,
                                       otherDividends: Boolean = false,
                                       otherDividendsAmount: Option[BigDecimal] = None
-                                    )
+                                    ) {
+
+  def asJsonString: String = Json.toJson(this).toString()
+
+}
 
 object DividendsCheckYourAnswersModel {
   implicit val formats: OFormat[DividendsCheckYourAnswersModel] = Json.format[DividendsCheckYourAnswersModel]
+
+  def fromSession()(implicit user: User[_]): Option[DividendsCheckYourAnswersModel] = {
+    user.session.get(SessionValues.DIVIDENDS_CYA).flatMap{ stringValue =>
+      Json.parse(stringValue).asOpt[DividendsCheckYourAnswersModel]
+    }
+
+  }
+
 }

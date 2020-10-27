@@ -16,6 +16,28 @@
 
 package models.formatHelpers
 
-case class YesNoModel(yesNoValue: String) {
-  def asBoolean: Boolean = if(yesNoValue == "yes") true else false
+import utils.UnitTest
+
+class YesNoModelSpec extends UnitTest {
+
+  ".asBoolean" should {
+
+    "convert the value into a boolean" when {
+
+      "the value is yes" in {
+
+        YesNoModel("yes").asBoolean shouldBe true
+
+      }
+
+      "the value is no" in {
+
+        YesNoModel("no").asBoolean shouldBe false
+
+      }
+
+    }
+
+  }
+
 }

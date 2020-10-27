@@ -42,14 +42,7 @@ class DividendsCYAController @Inject()(
   def show(): Action[AnyContent] = authorisedAction { implicit user =>
     val cyaData: Option[DividendsCheckYourAnswersModel] = getCyaData()
 
-    val cyaDataTemp = Some(DividendsCheckYourAnswersModel(
-      ukDividends = true,
-      Some(5),
-      otherDividends = true,
-      Some(10)
-    ))
-
-    cyaDataTemp.fold {
+    cyaData.fold {
       logger.debug("[DividendsCYAController][show] Check your answers data missing.")
       Redirect(appConfig.incomeTaxSubmissionOverviewUrl)
     }{
