@@ -15,10 +15,9 @@
  *@
 
 @import views.html.headerFooterTemplate.Layout
-@import views.html.templates.helpers.BackLink
 @import views.html.templates.helpers.CYARow
 
-@this(layout: Layout, backLink: BackLink, formWithCSRF: FormWithCSRF, cyaRow: CYARow)
+@this(layout: Layout, formWithCSRF: FormWithCSRF, cyaRow: CYARow)
 
 @(cya: DividendsCheckYourAnswersModel)(implicit user: User[AnyContent], messages: Messages, appConfig: AppConfig)
 
@@ -30,10 +29,9 @@
     s"£$amount"
 }
 
-@layout(pageTitle = Some(messages("dividends.cya.title"))) {
-    @backLink("#")
+@layout(pageTitle = Some(messages("dividends.cya.title")), backLinkUrl = Some("#")) {
 
-    <div class="govuk-caption-l govuk-!-margin-top-8">@messages("dividends.caption")</div>
+    <div class="govuk-caption-l">@messages("dividends.caption")</div>
     <h1 class="govuk-heading-l">@messages("dividends.cya.h1")</h1>
 
     <dl class="govuk-summary-list">

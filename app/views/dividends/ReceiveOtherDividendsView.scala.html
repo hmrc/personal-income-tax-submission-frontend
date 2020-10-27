@@ -15,12 +15,11 @@
  *@
 
 @import views.html.headerFooterTemplate.Layout
-@import views.html.templates.helpers.BackLink
 @import views.html.templates.helpers.ErrorSummaryDisplay
 @import views.html.templates.inputs.YesNoChoice
 @import models.formatHelpers.YesNoModel
 
-@this(layout: Layout, backLink: BackLink, yesNoChoice: YesNoChoice, formWithCsrf: FormWithCSRF, errorSummary: ErrorSummaryDisplay)
+@this(layout: Layout, yesNoChoice: YesNoChoice, formWithCsrf: FormWithCSRF, errorSummary: ErrorSummaryDisplay)
 
 @(pageTitle: String, form: Form[YesNoModel])(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
