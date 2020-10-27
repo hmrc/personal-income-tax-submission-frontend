@@ -16,26 +16,11 @@
 
 @import views.html.headerFooterTemplate.Layout
 @import views.html.templates.helpers.BackLink
+@import views.html.templates.helpers.CYARow
 
-@this(layout: Layout, backLink: BackLink, formWithCSRF: FormWithCSRF)
+@this(layout: Layout, backLink: BackLink, formWithCSRF: FormWithCSRF, cyaRow: CYARow)
 
 @(cya: DividendsCheckYourAnswersModel)(implicit user: User[AnyContent], messages: Messages, appConfig: AppConfig)
-
-@cyaRow(question: String, content: String, link: Call) = {
-    <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-        @messages(question)
-        </dt>
-        <dd class="govuk-summary-list__value">
-        @content
-        </dd>
-        <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="@link">
-                change
-            </a>
-        </dd>
-    </div>
-}
 
 @trueFalseToYesNo(input: Boolean) = @{
     if(input) messages("common.yes") else messages("common.no")

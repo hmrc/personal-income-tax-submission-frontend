@@ -24,22 +24,14 @@ import views.html.dividends.DividendsCYAView
 
 class DividendsCYAViewSpec extends ViewTest {
 
-  type IntString = Int => String
-
   val titleSelector = "h1"
   val captionSelector = ".govuk-caption-l"
-
-  val questionTextSelector: IntString = question => s"#main-content > div > div > dl > div:nth-child($question) > dt"
-  val questionAnswerSelector: IntString = question => s"#main-content > div > div > dl > div:nth-child($question) > " +
-    s"dd.govuk-summary-list__value"
-  val questionChangeLinkSelector: IntString = question => s"#main-content > div > div > dl > div:nth-child($question) > " +
-    s"dd.govuk-summary-list__actions > a"
 
   val titleExpected = "Check your answers - Register your income tax return with HMRC - Gov.UK"
   val h1Expected = "Check your answers"
   val captionExpected = "Dividends"
 
-  val changeLinkExpected = "change"
+  val changeLinkExpected = "Change"
   val yesNoExpectedAnswer: Boolean => String = isYes => if(isYes) "Yes" else "No"
 
   val question1TextExpected = "UK dividends?"
