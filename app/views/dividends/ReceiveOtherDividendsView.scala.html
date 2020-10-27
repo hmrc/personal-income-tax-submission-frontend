@@ -35,7 +35,7 @@
 
     @errorSummary(form.errors, Some("yes_no_yes"))
 
-    <span class="govuk-caption-l govuk-!-margin-top-8">@messages("dividends.caption")</span>
+    <span class="govuk-caption-l">@messages("dividends.caption")</span>
     <h1 class="govuk-heading-l govuk-!-margin-bottom-3">@headingForUse</h1>
 
     @formWithCsrf(action = controllers.dividends.routes.ReceiveOtherDividendsController.submit()) {
