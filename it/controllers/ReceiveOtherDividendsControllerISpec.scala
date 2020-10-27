@@ -27,7 +27,6 @@ import utils.IntegrationTest
 class ReceiveOtherDividendsControllerISpec extends IntegrationTest {
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
-  lazy val controller: ReceiveOtherDividendsController = app.injector.instanceOf[ReceiveOtherDividendsController]
 
   "as an individual" when {
 

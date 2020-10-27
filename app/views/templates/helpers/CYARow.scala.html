@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,12 +12,22 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package common
+@this()
 
-object SessionValues {
-  val CLIENT_MTDITID = "MTDITID"
+@(question: String, content: String, link: Call)(implicit messages: Messages)
 
-  val DIVIDENDS_CYA = "DIVIDENDS_CYA"
-}
+<div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">
+    @messages(question)
+    </dt>
+    <dd class="govuk-summary-list__value">
+    @content
+    </dd>
+    <dd class="govuk-summary-list__actions">
+        <a class="govuk-link" href="@link">
+            @messages("common.change")
+        </a>
+    </dd>
+</div>

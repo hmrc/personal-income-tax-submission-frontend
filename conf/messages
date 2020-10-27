@@ -13,6 +13,8 @@ common.back = Back
 common.yes = Yes
 common.no = No
 common.continue = Continue
+common.saveAndContinue = Save and continue
+common.change = Change
 
 dividends.caption = Dividends
 
@@ -33,3 +35,10 @@ dividends.other-dividends-amount.form.caption = Enter the amount of dividends as
 dividends.other-dividends-amount.error.empty = Enter the amount of dividends received from trusts or investment companies
 
 dividends.error.invalid_number = Enter an amount using numbers 0 to 9
+
+dividends.cya.title = Check your answers - Register your income tax return with HMRC - Gov.UK
+dividends.cya.h1 = Check your answers
+dividends.cya.questions.1 = UK dividends?
+dividends.cya.questions.2 = Amount of UK dividends?
+dividends.cya.questions.3 = Dividends from authorised unit trusts or investments?
+dividends.cya.questions.4 = Amount of other dividends?

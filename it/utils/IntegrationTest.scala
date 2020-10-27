@@ -48,8 +48,8 @@ trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneServerPerSu
   def config: Map[String, String] = Map(
     "auditing.enabled" -> "false",
     "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck",
-    "microservice.services.income-tax-submission.host" -> wiremockHost,
-    "microservice.services.income-tax-submission.port" -> wiremockPort.toString,
+    "microservice.services.income-tax-submission-frontend.host" -> wiremockHost,
+    "microservice.services.income-tax-submission-frontend.port" -> wiremockPort.toString,
     "microservice.services.auth.host" -> wiremockHost,
     "microservice.services.auth.port" -> wiremockPort.toString
   )
@@ -59,7 +59,7 @@ trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneServerPerSu
     .configure(config)
     .build
 
-  lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
+  implicit lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
   override def beforeAll(): Unit = {
     super.beforeAll()

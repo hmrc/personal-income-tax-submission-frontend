@@ -31,6 +31,14 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
   implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
   implicit lazy val messages: Messages = messagesApi.preferred(FakeRequest())
 
+  type IntString = Int => String
+
+  val questionTextSelector: IntString = question => s"#main-content > div > div > dl > div:nth-child($question) > dt"
+  val questionAnswerSelector: IntString = question => s"#main-content > div > div > dl > div:nth-child($question) > " +
+    s"dd.govuk-summary-list__value"
+  val questionChangeLinkSelector: IntString = question => s"#main-content > div > div > dl > div:nth-child($question) > " +
+    s"dd.govuk-summary-list__actions > a"
+
   def elementText(selector: String)(implicit document: Document): String = {
     document.select(selector).text()
   }
