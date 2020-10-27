@@ -21,19 +21,19 @@
 @import play.api.i18n.Messages
 @import views.html.templates.helpers.inputHelper
 @import views.html.templates.helpers.ErrorSummaryDisplay
-@import views.html.templates.helpers.BackLink
 @import views.html.templates.helpers.ContinueButton
 
-@this(layout: Layout, backLink: BackLink, formWithCSRF: FormWithCSRF, errorSummaryDisplay: ErrorSummaryDisplay )
+
+@this(layout: Layout, formWithCSRF: FormWithCSRF, errorSummaryDisplay: ErrorSummaryDisplay)
 @(otherDividendsAmountForm: Form[CurrencyAmountModel], postAction: Call, backUrl: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@layout(pageTitle = Some("")){
 
- @backLink(backUrl)
+
+@layout(pageTitle = Some(""), backLinkUrl = Some(backUrl)){
 
  @errorSummaryDisplay(otherDividendsAmountForm.errors)
 
- <span class="govuk-caption-l govuk-!-margin-top-8">@messages("dividends.caption")</span>
+ <span class="govuk-caption-l">@messages("dividends.caption")</span>
  <h1 class="govuk-heading-l">@messages("dividends.other-dividends-amount.heading")</h1>
 
  @formWithCSRF(action = postAction) {

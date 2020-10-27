@@ -15,12 +15,11 @@
  *@
 
 @import views.html.headerFooterTemplate.Layout
-@import views.html.templates.helpers.BackLink
 @import views.html.templates.helpers.ErrorSummaryDisplay
 @import views.html.templates.inputs.YesNoChoice
 @import models.formatHelpers.YesNoModel
 
-@this(layout: Layout, backLink: BackLink, yesNoChoice: YesNoChoice, formWithCsrf: FormWithCSRF, errorSummary: ErrorSummaryDisplay)
+@this(layout: Layout, yesNoChoice: YesNoChoice, formWithCsrf: FormWithCSRF, errorSummary: ErrorSummaryDisplay)
 
 @(pageTitle: String, form: Form[YesNoModel])(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
@@ -32,12 +31,11 @@
     if(user.isAgent) messages("dividends.uk-dividends.heading.agent") else messages("dividends.uk-dividends.heading.individual")
 }
 
-@layout(pageTitle = Some(pageTitleToUse)) {
-    @backLink(appConfig.incomeTaxSubmissionOverviewUrl)
+@layout(pageTitle = Some(pageTitleToUse), backLinkUrl = Some(appConfig.incomeTaxSubmissionOverviewUrl)) {
 
     @errorSummary(form.errors, Some("yes_no_yes"))
 
-    <span class="govuk-caption-l govuk-!-margin-top-8">@messages("dividends.caption")</span>
+    <span class="govuk-caption-l">@messages("dividends.caption")</span>
     <h1 class="govuk-heading-l govuk-!-margin-bottom-3">@headingForUse</h1>
     <span class="govuk-caption-m govuk-!-margin-bottom-4">@messages("dividends.uk-dividends.sub-heading")</span>
 

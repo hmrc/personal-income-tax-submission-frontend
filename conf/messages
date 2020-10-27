@@ -9,6 +9,11 @@ footer.termsConditions.url = /help/terms-and-conditions
 footer.govukHelp.text = Help using GOV.UK
 footer.govukHelp.url = https://www.gov.uk/help
 
+betaBar.beta = beta
+betaBar.banner.message.1 = This is a new service – your
+betaBar.banner.message.2 = feedback
+betaBar.banner.message.3 = will help us to improve it.
+
 common.back = Back
 common.yes = Yes
 common.no = No
