@@ -19,7 +19,7 @@
 
 @this(layout: Layout, formWithCSRF: FormWithCSRF, cyaRow: CYARow)
 
-@(cya: DividendsCheckYourAnswersModel)(implicit user: User[AnyContent], messages: Messages, appConfig: AppConfig)
+@(cya: DividendsCheckYourAnswersModel, prior: DividendsPriorSubmission = DividendsPriorSubmission())(implicit user: User[AnyContent], messages: Messages, appConfig: AppConfig)
 
 @trueFalseToYesNo(input: Boolean) = @{
     if(input) messages("common.yes") else messages("common.no")
@@ -35,13 +35,17 @@
     <h1 class="govuk-heading-l">@messages("dividends.cya.h1")</h1>
 
     <dl class="govuk-summary-list">
-        @cyaRow("dividends.cya.questions.1", trueFalseToYesNo(cya.ukDividends), controllers.dividends.routes.ReceiveUkDividendsController.show())
+        @if(prior.ukDividends.isEmpty) {
+            @cyaRow("dividends.cya.questions.1", trueFalseToYesNo(cya.ukDividends), controllers.dividends.routes.ReceiveUkDividendsController.show())
+        }
         @if(cya.ukDividends) {
             @cya.ukDividendsAmount.map { amount =>
                 @cyaRow("dividends.cya.questions.2", bigDecimalToCurrency(amount), controllers.dividends.routes.UkDividendsAmountController.show())
             }
         }
-        @cyaRow("dividends.cya.questions.3", trueFalseToYesNo(cya.otherDividends), controllers.dividends.routes.ReceiveOtherDividendsController.show())
+        @if(prior.otherDividends.isEmpty) {
+            @cyaRow("dividends.cya.questions.3", trueFalseToYesNo(cya.otherDividends), controllers.dividends.routes.ReceiveOtherDividendsController.show())
+        }
         @if(cya.otherDividends) {
             @cya.otherDividendsAmount.map { amount =>
                 @cyaRow("dividends.cya.questions.4", bigDecimalToCurrency(amount), controllers.dividends.routes.OtherDividendsAmountController.show())

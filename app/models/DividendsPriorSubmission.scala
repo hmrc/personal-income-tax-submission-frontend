@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-package common
+package models
 
-object SessionValues {
-  val CLIENT_MTDITID = "MTDITID"
+import play.api.libs.json.{Json, OFormat}
 
-  val DIVIDENDS_CYA = "DIVIDENDS_CYA"
-  val DIVIDENDS_PRIOR_SUB = "DIVIDENDS_PRIOR_SUB"
+case class DividendsPriorSubmission(
+                                     ukDividends: Option[BigDecimal] = None,
+                                     otherDividends: Option[BigDecimal] = None
+                                   )
+
+object DividendsPriorSubmission {
+  implicit val formats: OFormat[DividendsPriorSubmission] = Json.format[DividendsPriorSubmission]
 }
