@@ -14,11 +14,33 @@
  * limitations under the License.
  */
 
-package common
+package models
 
-object SessionValues {
-  val CLIENT_MTDITID = "MTDITID"
+import play.api.libs.json.{JsObject, Json}
+import utils.UnitTest
 
-  val DIVIDENDS_CYA = "DIVIDENDS_CYA"
-  val DIVIDENDS_PRIOR_SUB = "DIVIDENDS_PRIOR_SUB"
+class DividendsPriorSubmissionSpec extends UnitTest {
+
+  val validModel: DividendsPriorSubmission = DividendsPriorSubmission(
+    ukDividends = Some(10),
+    otherDividends = Some(10)
+  )
+
+  val validJson: JsObject = Json.obj(
+    "ukDividends" -> 10,
+    "otherDividends" -> 10
+  )
+
+  "DividendsPriorSubmission" should {
+
+    "parse from json" in {
+      validJson.as[DividendsPriorSubmission] shouldBe validModel
+    }
+
+    "parse to json" in {
+      Json.toJson(validModel) shouldBe validJson
+    }
+
+  }
+
 }

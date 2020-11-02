@@ -16,7 +16,7 @@
 
 package views.dividends
 
-import models.DividendsCheckYourAnswersModel
+import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import utils.ViewTest
@@ -127,6 +127,73 @@ class DividendsCYAViewSpec extends ViewTest {
 
           "contains the change link" in {
             elementText(questionChangeLinkSelector(4)) shouldBe changeLinkExpected
+          }
+
+        }
+
+      }
+
+    }
+
+    "render with the yesNo fields hidden" when {
+
+      "prior values are available" which {
+
+        val cyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(
+          ukDividends = true,
+          Some(10),
+          otherDividends = true,
+          Some(20)
+        )
+
+        val priorSubmission: DividendsPriorSubmission = DividendsPriorSubmission(
+          Some(10),
+          Some(20)
+        )
+
+        lazy val view = dividendsCyaView(cyaModel, priorSubmission)(user, implicitly, mockAppConfig)
+        implicit lazy val document: Document = Jsoup.parse(view.body)
+
+        "contains the correct title" in {
+          document.title() shouldBe titleExpected
+        }
+
+        "contains the correct heading" in {
+          elementText(titleSelector) shouldBe h1Expected
+        }
+
+        "contains the correct caption" in {
+          elementText(captionSelector) shouldBe captionExpected
+        }
+
+        "contains question 1" which {
+
+          "has the correct question text" in {
+            elementText(questionTextSelector(1)) shouldBe question2TextExpected
+          }
+
+          "has the correct answer" in {
+            elementText(questionAnswerSelector(1)) shouldBe "£10"
+          }
+
+          "contains the change link" in {
+            elementText(questionChangeLinkSelector(1)) shouldBe changeLinkExpected
+          }
+
+        }
+
+        "contains question 2" which {
+
+          "has the correct question text" in {
+            elementText(questionTextSelector(2)) shouldBe question4TextExpected
+          }
+
+          "has the correct answer" in {
+            elementText(questionAnswerSelector(2)) shouldBe "£20"
+          }
+
+          "contains the change link" in {
+            elementText(questionChangeLinkSelector(2)) shouldBe changeLinkExpected
           }
 
         }

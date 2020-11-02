@@ -20,10 +20,10 @@ import common.SessionValues
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import javax.inject.Inject
-import models.{DividendsCheckYourAnswersModel, User}
+import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, User}
 import play.api.Logger
 import play.api.i18n.I18nSupport
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, Reads}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.DividendsCYAView
@@ -40,24 +40,62 @@ class DividendsCYAController @Inject()(
   lazy val logger = Logger(this.getClass.getName)
 
   def show(): Action[AnyContent] = authorisedAction { implicit user =>
-    val cyaData: Option[DividendsCheckYourAnswersModel] = getCyaData()
+    val cyaSessionData: Option[DividendsCheckYourAnswersModel] = getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
+    val priorSubmissionData: Option[DividendsPriorSubmission] = getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
 
-    cyaData.fold {
-      logger.debug("[DividendsCYAController][show] Check your answers data missing.")
-      Redirect(appConfig.incomeTaxSubmissionOverviewUrl)
-    }{
-      model => Ok(dividendsCyaView(model))
+    (cyaSessionData, priorSubmissionData) match {
+      case (Some(cyaData), Some(priorData)) =>
+        val ukDividendsExist = cyaData.ukDividends || priorData.ukDividends.nonEmpty
+        val otherDividendsExist = cyaData.otherDividends || priorData.otherDividends.nonEmpty
+
+        val ukDividendsValue: Option[BigDecimal] = priorityOrderOrNone(cyaData.ukDividendsAmount, priorData.ukDividends, ukDividendsExist)
+        val otherDividendsValue: Option[BigDecimal] = priorityOrderOrNone(cyaData.otherDividendsAmount, priorData.otherDividends, otherDividendsExist)
+
+        val cyaModel = DividendsCheckYourAnswersModel(
+          ukDividendsExist,
+          ukDividendsValue,
+          otherDividendsExist,
+          otherDividendsValue
+        )
+
+        Ok(dividendsCyaView(cyaModel, priorData))
+      case (Some(cyaData), None) => Ok(dividendsCyaView(cyaData))
+      case (None, Some(priorData)) => Ok(dividendsCyaView(
+        DividendsCheckYourAnswersModel(
+          priorData.ukDividends.nonEmpty,
+          priorData.ukDividends,
+          priorData.otherDividends.nonEmpty,
+          priorData.otherDividends
+        ), priorData
+      ))
+      case _ =>
+        logger.debug("[DividendsCYAController][show] No Check Your Answers data or Prior Submission data. Redirecting to overview.")
+        Redirect(appConfig.incomeTaxSubmissionOverviewUrl)
     }
+
   }
 
   def submit(): Action[AnyContent] = authorisedAction { implicit user =>
-    val cyaData: Option[DividendsCheckYourAnswersModel] = getCyaData() //TODO ready to be used for the submission call
+    //TODO To be used for the submission
+    val cyaData: Option[DividendsCheckYourAnswersModel] = getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
     Redirect(appConfig.incomeTaxSubmissionOverviewUrl)
   }
 
-  private[controllers] def getCyaData()(implicit user: User[_]): Option[DividendsCheckYourAnswersModel] = {
-    user.session.get(SessionValues.DIVIDENDS_CYA).flatMap { stringValue =>
-      Json.parse(stringValue).asOpt[DividendsCheckYourAnswersModel]
+  private def priorityOrderOrNone(priority: Option[BigDecimal], other: Option[BigDecimal], yesNoResult: Boolean): Option[BigDecimal] = {
+    if(yesNoResult) {
+      (priority, other) match {
+        case (Some(priorityValue), _) => Some(priorityValue)
+        case (None, Some(otherValue)) => Some(otherValue)
+        case _ => None
+      }
+    } else {
+      None
+    }
+  }
+
+  private[controllers] def getSessionData[T](key: String)(implicit user: User[_], reads: Reads[T]): Option[T] = {
+    user.session.get(key).flatMap { stringValue =>
+      Json.parse(stringValue).asOpt[T]
     }
   }
 
