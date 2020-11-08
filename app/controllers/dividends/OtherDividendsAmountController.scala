@@ -19,12 +19,14 @@ package controllers.dividends
 import common.SessionValues
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
-import forms.OtherDividendsAmountForm
+import forms.{OtherDividendsAmountForm, PriorOrNewAmountForm}
 import javax.inject.Inject
-import models.{CurrencyAmountModel, DividendsCheckYourAnswersModel}
+import models.formatHelpers.PriorOrNewAmountModel
+import models.{CurrencyAmountModel, DividendsCheckYourAnswersModel, DividendsPriorSubmission, User}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request}
+import play.api.libs.json.{Json, Reads}
+import play.api.mvc._
 import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.OtherDividendsAmountView
@@ -36,33 +38,87 @@ class OtherDividendsAmountController @Inject()(
                                              implicit val appConfig: AppConfig
                                            ) extends FrontendController(cc) with I18nSupport {
 
-  def view(otherDividendsAmountForm: Form[CurrencyAmountModel])(implicit request: Request[AnyContent]): Html =
+  val radioErrorLocation = "dividends.other-dividends-amount"
+
+  def view(
+            formInput: Either[Form[PriorOrNewAmountModel], Form[CurrencyAmountModel]],
+            priorSubmission: Option[DividendsPriorSubmission] = None
+          )(implicit user: User[AnyContent]): Html = {
+
     otherDividendsAmountView(
-      otherDividendsAmountForm = otherDividendsAmountForm,
+      form = formInput,
+      priorAmount = priorSubmission,
       postAction = controllers.dividends.routes.OtherDividendsAmountController.submit(),
       backUrl = controllers.dividends.routes.ReceiveOtherDividendsController.show().url
     )
 
+  }
+
   def show: Action[AnyContent] = authAction { implicit user =>
-    Ok(view(OtherDividendsAmountForm.otherDividendsAmountForm()))
+    getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB) match {
+      case Some(priorSubmission) if priorSubmission.otherDividends.nonEmpty =>
+        Ok(view(Left(PriorOrNewAmountForm.priorOrNewAmountForm(priorSubmission.otherDividends.get, radioErrorLocation)), Some(priorSubmission)))
+      case _ =>
+        Ok(view(Right(OtherDividendsAmountForm.otherDividendsAmountForm())))
+    }
+
   }
 
   def submit: Action[AnyContent] = authAction { implicit user =>
-    OtherDividendsAmountForm.otherDividendsAmountForm().bindFromRequest().fold (
-      {
-        formWithErrors => BadRequest(view(formWithErrors))
-      },
-      {
-        model =>
-          DividendsCheckYourAnswersModel.fromSession().fold {
-            Redirect(appConfig.incomeTaxSubmissionOverviewUrl)
-          } {
-            cyaModel =>
-              Redirect(controllers.dividends.routes.DividendsCYAController.show())
-                .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherDividendsAmount = Some(BigDecimal(model.amount))).asJsonString)
+
+    implicit val priorSubmissionSessionData: Option[DividendsPriorSubmission] =
+      getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
+    implicit val cyaSessionData: Option[DividendsCheckYourAnswersModel] =
+      getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
+
+    priorSubmissionSessionData match {
+      case Some(priorSubmission) if priorSubmission.otherDividends.nonEmpty =>
+        PriorOrNewAmountForm.priorOrNewAmountForm(priorSubmission.otherDividends.get, radioErrorLocation).bindFromRequest().fold(
+          {
+            formWithErrors => BadRequest(view(Left(formWithErrors), Some(priorSubmission)))
+          },
+          {
+            formModel =>
+              DividendsCheckYourAnswersModel.fromSession().fold {
+                Redirect(appConfig.incomeTaxSubmissionOverviewUrl)
+              } {
+                cyaModel =>
+                  import PriorOrNewAmountModel._
+                  formModel.whichAmount match {
+                    case `prior` =>
+                      Redirect(controllers.dividends.routes.DividendsCYAController.show())
+                        .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherDividendsAmount = priorSubmission.otherDividends).asJsonString)
+                    case `other` =>
+                      Redirect(controllers.dividends.routes.DividendsCYAController.show())
+                        .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherDividendsAmount = formModel.amount).asJsonString)
+                  }
+              }
           }
-      }
-    )
+        )
+      case _ =>
+        OtherDividendsAmountForm.otherDividendsAmountForm().bindFromRequest().fold(
+          {
+            formWithErrors => BadRequest(view(Right(formWithErrors)))
+          },
+          {
+            formModel =>
+              DividendsCheckYourAnswersModel.fromSession().fold {
+                Redirect(appConfig.incomeTaxSubmissionOverviewUrl)
+              } {
+                cyaModel =>
+                  Redirect(controllers.dividends.routes.DividendsCYAController.show())
+                    .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherDividendsAmount = Some(BigDecimal(formModel.amount))).asJsonString)
+              }
+          }
+        )
+
+    }
+  }
+
+  private[dividends] def getSessionData[T](key: String)(implicit user: User[_], reads: Reads[T]): Option[T] = {
+    user.session.get(key).flatMap { stringValue =>
+      Json.parse(stringValue).asOpt[T]
+    }
   }
 
 }

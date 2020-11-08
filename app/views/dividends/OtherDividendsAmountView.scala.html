@@ -22,33 +22,78 @@
 @import views.html.templates.helpers.inputHelper
 @import views.html.templates.helpers.ErrorSummaryDisplay
 @import views.html.templates.helpers.ContinueButton
-
+@import models.formatHelpers.PriorOrNewAmountModel
 
 @this(layout: Layout, formWithCSRF: FormWithCSRF, errorSummaryDisplay: ErrorSummaryDisplay)
-@(otherDividendsAmountForm: Form[CurrencyAmountModel], postAction: Call, backUrl: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(form: Either[Form[PriorOrNewAmountModel], Form[CurrencyAmountModel]], priorAmount: Option[DividendsPriorSubmission], postAction: Call, backUrl: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-
-
-@layout(pageTitle = Some(""), backLinkUrl = Some(backUrl)){
-
- @errorSummaryDisplay(otherDividendsAmountForm.errors)
-
+@heading = {
  <span class="govuk-caption-l">@messages("dividends.caption")</span>
  <h1 class="govuk-heading-l">@messages("dividends.other-dividends-amount.heading")</h1>
+}
 
+@ukDividendsPriorAmountExist = @{
+ priorAmount.flatMap(_.ukDividends.map(_ => true)).getOrElse(false)
+}
+
+@scripts = {
+ <script type="text/javascript" src="@routes.Assets.versioned("javascripts/all.js")" ></script>
+ <script type="text/javascript" src="@routes.Assets.versioned("javascripts/hideAndShow.js")" ></script>
+}
+
+@currencyFormHtml(formInput: Form[CurrencyAmountModel], ukDividendsAmount: String) = {
+@errorSummaryDisplay(formInput.errors.distinct)
+
+@heading
+
+ <div class="govuk-form-group">
+ @inputHelper(
+  field = formInput(ukDividendsAmount),
+  parentForm = otherDividendsAmountForm,
+  isNumeric = true
+ )
+ </div>
+}
+
+@priorFormHtml(formInput: Form[PriorOrNewAmountModel]) = {
+@errorSummaryDisplay(formInput.errors.distinct)
+
+ <div class="govuk-form-group">
+  <fieldset class="govuk-fieldset" aria-describedby="contact-hint">
+   <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+   @heading
+   </legend>
+   <div class="govuk-radios govuk-radios--conditional" data-module="govuk-radios">
+
+    <div class="govuk-radios__item">
+     <input class="govuk-radios__input" id="prior-amount" name="whichAmount" type="radio" value="prior">
+     <label class="govuk-label govuk-radios__label" for="prior-amount">
+      £@priorAmount.map(_.ukDividends.map(amount => amount))
+     </label>
+    </div>
+
+    <div class="govuk-radios__item">
+     <input class="govuk-radios__input" id="other-amount" name="whichAmount" type="radio" value="other" data-aria-controls="other-amount-input">
+     <label class="govuk-label govuk-radios__label" for="other-amount">
+     @messages("common.aDifferentAmount")
+     </label>
+    </div>
+    <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="other-amount-input">
+     <div class="govuk-form-group">
+      <label class="govuk-label" for="other-amount-input">
+      @messages("common.enterAmount")
+      </label>
+      <input class="govuk-input govuk-!-width-one-third" id="other-amount-input" name="amount" pattern="[0-9]*">
+     </div>
+    </div>
+   </div>
+  </fieldset>
+ </div>
+}
+
+@layout(pageTitle = Some(""), backLinkUrl = Some(backUrl), scriptsBlock = Some(scripts)) {
  @formWithCSRF(action = postAction) {
-
-  <div class="govuk-form-group">
-  @inputHelper(
-   field = otherDividendsAmountForm(otherDividendsAmount),
-   parentForm = otherDividendsAmountForm,
-   label = Some(Messages("dividends.other-dividends-amount.form.caption")),
-   labelClass = Some("govuk-hint"),
-   isNumeric = true
-  )
-
-  </div>
-
+  @form.fold(priorForm => priorFormHtml(priorForm), currencyForm => currencyFormHtml(currencyForm, otherDividendsAmount))
   @ContinueButton()
  }
 
