@@ -29,7 +29,7 @@
 
 @heading = {
     <span class="govuk-caption-l">@messages("dividends.caption")</span>
-    <h1 class="govuk-heading-l">@messages("dividends.uk-dividends-amount.heading")</h1>
+    <h1 class="govuk-heading-l govuk-!-margin-bottom-0">@messages("dividends.uk-dividends-amount.heading")</h1>
 }
 
 @ukDividendsPriorAmountExist = @{
@@ -73,12 +73,12 @@
                 </div>
 
                 <div class="govuk-radios__item">
-                    <input class="govuk-radios__input" id="other-amount" name="whichAmount" type="radio" value="other" data-aria-controls="other-amount-input">
+                    <input class="govuk-radios__input" id="other-amount" name="whichAmount" type="radio" value="other" data-aria-controls="other-amount-input-hider">
                     <label class="govuk-label govuk-radios__label" for="other-amount">
                     @messages("common.aDifferentAmount")
                     </label>
                 </div>
-                <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="other-amount-input">
+                <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="other-amount-input-hider">
                     <div class="govuk-form-group">
                         <label class="govuk-label" for="other-amount-input">
                         @messages("common.enterAmount")
@@ -91,7 +91,7 @@
     </div>
 }
 
-@layout(pageTitle = Some(""), backLinkUrl = Some(backUrl), scriptsBlock = Some(scripts)) {
+@layout(pageTitle = Some(messages("dividends.uk-dividends-amount.title")), backLinkUrl = Some(backUrl), scriptsBlock = Some(scripts)) {
     @formWithCSRF(action = postAction) {
         @form.fold(priorForm => priorFormHtml(priorForm), currencyForm => currencyFormHtml(currencyForm, ukDividendsAmount))
         @ContinueButton()

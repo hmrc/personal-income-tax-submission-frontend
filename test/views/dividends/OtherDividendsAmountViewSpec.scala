@@ -214,7 +214,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
           lazy val view = otherDividendsAmountView(
             Left(priorOrNewAmountForm),
-            Some(DividendsPriorSubmission(Some(40))),
+            Some(DividendsPriorSubmission(None, Some(40))),
             testCall,
             testBackUrl
           )(user, implicitly, mockAppConfig)
