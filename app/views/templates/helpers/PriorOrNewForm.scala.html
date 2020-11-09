@@ -1,0 +1,64 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import models.formatHelpers.PriorOrNewAmountModel
+@import models.DividendsPriorSubmission
+@import views.html.templates.helpers.ErrorSummaryDisplay
+
+@this(errorSummaryDisplay: ErrorSummaryDisplay)
+@(heading: Html, formInput: Form[PriorOrNewAmountModel], priorAmount: Option[BigDecimal], errorKey: String)(implicit messages: Messages)
+
+@isExpandedByDefault() = @{
+    formInput.errors.distinct.foldRight(false)((error, check) => {
+        if(error.message equals messages(errorKey)) {
+            true
+        } else check
+    })
+}
+
+@errorSummaryDisplay(formInput.errors.distinct)
+
+<div class="govuk-form-group">
+    <fieldset class="govuk-fieldset" aria-describedby="contact-hint">
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+        @heading
+        </legend>
+        <div class="govuk-radios govuk-radios--conditional" data-module="govuk-radios">
+
+            <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="prior-amount" name="whichAmount" type="radio" value="prior">
+                <label class="govuk-label govuk-radios__label" for="prior-amount">
+                    @priorAmount.map(amount => s"£$amount")
+                </label>
+            </div>
+
+            <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="other-amount" name="whichAmount" type="radio" value="other" data-aria-controls="other-amount-input-hider" @if(isExpandedByDefault()){checked}>
+                <label class="govuk-label govuk-radios__label" for="other-amount">
+                @messages("common.aDifferentAmount")
+                </label>
+            </div>
+            <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="other-amount-input-hider">
+                <div class="govuk-form-group">
+                    <label class="govuk-label" for="other-amount-input">
+                    @messages("common.enterAmount")
+                    </label>
+                    <input class="govuk-input govuk-!-width-one-third" id="other-amount-input" name="amount" pattern="[0-9]*">
+                </div>
+            </div>
+        </div>
+    </fieldset>
+</div>

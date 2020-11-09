@@ -59,12 +59,13 @@ object PriorOrNewAmountForm {
       val potentialAmount = data.get(otherAmountInputField)
 
       val priorAmountId = "prior-amount"
+      val otherAmountInput = "other-amount-input"
 
       (amountTypeSelect, potentialAmount) match {
         case (Some(`priorAmount`), _) =>
           Right(Some(currentAmount))
         case (Some(`otherAmount`), Some(someAmount)) if !isANumber(someAmount) =>
-          Left(Seq(FormError(priorAmountId, messages("dividends.error.invalid_number"))))
+          Left(Seq(FormError(otherAmountInput, messages("dividends.error.invalid_number"))))
         case (Some(`otherAmount`), Some(someAmount)) if isANumber(someAmount) =>
           Right(Some(BigDecimal(someAmount)))
         case _ =>

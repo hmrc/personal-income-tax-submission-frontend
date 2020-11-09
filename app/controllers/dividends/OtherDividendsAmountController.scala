@@ -47,7 +47,7 @@ class OtherDividendsAmountController @Inject()(
 
     otherDividendsAmountView(
       form = formInput,
-      priorAmount = priorSubmission,
+      priorSubmission = priorSubmission,
       postAction = controllers.dividends.routes.OtherDividendsAmountController.submit(),
       backUrl = controllers.dividends.routes.ReceiveOtherDividendsController.show().url
     )

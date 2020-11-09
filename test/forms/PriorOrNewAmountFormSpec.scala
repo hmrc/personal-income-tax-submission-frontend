@@ -92,7 +92,7 @@ class PriorOrNewAmountFormSpec extends ViewTest {
          otherAmountInputField -> "notANumber"
        )).errors
 
-       val expectedError = FormError("prior-amount", Seq("Enter an amount using numbers 0 to 9"))
+       val expectedError = FormError("other-amount-input", Seq("Enter an amount using numbers 0 to 9"))
 
        result shouldBe Seq(expectedError)
      }
