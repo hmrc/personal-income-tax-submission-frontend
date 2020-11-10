@@ -44,7 +44,7 @@ class DividendsCYAControllerSpec extends ViewTest {
       val cyaSessionData = DividendsCheckYourAnswersModel(
         ukDividends = true,
         Some(10),
-        otherDividends = true,
+        otherUkDividends = true,
         Some(10)
       )
 

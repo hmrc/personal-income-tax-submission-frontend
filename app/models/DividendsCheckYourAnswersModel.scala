@@ -21,10 +21,10 @@ import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.Call
 
 case class DividendsCheckYourAnswersModel(
-                                      ukDividends: Boolean = false,
-                                      ukDividendsAmount: Option[BigDecimal] = None,
-                                      otherDividends: Boolean = false,
-                                      otherDividendsAmount: Option[BigDecimal] = None
+                                           ukDividends: Boolean = false,
+                                           ukDividendsAmount: Option[BigDecimal] = None,
+                                           otherUkDividends: Boolean = false,
+                                           otherUkDividendsAmount: Option[BigDecimal] = None
                                     ) {
 
   def asJsonString: String = Json.toJson(this).toString()

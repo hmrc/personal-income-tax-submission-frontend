@@ -20,7 +20,7 @@ import play.api.libs.json.{Json, OFormat}
 
 case class DividendsPriorSubmission(
                                      ukDividends: Option[BigDecimal] = None,
-                                     otherDividends: Option[BigDecimal] = None
+                                     otherUkDividends: Option[BigDecimal] = None
                                    )
 
 object DividendsPriorSubmission {

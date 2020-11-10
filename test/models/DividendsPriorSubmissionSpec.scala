@@ -23,12 +23,12 @@ class DividendsPriorSubmissionSpec extends UnitTest {
 
   val validModel: DividendsPriorSubmission = DividendsPriorSubmission(
     ukDividends = Some(10),
-    otherDividends = Some(10)
+    otherUkDividends = Some(10)
   )
 
   val validJson: JsObject = Json.obj(
     "ukDividends" -> 10,
-    "otherDividends" -> 10
+    "otherUkDividends" -> 10
   )
 
   "DividendsPriorSubmission" should {

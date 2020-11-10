@@ -24,19 +24,19 @@ class DividendsCheckYourAnswersModelSpec extends UnitTest {
   val jsonMax: JsObject = Json.obj(
     "ukDividends" -> true,
     "ukDividendsAmount" -> 5,
-    "otherDividends" -> true,
-    "otherDividendsAmount" -> 10
+    "otherUkDividends" -> true,
+    "otherUkDividendsAmount" -> 10
   )
 
   val jsonMin: JsObject = Json.obj(
     "ukDividends" -> false,
-    "otherDividends" -> false
+    "otherUkDividends" -> false
   )
 
   val modelMax = DividendsCheckYourAnswersModel(
     ukDividends = true,
     Some(5),
-    otherDividends = true,
+    otherUkDividends = true,
     Some(10)
   )
 

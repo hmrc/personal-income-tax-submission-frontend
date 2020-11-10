@@ -6,14 +6,14 @@
 GET         /dividends/uk-dividends                  controllers.dividends.ReceiveUkDividendsController.show()
 POST        /dividends/uk-dividends                  controllers.dividends.ReceiveUkDividendsController.submit()
 
-GET         /dividends/other-dividends               controllers.dividends.ReceiveOtherDividendsController.show()
-POST        /dividends/other-dividends               controllers.dividends.ReceiveOtherDividendsController.submit()
+GET         /dividends/other-dividends               controllers.dividends.ReceiveOtherUkDividendsController.show()
+POST        /dividends/other-dividends               controllers.dividends.ReceiveOtherUkDividendsController.submit()
 
 GET         /dividends/uk-dividends-amount           controllers.dividends.UkDividendsAmountController.show()
 POST        /dividends/uk-dividends-amount           controllers.dividends.UkDividendsAmountController.submit()
 
-GET         /dividends/other-dividends-amount        controllers.dividends.OtherDividendsAmountController.show()
-POST        /dividends/other-dividends-amount        controllers.dividends.OtherDividendsAmountController.submit()
+GET         /dividends/other-dividends-amount        controllers.dividends.OtherUkDividendsAmountController.show()
+POST        /dividends/other-dividends-amount        controllers.dividends.OtherUkDividendsAmountController.submit()
 
 GET         /dividends/check-your-answers            controllers.dividends.DividendsCYAController.show()
 POST        /dividends/check-your-answers            controllers.dividends.DividendsCYAController.submit()

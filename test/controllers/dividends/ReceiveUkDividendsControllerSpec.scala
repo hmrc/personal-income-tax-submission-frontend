@@ -94,7 +94,7 @@ class ReceiveUkDividendsControllerSpec extends ViewTest {
           ))
 
           status(result) shouldBe SEE_OTHER
-          redirectUrl(result) shouldBe controllers.dividends.routes.ReceiveOtherDividendsController.show().url
+          redirectUrl(result) shouldBe controllers.dividends.routes.ReceiveOtherUkDividendsController.show().url
 
         }
 
@@ -106,7 +106,7 @@ class ReceiveUkDividendsControllerSpec extends ViewTest {
           )
 
           status(result) shouldBe SEE_OTHER
-          redirectUrl(result) shouldBe controllers.dividends.routes.ReceiveOtherDividendsController.show().url
+          redirectUrl(result) shouldBe controllers.dividends.routes.ReceiveOtherUkDividendsController.show().url
 
         }
 
@@ -119,12 +119,12 @@ class ReceiveUkDividendsControllerSpec extends ViewTest {
       "cya data already exist" in new TestWithAuth {
         val expectedModel = DividendsCheckYourAnswersModel(
           ukDividends = true,
-          otherDividends = true
+          otherUkDividends = true
         )
 
         val result: Future[Result] = controller.submit()(fakeRequest
           .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes)
-          .withSession(SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(otherDividends = true).asJsonString)
+          .withSession(SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(otherUkDividends = true).asJsonString)
         )
 
         Json.parse(await(result).session.get(SessionValues.DIVIDENDS_CYA).get).as[DividendsCheckYourAnswersModel] shouldBe expectedModel

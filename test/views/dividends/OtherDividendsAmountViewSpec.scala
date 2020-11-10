@@ -23,14 +23,14 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.data.{Form, FormError}
 import utils.ViewTest
-import views.html.dividends.OtherDividendsAmountView
+import views.html.dividends.OtherUkDividendsAmountView
 
 class OtherDividendsAmountViewSpec extends ViewTest {
 
   lazy val otherDividendsAmountForm: Form[CurrencyAmountModel] = OtherDividendsAmountForm.otherDividendsAmountForm()
   lazy val priorOrNewAmountForm: Form[PriorOrNewAmountModel] = PriorOrNewAmountForm.priorOrNewAmountForm(20, "dividends.other-dividends-amount")
 
-  lazy val otherDividendsAmountView: OtherDividendsAmountView = app.injector.instanceOf[OtherDividendsAmountView]
+  lazy val otherDividendsAmountView: OtherUkDividendsAmountView = app.injector.instanceOf[OtherUkDividendsAmountView]
 
   val h1Selector = "h1"
   val captionSelector = ".govuk-caption-l"

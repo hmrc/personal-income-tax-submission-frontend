@@ -58,7 +58,7 @@ class ReceiveUkDividendsController @Inject()(
             Redirect(controllers.dividends.routes.UkDividendsAmountController.show())
               .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(ukDividends = true).asJsonString)
           } else {
-            Redirect(controllers.dividends.routes.ReceiveOtherDividendsController.show())
+            Redirect(controllers.dividends.routes.ReceiveOtherUkDividendsController.show())
               .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(ukDividends = false, ukDividendsAmount = None).asJsonString)
           }
       }

@@ -11,10 +11,10 @@ import play.api.http.Status._
 import play.api.libs.ws.{WSClient, WSResponse}
 import utils.IntegrationTest
 
-class OtherDividendsAmountControllerISpec extends IntegrationTest {
+class OtherUkDividendsAmountControllerISpec extends IntegrationTest {
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
-  lazy val controller: OtherDividendsAmountController = app.injector.instanceOf[OtherDividendsAmountController]
+  lazy val controller: OtherUkDividendsAmountController = app.injector.instanceOf[OtherUkDividendsAmountController]
 
   "as an individual" when {
 
@@ -38,7 +38,7 @@ class OtherDividendsAmountControllerISpec extends IntegrationTest {
 
       s"return an OK($OK) status" in {
         val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-          SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(otherDividends = true).asJsonString
+          SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(otherUkDividends = true).asJsonString
         ))
 
         lazy val result: WSResponse = {

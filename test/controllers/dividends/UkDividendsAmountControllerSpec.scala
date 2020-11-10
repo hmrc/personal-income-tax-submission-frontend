@@ -184,7 +184,7 @@ class UkDividendsAmountControllerSpec extends ViewTest {
           .withSession(SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel()).toString()))
 
         status(result) shouldBe SEE_OTHER
-        redirectUrl(result) shouldBe controllers.dividends.routes.ReceiveOtherDividendsController.show().url
+        redirectUrl(result) shouldBe controllers.dividends.routes.ReceiveOtherUkDividendsController.show().url
       }
 
     }

@@ -22,16 +22,16 @@ import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import utils.ViewTest
-import views.html.dividends.OtherDividendsAmountView
+import views.html.dividends.OtherUkDividendsAmountView
 
 import scala.concurrent.Future
 
-class OtherDividendsAmountControllerSpec extends ViewTest {
+class OtherUkDividendsAmountControllerSpec extends ViewTest {
 
-  lazy val controller = new OtherDividendsAmountController(
+  lazy val controller = new OtherUkDividendsAmountController(
     mockMessagesControllerComponents,
     authorisedAction,
-    app.injector.instanceOf[OtherDividendsAmountView],
+    app.injector.instanceOf[OtherUkDividendsAmountView],
     mockAppConfig
   )
 
@@ -90,7 +90,7 @@ class OtherDividendsAmountControllerSpec extends ViewTest {
 
       "the amount input does not pass validation with no prior data" in new TestWithAuth {
         lazy val result: Future[Result] = controller.submit()(fakeRequest
-          .withSession(SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(otherDividends = true)).toString())
+          .withSession(SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(otherUkDividends = true)).toString())
           .withFormUrlEncodedBody("amount" -> "ASDFGHJ"))
 
         status(result) shouldBe BAD_REQUEST
@@ -100,7 +100,7 @@ class OtherDividendsAmountControllerSpec extends ViewTest {
       "the amount input does not pass validation with prior data" in new TestWithAuth {
         lazy val result: Future[Result] = controller.submit()(fakeRequest
           .withSession(
-            SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(otherDividends = true)).toString(),
+            SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(otherUkDividends = true)).toString(),
             SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(None, Some(otherDividendSubmitValue))).toString()
           )
           .withFormUrlEncodedBody(
@@ -115,7 +115,7 @@ class OtherDividendsAmountControllerSpec extends ViewTest {
       "the amount type does not pass validation with prior data" in new TestWithAuth {
         lazy val result: Future[Result] = controller.submit()(fakeRequest
           .withSession(
-            SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(otherDividends = true)).toString(),
+            SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(otherUkDividends = true)).toString(),
             SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(None, Some(otherDividendSubmitValue))).toString()
           )
           .withFormUrlEncodedBody(
@@ -130,7 +130,7 @@ class OtherDividendsAmountControllerSpec extends ViewTest {
       "the amount type other is submitted but no amount is submitted" in new TestWithAuth {
         lazy val result: Future[Result] = controller.submit()(fakeRequest
           .withSession(
-            SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(otherDividends = true)).toString(),
+            SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(otherUkDividends = true)).toString(),
             SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(None, Some(otherDividendSubmitValue))).toString()
           )
           .withFormUrlEncodedBody(
@@ -184,7 +184,7 @@ class OtherDividendsAmountControllerSpec extends ViewTest {
             "amount" -> "40"
           )
           .withSession(SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(
-            otherDividendsAmount = Some(otherDividendSubmitValue)
+            otherUkDividendsAmount = Some(otherDividendSubmitValue)
           )).toString()))
 
         status(result) shouldBe SEE_OTHER
@@ -198,10 +198,10 @@ class OtherDividendsAmountControllerSpec extends ViewTest {
           )
           .withSession(
             SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(
-              otherDividendsAmount = Some(otherDividendSubmitValue)
+              otherUkDividendsAmount = Some(otherDividendSubmitValue)
             )).toString(),
             SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(
-              otherDividends = Some(otherDividendSubmitValue)
+              otherUkDividends = Some(otherDividendSubmitValue)
             )).toString()
           ))
 
@@ -217,10 +217,10 @@ class OtherDividendsAmountControllerSpec extends ViewTest {
           )
           .withSession(
             SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(
-              otherDividendsAmount = Some(otherDividendSubmitValue)
+              otherUkDividendsAmount = Some(otherDividendSubmitValue)
             )).toString(),
             SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(
-              otherDividends = Some(otherDividendSubmitValue)
+              otherUkDividends = Some(otherDividendSubmitValue)
             )).toString()
           ))
 
