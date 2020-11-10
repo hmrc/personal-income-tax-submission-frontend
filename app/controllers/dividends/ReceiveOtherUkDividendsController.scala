@@ -27,12 +27,12 @@ import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import views.html.dividends.ReceiveOtherDividendsView
+import views.html.dividends.ReceiveOtherUkDividendsView
 
-class ReceiveOtherDividendsController @Inject()(
+class ReceiveOtherUkDividendsController @Inject()(
                                                  cc: MessagesControllerComponents,
                                                  authAction: AuthorisedAction,
-                                                 receiveOtherDividendsView: ReceiveOtherDividendsView,
+                                                 receiveOtherDividendsView: ReceiveOtherUkDividendsView,
                                                  implicit val appConfig: AppConfig
                                           ) extends FrontendController(cc) with I18nSupport {
 
@@ -57,7 +57,7 @@ class ReceiveOtherDividendsController @Inject()(
           }
 
           if (yesNoModel.asBoolean) {
-            Redirect(controllers.dividends.routes.OtherDividendsAmountController.show())
+            Redirect(controllers.dividends.routes.OtherUkDividendsAmountController.show())
               .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherDividends = true).asJsonString)
           } else {
             Redirect(controllers.dividends.routes.DividendsCYAController.show())

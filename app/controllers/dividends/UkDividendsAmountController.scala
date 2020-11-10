@@ -122,7 +122,7 @@ class UkDividendsAmountController @Inject()(
     ) {
       controllers.dividends.routes.DividendsCYAController.show()
     } else {
-      controllers.dividends.routes.ReceiveOtherDividendsController.show()
+      controllers.dividends.routes.ReceiveOtherUkDividendsController.show()
     }
 
   }

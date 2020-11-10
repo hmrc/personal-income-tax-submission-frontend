@@ -23,16 +23,16 @@ import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import utils.ViewTest
-import views.html.dividends.ReceiveOtherDividendsView
+import views.html.dividends.ReceiveOtherUkDividendsView
 
 import scala.concurrent.Future
 
-class ReceiveOtherDividendsControllerSpec extends ViewTest {
+class ReceiveOtherUkDividendsControllerSpec extends ViewTest {
 
-  lazy val controller = new ReceiveOtherDividendsController(
+  lazy val controller = new ReceiveOtherUkDividendsController(
     mockMessagesControllerComponents,
     authorisedAction,
-    app.injector.instanceOf[ReceiveOtherDividendsView],
+    app.injector.instanceOf[ReceiveOtherUkDividendsView],
     mockAppConfig
   )
 
@@ -63,7 +63,7 @@ class ReceiveOtherDividendsControllerSpec extends ViewTest {
           ))
 
           status(result) shouldBe SEE_OTHER
-          redirectUrl(result) shouldBe controllers.dividends.routes.OtherDividendsAmountController.show().url
+          redirectUrl(result) shouldBe controllers.dividends.routes.OtherUkDividendsAmountController.show().url
 
         }
 
@@ -75,7 +75,7 @@ class ReceiveOtherDividendsControllerSpec extends ViewTest {
           )
 
           status(result) shouldBe SEE_OTHER
-          redirectUrl(result) shouldBe controllers.dividends.routes.OtherDividendsAmountController.show().url
+          redirectUrl(result) shouldBe controllers.dividends.routes.OtherUkDividendsAmountController.show().url
 
         }
 

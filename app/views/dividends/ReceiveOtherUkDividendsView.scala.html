@@ -38,7 +38,7 @@
     <span class="govuk-caption-l">@messages("dividends.caption")</span>
     <h1 class="govuk-heading-l govuk-!-margin-bottom-3">@headingForUse</h1>
 
-    @formWithCsrf(action = controllers.dividends.routes.ReceiveOtherDividendsController.submit()) {
+    @formWithCsrf(action = controllers.dividends.routes.ReceiveOtherUkDividendsController.submit()) {
         @yesNoChoice("yes_no", form)
 
         <button class="govuk-button" type="submit" id="continue">

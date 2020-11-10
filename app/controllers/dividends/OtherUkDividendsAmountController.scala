@@ -29,12 +29,12 @@ import play.api.libs.json.{Json, Reads}
 import play.api.mvc._
 import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import views.html.dividends.OtherDividendsAmountView
+import views.html.dividends.OtherUkDividendsAmountView
 
-class OtherDividendsAmountController @Inject()(
+class OtherUkDividendsAmountController @Inject()(
                                              cc: MessagesControllerComponents,
                                              authAction: AuthorisedAction,
-                                             otherDividendsAmountView: OtherDividendsAmountView,
+                                             otherDividendsAmountView: OtherUkDividendsAmountView,
                                              implicit val appConfig: AppConfig
                                            ) extends FrontendController(cc) with I18nSupport {
 
@@ -48,16 +48,16 @@ class OtherDividendsAmountController @Inject()(
     otherDividendsAmountView(
       form = formInput,
       priorSubmission = priorSubmission,
-      postAction = controllers.dividends.routes.OtherDividendsAmountController.submit(),
-      backUrl = controllers.dividends.routes.ReceiveOtherDividendsController.show().url
+      postAction = controllers.dividends.routes.OtherUkDividendsAmountController.submit(),
+      backUrl = controllers.dividends.routes.ReceiveOtherUkDividendsController.show().url
     )
 
   }
 
   def show: Action[AnyContent] = authAction { implicit user =>
     getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB) match {
-      case Some(priorSubmission) if priorSubmission.otherDividends.nonEmpty =>
-        Ok(view(Left(PriorOrNewAmountForm.priorOrNewAmountForm(priorSubmission.otherDividends.get, radioErrorLocation)), Some(priorSubmission)))
+      case Some(priorSubmission) if priorSubmission.otherUkDividends.nonEmpty =>
+        Ok(view(Left(PriorOrNewAmountForm.priorOrNewAmountForm(priorSubmission.otherUkDividends.get, radioErrorLocation)), Some(priorSubmission)))
       case _ =>
         Ok(view(Right(OtherDividendsAmountForm.otherDividendsAmountForm())))
     }
@@ -72,8 +72,8 @@ class OtherDividendsAmountController @Inject()(
       getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
 
     priorSubmissionSessionData match {
-      case Some(priorSubmission) if priorSubmission.otherDividends.nonEmpty =>
-        PriorOrNewAmountForm.priorOrNewAmountForm(priorSubmission.otherDividends.get, radioErrorLocation).bindFromRequest().fold(
+      case Some(priorSubmission) if priorSubmission.otherUkDividends.nonEmpty =>
+        PriorOrNewAmountForm.priorOrNewAmountForm(priorSubmission.otherUkDividends.get, radioErrorLocation).bindFromRequest().fold(
           {
             formWithErrors => BadRequest(view(Left(formWithErrors), Some(priorSubmission)))
           },
@@ -87,7 +87,7 @@ class OtherDividendsAmountController @Inject()(
                   formModel.whichAmount match {
                     case `prior` =>
                       Redirect(controllers.dividends.routes.DividendsCYAController.show())
-                        .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherDividendsAmount = priorSubmission.otherDividends).asJsonString)
+                        .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherDividendsAmount = priorSubmission.otherUkDividends).asJsonString)
                     case `other` =>
                       Redirect(controllers.dividends.routes.DividendsCYAController.show())
                         .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherDividendsAmount = formModel.amount).asJsonString)

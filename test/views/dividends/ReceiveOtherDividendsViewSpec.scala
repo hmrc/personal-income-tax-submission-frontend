@@ -22,13 +22,13 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.data.{Form, FormError}
 import utils.ViewTest
-import views.html.dividends.ReceiveOtherDividendsView
+import views.html.dividends.ReceiveOtherUkDividendsView
 
 class ReceiveOtherDividendsViewSpec extends ViewTest {
 
   lazy val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("Select yes if dividends were received trusts or investment companies")
 
-  lazy val receiveOtherDividendsView: ReceiveOtherDividendsView = app.injector.instanceOf[ReceiveOtherDividendsView]
+  lazy val receiveOtherDividendsView: ReceiveOtherUkDividendsView = app.injector.instanceOf[ReceiveOtherUkDividendsView]
 
   val h1Selector = "h1"
   val captionSelector = ".govuk-caption-l"

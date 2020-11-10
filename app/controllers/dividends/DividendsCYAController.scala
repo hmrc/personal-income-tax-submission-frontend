@@ -46,10 +46,10 @@ class DividendsCYAController @Inject()(
     (cyaSessionData, priorSubmissionData) match {
       case (Some(cyaData), Some(priorData)) =>
         val ukDividendsExist = cyaData.ukDividends || priorData.ukDividends.nonEmpty
-        val otherDividendsExist = cyaData.otherDividends || priorData.otherDividends.nonEmpty
+        val otherDividendsExist = cyaData.otherDividends || priorData.otherUkDividends.nonEmpty
 
         val ukDividendsValue: Option[BigDecimal] = priorityOrderOrNone(cyaData.ukDividendsAmount, priorData.ukDividends, ukDividendsExist)
-        val otherDividendsValue: Option[BigDecimal] = priorityOrderOrNone(cyaData.otherDividendsAmount, priorData.otherDividends, otherDividendsExist)
+        val otherDividendsValue: Option[BigDecimal] = priorityOrderOrNone(cyaData.otherDividendsAmount, priorData.otherUkDividends, otherDividendsExist)
 
         val cyaModel = DividendsCheckYourAnswersModel(
           ukDividendsExist,
@@ -60,14 +60,15 @@ class DividendsCYAController @Inject()(
 
         Ok(dividendsCyaView(cyaModel, priorData))
       case (Some(cyaData), None) => Ok(dividendsCyaView(cyaData))
-      case (None, Some(priorData)) => Ok(dividendsCyaView(
-        DividendsCheckYourAnswersModel(
+      case (None, Some(priorData)) =>
+        val cyaModel = DividendsCheckYourAnswersModel(
           priorData.ukDividends.nonEmpty,
           priorData.ukDividends,
-          priorData.otherDividends.nonEmpty,
-          priorData.otherDividends
-        ), priorData
-      ))
+          priorData.otherUkDividends.nonEmpty,
+          priorData.otherUkDividends
+        )
+        Ok(dividendsCyaView(cyaModel, priorData))
+          .addingToSession(SessionValues.DIVIDENDS_CYA -> Json.toJson(cyaModel).toString())
       case _ =>
         logger.debug("[DividendsCYAController][show] No Check Your Answers data or Prior Submission data. Redirecting to overview.")
         Redirect(appConfig.incomeTaxSubmissionOverviewUrl)

@@ -53,7 +53,7 @@
 }
 
 @priorAmount() = @{
-    priorSubmission.flatMap(_.otherDividends)
+    priorSubmission.flatMap(_.otherUkDividends)
 }
 
 @layout(pageTitle = Some("dividends.other-dividends-amount.title"), backLinkUrl = Some(backUrl), scriptsBlock = Some(scripts)) {

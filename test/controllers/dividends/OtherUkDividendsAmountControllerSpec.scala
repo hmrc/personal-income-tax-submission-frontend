@@ -22,16 +22,16 @@ import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import utils.ViewTest
-import views.html.dividends.OtherDividendsAmountView
+import views.html.dividends.OtherUkDividendsAmountView
 
 import scala.concurrent.Future
 
-class OtherDividendsAmountControllerSpec extends ViewTest {
+class OtherUkDividendsAmountControllerSpec extends ViewTest {
 
-  lazy val controller = new OtherDividendsAmountController(
+  lazy val controller = new OtherUkDividendsAmountController(
     mockMessagesControllerComponents,
     authorisedAction,
-    app.injector.instanceOf[OtherDividendsAmountView],
+    app.injector.instanceOf[OtherUkDividendsAmountView],
     mockAppConfig
   )
 
@@ -201,7 +201,7 @@ class OtherDividendsAmountControllerSpec extends ViewTest {
               otherDividendsAmount = Some(otherDividendSubmitValue)
             )).toString(),
             SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(
-              otherDividends = Some(otherDividendSubmitValue)
+              otherUkDividends = Some(otherDividendSubmitValue)
             )).toString()
           ))
 
@@ -220,7 +220,7 @@ class OtherDividendsAmountControllerSpec extends ViewTest {
               otherDividendsAmount = Some(otherDividendSubmitValue)
             )).toString(),
             SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(
-              otherDividends = Some(otherDividendSubmitValue)
+              otherUkDividends = Some(otherDividendSubmitValue)
             )).toString()
           ))
 

@@ -94,7 +94,7 @@ class ReceiveUkDividendsControllerSpec extends ViewTest {
           ))
 
           status(result) shouldBe SEE_OTHER
-          redirectUrl(result) shouldBe controllers.dividends.routes.ReceiveOtherDividendsController.show().url
+          redirectUrl(result) shouldBe controllers.dividends.routes.ReceiveOtherUkDividendsController.show().url
 
         }
 
@@ -106,7 +106,7 @@ class ReceiveUkDividendsControllerSpec extends ViewTest {
           )
 
           status(result) shouldBe SEE_OTHER
-          redirectUrl(result) shouldBe controllers.dividends.routes.ReceiveOtherDividendsController.show().url
+          redirectUrl(result) shouldBe controllers.dividends.routes.ReceiveOtherUkDividendsController.show().url
 
         }
 

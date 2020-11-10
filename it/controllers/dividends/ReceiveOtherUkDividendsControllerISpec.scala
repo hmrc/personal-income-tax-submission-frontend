@@ -24,7 +24,7 @@ import play.api.http.Status._
 import play.api.libs.ws.{WSClient, WSResponse}
 import utils.IntegrationTest
 
-class ReceiveOtherDividendsControllerISpec extends IntegrationTest {
+class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest {
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
