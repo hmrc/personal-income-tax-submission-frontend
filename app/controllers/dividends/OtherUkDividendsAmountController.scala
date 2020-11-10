@@ -87,10 +87,10 @@ class OtherUkDividendsAmountController @Inject()(
                   formModel.whichAmount match {
                     case `prior` =>
                       Redirect(controllers.dividends.routes.DividendsCYAController.show())
-                        .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherDividendsAmount = priorSubmission.otherUkDividends).asJsonString)
+                        .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherUkDividendsAmount = priorSubmission.otherUkDividends).asJsonString)
                     case `other` =>
                       Redirect(controllers.dividends.routes.DividendsCYAController.show())
-                        .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherDividendsAmount = formModel.amount).asJsonString)
+                        .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherUkDividendsAmount = formModel.amount).asJsonString)
                   }
               }
           }
@@ -107,7 +107,7 @@ class OtherUkDividendsAmountController @Inject()(
               } {
                 cyaModel =>
                   Redirect(controllers.dividends.routes.DividendsCYAController.show())
-                    .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherDividendsAmount = Some(BigDecimal(formModel.amount))).asJsonString)
+                    .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherUkDividendsAmount = Some(BigDecimal(formModel.amount))).asJsonString)
               }
           }
         )

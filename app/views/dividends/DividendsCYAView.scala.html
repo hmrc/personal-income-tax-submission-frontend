@@ -44,10 +44,10 @@
             }
         }
         @if(prior.otherUkDividends.isEmpty) {
-            @cyaRow("dividends.cya.questions.3", trueFalseToYesNo(cya.otherDividends), controllers.dividends.routes.ReceiveOtherUkDividendsController.show())
+            @cyaRow("dividends.cya.questions.3", trueFalseToYesNo(cya.otherUkDividends), controllers.dividends.routes.ReceiveOtherUkDividendsController.show())
         }
-        @if(cya.otherDividends) {
-            @cya.otherDividendsAmount.map { amount =>
+        @if(cya.otherUkDividends) {
+            @cya.otherUkDividendsAmount.map { amount =>
                 @cyaRow("dividends.cya.questions.4", bigDecimalToCurrency(amount), controllers.dividends.routes.OtherUkDividendsAmountController.show())
             }
         }

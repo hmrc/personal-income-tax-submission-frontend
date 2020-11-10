@@ -46,10 +46,10 @@ class DividendsCYAController @Inject()(
     (cyaSessionData, priorSubmissionData) match {
       case (Some(cyaData), Some(priorData)) =>
         val ukDividendsExist = cyaData.ukDividends || priorData.ukDividends.nonEmpty
-        val otherDividendsExist = cyaData.otherDividends || priorData.otherUkDividends.nonEmpty
+        val otherDividendsExist = cyaData.otherUkDividends || priorData.otherUkDividends.nonEmpty
 
         val ukDividendsValue: Option[BigDecimal] = priorityOrderOrNone(cyaData.ukDividendsAmount, priorData.ukDividends, ukDividendsExist)
-        val otherDividendsValue: Option[BigDecimal] = priorityOrderOrNone(cyaData.otherDividendsAmount, priorData.otherUkDividends, otherDividendsExist)
+        val otherDividendsValue: Option[BigDecimal] = priorityOrderOrNone(cyaData.otherUkDividendsAmount, priorData.otherUkDividends, otherDividendsExist)
 
         val cyaModel = DividendsCheckYourAnswersModel(
           ukDividendsExist,

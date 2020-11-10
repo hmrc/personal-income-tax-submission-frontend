@@ -49,7 +49,7 @@ class DividendsCYAViewSpec extends ViewTest {
         val cyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(
           ukDividends = true,
           Some(5),
-          otherDividends = true,
+          otherUkDividends = true,
           Some(10)
         )
         lazy val view = dividendsCyaView(cyaModel)(user, implicitly, mockAppConfig)
@@ -142,7 +142,7 @@ class DividendsCYAViewSpec extends ViewTest {
         val cyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(
           ukDividends = true,
           Some(10),
-          otherDividends = true,
+          otherUkDividends = true,
           Some(20)
         )
 

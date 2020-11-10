@@ -119,7 +119,7 @@ class ReceiveOtherUkDividendsControllerSpec extends ViewTest {
       "cya data already exist" in new TestWithAuth {
         val expectedModel = DividendsCheckYourAnswersModel(
           ukDividends = true,
-          otherDividends = true
+          otherUkDividends = true
         )
 
         val result: Future[Result] = controller.submit()(fakeRequest
@@ -132,7 +132,7 @@ class ReceiveOtherUkDividendsControllerSpec extends ViewTest {
 
       "cya data does not exist" in new TestWithAuth {
         val expectedModel = DividendsCheckYourAnswersModel(
-          otherDividends = true
+          otherUkDividends = true
         )
 
         val result: Future[Result] = controller.submit()(fakeRequest

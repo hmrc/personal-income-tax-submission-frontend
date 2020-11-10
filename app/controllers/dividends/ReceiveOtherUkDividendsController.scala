@@ -58,10 +58,10 @@ class ReceiveOtherUkDividendsController @Inject()(
 
           if (yesNoModel.asBoolean) {
             Redirect(controllers.dividends.routes.OtherUkDividendsAmountController.show())
-              .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherDividends = true).asJsonString)
+              .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherUkDividends = true).asJsonString)
           } else {
             Redirect(controllers.dividends.routes.DividendsCYAController.show())
-              .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherDividends = false, otherDividendsAmount = None).asJsonString)
+              .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherUkDividends = false, otherUkDividendsAmount = None).asJsonString)
           }
       }
     )

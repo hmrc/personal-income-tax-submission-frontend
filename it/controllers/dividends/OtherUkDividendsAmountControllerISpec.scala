@@ -38,7 +38,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest {
 
       s"return an OK($OK) status" in {
         val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-          SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(otherDividends = true).asJsonString
+          SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(otherUkDividends = true).asJsonString
         ))
 
         lazy val result: WSResponse = {
