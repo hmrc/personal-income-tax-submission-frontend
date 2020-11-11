@@ -59,7 +59,7 @@ class DividendsCYAControllerSpec extends ViewTest {
           SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(priorData).toString
         )
 
-        val result: Future[Result] = controller.show()(request)
+        val result: Future[Result] = controller.show(2020)(request)
 
         status(result) shouldBe OK
       }
@@ -69,7 +69,7 @@ class DividendsCYAControllerSpec extends ViewTest {
           SessionValues.DIVIDENDS_CYA -> Json.toJson(cyaSessionData).toString
         )
 
-        val result: Future[Result] = controller.show()(request)
+        val result: Future[Result] = controller.show(2020)(request)
 
         status(result) shouldBe OK
       }
@@ -79,7 +79,7 @@ class DividendsCYAControllerSpec extends ViewTest {
           SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(priorData).toString
         )
 
-        val result: Future[Result] = controller.show()(request)
+        val result: Future[Result] = controller.show(2020)(request)
 
         status(result) shouldBe OK
       }
@@ -89,10 +89,10 @@ class DividendsCYAControllerSpec extends ViewTest {
     "redirect to the overview page" when {
 
       "there is no session data" in new TestWithAuth {
-        val result: Future[Result] = controller.show()(FakeRequest())
+        val result: Future[Result] = controller.show(2020)(FakeRequest())
 
         status(result) shouldBe SEE_OTHER
-        redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl
+        redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(2020)
       }
 
     }

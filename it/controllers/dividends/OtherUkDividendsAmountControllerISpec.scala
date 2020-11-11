@@ -23,7 +23,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest {
       "returns an action" which {
         lazy val result: WSResponse = {
           authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/dividends/other-dividends-amount").get())
+          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/other-dividends-amount").get())
         }
 
         "has an OK(200) status" in {
@@ -44,7 +44,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest {
         lazy val result: WSResponse = {
           authoriseIndividual()
           await(
-            wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/dividends/other-dividends-amount")
+            wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/other-dividends-amount")
               .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
               .post(Map(OtherDividendsAmountForm.otherDividendsAmount -> "123"))
           )
@@ -56,7 +56,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest {
       s"return a BAD_REQUEST($BAD_REQUEST) status" in {
         lazy val result: WSResponse = {
           authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/dividends/other-dividends-amount").post(Map[String, String]()))
+          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/other-dividends-amount").post(Map[String, String]()))
         }
 
         result.status shouldBe BAD_REQUEST
@@ -77,7 +77,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest {
           ))
 
           authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/dividends/other-dividends-amount")
+          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/other-dividends-amount")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
             .get())
         }
@@ -101,7 +101,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest {
 
             authoriseAgent()
             await(
-              wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/dividends/other-dividends-amount")
+              wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/other-dividends-amount")
                 .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
                 .post(Map(OtherDividendsAmountForm.otherDividendsAmount -> "123"))
             )
@@ -120,7 +120,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest {
             ))
 
             authoriseAgent()
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/dividends/other-dividends-amount")
+            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/other-dividends-amount")
               .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
               .post(Map[String, String]()))
           }

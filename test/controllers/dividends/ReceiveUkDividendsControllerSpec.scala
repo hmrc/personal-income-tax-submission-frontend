@@ -41,7 +41,7 @@ class ReceiveUkDividendsControllerSpec extends ViewTest {
     "return a result" which {
 
       s"has an OK($OK) status" in new TestWithAuth {
-        val result: Future[Result] = controller.show()(fakeRequest)
+        val result: Future[Result] = controller.show(2020)(fakeRequest)
 
         status(result) shouldBe OK
       }
@@ -58,24 +58,24 @@ class ReceiveUkDividendsControllerSpec extends ViewTest {
 
         "the session data is empty" in new TestWithAuth {
 
-          val result: Future[Result] = controller.submit()(fakeRequest.withFormUrlEncodedBody(
+          val result: Future[Result] = controller.submit(2020)(fakeRequest.withFormUrlEncodedBody(
             YesNoForm.yesNo -> YesNoForm.yes
           ))
 
           status(result) shouldBe SEE_OTHER
-          redirectUrl(result) shouldBe controllers.dividends.routes.UkDividendsAmountController.show().url
+          redirectUrl(result) shouldBe controllers.dividends.routes.UkDividendsAmountController.show(2020).url
 
         }
 
         "the session data exist" in new TestWithAuth {
 
-          val result: Future[Result] = controller.submit()(fakeRequest
+          val result: Future[Result] = controller.submit(2020)(fakeRequest
             .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes)
             .withSession(SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel().asJsonString)
           )
 
           status(result) shouldBe SEE_OTHER
-          redirectUrl(result) shouldBe controllers.dividends.routes.UkDividendsAmountController.show().url
+          redirectUrl(result) shouldBe controllers.dividends.routes.UkDividendsAmountController.show(2020).url
 
         }
 
@@ -89,24 +89,24 @@ class ReceiveUkDividendsControllerSpec extends ViewTest {
 
         "the session data is empty" in new TestWithAuth {
 
-          val result: Future[Result] = controller.submit()(fakeRequest.withFormUrlEncodedBody(
+          val result: Future[Result] = controller.submit(2020)(fakeRequest.withFormUrlEncodedBody(
             YesNoForm.yesNo -> YesNoForm.no
           ))
 
           status(result) shouldBe SEE_OTHER
-          redirectUrl(result) shouldBe controllers.dividends.routes.ReceiveOtherUkDividendsController.show().url
+          redirectUrl(result) shouldBe controllers.dividends.routes.ReceiveOtherUkDividendsController.show(2020).url
 
         }
 
         "the session data exist" in new TestWithAuth {
 
-          val result: Future[Result] = controller.submit()(fakeRequest
+          val result: Future[Result] = controller.submit(2020)(fakeRequest
             .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.no)
             .withSession(SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel().asJsonString)
           )
 
           status(result) shouldBe SEE_OTHER
-          redirectUrl(result) shouldBe controllers.dividends.routes.ReceiveOtherUkDividendsController.show().url
+          redirectUrl(result) shouldBe controllers.dividends.routes.ReceiveOtherUkDividendsController.show(2020).url
 
         }
 
@@ -122,7 +122,7 @@ class ReceiveUkDividendsControllerSpec extends ViewTest {
           otherUkDividends = true
         )
 
-        val result: Future[Result] = controller.submit()(fakeRequest
+        val result: Future[Result] = controller.submit(2020)(fakeRequest
           .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes)
           .withSession(SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(otherUkDividends = true).asJsonString)
         )
@@ -135,7 +135,7 @@ class ReceiveUkDividendsControllerSpec extends ViewTest {
           ukDividends = true
         )
 
-        val result: Future[Result] = controller.submit()(fakeRequest
+        val result: Future[Result] = controller.submit(2020)(fakeRequest
           .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes)
         )
 

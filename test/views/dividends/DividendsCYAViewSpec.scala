@@ -52,7 +52,7 @@ class DividendsCYAViewSpec extends ViewTest {
           otherUkDividends = true,
           Some(10)
         )
-        lazy val view = dividendsCyaView(cyaModel)(user, implicitly, mockAppConfig)
+        lazy val view = dividendsCyaView(cyaModel, taxYear = 2020)(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         "contains the correct title" in {
@@ -151,7 +151,7 @@ class DividendsCYAViewSpec extends ViewTest {
           Some(20)
         )
 
-        lazy val view = dividendsCyaView(cyaModel, priorSubmission)(user, implicitly, mockAppConfig)
+        lazy val view = dividendsCyaView(cyaModel, priorSubmission, 2020)(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         "contains the correct title" in {
@@ -207,7 +207,7 @@ class DividendsCYAViewSpec extends ViewTest {
       "all boolean answers are now and amount answers are not filled in" which {
 
         val cyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel()
-        lazy val view = dividendsCyaView(cyaModel)(user, implicitly, mockAppConfig)
+        lazy val view = dividendsCyaView(cyaModel, taxYear = 2020)(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         "contains the correct title" in {

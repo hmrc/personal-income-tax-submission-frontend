@@ -46,7 +46,7 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
 
       "there are no form errors" which {
 
-        lazy val view = receiveOtherDividendsView("Some Title", yesNoForm)(user, implicitly, mockAppConfig)
+        lazy val view = receiveOtherDividendsView("Some Title", yesNoForm, 2020)(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         val expectedTitle = "Some Title"
@@ -88,7 +88,8 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
         lazy val view = receiveOtherDividendsView(
           "Some Title",
           yesNoForm.copy(
-            errors = Seq(FormError("yes_no", "Select yes if dividends were received from the UK")))
+            errors = Seq(FormError("yes_no", "Select yes if dividends were received from the UK"))),
+          2020
         )(user, implicitly, mockAppConfig)
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -144,7 +145,7 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
 
       "there are no form errors" which {
 
-        lazy val view = receiveOtherDividendsView("Some Title", yesNoForm)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+        lazy val view = receiveOtherDividendsView("Some Title", yesNoForm, 2020)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         val expectedTitle = "Some Title"
@@ -186,7 +187,8 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
         lazy val view = receiveOtherDividendsView(
           "Some Title",
           yesNoForm.copy(
-            errors = Seq(FormError("yes_no", "Select yes if dividends were received trusts or investment companies")))
+            errors = Seq(FormError("yes_no", "Select yes if dividends were received trusts or investment companies"))),
+          2020
         )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
 
         implicit lazy val document: Document = Jsoup.parse(view.body)

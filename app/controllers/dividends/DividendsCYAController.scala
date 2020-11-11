@@ -39,7 +39,7 @@ class DividendsCYAController @Inject()(
 
   lazy val logger = Logger(this.getClass.getName)
 
-  def show(): Action[AnyContent] = authorisedAction { implicit user =>
+  def show(taxYear: Int): Action[AnyContent] = authorisedAction { implicit user =>
     val cyaSessionData: Option[DividendsCheckYourAnswersModel] = getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
     val priorSubmissionData: Option[DividendsPriorSubmission] = getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
 
@@ -58,8 +58,8 @@ class DividendsCYAController @Inject()(
           otherDividendsValue
         )
 
-        Ok(dividendsCyaView(cyaModel, priorData))
-      case (Some(cyaData), None) => Ok(dividendsCyaView(cyaData))
+        Ok(dividendsCyaView(cyaModel, priorData, taxYear))
+      case (Some(cyaData), None) => Ok(dividendsCyaView(cyaData, taxYear = taxYear))
       case (None, Some(priorData)) =>
         val cyaModel = DividendsCheckYourAnswersModel(
           priorData.ukDividends.nonEmpty,
@@ -67,19 +67,19 @@ class DividendsCYAController @Inject()(
           priorData.otherUkDividends.nonEmpty,
           priorData.otherUkDividends
         )
-        Ok(dividendsCyaView(cyaModel, priorData))
+        Ok(dividendsCyaView(cyaModel, priorData, taxYear))
           .addingToSession(SessionValues.DIVIDENDS_CYA -> Json.toJson(cyaModel).toString())
       case _ =>
         logger.debug("[DividendsCYAController][show] No Check Your Answers data or Prior Submission data. Redirecting to overview.")
-        Redirect(appConfig.incomeTaxSubmissionOverviewUrl)
+        Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
     }
 
   }
 
-  def submit(): Action[AnyContent] = authorisedAction { implicit user =>
+  def submit(taxYear: Int): Action[AnyContent] = authorisedAction { implicit user =>
     //TODO To be used for the submission
     val cyaData: Option[DividendsCheckYourAnswersModel] = getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
-    Redirect(appConfig.incomeTaxSubmissionOverviewUrl)
+    Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
   }
 
   private def priorityOrderOrNone(priority: Option[BigDecimal], other: Option[BigDecimal], yesNoResult: Boolean): Option[BigDecimal] = {
