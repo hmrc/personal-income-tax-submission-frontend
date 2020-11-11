@@ -41,7 +41,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
 
         lazy val result = {
           authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/dividends/check-your-answers")
+          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/check-your-answers")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .get())
         }
@@ -55,9 +55,9 @@ class DividendsCYAControllerISpec extends IntegrationTest {
       "there is no CYA data in session" which {
         lazy val result = {
           authoriseIndividual()
-          stubGet("/income-through-software/return/view", OK, "<title>Overview Page</title>")
+          stubGet("/income-through-software/return/2020/view", OK, "<title>Overview Page</title>")
 
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/dividends/check-your-answers")
+          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/check-your-answers")
             .get())
         }
 
@@ -77,9 +77,9 @@ class DividendsCYAControllerISpec extends IntegrationTest {
 
       lazy val result = {
         authoriseIndividual()
-        stubGet("/income-through-software/return/view", OK, "")
+        stubGet("/income-through-software/return/2020/view", OK, "")
 
-        await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/dividends/check-your-answers")
+        await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/check-your-answers")
           .post("{}"))
       }
 

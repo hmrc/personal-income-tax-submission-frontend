@@ -37,6 +37,7 @@ class OtherUkDividendsAmountControllerSpec extends ViewTest {
 
   val amountTypeField = "whichAmount"
   val otherAmountInputField = "amount"
+  val taxYear = 2020
 
   ".show" should {
 
@@ -46,7 +47,7 @@ class OtherUkDividendsAmountControllerSpec extends ViewTest {
 
       "there is a prior submission in session" in new TestWithAuth {
         lazy val result: Future[Result] = {
-          controller.show()(fakeRequest.withSession(
+          controller.show(taxYear)(fakeRequest.withSession(
             SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(None, Some(otherDividendSubmitValue))).toString()
           ))
         }
@@ -58,7 +59,7 @@ class OtherUkDividendsAmountControllerSpec extends ViewTest {
 
       "there is a prior submission in session, but no Other Dividends value" in new TestWithAuth {
         lazy val result: Future[Result] = {
-          controller.show()(fakeRequest.withSession(
+          controller.show(taxYear)(fakeRequest.withSession(
             SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(None, None)).toString()
           ))
         }
@@ -70,7 +71,7 @@ class OtherUkDividendsAmountControllerSpec extends ViewTest {
 
       "there is no prior submission in session" in new TestWithAuth {
         lazy val result: Future[Result] = {
-          controller.show()(fakeRequest)
+          controller.show(taxYear)(fakeRequest)
         }
 
         status(result) shouldBe OK
@@ -89,7 +90,7 @@ class OtherUkDividendsAmountControllerSpec extends ViewTest {
     "return errors" when {
 
       "the amount input does not pass validation with no prior data" in new TestWithAuth {
-        lazy val result: Future[Result] = controller.submit()(fakeRequest
+        lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequest
           .withSession(SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(otherUkDividends = true)).toString())
           .withFormUrlEncodedBody("amount" -> "ASDFGHJ"))
 
@@ -98,7 +99,7 @@ class OtherUkDividendsAmountControllerSpec extends ViewTest {
       }
 
       "the amount input does not pass validation with prior data" in new TestWithAuth {
-        lazy val result: Future[Result] = controller.submit()(fakeRequest
+        lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequest
           .withSession(
             SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(otherUkDividends = true)).toString(),
             SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(None, Some(otherDividendSubmitValue))).toString()
@@ -113,7 +114,7 @@ class OtherUkDividendsAmountControllerSpec extends ViewTest {
       }
 
       "the amount type does not pass validation with prior data" in new TestWithAuth {
-        lazy val result: Future[Result] = controller.submit()(fakeRequest
+        lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequest
           .withSession(
             SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(otherUkDividends = true)).toString(),
             SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(None, Some(otherDividendSubmitValue))).toString()
@@ -128,7 +129,7 @@ class OtherUkDividendsAmountControllerSpec extends ViewTest {
       }
 
       "the amount type other is submitted but no amount is submitted" in new TestWithAuth {
-        lazy val result: Future[Result] = controller.submit()(fakeRequest
+        lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequest
           .withSession(
             SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(otherUkDividends = true)).toString(),
             SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(None, Some(otherDividendSubmitValue))).toString()
@@ -146,15 +147,15 @@ class OtherUkDividendsAmountControllerSpec extends ViewTest {
     "redirect to the overview page" when {
 
       "there is no cya model in session and no prior submission data" in new TestWithAuth {
-        lazy val result: Future[Result] = controller.submit()(fakeRequest
+        lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequest
           .withFormUrlEncodedBody("amount" -> "120000"))
 
         status(result) shouldBe SEE_OTHER
-        redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl
+        redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)
       }
 
       "there is no cya model in session but there is prior submission data" in new TestWithAuth {
-        lazy val result: Future[Result] = controller.submit()(fakeRequest
+        lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequest
           .withFormUrlEncodedBody(
             amountTypeField -> "other",
             otherAmountInputField -> "40"
@@ -162,16 +163,16 @@ class OtherUkDividendsAmountControllerSpec extends ViewTest {
           .withSession(SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(None, Some(otherDividendSubmitValue))).toString()))
 
         status(result) shouldBe SEE_OTHER
-        redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl
+        redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)
       }
 
       "there is no cya model in session and and a prior submission data model with no other dividends" in new TestWithAuth {
-        lazy val result: Future[Result] = controller.submit()(fakeRequest
+        lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequest
           .withFormUrlEncodedBody("amount" -> "40")
           .withSession(SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(None, None)).toString()))
 
         status(result) shouldBe SEE_OTHER
-        redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl
+        redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)
       }
 
     }
@@ -179,7 +180,7 @@ class OtherUkDividendsAmountControllerSpec extends ViewTest {
     "redirect to the check your answers page" when {
 
       "has a cya data with am other dividends entry and no prior submission data" in new TestWithAuth {
-        lazy val result: Future[Result] = controller.submit()(fakeRequest
+        lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequest
           .withFormUrlEncodedBody(
             "amount" -> "40"
           )
@@ -188,11 +189,11 @@ class OtherUkDividendsAmountControllerSpec extends ViewTest {
           )).toString()))
 
         status(result) shouldBe SEE_OTHER
-        redirectUrl(result) shouldBe controllers.dividends.routes.DividendsCYAController.show().url
+        redirectUrl(result) shouldBe controllers.dividends.routes.DividendsCYAController.show(taxYear).url
       }
 
       "has a cya data with an other dividends entry and prior submission data with an amount type of prior" in new TestWithAuth {
-        lazy val result: Future[Result] = controller.submit()(fakeRequest
+        lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequest
           .withFormUrlEncodedBody(
             amountTypeField -> "prior"
           )
@@ -206,11 +207,11 @@ class OtherUkDividendsAmountControllerSpec extends ViewTest {
           ))
 
         status(result) shouldBe SEE_OTHER
-        redirectUrl(result) shouldBe controllers.dividends.routes.DividendsCYAController.show().url
+        redirectUrl(result) shouldBe controllers.dividends.routes.DividendsCYAController.show(taxYear).url
       }
 
       "has a cya data with an other dividends entry and prior submission data with an amount type of other" in new TestWithAuth {
-        lazy val result: Future[Result] = controller.submit()(fakeRequest
+        lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequest
           .withFormUrlEncodedBody(
             amountTypeField -> "other",
             otherAmountInputField -> "50"
@@ -225,7 +226,7 @@ class OtherUkDividendsAmountControllerSpec extends ViewTest {
           ))
 
         status(result) shouldBe SEE_OTHER
-        redirectUrl(result) shouldBe controllers.dividends.routes.DividendsCYAController.show().url
+        redirectUrl(result) shouldBe controllers.dividends.routes.DividendsCYAController.show(taxYear).url
       }
 
     }
