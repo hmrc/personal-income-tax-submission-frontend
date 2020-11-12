@@ -36,19 +36,19 @@
 
     <dl class="govuk-summary-list">
         @if(prior.ukDividends.isEmpty) {
-            @cyaRow("dividends.cya.questions.1", trueFalseToYesNo(cya.ukDividends), controllers.dividends.routes.ReceiveUkDividendsController.show(taxYear))
+            @cyaRow("dividends.cya.questions.1", trueFalseToYesNo(cya.ukDividends), controllers.dividends.routes.ReceiveUkDividendsController.show(taxYear, true))
         }
         @if(cya.ukDividends) {
             @cya.ukDividendsAmount.map { amount =>
-                @cyaRow("dividends.cya.questions.2", bigDecimalToCurrency(amount), controllers.dividends.routes.UkDividendsAmountController.show(taxYear))
+                @cyaRow("dividends.cya.questions.2", bigDecimalToCurrency(amount), controllers.dividends.routes.UkDividendsAmountController.show(taxYear, true))
             }
         }
         @if(prior.otherUkDividends.isEmpty) {
-            @cyaRow("dividends.cya.questions.3", trueFalseToYesNo(cya.otherUkDividends), controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear))
+            @cyaRow("dividends.cya.questions.3", trueFalseToYesNo(cya.otherUkDividends), controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear, true))
         }
         @if(cya.otherUkDividends) {
             @cya.otherUkDividendsAmount.map { amount =>
-                @cyaRow("dividends.cya.questions.4", bigDecimalToCurrency(amount), controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear))
+                @cyaRow("dividends.cya.questions.4", bigDecimalToCurrency(amount), controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear, true))
             }
         }
     </dl>

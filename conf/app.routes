@@ -3,19 +3,19 @@
 ->          /govuk-frontend                          govuk.Routes
 ->          /hmrc-frontend                           hmrcfrontend.Routes
 
-GET         /:taxYear/dividends/uk-dividends                  controllers.dividends.ReceiveUkDividendsController.show(taxYear: Int)
-POST        /:taxYear/dividends/uk-dividends                  controllers.dividends.ReceiveUkDividendsController.submit(taxYear: Int)
+GET         /:taxYear/dividends/uk-dividends                  controllers.dividends.ReceiveUkDividendsController.show(taxYear: Int, isEditMode: Boolean ?= false)
+POST        /:taxYear/dividends/uk-dividends                  controllers.dividends.ReceiveUkDividendsController.submit(taxYear: Int, isEditMode: Boolean ?= false)
 
-GET         /:taxYear/dividends/other-dividends               controllers.dividends.ReceiveOtherUkDividendsController.show(taxYear: Int)
-POST        /:taxYear/dividends/other-dividends               controllers.dividends.ReceiveOtherUkDividendsController.submit(taxYear: Int)
+GET         /:taxYear/dividends/other-dividends               controllers.dividends.ReceiveOtherUkDividendsController.show(taxYear: Int, isEditMode: Boolean ?= false)
+POST        /:taxYear/dividends/other-dividends               controllers.dividends.ReceiveOtherUkDividendsController.submit(isEditMode: Boolean ?= false)
 
-GET         /:taxYear/dividends/uk-dividends-amount           controllers.dividends.UkDividendsAmountController.show(taxYear: Int)
-POST        /:taxYear/dividends/uk-dividends-amount           controllers.dividends.UkDividendsAmountController.submit(taxYear: Int)
+GET         /:taxYear/dividends/uk-dividends-amount           controllers.dividends.UkDividendsAmountController.show(taxYear: Int, isEditMode: Boolean ?= false)
+POST        /:taxYear/dividends/uk-dividends-amount           controllers.dividends.UkDividendsAmountController.submit(taxYear: Int, isEditMode: Boolean ?= false)
 
-GET         /:taxYear/dividends/other-dividends-amount        controllers.dividends.OtherUkDividendsAmountController.show(taxYear: Int)
-POST        /:taxYear/dividends/other-dividends-amount        controllers.dividends.OtherUkDividendsAmountController.submit(taxYear: Int)
+GET         /:taxYear/dividends/other-dividends-amount        controllers.dividends.OtherUkDividendsAmountController.show(taxYear: Int, isEditMode: Boolean ?= false)
+POST        /:taxYear/dividends/other-dividends-amount        controllers.dividends.OtherUkDividendsAmountController.submit(taxYear: Int, isEditMode: Boolean ?= false)
 
-GET         /:taxYear/dividends/check-your-answers            controllers.dividends.DividendsCYAController.show(taxYear: Int)
-POST        /:taxYear/dividends/check-your-answers            controllers.dividends.DividendsCYAController.submit(taxYear: Int)
+GET         /:taxYear/dividends/check-your-answers            controllers.dividends.DividendsCYAController.show(taxYear: Int, isEditMode: Boolean ?= false)
+POST        /:taxYear/dividends/check-your-answers            controllers.dividends.DividendsCYAController.submit(taxYear: Int, isEditMode: Boolean ?= false)
 
 GET         /assets/*file                            controllers.Assets.versioned(path = "/public", file: Asset)

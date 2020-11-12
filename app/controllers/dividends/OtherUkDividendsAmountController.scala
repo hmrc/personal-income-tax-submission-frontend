@@ -43,6 +43,8 @@ class OtherUkDividendsAmountController @Inject()(
   def view(
             formInput: Either[Form[PriorOrNewAmountModel], Form[CurrencyAmountModel]],
             priorSubmission: Option[DividendsPriorSubmission] = None,
+            previousAmount: Option[String] = None,
+            isEditMode: Boolean,
             taxYear: Int
           )(implicit user: User[AnyContent]): Html = {
 
@@ -50,22 +52,29 @@ class OtherUkDividendsAmountController @Inject()(
       form = formInput,
       priorSubmission = priorSubmission,
       postAction = controllers.dividends.routes.OtherUkDividendsAmountController.submit(taxYear),
-      backUrl = controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear).url
+      backUrl = backLink(taxYear, isEditMode),
+      preAmount = previousAmount
     )
 
   }
 
-  def show(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
+  def show(taxYear: Int, isEditMode: Boolean): Action[AnyContent] = authAction { implicit user =>
     getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB) match {
       case Some(priorSubmission) if priorSubmission.otherUkDividends.nonEmpty =>
-        Ok(view(Left(PriorOrNewAmountForm.priorOrNewAmountForm(priorSubmission.otherUkDividends.get, radioErrorLocation)), Some(priorSubmission), taxYear = taxYear))
+        Ok(view(Left(PriorOrNewAmountForm.priorOrNewAmountForm(priorSubmission.otherUkDividends.get, radioErrorLocation)),
+          Some(priorSubmission), isEditMode = isEditMode, taxYear = taxYear))
       case _ =>
-        Ok(view(Right(OtherDividendsAmountForm.otherDividendsAmountForm()), taxYear = taxYear))
+        DividendsCheckYourAnswersModel.fromSession() match {
+          case Some(model) => Ok(view(Right(OtherDividendsAmountForm.otherDividendsAmountForm()), previousAmount = Some(model.otherUkDividendsAmount.fold {
+            ""
+          } { data => data.toString()}), isEditMode = isEditMode, taxYear = taxYear))
+          case None => Ok(view(Right(OtherDividendsAmountForm.otherDividendsAmountForm()),isEditMode = isEditMode, taxYear = taxYear))
+        }
     }
 
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
+  def submit(taxYear: Int, isEditMode: Boolean): Action[AnyContent] = authAction { implicit user =>
 
     implicit val priorSubmissionSessionData: Option[DividendsPriorSubmission] =
       getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
@@ -76,7 +85,7 @@ class OtherUkDividendsAmountController @Inject()(
       case Some(priorSubmission) if priorSubmission.otherUkDividends.nonEmpty =>
         PriorOrNewAmountForm.priorOrNewAmountForm(priorSubmission.otherUkDividends.get, radioErrorLocation).bindFromRequest().fold(
           {
-            formWithErrors => BadRequest(view(Left(formWithErrors), Some(priorSubmission), taxYear = taxYear))
+            formWithErrors => BadRequest(view(Left(formWithErrors), Some(priorSubmission),isEditMode = isEditMode, taxYear = taxYear))
           },
           {
             formModel =>
@@ -99,7 +108,7 @@ class OtherUkDividendsAmountController @Inject()(
       case _ =>
         OtherDividendsAmountForm.otherDividendsAmountForm().bindFromRequest().fold(
           {
-            formWithErrors => BadRequest(view(Right(formWithErrors), taxYear = taxYear))
+            formWithErrors => BadRequest(view(Right(formWithErrors), isEditMode = isEditMode, taxYear = taxYear))
           },
           {
             formModel =>
@@ -119,6 +128,14 @@ class OtherUkDividendsAmountController @Inject()(
   private[dividends] def getSessionData[T](key: String)(implicit user: User[_], reads: Reads[T]): Option[T] = {
     user.session.get(key).flatMap { stringValue =>
       Json.parse(stringValue).asOpt[T]
+    }
+  }
+
+  def backLink(taxYear: Int, isEditMode: Boolean): String ={
+    if(isEditMode){
+      controllers.dividends.routes.DividendsCYAController.show(taxYear).url
+    } else {
+      controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear).url
     }
   }
 

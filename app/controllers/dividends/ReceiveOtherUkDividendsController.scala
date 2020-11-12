@@ -38,15 +38,17 @@ class ReceiveOtherUkDividendsController @Inject()(
 
   val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("dividends.other-dividends.errors.noChoice")
 
-  def show(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
-    Ok(receiveOtherDividendsView("dividends.other-dividends.heading." + (if(user.isAgent) "agent" else "individual"), yesNoForm, taxYear))
+  def show(taxYear: Int, isEditMode: Boolean): Action[AnyContent] = authAction { implicit user =>
+    Ok(receiveOtherDividendsView("dividends.other-dividends.heading." + (if(user.isAgent) "agent" else "individual"),
+      yesNoForm, isEditMode, backLink(isEditMode), taxYear))
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
+  def submit(taxYear: Int, isEditMode: Boolean): Action[AnyContent] = authAction { implicit user =>
     yesNoForm.bindFromRequest().fold (
       {
         formWithErrors => BadRequest(
-          receiveOtherDividendsView("dividends.other-dividends.heading." + (if(user.isAgent) "agent" else "individual"), formWithErrors, taxYear)
+          receiveOtherDividendsView("dividends.other-dividends.heading." + (if(user.isAgent) "agent" else "individual"),
+            formWithErrors, isEditMode, backLink(isEditMode), taxYear)
         )
       },
       {
@@ -65,6 +67,14 @@ class ReceiveOtherUkDividendsController @Inject()(
           }
       }
     )
+  }
+
+  def backLink(taxYear: Int ,isEditMode: Boolean): String ={
+    if(isEditMode){
+      controllers.dividends.routes.DividendsCYAController.show(taxYear).url
+    } else {
+      controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear).url
+    }
   }
 
 }

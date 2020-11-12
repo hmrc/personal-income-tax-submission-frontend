@@ -46,7 +46,7 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
 
       "there are no form errors" which {
 
-        lazy val view = receiveOtherDividendsView("Some Title", yesNoForm, 2020)(user, implicitly, mockAppConfig)
+        lazy val view = receiveOtherDividendsView("Some Title", yesNoForm, false, testBackUrl, 2020)(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         val expectedTitle = "Some Title"
@@ -89,6 +89,8 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
           "Some Title",
           yesNoForm.copy(
             errors = Seq(FormError("yes_no", "Select yes if dividends were received from the UK"))),
+          isEditMode = false,
+          testBackUrl,
           2020
         )(user, implicitly, mockAppConfig)
 
@@ -145,7 +147,7 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
 
       "there are no form errors" which {
 
-        lazy val view = receiveOtherDividendsView("Some Title", yesNoForm, 2020)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+        lazy val view = receiveOtherDividendsView("Some Title", yesNoForm, isEditMode = false, testBackUrl, 2020)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         val expectedTitle = "Some Title"
@@ -188,6 +190,8 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
           "Some Title",
           yesNoForm.copy(
             errors = Seq(FormError("yes_no", "Select yes if dividends were received trusts or investment companies"))),
+          isEditMode = false,
+          testBackUrl,
           2020
         )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
 

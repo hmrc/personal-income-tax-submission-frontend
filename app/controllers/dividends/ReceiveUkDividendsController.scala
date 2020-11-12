@@ -38,14 +38,15 @@ class ReceiveUkDividendsController @Inject()(
 
   val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("dividends.uk-dividends.errors.noChoice")
 
-  def show(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
-    Ok(receiveUkDividendsView("dividends.uk-dividends.heading." + (if (user.isAgent) "agent" else "individual"), yesNoForm, taxYear))
+  def show(taxYear: Int ,isEditMode: Boolean): Action[AnyContent] = authAction { implicit user =>
+    Ok(receiveUkDividendsView("dividends.uk-dividends.heading." + (if (user.isAgent) "agent" else "individual"), yesNoForm, isEditMode, backLink(isEditMode)))
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
+  def submit(taxYear: Int, isEditMode: Boolean): Action[AnyContent] = authAction { implicit user =>
     yesNoForm.bindFromRequest().fold(
       {
-        formWithErrors => BadRequest(receiveUkDividendsView("dividends.uk-dividends.heading." + (if (user.isAgent) "agent" else "individual"), formWithErrors, taxYear))
+        formWithErrors => BadRequest(receiveUkDividendsView("dividends.uk-dividends.heading." + (if (user.isAgent) "agent" else "individual"),
+          formWithErrors, isEditMode, backLink(isEditMode), taxYear))
       },
       {
         yesNoModel =>
@@ -55,14 +56,27 @@ class ReceiveUkDividendsController @Inject()(
           }
 
           if (yesNoModel.asBoolean) {
-            Redirect(controllers.dividends.routes.UkDividendsAmountController.show(taxYear))
+            Redirect(controllers.dividends.routes.UkDividendsAmountController.show(taxYear, isEditMode))
               .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(ukDividends = true).asJsonString)
           } else {
-            Redirect(controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear))
-              .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(ukDividends = false, ukDividendsAmount = None).asJsonString)
+            if (isEditMode){
+              Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))
+                .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(ukDividends = false, ukDividendsAmount = None).asJsonString)
+            } else {
+              Redirect(controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear))
+                .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(ukDividends = false, ukDividendsAmount = None).asJsonString)
+            }
           }
       }
     )
+  }
+
+  def backLink(taxYear: Int, isEditMode: Boolean): String ={
+    if(isEditMode){
+      controllers.dividends.routes.DividendsCYAController.show(taxYear).url
+    } else {
+      appConfig.incomeTaxSubmissionOverviewUrl
+    }
   }
 
 }

@@ -41,7 +41,7 @@ class ReceiveOtherUkDividendsControllerSpec extends ViewTest {
     "return a result" which {
 
       s"has an OK($OK) status" in new TestWithAuth {
-        val result: Future[Result] = controller.show(2020)(fakeRequest)
+        val result: Future[Result] = controller.show(2020, false)(fakeRequest)
 
         status(result) shouldBe OK
       }
@@ -58,7 +58,7 @@ class ReceiveOtherUkDividendsControllerSpec extends ViewTest {
 
         "the session data is empty" in new TestWithAuth {
 
-          val result: Future[Result] = controller.submit(2020)(fakeRequest.withFormUrlEncodedBody(
+          val result: Future[Result] = controller.submit(2020, false)(fakeRequest.withFormUrlEncodedBody(
             YesNoForm.yesNo -> YesNoForm.yes
           ))
 
@@ -69,7 +69,7 @@ class ReceiveOtherUkDividendsControllerSpec extends ViewTest {
 
         "the session data exist" in new TestWithAuth {
 
-          val result: Future[Result] = controller.submit(2020)(fakeRequest
+          val result: Future[Result] = controller.submit(2020, false)(fakeRequest
             .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes)
             .withSession(SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel().asJsonString)
           )
@@ -89,7 +89,7 @@ class ReceiveOtherUkDividendsControllerSpec extends ViewTest {
 
         "the session data is empty" in new TestWithAuth {
 
-          val result: Future[Result] = controller.submit(2020)(fakeRequest.withFormUrlEncodedBody(
+          val result: Future[Result] = controller.submit(2020, false)(fakeRequest.withFormUrlEncodedBody(
             YesNoForm.yesNo -> YesNoForm.no
           ))
 
@@ -100,7 +100,7 @@ class ReceiveOtherUkDividendsControllerSpec extends ViewTest {
 
         "the session data exist" in new TestWithAuth {
 
-          val result: Future[Result] = controller.submit(2020)(fakeRequest
+          val result: Future[Result] = controller.submit(2020, false)(fakeRequest
             .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.no)
             .withSession(SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel().asJsonString)
           )
@@ -122,7 +122,7 @@ class ReceiveOtherUkDividendsControllerSpec extends ViewTest {
           otherUkDividends = true
         )
 
-        val result: Future[Result] = controller.submit(2020)(fakeRequest
+        val result: Future[Result] = controller.submit(2020, false)(fakeRequest
           .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes)
           .withSession(SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = true).asJsonString)
         )
@@ -135,7 +135,7 @@ class ReceiveOtherUkDividendsControllerSpec extends ViewTest {
           otherUkDividends = true
         )
 
-        val result: Future[Result] = controller.submit(2020)(fakeRequest
+        val result: Future[Result] = controller.submit(2020, false)(fakeRequest
           .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes)
         )
 
