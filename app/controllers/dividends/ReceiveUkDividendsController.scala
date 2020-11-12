@@ -39,14 +39,15 @@ class ReceiveUkDividendsController @Inject()(
   val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("dividends.uk-dividends.errors.noChoice")
 
   def show(taxYear: Int ,isEditMode: Boolean): Action[AnyContent] = authAction { implicit user =>
-    Ok(receiveUkDividendsView("dividends.uk-dividends.heading." + (if (user.isAgent) "agent" else "individual"), yesNoForm, isEditMode, backLink(isEditMode)))
+    Ok(receiveUkDividendsView("dividends.uk-dividends.heading." + (if (user.isAgent) "agent" else "individual"),
+      yesNoForm, isEditMode, backLink(taxYear,isEditMode), taxYear))
   }
 
   def submit(taxYear: Int, isEditMode: Boolean): Action[AnyContent] = authAction { implicit user =>
     yesNoForm.bindFromRequest().fold(
       {
         formWithErrors => BadRequest(receiveUkDividendsView("dividends.uk-dividends.heading." + (if (user.isAgent) "agent" else "individual"),
-          formWithErrors, isEditMode, backLink(isEditMode), taxYear))
+          formWithErrors, isEditMode, backLink(taxYear,isEditMode), taxYear))
       },
       {
         yesNoModel =>
@@ -75,7 +76,7 @@ class ReceiveUkDividendsController @Inject()(
     if(isEditMode){
       controllers.dividends.routes.DividendsCYAController.show(taxYear).url
     } else {
-      appConfig.incomeTaxSubmissionOverviewUrl
+      appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
     }
   }
 

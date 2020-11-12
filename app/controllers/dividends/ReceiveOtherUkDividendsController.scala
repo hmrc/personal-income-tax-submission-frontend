@@ -40,7 +40,7 @@ class ReceiveOtherUkDividendsController @Inject()(
 
   def show(taxYear: Int, isEditMode: Boolean): Action[AnyContent] = authAction { implicit user =>
     Ok(receiveOtherDividendsView("dividends.other-dividends.heading." + (if(user.isAgent) "agent" else "individual"),
-      yesNoForm, isEditMode, backLink(isEditMode), taxYear))
+      yesNoForm, isEditMode, backLink(taxYear, isEditMode), taxYear))
   }
 
   def submit(taxYear: Int, isEditMode: Boolean): Action[AnyContent] = authAction { implicit user =>
@@ -48,7 +48,7 @@ class ReceiveOtherUkDividendsController @Inject()(
       {
         formWithErrors => BadRequest(
           receiveOtherDividendsView("dividends.other-dividends.heading." + (if(user.isAgent) "agent" else "individual"),
-            formWithErrors, isEditMode, backLink(isEditMode), taxYear)
+            formWithErrors, isEditMode, backLink(taxYear, isEditMode), taxYear)
         )
       },
       {
@@ -73,7 +73,7 @@ class ReceiveOtherUkDividendsController @Inject()(
     if(isEditMode){
       controllers.dividends.routes.DividendsCYAController.show(taxYear).url
     } else {
-      controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear).url
+      controllers.dividends.routes.ReceiveUkDividendsController.show(taxYear).url
     }
   }
 

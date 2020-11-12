@@ -247,7 +247,7 @@ class OtherUkDividendsAmountControllerSpec extends ViewTest {
 
       "the user is in edit mode" in {
 
-        controller.backLink(taxYear, false) shouldBe (controllers.dividends.routes.DividendsCYAController.show(taxYear).url)
+        controller.backLink(taxYear, true) shouldBe (controllers.dividends.routes.DividendsCYAController.show(taxYear).url)
 
       }
 
