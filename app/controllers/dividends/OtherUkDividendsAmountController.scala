@@ -43,14 +43,16 @@ class OtherUkDividendsAmountController @Inject()(
   def view(
             formInput: Either[Form[PriorOrNewAmountModel], Form[CurrencyAmountModel]],
             priorSubmission: Option[DividendsPriorSubmission] = None,
-            taxYear: Int
+            taxYear: Int,
+            preAmount: Option[String] = None
           )(implicit user: User[AnyContent]): Html = {
 
     otherDividendsAmountView(
       form = formInput,
       priorSubmission = priorSubmission,
       postAction = controllers.dividends.routes.OtherUkDividendsAmountController.submit(taxYear),
-      backUrl = controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear).url
+      backUrl = controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear).url,
+      preAmount = preAmount
     )
 
   }
@@ -60,7 +62,11 @@ class OtherUkDividendsAmountController @Inject()(
       case Some(priorSubmission) if priorSubmission.otherUkDividends.nonEmpty =>
         Ok(view(Left(PriorOrNewAmountForm.priorOrNewAmountForm(priorSubmission.otherUkDividends.get, radioErrorLocation)), Some(priorSubmission), taxYear = taxYear))
       case _ =>
-        Ok(view(Right(OtherDividendsAmountForm.otherDividendsAmountForm()), taxYear = taxYear))
+        DividendsCheckYourAnswersModel.fromSession() match {
+          case Some(model) => Ok(view(Right(OtherDividendsAmountForm.otherDividendsAmountForm()), taxYear = taxYear,
+            preAmount = Some(model.otherUkDividendsAmount.fold {""} { data => data.toString()})))
+          case None => Ok(view(Right(OtherDividendsAmountForm.otherDividendsAmountForm()), taxYear = taxYear))
+        }
     }
 
   }

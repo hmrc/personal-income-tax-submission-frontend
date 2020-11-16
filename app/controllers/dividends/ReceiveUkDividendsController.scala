@@ -49,17 +49,20 @@ class ReceiveUkDividendsController @Inject()(
       },
       {
         yesNoModel =>
-          val cyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel.fromSession() match {
-            case Some(model) => model
-            case None => DividendsCheckYourAnswersModel()
-          }
 
           if (yesNoModel.asBoolean) {
-            Redirect(controllers.dividends.routes.UkDividendsAmountController.show(taxYear))
-              .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(ukDividends = true).asJsonString)
+            DividendsCheckYourAnswersModel.fromSession() match {
+              case Some(model) => Redirect(controllers.dividends.routes.UkDividendsAmountController.show(taxYear))
+                .addingToSession(SessionValues.DIVIDENDS_CYA -> model.copy(ukDividends = Some(true)).asJsonString)
+              case None => Redirect(controllers.dividends.routes.UkDividendsAmountController.show(taxYear))
+            }
           } else {
-            Redirect(controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear))
-              .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(ukDividends = false, ukDividendsAmount = None).asJsonString)
+            DividendsCheckYourAnswersModel.fromSession() match {
+              case Some(model) if model.isFinished => Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))
+                .addingToSession(SessionValues.DIVIDENDS_CYA -> model.copy(ukDividends = Some(false), ukDividendsAmount = None).asJsonString)
+              case _ => Redirect(controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear))
+                .addingToSession(SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel().copy(ukDividends = Some(false)).asJsonString)
+            }
           }
       }
     )

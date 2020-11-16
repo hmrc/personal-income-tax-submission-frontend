@@ -21,13 +21,28 @@ import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.Call
 
 case class DividendsCheckYourAnswersModel(
-                                           ukDividends: Boolean = false,
+                                           ukDividends: Option[Boolean] = None,
                                            ukDividendsAmount: Option[BigDecimal] = None,
-                                           otherUkDividends: Boolean = false,
+                                           otherUkDividends: Option[Boolean] = None,
                                            otherUkDividendsAmount: Option[BigDecimal] = None
                                     ) {
 
   def asJsonString: String = Json.toJson(this).toString()
+
+  def isFinished: Boolean = {
+
+    val ukDividendsFinished: Boolean = ukDividends.exists{
+      case true => ukDividendsAmount.isDefined
+      case false => true
+    }
+
+    val otherUkDividendsFinished: Boolean = otherUkDividends.exists{
+      case true => otherUkDividendsAmount.isDefined
+      case false => true
+    }
+
+    ukDividendsFinished && otherUkDividendsFinished
+  }
 
 }
 

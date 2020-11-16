@@ -22,9 +22,9 @@ import utils.UnitTest
 class DividendsCheckYourAnswersModelSpec extends UnitTest {
 
   val jsonMax: JsObject = Json.obj(
-    "ukDividends" -> true,
+    "ukDividends" -> Some(true),
     "ukDividendsAmount" -> 5,
-    "otherUkDividends" -> true,
+    "otherUkDividends" -> Some(true),
     "otherUkDividendsAmount" -> 10
   )
 
@@ -34,13 +34,13 @@ class DividendsCheckYourAnswersModelSpec extends UnitTest {
   )
 
   val modelMax = DividendsCheckYourAnswersModel(
-    ukDividends = true,
+    ukDividends = Some(true),
     Some(5),
-    otherUkDividends = true,
+    otherUkDividends = Some(true),
     Some(10)
   )
 
-  val modelMin = DividendsCheckYourAnswersModel()
+  val modelMin = DividendsCheckYourAnswersModel(Some(false), None, Some(false), None)
 
   "DividendsCheckYourAnswersModel" should {
 
@@ -76,6 +76,33 @@ class DividendsCheckYourAnswersModelSpec extends UnitTest {
 
     }
 
+  }
+
+  ".isFinished " should {
+
+    "return true" when {
+
+      "ukDividends are false and otherDividends are false" in {
+
+        DividendsCheckYourAnswersModel(ukDividends = Some(false), otherUkDividends = Some(false)).isFinished shouldBe(true)
+      }
+      "ukDividends are false and otherDividends are true with an amount" in {
+
+        DividendsCheckYourAnswersModel(ukDividends = Some(false), otherUkDividends = Some(true), otherUkDividendsAmount = Some(500))
+          .isFinished shouldBe(true)
+      }
+      "ukDividends are true with an amount and otherDividends are false" in {
+
+        DividendsCheckYourAnswersModel(ukDividends = Some(true), ukDividendsAmount = Some(500), otherUkDividends = Some(false))
+          .isFinished shouldBe(true)
+      }
+      "ukDividends are true with an amount and otherDividends are true with an amount" in {
+
+        DividendsCheckYourAnswersModel(ukDividends = Some(true), ukDividendsAmount = Some(500), otherUkDividends = Some(true),
+          otherUkDividendsAmount = Some(500))
+          .isFinished shouldBe(true)
+      }
+    }
   }
 
 }

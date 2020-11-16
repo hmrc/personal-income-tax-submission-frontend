@@ -20,10 +20,28 @@ class UkDividendsAmountControllerISpec extends IntegrationTest {
 
     ".show" should {
 
-      "returns an action" which {
+      "returns an action without data in session" which {
         lazy val result: WSResponse = {
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/uk-dividends-amount").get())
+        }
+
+        "has an OK(200) status" in {
+          result.status shouldBe OK
+        }
+
+      }
+
+      "returns an action when data is in session" which {
+
+        val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+          SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(true), ukDividendsAmount = Some(500)).asJsonString
+        ))
+
+        lazy val result: WSResponse = {
+          authoriseIndividual()
+          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/uk-dividends-amount")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").get())
         }
 
         "has an OK(200) status" in {
@@ -39,7 +57,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest {
       s"return an OK($OK) status" in {
 
         val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-          SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = true).asJsonString
+          SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(true)).asJsonString
         ))
 
         lazy val result: WSResponse = {
@@ -97,7 +115,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest {
           lazy val result: WSResponse = {
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
               SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = true).asJsonString
+              SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(true)).asJsonString
             ))
 
             authoriseAgent()

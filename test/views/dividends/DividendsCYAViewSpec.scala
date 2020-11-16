@@ -47,9 +47,9 @@ class DividendsCYAViewSpec extends ViewTest {
       "all boolean answers are yes and amount answers are filled in" which {
 
         val cyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(
-          ukDividends = true,
+          ukDividends = Some(true),
           Some(5),
-          otherUkDividends = true,
+          otherUkDividends = Some(true),
           Some(10)
         )
         lazy val view = dividendsCyaView(cyaModel, taxYear = 2020)(user, implicitly, mockAppConfig)
@@ -140,9 +140,9 @@ class DividendsCYAViewSpec extends ViewTest {
       "prior values are available" which {
 
         val cyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(
-          ukDividends = true,
+          ukDividends = Some(true),
           Some(10),
-          otherUkDividends = true,
+          otherUkDividends = Some(true),
           Some(20)
         )
 
