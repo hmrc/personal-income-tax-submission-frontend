@@ -91,7 +91,7 @@ class OtherUkDividendsAmountControllerSpec extends ViewTest {
 
       "the amount input does not pass validation with no prior data" in new TestWithAuth {
         lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequest
-          .withSession(SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(otherUkDividends = true)).toString())
+          .withSession(SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(otherUkDividends = Some(true))).toString())
           .withFormUrlEncodedBody("amount" -> "ASDFGHJ"))
 
         status(result) shouldBe BAD_REQUEST
@@ -101,7 +101,7 @@ class OtherUkDividendsAmountControllerSpec extends ViewTest {
       "the amount input does not pass validation with prior data" in new TestWithAuth {
         lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequest
           .withSession(
-            SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(otherUkDividends = true)).toString(),
+            SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(otherUkDividends = Some(true))).toString(),
             SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(None, Some(otherDividendSubmitValue))).toString()
           )
           .withFormUrlEncodedBody(
@@ -116,7 +116,7 @@ class OtherUkDividendsAmountControllerSpec extends ViewTest {
       "the amount type does not pass validation with prior data" in new TestWithAuth {
         lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequest
           .withSession(
-            SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(otherUkDividends = true)).toString(),
+            SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(otherUkDividends = Some(true))).toString(),
             SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(None, Some(otherDividendSubmitValue))).toString()
           )
           .withFormUrlEncodedBody(
@@ -131,7 +131,7 @@ class OtherUkDividendsAmountControllerSpec extends ViewTest {
       "the amount type other is submitted but no amount is submitted" in new TestWithAuth {
         lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequest
           .withSession(
-            SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(otherUkDividends = true)).toString(),
+            SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(otherUkDividends = Some(true))).toString(),
             SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(None, Some(otherDividendSubmitValue))).toString()
           )
           .withFormUrlEncodedBody(

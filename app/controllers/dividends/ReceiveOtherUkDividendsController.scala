@@ -39,7 +39,13 @@ class ReceiveOtherUkDividendsController @Inject()(
   val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("dividends.other-dividends.errors.noChoice")
 
   def show(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
-    Ok(receiveOtherDividendsView("dividends.other-dividends.heading." + (if(user.isAgent) "agent" else "individual"), yesNoForm, taxYear))
+    DividendsCheckYourAnswersModel.fromSession() match {
+      case Some(model) if model.otherUkDividends.isDefined =>
+        Ok(receiveOtherDividendsView("dividends.other-dividends.heading." + (if (user.isAgent) "agent" else "individual"),
+          yesNoForm, taxYear, model.otherUkDividends.get.toString))
+      case _ =>
+        Ok(receiveOtherDividendsView("dividends.other-dividends.heading." + (if (user.isAgent) "agent" else "individual"), yesNoForm, taxYear))
+    }
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
@@ -58,10 +64,10 @@ class ReceiveOtherUkDividendsController @Inject()(
 
           if (yesNoModel.asBoolean) {
             Redirect(controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear))
-              .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherUkDividends = true).asJsonString)
+              .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherUkDividends = Some(true)).asJsonString)
           } else {
             Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))
-              .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherUkDividends = false, otherUkDividendsAmount = None).asJsonString)
+              .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherUkDividends = Some(false), otherUkDividendsAmount = None).asJsonString)
           }
       }
     )

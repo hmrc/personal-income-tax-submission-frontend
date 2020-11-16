@@ -42,9 +42,9 @@ class DividendsCYAControllerSpec extends ViewTest {
     s"return an OK($OK)" when {
 
       val cyaSessionData = DividendsCheckYourAnswersModel(
-        ukDividends = true,
+        ukDividends = Some(true),
         Some(10),
-        otherUkDividends = true,
+        otherUkDividends = Some(true),
         Some(10)
       )
 

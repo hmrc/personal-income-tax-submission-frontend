@@ -117,14 +117,14 @@ class ReceiveUkDividendsControllerSpec extends ViewTest {
     "add the cya data to session" when {
 
       "cya data already exist" in new TestWithAuth {
-        val expectedModel = DividendsCheckYourAnswersModel(
-          ukDividends = true,
-          otherUkDividends = true
+        val expectedModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(
+          ukDividends = Some(true),
+          otherUkDividends = Some(true)
         )
 
         val result: Future[Result] = controller.submit(2020)(fakeRequest
           .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes)
-          .withSession(SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(otherUkDividends = true).asJsonString)
+          .withSession(SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(otherUkDividends = Some(true)).asJsonString)
         )
 
         Json.parse(await(result).session.get(SessionValues.DIVIDENDS_CYA).get).as[DividendsCheckYourAnswersModel] shouldBe expectedModel
@@ -132,14 +132,13 @@ class ReceiveUkDividendsControllerSpec extends ViewTest {
 
       "cya data does not exist" in new TestWithAuth {
         val expectedModel = DividendsCheckYourAnswersModel(
-          ukDividends = true
         )
 
         val result: Future[Result] = controller.submit(2020)(fakeRequest
           .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes)
         )
 
-        Json.parse(await(result).session.get(SessionValues.DIVIDENDS_CYA).get).as[DividendsCheckYourAnswersModel] shouldBe expectedModel
+        await(result).session.get(SessionValues.DIVIDENDS_CYA).getOrElse(DividendsCheckYourAnswersModel()) shouldBe expectedModel
       }
 
     }

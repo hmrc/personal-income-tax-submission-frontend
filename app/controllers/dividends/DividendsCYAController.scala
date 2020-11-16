@@ -45,16 +45,16 @@ class DividendsCYAController @Inject()(
 
     (cyaSessionData, priorSubmissionData) match {
       case (Some(cyaData), Some(priorData)) =>
-        val ukDividendsExist = cyaData.ukDividends || priorData.ukDividends.nonEmpty
-        val otherDividendsExist = cyaData.otherUkDividends || priorData.otherUkDividends.nonEmpty
+        val ukDividendsExist = cyaData.ukDividends.getOrElse(priorData.ukDividends.nonEmpty)
+        val otherDividendsExist = cyaData.otherUkDividends.getOrElse(priorData.otherUkDividends.nonEmpty)
 
         val ukDividendsValue: Option[BigDecimal] = priorityOrderOrNone(cyaData.ukDividendsAmount, priorData.ukDividends, ukDividendsExist)
         val otherDividendsValue: Option[BigDecimal] = priorityOrderOrNone(cyaData.otherUkDividendsAmount, priorData.otherUkDividends, otherDividendsExist)
 
         val cyaModel = DividendsCheckYourAnswersModel(
-          ukDividendsExist,
+          Some(ukDividendsExist),
           ukDividendsValue,
-          otherDividendsExist,
+          Some(otherDividendsExist),
           otherDividendsValue
         )
 
@@ -62,9 +62,9 @@ class DividendsCYAController @Inject()(
       case (Some(cyaData), None) => Ok(dividendsCyaView(cyaData, taxYear = taxYear))
       case (None, Some(priorData)) =>
         val cyaModel = DividendsCheckYourAnswersModel(
-          priorData.ukDividends.nonEmpty,
+          Some(priorData.ukDividends.nonEmpty),
           priorData.ukDividends,
-          priorData.otherUkDividends.nonEmpty,
+          Some(priorData.otherUkDividends.nonEmpty),
           priorData.otherUkDividends
         )
         Ok(dividendsCyaView(cyaModel, priorData, taxYear))
