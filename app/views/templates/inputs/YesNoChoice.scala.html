@@ -18,7 +18,7 @@
 
 @this()
 
-@(id: String, form: Form[YesNoModel])(implicit messages: Messages)
+@(id: String, form: Form[YesNoModel], checked: String)(implicit messages: Messages)
 
 @containsErrors = @{ form.errors.nonEmpty }
 
@@ -31,13 +31,13 @@
     <fieldset class="govuk-fieldset" aria-describedby="@{id}_yes_no">
         <div class="govuk-radios govuk-radios--inline">
             <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="@{id}_yes" name="yes_no" type="radio" value="yes">
+                <input class="govuk-radios__input" id="@{id}_yes" name="yes_no" type="radio" value="yes" @if(checked.equals("true")){checked="checked"}>
                 <label class="govuk-label govuk-radios__label" for="@{id}_yes">
                     @messages("common.yes")
                 </label>
             </div>
             <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="@{id}_no" name="yes_no" type="radio" value="no">
+                <input class="govuk-radios__input" id="@{id}_no" name="yes_no" type="radio" value="no" @if(checked.equals("false")){checked="checked"}>
                 <label class="govuk-label govuk-radios__label" for="@{id}_no">
                     @messages("common.no")
                 </label>

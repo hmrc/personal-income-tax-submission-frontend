@@ -39,7 +39,13 @@ class ReceiveUkDividendsController @Inject()(
   val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("dividends.uk-dividends.errors.noChoice")
 
   def show(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
-    Ok(receiveUkDividendsView("dividends.uk-dividends.heading." + (if (user.isAgent) "agent" else "individual"), yesNoForm, taxYear))
+    DividendsCheckYourAnswersModel.fromSession() match {
+      case Some(model) if model.ukDividends.isDefined =>
+        Ok(receiveUkDividendsView("dividends.uk-dividends.heading." + (if (user.isAgent) "agent" else "individual"),
+          yesNoForm, taxYear, model.ukDividends.get.toString))
+      case _ =>
+        Ok(receiveUkDividendsView("dividends.uk-dividends.heading." + (if (user.isAgent) "agent" else "individual"), yesNoForm, taxYear))
+    }
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authAction { implicit user =>

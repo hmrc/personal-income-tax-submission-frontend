@@ -19,6 +19,7 @@ package controllers.dividends
 import common.SessionValues
 import forms.YesNoForm
 import helpers.PlaySessionCookieBaker
+import models.DividendsCheckYourAnswersModel
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.{WSClient, WSResponse}
@@ -32,7 +33,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest {
 
     ".show" should {
 
-      "returns an action" which {
+      "returns an action without data in session" which {
         lazy val result: WSResponse = {
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/other-dividends").get())
@@ -41,7 +42,22 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest {
         "has an OK(200) status" in {
           result.status shouldBe OK
         }
+      }
+      "returns an action when data is in session" which {
+        val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+          SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(true), ukDividendsAmount = Some(500),
+            otherUkDividends = Some(true), otherUkDividendsAmount = Some(500)).asJsonString
+        ))
 
+        lazy val result: WSResponse = {
+          authoriseIndividual()
+          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/other-dividends")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").get())
+        }
+
+        "has an OK(200) status" in {
+          result.status shouldBe OK
+        }
       }
 
     }
