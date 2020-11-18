@@ -15,19 +15,11 @@
  *@
 
 @import models.formatHelpers.PriorOrNewAmountModel
-@import models.DividendsPriorSubmission
 @import views.html.templates.helpers.ErrorSummaryDisplay
+@import views.html.templates.helpers.BigDecimalCurrency
 
-@this(errorSummaryDisplay: ErrorSummaryDisplay)
-@(heading: Html, formInput: Form[PriorOrNewAmountModel], priorAmount: Option[BigDecimal], errorKey: String)(implicit messages: Messages)
-
-@isExpandedByDefault() = @{
-    formInput.errors.distinct.foldRight(false)((error, check) => {
-        if(error.message equals messages(errorKey)) {
-            true
-        } else check
-    })
-}
+@this(errorSummaryDisplay: ErrorSummaryDisplay, bigDecimalCurrency: BigDecimalCurrency)
+@(heading: Html, formInput: Form[PriorOrNewAmountModel], priorAmount: Option[BigDecimal], errorKey: String, preFill: Option[BigDecimal] = None)(implicit messages: Messages)
 
 @errorSummaryDisplay(formInput.errors.distinct)
 
@@ -41,12 +33,12 @@
             <div class="govuk-radios__item">
                 <input class="govuk-radios__input" id="prior-amount" name="whichAmount" type="radio" value="prior">
                 <label class="govuk-label govuk-radios__label" for="prior-amount">
-                    @priorAmount.map(amount => s"£$amount")
+                    @priorAmount.map(amount=>s"${bigDecimalCurrency(amount)}")
                 </label>
             </div>
 
             <div class="govuk-radios__item">
-                <input class="govuk-radios__input" id="other-amount" name="whichAmount" type="radio" value="other" data-aria-controls="other-amount-input-hider" @if(isExpandedByDefault()){checked}>
+                <input class="govuk-radios__input" id="other-amount" name="whichAmount" type="radio" value="other" data-aria-controls="other-amount-input-hider" checked>
                 <label class="govuk-label govuk-radios__label" for="other-amount">
                 @messages("common.aDifferentAmount")
                 </label>
@@ -58,7 +50,7 @@
                     </label>
                     <div class="hmrc-currency-input__wrapper">
                         <div class="hmrc-currency-input__unit" aria-hidden="true">£</div>
-                        <input class="govuk-input govuk-!-width-one-third" id="other-amount-input" name="amount" pattern="[0-9]*">
+                        <input class="govuk-input govuk-!-width-one-third" id="other-amount-input" name="amount" pattern="[0-9]*"@preFill.map{amount=>value="@bigDecimalCurrency(amount, "")"}>
                     </div>
                 </div>
             </div>

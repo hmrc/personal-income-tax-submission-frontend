@@ -82,7 +82,7 @@ class DividendsCYAController @Inject()(
     Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
   }
 
-  private def priorityOrderOrNone(priority: Option[BigDecimal], other: Option[BigDecimal], yesNoResult: Boolean): Option[BigDecimal] = {
+  private[dividends] def priorityOrderOrNone(priority: Option[BigDecimal], other: Option[BigDecimal], yesNoResult: Boolean): Option[BigDecimal] = {
     if(yesNoResult) {
       (priority, other) match {
         case (Some(priorityValue), _) => Some(priorityValue)

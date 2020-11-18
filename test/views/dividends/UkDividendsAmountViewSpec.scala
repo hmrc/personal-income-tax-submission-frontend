@@ -241,6 +241,10 @@ class UkDividendsAmountViewSpec extends ViewTest {
             elementExist(newAmountRadio) shouldBe true
           }
 
+          "new amount radio button is already selected" in {
+            element(newAmountRadio).attributes().hasKey("checked") shouldBe true
+          }
+
           "contains a new amount input field" in {
             elementExist(newAmountInput) shouldBe true
           }

@@ -19,7 +19,7 @@ package controllers.dividends
 import common.SessionValues
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
-import forms.{OtherDividendsAmountForm, PriorOrNewAmountForm}
+import forms.{OtherDividendsAmountForm, PriorOrNewAmountForm, UkDividendsAmountForm}
 import javax.inject.Inject
 import models.formatHelpers.PriorOrNewAmountModel
 import models.{CurrencyAmountModel, DividendsCheckYourAnswersModel, DividendsPriorSubmission, User}
@@ -44,7 +44,7 @@ class OtherUkDividendsAmountController @Inject()(
             formInput: Either[Form[PriorOrNewAmountModel], Form[CurrencyAmountModel]],
             priorSubmission: Option[DividendsPriorSubmission] = None,
             taxYear: Int,
-            preAmount: Option[String] = None
+            preAmount: Option[BigDecimal] = None
           )(implicit user: User[AnyContent]): Html = {
 
     otherDividendsAmountView(
@@ -58,17 +58,24 @@ class OtherUkDividendsAmountController @Inject()(
   }
 
   def show(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
-    getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB) match {
-      case Some(priorSubmission) if priorSubmission.otherUkDividends.nonEmpty =>
-        Ok(view(Left(PriorOrNewAmountForm.priorOrNewAmountForm(priorSubmission.otherUkDividends.get, radioErrorLocation)), Some(priorSubmission), taxYear = taxYear))
-      case _ =>
-        DividendsCheckYourAnswersModel.fromSession() match {
-          case Some(model) => Ok(view(Right(OtherDividendsAmountForm.otherDividendsAmountForm()), taxYear = taxYear,
-            preAmount = Some(model.otherUkDividendsAmount.fold {""} { data => data.toString()})))
-          case None => Ok(view(Right(OtherDividendsAmountForm.otherDividendsAmountForm()), taxYear = taxYear))
-        }
-    }
+    val dividendsPriorSubmissionSession = getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
+    val checkYourAnswerSession = getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
 
+    (dividendsPriorSubmissionSession, checkYourAnswerSession) match {
+      case (Some(prior), Some(cya)) if prior.otherUkDividends.nonEmpty =>
+        Ok(view(
+          Left(PriorOrNewAmountForm.priorOrNewAmountForm(prior.otherUkDividends.get, radioErrorLocation)),
+          Some(prior),
+          taxYear,
+          cya.otherUkDividendsAmount
+        ))
+      case (Some(prior), None) if prior.otherUkDividends.nonEmpty =>
+        Ok(view(Left(PriorOrNewAmountForm.priorOrNewAmountForm(prior.otherUkDividends.get, radioErrorLocation)), Some(prior), taxYear))
+      case (None, Some(cya)) =>
+        Ok(view(Right(UkDividendsAmountForm.ukDividendsAmountForm()), taxYear = taxYear, preAmount = cya.ukDividendsAmount))
+      case _ =>
+        Ok(view(Right(UkDividendsAmountForm.ukDividendsAmountForm()), taxYear = taxYear))
+    }
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
