@@ -72,9 +72,9 @@ class OtherUkDividendsAmountController @Inject()(
       case (Some(prior), None) if prior.otherUkDividends.nonEmpty =>
         Ok(view(Left(PriorOrNewAmountForm.priorOrNewAmountForm(prior.otherUkDividends.get, radioErrorLocation)), Some(prior), taxYear))
       case (None, Some(cya)) =>
-        Ok(view(Right(UkDividendsAmountForm.ukDividendsAmountForm()), taxYear = taxYear, preAmount = cya.ukDividendsAmount))
+        Ok(view(Right(OtherDividendsAmountForm.otherDividendsAmountForm()), taxYear = taxYear, preAmount = cya.otherUkDividendsAmount))
       case _ =>
-        Ok(view(Right(UkDividendsAmountForm.ukDividendsAmountForm()), taxYear = taxYear))
+        Ok(view(Right(OtherDividendsAmountForm.otherDividendsAmountForm()), taxYear = taxYear))
     }
   }
 

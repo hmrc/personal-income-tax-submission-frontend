@@ -57,7 +57,7 @@
     </label>
     <div class="hmrc-currency-input__wrapper ">
         <div class="hmrc-currency-input__unit" aria-hidden="true">£</div>
-        <input name="@field.name" class="govuk-input govuk-input--width-10" id="@field.name" type="text" @value.map{ amount =>value="@bigDecimalCurrency(amount)"} @if(isNumeric) {pattern="[0-9]*" inputmode="numeric"}>
+        <input name="@field.name" class="govuk-input govuk-input--width-10" id="@field.name" type="text" @value.map{ amount =>value="@bigDecimalCurrency(amount, "")"} @if(isNumeric) {pattern="[0-9]*" inputmode="numeric"}>
     </div>
 </div>
 

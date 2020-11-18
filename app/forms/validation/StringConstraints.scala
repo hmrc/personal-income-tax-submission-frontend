@@ -21,9 +21,14 @@ import forms.validation.utils.ConstraintUtil._
 
 object StringConstraints {
 
-
   val charRegex = """^([ A-Za-z0-9&@£$€¥#.,:;-])*$"""
   val intRegex = """^[0-9]*$"""
+
+  val monetaryRegex = """\d+|\d*\.\d{1,2}"""
+
+  val validateCurrency: String => Constraint[String] = msgKey => constraint[String](
+    value => if(value.matches(monetaryRegex)) Valid else Invalid(msgKey)
+  )
 
   val validateInt: String => Constraint[String] = msgKey => constraint[String](
     x => if (x.matches(intRegex)) Valid else Invalid(msgKey)

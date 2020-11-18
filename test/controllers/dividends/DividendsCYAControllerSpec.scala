@@ -38,8 +38,8 @@ class DividendsCYAControllerSpec extends ViewTest {
   )
 
   val taxYear = 2020
-  val amount10 = 10
-  val amount20 = 20
+  val firstAmount = 10
+  val secondAmount = 20
 
   ".show" should {
 
@@ -47,14 +47,14 @@ class DividendsCYAControllerSpec extends ViewTest {
 
       val cyaSessionData = DividendsCheckYourAnswersModel(
         ukDividends = Some(true),
-        Some(amount10),
+        Some(firstAmount),
         otherUkDividends = Some(true),
-        Some(amount10)
+        Some(firstAmount)
       )
 
       val priorData = DividendsPriorSubmission(
-        Some(amount10),
-        Some(amount20)
+        Some(firstAmount),
+        Some(secondAmount)
       )
 
       "there is CYA session data and prior submission data" in new TestWithAuth {
