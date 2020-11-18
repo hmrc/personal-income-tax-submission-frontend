@@ -19,14 +19,14 @@
 @import forms.OtherDividendsAmountForm._
 @import play.api.mvc.Request
 @import play.api.i18n.Messages
-@import views.html.templates.helpers.inputHelper
+@import views.html.templates.helpers.InputHelper
 @import views.html.templates.helpers.ErrorSummaryDisplay
 @import views.html.templates.helpers.ContinueButton
 @import models.formatHelpers.PriorOrNewAmountModel
 @import views.html.templates.helpers.PriorOrNewForm
 
-@this(layout: Layout, formWithCSRF: FormWithCSRF, errorSummaryDisplay: ErrorSummaryDisplay, priorOrNewForm: PriorOrNewForm)
-@(form: Either[Form[PriorOrNewAmountModel], Form[CurrencyAmountModel]], priorSubmission: Option[DividendsPriorSubmission], postAction: Call, backUrl: String, preAmount: Option[String] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@this(layout: Layout, formWithCSRF: FormWithCSRF, errorSummaryDisplay: ErrorSummaryDisplay, priorOrNewForm: PriorOrNewForm, inputHelper: InputHelper)
+@(form: Either[Form[PriorOrNewAmountModel], Form[CurrencyAmountModel]], priorSubmission: Option[DividendsPriorSubmission], postAction: Call, backUrl: String, preAmount: Option[BigDecimal] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @heading = {
  <span class="govuk-caption-l">@messages("dividends.caption")</span>
@@ -59,7 +59,7 @@
 
 @layout(pageTitle = Some("dividends.other-dividends-amount.title"), backLinkUrl = Some(backUrl), scriptsBlock = Some(scripts)) {
  @formWithCSRF(action = postAction) {
-  @form.fold(priorForm => priorOrNewForm(heading, priorForm, priorAmount, "dividends.error.invalid_number"), currencyForm => currencyFormHtml(currencyForm, otherDividendsAmount))
+  @form.fold(priorForm => priorOrNewForm(heading, priorForm, priorAmount, "dividends.error.invalid_number", preAmount), currencyForm => currencyFormHtml(currencyForm, otherDividendsAmount))
   @ContinueButton()
  }
 

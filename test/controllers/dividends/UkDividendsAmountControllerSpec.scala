@@ -57,6 +57,23 @@ class UkDividendsAmountControllerSpec extends ViewTest {
         bodyOf(result) shouldNot include("govuk-error-summary")
       }
 
+      "there is a prior submission and check your answer data in session" in new TestWithAuth {
+        val amount = 100
+
+        lazy val result: Future[Result] = {
+          controller.show(taxYear)(fakeRequest.withSession(
+            SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(Some(ukDividendSubmitAmount), None)).toString(),
+            SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(Some(true), Some(amount))).toString()
+          ))
+        }
+
+        status(result) shouldBe OK
+        bodyOf(result) should include("prior-amount")
+        bodyOf(result) should include("50")
+        bodyOf(result) should include("100")
+        bodyOf(result) shouldNot include("govuk-error-summary")
+      }
+
       "there is a prior submission in session, but no UK Dividends value" in new TestWithAuth {
         lazy val result: Future[Result] = {
           controller.show(taxYear)(fakeRequest.withSession(

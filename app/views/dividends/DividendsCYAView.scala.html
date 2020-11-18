@@ -16,8 +16,9 @@
 
 @import views.html.headerFooterTemplate.Layout
 @import views.html.templates.helpers.CYARow
+@import views.html.templates.helpers.BigDecimalCurrency
 
-@this(layout: Layout, formWithCSRF: FormWithCSRF, cyaRow: CYARow)
+@this(layout: Layout, formWithCSRF: FormWithCSRF, cyaRow: CYARow, bigDecimalCurrency: BigDecimalCurrency)
 
 @(cya: DividendsCheckYourAnswersModel, prior: DividendsPriorSubmission = DividendsPriorSubmission(), taxYear: Int)(implicit user: User[AnyContent], messages: Messages, appConfig: AppConfig)
 
@@ -26,7 +27,7 @@
 }
 
 @bigDecimalToCurrency(amount: BigDecimal) = @{
-    s"£$amount"
+    s"${bigDecimalCurrency(amount)}"
 }
 
 @layout(pageTitle = Some(messages("dividends.cya.title")), backLinkUrl = Some(controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear).url)) {

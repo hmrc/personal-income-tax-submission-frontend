@@ -28,15 +28,13 @@ object UkDividendsAmountForm {
 
   val ukDividendsAmount: String = "amount"
 
-
   val amountNotEmpty: Constraint[String] = nonEmpty("dividends.uk-dividends-amount.error.empty")
-  val amountValidInt: Constraint[String] = validateInt("dividends.error.invalid_number")
-
+  val amountValidCur: Constraint[String] = validateCurrency("dividends.error.invalid_number")
 
   def ukDividendsAmountForm(): Form[CurrencyAmountModel] = Form(
     mapping(
       ukDividendsAmount -> trimmedText.verifying(
-        amountNotEmpty andThen amountValidInt
+        amountNotEmpty andThen amountValidCur
       )
     )(CurrencyAmountModel.apply)(CurrencyAmountModel.unapply)
   )

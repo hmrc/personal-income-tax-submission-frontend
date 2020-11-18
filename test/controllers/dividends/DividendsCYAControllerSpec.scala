@@ -37,20 +37,24 @@ class DividendsCYAControllerSpec extends ViewTest {
     mockAppConfig
   )
 
+  val taxYear = 2020
+  val firstAmount = 10
+  val secondAmount = 20
+
   ".show" should {
 
     s"return an OK($OK)" when {
 
       val cyaSessionData = DividendsCheckYourAnswersModel(
         ukDividends = Some(true),
-        Some(10),
+        Some(firstAmount),
         otherUkDividends = Some(true),
-        Some(10)
+        Some(firstAmount)
       )
 
       val priorData = DividendsPriorSubmission(
-        Some(10),
-        Some(20)
+        Some(firstAmount),
+        Some(secondAmount)
       )
 
       "there is CYA session data and prior submission data" in new TestWithAuth {
@@ -59,7 +63,7 @@ class DividendsCYAControllerSpec extends ViewTest {
           SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(priorData).toString
         )
 
-        val result: Future[Result] = controller.show(2020)(request)
+        val result: Future[Result] = controller.show(taxYear)(request)
 
         status(result) shouldBe OK
       }
@@ -69,7 +73,7 @@ class DividendsCYAControllerSpec extends ViewTest {
           SessionValues.DIVIDENDS_CYA -> Json.toJson(cyaSessionData).toString
         )
 
-        val result: Future[Result] = controller.show(2020)(request)
+        val result: Future[Result] = controller.show(taxYear)(request)
 
         status(result) shouldBe OK
       }
@@ -79,7 +83,7 @@ class DividendsCYAControllerSpec extends ViewTest {
           SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(priorData).toString
         )
 
-        val result: Future[Result] = controller.show(2020)(request)
+        val result: Future[Result] = controller.show(taxYear)(request)
 
         status(result) shouldBe OK
       }
@@ -89,10 +93,52 @@ class DividendsCYAControllerSpec extends ViewTest {
     "redirect to the overview page" when {
 
       "there is no session data" in new TestWithAuth {
-        val result: Future[Result] = controller.show(2020)(FakeRequest())
+        val result: Future[Result] = controller.show(taxYear)(FakeRequest())
 
         status(result) shouldBe SEE_OTHER
-        redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(2020)
+        redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+      }
+
+    }
+
+  }
+
+  ".priorityOrderOrNone" should {
+
+    val amount1: BigDecimal = 120
+    val amount2: BigDecimal = 140
+
+    val priorityValue: Option[BigDecimal] = Some(amount1)
+    val otherValue: Option[BigDecimal] = Some(amount2)
+
+    "return the priority value" when {
+
+      "the priority value is provided on it's own" in {
+        controller.priorityOrderOrNone(priorityValue, None, yesNoResult = true) shouldBe Some(amount1)
+      }
+
+      "the priority value is provided along side the other value" in {
+        controller.priorityOrderOrNone(priorityValue, otherValue, yesNoResult = true) shouldBe Some(amount1)
+      }
+
+    }
+
+    "return the other value" when {
+
+      "no priority value is provided" in {
+        controller.priorityOrderOrNone(None, otherValue, yesNoResult = true) shouldBe Some(amount2)
+      }
+
+    }
+
+    "return None" when {
+
+      "no priority or other value is provided" in {
+        controller.priorityOrderOrNone(None, None, yesNoResult = true) shouldBe None
+      }
+
+      "yesNoResult is false regardless of provided values" in {
+        controller.priorityOrderOrNone(priorityValue, otherValue, yesNoResult = false) shouldBe None
       }
 
     }

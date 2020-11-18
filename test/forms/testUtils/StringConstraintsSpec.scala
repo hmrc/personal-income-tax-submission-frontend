@@ -32,42 +32,53 @@ class StringConstraintsSpec extends Constraints with WordSpecLike with Matchers 
   "The StringConstraints.maxLength method" when {
 
     "supplied with a string which exceeds the max length" should {
+
       "return invalid with the correct message" in {
         StringConstraints.maxLength(maxLength, errMsgMaxLength)("abc") shouldBe Invalid(errMsgMaxLength)
       }
+
     }
 
     "supplied with a string which equals the max length" should {
+
       "return valid" in {
         StringConstraints.maxLength(maxLength, errMsgMaxLength)("ab") shouldBe Valid
       }
+
     }
 
     "supplied with a string which is less than the max length" should {
+
       "return valid" in {
         StringConstraints.maxLength(maxLength, errMsgMaxLength)("a") shouldBe Valid
       }
+
     }
   }
 
   "The StringConstraints.nonEmpty method" when {
 
     "supplied with empty value" should {
+
       "return invalid" in {
         StringConstraints.nonEmpty(errMsgNonEmpty)("") shouldBe Invalid(errMsgNonEmpty)
       }
+
     }
 
     "supplied with some value" should {
+
       "return valid" in {
         StringConstraints.nonEmpty(errMsgNonEmpty)("someValue") shouldBe Valid
       }
+
     }
   }
 
   "The StringConstraints.validateChar method" when {
 
     "supplied with a valid string" should {
+
       "return valid" in {
         val lowerCaseAlphabet = ('a' to 'z').mkString
         val upperCaseAlphabet = lowerCaseAlphabet.toUpperCase()
@@ -80,47 +91,75 @@ class StringConstraintsSpec extends Constraints with WordSpecLike with Matchers 
     }
 
     "supplied with a string which contains invalid characters" should {
+
       "return invalid" in {
         StringConstraints.validateChar(errMsgInvalidChar)("!()+{}?^~") shouldBe Invalid(errMsgInvalidChar)
       }
+
     }
   }
 
   "The StringConstraints.noLeadingSpace method" when {
 
     "supplied with a string which contains no leading space" should {
-      "return valid" in {
 
+      "return valid" in {
         StringConstraints.noLeadingSpace(errMsgNoLeadingSpace)("TEST Business") shouldBe Valid
       }
     }
 
     "supplied with a string which contains a leading space" should {
+
       "return invalid" in {
         StringConstraints.noLeadingSpace(errMsgNoLeadingSpace)(" TEST Business") shouldBe Invalid(errMsgNoLeadingSpace)
       }
+
     }
 
     "supplied with a string which contains two leading spaces" should {
+
       "return invalid" in {
         StringConstraints.noLeadingSpace(errMsgNoLeadingSpace)("  TEST Business") shouldBe Invalid(errMsgNoLeadingSpace)
       }
+
     }
   }
 
   "The StringConstraints.validateInt method" when {
 
     "supplied with a string which contains non numerical chars" should {
-      "return invalid" in {
 
+      "return invalid" in {
         StringConstraints.validateInt(errMsgInvalidInt)("123456789?") shouldBe Invalid(errMsgInvalidInt)
       }
     }
 
     "supplied with a string which contains all numerical chars" should {
+
       "return valid" in {
         StringConstraints.noLeadingSpace(errMsgNoLeadingSpace)("123456789") shouldBe Valid
       }
+
+    }
+
+  }
+
+  "The StringConstraints.validateCurrency method" when {
+
+    "supplied with a string which contains too many decimal places" should {
+
+      "return invalid" in {
+        StringConstraints.validateCurrency(errMsgInvalidInt)("1234.2323") shouldBe Invalid(errMsgInvalidInt)
+      }
+
+    }
+
+    "supplied with a string which contains all numerical chars" should {
+
+      "return valid" in {
+        StringConstraints.noLeadingSpace(errMsgNoLeadingSpace)("1234567.89") shouldBe Valid
+      }
+
     }
 
   }

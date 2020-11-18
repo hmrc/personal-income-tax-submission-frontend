@@ -89,7 +89,7 @@ object PriorOrNewAmountForm {
   )
 
   def isANumber(input: String): Boolean = {
-    val regex: String = "\\d+"
+    val regex: String = """\d+|\d*\.\d{1,2}"""
     input.matches(regex)
   }
 

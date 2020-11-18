@@ -15,9 +15,12 @@
  *@
 
 @import play.api.data.{Field, Form}
+@import views.html.templates.helpers.BigDecimalCurrency
+
+@this(bigDecimalCurrency: BigDecimalCurrency)
 @(field: Field,
         label: Option[String] = None,
-        value: Option[String] = None,
+        value: Option[BigDecimal] = None,
         parentForm: Form[_],
         maxLength: Option[Int] = None,
         divClass: Option[String] = None,
@@ -27,7 +30,7 @@
 )(implicit messages: Messages)
 
 @errors = @{
-field.errors
+    field.errors
 }
 
 @errMsg(err: FormError) = {
@@ -54,7 +57,7 @@ field.errors
     </label>
     <div class="hmrc-currency-input__wrapper ">
         <div class="hmrc-currency-input__unit" aria-hidden="true">£</div>
-        <input name="@field.name" class="govuk-input govuk-input--width-10" id="@field.name" type="text" @if(value.isDefined){value="@value"} @if(isNumeric) {pattern="[0-9]*" inputmode="numeric"}>
+        <input name="@field.name" class="govuk-input govuk-input--width-10" id="@field.name" type="text" @value.map{ amount =>value="@bigDecimalCurrency(amount, "")"} @if(isNumeric) {pattern="[0-9]*" inputmode="numeric"}>
     </div>
 </div>
 
