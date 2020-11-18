@@ -19,7 +19,7 @@ package controllers.dividends
 import common.SessionValues
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
-import forms.{OtherDividendsAmountForm, PriorOrNewAmountForm, UkDividendsAmountForm}
+import forms.{OtherDividendsAmountForm, PriorOrNewAmountForm}
 import javax.inject.Inject
 import models.formatHelpers.PriorOrNewAmountModel
 import models.{CurrencyAmountModel, DividendsCheckYourAnswersModel, DividendsPriorSubmission, User}
