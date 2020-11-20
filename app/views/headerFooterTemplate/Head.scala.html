@@ -14,20 +14,18 @@
  * limitations under the License.
  *@
 
-@this()
+@import views.html.helper.CSPNonce
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcTrackingConsentSnippet
 
-@(headBlock: Option[Html] = None)(implicit appConfig: AppConfig)
+@this(hmrcTrackingConsentSnippet: HmrcTrackingConsentSnippet)
+
+
+@(headBlock: Option[Html] = None)(implicit request: Request[_], messages: Messages)
 @headBlock
+
+@hmrcTrackingConsentSnippet(nonce = CSPNonce.get)
+
 <!--[if lte IE 8]><script src='@controllers.routes.Assets.versioned("javascripts/html5shiv.min.js")'></script><![endif]-->
 <!--[if lte IE 8]><link href='@controllers.routes.Assets.versioned("stylesheets/application-ie-8.css")' rel="stylesheet" type="text/css" /><![endif]-->
 <!--[if gt IE 8]><!--><link href='@controllers.routes.Assets.versioned("stylesheets/application.css")' media="screen" rel="stylesheet" type="text/css" /><!--<![endif]-->
 
-@if(appConfig.googleTagManagerId != "N/A") {
-<script type="text/javascript" src='@controllers.routes.Assets.versioned("javascript/google-tag-manager.js")'></script>
-
-<noscript>
- <iframe src="https://www.googletagmanager.com/ns.html?id=@appConfig.googleTagManagerId"
-         height="0" width="0" style="display: none; visibility: hidden">
- </iframe>
-</noscript>
-}

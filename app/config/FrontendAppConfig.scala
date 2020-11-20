@@ -27,7 +27,6 @@ trait AppConfig {
   val signInUrl: String
 
   def incomeTaxSubmissionOverviewUrl(taxYear: Int): String
-  val googleTagManagerId: String
 }
 
 @Singleton
@@ -43,5 +42,4 @@ class FrontendAppConfig @Inject()(config: Configuration, servicesConfig: Service
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.context") + "/" + taxYear +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.overview")
 
-  lazy val googleTagManagerId: String  = config.get[String]("google-tag-manager.id")
 }
