@@ -19,7 +19,7 @@ package forms
 import forms.validation.StringConstraints._
 import forms.validation.utils.ConstraintUtil._
 import forms.validation.utils.MappingUtil._
-import models.{CurrencyAmountModel}
+import models.CurrencyAmountModel
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import play.api.data.validation.Constraint

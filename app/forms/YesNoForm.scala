@@ -17,8 +17,8 @@
 package forms
 
 import models.formatHelpers.YesNoModel
-import play.api.data._
 import play.api.data.Forms._
+import play.api.data._
 import play.api.data.format.Formatter
 
 object YesNoForm {

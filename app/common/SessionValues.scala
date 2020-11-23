@@ -18,6 +18,7 @@ package common
 
 object SessionValues {
   val CLIENT_MTDITID = "MTDITID"
+  val CLIENT_NINO = "NINO"
 
   val DIVIDENDS_CYA = "DIVIDENDS_CYA"
   val DIVIDENDS_PRIOR_SUB = "DIVIDENDS_PRIOR_SUB"

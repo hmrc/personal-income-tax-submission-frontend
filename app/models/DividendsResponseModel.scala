@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package config
+package models
 
-object ConfigKeys {
-  val signInUrl = "signIn.url"
-  val signInContinueBaseUrl = "signIn.continueBaseUrl"
-  val dividendsBaseUrl = "microservice.dividends.url"
+import play.api.libs.json.{Json, OFormat}
+
+case class DividendsResponseModel(status: Int)
+
+object DividendsResponseModel {
+  implicit val formats: OFormat[DividendsResponseModel] = Json.format[DividendsResponseModel]
 }

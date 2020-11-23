@@ -17,8 +17,8 @@
 package views.dividends
 
 import forms.{PriorOrNewAmountForm, UkDividendsAmountForm}
-import models.{CurrencyAmountModel, DividendsPriorSubmission}
 import models.formatHelpers.PriorOrNewAmountModel
+import models.{CurrencyAmountModel, DividendsPriorSubmission}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.data.{Form, FormError}

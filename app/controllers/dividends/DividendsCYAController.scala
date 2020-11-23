@@ -20,17 +20,23 @@ import common.SessionValues
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import javax.inject.Inject
-import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, User}
+import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, DividendsResponseModel, User}
 import play.api.Logger
 import play.api.i18n.I18nSupport
+import play.api.libs.json.JsResult.Exception
 import play.api.libs.json.{Json, Reads}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.DividendsSubmissionService
+import uk.gov.hmrc.auth.otac.UnexpectedError
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.DividendsCYAView
+
+import scala.concurrent.{ExecutionContext, Future}
 
 class DividendsCYAController @Inject()(
                                         mcc: MessagesControllerComponents,
                                         dividendsCyaView: DividendsCYAView,
+                                        dividendsSubmissionService: DividendsSubmissionService,
                                         authorisedAction: AuthorisedAction
                                       )
                                       (
@@ -38,6 +44,8 @@ class DividendsCYAController @Inject()(
                                       ) extends FrontendController(mcc) with I18nSupport {
 
   lazy val logger = Logger(this.getClass.getName)
+  implicit val executionContext: ExecutionContext = mcc.executionContext
+
 
   def show(taxYear: Int): Action[AnyContent] = authorisedAction { implicit user =>
     val cyaSessionData: Option[DividendsCheckYourAnswersModel] = getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
@@ -76,10 +84,16 @@ class DividendsCYAController @Inject()(
 
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = authorisedAction { implicit user =>
-    //TODO To be used for the submission
+  def submit(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit user =>
     val cyaData: Option[DividendsCheckYourAnswersModel] = getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
-    Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+   user.session.get(SessionValues.CLIENT_NINO) match {
+      case Some(nino) => dividendsSubmissionService.submitDividends(cyaData, nino, user.mtditid, taxYear).map(response => response match {
+        case Right(DividendsResponseModel(NO_CONTENT)) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)) //todo error handling
+        case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+      })
+      case None => 	Future.successful(Redirect(appConfig.signInUrl))
+   }
+
   }
 
   private[dividends] def priorityOrderOrNone(priority: Option[BigDecimal], other: Option[BigDecimal], yesNoResult: Boolean): Option[BigDecimal] = {
