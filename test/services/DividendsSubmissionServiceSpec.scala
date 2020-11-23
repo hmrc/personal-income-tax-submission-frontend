@@ -20,6 +20,7 @@ import connectors.DividendsSubmissionConnector
 import connectors.httpparsers.DividendsSubmissionHttpParser.BadRequestDividendsSubmissionException
 import models.{DividendsCheckYourAnswersModel, DividendsResponseModel, DividendsSubmissionModel}
 import uk.gov.hmrc.auth.core.AuthConnector
+import play.api.http.Status._
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.ViewTest
 
@@ -46,13 +47,13 @@ class DividendsSubmissionServiceSpec extends ViewTest{
         Some(10)
       )
       val nino = "someNino"
-      val mtdItid = "SomeMtdItd"
+      val mtdItid = "SomeMtdItid"
       val taxYear = 2020
 
       "Given connector returns a right" in  {
 
         (connector.submitDividends(_: DividendsSubmissionModel, _: String, _: String, _: Int)(_: HeaderCarrier))
-          .expects(dsmData, nino, mtdItid, taxYear, *).returning(Future.successful(Right(DividendsResponseModel(204))))
+          .expects(dsmData, nino, mtdItid, taxYear, *).returning(Future.successful(Right(DividendsResponseModel(NO_CONTENT))))
 
         val result = await(service.submitDividends(Some(cyaData), nino, mtdItid, taxYear))
         result.isRight shouldBe true
@@ -67,6 +68,16 @@ class DividendsSubmissionServiceSpec extends ViewTest{
           result.isLeft shouldBe true
 
         }
+
+      "Given no model is supplied" in {
+        val blankData = DividendsSubmissionModel(None, None)
+
+        (connector.submitDividends(_: DividendsSubmissionModel, _: String, _: String, _: Int)(_: HeaderCarrier))
+          .expects(blankData, nino, mtdItid, taxYear, *).returning(Future.successful(Right(DividendsResponseModel(NO_CONTENT))))
+
+        val result = await(service.submitDividends(None, nino, mtdItid, taxYear))
+        result.isRight shouldBe true
       }
     }
+  }
 }

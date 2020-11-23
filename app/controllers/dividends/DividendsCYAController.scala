@@ -86,7 +86,7 @@ class DividendsCYAController @Inject()(
     val cyaData: Option[DividendsCheckYourAnswersModel] = getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
    user.session.get(SessionValues.CLIENT_NINO) match {
       case Some(nino) => dividendsSubmissionService.submitDividends(cyaData, nino, user.mtditid, taxYear).map(response => response match {
-        case Right(DividendsResponseModel(NO_CONTENT)) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)) //todo error handling
+        case Right(DividendsResponseModel(NO_CONTENT)) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
         case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
       })
       case None => 	Future.successful(Redirect(appConfig.signInUrl))
