@@ -23,11 +23,9 @@ import javax.inject.Inject
 import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, DividendsResponseModel, User}
 import play.api.Logger
 import play.api.i18n.I18nSupport
-import play.api.libs.json.JsResult.Exception
 import play.api.libs.json.{Json, Reads}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.DividendsSubmissionService
-import uk.gov.hmrc.auth.otac.UnexpectedError
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.DividendsCYAView
 

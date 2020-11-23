@@ -26,11 +26,11 @@ import scala.concurrent.Future
 
 class DividendsSubmissionService @Inject()(dividendsSubmissionConnector: DividendsSubmissionConnector){
 
-  def submitDividends(body: Option[DividendsCheckYourAnswersModel], nino: String, mtditd: String, taxYear: Int)
+  def submitDividends(body: Option[DividendsCheckYourAnswersModel], nino: String, mtditid: String, taxYear: Int)
                      (implicit hc: HeaderCarrier): Future[DividendsSubmissionsResponse] = {
     val nonOptBody = body.getOrElse(DividendsCheckYourAnswersModel(Some(false), None, Some(false), None))
     val newBody = new DividendsSubmissionModel(nonOptBody.ukDividendsAmount, nonOptBody.otherUkDividendsAmount)
-    dividendsSubmissionConnector.submitDividends(newBody, nino, mtditd, taxYear)
+    dividendsSubmissionConnector.submitDividends(newBody, nino, mtditid, taxYear)
   }
 
 }

@@ -88,7 +88,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
               Some(10)))),
             SessionValues.CLIENT_NINO -> "someNino"
           ))
-          stubPut(s"/income-tax-dividends/income-tax/nino//sources\\?mtditd=1234567890&taxYear=2020", 204, "")
+          stubPut(s"/income-tax-dividends/income-tax/nino//sources\\?mtditid=1234567890&taxYear=2020", 204, "")
 
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/check-your-answers")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
@@ -108,7 +108,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
               otherUkDividends = Some(true),
               Some(10)))),
           ))
-          stubPut(s"/income-tax-dividends/income-tax/nino//sources\\?mtditd=1234567890&taxYear=2020", 204, "")
+          stubPut(s"/income-tax-dividends/income-tax/nino//sources\\?mtditid=1234567890&taxYear=2020", 204, "")
 
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/check-your-answers")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")

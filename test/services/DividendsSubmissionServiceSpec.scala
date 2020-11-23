@@ -46,24 +46,24 @@ class DividendsSubmissionServiceSpec extends ViewTest{
         Some(10)
       )
       val nino = "someNino"
-      val mtdItd = "SomeMtdItd"
+      val mtdItid = "SomeMtdItd"
       val taxYear = 2020
 
       "Given connector returns a right" in  {
 
         (connector.submitDividends(_: DividendsSubmissionModel, _: String, _: String, _: Int)(_: HeaderCarrier))
-          .expects(dsmData, nino, mtdItd, taxYear, *).returning(Future.successful(Right(DividendsResponseModel(204))))
+          .expects(dsmData, nino, mtdItid, taxYear, *).returning(Future.successful(Right(DividendsResponseModel(204))))
 
-        val result = await(service.submitDividends(Some(cyaData), nino, mtdItd, taxYear))
+        val result = await(service.submitDividends(Some(cyaData), nino, mtdItid, taxYear))
         result.isRight shouldBe true
 
       }
       "Given connector returns a left" in {
 
           (connector.submitDividends(_: DividendsSubmissionModel, _: String, _: String, _: Int)(_: HeaderCarrier))
-            .expects(dsmData, nino, mtdItd, taxYear, *).returning(Future.successful(Left(BadRequestDividendsSubmissionException)))
+            .expects(dsmData, nino, mtdItid, taxYear, *).returning(Future.successful(Left(BadRequestDividendsSubmissionException)))
 
-          val result = await(service.submitDividends(Some(cyaData), nino, mtdItd, taxYear))
+          val result = await(service.submitDividends(Some(cyaData), nino, mtdItid, taxYear))
           result.isLeft shouldBe true
 
         }
