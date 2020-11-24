@@ -178,7 +178,7 @@ class DividendsCYAControllerSpec extends ViewTest {
       "service returns left" in new TestWithAuth {
         val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
           SessionValues.CLIENT_NINO -> "someNino",
-          SessionValues.CLIENT_MTDITID -> Json.toJson("someMtdItd").toString(),
+          SessionValues.CLIENT_MTDITID -> Json.toJson("someMtdItid").toString(),
           SessionValues.DIVIDENDS_CYA -> Json.toJson(cyaSessionData).toString()
         )
 
