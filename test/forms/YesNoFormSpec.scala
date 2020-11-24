@@ -16,11 +16,10 @@
 
 package forms
 
+import forms.YesNoForm.{no => nope, _}
 import models.formatHelpers.YesNoModel
 import play.api.data.{Form, FormError}
 import utils.UnitTest
-import YesNoForm._
-import YesNoForm.{no => nope}
 
 class YesNoFormSpec extends UnitTest {
 

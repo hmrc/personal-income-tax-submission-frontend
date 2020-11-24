@@ -18,7 +18,6 @@ package models
 
 import common.SessionValues
 import play.api.libs.json.{Json, OFormat}
-import play.api.mvc.Call
 
 case class DividendsCheckYourAnswersModel(
                                            ukDividends: Option[Boolean] = None,

@@ -51,7 +51,9 @@ trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneServerPerSu
     "microservice.services.income-tax-submission-frontend.host" -> wiremockHost,
     "microservice.services.income-tax-submission-frontend.port" -> wiremockPort.toString,
     "microservice.services.auth.host" -> wiremockHost,
-    "microservice.services.auth.port" -> wiremockPort.toString
+    "microservice.services.auth.port" -> wiremockPort.toString,
+    "microservice.services.income-tax-dividends.host" -> wiremockHost,
+    "microservice.services.income-tax-dividends.port" -> wiremockPort.toString
   )
 
   override implicit lazy val app: Application = new GuiceApplicationBuilder()

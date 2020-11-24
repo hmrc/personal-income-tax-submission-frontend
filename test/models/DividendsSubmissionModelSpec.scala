@@ -14,10 +14,33 @@
  * limitations under the License.
  */
 
-package config
+package models
 
-object ConfigKeys {
-  val signInUrl = "signIn.url"
-  val signInContinueBaseUrl = "signIn.continueBaseUrl"
-  val dividendsBaseUrl = "microservice.dividends.url"
+import play.api.libs.json.{JsObject, Json}
+import utils.UnitTest
+
+class DividendsSubmissionModelSpec extends UnitTest {
+
+  val validModel: DividendsSubmissionModel = DividendsSubmissionModel(
+    ukDividends = Some(10),
+    otherUkDividends = Some(10)
+  )
+
+  val validJson: JsObject = Json.obj(
+    "ukDividends" -> 10,
+    "otherUkDividends" -> 10
+  )
+
+  "DividendsPriorSubmission" should {
+
+    "parse from json" in {
+      validJson.as[DividendsSubmissionModel] shouldBe validModel
+    }
+
+    "parse to json" in {
+      Json.toJson(validModel) shouldBe validJson
+    }
+
+  }
+
 }

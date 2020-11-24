@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-package config
+package connectors
 
-object ConfigKeys {
-  val signInUrl = "signIn.url"
-  val signInContinueBaseUrl = "signIn.continueBaseUrl"
-  val dividendsBaseUrl = "microservice.dividends.url"
+import uk.gov.hmrc.http.{HttpReads, HttpResponse}
+
+trait RawResponseReads {
+
+  implicit val httpReads: HttpReads[HttpResponse] = new HttpReads[HttpResponse] {
+    override def read(method: String, url: String, response: HttpResponse) = response
+  }
+
 }

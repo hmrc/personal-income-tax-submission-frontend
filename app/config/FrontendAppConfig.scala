@@ -25,6 +25,7 @@ trait AppConfig {
   val footerLinkItems: Seq[String]
   val signInContinueUrl: String
   val signInUrl: String
+  val dividendsBaseUrl: String
 
   def incomeTaxSubmissionOverviewUrl(taxYear: Int): String
 }
@@ -38,6 +39,7 @@ class FrontendAppConfig @Inject()(config: Configuration, servicesConfig: Service
   override val signInContinueUrl: String = SafeRedirectUrl(signInContinueBaseUrl).encodedUrl //TODO add redirect to overview page
   private val signInOrigin = servicesConfig.getString("appName")
   override val signInUrl: String = s"$signInBaseUrl?continue=$signInContinueUrl&origin=$signInOrigin"
+  override val dividendsBaseUrl: String = servicesConfig.baseUrl("income-tax-dividends") + "/income-tax-dividends"
   def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = servicesConfig.baseUrl("income-tax-submission-frontend") +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.context") + "/" + taxYear +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.overview")
