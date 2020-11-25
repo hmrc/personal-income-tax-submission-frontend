@@ -60,7 +60,6 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
   implicit val mockExecutionContext: ExecutionContext = ExecutionContext.Implicits.global
   implicit val mockAuthConnector: AuthConnector = mock[AuthConnector]
   implicit val mockAuthService: AuthService = new AuthService(mockAuthConnector)
-
   val authorisedAction = new AuthorisedAction(mockAppConfig)(mockAuthService, stubMessagesControllerComponents())
 
   def status(awaitable: Future[Result]): Int = await(awaitable).header.status
@@ -72,6 +71,10 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
 
   def redirectUrl(awaitable: Future[Result]): String = {
     await(awaitable).header.headers.getOrElse("Location", "/")
+  }
+
+  def getSession(awaitable: Future[Result])(implicit headerCarrier: HeaderCarrier) = {
+    await(awaitable).session
   }
 
   //noinspection ScalaStyle

@@ -16,7 +16,9 @@
 
 package controllers.dividends
 
+import audit.{AuditModel, CreateOrAmendDividendsAuditDetail}
 import common.SessionValues
+import config.MockAuditService
 import connectors.httpparsers.DividendsSubmissionHttpParser.BadRequestDividendsSubmissionException
 import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, DividendsResponseModel}
 import play.api.http.Status._
@@ -30,14 +32,15 @@ import views.html.dividends.DividendsCYAView
 
 import scala.concurrent.Future
 
-class DividendsCYAControllerSpec extends ViewTest {
+class DividendsCYAControllerSpec extends ViewTest with MockAuditService {
 
   val service = mock[DividendsSubmissionService]
   val controller = new DividendsCYAController(
     mockMessagesControllerComponents,
     app.injector.instanceOf[DividendsCYAView],
     service,
-    authorisedAction
+    authorisedAction,
+    mockAuditService
   )(
     mockAppConfig
   )
@@ -158,22 +161,39 @@ class DividendsCYAControllerSpec extends ViewTest {
       otherUkDividends = Some(true),
       Some(10)
     )
+
+    val priorData = DividendsPriorSubmission(
+      Some(10),
+      Some(10)
+    )
     "redirect to the overview page" when {
 
       "there is session data " in new TestWithAuth {
+        lazy val detail = CreateOrAmendDividendsAuditDetail(Some(cyaSessionData), Some(priorData), "someNino", "1234567890", 2020)
+
+        lazy val event = AuditModel("createOrAmendDividendUpdate", "createOrAmendDividendUpdate", detail)
+
+        def verifyDividendsAudit = verifyAuditEvent(event)
+
         val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
-          SessionValues.CLIENT_NINO -> "someNino".toString(),
+          SessionValues.CLIENT_NINO -> "someNino",
           SessionValues.CLIENT_MTDITID -> Json.toJson("someMtdItid").toString(),
-          SessionValues.DIVIDENDS_CYA -> Json.toJson(cyaSessionData).toString()
+          SessionValues.DIVIDENDS_CYA -> Json.toJson(cyaSessionData).toString(),
+          SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(priorData).toString()
         )
 
         (service.submitDividends(_: Option[DividendsCheckYourAnswersModel], _: String, _: String, _: Int)(_:HeaderCarrier))
           .expects(Some(cyaSessionData), "someNino", "1234567890", 2020, *)
           .returning(Future.successful(Right(DividendsResponseModel(204))))
 
-        val result: Future[Result] = controller.submit(2020)(request)
+        verifyDividendsAudit
+
+        lazy val result: Future[Result] = controller.submit(2020)(request)
         status(result) shouldBe SEE_OTHER
         redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(2020)
+        getSession(result).get(SessionValues.DIVIDENDS_CYA) shouldBe None
+        getSession(result).get(SessionValues.DIVIDENDS_PRIOR_SUB) shouldBe None
+
       }
       "service returns left" in new TestWithAuth {
         val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
