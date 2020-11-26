@@ -64,3 +64,13 @@ interest.cya.questions.4 = Details for the taxed UK interest?
 interest.cya.accountDisplay = {0} : {1}
 
 interest.caption = Interest for 06 April {0} to 05 April {1}
+
+interest.untaxed-uk-interest.heading.individual = Did you receive any untaxed interest from the UK?
+interest.untaxed-uk-interest.heading.agent = Did your client receive any untaxed interest from the UK?
+interest.untaxed-uk-interest.errors.noChoice = Select yes if untaxed interest was received from companies in the UK
+
+interest.untaxed-uk-interest.paragraph.1 = For example, interest from:
+interest.untaxed-uk-interest.list.1 = banks and building societies
+interest.untaxed-uk-interest.list.2 = savings and credit union accounts
+interest.untaxed-uk-interest.list.3 = peer-to-peer lending
+interest.untaxed-uk-interest.paragraph.2 = This does not include any interest earned from an Individual Savings Account (ISA).
