@@ -25,12 +25,12 @@ import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import views.html.interest.UntaxedInterestView
+import views.html.interest.ReceiveUntaxedInterestView
 
 class ReceiveUntaxedInterestController @Inject()(
                                                 mcc: MessagesControllerComponents,
                                                 authAction: AuthorisedAction,
-                                                untaxedInterestView: UntaxedInterestView,
+                                                receivedUntaxedInterestView: ReceiveUntaxedInterestView,
                                                 implicit val appConfig: AppConfig
                                                 ) extends FrontendController(mcc) with I18nSupport {
 
@@ -38,7 +38,7 @@ class ReceiveUntaxedInterestController @Inject()(
 
   def show(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
     val pageTitle: String = "interest.untaxed-uk-interest.heading." + (if(user.isAgent) "agent" else "individual")
-    Ok(untaxedInterestView(pageTitle, yesNoForm,taxYear))
+    Ok(receivedUntaxedInterestView(pageTitle, yesNoForm,taxYear))
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authAction {implicit user =>
