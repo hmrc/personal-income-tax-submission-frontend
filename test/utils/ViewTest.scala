@@ -18,6 +18,7 @@ package utils
 
 import models.User
 import org.jsoup.nodes.{Document, Element}
+import org.scalatest.Assertion
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{AnyContent, Call, MessagesControllerComponents}
@@ -38,6 +39,7 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
 
   type IntString = Int => String
 
+  //TODO move these as these are very test specific
   val questionTextSelector: IntString = question => s"#main-content > div > div > dl > div:nth-child($question) > dt"
   val questionAnswerSelector: IntString = question => s"#main-content > div > div > dl > div:nth-child($question) > " +
     s"dd.govuk-summary-list__value"
@@ -60,6 +62,14 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
 
   def elementExist(selector: String)(implicit document: Document): Boolean = {
     !document.select(selector).isEmpty
+  }
+
+  def assertTitle(title: String)(implicit document: Document): Assertion = {
+    elementText("title") shouldBe title
+  }
+
+  def assertH1(text: String)(implicit document: Document): Assertion = {
+    elementText("h1") shouldBe text
   }
 
 }
