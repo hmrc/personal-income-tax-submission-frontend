@@ -24,6 +24,7 @@ common.aDifferentAmount = A different amount
 common.enterAmount = Enter amount
 
 dividends.caption = Dividends
+interest.caption = Interest
 
 dividends.uk-dividends.heading.individual = Did you receive any dividends from companies in the UK?
 dividends.uk-dividends.heading.agent = Did your client receive any dividends from companies in the UK?
@@ -53,3 +54,9 @@ dividends.cya.questions.1 = UK dividends?
 dividends.cya.questions.2 = Amount of UK dividends?
 dividends.cya.questions.3 = Dividends from authorised unit trusts or investments?
 dividends.cya.questions.4 = Amount of other dividends?
+
+interest.taxed-uk-interest.heading.individual = Did you receive any taxed interest from the UK?
+interest.taxed-uk-interest.heading.agent = Did your client receive any taxed interest from the UK?
+interest.taxed-uk-interest.sub-heading = For example, interest from: trust funds, company bonds or life-annuity payments
+interest.taxed-uk-interest.errors.noChoice = Select yes if you received taxed interest from the UK
+
