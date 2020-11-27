@@ -1,6 +1,22 @@
+/*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package controllers.interest
 
+import forms.YesNoForm
 import play.api.http.Status._
 import play.api.mvc.Result
 import utils.ViewTest
@@ -15,9 +31,8 @@ class ReceiveUntaxedInterestControllerSpec extends ViewTest {
   lazy val controller = new ReceiveUntaxedInterestController(
     mockMessagesControllerComponents,
     authorisedAction,
-    view,
-    mockAppConfig
-  )
+    app.injector.instanceOf[ReceiveUntaxedInterestView])(mockAppConfig)
+
 
   val taxYear = 2020
 
@@ -37,10 +52,18 @@ class ReceiveUntaxedInterestControllerSpec extends ViewTest {
 
     "return a result" which {
       s"has a redirect($SEE_OTHER) status" in new TestWithAuth {
-        val result: Future[Result] = controller.submit(taxYear)(fakeRequest)
+        val result: Future[Result] = controller.submit(taxYear)(fakeRequest
+          .withFormUrlEncodedBody((YesNoForm.yesNo -> YesNoForm.yes)))
 
         status(result) shouldBe SEE_OTHER
       }
+
+      s"returns a bad request ($BAD_REQUEST) when a box isn't ticked" in new TestWithAuth{
+        val result: Future[Result] = controller.submit(taxYear)(fakeRequest)
+
+        status(result) shouldBe BAD_REQUEST
+      }
+
     }
   }
 

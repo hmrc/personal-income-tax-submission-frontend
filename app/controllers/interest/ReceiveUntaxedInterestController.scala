@@ -22,19 +22,23 @@ import forms.YesNoForm
 import javax.inject.Inject
 import models.formatHelpers.YesNoModel
 import play.api.data.Form
-import play.api.i18n.I18nSupport
+import play.api.i18n.{I18nSupport, Lang, Messages}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.interest.ReceiveUntaxedInterestView
 
+import scala.concurrent.ExecutionContext
+
 class ReceiveUntaxedInterestController @Inject()(
                                                 mcc: MessagesControllerComponents,
                                                 authAction: AuthorisedAction,
-                                                receivedUntaxedInterestView: ReceiveUntaxedInterestView,
-                                                implicit val appConfig: AppConfig
-                                                ) extends FrontendController(mcc) with I18nSupport {
+                                                receivedUntaxedInterestView: ReceiveUntaxedInterestView)(
+                                                implicit val appConfig: AppConfig)
+                                                 extends FrontendController(mcc) with I18nSupport {
 
-  val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("interest.untaxed-interest.errors.noChoice")
+  implicit val executionContext: ExecutionContext = mcc.executionContext
+  implicit val messages: Messages = mcc.messagesApi.preferred(Seq(Lang("en")))
+  val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("interest.untaxed-uk-interest.errors.noRadioSelected")
 
   def show(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
     val pageTitle: String = "interest.untaxed-uk-interest.heading." + (if(user.isAgent) "agent" else "individual")
@@ -42,7 +46,16 @@ class ReceiveUntaxedInterestController @Inject()(
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authAction {implicit user =>
-    Redirect(appConfig.signInUrl)
+    yesNoForm.bindFromRequest().fold(
+      {
+        formWithErrors => BadRequest(
+          receivedUntaxedInterestView("interest.untaxed-uk-interest.heading." + (if(user.isAgent) "agent" else "individual"),formWithErrors,taxYear)
+        )
+      },
+      {
+        yesNoModel => Redirect(appConfig.signInUrl)
+      }
+    )
   }
 
 
