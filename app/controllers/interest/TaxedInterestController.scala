@@ -31,29 +31,30 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import scala.concurrent.ExecutionContext
 
 
-class TaxedInterestController @Inject()(mcc: MessagesControllerComponents,
-                                        authorisedAction: AuthorisedAction,
-                                        taxedInterestView: TaxedInterestView
-                                                 )(
-                                                 implicit appConfig: AppConfig) extends FrontendController(mcc) {
+class TaxedInterestController @Inject()(
+                                         mcc: MessagesControllerComponents,
+                                         authorisedAction: AuthorisedAction,
+                                         taxedInterestView: TaxedInterestView
+                                       )(implicit appConfig: AppConfig) extends FrontendController(mcc) {
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
   implicit val messages: Messages = mcc.messagesApi.preferred(Seq(Lang("en")))
   val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("interest.taxed-uk-interest.errors.noRadioSelected")
 
-
-  def show(taxYear: Int): Action[AnyContent] = { authorisedAction { implicit user =>
-    Ok(taxedInterestView("interest.taxed-uk-interest.heading." + (if (user.isAgent) "agent" else "individual"), yesNoForm, taxYear))
+  def show(taxYear: Int): Action[AnyContent] = {
+    authorisedAction { implicit user =>
+      Ok(taxedInterestView("interest.taxed-uk-interest.heading." + (if (user.isAgent) "agent" else "individual"), yesNoForm, taxYear))
     }
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = { authorisedAction { implicit user =>
-    yesNoForm.bindFromRequest().fold(
+  def submit(taxYear: Int): Action[AnyContent] = {
+    authorisedAction { implicit user =>
+      yesNoForm.bindFromRequest().fold(
         {
           formWithErrors => BadRequest(taxedInterestView("interest.taxed-uk-interest.heading." + (if (user.isAgent) "agent" else "individual"), formWithErrors, taxYear))
         },
         {
-          yesNoModel =>Redirect(appConfig.signInUrl)
+          yesNoModel => Redirect(appConfig.signInUrl)
         }
       )
     }

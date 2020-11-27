@@ -22,6 +22,7 @@ common.saveAndContinue = Save and continue
 common.change = Change
 common.aDifferentAmount = A different amount
 common.enterAmount = Enter amount
+common.remove = Remove
 
 dividends.caption = Dividends
 
@@ -61,6 +62,11 @@ interest.taxed-uk-interest.sub-list1 = trust funds
 interest.taxed-uk-interest.sub-list2 = company bonds
 interest.taxed-uk-interest.sub-list3 = life-annuity payments
 interest.taxed-uk-interest.errors.noRadioSelected = Select yes if you received taxed interest from the UK
+
+interest.accounts.h1.single = You have added 1 account
+interest.accounts.h1.multiple = You have added {0} accounts
+interest.accounts.addAnotherAccount = Add another account
+
 interest.cya.h1 = Check your answers
 interest.cya.title = Check your answers - Register your income tax return with HMRC - Gov.UK
 interest.cya.questions.1 = Untaxed UK Interest?

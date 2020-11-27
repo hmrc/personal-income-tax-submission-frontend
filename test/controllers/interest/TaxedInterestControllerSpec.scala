@@ -26,14 +26,18 @@ import scala.concurrent.Future
 
 class TaxedInterestControllerSpec extends ViewTest{
 
-  lazy val controller = new TaxedInterestController(mockMessagesControllerComponents,
-    authorisedAction, app.injector.instanceOf[TaxedInterestView])(mockAppConfig)
+  lazy val controller = new TaxedInterestController(
+    mockMessagesControllerComponents,
+    authorisedAction,
+    app.injector.instanceOf[TaxedInterestView]
+  )(mockAppConfig)
 
   val taxYear = 2020
 
-  ".show" should {
+  ".show for an individual" should {
 
     "return a result" which {
+
       s"has an OK($OK) status" in new TestWithAuth {
         val result: Future[Result] = controller.show(taxYear)(fakeRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
 
@@ -41,16 +45,47 @@ class TaxedInterestControllerSpec extends ViewTest{
       }
     }
   }
-  ".submit" should {
+
+  ".submit for an individual" should {
 
     "return a result" which {
+
       s"has a redirect($SEE_OTHER) status" in new TestWithAuth {
         val result: Future[Result] = controller.submit(taxYear)(fakeRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
 
         status(result) shouldBe SEE_OTHER
       }
-      s"Has a bad request ($BAD_REQUEST) when we don't tick a box" in new TestWithAuth{
+      s"Has a bad request ($BAD_REQUEST) when we don't tick a box" in new TestWithAuth {
         val result: Future[Result] = controller.submit(taxYear)(fakeRequest)
+
+        status(result) shouldBe BAD_REQUEST
+      }
+    }
+  }
+
+  ".show for an agent" should {
+
+    "return a result" which {
+
+      s"has an OK($OK) status" in new TestWithAuth(isAgent = true) {
+        val result: Future[Result] = controller.show(taxYear)(fakeRequestWithMtditid.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
+
+        status(result) shouldBe OK
+      }
+    }
+  }
+
+  ".submit for an agent" should {
+
+    "return a result" which {
+
+      s"has a redirect($SEE_OTHER) status" in new TestWithAuth(isAgent = true) {
+        val result: Future[Result] = controller.submit(taxYear)(fakeRequestWithMtditid.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
+
+        status(result) shouldBe SEE_OTHER
+      }
+      s"Has a bad request ($BAD_REQUEST) when we don't tick a box" in new TestWithAuth(isAgent = true) {
+        val result: Future[Result] = controller.submit(taxYear)(fakeRequestWithMtditid)
 
         status(result) shouldBe BAD_REQUEST
       }
