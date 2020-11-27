@@ -47,8 +47,15 @@ class TaxedInterestController @Inject()(mcc: MessagesControllerComponents,
     }
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = { authorisedAction { user =>
-    Redirect(appConfig.signInUrl)
+  def submit(taxYear: Int): Action[AnyContent] = { authorisedAction { implicit user =>
+    yesNoForm.bindFromRequest().fold(
+        {
+          formWithErrors => BadRequest(taxedInterestView("interest.taxed-uk-interest.heading." + (if (user.isAgent) "agent" else "individual"), formWithErrors, taxYear))
+        },
+        {
+          yesNoModel =>Redirect(appConfig.signInUrl)
+        }
+      )
     }
   }
 

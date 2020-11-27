@@ -16,7 +16,7 @@
 
 package controllers.interest
 
-import controllers.predicates.AuthorisedAction
+import forms.YesNoForm
 import play.api.http.Status._
 import play.api.mvc.Result
 import utils.ViewTest
@@ -24,7 +24,7 @@ import views.html.interest.TaxedInterestView
 
 import scala.concurrent.Future
 
-class TaxedInterestControlerSpec extends ViewTest{
+class TaxedInterestControllerSpec extends ViewTest{
 
   lazy val controller = new TaxedInterestController(mockMessagesControllerComponents,
     authorisedAction, app.injector.instanceOf[TaxedInterestView])(mockAppConfig)
@@ -35,7 +35,7 @@ class TaxedInterestControlerSpec extends ViewTest{
 
     "return a result" which {
       s"has an OK($OK) status" in new TestWithAuth {
-        val result: Future[Result] = controller.show(taxYear)(fakeRequest)
+        val result: Future[Result] = controller.show(taxYear)(fakeRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
 
         status(result) shouldBe OK
       }
@@ -45,7 +45,7 @@ class TaxedInterestControlerSpec extends ViewTest{
 
     "return a result" which {
       s"has a redirect($SEE_OTHER) status" in new TestWithAuth {
-        val result: Future[Result] = controller.submit(taxYear)(fakeRequest)
+        val result: Future[Result] = controller.submit(taxYear)(fakeRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
 
         status(result) shouldBe SEE_OTHER
       }
