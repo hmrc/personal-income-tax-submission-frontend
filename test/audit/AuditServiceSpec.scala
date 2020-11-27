@@ -23,7 +23,6 @@ import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
 import utils.ViewTest
-import audit.AuditModel
 
 import scala.concurrent.{ExecutionContext, Future}
 

@@ -171,7 +171,7 @@ class DividendsCYAControllerSpec extends ViewTest with MockAuditService {
       "there is session data " in new TestWithAuth {
         lazy val detail = CreateOrAmendDividendsAuditDetail(Some(cyaSessionData), Some(priorData), "someNino", "1234567890", 2020)
 
-        lazy val event = AuditModel("createOrAmendDividendUpdate", "createOrAmendDividendUpdate", detail)
+        lazy val event = AuditModel("createOrAmendDividendsUpdate", "createOrAmendDividendsUpdate", detail)
 
         def verifyDividendsAudit = verifyAuditEvent(event)
 
