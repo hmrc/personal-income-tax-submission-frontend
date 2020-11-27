@@ -39,7 +39,7 @@ class TaxedInterestController @Inject()(mcc: MessagesControllerComponents,
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
   implicit val messages: Messages = mcc.messagesApi.preferred(Seq(Lang("en")))
-  val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("interest.taxed-uk-interest.errors.noChoice")
+  val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("interest.taxed-uk-interest.errors.noRadioSelected")
 
 
   def show(taxYear: Int): Action[AnyContent] = { authorisedAction { implicit user =>

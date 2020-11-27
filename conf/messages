@@ -57,6 +57,9 @@ dividends.cya.questions.4 = Amount of other dividends?
 
 interest.taxed-uk-interest.heading.individual = Did you receive any taxed interest from the UK?
 interest.taxed-uk-interest.heading.agent = Did your client receive any taxed interest from the UK?
-interest.taxed-uk-interest.sub-heading = For example, interest from: trust funds, company bonds or life-annuity payments
-interest.taxed-uk-interest.errors.noChoice = Select yes if you received taxed interest from the UK
+interest.taxed-uk-interest.sub-heading = For example, interest from:
+interest.taxed-uk-interest.sub-list1 = Trust funds
+interest.taxed-uk-interest.sub-list2 = Company bonds
+interest.taxed-uk-interest.sub-list3 = Life-annuity payments
+interest.taxed-uk-interest.errors.noRadioSelected = Select yes if you received taxed interest from the UK
 
