@@ -28,7 +28,7 @@
             <span class="govuk-visually-hidden">Error:</span>@messages(error.message)
         </span>
     }
-    <fieldset class="govuk-fieldset" aria-describedby="@{id}_yes_no">
+    <fieldset class="govuk-fieldset">
         <div class="govuk-radios govuk-radios--inline">
             <div class="govuk-radios__item">
                 <input class="govuk-radios__input" id="@{id}_yes" name="yes_no" type="radio" value="yes" @if(checked.equals("true")){checked="checked"}>

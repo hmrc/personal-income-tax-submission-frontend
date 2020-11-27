@@ -16,6 +16,7 @@
 
 package controllers.dividends
 
+import audit.{AuditModel, AuditService, CreateOrAmendDividendsAuditDetail}
 import common.SessionValues
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
@@ -26,6 +27,8 @@ import play.api.i18n.I18nSupport
 import play.api.libs.json.{Json, Reads}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.DividendsSubmissionService
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.DividendsCYAView
 
@@ -35,7 +38,8 @@ class DividendsCYAController @Inject()(
                                         mcc: MessagesControllerComponents,
                                         dividendsCyaView: DividendsCYAView,
                                         dividendsSubmissionService: DividendsSubmissionService,
-                                        authorisedAction: AuthorisedAction
+                                        authorisedAction: AuthorisedAction,
+                                        auditService: AuditService
                                       )
                                       (
                                         implicit appConfig: AppConfig
@@ -84,9 +88,12 @@ class DividendsCYAController @Inject()(
 
   def submit(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit user =>
     val cyaData: Option[DividendsCheckYourAnswersModel] = getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
+    val priorData: Option[DividendsPriorSubmission] = getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
    user.session.get(SessionValues.CLIENT_NINO) match {
       case Some(nino) => dividendsSubmissionService.submitDividends(cyaData, nino, user.mtditid, taxYear).map(response => response match {
-        case Right(DividendsResponseModel(NO_CONTENT)) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+        case Right(DividendsResponseModel(NO_CONTENT)) =>
+            auditSubmission(CreateOrAmendDividendsAuditDetail(cyaData, priorData, nino ,user.mtditid, taxYear))
+            Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).removingFromSession(SessionValues.DIVIDENDS_CYA, SessionValues.DIVIDENDS_PRIOR_SUB)
         case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
       })
       case None => 	Future.successful(Redirect(appConfig.signInUrl))
@@ -110,6 +117,13 @@ class DividendsCYAController @Inject()(
     user.session.get(key).flatMap { stringValue =>
       Json.parse(stringValue).asOpt[T]
     }
+  }
+
+  private def auditSubmission(details: CreateOrAmendDividendsAuditDetail)
+                                        (implicit hc: HeaderCarrier,
+                                         executionContext: ExecutionContext): Future[AuditResult] = {
+    val event = AuditModel("createOrAmendDividendsUpdate", "createOrAmendDividendsUpdate", details)
+    auditService.auditModel(event)
   }
 
 }
