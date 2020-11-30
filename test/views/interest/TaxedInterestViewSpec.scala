@@ -47,7 +47,7 @@ class TaxedInterestViewSpec extends ViewTest {
         implicit lazy val document: Document = Jsoup.parse(view.body)
         val expectedTitle = "Did you receive any taxed interest from the UK?"
         val expectedH1 = "Did you receive any taxed interest from the UK?"
-        val expectedCaption = "Interest for 06 April {0} to 05 April {1}"
+        val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
 
         "Contains the correct title" in {
           document.title shouldBe expectedTitle
@@ -82,7 +82,7 @@ class TaxedInterestViewSpec extends ViewTest {
         implicit lazy val document: Document = Jsoup.parse(view.body)
         val expectedTitle = "Did you receive any taxed interest from the UK?"
         val expectedH1 = "Did you receive any taxed interest from the UK?"
-        val expectedCaption = "Interest for 06 April {0} to 05 April {1}"
+        val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
         val expectedErrorTitle = "There is a problem"
         val expectedErrorText = "Select yes if you received taxed interest from the UK"
 
@@ -130,7 +130,7 @@ class TaxedInterestViewSpec extends ViewTest {
 
         val expectedTitle = "Did your client receive any taxed interest from the UK?"
         val expectedH1 = "Did your client receive any taxed interest from the UK?"
-        val expectedCaption = "Interest for 06 April {0} to 05 April {1}"
+        val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
         "contains the correct title" in {
           document.title shouldBe expectedTitle
         }
@@ -169,7 +169,7 @@ class TaxedInterestViewSpec extends ViewTest {
 
         val expectedTitle = "Did your client receive any taxed interest from the UK?"
         val expectedH1 = "Did your client receive any taxed interest from the UK?"
-        val expectedCaption = "Interest for 06 April {0} to 05 April {1}"
+        val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
 
         val expectedErrorTitle = "There is a problem"
         val expectedErrorText = "Select yes if you received taxed interest from the UK"

@@ -35,15 +35,17 @@
 
 @errorSummary(form.errors, Some("yes_no_yes"))
 
-<span class="govuk-caption-l">@messages("interest.caption")</span>
+<span class="govuk-caption-l">@messages("interest.caption", (taxYear - 1).toString, taxYear.toString)</span>
+
 <h1 class="govuk-heading-l govuk-!-margin-bottom-3">@headingForUse</h1>
+
 <span class="govuk-caption-m govuk-!-margin-bottom-4">@messages("interest.taxed-uk-interest.sub-heading")
-<ul class="govuk-caption-m govuk-!-margin-bottom-4">
- <li>@messages("interest.taxed-uk-interest.sub-list1")</li>
- <li>@messages("interest.taxed-uk-interest.sub-list2")</li>
- <li>@messages("interest.taxed-uk-interest.sub-list3")</li>
-</ul>
- </span>
+  <ul class="govuk-caption-m govuk-!-margin-bottom-4">
+   <li>@messages("interest.taxed-uk-interest.sub-list1")</li>
+   <li>@messages("interest.taxed-uk-interest.sub-list2")</li>
+   <li>@messages("interest.taxed-uk-interest.sub-list3")</li>
+  </ul>
+</span>
 
 @formWithCsrf(action = controllers.interest.routes.TaxedInterestController.submit(taxYear)) {
 @yesNoChoice("yes_no", form, checked)

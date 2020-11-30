@@ -24,7 +24,6 @@ common.aDifferentAmount = A different amount
 common.enterAmount = Enter amount
 
 dividends.caption = Dividends
-interest.caption = Interest
 
 dividends.uk-dividends.heading.individual = Did you receive any dividends from companies in the UK?
 dividends.uk-dividends.heading.agent = Did your client receive any dividends from companies in the UK?
