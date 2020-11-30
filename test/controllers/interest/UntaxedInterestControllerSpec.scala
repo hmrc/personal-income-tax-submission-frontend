@@ -20,41 +20,50 @@ import forms.YesNoForm
 import play.api.http.Status._
 import play.api.mvc.Result
 import utils.ViewTest
-import views.html.interest.TaxedInterestView
+import views.html.interest.UntaxedInterestView
 
 import scala.concurrent.Future
 
-class TaxedInterestControllerSpec extends ViewTest{
+class UntaxedInterestControllerSpec extends ViewTest {
 
-  lazy val controller = new TaxedInterestController(mockMessagesControllerComponents,
-    authorisedAction, app.injector.instanceOf[TaxedInterestView])(mockAppConfig)
+  val view = app.injector.instanceOf[UntaxedInterestView]
+
+  lazy val controller = new UntaxedInterestController(
+    mockMessagesControllerComponents,
+    authorisedAction,
+    app.injector.instanceOf[UntaxedInterestView])(mockAppConfig)
+
 
   val taxYear = 2020
 
   ".show" should {
 
     "return a result" which {
+
       s"has an OK($OK) status" in new TestWithAuth {
-        val result: Future[Result] = controller.show(taxYear)(fakeRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
+        val result: Future[Result] = controller.show(taxYear)(fakeRequest)
 
         status(result) shouldBe OK
       }
     }
   }
+
   ".submit" should {
 
     "return a result" which {
       s"has a redirect($SEE_OTHER) status" in new TestWithAuth {
-        val result: Future[Result] = controller.submit(taxYear)(fakeRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
+        val result: Future[Result] = controller.submit(taxYear)(fakeRequest
+          .withFormUrlEncodedBody((YesNoForm.yesNo -> YesNoForm.yes)))
 
         status(result) shouldBe SEE_OTHER
       }
 
-      s"Has a bad request ($BAD_REQUEST) when we don't tick a box" in new TestWithAuth{
+      s"returns a bad request ($BAD_REQUEST) when a box isn't ticked" in new TestWithAuth{
         val result: Future[Result] = controller.submit(taxYear)(fakeRequest)
 
         status(result) shouldBe BAD_REQUEST
       }
+
     }
   }
 

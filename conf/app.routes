@@ -18,11 +18,13 @@ POST        /:taxYear/dividends/other-dividends-amount        controllers.divide
 GET         /:taxYear/dividends/check-your-answers            controllers.dividends.DividendsCYAController.show(taxYear: Int)
 POST        /:taxYear/dividends/check-your-answers            controllers.dividends.DividendsCYAController.submit(taxYear: Int)
 
-GET         /:taxYear/interest/taxed-uk-interests             controllers.interest.TaxedInterestController.show(taxYear: Int)
-POST        /:taxYear/interest/taxed-uk-interests             controllers.interest.TaxedInterestController.submit(taxYear: Int)
+GET         /:taxYear/interest/taxed-uk-interest              controllers.interest.TaxedInterestController.show(taxYear: Int)
+POST        /:taxYear/interest/taxed-uk-interest              controllers.interest.TaxedInterestController.submit(taxYear: Int)
 
-GET         /:taxYear/interest/taxed-uk-interests-details     controllers.interest.TaxedInterestAmountController.show(taxYear: Int)
-POST        /:taxYear/interest/taxed-uk-interests-details     controllers.interest.TaxedInterestAmountController.submit(taxYear: Int)
+GET         /:taxYear/interest/untaxed-uk-interest            controllers.interest.UntaxedInterestController.show(taxYear: Int)
+POST        /:taxYear/interest/untaxed-uk-interest            controllers.interest.UntaxedInterestController.submit(taxYear: Int)
 
+GET         /:taxYear/interest/check-your-answers             controllers.interest.InterestCYAController.show(taxYear: Int)
+POST        /:taxYear/interest/check-your-answers             controllers.interest.InterestCYAController.submit(taxYear: Int)
 
-GET         /assets/*file                            controllers.Assets.versioned(path = "/public", file: Asset)
+GET         /assets/*file                                     controllers.Assets.versioned(path = "/public", file: Asset)

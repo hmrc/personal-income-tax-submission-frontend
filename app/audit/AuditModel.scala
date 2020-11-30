@@ -14,14 +14,9 @@
  * limitations under the License.
  */
 
-package common
+package audit
 
-object SessionValues {
-  val CLIENT_MTDITID = "MTDITID"
-  val CLIENT_NINO = "NINO"
-
-  val DIVIDENDS_CYA = "DIVIDENDS_CYA"
-  val DIVIDENDS_PRIOR_SUB = "DIVIDENDS_PRIOR_SUB"
-
-  val INTEREST_CYA = "INTEREST_CYA"
-}
+case class AuditModel[T](auditType: String,
+                          transactionName: String,
+                          detail: T
+                        )

@@ -17,10 +17,11 @@
 package forms.testUtils
 
 import forms.validation.StringConstraints
-import org.scalatest.{Matchers, WordSpecLike}
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.matchers.should.Matchers
 import play.api.data.validation.{Constraints, Invalid, Valid}
 
-class StringConstraintsSpec extends Constraints with WordSpecLike with Matchers {
+class StringConstraintsSpec extends Constraints with AnyWordSpecLike with Matchers {
 
   val maxLength = 2
   val errMsgMaxLength = "Too Long"
