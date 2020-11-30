@@ -1,7 +1,7 @@
 # microservice specific routes
 
-->          /govuk-frontend                                   govuk.Routes
-->          /hmrc-frontend                                    hmrcfrontend.Routes
+->          /govuk-frontend                          govuk.Routes
+->          /hmrc-frontend                           hmrcfrontend.Routes
 
 GET         /:taxYear/dividends/uk-dividends                  controllers.dividends.ReceiveUkDividendsController.show(taxYear: Int)
 POST        /:taxYear/dividends/uk-dividends                  controllers.dividends.ReceiveUkDividendsController.submit(taxYear: Int)
@@ -17,6 +17,9 @@ POST        /:taxYear/dividends/other-dividends-amount        controllers.divide
 
 GET         /:taxYear/dividends/check-your-answers            controllers.dividends.DividendsCYAController.show(taxYear: Int)
 POST        /:taxYear/dividends/check-your-answers            controllers.dividends.DividendsCYAController.submit(taxYear: Int)
+
+GET         /:taxYear/interest/untaxed-uk-interest            controllers.interest.UntaxedInterestController.show(taxYear: Int)
+POST        /:taxYear/interest/untaxed-uk-interest            controllers.interest.UntaxedInterestController.submit(taxYear: Int)
 
 GET         /:taxYear/interest/check-your-answers             controllers.interest.InterestCYAController.show(taxYear: Int)
 POST        /:taxYear/interest/check-your-answers             controllers.interest.InterestCYAController.submit(taxYear: Int)
