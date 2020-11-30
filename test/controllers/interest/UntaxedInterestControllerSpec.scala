@@ -20,18 +20,18 @@ import forms.YesNoForm
 import play.api.http.Status._
 import play.api.mvc.Result
 import utils.ViewTest
-import views.html.interest.ReceiveUntaxedInterestView
+import views.html.interest.UntaxedInterestView
 
 import scala.concurrent.Future
 
-class ReceiveUntaxedInterestControllerSpec extends ViewTest {
+class UntaxedInterestControllerSpec extends ViewTest {
 
-  val view = app.injector.instanceOf[ReceiveUntaxedInterestView]
+  val view = app.injector.instanceOf[UntaxedInterestView]
 
-  lazy val controller = new ReceiveUntaxedInterestController(
+  lazy val controller = new UntaxedInterestController(
     mockMessagesControllerComponents,
     authorisedAction,
-    app.injector.instanceOf[ReceiveUntaxedInterestView])(mockAppConfig)
+    app.injector.instanceOf[UntaxedInterestView])(mockAppConfig)
 
 
   val taxYear = 2020

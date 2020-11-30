@@ -18,8 +18,8 @@ POST        /:taxYear/dividends/other-dividends-amount        controllers.divide
 GET         /:taxYear/dividends/check-your-answers            controllers.dividends.DividendsCYAController.show(taxYear: Int)
 POST        /:taxYear/dividends/check-your-answers            controllers.dividends.DividendsCYAController.submit(taxYear: Int)
 
-GET         /:taxYear/interest/untaxed-uk-interest            controllers.interest.ReceiveUntaxedInterestController.show(taxYear: Int)
-POST        /:taxYear/interest/untaxed-uk-interest            controllers.interest.ReceiveUntaxedInterestController.submit(taxYear: Int)
+GET         /:taxYear/interest/untaxed-uk-interest            controllers.interest.UntaxedInterestController.show(taxYear: Int)
+POST        /:taxYear/interest/untaxed-uk-interest            controllers.interest.UntaxedInterestController.submit(taxYear: Int)
 
 GET         /assets/*file                            controllers.Assets.versioned(path = "/public", file: Asset)
 GET         /:taxYear/interest/check-your-answers             controllers.interest.InterestCYAController.show(taxYear: Int)
