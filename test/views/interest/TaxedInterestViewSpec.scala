@@ -41,13 +41,13 @@ class TaxedInterestViewSpec extends ViewTest {
   val errorSummaryText = ".govuk-error-summary__body"
 
   "Taxed interest view" should {
-    "Corrcetly render as an individual" when {
+    "Correctly render as an individual" when {
       "There are no form errors " which {
         lazy val view = taxedInterestView("Did you receive any taxed interest from the UK?", yesNoForm, 2020)(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
         val expectedTitle = "Did you receive any taxed interest from the UK?"
         val expectedH1 = "Did you receive any taxed interest from the UK?"
-        val expectedCaption = "Interest"
+        val expectedCaption = "Interest for 06 April {0} to 05 April {1}"
 
         "Contains the correct title" in {
           document.title shouldBe expectedTitle
@@ -82,7 +82,7 @@ class TaxedInterestViewSpec extends ViewTest {
         implicit lazy val document: Document = Jsoup.parse(view.body)
         val expectedTitle = "Did you receive any taxed interest from the UK?"
         val expectedH1 = "Did you receive any taxed interest from the UK?"
-        val expectedCaption = "Interest"
+        val expectedCaption = "Interest for 06 April {0} to 05 April {1}"
         val expectedErrorTitle = "There is a problem"
         val expectedErrorText = "Select yes if you received taxed interest from the UK"
 
@@ -130,7 +130,7 @@ class TaxedInterestViewSpec extends ViewTest {
 
         val expectedTitle = "Did your client receive any taxed interest from the UK?"
         val expectedH1 = "Did your client receive any taxed interest from the UK?"
-        val expectedCaption = "Interest"
+        val expectedCaption = "Interest for 06 April {0} to 05 April {1}"
         "contains the correct title" in {
           document.title shouldBe expectedTitle
         }
@@ -169,7 +169,7 @@ class TaxedInterestViewSpec extends ViewTest {
 
         val expectedTitle = "Did your client receive any taxed interest from the UK?"
         val expectedH1 = "Did your client receive any taxed interest from the UK?"
-        val expectedCaption = "Interest"
+        val expectedCaption = "Interest for 06 April {0} to 05 April {1}"
 
         val expectedErrorTitle = "There is a problem"
         val expectedErrorText = "Select yes if you received taxed interest from the UK"
