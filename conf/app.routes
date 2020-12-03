@@ -36,4 +36,13 @@ POST        /:taxYear/interest/untaxed-uk-interest                        contro
 GET         /:taxYear/interest/check-your-answers                         controllers.interest.InterestCYAController.show(taxYear: Int)
 POST        /:taxYear/interest/check-your-answers                         controllers.interest.InterestCYAController.submit(taxYear: Int)
 
+GET         /:taxYear/interest/taxed-uk-interests                         controllers.interest.TaxedInterestController.show(taxYear: Int)
+POST        /:taxYear/interest/taxed-uk-interests                         controllers.interest.TaxedInterestController.submit(taxYear: Int)
+
+GET         /:taxYear/interest/taxed-uk-interests-details                 controllers.interest.TaxedInterestAmountController.show(taxYear: Int)
+POST        /:taxYear/interest/taxed-uk-interests-details                 controllers.interest.TaxedInterestAmountController.submit(taxYear: Int)
+
+GET         /:taxYear/interest/untaxed-uk-interest-details                controllers.interest.UntaxedInterestAmountController.show(taxYear: Int)
+POST        /:taxYear/interest/untaxed-uk-interest-details                controllers.interest.UntaxedInterestAmountController.submit(taxYear: Int)
+
 GET         /assets/*file                                                 controllers.Assets.versioned(path = "/public", file: Asset)
