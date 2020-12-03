@@ -21,6 +21,9 @@ POST        /:taxYear/dividends/check-your-answers                        contro
 GET         /:taxYear/interest/untaxed-uk-interest-account-summary        controllers.interest.AccountsController.show(taxYear: Int, taxType = "untaxed")
 GET         /:taxYear/interest/taxed-uk-interest-account-summary          controllers.interest.AccountsController.show(taxYear: Int, taxType = "taxed")
 
+GET         /:taxYear/interest/taxed-uk-interest-details                  controllers.interest.TaxedInterestAmountController.show(taxYear: Int)
+POST        /:taxYear/interest/taxed-uk-interest-details                  controllers.interest.TaxedInterestAmountController.submit(taxYear: Int)
+
 POST        /:taxYear/interest/untaxed-uk-interest-account-summary        controllers.interest.AccountsController.submit(taxYear: Int, taxType = "untaxed")
 POST        /:taxYear/interest/taxed-uk-interest-account-summary          controllers.interest.AccountsController.submit(taxYear: Int, taxType = "taxed")
 

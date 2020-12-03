@@ -41,6 +41,7 @@ class TaxedInterestViewSpec extends ViewTest {
   val errorSummaryText = ".govuk-error-summary__body"
 
   "Taxed interest view" should {
+    
     "Correctly render as an individual" when {
       "There are no form errors " which {
         lazy val view = taxedInterestView("Did you receive any taxed interest from the UK?", yesNoForm, 2020)(user, implicitly, mockAppConfig)
@@ -73,13 +74,13 @@ class TaxedInterestViewSpec extends ViewTest {
     }
     "correctly render with errors as an individual" when {
       "there are no form errors" which {
-        lazy val view = taxedInterestView(
-          "Did you receive any taxed interest from the UK?",
+        lazy val view = taxedInterestView("Did you receive any taxed interest from the UK?",
           yesNoForm.copy(
             errors = Seq(FormError("yes_no", "Select yes if you received taxed interest from the UK"))),
           2020
         )(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
+
         val expectedTitle = "Did you receive any taxed interest from the UK?"
         val expectedH1 = "Did you receive any taxed interest from the UK?"
         val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
@@ -125,12 +126,14 @@ class TaxedInterestViewSpec extends ViewTest {
     }
     "correctly render with no errors as an agent" when {
       "there are no form errors" which {
+
         lazy val view = taxedInterestView("Did your client receive any taxed interest from the UK?", yesNoForm, 2020)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         val expectedTitle = "Did your client receive any taxed interest from the UK?"
         val expectedH1 = "Did your client receive any taxed interest from the UK?"
         val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
+
         "contains the correct title" in {
           document.title shouldBe expectedTitle
         }
@@ -158,8 +161,7 @@ class TaxedInterestViewSpec extends ViewTest {
     }
     "correctly render with errors as an agent" when {
       "there is a form error" which {
-        lazy val view = taxedInterestView(
-          "Did your client receive any taxed interest from the UK?",
+        lazy val view = taxedInterestView("Did your client receive any taxed interest from the UK?",
           yesNoForm.copy(
             errors = Seq(FormError("yes_no", "Select yes if you received taxed interest from the UK"))),
           2020
