@@ -25,7 +25,6 @@ common.enterAmount = Enter amount
 common.remove = Remove
 
 dividends.caption = Dividends
-interest.caption = Interest
 
 dividends.uk-dividends.heading.individual = Did you receive any dividends from companies in the UK?
 dividends.uk-dividends.heading.agent = Did your client receive any dividends from companies in the UK?
@@ -64,7 +63,7 @@ interest.taxed-uk-interest.sub-list2 = company bonds
 interest.taxed-uk-interest.sub-list3 = life-annuity payments
 interest.taxed-uk-interest.errors.noRadioSelected = Select yes if you received taxed interest from the UK
 interest.taxed-uk-interest-details.title = UK Interest - Register your income tax return with HMRC - Gov.UK
-interest.taxed-uk-interest-details.heading = Untaxed interest account details
+interest.taxed-uk-interest-details.heading = Taxed interest account details
 interest.taxed-uk-interest-details.sub-heading1 = What would you like to call this account?
 interest.taxed-uk-interest-details.sub-heading2 = Amount of interest earned
 interest.taxed-uk-interest-name.error.empty = Enter an account name

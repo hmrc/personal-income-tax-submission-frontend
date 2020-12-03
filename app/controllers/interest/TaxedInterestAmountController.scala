@@ -39,25 +39,20 @@ class TaxedInterestAmountController @Inject()(mcc: MessagesControllerComponents,
   implicit val messages: Messages = mcc.messagesApi.preferred(Seq(Lang("en")))
   val taxedInterestAmountForm: Form[TaxedInterestModel] = TaxedInterestAmountForm.taxedInterestAmountForm()
 
-  def show(taxYear: Int) = {
-    authorisedAction { implicit user =>
+  def show(taxYear: Int) =  authorisedAction { implicit user =>
       Ok(taxedInterestAmountView(TaxedInterestAmountForm.taxedInterestAmountForm, taxYear,
         controllers.interest.routes.TaxedInterestAmountController.submit(taxYear),
         appConfig.signInUrl))
     }
-  }
 
-  def submit(taxYear: Int) = {
-    authorisedAction { implicit user =>
+  def submit(taxYear: Int) =  authorisedAction { implicit user =>
       taxedInterestAmountForm.bindFromRequest().fold({
           formWithErrors =>
-            println("\n\n\n\n" + formWithErrors.errors)
             BadRequest(taxedInterestAmountView(formWithErrors, taxYear, controllers.interest.routes.TaxedInterestAmountController.submit(taxYear),
             appConfig.signInUrl))
       }, {
         completeForm => Redirect(appConfig.signInUrl)
       })
     }
-  }
 
 }

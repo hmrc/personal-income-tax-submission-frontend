@@ -16,9 +16,6 @@
 
 package controllers.interest
 
-import forms.{TaxedInterestAmountForm, YesNoForm}
-import models.TaxedInterestModel
-import play.api.data.Form
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.mvc.Result
 import utils.ViewTest
@@ -46,10 +43,11 @@ class TaxedInterestAmountControllerSpec extends ViewTest{
   }
   ".submit" should {
     "return a result" which {
-      s"has a redirect($SEE_OTHER) status" in new TestWithAuth {
+      s"has a see-other ($SEE_OTHER) status" in new TestWithAuth {
         val result: Future[Result] = controller.submit(taxYear)(fakeRequest.withFormUrlEncodedBody("friendlyName" -> "name", "incomeTaxAmount" -> "50"))
 
         status(result) shouldBe SEE_OTHER
+        redirectUrl(result) shouldBe mockAppConfig.signInUrl
       }
 
       s"Has a bad request ($BAD_REQUEST) when we don't tick a box" in new TestWithAuth{

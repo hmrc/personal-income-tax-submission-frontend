@@ -22,19 +22,15 @@
 label: Option[String] = None,
 value: Option[String] = None,
 parentForm: Form[_],
-maxLength: Option[Int] = None,
 divClass: Option[String] = None,
-labelClass: Option[String] = None,
-isNumeric: Boolean = false,
-formHint: Option[Seq[String]] = None
-)(implicit messages: Messages)
+labelClass: Option[String] = None)(implicit messages: Messages)
 
 @errors = @{
 field.errors
 }
 
-@errMsg(err: FormError) = {
-<span class="govuk-error-message" role="tooltip">@{messages(s"${err.message}",err.args:_*)}</span>
+@errorMessage(error: FormError) = {
+<span class="govuk-error-message" role="tooltip">@{messages(s"${error.message}",error.args:_*)}</span>
 }
 
 @hintText(hint: String) = {
@@ -46,14 +42,13 @@ field.errors
 @hasError = @{parentForm.errors(field.name).nonEmpty}
 
 @errorNotification = @{
-errors.map(errMsg)
+errors.map(errorMessage)
 }
 
-<div class="form-group form-field@divClass.map(cls => s" $cls")@if(hasError) { govuk-form-group--error}">
+<div class="form-group form-field@divClass.map(divClass => s" $divClass")@if(hasError) { govuk-form-group--error}">
 @errorNotification
-<label class='govuk-heading-m govuk-!-margin-bottom-1 @labelClass.fold("")(x => x)' for=@field.name>
-    @label.fold(Html(""))(label => Html(label))
-    @formHint.fold(Nil: Seq[Html])(_.map(hintText))
+<label class='govuk-heading-m govuk-!-margin-bottom-1 @labelClass' for=@field.name>
+    @label.map(label => Html(label))
 </label>
 <div class="hmrc-currency-input__wrapper ">
     <input name="form(friendlyName)" class="govuk-input govuk-input--width-10" id="friendlyName" type="text" @value.map{friendlyName =>value=@friendlyName}>
