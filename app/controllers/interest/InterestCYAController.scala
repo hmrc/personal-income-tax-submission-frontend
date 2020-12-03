@@ -22,6 +22,7 @@ import controllers.predicates.AuthorisedAction
 import javax.inject.Inject
 import models.User
 import models.interest.{InterestAccountModel, InterestCYAModel}
+import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.libs.json.{Json, Reads}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -39,6 +40,8 @@ class InterestCYAController @Inject()(
                                        implicit appConfig: AppConfig
                                      ) extends FrontendController(mcc) with I18nSupport {
 
+  private val logger = Logger.logger
+
   def show(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit user =>
     val cyaModel = getSessionData[InterestCYAModel](SessionValues.INTEREST_CYA)
 
@@ -52,7 +55,9 @@ class InterestCYAController @Inject()(
 
     cyaModel match {
       case Some(cyaData) => Future.successful(Ok(interestCyaView(cyaData, taxYear)))
-      case _ => Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+      case _ =>
+        logger.info("[InterestCYAController][show] No CYA data in session. Redirecting to the overview page.")
+        Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
     }
   }
 

@@ -36,7 +36,7 @@ class UntaxedInterestControllerSpec extends ViewTest {
 
   val taxYear = 2020
 
-  ".show" should {
+  ".show for an individual" should {
 
     "return a result" which {
 
@@ -48,22 +48,52 @@ class UntaxedInterestControllerSpec extends ViewTest {
     }
   }
 
-  ".submit" should {
+  ".submit for an individual" should {
 
     "return a result" which {
+
       s"has a redirect($SEE_OTHER) status" in new TestWithAuth {
         val result: Future[Result] = controller.submit(taxYear)(fakeRequest
-          .withFormUrlEncodedBody((YesNoForm.yesNo -> YesNoForm.yes)))
+          .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
 
         status(result) shouldBe SEE_OTHER
       }
 
-      s"returns a bad request ($BAD_REQUEST) when a box isn't ticked" in new TestWithAuth{
+      s"returns a bad request ($BAD_REQUEST) when a box isn't ticked" in new TestWithAuth {
         val result: Future[Result] = controller.submit(taxYear)(fakeRequest)
 
         status(result) shouldBe BAD_REQUEST
       }
+    }
+  }
 
+  ".show for an agent" should {
+
+    "return a result" which {
+
+      s"has an OK($OK) status" in new TestWithAuth(isAgent = true) {
+        val result: Future[Result] = controller.show(taxYear)(fakeRequestWithMtditid)
+
+        status(result) shouldBe OK
+      }
+    }
+  }
+
+  ".submit for an agent" should {
+
+    "return a result" which {
+
+      s"has a redirect($SEE_OTHER) status" in new TestWithAuth(isAgent = true) {
+        val result: Future[Result] = controller.submit(taxYear)(fakeRequestWithMtditid.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
+
+        status(result) shouldBe SEE_OTHER
+      }
+
+      s"returns a bad request ($BAD_REQUEST) when a box isn't ticked" in new TestWithAuth(isAgent = true) {
+        val result: Future[Result] = controller.submit(taxYear)(fakeRequestWithMtditid)
+
+        status(result) shouldBe BAD_REQUEST
+      }
     }
   }
 

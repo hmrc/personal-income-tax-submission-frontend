@@ -38,7 +38,7 @@
         </dt>
         <dd class="govuk-summary-list__value">
         @content.map { account =>
-            <div id="question@{questionNumber}account">@messages("interest.cya.accountDisplay", account.name, bigDecimalToCurrency(account.amount))</div>
+            <div id="question@{questionNumber}account">@messages("interest.cya.accountDisplay", account.accountName, bigDecimalToCurrency(account.amount))</div>
         }
         </dd>
         <dd class="govuk-summary-list__actions">

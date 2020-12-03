@@ -1,0 +1,66 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import models.interest.InterestAccountModel
+@import views.html.headerFooterTemplate.Layout
+
+@this(layout: Layout, formWithCSRF: FormWithCSRF)
+@(taxYear: Int, accounts: Seq[InterestAccountModel], taxType: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+
+@h1Text = @{
+    if(accounts.length == 1) {
+        messages("interest.accounts.h1.single")
+    } else {
+        messages("interest.accounts.h1.multiple", accounts.length)
+    }
+}
+
+@accountRow(account: InterestAccountModel, link: Call) = {
+    <div class="govuk-summary-list__row">
+        <dd class="govuk-summary-list__value">
+        @account.accountName
+        </dd>
+        <dd class="govuk-summary-list__actions">
+            <a class="govuk-link" href="@link">
+            @messages("common.change")
+            </a>
+        </dd>
+        <dd class="govuk-summary-list__actions">
+            <a class="govuk-link" href="@link">
+            @messages("common.remove")
+            </a>
+        </dd>
+    </div>
+}
+
+@layout(Some("Some title"), Some("#")) {
+    <div class="govuk-caption-l">@messages("interest.caption", (taxYear-1).toString, taxYear.toString)</div>
+    <h1 class="govuk-heading-l">@h1Text</h1>
+
+    @if(accounts.nonEmpty) {
+        <div class="govuk-summary-list">
+        @accounts.map { account =>
+            @accountRow(account, Call("GET", "#"))
+        }
+        </div>
+    }
+
+    <div><a class="govuk-link govuk-!-font-size-19" href="#">@messages("interest.accounts.addAnotherAccount")</a></div>
+
+    @formWithCSRF(controllers.interest.routes.AccountsController.submit(taxYear, taxType)) {
+        <button class="govuk-button govuk-!-margin-top-6">@messages("common.continue")</button>
+    }
+}

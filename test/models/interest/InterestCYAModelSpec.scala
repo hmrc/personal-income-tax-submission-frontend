@@ -21,8 +21,8 @@ import utils.UnitTest
 
 class InterestCYAModelSpec extends UnitTest {
   val account = InterestAccountModel(
-    uniqueId = "someId",
-    name = "someName",
+    id = "someId",
+    accountName = "someName",
     amount = 100.00
   )
 
@@ -37,21 +37,21 @@ class InterestCYAModelSpec extends UnitTest {
     "untaxedUkInterest" -> true,
     "untaxedUkAccounts" -> Json.arr(
       Json.obj(
-        "uniqueId" -> "someId",
-        "name" -> "someName",
+        "id" -> "someId",
+        "accountName" -> "someName",
         "amount" -> 100.00
       )
     ),
     "taxedUkInterest" -> true,
     "taxedUkAccounts" -> Json.arr(
       Json.obj(
-        "uniqueId" -> "someId",
-        "name" -> "someName",
+        "id" -> "someId",
+        "accountName" -> "someName",
         "amount" -> 100.00
       ),
       Json.obj(
-        "uniqueId" -> "someId",
-        "name" -> "someName",
+        "id" -> "someId",
+        "accountName" -> "someName",
         "amount" -> 100.00
       )
     )

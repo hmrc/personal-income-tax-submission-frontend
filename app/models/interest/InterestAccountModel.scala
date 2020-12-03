@@ -19,9 +19,9 @@ package models.interest
 import play.api.libs.json.Json
 
 case class InterestAccountModel(
-                         uniqueId: String,
-                         name: String,
-                         amount: BigDecimal
+                                 id: String,
+                                 accountName: String,
+                                 amount: BigDecimal
                        )
 
 object InterestAccountModel {

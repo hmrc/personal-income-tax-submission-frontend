@@ -72,4 +72,8 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
     elementText("h1") shouldBe text
   }
 
+  def assertCaption(text: String, selector: String = ".govuk-caption-l")(implicit document: Document): Assertion = {
+    elementText(selector) shouldBe text
+  }
+
 }
