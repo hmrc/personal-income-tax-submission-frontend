@@ -33,7 +33,7 @@ import scala.concurrent.Future
 class AccountsController @Inject()(
                                     mcc: MessagesControllerComponents,
                                     view: InterestAccountsView,
-                                    authorisedAction: AuthorisedAction,
+                                    authorisedAction: AuthorisedAction
                                   )(
                                     implicit appConfig: AppConfig
                                   ) extends FrontendController(mcc) with I18nSupport {
