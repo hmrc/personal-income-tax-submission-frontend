@@ -55,6 +55,7 @@ class TaxedInterestControllerSpec extends ViewTest{
 
         status(result) shouldBe SEE_OTHER
       }
+
       s"Has a bad request ($BAD_REQUEST) when we don't tick a box" in new TestWithAuth {
         val result: Future[Result] = controller.submit(taxYear)(fakeRequest)
 

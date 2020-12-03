@@ -48,6 +48,17 @@ class ReceiveOtherUkDividendsControllerSpec extends ViewTest {
 
     }
 
+    "return a result when there is a dividends CYA model in session" which {
+
+      s"has an OK($OK) status" in new TestWithAuth {
+        val result: Future[Result] = controller.show(2020)(fakeRequest
+          .withSession(SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(None, None, Some(true), Some(67)).asJsonString))
+
+        status(result) shouldBe OK
+      }
+
+    }
+
   }
 
   ".submit" should {
@@ -142,6 +153,15 @@ class ReceiveOtherUkDividendsControllerSpec extends ViewTest {
         Json.parse(await(result).session.get(SessionValues.DIVIDENDS_CYA).get).as[DividendsCheckYourAnswersModel] shouldBe expectedModel
       }
 
+    }
+
+    "throw a bad request" when {
+
+      "the form is not filled" in new TestWithAuth{
+        val result: Future[Result] = controller.submit(2020)(fakeRequest)
+
+        status(result) shouldBe BAD_REQUEST
+      }
     }
 
   }

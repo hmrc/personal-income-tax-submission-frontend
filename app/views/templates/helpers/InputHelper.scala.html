@@ -49,9 +49,9 @@
         errors.map(errMsg)
     }
 
-<div class="form-group form-field@divClass.map(cls => s" $cls")@if(hasError) { govuk-form-group--error}">
+<div class="form-group form-field@divClass.map(divClass => s" divClass")@if(hasError) { govuk-form-group--error}">
         @errorNotification
-    <label class='form-label @labelClass.fold("")(x => x)' for=@field.name>
+    <label class='govuk-heading-m govuk-!-margin-bottom-1 @labelClass' for=@field.name>
         @label.fold(Html(""))(label => Html(label))
         @formHint.fold(Nil: Seq[Html])(_.map(hintText))
     </label>
