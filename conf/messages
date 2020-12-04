@@ -25,6 +25,7 @@ common.enterAmount = Enter amount
 common.remove = Remove
 
 dividends.caption = Dividends
+interest.caption = Interest
 
 dividends.uk-dividends.heading.individual = Did you receive any dividends from companies in the UK?
 dividends.uk-dividends.heading.agent = Did your client receive any dividends from companies in the UK?
@@ -94,3 +95,25 @@ interest.untaxed-uk-interest.list.1 = banks and building societies
 interest.untaxed-uk-interest.list.2 = savings and credit union accounts
 interest.untaxed-uk-interest.list.3 = peer-to-peer lending
 interest.untaxed-uk-interest.paragraph.2 = This does not include any interest earned from an Individual Savings Account (ISA).
+
+interest.taxed-uk-interest.heading.individual = Did you receive any taxed interest from the UK?
+interest.taxed-uk-interest.heading.agent = Did your client receive any taxed interest from the UK?
+interest.taxed-uk-interest.sub-heading = For example, interest from: trust funds, company bonds or life-annuity payments
+interest.taxed-uk-interest.errors.noChoice = Select yes if you received taxed interest from the UK
+interest.taxed-uk-interest-details.title = UK Interest - Register your income tax return with HMRC - Gov.UK
+interest.taxed-uk-interest-details.heading = UK taxed interest account details
+interest.taxed-uk-interest-details.sub-heading1 = What would you like to call this account?
+interest.taxed-uk-interest-details.sub-heading2 = Amount of interest earned
+interest.taxed-uk-interest-name.error.empty = Enter an account name
+interest.taxed-uk-interest-amount.error.empty = Enter the amount of taxed interest earned
+interest.error.invalid_number = Enter an amount using numbers 0 to 9
+
+interest.untaxed-uk-interest-details.title = UK Interest - Register your income tax return with HMRC - Gov.UK
+interest.untaxed-uk-interest-details.heading = UK untaxed interest account details
+interest.untaxed-uk-interest-details.sub-heading1 = What would you like to call this account?
+interest.untaxed-uk-interest-details.sub-heading2 = Amount of interest earned
+interest.untaxed-uk-interest-name.error.empty = Enter an account name
+interest.untaxed-uk-interest-amount.error.empty = Enter the amount of untaxed interest earned
+interest.error.invalid-number = Enter an amount using numbers 0 to 9
+
+
