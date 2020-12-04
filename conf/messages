@@ -101,11 +101,11 @@ interest.taxed-uk-interest.heading.agent = Did your client receive any taxed int
 interest.taxed-uk-interest.sub-heading = For example, interest from: trust funds, company bonds or life-annuity payments
 interest.taxed-uk-interest.errors.noChoice = Select yes if you received taxed interest from the UK
 interest.taxed-uk-interest-details.title = UK Interest - Register your income tax return with HMRC - Gov.UK
-interest.taxed-uk-interest-details.heading = Untaxed interest account details
+interest.taxed-uk-interest-details.heading = UK taxed interest account details
 interest.taxed-uk-interest-details.sub-heading1 = What would you like to call this account?
 interest.taxed-uk-interest-details.sub-heading2 = Amount of interest earned
 interest.taxed-uk-interest-name.error.empty = Enter an account name
-interest.taxed-uk-interest-amount.error.empty = Enter the amount of untaxed interest earned
+interest.taxed-uk-interest-amount.error.empty = Enter the amount of taxed interest earned
 interest.error.invalid_number = Enter an amount using numbers 0 to 9
 
 interest.untaxed-uk-interest-details.title = UK Interest - Register your income tax return with HMRC - Gov.UK

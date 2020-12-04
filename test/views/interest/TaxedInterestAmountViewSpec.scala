@@ -48,7 +48,7 @@ class TaxedInterestAmountViewSpec extends ViewTest{
         implicit lazy val document: Document = Jsoup.parse(view.body)
         val expectedTitle = "UK Interest - Register your income tax return with HMRC - Gov.UK"
         val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
-        val expectedH1 = "Taxed interest account details"
+        val expectedH1 = "UK taxed interest account details"
 
         "has the correct h1" in {
           elementText(h1Selector) shouldBe (expectedH1)
@@ -71,8 +71,8 @@ class TaxedInterestAmountViewSpec extends ViewTest{
         val expectedTitle = "UK Interest - Register your income tax return with HMRC - Gov.UK"
         val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
         val expectedErrorTitle = "There is a problem"
-        val expectedErrorText = "Enter the amount of untaxed interest earned"
-        val expectedH1 = "Taxed interest account details"
+        val expectedErrorText = "Enter the amount of taxed interest earned"
+        val expectedH1 = "UK taxed interest account details"
 
         "has the correct h1" in {
           elementText(h1Selector) shouldBe (expectedH1)
