@@ -14,17 +14,9 @@
  * limitations under the License.
  */
 
-package models.interest
+package common
 
-import play.api.libs.json.{Json, OFormat}
-
-case class InterestAccountModel(
-                                 id: Option[String],
-                                 accountName: String,
-                                 amount: BigDecimal,
-                                 uniqueSessionId: Option[String] = None
-                       )
-
-object InterestAccountModel {
-  implicit val formats: OFormat[InterestAccountModel] = Json.format[InterestAccountModel]
+object InterestTaxTypes {
+  val UNTAXED = "untaxed"
+  val TAXED = "taxed"
 }

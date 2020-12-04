@@ -21,7 +21,7 @@ import utils.UnitTest
 
 class InterestCYAModelSpec extends UnitTest {
   val account = InterestAccountModel(
-    id = "someId",
+    id = Some("someId"),
     accountName = "someName",
     amount = 100.00
   )

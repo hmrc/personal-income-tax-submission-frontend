@@ -36,8 +36,8 @@ class AccountsControllerSpec extends ViewTest {
   lazy val controller = new AccountsController(stubMessagesControllerComponents(), app.injector.instanceOf[InterestAccountsView], authorisedAction)
 
   lazy val interestCyaModel = InterestCYAModel(
-    Some(true), Some(Seq(InterestAccountModel("azerty", "Account 1", 100.01))),
-    Some(true), Some(Seq(InterestAccountModel("qwerty", "Account 2", 9001.01)))
+    Some(true), Some(Seq(InterestAccountModel(Some("azerty"), "Account 1", 100.01))),
+    Some(true), Some(Seq(InterestAccountModel(Some("qwerty"), "Account 2", 9001.01)))
   )
 
   def maxRequest(cyaModel: InterestCYAModel = interestCyaModel): FakeRequest[AnyContentAsEmpty.type] = fakeRequest
@@ -262,8 +262,8 @@ class AccountsControllerSpec extends ViewTest {
 
   ".getTaxAccounts" should {
 
-    val taxedAccount = Seq(InterestAccountModel("taxedId", "Taxed Account", 9023.11))
-    val untaxedAccount = Seq(InterestAccountModel("untaxedId", "Untaxed Account", 0.03))
+    val taxedAccount = Seq(InterestAccountModel(Some("taxedId"), "Taxed Account", 9023.11))
+    val untaxedAccount = Seq(InterestAccountModel(Some("untaxedId"), "Untaxed Account", 0.03))
 
     "return taxed accounts" when {
 

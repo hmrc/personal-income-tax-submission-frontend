@@ -16,6 +16,7 @@
 
 @import models.interest.InterestAccountModel
 @import views.html.headerFooterTemplate.Layout
+@import common.InterestTaxTypes._
 
 @this(layout: Layout, formWithCSRF: FormWithCSRF)
 @(taxYear: Int, accounts: Seq[InterestAccountModel], taxType: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
@@ -28,10 +29,19 @@
     }
 }
 
+@accountChangeCall(account: InterestAccountModel) = @{
+    val identifier = account.id.getOrElse(account.uniqueSessionId.getOrElse(""))
+
+    taxType match {
+        case `TAXED` => controllers.interest.routes.TaxedInterestAmountController.show(taxYear, Some(identifier))
+        case `UNTAXED` => controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, Some(identifier))
+    }
+}
+
 @accountRow(account: InterestAccountModel, link: Call) = {
     <div class="govuk-summary-list__row">
         <dd class="govuk-summary-list__value">
-        @account.accountName
+            @account.accountName
         </dd>
         <dd class="govuk-summary-list__actions">
             <a class="govuk-link" href="@link">
@@ -46,19 +56,26 @@
     </div>
 }
 
-@layout(Some("Some title"), Some("#")) {
+@addNewAccountLink = @{
+    taxType match {
+        case `TAXED` => controllers.interest.routes.TaxedInterestAmountController.show(taxYear)
+        case `UNTAXED` => controllers.interest.routes.UntaxedInterestAmountController.show(taxYear)
+    }
+}
+
+@layout(Some(h1Text), Some("#")) {
     <div class="govuk-caption-l">@messages("interest.caption", (taxYear-1).toString, taxYear.toString)</div>
     <h1 class="govuk-heading-l">@h1Text</h1>
 
     @if(accounts.nonEmpty) {
         <div class="govuk-summary-list">
         @accounts.map { account =>
-            @accountRow(account, Call("GET", "#"))
+            @accountRow(account, accountChangeCall(account))
         }
         </div>
     }
 
-    <div><a class="govuk-link govuk-!-font-size-19" href="#">@messages("interest.accounts.addAnotherAccount")</a></div>
+    <div><a class="govuk-link govuk-!-font-size-19" href=@addNewAccountLink>@messages("interest.accounts.addAnotherAccount")</a></div>
 
     @formWithCSRF(controllers.interest.routes.AccountsController.submit(taxYear, taxType)) {
         <button class="govuk-button govuk-!-margin-top-6">@messages("common.continue")</button>
