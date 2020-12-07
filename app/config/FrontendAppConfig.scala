@@ -40,7 +40,7 @@ class FrontendAppConfig @Inject()(config: Configuration, servicesConfig: Service
   private val signInOrigin = servicesConfig.getString("appName")
   override val signInUrl: String = s"$signInBaseUrl?continue=$signInContinueUrl&origin=$signInOrigin"
   override val dividendsBaseUrl: String = servicesConfig.baseUrl("income-tax-dividends") + "/income-tax-dividends"
-  def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = servicesConfig.baseUrl("income-tax-submission-frontend") +
+  def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = servicesConfig.getString(ConfigKeys.incomeTaxSubmissionFrontend) +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.context") + "/" + taxYear +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.overview")
 
