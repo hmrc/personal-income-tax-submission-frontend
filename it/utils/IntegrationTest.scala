@@ -50,6 +50,7 @@ trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneServerPerSu
     "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck",
     "microservice.services.income-tax-submission-frontend.host" -> wiremockHost,
     "microservice.services.income-tax-submission-frontend.port" -> wiremockPort.toString,
+    "income-tax-submission-frontend.url" -> s"http://$wiremockHost:$wiremockPort",
     "microservice.services.auth.host" -> wiremockHost,
     "microservice.services.auth.port" -> wiremockPort.toString,
     "microservice.services.income-tax-dividends.host" -> wiremockHost,
