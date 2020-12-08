@@ -17,6 +17,7 @@
 @import models.interest.InterestAccountModel
 @import views.html.headerFooterTemplate.Layout
 @import common.InterestTaxTypes._
+@import views.html.templates.helpers.ContinueButton
 
 @this(layout: Layout, formWithCSRF: FormWithCSRF)
 @(taxYear: Int, accounts: Seq[InterestAccountModel], taxType: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
@@ -75,9 +76,9 @@
         </div>
     }
 
-    <div><a class="govuk-link govuk-!-font-size-19" href=@addNewAccountLink>@messages("interest.accounts.addAnotherAccount")</a></div>
+    <div class="govuk-!-margin-bottom-6"><a class="govuk-link govuk-!-font-size-19" href=@addNewAccountLink>@messages("interest.accounts.addAnotherAccount")</a></div>
 
     @formWithCSRF(controllers.interest.routes.AccountsController.submit(taxYear, taxType)) {
-        <button class="govuk-button govuk-!-margin-top-6">@messages("common.continue")</button>
+        @ContinueButton()
     }
 }
