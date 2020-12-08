@@ -41,8 +41,8 @@ class InterestCYAControllerSpec extends ViewTest {
       "there is CYA data in session" in new TestWithAuth {
         lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
           SessionValues.INTEREST_CYA -> InterestCYAModel(
-            Some(true), Some(Seq(InterestAccountModel("", "", arbitraryAmount))),
-            Some(true), Some(Seq(InterestAccountModel("", "", arbitraryAmount)))
+            Some(true), Some(Seq(InterestAccountModel(None, "", arbitraryAmount))),
+            Some(true), Some(Seq(InterestAccountModel(None, "", arbitraryAmount)))
           ).asJsonString
         )
 

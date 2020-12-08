@@ -43,30 +43,30 @@
 
 <div class="govuk-form-group">
  @nameInputHelper(
- field = formInput(accountName),
- label = Some(messages("interest.untaxed-uk-interest-details.sub-heading1")),
- value = preName,
- parentForm = form,
+  field = formInput(accountName),
+  label = Some(messages("interest.untaxed-uk-interest-details.sub-heading1")),
+  value = preName,
+  parentForm = form
  )
 </div>
 
 
 <div class="govuk-form-group">
  @inputHelper(
- field = formInput(untaxedAmount),
- label = Some(messages("interest.untaxed-uk-interest-details.sub-heading2")),
- value = preAmount,
- parentForm = form,
- isNumeric = true,
+  field = formInput(untaxedAmount),
+  label = Some(messages("interest.untaxed-uk-interest-details.sub-heading2")),
+  value = preAmount,
+  parentForm = form,
+  isNumeric = true
  )
 </div>
 
 }
 
 @layout(pageTitle = Some(messages("interest.untaxed-uk-interest-details.title")), backLinkUrl = Some(backUrl)) {
-@formWithCsrf(action = controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear)) {
-@currencyFormHtml(form, accountName, untaxedAmount)
-@ContinueButton()
+ @formWithCsrf(action = postAction) {
+  @currencyFormHtml(form, accountName, untaxedAmount)
+  @ContinueButton()
  }
 }
 

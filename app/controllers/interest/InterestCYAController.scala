@@ -21,7 +21,7 @@ import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import javax.inject.Inject
 import models.User
-import models.interest.{InterestAccountModel, InterestCYAModel}
+import models.interest.InterestCYAModel
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.libs.json.{Json, Reads}
@@ -44,14 +44,6 @@ class InterestCYAController @Inject()(
 
   def show(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit user =>
     val cyaModel = getSessionData[InterestCYAModel](SessionValues.INTEREST_CYA)
-
-    //TODO Remove on wireup - Use this if reviewing and you want to see the page work
-//    val cyaModel = Some(InterestCYAModel(
-//      Some(true),
-//      Some(Seq(InterestAccountModel("", "WOO", 12345))),
-//      Some(false),
-//      None
-//    ))
 
     cyaModel match {
       case Some(cyaData) => Future.successful(Ok(interestCyaView(cyaData, taxYear)))

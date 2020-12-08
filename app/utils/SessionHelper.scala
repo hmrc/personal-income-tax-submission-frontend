@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package models.interest
+package utils
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{Json, Reads}
+import play.api.mvc.Request
 
-case class InterestAccountModel(
-                                 id: Option[String],
-                                 accountName: String,
-                                 amount: BigDecimal,
-                                 uniqueSessionId: Option[String] = None
-                       )
+trait SessionHelper {
 
-object InterestAccountModel {
-  implicit val formats: OFormat[InterestAccountModel] = Json.format[InterestAccountModel]
+  def getFromSession(key: String)(implicit request: Request[_]): Option[String] = {
+    request.session.get(key)
+  }
+
+  def getModelFromSession[T](key: String)(implicit request: Request[_], reads: Reads[T]): Option[T] = {
+    getFromSession(key).flatMap(sessionData => Json.parse(sessionData).asOpt[T])
+  }
+
 }

@@ -27,6 +27,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.interest.InterestAccountsView
+import common.InterestTaxTypes._
 
 import scala.concurrent.Future
 
@@ -38,19 +39,9 @@ class AccountsController @Inject()(
                                     implicit appConfig: AppConfig
                                   ) extends FrontendController(mcc) with I18nSupport {
 
-  private val TAXED: String = "taxed"
-  private val UNTAXED: String = "untaxed"
-
   private val logger = Logger.logger
 
   implicit def resultToFutureResult: Result => Future[Result] = baseResult => Future.successful(baseResult)
-
-  //TODO Remove on wire up
-  //Replace optionalCyaData in show and submit to view these locally.
-  val tempCyaData = Some(InterestCYAModel(
-    Some(true), Some(Seq(InterestAccountModel("qwerty", "Untaxed 1", 100))),
-    Some(true), Some(Seq(InterestAccountModel("azerty", "Taxed 1", 100)))
-  ))
 
   def show(taxYear: Int, taxType: String): Action[AnyContent] = authorisedAction.async { implicit user =>
     def overviewRedirect = Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))

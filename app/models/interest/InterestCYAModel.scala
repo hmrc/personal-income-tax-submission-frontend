@@ -29,17 +29,17 @@ case class InterestCYAModel(
 
   def isFinished: Boolean = {
 
-    val ukDividendsFinished: Boolean = untaxedUkInterest.exists {
+    val untaxedInterestFinished: Boolean = untaxedUkInterest.exists {
       case true => untaxedUkAccounts.getOrElse(Seq.empty).nonEmpty
       case false => true
     }
 
-    val otherUkDividendsFinished: Boolean = taxedUkInterest.exists {
+    val taxedInterestFinished: Boolean = taxedUkInterest.exists {
       case true => taxedUkAccounts.getOrElse(Seq.empty).nonEmpty
       case false => true
     }
 
-    ukDividendsFinished && otherUkDividendsFinished
+    untaxedInterestFinished && taxedInterestFinished
   }
 
 }

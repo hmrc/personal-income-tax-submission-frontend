@@ -21,6 +21,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import utils.ViewTest
 import views.html.interest.InterestCYAView
+import common.InterestTaxTypes._
 
 class InterestCYAViewSpec extends ViewTest {
 
@@ -44,6 +45,9 @@ class InterestCYAViewSpec extends ViewTest {
 
     val questionAccountSelector: (Int, Int) => String = (questionNumber, accountNumber) => s"#question${questionNumber}account:nth-child($accountNumber)"
 
+    val questionChangeLinkSelector: Int => String = questionNumber => s"#main-content > div > div > dl > div:nth-child($questionNumber) " +
+      s"> dd.govuk-summary-list__actions > a"
+
     val yesNoQuestionAnswer: Int => String = questionNumber => s"#main-content > div > div > dl > div:nth-child($questionNumber) > dd.govuk-summary-list__value"
   }
 
@@ -53,7 +57,6 @@ class InterestCYAViewSpec extends ViewTest {
     val captionExpected = "Interest for 06 April 2019 to 05 April 2020"
 
     val changeLinkExpected = "Change"
-    val yesNoExpectedAnswer: Boolean => String = isYes => if(isYes) "Yes" else "No"
 
     val questionUntaxedInterestExpected = "Untaxed UK Interest?"
     val questionUntaxedInterestDetailsExpected = "Details for the untaxed UK interest?"
@@ -63,6 +66,8 @@ class InterestCYAViewSpec extends ViewTest {
     val untaxedInterestAccount1ExpectedTest = "UntaxedBank1 : £100.00"
     val taxedInterestAccount1ExpectedTest = "TaxedBank1 : £200.00"
     val taxedInterestAccount2ExpectedTest = "TaxedBank2 : £400.00"
+
+    val submitText = "Save and continue"
 
     val Yes = "Yes"
     val No = "No"
@@ -75,11 +80,11 @@ class InterestCYAViewSpec extends ViewTest {
       "all fields are present" which {
         val cyaModel = InterestCYAModel(
           untaxedUkInterest = Some(true),
-          untaxedUkAccounts = Some(Seq(InterestAccountModel("id", "UntaxedBank1", 100.00))),
+          untaxedUkAccounts = Some(Seq(InterestAccountModel(Some("id"), "UntaxedBank1", 100.00))),
           taxedUkInterest = Some(true),
           taxedUkAccounts = Some(Seq(
-            InterestAccountModel("id", "TaxedBank1", 200.00),
-            InterestAccountModel("id", "TaxedBank2", 400.00)
+            InterestAccountModel(Some("id"), "TaxedBank1", 200.00),
+            InterestAccountModel(Some("id"), "TaxedBank2", 400.00)
           ))
         )
 
@@ -104,8 +109,9 @@ class InterestCYAViewSpec extends ViewTest {
             elementExist(Selectors.submitButton) shouldBe true
           }
 
-          //TODO update when wired up
-          "has the correct link" in pending
+          "has the correct text" in {
+            elementText(Selectors.submitButton) shouldBe ExpectedResult.submitText
+          }
 
         }
 
@@ -146,6 +152,56 @@ class InterestCYAViewSpec extends ViewTest {
           elementText(Selectors.questionAccountSelector(question4, account2)) shouldBe ExpectedResult.taxedInterestAccount2ExpectedTest
         }
 
+        "question 1 change link" should {
+
+          "have the correct text" in {
+            elementText(Selectors.questionChangeLinkSelector(1)) shouldBe ExpectedResult.changeLinkExpected
+          }
+
+          "have the correct link" in {
+            element(Selectors.questionChangeLinkSelector(1)).attr("href") shouldBe controllers.interest.routes.UntaxedInterestController.show(taxYear).url
+          }
+
+        }
+
+        "question 2 change link" should {
+
+          "have the correct text" in {
+            elementText(Selectors.questionChangeLinkSelector(2)) shouldBe ExpectedResult.changeLinkExpected
+          }
+
+          "have the correct link" in {
+            element(Selectors.questionChangeLinkSelector(2)).attr("href") shouldBe controllers.interest.routes.AccountsController.show(taxYear, UNTAXED).url
+          }
+
+        }
+
+        "question 3 change link" should {
+
+          "have the correct text" in {
+            elementText(Selectors.questionChangeLinkSelector(3)) shouldBe ExpectedResult.changeLinkExpected
+          }
+
+          "have the correct link" in {
+            element(Selectors.questionChangeLinkSelector(3)).attr("href") shouldBe controllers.interest.routes.TaxedInterestController.show(taxYear).url
+          }
+
+        }
+
+        "question 4 change link" should {
+
+          "have the correct text" in {
+            //noinspection ScalaStyle
+            elementText(Selectors.questionChangeLinkSelector(4)) shouldBe ExpectedResult.changeLinkExpected
+          }
+
+          "have the correct link" in {
+            //noinspection ScalaStyle
+            element(Selectors.questionChangeLinkSelector(4)).attr("href") shouldBe controllers.interest.routes.AccountsController.show(taxYear, TAXED).url
+          }
+
+        }
+
       }
 
     }
@@ -181,8 +237,9 @@ class InterestCYAViewSpec extends ViewTest {
             elementExist(Selectors.submitButton) shouldBe true
           }
 
-          //TODO update when wired up
-          "has the correct link" in pending
+          "has the correct text" in {
+            elementText(Selectors.submitButton) shouldBe ExpectedResult.submitText
+          }
 
         }
 
@@ -209,6 +266,30 @@ class InterestCYAViewSpec extends ViewTest {
         "there is no question 4" in {
           //noinspection ScalaStyle
           elementExist(Selectors.questionSelector(4)) shouldBe false
+        }
+
+        "question 1 change link" should {
+
+          "have the correct text" in {
+            elementText(Selectors.questionChangeLinkSelector(1)) shouldBe ExpectedResult.changeLinkExpected
+          }
+
+          "have the correct link" in {
+            element(Selectors.questionChangeLinkSelector(1)).attr("href") shouldBe controllers.interest.routes.UntaxedInterestController.show(taxYear).url
+          }
+
+        }
+
+        "question 2 change link" should {
+
+          "have the correct text" in {
+            elementText(Selectors.questionChangeLinkSelector(2)) shouldBe ExpectedResult.changeLinkExpected
+          }
+
+          "have the correct link" in {
+            element(Selectors.questionChangeLinkSelector(2)).attr("href") shouldBe controllers.interest.routes.TaxedInterestController.show(taxYear).url
+          }
+
         }
 
       }
