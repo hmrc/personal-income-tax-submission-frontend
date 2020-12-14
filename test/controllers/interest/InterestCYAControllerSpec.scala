@@ -16,7 +16,7 @@
 
 package controllers.interest
 
-import common.SessionValues
+import common.{InterestTaxTypes, SessionValues}
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.http.Status._
 import play.api.mvc.{AnyContentAsEmpty, Result}
@@ -49,6 +49,11 @@ class InterestCYAControllerSpec extends ViewTest {
         lazy val result: Future[Result] = controller.show(taxYear)(request)
 
         status(result) shouldBe OK
+
+        val expectedBackLink: Some[String] = Some(controllers.interest.routes.InterestCYAController.show(taxYear).url)
+
+        getSession(result).get(SessionValues.PAGE_BACK_TAXED_ACCOUNTS) shouldBe expectedBackLink
+        getSession(result).get(SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS) shouldBe expectedBackLink
       }
 
     }
@@ -74,6 +79,31 @@ class InterestCYAControllerSpec extends ViewTest {
 
       status(result) shouldBe SEE_OTHER
       redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+    }
+
+  }
+
+  ".backLink" should {
+
+    "return whatever the cya back link" when {
+
+      "it is in session" in {
+        val requestWithSessionValues: FakeRequest[AnyContentAsEmpty.type] = fakeRequest.withSession(
+          SessionValues.PAGE_BACK_CYA -> "/cyaRedirectLink"
+        )
+
+        val result = controller.backLink(taxYear)(requestWithSessionValues)
+        result shouldBe Some("/cyaRedirectLink")
+      }
+
+    }
+
+    "return the overview link" when {
+
+      "there are no backlink values in session" in {
+        controller.backLink(taxYear)(fakeRequest) shouldBe Some(mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+      }
+
     }
 
   }

@@ -16,7 +16,7 @@
 
 package controllers.interest
 
-import common.SessionValues
+import common.{InterestTaxTypes, PageLocations, SessionValues}
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import javax.inject.Inject
@@ -25,8 +25,9 @@ import models.interest.InterestCYAModel
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.libs.json.{Json, Reads}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import utils.InterestSessionHelper
 import views.html.interest.InterestCYAView
 
 import scala.concurrent.Future
@@ -38,15 +39,29 @@ class InterestCYAController @Inject()(
                                      )
                                      (
                                        implicit appConfig: AppConfig
-                                     ) extends FrontendController(mcc) with I18nSupport {
+                                     ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper {
 
   private val logger = Logger.logger
 
+  def backLink(taxYear: Int)(implicit request: Request[_]): Option[String] = {
+    getFromSession(SessionValues.PAGE_BACK_CYA) match {
+      case location@Some(_) => location
+      case _ => Some(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+    }
+  }
+
   def show(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit user =>
-    val cyaModel = getSessionData[InterestCYAModel](SessionValues.INTEREST_CYA)
+    val cyaModel = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
 
     cyaModel match {
-      case Some(cyaData) => Future.successful(Ok(interestCyaView(cyaData, taxYear)))
+      case Some(cyaData) =>
+        val pageLocation = PageLocations.Interest.cya(taxYear)
+
+        Future.successful(
+          Ok(interestCyaView(cyaData, taxYear, backLink(taxYear)))
+            .updateAccountsOverviewRedirect(pageLocation, InterestTaxTypes.UNTAXED)
+            .updateAccountsOverviewRedirect(pageLocation, InterestTaxTypes.TAXED)
+        )
       case _ =>
         logger.info("[InterestCYAController][show] No CYA data in session. Redirecting to the overview page.")
         Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
@@ -56,12 +71,6 @@ class InterestCYAController @Inject()(
   def submit(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit user =>
     //TODO Submission logic lives here
     Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
-  }
-
-  private[interest] def getSessionData[T](key: String)(implicit user: User[_], reads: Reads[T]): Option[T] = {
-    user.session.get(key).flatMap { stringValue =>
-      Json.parse(stringValue).asOpt[T]
-    }
   }
 
 }

@@ -46,8 +46,12 @@ class UntaxedInterestAmountViewSpec extends ViewTest {
     "Correctly render" when {
       "There are no form errors" which {
 
-        lazy val view = untaxedInterestView(untaxedInterestForm, mockAppConfig.signInUrl, taxYear,
-          controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear))(user,implicitly,mockAppConfig)
+        lazy val view = untaxedInterestView(
+          untaxedInterestForm,
+          Some(mockAppConfig.signInUrl),
+          taxYear,
+          controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear)
+        )(user,implicitly,mockAppConfig)
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
         val expectedTitle = "UK Interest - Register your income tax return with HMRC - Gov.UK"
@@ -69,9 +73,13 @@ class UntaxedInterestAmountViewSpec extends ViewTest {
 
       "There are form errors" which {
 
-        lazy val view = untaxedInterestView(untaxedInterestForm.copy(errors = Seq(FormError(untaxedAmount,
-          "interest.untaxed-uk-interest-amount.error.empty"))),mockAppConfig.signInUrl,taxYear,
-          controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear))(user, implicitly, mockAppConfig)
+        lazy val view = untaxedInterestView(
+          untaxedInterestForm.copy(errors = Seq(FormError(untaxedAmount,
+          "interest.untaxed-uk-interest-amount.error.empty"))),
+          Some(mockAppConfig.signInUrl),
+          taxYear,
+          controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear)
+        )(user, implicitly, mockAppConfig)
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
         val expectedTitle = "UK Interest - Register your income tax return with HMRC - Gov.UK"

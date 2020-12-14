@@ -23,7 +23,13 @@ case class InterestAccountModel(
                                  accountName: String,
                                  amount: BigDecimal,
                                  uniqueSessionId: Option[String] = None
-                       )
+                       ) {
+
+  def getPrimaryId(): Option[String] = {
+    if(id.nonEmpty) id else uniqueSessionId
+  }
+
+}
 
 object InterestAccountModel {
   implicit val formats: OFormat[InterestAccountModel] = Json.format[InterestAccountModel]

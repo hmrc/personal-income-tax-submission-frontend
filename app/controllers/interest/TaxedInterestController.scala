@@ -16,7 +16,7 @@
 
 package controllers.interest
 
-import common.SessionValues
+import common.{PageLocations, SessionValues}
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import forms.YesNoForm
@@ -26,9 +26,9 @@ import models.interest.InterestCYAModel
 import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.{Lang, Messages}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SessionHelper
+import utils.InterestSessionHelper
 import views.html.interest.TaxedInterestView
 
 import scala.concurrent.ExecutionContext
@@ -38,14 +38,25 @@ class TaxedInterestController @Inject()(
                                          mcc: MessagesControllerComponents,
                                          authorisedAction: AuthorisedAction,
                                          taxedInterestView: TaxedInterestView
-                                       )(implicit appConfig: AppConfig) extends FrontendController(mcc) with SessionHelper {
+                                       )(implicit appConfig: AppConfig) extends FrontendController(mcc) with InterestSessionHelper {
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
   implicit val messages: Messages = mcc.messagesApi.preferred(Seq(Lang("en")))
   val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("interest.taxed-uk-interest.errors.noRadioSelected")
 
+  private[interest] def backLink(taxYear: Int)(implicit request: Request[_]): Option[String] = {
+    import common.PageLocations.Interest._
+
+    getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA) match {
+      case Some(cyaModel) => Some(if(cyaModel.isFinished) cya(taxYear) else UntaxedAccountsView(taxYear))
+      case _ => Some(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+    }
+  }
+
   def show(taxYear: Int): Action[AnyContent] = authorisedAction { implicit user =>
-    Ok(taxedInterestView("interest.taxed-uk-interest.heading." + (if (user.isAgent) "agent" else "individual"), yesNoForm, taxYear))
+    val pageTitle = "interest.taxed-uk-interest.heading." + (if (user.isAgent) "agent" else "individual")
+    Ok(taxedInterestView(pageTitle, yesNoForm, taxYear, backLink = backLink(taxYear)))
+        .updateTaxedAmountRedirect(PageLocations.Interest.TaxedView(taxYear))
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authorisedAction { implicit user =>
@@ -54,7 +65,12 @@ class TaxedInterestController @Inject()(
     yesNoForm.bindFromRequest().fold(
       {
         formWithErrors =>
-          BadRequest(taxedInterestView("interest.taxed-uk-interest.heading." + (if (user.isAgent) "agent" else "individual"), formWithErrors, taxYear))
+          BadRequest(taxedInterestView(
+            pageTitle = "interest.taxed-uk-interest.heading." + (if (user.isAgent) "agent" else "individual"),
+            form = formWithErrors,
+            taxYear = taxYear,
+            backLink = backLink(taxYear)
+          ))
       },
       {
         yesNoModel =>
@@ -72,6 +88,7 @@ class TaxedInterestController @Inject()(
               } else {
                 Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
                   .addingToSession(SessionValues.INTEREST_CYA -> updatedCya.asJsonString)
+                  .updateCyaRedirect(PageLocations.Interest.TaxedView(taxYear))
               }
             case _ =>
               Logger.logger.info("[TaxedInterestController][submit] No CYA data in session. Redirecting to overview page.")

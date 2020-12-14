@@ -17,13 +17,14 @@
 package controllers.interest
 
 import common.InterestTaxTypes.UNTAXED
-import common.SessionValues
+import common.{InterestTaxTypes, SessionValues}
 import models.interest.{InterestAccountModel, InterestCYAModel}
-import play.api.mvc.Result
+import play.api.mvc.{AnyContentAsEmpty, Result}
 import utils.ViewTest
 import views.html.interest.UntaxedInterestAmountView
 import play.api.http.Status._
 import play.api.libs.json.Json
+import play.api.test.FakeRequest
 
 import scala.concurrent.Future
 
@@ -121,6 +122,12 @@ class UntaxedInterestAmountControllerSpec extends ViewTest {
           val model = Json.parse(getSession(result).get(SessionValues.INTEREST_CYA).get).as[InterestCYAModel]
           model.untaxedUkAccounts shouldBe Some(Seq(expectedAccount, otherAccount))
         }
+
+        "has updated the untaxed accounts overview page to the untaxed amount page" in {
+          getSession(result).get(SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS).get should include(
+            controllers.interest.routes.UntaxedInterestAmountController.show(taxYear).url
+          )
+        }
       }
 
       "there is a correctly submitted form, with a modify value (that matches an account id with a session identifier) and CYA data" which {
@@ -152,6 +159,12 @@ class UntaxedInterestAmountControllerSpec extends ViewTest {
         "has updated the correct account" in {
           val model = Json.parse(getSession(result).get(SessionValues.INTEREST_CYA).get).as[InterestCYAModel]
           model.untaxedUkAccounts shouldBe Some(Seq(expectedAccount, otherAccount))
+        }
+
+        "has updated the untaxed accounts overview page to the untaxed amount page" in {
+          getSession(result).get(SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS).get should include(
+            controllers.interest.routes.UntaxedInterestAmountController.show(taxYear).url
+          )
         }
       }
 
@@ -185,6 +198,12 @@ class UntaxedInterestAmountControllerSpec extends ViewTest {
           val model = Json.parse(getSession(result).get(SessionValues.INTEREST_CYA).get).as[InterestCYAModel]
           model.untaxedUkAccounts shouldBe Some(Seq(expectedAccount, otherAccount))
         }
+
+        "has updated the untaxed accounts overview page to the untaxed amount page" in {
+          getSession(result).get(SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS).get should include(
+            controllers.interest.routes.UntaxedInterestAmountController.show(taxYear).url
+          )
+        }
       }
 
       "there is a correctly submitted form, without a modify value and no interest account CYA data" which {
@@ -214,6 +233,12 @@ class UntaxedInterestAmountControllerSpec extends ViewTest {
 
           account.accountName shouldBe "TSB Account"
           account.amount shouldBe 500.00
+        }
+
+        "has updated the untaxed accounts overview page to the untaxed amount page" in {
+          getSession(result).get(SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS).get should include(
+            controllers.interest.routes.UntaxedInterestAmountController.show(taxYear).url
+          )
         }
       }
 
@@ -248,6 +273,54 @@ class UntaxedInterestAmountControllerSpec extends ViewTest {
         ))
 
         status(result) shouldBe BAD_REQUEST
+      }
+
+    }
+
+  }
+
+  ".backLink" should {
+
+    "return the back link in session" when {
+
+      "the cya model indicates the user has not finished the journey" in {
+        val requestWithSessionValues: FakeRequest[AnyContentAsEmpty.type] = fakeRequest.withSession(
+          SessionValues.PAGE_BACK_UNTAXED_AMOUNT -> "/back",
+          SessionValues.INTEREST_CYA -> InterestCYAModel(Some(false), None, Some(true), None).asJsonString
+        )
+
+        val result = controller.backLink(taxYear)(requestWithSessionValues)
+        result shouldBe Some("/back")
+      }
+
+      "the cya model does not exist" in {
+        val requestWithSessionValues: FakeRequest[AnyContentAsEmpty.type] = fakeRequest.withSession(
+          SessionValues.PAGE_BACK_UNTAXED_AMOUNT -> "/back"
+        )
+
+        val result = controller.backLink(taxYear)(requestWithSessionValues)
+        result shouldBe Some("/back")
+      }
+    }
+
+    "return the taxed accounts overview page url" when {
+
+      "the cya model indicates the user has finished the journey" in {
+        val requestWithSessionValues: FakeRequest[AnyContentAsEmpty.type] = fakeRequest.withSession(
+          SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS -> "/back",
+          SessionValues.INTEREST_CYA -> InterestCYAModel(Some(false), None, Some(false), None).asJsonString
+        )
+
+        val result = controller.backLink(taxYear)(requestWithSessionValues)
+        result shouldBe Some(controllers.interest.routes.AccountsController.show(taxYear, InterestTaxTypes.UNTAXED).url)
+      }
+
+    }
+
+    "return the overview link" when {
+
+      "there is no back link value in session and the journey is not complete" in {
+        controller.backLink(taxYear)(fakeRequest) shouldBe Some(mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear))
       }
 
     }
