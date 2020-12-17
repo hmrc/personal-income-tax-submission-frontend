@@ -122,7 +122,7 @@ class UntaxedInterestAmountController @Inject()(
                   PageLocations.Interest.UntaxedAmountsView(taxYear, newAccount.getPrimaryId()), InterestTaxTypes.UNTAXED
                 )
             case _ =>
-              Logger.logger.info("[TaxedInterestController][submit] No CYA data in session. Redirecting to overview page.")
+              Logger.logger.info("[UntaxedInterestController][submit] No CYA data in session. Redirecting to overview page.")
               Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
           }
       })
