@@ -70,7 +70,9 @@ class InterestCYAController @Inject()(
 
   def submit(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit user =>
     //TODO Submission logic lives here
-    Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+    Future.successful(
+      Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).clearRedirects()
+    )
   }
 
 }

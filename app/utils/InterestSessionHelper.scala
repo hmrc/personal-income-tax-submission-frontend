@@ -45,6 +45,16 @@ trait InterestSessionHelper extends SessionHelper {
       result.addingToSession(SessionValues.PAGE_BACK_CYA -> url)
     }
 
+    def clearRedirects()(implicit user: User[_]): Result = {
+      result.removingFromSession(
+        SessionValues.PAGE_BACK_TAXED_ACCOUNTS,
+        SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS,
+        SessionValues.PAGE_BACK_TAXED_AMOUNT,
+        SessionValues.PAGE_BACK_UNTAXED_AMOUNT,
+        SessionValues.PAGE_BACK_CYA
+      )
+    }
+
   }
 
 }
