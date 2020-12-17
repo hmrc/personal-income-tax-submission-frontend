@@ -16,7 +16,7 @@
 
 package controllers.interest
 
-import common.SessionValues
+import common.{InterestTaxTypes, SessionValues}
 import forms.YesNoForm
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.http.Status._
@@ -47,6 +47,9 @@ class TaxedInterestControllerSpec extends ViewTest{
         val result: Future[Result] = controller.show(taxYear)(fakeRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
 
         status(result) shouldBe OK
+        getSession(result).get(SessionValues.PAGE_BACK_TAXED_AMOUNT).get should include(
+          controllers.interest.routes.TaxedInterestController.show(taxYear).url
+        )
       }
     }
   }
@@ -59,6 +62,9 @@ class TaxedInterestControllerSpec extends ViewTest{
         val result: Future[Result] = controller.show(taxYear)(fakeRequestWithMtditid.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
 
         status(result) shouldBe OK
+        getSession(result).get(SessionValues.PAGE_BACK_TAXED_AMOUNT).get should include(
+          controllers.interest.routes.TaxedInterestController.show(taxYear).url
+        )
       }
     }
   }
@@ -273,6 +279,44 @@ class TaxedInterestControllerSpec extends ViewTest{
         lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequestWithMtditid)
 
         status(result) shouldBe BAD_REQUEST
+      }
+
+    }
+
+  }
+
+  ".backLink" should {
+
+    "return the CYA link" when {
+
+      "the cya model indicates the journey is finished" in {
+
+        controller.backLink(taxYear)(fakeRequest.withSession(
+          SessionValues.INTEREST_CYA -> InterestCYAModel(Some(false), None, Some(false), None).asJsonString
+        )) shouldBe Some(controllers.interest.routes.InterestCYAController.show(taxYear).url)
+
+      }
+
+    }
+
+    "return the untaxed accounts overview link" when {
+
+      "the cya model indicates the journey is not finished" in {
+
+        controller.backLink(taxYear)(fakeRequest.withSession(
+          SessionValues.INTEREST_CYA -> InterestCYAModel(Some(false), None, None, None).asJsonString
+        )) shouldBe Some(controllers.interest.routes.AccountsController.show(taxYear, InterestTaxTypes.UNTAXED).url)
+
+      }
+
+    }
+
+    "return the overview url" when {
+
+      "the cya model is missing" in {
+
+        controller.backLink(taxYear)(fakeRequest) shouldBe Some(mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+
       }
 
     }

@@ -17,11 +17,12 @@
 package controllers.interest
 
 import common.InterestTaxTypes._
-import common.SessionValues
+import common.{InterestTaxTypes, SessionValues}
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.http.Status._
 import play.api.libs.json.Json
-import play.api.mvc.Result
+import play.api.mvc.{AnyContentAsEmpty, Result}
+import play.api.test.FakeRequest
 import utils.ViewTest
 import views.html.interest.TaxedInterestAmountView
 
@@ -77,7 +78,7 @@ class TaxedInterestAmountControllerSpec extends ViewTest {
             false,
             None,
             true,
-            Seq(InterestAccountModel("asdf", "TSB", 100.00)),
+            Seq(InterestAccountModel("asdf", "TSB", 100.00))
           ).asJsonString
         ))
 
@@ -87,6 +88,12 @@ class TaxedInterestAmountControllerSpec extends ViewTest {
 
         "has the correct redirect URL" in {
           redirectUrl(result) shouldBe controllers.interest.routes.AccountsController.show(taxYear, TAXED).url
+        }
+
+        "has updated the taxed accounts overview back link" in {
+          val expectedResultContains = controllers.interest.routes.TaxedInterestAmountController.show(taxYear).url
+
+          getSession(result).get(SessionValues.PAGE_BACK_TAXED_ACCOUNTS).get should include (expectedResultContains)
         }
 
       }
@@ -242,12 +249,60 @@ class TaxedInterestAmountControllerSpec extends ViewTest {
 
     s"return a BAD_REQUEST($BAD_REQUEST)" when {
 
-      "the form data is invalid" in new TestWithAuth{
+      "the form data is invalid" in new TestWithAuth {
         val result: Future[Result] = controller.submit(taxYear, None)(fakeRequest.withFormUrlEncodedBody(
           "invalidField" -> "someValue"
         ))
 
         status(result) shouldBe BAD_REQUEST
+      }
+
+    }
+
+  }
+
+  ".backLink" should {
+
+    "return the back link in session" when {
+
+      "the cya model indicates the user has not finished the journey" in {
+        val requestWithSessionValues: FakeRequest[AnyContentAsEmpty.type] = fakeRequest.withSession(
+          SessionValues.PAGE_BACK_TAXED_AMOUNT -> "/back",
+          SessionValues.INTEREST_CYA -> InterestCYAModel(Some(false), None, Some(true), None).asJsonString
+        )
+
+        val result = controller.backLink(taxYear)(requestWithSessionValues)
+        result shouldBe Some("/back")
+      }
+
+      "the cya model does not exist" in {
+        val requestWithSessionValues: FakeRequest[AnyContentAsEmpty.type] = fakeRequest.withSession(
+          SessionValues.PAGE_BACK_TAXED_AMOUNT -> "/back"
+        )
+
+        val result = controller.backLink(taxYear)(requestWithSessionValues)
+        result shouldBe Some("/back")
+      }
+    }
+
+    "return the taxed accounts overview page url" when {
+
+      "the cya model indicates the user has finished the journey" in {
+        val requestWithSessionValues: FakeRequest[AnyContentAsEmpty.type] = fakeRequest.withSession(
+          SessionValues.PAGE_BACK_TAXED_ACCOUNTS -> "/back",
+          SessionValues.INTEREST_CYA -> InterestCYAModel(Some(false), None, Some(false), None).asJsonString
+        )
+
+        val result = controller.backLink(taxYear)(requestWithSessionValues)
+        result shouldBe Some(controllers.interest.routes.AccountsController.show(taxYear, InterestTaxTypes.TAXED).url)
+      }
+
+    }
+
+    "return the overview link" when {
+
+      "there is no back link value in session and the journey is not complete" in {
+        controller.backLink(taxYear)(fakeRequest) shouldBe Some(mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear))
       }
 
     }

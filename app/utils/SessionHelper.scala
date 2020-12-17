@@ -16,8 +16,10 @@
 
 package utils
 
+import common.SessionValues
+import models.User
 import play.api.libs.json.{Json, Reads}
-import play.api.mvc.Request
+import play.api.mvc.{Request, Result}
 
 trait SessionHelper {
 

@@ -16,7 +16,7 @@
 
 package controllers.interest
 
-import common.SessionValues
+import common.{InterestTaxTypes, PageLocations, SessionValues}
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import javax.inject.Inject
@@ -24,10 +24,11 @@ import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc._
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.interest.InterestAccountsView
 import common.InterestTaxTypes._
+import utils.InterestSessionHelper
 
 import scala.concurrent.Future
 
@@ -37,21 +38,46 @@ class AccountsController @Inject()(
                                     authorisedAction: AuthorisedAction
                                   )(
                                     implicit appConfig: AppConfig
-                                  ) extends FrontendController(mcc) with I18nSupport {
+                                  ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper {
 
   private val logger = Logger.logger
 
   implicit def resultToFutureResult: Result => Future[Result] = baseResult => Future.successful(baseResult)
 
+  private[interest] def backLink(taxYear: Int, taxType: String)(implicit request: Request[_]): Option[String] = {
+    val backLinkSessionKey: String = taxType match {
+      case InterestTaxTypes.UNTAXED => SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS
+      case InterestTaxTypes.TAXED => SessionValues.PAGE_BACK_TAXED_ACCOUNTS
+    }
+
+    getFromSession(backLinkSessionKey) match {
+      case location@Some(_) => location
+      case _ => Some(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+    }
+  }
+
   def show(taxYear: Int, taxType: String): Action[AnyContent] = authorisedAction.async { implicit user =>
     def overviewRedirect = Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+
     val optionalCyaData: Option[InterestCYAModel] = user.session.get(SessionValues.INTEREST_CYA).flatMap(Json.parse(_).asOpt[InterestCYAModel])
 
     optionalCyaData match {
       case Some(cyaData) =>
         getTaxAccounts(taxType, cyaData) match {
-          case Some(taxAccounts) if taxAccounts.nonEmpty => Ok(view(taxYear, taxAccounts, taxType))
+          case Some(taxAccounts) if taxAccounts.nonEmpty => Ok(view(taxYear, taxAccounts, taxType, backLink(taxYear, taxType)))
+            .updateUntaxedAmountRedirect(PageLocations.Interest.UntaxedAccountsView(taxYear))
+            .updateTaxedAmountRedirect(PageLocations.Interest.TaxedAccountsView(taxYear))
+            .updateCyaRedirect(
+              if(taxType == InterestTaxTypes.UNTAXED) { PageLocations.Interest.UntaxedAccountsView(taxYear) }
+              else { PageLocations.Interest.TaxedAccountsView(taxYear) }
+            )
           case _ => missingAccountsRedirect(taxType, taxYear)
+            .updateUntaxedAmountRedirect(PageLocations.Interest.UntaxedAccountsView(taxYear))
+            .updateTaxedAmountRedirect(PageLocations.Interest.TaxedAccountsView(taxYear))
+            .updateCyaRedirect(
+              if(taxType == InterestTaxTypes.UNTAXED) { PageLocations.Interest.UntaxedAccountsView(taxYear) }
+              else { PageLocations.Interest.TaxedAccountsView(taxYear) }
+            )
         }
       case _ =>
         logger.info("[AccountsController][show] No CYA data in session. Redirecting to the overview page.")
@@ -66,7 +92,7 @@ class AccountsController @Inject()(
       case Some(cyaData) =>
         getTaxAccounts(taxType, cyaData) match {
           case Some(taxAccounts) if taxAccounts.nonEmpty =>
-            if(cyaData.isFinished) {
+            if (cyaData.isFinished) {
               Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
             } else {
               Redirect(controllers.interest.routes.TaxedInterestController.show(taxYear))

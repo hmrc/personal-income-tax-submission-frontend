@@ -39,19 +39,25 @@ class TaxedInterestAmountViewSpec extends ViewTest{
   val errorSummaryTitle = ".govuk-error-summary__title"
   val errorSummaryText = ".govuk-error-summary__body"
 
+  val taxYear = 2020
+
   "Taxed interest amount view " should {
 
     "Correctly render" when {
       "there are no form errors " which {
-        lazy val view = taxedInterestView(taxedInterestForm, 2020,
-          controllers.interest.routes.TaxedInterestAmountController.submit(2020), mockAppConfig.signInUrl)(user, implicitly, mockAppConfig)
+        lazy val view = taxedInterestView(
+          taxedInterestForm,
+          2020,
+          controllers.interest.routes.TaxedInterestAmountController.submit(taxYear),
+          Some(mockAppConfig.signInUrl)
+        )(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
         val expectedTitle = "UK Interest - Register your income tax return with HMRC - Gov.UK"
         val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
         val expectedH1 = "UK taxed interest account details"
 
         "has the correct h1" in {
-          elementText(h1Selector) shouldBe (expectedH1)
+          elementText(h1Selector) shouldBe expectedH1
         }
 
         "Contains the correct title" in {
@@ -65,8 +71,12 @@ class TaxedInterestAmountViewSpec extends ViewTest{
         }
       }
       "there are form errors " which {
-        lazy val view = taxedInterestView(taxedInterestForm.copy(errors = Seq(FormError(incomeTaxAmount, "interest.taxed-uk-interest-amount.error.empty"))), 2020,
-          controllers.interest.routes.TaxedInterestAmountController.submit(2020), mockAppConfig.signInUrl)(user, implicitly, mockAppConfig)
+        lazy val view = taxedInterestView(
+          taxedInterestForm.copy(errors = Seq(FormError(incomeTaxAmount, "interest.taxed-uk-interest-amount.error.empty"))),
+          taxYear,
+          controllers.interest.routes.TaxedInterestAmountController.submit(taxYear),
+          Some(mockAppConfig.signInUrl)
+        )(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
         val expectedTitle = "UK Interest - Register your income tax return with HMRC - Gov.UK"
         val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
@@ -75,7 +85,7 @@ class TaxedInterestAmountViewSpec extends ViewTest{
         val expectedH1 = "UK taxed interest account details"
 
         "has the correct h1" in {
-          elementText(h1Selector) shouldBe (expectedH1)
+          elementText(h1Selector) shouldBe expectedH1
         }
 
         "contains the correct title" in {

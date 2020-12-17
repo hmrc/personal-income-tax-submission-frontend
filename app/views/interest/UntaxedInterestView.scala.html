@@ -21,7 +21,7 @@
 
 @this(layout: Layout, errorSummaryDisplay: ErrorSummaryDisplay, yesNoChoice: YesNoChoice, formWithCsrf: FormWithCSRF)
 
-@(pageTitle: String, form: Form[YesNoModel], taxYear: Int, checked: String = "")(implicit user: User[_],
+@(pageTitle: String, form: Form[YesNoModel], taxYear: Int, checked: String = "", backLink: Option[String] = None)(implicit user: User[_],
 messages: Messages, appConfig: AppConfig)
 
 @pageTitleToUse = @{
@@ -32,7 +32,7 @@ messages: Messages, appConfig: AppConfig)
 if(user.isAgent) messages("interest.untaxed-uk-interest.heading.agent") else messages("interest.untaxed-uk-interest.heading.individual")
 }
 
-@layout(pageTitle = Some(pageTitleToUse), backLinkUrl = Some(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))) {
+@layout(Some(pageTitleToUse), backLink) {
 
 @errorSummaryDisplay(form.errors, Some("yes_no_yes"))
 
