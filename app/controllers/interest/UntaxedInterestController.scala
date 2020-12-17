@@ -55,6 +55,7 @@ class UntaxedInterestController @Inject()(
     val pageTitle: String = "interest.untaxed-uk-interest.heading." + (if (user.isAgent) "agent" else "individual")
     Ok(untaxedInterestView(pageTitle, yesNoForm, taxYear, backLink = backLink(taxYear)))
       .updateUntaxedAmountRedirect(PageLocations.Interest.UntaxedView(taxYear))
+      .updateCyaRedirect(PageLocations.Interest.UntaxedView(taxYear))
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
@@ -91,7 +92,6 @@ class UntaxedInterestController @Inject()(
             case (_, true) =>
               Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
                 .addingToSession(SessionValues.INTEREST_CYA -> updatedCya.asJsonString)
-                .updateCyaRedirect(PageLocations.Interest.UntaxedView(taxYear))
           }
       }
     )

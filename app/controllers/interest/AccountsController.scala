@@ -67,9 +67,17 @@ class AccountsController @Inject()(
           case Some(taxAccounts) if taxAccounts.nonEmpty => Ok(view(taxYear, taxAccounts, taxType, backLink(taxYear, taxType)))
             .updateUntaxedAmountRedirect(PageLocations.Interest.UntaxedAccountsView(taxYear))
             .updateTaxedAmountRedirect(PageLocations.Interest.TaxedAccountsView(taxYear))
+            .updateCyaRedirect(
+              if(taxType == InterestTaxTypes.UNTAXED) { PageLocations.Interest.UntaxedAccountsView(taxYear) }
+              else { PageLocations.Interest.TaxedAccountsView(taxYear) }
+            )
           case _ => missingAccountsRedirect(taxType, taxYear)
             .updateUntaxedAmountRedirect(PageLocations.Interest.UntaxedAccountsView(taxYear))
             .updateTaxedAmountRedirect(PageLocations.Interest.TaxedAccountsView(taxYear))
+            .updateCyaRedirect(
+              if(taxType == InterestTaxTypes.UNTAXED) { PageLocations.Interest.UntaxedAccountsView(taxYear) }
+              else { PageLocations.Interest.TaxedAccountsView(taxYear) }
+            )
         }
       case _ =>
         logger.info("[AccountsController][show] No CYA data in session. Redirecting to the overview page.")
@@ -86,10 +94,6 @@ class AccountsController @Inject()(
           case Some(taxAccounts) if taxAccounts.nonEmpty =>
             if (cyaData.isFinished) {
               Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
-                .updateCyaRedirect(
-                  if(taxType == InterestTaxTypes.UNTAXED) { PageLocations.Interest.UntaxedAccountsView(taxYear) }
-                  else { PageLocations.Interest.TaxedAccountsView(taxYear) }
-                )
             } else {
               Redirect(controllers.interest.routes.TaxedInterestController.show(taxYear))
             }

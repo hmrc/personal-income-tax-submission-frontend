@@ -48,7 +48,7 @@ class TaxedInterestController @Inject()(
     import common.PageLocations.Interest._
 
     getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA) match {
-      case Some(cyaModel) => Some(if(cyaModel.isFinished) cya(taxYear) else UntaxedAccountsView(taxYear))
+      case Some(cyaModel) => Some(if (cyaModel.isFinished) cya(taxYear) else UntaxedAccountsView(taxYear))
       case _ => Some(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
     }
   }
@@ -56,7 +56,8 @@ class TaxedInterestController @Inject()(
   def show(taxYear: Int): Action[AnyContent] = authorisedAction { implicit user =>
     val pageTitle = "interest.taxed-uk-interest.heading." + (if (user.isAgent) "agent" else "individual")
     Ok(taxedInterestView(pageTitle, yesNoForm, taxYear, backLink = backLink(taxYear)))
-        .updateTaxedAmountRedirect(PageLocations.Interest.TaxedView(taxYear))
+      .updateTaxedAmountRedirect(PageLocations.Interest.TaxedView(taxYear))
+      .updateCyaRedirect(PageLocations.Interest.TaxedView(taxYear))
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authorisedAction { implicit user =>
@@ -88,7 +89,6 @@ class TaxedInterestController @Inject()(
               } else {
                 Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
                   .addingToSession(SessionValues.INTEREST_CYA -> updatedCya.asJsonString)
-                  .updateCyaRedirect(PageLocations.Interest.TaxedView(taxYear))
               }
             case _ =>
               Logger.logger.info("[TaxedInterestController][submit] No CYA data in session. Redirecting to overview page.")
