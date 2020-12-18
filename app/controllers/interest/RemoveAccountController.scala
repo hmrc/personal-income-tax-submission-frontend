@@ -93,7 +93,7 @@ class RemoveAccountController @Inject()(
                     val updatedAccounts = taxAccounts.filterNot(account => account.id.getOrElse(account.uniqueSessionId.getOrElse("")) == accountId)
                     if(taxType == UNTAXED) {
                       val updatedCyaData = cyaData.copy(
-                        untaxedUkInterest = if(updatedAccounts.nonEmpty)Some(true) else Some(false),
+                        untaxedUkInterest = Some(updatedAccounts.nonEmpty),
                         untaxedUkAccounts = Some(updatedAccounts))
                       if(updatedAccounts.nonEmpty){
                         Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)).addingToSession(SessionValues.INTEREST_CYA -> updatedCyaData.asJsonString)
@@ -102,7 +102,7 @@ class RemoveAccountController @Inject()(
                       }
                     } else {
                       val updatedCyaData = cyaData.copy(
-                        taxedUkInterest = if(updatedAccounts.nonEmpty)Some(true) else Some(false),
+                        taxedUkInterest = Some(updatedAccounts.nonEmpty),
                         taxedUkAccounts = Some(updatedAccounts))
                       if(updatedAccounts.nonEmpty){
                         Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)).addingToSession(SessionValues.INTEREST_CYA -> updatedCyaData.asJsonString)
