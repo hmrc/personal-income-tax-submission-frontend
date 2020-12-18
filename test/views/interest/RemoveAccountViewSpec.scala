@@ -27,7 +27,7 @@ import views.html.interest.RemoveAccountView
 
 class RemoveAccountViewSpec extends ViewTest {
 
-  lazy val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("Select yes if you wish to remove this account")
+  lazy val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("Select yes to remove this account")
 
   lazy val removeAccountView: RemoveAccountView = app.injector.instanceOf[RemoveAccountView]
 
@@ -84,7 +84,7 @@ class RemoveAccountViewSpec extends ViewTest {
       "there are no form errors" which {
         lazy val view = removeAccountView(
           yesNoForm.copy(
-            errors = Seq(FormError("yes_no", "Select yes if you wish to remove this account"))),
+            errors = Seq(FormError("yes_no", "Select yes to remove this account"))),
           taxYear, UNTAXED, account
         )(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -93,7 +93,7 @@ class RemoveAccountViewSpec extends ViewTest {
         val expectedH1 = "Are you sure you want to remove Monzo?"
         val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
         val expectedErrorTitle = "There is a problem"
-        val expectedErrorText = "Select yes if you wish to remove this account"
+        val expectedErrorText = "Select yes to remove this account"
 
         "contains the correct title" in {
           document.title shouldBe expectedTitle
@@ -171,7 +171,7 @@ class RemoveAccountViewSpec extends ViewTest {
     "correctly render with errors as an agent" when {
       "there is a form error" which {
         lazy val view = removeAccountView(yesNoForm.copy(
-            errors = Seq(FormError("yes_no", "Select yes if you wish to remove this account"))),
+            errors = Seq(FormError("yes_no", "Select yes to remove this account"))),
           taxYear, UNTAXED, account
         )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
 
@@ -182,7 +182,7 @@ class RemoveAccountViewSpec extends ViewTest {
         val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
 
         val expectedErrorTitle = "There is a problem"
-        val expectedErrorText = "Select yes if you wish to remove this account"
+        val expectedErrorText = "Select yes to remove this account"
         "contains the correct title" in {
           document.title shouldBe expectedTitle
         }

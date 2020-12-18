@@ -108,4 +108,4 @@ interest.remove-account.title = Are you sure you want to remove this account? - 
 interest.remove-account.heading = Are you sure you want to remove {0}?
 interest.remove-account.untaxed-hint = This will remove all untaxed UK interest.
 interest.remove-account.taxed-hint = This will remove all taxed UK interest.
-interest.remove-account.errors.noRadioSelected = Select yes if you wish to remove this account
+interest.remove-account.errors.noRadioSelected = Select yes to remove this account
