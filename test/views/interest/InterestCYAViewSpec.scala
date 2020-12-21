@@ -16,12 +16,13 @@
 
 package views.interest
 
-import models.interest.{InterestAccountModel, InterestCYAModel}
+import common.InterestTaxTypes
+import common.InterestTaxTypes._
+import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import utils.ViewTest
 import views.html.interest.InterestCYAView
-import common.InterestTaxTypes._
 
 class InterestCYAViewSpec extends ViewTest {
 
@@ -288,6 +289,102 @@ class InterestCYAViewSpec extends ViewTest {
 
           "have the correct link" in {
             element(Selectors.questionChangeLinkSelector(2)).attr("href") shouldBe controllers.interest.routes.TaxedInterestController.show(taxYear).url
+          }
+
+        }
+
+      }
+
+      "the user has both tax types prior" which {
+        val priorSubmission = InterestPriorSubmission(
+          hasUntaxed = true, hasTaxed = true,
+          Some(Seq(
+            InterestAccountModel(Some("qwerty"), "TSB", 100.00, priorType = Some(InterestTaxTypes.UNTAXED)),
+            InterestAccountModel(Some("azerty"), "TSB", 100.00, priorType = Some(InterestTaxTypes.TAXED))
+          ))
+        )
+
+        val cyaModel = InterestCYAModel(
+          untaxedUkInterest = Some(true),
+          untaxedUkAccounts = Some(Seq(InterestAccountModel(Some("qwerty"), "TSB", 100.00))),
+          taxedUkInterest = Some(true),
+          taxedUkAccounts = Some(Seq(InterestAccountModel(Some("azerty"), "TSB Account", 100.00)))
+        )
+
+        val render = view(cyaModel, taxYear, Some(priorSubmission))(fakeRequest, messages, mockAppConfig).body
+        implicit val document: Document = Jsoup.parse(render)
+
+        "has the correct title" in {
+          assertTitle(ExpectedResult.titleExpected)
+        }
+
+        "has the correct h1" in {
+          assertH1(ExpectedResult.h1Expected)
+        }
+
+        "has the correct caption" in {
+          elementText(Selectors.captionSelector) shouldBe ExpectedResult.captionExpected
+        }
+
+        "the submit button" which {
+
+          "exist" in {
+            elementExist(Selectors.submitButton) shouldBe true
+          }
+
+          "has the correct text" in {
+            elementText(Selectors.submitButton) shouldBe ExpectedResult.submitText
+          }
+
+        }
+
+        "question 1 should be the untaxed interest accounts question" in {
+          elementText(questionTextSelector(1)) shouldBe ExpectedResult.questionUntaxedInterestDetailsExpected
+        }
+
+        "question 2 should be the taxed interest question" in {
+          elementText(questionTextSelector(2)) shouldBe ExpectedResult.question4TaxedInterestDetailExpected
+        }
+
+        "question 1 answer should be No" in {
+          elementText(Selectors.yesNoQuestionAnswer(1)) shouldBe "TSB : £100.00"
+        }
+
+        "question 2 answer should be No" in {
+          elementText(Selectors.yesNoQuestionAnswer(2)) shouldBe "TSB Account : £100.00"
+        }
+
+        "there is no question 3" in {
+          elementExist(Selectors.questionSelector(3)) shouldBe false
+        }
+
+        "there is no question 4" in {
+          //noinspection ScalaStyle
+          elementExist(Selectors.questionSelector(4)) shouldBe false
+        }
+
+        "question 1 change link" should {
+
+          "have the correct text" in {
+            elementText(Selectors.questionChangeLinkSelector(1)) shouldBe ExpectedResult.changeLinkExpected
+          }
+
+          "have the correct link" in {
+            element(Selectors.questionChangeLinkSelector(1)).attr("href") shouldBe
+              controllers.interest.routes.AccountsController.show(taxYear, InterestTaxTypes.UNTAXED).url
+          }
+
+        }
+
+        "question 2 change link" should {
+
+          "have the correct text" in {
+            elementText(Selectors.questionChangeLinkSelector(2)) shouldBe ExpectedResult.changeLinkExpected
+          }
+
+          "have the correct link" in {
+            element(Selectors.questionChangeLinkSelector(2)).attr("href") shouldBe
+              controllers.interest.routes.AccountsController.show(taxYear, InterestTaxTypes.TAXED).url
           }
 
         }
