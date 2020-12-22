@@ -16,9 +16,10 @@
 
 package controllers.interest
 
-import common.{InterestTaxTypes, SessionValues}
+import common.SessionValues
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.http.Status._
+import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import utils.ViewTest
@@ -44,6 +45,27 @@ class InterestCYAControllerSpec extends ViewTest {
             Some(true), Some(Seq(InterestAccountModel(None, "", arbitraryAmount))),
             Some(true), Some(Seq(InterestAccountModel(None, "", arbitraryAmount)))
           ).asJsonString
+        )
+
+        lazy val result: Future[Result] = controller.show(taxYear)(request)
+
+        status(result) shouldBe OK
+      }
+
+      "there is no CYA data but is prior submission data in session" in new TestWithAuth {
+        lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
+          SessionValues.INTEREST_PRIOR_SUB -> Json.obj("submissions" -> Json.arr(
+            Json.obj(
+              "accountName" -> "Bank of Winterhold",
+              "incomeSourceId" -> "qwerty",
+              "untaxedUkInterest" -> 500.00
+            ),
+            Json.obj(
+              "accountName" -> "Bank of Riften",
+              "incomeSourceId" -> "azerty",
+              "taxedUkInterest" -> 200.00
+            )
+          )).toString()
         )
 
         lazy val result: Future[Result] = controller.show(taxYear)(request)

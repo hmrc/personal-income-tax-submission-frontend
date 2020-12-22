@@ -21,10 +21,9 @@ import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import javax.inject.Inject
 import models.User
-import models.interest.InterestCYAModel
+import models.interest.{InterestCYAModel, InterestPriorSubmission}
 import play.api.Logger
 import play.api.i18n.I18nSupport
-import play.api.libs.json.{Json, Reads}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.InterestSessionHelper
@@ -51,14 +50,18 @@ class InterestCYAController @Inject()(
   }
 
   def show(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit user =>
-    val cyaModel = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
+    val priorSubmission = getModelFromSession[InterestPriorSubmission](SessionValues.INTEREST_PRIOR_SUB)
+    val cyaModel = getCyaModel()
 
     cyaModel match {
       case Some(cyaData) =>
         val pageLocation = PageLocations.Interest.cya(taxYear)
 
         Future.successful(
-          Ok(interestCyaView(cyaData, taxYear, backLink(taxYear)))
+          Ok(interestCyaView(cyaData, taxYear, priorSubmission, backLink(taxYear)))
+            .addingToSession(
+              SessionValues.INTEREST_CYA -> cyaData.asJsonString
+            )
             .updateAccountsOverviewRedirect(pageLocation, InterestTaxTypes.UNTAXED)
             .updateAccountsOverviewRedirect(pageLocation, InterestTaxTypes.TAXED)
         )
@@ -75,4 +78,17 @@ class InterestCYAController @Inject()(
     )
   }
 
+  private[interest] def getCyaModel()(implicit user: User[_]): Option[InterestCYAModel] = {
+    (getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA), getModelFromSession[InterestPriorSubmission](SessionValues.INTEREST_PRIOR_SUB)) match {
+      case (None, Some(priorData)) =>
+        Some(InterestCYAModel(
+          Some(priorData.hasUntaxed),
+          priorData.submissions.map(_.filter(_.priorType.contains(InterestTaxTypes.UNTAXED))),
+          Some(priorData.hasTaxed),
+          priorData.submissions.map(_.filter(_.priorType.contains(InterestTaxTypes.TAXED)))
+        ))
+      case (Some(cyaData), _) => Some(cyaData)
+      case _ => None
+    }
+  }
 }

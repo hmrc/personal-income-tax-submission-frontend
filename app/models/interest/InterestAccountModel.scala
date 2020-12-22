@@ -16,14 +16,16 @@
 
 package models.interest
 
-import play.api.libs.json.{Json, OFormat}
+import common.InterestTaxTypes
+import play.api.libs.json._
 
 case class InterestAccountModel(
                                  id: Option[String],
                                  accountName: String,
                                  amount: BigDecimal,
-                                 uniqueSessionId: Option[String] = None
-                       ) {
+                                 uniqueSessionId: Option[String] = None,
+                                 priorType: Option[String] = None
+                               ) {
 
   def getPrimaryId(): Option[String] = {
     if(id.nonEmpty) id else uniqueSessionId
@@ -32,5 +34,38 @@ case class InterestAccountModel(
 }
 
 object InterestAccountModel {
-  implicit val formats: OFormat[InterestAccountModel] = Json.format[InterestAccountModel]
+  implicit val reads: Reads[InterestAccountModel] = Json.reads[InterestAccountModel]
+  implicit val writes: Writes[InterestAccountModel] = Writes[InterestAccountModel] { model =>
+    JsObject(Json.obj(
+      "id" -> model.id,
+      "accountName" -> model.accountName,
+      "amount" -> model.amount,
+      "uniqueSessionId" -> model.uniqueSessionId
+    ).fields.filterNot(_._2 == JsNull))
+  }
+
+  private val missingTaxValuesError: JsonValidationError = new JsonValidationError(Seq("No tax values are present."))
+  private val bothTaxValuesEntered: JsonValidationError = new JsonValidationError(Seq("Both tax values are present."))
+
+  private[interest] def checkOneExist(untaxed: Option[BigDecimal], taxed: Option[BigDecimal]): Boolean = {
+    untaxed.nonEmpty || taxed.nonEmpty
+  }
+
+  private[interest] def checkOnlyOneExist(untaxed: Option[BigDecimal], taxed: Option[BigDecimal]): Boolean = {
+    untaxed.isEmpty || taxed.isEmpty
+  }
+
+  val priorSubmissionReads: Reads[InterestAccountModel] = for {
+    accountName <- (__ \ "accountName").read[String]
+    uniqueId <- (__ \ "incomeSourceId").read[String]
+    untaxedAmount <- (__ \ "untaxedUkInterest").readNullable[BigDecimal]
+    taxedAmount <- (__ \ "taxedUkInterest").readNullable[BigDecimal]
+      .filter(missingTaxValuesError)(value => checkOneExist(untaxedAmount, value))
+      .filter(bothTaxValuesEntered)(value => checkOnlyOneExist(untaxedAmount, value))
+  } yield {
+    val amount = untaxedAmount.getOrElse(taxedAmount.get)
+    val priorType = if (untaxedAmount.nonEmpty) InterestTaxTypes.UNTAXED else InterestTaxTypes.TAXED
+
+    InterestAccountModel(Some(uniqueId), accountName, amount, None, Some(priorType))
+  }
 }
