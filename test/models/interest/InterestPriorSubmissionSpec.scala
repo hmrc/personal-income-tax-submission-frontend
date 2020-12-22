@@ -17,43 +17,37 @@
 package models.interest
 
 import common.InterestTaxTypes
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{JsArray, JsObject, Json}
 import utils.UnitTest
 
 class InterestPriorSubmissionSpec extends UnitTest {
 
-  val validJsonRead: JsObject = Json.obj(
-    "submissions" -> Json.arr(
-      Json.obj(
-        "accountName" -> "TSB Account",
-        "incomeSourceId" -> "qwerty",
-        "taxedUkInterest" -> 500
-      ),
-      Json.obj(
-        "accountName" -> "Lloyds Savings",
-        "incomeSourceId" -> "azerty",
-        "untaxedUkInterest" -> 3000
-      )
+  val validJsonRead: JsArray = Json.arr(
+    Json.obj(
+      "accountName" -> "TSB Account",
+      "incomeSourceId" -> "qwerty",
+      "taxedUkInterest" -> 500
+    ),
+    Json.obj(
+      "accountName" -> "Lloyds Savings",
+      "incomeSourceId" -> "azerty",
+      "untaxedUkInterest" -> 3000
     )
   )
 
-  val validJsonReadUntaxed: JsObject = Json.obj(
-    "submissions" -> Json.arr(
-      Json.obj(
-        "accountName" -> "Lloyds Savings",
-        "incomeSourceId" -> "azerty",
-        "untaxedUkInterest" -> 3000
-      )
+  val validJsonReadUntaxed: JsArray = Json.arr(
+    Json.obj(
+      "accountName" -> "Lloyds Savings",
+      "incomeSourceId" -> "azerty",
+      "untaxedUkInterest" -> 3000
     )
   )
 
-  val validJsonReadTaxed: JsObject = Json.obj(
-    "submissions" -> Json.arr(
-      Json.obj(
-        "accountName" -> "TSB Account",
-        "incomeSourceId" -> "qwerty",
-        "taxedUkInterest" -> 500
-      )
+  val validJsonReadTaxed: JsArray = Json.arr(
+    Json.obj(
+      "accountName" -> "TSB Account",
+      "incomeSourceId" -> "qwerty",
+      "taxedUkInterest" -> 500
     )
   )
 
@@ -130,7 +124,7 @@ class InterestPriorSubmissionSpec extends UnitTest {
   }
 
   "should correctly parse from json when no accounts are present" in {
-    Json.obj().as[InterestPriorSubmission] shouldBe InterestPriorSubmission(hasUntaxed = false, hasTaxed = false, None)
+    Json.arr().as[InterestPriorSubmission] shouldBe InterestPriorSubmission(hasUntaxed = false, hasTaxed = false, None)
   }
 
   "should correctly parse to json" in {
