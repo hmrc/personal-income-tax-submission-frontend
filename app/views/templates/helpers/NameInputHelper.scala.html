@@ -36,7 +36,7 @@ field.errors
 @hintText(hint: String) = {
 <span class="form-hint">
     @hint
-    </span>
+</span>
 }
 
 @hasError = @{parentForm.errors(field.name).nonEmpty}
@@ -46,11 +46,11 @@ errors.map(errorMessage)
 }
 
 <div class="form-group form-field@divClass.map(divClass => s" $divClass")@if(hasError) { govuk-form-group--error}">
-@errorNotification
-<label class='govuk-heading-m govuk-!-margin-bottom-1 @labelClass' for=@field.name>
-    @label.map(label => Html(label))
-</label>
-<div class="hmrc-currency-input__wrapper ">
-    <input name="@field.name" class="govuk-input govuk-input--width-20" id="@field.name" type="text" @value.map{preValue =>value=@preValue}>
-</div>
+    @errorNotification
+    <label class='govuk-heading-m govuk-!-margin-bottom-1 @labelClass' for=@field.name>
+        @label.map(label => Html(label))
+    </label>
+    <div class="hmrc-currency-input__wrapper ">
+        <input name="@field.name" class="govuk-input govuk-input--width-20" id="@field.name" type="text" @value.map{preValue =>value=@preValue}>
+    </div>
 </div>

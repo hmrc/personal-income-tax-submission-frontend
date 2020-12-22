@@ -39,18 +39,27 @@
     }
 }
 
-@accountRow(account: InterestAccountModel, link: Call) = {
+@accountRemoveCall(account: InterestAccountModel) = @{
+    val identifier = account.id.getOrElse(account.uniqueSessionId.getOrElse(""))
+
+    taxType match {
+        case `TAXED` => controllers.interest.routes.RemoveAccountController.show(taxYear, taxType, identifier)
+        case `UNTAXED` => controllers.interest.routes.RemoveAccountController.show(taxYear, taxType, identifier)
+    }
+}
+
+@accountRow(account: InterestAccountModel, changeLink: Call, removeLink: Call) = {
     <div class="govuk-summary-list__row">
         <dd class="govuk-summary-list__value">
             @account.accountName
         </dd>
         <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="@link">
+            <a class="govuk-link" href="@changeLink">
             @messages("common.change")
             </a>
         </dd>
         <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="@link">
+            <a class="govuk-link" href="@removeLink">
             @messages("common.remove")
             </a>
         </dd>
@@ -71,7 +80,7 @@
     @if(accounts.nonEmpty) {
         <div class="govuk-summary-list">
         @accounts.map { account =>
-            @accountRow(account, accountChangeCall(account))
+            @accountRow(account, accountChangeCall(account), accountRemoveCall(account))
         }
         </div>
     }
