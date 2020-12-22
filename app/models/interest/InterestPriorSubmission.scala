@@ -23,13 +23,11 @@ case class InterestPriorSubmission(hasUntaxed: Boolean, hasTaxed: Boolean, submi
 
 object InterestPriorSubmission {
 
-  private val submissionsPath: JsPath = __ \ "submissions"
-
   implicit val reads: Reads[InterestPriorSubmission] = for {
-    interestAccounts <- submissionsPath.readNullable[JsArray].map(_.map(_.value.map(_.as[InterestAccountModel](InterestAccountModel.priorSubmissionReads))))
+    interestAccounts <- __.readNullable[JsArray]
   } yield {
-    interestAccounts match {
-      case Some(accounts) =>
+    interestAccounts.map(_.value.map(_.as[InterestAccountModel](InterestAccountModel.priorSubmissionReads))) match {
+      case Some(accounts) if accounts.nonEmpty =>
         InterestPriorSubmission(
           hasUntaxed = accounts.exists(_.priorType.contains(InterestTaxTypes.UNTAXED)),
           hasTaxed = accounts.exists(_.priorType.contains(InterestTaxTypes.TAXED)),

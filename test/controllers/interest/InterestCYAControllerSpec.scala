@@ -54,7 +54,7 @@ class InterestCYAControllerSpec extends ViewTest {
 
       "there is no CYA data but is prior submission data in session" in new TestWithAuth {
         lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
-          SessionValues.INTEREST_PRIOR_SUB -> Json.obj("submissions" -> Json.arr(
+          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
             Json.obj(
               "accountName" -> "Bank of Winterhold",
               "incomeSourceId" -> "qwerty",
@@ -65,7 +65,7 @@ class InterestCYAControllerSpec extends ViewTest {
               "incomeSourceId" -> "azerty",
               "taxedUkInterest" -> 200.00
             )
-          )).toString()
+          ).toString()
         )
 
         lazy val result: Future[Result] = controller.show(taxYear)(request)
