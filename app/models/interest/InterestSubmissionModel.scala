@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package config
+package models.interest
 
-class MockAppConfig extends AppConfig {
-  override val signInContinueUrl: String = "/continue"
-  override val signInUrl: String = "/signIn"
-  override val dividendsBaseUrl: String = "/dividends"
-  override def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = "/overview"
+import play.api.libs.json.{Json, OWrites}
 
-  override val interestBaseUrl: String = "/interest"
+case class InterestSubmissionModel(id: Option[String], accountName: String, untaxedInterest: Option[BigDecimal], taxedInterest: Option[BigDecimal])
+
+object InterestSubmissionModel {
+  implicit val writes: OWrites[InterestSubmissionModel] = Json.writes[InterestSubmissionModel]
 }
-

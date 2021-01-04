@@ -19,25 +19,30 @@ package controllers.interest
 import common.{InterestTaxTypes, PageLocations, SessionValues}
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
+
 import javax.inject.Inject
 import models.User
+import models.httpResponses.ErrorResponse
 import models.interest.{InterestCYAModel, InterestPriorSubmission}
 import play.api.Logger
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request, Session}
+import services.InterestSubmissionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.InterestSessionHelper
 import views.html.interest.InterestCYAView
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class InterestCYAController @Inject()(
                                        mcc: MessagesControllerComponents,
                                        authorisedAction: AuthorisedAction,
-                                       interestCyaView: InterestCYAView
+                                       interestCyaView: InterestCYAView,
+                                       interestSubmissionService: InterestSubmissionService
                                      )
                                      (
-                                       implicit appConfig: AppConfig
+                                       implicit appConfig: AppConfig,
+                                       ec: ExecutionContext
                                      ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper {
 
   private val logger = Logger.logger
@@ -72,10 +77,20 @@ class InterestCYAController @Inject()(
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit user =>
-    //TODO Submission logic lives here
-    Future.successful(
-      Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).clearRedirects()
-    )
+    implicit val session: Session = user.session
+
+    val cyaDataOptional = getCyaModel()
+    val ninoOptional: Option[String] = getFromSession(SessionValues.CLIENT_NINO)
+
+    ((cyaDataOptional, ninoOptional) match {
+      case (Some(cyaData), Some(nino)) => interestSubmissionService.submit(cyaData, nino, taxYear, user.mtditid)
+      case _ =>
+        logger.info("[InterestCYAController][submit] CYA data or NINO missing from session.")
+        Future.successful(Left(ErrorResponse(BAD_REQUEST, "CYA data or NINO missing from session.")))
+    }).map {
+      case Right(_) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).clearRedirects()
+      case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+    }
   }
 
   private[interest] def getCyaModel()(implicit user: User[_]): Option[InterestCYAModel] = {

@@ -25,6 +25,7 @@ trait AppConfig {
   val signInContinueUrl: String
   val signInUrl: String
   val dividendsBaseUrl: String
+  val interestBaseUrl: String
 
   def incomeTaxSubmissionOverviewUrl(taxYear: Int): String
 }
@@ -37,6 +38,7 @@ class FrontendAppConfig @Inject()(config: Configuration, servicesConfig: Service
   private val signInOrigin = servicesConfig.getString("appName")
   override val signInUrl: String = s"$signInBaseUrl?continue=$signInContinueUrl&origin=$signInOrigin"
   override val dividendsBaseUrl: String = servicesConfig.baseUrl("income-tax-dividends") + "/income-tax-dividends"
+  override val interestBaseUrl: String = servicesConfig.baseUrl("income-tax-interest") + "/income-tax-interest"
   def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = servicesConfig.getString(ConfigKeys.incomeTaxSubmissionFrontend) +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.context") + "/" + taxYear +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.overview")

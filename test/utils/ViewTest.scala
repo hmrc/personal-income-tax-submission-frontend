@@ -26,10 +26,6 @@ import play.api.test.{FakeRequest, Helpers}
 
 trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
 
-  class TestWithAuth(isAgent: Boolean = false) {
-    if(isAgent) mockAuthAsAgent() else mockAuth()
-  }
-
   val testBackUrl = "/test-back-url"
   val testCall: Call = Call("POST", "/test-url")
   implicit lazy val user: User[AnyContent] = new User[AnyContent]("1234567890", None)(FakeRequest())

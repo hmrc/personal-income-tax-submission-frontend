@@ -41,6 +41,10 @@ import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
 
 trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAndAfterEach {
 
+  class TestWithAuth(isAgent: Boolean = false) {
+    if(isAgent) mockAuthAsAgent() else mockAuth()
+  }
+
   override def beforeEach(): Unit = {
     super.beforeEach()
     SharedMetricRegistries.clear()
