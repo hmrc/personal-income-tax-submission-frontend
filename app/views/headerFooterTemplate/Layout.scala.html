@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import views.headerFooterTemplate.FooterLinks
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardFooter
 @import views.html.headerFooterTemplate.Head
 @import views.html.headerFooterTemplate.BeforeBodyContent
 
@@ -22,7 +22,8 @@
 @this(
         govukLayout: GovukLayout,
         head: Head,
-        beforeBodyContent: BeforeBodyContent
+        beforeBodyContent: BeforeBodyContent,
+        hmrcStandardFooter: HmrcStandardFooter
 )
 
 
@@ -37,6 +38,6 @@
         headBlock = Some(head(headBlock)),
         scriptsBlock = scriptsBlock,
         beforeContentBlock = Some(beforeBodyContent(backLinkUrl)),
-        footerItems = FooterLinks()
+        footerBlock = Some(hmrcStandardFooter())
     )(contentBlock)
 

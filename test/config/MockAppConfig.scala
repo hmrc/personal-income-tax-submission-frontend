@@ -17,8 +17,6 @@
 package config
 
 class MockAppConfig extends AppConfig {
-  val footerLinkItems: Seq[String] = Seq("Item1", "Item2")
-
   override val signInContinueUrl: String = "/continue"
   override val signInUrl: String = "/signIn"
   override val dividendsBaseUrl: String = "/dividends"

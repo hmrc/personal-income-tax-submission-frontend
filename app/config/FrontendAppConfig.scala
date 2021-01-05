@@ -22,7 +22,6 @@ import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 trait AppConfig {
-  val footerLinkItems: Seq[String]
   val signInContinueUrl: String
   val signInUrl: String
   val dividendsBaseUrl: String
@@ -32,8 +31,6 @@ trait AppConfig {
 
 @Singleton
 class FrontendAppConfig @Inject()(config: Configuration, servicesConfig: ServicesConfig) extends AppConfig {
-  val footerLinkItems: Seq[String] = config.getOptional[Seq[String]]("footerLinkItems").getOrElse(Seq())
-
   private val signInBaseUrl: String = config.get[String](ConfigKeys.signInUrl)
   private val signInContinueBaseUrl: String = config.get[String](ConfigKeys.signInContinueBaseUrl)
   override val signInContinueUrl: String = SafeRedirectUrl(signInContinueBaseUrl).encodedUrl //TODO add redirect to overview page
