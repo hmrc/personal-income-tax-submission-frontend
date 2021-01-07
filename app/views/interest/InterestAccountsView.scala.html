@@ -53,16 +53,21 @@
         <dd class="govuk-summary-list__value">
             @account.accountName
         </dd>
+        @if(account.id.nonEmpty) {
+            <dd class="govuk-summary-list__actions"></dd>
+        }
         <dd class="govuk-summary-list__actions">
             <a class="govuk-link" href="@changeLink">
             @messages("common.change")
             </a>
         </dd>
-        <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="@removeLink">
-            @messages("common.remove")
-            </a>
-        </dd>
+        @if(account.id.isEmpty) {
+            <dd class="govuk-summary-list__actions">
+                <a class="govuk-link" href="@removeLink">
+                @messages("common.remove")
+                </a>
+            </dd>
+        }
     </div>
 }
 
