@@ -90,10 +90,10 @@ class UntaxedInterestAmountController @Inject()(
     },
       {
         completeForm =>
-          val newAmount: BigDecimal = BigDecimal(completeForm.amount)
+          val newAmount: BigDecimal = BigDecimal(completeForm.untaxedAmount)
 
           def createNewAccount: InterestAccountModel =
-            InterestAccountModel(None, completeForm.accountName, newAmount, Some(java.util.UUID.randomUUID().toString))
+            InterestAccountModel(None, completeForm.untaxedAccountName, newAmount, Some(java.util.UUID.randomUUID().toString))
 
           val optionalCyaData = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
 
@@ -103,7 +103,7 @@ class UntaxedInterestAmountController @Inject()(
 
               val newAccount = modify match {
                 case Some(identifier) => accounts.find(_.getPrimaryId().exists(_ == identifier)).map(_.copy(
-                  accountName = completeForm.accountName, amount = newAmount
+                  accountName = completeForm.untaxedAccountName, amount = newAmount
                 )).getOrElse(createNewAccount)
                 case _ => createNewAccount
               }

@@ -26,7 +26,7 @@ import models.UntaxedInterestModel
 
 object UntaxedInterestAmountForm {
 
-  val accountName = "accountName"
+  val untaxedAccountName = "untaxedAccountName"
   val untaxedAmount = "untaxedAmount"
 
   val nameNotEmpty: Constraint[String] = nonEmpty("interest.untaxed-uk-interest-name.error.empty")
@@ -35,7 +35,7 @@ object UntaxedInterestAmountForm {
 
   def untaxedInterestAmountForm(): Form[UntaxedInterestModel] = Form(
     mapping(
-      accountName -> trimmedText.verifying(nameNotEmpty),
+      untaxedAccountName -> trimmedText.verifying(nameNotEmpty),
       untaxedAmount -> trimmedText.verifying(
         amountNotEmpty andThen amountValCur
       )

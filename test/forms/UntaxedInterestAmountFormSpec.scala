@@ -38,7 +38,7 @@ class UntaxedInterestAmountFormSpec extends UnitTest {
     "correctly validate name" when {
       "a valid name has been added" in {
 
-        val testInput = Map(accountName -> nameValid, untaxedAmount -> amountValid)
+        val testInput = Map(untaxedAccountName -> nameValid, untaxedAmount -> amountValid)
         val expected = UntaxedInterestModel(nameValid, amountValid)
         val actual = form.bind(testInput).value
 
@@ -47,16 +47,16 @@ class UntaxedInterestAmountFormSpec extends UnitTest {
 
       "an invalid name has been added" in {
 
-        val testInput = Map(accountName -> nameInvalid, untaxedAmount -> amountValid)
+        val testInput = Map(untaxedAccountName -> nameInvalid, untaxedAmount -> amountValid)
         val result = form.bind(testInput).errors
 
-        result should contain(FormError(accountName, "interest.untaxed-uk-interest-name.error.empty"))
+        result should contain(FormError(untaxedAccountName, "interest.untaxed-uk-interest-name.error.empty"))
       }
     }
 
     "correctly validate the interest amount" when {
       "a valid interest amount has been added" in {
-        val testInput = Map(accountName -> nameValid, untaxedAmount -> amountValid)
+        val testInput = Map(untaxedAccountName -> nameValid, untaxedAmount -> amountValid)
         val expected = UntaxedInterestModel(nameValid, amountValid)
         val actual = form.bind(testInput).value
 
@@ -64,14 +64,14 @@ class UntaxedInterestAmountFormSpec extends UnitTest {
       }
 
       "no entry has been added to the amount input box" in {
-        val testInput = Map(accountName -> nameValid, untaxedAmount -> amountInvalid)
+        val testInput = Map(untaxedAccountName -> nameValid, untaxedAmount -> amountInvalid)
         val result = form.bind(testInput).errors
 
         result should contain(FormError(untaxedAmount, "interest.untaxed-uk-interest-amount.error.empty"))
       }
 
       "an invalid amount entry has been inputted" in {
-        val testInput = Map(accountName -> nameValid, untaxedAmount -> amountInvalidEntry)
+        val testInput = Map(untaxedAccountName -> nameValid, untaxedAmount -> amountInvalidEntry)
         val result = form.bind(testInput).errors
 
         result should contain(FormError(untaxedAmount, "interest.error.invalid-number"))
