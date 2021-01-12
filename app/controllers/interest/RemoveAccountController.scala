@@ -20,7 +20,7 @@ import common.SessionValues
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import javax.inject.Inject
-import models.interest.{InterestAccountModel, InterestCYAModel}
+import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
@@ -29,6 +29,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.interest.RemoveAccountView
 import common.InterestTaxTypes._
 import forms.YesNoForm
+import models.User
 import models.formatHelpers.YesNoModel
 import play.api.data.Form
 
@@ -49,20 +50,30 @@ class RemoveAccountController @Inject()(
 
   def show(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = authorisedAction.async { implicit user =>
     def overviewRedirect = Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-    val optionalCyaData: Option[InterestCYAModel] = user.session.get(SessionValues.INTEREST_CYA).flatMap(Json.parse(_).asOpt[InterestCYAModel])
 
-    optionalCyaData match {
-      case Some(cyaData) =>
-        getTaxAccounts(taxType, cyaData) match {
-          case Some(taxAccounts) if taxAccounts.nonEmpty =>
-            useAccount(taxAccounts, accountId, taxType, taxYear) { account =>
-              Ok(view(yesNoForm, taxYear, taxType, account))
-            }
-          case _ => missingAccountsRedirect(taxType, taxYear)
-        }
-      case _ =>
-        logger.info("[RemoveAccountController][show] No CYA data in session. Redirecting to the overview page.")
-        overviewRedirect
+    val optionalCyaData: Option[InterestCYAModel] = user.session.get(SessionValues.INTEREST_CYA).flatMap(Json.parse(_).asOpt[InterestCYAModel])
+    val priorSubmissionData = user.session.get(SessionValues.INTEREST_PRIOR_SUB).flatMap(Json.parse(_).asOpt[InterestPriorSubmission])
+
+    val isPriorSubmission: Boolean =
+      priorSubmissionData.exists(_.submissions.getOrElse(Seq.empty[InterestAccountModel]).map(_.id.contains(accountId)).foldRight(false)(_ || _))
+
+    if (isPriorSubmission) {
+      priorAccountExistsRedirect(taxType, taxYear)
+    } else {
+      optionalCyaData match {
+        case Some(cyaData) =>
+          getTaxAccounts(taxType, cyaData) match {
+            case Some(taxAccounts) if taxAccounts.nonEmpty =>
+              useAccount(taxAccounts, accountId, taxType, taxYear) { account =>
+                Ok(view(yesNoForm, taxYear, taxType, account))
+              }
+            case _ => missingAccountsRedirect(taxType, taxYear)
+          }
+        case _ =>
+          logger.info("[RemoveAccountController][show] No CYA data in session. Redirecting to the overview page.")
+          overviewRedirect
+
+      }
     }
   }
 
@@ -138,6 +149,13 @@ class RemoveAccountController @Inject()(
       case `UNTAXED` => Redirect(controllers.interest.routes.UntaxedInterestController.show(taxYear))
     }
   }
+
+  private[interest] def priorAccountExistsRedirect(taxType: String, taxYear: Int): Result = {
+    logger.info(s"[RemoveAccountController][priorAccountExistsRedirect] Account deletion of prior account attempted.")
+    Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType))
+  }
+
+
 
   def useAccount(accounts: Seq[InterestAccountModel], identifier: String, taxType: String, taxYear: Int)(action: InterestAccountModel => Result): Result ={
     accounts.find(account => account.id.getOrElse(account.uniqueSessionId.getOrElse("")) == identifier) match {
