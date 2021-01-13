@@ -37,38 +37,38 @@ class TaxedInterestAmountFormSpec extends UnitTest{
 
     "Correctly validate name" when {
       "valid name is supplied" in {
-        val testInput = Map(friendlyName -> nameValid, incomeTaxAmount -> amountValid)
+        val testInput = Map(taxedAccountName -> nameValid, taxedAmount -> amountValid)
         val expected = TaxedInterestModel(nameValid, amountValid)
         val actual = form.bind(testInput).value
 
         actual shouldBe Some(expected)
       }
       "Invalid name is supplied" in {
-        val testInput = Map(friendlyName -> nameInvalid, incomeTaxAmount -> amountValid)
+        val testInput = Map(taxedAccountName -> nameInvalid, taxedAmount -> amountValid)
         val result = form.bind(testInput).errors
 
-        result should contain(FormError(friendlyName, "interest.taxed-uk-interest-name.error.empty"))
+        result should contain(FormError(taxedAccountName, "interest.taxed-uk-interest-name.error.empty"))
       }
     }
     "Correctly validate currency amount" when {
       "valid currency is supplied" in {
-        val testInput = Map(friendlyName -> nameValid, incomeTaxAmount -> amountValid)
+        val testInput = Map(taxedAccountName -> nameValid, taxedAmount -> amountValid)
         val expected = TaxedInterestModel(nameValid, amountValid)
         val actual = form.bind(testInput).value
 
         actual shouldBe Some(expected)
       }
       "currency is empty" in {
-        val testInput = Map(friendlyName -> nameValid, incomeTaxAmount -> amountInvalidEmpty)
+        val testInput = Map(taxedAccountName -> nameValid, taxedAmount -> amountInvalidEmpty)
         val result = form.bind(testInput).errors
 
-        result should contain(FormError(incomeTaxAmount, "interest.taxed-uk-interest-amount.error.empty"))
+        result should contain(FormError(taxedAmount, "interest.taxed-uk-interest-amount.error.empty"))
       }
       "currency is invalid number" in {
-        val testInput = Map(friendlyName -> nameValid, incomeTaxAmount -> amountInvalidInt)
+        val testInput = Map(taxedAccountName -> nameValid, taxedAmount -> amountInvalidInt)
         val result = form.bind(testInput).errors
 
-        result should contain(FormError(incomeTaxAmount, "interest.error.invalid_number"))
+        result should contain(FormError(taxedAmount, "interest.error.invalid_number"))
       }
     }
   }

@@ -18,10 +18,7 @@ package models
 
 import play.api.libs.json.{Json, OFormat}
 
-case class UntaxedInterestModel(
-                                       accountName: String,
-                                       amount: String
-                                       )
+case class UntaxedInterestModel(untaxedAccountName: String, untaxedAmount: String)
 
 object UntaxedInterestModel{
   implicit val formats: OFormat[UntaxedInterestModel] = Json.format[UntaxedInterestModel]

@@ -17,18 +17,17 @@
 package views.interest
 
 import forms.TaxedInterestAmountForm
-import forms.TaxedInterestAmountForm.incomeTaxAmount
 import models.TaxedInterestModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.data.{Form, FormError}
 import utils.ViewTest
 import views.html.interest.TaxedInterestAmountView
+import forms.TaxedInterestAmountForm._
 
 class TaxedInterestAmountViewSpec extends ViewTest{
 
   lazy val taxedInterestForm: Form[TaxedInterestModel] = TaxedInterestAmountForm.taxedInterestAmountForm()
-
   lazy val taxedInterestView: TaxedInterestAmountView = app.injector.instanceOf[TaxedInterestAmountView]
 
   val h1Selector = "h1"
@@ -72,7 +71,7 @@ class TaxedInterestAmountViewSpec extends ViewTest{
       }
       "there are form errors " which {
         lazy val view = taxedInterestView(
-          taxedInterestForm.copy(errors = Seq(FormError(incomeTaxAmount, "interest.taxed-uk-interest-amount.error.empty"))),
+          taxedInterestForm.copy(errors = Seq(FormError(taxedAmount, "interest.taxed-uk-interest-amount.error.empty"))),
           taxYear,
           controllers.interest.routes.TaxedInterestAmountController.submit(taxYear),
           Some(mockAppConfig.signInUrl)

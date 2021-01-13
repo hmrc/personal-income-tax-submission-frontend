@@ -71,7 +71,7 @@ class UntaxedInterestAmountControllerSpec extends ViewTest {
 
       "there is a correctly submitted form and there is no modify value, with CYA data" which {
         lazy val result = controller.submit(taxYear, None)(fakeRequest.withFormUrlEncodedBody(
-          "accountName" -> "Some Name",
+          "untaxedAccountName" -> "Some Name",
           "untaxedAmount" -> "100"
         ).withSession(
           SessionValues.INTEREST_CYA -> InterestCYAModel(
@@ -99,7 +99,7 @@ class UntaxedInterestAmountControllerSpec extends ViewTest {
         val expectedAccount = InterestAccountModel(Some("qwerty"), "TSB Account", 500.00, None)
 
         lazy val result = controller.submit(taxYear, Some("qwerty"))(fakeRequest.withFormUrlEncodedBody(
-          "accountName" -> "TSB Account",
+          "untaxedAccountName" -> "TSB Account",
           "untaxedAmount" -> "500.00"
         ).withSession(
           SessionValues.INTEREST_CYA -> InterestCYAModel(
@@ -137,7 +137,7 @@ class UntaxedInterestAmountControllerSpec extends ViewTest {
         val expectedAccount = InterestAccountModel(Some("qwerty"), "TSB Account", 500.00, Some("otherValue"))
 
         lazy val result = controller.submit(taxYear, Some("qwerty"))(fakeRequest.withFormUrlEncodedBody(
-          "accountName" -> "TSB Account",
+          "untaxedAccountName" -> "TSB Account",
           "untaxedAmount" -> "500.00"
         ).withSession(
           SessionValues.INTEREST_CYA -> InterestCYAModel(
@@ -175,7 +175,7 @@ class UntaxedInterestAmountControllerSpec extends ViewTest {
         val expectedAccount = InterestAccountModel(None, "TSB Account", 500.00, Some("qwerty"))
 
         lazy val result = controller.submit(taxYear, Some("qwerty"))(fakeRequest.withFormUrlEncodedBody(
-          "accountName" -> "TSB Account",
+          "untaxedAccountName" -> "TSB Account",
           "untaxedAmount" -> "500.00"
         ).withSession(
           SessionValues.INTEREST_CYA -> InterestCYAModel(
@@ -208,7 +208,7 @@ class UntaxedInterestAmountControllerSpec extends ViewTest {
 
       "there is a correctly submitted form, without a modify value and no interest account CYA data" which {
         lazy val result = controller.submit(taxYear, None)(fakeRequest.withFormUrlEncodedBody(
-          "accountName" -> "TSB Account",
+          "untaxedAccountName" -> "TSB Account",
           "untaxedAmount" -> "500.00"
         ).withSession(
           SessionValues.INTEREST_CYA -> InterestCYAModel(
@@ -249,7 +249,7 @@ class UntaxedInterestAmountControllerSpec extends ViewTest {
       "there is a correctly submitted form, but no CYA data" which {
 
         lazy val result = controller.submit(taxYear, None)(fakeRequest.withFormUrlEncodedBody(
-          "accountName" -> "Some Name",
+          "untaxedAccountName" -> "Some Name",
           "untaxedAmount" -> "100"
         ))
 

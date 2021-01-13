@@ -33,7 +33,7 @@
 <h1 class="govuk-heading-l govuk-!-margin-bottom-4">@messages("interest.taxed-uk-interest-details.heading")</h1>
 }
 
-@currencyFormHtml(formInput: Form[TaxedInterestModel], friendlyName: String, amount: String) = {
+@currencyFormHtml(formInput: Form[TaxedInterestModel], taxedAccountName: String, taxedAmount: String) = {
 @heading
 @errorSummaryDisplay(formInput.errors.distinct)
 
@@ -41,20 +41,20 @@
 
  <div class="govuk-form-group">
   @nameInputHelper(
-  field = formInput(friendlyName),
-  label = Some(messages("interest.taxed-uk-interest-details.sub-heading1")),
-  value = preName,
-  parentForm = form
+   field = formInput(taxedAccountName),
+   label = Some(messages("interest.taxed-uk-interest-details.sub-heading1")),
+   value = preName,
+   parentForm = form
   )
  </div>
 
  <div class="govuk-form-group">
  @inputHelper(
- field = formInput(incomeTaxAmount),
+  field = formInput(taxedAmount),
   label = Some(messages("interest.taxed-uk-interest-details.sub-heading2")),
   value = preAmount,
- parentForm = form,
- isNumeric = true
+  parentForm = form,
+  isNumeric = true
  )
  </div>
 
@@ -62,7 +62,7 @@
 
 @layout(Some(messages("interest.taxed-uk-interest-details.title")), backLink) {
   @formWithCSRF(action = postAction) {
-  @currencyFormHtml(form, friendlyName, incomeTaxAmount)
+  @currencyFormHtml(form, taxedAccountName, taxedAmount)
   @ContinueButton()
  }
 }

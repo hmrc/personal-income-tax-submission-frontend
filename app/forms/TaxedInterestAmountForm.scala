@@ -26,8 +26,8 @@ import play.api.data.validation.Constraint
 
 object TaxedInterestAmountForm {
 
-  val friendlyName = "friendlyName"
-  val incomeTaxAmount = "incomeTaxAmount"
+  val taxedAccountName = "taxedAccountName"
+  val taxedAmount = "taxedAmount"
 
   val nameNotEmpty: Constraint[String] = nonEmpty("interest.taxed-uk-interest-name.error.empty")
   val amountNotEmpty: Constraint[String] = nonEmpty("interest.taxed-uk-interest-amount.error.empty")
@@ -35,8 +35,8 @@ object TaxedInterestAmountForm {
 
   def taxedInterestAmountForm(): Form[TaxedInterestModel] = Form(
     mapping(
-      friendlyName -> trimmedText.verifying(nameNotEmpty),
-      incomeTaxAmount -> trimmedText.verifying(
+      taxedAccountName -> trimmedText.verifying(nameNotEmpty),
+      taxedAmount -> trimmedText.verifying(
         amountNotEmpty andThen amountValidCur
       )
     )(TaxedInterestModel.apply)(TaxedInterestModel.unapply)
