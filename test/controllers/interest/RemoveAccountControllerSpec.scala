@@ -18,7 +18,7 @@ package controllers.interest
 
 import common.SessionValues
 import forms.YesNoForm
-import models.interest.{InterestAccountModel, InterestCYAModel}
+import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.Result
@@ -46,6 +46,19 @@ class RemoveAccountControllerSpec extends ViewTest{
 
   val TAXED = "taxed"
   val UNTAXED = "untaxed"
+
+  lazy val priorDataModel = Json.arr(
+    Json.obj(
+      "accountName" -> "Untaxed Account",
+      "incomeSourceId" -> "UntaxedId1",
+      "untaxedUkInterest" -> 100.01
+    ),
+    Json.obj(
+      "accountName" -> "Taxed Account",
+      "incomeSourceId" -> "TaxedId1",
+      "taxedUkInterest" -> 9001.01
+    )
+  )
 
   lazy val untaxedInterestCyaModel = InterestCYAModel(
     Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId1"), "Untaxed Account", 100.01))),
@@ -131,6 +144,52 @@ class RemoveAccountControllerSpec extends ViewTest{
 
         "has the correct redirect URL" in {
           redirectUrl(result) shouldBe controllers.interest.routes.TaxedInterestController.show(taxYear).url
+        }
+      }
+    }
+
+    "if there is  prior submission data" should {
+
+        "redirect to the taxed interest controller page" when {
+
+          "we try to remove a taxed interest account" which {
+            lazy val result: Future[Result] = controller.show(taxYear, TAXED, taxedId1)(fakeRequest
+              .withSession(SessionValues.INTEREST_CYA -> taxedInterestCyaModel.asJsonString,
+                SessionValues.INTEREST_PRIOR_SUB -> priorDataModel.toString))
+
+            "has a status of SEE_OTHER" in new TestWithAuth {
+              status(result) shouldBe SEE_OTHER
+            }
+            "has the correct redirect URL" in {
+              redirectUrl(result) shouldBe controllers.interest.routes.AccountsController.show(taxYear, TAXED).url
+            }
+          }
+
+          "we try to remove an untaxed interest account" which {
+            lazy val result: Future[Result] = controller.show(taxYear, UNTAXED, untaxedId1)(fakeRequest
+              .withSession(SessionValues.INTEREST_CYA -> untaxedInterestCyaModel.asJsonString,
+                SessionValues.INTEREST_PRIOR_SUB -> priorDataModel.toString))
+
+            "has a status of SEE_OTHER" in new TestWithAuth {
+              status(result) shouldBe SEE_OTHER
+            }
+            "has the correct redirect URL" in {
+              redirectUrl(result) shouldBe controllers.interest.routes.AccountsController.show(taxYear, UNTAXED).url
+            }
+          }
+        }
+      
+      "Not redirect" when {
+
+        "The prior submission data is empty" which {
+
+          lazy val result: Future[Result] = controller.show(taxYear, TAXED, taxedId1)(fakeRequest
+            .withSession(SessionValues.INTEREST_CYA -> taxedInterestCyaModel.asJsonString,
+              SessionValues.INTEREST_PRIOR_SUB -> Json.arr().toString))
+
+          "has a status of OK" in new TestWithAuth {
+            status(result) shouldBe OK
+          }
         }
       }
     }
