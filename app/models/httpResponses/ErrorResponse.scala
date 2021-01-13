@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package config
+package models.httpResponses
 
-class MockAppConfig extends AppConfig {
-  override val signInContinueUrl: String = "/continue"
-  override val signInUrl: String = "/signIn"
-  override val dividendsBaseUrl: String = "/dividends"
-  override def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = "/overview"
+import play.api.libs.json.{Json, OWrites}
 
-  override val interestBaseUrl: String = "/interest"
+case class ErrorResponse(status: Int, message: String)
+
+object ErrorResponse {
+  implicit val writes: OWrites[ErrorResponse] = Json.writes[ErrorResponse]
 }
-

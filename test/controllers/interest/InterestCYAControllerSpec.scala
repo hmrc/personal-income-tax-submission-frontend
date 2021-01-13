@@ -17,20 +17,30 @@
 package controllers.interest
 
 import common.SessionValues
+import models.httpResponses.ErrorResponse
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.http.Status._
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContentAsEmpty, Result}
+import play.api.mvc.{AnyContentAsEmpty, Result, Session}
 import play.api.test.FakeRequest
+import services.InterestSubmissionService
 import utils.ViewTest
 import views.html.interest.InterestCYAView
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+import org.scalatest.GivenWhenThen
+import uk.gov.hmrc.http.HeaderCarrier
 
-class InterestCYAControllerSpec extends ViewTest {
+class InterestCYAControllerSpec extends ViewTest with GivenWhenThen {
 
   lazy val view: InterestCYAView = app.injector.instanceOf[InterestCYAView]
-  lazy val controller: InterestCYAController = new InterestCYAController(mockMessagesControllerComponents, authorisedAction, view)(mockAppConfig)
+  lazy val submissionService: InterestSubmissionService = mock[InterestSubmissionService]
+  lazy val controller: InterestCYAController = new InterestCYAController(
+    mockMessagesControllerComponents,
+    authorisedAction,
+    view,
+    submissionService
+  )(mockAppConfig, mockExecutionContext)
 
   val taxYear: Int = 2020
   val arbitraryAmount: Int = 100
@@ -96,11 +106,108 @@ class InterestCYAControllerSpec extends ViewTest {
 
   ".submit" should {
 
-    "redirect to the overview page" in new TestWithAuth {
-      val result: Future[Result] = controller.submit(taxYear)(FakeRequest())
+    "redirect to the overview page" when {
 
-      status(result) shouldBe SEE_OTHER
-      redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+      "cya data is missing from session" in new TestWithAuth {
+
+        lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequest.withSession(
+          SessionValues.CLIENT_NINO -> "AA123456A"
+        ))
+
+        Then(s"has a status of SEE_OTHER ($SEE_OTHER)")
+        status(result) shouldBe SEE_OTHER
+
+        And("the correct redirect URL")
+        redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+
+      }
+
+      "the NINO is missing from session" in new TestWithAuth {
+
+        lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequest.withSession(
+          SessionValues.INTEREST_CYA -> InterestCYAModel(
+            Some(true),
+            Some(Seq(InterestAccountModel(None, "Muh Bank Bruh", 1000.00, None, None))),
+            Some(false), None
+          ).asJsonString
+        ))
+
+        Then(s"has a return status of SEE_OTHER ($SEE_OTHER)")
+        status(result) shouldBe SEE_OTHER
+
+        And("the correct redirect URL")
+        redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+      }
+
+      "both the NINO and CYA Data are present" when {
+
+        "the submission is successful" in new TestWithAuth {
+
+          val cyaModel: InterestCYAModel = InterestCYAModel(
+            Some(true),
+            Some(Seq(InterestAccountModel(None, "Dis bank m8", 250000.00, None))),
+            Some(false), None
+          )
+
+          lazy val result: Future[Result] = {
+            (submissionService.submit(_: InterestCYAModel, _: String, _: Int, _: String)(_: HeaderCarrier, _: ExecutionContext))
+              .expects(cyaModel, "AA123456A", taxYear, "1234567890", *, *)
+              .returning(Future.successful(Right(NO_CONTENT)))
+
+            controller.submit(taxYear)(fakeRequestWithMtditid.withSession(
+              SessionValues.CLIENT_NINO -> "AA123456A",
+              SessionValues.INTEREST_CYA -> cyaModel.asJsonString,
+              SessionValues.PAGE_BACK_TAXED_ACCOUNTS -> "/taxedAccounts",
+              SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS -> "/untaxedAccounts",
+              SessionValues.PAGE_BACK_TAXED_AMOUNT -> "/taxedAmount",
+              SessionValues.PAGE_BACK_UNTAXED_AMOUNT -> "/taxedAmount",
+              SessionValues.PAGE_BACK_CYA -> "/cya"
+            ))
+          }
+
+          Then(s"should return a SEE_OTHER ($SEE_OTHER) status")
+          status(result) shouldBe SEE_OTHER
+
+          And("has the correct redirect url")
+          redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+
+          And("cleared all interest url redirects")
+          val resultSession: Session = getSession(result)
+          resultSession.get(SessionValues.PAGE_BACK_TAXED_ACCOUNTS) shouldBe None
+          resultSession.get(SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS) shouldBe None
+          resultSession.get(SessionValues.PAGE_BACK_TAXED_AMOUNT) shouldBe None
+          resultSession.get(SessionValues.PAGE_BACK_UNTAXED_AMOUNT) shouldBe None
+          resultSession.get(SessionValues.PAGE_BACK_CYA) shouldBe None
+        }
+
+        "the submission is unsuccessful" in new TestWithAuth {
+
+          val cyaModel: InterestCYAModel = InterestCYAModel(
+            Some(true),
+            Some(Seq(InterestAccountModel(None, "Dis bank m8", 250000.00, None))),
+            Some(false), None
+          )
+
+          lazy val result: Future[Result] = {
+            (submissionService.submit(_: InterestCYAModel, _: String, _: Int, _: String)(_: HeaderCarrier, _: ExecutionContext))
+              .expects(cyaModel, "AA123456A", taxYear, "1234567890", *, *)
+              .returning(Future.successful(Left(ErrorResponse(BAD_REQUEST, "uh oh"))))
+
+            controller.submit(taxYear)(fakeRequestWithMtditid.withSession(
+              SessionValues.CLIENT_NINO -> "AA123456A",
+              SessionValues.INTEREST_CYA -> cyaModel.asJsonString
+            ))
+          }
+
+          Then(s"should return a SEE_OTHER ($SEE_OTHER) status")
+          status(result) shouldBe SEE_OTHER
+
+          And("has the correct redirect url")
+          redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+        }
+
+      }
+
     }
 
   }

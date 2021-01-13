@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,8 @@ trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneServerPerSu
     "microservice.services.auth.port" -> wiremockPort.toString,
     "microservice.services.income-tax-dividends.host" -> wiremockHost,
     "microservice.services.income-tax-dividends.port" -> wiremockPort.toString,
+    "microservice.services.income-tax-interest.host" -> wiremockHost,
+    "microservice.services.income-tax-interest.port" -> wiremockPort.toString,
     "signIn.url" -> s"/auth-login-stub/gg-sign-in",
   )
 

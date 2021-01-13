@@ -16,7 +16,7 @@
 
 package models.interest
 
-import play.api.libs.json.{JsObject, JsResultException, Json, JsonValidationError}
+import play.api.libs.json.{JsObject, JsResultException, Json}
 import utils.UnitTest
 
 class InterestAccountModelSpec extends UnitTest {
@@ -87,13 +87,13 @@ class InterestAccountModelSpec extends UnitTest {
     "untaxedUkInterest" -> 300.00
   )
 
-  val validUntaxedModel = InterestAccountModel(
+  val validUntaxedModel: InterestAccountModel = InterestAccountModel(
     Some("qwerty"),
     "TSB",
     500.00
   )
 
-  val validTaxedModel = InterestAccountModel(
+  val validTaxedModel: InterestAccountModel = InterestAccountModel(
     Some("azerty"),
     "Lloyds",
     300.00
