@@ -122,7 +122,7 @@ class DividendsCYAController @Inject()(
   private def auditSubmission(details: CreateOrAmendDividendsAuditDetail)
                                         (implicit hc: HeaderCarrier,
                                          executionContext: ExecutionContext): Future[AuditResult] = {
-    val event = AuditModel("createOrAmendDividendsUpdate", "createOrAmendDividendsUpdate", details)
+    val event = AuditModel("CreateOrAmendDividendsUpdate", "createOrAmendDividendsUpdate", details)
     auditService.auditModel(event)
   }
 
