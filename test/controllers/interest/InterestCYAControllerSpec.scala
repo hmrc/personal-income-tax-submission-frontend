@@ -239,8 +239,6 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
             .expects(cyaModel, "AA123456A", taxYear, "1234567890", *, *)
             .returning(Future.successful(Right(NO_CONTENT)))
 
-          println(detail)
-
           verifyInterestAudit
 
           lazy val result: Future[Result] = {
