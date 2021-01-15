@@ -23,12 +23,12 @@ import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.Helpers.SEE_OTHER
-import utils.ViewTest
+import utils.UnitTestWithApp
 import views.html.interest.RemoveAccountView
 
 import scala.concurrent.Future
 
-class RemoveAccountControllerSpec extends ViewTest{
+class RemoveAccountControllerSpec extends UnitTestWithApp{
 
   implicit def wrapOption[T](input: T): Option[T] = Some(input)
 

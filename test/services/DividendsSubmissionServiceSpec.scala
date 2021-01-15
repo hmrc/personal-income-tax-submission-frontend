@@ -22,11 +22,11 @@ import models.{DividendsCheckYourAnswersModel, DividendsResponseModel, Dividends
 import uk.gov.hmrc.auth.core.AuthConnector
 import play.api.http.Status._
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.ViewTest
+import utils.UnitTestWithApp
 
 import scala.concurrent.Future
 
-class DividendsSubmissionServiceSpec extends ViewTest{
+class DividendsSubmissionServiceSpec extends UnitTestWithApp{
 
   val connector: DividendsSubmissionConnector = mock[DividendsSubmissionConnector]
   val auth: AuthConnector = mock[AuthConnector]

@@ -22,11 +22,11 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
-import utils.ViewTest
+import utils.UnitTestWithApp
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AuditServiceSpec extends ViewTest {
+class AuditServiceSpec extends UnitTestWithApp {
 
   private trait Test {
     val mockedAppName = "some-app-name"

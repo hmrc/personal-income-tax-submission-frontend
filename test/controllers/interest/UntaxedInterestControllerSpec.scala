@@ -22,12 +22,12 @@ import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.Result
-import utils.ViewTest
+import utils.UnitTestWithApp
 import views.html.interest.UntaxedInterestView
 
 import scala.concurrent.Future
 
-class UntaxedInterestControllerSpec extends ViewTest {
+class UntaxedInterestControllerSpec extends UnitTestWithApp {
 
   implicit def wrapOption[T](input: T): Option[T] = Some(input)
 

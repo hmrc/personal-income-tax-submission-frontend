@@ -18,9 +18,9 @@ package forms
 
 import models.formatHelpers.PriorOrNewAmountModel
 import play.api.data.{Form, FormError}
-import utils.ViewTest
+import utils.UnitTestWithApp
 
-class PriorOrNewAmountFormSpec extends ViewTest {
+class PriorOrNewAmountFormSpec extends UnitTestWithApp {
 
   import PriorOrNewAmountForm._
 

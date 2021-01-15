@@ -22,12 +22,12 @@ import models.DividendsCheckYourAnswersModel
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.Result
-import utils.ViewTest
+import utils.UnitTestWithApp
 import views.html.dividends.ReceiveOtherUkDividendsView
 
 import scala.concurrent.Future
 
-class ReceiveOtherUkDividendsControllerSpec extends ViewTest {
+class ReceiveOtherUkDividendsControllerSpec extends UnitTestWithApp {
 
   lazy val controller = new ReceiveOtherUkDividendsController(
     mockMessagesControllerComponents,

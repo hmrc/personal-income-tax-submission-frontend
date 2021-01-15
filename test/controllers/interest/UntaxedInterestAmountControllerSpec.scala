@@ -20,7 +20,7 @@ import common.InterestTaxTypes.UNTAXED
 import common.{InterestTaxTypes, SessionValues}
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.mvc.{AnyContentAsEmpty, Result}
-import utils.ViewTest
+import utils.UnitTestWithApp
 import views.html.interest.UntaxedInterestAmountView
 import play.api.http.Status._
 import play.api.libs.json.Json
@@ -28,7 +28,7 @@ import play.api.test.FakeRequest
 
 import scala.concurrent.Future
 
-class UntaxedInterestAmountControllerSpec extends ViewTest {
+class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
 
   implicit def wrapOptional[T](input: T): Option[T] = Some(input)
 
