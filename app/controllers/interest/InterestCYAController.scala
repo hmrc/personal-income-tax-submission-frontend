@@ -16,10 +16,10 @@
 
 package controllers.interest
 
+import audit.{AuditModel, AuditService, CreateOrAmendDividendsAuditDetail, CreateOrAmendInterestAuditDetail}
 import common.{InterestTaxTypes, PageLocations, SessionValues}
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
-
 import javax.inject.Inject
 import models.User
 import models.httpResponses.ErrorResponse
@@ -28,6 +28,8 @@ import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request, Session}
 import services.InterestSubmissionService
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.InterestSessionHelper
 import views.html.interest.InterestCYAView
@@ -38,14 +40,15 @@ class InterestCYAController @Inject()(
                                        mcc: MessagesControllerComponents,
                                        authorisedAction: AuthorisedAction,
                                        interestCyaView: InterestCYAView,
-                                       interestSubmissionService: InterestSubmissionService
+                                       interestSubmissionService: InterestSubmissionService,
+                                       auditService: AuditService
                                      )
                                      (
-                                       implicit appConfig: AppConfig,
-                                       ec: ExecutionContext
+                                       implicit appConfig: AppConfig
                                      ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper {
 
   private val logger = Logger.logger
+  implicit val executionContext: ExecutionContext = mcc.executionContext
 
   def backLink(taxYear: Int)(implicit request: Request[_]): Option[String] = {
     getFromSession(SessionValues.PAGE_BACK_CYA) match {
@@ -81,14 +84,20 @@ class InterestCYAController @Inject()(
 
     val cyaDataOptional = getCyaModel()
     val ninoOptional: Option[String] = getFromSession(SessionValues.CLIENT_NINO)
+    val priorSubmission: Option[InterestPriorSubmission] = getModelFromSession[InterestPriorSubmission](SessionValues.INTEREST_PRIOR_SUB)
 
     ((cyaDataOptional, ninoOptional) match {
-      case (Some(cyaData), Some(nino)) => interestSubmissionService.submit(cyaData, nino, taxYear, user.mtditid)
+      case (Some(cyaData), Some(nino)) => interestSubmissionService.submit(cyaData, nino, taxYear, user.mtditid).map {
+        case response@Right(_) => auditSubmission(CreateOrAmendInterestAuditDetail(Some(cyaData), priorSubmission, nino, user.mtditid, taxYear))
+          response
+        case response => response
+      }
       case _ =>
         logger.info("[InterestCYAController][submit] CYA data or NINO missing from session.")
         Future.successful(Left(ErrorResponse(BAD_REQUEST, "CYA data or NINO missing from session.")))
     }).map {
-      case Right(_) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).clearRedirects()
+      case Right(_) =>
+        Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).clearRedirects()
       case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
     }
   }
@@ -105,5 +114,12 @@ class InterestCYAController @Inject()(
       case (Some(cyaData), _) => Some(cyaData)
       case _ => None
     }
+  }
+
+  private def auditSubmission(details: CreateOrAmendInterestAuditDetail)
+                             (implicit hc: HeaderCarrier,
+                              executionContext: ExecutionContext): Future[AuditResult] = {
+    val event = AuditModel("CreateOrAmendInterestUpdate", "createOrAmendInterestUpdate", details)
+    auditService.auditModel(event)
   }
 }

@@ -45,7 +45,7 @@ class DividendsCYAController @Inject()(
                                         implicit appConfig: AppConfig
                                       ) extends FrontendController(mcc) with I18nSupport {
 
-  lazy val logger = Logger(this.getClass.getName)
+  lazy val logger: Logger = Logger(this.getClass.getName)
   implicit val executionContext: ExecutionContext = mcc.executionContext
 
 
@@ -90,15 +90,14 @@ class DividendsCYAController @Inject()(
     val cyaData: Option[DividendsCheckYourAnswersModel] = getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
     val priorData: Option[DividendsPriorSubmission] = getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
    user.session.get(SessionValues.CLIENT_NINO) match {
-      case Some(nino) => dividendsSubmissionService.submitDividends(cyaData, nino, user.mtditid, taxYear).map(response => response match {
+      case Some(nino) => dividendsSubmissionService.submitDividends(cyaData, nino, user.mtditid, taxYear).map {
         case Right(DividendsResponseModel(NO_CONTENT)) =>
-            auditSubmission(CreateOrAmendDividendsAuditDetail(cyaData, priorData, nino ,user.mtditid, taxYear))
-            Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).removingFromSession(SessionValues.DIVIDENDS_CYA, SessionValues.DIVIDENDS_PRIOR_SUB)
+          auditSubmission(CreateOrAmendDividendsAuditDetail(cyaData, priorData, nino, user.mtditid, taxYear))
+          Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).removingFromSession(SessionValues.DIVIDENDS_CYA, SessionValues.DIVIDENDS_PRIOR_SUB)
         case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-      })
-      case None => 	Future.successful(Redirect(appConfig.signInUrl))
+      }
+      case None => Future.successful(Redirect(appConfig.signInUrl))
    }
-
   }
 
   private[dividends] def priorityOrderOrNone(priority: Option[BigDecimal], other: Option[BigDecimal], yesNoResult: Boolean): Option[BigDecimal] = {

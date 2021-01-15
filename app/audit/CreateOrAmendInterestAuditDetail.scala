@@ -16,15 +16,15 @@
 
 package audit
 
-import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
+import models.interest.{InterestCYAModel, InterestPriorSubmission}
 import play.api.libs.json.{Json, OWrites}
 
-case class CreateOrAmendDividendsAuditDetail(body: Option[DividendsCheckYourAnswersModel],
-                                             prior: Option[DividendsPriorSubmission],
-                                             nino: String,
-                                             mtditid: String,
-                                             taxYear: Int)
+case class CreateOrAmendInterestAuditDetail(body: Option[InterestCYAModel],
+                                            prior: Option[InterestPriorSubmission],
+                                            nino: String,
+                                            mtditid: String,
+                                            taxYear: Int)
 
-object CreateOrAmendDividendsAuditDetail {
-  implicit def writes: OWrites[CreateOrAmendDividendsAuditDetail] = Json.writes[CreateOrAmendDividendsAuditDetail]
+object CreateOrAmendInterestAuditDetail {
+  implicit def writes: OWrites[CreateOrAmendInterestAuditDetail] = Json.writes[CreateOrAmendInterestAuditDetail]
 }
