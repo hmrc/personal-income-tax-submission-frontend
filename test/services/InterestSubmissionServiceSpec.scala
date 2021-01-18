@@ -20,9 +20,9 @@ import connectors.InterestSubmissionConnector
 import connectors.httpparsers.InterestSubmissionHttpParser.InterestSubmissionsResponse
 import models.httpResponses.ErrorResponse
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestSubmissionModel}
+import play.api.test.Helpers.{BAD_REQUEST, NO_CONTENT}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.UnitTest
-import play.api.test.Helpers.{NO_CONTENT, BAD_REQUEST}
 
 import scala.concurrent.{ExecutionContext, Future}
 

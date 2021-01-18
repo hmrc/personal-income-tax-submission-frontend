@@ -19,14 +19,13 @@ package controllers.interest
 import common.{InterestTaxTypes, PageLocations, SessionValues}
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
-
 import javax.inject.Inject
 import models.User
 import models.httpResponses.ErrorResponse
 import models.interest.{InterestCYAModel, InterestPriorSubmission}
 import play.api.Logger
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request, Session}
+import play.api.mvc._
 import services.InterestSubmissionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.InterestSessionHelper

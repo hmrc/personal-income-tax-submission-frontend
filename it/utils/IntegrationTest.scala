@@ -19,6 +19,7 @@ package utils
 import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
 import config.AppConfig
+import controllers.predicates.AuthorisedAction
 import helpers.WireMockHelper
 import models.User
 import org.scalatest.BeforeAndAfterAll
@@ -26,8 +27,10 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.{AnyContent, Result}
+import play.api.mvc.{AnyContent, MessagesControllerComponents, Result}
 import play.api.{Application, Environment, Mode}
+import services.AuthService
+import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.duration.Duration
@@ -83,5 +86,29 @@ trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneServerPerSu
     val awaited = await(awaitable)
     await(awaited.body.consumeData.map(_.utf8String))
   }
+
+  lazy val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
+
+
+  val defaultAcceptedConfidenceLevels = Seq(
+    ConfidenceLevel.L200,
+    ConfidenceLevel.L300,
+    ConfidenceLevel.L500
+  )
+
+  def authService(stubbedRetrieval: Future[_], acceptedConfidenceLevel: Seq[ConfidenceLevel]) = new AuthService(
+    new MockAuthConnector(stubbedRetrieval, acceptedConfidenceLevel)
+  )
+
+  def authAction(stubbedRetrieval: Future[_], acceptedConfidenceLevel: Seq[ConfidenceLevel] = Seq.empty[ConfidenceLevel]) = new AuthorisedAction(
+    appConfig
+  )(
+    authService(stubbedRetrieval, if(acceptedConfidenceLevel.nonEmpty) {
+      acceptedConfidenceLevel
+    } else {
+      defaultAcceptedConfidenceLevels
+    }),
+    mcc
+  )
 
 }

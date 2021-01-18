@@ -48,7 +48,7 @@ class AuthorisedAction @Inject()(
 
     implicit lazy val headerCarrier: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
 
-    authService.authorised.retrieve(allEnrolments and affinityGroup) {
+    authService.authorised(ConfidenceLevel.L200).retrieve(allEnrolments and affinityGroup) {
       case enrolments ~ Some(AffinityGroup.Agent) =>
         checkAuthorisation(block, enrolments, isAgent = true)(request, headerCarrier)
       case enrolments ~ _ =>
@@ -90,7 +90,7 @@ class AuthorisedAction @Inject()(
     request.session.get(SessionValues.CLIENT_MTDITID) match {
       case Some(mtditid) =>
         authService
-          .authorised(agentAuthPredicate(mtditid))
+          .authorised(agentAuthPredicate(mtditid) and ConfidenceLevel.L200)
           .retrieve(allEnrolments) { enrolments =>
 
           enrolmentGetIdentifierValue(EnrolmentKeys.Agent, EnrolmentIdentifiers.agentReference, enrolments) match {

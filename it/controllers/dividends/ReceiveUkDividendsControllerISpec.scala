@@ -64,6 +64,21 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest {
 
       }
 
+      "returns an action when auth call fails" which {
+        val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+          SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(true), ukDividendsAmount = Some(500),
+            otherUkDividends = Some(true), otherUkDividendsAmount = Some(500)).asJsonString
+        ))
+        lazy val result: WSResponse = {
+          authoriseIndividualUnauthorized()
+          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/uk-dividends")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").get())
+        }
+        "has an UNAUTHORIZED(401) status" in {
+          result.status shouldBe UNAUTHORIZED
+        }
+      }
+
     }
 
     ".submit" should {
@@ -93,6 +108,16 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest {
         result.status shouldBe BAD_REQUEST
       }
 
+      "returns an action when auth call fails" which {
+        lazy val result: WSResponse = {
+          authoriseIndividualUnauthorized()
+          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/uk-dividends").post(Map[String, String]()))
+        }
+        "has an UNAUTHORIZED(401) status" in {
+          result.status shouldBe UNAUTHORIZED
+        }
+      }
+
     }
 
   }
@@ -115,6 +140,21 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest {
 
         "has an OK(200) status" in {
           result.status shouldBe OK
+        }
+      }
+
+      "returns an action when auth call fails" which {
+        val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+          SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(true), ukDividendsAmount = Some(500),
+            otherUkDividends = Some(true), otherUkDividendsAmount = Some(500)).asJsonString
+        ))
+        lazy val result: WSResponse = {
+          authoriseAgentUnauthorized()
+          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/uk-dividends")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie).get())
+        }
+        "has an UNAUTHORIZED(401) status" in {
+          result.status shouldBe UNAUTHORIZED
         }
       }
     }
@@ -156,6 +196,23 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest {
           }
 
           result.status shouldBe BAD_REQUEST
+        }
+      }
+
+      "returns an action when auth call fails" when {
+        lazy val result: WSResponse = {
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.CLIENT_MTDITID -> "1234567890"
+          ))
+
+          authoriseAgentUnauthorized()
+          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/uk-dividends")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+            .post(Map[String, String]()))
+        }
+
+        "has an UNAUTHORIZED(401) status" in {
+          result.status shouldBe UNAUTHORIZED
         }
       }
 

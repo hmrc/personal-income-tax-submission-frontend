@@ -18,7 +18,6 @@ package services
 
 import connectors.InterestSubmissionConnector
 import connectors.httpparsers.InterestSubmissionHttpParser.InterestSubmissionsResponse
-
 import javax.inject.Inject
 import models.interest.{InterestCYAModel, InterestSubmissionModel}
 import uk.gov.hmrc.http.HeaderCarrier
