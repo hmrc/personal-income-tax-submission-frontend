@@ -16,7 +16,7 @@
 
 package controllers.interest
 
-import common.{InterestTaxTypes, SessionValues}
+import common.SessionValues
 import forms.YesNoForm
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.http.Status._

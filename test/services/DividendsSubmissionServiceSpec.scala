@@ -19,8 +19,8 @@ package services
 import connectors.DividendsSubmissionConnector
 import connectors.httpparsers.DividendsSubmissionHttpParser.BadRequestDividendsSubmissionException
 import models.{DividendsCheckYourAnswersModel, DividendsResponseModel, DividendsSubmissionModel}
-import uk.gov.hmrc.auth.core.AuthConnector
 import play.api.http.Status._
+import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.UnitTestWithApp
 

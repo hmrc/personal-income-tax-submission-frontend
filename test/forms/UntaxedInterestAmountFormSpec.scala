@@ -16,10 +16,10 @@
 
 package forms
 
-import models.UntaxedInterestModel
 import forms.UntaxedInterestAmountForm._
-import utils.UnitTest
+import models.UntaxedInterestModel
 import play.api.data.{Form, FormError}
+import utils.UnitTest
 
 class UntaxedInterestAmountFormSpec extends UnitTest {
 

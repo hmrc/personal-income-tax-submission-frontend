@@ -17,10 +17,10 @@
 package views.interest
 
 import forms.YesNoForm
-import play.api.data.{Form, FormError}
 import models.formatHelpers.YesNoModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import play.api.data.{Form, FormError}
 import utils.ViewTest
 import views.html.interest.TaxedInterestView
 

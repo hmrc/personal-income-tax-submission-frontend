@@ -19,12 +19,12 @@ package controllers.interest
 import common.InterestTaxTypes.UNTAXED
 import common.{InterestTaxTypes, SessionValues}
 import models.interest.{InterestAccountModel, InterestCYAModel}
-import play.api.mvc.{AnyContentAsEmpty, Result}
-import utils.UnitTestWithApp
-import views.html.interest.UntaxedInterestAmountView
 import play.api.http.Status._
 import play.api.libs.json.Json
+import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
+import utils.UnitTestWithApp
+import views.html.interest.UntaxedInterestAmountView
 
 import scala.concurrent.Future
 

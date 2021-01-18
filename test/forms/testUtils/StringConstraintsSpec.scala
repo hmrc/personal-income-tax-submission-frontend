@@ -17,8 +17,8 @@
 package forms.testUtils
 
 import forms.validation.StringConstraints
-import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.data.validation.{Constraints, Invalid, Valid}
 
 class StringConstraintsSpec extends Constraints with AnyWordSpecLike with Matchers {

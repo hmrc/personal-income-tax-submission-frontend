@@ -25,7 +25,7 @@ import play.api.mvc.Result
 import utils.UnitTestWithApp
 import views.html.interest.TaxedInterestView
 
-import scala.concurrent.{Awaitable, Future}
+import scala.concurrent.Future
 
 class TaxedInterestControllerSpec extends UnitTestWithApp{
 

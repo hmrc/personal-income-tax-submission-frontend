@@ -16,6 +16,7 @@
 
 package controllers.interest
 
+import common.InterestTaxTypes._
 import common.{InterestTaxTypes, PageLocations, SessionValues}
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
@@ -26,9 +27,8 @@ import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import views.html.interest.InterestAccountsView
-import common.InterestTaxTypes._
 import utils.InterestSessionHelper
+import views.html.interest.InterestAccountsView
 
 import scala.concurrent.Future
 

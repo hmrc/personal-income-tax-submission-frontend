@@ -16,8 +16,8 @@
 
 package forms
 
-import models.TaxedInterestModel
 import forms.TaxedInterestAmountForm._
+import models.TaxedInterestModel
 import play.api.data.{Form, FormError}
 import utils.UnitTest
 

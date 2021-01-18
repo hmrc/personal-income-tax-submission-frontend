@@ -16,13 +16,12 @@
 
 package config
 
+import audit.{AuditModel, AuditService}
 import org.scalamock.handlers.CallHandler
 import org.scalamock.scalatest.MockFactory
 import play.api.libs.json.Writes
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import audit.AuditModel
-import audit.AuditService
 
 import scala.concurrent.{ExecutionContext, Future}
 

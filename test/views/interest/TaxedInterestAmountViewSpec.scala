@@ -17,13 +17,13 @@
 package views.interest
 
 import forms.TaxedInterestAmountForm
+import forms.TaxedInterestAmountForm._
 import models.TaxedInterestModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.data.{Form, FormError}
 import utils.ViewTest
 import views.html.interest.TaxedInterestAmountView
-import forms.TaxedInterestAmountForm._
 
 class TaxedInterestAmountViewSpec extends ViewTest{
 
