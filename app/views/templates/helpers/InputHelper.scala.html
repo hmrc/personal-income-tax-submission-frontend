@@ -43,11 +43,11 @@
     </span>
 }
 
-    @hasError = @{parentForm.errors(field.name).nonEmpty}
+@hasError = @{parentForm.errors(field.name).nonEmpty}
 
-    @errorNotification = @{
-        errors.map(errMsg)
-    }
+@errorNotification = @{
+    errors.map(errMsg)
+}
 
 <div class="form-group form-field@divClass.map(divClass => s" divClass")@if(hasError) { govuk-form-group--error}">
         @errorNotification

@@ -31,8 +31,7 @@ object PriorOrNewAmountForm {
   val otherAmount = "other"
 
   def stringFormatter(
-                       currentAmount: BigDecimal,
-                       radioErrorLocation: String
+                       currentAmount: BigDecimal
                      )(implicit messages: Messages): Formatter[String] = new Formatter[String] {
 
     val priorAmountId = "prior-amount"
@@ -40,7 +39,7 @@ object PriorOrNewAmountForm {
     override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] = {
       data.get(key) match {
         case Some(stringValue) => Right(stringValue)
-        case _ => Left(Seq(FormError(priorAmountId, messages(s"$radioErrorLocation.error.noRadioSelected", currentAmount))))
+        case _ => Left(Seq(FormError(priorAmountId, messages("common.error.priorOrNewAmount.noRadioSelected", currentAmount))))
       }
     }
 
@@ -50,8 +49,7 @@ object PriorOrNewAmountForm {
   }
 
   def otherAmountFormatter(
-                            currentAmount: BigDecimal,
-                            radioErrorLocation: String
+                            currentAmount: BigDecimal
                           )(implicit messages: Messages): Formatter[Option[BigDecimal]] = new Formatter[Option[BigDecimal]] {
 
     override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], Option[BigDecimal]] = {
@@ -65,11 +63,11 @@ object PriorOrNewAmountForm {
         case (Some(`priorAmount`), _) =>
           Right(Some(currentAmount))
         case (Some(`otherAmount`), Some(someAmount)) if !isANumber(someAmount) =>
-          Left(Seq(FormError(otherAmountInput, messages("dividends.error.invalid_number"))))
+          Left(Seq(FormError(otherAmountInput, messages("common.error.invalid_number"))))
         case (Some(`otherAmount`), Some(someAmount)) if isANumber(someAmount) =>
           Right(Some(BigDecimal(someAmount)))
         case _ =>
-          Left(Seq(FormError(priorAmountId, messages(s"$radioErrorLocation.error.noRadioSelected", currentAmount))))
+          Left(Seq(FormError(priorAmountId, messages("common.error.priorOrNewAmount.noRadioSelected", currentAmount))))
       }
     }
 
@@ -81,10 +79,10 @@ object PriorOrNewAmountForm {
     }
   }
 
-  def priorOrNewAmountForm(currentAmount: BigDecimal, radioErrorLocation: String)(implicit messages: Messages): Form[PriorOrNewAmountModel] = Form(
+  def priorOrNewAmountForm(currentAmount: BigDecimal)(implicit messages: Messages): Form[PriorOrNewAmountModel] = Form(
     mapping(
-      amountTypeField -> of(stringFormatter(currentAmount, radioErrorLocation)),
-      otherAmountInputField -> of(otherAmountFormatter(currentAmount, radioErrorLocation))
+      amountTypeField -> of(stringFormatter(currentAmount)),
+      otherAmountInputField -> of(otherAmountFormatter(currentAmount))
     )(PriorOrNewAmountModel.apply)(PriorOrNewAmountModel.unapply)
   )
 

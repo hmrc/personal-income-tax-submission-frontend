@@ -149,8 +149,8 @@ class InterestAccountsViewSpec extends ViewTest {
           }
 
           "has the correct link" in {
-            element(Selectors.accountRowChangePriorSubmission(1)).attr("href") shouldBe controllers.interest.routes.UntaxedInterestAmountController
-              .show(taxYear, Some("qwerty")).url
+            element(Selectors.accountRowChangePriorSubmission(1)).attr("href") shouldBe controllers.interest.routes.ChangeAccountAmountController
+              .show(taxYear, "untaxed", "qwerty").url
           }
 
         }
@@ -231,7 +231,7 @@ class InterestAccountsViewSpec extends ViewTest {
 
             "has the correct link" in {
               element(Selectors.accountRowChangePriorSubmission(2)).attr("href") shouldBe
-                controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, Some("azerty")).url
+                controllers.interest.routes.ChangeAccountAmountController.show(taxYear, "untaxed", "azerty").url
             }
 
           }
@@ -337,8 +337,8 @@ class InterestAccountsViewSpec extends ViewTest {
           }
 
           "has the correct link" in {
-            element(Selectors.accountRowChangePriorSubmission(1)).attr("href") shouldBe controllers.interest.routes.TaxedInterestAmountController
-              .show(taxYear, Some("qwerty")).url
+            element(Selectors.accountRowChangePriorSubmission(1)).attr("href") shouldBe controllers.interest.routes.ChangeAccountAmountController
+              .show(taxYear, "taxed", "qwerty").url
           }
 
         }
@@ -420,7 +420,7 @@ class InterestAccountsViewSpec extends ViewTest {
 
             "has the correct link" in {
               element(Selectors.accountRowChangePriorSubmission(2)).attr("href") shouldBe
-                controllers.interest.routes.TaxedInterestAmountController.show(taxYear, Some("azerty")).url
+                controllers.interest.routes.ChangeAccountAmountController.show(taxYear, "taxed", "azerty").url
             }
 
           }

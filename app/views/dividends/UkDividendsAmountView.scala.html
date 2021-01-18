@@ -59,7 +59,7 @@
 
 @layout(pageTitle = Some(messages("dividends.uk-dividends-amount.title")), backLinkUrl = Some(backUrl), scriptsBlock = Some(scripts)) {
     @formWithCSRF(action = postAction) {
-        @form.fold(priorForm => priorOrNewForm(heading, priorForm, priorAmount, "dividends.error.invalid_number", preAmount), currencyForm => currencyFormHtml(currencyForm, ukDividendsAmount))
+        @form.fold(priorForm => priorOrNewForm(heading, priorForm, priorAmount, "common.error.invalid_number", preAmount), currencyForm => currencyFormHtml(currencyForm, ukDividendsAmount))
         @ContinueButton()
     }
 

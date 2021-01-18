@@ -31,7 +31,7 @@ object TaxedInterestAmountForm {
 
   val nameNotEmpty: Constraint[String] = nonEmpty("interest.taxed-uk-interest-name.error.empty")
   val amountNotEmpty: Constraint[String] = nonEmpty("interest.taxed-uk-interest-amount.error.empty")
-  val amountValidCur: Constraint[String] = validateCurrency("interest.error.invalid_number")
+  val amountValidCur: Constraint[String] = validateCurrency("common.error.invalid_number")
 
   def taxedInterestAmountForm(): Form[TaxedInterestModel] = Form(
     mapping(

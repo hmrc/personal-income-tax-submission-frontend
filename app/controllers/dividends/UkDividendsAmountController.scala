@@ -38,8 +38,6 @@ class UkDividendsAmountController @Inject()(
                                              implicit val appConfig: AppConfig
                                            ) extends FrontendController(cc) with I18nSupport {
 
-  val radioErrorLocation = "dividends.uk-dividends-amount"
-
   def view(
             formInput: Either[Form[PriorOrNewAmountModel], Form[CurrencyAmountModel]],
             priorSubmission: Option[DividendsPriorSubmission] = None,
@@ -63,9 +61,9 @@ class UkDividendsAmountController @Inject()(
 
     (dividendsPriorSubmissionSession, checkYourAnswerSession) match {
       case (Some(prior), Some(cya)) if prior.ukDividends.nonEmpty =>
-        Ok(view(Left(PriorOrNewAmountForm.priorOrNewAmountForm(prior.ukDividends.get, radioErrorLocation)), Some(prior), taxYear, cya.ukDividendsAmount))
+        Ok(view(Left(PriorOrNewAmountForm.priorOrNewAmountForm(prior.ukDividends.get)), Some(prior), taxYear, cya.ukDividendsAmount))
       case (Some(prior), None) if prior.ukDividends.nonEmpty =>
-        Ok(view(Left(PriorOrNewAmountForm.priorOrNewAmountForm(prior.ukDividends.get, radioErrorLocation)), Some(prior), taxYear))
+        Ok(view(Left(PriorOrNewAmountForm.priorOrNewAmountForm(prior.ukDividends.get)), Some(prior), taxYear))
       case (None, Some(cya)) =>
         Ok(view(Right(UkDividendsAmountForm.ukDividendsAmountForm()), taxYear = taxYear, preAmount = cya.ukDividendsAmount))
       case _ =>
@@ -80,7 +78,7 @@ class UkDividendsAmountController @Inject()(
 
     priorSubmissionSessionData match {
       case Some(priorSubmission) if priorSubmission.ukDividends.nonEmpty =>
-        PriorOrNewAmountForm.priorOrNewAmountForm(priorSubmission.ukDividends.get, radioErrorLocation).bindFromRequest().fold(
+        PriorOrNewAmountForm.priorOrNewAmountForm(priorSubmission.ukDividends.get).bindFromRequest().fold(
           {
             formWithErrors => BadRequest(view(Left(formWithErrors), Some(priorSubmission), taxYear))
           },
