@@ -26,7 +26,7 @@ object DividendsSubmissionHttpParser {
   implicit object DividendsSubmissionResponseReads extends HttpReads[DividendsSubmissionsResponse] {
     override def read(method: String, url: String, response: HttpResponse): DividendsSubmissionsResponse = {
       response.status match  {
-        case NO_CONTENT => Right(DividendsResponseModel(204))
+        case NO_CONTENT => Right(DividendsResponseModel(NO_CONTENT))
         case BAD_REQUEST => Left(BadRequestDividendsSubmissionException)
         case INTERNAL_SERVER_ERROR => Left(InternalServerErrorDividendsSubmissionException)
         case _ => Left(UnexpectedDividendsError)

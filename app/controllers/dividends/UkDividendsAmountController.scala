@@ -111,11 +111,13 @@ class UkDividendsAmountController @Inject()(
             formModel =>
               DividendsCheckYourAnswersModel.fromSession().fold {
                 Redirect(redirectLocation(taxYear, None))
-                  .addingToSession(SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel().copy(ukDividends = Some(true), ukDividendsAmount = Some(BigDecimal(formModel.amount))).asJsonString)
+                  .addingToSession(SessionValues.DIVIDENDS_CYA ->
+                    DividendsCheckYourAnswersModel().copy(ukDividends = Some(true), ukDividendsAmount = Some(BigDecimal(formModel.amount))).asJsonString)
               } {
                 cyaModel =>
                   Redirect(redirectLocation(taxYear, Some(cyaModel.copy(ukDividends = Some(true), ukDividendsAmount = Some(BigDecimal(formModel.amount))))))
-                    .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(ukDividends = Some(true), ukDividendsAmount = Some(BigDecimal(formModel.amount))).asJsonString)
+                    .addingToSession(SessionValues.DIVIDENDS_CYA ->
+                      cyaModel.copy(ukDividends = Some(true), ukDividendsAmount = Some(BigDecimal(formModel.amount))).asJsonString)
               }
           }
         )

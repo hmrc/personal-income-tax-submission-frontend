@@ -77,24 +77,20 @@ class RemoveAccountController @Inject()(
     }
   }
 
+  //TODO Refactor
   def submit(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = authorisedAction.async { implicit user =>
     val optionalCyaData: Option[InterestCYAModel] = user.session.get(SessionValues.INTEREST_CYA).flatMap(Json.parse(_).asOpt[InterestCYAModel])
     yesNoForm.bindFromRequest().fold(
-      {
-        formWithErrors =>
+      formWithErrors =>
           optionalCyaData match {
             case Some(cyaData) =>
               getTaxAccounts(taxType, cyaData) match {
                 case Some(taxAccounts) if taxAccounts.nonEmpty =>
-                  useAccount(taxAccounts, accountId, taxType, taxYear) { account =>
-                    BadRequest(view(formWithErrors, taxYear, taxType, account))
-                  }
+                  useAccount(taxAccounts, accountId, taxType, taxYear)(account => BadRequest(view(formWithErrors, taxYear, taxType, account)))
                 case _ => missingAccountsRedirect(taxType, taxYear)
               }
             case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-          }
-      },
-      {
+          },
         yesNoModel =>
           optionalCyaData match {
             case Some(cyaData) =>
@@ -130,7 +126,6 @@ class RemoveAccountController @Inject()(
               logger.info("[RemoveAccountController][submit] No CYA data in session. Redirecting to the overview page.")
               Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
           }
-      }
     )
   }
 
