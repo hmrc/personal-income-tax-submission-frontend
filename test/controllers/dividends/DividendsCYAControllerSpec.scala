@@ -27,12 +27,12 @@ import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import services.DividendsSubmissionService
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.ViewTest
+import utils.UnitTestWithApp
 import views.html.dividends.DividendsCYAView
 
 import scala.concurrent.Future
 
-class DividendsCYAControllerSpec extends ViewTest with MockAuditService {
+class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
 
   val service = mock[DividendsSubmissionService]
   val controller = new DividendsCYAController(

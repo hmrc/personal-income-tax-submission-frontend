@@ -21,12 +21,12 @@ import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import utils.ViewTest
+import utils.UnitTestWithApp
 import views.html.interest.InterestAccountsView
 
 import scala.concurrent.Future
 
-class AccountsControllerSpec extends ViewTest {
+class AccountsControllerSpec extends UnitTestWithApp {
 
   val TAXED = "taxed"
   val UNTAXED = "untaxed"

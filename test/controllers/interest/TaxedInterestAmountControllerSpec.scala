@@ -23,12 +23,12 @@ import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
-import utils.ViewTest
+import utils.UnitTestWithApp
 import views.html.interest.TaxedInterestAmountView
 
 import scala.concurrent.Future
 
-class TaxedInterestAmountControllerSpec extends ViewTest {
+class TaxedInterestAmountControllerSpec extends UnitTestWithApp {
 
   implicit def wrapOptional[T](input: T): Option[T] = Some(input)
 
