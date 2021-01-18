@@ -59,6 +59,15 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest {
           result.status shouldBe OK
         }
       }
+      "returns an action when auth call fails" which {
+        lazy val result: WSResponse = {
+          authoriseIndividualUnauthorized()
+          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/other-dividends").get())
+        }
+        "has an UNAUTHORIZED(401) status" in {
+          result.status shouldBe UNAUTHORIZED
+        }
+      }
 
     }
 
@@ -85,6 +94,15 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest {
         result.status shouldBe BAD_REQUEST
       }
 
+      "returns an action when auth call fails" which {
+        lazy val result: WSResponse = {
+          authoriseIndividualUnauthorized()
+          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/other-dividends").post(Map[String, String]()))
+        }
+        "has an UNAUTHORIZED(401) status" in {
+          result.status shouldBe UNAUTHORIZED
+        }
+      }
     }
 
   }
@@ -107,6 +125,15 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest {
 
         "has an OK(200) status" in {
           result.status shouldBe OK
+        }
+      }
+      "returns an action when auth call fails" which {
+        lazy val result: WSResponse = {
+          authoriseAgentUnauthorized()
+          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/other-dividends").get())
+        }
+        "has an UNAUTHORIZED(401) status" in {
+          result.status shouldBe UNAUTHORIZED
         }
       }
     }
@@ -148,6 +175,21 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest {
           }
 
           result.status shouldBe BAD_REQUEST
+        }
+      }
+
+      "returns an action when auth call fails" when {
+
+        lazy val result: WSResponse = {
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.CLIENT_MTDITID -> "1234567890"
+          ))
+          authoriseAgentUnauthorized()
+          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/other-dividends")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+            .post(Map[String, String]()))        }
+        "has an UNAUTHORIZED(401) status" in {
+          result.status shouldBe UNAUTHORIZED
         }
       }
 

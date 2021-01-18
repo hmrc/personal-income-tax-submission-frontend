@@ -17,8 +17,8 @@
 package connectors.httpparsers
 
 import models.DividendsResponseModel
-import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 import play.api.http.Status._
+import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 
 object DividendsSubmissionHttpParser {
   type DividendsSubmissionsResponse = Either[DividendsSubmissionException, DividendsResponseModel]

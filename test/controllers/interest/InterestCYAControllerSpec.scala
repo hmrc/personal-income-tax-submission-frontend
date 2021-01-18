@@ -19,17 +19,17 @@ package controllers.interest
 import common.SessionValues
 import models.httpResponses.ErrorResponse
 import models.interest.{InterestAccountModel, InterestCYAModel}
+import org.scalatest.GivenWhenThen
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result, Session}
 import play.api.test.FakeRequest
 import services.InterestSubmissionService
+import uk.gov.hmrc.http.HeaderCarrier
 import utils.ViewTest
 import views.html.interest.InterestCYAView
 
 import scala.concurrent.{ExecutionContext, Future}
-import org.scalatest.GivenWhenThen
-import uk.gov.hmrc.http.HeaderCarrier
 
 class InterestCYAControllerSpec extends ViewTest with GivenWhenThen {
 

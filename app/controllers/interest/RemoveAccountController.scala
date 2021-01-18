@@ -16,22 +16,21 @@
 
 package controllers.interest
 
+import common.InterestTaxTypes._
 import common.SessionValues
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
+import forms.YesNoForm
 import javax.inject.Inject
+import models.formatHelpers.YesNoModel
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
 import play.api.Logger
+import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.interest.RemoveAccountView
-import common.InterestTaxTypes._
-import forms.YesNoForm
-import models.User
-import models.formatHelpers.YesNoModel
-import play.api.data.Form
 
 import scala.concurrent.Future
 

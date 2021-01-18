@@ -17,8 +17,8 @@
 package forms
 
 import forms.validation.StringConstraints.{nonEmpty, validateCurrency}
-import forms.validation.utils.MappingUtil.trimmedText
 import forms.validation.utils.ConstraintUtil._
+import forms.validation.utils.MappingUtil.trimmedText
 import models.TaxedInterestModel
 import play.api.data.Form
 import play.api.data.Forms.mapping

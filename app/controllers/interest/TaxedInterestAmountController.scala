@@ -16,7 +16,6 @@
 
 package controllers.interest
 
-import common.PageLocations.Interest.UntaxedAccountsView
 import common.{InterestTaxTypes, PageLocations, SessionValues}
 import config.AppConfig
 import controllers.predicates.AuthorisedAction

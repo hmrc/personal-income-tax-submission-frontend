@@ -144,8 +144,16 @@ trait WireMockHelper {
     stubPost(authoriseUri, OK, Json.prettyPrint(successfulAuthResponse(Some(AffinityGroup.Individual), mtditEnrolment)))
   }
 
+  def authoriseIndividualUnauthorized(): StubMapping = {
+    stubPost(authoriseUri, UNAUTHORIZED, Json.prettyPrint(successfulAuthResponse(Some(AffinityGroup.Individual), mtditEnrolment)))
+  }
+
   def authoriseAgent(): StubMapping = {
     stubPost(authoriseUri, OK, Json.prettyPrint(successfulAuthResponse(Some(AffinityGroup.Agent), Seq(asAgentEnrolment, mtditEnrolment): _*)))
+  }
+
+  def authoriseAgentUnauthorized(): StubMapping = {
+    stubPost(authoriseUri, UNAUTHORIZED, Json.prettyPrint(successfulAuthResponse(Some(AffinityGroup.Agent), Seq(asAgentEnrolment, mtditEnrolment): _*)))
   }
 
 }

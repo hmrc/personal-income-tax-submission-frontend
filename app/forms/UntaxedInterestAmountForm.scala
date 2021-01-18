@@ -16,13 +16,13 @@
 
 package forms
 
-import play.api.data.Form
-import play.api.data.Forms._
-import play.api.data.validation.Constraint
 import forms.validation.StringConstraints._
 import forms.validation.utils.ConstraintUtil._
 import forms.validation.utils.MappingUtil._
 import models.UntaxedInterestModel
+import play.api.data.Form
+import play.api.data.Forms._
+import play.api.data.validation.Constraint
 
 object UntaxedInterestAmountForm {
 
