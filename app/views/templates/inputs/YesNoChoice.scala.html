@@ -25,7 +25,7 @@
 <div class="govuk-form-group@if(containsErrors) { govuk-form-group--error}">
     @form.errors.map { error =>
         <span class="govuk-error-message">
-            <span class="govuk-visually-hidden">Error:</span>@messages(error.message)
+            <span class="govuk-visually-hidden">@messages("common.error.errorKey")</span>@messages(error.message)
         </span>
     }
     <fieldset class="govuk-fieldset">

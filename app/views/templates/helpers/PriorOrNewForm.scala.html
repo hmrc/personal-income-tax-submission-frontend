@@ -55,7 +55,7 @@
                     <div @if(containsErrors) { govuk-form-group--error}">
                         @formInput.errors.map { error =>
                         <span class="govuk-error-message" role="tooltip">
-                            <span class="govuk-visually-hidden">Error:</span>@messages(error.message)
+                            <span class="govuk-visually-hidden">@messages("common.error.errorKey")</span>@messages(error.message)
                         </span>
                         }
                         <div class="hmrc-currency-input__wrapper">
