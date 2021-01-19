@@ -1,6 +1,8 @@
 
 # personal-income-tax-submission-frontend
 
+Personal income tax submission frontend service
+
 This is a placeholder README.md for a new repository
 
 ### License
