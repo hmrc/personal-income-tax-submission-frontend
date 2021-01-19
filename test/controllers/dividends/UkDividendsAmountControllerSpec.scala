@@ -112,7 +112,7 @@ class UkDividendsAmountControllerSpec extends UnitTestWithApp {
           .withFormUrlEncodedBody("amount" -> "ASDFGHJ"))
 
         status(result) shouldBe BAD_REQUEST
-        bodyOf(result) should include("dividends.error.invalid_number")
+        bodyOf(result) should include("common.error.invalid_number")
       }
 
       "the amount input does not pass validation with prior data" in new TestWithAuth {
@@ -127,7 +127,7 @@ class UkDividendsAmountControllerSpec extends UnitTestWithApp {
           ))
 
         status(result) shouldBe BAD_REQUEST
-        bodyOf(result) should include("dividends.error.invalid_number")
+        bodyOf(result) should include("common.error.invalid_number")
       }
 
       "the amount type does not pass validation with prior data" in new TestWithAuth {
@@ -142,7 +142,7 @@ class UkDividendsAmountControllerSpec extends UnitTestWithApp {
           ))
 
         status(result) shouldBe BAD_REQUEST
-        bodyOf(result) should include("dividends.uk-dividends-amount.error.noRadioSelected")
+        bodyOf(result) should include("common.error.priorOrNewAmount.noRadioSelected")
       }
 
       "the amount type other is submitted but no amount is submitted" in new TestWithAuth {
@@ -156,7 +156,7 @@ class UkDividendsAmountControllerSpec extends UnitTestWithApp {
           ))
 
         status(result) shouldBe BAD_REQUEST
-        bodyOf(result) should include("dividends.uk-dividends-amount.error.noRadioSelected")
+        bodyOf(result) should include("common.error.priorOrNewAmount.noRadioSelected")
       }
 
     }

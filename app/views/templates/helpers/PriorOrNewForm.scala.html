@@ -23,6 +23,10 @@
 
 @errorSummaryDisplay(formInput.errors.distinct)
 
+@containsErrors = @{
+    formInput.errors.nonEmpty
+}
+
 <div class="govuk-form-group">
     <fieldset class="govuk-fieldset">
         <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
@@ -48,9 +52,16 @@
                     <label class="govuk-label" for="other-amount-input">
                     @messages("common.enterAmount")
                     </label>
-                    <div class="hmrc-currency-input__wrapper">
-                        <div class="hmrc-currency-input__unit" aria-hidden="true">£</div>
-                        <input class="govuk-input govuk-!-width-one-third" id="other-amount-input" name="amount" pattern="[0-9]*"@preFill.map{amount=>value="@bigDecimalCurrency(amount, "")"}>
+                    <div @if(containsErrors) { govuk-form-group--error}">
+                        @formInput.errors.map { error =>
+                        <span class="govuk-error-message" role="tooltip">
+                            <span class="govuk-visually-hidden">@messages("common.error.errorKey")</span>@messages(error.message)
+                        </span>
+                        }
+                        <div class="hmrc-currency-input__wrapper">
+                            <div class="hmrc-currency-input__unit" aria-hidden="true">£</div>
+                            <input class="govuk-input govuk-!-width-one-third" id="other-amount-input" name="amount" pattern="[0-9]*"@preFill.map{amount=>value="@bigDecimalCurrency(amount, "")"}>
+                        </div>
                     </div>
                 </div>
             </div>

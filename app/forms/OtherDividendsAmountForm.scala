@@ -29,7 +29,7 @@ object OtherDividendsAmountForm {
   val otherDividendsAmount: String = "amount"
 
   val amountNotEmpty: Constraint[String] = nonEmpty("dividends.other-dividends-amount.error.empty")
-  val amountValidInt: Constraint[String] = validateCurrency("dividends.error.invalid_number")
+  val amountValidInt: Constraint[String] = validateCurrency("common.error.invalid_number")
 
   def otherDividendsAmountForm(): Form[CurrencyAmountModel] = Form(
     mapping(

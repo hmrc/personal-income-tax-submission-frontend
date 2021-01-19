@@ -34,8 +34,18 @@
     val identifier = account.id.getOrElse(account.uniqueSessionId.getOrElse(""))
 
     taxType match {
-        case `TAXED` => controllers.interest.routes.TaxedInterestAmountController.show(taxYear, Some(identifier))
-        case `UNTAXED` => controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, Some(identifier))
+        case `UNTAXED` =>
+            if(account.id.nonEmpty) {
+                controllers.interest.routes.ChangeAccountAmountController.show(taxYear, taxType, identifier)
+            } else {
+                controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, account.uniqueSessionId)
+            }
+        case `TAXED` =>
+            if(account.id.nonEmpty) {
+                controllers.interest.routes.ChangeAccountAmountController.show(taxYear, taxType, identifier)
+            } else {
+                controllers.interest.routes.TaxedInterestAmountController.show(taxYear, account.uniqueSessionId)
+            }
     }
 }
 
@@ -43,8 +53,8 @@
     val identifier = account.id.getOrElse(account.uniqueSessionId.getOrElse(""))
 
     taxType match {
-        case `TAXED` => controllers.interest.routes.RemoveAccountController.show(taxYear, taxType, identifier)
         case `UNTAXED` => controllers.interest.routes.RemoveAccountController.show(taxYear, taxType, identifier)
+        case `TAXED` => controllers.interest.routes.RemoveAccountController.show(taxYear, taxType, identifier)
     }
 }
 
@@ -73,8 +83,8 @@
 
 @addNewAccountLink = @{
     taxType match {
-        case `TAXED` => controllers.interest.routes.TaxedInterestAmountController.show(taxYear)
         case `UNTAXED` => controllers.interest.routes.UntaxedInterestAmountController.show(taxYear)
+        case `TAXED` => controllers.interest.routes.TaxedInterestAmountController.show(taxYear)
     }
 }
 

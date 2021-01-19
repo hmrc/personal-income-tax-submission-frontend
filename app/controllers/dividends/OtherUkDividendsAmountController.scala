@@ -38,8 +38,6 @@ class OtherUkDividendsAmountController @Inject()(
                                              implicit val appConfig: AppConfig
                                            ) extends FrontendController(cc) with I18nSupport {
 
-  val radioErrorLocation = "dividends.other-dividends-amount"
-
   def view(
             formInput: Either[Form[PriorOrNewAmountModel], Form[CurrencyAmountModel]],
             priorSubmission: Option[DividendsPriorSubmission] = None,
@@ -64,13 +62,13 @@ class OtherUkDividendsAmountController @Inject()(
     (dividendsPriorSubmissionSession, checkYourAnswerSession) match {
       case (Some(prior), Some(cya)) if prior.otherUkDividends.nonEmpty =>
         Ok(view(
-          Left(PriorOrNewAmountForm.priorOrNewAmountForm(prior.otherUkDividends.get, radioErrorLocation)),
+          Left(PriorOrNewAmountForm.priorOrNewAmountForm(prior.otherUkDividends.get)),
           Some(prior),
           taxYear,
           cya.otherUkDividendsAmount
         ))
       case (Some(prior), None) if prior.otherUkDividends.nonEmpty =>
-        Ok(view(Left(PriorOrNewAmountForm.priorOrNewAmountForm(prior.otherUkDividends.get, radioErrorLocation)), Some(prior), taxYear))
+        Ok(view(Left(PriorOrNewAmountForm.priorOrNewAmountForm(prior.otherUkDividends.get)), Some(prior), taxYear))
       case (None, Some(cya)) =>
         Ok(view(Right(OtherDividendsAmountForm.otherDividendsAmountForm()), taxYear = taxYear, preAmount = cya.otherUkDividendsAmount))
       case _ =>
@@ -87,7 +85,7 @@ class OtherUkDividendsAmountController @Inject()(
 
     priorSubmissionSessionData match {
       case Some(priorSubmission) if priorSubmission.otherUkDividends.nonEmpty =>
-        PriorOrNewAmountForm.priorOrNewAmountForm(priorSubmission.otherUkDividends.get, radioErrorLocation).bindFromRequest().fold(
+        PriorOrNewAmountForm.priorOrNewAmountForm(priorSubmission.otherUkDividends.get).bindFromRequest().fold(
           {
             formWithErrors => BadRequest(view(Left(formWithErrors), Some(priorSubmission), taxYear = taxYear))
           },

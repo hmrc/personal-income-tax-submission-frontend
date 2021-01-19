@@ -56,7 +56,7 @@ class OtherDividendsAmountFormSpec extends UnitTest {
       val testInput = Map(otherDividendsAmount -> testCurrencyInvalidInt)
 
       val invalidCharTest = form.bind(testInput)
-      invalidCharTest.errors should contain(FormError(otherDividendsAmount, "dividends.error.invalid_number"))
+      invalidCharTest.errors should contain(FormError(otherDividendsAmount, "common.error.invalid_number"))
     }
 
     "remove a leading space from a currency" in {

@@ -27,7 +27,7 @@ class PriorOrNewAmountFormSpec extends UnitTestWithApp {
   val amountInput = 10
   val newAmountInput = 20
 
-  lazy val form: Form[PriorOrNewAmountModel] = priorOrNewAmountForm(amountInput, "dividends.uk-dividends-amount")
+  lazy val form: Form[PriorOrNewAmountModel] = priorOrNewAmountForm(amountInput)
 
  "PriorOrNewAmountForm" should {
 
@@ -114,7 +114,7 @@ class PriorOrNewAmountFormSpec extends UnitTestWithApp {
   "stringFormatter.unbind" should {
 
     "return form data" in {
-      lazy val formatter = stringFormatter(amountInput, "")
+      lazy val formatter = stringFormatter(amountInput)
 
       formatter.unbind(amountTypeField, "prior") shouldBe Map(amountTypeField -> "prior")
     }
@@ -124,7 +124,7 @@ class PriorOrNewAmountFormSpec extends UnitTestWithApp {
   "otherAmountFormatter.unbind" should {
 
     "return form data" in {
-      lazy val formatter = otherAmountFormatter(amountInput, "")
+      lazy val formatter = otherAmountFormatter(amountInput)
 
       formatter.unbind(otherAmountInputField, Some(amountInput)) shouldBe Map(otherAmountInputField -> amountInput.toString)
     }
@@ -132,7 +132,7 @@ class PriorOrNewAmountFormSpec extends UnitTestWithApp {
     "return an empty map" when {
 
       "a None is provided for the unbind" in {
-        lazy val formatter = otherAmountFormatter(amountInput, "")
+        lazy val formatter = otherAmountFormatter(amountInput)
 
         formatter.unbind(otherAmountInputField, None) shouldBe Map[String, String]()
       }

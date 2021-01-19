@@ -1,0 +1,63 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.mvc.Request
+@import forms.UntaxedInterestAmountForm._
+@import models.UntaxedInterestModel
+@import models.formatHelpers.PriorOrNewAmountModel
+@import views.html.templates.helpers.PriorOrNewForm
+@import views.html.headerFooterTemplate.Layout
+@import views.html.templates.helpers.{ContinueButton, ErrorSummaryDisplay, InputHelper}
+@import models.formatHelpers.YesNoModel
+@import models.interest.InterestAccountModel
+@import common.InterestTaxTypes._
+
+@this(layout: Layout, formWithCSRF: FormWithCSRF, errorSummaryDisplay: ErrorSummaryDisplay, priorOrNewForm: PriorOrNewForm, inputHelper: InputHelper)
+@(form: Form[PriorOrNewAmountModel], postAction: Call, taxYear: Int, taxType: String, account: InterestAccountModel,  preAmount: Option[BigDecimal] = None)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
+
+@scripts = {
+    <script type="text/javascript" src="@routes.Assets.versioned("javascripts/all.js")" ></script>
+    <script type="text/javascript" src="@routes.Assets.versioned("javascripts/hideAndShow.js")" ></script>
+}
+
+@headingRef = @{
+    taxType match {
+        case `UNTAXED` => "interest.change-account.untaxed-heading"
+        case `TAXED` => "interest.change-account.taxed-heading"
+    }
+}
+
+@titleRef = @{
+    taxType match {
+        case `UNTAXED` => "interest.change-account.untaxed-title"
+        case `TAXED` => "interest.change-account.taxed-title"
+    }
+}
+
+@heading(account: InterestAccountModel) = {
+    <span class="govuk-caption-l">@messages("interest.caption", (taxYear - 1).toString, taxYear.toString)</span>
+    <h1 class="govuk-heading-l govuk-!-margin-bottom-4">@messages(headingRef, account.accountName)</h1>
+}
+
+@layout(pageTitle = Some(messages(titleRef)), backLinkUrl = Some(controllers.interest.routes.AccountsController.show(taxYear, taxType).url), scriptsBlock = Some(scripts)) {
+
+    @formWithCSRF(action = postAction) {
+
+        @priorOrNewForm(heading(account), form, Some(account.amount), "common.error.invalid_number", preAmount)
+
+        @ContinueButton()
+    }
+}

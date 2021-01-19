@@ -28,7 +28,7 @@ import views.html.dividends.UkDividendsAmountView
 class UkDividendsAmountViewSpec extends ViewTest {
 
   lazy val ukDividendsAmountForm: Form[CurrencyAmountModel] = UkDividendsAmountForm.ukDividendsAmountForm()
-  lazy val priorOrNewAmountForm: Form[PriorOrNewAmountModel] = PriorOrNewAmountForm.priorOrNewAmountForm(20, "dividends.uk-dividends-amount")
+  lazy val priorOrNewAmountForm: Form[PriorOrNewAmountModel] = PriorOrNewAmountForm.priorOrNewAmountForm(20)
 
   lazy val ukDividendsAmountView: UkDividendsAmountView = app.injector.instanceOf[UkDividendsAmountView]
 
