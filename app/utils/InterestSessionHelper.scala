@@ -55,6 +55,13 @@ trait InterestSessionHelper extends SessionHelper {
       )
     }
 
+    def clearSessionData()(implicit user: User[_]): Result = {
+      result.removingFromSession(
+        SessionValues.INTEREST_CYA,
+        SessionValues.INTEREST_PRIOR_SUB
+      )
+    }
+
   }
 
 }
