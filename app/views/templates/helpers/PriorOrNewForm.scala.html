@@ -27,7 +27,15 @@
     formInput.errors.nonEmpty
 }
 
-<div class="govuk-form-group">
+@isEqualToPrevious = @{
+    priorAmount.flatMap{ priorValue =>
+        preFill.map{ preFillVal =>
+            priorValue == preFillVal
+        }
+    }.getOrElse (false)
+}
+
+<div class="govuk-form-group @if(containsErrors) { govuk-form-group--error}">
     <fieldset class="govuk-fieldset">
         <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
         @heading
@@ -52,7 +60,7 @@
                     <label class="govuk-label" for="other-amount-input">
                     @messages("common.enterAmount")
                     </label>
-                    <div @if(containsErrors) { govuk-form-group--error}">
+                    <div>
                         @formInput.errors.map { error =>
                         <span class="govuk-error-message" role="tooltip">
                             <span class="govuk-visually-hidden">@messages("common.error.errorKey")</span>@messages(error.message)
@@ -60,7 +68,7 @@
                         }
                         <div class="hmrc-currency-input__wrapper">
                             <div class="hmrc-currency-input__unit" aria-hidden="true">£</div>
-                            <input class="govuk-input govuk-!-width-one-third" id="other-amount-input" name="amount" pattern="[0-9]*"@preFill.map{amount=>value="@bigDecimalCurrency(amount, "")"}>
+                            <input class="govuk-input govuk-!-width-one-third" id="other-amount-input" name="amount" pattern="[0-9]*"@if(!isEqualToPrevious){@preFill.map{amount=>value="@bigDecimalCurrency(amount, "")"}}>
                         </div>
                     </div>
                 </div>
