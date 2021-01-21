@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-sbt run
+sbt -Dauditing.enabled=false run
