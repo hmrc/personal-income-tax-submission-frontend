@@ -29,7 +29,6 @@
 @(form: Form[PriorOrNewAmountModel], postAction: Call, taxYear: Int, taxType: String, account: InterestAccountModel,  preAmount: Option[BigDecimal] = None)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @scripts = {
-    <script type="text/javascript" src="@routes.Assets.versioned("javascripts/all.js")" ></script>
     <script type="text/javascript" src="@routes.Assets.versioned("javascripts/hideAndShow.js")" ></script>
 }
 

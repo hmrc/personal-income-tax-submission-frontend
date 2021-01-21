@@ -26,18 +26,24 @@
         hmrcStandardFooter: HmrcStandardFooter
 )
 
-
 @(pageTitle: Option[String] = None,
         backLinkUrl: Option[String] = None,
         headBlock: Option[Html] = None,
         scriptsBlock: Option[Html] = None
 )(contentBlock: Html)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-    @govukLayout(
-        pageTitle = pageTitle,
-        headBlock = Some(head(headBlock)),
-        scriptsBlock = scriptsBlock,
-        beforeContentBlock = Some(beforeBodyContent(backLinkUrl)),
-        footerBlock = Some(hmrcStandardFooter())
-    )(contentBlock)
+@scripts = {
+    <script src='@controllers.routes.Assets.versioned("lib/govuk-frontend/govuk/all.js")'></script>
+    <script src='@controllers.routes.Assets.versioned("javascripts/application.min.js")'></script>
+    <script>window.GOVUKFrontend.initAll();</script>
+    @scriptsBlock.map(x => x)
+}
+
+@govukLayout(
+    pageTitle = pageTitle,
+    headBlock = Some(head(headBlock)),
+    scriptsBlock = Some(scripts),
+    beforeContentBlock = Some(beforeBodyContent(backLinkUrl)),
+    footerBlock = Some(hmrcStandardFooter())
+)(contentBlock)
 
