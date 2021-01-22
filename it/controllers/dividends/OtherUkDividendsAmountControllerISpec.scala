@@ -120,7 +120,8 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest {
       "returns an action" which {
         lazy val result: WSResponse = {
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890"
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A"
           ))
 
           authoriseAgent()
@@ -159,6 +160,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest {
           lazy val result: WSResponse = {
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
               SessionValues.CLIENT_MTDITID -> "1234567890",
+              SessionValues.CLIENT_NINO -> "AA123456A",
               SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(true)).asJsonString
             ))
 
@@ -179,7 +181,8 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest {
         "there is no form data" in {
           lazy val result: WSResponse = {
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890"
+              SessionValues.CLIENT_MTDITID -> "1234567890",
+              SessionValues.CLIENT_NINO -> "AA123456A"
             ))
 
             authoriseAgent()
@@ -194,7 +197,8 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest {
 
       "return unauthorized when the authorization fails" which {
         val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-          SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(otherUkDividends = Some(true), otherUkDividendsAmount = Some(500)).asJsonString
+          SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(otherUkDividends = Some(true), otherUkDividendsAmount = Some(500)).asJsonString,
+          SessionValues.CLIENT_NINO -> "AA123456A"
         ))
         lazy val result: WSResponse = {
           authoriseAgentUnauthorized()

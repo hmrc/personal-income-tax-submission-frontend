@@ -19,7 +19,7 @@ package utils
 import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
 import com.codahale.metrics.SharedMetricRegistries
-import common.{EnrolmentIdentifiers, EnrolmentKeys}
+import common.{EnrolmentIdentifiers, EnrolmentKeys, SessionValues}
 import config.{AppConfig, MockAppConfig}
 import controllers.predicates.AuthorisedAction
 import org.scalamock.scalatest.MockFactory
@@ -41,8 +41,8 @@ import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
 
 trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAndAfterEach {
 
-  class TestWithAuth(isAgent: Boolean = false) {
-    if(isAgent) mockAuthAsAgent() else mockAuth()
+  class TestWithAuth(isAgent: Boolean = false, nino: Option[String] = Some("AA123456A")) {
+    if(isAgent) mockAuthAsAgent() else mockAuth(nino)
   }
 
   override def beforeEach(): Unit = {
@@ -56,7 +56,13 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
   def await[T](awaitable: Awaitable[T]): T = Await.result(awaitable, Duration.Inf)
 
   implicit val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  val fakeRequestWithMtditid: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession("MTDITID" -> "1234567890")
+  val fakeRequestWithMtditidAndNino: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
+    SessionValues.CLIENT_MTDITID -> "1234567890",
+    SessionValues.CLIENT_NINO -> "A123456A"
+  )
+  val fakeRequestWithNino: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
+    SessionValues.CLIENT_NINO -> "AA123456A"
+  )
   implicit val emptyHeaderCarrier: HeaderCarrier = HeaderCarrier()
 
   implicit val mockAppConfig: AppConfig = new MockAppConfig()
@@ -82,10 +88,12 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
   }
 
   //noinspection ScalaStyle
-  def mockAuth() = {
+  def mockAuth(nino: Option[String]) = {
     val enrolments = Enrolments(Set(
       Enrolment(EnrolmentKeys.Individual, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.individualId, "1234567890")), "Activated"),
       Enrolment(EnrolmentKeys.Agent, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.agentReference, "0987654321")), "Activated")
+    ) ++ nino.fold(Seq.empty[Enrolment])(unwrappedNino =>
+      Seq(Enrolment(EnrolmentKeys.nino, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.nino, unwrappedNino)), "Activated"))
     ))
     (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
       .expects(*, *, *, *)

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package controllers.dividends
 
 import config.FrontendAppConfig
@@ -10,16 +26,17 @@ import views.html.dividends.ReceiveOtherUkDividendsView
 
 import scala.concurrent.Future
 
-class ReceiveOtherUkDividendsControllerTest extends IntegrationTest{
+class ReceiveOtherUkDividendsControllerTest extends IntegrationTest {
 
   lazy val frontendAppConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
 
-  def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq())= new ReceiveOtherUkDividendsController(
-    mcc,
-    authAction(stubbedRetrieval, acceptedConfidenceLevels),
-    app.injector.instanceOf[ReceiveOtherUkDividendsView],
-    frontendAppConfig
-  )
+  def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq()): ReceiveOtherUkDividendsController =
+    new ReceiveOtherUkDividendsController(
+      mcc,
+      authAction(stubbedRetrieval, acceptedConfidenceLevels),
+      app.injector.instanceOf[ReceiveOtherUkDividendsView],
+      frontendAppConfig
+    )
 
   "Hitting the show endpoint" should {
 
@@ -27,7 +44,10 @@ class ReceiveOtherUkDividendsControllerTest extends IntegrationTest{
 
       "all auth requirements are met" in {
         val retrieval: Future[Enrolments ~ Some[AffinityGroup]] = Future.successful(new ~(
-          Enrolments(Set(Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "1234567890")), "Activated", None))),
+          Enrolments(Set(
+            Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "1234567890")), "Activated", None),
+            Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
+          )),
           Some(AffinityGroup.Individual)
         ))
 
@@ -41,7 +61,10 @@ class ReceiveOtherUkDividendsControllerTest extends IntegrationTest{
 
       "the confidence level is too low" in {
         val retrieval: Future[Enrolments ~ Some[AffinityGroup]] = Future.successful(new ~(
-          Enrolments(Set(Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "1234567890")), "Activated", None))),
+          Enrolments(Set(
+            Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "1234567890")), "Activated", None),
+            Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
+          )),
           Some(AffinityGroup.Individual)
         ))
 
@@ -52,7 +75,10 @@ class ReceiveOtherUkDividendsControllerTest extends IntegrationTest{
 
       "it contains the wrong credentials" in {
         val retrieval: Future[Enrolments ~ Some[AffinityGroup]] = Future.successful(new ~(
-          Enrolments(Set(Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("UTR", "1234567890")), "Activated", None))),
+          Enrolments(Set(
+            Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("UTR", "1234567890")), "Activated", None),
+            Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
+          )),
           Some(AffinityGroup.Individual)
         ))
 

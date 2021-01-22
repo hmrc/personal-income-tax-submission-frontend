@@ -46,7 +46,7 @@ class DividendsSubmissionServiceSpec extends UnitTestWithApp{
         Some(10),
         Some(10)
       )
-      val nino = "someNino"
+      val nino = "AA123456A"
       val mtdItid = "SomeMtdItid"
       val taxYear = 2020
 

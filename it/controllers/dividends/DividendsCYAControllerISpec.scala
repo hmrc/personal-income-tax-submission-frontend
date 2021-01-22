@@ -101,7 +101,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
               Some(10),
               otherUkDividends = Some(true),
               Some(10)))),
-            SessionValues.CLIENT_NINO -> "someNino"
+            SessionValues.CLIENT_NINO -> "AA123456A"
           ))
           stubPut(s"/income-tax-dividends/income-tax/nino//sources\\?mtditid=1234567890&taxYear=2020", 204, "")
 
@@ -113,15 +113,17 @@ class DividendsCYAControllerISpec extends IntegrationTest {
         result.status shouldBe OK
       }
 
-      s"handle no nino is in the session" in {
+      s"handle no nino is in the enrolments" in {
         lazy val result = {
-          authoriseIndividual()
+          authoriseIndividual(false)
           stubGet("/income-through-software/return/2020/view", OK, "")
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.DIVIDENDS_CYA -> Json.prettyPrint(Json.toJson(DividendsCheckYourAnswersModel(ukDividends = Some(true),
+            SessionValues.DIVIDENDS_CYA -> Json.prettyPrint(Json.toJson(DividendsCheckYourAnswersModel(
+              ukDividends = Some(true),
               Some(10),
               otherUkDividends = Some(true),
-              Some(10)))),
+              Some(10)
+            ))),
           ))
 
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/check-your-answers")

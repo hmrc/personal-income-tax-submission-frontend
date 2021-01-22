@@ -129,7 +129,8 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest {
       "returns an action" which {
         lazy val result: WSResponse = {
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890"
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A"
           ))
 
           authoriseAgent()
@@ -166,7 +167,8 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest {
         "there is form data" in {
           lazy val result: WSResponse = {
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890"
+              SessionValues.CLIENT_MTDITID -> "1234567890",
+              SessionValues.CLIENT_NINO -> "AA123456A"
             ))
 
             authoriseAgent()
@@ -186,7 +188,8 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest {
         "there is no form data" in {
           lazy val result: WSResponse = {
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890"
+              SessionValues.CLIENT_MTDITID -> "1234567890",
+              SessionValues.CLIENT_NINO -> "AA123456A"
             ))
 
             authoriseAgent()
@@ -202,7 +205,8 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest {
       "returns an action when auth call fails" when {
         lazy val result: WSResponse = {
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890"
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A"
           ))
 
           authoriseAgentUnauthorized()

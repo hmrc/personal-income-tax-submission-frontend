@@ -113,7 +113,8 @@ class UkDividendsAmountControllerISpec extends IntegrationTest {
       "returns an action" which {
         lazy val result: WSResponse = {
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890"
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A"
           ))
 
           authoriseAgent()
@@ -130,7 +131,8 @@ class UkDividendsAmountControllerISpec extends IntegrationTest {
       "returns an action when auth call fails" which {
         lazy val result: WSResponse = {
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890"
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A"
           ))
 
           authoriseAgentUnauthorized()
@@ -153,6 +155,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest {
           lazy val result: WSResponse = {
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
               SessionValues.CLIENT_MTDITID -> "1234567890",
+              SessionValues.CLIENT_NINO -> "AA123456A",
               SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(true)).asJsonString
             ))
 
@@ -173,7 +176,8 @@ class UkDividendsAmountControllerISpec extends IntegrationTest {
         "there is no form data" in {
           lazy val result: WSResponse = {
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890"
+              SessionValues.CLIENT_MTDITID -> "1234567890",
+              SessionValues.CLIENT_NINO -> "AA123456A"
             ))
 
             authoriseAgent()
@@ -189,7 +193,8 @@ class UkDividendsAmountControllerISpec extends IntegrationTest {
       s"return an UNAUTHORIZED($UNAUTHORIZED) status" in {
         lazy val result: WSResponse = {
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890"
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A"
           ))
 
           authoriseAgentUnauthorized()
