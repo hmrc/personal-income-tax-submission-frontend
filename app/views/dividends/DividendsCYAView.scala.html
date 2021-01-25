@@ -30,7 +30,7 @@
     s"${bigDecimalCurrency(amount)}"
 }
 
-@layout(pageTitle = Some(messages("dividends.cya.title")), backLinkUrl = Some(controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear).url)) {
+@layout(pageTitle = Some(messages("dividends.cya.title")), backLinkUrl = Some(controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear).url), taxYear = Some(taxYear)) {
 
     <div class="govuk-caption-l">@messages("dividends.caption")</div>
     <h1 class="govuk-heading-l">@messages("dividends.cya.h1")</h1>

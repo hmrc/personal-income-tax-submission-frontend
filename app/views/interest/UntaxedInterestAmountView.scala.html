@@ -57,7 +57,7 @@
 
 }
 
-@layout(Some(messages("interest.untaxed-uk-interest-details.title")), backLink) {
+@layout(Some(messages("interest.untaxed-uk-interest-details.title")), backLink, taxYear = Some(taxYear)) {
  @formWithCsrf(action = postAction) {
   @currencyFormHtml(form, untaxedAccountName, untaxedAmount)
   @ContinueButton()

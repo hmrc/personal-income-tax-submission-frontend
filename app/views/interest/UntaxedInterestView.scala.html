@@ -32,7 +32,7 @@ messages: Messages, appConfig: AppConfig)
 if(user.isAgent) messages("interest.untaxed-uk-interest.heading.agent") else messages("interest.untaxed-uk-interest.heading.individual")
 }
 
-@layout(Some(pageTitleToUse), backLink) {
+@layout(Some(pageTitleToUse), backLink, taxYear = Some(taxYear)) {
 
 @errorSummaryDisplay(form.errors, Some("yes_no_yes"))
 

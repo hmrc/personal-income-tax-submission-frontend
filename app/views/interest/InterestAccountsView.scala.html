@@ -88,7 +88,7 @@
     }
 }
 
-@layout(Some(h1Text), backLink) {
+@layout(Some(h1Text), backLink, taxYear = Some(taxYear)) {
     <div class="govuk-caption-l">@messages("interest.caption", (taxYear-1).toString, taxYear.toString)</div>
     <h1 class="govuk-heading-l">@h1Text</h1>
 
