@@ -16,7 +16,7 @@
 
 package controllers.interest
 
-import audit.{AuditModel, AuditService, CreateOrAmendDividendsAuditDetail, CreateOrAmendInterestAuditDetail}
+import audit.{AuditModel, AuditService, CreateOrAmendInterestAuditDetail}
 import common.{InterestTaxTypes, PageLocations, SessionValues}
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
@@ -92,7 +92,7 @@ class InterestCYAController @Inject()(
         Future.successful(Left(ErrorResponse(BAD_REQUEST, "CYA data or NINO missing from session.")))
     }).map {
       case Right(_) =>
-        Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).clearRedirects()
+        Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).clearRedirects().clearSessionData()
       case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
     }
   }
