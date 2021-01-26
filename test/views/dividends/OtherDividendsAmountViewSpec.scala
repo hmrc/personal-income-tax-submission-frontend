@@ -60,7 +60,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
         "there are no form errors" which {
 
-          lazy val view = otherDividendsAmountView(Right(otherDividendsAmountForm), None, testCall, testBackUrl)(user, implicitly, mockAppConfig)
+          lazy val view = otherDividendsAmountView(Right(otherDividendsAmountForm), None, testCall)(user, implicitly, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
           "contain the correct h1" in {
@@ -90,8 +90,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
           lazy val view = otherDividendsAmountView(
             Right(otherDividendsAmountForm.copy(errors = Seq(FormError("amount", "Enter the amount of dividends received from trusts or investment companies")))),
             None,
-            testCall,
-            testBackUrl
+            testCall
           )(user, implicitly, mockAppConfig)
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -133,7 +132,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = otherDividendsAmountView(
-            Right(otherDividendsAmountForm), None, testCall, testBackUrl
+            Right(otherDividendsAmountForm), None, testCall
           )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -166,8 +165,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             Right(otherDividendsAmountForm.copy(
               errors = Seq(FormError("amount", "Enter the amount of dividends received from trusts or investment companies")))),
             None,
-            testCall,
-            testBackUrl
+            testCall
           )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -215,8 +213,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
           lazy val view = otherDividendsAmountView(
             Left(priorOrNewAmountForm),
             Some(DividendsPriorSubmission(None, Some(40))),
-            testCall,
-            testBackUrl
+            testCall
           )(user, implicitly, mockAppConfig)
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -264,8 +261,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
           lazy val view = otherDividendsAmountView(
             Left(priorOrNewAmountForm.withError("amount", "Enter the amount of dividends received from trusts or investment companies")),
             None,
-            testCall,
-            testBackUrl
+            testCall
           )(user, implicitly, mockAppConfig)
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -307,7 +303,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = otherDividendsAmountView(
-            Left(priorOrNewAmountForm), None, testCall, testBackUrl
+            Left(priorOrNewAmountForm), None, testCall
           )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -339,8 +335,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
           lazy val view = otherDividendsAmountView(
             Left(priorOrNewAmountForm.withError("amount", "Enter the amount of dividends received from trusts or investment companies")),
             None,
-            testCall,
-            testBackUrl
+            testCall
           )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
 
           implicit lazy val document: Document = Jsoup.parse(view.body)

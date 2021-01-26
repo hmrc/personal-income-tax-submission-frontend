@@ -49,7 +49,6 @@ class UkDividendsAmountController @Inject()(
       form = formInput,
       priorSubmission = priorSubmission,
       postAction = controllers.dividends.routes.UkDividendsAmountController.submit(taxYear),
-      backUrl = controllers.dividends.routes.ReceiveUkDividendsController.show(taxYear).url,
       preAmount = preAmount
     )
 
@@ -134,7 +133,6 @@ class UkDividendsAmountController @Inject()(
     } else {
       controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear)
     }
-
   }
 
   private[dividends] def getSessionData[T](key: String)(implicit user: User[_], reads: Reads[T]): Option[T] = {

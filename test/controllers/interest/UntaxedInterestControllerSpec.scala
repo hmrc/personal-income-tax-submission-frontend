@@ -289,38 +289,4 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
 
   }
 
-  ".backLink" should {
-
-    "return the CYA link" when {
-
-      "the cya model indicates the journey is finished" in {
-
-        controller.backLink(taxYear)(fakeRequest.withSession(
-          SessionValues.INTEREST_CYA -> InterestCYAModel(Some(false), None, Some(false), None).asJsonString
-        )) shouldBe Some(controllers.interest.routes.InterestCYAController.show(taxYear).url)
-
-      }
-
-    }
-
-    "return the overview url" when {
-
-      "the cya model indicates the journey is not finished" in {
-
-        controller.backLink(taxYear)(fakeRequest.withSession(
-          SessionValues.INTEREST_CYA -> InterestCYAModel(None, None, None, None).asJsonString
-        )) shouldBe Some(mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-
-      }
-
-      "the cya model is missing" in {
-
-        controller.backLink(taxYear)(fakeRequest) shouldBe Some(mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-
-      }
-
-    }
-
-  }
-
 }

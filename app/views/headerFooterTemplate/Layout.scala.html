@@ -27,7 +27,7 @@
 )
 
 @(pageTitle: Option[String] = None,
-        backLinkUrl: Option[String] = None,
+        backLink: Boolean = true,
         headBlock: Option[Html] = None,
         scriptsBlock: Option[Html] = None
 )(contentBlock: Html)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
@@ -43,7 +43,7 @@
     pageTitle = pageTitle,
     headBlock = Some(head(headBlock)),
     scriptsBlock = Some(scripts),
-    beforeContentBlock = Some(beforeBodyContent(backLinkUrl)),
+    beforeContentBlock = Some(beforeBodyContent(backLink)),
     footerBlock = Some(hmrcStandardFooter())
 )(contentBlock)
 

@@ -323,40 +323,4 @@ class AccountsControllerSpec extends UnitTestWithApp {
 
   }
 
-  ".backLink" should {
-
-    "return the correct back link location" when {
-
-      "tax type is UNTAXED" in {
-        val requestWithSessionValues: FakeRequest[AnyContentAsEmpty.type] = fakeRequest.withSession(
-          SessionValues.PAGE_BACK_TAXED_ACCOUNTS -> "/taxed",
-          SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS -> "/untaxed"
-        )
-
-        val result = controller.backLink(taxYear, InterestTaxTypes.UNTAXED)(requestWithSessionValues)
-        result shouldBe Some("/untaxed")
-      }
-
-      "tax type is TAXED" in {
-        val requestWithSessionValues: FakeRequest[AnyContentAsEmpty.type] = fakeRequest.withSession(
-          SessionValues.PAGE_BACK_TAXED_ACCOUNTS -> "/taxed",
-          SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS -> "/untaxed"
-        )
-
-        val result = controller.backLink(taxYear, InterestTaxTypes.TAXED)(requestWithSessionValues)
-        result shouldBe Some("/taxed")
-      }
-
-    }
-
-    "return the overview link" when {
-
-      "there are no backlink values in session" in {
-        controller.backLink(taxYear, InterestTaxTypes.UNTAXED)(fakeRequest) shouldBe Some(mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-      }
-
-    }
-
-  }
-
 }

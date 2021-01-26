@@ -50,13 +50,6 @@ class InterestCYAController @Inject()(
   private val logger = Logger.logger
   implicit val executionContext: ExecutionContext = mcc.executionContext
 
-  def backLink(taxYear: Int)(implicit request: Request[_]): Option[String] = {
-    getFromSession(SessionValues.PAGE_BACK_CYA) match {
-      case location@Some(_) => location
-      case _ => Some(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-    }
-  }
-
   def show(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit user =>
     val priorSubmission = getModelFromSession[InterestPriorSubmission](SessionValues.INTEREST_PRIOR_SUB)
     val cyaModel = getCyaModel()
@@ -66,7 +59,7 @@ class InterestCYAController @Inject()(
         val pageLocation = PageLocations.Interest.cya(taxYear)
 
         Future.successful(
-          Ok(interestCyaView(cyaData, taxYear, priorSubmission, backLink(taxYear)))
+          Ok(interestCyaView(cyaData, taxYear, priorSubmission))
             .addingToSession(
               SessionValues.INTEREST_CYA -> cyaData.asJsonString
             )

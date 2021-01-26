@@ -40,19 +40,6 @@ class UntaxedInterestAmountController @Inject()(
 
   val untaxedInterestAmountForm: Form[UntaxedInterestModel] = UntaxedInterestAmountForm.untaxedInterestAmountForm()
 
-  private[interest] def backLink(taxYear: Int)(implicit request: Request[_]): Option[String] = {
-    import PageLocations.Interest._
-
-    if (getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA).exists(_.isFinished)) {
-      Some(UntaxedAccountsView(taxYear))
-    } else {
-      getFromSession(SessionValues.PAGE_BACK_UNTAXED_AMOUNT) match {
-        case location@Some(_) => location
-        case None => Some(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-      }
-    }
-  }
-
   def show(taxYear: Int, modify: Option[String] = None): Action[AnyContent] = authAction { implicit user =>
     val optionalCyaData = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
 
@@ -70,7 +57,6 @@ class UntaxedInterestAmountController @Inject()(
 
     Ok(untaxedInterestAmountView(
       form = untaxedInterestAmountForm,
-      backLink = backLink(taxYear),
       taxYear = taxYear,
       postAction = controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear, modify),
       preName = preName,
@@ -83,7 +69,6 @@ class UntaxedInterestAmountController @Inject()(
       formWithErrors =>
         BadRequest(untaxedInterestAmountView(
           form = formWithErrors,
-          backLink = backLink(taxYear),
           taxYear = taxYear,
           postAction = controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear)
         ))

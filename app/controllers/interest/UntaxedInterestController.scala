@@ -43,17 +43,9 @@ class UntaxedInterestController @Inject()(
   implicit val messages: Messages = mcc.messagesApi.preferred(Seq(Lang("en")))
   val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("interest.untaxed-uk-interest.errors.noRadioSelected")
 
-  private[interest] def backLink(taxYear: Int)(implicit request: Request[_]): Option[String] = {
-    if(getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA).exists(_.isFinished)) {
-      Some(PageLocations.Interest.cya(taxYear))
-    } else {
-      Some(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-    }
-  }
-
   def show(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
     val pageTitle: String = "interest.untaxed-uk-interest.heading." + (if (user.isAgent) "agent" else "individual")
-    Ok(untaxedInterestView(pageTitle, yesNoForm, taxYear, backLink = backLink(taxYear)))
+    Ok(untaxedInterestView(pageTitle, yesNoForm, taxYear))
       .updateUntaxedAmountRedirect(PageLocations.Interest.UntaxedView(taxYear))
       .updateCyaRedirect(PageLocations.Interest.UntaxedView(taxYear))
   }
@@ -69,8 +61,7 @@ class UntaxedInterestController @Inject()(
             untaxedInterestView(
               "interest.untaxed-uk-interest.heading." + (if (user.isAgent) "agent" else "individual"),
               formWithErrors,
-              taxYear,
-              backLink = backLink(taxYear)
+              taxYear
             )
           )
       },

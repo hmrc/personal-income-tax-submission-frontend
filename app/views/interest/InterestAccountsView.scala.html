@@ -20,7 +20,7 @@
 @import views.html.templates.helpers.ContinueButton
 
 @this(layout: Layout, formWithCSRF: FormWithCSRF)
-@(taxYear: Int, accounts: Seq[InterestAccountModel], taxType: String, backLink: Option[String] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(taxYear: Int, accounts: Seq[InterestAccountModel], taxType: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @h1Text = @{
     if(accounts.length == 1) {
@@ -88,7 +88,7 @@
     }
 }
 
-@layout(Some(h1Text), backLink) {
+@layout(Some(h1Text)) {
     <div class="govuk-caption-l">@messages("interest.caption", (taxYear-1).toString, taxYear.toString)</div>
     <h1 class="govuk-heading-l">@h1Text</h1>
 

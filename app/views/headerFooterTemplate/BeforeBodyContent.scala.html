@@ -20,10 +20,10 @@
 @this(betaBar: BetaBar,
       govukBackLink: GovukBackLink)
 
-@(backLinkString: Option[String] = None )(implicit messages: Messages)
+@(backLink: Boolean = true)(implicit messages: Messages)
 
 @betaBar()
 
-@if(backLinkString.isDefined) {
+@if(backLink) {
     @govukBackLink(BackLink(href = "#", content = Text(messages("common.back")), attributes = Map("id" -> "back-link")))
 }

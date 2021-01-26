@@ -36,7 +36,7 @@
     }
 }
 
-@layout(pageTitle = Some(messages("interest.remove-account.title")), backLinkUrl = Some(controllers.interest.routes.AccountsController.show(taxYear, taxType).url)) {
+@layout(pageTitle = Some(messages("interest.remove-account.title"))) {
 
     @errorSummary(form.errors, Some("yes_no_yes"))
 
