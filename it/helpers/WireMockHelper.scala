@@ -27,7 +27,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import common.{EnrolmentIdentifiers, EnrolmentKeys}
 import play.api.http.Status._
 import play.api.libs.json.{JsObject, Json}
-import uk.gov.hmrc.auth.core.AffinityGroup
+import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolment}
 
 trait WireMockHelper {
 
@@ -118,6 +118,16 @@ trait WireMockHelper {
     )
   )
 
+  private val ninoEnrolment = Json.obj(
+    "key" -> "HMRC-NI",
+    "identifiers" -> Json.arr(
+      Json.obj(
+        "key" -> "NINO",
+        "value" -> "AA123456A"
+      )
+    )
+  )
+
   private val asAgentEnrolment = Json.obj(
     "key" -> EnrolmentKeys.Agent,
     "identifiers" -> Json.arr(
@@ -140,12 +150,13 @@ trait WireMockHelper {
     }
   }
 
-  def authoriseIndividual(): StubMapping = {
-    stubPost(authoriseUri, OK, Json.prettyPrint(successfulAuthResponse(Some(AffinityGroup.Individual), mtditEnrolment)))
+  def authoriseIndividual(withNino: Boolean = true): StubMapping = {
+    stubPost(authoriseUri, OK, Json.prettyPrint(successfulAuthResponse(Some(AffinityGroup.Individual),
+      (Seq(mtditEnrolment) ++ (if (withNino) Seq(ninoEnrolment) else Seq.empty[JsObject])): _*)))
   }
 
   def authoriseIndividualUnauthorized(): StubMapping = {
-    stubPost(authoriseUri, UNAUTHORIZED, Json.prettyPrint(successfulAuthResponse(Some(AffinityGroup.Individual), mtditEnrolment)))
+    stubPost(authoriseUri, UNAUTHORIZED, Json.prettyPrint(successfulAuthResponse(Some(AffinityGroup.Individual), Seq(mtditEnrolment, ninoEnrolment): _*)))
   }
 
   def authoriseAgent(): StubMapping = {

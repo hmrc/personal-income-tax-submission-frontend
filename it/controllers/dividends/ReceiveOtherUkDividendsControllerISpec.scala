@@ -114,7 +114,8 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest {
       "returns an action" which {
         lazy val result: WSResponse = {
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890"
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A"
           ))
 
           authoriseAgent()
@@ -145,7 +146,8 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest {
         "there is form data" in {
           lazy val result: WSResponse = {
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890"
+              SessionValues.CLIENT_MTDITID -> "1234567890",
+              SessionValues.CLIENT_NINO -> "AA123456A"
             ))
 
             authoriseAgent()
@@ -165,7 +167,8 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest {
         "there is no form data" in {
           lazy val result: WSResponse = {
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890"
+              SessionValues.CLIENT_MTDITID -> "1234567890",
+              SessionValues.CLIENT_NINO -> "AA123456A"
             ))
 
             authoriseAgent()
@@ -182,7 +185,8 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest {
 
         lazy val result: WSResponse = {
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890"
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A"
           ))
           authoriseAgentUnauthorized()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/other-dividends")
