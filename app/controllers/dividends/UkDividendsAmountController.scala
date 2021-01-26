@@ -48,6 +48,7 @@ class UkDividendsAmountController @Inject()(
     ukDividendsAmountView(
       form = formInput,
       priorSubmission = priorSubmission,
+      taxYear = taxYear,
       postAction = controllers.dividends.routes.UkDividendsAmountController.submit(taxYear),
       backUrl = controllers.dividends.routes.ReceiveUkDividendsController.show(taxYear).url,
       preAmount = preAmount

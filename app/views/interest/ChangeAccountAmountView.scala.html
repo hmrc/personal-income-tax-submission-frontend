@@ -52,7 +52,7 @@
     <h1 class="govuk-heading-l govuk-!-margin-bottom-4">@messages(headingRef, account.accountName)</h1>
 }
 
-@layout(pageTitle = Some(messages(titleRef)), backLinkUrl = Some(controllers.interest.routes.AccountsController.show(taxYear, taxType).url), scriptsBlock = Some(scripts)) {
+@layout(pageTitle = Some(messages(titleRef)), backLinkUrl = Some(controllers.interest.routes.AccountsController.show(taxYear, taxType).url), scriptsBlock = Some(scripts), taxYear = Some(taxYear)) {
 
     @formWithCSRF(action = postAction) {
 

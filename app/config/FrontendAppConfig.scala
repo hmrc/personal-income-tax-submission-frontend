@@ -28,6 +28,9 @@ trait AppConfig {
   val interestBaseUrl: String
 
   def incomeTaxSubmissionOverviewUrl(taxYear: Int): String
+  def incomeTaxSubmissionStartUrl(taxYear: Int): String
+
+  val defaultTaxYear: Int
 }
 
 @Singleton
@@ -39,8 +42,14 @@ class FrontendAppConfig @Inject()(config: Configuration, servicesConfig: Service
   override val signInUrl: String = s"$signInBaseUrl?continue=$signInContinueUrl&origin=$signInOrigin"
   override val dividendsBaseUrl: String = servicesConfig.baseUrl("income-tax-dividends") + "/income-tax-dividends"
   override val interestBaseUrl: String = servicesConfig.baseUrl("income-tax-interest") + "/income-tax-interest"
+
+  lazy val defaultTaxYear: Int = config.get[Int](ConfigKeys.defaultTaxYear)
+
   def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = servicesConfig.getString(ConfigKeys.incomeTaxSubmissionFrontend) +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.context") + "/" + taxYear +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.overview")
+  def incomeTaxSubmissionStartUrl(taxYear: Int): String = servicesConfig.getString(ConfigKeys.incomeTaxSubmissionFrontend) +
+    servicesConfig.getString("microservice.services.income-tax-submission-frontend.context") + "/" + taxYear +
+    "/start"
 
 }
