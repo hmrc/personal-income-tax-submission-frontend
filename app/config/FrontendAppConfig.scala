@@ -27,10 +27,10 @@ trait AppConfig {
   val dividendsBaseUrl: String
   val interestBaseUrl: String
 
-  val defaultTaxYear: Int
-
   def incomeTaxSubmissionOverviewUrl(taxYear: Int): String
   def incomeTaxSubmissionStartUrl(taxYear: Int): String
+
+  val defaultTaxYear: Int
 }
 
 @Singleton
@@ -43,7 +43,7 @@ class FrontendAppConfig @Inject()(config: Configuration, servicesConfig: Service
   override val dividendsBaseUrl: String = servicesConfig.baseUrl("income-tax-dividends") + "/income-tax-dividends"
   override val interestBaseUrl: String = servicesConfig.baseUrl("income-tax-interest") + "/income-tax-interest"
 
-  override val defaultTaxYear: Int = 2022
+  lazy val defaultTaxYear: Int = config.get[Int](ConfigKeys.defaultTaxYear)
 
   def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = servicesConfig.getString(ConfigKeys.incomeTaxSubmissionFrontend) +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.context") + "/" + taxYear +
