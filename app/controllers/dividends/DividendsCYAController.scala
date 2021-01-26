@@ -50,8 +50,8 @@ class DividendsCYAController @Inject()(
 
 
   def show(taxYear: Int): Action[AnyContent] = authorisedAction { implicit user =>
-    val cyaSessionData: Option[DividendsCheckYourAnswersModel] = getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
     val priorSubmissionData: Option[DividendsPriorSubmission] = getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
+    val cyaSessionData: Option[DividendsCheckYourAnswersModel] = getCya()
 
     (cyaSessionData, priorSubmissionData) match {
       case (Some(cyaData), Some(priorData)) =>
@@ -87,21 +87,19 @@ class DividendsCYAController @Inject()(
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit user =>
-    val cyaData: Option[DividendsCheckYourAnswersModel] = getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
+    val cyaData: Option[DividendsCheckYourAnswersModel] = getCya()
     val priorData: Option[DividendsPriorSubmission] = getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
-   user.session.get(SessionValues.CLIENT_NINO) match {
-      case Some(nino) => dividendsSubmissionService.submitDividends(cyaData, nino, user.mtditid, taxYear).map {
-        case Right(DividendsResponseModel(NO_CONTENT)) =>
-          auditSubmission(CreateOrAmendDividendsAuditDetail(cyaData, priorData, nino, user.mtditid, taxYear))
-          Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).removingFromSession(SessionValues.DIVIDENDS_CYA, SessionValues.DIVIDENDS_PRIOR_SUB)
-        case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-      }
-      case None => Future.successful(Redirect(appConfig.signInUrl))
-   }
+
+    dividendsSubmissionService.submitDividends(cyaData, user.nino, user.mtditid, taxYear).map {
+      case Right(DividendsResponseModel(NO_CONTENT)) =>
+        auditSubmission(CreateOrAmendDividendsAuditDetail(cyaData, priorData, user.nino, user.mtditid, taxYear))
+        Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).removingFromSession(SessionValues.DIVIDENDS_CYA, SessionValues.DIVIDENDS_PRIOR_SUB)
+      case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+    }
   }
 
   private[dividends] def priorityOrderOrNone(priority: Option[BigDecimal], other: Option[BigDecimal], yesNoResult: Boolean): Option[BigDecimal] = {
-    if(yesNoResult) {
+    if (yesNoResult) {
       (priority, other) match {
         case (Some(priorityValue), _) => Some(priorityValue)
         case (None, Some(otherValue)) => Some(otherValue)
@@ -119,10 +117,14 @@ class DividendsCYAController @Inject()(
   }
 
   private def auditSubmission(details: CreateOrAmendDividendsAuditDetail)
-                                        (implicit hc: HeaderCarrier,
-                                         executionContext: ExecutionContext): Future[AuditResult] = {
+                             (implicit hc: HeaderCarrier,
+                              executionContext: ExecutionContext): Future[AuditResult] = {
     val event = AuditModel("CreateOrAmendDividendsUpdate", "createOrAmendDividendsUpdate", details)
     auditService.auditModel(event)
+  }
+
+  private def getCya()(implicit user: User[_]): Option[DividendsCheckYourAnswersModel] = {
+    getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
   }
 
 }

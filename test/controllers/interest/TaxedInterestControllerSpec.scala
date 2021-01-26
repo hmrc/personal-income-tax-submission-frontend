@@ -59,7 +59,7 @@ class TaxedInterestControllerSpec extends UnitTestWithApp{
     "return a result" which {
 
       s"has an OK($OK) status" in new TestWithAuth(isAgent = true) {
-        val result: Future[Result] = controller.show(taxYear)(fakeRequestWithMtditid.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
+        val result: Future[Result] = controller.show(taxYear)(fakeRequestWithMtditidAndNino.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
 
         status(result) shouldBe OK
         getSession(result).get(SessionValues.PAGE_BACK_TAXED_AMOUNT).get should include(
@@ -187,7 +187,7 @@ class TaxedInterestControllerSpec extends UnitTestWithApp{
 
       "yes is selected" which {
 
-        lazy val result = controller.submit(taxYear)(fakeRequestWithMtditid
+        lazy val result = controller.submit(taxYear)(fakeRequestWithMtditidAndNino
           .withFormUrlEncodedBody(
             YesNoForm.yesNo -> YesNoForm.yes
           )
@@ -220,7 +220,7 @@ class TaxedInterestControllerSpec extends UnitTestWithApp{
 
       "no is selected" which {
 
-        lazy val result = controller.submit(taxYear)(fakeRequestWithMtditid
+        lazy val result = controller.submit(taxYear)(fakeRequestWithMtditidAndNino
           .withFormUrlEncodedBody(
             YesNoForm.yesNo -> YesNoForm.no
           )
@@ -257,7 +257,7 @@ class TaxedInterestControllerSpec extends UnitTestWithApp{
 
       "there is no CYA data" which {
 
-        lazy val result = controller.submit(taxYear)(fakeRequestWithMtditid.withFormUrlEncodedBody(
+        lazy val result = controller.submit(taxYear)(fakeRequestWithMtditidAndNino.withFormUrlEncodedBody(
           YesNoForm.yesNo -> YesNoForm.yes
         ))
 
@@ -276,7 +276,7 @@ class TaxedInterestControllerSpec extends UnitTestWithApp{
     "return a bad request" when {
 
       "there is an issue with the form submission" in new TestWithAuth(isAgent = true) {
-        lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequestWithMtditid)
+        lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequestWithMtditidAndNino)
 
         status(result) shouldBe BAD_REQUEST
       }

@@ -83,13 +83,12 @@ class InterestCYAController @Inject()(
     implicit val session: Session = user.session
 
     val cyaDataOptional = getCyaModel()
-    val ninoOptional: Option[String] = getFromSession(SessionValues.CLIENT_NINO)
     val priorSubmission: Option[InterestPriorSubmission] = getModelFromSession[InterestPriorSubmission](SessionValues.INTEREST_PRIOR_SUB)
 
-    ((cyaDataOptional, ninoOptional) match {
-      case (Some(cyaData), Some(nino)) => interestSubmissionService.submit(cyaData, nino, taxYear, user.mtditid).map {
+    ((cyaDataOptional) match {
+      case Some(cyaData) => interestSubmissionService.submit(cyaData, user.nino, taxYear, user.mtditid).map {
         case response@Right(_) =>
-          val model = CreateOrAmendInterestAuditDetail(Some(cyaData), priorSubmission, nino, user.mtditid, taxYear)
+          val model = CreateOrAmendInterestAuditDetail(Some(cyaData), priorSubmission, user.nino, user.mtditid, taxYear)
           auditSubmission(model)
           response
         case response => response

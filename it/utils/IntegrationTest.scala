@@ -38,7 +38,7 @@ import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
 
 trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneServerPerSuite with WireMockHelper with BeforeAndAfterAll{
 
-  implicit lazy val user: User[AnyContent] = new User[AnyContent]("1234567890", None)
+  implicit lazy val user: User[AnyContent] = new User[AnyContent]("1234567890", None, "AA123456A")
 
   implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
   implicit val emptyHeaderCarrier: HeaderCarrier = HeaderCarrier()

@@ -62,7 +62,7 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
     "return a result" which {
 
       s"has an OK($OK) status" in new TestWithAuth(isAgent = true) {
-        val result: Future[Result] = controller.show(taxYear)(fakeRequestWithMtditid.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
+        val result: Future[Result] = controller.show(taxYear)(fakeRequestWithMtditidAndNino.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
 
         status(result) shouldBe OK
 
@@ -191,7 +191,7 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
 
       "yes is selected and the model indicates the journey is not finished" which {
 
-        lazy val result = controller.submit(taxYear)(fakeRequestWithMtditid
+        lazy val result = controller.submit(taxYear)(fakeRequestWithMtditidAndNino
           .withFormUrlEncodedBody(
             YesNoForm.yesNo -> YesNoForm.yes
           )
@@ -224,7 +224,7 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
 
       "no is selected and the model indicates the journey is complete" which {
 
-        lazy val result = controller.submit(taxYear)(fakeRequestWithMtditid
+        lazy val result = controller.submit(taxYear)(fakeRequestWithMtditidAndNino
           .withFormUrlEncodedBody(
             YesNoForm.yesNo -> YesNoForm.no
           )
@@ -261,7 +261,7 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
 
       "no is selected and the model indicates the journey is not complete" which {
 
-        lazy val result = controller.submit(taxYear)(fakeRequestWithMtditid.withFormUrlEncodedBody(
+        lazy val result = controller.submit(taxYear)(fakeRequestWithMtditidAndNino.withFormUrlEncodedBody(
           YesNoForm.yesNo -> YesNoForm.no
         ))
 
@@ -280,7 +280,7 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
     "return a bad request" when {
 
       "there is an issue with the form submission" in new TestWithAuth(isAgent = true) {
-        lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequestWithMtditid)
+        lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequestWithMtditidAndNino)
 
         status(result) shouldBe BAD_REQUEST
       }
