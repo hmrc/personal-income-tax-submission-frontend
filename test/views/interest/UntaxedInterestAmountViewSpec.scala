@@ -48,7 +48,6 @@ class UntaxedInterestAmountViewSpec extends ViewTest {
 
         lazy val view = untaxedInterestView(
           untaxedInterestForm,
-          Some(mockAppConfig.signInUrl),
           taxYear,
           controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear)
         )(user,implicitly,mockAppConfig)
@@ -76,7 +75,6 @@ class UntaxedInterestAmountViewSpec extends ViewTest {
         lazy val view = untaxedInterestView(
           untaxedInterestForm.copy(errors = Seq(FormError(untaxedAmount,
           "interest.untaxed-uk-interest-amount.error.empty"))),
-          Some(mockAppConfig.signInUrl),
           taxYear,
           controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear)
         )(user, implicitly, mockAppConfig)

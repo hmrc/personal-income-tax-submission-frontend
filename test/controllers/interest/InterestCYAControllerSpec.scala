@@ -306,29 +306,4 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
 
   }
 
-  ".backLink" should {
-
-    "return whatever the cya back link" when {
-
-      "it is in session" in {
-        val requestWithSessionValues: FakeRequest[AnyContentAsEmpty.type] = fakeRequest.withSession(
-          SessionValues.PAGE_BACK_CYA -> "/cyaRedirectLink"
-        )
-
-        val result = controller.backLink(taxYear)(requestWithSessionValues)
-        result shouldBe Some("/cyaRedirectLink")
-      }
-
-    }
-
-    "return the overview link" when {
-
-      "there are no backlink values in session" in {
-        controller.backLink(taxYear)(fakeRequest) shouldBe Some(mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-      }
-
-    }
-
-  }
-
 }

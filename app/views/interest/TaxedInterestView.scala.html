@@ -21,7 +21,7 @@
 
 @this(layout: Layout, yesNoChoice: YesNoChoice, formWithCsrf: FormWithCSRF, errorSummary: ErrorSummaryDisplay)
 
-@(pageTitle: String, form: Form[YesNoModel], taxYear: Int, checked: String = "", backLink: Option[String] = None)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
+@(pageTitle: String, form: Form[YesNoModel], taxYear: Int, checked: String = "")(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @pageTitleToUse = @{
     messages(pageTitle)
@@ -31,7 +31,7 @@
     if(user.isAgent) messages("interest.taxed-uk-interest.heading.agent") else messages("interest.taxed-uk-interest.heading.individual")
 }
 
-@layout(Some(pageTitleToUse), backLink, taxYear = Some(taxYear)) {
+@layout(Some(pageTitleToUse), taxYear = Some(taxYear)) {
 
     @errorSummary(form.errors, Some("yes_no_yes"))
 

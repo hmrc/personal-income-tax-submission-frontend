@@ -26,7 +26,7 @@
 @import views.html.templates.helpers.NameInputHelper
 
 @this(layout: Layout, formWithCSRF: FormWithCSRF, errorSummaryDisplay: ErrorSummaryDisplay, inputHelper: InputHelper, nameInputHelper: NameInputHelper)
-@(form: Form[TaxedInterestModel], taxYear: Int, postAction: Call, backLink: Option[String] = None, preName: Option[String] = None, preAmount: Option[BigDecimal] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(form: Form[TaxedInterestModel], taxYear: Int, postAction: Call, preName: Option[String] = None, preAmount: Option[BigDecimal] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @heading = {
 <span class="govuk-caption-l">@messages("interest.caption", (taxYear - 1).toString, taxYear.toString)</span>
@@ -60,7 +60,7 @@
 
 }
 
-@layout(Some(messages("interest.taxed-uk-interest-details.title")), backLink, taxYear = Some(taxYear)) {
+@layout(Some(messages("interest.taxed-uk-interest-details.title")), taxYear = Some(taxYear)) {
   @formWithCSRF(action = postAction) {
   @currencyFormHtml(form, taxedAccountName, taxedAmount)
   @ContinueButton()

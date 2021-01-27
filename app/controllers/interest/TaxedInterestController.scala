@@ -44,18 +44,9 @@ class TaxedInterestController @Inject()(
   implicit val messages: Messages = mcc.messagesApi.preferred(Seq(Lang("en")))
   val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("interest.taxed-uk-interest.errors.noRadioSelected")
 
-  private[interest] def backLink(taxYear: Int)(implicit request: Request[_]): Option[String] = {
-    import common.PageLocations.Interest._
-
-    getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA) match {
-      case Some(cyaModel) => Some(if (cyaModel.isFinished) cya(taxYear) else UntaxedAccountsView(taxYear))
-      case _ => Some(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-    }
-  }
-
   def show(taxYear: Int): Action[AnyContent] = authorisedAction { implicit user =>
     val pageTitle = "interest.taxed-uk-interest.heading." + (if (user.isAgent) "agent" else "individual")
-    Ok(taxedInterestView(pageTitle, yesNoForm, taxYear, backLink = backLink(taxYear)))
+    Ok(taxedInterestView(pageTitle, yesNoForm, taxYear))
       .updateTaxedAmountRedirect(PageLocations.Interest.TaxedView(taxYear))
       .updateCyaRedirect(PageLocations.Interest.TaxedView(taxYear))
   }
@@ -69,8 +60,7 @@ class TaxedInterestController @Inject()(
           BadRequest(taxedInterestView(
             pageTitle = "interest.taxed-uk-interest.heading." + (if (user.isAgent) "agent" else "individual"),
             form = formWithErrors,
-            taxYear = taxYear,
-            backLink = backLink(taxYear)
+            taxYear = taxYear
           ))
       },
       {

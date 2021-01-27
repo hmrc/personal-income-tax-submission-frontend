@@ -23,7 +23,7 @@
 @import models.interest.InterestPriorSubmission
 
 @this(layout: Layout, cyaRow: CYARow, bigDecimalCurrency: BigDecimalCurrency, formWithCSRF: FormWithCSRF)
-@(cyaModel: InterestCYAModel, taxYear: Int, priorSubmission: Option[InterestPriorSubmission] = None, backLink: Option[String] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(cyaModel: InterestCYAModel, taxYear: Int, priorSubmission: Option[InterestPriorSubmission] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @trueFalseToYesNo(input: Boolean) = @{
     if(input) messages("common.yes") else messages("common.no")
@@ -51,7 +51,7 @@
     </div>
 }
 
-@layout(Some(messages("interest.cya.title")), backLink, taxYear = Some(taxYear)) {
+@layout(Some(messages("interest.cya.title")), taxYear = Some(taxYear)) {
 
     <div class="govuk-caption-l">@messages("interest.caption", (taxYear - 1).toString, taxYear.toString)</div>
     <h1 class="govuk-heading-l">@messages("interest.cya.h1")</h1>

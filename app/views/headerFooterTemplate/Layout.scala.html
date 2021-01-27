@@ -30,26 +30,34 @@
 )
 
 @(pageTitle: Option[String] = None,
-        backLinkUrl: Option[String] = None,
+        backLink: Boolean = true,
         headBlock: Option[Html] = None,
         scriptsBlock: Option[Html] = None,
         taxYear: Option[Int] =  None
 )(contentBlock: Html)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
+@scripts = {
+    <script src='@controllers.routes.Assets.versioned("lib/govuk-frontend/govuk/all.js")'></script>
+    <script src='@controllers.routes.Assets.versioned("javascripts/application.min.js")'></script>
+    <script>window.GOVUKFrontend.initAll();</script>
+    @scriptsBlock.map(x => x)
+}
+
 @headerBlock = {
-@govukHeader(Header(
+    @govukHeader(Header(
     homepageUrl = Some("https://www.gov.uk/"),
     serviceName = Some(messages("service.name")),
     serviceUrl = Some(appConfig.incomeTaxSubmissionStartUrl(taxYear.getOrElse(appConfig.defaultTaxYear)))
-))
+    ))
 }
 
-    @govukLayout(
-        pageTitle = pageTitle,
-        headBlock = Some(head(headBlock)),
-        headerBlock = Some(headerBlock),
-        scriptsBlock = scriptsBlock,
-        beforeContentBlock = Some(beforeBodyContent(backLinkUrl)),
-        footerBlock = Some(hmrcStandardFooter())
-    )(contentBlock)
+@govukLayout(
+    pageTitle = pageTitle,
+    headBlock = Some(head(headBlock)),
+    headerBlock = Some(headerBlock),
+    scriptsBlock = Some(scripts),
+    beforeContentBlock = Some(beforeBodyContent(backLink)),
+    footerBlock = Some(hmrcStandardFooter())
+)(contentBlock)
+
 

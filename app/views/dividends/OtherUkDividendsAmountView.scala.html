@@ -26,7 +26,8 @@
 @import views.html.templates.helpers.PriorOrNewForm
 
 @this(layout: Layout, formWithCSRF: FormWithCSRF, errorSummaryDisplay: ErrorSummaryDisplay, priorOrNewForm: PriorOrNewForm, inputHelper: InputHelper)
-@(form: Either[Form[PriorOrNewAmountModel], Form[CurrencyAmountModel]], priorSubmission: Option[DividendsPriorSubmission], taxYear: Int, postAction: Call, backUrl: String, preAmount: Option[BigDecimal] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+
+@(form: Either[Form[PriorOrNewAmountModel], Form[CurrencyAmountModel]], priorSubmission: Option[DividendsPriorSubmission], taxYear: Int, postAction: Call, preAmount: Option[BigDecimal] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @heading = {
  <span class="govuk-caption-l">@messages("dividends.caption")</span>
@@ -34,7 +35,6 @@
 }
 
 @scripts = {
- <script type="text/javascript" src="@routes.Assets.versioned("javascripts/all.js")" ></script>
  <script type="text/javascript" src="@routes.Assets.versioned("javascripts/hideAndShow.js")" ></script>
 }
 
@@ -57,7 +57,8 @@
     priorSubmission.flatMap(_.otherUkDividends)
 }
 
-@layout(pageTitle = Some("dividends.other-dividends-amount.title"), backLinkUrl = Some(backUrl), taxYear = Some(taxYear), scriptsBlock = Some(scripts)) {
+@layout(pageTitle = Some("dividends.other-dividends-amount.title"), taxYear = Some(taxYear), scriptsBlock = Some(scripts)) {
+
  @formWithCSRF(action = postAction) {
   @form.fold(priorForm => priorOrNewForm(heading, priorForm, priorAmount, "common.error.invalid_number", preAmount), currencyForm => currencyFormHtml(currencyForm, otherDividendsAmount))
   @ContinueButton()

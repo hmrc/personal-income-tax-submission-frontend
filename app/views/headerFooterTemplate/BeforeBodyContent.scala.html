@@ -15,12 +15,15 @@
  *@
 
 @import views.html.templates.helpers.BetaBar
-@import views.html.templates.helpers.BackLink
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.banner._
 
-@this(betaBar: BetaBar, backLink: BackLink)
+@this(betaBar: BetaBar,
+      govukBackLink: GovukBackLink)
 
-@(backLinkString: Option[String] = None )(implicit messages: Messages)
+@(backLink: Boolean = true)(implicit messages: Messages)
 
 @betaBar()
 
-@if(backLinkString.isDefined){ @backLink(backLinkString.get)}
+@if(backLink) {
+    @govukBackLink(BackLink(href = "#", content = Text(messages("common.back")), attributes = Map("id" -> "back-link")))
+}

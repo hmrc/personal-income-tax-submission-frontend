@@ -45,19 +45,6 @@ class TaxedInterestAmountController @Inject()(
   implicit val messages: Messages = mcc.messagesApi.preferred(Seq(Lang("en")))
   val taxedInterestAmountForm: Form[TaxedInterestModel] = TaxedInterestAmountForm.taxedInterestAmountForm()
 
-  private[interest] def backLink(taxYear: Int)(implicit request: Request[_]): Option[String] = {
-    import PageLocations.Interest._
-
-    if (getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA).exists(_.isFinished)) {
-      Some(TaxedAccountsView(taxYear))
-    } else {
-      getFromSession(SessionValues.PAGE_BACK_TAXED_AMOUNT) match {
-        case location@Some(_) => location
-        case None => Some(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-      }
-    }
-  }
-
   def show(taxYear: Int, modify: Option[String]): Action[AnyContent] = authorisedAction { implicit user =>
 
     val optionalCyaData = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
@@ -78,7 +65,6 @@ class TaxedInterestAmountController @Inject()(
       TaxedInterestAmountForm.taxedInterestAmountForm(),
       taxYear,
       controllers.interest.routes.TaxedInterestAmountController.submit(taxYear, modify),
-      backLink(taxYear),
       preName,
       preAmount
     ))
@@ -90,8 +76,7 @@ class TaxedInterestAmountController @Inject()(
         BadRequest(taxedInterestAmountView(
           form = formWithErrors,
           taxYear = taxYear,
-          postAction = controllers.interest.routes.TaxedInterestAmountController.submit(taxYear, modify),
-          backLink = backLink(taxYear)
+          postAction = controllers.interest.routes.TaxedInterestAmountController.submit(taxYear, modify)
         ))
     }, {
       completeForm =>

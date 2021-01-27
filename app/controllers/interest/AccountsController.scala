@@ -44,18 +44,6 @@ class AccountsController @Inject()(
 
   implicit def resultToFutureResult: Result => Future[Result] = baseResult => Future.successful(baseResult)
 
-  private[interest] def backLink(taxYear: Int, taxType: String)(implicit request: Request[_]): Option[String] = {
-    val backLinkSessionKey: String = taxType match {
-      case InterestTaxTypes.UNTAXED => SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS
-      case InterestTaxTypes.TAXED => SessionValues.PAGE_BACK_TAXED_ACCOUNTS
-    }
-
-    getFromSession(backLinkSessionKey) match {
-      case location@Some(_) => location
-      case _ => Some(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-    }
-  }
-
   def show(taxYear: Int, taxType: String): Action[AnyContent] = authorisedAction.async { implicit user =>
     def overviewRedirect = Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
 
@@ -64,7 +52,7 @@ class AccountsController @Inject()(
     optionalCyaData match {
       case Some(cyaData) =>
         getTaxAccounts(taxType, cyaData) match {
-          case Some(taxAccounts) if taxAccounts.nonEmpty => Ok(view(taxYear, taxAccounts, taxType, backLink(taxYear, taxType)))
+          case Some(taxAccounts) if taxAccounts.nonEmpty => Ok(view(taxYear, taxAccounts, taxType))
             .updateUntaxedAmountRedirect(PageLocations.Interest.UntaxedAccountsView(taxYear))
             .updateTaxedAmountRedirect(PageLocations.Interest.TaxedAccountsView(taxYear))
             .updateCyaRedirect(
