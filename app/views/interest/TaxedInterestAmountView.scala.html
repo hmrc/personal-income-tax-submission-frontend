@@ -60,7 +60,7 @@
 
 }
 
-@layout(Some(messages("interest.taxed-uk-interest-details.title"))) {
+@layout(Some(messages("interest.taxed-uk-interest-details.title")), taxYear = Some(taxYear)) {
   @formWithCSRF(action = postAction) {
   @currencyFormHtml(form, taxedAccountName, taxedAmount)
   @ContinueButton()

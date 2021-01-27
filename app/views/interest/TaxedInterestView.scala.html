@@ -31,7 +31,7 @@
     if(user.isAgent) messages("interest.taxed-uk-interest.heading.agent") else messages("interest.taxed-uk-interest.heading.individual")
 }
 
-@layout(Some(pageTitleToUse)) {
+@layout(Some(pageTitleToUse), taxYear = Some(taxYear)) {
 
     @errorSummary(form.errors, Some("yes_no_yes"))
 

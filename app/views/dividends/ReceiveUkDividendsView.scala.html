@@ -31,7 +31,7 @@
     if(user.isAgent) messages("dividends.uk-dividends.heading.agent") else messages("dividends.uk-dividends.heading.individual")
 }
 
-@layout(pageTitle = Some(pageTitleToUse)) {
+@layout(pageTitle = Some(pageTitleToUse), taxYear = Some(taxYear)) {
 
     @errorSummary(form.errors, Some("yes_no_yes"))
 

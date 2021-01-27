@@ -30,7 +30,7 @@
     s"${bigDecimalCurrency(amount)}"
 }
 
-@layout(pageTitle = Some(messages("dividends.cya.title"))) {
+@layout(pageTitle = Some(messages("dividends.cya.title")), taxYear = Some(taxYear)) {
 
     <div class="govuk-caption-l">@messages("dividends.caption")</div>
     <h1 class="govuk-heading-l">@messages("dividends.cya.h1")</h1>
