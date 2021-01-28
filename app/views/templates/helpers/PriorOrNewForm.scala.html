@@ -68,7 +68,7 @@
                         }
                         <div class="hmrc-currency-input__wrapper">
                             <div class="hmrc-currency-input__unit" aria-hidden="true">£</div>
-                            <input class="govuk-input govuk-!-width-one-third" id="other-amount-input" name="amount" pattern="[0-9]*"@if(!isEqualToPrevious){@preFill.map{amount=>value="@bigDecimalCurrency(amount, "")"}}>
+                            <input class="govuk-input govuk-!-width-one-third" id="other-amount-input" name="amount" pattern="[0-9]*" value="@formInput("amount").value">
                         </div>
                     </div>
                 </div>

@@ -20,7 +20,6 @@
 @this(bigDecimalCurrency: BigDecimalCurrency)
 @(field: Field,
 label: Option[String] = None,
-value: Option[String] = None,
 parentForm: Form[_],
 divClass: Option[String] = None,
 labelClass: Option[String] = None)(implicit messages: Messages)
@@ -51,6 +50,6 @@ errors.map(errorMessage)
         @label.map(label => Html(label))
     </label>
     <div class="hmrc-currency-input__wrapper ">
-        <input name="@field.name" class="govuk-input govuk-input--width-20" id="@field.name" type="text" @value.map{preValue =>value=@preValue}>
+        <input name="@field.name" class="govuk-input govuk-input--width-20" id="@field.name" type="text" value="@field.value">
     </div>
 </div>

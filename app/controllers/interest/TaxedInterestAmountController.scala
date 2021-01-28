@@ -62,11 +62,11 @@ class TaxedInterestAmountController @Inject()(
     }
 
     Ok(taxedInterestAmountView(
-      TaxedInterestAmountForm.taxedInterestAmountForm(),
+      TaxedInterestAmountForm.taxedInterestAmountForm().fill(
+        TaxedInterestModel(preName.getOrElse(""), preAmount.map(_.toString).getOrElse(""))
+      ),
       taxYear,
       controllers.interest.routes.TaxedInterestAmountController.submit(taxYear, modify),
-      preName,
-      preAmount
     ))
   }
 

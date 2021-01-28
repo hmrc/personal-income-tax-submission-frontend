@@ -61,16 +61,17 @@ class OtherUkDividendsAmountController @Inject()(
 
     (dividendsPriorSubmissionSession, checkYourAnswerSession) match {
       case (Some(prior), Some(cya)) if prior.otherUkDividends.nonEmpty =>
-        Ok(view(
-          Left(PriorOrNewAmountForm.priorOrNewAmountForm(prior.otherUkDividends.get)),
-          Some(prior),
-          taxYear,
-          cya.otherUkDividendsAmount
+        val form = PriorOrNewAmountForm.priorOrNewAmountForm(prior.otherUkDividends.get).fill(PriorOrNewAmountModel(
+          "other", cya.otherUkDividendsAmount
         ))
+        Ok(view(Left(form), Some(prior), taxYear, cya.otherUkDividendsAmount))
       case (Some(prior), None) if prior.otherUkDividends.nonEmpty =>
         Ok(view(Left(PriorOrNewAmountForm.priorOrNewAmountForm(prior.otherUkDividends.get)), Some(prior), taxYear))
       case (None, Some(cya)) =>
-        Ok(view(Right(OtherDividendsAmountForm.otherDividendsAmountForm()), taxYear = taxYear, preAmount = cya.otherUkDividendsAmount))
+        val form = OtherDividendsAmountForm.otherDividendsAmountForm().fill(CurrencyAmountModel(
+          cya.otherUkDividendsAmount.map(_.toString()).getOrElse("")
+        ))
+        Ok(view(Right(form), taxYear = taxYear, preAmount = cya.otherUkDividendsAmount))
       case _ =>
         Ok(view(Right(OtherDividendsAmountForm.otherDividendsAmountForm()), taxYear = taxYear))
     }
@@ -87,7 +88,9 @@ class OtherUkDividendsAmountController @Inject()(
       case Some(priorSubmission) if priorSubmission.otherUkDividends.nonEmpty =>
         PriorOrNewAmountForm.priorOrNewAmountForm(priorSubmission.otherUkDividends.get).bindFromRequest().fold(
           {
-            formWithErrors => BadRequest(view(Left(formWithErrors), Some(priorSubmission), taxYear = taxYear))
+            formWithErrors =>
+              println(Console.YELLOW + "GIMME ERRORS" + Console.RESET)
+              BadRequest(view(Left(formWithErrors), Some(priorSubmission), taxYear = taxYear))
           },
           {
             formModel =>

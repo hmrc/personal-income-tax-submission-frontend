@@ -61,11 +61,17 @@ class UkDividendsAmountController @Inject()(
 
     (dividendsPriorSubmissionSession, checkYourAnswerSession) match {
       case (Some(prior), Some(cya)) if prior.ukDividends.nonEmpty =>
-        Ok(view(Left(PriorOrNewAmountForm.priorOrNewAmountForm(prior.ukDividends.get)), Some(prior), taxYear, cya.ukDividendsAmount))
+        val form = PriorOrNewAmountForm.priorOrNewAmountForm(prior.ukDividends.get).fill(PriorOrNewAmountModel(
+          "other", cya.ukDividendsAmount
+        ))
+        Ok(view(Left(form), Some(prior), taxYear, cya.ukDividendsAmount))
       case (Some(prior), None) if prior.ukDividends.nonEmpty =>
         Ok(view(Left(PriorOrNewAmountForm.priorOrNewAmountForm(prior.ukDividends.get)), Some(prior), taxYear))
       case (None, Some(cya)) =>
-        Ok(view(Right(UkDividendsAmountForm.ukDividendsAmountForm()), taxYear = taxYear, preAmount = cya.ukDividendsAmount))
+        val newForm: Form[CurrencyAmountModel] = UkDividendsAmountForm.ukDividendsAmountForm().fill(CurrencyAmountModel(
+          cya.ukDividendsAmount.map(_.toString()).getOrElse("")
+        ))
+        Ok(view(Right(newForm), taxYear = taxYear, preAmount = cya.ukDividendsAmount))
       case _ =>
         Ok(view(Right(UkDividendsAmountForm.ukDividendsAmountForm()), taxYear = taxYear))
     }

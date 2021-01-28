@@ -33,11 +33,11 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.interest.ChangeAccountAmountView
 
 class ChangeAccountAmountController @Inject()(
-                                             cc: MessagesControllerComponents,
-                                             authAction: AuthorisedAction,
-                                             changeAccountAmountView: ChangeAccountAmountView,
-                                             implicit val appConfig: AppConfig
-                                           ) extends FrontendController(cc) with I18nSupport {
+                                               cc: MessagesControllerComponents,
+                                               authAction: AuthorisedAction,
+                                               changeAccountAmountView: ChangeAccountAmountView,
+                                               implicit val appConfig: AppConfig
+                                             ) extends FrontendController(cc) with I18nSupport {
 
   def view(
             formInput: Form[PriorOrNewAmountModel],
@@ -74,7 +74,10 @@ class ChangeAccountAmountController @Inject()(
 
     (singleAccount, checkYourAnswerSession) match {
       case (None, Some(_)) => Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType))
-      case (Some(accountModel), Some(_)) => Ok(view(PriorOrNewAmountForm.priorOrNewAmountForm(accountModel.amount), accountModel, taxYear, taxType, accountId, preAmount))
+      case (Some(accountModel), Some(_)) =>
+        val form = PriorOrNewAmountForm.priorOrNewAmountForm(accountModel.amount)
+          .fill(PriorOrNewAmountModel("other", Some(accountModel.amount)))
+        Ok(view(form, accountModel, taxYear, taxType, accountId, preAmount))
       case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
     }
   }
@@ -95,7 +98,7 @@ class ChangeAccountAmountController @Inject()(
     checkYourAnswerSession match {
       case Some(cyaData) =>
         singleAccount match {
-          case Some(account) => PriorOrNewAmountForm.priorOrNewAmountForm (account.amount).bindFromRequest().fold ( {
+          case Some(account) => PriorOrNewAmountForm.priorOrNewAmountForm(account.amount).bindFromRequest().fold({
             formWithErrors => BadRequest(view(formWithErrors, account, taxYear, taxType, accountId, preAmount))
           }, {
             formModel =>
@@ -122,7 +125,7 @@ class ChangeAccountAmountController @Inject()(
     }
   }
 
-  private[interest] def replaceAccounts(taxType: String, cyaData: InterestCYAModel,  accounts: Option[Seq[InterestAccountModel]]): InterestCYAModel = taxType match {
+  private[interest] def replaceAccounts(taxType: String, cyaData: InterestCYAModel, accounts: Option[Seq[InterestAccountModel]]): InterestCYAModel = taxType match {
     case InterestTaxTypes.UNTAXED => cyaData.copy(untaxedUkAccounts = accounts, untaxedUkInterest = Some(true))
     case InterestTaxTypes.TAXED => cyaData.copy(taxedUkAccounts = accounts, taxedUkInterest = Some(true))
   }
@@ -144,7 +147,7 @@ class ChangeAccountAmountController @Inject()(
     }
   }
 
-  private[interest] def updateAccounts(taxType: String, cya: InterestCYAModel, accountId: String, newAmount: BigDecimal):Option[Seq[InterestAccountModel]] = (taxType) match {
+  private[interest] def updateAccounts(taxType: String, cya: InterestCYAModel, accountId: String, newAmount: BigDecimal): Option[Seq[InterestAccountModel]] = (taxType) match {
     case InterestTaxTypes.UNTAXED =>
       cya.untaxedUkAccounts.map { unwrappedAccounts =>
         unwrappedAccounts.map { account =>
@@ -159,7 +162,7 @@ class ChangeAccountAmountController @Inject()(
     case InterestTaxTypes.TAXED =>
       cya.taxedUkAccounts.map { unwrappedAccounts =>
         unwrappedAccounts.map { account =>
-          if(account.id.contains(accountId) || account.uniqueSessionId.contains(accountId)){
+          if (account.id.contains(accountId) || account.uniqueSessionId.contains(accountId)) {
             account.copy(amount = newAmount)
           } else {
             account

@@ -56,11 +56,12 @@ class UntaxedInterestAmountController @Inject()(
     }
 
     Ok(untaxedInterestAmountView(
-      form = untaxedInterestAmountForm,
+      form = untaxedInterestAmountForm.fill(UntaxedInterestModel(
+        preName.getOrElse(""),
+        preAmount.map(_.toString()).getOrElse("")
+      )),
       taxYear = taxYear,
-      postAction = controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear, modify),
-      preName = preName,
-      preAmount = preAmount
+      postAction = controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear, modify)
     ))
   }
 

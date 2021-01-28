@@ -58,7 +58,6 @@
 }
 
 @layout(pageTitle = Some("dividends.other-dividends-amount.title"), taxYear = Some(taxYear), scriptsBlock = Some(scripts)) {
-
  @formWithCSRF(action = postAction) {
   @form.fold(priorForm => priorOrNewForm(heading, priorForm, priorAmount, "common.error.invalid_number", preAmount), currencyForm => currencyFormHtml(currencyForm, otherDividendsAmount))
   @ContinueButton()
