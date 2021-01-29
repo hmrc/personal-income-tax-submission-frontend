@@ -40,6 +40,7 @@ class UntaxedInterestAmountViewSpec extends ViewTest {
   val errorSummaryText = ".govuk-error-summary__body"
 
   val taxYear = 2020
+  val id = "id"
 
   "UntaxedInterestAmountView" should {
 
@@ -49,7 +50,7 @@ class UntaxedInterestAmountViewSpec extends ViewTest {
         lazy val view = untaxedInterestView(
           untaxedInterestForm,
           taxYear,
-          controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear)
+          controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear,id)
         )(user,implicitly,mockAppConfig)
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -76,7 +77,7 @@ class UntaxedInterestAmountViewSpec extends ViewTest {
           untaxedInterestForm.copy(errors = Seq(FormError(untaxedAmount,
           "interest.untaxed-uk-interest-amount.error.empty"))),
           taxYear,
-          controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear)
+          controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear,id)
         )(user, implicitly, mockAppConfig)
 
         implicit lazy val document: Document = Jsoup.parse(view.body)

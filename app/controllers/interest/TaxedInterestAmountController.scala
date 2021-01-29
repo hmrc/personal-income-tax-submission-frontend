@@ -16,6 +16,9 @@
 
 package controllers.interest
 
+import java.util.UUID.randomUUID
+
+import common.InterestTaxTypes.TAXED
 import common.{InterestTaxTypes, PageLocations, SessionValues}
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
@@ -49,23 +52,33 @@ class TaxedInterestAmountController @Inject()(
 
     val optionalCyaData = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
 
-    val account = optionalCyaData.flatMap(_.taxedUkAccounts.flatMap(_.find{ account =>
-      account.id.getOrElse(account.uniqueSessionId.getOrElse("")) == id
-    }))
+    val idMatchesPreviouslySubmittedAccount: Boolean = optionalCyaData.flatMap(_.taxedUkAccounts.map(_.exists(_.id.contains(id)))).getOrElse(false)
 
-    val accountName = account.map(_.accountName)
-    val accountAmount = account.map(_.amount)
+    if (idMatchesPreviouslySubmittedAccount) {
+      Redirect(controllers.interest.routes.ChangeAccountAmountController.show(taxYear, TAXED, id))
 
-    val model: Option[TaxedInterestModel] = (accountName,accountAmount) match {
-      case (Some(name), Some(amount)) => Some(TaxedInterestModel(name,amount.toString()))
-      case _ => None
+    } else if (sessionIdIsUUID(id)) {
+
+      val account: Option[InterestAccountModel] = optionalCyaData.flatMap(_.taxedUkAccounts.flatMap(_.find { account =>
+        account.uniqueSessionId.getOrElse("") == id
+      }))
+
+      val accountName = account.map(_.accountName)
+      val accountAmount = account.map(_.amount)
+
+      val model: Option[TaxedInterestModel] = (accountName, accountAmount) match {
+        case (Some(name), Some(amount)) => Some(TaxedInterestModel(name, amount.toString()))
+        case _ => None
+      }
+
+      Ok(taxedInterestAmountView(
+        form = model.fold(taxedInterestAmountForm)(taxedInterestAmountForm.fill),
+        taxYear,
+        controllers.interest.routes.TaxedInterestAmountController.submit(taxYear, id)
+      ))
+    } else {
+      Redirect(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, randomUUID().toString))
     }
-
-    Ok(taxedInterestAmountView(
-      form = model.fold(taxedInterestAmountForm)(taxedInterestAmountForm.fill),
-      taxYear,
-      controllers.interest.routes.TaxedInterestAmountController.submit(taxYear, id)
-    ))
   }
 
   def submit(taxYear: Int, id: String): Action[AnyContent] = authorisedAction { implicit user =>

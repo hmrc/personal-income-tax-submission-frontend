@@ -40,6 +40,7 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
 
 
   val taxYear = 2020
+  val id = "id"
 
   ".show for an individual" should {
 
@@ -101,7 +102,7 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
         }
 
         "has the correct redirect URL" in {
-          redirectUrl(result) shouldBe controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, None).url
+          redirectUrl(result) shouldBe controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, id).url
         }
 
         "has updated the CYA model" in {
@@ -209,7 +210,7 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
         }
 
         "has the correct redirect URL" in {
-          redirectUrl(result) shouldBe controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, None).url
+          redirectUrl(result) shouldBe controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, id).url
         }
 
         "has updated the CYA model" in {
