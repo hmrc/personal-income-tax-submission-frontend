@@ -15,10 +15,10 @@
  *@
 
 @this()
-@(value: BigDecimal, currencySymbol: String = "£")
+@(value: String, currencySymbol: String = "£")
 
 @valueForDisplay = @{
-    value.toString().split('.').toList match {
+    value.split('.').toList match {
         case wholeAmount :: Nil => wholeAmount
         case wholeAmount :: decimalAmount :: Nil =>
             wholeAmount + "." + (if(decimalAmount.length == 1) decimalAmount + "0" else decimalAmount)

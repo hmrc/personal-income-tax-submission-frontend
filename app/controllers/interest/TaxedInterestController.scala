@@ -16,6 +16,8 @@
 
 package controllers.interest
 
+import java.util.UUID.randomUUID
+
 import common.{PageLocations, SessionValues}
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
@@ -74,7 +76,7 @@ class TaxedInterestController @Inject()(
               })
 
               if (yesNoModel.asBoolean) {
-                Redirect(controllers.interest.routes.TaxedInterestAmountController.show(taxYear))
+                Redirect(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id = randomUUID().toString))
                   .addingToSession(SessionValues.INTEREST_CYA -> updatedCya.asJsonString)
               } else {
                 Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))

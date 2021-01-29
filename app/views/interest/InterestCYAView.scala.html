@@ -30,7 +30,7 @@
 }
 
 @bigDecimalToCurrency(amount: BigDecimal) = @{
-    s"${bigDecimalCurrency(amount)}"
+    s"${bigDecimalCurrency(amount.toString)}"
 }
 
 @accountCyaRow(question: String, questionNumber: Int, content: Seq[InterestAccountModel], link: Call) = {

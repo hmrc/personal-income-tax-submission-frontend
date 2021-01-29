@@ -20,13 +20,13 @@ object PageLocations {
 
   object Interest {
     val TaxedAccountsView: Int => String = taxYear => controllers.interest.routes.AccountsController.show(taxYear, InterestTaxTypes.TAXED).url
-    val TaxedAmountsView: (Int, Option[String]) => String = (taxYear, modify) =>
-      controllers.interest.routes.TaxedInterestAmountController.show(taxYear, modify).url
+    val TaxedAmountsView: (Int, String) => String = (taxYear, id) =>
+      controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id).url
     val TaxedView: Int => String = taxYear => controllers.interest.routes.TaxedInterestController.show(taxYear).url
 
     val UntaxedAccountsView: Int => String = taxYear => controllers.interest.routes.AccountsController.show(taxYear, InterestTaxTypes.UNTAXED).url
-    val UntaxedAmountsView: (Int, Option[String]) => String = (taxYear, modify) =>
-      controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, modify).url
+    val UntaxedAmountsView: (Int, String) => String = (taxYear, id) =>
+      controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, id).url
     val UntaxedView: Int => String = taxYear => controllers.interest.routes.UntaxedInterestController.show(taxYear).url
 
     val cya: Int => String = taxYear => controllers.interest.routes.InterestCYAController.show(taxYear).url

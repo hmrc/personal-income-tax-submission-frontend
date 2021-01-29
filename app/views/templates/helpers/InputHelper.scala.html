@@ -49,6 +49,8 @@
     errors.map(errMsg)
 }
 
+@formValue = @{if(value.isDefined) Some(value.get.toString) else field.value}
+
 <div class="form-group form-field@divClass.map(divClass => s" divClass")@if(hasError) { govuk-form-group--error}">
         @errorNotification
     <label class='govuk-heading-m govuk-!-margin-bottom-1 @labelClass' for=@field.name>
@@ -57,7 +59,7 @@
     </label>
     <div class="hmrc-currency-input__wrapper ">
         <div class="hmrc-currency-input__unit" aria-hidden="true">£</div>
-        <input name="@field.name" class="govuk-input govuk-input--width-10" id="@field.name" type="text" @value.map{ amount =>value="@bigDecimalCurrency(amount, "")"} @if(isNumeric) {pattern="[0-9]*" inputmode="numeric"}>
+        <input name="@field.name" class="govuk-input govuk-input--width-10" id="@field.name" type="text" @formValue.map{ amount =>value="@bigDecimalCurrency(amount, "")"} @if(isNumeric) {pattern="[0-9]*" inputmode="numeric"}>
     </div>
 </div>
 

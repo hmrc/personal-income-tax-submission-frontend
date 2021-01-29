@@ -27,7 +27,7 @@
 }
 
 @bigDecimalToCurrency(amount: BigDecimal) = @{
-    s"${bigDecimalCurrency(amount)}"
+    s"${bigDecimalCurrency(amount.toString)}"
 }
 
 @layout(pageTitle = Some(messages("dividends.cya.title")), taxYear = Some(taxYear)) {

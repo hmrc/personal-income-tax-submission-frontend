@@ -31,6 +31,7 @@ import utils.InterestSessionHelper
 import views.html.interest.UntaxedInterestView
 
 import scala.concurrent.ExecutionContext
+import java.util.UUID.randomUUID
 
 class UntaxedInterestController @Inject()(
                                            mcc: MessagesControllerComponents,
@@ -75,7 +76,7 @@ class UntaxedInterestController @Inject()(
 
           (yesNoModel.asBoolean, updatedCya.isFinished) match {
             case (true, false) =>
-              Redirect(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear))
+              Redirect(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, id = randomUUID().toString))
                 .addingToSession(SessionValues.INTEREST_CYA -> updatedCya.asJsonString)
             case (false, false) =>
               Redirect(controllers.interest.routes.TaxedInterestController.show(taxYear))
