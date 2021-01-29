@@ -47,8 +47,6 @@ class UntaxedInterestController @Inject()(
   def show(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
     val pageTitle: String = "interest.untaxed-uk-interest.heading." + (if (user.isAgent) "agent" else "individual")
     Ok(untaxedInterestView(pageTitle, yesNoForm, taxYear))
-      .updateUntaxedAmountRedirect(PageLocations.Interest.UntaxedView(taxYear))
-      .updateCyaRedirect(PageLocations.Interest.UntaxedView(taxYear))
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authAction { implicit user =>

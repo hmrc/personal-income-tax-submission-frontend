@@ -36,7 +36,7 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
   lazy val controller = new UntaxedInterestAmountController(mockMessagesControllerComponents, authorisedAction,view, mockAppConfig)
 
   val taxYear = 2020
-  val id = "id"
+  val id = "9563b361-6333-449f-8721-eab2572b3437"
 
   ".show" should {
 
@@ -48,7 +48,7 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
         status(result) shouldBe OK
       }
 
-      "modify has a value, with CYA data" in new TestWithAuth {
+      "matches against a previous submitted amount with CYA data" in new TestWithAuth {
         lazy val result: Future[Result] = controller.show(taxYear, "qwerty")(fakeRequest
           .withSession(
             SessionValues.INTEREST_CYA -> InterestCYAModel(true, Seq(
@@ -59,11 +59,23 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
             ), false, None).asJsonString
           ))
 
+        status(result) shouldBe SEE_OTHER
+        redirectUrl(result) shouldBe controllers.interest.routes.ChangeAccountAmountController.show(taxYear, UNTAXED, "qwerty").url
+      }
+      "modifying an existing session, with CYA data" in new TestWithAuth {
+        lazy val result: Future[Result] = controller.show(taxYear, "9563b361-6333-449f-8721-eab2572b3437")(fakeRequest
+          .withSession(
+            SessionValues.INTEREST_CYA -> InterestCYAModel(true, Seq(
+              InterestAccountModel(Some("qwerty-previous-sub"), "TSB 1", 300.00, None),
+              InterestAccountModel(None, "TSB 2", 300.00, Some("9563b361-6333-449f-8721-eab2572b3437")),
+              InterestAccountModel(Some(""), "TSB 3", 300.00, None),
+              InterestAccountModel(None, "TSB 3", 300.00, None)
+            ), false, None).asJsonString
+          ))
+
         status(result) shouldBe OK
       }
-
     }
-
   }
 
   ".submit" should {
@@ -123,12 +135,6 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
           val model = Json.parse(getSession(result).get(SessionValues.INTEREST_CYA).get).as[InterestCYAModel]
           model.untaxedUkAccounts shouldBe Some(Seq(expectedAccount, otherAccount))
         }
-
-        "has updated the untaxed accounts overview page to the untaxed amount page" in {
-          getSession(result).get(SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS).get should include(
-            controllers.interest.routes.UntaxedInterestAmountController.show(taxYear,id).url
-          )
-        }
       }
 
       "there is a correctly submitted form, with a modify value (that matches an account id with a session identifier) and CYA data" which {
@@ -160,12 +166,6 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
         "has updated the correct account" in {
           val model = Json.parse(getSession(result).get(SessionValues.INTEREST_CYA).get).as[InterestCYAModel]
           model.untaxedUkAccounts shouldBe Some(Seq(expectedAccount, otherAccount))
-        }
-
-        "has updated the untaxed accounts overview page to the untaxed amount page" in {
-          getSession(result).get(SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS).get should include(
-            controllers.interest.routes.UntaxedInterestAmountController.show(taxYear,id).url
-          )
         }
       }
 
@@ -199,12 +199,6 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
           val model = Json.parse(getSession(result).get(SessionValues.INTEREST_CYA).get).as[InterestCYAModel]
           model.untaxedUkAccounts shouldBe Some(Seq(expectedAccount, otherAccount))
         }
-
-        "has updated the untaxed accounts overview page to the untaxed amount page" in {
-          getSession(result).get(SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS).get should include(
-            controllers.interest.routes.UntaxedInterestAmountController.show(taxYear,id).url
-          )
-        }
       }
 
       "there is a correctly submitted form, without a modify value and no interest account CYA data" which {
@@ -234,12 +228,6 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
 
           account.accountName shouldBe "TSB Account"
           account.amount shouldBe 500.00
-        }
-
-        "has updated the untaxed accounts overview page to the untaxed amount page" in {
-          getSession(result).get(SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS).get should include(
-            controllers.interest.routes.UntaxedInterestAmountController.show(taxYear,id).url
-          )
         }
       }
 

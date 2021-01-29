@@ -40,7 +40,7 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
 
 
   val taxYear = 2020
-  val id = "id"
+  val id = "9563b361-6333-449f-8721-eab2572b3437"
 
   ".show for an individual" should {
 
@@ -50,10 +50,6 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
         val result: Future[Result] = controller.show(taxYear)(fakeRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
 
         status(result) shouldBe OK
-
-        getSession(result).get(SessionValues.PAGE_BACK_UNTAXED_AMOUNT).get should include(
-          controllers.interest.routes.UntaxedInterestController.show(taxYear).url
-        )
       }
     }
   }
@@ -66,10 +62,6 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
         val result: Future[Result] = controller.show(taxYear)(fakeRequestWithMtditidAndNino.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
 
         status(result) shouldBe OK
-
-        getSession(result).get(SessionValues.PAGE_BACK_UNTAXED_AMOUNT).get should include(
-          controllers.interest.routes.UntaxedInterestController.show(taxYear).url
-        )
       }
     }
   }
@@ -102,7 +94,7 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
         }
 
         "has the correct redirect URL" in {
-          redirectUrl(result) shouldBe controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, id).url
+          redirectUrl(result) should include(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, id).url.dropRight(36))
         }
 
         "has updated the CYA model" in {
@@ -210,7 +202,7 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
         }
 
         "has the correct redirect URL" in {
-          redirectUrl(result) shouldBe controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, id).url
+          redirectUrl(result) should include(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, id).url.dropRight(36))
         }
 
         "has updated the CYA model" in {

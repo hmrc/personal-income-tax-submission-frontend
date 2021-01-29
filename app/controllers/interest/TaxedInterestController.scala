@@ -49,8 +49,6 @@ class TaxedInterestController @Inject()(
   def show(taxYear: Int): Action[AnyContent] = authorisedAction { implicit user =>
     val pageTitle = "interest.taxed-uk-interest.heading." + (if (user.isAgent) "agent" else "individual")
     Ok(taxedInterestView(pageTitle, yesNoForm, taxYear))
-      .updateTaxedAmountRedirect(PageLocations.Interest.TaxedView(taxYear))
-      .updateCyaRedirect(PageLocations.Interest.TaxedView(taxYear))
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authorisedAction { implicit user =>

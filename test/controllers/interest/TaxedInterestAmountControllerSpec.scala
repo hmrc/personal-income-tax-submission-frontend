@@ -36,7 +36,7 @@ class TaxedInterestAmountControllerSpec extends UnitTestWithApp {
     authorisedAction, app.injector.instanceOf[TaxedInterestAmountView])(mockAppConfig)
 
   val taxYear = 2020
-  val id = "id"
+  val id = "9563b361-6333-449f-8721-eab2572b3437"
 
   ".show" should {
 
@@ -48,18 +48,48 @@ class TaxedInterestAmountControllerSpec extends UnitTestWithApp {
         status(result) shouldBe OK
       }
 
-      "modify has a value, with CYA data" in new TestWithAuth {
-        lazy val result: Future[Result] = controller.show(taxYear, "qwerty")(fakeRequest
+      "modifying previous in session data, with CYA data" in new TestWithAuth {
+        lazy val result: Future[Result] = controller.show(taxYear, "9563b361-6333-449f-8721-eab2572b3437")(fakeRequest
           .withSession(
             SessionValues.INTEREST_CYA -> InterestCYAModel(false, None, true, Seq(
               InterestAccountModel(Some("qwerty"), "TSB 1", 300.00, None),
-              InterestAccountModel(None, "TSB 2", 300.00, Some("qwerty")),
+              InterestAccountModel(None, "TSB 2", 300.00, Some("9563b361-6333-449f-8721-eab2572b3437")),
               InterestAccountModel(Some(""), "TSB 3", 300.00, None),
               InterestAccountModel(None, "TSB 3", 300.00, None)
             )).asJsonString
           ))
 
         status(result) shouldBe OK
+      }
+      "id is not correct format, with CYA data" in new TestWithAuth {
+        lazy val result: Future[Result] = controller.show(taxYear, "id")(fakeRequest
+          .withSession(
+            SessionValues.INTEREST_CYA -> InterestCYAModel(false, None, true, Seq(
+              InterestAccountModel(Some("qwerty"), "TSB 1", 300.00, None),
+              InterestAccountModel(None, "TSB 2", 300.00, Some("9563b361-6333-449f-8721-eab2572b3437")),
+              InterestAccountModel(Some(""), "TSB 3", 300.00, None),
+              InterestAccountModel(None, "TSB 3", 300.00, None)
+            )).asJsonString
+          ))
+
+        status(result) shouldBe SEE_OTHER
+        redirectUrl(result) should include(controllers.interest.routes.TaxedInterestAmountController.show(taxYear,"9563b361-6333-449f-8721-eab2572b3437").url.dropRight(36))
+
+      }
+      "modifying previous submitted data, with CYA data" in new TestWithAuth {
+        lazy val result: Future[Result] = controller.show(taxYear, "qwerty")(fakeRequest
+          .withSession(
+            SessionValues.INTEREST_CYA -> InterestCYAModel(false, None, true, Seq(
+              InterestAccountModel(Some("qwerty"), "TSB 1", 300.00, None),
+              InterestAccountModel(None, "TSB 2", 300.00, Some("9563b361-6333-449f-8721-eab2572b3437")),
+              InterestAccountModel(Some(""), "TSB 3", 300.00, None),
+              InterestAccountModel(None, "TSB 3", 300.00, None)
+            )).asJsonString
+          ))
+
+        status(result) shouldBe SEE_OTHER
+        redirectUrl(result) shouldBe controllers.interest.routes.ChangeAccountAmountController.show(taxYear, TAXED,"qwerty").url
+
       }
 
     }
@@ -90,13 +120,6 @@ class TaxedInterestAmountControllerSpec extends UnitTestWithApp {
         "has the correct redirect URL" in {
           redirectUrl(result) shouldBe controllers.interest.routes.AccountsController.show(taxYear, TAXED).url
         }
-
-        "has updated the taxed accounts overview back link" in {
-          val expectedResultContains = controllers.interest.routes.TaxedInterestAmountController.show(taxYear,id).url
-
-          getSession(result).get(SessionValues.PAGE_BACK_TAXED_ACCOUNTS).get should include (expectedResultContains)
-        }
-
       }
 
       "there is a correctly submitted form, with a modify value (that matches an account id with no session identifier) and CYA data" which {
