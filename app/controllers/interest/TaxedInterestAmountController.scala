@@ -64,9 +64,7 @@ class TaxedInterestAmountController @Inject()(
     Ok(taxedInterestAmountView(
       form = model.fold(taxedInterestAmountForm)(taxedInterestAmountForm.fill),
       taxYear,
-      controllers.interest.routes.TaxedInterestAmountController.submit(taxYear, id),
-      accountName,
-      accountAmount
+      controllers.interest.routes.TaxedInterestAmountController.submit(taxYear, id)
     ))
   }
 

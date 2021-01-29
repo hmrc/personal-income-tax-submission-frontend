@@ -41,6 +41,7 @@ class UntaxedInterestAmountController @Inject()(
   val untaxedInterestAmountForm: Form[UntaxedInterestModel] = UntaxedInterestAmountForm.untaxedInterestAmountForm()
 
   def show(taxYear: Int, id: String): Action[AnyContent] = authAction { implicit user =>
+
     val optionalCyaData = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
 
     val account = optionalCyaData.flatMap(_.untaxedUkAccounts.flatMap(_.find{ account =>
@@ -58,9 +59,7 @@ class UntaxedInterestAmountController @Inject()(
     Ok(untaxedInterestAmountView(
       form = model.fold(untaxedInterestAmountForm)(untaxedInterestAmountForm.fill),
       taxYear = taxYear,
-      postAction = controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear, id),
-      preName = accountName,
-      preAmount = accountAmount
+      postAction = controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear, id)
     ))
   }
 

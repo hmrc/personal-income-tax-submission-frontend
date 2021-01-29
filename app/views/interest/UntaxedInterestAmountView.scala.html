@@ -30,7 +30,7 @@
    inputText: InputText
 )
 
-@(form: Form[UntaxedInterestModel], taxYear: Int, postAction: Call, preName: Option[String] = None, preAmount: Option[BigDecimal] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(form: Form[UntaxedInterestModel], taxYear: Int, postAction: Call)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @heading = {
     <span class="govuk-caption-l">@messages("interest.caption", (taxYear - 1).toString, taxYear.toString)</span>
