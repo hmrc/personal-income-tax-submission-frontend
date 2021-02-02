@@ -63,8 +63,6 @@ class InterestCYAController @Inject()(
             .addingToSession(
               SessionValues.INTEREST_CYA -> cyaData.asJsonString
             )
-            .updateAccountsOverviewRedirect(pageLocation, InterestTaxTypes.UNTAXED)
-            .updateAccountsOverviewRedirect(pageLocation, InterestTaxTypes.TAXED)
         )
       case _ =>
         logger.info("[InterestCYAController][show] No CYA data in session. Redirecting to the overview page.")
@@ -91,7 +89,7 @@ class InterestCYAController @Inject()(
         Future.successful(Left(ErrorResponse(BAD_REQUEST, "CYA data or NINO missing from session.")))
     }).map {
       case Right(_) =>
-        Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).clearRedirects().clearSessionData()
+        Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).clearSessionData()
       case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
     }
   }

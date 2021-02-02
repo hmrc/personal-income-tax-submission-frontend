@@ -74,7 +74,8 @@ class ChangeAccountAmountController @Inject()(
 
     (singleAccount, checkYourAnswerSession) match {
       case (None, Some(_)) => Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType))
-      case (Some(accountModel), Some(_)) => Ok(view(PriorOrNewAmountForm.priorOrNewAmountForm(accountModel.amount), accountModel, taxYear, taxType, accountId, preAmount))
+      case (Some(accountModel), Some(_)) =>
+        Ok(view(PriorOrNewAmountForm.priorOrNewAmountForm(accountModel.amount), accountModel, taxYear, taxType, accountId, preAmount))
       case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
     }
   }
@@ -122,7 +123,7 @@ class ChangeAccountAmountController @Inject()(
     }
   }
 
-  private[interest] def replaceAccounts(taxType: String, cyaData: InterestCYAModel,  accounts: Option[Seq[InterestAccountModel]]): InterestCYAModel = taxType match {
+  private[interest] def replaceAccounts(taxType: String, cyaData: InterestCYAModel, accounts: Option[Seq[InterestAccountModel]]): InterestCYAModel = taxType match {
     case InterestTaxTypes.UNTAXED => cyaData.copy(untaxedUkAccounts = accounts, untaxedUkInterest = Some(true))
     case InterestTaxTypes.TAXED => cyaData.copy(taxedUkAccounts = accounts, taxedUkInterest = Some(true))
   }

@@ -16,6 +16,9 @@
 
 package controllers.interest
 
+import java.util.UUID.randomUUID
+
+import common.InterestTaxTypes.TAXED
 import common.{InterestTaxTypes, PageLocations, SessionValues}
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
@@ -45,46 +48,52 @@ class TaxedInterestAmountController @Inject()(
   implicit val messages: Messages = mcc.messagesApi.preferred(Seq(Lang("en")))
   val taxedInterestAmountForm: Form[TaxedInterestModel] = TaxedInterestAmountForm.taxedInterestAmountForm()
 
-  def show(taxYear: Int, modify: Option[String]): Action[AnyContent] = authorisedAction { implicit user =>
+  def show(taxYear: Int, id: String): Action[AnyContent] = authorisedAction { implicit user =>
 
     val optionalCyaData = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
 
-    val preName: Option[String] = modify.flatMap { identifier =>
-      optionalCyaData.flatMap(_.taxedUkAccounts.flatMap(_.find { account =>
-        account.id.getOrElse(account.uniqueSessionId.getOrElse("")) == identifier
-      }).map(_.accountName))
-    }
+    val idMatchesPreviouslySubmittedAccount: Boolean = optionalCyaData.flatMap(_.taxedUkAccounts.map(_.exists(_.id.contains(id)))).getOrElse(false)
 
-    val preAmount: Option[BigDecimal] = modify.flatMap { identifier =>
-      optionalCyaData.flatMap(_.taxedUkAccounts.flatMap(_.find { account =>
-        account.id.getOrElse(account.uniqueSessionId.getOrElse("")) == identifier
-      }).map(_.amount))
-    }
+    if (idMatchesPreviouslySubmittedAccount) {
+      Redirect(controllers.interest.routes.ChangeAccountAmountController.show(taxYear, TAXED, id))
 
-    Ok(taxedInterestAmountView(
-      TaxedInterestAmountForm.taxedInterestAmountForm(),
-      taxYear,
-      controllers.interest.routes.TaxedInterestAmountController.submit(taxYear, modify),
-      preName,
-      preAmount
-    ))
+    } else if (sessionIdIsUUID(id)) {
+
+      val account: Option[InterestAccountModel] = optionalCyaData.flatMap(_.taxedUkAccounts.flatMap(_.find { account =>
+        account.uniqueSessionId.getOrElse("") == id
+      }))
+
+      val accountName = account.map(_.accountName)
+      val accountAmount = account.map(_.amount)
+
+      val model: Option[TaxedInterestModel] = (accountName, accountAmount) match {
+        case (Some(name), Some(amount)) => Some(TaxedInterestModel(name, amount.toString()))
+        case _ => None
+      }
+
+      Ok(taxedInterestAmountView(
+        form = model.fold(taxedInterestAmountForm)(taxedInterestAmountForm.fill),
+        taxYear,
+        controllers.interest.routes.TaxedInterestAmountController.submit(taxYear, id)
+      ))
+    } else {
+      Redirect(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, randomUUID().toString))
+    }
   }
 
-  def submit(taxYear: Int, modify: Option[String]): Action[AnyContent] = authorisedAction { implicit user =>
+  def submit(taxYear: Int, id: String): Action[AnyContent] = authorisedAction { implicit user =>
     taxedInterestAmountForm.bindFromRequest().fold({
       formWithErrors =>
         BadRequest(taxedInterestAmountView(
           form = formWithErrors,
           taxYear = taxYear,
-          postAction = controllers.interest.routes.TaxedInterestAmountController.submit(taxYear, modify)
+          postAction = controllers.interest.routes.TaxedInterestAmountController.submit(taxYear, id)
         ))
     }, {
       completeForm =>
         val newAmount: BigDecimal = BigDecimal(completeForm.taxedAmount)
 
-        def createNewAccount: InterestAccountModel = {
-          InterestAccountModel(None, completeForm.taxedAccountName, newAmount, Some(java.util.UUID.randomUUID().toString))
-        }
+        def createNewAccount: InterestAccountModel = InterestAccountModel(None, completeForm.taxedAccountName, newAmount, Some(id))
 
         val optionalCyaData = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
 
@@ -92,15 +101,12 @@ class TaxedInterestAmountController @Inject()(
           case Some(cyaData) =>
             val accounts = cyaData.taxedUkAccounts.getOrElse(Seq.empty[InterestAccountModel])
 
-            val newAccount = modify match {
-              case Some(identifier) => accounts.find(_.getPrimaryId().exists(_ == identifier)).map(_.copy(
-                accountName = completeForm.taxedAccountName, amount = newAmount
-              )).getOrElse(createNewAccount)
-              case _ => createNewAccount
-            }
+            val newAccount = accounts.find(_.getPrimaryId().exists(_ == id)).map(_.copy(
+              accountName = completeForm.taxedAccountName, amount = newAmount
+            )).getOrElse(createNewAccount)
 
-            val newAccountList = if(newAccount.getPrimaryId().nonEmpty && accounts.exists(_.getPrimaryId() == newAccount.getPrimaryId())) {
-              accounts.map ( account => if(account.getPrimaryId() == newAccount.getPrimaryId()) newAccount else account)
+            val newAccountList = if (newAccount.getPrimaryId().nonEmpty && accounts.exists(_.getPrimaryId() == newAccount.getPrimaryId())) {
+              accounts.map(account => if (account.getPrimaryId() == newAccount.getPrimaryId()) newAccount else account)
             } else {
               accounts :+ newAccount
             }
@@ -109,9 +115,6 @@ class TaxedInterestAmountController @Inject()(
 
             Redirect(controllers.interest.routes.AccountsController.show(taxYear, InterestTaxTypes.TAXED))
               .addingToSession(SessionValues.INTEREST_CYA -> updatedCyaModel.asJsonString)
-              .updateAccountsOverviewRedirect(
-                PageLocations.Interest.TaxedAmountsView(taxYear, newAccount.getPrimaryId()), InterestTaxTypes.TAXED
-              )
           case _ =>
             Logger.logger.info("[TaxedInterestController][submit] No CYA data in session. Redirecting to overview page.")
             Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))

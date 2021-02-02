@@ -45,12 +45,14 @@ field.errors
 errors.map(errorMessage)
 }
 
+@formValue = @{if(field.value.isDefined) field.value else value}
+
 <div class="form-group form-field@divClass.map(divClass => s" $divClass")@if(hasError) { govuk-form-group--error}">
     @errorNotification
     <label class='govuk-heading-m govuk-!-margin-bottom-1 @labelClass' for=@field.name>
         @label.map(label => Html(label))
     </label>
     <div class="hmrc-currency-input__wrapper ">
-        <input name="@field.name" class="govuk-input govuk-input--width-20" id="@field.name" type="text" @value.map{preValue =>value=@preValue}>
+        <input name="@field.name" class="govuk-input govuk-input--width-20" id="@field.name" type="text" @formValue.map{preValue =>value=@preValue}>
     </div>
 </div>

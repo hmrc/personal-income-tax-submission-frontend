@@ -36,19 +36,20 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
   lazy val controller = new UntaxedInterestAmountController(mockMessagesControllerComponents, authorisedAction,view, mockAppConfig)
 
   val taxYear = 2020
+  val id = "9563b361-6333-449f-8721-eab2572b3437"
 
   ".show" should {
 
     "return an OK" when {
 
       "modify is None" in new TestWithAuth {
-        lazy val result: Future[Result] = controller.show(taxYear, None)(fakeRequest)
+        lazy val result: Future[Result] = controller.show(taxYear, id)(fakeRequest)
 
         status(result) shouldBe OK
       }
 
-      "modify has a value, with CYA data" in new TestWithAuth {
-        lazy val result: Future[Result] = controller.show(taxYear, Some("qwerty"))(fakeRequest
+      "matches against a previous submitted amount with CYA data" in new TestWithAuth {
+        lazy val result: Future[Result] = controller.show(taxYear, "qwerty")(fakeRequest
           .withSession(
             SessionValues.INTEREST_CYA -> InterestCYAModel(true, Seq(
               InterestAccountModel(Some("qwerty"), "TSB 1", 300.00, None),
@@ -58,11 +59,36 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
             ), false, None).asJsonString
           ))
 
+        status(result) shouldBe SEE_OTHER
+        redirectUrl(result) shouldBe controllers.interest.routes.ChangeAccountAmountController.show(taxYear, UNTAXED, "qwerty").url
+      }
+      "modifying an existing session, with CYA data" in new TestWithAuth {
+        lazy val result: Future[Result] = controller.show(taxYear, "9563b361-6333-449f-8721-eab2572b3437")(fakeRequest
+          .withSession(
+            SessionValues.INTEREST_CYA -> InterestCYAModel(true, Seq(
+              InterestAccountModel(Some("qwerty-previous-sub"), "TSB 1", 300.00, None),
+              InterestAccountModel(None, "TSB 2", 300.00, Some("9563b361-6333-449f-8721-eab2572b3437")),
+              InterestAccountModel(Some(""), "TSB 3", 300.00, None),
+              InterestAccountModel(None, "TSB 3", 300.00, None)
+            ), false, None).asJsonString
+          ))
+
         status(result) shouldBe OK
       }
+      "invalid id, with CYA data" in new TestWithAuth {
+        lazy val result: Future[Result] = controller.show(taxYear, "id")(fakeRequest
+          .withSession(
+            SessionValues.INTEREST_CYA -> InterestCYAModel(true, Seq(
+              InterestAccountModel(Some("qwerty-previous-sub"), "TSB 1", 300.00, None),
+              InterestAccountModel(None, "TSB 2", 300.00, Some("9563b361-6333-449f-8721-eab2572b3437")),
+              InterestAccountModel(Some(""), "TSB 3", 300.00, None),
+              InterestAccountModel(None, "TSB 3", 300.00, None)
+            ), false, None).asJsonString
+          ))
 
+        status(result) shouldBe SEE_OTHER
+      }
     }
-
   }
 
   ".submit" should {
@@ -70,7 +96,7 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
     "redirect to the UNTAXED accounts view page" when {
 
       "there is a correctly submitted form and there is no modify value, with CYA data" which {
-        lazy val result = controller.submit(taxYear, None)(fakeRequest.withFormUrlEncodedBody(
+        lazy val result = controller.submit(taxYear, id)(fakeRequest.withFormUrlEncodedBody(
           "untaxedAccountName" -> "Some Name",
           "untaxedAmount" -> "100"
         ).withSession(
@@ -98,7 +124,7 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
         val otherAccount = InterestAccountModel(Some("azerty"), "TSB", 200.00, None)
         val expectedAccount = InterestAccountModel(Some("qwerty"), "TSB Account", 500.00, None)
 
-        lazy val result = controller.submit(taxYear, Some("qwerty"))(fakeRequest.withFormUrlEncodedBody(
+        lazy val result = controller.submit(taxYear, "qwerty")(fakeRequest.withFormUrlEncodedBody(
           "untaxedAccountName" -> "TSB Account",
           "untaxedAmount" -> "500.00"
         ).withSession(
@@ -121,12 +147,6 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
         "has updated the correct account" in {
           val model = Json.parse(getSession(result).get(SessionValues.INTEREST_CYA).get).as[InterestCYAModel]
           model.untaxedUkAccounts shouldBe Some(Seq(expectedAccount, otherAccount))
-        }
-
-        "has updated the untaxed accounts overview page to the untaxed amount page" in {
-          getSession(result).get(SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS).get should include(
-            controllers.interest.routes.UntaxedInterestAmountController.show(taxYear).url
-          )
         }
       }
 
@@ -136,7 +156,7 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
         val otherAccount = InterestAccountModel(Some("azerty"), "TSB", 200.00, None)
         val expectedAccount = InterestAccountModel(Some("qwerty"), "TSB Account", 500.00, Some("otherValue"))
 
-        lazy val result = controller.submit(taxYear, Some("qwerty"))(fakeRequest.withFormUrlEncodedBody(
+        lazy val result = controller.submit(taxYear, "qwerty")(fakeRequest.withFormUrlEncodedBody(
           "untaxedAccountName" -> "TSB Account",
           "untaxedAmount" -> "500.00"
         ).withSession(
@@ -159,12 +179,6 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
         "has updated the correct account" in {
           val model = Json.parse(getSession(result).get(SessionValues.INTEREST_CYA).get).as[InterestCYAModel]
           model.untaxedUkAccounts shouldBe Some(Seq(expectedAccount, otherAccount))
-        }
-
-        "has updated the untaxed accounts overview page to the untaxed amount page" in {
-          getSession(result).get(SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS).get should include(
-            controllers.interest.routes.UntaxedInterestAmountController.show(taxYear).url
-          )
         }
       }
 
@@ -174,7 +188,7 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
         val otherAccount = InterestAccountModel(Some("azerty"), "TSB", 200.00, None)
         val expectedAccount = InterestAccountModel(None, "TSB Account", 500.00, Some("qwerty"))
 
-        lazy val result = controller.submit(taxYear, Some("qwerty"))(fakeRequest.withFormUrlEncodedBody(
+        lazy val result = controller.submit(taxYear, "qwerty")(fakeRequest.withFormUrlEncodedBody(
           "untaxedAccountName" -> "TSB Account",
           "untaxedAmount" -> "500.00"
         ).withSession(
@@ -198,16 +212,10 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
           val model = Json.parse(getSession(result).get(SessionValues.INTEREST_CYA).get).as[InterestCYAModel]
           model.untaxedUkAccounts shouldBe Some(Seq(expectedAccount, otherAccount))
         }
-
-        "has updated the untaxed accounts overview page to the untaxed amount page" in {
-          getSession(result).get(SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS).get should include(
-            controllers.interest.routes.UntaxedInterestAmountController.show(taxYear).url
-          )
-        }
       }
 
       "there is a correctly submitted form, without a modify value and no interest account CYA data" which {
-        lazy val result = controller.submit(taxYear, None)(fakeRequest.withFormUrlEncodedBody(
+        lazy val result = controller.submit(taxYear, id)(fakeRequest.withFormUrlEncodedBody(
           "untaxedAccountName" -> "TSB Account",
           "untaxedAmount" -> "500.00"
         ).withSession(
@@ -234,12 +242,6 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
           account.accountName shouldBe "TSB Account"
           account.amount shouldBe 500.00
         }
-
-        "has updated the untaxed accounts overview page to the untaxed amount page" in {
-          getSession(result).get(SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS).get should include(
-            controllers.interest.routes.UntaxedInterestAmountController.show(taxYear).url
-          )
-        }
       }
 
     }
@@ -248,7 +250,7 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
 
       "there is a correctly submitted form, but no CYA data" which {
 
-        lazy val result = controller.submit(taxYear, None)(fakeRequest.withFormUrlEncodedBody(
+        lazy val result = controller.submit(taxYear, id)(fakeRequest.withFormUrlEncodedBody(
           "untaxedAccountName" -> "Some Name",
           "untaxedAmount" -> "100"
         ))
@@ -268,7 +270,7 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
     s"return a BAD_REQUEST($BAD_REQUEST)" when {
 
       "the form data is invalid" in new TestWithAuth{
-        val result: Future[Result] = controller.submit(taxYear, None)(fakeRequest.withFormUrlEncodedBody(
+        val result: Future[Result] = controller.submit(taxYear, id)(fakeRequest.withFormUrlEncodedBody(
           "invalidField" -> "someValue"
         ))
 

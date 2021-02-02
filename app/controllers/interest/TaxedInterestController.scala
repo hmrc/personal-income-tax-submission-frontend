@@ -16,6 +16,8 @@
 
 package controllers.interest
 
+import java.util.UUID.randomUUID
+
 import common.{PageLocations, SessionValues}
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
@@ -47,8 +49,6 @@ class TaxedInterestController @Inject()(
   def show(taxYear: Int): Action[AnyContent] = authorisedAction { implicit user =>
     val pageTitle = "interest.taxed-uk-interest.heading." + (if (user.isAgent) "agent" else "individual")
     Ok(taxedInterestView(pageTitle, yesNoForm, taxYear))
-      .updateTaxedAmountRedirect(PageLocations.Interest.TaxedView(taxYear))
-      .updateCyaRedirect(PageLocations.Interest.TaxedView(taxYear))
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authorisedAction { implicit user =>
@@ -74,7 +74,7 @@ class TaxedInterestController @Inject()(
               })
 
               if (yesNoModel.asBoolean) {
-                Redirect(controllers.interest.routes.TaxedInterestAmountController.show(taxYear))
+                Redirect(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id = randomUUID().toString))
                   .addingToSession(SessionValues.INTEREST_CYA -> updatedCya.asJsonString)
               } else {
                 Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))

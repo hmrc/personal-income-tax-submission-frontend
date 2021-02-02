@@ -19,11 +19,18 @@
 @import play.api.i18n.Messages
 @import play.api.mvc.Request
 @import views.html.headerFooterTemplate.Layout
-@import views.html.templates.helpers.{ContinueButton, ErrorSummaryDisplay, InputHelper, NameInputHelper}
+@import views.html.templates.helpers.{ContinueButton, ErrorSummaryDisplay, InputHelper, NameInputHelper, InputText}
 
-@this(layout: Layout, errorSummaryDisplay: ErrorSummaryDisplay, formWithCsrf: FormWithCSRF, inputHelper: InputHelper, nameInputHelper: NameInputHelper)
+@this(
+   layout: Layout,
+   errorSummaryDisplay: ErrorSummaryDisplay,
+   formWithCsrf: FormWithCSRF,
+   inputHelper: InputHelper,
+   nameInputHelper: NameInputHelper,
+   inputText: InputText
+)
 
-@(form: Form[UntaxedInterestModel], taxYear: Int, postAction: Call, preName: Option[String] = None, preAmount: Option[BigDecimal] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(form: Form[UntaxedInterestModel], taxYear: Int, postAction: Call)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @heading = {
     <span class="govuk-caption-l">@messages("interest.caption", (taxYear - 1).toString, taxYear.toString)</span>
@@ -35,25 +42,25 @@
 
 @heading
 
-<div class="govuk-form-group">
- @nameInputHelper(
-  field = formInput(untaxedAccountName),
-  label = Some(messages("interest.untaxed-uk-interest-details.sub-heading1")),
-  value = preName,
-  parentForm = form
- )
-</div>
+@inputText(
+  form,
+  id = "untaxedAccountName",
+  name = "untaxedAccountName",
+  label = "interest.untaxed-uk-interest-details.sub-heading1",
+  isPageHeading = false,
+  classes = Some("govuk-input--width-20"),
+  labelClasses = Some("govuk-!-font-weight-bold")
+)
 
-
-<div class="govuk-form-group">
- @inputHelper(
-  field = formInput(untaxedAmount),
-  label = Some(messages("interest.untaxed-uk-interest-details.sub-heading2")),
-  value = preAmount,
-  parentForm = form,
-  isNumeric = true
- )
-</div>
+@inputText(
+  form,
+  id = "untaxedAmount",
+  name = "untaxedAmount",
+  label = "interest.untaxed-uk-interest-details.sub-heading2",
+  isPageHeading = false,
+  currency = true,
+  labelClasses = Some("govuk-!-font-weight-bold")
+)
 
 }
 

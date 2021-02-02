@@ -31,6 +31,7 @@ import utils.InterestSessionHelper
 import views.html.interest.UntaxedInterestView
 
 import scala.concurrent.ExecutionContext
+import java.util.UUID.randomUUID
 
 class UntaxedInterestController @Inject()(
                                            mcc: MessagesControllerComponents,
@@ -46,8 +47,6 @@ class UntaxedInterestController @Inject()(
   def show(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
     val pageTitle: String = "interest.untaxed-uk-interest.heading." + (if (user.isAgent) "agent" else "individual")
     Ok(untaxedInterestView(pageTitle, yesNoForm, taxYear))
-      .updateUntaxedAmountRedirect(PageLocations.Interest.UntaxedView(taxYear))
-      .updateCyaRedirect(PageLocations.Interest.UntaxedView(taxYear))
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
@@ -75,7 +74,7 @@ class UntaxedInterestController @Inject()(
 
           (yesNoModel.asBoolean, updatedCya.isFinished) match {
             case (true, false) =>
-              Redirect(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear))
+              Redirect(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, id = randomUUID().toString))
                 .addingToSession(SessionValues.INTEREST_CYA -> updatedCya.asJsonString)
             case (false, false) =>
               Redirect(controllers.interest.routes.TaxedInterestController.show(taxYear))

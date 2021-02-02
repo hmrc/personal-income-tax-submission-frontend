@@ -38,6 +38,7 @@ class TaxedInterestControllerSpec extends UnitTestWithApp{
   )(mockAppConfig)
 
   val taxYear = 2020
+  val id = "9563b361-6333-449f-8721-eab2572b3437"
 
   ".show for an individual" should {
 
@@ -47,9 +48,6 @@ class TaxedInterestControllerSpec extends UnitTestWithApp{
         val result: Future[Result] = controller.show(taxYear)(fakeRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
 
         status(result) shouldBe OK
-        getSession(result).get(SessionValues.PAGE_BACK_TAXED_AMOUNT).get should include(
-          controllers.interest.routes.TaxedInterestController.show(taxYear).url
-        )
       }
     }
   }
@@ -62,9 +60,6 @@ class TaxedInterestControllerSpec extends UnitTestWithApp{
         val result: Future[Result] = controller.show(taxYear)(fakeRequestWithMtditidAndNino.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
 
         status(result) shouldBe OK
-        getSession(result).get(SessionValues.PAGE_BACK_TAXED_AMOUNT).get should include(
-          controllers.interest.routes.TaxedInterestController.show(taxYear).url
-        )
       }
     }
   }
@@ -97,7 +92,7 @@ class TaxedInterestControllerSpec extends UnitTestWithApp{
         }
 
         "has the correct redirect URL" in {
-          redirectUrl(result) shouldBe controllers.interest.routes.TaxedInterestAmountController.show(taxYear, None).url
+          redirectUrl(result) should include(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id).url.dropRight(36))
         }
 
         "has updated the CYA model" in {
@@ -205,7 +200,7 @@ class TaxedInterestControllerSpec extends UnitTestWithApp{
         }
 
         "has the correct redirect URL" in {
-          redirectUrl(result) shouldBe controllers.interest.routes.TaxedInterestAmountController.show(taxYear, None).url
+          redirectUrl(result) should include(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id).url.dropRight(36))
         }
 
         "has updated the CYA model" in {

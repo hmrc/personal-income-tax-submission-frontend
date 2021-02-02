@@ -21,11 +21,11 @@ POST        /:taxYear/dividends/check-your-answers                        contro
 GET         /:taxYear/interest/untaxed-uk-interest-account-summary        controllers.interest.AccountsController.show(taxYear: Int, taxType = "untaxed")
 GET         /:taxYear/interest/taxed-uk-interest-account-summary          controllers.interest.AccountsController.show(taxYear: Int, taxType = "taxed")
 
-GET         /:taxYear/interest/taxed-uk-interest-details                  controllers.interest.TaxedInterestAmountController.show(taxYear: Int, modify: Option[String] ?= None)
-POST        /:taxYear/interest/taxed-uk-interest-details                  controllers.interest.TaxedInterestAmountController.submit(taxYear: Int, modify: Option[String] ?= None)
+GET         /:taxYear/interest/taxed-uk-interest-details/:id              controllers.interest.TaxedInterestAmountController.show(taxYear: Int, id: String)
+POST        /:taxYear/interest/taxed-uk-interest-details/:id              controllers.interest.TaxedInterestAmountController.submit(taxYear: Int, id: String)
 
-GET         /:taxYear/interest/untaxed-uk-interest-details                controllers.interest.UntaxedInterestAmountController.show(taxYear: Int, modify: Option[String] ?= None)
-POST        /:taxYear/interest/untaxed-uk-interest-details                controllers.interest.UntaxedInterestAmountController.submit(taxYear: Int, modify: Option[String] ?= None)
+GET         /:taxYear/interest/untaxed-uk-interest-details/:id            controllers.interest.UntaxedInterestAmountController.show(taxYear: Int, id: String)
+POST        /:taxYear/interest/untaxed-uk-interest-details/:id            controllers.interest.UntaxedInterestAmountController.submit(taxYear: Int, id: String)
 
 POST        /:taxYear/interest/untaxed-uk-interest-account-summary        controllers.interest.AccountsController.submit(taxYear: Int, taxType = "untaxed")
 POST        /:taxYear/interest/taxed-uk-interest-account-summary          controllers.interest.AccountsController.submit(taxYear: Int, taxType = "taxed")

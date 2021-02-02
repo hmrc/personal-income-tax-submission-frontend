@@ -24,37 +24,6 @@ trait InterestSessionHelper extends SessionHelper {
 
   implicit class BetterResult(result: Result) {
 
-    def updateUntaxedAmountRedirect(url: String)(implicit user: User[_]): Result = {
-      result.addingToSession(SessionValues.PAGE_BACK_UNTAXED_AMOUNT -> url)
-    }
-
-    def updateTaxedAmountRedirect(url: String)(implicit user: User[_]): Result = {
-      result.addingToSession(SessionValues.PAGE_BACK_TAXED_AMOUNT -> url)
-    }
-
-    def updateAccountsOverviewRedirect(url: String, taxType: String)(implicit user: User[_]): Result = {
-      taxType match {
-        case InterestTaxTypes.UNTAXED =>
-          result.addingToSession(SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS -> url)
-        case _ =>
-          result.addingToSession(SessionValues.PAGE_BACK_TAXED_ACCOUNTS -> url)
-      }
-    }
-
-    def updateCyaRedirect(url: String)(implicit user: User[_]): Result = {
-      result.addingToSession(SessionValues.PAGE_BACK_CYA -> url)
-    }
-
-    def clearRedirects()(implicit user: User[_]): Result = {
-      result.removingFromSession(
-        SessionValues.PAGE_BACK_TAXED_ACCOUNTS,
-        SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS,
-        SessionValues.PAGE_BACK_TAXED_AMOUNT,
-        SessionValues.PAGE_BACK_UNTAXED_AMOUNT,
-        SessionValues.PAGE_BACK_CYA
-      )
-    }
-
     def clearSessionData()(implicit user: User[_]): Result = {
       result.removingFromSession(
         SessionValues.INTEREST_CYA,

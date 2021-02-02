@@ -84,11 +84,6 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
         lazy val result: Future[Result] = controller.show(taxYear)(request)
 
         status(result) shouldBe OK
-
-        val expectedBackLink: Some[String] = Some(controllers.interest.routes.InterestCYAController.show(taxYear).url)
-
-        getSession(result).get(SessionValues.PAGE_BACK_TAXED_ACCOUNTS) shouldBe expectedBackLink
-        getSession(result).get(SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS) shouldBe expectedBackLink
       }
 
     }
@@ -150,12 +145,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
           lazy val result: Future[Result] = {
             controller.submit(taxYear)(fakeRequestWithMtditidAndNino.withSession(
                 SessionValues.CLIENT_NINO -> "AA123456A",
-                SessionValues.INTEREST_CYA -> cyaModel.asJsonString,
-                SessionValues.PAGE_BACK_TAXED_ACCOUNTS -> "/taxedAccounts",
-                SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS -> "/untaxedAccounts",
-                SessionValues.PAGE_BACK_TAXED_AMOUNT -> "/taxedAmount",
-                SessionValues.PAGE_BACK_UNTAXED_AMOUNT -> "/taxedAmount",
-                SessionValues.PAGE_BACK_CYA -> "/cya"
+                SessionValues.INTEREST_CYA -> cyaModel.asJsonString
             ))
           }
 
@@ -164,14 +154,6 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
 
           And("has the correct redirect url")
           redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)
-
-          And("cleared all interest url redirects")
-          val resultSession: Session = getSession(result)
-          resultSession.get(SessionValues.PAGE_BACK_TAXED_ACCOUNTS) shouldBe None
-          resultSession.get(SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS) shouldBe None
-          resultSession.get(SessionValues.PAGE_BACK_TAXED_AMOUNT) shouldBe None
-          resultSession.get(SessionValues.PAGE_BACK_UNTAXED_AMOUNT) shouldBe None
-          resultSession.get(SessionValues.PAGE_BACK_CYA) shouldBe None
         }
 
         "the submission is successful when there is a prior submission" in new TestWithAuth {
@@ -229,12 +211,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
             controller.submit(taxYear)(fakeRequestWithMtditidAndNino.withSession(
               SessionValues.CLIENT_NINO -> "AA123456A",
               SessionValues.INTEREST_CYA -> cyaModel.asJsonString,
-              SessionValues.INTEREST_PRIOR_SUB -> priorDataModel.toString,
-              SessionValues.PAGE_BACK_TAXED_ACCOUNTS -> "/taxedAccounts",
-              SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS -> "/untaxedAccounts",
-              SessionValues.PAGE_BACK_TAXED_AMOUNT -> "/taxedAmount",
-              SessionValues.PAGE_BACK_UNTAXED_AMOUNT -> "/taxedAmount",
-              SessionValues.PAGE_BACK_CYA -> "/cya"
+              SessionValues.INTEREST_PRIOR_SUB -> priorDataModel.toString
             ))
           }
 
@@ -243,14 +220,6 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
 
           And("has the correct redirect url")
           redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)
-
-          And("cleared all interest url redirects")
-          val resultSession: Session = getSession(result)
-          resultSession.get(SessionValues.PAGE_BACK_TAXED_ACCOUNTS) shouldBe None
-          resultSession.get(SessionValues.PAGE_BACK_UNTAXED_ACCOUNTS) shouldBe None
-          resultSession.get(SessionValues.PAGE_BACK_TAXED_AMOUNT) shouldBe None
-          resultSession.get(SessionValues.PAGE_BACK_UNTAXED_AMOUNT) shouldBe None
-          resultSession.get(SessionValues.PAGE_BACK_CYA) shouldBe None
         }
 
         "the submission is unsuccessful" in new TestWithAuth {
