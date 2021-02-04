@@ -16,15 +16,16 @@
 
 package forms
 
+import filters.InputFilters
 import forms.validation.StringConstraints.{nonEmpty, validateCurrency}
 import forms.validation.utils.ConstraintUtil._
 import forms.validation.utils.MappingUtil.trimmedText
 import models.TaxedInterestModel
 import play.api.data.Form
-import play.api.data.Forms.mapping
+import play.api.data.Forms.{mapping, text}
 import play.api.data.validation.Constraint
 
-object TaxedInterestAmountForm {
+object TaxedInterestAmountForm extends InputFilters{
 
   val taxedAccountName = "taxedAccountName"
   val taxedAmount = "taxedAmount"
@@ -39,6 +40,10 @@ object TaxedInterestAmountForm {
       taxedAmount -> trimmedText.verifying(
         amountNotEmpty andThen amountValidCur
       )
-    )(TaxedInterestModel.apply)(TaxedInterestModel.unapply)
+    )(TaxedInterestModel.apply)(TaxedInterestModel.unapply).transform[TaxedInterestModel](
+      details => details.copy(
+        taxedAccountName = filter(details.taxedAccountName)
+      ), x => x
+    )
   )
 }
