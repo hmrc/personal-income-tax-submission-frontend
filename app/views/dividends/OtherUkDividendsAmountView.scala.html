@@ -30,7 +30,7 @@
 @(form: Either[Form[PriorOrNewAmountModel], Form[CurrencyAmountModel]], priorSubmission: Option[DividendsPriorSubmission], taxYear: Int, postAction: Call, preAmount: Option[BigDecimal] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @heading = {
- <span class="govuk-caption-l">@messages("dividends.caption")</span>
+ <span class="govuk-caption-l">@messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)</span>
  <h1 class="govuk-heading-l govuk-!-margin-bottom-4">@messages("dividends.other-dividends-amount.heading")</h1>
 }
 
@@ -57,7 +57,7 @@
     priorSubmission.flatMap(_.otherUkDividends)
 }
 
-@layout(pageTitle = Some("dividends.other-dividends-amount.title"), taxYear = Some(taxYear), scriptsBlock = Some(scripts)) {
+@layout(pageTitle = Some(messages("dividends.other-dividends-amount.title")), taxYear = Some(taxYear), scriptsBlock = Some(scripts)) {
 
  @formWithCSRF(action = postAction) {
   @form.fold(priorForm => priorOrNewForm(heading, priorForm, priorAmount, "common.error.invalid_number", preAmount), currencyForm => currencyFormHtml(currencyForm, otherDividendsAmount))
