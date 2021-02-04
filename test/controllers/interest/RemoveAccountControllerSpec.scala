@@ -16,9 +16,9 @@
 
 package controllers.interest
 
-import common.SessionValues
+import common.{InterestTaxTypes, SessionValues}
 import forms.YesNoForm
-import models.interest.{InterestAccountModel, InterestCYAModel}
+import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.Result
@@ -60,19 +60,19 @@ class RemoveAccountControllerSpec extends UnitTestWithApp{
     )
   )
 
-  lazy val untaxedInterestCyaModel = InterestCYAModel(
+  lazy val untaxedInterestCyaModel: InterestCYAModel = InterestCYAModel(
     Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId1"), "Untaxed Account", 100.01))),
     Some(false), None
   )
 
-  lazy val taxedInterestCyaModel = InterestCYAModel(
+  lazy val taxedInterestCyaModel: InterestCYAModel = InterestCYAModel(
     Some(false), None,
     Some(true), Some(Seq(InterestAccountModel(Some("TaxedId1"), "Taxed Account", 9001.01)))
   )
 
-  lazy val missingTaxedInterestCyaModelData = InterestCYAModel(
+  lazy val missingTaxedInterestCyaModelData: InterestCYAModel = InterestCYAModel(
     Some(false), None,
-    Some(true), Some(Seq(InterestAccountModel(None, "Taxed Account", 900)))
+    Some(true), Some(Seq(InterestAccountModel(None, "Taxed Account", 900.00)))
   )
 
   ".show" should {
@@ -178,7 +178,7 @@ class RemoveAccountControllerSpec extends UnitTestWithApp{
             }
           }
         }
-      
+
       "Not redirect" when {
 
         "The prior submission data is empty" which {
@@ -359,6 +359,39 @@ class RemoveAccountControllerSpec extends UnitTestWithApp{
 
           "has the correct redirect URL" in {
             redirectUrl(result) shouldBe controllers.interest.routes.UntaxedInterestController.show(taxYear).url
+          }
+        }
+      }
+
+      "redirect to the cya page" when {
+
+        "the final untaxed account is removed when prior tax accounts exist" which {
+          lazy val result: Future[Result] = controller.submit(taxYear, UNTAXED, untaxedId1)(fakeRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes)
+            .withSession(
+              SessionValues.INTEREST_CYA -> InterestCYAModel(
+                true,
+                Seq(
+                  InterestAccountModel(untaxedId1, "Some Account", 100.00)
+                ),
+                true,
+                Seq()
+              ).asJsonString,
+              SessionValues.INTEREST_PRIOR_SUB -> Json.stringify(Json.arr(
+                Json.obj(
+                  "accountName" -> "I'mma Taxed Account",
+                  "incomeSourceId" -> "asdfghjkl",
+                  "taxedUkInterest" -> 200.00
+                )
+              ))
+            )
+          )
+
+          s"has status of SEE_OTHER($SEE_OTHER)" in new TestWithAuth {
+            status(result) shouldBe SEE_OTHER
+          }
+
+          "has the correct redirect URL" in {
+            redirectUrl(result) shouldBe controllers.interest.routes.InterestCYAController.show(taxYear).url
           }
         }
       }
