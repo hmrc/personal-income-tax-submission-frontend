@@ -19,9 +19,7 @@ package models.interest
 import common.InterestTaxTypes
 import play.api.libs.json._
 
-case class InterestPriorSubmission(hasUntaxed: Boolean, hasTaxed: Boolean, submissions: Option[Seq[InterestAccountModel]]) {
-  def asJsonString: String = Json.stringify(Json.toJson(this))
-}
+case class InterestPriorSubmission(hasUntaxed: Boolean, hasTaxed: Boolean, submissions: Option[Seq[InterestAccountModel]])
 
 object InterestPriorSubmission {
 
