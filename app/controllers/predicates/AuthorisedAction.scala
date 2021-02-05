@@ -120,7 +120,7 @@ class AuthorisedAction @Inject()(
   }
 
   private[predicates] def individualAuthentication[A](block: User[A] => Future[Result], enrolments: Enrolments, mtditid: String)
-                                                     (implicit request: Request[A], hc: HeaderCarrier): Future[Result] = {
+                                                     (implicit request: Request[A]): Future[Result] = {
 
     val ninoOptional = enrolmentGetIdentifierValue(EnrolmentKeys.nino, EnrolmentIdentifiers.nino, enrolments)
 

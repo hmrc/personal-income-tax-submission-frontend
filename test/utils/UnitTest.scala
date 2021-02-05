@@ -26,7 +26,7 @@ import org.scalamock.scalatest.MockFactory
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.mvc.{AnyContentAsEmpty, ControllerComponents, Result}
+import play.api.mvc.{AnyContentAsEmpty, ControllerComponents, Result, Session}
 import play.api.test.{FakeRequest, Helpers}
 import services.AuthService
 import uk.gov.hmrc.auth.core._
@@ -83,7 +83,7 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
     await(awaitable).header.headers.getOrElse("Location", "/")
   }
 
-  def getSession(awaitable: Future[Result])(implicit headerCarrier: HeaderCarrier) = {
+  def getSession(awaitable: Future[Result]): Session = {
     await(awaitable).session
   }
 

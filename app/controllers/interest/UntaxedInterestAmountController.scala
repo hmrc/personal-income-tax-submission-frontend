@@ -19,7 +19,7 @@ package controllers.interest
 import java.util.UUID.randomUUID
 
 import common.InterestTaxTypes.UNTAXED
-import common.{InterestTaxTypes, PageLocations, SessionValues}
+import common.{InterestTaxTypes, SessionValues}
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import forms.UntaxedInterestAmountForm
@@ -29,7 +29,7 @@ import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.InterestSessionHelper
 import views.html.interest.UntaxedInterestAmountView

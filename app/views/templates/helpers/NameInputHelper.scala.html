@@ -15,7 +15,6 @@
  *@
 
 @import play.api.data.{Field, Form}
-@import views.html.templates.helpers.BigDecimalCurrency
 
 @this(bigDecimalCurrency: BigDecimalCurrency)
 @(field: Field,
@@ -31,12 +30,6 @@ field.errors
 
 @errorMessage(error: FormError) = {
 <span class="govuk-error-message" role="tooltip">@{messages(s"${error.message}",error.args:_*)}</span>
-}
-
-@hintText(hint: String) = {
-<span class="form-hint">
-    @hint
-</span>
 }
 
 @hasError = @{parentForm.errors(field.name).nonEmpty}

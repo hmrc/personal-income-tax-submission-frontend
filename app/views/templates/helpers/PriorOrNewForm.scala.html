@@ -15,8 +15,6 @@
  *@
 
 @import models.formatHelpers.PriorOrNewAmountModel
-@import views.html.templates.helpers.ErrorSummaryDisplay
-@import views.html.templates.helpers.BigDecimalCurrency
 
 @this(errorSummaryDisplay: ErrorSummaryDisplay, bigDecimalCurrency: BigDecimalCurrency)
 @(heading: Html, formInput: Form[PriorOrNewAmountModel], priorAmount: Option[BigDecimal], errorKey: String, preFill: Option[BigDecimal] = None)(implicit messages: Messages)

@@ -17,7 +17,7 @@
 package controllers.interest
 
 import audit.{AuditModel, AuditService, CreateOrAmendInterestAuditDetail}
-import common.{InterestTaxTypes, PageLocations, SessionValues}
+import common.{InterestTaxTypes, SessionValues}
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import javax.inject.Inject
@@ -56,8 +56,6 @@ class InterestCYAController @Inject()(
 
     cyaModel match {
       case Some(cyaData) =>
-        val pageLocation = PageLocations.Interest.cya(taxYear)
-
         Future.successful(
           Ok(interestCyaView(cyaData, taxYear, priorSubmission))
             .addingToSession(
@@ -71,12 +69,10 @@ class InterestCYAController @Inject()(
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit user =>
-    implicit val session: Session = user.session
-
     val cyaDataOptional = getCyaModel()
     val priorSubmission: Option[InterestPriorSubmission] = getModelFromSession[InterestPriorSubmission](SessionValues.INTEREST_PRIOR_SUB)
 
-    ((cyaDataOptional) match {
+    (cyaDataOptional match {
       case Some(cyaData) => interestSubmissionService.submit(cyaData, user.nino, taxYear, user.mtditid).map {
         case response@Right(_) =>
           val model = CreateOrAmendInterestAuditDetail(Some(cyaData), priorSubmission, user.nino, user.mtditid, taxYear)

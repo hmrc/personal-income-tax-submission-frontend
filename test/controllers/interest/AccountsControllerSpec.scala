@@ -16,7 +16,7 @@
 
 package controllers.interest
 
-import common.{InterestTaxTypes, SessionValues}
+import common.SessionValues
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest

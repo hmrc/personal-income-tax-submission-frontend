@@ -17,11 +17,9 @@
 package utils
 
 import models.User
-import org.jsoup.nodes.{Document, Element}
-import org.scalatest.Assertion
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Messages, MessagesApi}
-import play.api.mvc.{AnyContent, Call, MessagesControllerComponents}
+import play.api.mvc.{AnyContent, MessagesControllerComponents}
 import play.api.test.{FakeRequest, Helpers}
 
 trait UnitTestWithApp extends UnitTest with GuiceOneAppPerSuite {
