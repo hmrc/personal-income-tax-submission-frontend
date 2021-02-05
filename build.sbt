@@ -25,7 +25,7 @@ lazy val coverageSettings: Seq[Setting[_]] = {
     "controllers.testOnly.*",
     "views.html.*[Tt]emplate*",
     "views.html.templates.*",
-    "views.headerFooterTemplate.*"
+    "views.headerFooterTemplate"
   )
 
   Seq(
