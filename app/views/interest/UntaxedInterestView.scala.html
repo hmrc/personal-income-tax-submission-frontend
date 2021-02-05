@@ -37,17 +37,18 @@ if(user.isAgent) messages("interest.untaxed-uk-interest.heading.agent") else mes
 @errorSummaryDisplay(form.errors, Some("yes_no_yes"))
 
     <span class="govuk-caption-l">@messages("interest.caption", (taxYear - 1).toString, taxYear.toString)</span>
+
     <h1 class="govuk-heading-l govuk-!-margin-bottom-3">@headingForUse</h1>
-        <span class="govuk-caption-m govuk-!-margin-bottom-4">
+
+    <span class="govuk-caption-m govuk-!-margin-bottom-4">
             @messages("interest.untaxed-uk-interest.paragraph.1")
-        <ul>
+        <ul   class="govuk-caption-m govuk-!-margin-bottom-4">
             <li>@messages("interest.untaxed-uk-interest.list.1")</li>
             <li>@messages("interest.untaxed-uk-interest.list.2")</li>
             <li>@messages("interest.untaxed-uk-interest.list.3")</li>
         </ul>
             @messages("interest.untaxed-uk-interest.paragraph.2")
-
-        </span>
+    </span>
 
             @formWithCsrf(action = controllers.interest.routes.UntaxedInterestController.submit(taxYear)) {
             @yesNoChoice("yes_no", form, checked)
