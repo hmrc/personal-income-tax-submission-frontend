@@ -43,8 +43,8 @@ class UkDividendsAmountViewSpec extends ViewTest {
   val errorSummaryTitle = ".govuk-error-summary__title"
   val errorSummaryText = ".govuk-error-summary__body"
 
-  val expectedH1 = "What is the amount of dividends earned from companies in the UK?"
-  val expectedCaption = "Dividends"
+  val expectedH1 = "What is the total amount of dividends earned from companies in the UK?"
+  val expectedCaption = "Dividends for 06 April 2019 to 05 April 2020"
 
   val expectedErrorTitle = "There is a problem"
   val expectedErrorText = "Enter the amount of dividends earned from the UK"
