@@ -39,12 +39,14 @@
 
     <h1 class="govuk-heading-l govuk-!-margin-bottom-3">@headingForUse</h1>
 
-    <span class="govuk-caption-m govuk-!-margin-bottom-4">@messages("interest.taxed-uk-interest.sub-heading")
+    <span class="govuk-caption-m govuk-!-margin-bottom-4">
+        @messages("interest.taxed-uk-interest.paragraph.1")
          <ul class="govuk-caption-m govuk-!-margin-bottom-4">
-             <li>@messages("interest.taxed-uk-interest.sub-list1")</li>
-             <li>@messages("interest.taxed-uk-interest.sub-list2")</li>
-             <li>@messages("interest.taxed-uk-interest.sub-list3")</li>
+             <li>@messages("interest.taxed-uk-interest.list.1")</li>
+             <li>@messages("interest.taxed-uk-interest.list.2")</li>
+             <li>@messages("interest.taxed-uk-interest.list.3")</li>
          </ul>
+        @messages("interest.taxed-uk-interest.paragraph.2")
     </span>
 
     @formWithCsrf(action = controllers.interest.routes.TaxedInterestController.submit(taxYear)) {

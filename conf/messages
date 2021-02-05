@@ -65,7 +65,7 @@ interest.untaxed-uk-interest.paragraph.1 = For example, interest from:
 interest.untaxed-uk-interest.list.1 = banks and building societies
 interest.untaxed-uk-interest.list.2 = savings and credit union accounts
 interest.untaxed-uk-interest.list.3 = peer-to-peer lending
-interest.untaxed-uk-interest.paragraph.2 = This does not include any interest earned from an Individual Savings Account (ISA).
+interest.untaxed-uk-interest.paragraph.2 = This does not include any interest earned from an Individual Savings Account (ISA) or gilts. You’ll be able to add interest earned from gilts at a later date.
 
 interest.untaxed-uk-interest-details.title = UK Interest - Register your income tax return with HMRC - Gov.UK
 interest.untaxed-uk-interest-details.heading = UK untaxed interest account details
@@ -76,10 +76,11 @@ interest.untaxed-uk-interest-amount.error.empty = Enter the amount of untaxed in
 
 interest.taxed-uk-interest.heading.individual = Did you receive any taxed interest from the UK?
 interest.taxed-uk-interest.heading.agent = Did your client receive any taxed interest from the UK?
-interest.taxed-uk-interest.sub-heading = For example, interest from:
-interest.taxed-uk-interest.sub-list1 = trust funds
-interest.taxed-uk-interest.sub-list2 = company bonds
-interest.taxed-uk-interest.sub-list3 = life-annuity payments
+interest.taxed-uk-interest.paragraph.1 = For example, interest from:
+interest.taxed-uk-interest.list.1 = trust funds
+interest.taxed-uk-interest.list.2 = company bonds
+interest.taxed-uk-interest.list.3 = life-annuity payments
+interest.taxed-uk-interest.paragraph.2 = Do not include interest received from gilts. You’ll be able to add interest earned from gilts at a later date.
 interest.taxed-uk-interest.errors.noRadioSelected = Select yes if you received taxed interest from the UK
 
 interest.taxed-uk-interest-details.title = UK Interest - Register your income tax return with HMRC - Gov.UK
