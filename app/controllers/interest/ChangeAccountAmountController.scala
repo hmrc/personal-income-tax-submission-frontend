@@ -123,12 +123,14 @@ class ChangeAccountAmountController @Inject()(
     }
   }
 
-  private[interest] def replaceAccounts(taxType: String, cyaData: InterestCYAModel, accounts: Option[Seq[InterestAccountModel]]): InterestCYAModel = taxType match {
+  private[interest] def replaceAccounts(taxType: String, cyaData: InterestCYAModel,
+                                        accounts: Option[Seq[InterestAccountModel]]): InterestCYAModel = taxType match {
     case InterestTaxTypes.UNTAXED => cyaData.copy(untaxedUkAccounts = accounts, untaxedUkInterest = Some(true))
     case InterestTaxTypes.TAXED => cyaData.copy(taxedUkAccounts = accounts, taxedUkInterest = Some(true))
   }
 
-  private[interest] def extractPreAmount(taxType: String, checkYourAnswerSession: Option[InterestCYAModel], accountId: String): Option[BigDecimal] = taxType match {
+  private[interest] def extractPreAmount(taxType: String, checkYourAnswerSession: Option[InterestCYAModel],
+                                         accountId: String): Option[BigDecimal] = taxType match {
     case InterestTaxTypes.UNTAXED => checkYourAnswerSession.flatMap { unwrappedCya =>
       unwrappedCya.untaxedUkAccounts.flatMap { unwrappedAccounts =>
         unwrappedAccounts.find { account =>
@@ -145,7 +147,8 @@ class ChangeAccountAmountController @Inject()(
     }
   }
 
-  private[interest] def updateAccounts(taxType: String, cya: InterestCYAModel, accountId: String, newAmount: BigDecimal):Option[Seq[InterestAccountModel]] = (taxType) match {
+  private[interest] def updateAccounts(taxType: String, cya: InterestCYAModel, accountId: String,
+                                       newAmount: BigDecimal):Option[Seq[InterestAccountModel]] = taxType match {
     case InterestTaxTypes.UNTAXED =>
       cya.untaxedUkAccounts.map { unwrappedAccounts =>
         unwrappedAccounts.map { account =>
