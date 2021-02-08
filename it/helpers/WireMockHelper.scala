@@ -27,7 +27,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import common.{EnrolmentIdentifiers, EnrolmentKeys}
 import play.api.http.Status._
 import play.api.libs.json.{JsObject, Json}
-import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolment}
+import uk.gov.hmrc.auth.core.AffinityGroup
 
 trait WireMockHelper {
 
@@ -152,7 +152,7 @@ trait WireMockHelper {
 
   def authoriseIndividual(withNino: Boolean = true): StubMapping = {
     stubPost(authoriseUri, OK, Json.prettyPrint(successfulAuthResponse(Some(AffinityGroup.Individual),
-      (Seq(mtditEnrolment) ++ (if (withNino) Seq(ninoEnrolment) else Seq.empty[JsObject])): _*)))
+      Seq(mtditEnrolment) ++ (if (withNino) Seq(ninoEnrolment) else Seq.empty[JsObject]): _*)))
   }
 
   def authoriseIndividualUnauthorized(): StubMapping = {

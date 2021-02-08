@@ -19,6 +19,7 @@
 @import views.html.templates.inputs.YesNoChoice
 @import models.formatHelpers.YesNoModel
 
+
 @this(layout: Layout, yesNoChoice: YesNoChoice, formWithCsrf: FormWithCSRF, errorSummary: ErrorSummaryDisplay)
 
 @(pageTitle: String, form: Form[YesNoModel], taxYear: Int, checked: String = "")(implicit user: User[_], messages: Messages, appConfig: AppConfig)
@@ -35,8 +36,14 @@
 
     @errorSummary(form.errors, Some("yes_no_yes"))
 
-    <span class="govuk-caption-l">@messages("dividends.caption")</span>
+    <span class="govuk-caption-l">@messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)</span>
     <h1 class="govuk-heading-l govuk-!-margin-bottom-3">@headingForUse</h1>
+
+    <span class="govuk-caption-m govuk-!-margin-bottom-4">
+        <span class="govuk-caption-m govuk-!-margin-bottom-4">@messages("dividends.other-dividends-amount.paragraph.1")</span>
+        <span class="govuk-caption-m govuk-!-margin-bottom-4">@messages("dividends.other-dividends-amount.paragraph.2")</span>
+
+    </span>
 
     @formWithCsrf(action = controllers.dividends.routes.ReceiveOtherUkDividendsController.submit(taxYear)) {
         @yesNoChoice("yes_no", form, checked)
@@ -44,5 +51,22 @@
         <button class="govuk-button" type="submit" id="continue">
             @messages("common.continue")
         </button>
+
+    <details class="govuk-details" data-module="govuk-details">
+        <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">
+                @messages("dividends.other-dividends-amount.details.title")
+            </span>
+        </summary>
+        <div class="govuk-details__text">
+
+            <div class="govuk-body">
+                <p>@messages("dividends.other-dividends-amount.details.paragraph.1")</p>
+                <p>@messages("dividends.other-dividends-amount.details.paragraph.2")</p>
+                <p>@messages("dividends.other-dividends-amount.details.paragraph.3")</p>
+            </div>
+        </div>
+    </details>
+
     }
 }

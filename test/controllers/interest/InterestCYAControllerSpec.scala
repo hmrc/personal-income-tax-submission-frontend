@@ -24,7 +24,7 @@ import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSub
 import org.scalatest.GivenWhenThen
 import play.api.http.Status._
 import play.api.libs.json.{JsArray, Json}
-import play.api.mvc.{AnyContentAsEmpty, Result, Session}
+import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import services.InterestSubmissionService
 import uk.gov.hmrc.http.HeaderCarrier

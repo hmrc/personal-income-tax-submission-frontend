@@ -19,7 +19,7 @@ package controllers.interest
 import java.util.UUID.randomUUID
 
 import common.InterestTaxTypes.TAXED
-import common.{InterestTaxTypes, PageLocations, SessionValues}
+import common.{InterestTaxTypes, SessionValues}
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import forms.TaxedInterestAmountForm
