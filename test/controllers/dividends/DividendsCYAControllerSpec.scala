@@ -18,31 +18,39 @@ package controllers.dividends
 
 import audit.{AuditModel, CreateOrAmendDividendsAuditDetail}
 import common.SessionValues
-import config.MockAuditService
-import connectors.httpparsers.DividendsSubmissionHttpParser.BadRequestDividendsSubmissionException
-import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, DividendsResponseModel}
+import config.{ErrorHandler, MockAuditService}
+import models._
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.scalamock.handlers.CallHandler
 import play.api.http.Status._
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContentAsEmpty, Result}
+import play.api.mvc.Results.InternalServerError
+import play.api.mvc.{AnyContentAsEmpty, Request, Result}
 import play.api.test.FakeRequest
 import services.DividendsSubmissionService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import utils.UnitTestWithApp
 import views.html.dividends.DividendsCYAView
+import views.html.templates.ErrorTemplate
 
 import scala.concurrent.Future
 
 class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
 
-  val service: DividendsSubmissionService = mock[DividendsSubmissionService]
+  val service = mock[DividendsSubmissionService]
+  val errorHandler = mock[ErrorHandler]
+  val errorTemplate = app.injector.instanceOf[ErrorTemplate]
+
+
   val controller = new DividendsCYAController(
     mockMessagesControllerComponents,
     app.injector.instanceOf[DividendsCYAView],
     service,
     authorisedAction,
-    mockAuditService
+    mockAuditService,
+    errorHandler
   )(
     mockAppConfig
   )
@@ -51,6 +59,10 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
   val firstAmount = 10
   val secondAmount = 20
   val successResponseCode = 204
+  val internalServerErrorResponse = 500
+  val serviceUnavailableResponse = 503
+
+  val internalServerErrorModel: DividendsResponseModel = DividendsResponseModel(internalServerErrorResponse)
 
   ".show" should {
 
@@ -199,23 +211,62 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
         getSession(result).get(SessionValues.DIVIDENDS_PRIOR_SUB) shouldBe None
 
       }
+    }
 
-      "service returns left" in new TestWithAuth {
+    "there is an error posting downstream" should {
+
+      "redirect to the 500 error template page when there is a problem posting data" in new TestWithAuth {
+
+        val errorResponseFromDes: Either[DesErrorModel, DividendsResponseModel] =
+          Left(DesErrorModel(INTERNAL_SERVER_ERROR, DesErrorBodyModel("error", "error")))
+
         val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
           SessionValues.CLIENT_MTDITID -> Json.toJson("someMtdItid").toString(),
           SessionValues.DIVIDENDS_CYA -> Json.toJson(cyaSessionData).toString()
         )
 
-        (service.submitDividends(_: Option[DividendsCheckYourAnswersModel], _: String, _: String, _: Int)(_:HeaderCarrier))
-          .expects(Some(cyaSessionData), "AA123456A", "1234567890", taxYear, *)
-          .returning(Future.successful(Left(BadRequestDividendsSubmissionException)))
+        (service.submitDividends(_: Option[DividendsCheckYourAnswersModel], _: String, _: String, _: Int)(_: HeaderCarrier))
+          .expects(Some(cyaSessionData), "AA123456A", "1234567890", 2020, *)
+          .returning(Future.successful(errorResponseFromDes))
 
-        val result: Future[Result] = controller.submit(taxYear)(request)
-        status(result) shouldBe SEE_OTHER
-        redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+
+        (errorHandler.handleError(_: Int)(_: Request[_]))
+          .expects(500, *)
+          .returning(InternalServerError(errorTemplate(500)))
+
+        val result: Future[Result] = controller.submit(2020)(request)
+
+        val document: Document = Jsoup.parse(bodyOf(result))
+        document.select("h1").first().text() shouldBe "Sorry, there is a problem with the service"
       }
-    }
 
+      "redirect to the 503 service unavailable page when the service is unavailable" in new TestWithAuth(){
+
+        val errorResponseFromDes: Either[DesErrorModel, DividendsResponseModel] = Left(DesErrorModel(SERVICE_UNAVAILABLE, DesErrorBodyModel("error", "error")))
+
+        val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
+          SessionValues.CLIENT_MTDITID -> Json.toJson("someMtdItid").toString(),
+          SessionValues.DIVIDENDS_CYA -> Json.toJson(cyaSessionData).toString()
+        )
+
+        (service.submitDividends(_: Option[DividendsCheckYourAnswersModel], _: String, _: String, _: Int)(_: HeaderCarrier))
+          .expects(Some(cyaSessionData), "AA123456A", "1234567890", 2020, *)
+          .returning(Future.successful(errorResponseFromDes))
+
+
+        (errorHandler.handleError(_: Int)(_: Request[_]))
+          .expects(503, *)
+          .returning(InternalServerError(errorTemplate(503)))
+
+        val result: Future[Result] = controller.submit(2020)(request)
+
+
+        val document: Document = Jsoup.parse(bodyOf(result))
+        document.select("h1").first().text() shouldBe "Sorry, the service is unavailable"
+
+    }
   }
+
+}
 
 }

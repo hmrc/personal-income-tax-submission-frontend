@@ -17,8 +17,7 @@
 package services
 
 import connectors.DividendsSubmissionConnector
-import connectors.httpparsers.DividendsSubmissionHttpParser.BadRequestDividendsSubmissionException
-import models.{DividendsCheckYourAnswersModel, DividendsResponseModel, DividendsSubmissionModel}
+import models.{DesErrorBodyModel, DesErrorModel, DividendsCheckYourAnswersModel, DividendsResponseModel, DividendsSubmissionModel}
 import play.api.http.Status._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.HeaderCarrier
@@ -62,7 +61,8 @@ class DividendsSubmissionServiceSpec extends UnitTestWithApp{
       "Given connector returns a left" in {
 
           (connector.submitDividends(_: DividendsSubmissionModel, _: String, _: String, _: Int)(_: HeaderCarrier))
-            .expects(dsmData, nino, mtdItid, taxYear, *).returning(Future.successful(Left(BadRequestDividendsSubmissionException)))
+            .expects(dsmData, nino, mtdItid, taxYear, *)
+            .returning(Future.successful(Left(DesErrorModel(INTERNAL_SERVER_ERROR, DesErrorBodyModel("test","test")))))
 
           val result = await(service.submitDividends(Some(cyaData), nino, mtdItid, taxYear))
           result.isLeft shouldBe true

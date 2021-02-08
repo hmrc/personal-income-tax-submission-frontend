@@ -18,11 +18,13 @@ package services
 
 import connectors.InterestSubmissionConnector
 import connectors.httpparsers.InterestSubmissionHttpParser.InterestSubmissionsResponse
+import models.{DesErrorBodyModel, DesErrorModel}
 import models.httpResponses.ErrorResponse
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestSubmissionModel}
 import play.api.test.Helpers.{BAD_REQUEST, NO_CONTENT}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.UnitTest
+import play.api.http.Status._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -80,7 +82,7 @@ class InterestSubmissionServiceSpec extends UnitTest {
         }
       }
 
-      "the connector returns an error response" in {
+      "the connector returns a left error response" in {
 
         val error = ErrorResponse(BAD_REQUEST, "oh noes")
 
@@ -88,13 +90,13 @@ class InterestSubmissionServiceSpec extends UnitTest {
           (connector.submit(_: Seq[InterestSubmissionModel], _: String, _: Int, _: String)(_: HeaderCarrier, _: ExecutionContext))
             .expects(accounts, "AA123456A", taxYear, "1234567890", *, *)
             .returning(Future.successful(
-              Left(error)
+              Left(DesErrorModel(INTERNAL_SERVER_ERROR, DesErrorBodyModel("test", "test")))
             ))
 
           await(service.submit(cyaModel, "AA123456A", taxYear, "1234567890"))
         }
 
-        result shouldBe Left(error)
+        result shouldBe Left(DesErrorModel(INTERNAL_SERVER_ERROR, DesErrorBodyModel("test", "test")))
       }
 
     }

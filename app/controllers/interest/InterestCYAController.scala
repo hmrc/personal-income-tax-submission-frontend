@@ -17,13 +17,11 @@
 package controllers.interest
 
 import audit.{AuditModel, AuditService, CreateOrAmendInterestAuditDetail}
-import common.{InterestTaxTypes, SessionValues}
-import config.AppConfig
+import common.{InterestTaxTypes, PageLocations, SessionValues}
+import config.{AppConfig, ErrorHandler}
 import controllers.predicates.AuthorisedAction
-import javax.inject.Inject
-import models.User
-import models.httpResponses.ErrorResponse
 import models.interest.{InterestCYAModel, InterestPriorSubmission}
+import models.{DesErrorBodyModel, DesErrorModel, User}
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc._
@@ -34,6 +32,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.InterestSessionHelper
 import views.html.interest.InterestCYAView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class InterestCYAController @Inject()(
@@ -41,7 +40,8 @@ class InterestCYAController @Inject()(
                                        authorisedAction: AuthorisedAction,
                                        interestCyaView: InterestCYAView,
                                        interestSubmissionService: InterestSubmissionService,
-                                       auditService: AuditService
+                                       auditService: AuditService,
+                                       errorHandler: ErrorHandler
                                      )
                                      (
                                        implicit appConfig: AppConfig
@@ -82,11 +82,11 @@ class InterestCYAController @Inject()(
       }
       case _ =>
         logger.info("[InterestCYAController][submit] CYA data or NINO missing from session.")
-        Future.successful(Left(ErrorResponse(BAD_REQUEST, "CYA data or NINO missing from session.")))
+        Future.successful(Left(DesErrorModel(BAD_REQUEST, DesErrorBodyModel("MISSING_DATA", "CYA data or NINO missing from session."))))
     }).map {
       case Right(_) =>
         Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).clearSessionData()
-      case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+      case Left(error) => errorHandler.handleError(error.status)
     }
   }
 

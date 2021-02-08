@@ -16,17 +16,35 @@
 
 package config
 
-import javax.inject.{Inject, Singleton}
-import play.api.i18n.MessagesApi
-import play.api.mvc.Request
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc.{Request, Result}
 import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
-import views.html.templates.ErrorTemplate
+import views.html.templates.{ErrorTemplate, NotFoundTemplate}
+import play.api.mvc.Results._
+import play.api.http.Status._
+
+import javax.inject.{Inject, Singleton}
 
 @Singleton
-class ErrorHandler @Inject()(errorTemplate: ErrorTemplate, val messagesApi: MessagesApi)(implicit appConfig: AppConfig)
-    extends FrontendErrorHandler {
+class ErrorHandler @Inject()(errorTemplate: ErrorTemplate,
+                             val messagesApi: MessagesApi,
+                             notFoundTemplate: NotFoundTemplate)(implicit appConfig: AppConfig)
+    extends FrontendErrorHandler with I18nSupport {
 
-  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): Html =
-    errorTemplate(pageTitle, heading, message)
+   def standardErrorTemplate(status: Int)(implicit request: Request[_]): Result =
+    InternalServerError(errorTemplate(status))
+
+  override def notFoundTemplate(implicit request: Request[_]): Html = notFoundTemplate()
+
+  def handleError(status: Int)(implicit request: Request[_]): Result = {
+    status match {
+      case SERVICE_UNAVAILABLE => ServiceUnavailable(errorTemplate(status))
+      case _ => InternalServerError(errorTemplate(status))
+    }
+
+
+  }
+
+  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): Html = ???
 }

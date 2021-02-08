@@ -18,18 +18,24 @@ package controllers.interest
 
 import audit.{AuditModel, CreateOrAmendInterestAuditDetail}
 import common.{InterestTaxTypes, SessionValues}
-import config.MockAuditService
-import models.httpResponses.ErrorResponse
+import config.{ErrorHandler, MockAuditService}
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
+import models.{DesErrorBodyModel, DesErrorModel}
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import org.scalamock.handlers.CallHandler
 import org.scalatest.GivenWhenThen
 import play.api.http.Status._
 import play.api.libs.json.{JsArray, Json}
-import play.api.mvc.{AnyContentAsEmpty, Result}
+import play.api.mvc.Results._
+import play.api.mvc.{AnyContentAsEmpty, Request, Result}
 import play.api.test.FakeRequest
 import services.InterestSubmissionService
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import utils.UnitTestWithApp
 import views.html.interest.InterestCYAView
+import views.html.templates.ErrorTemplate
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -37,12 +43,16 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
 
   lazy val view: InterestCYAView = app.injector.instanceOf[InterestCYAView]
   lazy val submissionService: InterestSubmissionService = mock[InterestSubmissionService]
+  val errorHandler: ErrorHandler = mock[ErrorHandler]
+  val errorTemplate: ErrorTemplate = app.injector.instanceOf[ErrorTemplate]
+
   lazy val controller: InterestCYAController = new InterestCYAController(
     mockMessagesControllerComponents,
     authorisedAction,
     view,
     submissionService,
-    mockAuditService
+    mockAuditService,
+    errorHandler
   )(mockAppConfig)
 
   val taxYear: Int = 2020
@@ -104,19 +114,20 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
 
   ".submit" should {
 
-    "redirect to the overview page" when {
+    "return an InternalServerError template page" when {
 
       "cya data is missing from session" in new TestWithAuth {
+
+        (errorHandler.handleError(_: Int)(_: Request[_]))
+          .expects(400, *)
+          .returning(InternalServerError(errorTemplate(400)))
 
         lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequest.withSession(
           SessionValues.CLIENT_NINO -> "AA123456A"
         ))
 
-        Then(s"has a status of SEE_OTHER ($SEE_OTHER)")
-        status(result) shouldBe SEE_OTHER
-
-        And("the correct redirect URL")
-        redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+        val document: Document = Jsoup.parse(bodyOf(result))
+        document.select("h1").first().text() shouldBe "Sorry, there is a problem with the service"
 
       }
 
@@ -124,11 +135,11 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
 
         "the submission is successful" in new TestWithAuth {
 
-          lazy val detail = CreateOrAmendInterestAuditDetail(Some(cyaModel), None, "AA123456A", "1234567890", 2020)
+          lazy val detail: CreateOrAmendInterestAuditDetail = CreateOrAmendInterestAuditDetail(Some(cyaModel), None, "AA123456A", "1234567890", 2020)
 
           lazy val event: AuditModel[CreateOrAmendInterestAuditDetail] = AuditModel("CreateOrAmendInterestUpdate", "createOrAmendInterestUpdate", detail)
 
-          def verifyInterestAudit = verifyAuditEvent[CreateOrAmendInterestAuditDetail](event)
+          def verifyInterestAudit: CallHandler[Future[AuditResult]] = verifyAuditEvent[CreateOrAmendInterestAuditDetail](event)
 
           val cyaModel: InterestCYAModel = InterestCYAModel(
             Some(true),
@@ -189,11 +200,12 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
               )
             ))
           )
-          lazy val detail = CreateOrAmendInterestAuditDetail(Some(cyaModel), Some(previousSubmission), "AA123456A", "1234567890", 2020)
+          lazy val detail: CreateOrAmendInterestAuditDetail = CreateOrAmendInterestAuditDetail(Some(cyaModel),
+            Some(previousSubmission), "AA123456A", "1234567890", 2020)
 
           lazy val event: AuditModel[CreateOrAmendInterestAuditDetail] = AuditModel("CreateOrAmendInterestUpdate", "createOrAmendInterestUpdate", detail)
 
-          def verifyInterestAudit = verifyAuditEvent[CreateOrAmendInterestAuditDetail](event)
+          def verifyInterestAudit: CallHandler[Future[AuditResult]] = verifyAuditEvent[CreateOrAmendInterestAuditDetail](event)
 
           val cyaModel: InterestCYAModel = InterestCYAModel(
             Some(true),
@@ -222,30 +234,71 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
           redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)
         }
 
-        "the submission is unsuccessful" in new TestWithAuth {
+        "there is an error posting downsteam" should {
 
-          val cyaModel: InterestCYAModel = InterestCYAModel(
-            Some(true),
-            Some(Seq(InterestAccountModel(None, "Dis bank m8", 250000.00, None))),
-            Some(false), None
-          )
+          "redirect to the 500 error template page" in new TestWithAuth {
 
-          lazy val result: Future[Result] = {
-            (submissionService.submit(_: InterestCYAModel, _: String, _: Int, _: String)(_: HeaderCarrier, _: ExecutionContext))
-              .expects(cyaModel, "AA123456A", taxYear, "1234567890", *, *)
-              .returning(Future.successful(Left(ErrorResponse(BAD_REQUEST, "uh oh"))))
+            val cyaModel: InterestCYAModel = InterestCYAModel(
+              Some(true),
+              Some(Seq(InterestAccountModel(None, "Santander", 250000.00, None))),
+              Some(false),
+              None
+            )
 
-            controller.submit(taxYear)(fakeRequestWithMtditidAndNino.withSession(
+            val errorResponseFromDes: Either[DesErrorModel, Int] =
+              Left(DesErrorModel(INTERNAL_SERVER_ERROR, DesErrorBodyModel("error", "error")))
+
+            lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
+              SessionValues.CLIENT_MTDITID -> Json.toJson("someMtdItid").toString(),
+              SessionValues.INTEREST_CYA -> Json.toJson(cyaModel).toString(),
               SessionValues.CLIENT_NINO -> "AA123456A",
-              SessionValues.INTEREST_CYA -> cyaModel.asJsonString
-            ))
+            )
+
+            (submissionService.submit(_: InterestCYAModel, _: String, _: Int, _: String)(_: HeaderCarrier, _: ExecutionContext))
+              .expects(cyaModel, "AA123456A", 2020, "1234567890", *, *)
+              .returning(Future.successful(errorResponseFromDes))
+
+            (errorHandler.handleError(_: Int)(_: Request[_]))
+              .expects(500, *)
+              .returning(InternalServerError(errorTemplate(500)))
+
+            val result: Future[Result] = controller.submit(2020)(request)
+
+            val document: Document = Jsoup.parse(bodyOf(result))
+            document.select("h1").first().text() shouldBe "Sorry, there is a problem with the service"
           }
 
-          Then(s"should return a SEE_OTHER ($SEE_OTHER) status")
-          status(result) shouldBe SEE_OTHER
+          "redirect to the 503 error template page when the service is unavailable" in new TestWithAuth {
+            val cyaModel: InterestCYAModel = InterestCYAModel(
+              Some(true),
+              Some(Seq(InterestAccountModel(None, "Santander", 250000.00, None))),
+              Some(false),
+              None
+            )
 
-          And("has the correct redirect url")
-          redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+            val errorResponseFromDes: Either[DesErrorModel, Int] =
+              Left(DesErrorModel(SERVICE_UNAVAILABLE, DesErrorBodyModel("error", "error")))
+
+            lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
+              SessionValues.CLIENT_MTDITID -> Json.toJson("someMtdItid").toString(),
+              SessionValues.INTEREST_CYA -> Json.toJson(cyaModel).toString(),
+              SessionValues.CLIENT_NINO -> "AA123456A",
+            )
+
+            (submissionService.submit(_: InterestCYAModel, _: String, _: Int, _: String)(_: HeaderCarrier, _: ExecutionContext))
+              .expects(cyaModel, "AA123456A", 2020, "1234567890", *, *)
+              .returning(Future.successful(errorResponseFromDes))
+
+            (errorHandler.handleError(_: Int)(_: Request[_]))
+              .expects(503, *)
+              .returning(ServiceUnavailable(errorTemplate(503)))
+
+            val result: Future[Result] = controller.submit(2020)(request)
+
+            val document: Document = Jsoup.parse(bodyOf(result))
+            document.select("h1").first().text() shouldBe "Sorry, the service is unavailable"
+
+          }
         }
 
       }

@@ -108,7 +108,7 @@ class InterestCYAControllerISpec extends IntegrationTest{
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
             SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
           ))
-          stubPut(s"/income-tax-dividends/income-tax/nino//sources\\?mtditid=1234567890&taxYear=2020", 204, "")
+          stubPost(s"/income-tax-interest/income-tax/nino/AA123456A/sources\\?taxYear=2020&mtditid=1234567890", 204, "")
 
           await(wsClient.url(s"$startUrl/2020/interest/check-your-answers")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
