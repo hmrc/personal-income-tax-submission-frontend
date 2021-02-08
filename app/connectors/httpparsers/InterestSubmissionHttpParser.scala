@@ -16,32 +16,54 @@
 
 package connectors.httpparsers
 
-import models.httpResponses.ErrorResponse
-import org.slf4j
-import play.api.Logger
+import models.{DesErrorBodyModel, DesErrorModel}
 import play.api.http.Status._
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
+import utils.PagerDutyHelper.PagerDutyKeys._
+import utils.PagerDutyHelper.pagerDutyLog
 
 object InterestSubmissionHttpParser {
-  private val logger: slf4j.Logger = Logger.logger
 
-  type InterestSubmissionsResponse = Either[ErrorResponse, Int]
+  type InterestSubmissionsResponse = Either[DesErrorModel, Int]
 
   implicit object InterestSubmissionResponseReads extends HttpReads[InterestSubmissionsResponse] {
     override def read(method: String, url: String, response: HttpResponse): InterestSubmissionsResponse = {
       response.status match  {
-        case `NO_CONTENT` => Right(NO_CONTENT)
-        case `BAD_REQUEST` =>
-          logger.info("[InterestSubmissionHttpParser][read] Bad request received from DES during interest submission.")
-          Left(ErrorResponse(BAD_REQUEST, "Bad request received from DES."))
-        case `INTERNAL_SERVER_ERROR` =>
-          logger.info("[InterestSubmissionHttpParser][read] Internal server error received from DES during interest submission.")
-          Left(ErrorResponse(INTERNAL_SERVER_ERROR, "Internal server error returned from DES."))
-        case unexpectedStatus =>
-          logger.info(s"[InterestSubmissionHttpParser][read] Unexpected status($unexpectedStatus) received from DES during interest submission.")
-          Left(ErrorResponse(unexpectedStatus, "Unexpected status returned from DES."))
+        case NO_CONTENT => Right(NO_CONTENT)
+        case BAD_REQUEST | FORBIDDEN | CONFLICT =>
+          pagerDutyLog(FOURXX_RESPONSE_FROM_API, logMessage(response))
+          handleDESError(response)
+        case INTERNAL_SERVER_ERROR =>
+          pagerDutyLog(INTERNAL_SERVER_ERROR_FROM_API, logMessage(response))
+          handleDESError(response)
+        case SERVICE_UNAVAILABLE =>
+          pagerDutyLog(SERVICE_UNAVAILABLE_FROM_API, logMessage(response))
+          handleDESError(response)
+        case _ =>
+          pagerDutyLog(UNEXPECTED_RESPONSE_FROM_API, logMessage(response))
+          handleDESError(response, Some(INTERNAL_SERVER_ERROR))
       }
     }
   }
+  private def logMessage(response:HttpResponse): Option[String] ={
+    Some(s"[InterestSubmissionHttpParser][read] Received ${response.status} from DES. Body:${response.body}")
+  }
+
+  private def handleDESError(response: HttpResponse, statusOverride: Option[Int] = None): InterestSubmissionsResponse = {
+    val status = statusOverride.getOrElse(response.status)
+
+    try {
+      response.json.validate[DesErrorBodyModel].fold[InterestSubmissionsResponse](
+        jsonErrors => {
+          pagerDutyLog(UNEXPECTED_RESPONSE_FROM_API, Some(s"[InterestSubmissionHttpParser][read] Unexpected Json from DES."))
+          Left(DesErrorModel(status, DesErrorBodyModel.parsingError))
+        },
+        parsedError => Left(DesErrorModel(status, parsedError))
+      )
+    } catch {
+      case _: Exception => Left(DesErrorModel(status, DesErrorBodyModel.parsingError))
+    }
+  }
+
 
 }

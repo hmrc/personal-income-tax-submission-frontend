@@ -1,8 +1,9 @@
+
 package controllers.interest
 
 import audit.AuditService
 import common.SessionValues
-import config.AppConfig
+import config.{AppConfig, ErrorHandler}
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
@@ -25,7 +26,8 @@ class InterestCYAControllerTest extends IntegrationTest {
       authAction(stubbedRetrieval, acceptedConfidenceLevels),
       app.injector.instanceOf[InterestCYAView],
       app.injector.instanceOf[InterestSubmissionService],
-      app.injector.instanceOf[AuditService]
+      app.injector.instanceOf[AuditService],
+      app.injector.instanceOf[ErrorHandler]
     )
   }
 
