@@ -16,6 +16,7 @@
 
 package forms
 
+import filters.InputFilters
 import forms.validation.StringConstraints._
 import forms.validation.utils.ConstraintUtil._
 import forms.validation.utils.MappingUtil._
@@ -24,7 +25,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.data.validation.Constraint
 
-object UntaxedInterestAmountForm {
+object UntaxedInterestAmountForm extends InputFilters{
 
   val untaxedAccountName = "untaxedAccountName"
   val untaxedAmount = "untaxedAmount"
@@ -39,6 +40,10 @@ object UntaxedInterestAmountForm {
       untaxedAmount -> trimmedText.verifying(
         amountNotEmpty andThen amountValCur
       )
-    )(UntaxedInterestModel.apply)(UntaxedInterestModel.unapply)
+    )(UntaxedInterestModel.apply)(UntaxedInterestModel.unapply).transform[UntaxedInterestModel](
+      details => details.copy(
+        untaxedAccountName = filter(details.untaxedAccountName)
+      ), x => x
+    )
   )
 }
