@@ -19,10 +19,17 @@
 @import models.interest.InterestCYAModel
 @import models.interest.InterestAccountModel
 @import views.html.templates.helpers.BigDecimalCurrency
+@import views.html.templates.helpers.Button
 @import common.InterestTaxTypes._
 @import models.interest.InterestPriorSubmission
 
-@this(layout: Layout, cyaRow: CYARow, bigDecimalCurrency: BigDecimalCurrency, formWithCSRF: FormWithCSRF)
+@this(
+    layout: Layout,
+    cyaRow: CYARow,
+    bigDecimalCurrency: BigDecimalCurrency,
+    formWithCSRF: FormWithCSRF,
+    button: Button
+)
 @(cyaModel: InterestCYAModel, taxYear: Int, priorSubmission: Option[InterestPriorSubmission] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @trueFalseToYesNo(input: Boolean) = @{
@@ -76,8 +83,6 @@
     </dl>
 
     @formWithCSRF(action = controllers.interest.routes.InterestCYAController.submit(taxYear)) {
-        <button class="govuk-button govuk-!-margin-top-6" data-module="govuk-button">
-           @messages("common.saveAndContinue")
-        </button>
+        @button("common.saveAndContinue", classes = Some("govuk-!-margin-top-6"))
     }
 }

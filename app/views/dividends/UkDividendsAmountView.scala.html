@@ -20,12 +20,21 @@
 @import play.api.mvc.Request
 @import play.api.i18n.Messages
 @import views.html.templates.helpers.ErrorSummaryDisplay
-@import views.html.templates.helpers.ContinueButton
+@import views.html.templates.helpers.Button
 @import models.formatHelpers.PriorOrNewAmountModel
 @import views.html.templates.helpers.PriorOrNewForm
 @import views.html.templates.helpers.InputHelper
+@import views.html.templates.helpers.InputText
 
-@this(layout: Layout, formWithCSRF: FormWithCSRF, errorSummaryDisplay: ErrorSummaryDisplay, priorOrNewForm: PriorOrNewForm, inputHelper: InputHelper)
+@this(
+     layout: Layout,
+     formWithCSRF: FormWithCSRF,
+     errorSummaryDisplay: ErrorSummaryDisplay,
+     priorOrNewForm: PriorOrNewForm,
+     inputHelper: InputHelper,
+     inputText: InputText,
+     button: Button
+)
 
 @(form: Either[Form[PriorOrNewAmountModel], Form[CurrencyAmountModel]], priorSubmission: Option[DividendsPriorSubmission], taxYear: Int, postAction: Call, preAmount: Option[BigDecimal] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
@@ -41,6 +50,16 @@
 @currencyFormHtml(formInput: Form[CurrencyAmountModel], ukDividendsAmount: String) = {
     @errorSummaryDisplay(formInput.errors.distinct)
 
+    @inputText(
+      formInput,
+      id = "amount",
+      name = "amount",
+      label = "dividends.uk-dividends-amount.heading",
+      isPageHeading = false,
+      currency = true,
+      subHeading = Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString))
+   )
+
     @heading
 
     <div class="govuk-form-group">
@@ -51,6 +70,8 @@
         isNumeric = true
     )
     </div>
+
+
 }
 
 @priorAmount() = @{
@@ -61,7 +82,7 @@
 
     @formWithCSRF(action = postAction) {
         @form.fold(priorForm => priorOrNewForm(heading, priorForm, priorAmount, "common.error.invalid_number", preAmount), currencyForm => currencyFormHtml(currencyForm, ukDividendsAmount))
-        @ContinueButton()
+        @button()
     }
 
 }

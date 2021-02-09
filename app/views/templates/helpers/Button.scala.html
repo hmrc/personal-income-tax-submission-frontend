@@ -14,7 +14,15 @@
  * limitations under the License.
  *@
 
-@(alternativeText: Option[String] = None)(implicit messages: Messages)
+@import uk.gov.hmrc.govukfrontend.views.html.components._
 
-<button formnovalidate class="govuk-button" type="submit" id="continue">@alternativeText.fold(messages("common.continue"))(x => x)</button>
+@this(govukButton : GovukButton)
 
+@(alternativeText: String = "common.continue", classes: Option[String] = None)(implicit messages: Messages)
+
+@govukButton(Button(
+    attributes = Map("id" -> "continue"),
+    preventDoubleClick = true,
+    content = Text(messages(alternativeText)),
+    classes = classes.getOrElse("")
+))

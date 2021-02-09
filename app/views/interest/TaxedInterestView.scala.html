@@ -16,10 +16,17 @@
 
 @import views.html.headerFooterTemplate.Layout
 @import views.html.templates.helpers.ErrorSummaryDisplay
+@import views.html.templates.helpers.Button
 @import views.html.templates.inputs.YesNoChoice
 @import models.formatHelpers.YesNoModel
 
-@this(layout: Layout, yesNoChoice: YesNoChoice, formWithCsrf: FormWithCSRF, errorSummary: ErrorSummaryDisplay)
+@this(
+    layout: Layout,
+    yesNoChoice: YesNoChoice,
+    formWithCsrf: FormWithCSRF,
+    errorSummary: ErrorSummaryDisplay,
+    button: Button
+)
 
 @(pageTitle: String, form: Form[YesNoModel], taxYear: Int, checked: String = "")(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
@@ -52,8 +59,6 @@
     @formWithCsrf(action = controllers.interest.routes.TaxedInterestController.submit(taxYear)) {
     @yesNoChoice("yes_no", form, checked)
 
-    <button class="govuk-button" type="submit" id="continue">
-        @messages("common.continue")
-    </button>
+    @button()
     }
 }

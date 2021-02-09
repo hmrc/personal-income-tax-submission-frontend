@@ -16,9 +16,10 @@
 
 @import views.html.headerFooterTemplate.Layout
 @import views.html.templates.helpers.CYARow
+@import views.html.templates.helpers.Button
 @import views.html.templates.helpers.BigDecimalCurrency
 
-@this(layout: Layout, formWithCSRF: FormWithCSRF, cyaRow: CYARow, bigDecimalCurrency: BigDecimalCurrency)
+@this(layout: Layout, formWithCSRF: FormWithCSRF, cyaRow: CYARow, bigDecimalCurrency: BigDecimalCurrency, button: Button)
 
 @(cya: DividendsCheckYourAnswersModel, prior: DividendsPriorSubmission = DividendsPriorSubmission(), taxYear: Int)(implicit user: User[AnyContent], messages: Messages, appConfig: AppConfig)
 
@@ -55,8 +56,6 @@
     </dl>
 
     @formWithCSRF(action = controllers.dividends.routes.DividendsCYAController.submit(taxYear)) {
-        <button class="govuk-button govuk-!-margin-top-6" data-module="govuk-button">
-            @messages("common.saveAndContinue")
-        </button>
+        @button("common.saveAndContinue", classes = Some("govuk-!-margin-top-6"))
     }
 }

@@ -14,19 +14,16 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.govukfrontend.views.html.components._
+@this()
 
-@this(govukPhaseBanner : GovukPhaseBanner)
+@(heading: String, subheading: Option[String], extraClasses: String = "govuk-!-margin-bottom-5")(implicit messages: Messages)
 
-@()(implicit messages: Messages)
+<header class="hmrc-page-heading govuk-!-margin-0 @extraClasses">
 
-@govukPhaseBanner(PhaseBanner(
-    tag = Some(Tag(
-    content = Text(messages("betaBar.beta"))
-    )),
-    content = HtmlContent(content)
-))
+    <h1 class="govuk-heading-l govuk-!-margin-0">@messages(heading)</h1>
+    @subheading.map{ subheading =>
+        <span class="govuk-caption-l hmrc-caption-xl">@messages(subheading)</span>
+    }
 
-@content = {
-    @messages("betaBar.banner.message.1") <a class="govuk-link" href="#">@messages("betaBar.banner.message.2")</a> @messages("betaBar.banner.message.3")
-}
+
+</header>

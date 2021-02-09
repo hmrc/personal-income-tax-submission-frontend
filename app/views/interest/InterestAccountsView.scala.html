@@ -17,10 +17,10 @@
 @import models.interest.InterestAccountModel
 @import views.html.headerFooterTemplate.Layout
 @import common.InterestTaxTypes._
-@import views.html.templates.helpers.ContinueButton
+@import views.html.templates.helpers.Button
 @import java.util.UUID.randomUUID
 
-@this(layout: Layout, formWithCSRF: FormWithCSRF)
+@this(layout: Layout, formWithCSRF: FormWithCSRF, button: Button)
 @(taxYear: Int, accounts: Seq[InterestAccountModel], taxType: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @h1Text = @{
@@ -105,6 +105,6 @@
     <div class="govuk-!-margin-bottom-6"><a class="govuk-link govuk-!-font-size-19" href=@addNewAccountLink>@messages("interest.accounts.addAnotherAccount")</a></div>
 
     @formWithCSRF(controllers.interest.routes.AccountsController.submit(taxYear, taxType)) {
-        @ContinueButton()
+        @button()
     }
 }
