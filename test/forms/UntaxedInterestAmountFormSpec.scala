@@ -32,6 +32,7 @@ class UntaxedInterestAmountFormSpec extends UnitTest {
   lazy val amountValid = "99.99"
   lazy val amountInvalid = ""
   lazy val amountInvalidEntry = "!"
+  lazy val amountTooBig = "100000000000"
 
   "UntaxedInterestAmountForm" should {
 
@@ -75,6 +76,13 @@ class UntaxedInterestAmountFormSpec extends UnitTest {
         val result = form.bind(testInput).errors
 
         result should contain(FormError(untaxedAmount, "common.error.invalid_number"))
+      }
+
+      "an amount entry is too big" in {
+        val testInput = Map(untaxedAccountName -> nameValid, untaxedAmount -> amountTooBig)
+        val result = form.bind(testInput).errors
+
+        result should contain(FormError(untaxedAmount, "common.error.amountMaxLimit"))
       }
     }
   }

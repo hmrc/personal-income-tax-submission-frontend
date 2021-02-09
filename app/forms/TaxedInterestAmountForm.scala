@@ -17,7 +17,7 @@
 package forms
 
 import filters.InputFilters
-import forms.validation.StringConstraints.{maxAmount, nonEmpty, validateCurrency}
+import forms.validation.StringConstraints._
 import forms.validation.utils.ConstraintUtil._
 import forms.validation.utils.MappingUtil.trimmedText
 import models.TaxedInterestModel

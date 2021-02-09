@@ -26,8 +26,9 @@ object StringConstraints {
 
   val monetaryRegex = """\d+|\d*\.\d{1,2}"""
 
-  val maxAmountRegex = """^(.[0-9]{1,10})"""
+  val maxAmountRegex = """^([0-9]{1,11}$)|^([0-9]{1,11})\.\d{1,2}"""
 
+//Regex needs changing - currently doesn't account for numbers after decimal point
 // previously tried this regex ^(?=.{1,11}$).*
 // and this one ^.{1,11}$.*
 
