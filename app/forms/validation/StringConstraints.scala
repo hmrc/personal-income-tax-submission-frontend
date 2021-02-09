@@ -26,6 +26,11 @@ object StringConstraints {
 
   val monetaryRegex = """\d+|\d*\.\d{1,2}"""
 
+  val maxAmountRegex = """^(.[0-9]{1,10})"""
+
+// previously tried this regex ^(?=.{1,11}$).*
+// and this one ^.{1,11}$.*
+
   val validateCurrency: String => Constraint[String] = msgKey => constraint[String](
     value => if(value.matches(monetaryRegex)) Valid else Invalid(msgKey)
   )
@@ -48,6 +53,10 @@ object StringConstraints {
 
   val noLeadingSpace: String => Constraint[String] = msgKey => constraint[String](
     x => if (x.headOption.contains(" ".head)) Invalid(msgKey) else Valid
+  )
+
+  val maxAmount: String => Constraint[String] = msgKey => constraint[String](
+  x => if (x.matches(maxAmountRegex)) Valid else Invalid(msgKey)
   )
 
 }

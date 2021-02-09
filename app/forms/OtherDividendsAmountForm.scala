@@ -30,11 +30,12 @@ object OtherDividendsAmountForm {
 
   val amountNotEmpty: Constraint[String] = nonEmpty("dividends.other-dividends-amount.error.empty")
   val amountValidInt: Constraint[String] = validateCurrency("common.error.invalid_number")
+  val amountMaxLimit: Constraint[String] = maxAmount("common.error.amountMaxLimit")
 
   def otherDividendsAmountForm(): Form[CurrencyAmountModel] = Form(
     mapping(
       otherDividendsAmount -> trimmedText.verifying(
-        amountNotEmpty andThen amountValidInt
+        amountNotEmpty andThen amountValidInt andThen amountMaxLimit
       )
     )(CurrencyAmountModel.apply)(CurrencyAmountModel.unapply)
   )
