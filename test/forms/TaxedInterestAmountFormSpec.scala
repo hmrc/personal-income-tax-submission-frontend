@@ -32,6 +32,7 @@ class TaxedInterestAmountFormSpec extends UnitTest{
   lazy val amountValid = "45.56"
   lazy val amountInvalidEmpty = ""
   lazy val amountInvalidInt = "!"
+  lazy val amountInvalidFormat = "12345.123"
   lazy val amountTooBig = "100000000000"
 
   "TaxedInterestFormSpec" should {
@@ -70,6 +71,13 @@ class TaxedInterestAmountFormSpec extends UnitTest{
         val result = form.bind(testInput).errors
 
         result should contain(FormError(taxedAmount, "common.error.invalid_number"))
+      }
+
+      "currency is invalid format" in {
+        val testInput = Map(taxedAccountName -> nameValid, taxedAmount -> amountInvalidFormat)
+        val result = form.bind(testInput).errors
+
+        result should contain(FormError(taxedAmount, "common.error.invalid_currency"))
       }
 
       "currency is too big" in {

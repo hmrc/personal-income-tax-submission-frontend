@@ -31,7 +31,7 @@ class OtherDividendsAmountFormSpec extends UnitTest {
   lazy val testCurrencyValid = "1000"
   lazy val testCurrencyEmpty = ""
   lazy val testCurrencyInvalidInt = "!"
-  lazy val testCurrencyInvalidFormat = "1234.123"
+  lazy val testCurrencyInvalidFormat = "12345.123"
   lazy val testCurrencyTooBig = "100000000000"
 
   "OtherDividendsFormSpec" should {

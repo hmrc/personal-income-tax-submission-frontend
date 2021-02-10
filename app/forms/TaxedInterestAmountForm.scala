@@ -32,14 +32,15 @@ object TaxedInterestAmountForm extends InputFilters{
 
   val nameNotEmpty: Constraint[String] = nonEmpty("interest.taxed-uk-interest-name.error.empty")
   val amountNotEmpty: Constraint[String] = nonEmpty("interest.taxed-uk-interest-amount.error.empty")
-  val amountValidCur: Constraint[String] = validateCurrency("common.error.invalid_number")
+  val amountValidNumericalCharacters: Constraint[String] = validateNumericalCharacters("common.error.invalid_number")
+  val amountValidCurrency: Constraint[String] = validateCurrency("common.error.invalid_currency")
   val amountMaxLimit: Constraint[String] = maxAmount("common.error.amountMaxLimit")
 
   def taxedInterestAmountForm(): Form[TaxedInterestModel] = Form(
     mapping(
       taxedAccountName -> trimmedText.verifying(nameNotEmpty),
       taxedAmount -> trimmedText.verifying(
-        amountNotEmpty andThen amountValidCur andThen amountMaxLimit
+        amountNotEmpty andThen amountValidNumericalCharacters andThen amountValidCurrency andThen amountMaxLimit
       )
     )(TaxedInterestModel.apply)(TaxedInterestModel.unapply).transform[TaxedInterestModel](
       details => details.copy(
