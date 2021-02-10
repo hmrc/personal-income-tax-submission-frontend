@@ -64,6 +64,8 @@ object PriorOrNewAmountForm {
           Right(Some(currentAmount))
         case (Some(`otherAmount`), Some(someAmount)) if !isANumber(someAmount) =>
           Left(Seq(FormError(otherAmountInput, messages("common.error.invalid_number"))))
+        case (Some(`otherAmount`), Some(someAmount)) if !isTooBig(someAmount) =>
+          Left(Seq(FormError(otherAmountInput, messages("common.error.amountMaxLimit"))))
         case (Some(`otherAmount`), Some(someAmount)) if isANumber(someAmount) =>
           Right(Some(BigDecimal(someAmount)))
         case _ =>
@@ -88,6 +90,11 @@ object PriorOrNewAmountForm {
 
   def isANumber(input: String): Boolean = {
     val regex: String = """\d+|\d*\.\d{1,2}"""
+    input.matches(regex)
+  }
+
+  def isTooBig(input: String): Boolean = {
+    val regex: String = """^([0-9]{1,11}$)|^([0-9]{1,11})\.\d{1,2}"""
     input.matches(regex)
   }
 
