@@ -17,11 +17,17 @@
 @import models.formatHelpers.PriorOrNewAmountModel
 @import views.html.templates.helpers.PriorOrNewForm
 @import views.html.headerFooterTemplate.Layout
-@import views.html.templates.helpers.{Button, ErrorSummaryDisplay, InputHelper}
+@import views.html.templates.helpers.{Button, ErrorSummary}
 @import models.interest.InterestAccountModel
 @import common.InterestTaxTypes._
 
-@this(layout: Layout, formWithCSRF: FormWithCSRF, errorSummaryDisplay: ErrorSummaryDisplay, priorOrNewForm: PriorOrNewForm, inputHelper: InputHelper, button: Button)
+@this(
+   layout: Layout,
+   formWithCSRF: FormWithCSRF,
+   errorSummary: ErrorSummary,
+   priorOrNewForm: PriorOrNewForm,
+   button: Button
+)
 @(form: Form[PriorOrNewAmountModel], postAction: Call, taxYear: Int, taxType: String, account: InterestAccountModel,  preAmount: Option[BigDecimal] = None)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @scripts = {

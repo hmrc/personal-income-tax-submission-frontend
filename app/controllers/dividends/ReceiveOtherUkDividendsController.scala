@@ -22,7 +22,7 @@ import controllers.predicates.AuthorisedAction
 import forms.YesNoForm
 import javax.inject.Inject
 import models.DividendsCheckYourAnswersModel
-import models.formatHelpers.YesNoModel
+
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -36,7 +36,7 @@ class ReceiveOtherUkDividendsController @Inject()(
                                                  implicit val appConfig: AppConfig
                                           ) extends FrontendController(cc) with I18nSupport {
 
-  val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("dividends.other-dividends.errors.noChoice")
+  val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("dividends.other-dividends.errors.noChoice")
 
   def show(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
     DividendsCheckYourAnswersModel.fromSession() match {
@@ -62,7 +62,7 @@ class ReceiveOtherUkDividendsController @Inject()(
             case None => DividendsCheckYourAnswersModel()
           }
 
-          if (yesNoModel.asBoolean) {
+          if (yesNoModel) {
             Redirect(controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear))
               .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherUkDividends = Some(true)).asJsonString)
           } else {

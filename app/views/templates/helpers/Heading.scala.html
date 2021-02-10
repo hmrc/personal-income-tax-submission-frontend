@@ -16,13 +16,13 @@
 
 @this()
 
-@(heading: String, subheading: Option[String], extraClasses: String = "govuk-!-margin-bottom-5")(implicit messages: Messages)
+@(heading: String, subheading: Option[String], extraClasses: String = "", size: String = "l")(implicit messages: Messages)
 
 <header class="hmrc-page-heading govuk-!-margin-0 @extraClasses">
 
-    <h1 class="govuk-heading-l govuk-!-margin-0">@messages(heading)</h1>
+    <h1 class="govuk-heading-@{size} govuk-!-margin-0">@messages(heading)</h1>
     @subheading.map{ subheading =>
-        <span class="govuk-caption-l hmrc-caption-xl">@messages(subheading)</span>
+        <span class="govuk-caption-@{size} hmrc-caption-xl">@messages(subheading)</span>
     }
 
 

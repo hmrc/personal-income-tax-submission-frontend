@@ -15,6 +15,7 @@ common.aDifferentAmount = A different amount
 common.enterAmount = Enter amount
 common.remove = Remove
 
+error.summary.title = There is a problem
 common.error.errorKey = Error:
 common.error.invalid_number = Enter an amount using numbers 0 to 9
 common.error.priorOrNewAmount.noRadioSelected = Select £{0} or enter a different amount

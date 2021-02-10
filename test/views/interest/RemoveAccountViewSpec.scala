@@ -17,7 +17,7 @@
 package views.interest
 
 import forms.YesNoForm
-import models.formatHelpers.YesNoModel
+
 import models.interest.InterestAccountModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document

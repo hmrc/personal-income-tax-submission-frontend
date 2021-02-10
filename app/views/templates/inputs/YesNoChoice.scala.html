@@ -14,11 +14,9 @@
  * limitations under the License.
  *@
 
-@import models.formatHelpers.YesNoModel
-
 @this()
 
-@(id: String, form: Form[YesNoModel], checked: String)(implicit messages: Messages)
+@(id: String, form: Form[Boolean], checked: String)(implicit messages: Messages)
 
 @containsErrors = @{ form.errors.nonEmpty }
 

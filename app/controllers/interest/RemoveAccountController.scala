@@ -22,7 +22,7 @@ import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import forms.YesNoForm
 import models.User
-import models.formatHelpers.YesNoModel
+
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
 import play.api.Logger
 import play.api.data.Form
@@ -44,7 +44,7 @@ class RemoveAccountController @Inject()(
                                        ) extends FrontendController(mcc) with I18nSupport {
 
   private val logger = Logger.logger
-  val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("interest.remove-account.errors.noRadioSelected")
+  val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("interest.remove-account.errors.noRadioSelected")
 
   implicit def resultToFutureResult: Result => Future[Result] = baseResult => Future.successful(baseResult)
 
@@ -105,13 +105,13 @@ class RemoveAccountController @Inject()(
                                        taxYear: Int,
                                        taxType: String,
                                        accountId: String,
-                                       yesNoModel: YesNoModel,
+                                       yesNoModel: Boolean,
                                        cyaData: InterestCYAModel
                                      )(implicit user: User[_]): Result = {
 
     getTaxAccounts(taxType, cyaData) match {
       case Some(taxAccounts) if taxAccounts.nonEmpty =>
-        if (yesNoModel.asBoolean) {
+        if (yesNoModel) {
           val updatedAccounts = taxAccounts.filterNot(account => account.id.getOrElse(account.uniqueSessionId.getOrElse("")) == accountId)
           if (taxType == UNTAXED) {
             handleUntaxedUpdate(taxYear, taxType, cyaData, updatedAccounts)

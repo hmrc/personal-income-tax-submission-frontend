@@ -16,10 +16,10 @@
 
 @import models.formatHelpers.PriorOrNewAmountModel
 
-@this(errorSummaryDisplay: ErrorSummaryDisplay, bigDecimalCurrency: BigDecimalCurrency)
+@this(errorSummary: ErrorSummary, bigDecimalCurrency: BigDecimalCurrency)
 @(heading: Html, formInput: Form[PriorOrNewAmountModel], priorAmount: Option[BigDecimal], errorKey: String, preFill: Option[BigDecimal] = None)(implicit messages: Messages)
 
-@errorSummaryDisplay(formInput.errors.distinct)
+@errorSummary(formInput.errors.distinct)
 
 @containsErrors = @{
     formInput.errors.nonEmpty

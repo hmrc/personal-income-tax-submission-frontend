@@ -31,7 +31,8 @@
     autocomplete: Option[String] = None,
     inputType: String = "text",
     currency: Boolean = false,
-    subHeading: Option[String] = None
+    subheading: Option[String] = None,
+    headingClasses: String = ""
 )(implicit messages: Messages)
 
 @govukInput(Input(
@@ -39,7 +40,7 @@
     name,
     classes = if(currency) "govuk-input--width-10 " + classes.fold("")(x => x) else classes.fold("")(x => x),
     label = Label(
-        content = if(subHeading.isDefined) HtmlContent(heading(messages(label, headingMessageArgs:_*), Some(subHeading.get))) else Text(messages(label, headingMessageArgs:_*)),
+        content = if(subheading.isDefined) HtmlContent(heading(messages(label, headingMessageArgs:_*), Some(subheading.get), headingClasses)) else Text(messages(label, headingMessageArgs:_*)),
         isPageHeading = isPageHeading,
         classes = if(isPageHeading) "govuk-label--xl " + labelClasses.fold("")(cls => cls) else labelClasses.fold("")(cls => cls)
     ),

@@ -15,50 +15,50 @@
  *@
 
 @import views.html.headerFooterTemplate.Layout
-@import views.html.templates.helpers.ErrorSummaryDisplay
+@import views.html.templates.helpers.ErrorSummary
 @import views.html.templates.helpers.Button
-@import views.html.templates.inputs.YesNoChoice
-@import models.formatHelpers.YesNoModel
+@import views.html.templates.helpers.InputRadio
 
 @this(
     layout: Layout,
-    yesNoChoice: YesNoChoice,
+    inputRadio: InputRadio,
     formWithCsrf: FormWithCSRF,
-    errorSummary: ErrorSummaryDisplay,
+    errorSummary: ErrorSummary,
     button: Button
 )
 
-@(pageTitle: String, form: Form[YesNoModel], taxYear: Int, checked: String = "")(implicit user: User[_], messages: Messages, appConfig: AppConfig)
-
-@pageTitleToUse = @{
-    messages(pageTitle)
-}
+@(pageTitle: String, form: Form[Boolean], taxYear: Int, checked: String = "")(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @headingForUse = @{
     if(user.isAgent) messages("interest.taxed-uk-interest.heading.agent") else messages("interest.taxed-uk-interest.heading.individual")
 }
 
-@layout(Some(pageTitleToUse), taxYear = Some(taxYear)) {
-
-    @errorSummary(form.errors, Some("yes_no_yes"))
-
-    <span class="govuk-caption-l">@messages("interest.caption", (taxYear - 1).toString, taxYear.toString)</span>
-
-    <h1 class="govuk-heading-l govuk-!-margin-bottom-3">@headingForUse</h1>
-
-    <span class="govuk-caption-m govuk-!-margin-bottom-4">
+@hint = {
+    <p class="govuk-!-margin-top-0">
         @messages("interest.taxed-uk-interest.paragraph.1")
-         <ul class="govuk-caption-m govuk-!-margin-bottom-4">
+         <ul>
              <li>@messages("interest.taxed-uk-interest.list.1")</li>
              <li>@messages("interest.taxed-uk-interest.list.2")</li>
              <li>@messages("interest.taxed-uk-interest.list.3")</li>
          </ul>
         @messages("interest.taxed-uk-interest.paragraph.2")
-    </span>
+    </p>
+}
+
+@layout(Some(messages(pageTitle)), taxYear = Some(taxYear)) {
+
+    @errorSummary(form.errors)
 
     @formWithCsrf(action = controllers.interest.routes.TaxedInterestController.submit(taxYear)) {
-    @yesNoChoice("yes_no", form, checked)
 
-    @button()
+        @inputRadio(
+            form = form,
+            legend = headingForUse,
+            hint = Some(hint),
+            inline = true,
+            subheading = Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString))
+        )
+
+        @button()
     }
 }

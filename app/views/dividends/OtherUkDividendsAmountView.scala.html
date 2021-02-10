@@ -19,13 +19,20 @@
 @import forms.OtherDividendsAmountForm._
 @import play.api.mvc.Request
 @import play.api.i18n.Messages
-@import views.html.templates.helpers.InputHelper
-@import views.html.templates.helpers.ErrorSummaryDisplay
+@import views.html.templates.helpers.ErrorSummary
+@import views.html.templates.helpers.InputText
 @import views.html.templates.helpers.Button
 @import models.formatHelpers.PriorOrNewAmountModel
 @import views.html.templates.helpers.PriorOrNewForm
 
-@this(layout: Layout, formWithCSRF: FormWithCSRF, errorSummaryDisplay: ErrorSummaryDisplay, priorOrNewForm: PriorOrNewForm, inputHelper: InputHelper, button: Button)
+@this(
+   layout: Layout,
+   formWithCSRF: FormWithCSRF,
+   errorSummary: ErrorSummary,
+   priorOrNewForm: PriorOrNewForm,
+   button: Button,
+   inputText: InputText
+)
 
 @(form: Either[Form[PriorOrNewAmountModel], Form[CurrencyAmountModel]], priorSubmission: Option[DividendsPriorSubmission], taxYear: Int, postAction: Call, preAmount: Option[BigDecimal] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
@@ -39,18 +46,18 @@
 }
 
 @currencyFormHtml(formInput: Form[CurrencyAmountModel], otherDividendsAmount: String) = {
- @errorSummaryDisplay(formInput.errors.distinct)
+ @errorSummary(formInput.errors.distinct)
 
- @heading
-
-  <div class="govuk-form-group">
-  @inputHelper(
-   field = formInput(otherDividendsAmount),
-   value = preAmount,
-   parentForm = otherDividendsAmountForm,
-   isNumeric = true
-  )
-  </div>
+   @inputText(
+      formInput,
+      id = "amount",
+      name = "amount",
+      label = "dividends.other-dividends-amount.heading",
+      isPageHeading = false,
+      currency = true,
+      subheading = Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)),
+      headingClasses = "govuk-!-margin-bottom-5"
+   )
 }
 
 @priorAmount() = @{

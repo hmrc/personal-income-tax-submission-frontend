@@ -17,21 +17,21 @@
 package forms
 
 import forms.YesNoForm.{no => nope, _}
-import models.formatHelpers.YesNoModel
+
 import play.api.data.{Form, FormError}
 import utils.UnitTest
 
 class YesNoFormSpec extends UnitTest {
 
-  val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("someError")
+  val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("someError")
 
   "YesNoForm" should {
 
-    "return a YesNoModel" when {
+    "return a Boolean" when {
 
       "the answer is yes" in {
 
-        val expectedResult = YesNoModel(yes)
+        val expectedResult = true
         val result = yesNoForm.bind(Map(yesNo -> yes)).get
 
         result shouldBe expectedResult
@@ -39,7 +39,7 @@ class YesNoFormSpec extends UnitTest {
 
       "the answer is no" in {
 
-        val expectedResult = YesNoModel(nope)
+        val expectedResult = false
         val result = yesNoForm.bind(Map(yesNo -> nope)).get
 
         result shouldBe expectedResult
@@ -48,7 +48,7 @@ class YesNoFormSpec extends UnitTest {
     }
 
     "return a map on unbind" in {
-      YesNoForm.formatter("SomeError").unbind("yes_no", YesNoModel("SomeError")) shouldBe Map("yes_no" -> "SomeError")
+      YesNoForm.formatter("SomeError").unbind("value", false) shouldBe Map("value" -> "SomeError")
     }
 
     "return an error" when {

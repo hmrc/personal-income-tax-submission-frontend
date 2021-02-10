@@ -16,56 +16,53 @@
 
 @import views.html.headerFooterTemplate.Layout
 @import views.html.templates.helpers.Button
-@import views.html.templates.helpers.ErrorSummaryDisplay
-@import views.html.templates.inputs.YesNoChoice
-@import models.formatHelpers.YesNoModel
+@import views.html.templates.helpers.ErrorSummary
+@import views.html.templates.helpers.InputRadio
+@import views.html.templates.helpers.Details
 
+@this(
+    layout: Layout,
+    formWithCsrf: FormWithCSRF,
+    errorSummary: ErrorSummary,
+    button: Button,
+    inputRadio: InputRadio,
+    details: Details
+)
 
-@this(layout: Layout, yesNoChoice: YesNoChoice, formWithCsrf: FormWithCSRF, errorSummary: ErrorSummaryDisplay, button: Button)
-
-@(pageTitle: String, form: Form[YesNoModel], taxYear: Int, checked: String = "")(implicit user: User[_], messages: Messages, appConfig: AppConfig)
-
-@pageTitleToUse = @{
-    messages(pageTitle)
-}
+@(pageTitle: String, form: Form[Boolean], taxYear: Int, checked: String = "")(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @headingForUse = @{
     if(user.isAgent) messages("dividends.other-dividends.heading.agent") else messages("dividends.other-dividends.heading.individual")
 }
 
-@layout(pageTitle = Some(pageTitleToUse), taxYear = Some(taxYear)) {
+@layout(pageTitle = Some(messages(pageTitle)), taxYear = Some(taxYear)) {
 
-    @errorSummary(form.errors, Some("yes_no_yes"))
-
-    <span class="govuk-caption-l">@messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)</span>
-    <h1 class="govuk-heading-l govuk-!-margin-bottom-3">@headingForUse</h1>
-
-    <span class="govuk-caption-m govuk-!-margin-bottom-4">
-        <span class="govuk-caption-m govuk-!-margin-bottom-4">@messages("dividends.other-dividends-amount.paragraph.1")</span>
-        <span class="govuk-caption-m govuk-!-margin-bottom-4">@messages("dividends.other-dividends-amount.paragraph.2")</span>
-
-    </span>
+    @errorSummary(form.errors)
 
     @formWithCsrf(action = controllers.dividends.routes.ReceiveOtherUkDividendsController.submit(taxYear)) {
-        @yesNoChoice("yes_no", form, checked)
+
+        @inputRadio(
+            form = form,
+            legend = headingForUse,
+            hint = Some(hint),
+            inline = true,
+            subheading = Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString))
+        )
 
         @button()
 
-    <details class="govuk-details" data-module="govuk-details">
-        <summary class="govuk-details__summary">
-            <span class="govuk-details__summary-text">
-                @messages("dividends.other-dividends-amount.details.title")
-            </span>
-        </summary>
-        <div class="govuk-details__text">
-
-            <div class="govuk-body">
-                <p>@messages("dividends.other-dividends-amount.details.paragraph.1")</p>
-                <p>@messages("dividends.other-dividends-amount.details.paragraph.2")</p>
-                <p>@messages("dividends.other-dividends-amount.details.paragraph.3")</p>
-            </div>
-        </div>
-    </details>
-
     }
+
+    @details("dividends.other-dividends-amount.details.title", detailsHtml)
+}
+
+@hint = {
+    <p>@messages("dividends.other-dividends-amount.paragraph.1")</p>
+    <p>@messages("dividends.other-dividends-amount.paragraph.2")</p>
+}
+
+@detailsHtml = {
+    <p>@messages("dividends.other-dividends-amount.details.paragraph.1")</p>
+    <p>@messages("dividends.other-dividends-amount.details.paragraph.2")</p>
+    <p>@messages("dividends.other-dividends-amount.details.paragraph.3")</p>
 }
