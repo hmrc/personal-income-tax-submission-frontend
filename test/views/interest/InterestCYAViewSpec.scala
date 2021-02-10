@@ -64,9 +64,9 @@ class InterestCYAViewSpec extends ViewTest {
     val questionTaxedInterestExpected = "Taxed UK Interest?"
     val question4TaxedInterestDetailExpected = "Details for the taxed UK interest?"
 
-    val untaxedInterestAccount1ExpectedTest = "UntaxedBank1 : £100.00"
-    val taxedInterestAccount1ExpectedTest = "TaxedBank1 : £200.00"
-    val taxedInterestAccount2ExpectedTest = "TaxedBank2 : £400.00"
+    val untaxedInterestAccount1ExpectedTest = "UntaxedBank1 : £100"
+    val taxedInterestAccount1ExpectedTest = "TaxedBank1 : £200"
+    val taxedInterestAccount2ExpectedTest = "TaxedBank2 : £400"
 
     val submitText = "Save and continue"
 
@@ -347,11 +347,11 @@ class InterestCYAViewSpec extends ViewTest {
         }
 
         "question 1 answer should be No" in {
-          elementText(Selectors.yesNoQuestionAnswer(1)) shouldBe "TSB : £100.00"
+          elementText(Selectors.yesNoQuestionAnswer(1)) shouldBe "TSB : £100"
         }
 
         "question 2 answer should be No" in {
-          elementText(Selectors.yesNoQuestionAnswer(2)) shouldBe "TSB Account : £100.00"
+          elementText(Selectors.yesNoQuestionAnswer(2)) shouldBe "TSB Account : £100"
         }
 
         "there is no question 3" in {
