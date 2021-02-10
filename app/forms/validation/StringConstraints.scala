@@ -24,6 +24,8 @@ object StringConstraints {
   val charRegex = """^([ A-Za-z0-9&@£$€¥#.,:;-])*$"""
   val intRegex = """^[0-9]*$"""
 
+  val numericalCharacters = """[0-9.]*"""
+
   val monetaryRegex = """\d+|\d*\.\d{1,2}"""
 
   val maxAmountRegex = """^([0-9]{1,11}$)|^([0-9]{1,11})\.\d{1,2}"""
@@ -38,6 +40,10 @@ object StringConstraints {
 
   val validateInt: String => Constraint[String] = msgKey => constraint[String](
     x => if (x.matches(intRegex)) Valid else Invalid(msgKey)
+  )
+
+  val validateNumericalCharacters: String => Constraint[String] = msgKey => constraint[String](
+    x => if (x.matches(numericalCharacters)) Valid else Invalid(msgKey)
   )
 
   val validateChar: String => Constraint[String] = msgKey => constraint[String](
