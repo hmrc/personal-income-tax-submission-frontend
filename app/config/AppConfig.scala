@@ -16,15 +16,14 @@
 
 package config
 
-import javax.inject.{Inject, Singleton}
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import javax.inject.{Inject, Singleton}
+
 @Singleton
 class AppConfig @Inject()(servicesConfig: ServicesConfig) {
-  private val rootServices = "microservice.services"
-
   private lazy val signInBaseUrl: String = servicesConfig.getString(ConfigKeys.signInUrl)
 
   private lazy val signInContinueBaseUrl: String = servicesConfig.getString(ConfigKeys.signInContinueBaseUrl)
@@ -44,12 +43,7 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
     "/start"
 
   lazy private val appUrl: String = servicesConfig.getString("microservice.url")
-  lazy private val contactFrontEndUrl = {
-    val protocol = servicesConfig.getString(s"$rootServices.contact-frontend.protocol")
-    val host = servicesConfig.getString(s"$rootServices.contact-frontend.host")
-    val port = servicesConfig.getString(s"$rootServices.contact-frontend.port")
-    s"$protocol://$host:$port"
-  }
+  lazy private val contactFrontEndUrl = servicesConfig.baseUrl("contact-frontend")
 
   lazy private val contactFormServiceIdentifier = "update-and-submit-income-tax-return"
 

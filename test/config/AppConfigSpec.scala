@@ -21,13 +21,9 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.UnitTest
 
 class AppConfigSpec extends UnitTest {
-
-  private val rootServices = "microservice.services"
   private val mockServicesConfig: ServicesConfig = mock[ServicesConfig]
   private val appUrl = "http://localhost:9308"
-  (mockServicesConfig.getString _).expects(s"$rootServices.contact-frontend.protocol").returns("http")
-  (mockServicesConfig.getString _).expects(s"$rootServices.contact-frontend.host").returns("contact-frontend")
-  (mockServicesConfig.getString _).expects(s"$rootServices.contact-frontend.port").returns("9250")
+  (mockServicesConfig.baseUrl _).expects("contact-frontend").returns("http://contact-frontend:9250")
   (mockServicesConfig.getString _).expects("microservice.url").returns(appUrl)
 
   "AppConfig" should {
