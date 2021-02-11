@@ -64,15 +64,15 @@ class OtherDividendsAmountFormSpec extends UnitTest {
     "invalidate a currency that has incorrect formatting" in {
       val testInput = Map(otherDividendsAmount -> testCurrencyInvalidFormat)
 
-      val bigCurrency = form.bind(testInput)
-      bigCurrency.errors should contain(FormError(otherDividendsAmount, "common.error.invalid_currency"))
+      val invalidFormatTest = form.bind(testInput)
+      invalidFormatTest.errors should contain(FormError(otherDividendsAmount, "common.error.invalid_currency"))
     }
 
     "invalidate a currency that is too big" in {
       val testInput = Map(otherDividendsAmount -> testCurrencyTooBig)
 
-      val bigCurrency = form.bind(testInput)
-      bigCurrency.errors should contain(FormError(otherDividendsAmount, "common.error.amountMaxLimit"))
+      val bigCurrencyTest = form.bind(testInput)
+      bigCurrencyTest.errors should contain(FormError(otherDividendsAmount, "common.error.amountMaxLimit"))
     }
 
     "remove a leading space from a currency" in {

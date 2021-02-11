@@ -30,9 +30,6 @@ object StringConstraints {
 
   val maxAmountRegex = """^([0-9]{1,11}$)|^([0-9]{1,11})\.\d{1,2}"""
 
-//Regex needs changing - currently doesn't account for numbers after decimal point
-// previously tried this regex ^(?=.{1,11}$).*
-// and this one ^.{1,11}$.*
 
   val validateCurrency: String => Constraint[String] = msgKey => constraint[String](
     value => if(value.matches(monetaryRegex)) Valid else Invalid(msgKey)
@@ -65,5 +62,11 @@ object StringConstraints {
   val maxAmount: String => Constraint[String] = msgKey => constraint[String](
   x => if (x.matches(maxAmountRegex)) Valid else Invalid(msgKey)
   )
+
+  val nameNotEmpty: Constraint[String] = nonEmpty("interest.untaxed-uk-interest-name.error.empty")
+  val amountNotEmpty: Constraint[String] = nonEmpty("interest.untaxed-uk-interest-amount.error.empty")
+  val amountValidNumericalCharacters: Constraint[String] = validateNumericalCharacters("common.error.invalid_number")
+  val amountValidCurrency: Constraint[String] = validateCurrency("common.error.invalid_currency")
+  val amountMaxLimit: Constraint[String] = maxAmount("common.error.amountMaxLimit")
 
 }
