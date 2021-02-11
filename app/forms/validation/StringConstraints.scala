@@ -63,8 +63,6 @@ object StringConstraints {
   x => if (x.matches(maxAmountRegex)) Valid else Invalid(msgKey)
   )
 
-  val nameNotEmpty: Constraint[String] = nonEmpty("interest.untaxed-uk-interest-name.error.empty")
-  val amountNotEmpty: Constraint[String] = nonEmpty("interest.untaxed-uk-interest-amount.error.empty")
   val amountValidNumericalCharacters: Constraint[String] = validateNumericalCharacters("common.error.invalid_number")
   val amountValidCurrency: Constraint[String] = validateCurrency("common.error.invalid_currency")
   val amountMaxLimit: Constraint[String] = maxAmount("common.error.amountMaxLimit")
