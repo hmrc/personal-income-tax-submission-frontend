@@ -17,7 +17,7 @@
 @import models.formatHelpers.PriorOrNewAmountModel
 @import views.html.templates.helpers.PriorOrNewForm
 @import views.html.headerFooterTemplate.Layout
-@import views.html.templates.helpers.{Button, ErrorSummary}
+@import views.html.templates.helpers.{Button, ErrorSummary, Heading}
 @import models.interest.InterestAccountModel
 @import common.InterestTaxTypes._
 
@@ -26,7 +26,8 @@
    formWithCSRF: FormWithCSRF,
    errorSummary: ErrorSummary,
    priorOrNewForm: PriorOrNewForm,
-   button: Button
+   button: Button,
+   heading: Heading
 )
 @(form: Form[PriorOrNewAmountModel], postAction: Call, taxYear: Int, taxType: String, account: InterestAccountModel,  preAmount: Option[BigDecimal] = None)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
@@ -48,16 +49,15 @@
     }
 }
 
-@heading(account: InterestAccountModel) = {
-    <span class="govuk-caption-l">@messages("interest.caption", (taxYear - 1).toString, taxYear.toString)</span>
-    <h1 class="govuk-heading-l govuk-!-margin-bottom-4">@messages(headingRef, account.accountName)</h1>
+@headingToUse = {
+    @heading(messages(headingRef, account.accountName), Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 }
 
 @layout(pageTitle = Some(messages(titleRef)), scriptsBlock = Some(scripts), taxYear = Some(taxYear)) {
 
     @formWithCSRF(action = postAction) {
 
-        @priorOrNewForm(heading(account), form, Some(account.amount), "common.error.invalid_number", preAmount)
+        @priorOrNewForm(headingToUse, form, Some(account.amount), "common.error.invalid_number", preAmount)
 
         @button()
     }

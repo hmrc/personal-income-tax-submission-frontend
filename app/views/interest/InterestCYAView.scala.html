@@ -20,6 +20,7 @@
 @import models.interest.InterestAccountModel
 @import views.html.templates.helpers.BigDecimalCurrency
 @import views.html.templates.helpers.Button
+@import views.html.templates.helpers.Heading
 @import common.InterestTaxTypes._
 @import models.interest.InterestPriorSubmission
 
@@ -28,7 +29,8 @@
     cyaRow: CYARow,
     bigDecimalCurrency: BigDecimalCurrency,
     formWithCSRF: FormWithCSRF,
-    button: Button
+    button: Button,
+    heading: Heading
 )
 @(cyaModel: InterestCYAModel, taxYear: Int, priorSubmission: Option[InterestPriorSubmission] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
@@ -60,8 +62,7 @@
 
 @layout(Some(messages("interest.cya.title")), taxYear = Some(taxYear)) {
 
-    <div class="govuk-caption-l">@messages("interest.caption", (taxYear - 1).toString, taxYear.toString)</div>
-    <h1 class="govuk-heading-l">@messages("interest.cya.h1")</h1>
+    @heading("interest.cya.h1", Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 
     <dl class="govuk-summary-list">
         @if(!priorSubmission.exists(_.hasUntaxed)) {

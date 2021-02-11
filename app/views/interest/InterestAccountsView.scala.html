@@ -18,9 +18,16 @@
 @import views.html.headerFooterTemplate.Layout
 @import common.InterestTaxTypes._
 @import views.html.templates.helpers.Button
+@import views.html.templates.helpers.Heading
 @import java.util.UUID.randomUUID
 
-@this(layout: Layout, formWithCSRF: FormWithCSRF, button: Button)
+@this(
+    layout: Layout,
+    formWithCSRF: FormWithCSRF,
+    button: Button,
+    heading: Heading
+)
+
 @(taxYear: Int, accounts: Seq[InterestAccountModel], taxType: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @h1Text = @{
@@ -91,8 +98,7 @@
 
 @layout(Some(h1Text), taxYear = Some(taxYear)) {
 
-    <div class="govuk-caption-l">@messages("interest.caption", (taxYear-1).toString, taxYear.toString)</div>
-    <h1 class="govuk-heading-l">@h1Text</h1>
+    @heading(h1Text, Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 
     @if(accounts.nonEmpty) {
         <div class="govuk-summary-list">

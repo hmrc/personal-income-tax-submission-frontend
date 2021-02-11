@@ -33,7 +33,7 @@
 
 @(form: Form[Boolean], taxYear: Int, taxType: String, account: InterestAccountModel)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
-@headingToUse(account: InterestAccountModel) = @{
+@headingToUse = @{
     val accountName = account.accountName
     messages("interest.remove-account.heading", accountName)
 }
@@ -53,7 +53,7 @@
 
         @inputRadio(
             form = form,
-            legend = headingToUse(account),
+            legend = headingToUse,
             hint = Some(hint),
             inline = true,
             subheading = Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString))

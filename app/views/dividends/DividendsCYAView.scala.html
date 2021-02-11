@@ -17,9 +17,17 @@
 @import views.html.headerFooterTemplate.Layout
 @import views.html.templates.helpers.CYARow
 @import views.html.templates.helpers.Button
+@import views.html.templates.helpers.Heading
 @import views.html.templates.helpers.BigDecimalCurrency
 
-@this(layout: Layout, formWithCSRF: FormWithCSRF, cyaRow: CYARow, bigDecimalCurrency: BigDecimalCurrency, button: Button)
+@this(
+    layout: Layout,
+    formWithCSRF: FormWithCSRF,
+    cyaRow: CYARow,
+    bigDecimalCurrency: BigDecimalCurrency,
+    button: Button,
+    heading: Heading
+)
 
 @(cya: DividendsCheckYourAnswersModel, prior: DividendsPriorSubmission = DividendsPriorSubmission(), taxYear: Int)(implicit user: User[AnyContent], messages: Messages, appConfig: AppConfig)
 
@@ -33,8 +41,7 @@
 
 @layout(pageTitle = Some(messages("dividends.cya.title")), taxYear = Some(taxYear)) {
 
-    <div class="govuk-caption-l">@messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)</div>
-    <h1 class="govuk-heading-l">@messages("dividends.cya.h1")</h1>
+    @heading("dividends.cya.h1", Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 
     <dl class="govuk-summary-list">
         @if(prior.ukDividends.isEmpty) {
