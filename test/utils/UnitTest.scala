@@ -65,7 +65,7 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
   )
   implicit val emptyHeaderCarrier: HeaderCarrier = HeaderCarrier()
 
-  implicit val mockAppConfig: AppConfig = new MockAppConfig()
+  implicit val mockAppConfig: AppConfig = new MockAppConfig().config
   implicit val mockControllerComponents: ControllerComponents = Helpers.stubControllerComponents()
   implicit val mockExecutionContext: ExecutionContext = ExecutionContext.Implicits.global
   implicit val mockAuthConnector: AuthConnector = mock[AuthConnector]

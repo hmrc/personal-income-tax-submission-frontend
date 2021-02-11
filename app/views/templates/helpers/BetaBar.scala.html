@@ -16,7 +16,7 @@
 
 @this()
 
-@()(implicit messages: Messages)
+@()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 <div class="govuk-phase-banner">
     <p class="govuk-phase-banner__content">
@@ -24,7 +24,7 @@
             @messages("betaBar.beta")
         </strong>
         <span class="govuk-phase-banner__text">
-      @messages("betaBar.banner.message.1") <a class="govuk-link" href="#">@messages("betaBar.banner.message.2")</a> @messages("betaBar.banner.message.3")
+      @messages("betaBar.banner.message.1") <a class="govuk-link" href="@{appConfig.feedbackUrl}">@messages("betaBar.banner.message.2")</a> @messages("betaBar.banner.message.3")
     </span>
     </p>
 </div>
