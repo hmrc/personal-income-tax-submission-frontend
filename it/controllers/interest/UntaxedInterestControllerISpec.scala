@@ -226,7 +226,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest {
               .post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
           }
 
-          s"has an NOT_FOUND($OK) status" in {
+          s"has an OK($OK) status" in {
             result.status shouldBe OK
           }
 
