@@ -30,6 +30,12 @@ object PriorOrNewAmountForm {
   val priorAmount = "prior"
   val otherAmount = "other"
 
+  val validationChecks: Seq[(String => Boolean, String)] = Seq[(String => Boolean, String)](
+    (isANumber, "common.error.invalid_number"),
+    (isValidCurrency, "common.error.invalid_currency"),
+    (isTooBig, "common.error.amountMaxLimit")
+  )
+
   def stringFormatter(
                        currentAmount: BigDecimal
                      )(implicit messages: Messages): Formatter[String] = new Formatter[String] {
@@ -57,15 +63,12 @@ object PriorOrNewAmountForm {
       val potentialAmount = data.get(otherAmountInputField)
 
       val priorAmountId = "whichAmount"
-      val otherAmountInput = "amount"
 
       (amountTypeSelect, potentialAmount) match {
         case (Some(`priorAmount`), _) =>
           Right(Some(currentAmount))
-        case (Some(`otherAmount`), Some(someAmount)) if !isANumber(someAmount) =>
-          Left(Seq(FormError(otherAmountInput, messages("common.error.invalid_number"))))
-        case (Some(`otherAmount`), Some(someAmount)) if isANumber(someAmount) =>
-          Right(Some(BigDecimal(someAmount)))
+        case (Some(`otherAmount`), Some(amount)) =>
+          runChecks(amount, validationChecks)
         case _ =>
           Left(Seq(FormError(priorAmountId, messages("common.error.priorOrNewAmount.noRadioSelected", currentAmount))))
       }
@@ -79,6 +82,22 @@ object PriorOrNewAmountForm {
     }
   }
 
+  def runChecks(amount: String, checks: Seq[(String => Boolean, String)])
+               (implicit messages: Messages): Either[Seq[FormError], Option[BigDecimal]] = {
+
+    val otherAmountInput = "amount"
+
+    val errors: Seq[String] = checks.flatMap { case (func, errorKey) =>
+      if (!func(amount)) Some(errorKey) else None
+    }
+
+    if (errors.nonEmpty) {
+      Left(Seq(FormError(otherAmountInput, messages(errors.head))))
+    } else {
+      Right(Some(BigDecimal(amount)))
+    }
+  }
+
   def priorOrNewAmountForm(currentAmount: BigDecimal)(implicit messages: Messages): Form[PriorOrNewAmountModel] = Form(
     mapping(
       amountTypeField -> of(stringFormatter(currentAmount)),
@@ -87,7 +106,17 @@ object PriorOrNewAmountForm {
   )
 
   def isANumber(input: String): Boolean = {
+    val regex: String = """^[0-9.]*$"""
+    input.matches(regex)
+  }
+
+  def isValidCurrency(input: String): Boolean = {
     val regex: String = """\d+|\d*\.\d{1,2}"""
+    input.matches(regex)
+  }
+
+  def isTooBig(input: String): Boolean = {
+    val regex: String = """^([0-9]{1,11}$)|^([0-9]{1,11})\.\d{1,2}"""
     input.matches(regex)
   }
 

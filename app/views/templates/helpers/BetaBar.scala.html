@@ -18,15 +18,15 @@
 
 @this(govukPhaseBanner : GovukPhaseBanner)
 
-@()(implicit messages: Messages)
+@()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @govukPhaseBanner(PhaseBanner(
     tag = Some(Tag(
-    content = Text(messages("betaBar.beta"))
+        content = Text(messages("betaBar.beta"))
     )),
     content = HtmlContent(content)
 ))
 
 @content = {
-    @messages("betaBar.banner.message.1") <a class="govuk-link" href="#">@messages("betaBar.banner.message.2")</a> @messages("betaBar.banner.message.3")
+    @messages("betaBar.banner.message.1") <a class="govuk-link" href="@{appConfig.feedbackUrl}">@messages("betaBar.banner.message.2")</a> @messages("betaBar.banner.message.3")
 }

@@ -97,6 +97,28 @@ class PriorOrNewAmountFormSpec extends UnitTestWithApp {
        result shouldBe Seq(expectedError)
      }
 
+     "the amount type field is other but the amount field is incorrect formatting" in {
+       lazy val result = form.bind(Map(
+         amountTypeField -> "other",
+         otherAmountInputField -> "12345.123"
+       )).errors
+
+       val expectedError = FormError("other-amount-input", Seq("Enter an amount in pounds and pence"))
+
+       result shouldBe Seq(expectedError)
+     }
+
+     "the amount type field is other but the amount field is too big" in {
+       lazy val result = form.bind(Map(
+         amountTypeField -> "other",
+         otherAmountInputField -> "100000000000"
+       )).errors
+
+       val expectedError = FormError("other-amount-input", Seq("Enter an amount less than £100,000,000,000"))
+
+       result shouldBe Seq(expectedError)
+     }
+
      "the amount type field is other but the amount field is empty" in {
        lazy val result = form.bind(Map(
          amountTypeField -> "other"

@@ -1,4 +1,4 @@
-service.name = Income Tax Return
+service.name = Update and submit an Income Tax Return
 
 betaBar.beta = beta
 betaBar.banner.message.1 = This is a new service – your
@@ -19,6 +19,8 @@ error.summary.title = There is a problem
 common.error.errorKey = Error:
 common.error.invalid_number = Enter an amount using numbers 0 to 9
 common.error.priorOrNewAmount.noRadioSelected = Select £{0} or enter a different amount
+common.error.amountMaxLimit = Enter an amount less than £100,000,000,000
+common.error.invalid_currency = Enter an amount in pounds and pence
 
 dividends.caption = Dividends
 interest.caption = Interest
