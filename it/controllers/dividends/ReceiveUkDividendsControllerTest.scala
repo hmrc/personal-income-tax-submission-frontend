@@ -16,7 +16,7 @@
 
 package controllers.dividends
 
-import config.FrontendAppConfig
+import config.AppConfig
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{OK, UNAUTHORIZED}
 import uk.gov.hmrc.auth.core.retrieve.~
@@ -28,7 +28,7 @@ import scala.concurrent.Future
 
 class ReceiveUkDividendsControllerTest extends IntegrationTest{
 
-  lazy val frontendAppConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val frontendAppConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
   def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq())= new ReceiveUkDividendsController(
     mcc,

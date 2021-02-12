@@ -16,7 +16,7 @@
 
 package utils
 
-import common.{InterestTaxTypes, SessionValues}
+import common.SessionValues
 import models.User
 import play.api.mvc.Result
 

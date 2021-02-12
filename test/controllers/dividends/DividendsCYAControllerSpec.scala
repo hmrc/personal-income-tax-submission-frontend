@@ -36,7 +36,7 @@ import scala.concurrent.Future
 
 class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
 
-  val service = mock[DividendsSubmissionService]
+  val service: DividendsSubmissionService = mock[DividendsSubmissionService]
   val controller = new DividendsCYAController(
     mockMessagesControllerComponents,
     app.injector.instanceOf[DividendsCYAView],
@@ -50,6 +50,7 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
   val taxYear = 2020
   val firstAmount = 10
   val secondAmount = 20
+  val successResponseCode = 204
 
   ".show" should {
 
@@ -159,21 +160,23 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
 
     val cyaSessionData = DividendsCheckYourAnswersModel(
       ukDividends = Some(true),
-      Some(10),
+      Some(firstAmount),
       otherUkDividends = Some(true),
-      Some(10)
+      Some(firstAmount)
     )
 
     val priorData = DividendsPriorSubmission(
-      Some(10),
-      Some(10)
+      Some(firstAmount),
+      Some(firstAmount)
     )
     "redirect to the overview page" when {
 
       "there is session data " in new TestWithAuth {
-        lazy val detail = CreateOrAmendDividendsAuditDetail(Some(cyaSessionData), Some(priorData), "AA123456A", "1234567890", 2020)
+        lazy val detail: CreateOrAmendDividendsAuditDetail =
+          CreateOrAmendDividendsAuditDetail(Some(cyaSessionData), Some(priorData), "AA123456A", "1234567890", taxYear)
 
-        lazy val event = AuditModel("CreateOrAmendDividendsUpdate", "createOrAmendDividendsUpdate", detail)
+        lazy val event: AuditModel[CreateOrAmendDividendsAuditDetail] =
+          AuditModel("CreateOrAmendDividendsUpdate", "createOrAmendDividendsUpdate", detail)
 
         def verifyDividendsAudit: CallHandler[Future[AuditResult]] = verifyAuditEvent(event)
 
@@ -184,14 +187,14 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
         )
 
         (service.submitDividends(_: Option[DividendsCheckYourAnswersModel], _: String, _: String, _: Int)(_:HeaderCarrier))
-          .expects(Some(cyaSessionData), "AA123456A", "1234567890", 2020, *)
-          .returning(Future.successful(Right(DividendsResponseModel(204))))
+          .expects(Some(cyaSessionData), "AA123456A", "1234567890", taxYear, *)
+          .returning(Future.successful(Right(DividendsResponseModel(successResponseCode))))
 
         verifyDividendsAudit
 
-        lazy val result: Future[Result] = controller.submit(2020)(request)
+        lazy val result: Future[Result] = controller.submit(taxYear)(request)
         status(result) shouldBe SEE_OTHER
-        redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(2020)
+        redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)
         getSession(result).get(SessionValues.DIVIDENDS_CYA) shouldBe None
         getSession(result).get(SessionValues.DIVIDENDS_PRIOR_SUB) shouldBe None
 
@@ -204,12 +207,12 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
         )
 
         (service.submitDividends(_: Option[DividendsCheckYourAnswersModel], _: String, _: String, _: Int)(_:HeaderCarrier))
-          .expects(Some(cyaSessionData), "AA123456A", "1234567890", 2020, *)
+          .expects(Some(cyaSessionData), "AA123456A", "1234567890", taxYear, *)
           .returning(Future.successful(Left(BadRequestDividendsSubmissionException)))
 
-        val result: Future[Result] = controller.submit(2020)(request)
+        val result: Future[Result] = controller.submit(taxYear)(request)
         status(result) shouldBe SEE_OTHER
-        redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(2020)
+        redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)
       }
     }
 

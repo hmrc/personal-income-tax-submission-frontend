@@ -1,4 +1,4 @@
-service.name = Income Tax Return
+service.name = Update and submit an Income Tax Return
 
 betaBar.beta = beta
 betaBar.banner.message.1 = This is a new service – your
@@ -26,32 +26,39 @@ interest.caption = Interest
 
 dividends.uk-dividends.heading.individual = Did you receive any dividends from companies in the UK?
 dividends.uk-dividends.heading.agent = Did your client receive any dividends from companies in the UK?
-dividends.uk-dividends.sub-heading = Your dividend voucher will show your shares in the company, the dividend rate and the dividends received.
+dividends.uk-dividends.sub-heading = Your dividend voucher will usually show your shares in the company and the dividends received.
 dividends.uk-dividends.errors.noChoice = Select yes if dividends were received from the UK
 
-dividends.other-dividends.heading.individual = Did you receive any dividends from authorised unit trusts, open-ended investment companies or investment trusts?
-dividends.other-dividends.heading.agent = Did your client receive any dividends from authorised unit trusts, open-ended investment companies or investment trusts?
+dividends.other-dividends.heading.individual = Did you receive any dividends from trusts or open ended investment companies?
+dividends.other-dividends.heading.agent = Did your client receive any dividends from trusts or open ended investment companies?
 dividends.other-dividends.errors.noChoice = Select yes if dividends were received trusts or investment companies
 
 dividends.uk-dividends-amount.title = UK Dividends - Register your income tax return with HMRC - Gov.UK
-dividends.uk-dividends-amount.heading = What is the amount of dividends earned from companies in the UK?
+dividends.uk-dividends-amount.heading = What is the total amount of dividends earned from companies in the UK?
 dividends.uk-dividends-amount.error.empty = Enter the amount of dividends earned from the UK
 
 dividends.other-dividends-amount.title = Other Dividends - Register your income tax return with HMRC - Gov.UK
-dividends.other-dividends-amount.heading = What is the amount of dividends from authorised unit trusts, open-ended investment companies or investment trusts?
+dividends.other-dividends-amount.heading = What is the total amount of dividends from trusts or open ended investment companies?
 dividends.other-dividends-amount.form.caption = Enter the amount of dividends as shown  on your dividend voucher.
 dividends.other-dividends-amount.error.empty = Enter the amount of dividends received from trusts or investment companies
+dividends.other-dividends-amount.paragraph.1 = This includes authorised unit trusts or investment funds. If your dividend is automatically re-invested, you must still include it.
+dividends.other-dividends-amount.paragraph.2 = Do not include any amounts shown as ''equalisation'' on your dividend voucher.
+dividends.other-dividends-amount.details.title = What are investment trusts and companies?
+dividends.other-dividends-amount.details.paragraph.1 = Investment trusts are public companies that aim to make money through buying and selling shares or assets in other companies. They let you join a group of other investors with a fund manager to get the best possible return for your money.
+dividends.other-dividends-amount.details.paragraph.2 = Unit trusts and open ended investment companies are the most popular investment funds. Open ended investment companies are like unit trusts except that they’re run like a company. They create and cancel shares rather than units when investors join or leave.
+dividends.other-dividends-amount.details.paragraph.3 = Equalisation payments are what an investor receives after making an investment part way through a distribution period. They’re made up of the income generated before the investment and included in the price paid for each unit. They are not considered income as it is a return of part of the investor’s capital.
 
 dividends.cya.title = Check your answers - Register your income tax return with HMRC - Gov.UK
 dividends.cya.h1 = Check your answers
-dividends.cya.questions.1 = UK dividends?
-dividends.cya.questions.2 = Amount of UK dividends?
-dividends.cya.questions.3 = Dividends from authorised unit trusts or investments?
-dividends.cya.questions.4 = Amount of other dividends?
+dividends.cya.questions.1 = Dividends from UK companies?
+dividends.cya.questions.2 = Amount of dividends from UK companies
+dividends.cya.questions.3 = Dividends from unit trusts or investment companies?
+dividends.cya.questions.4 = Amount of dividends from unit trusts or investment companies
 
 interest.cya.accountDisplay = {0} : {1}
 
 interest.caption = Interest for 06 April {0} to 05 April {1}
+dividends.caption = Dividends for 06 April {0} to 05 April {1}
 
 interest.untaxed-uk-interest.heading.individual = Did you receive any untaxed interest from the UK?
 interest.untaxed-uk-interest.heading.agent = Did your client receive any untaxed interest from the UK?
@@ -60,7 +67,7 @@ interest.untaxed-uk-interest.paragraph.1 = For example, interest from:
 interest.untaxed-uk-interest.list.1 = banks and building societies
 interest.untaxed-uk-interest.list.2 = savings and credit union accounts
 interest.untaxed-uk-interest.list.3 = peer-to-peer lending
-interest.untaxed-uk-interest.paragraph.2 = This does not include any interest earned from an Individual Savings Account (ISA).
+interest.untaxed-uk-interest.paragraph.2 = This does not include any interest earned from an Individual Savings Account (ISA) or gilts. You’ll be able to add interest earned from gilts at a later date.
 
 interest.untaxed-uk-interest-details.title = UK Interest - Register your income tax return with HMRC - Gov.UK
 interest.untaxed-uk-interest-details.heading = UK untaxed interest account details
@@ -71,10 +78,11 @@ interest.untaxed-uk-interest-amount.error.empty = Enter the amount of untaxed in
 
 interest.taxed-uk-interest.heading.individual = Did you receive any taxed interest from the UK?
 interest.taxed-uk-interest.heading.agent = Did your client receive any taxed interest from the UK?
-interest.taxed-uk-interest.sub-heading = For example, interest from:
-interest.taxed-uk-interest.sub-list1 = trust funds
-interest.taxed-uk-interest.sub-list2 = company bonds
-interest.taxed-uk-interest.sub-list3 = life-annuity payments
+interest.taxed-uk-interest.paragraph.1 = For example, interest from:
+interest.taxed-uk-interest.list.1 = trust funds
+interest.taxed-uk-interest.list.2 = company bonds
+interest.taxed-uk-interest.list.3 = life-annuity payments
+interest.taxed-uk-interest.paragraph.2 = Do not include interest received from gilts. You’ll be able to add interest earned from gilts at a later date.
 interest.taxed-uk-interest.errors.noRadioSelected = Select yes if you received taxed interest from the UK
 
 interest.taxed-uk-interest-details.title = UK Interest - Register your income tax return with HMRC - Gov.UK

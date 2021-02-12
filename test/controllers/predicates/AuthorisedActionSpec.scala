@@ -82,7 +82,7 @@ class AuthorisedActionSpec extends UnitTest {
           Enrolment(EnrolmentKeys.nino, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.nino, nino)), "Activated")
         ))
 
-        lazy val result: Future[Result] = auth.individualAuthentication[AnyContent](block, enrolments, mtditid)(fakeRequest, emptyHeaderCarrier)
+        lazy val result: Future[Result] = auth.individualAuthentication[AnyContent](block, enrolments, mtditid)(fakeRequest)
 
         "returns an OK status" in {
           status(result) shouldBe OK
@@ -102,7 +102,7 @@ class AuthorisedActionSpec extends UnitTest {
         val mtditid = "AAAAAA"
         val enrolments = Enrolments(Set())
 
-        lazy val result: Future[Result] = auth.individualAuthentication[AnyContent](block, enrolments, mtditid)(fakeRequest, emptyHeaderCarrier)
+        lazy val result: Future[Result] = auth.individualAuthentication[AnyContent](block, enrolments, mtditid)(fakeRequest)
 
         "returns a forbidden" in {
           status(result) shouldBe SEE_OTHER

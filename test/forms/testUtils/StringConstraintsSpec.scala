@@ -126,25 +126,6 @@ class StringConstraintsSpec extends Constraints with AnyWordSpecLike with Matche
     }
   }
 
-  "The StringConstraints.validateInt method" when {
-
-    "supplied with a string which contains non numerical chars" should {
-
-      "return invalid" in {
-        StringConstraints.validateInt(errMsgInvalidInt)("123456789?") shouldBe Invalid(errMsgInvalidInt)
-      }
-    }
-
-    "supplied with a string which contains all numerical chars" should {
-
-      "return valid" in {
-        StringConstraints.noLeadingSpace(errMsgNoLeadingSpace)("123456789") shouldBe Valid
-      }
-
-    }
-
-  }
-
   "The StringConstraints.validateCurrency method" when {
 
     "supplied with a string which contains too many decimal places" should {

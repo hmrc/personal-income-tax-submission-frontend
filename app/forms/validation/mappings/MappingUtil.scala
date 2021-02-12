@@ -17,10 +17,7 @@
 package forms.validation.mappings
 
 import play.api.data.Forms.{default, of, optional, text}
-import play.api.data.format.Formatter
-import play.api.data.{FieldMapping, FormError, Mapping}
-
-import scala.util.control.Exception.nonFatalCatch
+import play.api.data.{FieldMapping, Mapping}
 
 object MappingUtil extends Formatters {
 

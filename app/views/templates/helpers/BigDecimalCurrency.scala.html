@@ -17,11 +17,16 @@
 @this()
 @(value: String, currencySymbol: String = "£")
 
-@valueForDisplay = @{
-    value.split('.').toList match {
-        case wholeAmount :: Nil => wholeAmount
-        case wholeAmount :: decimalAmount :: Nil =>
-            wholeAmount + "." + (if(decimalAmount.length == 1) decimalAmount + "0" else decimalAmount)
-    }
+@optionalValue = @{
+ try {
+   Some(BigDecimal(value))
+ } catch {
+  case _: Throwable => None
+ }
 }
-@currencySymbol@valueForDisplay
+
+@valueForDisplay = @{
+ optionalValue.map(amount => currencySymbol + f"$amount%1.2f".replace(".00", "")).getOrElse("")
+}
+
+@valueForDisplay

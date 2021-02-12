@@ -51,7 +51,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
 
         val expectedTitle = "Some Title"
         val expectedH1 = "Did you receive any dividends from companies in the UK?"
-        val expectedCaption = "Dividends"
+        val expectedCaption = "Dividends for 06 April 2019 to 05 April 2020"
 
         "contains the correct title" in {
           document.title shouldBe expectedTitle
@@ -96,7 +96,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
 
         val expectedTitle = "Some Title"
         val expectedH1 = "Did you receive any dividends from companies in the UK?"
-        val expectedCaption = "Dividends"
+        val expectedCaption = "Dividends for 06 April 2019 to 05 April 2020"
 
         val expectedErrorTitle = "There is a problem"
         val expectedErrorText = "Select yes if dividends were received from the UK"
@@ -150,7 +150,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
 
         val expectedTitle = "Some Title"
         val expectedH1 = "Did your client receive any dividends from companies in the UK?"
-        val expectedCaption = "Dividends"
+        val expectedCaption = "Dividends for 06 April 2019 to 05 April 2020"
 
         "contains the correct title" in {
           document.title shouldBe expectedTitle
@@ -195,7 +195,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
 
         val expectedTitle = "Some Title"
         val expectedH1 = "Did your client receive any dividends from companies in the UK?"
-        val expectedCaption = "Dividends"
+        val expectedCaption = "Dividends for 06 April 2019 to 05 April 2020"
 
         val expectedErrorTitle = "There is a problem"
         val expectedErrorText = "Select yes if dividends were received from the UK"

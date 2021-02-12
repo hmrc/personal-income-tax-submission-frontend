@@ -16,7 +16,7 @@
 
 package forms.validation.mappings
 import play.api.data.format.Formatter
-import play.api.data.{FieldMapping, FormError, Mapping}
+import play.api.data.FormError
 
 import scala.util.control.Exception.nonFatalCatch
 
@@ -43,7 +43,7 @@ trait Formatters {
                                           args: Seq[String] = Seq.empty): Formatter[BigDecimal] =
     new Formatter[BigDecimal] {
 
-      val is2dp = """^([0-9]{1,12}$)|^([0-9]{1,12})\.\d{1,2}"""
+      val is2dp = """\d+|\d*\.\d{1,2}"""
       val validNumeric = """[0-9.]*"""
 
       private val baseFormatter = stringFormatter(requiredKey)

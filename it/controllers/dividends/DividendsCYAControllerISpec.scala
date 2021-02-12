@@ -41,7 +41,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
 
         lazy val result = {
           authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/check-your-answers")
+          await(wsClient.url(s"$startUrl/2020/dividends/check-your-answers")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .get())
         }
@@ -58,7 +58,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
           stubGet("/income-through-software/return/2020/view", OK, "<title>Overview Page</title>")
 
 
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/check-your-answers")
+          await(wsClient.url(s"$startUrl/2020/dividends/check-your-answers")
             .get())
         }
 
@@ -74,7 +74,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
           stubGet("/income-through-software/return/2020/view", OK, "<title>Overview Page</title>")
 
 
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/check-your-answers")
+          await(wsClient.url(s"$startUrl/2020/dividends/check-your-answers")
             .get())
         }
 
@@ -105,7 +105,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
           ))
           stubPut(s"/income-tax-dividends/income-tax/nino//sources\\?mtditid=1234567890&taxYear=2020", 204, "")
 
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/check-your-answers")
+          await(wsClient.url(s"$startUrl/2020/dividends/check-your-answers")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .post("{}"))
         }
@@ -126,7 +126,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
             ))),
           ))
 
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/check-your-answers")
+          await(wsClient.url(s"$startUrl/2020/dividends/check-your-answers")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .post("{}"))
         }
@@ -144,7 +144,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
               otherUkDividends = Some(true),
               Some(10)))),
           ))
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/check-your-answers")
+          await(wsClient.url(s"$startUrl/2020/dividends/check-your-answers")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .post("{}"))
         }

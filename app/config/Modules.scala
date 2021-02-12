@@ -21,7 +21,7 @@ import com.google.inject.AbstractModule
 class Modules extends AbstractModule {
 
   override def configure(): Unit = {
-    bind(classOf[AppConfig]).to(classOf[FrontendAppConfig]).asEagerSingleton()
+    bind(classOf[AppConfig]).asEagerSingleton()
   }
 
 }

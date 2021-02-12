@@ -80,8 +80,6 @@ class OtherUkDividendsAmountController @Inject()(
 
     implicit val priorSubmissionSessionData: Option[DividendsPriorSubmission] =
       getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
-    implicit val cyaSessionData: Option[DividendsCheckYourAnswersModel] =
-      getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
 
     priorSubmissionSessionData match {
       case Some(priorSubmission) if priorSubmission.otherUkDividends.nonEmpty =>

@@ -43,8 +43,8 @@ class OtherDividendsAmountViewSpec extends ViewTest {
   val errorSummaryTitle = ".govuk-error-summary__title"
   val errorSummaryText = ".govuk-error-summary__body"
 
-  val expectedH1 = "What is the amount of dividends from authorised unit trusts, open-ended investment companies or investment trusts?"
-  val expectedCaption = "Dividends"
+  val expectedH1 = "What is the total amount of dividends from trusts or open ended investment companies?"
+  val expectedCaption = "Dividends for 06 April 2019 to 05 April 2020"
 
   val expectedErrorTitle = "There is a problem"
   val expectedErrorText = "Enter the amount of dividends received from trusts or investment companies"

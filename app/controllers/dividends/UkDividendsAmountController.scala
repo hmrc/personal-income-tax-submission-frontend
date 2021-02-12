@@ -39,7 +39,7 @@ class UkDividendsAmountController @Inject()(
                                            ) extends FrontendController(cc) with I18nSupport {
 
   def view(
-            formInput: Either[Form[PriorOrNewAmountModel], Form[CurrencyAmountModel]],
+            formInput: Either[Form[PriorOrNewAmountModel], Form[BigDecimal]],
             priorSubmission: Option[DividendsPriorSubmission] = None,
             taxYear: Int,
             preAmount: Option[BigDecimal] = None

@@ -17,7 +17,7 @@
 package controllers.interest
 
 import common.InterestTaxTypes._
-import common.{InterestTaxTypes, PageLocations, SessionValues}
+import common.SessionValues
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import javax.inject.Inject

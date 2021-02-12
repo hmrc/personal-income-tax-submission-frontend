@@ -24,7 +24,7 @@ import utils.UnitTest
 
 class OtherDividendsAmountFormSpec extends UnitTest {
 
-  def form: Form[CurrencyAmountModel] = {
+  def form: Form[BigDecimal] = {
     OtherDividendsAmountForm.otherDividendsAmountForm()
   }
 
@@ -39,7 +39,7 @@ class OtherDividendsAmountFormSpec extends UnitTest {
     "correctly validate a currency" when {
       "a valid currency is entered" in {
         val testInput = Map(otherDividendsAmount -> testCurrencyValid)
-        val expected = CurrencyAmountModel(testCurrencyValid)
+        val expected = BigDecimal(testCurrencyValid)
         val actual = form.bind(testInput).value
 
         actual shouldBe Some(expected)
@@ -77,7 +77,7 @@ class OtherDividendsAmountFormSpec extends UnitTest {
 
     "remove a leading space from a currency" in {
       val testInput = Map(otherDividendsAmount -> (" " + testCurrencyValid))
-      val expected = CurrencyAmountModel(testCurrencyValid)
+      val expected = BigDecimal(testCurrencyValid)
       val leadingSpaceTest = form.bind(testInput).value
 
       leadingSpaceTest shouldBe Some(expected)

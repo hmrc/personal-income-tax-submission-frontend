@@ -35,7 +35,7 @@
 
     @errorSummary(form.errors, Some("yes_no_yes"))
 
-    <span class="govuk-caption-l">@messages("dividends.caption")</span>
+    <span class="govuk-caption-l">@messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)</span>
     <h1 class="govuk-heading-l govuk-!-margin-bottom-3">@headingForUse</h1>
     <span class="govuk-caption-m govuk-!-margin-bottom-4">@messages("dividends.uk-dividends.sub-heading")</span>
 

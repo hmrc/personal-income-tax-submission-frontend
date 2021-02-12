@@ -32,7 +32,7 @@
 
 @layout(pageTitle = Some(messages("dividends.cya.title")), taxYear = Some(taxYear)) {
 
-    <div class="govuk-caption-l">@messages("dividends.caption")</div>
+    <div class="govuk-caption-l">@messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)</div>
     <h1 class="govuk-heading-l">@messages("dividends.cya.h1")</h1>
 
     <dl class="govuk-summary-list">

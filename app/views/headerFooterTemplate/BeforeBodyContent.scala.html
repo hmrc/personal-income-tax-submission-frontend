@@ -15,12 +15,11 @@
  *@
 
 @import views.html.templates.helpers.BetaBar
-@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.banner._
 
 @this(betaBar: BetaBar,
       govukBackLink: GovukBackLink)
 
-@(backLink: Boolean = true)(implicit messages: Messages)
+@(backLink: Boolean = true)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @betaBar()
 
