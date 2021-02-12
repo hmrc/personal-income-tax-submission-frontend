@@ -134,7 +134,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest {
           ))
 
           authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/uk-dividends")
+          await(wsClient.url(s"$startUrl/2020/dividends/uk-dividends")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
             .get())
         }
@@ -151,7 +151,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest {
         ))
         lazy val result: WSResponse = {
           authoriseAgentUnauthorized()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/uk-dividends")
+          await(wsClient.url(s"$startUrl/2020/dividends/uk-dividends")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie).get())
         }
         "has an UNAUTHORIZED(401) status" in {
@@ -173,7 +173,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest {
 
             authoriseAgent()
             await(
-              wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/uk-dividends")
+              wsClient.url(s"$startUrl/2020/dividends/uk-dividends")
                 .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
             )
@@ -193,7 +193,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest {
             ))
 
             authoriseAgent()
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/uk-dividends")
+            await(wsClient.url(s"$startUrl/2020/dividends/uk-dividends")
               .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
               .post(Map[String, String]()))
           }
@@ -210,7 +210,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest {
           ))
 
           authoriseAgentUnauthorized()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/2020/dividends/uk-dividends")
+          await(wsClient.url(s"$startUrl/2020/dividends/uk-dividends")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .post(Map[String, String]()))
         }
