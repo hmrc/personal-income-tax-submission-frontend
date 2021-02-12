@@ -44,8 +44,7 @@ class ChangeAccountAmountController @Inject()(
             priorSubmission: InterestAccountModel,
             taxYear: Int,
             taxType: String,
-            accountId: String,
-            preAmount: Option[BigDecimal] = None
+            accountId: String
           )(implicit user: User[AnyContent]): Html = {
 
     changeAccountAmountView(
@@ -53,16 +52,12 @@ class ChangeAccountAmountController @Inject()(
       postAction = controllers.interest.routes.ChangeAccountAmountController.submit(taxYear, taxType, accountId),
       taxYear = taxYear,
       taxType = taxType,
-      account = priorSubmission,
-      preAmount = preAmount
-    )
+      account = priorSubmission)
   }
 
   def show(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = authAction { implicit user =>
     val interestPriorSubmissionSession = getSessionData[InterestPriorSubmission](SessionValues.INTEREST_PRIOR_SUB)
     val checkYourAnswerSession = getSessionData[InterestCYAModel](SessionValues.INTEREST_CYA)
-
-    val preAmount = extractPreAmount(taxType, checkYourAnswerSession, accountId)
 
     val singleAccount: Option[InterestAccountModel] = interestPriorSubmissionSession.flatMap { unwrappedPrior =>
       unwrappedPrior.submissions.flatMap { unwrappedAccounts =>
@@ -75,7 +70,7 @@ class ChangeAccountAmountController @Inject()(
     (singleAccount, checkYourAnswerSession) match {
       case (None, Some(_)) => Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType))
       case (Some(accountModel), Some(_)) =>
-        Ok(view(PriorOrNewAmountForm.priorOrNewAmountForm(accountModel.amount), accountModel, taxYear, taxType, accountId, preAmount))
+        Ok(view(PriorOrNewAmountForm.priorOrNewAmountForm(accountModel.amount), accountModel, taxYear, taxType, accountId))
       case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
     }
   }
@@ -83,8 +78,6 @@ class ChangeAccountAmountController @Inject()(
   def submit(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = authAction { implicit user =>
     val interestPriorSubmissionSession = getSessionData[InterestPriorSubmission](SessionValues.INTEREST_PRIOR_SUB)
     val checkYourAnswerSession = getSessionData[InterestCYAModel](SessionValues.INTEREST_CYA)
-
-    val preAmount = extractPreAmount(taxType, checkYourAnswerSession, accountId)
 
     val singleAccount: Option[InterestAccountModel] = interestPriorSubmissionSession.flatMap { unwrappedPrior =>
       unwrappedPrior.submissions.flatMap { unwrappedAccounts =>
@@ -97,7 +90,7 @@ class ChangeAccountAmountController @Inject()(
       case Some(cyaData) =>
         singleAccount match {
           case Some(account) => PriorOrNewAmountForm.priorOrNewAmountForm (account.amount).bindFromRequest().fold ( {
-            formWithErrors => BadRequest(view(formWithErrors, account, taxYear, taxType, accountId, preAmount))
+            formWithErrors => BadRequest(view(formWithErrors, account, taxYear, taxType, accountId))
           }, {
             formModel =>
               import PriorOrNewAmountModel._

@@ -32,7 +32,7 @@
    inputText: InputText,
    bigDecimalCurrency: BigDecimalCurrency
 )
-@(form: Form[PriorOrNewAmountModel], postAction: Call, taxYear: Int, taxType: String, account: InterestAccountModel,  preAmount: Option[BigDecimal] = None)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
+@(form: Form[PriorOrNewAmountModel], postAction: Call, taxYear: Int, taxType: String, account: InterestAccountModel)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @scripts = {
     <script type="text/javascript" src="@routes.Assets.versioned("javascripts/hideAndShow.js")" ></script>
@@ -55,6 +55,8 @@
 
 @layout(pageTitle = Some(messages(s"interest.change-account.${taxType.toLowerCase}-title")), scriptsBlock = Some(scripts), taxYear = Some(taxYear)) {
 
+    @form.errors
+
     @errorSummary(form.errors.distinct)
 
     @formWithCSRF(action = postAction) {
@@ -64,17 +66,16 @@
             legend = messages(s"interest.change-account.${taxType.toLowerCase}-heading", account.accountName),
             inline = false,
             subheading = Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)),
+            name = "whichAmount",
             items = Seq(
                 RadioItem(
                     id = Some("prior-amount"),
-                    name = Some("whichAmount"),
                     value = Some("prior"),
                     content = Text(bigDecimalCurrency(account.amount.toString).toString),
                     checked = form("whichAmount").value.contains("prior")
                 ),
                 RadioItem(
                     id = Some("other-amount"),
-                    name = Some("whichAmount"),
                     value = Some("other"),
                     content = Text(messages("common.aDifferentAmount")),
                     checked = form("whichAmount").value.contains("other"),

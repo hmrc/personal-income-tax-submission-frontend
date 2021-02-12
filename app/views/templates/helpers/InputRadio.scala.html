@@ -31,12 +31,13 @@
     classes: String = "govuk-fieldset__legend--xl",
     inline: Boolean = false,
     subheading: Option[String] = None,
-    headingClasses: String = ""
+    headingClasses: String = "",
+    name: String = "value"
 )(implicit messages: Messages)
 
 @govukRadios(Radios(
     classes = s"${if(inline){"govuk-radios--inline"}}",
-    name = "value",
+    name = name,
     fieldset = Some(Fieldset(
         legend = Some(Legend(
             content = if(subheading.isDefined) HtmlContent(heading(messages(legend, headingMessageArgs:_*), Some(subheading.get), headingClasses)) else Text(messages(legend, headingMessageArgs:_*)),
