@@ -17,7 +17,7 @@
 @import models.formatHelpers.PriorOrNewAmountModel
 @import views.html.templates.helpers.PriorOrNewForm
 @import views.html.headerFooterTemplate.Layout
-@import views.html.templates.helpers.{Button, ErrorSummary, Heading}
+@import views.html.templates.helpers.{Button, ErrorSummary, Heading, InputRadio, BigDecimalCurrency, InputText}
 @import models.interest.InterestAccountModel
 @import common.InterestTaxTypes._
 
@@ -27,7 +27,10 @@
    errorSummary: ErrorSummary,
    priorOrNewForm: PriorOrNewForm,
    button: Button,
-   heading: Heading
+   heading: Heading,
+   inputRadio: InputRadio,
+   inputText: InputText,
+   bigDecimalCurrency: BigDecimalCurrency
 )
 @(form: Form[PriorOrNewAmountModel], postAction: Call, taxYear: Int, taxType: String, account: InterestAccountModel,  preAmount: Option[BigDecimal] = None)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
@@ -35,29 +38,51 @@
     <script type="text/javascript" src="@routes.Assets.versioned("javascripts/hideAndShow.js")" ></script>
 }
 
-@headingRef = @{
-    taxType match {
-        case `UNTAXED` => "interest.change-account.untaxed-heading"
-        case `TAXED` => "interest.change-account.taxed-heading"
-    }
-}
-
-@titleRef = @{
-    taxType match {
-        case `UNTAXED` => "interest.change-account.untaxed-title"
-        case `TAXED` => "interest.change-account.taxed-title"
-    }
-}
-
 @headingToUse = {
-    @heading(messages(headingRef, account.accountName), Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
+    @heading(messages(s"interest.change-account.${taxType.toLowerCase}-heading", account.accountName), Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 }
 
-@layout(pageTitle = Some(messages(titleRef)), scriptsBlock = Some(scripts), taxYear = Some(taxYear)) {
+@otherAmountHtml = {
+    @inputText(
+            form,
+            id = "other-amount-input",
+            name = "amount",
+            label = "common.enterAmount",
+            isPageHeading = false,
+            currency = true
+        )
+}
+
+@layout(pageTitle = Some(messages(s"interest.change-account.${taxType.toLowerCase}-title")), scriptsBlock = Some(scripts), taxYear = Some(taxYear)) {
+
+    @errorSummary(form.errors.distinct)
 
     @formWithCSRF(action = postAction) {
 
-        @priorOrNewForm(headingToUse, form, Some(account.amount), "common.error.invalid_number", preAmount)
+        @inputRadio(
+            form = form,
+            legend = messages(s"interest.change-account.${taxType.toLowerCase}-heading", account.accountName),
+            inline = false,
+            subheading = Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)),
+            items = Seq(
+                RadioItem(
+                    id = Some("prior-amount"),
+                    name = Some("whichAmount"),
+                    value = Some("prior"),
+                    content = Text(bigDecimalCurrency(account.amount.toString).toString),
+                    checked = form("whichAmount").value.contains("prior")
+                ),
+                RadioItem(
+                    id = Some("other-amount"),
+                    name = Some("whichAmount"),
+                    value = Some("other"),
+                    content = Text(messages("common.aDifferentAmount")),
+                    checked = form("whichAmount").value.contains("other"),
+                    conditionalHtml = Some(otherAmountHtml)
+                )
+            )
+        )
+
 
         @button()
     }
