@@ -21,29 +21,28 @@
 @import play.api.i18n.Messages
 @import views.html.templates.helpers.ErrorSummary
 @import views.html.templates.helpers.InputText
+@import views.html.templates.helpers.InputRadio
 @import views.html.templates.helpers.Button
 @import views.html.templates.helpers.Heading
 @import models.formatHelpers.PriorOrNewAmountModel
-@import views.html.templates.helpers.PriorOrNewForm
+@import views.html.templates.helpers.BigDecimalCurrency
 
 @this(
    layout: Layout,
    formWithCSRF: FormWithCSRF,
    errorSummary: ErrorSummary,
-   priorOrNewForm: PriorOrNewForm,
    button: Button,
    inputText: InputText,
-   heading: Heading
+   inputRadio: InputRadio,
+   heading: Heading,
+   bigDecimalCurrency: BigDecimalCurrency
 )
 
 @(form: Either[Form[PriorOrNewAmountModel], Form[CurrencyAmountModel]], priorSubmission: Option[DividendsPriorSubmission], taxYear: Int, postAction: Call, preAmount: Option[BigDecimal] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@scripts = {
- <script type="text/javascript" src="@routes.Assets.versioned("javascripts/hideAndShow.js")" ></script>
-}
+@currencyFormHtml(formInput: Form[CurrencyAmountModel]) = {
 
-@currencyFormHtml(formInput: Form[CurrencyAmountModel], otherDividendsAmount: String) = {
- @errorSummary(formInput.errors.distinct)
+   @errorSummary(formInput.errors.distinct)
 
    @inputText(
       formInput,
@@ -61,11 +60,54 @@
     priorSubmission.flatMap(_.otherUkDividends)
 }
 
-@layout(pageTitle = Some(messages("dividends.other-dividends-amount.title")), taxYear = Some(taxYear), scriptsBlock = Some(scripts)) {
+@otherAmountHtml(form: Form[PriorOrNewAmountModel]) = {
+    @inputText(
+        form,
+        id = "amount",
+        name = "amount",
+        label = "common.enterAmount",
+        isPageHeading = false,
+        currency = true
+    )
+}
 
- @formWithCSRF(action = postAction) {
-  @form.fold(priorForm => priorOrNewForm(heading("dividends.other-dividends-amount.heading", Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5"), priorForm, priorAmount, "common.error.invalid_number", preAmount), currencyForm => currencyFormHtml(currencyForm, otherDividendsAmount))
-  @button()
- }
+@priorOrNewForm(form: Form[PriorOrNewAmountModel]) = {
 
+    @errorSummary(form.errors.distinct)
+
+    <div class="@if(form.errors.nonEmpty) { govuk-form-group--error}">
+        @inputRadio(
+            form = form,
+            legend = messages("dividends.other-dividends-amount.heading"),
+            inline = false,
+            subheading = Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)),
+            name = "whichAmount",
+            items = Seq(
+                RadioItem(
+                    id = Some("whichAmount"),
+                    value = Some("prior"),
+                    content = Text(bigDecimalCurrency(priorAmount.getOrElse(BigDecimal("0")).toString).toString),
+                    checked = form("whichAmount").value.contains("prior")
+                ),
+                RadioItem(
+                    id = Some("otherAmount"),
+                    value = Some("other"),
+                    content = Text(messages("common.aDifferentAmount")),
+                    checked = form("whichAmount").value.contains("other"),
+                    conditionalHtml = Some(otherAmountHtml(form))
+                )
+            )
+        )
+    </div>
+}
+
+@layout(pageTitle = Some(messages("dividends.other-dividends-amount.title")), taxYear = Some(taxYear)) {
+
+    @formWithCSRF(action = postAction) {
+        @form.fold(
+            priorForm =>priorOrNewForm(priorForm),
+            currencyForm => currencyFormHtml(currencyForm)
+        )
+        @button()
+    }
 }
