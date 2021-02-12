@@ -16,19 +16,24 @@
 
 package config
 
-class MockAppConfig extends AppConfig {
-  override val signInContinueUrl: String = "/continue"
-  override val signInUrl: String = "/signIn"
-  override val dividendsBaseUrl: String = "/dividends"
-  override val interestBaseUrl: String = "/interest"
+import org.scalamock.scalatest.MockFactory
+import play.api.mvc.RequestHeader
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-  override val defaultTaxYear: Int = 2020
+class MockAppConfig extends MockFactory {
 
-  override def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = "/overview"
-  override def incomeTaxSubmissionStartUrl(taxYear: Int): String = "/start"
+  val config: AppConfig = new AppConfig(mock[ServicesConfig]) {
+    override lazy val signInContinueUrl: String = "/continue"
+    override lazy val signInUrl: String = "/signIn"
+    override lazy val dividendsBaseUrl: String = "/dividends"
+    override lazy val interestBaseUrl: String = "/interest"
 
+    override lazy val defaultTaxYear: Int = 2020
 
+    override def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = "/overview"
+    override def incomeTaxSubmissionStartUrl(taxYear: Int): String = "/start"
 
-
+    override def feedbackUrl(implicit request: RequestHeader): String = "feedbackUrl"
+  }
 }
 
