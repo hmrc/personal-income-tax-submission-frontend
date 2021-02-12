@@ -65,7 +65,7 @@ class UkDividendsAmountFormSpec extends UnitTest {
       val testInput = Map(ukDividendsAmount -> testCurrencyInvalidFormat)
 
       val invalidFormatTest = form.bind(testInput)
-      invalidFormatTest.errors should contain(FormError(ukDividendsAmount, "common.error.invalid_currency"))
+      invalidFormatTest.errors should contain(FormError(ukDividendsAmount, "common.error.invalid_currency_format"))
     }
 
 

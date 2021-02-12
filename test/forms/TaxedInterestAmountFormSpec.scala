@@ -77,7 +77,7 @@ class TaxedInterestAmountFormSpec extends UnitTest{
         val testInput = Map(taxedAccountName -> nameValid, taxedAmount -> amountInvalidFormat)
         val result = form.bind(testInput).errors
 
-        result should contain(FormError(taxedAmount, "common.error.invalid_currency"))
+        result should contain(FormError(taxedAmount, "common.error.invalid_currency_format"))
       }
 
       "currency is too big" in {

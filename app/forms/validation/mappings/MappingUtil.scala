@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package forms.validation.utils
+package forms.validation.mappings
 
-import play.api.data.Forms._
-import play.api.data._
+import play.api.data.Forms.{default, of, optional, text}
+import play.api.data.format.Formatter
+import play.api.data.{FieldMapping, FormError, Mapping}
 
-object MappingUtil {
+import scala.util.control.Exception.nonFatalCatch
+
+object MappingUtil extends Formatters {
 
   val trimmedText: Mapping[String] = default(text, "").transform(_.trim, identity)
 
@@ -32,5 +35,11 @@ object MappingUtil {
         x => Some(x)
       )
   }
+
+  def currency(requiredKey: String,
+                         invalidNumeric: String = "common.error.invalid_currency_format",
+                         nonNumericKey: String = "common.error.invalid_number",
+                         maxAmountKey: String = "common.error.amountMaxLimit"): FieldMapping[BigDecimal] =
+    of(currencyFormatter(requiredKey, invalidNumeric, nonNumericKey, maxAmountKey))
 
 }

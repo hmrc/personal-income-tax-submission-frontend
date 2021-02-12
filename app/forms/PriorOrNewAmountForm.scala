@@ -32,7 +32,7 @@ object PriorOrNewAmountForm {
 
   val validationChecks: Seq[(String => Boolean, String)] = Seq[(String => Boolean, String)](
     (isANumber, "common.error.invalid_number"),
-    (isValidCurrency, "common.error.invalid_currency"),
+    (isValidCurrency, "common.error.invalid_currency_format"),
     (isTooBig, "common.error.amountMaxLimit")
   )
 

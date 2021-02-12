@@ -19,7 +19,7 @@ package forms
 import filters.InputFilters
 import forms.validation.StringConstraints._
 import forms.validation.utils.ConstraintUtil._
-import forms.validation.utils.MappingUtil.trimmedText
+import forms.validation.mappings.MappingUtil.trimmedText
 import models.TaxedInterestModel
 import play.api.data.Form
 import play.api.data.Forms.mapping

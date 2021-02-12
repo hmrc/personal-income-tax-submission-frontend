@@ -28,7 +28,7 @@ object StringConstraints {
 
   val monetaryRegex = """\d+|\d*\.\d{1,2}"""
 
-  val maxAmountRegex = """^([0-9]{1,11}$)|^([0-9]{1,11})\.\d{1,2}"""
+  val maxAmountRegex = """^([0-9]{1,12}$)|^([0-9]{1,12})\.\d{1,2}"""
 
 
   val validateCurrency: String => Constraint[String] = msgKey => constraint[String](
@@ -64,7 +64,7 @@ object StringConstraints {
   )
 
   val amountValidNumericalCharacters: Constraint[String] = validateNumericalCharacters("common.error.invalid_number")
-  val amountValidCurrency: Constraint[String] = validateCurrency("common.error.invalid_currency")
+  val amountValidCurrency: Constraint[String] = validateCurrency("common.error.invalid_currency_format")
   val amountMaxLimit: Constraint[String] = maxAmount("common.error.amountMaxLimit")
 
 }

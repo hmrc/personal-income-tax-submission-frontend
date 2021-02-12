@@ -19,7 +19,7 @@ package forms
 import filters.InputFilters
 import forms.validation.StringConstraints._
 import forms.validation.utils.ConstraintUtil._
-import forms.validation.utils.MappingUtil._
+import forms.validation.mappings.MappingUtil._
 import models.UntaxedInterestModel
 import play.api.data.Form
 import play.api.data.Forms._
