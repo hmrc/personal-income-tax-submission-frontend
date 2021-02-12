@@ -57,7 +57,7 @@ class ChangeAccountAmountController @Inject()(
 
   def show(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = authAction { implicit user =>
     val interestPriorSubmissionSession = getSessionData[InterestPriorSubmission](SessionValues.INTEREST_PRIOR_SUB)
-    val checkYourAnswerSession = getSessionData[InterestCYAModel](SessionValues.INTEREST_CYA)
+    val checkYourAnswerSession: Option[InterestCYAModel] = getSessionData[InterestCYAModel](SessionValues.INTEREST_CYA)
 
     val singleAccount: Option[InterestAccountModel] = interestPriorSubmissionSession.flatMap { unwrappedPrior =>
       unwrappedPrior.submissions.flatMap { unwrappedAccounts =>
@@ -69,8 +69,19 @@ class ChangeAccountAmountController @Inject()(
 
     (singleAccount, checkYourAnswerSession) match {
       case (None, Some(_)) => Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType))
-      case (Some(accountModel), Some(_)) =>
-        Ok(view(PriorOrNewAmountForm.priorOrNewAmountForm(accountModel.amount), accountModel, taxYear, taxType, accountId))
+      case (Some(accountModel), Some(cya)) =>
+
+        val previousAmount: Option[BigDecimal] = extractPreAmount(taxType,Some(cya),accountId)
+
+        val form = {
+          if(previousAmount.isDefined && previousAmount.get != accountModel.amount){
+            PriorOrNewAmountForm.priorOrNewAmountForm(accountModel.amount).fill(PriorOrNewAmountModel("other",previousAmount))
+          } else {
+            PriorOrNewAmountForm.priorOrNewAmountForm(accountModel.amount).fill(PriorOrNewAmountModel("other",None))
+          }
+        }
+
+        Ok(view(form, accountModel, taxYear, taxType, accountId))
       case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
     }
   }
