@@ -34,7 +34,7 @@ object PriorOrNewAmountForm {
                        currentAmount: BigDecimal
                      )(implicit messages: Messages): Formatter[String] = new Formatter[String] {
 
-    val priorAmountId = "prior-amount"
+    val priorAmountId = "whichAmount"
 
     override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] = {
       data.get(key) match {
@@ -56,8 +56,8 @@ object PriorOrNewAmountForm {
       val amountTypeSelect = data.get(amountTypeField)
       val potentialAmount = data.get(otherAmountInputField)
 
-      val priorAmountId = "prior-amount"
-      val otherAmountInput = "other-amount-input"
+      val priorAmountId = "whichAmount"
+      val otherAmountInput = "amount"
 
       (amountTypeSelect, potentialAmount) match {
         case (Some(`priorAmount`), _) =>

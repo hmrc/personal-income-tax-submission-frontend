@@ -34,10 +34,6 @@
 )
 @(form: Form[PriorOrNewAmountModel], postAction: Call, taxYear: Int, taxType: String, account: InterestAccountModel)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
-@scripts = {
-    <script type="text/javascript" src="@routes.Assets.versioned("javascripts/hideAndShow.js")" ></script>
-}
-
 @headingToUse = {
     @heading(messages(s"interest.change-account.${taxType.toLowerCase}-heading", account.accountName), Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 }
@@ -45,7 +41,7 @@
 @otherAmountHtml = {
     @inputText(
             form,
-            id = "other-amount-input",
+            id = "amount",
             name = "amount",
             label = "common.enterAmount",
             isPageHeading = false,
@@ -53,36 +49,36 @@
         )
 }
 
-@layout(pageTitle = Some(messages(s"interest.change-account.${taxType.toLowerCase}-title")), scriptsBlock = Some(scripts), taxYear = Some(taxYear)) {
-
-    @form.errors
+@layout(pageTitle = Some(messages(s"interest.change-account.${taxType.toLowerCase}-title")), taxYear = Some(taxYear)) {
 
     @errorSummary(form.errors.distinct)
 
     @formWithCSRF(action = postAction) {
 
-        @inputRadio(
-            form = form,
-            legend = messages(s"interest.change-account.${taxType.toLowerCase}-heading", account.accountName),
-            inline = false,
-            subheading = Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)),
-            name = "whichAmount",
-            items = Seq(
-                RadioItem(
-                    id = Some("prior-amount"),
-                    value = Some("prior"),
-                    content = Text(bigDecimalCurrency(account.amount.toString).toString),
-                    checked = form("whichAmount").value.contains("prior")
-                ),
-                RadioItem(
-                    id = Some("other-amount"),
-                    value = Some("other"),
-                    content = Text(messages("common.aDifferentAmount")),
-                    checked = form("whichAmount").value.contains("other"),
-                    conditionalHtml = Some(otherAmountHtml)
+        <div class="@if(form.errors.nonEmpty) { govuk-form-group--error}">
+            @inputRadio(
+                form = form,
+                legend = messages(s"interest.change-account.${taxType.toLowerCase}-heading", account.accountName),
+                inline = false,
+                subheading = Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)),
+                name = "whichAmount",
+                items = Seq(
+                    RadioItem(
+                        id = Some("whichAmount"),
+                        value = Some("prior"),
+                        content = Text(bigDecimalCurrency(account.amount.toString).toString),
+                        checked = form("whichAmount").value.contains("prior")
+                    ),
+                    RadioItem(
+                        id = Some("otherAmount"),
+                        value = Some("other"),
+                        content = Text(messages("common.aDifferentAmount")),
+                        checked = form("whichAmount").value.contains("other"),
+                        conditionalHtml = Some(otherAmountHtml)
+                    )
                 )
             )
-        )
+        </div>
 
 
         @button()
