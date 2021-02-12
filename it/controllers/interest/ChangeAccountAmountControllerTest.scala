@@ -1,13 +1,13 @@
 package controllers.interest
 
 import common.SessionValues
-import config.FrontendAppConfig
+import config.AppConfig
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{OK, UNAUTHORIZED}
 import uk.gov.hmrc.auth.core.retrieve.~
-import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Enrolment, EnrolmentIdentifier, Enrolments}
+import uk.gov.hmrc.auth.core._
 import utils.IntegrationTest
 import views.html.interest.ChangeAccountAmountView
 
@@ -15,7 +15,7 @@ import scala.concurrent.Future
 
 class ChangeAccountAmountControllerTest extends IntegrationTest{
 
-  lazy val frontendAppConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val frontendAppConfig: AppConfig = app.injector.instanceOf[AppConfig]
   def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq()): ChangeAccountAmountController = {
     new ChangeAccountAmountController(
       mcc,

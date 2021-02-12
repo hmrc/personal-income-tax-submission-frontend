@@ -18,7 +18,7 @@ package controllers.interest
 
 import common.SessionValues
 import controllers.Assets.BAD_REQUEST
-import forms.{UntaxedInterestAmountForm}
+import forms.UntaxedInterestAmountForm
 import helpers.PlaySessionCookieBaker
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.http.HeaderNames

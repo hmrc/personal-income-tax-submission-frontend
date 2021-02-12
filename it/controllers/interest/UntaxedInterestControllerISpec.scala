@@ -215,10 +215,6 @@ class UntaxedInterestControllerISpec extends IntegrationTest {
 
         "returns an action when CYA data is not in session" which {
 
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A")
-          )
           lazy val result: WSResponse = {
             authoriseAgent()
             await(wsClient.url(s"$startUrl/2020/interest/untaxed-uk-interest")

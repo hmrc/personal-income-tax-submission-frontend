@@ -1,15 +1,14 @@
 package controllers.interest
 
 import common.SessionValues
-import config.FrontendAppConfig
+import config.AppConfig
 import helpers.PlaySessionCookieBaker
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{OK, UNAUTHORIZED}
-import play.mvc.Http.HeaderNames
 import uk.gov.hmrc.auth.core.retrieve.~
-import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Enrolment, EnrolmentIdentifier, Enrolments}
+import uk.gov.hmrc.auth.core._
 import utils.IntegrationTest
 import views.html.interest.TaxedInterestAmountView
 
@@ -18,7 +17,7 @@ import scala.concurrent.Future
 
 class TaxedInterestAmountControllerTest extends IntegrationTest{
 
-  lazy val frontendAppConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val frontendAppConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
   def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq()): TaxedInterestAmountController = {
     new TaxedInterestAmountController(
@@ -38,9 +37,6 @@ class TaxedInterestAmountControllerTest extends IntegrationTest{
           Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 25))),
           Some(true), Some(Seq(InterestAccountModel(Some(uuid), "Taxed Account", 25)))
         )
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
-        ))
         val retrieval: Future[Enrolments ~ Some[AffinityGroup]] = Future.successful(new ~(
           Enrolments(Set(
             Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "1234567890")), "Activated", None),
