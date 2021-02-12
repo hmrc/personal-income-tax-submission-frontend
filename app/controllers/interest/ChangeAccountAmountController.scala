@@ -73,9 +73,7 @@ class ChangeAccountAmountController @Inject()(
     }
 
     (singleAccount, checkYourAnswerSession) match {
-      case (None, Some(_)) =>{
-        Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType))
-      }
+      case (None, Some(_)) => Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType))
       case (Some(accountModel), Some(_)) =>
         Ok(view(PriorOrNewAmountForm.priorOrNewAmountForm(accountModel.amount), accountModel, taxYear, taxType, accountId, preAmount))
       case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
