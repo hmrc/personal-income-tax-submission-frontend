@@ -31,6 +31,8 @@ class OtherDividendsAmountFormSpec extends UnitTest {
   lazy val testCurrencyValid = "1000"
   lazy val testCurrencyEmpty = ""
   lazy val testCurrencyInvalidInt = "!"
+  lazy val testCurrencyInvalidFormat = "12345.123"
+  lazy val testCurrencyTooBig = "100000000000"
 
   "OtherDividendsFormSpec" should {
 
@@ -57,6 +59,20 @@ class OtherDividendsAmountFormSpec extends UnitTest {
 
       val invalidCharTest = form.bind(testInput)
       invalidCharTest.errors should contain(FormError(otherDividendsAmount, "common.error.invalid_number"))
+    }
+
+    "invalidate a currency that has incorrect formatting" in {
+      val testInput = Map(otherDividendsAmount -> testCurrencyInvalidFormat)
+
+      val invalidFormatTest = form.bind(testInput)
+      invalidFormatTest.errors should contain(FormError(otherDividendsAmount, "common.error.invalid_currency"))
+    }
+
+    "invalidate a currency that is too big" in {
+      val testInput = Map(otherDividendsAmount -> testCurrencyTooBig)
+
+      val bigCurrencyTest = form.bind(testInput)
+      bigCurrencyTest.errors should contain(FormError(otherDividendsAmount, "common.error.amountMaxLimit"))
     }
 
     "remove a leading space from a currency" in {

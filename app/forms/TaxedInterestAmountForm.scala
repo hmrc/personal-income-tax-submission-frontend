@@ -17,12 +17,12 @@
 package forms
 
 import filters.InputFilters
-import forms.validation.StringConstraints.{nonEmpty, validateCurrency}
+import forms.validation.StringConstraints._
 import forms.validation.utils.ConstraintUtil._
 import forms.validation.utils.MappingUtil.trimmedText
 import models.TaxedInterestModel
 import play.api.data.Form
-import play.api.data.Forms.{mapping, text}
+import play.api.data.Forms.mapping
 import play.api.data.validation.Constraint
 
 object TaxedInterestAmountForm extends InputFilters{
@@ -32,13 +32,12 @@ object TaxedInterestAmountForm extends InputFilters{
 
   val nameNotEmpty: Constraint[String] = nonEmpty("interest.taxed-uk-interest-name.error.empty")
   val amountNotEmpty: Constraint[String] = nonEmpty("interest.taxed-uk-interest-amount.error.empty")
-  val amountValidCur: Constraint[String] = validateCurrency("common.error.invalid_number")
 
   def taxedInterestAmountForm(): Form[TaxedInterestModel] = Form(
     mapping(
       taxedAccountName -> trimmedText.verifying(nameNotEmpty),
       taxedAmount -> trimmedText.verifying(
-        amountNotEmpty andThen amountValidCur
+        amountNotEmpty andThen amountValidNumericalCharacters andThen amountValidCurrency andThen amountMaxLimit
       )
     )(TaxedInterestModel.apply)(TaxedInterestModel.unapply).transform[TaxedInterestModel](
       details => details.copy(
