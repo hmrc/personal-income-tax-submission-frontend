@@ -30,33 +30,6 @@ class StringConstraintsSpec extends Constraints with AnyWordSpecLike with Matche
   val errMsgNoLeadingSpace = "there are leading spaces"
   val errMsgInvalidInt = "contains non numerical chars"
 
-  "The StringConstraints.maxLength method" when {
-
-    "supplied with a string which exceeds the max length" should {
-
-      "return invalid with the correct message" in {
-        StringConstraints.maxLength(maxLength, errMsgMaxLength)("abc") shouldBe Invalid(errMsgMaxLength)
-      }
-
-    }
-
-    "supplied with a string which equals the max length" should {
-
-      "return valid" in {
-        StringConstraints.maxLength(maxLength, errMsgMaxLength)("ab") shouldBe Valid
-      }
-
-    }
-
-    "supplied with a string which is less than the max length" should {
-
-      "return valid" in {
-        StringConstraints.maxLength(maxLength, errMsgMaxLength)("a") shouldBe Valid
-      }
-
-    }
-  }
-
   "The StringConstraints.nonEmpty method" when {
 
     "supplied with empty value" should {
@@ -98,52 +71,6 @@ class StringConstraintsSpec extends Constraints with AnyWordSpecLike with Matche
       }
 
     }
-  }
-
-  "The StringConstraints.noLeadingSpace method" when {
-
-    "supplied with a string which contains no leading space" should {
-
-      "return valid" in {
-        StringConstraints.noLeadingSpace(errMsgNoLeadingSpace)("TEST Business") shouldBe Valid
-      }
-    }
-
-    "supplied with a string which contains a leading space" should {
-
-      "return invalid" in {
-        StringConstraints.noLeadingSpace(errMsgNoLeadingSpace)(" TEST Business") shouldBe Invalid(errMsgNoLeadingSpace)
-      }
-
-    }
-
-    "supplied with a string which contains two leading spaces" should {
-
-      "return invalid" in {
-        StringConstraints.noLeadingSpace(errMsgNoLeadingSpace)("  TEST Business") shouldBe Invalid(errMsgNoLeadingSpace)
-      }
-
-    }
-  }
-
-  "The StringConstraints.validateCurrency method" when {
-
-    "supplied with a string which contains too many decimal places" should {
-
-      "return invalid" in {
-        StringConstraints.validateCurrency(errMsgInvalidInt)("1234.2323") shouldBe Invalid(errMsgInvalidInt)
-      }
-
-    }
-
-    "supplied with a string which contains all numerical chars" should {
-
-      "return valid" in {
-        StringConstraints.noLeadingSpace(errMsgNoLeadingSpace)("1234567.89") shouldBe Valid
-      }
-
-    }
-
   }
 
 }

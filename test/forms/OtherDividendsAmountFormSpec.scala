@@ -17,7 +17,6 @@
 package forms
 
 import forms.OtherDividendsAmountForm._
-import models.CurrencyAmountModel
 import play.api.data.{Form, FormError}
 import utils.UnitTest
 

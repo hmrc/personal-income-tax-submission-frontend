@@ -29,7 +29,7 @@ class TaxedInterestAmountFormSpec extends UnitTest{
 
   lazy val nameValid = "someName"
   lazy val nameInvalid = ""
-  lazy val amountValid = "45.56"
+  lazy val amountValid = 45.56
   lazy val amountInvalidEmpty = ""
   lazy val amountInvalidInt = "!"
   lazy val amountInvalidFormat = "12345.123"
@@ -39,14 +39,14 @@ class TaxedInterestAmountFormSpec extends UnitTest{
 
     "Correctly validate name" when {
       "valid name is supplied" in {
-        val testInput = Map(taxedAccountName -> nameValid, taxedAmount -> amountValid)
+        val testInput = Map(taxedAccountName -> nameValid, taxedAmount -> amountValid.toString)
         val expected = TaxedInterestModel(nameValid, amountValid)
         val actual = form.bind(testInput).value
 
         actual shouldBe Some(expected)
       }
       "Invalid name is supplied" in {
-        val testInput = Map(taxedAccountName -> nameInvalid, taxedAmount -> amountValid)
+        val testInput = Map(taxedAccountName -> nameInvalid, taxedAmount -> amountValid.toString)
         val result = form.bind(testInput).errors
 
         result should contain(FormError(taxedAccountName, "interest.taxed-uk-interest-name.error.empty"))
@@ -54,7 +54,7 @@ class TaxedInterestAmountFormSpec extends UnitTest{
     }
     "Correctly validate currency amount" when {
       "valid currency is supplied" in {
-        val testInput = Map(taxedAccountName -> nameValid, taxedAmount -> amountValid)
+        val testInput = Map(taxedAccountName -> nameValid, taxedAmount -> amountValid.toString)
         val expected = TaxedInterestModel(nameValid, amountValid)
         val actual = form.bind(testInput).value
 

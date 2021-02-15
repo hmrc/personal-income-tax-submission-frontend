@@ -18,7 +18,7 @@ package views.dividends
 
 import forms.{PriorOrNewAmountForm, UkDividendsAmountForm}
 import models.formatHelpers.PriorOrNewAmountModel
-import models.{CurrencyAmountModel, DividendsPriorSubmission}
+import models.DividendsPriorSubmission
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.data.{Form, FormError}
@@ -27,7 +27,7 @@ import views.html.dividends.UkDividendsAmountView
 
 class UkDividendsAmountViewSpec extends ViewTest {
 
-  lazy val ukDividendsAmountForm: Form[CurrencyAmountModel] = UkDividendsAmountForm.ukDividendsAmountForm()
+  lazy val ukDividendsAmountForm: Form[BigDecimal] = UkDividendsAmountForm.ukDividendsAmountForm()
   lazy val priorOrNewAmountForm: Form[PriorOrNewAmountModel] = PriorOrNewAmountForm.priorOrNewAmountForm(20)
 
   lazy val ukDividendsAmountView: UkDividendsAmountView = app.injector.instanceOf[UkDividendsAmountView]

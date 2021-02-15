@@ -24,6 +24,6 @@ object OtherDividendsAmountForm {
   val otherDividendsAmount: String = "amount"
 
   def otherDividendsAmountForm(): Form[BigDecimal] = Form(
-      otherDividendsAmount -> currency("dividends.other-dividends-amount.error.empty")
+    otherDividendsAmount -> currency("dividends.other-dividends-amount.error.empty")
   )
 }

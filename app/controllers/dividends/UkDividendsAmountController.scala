@@ -22,7 +22,7 @@ import controllers.predicates.AuthorisedAction
 import forms.{PriorOrNewAmountForm, UkDividendsAmountForm}
 import javax.inject.Inject
 import models.formatHelpers.PriorOrNewAmountModel
-import models.{CurrencyAmountModel, DividendsCheckYourAnswersModel, DividendsPriorSubmission, User}
+import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, User}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.libs.json.{Json, Reads}
@@ -110,12 +110,12 @@ class UkDividendsAmountController @Inject()(
               DividendsCheckYourAnswersModel.fromSession().fold {
                 Redirect(redirectLocation(taxYear, None))
                   .addingToSession(SessionValues.DIVIDENDS_CYA ->
-                    DividendsCheckYourAnswersModel().copy(ukDividends = Some(true), ukDividendsAmount = Some(BigDecimal(formModel.amount))).asJsonString)
+                    DividendsCheckYourAnswersModel().copy(ukDividends = Some(true), ukDividendsAmount = Some(formModel)).asJsonString)
               } {
                 cyaModel =>
-                  Redirect(redirectLocation(taxYear, Some(cyaModel.copy(ukDividends = Some(true), ukDividendsAmount = Some(BigDecimal(formModel.amount))))))
+                  Redirect(redirectLocation(taxYear, Some(cyaModel.copy(ukDividends = Some(true), ukDividendsAmount = Some(formModel)))))
                     .addingToSession(SessionValues.DIVIDENDS_CYA ->
-                      cyaModel.copy(ukDividends = Some(true), ukDividendsAmount = Some(BigDecimal(formModel.amount))).asJsonString)
+                      cyaModel.copy(ukDividends = Some(true), ukDividendsAmount = Some(formModel)).asJsonString)
               }
           }
         )

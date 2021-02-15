@@ -17,29 +17,28 @@
 package forms
 
 import forms.UkDividendsAmountForm._
-import models.CurrencyAmountModel
 import play.api.data.{Form, FormError}
 import utils.UnitTest
 
 
 class UkDividendsAmountFormSpec extends UnitTest {
 
-  def form: Form[CurrencyAmountModel] = {
+  def form: Form[BigDecimal] = {
     UkDividendsAmountForm.ukDividendsAmountForm()
   }
 
-  lazy val testCurrencyValid = "1000"
+  lazy val testCurrencyValid = 1000
   lazy val testCurrencyEmpty = ""
   lazy val testCurrencyInvalidInt = "!"
-  lazy val testCurrencyInvalidFormat = "12345.123"
-  lazy val testCurrencyTooBig = "100000000000"
+  lazy val testCurrencyInvalidFormat = 12345.123
+  lazy val testCurrencyTooBig = "100000000000.00"
 
   "UkDividendsFormSpec" should {
 
     "correctly validate a currency" when {
       "a valid currency is entered" in {
-        val testInput = Map(ukDividendsAmount -> testCurrencyValid)
-        val expected = CurrencyAmountModel(testCurrencyValid)
+        val testInput = Map(ukDividendsAmount -> testCurrencyValid.toString)
+        val expected = testCurrencyValid
         val actual = form.bind(testInput).value
 
         actual shouldBe Some(expected)
@@ -50,7 +49,7 @@ class UkDividendsAmountFormSpec extends UnitTest {
       val testInput = Map(ukDividendsAmount -> testCurrencyEmpty)
 
       val emptyTest = form.bind(testInput)
-      emptyTest.errors should contain(FormError(ukDividendsAmount, "dividends.uk-dividends-amount.error.empty"))
+      emptyTest.errors should contain(FormError(ukDividendsAmount,"dividends.uk-dividends-amount.error.empty"))
     }
 
     "invalidate a currency that includes invalid characters" in {
@@ -62,7 +61,7 @@ class UkDividendsAmountFormSpec extends UnitTest {
     }
 
     "invalidate a currency that has incorrect formatting" in {
-      val testInput = Map(ukDividendsAmount -> testCurrencyInvalidFormat)
+      val testInput = Map(ukDividendsAmount -> testCurrencyInvalidFormat.toString)
 
       val invalidFormatTest = form.bind(testInput)
       invalidFormatTest.errors should contain(FormError(ukDividendsAmount, "common.error.invalid_currency_format"))
@@ -78,7 +77,7 @@ class UkDividendsAmountFormSpec extends UnitTest {
 
     "remove a leading space from a currency" in {
       val testInput = Map(ukDividendsAmount -> (" " + testCurrencyValid))
-      val expected = CurrencyAmountModel(testCurrencyValid)
+      val expected = testCurrencyValid
       val leadingSpaceTest = form.bind(testInput).value
 
       leadingSpaceTest shouldBe Some(expected)

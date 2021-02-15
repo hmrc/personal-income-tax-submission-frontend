@@ -29,7 +29,7 @@ class UntaxedInterestAmountFormSpec extends UnitTest {
 
   lazy val nameValid = "someName"
   lazy val nameInvalid = ""
-  lazy val amountValid = "99.99"
+  lazy val amountValid = 99.99
   lazy val amountInvalid = ""
   lazy val amountInvalidEntry = "!"
   lazy val amountInvalidFormat = "12345.123"
@@ -40,7 +40,7 @@ class UntaxedInterestAmountFormSpec extends UnitTest {
     "correctly validate name" when {
       "a valid name has been added" in {
 
-        val testInput = Map(untaxedAccountName -> nameValid, untaxedAmount -> amountValid)
+        val testInput = Map(untaxedAccountName -> nameValid, untaxedAmount -> amountValid.toString)
         val expected = UntaxedInterestModel(nameValid, amountValid)
         val actual = form.bind(testInput).value
 
@@ -49,7 +49,7 @@ class UntaxedInterestAmountFormSpec extends UnitTest {
 
       "an invalid name has been added" in {
 
-        val testInput = Map(untaxedAccountName -> nameInvalid, untaxedAmount -> amountValid)
+        val testInput = Map(untaxedAccountName -> nameInvalid, untaxedAmount -> amountValid.toString)
         val result = form.bind(testInput).errors
 
         result should contain(FormError(untaxedAccountName, "interest.untaxed-uk-interest-name.error.empty"))
@@ -58,7 +58,7 @@ class UntaxedInterestAmountFormSpec extends UnitTest {
 
     "correctly validate the interest amount" when {
       "a valid interest amount has been added" in {
-        val testInput = Map(untaxedAccountName -> nameValid, untaxedAmount -> amountValid)
+        val testInput = Map(untaxedAccountName -> nameValid, untaxedAmount -> amountValid.toString)
         val expected = UntaxedInterestModel(nameValid, amountValid)
         val actual = form.bind(testInput).value
 

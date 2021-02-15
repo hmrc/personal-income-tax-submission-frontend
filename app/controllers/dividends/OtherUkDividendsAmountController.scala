@@ -22,7 +22,7 @@ import controllers.predicates.AuthorisedAction
 import forms.{OtherDividendsAmountForm, PriorOrNewAmountForm}
 import javax.inject.Inject
 import models.formatHelpers.PriorOrNewAmountModel
-import models.{CurrencyAmountModel, DividendsCheckYourAnswersModel, DividendsPriorSubmission, User}
+import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, User}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.libs.json.{Json, Reads}
