@@ -34,8 +34,8 @@ class UntaxedInterestViewSpec extends ViewTest {
 
   val h1Selector = "h1"
   val captionSelector = ".govuk-caption-l"
-  val yesOptionSelector = "#yes_no_yes"
-  val noOptionSelector = "#yes_no_no"
+  val yesOptionSelector = "#value"
+  val noOptionSelector = "#value-no"
   val continueButtonSelector = "#continue"
 
   val errorSummarySelector = ".govuk-error-summary"

@@ -49,10 +49,10 @@ class UkDividendsAmountViewSpec extends ViewTest {
   val expectedErrorTitle = "There is a problem"
   val expectedErrorText = "Enter the amount of dividends earned from the UK"
 
-  val priorAmountRadio = "#prior-amount"
-  val priorAmountRadioText = "#main-content > div > div > form > div > fieldset > div > div:nth-child(1) > label"
-  val newAmountRadio = "#other-amount"
-  val newAmountInput = "#other-amount-input"
+  val priorAmountRadio = "#whichAmount"
+  val priorAmountRadioText = "#main-content > div > div > form > div > div > fieldset > div > div:nth-child(1) > label"
+  val newAmountRadio = "#otherAmount"
+  val newAmountInput = "#amount"
 
   "UkDividendsAmountView" when {
 
@@ -215,7 +215,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = ukDividendsAmountView(
-            Left(priorOrNewAmountForm),
+            Left(priorOrNewAmountForm.fill(PriorOrNewAmountModel("other",None))),
             Some(DividendsPriorSubmission(Some(40))),
             taxYear,
             testCall

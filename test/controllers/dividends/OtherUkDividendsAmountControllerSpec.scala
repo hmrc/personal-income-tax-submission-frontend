@@ -53,7 +53,7 @@ class OtherUkDividendsAmountControllerSpec extends UnitTestWithApp {
         }
 
         status(result) shouldBe OK
-        bodyOf(result) should include("prior-amount")
+        bodyOf(result) should include("whichAmount")
         bodyOf(result) shouldNot include("govuk-error-summary")
       }
 
@@ -68,7 +68,7 @@ class OtherUkDividendsAmountControllerSpec extends UnitTestWithApp {
         }
 
         status(result) shouldBe OK
-        bodyOf(result) should include("prior-amount")
+        bodyOf(result) should include("whichAmount")
         bodyOf(result) should include("50")
         bodyOf(result) should include("100")
         bodyOf(result) shouldNot include("govuk-error-summary")
@@ -82,7 +82,6 @@ class OtherUkDividendsAmountControllerSpec extends UnitTestWithApp {
         }
 
         status(result) shouldBe OK
-        bodyOf(result) should include("hmrc-currency-input__unit")
         bodyOf(result) shouldNot include("govuk-error-summary")
       }
 
@@ -92,7 +91,6 @@ class OtherUkDividendsAmountControllerSpec extends UnitTestWithApp {
         }
 
         status(result) shouldBe OK
-        bodyOf(result) should include("hmrc-currency-input__unit")
         bodyOf(result) shouldNot include("govuk-error-summary")
       }
 

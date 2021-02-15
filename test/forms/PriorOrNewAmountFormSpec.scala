@@ -71,7 +71,7 @@ class PriorOrNewAmountFormSpec extends UnitTestWithApp {
      "the amount type field is missing" in {
        lazy val result = form.bind(Map[String, String]()).errors
 
-       val expectedError = FormError("prior-amount", Seq("Select £10 or enter a different amount"))
+       val expectedError = FormError("whichAmount", Seq("Select £10 or enter a different amount"))
 
        result.distinct shouldBe Seq(expectedError)
      }
@@ -81,7 +81,7 @@ class PriorOrNewAmountFormSpec extends UnitTestWithApp {
          amountTypeField -> "notathing"
        )).errors
 
-       val expectedError = FormError("prior-amount", Seq("Select £10 or enter a different amount"))
+       val expectedError = FormError("whichAmount", Seq("Select £10 or enter a different amount"))
 
        result shouldBe Seq(expectedError)
      }
@@ -92,7 +92,7 @@ class PriorOrNewAmountFormSpec extends UnitTestWithApp {
          otherAmountInputField -> "notANumber"
        )).errors
 
-       val expectedError = FormError("other-amount-input", Seq("Enter an amount using numbers 0 to 9"))
+       val expectedError = FormError("amount", Seq("Enter an amount using numbers 0 to 9"))
 
        result shouldBe Seq(expectedError)
      }
@@ -103,7 +103,7 @@ class PriorOrNewAmountFormSpec extends UnitTestWithApp {
          otherAmountInputField -> "12345.123"
        )).errors
 
-       val expectedError = FormError("other-amount-input", Seq("Enter an amount in pounds and pence"))
+       val expectedError = FormError("amount", Seq("Enter an amount in pounds and pence"))
 
        result shouldBe Seq(expectedError)
      }
@@ -114,7 +114,7 @@ class PriorOrNewAmountFormSpec extends UnitTestWithApp {
          otherAmountInputField -> "100000000000"
        )).errors
 
-       val expectedError = FormError("other-amount-input", Seq("Enter an amount less than £100,000,000,000"))
+       val expectedError = FormError("amount", Seq("Enter an amount less than £100,000,000,000"))
 
        result shouldBe Seq(expectedError)
      }
@@ -124,7 +124,7 @@ class PriorOrNewAmountFormSpec extends UnitTestWithApp {
          amountTypeField -> "other"
        )).errors
 
-       val expectedError = FormError("prior-amount", Seq("Select £10 or enter a different amount"))
+       val expectedError = FormError("whichAmount", Seq("Select £10 or enter a different amount"))
 
        result shouldBe Seq(expectedError)
      }
