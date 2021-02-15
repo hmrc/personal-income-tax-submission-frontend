@@ -22,11 +22,11 @@ import controllers.predicates.AuthorisedAction
 import forms.YesNoForm
 import javax.inject.Inject
 import models.DividendsCheckYourAnswersModel
-
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import utils.SessionHelper
 import views.html.dividends.ReceiveOtherUkDividendsView
 
 class ReceiveOtherUkDividendsController @Inject()(
@@ -34,18 +34,14 @@ class ReceiveOtherUkDividendsController @Inject()(
                                                  authAction: AuthorisedAction,
                                                  receiveOtherDividendsView: ReceiveOtherUkDividendsView,
                                                  implicit val appConfig: AppConfig
-                                          ) extends FrontendController(cc) with I18nSupport {
+                                          ) extends FrontendController(cc) with I18nSupport with SessionHelper{
 
   val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("dividends.other-dividends.errors.noChoice")
 
   def show(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
-    DividendsCheckYourAnswersModel.fromSession() match {
-      case Some(model) if model.otherUkDividends.isDefined =>
-        Ok(receiveOtherDividendsView("dividends.other-dividends.heading." + (if (user.isAgent) "agent" else "individual"),
-          yesNoForm, taxYear, model.otherUkDividends.get.toString))
-      case _ =>
-        Ok(receiveOtherDividendsView("dividends.other-dividends.heading." + (if (user.isAgent) "agent" else "individual"), yesNoForm, taxYear))
-    }
+    val cyaData: Option[Boolean] = getModelFromSession[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA).flatMap(_.otherUkDividends)
+    Ok(receiveOtherDividendsView(
+      "dividends.other-dividends.heading." + (if (user.isAgent) "agent" else "individual"), cyaData.fold(yesNoForm)(yesNoForm.fill), taxYear))
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
