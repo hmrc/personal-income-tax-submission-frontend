@@ -27,7 +27,7 @@ import views.html.interest.RemoveAccountView
 
 class RemoveAccountViewSpec extends ViewTest {
 
-  lazy val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("Select yes to remove this account")
+  lazy val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("Select yes to remove this account")
 
   lazy val removeAccountView: RemoveAccountView = app.injector.instanceOf[RemoveAccountView]
 

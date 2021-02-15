@@ -47,10 +47,6 @@ class YesNoFormSpec extends UnitTest {
 
     }
 
-    "return a map on unbind" in {
-      YesNoForm.formatter("SomeError").unbind("value", false) shouldBe Map("value" -> "SomeError")
-    }
-
     "return an error" when {
 
       "no option is returned" in {
