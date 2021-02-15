@@ -47,7 +47,7 @@
 
 @layout(Some(messages(pageTitle)), taxYear = Some(taxYear)) {
 
-    @errorSummary(form.errors)
+    @errorSummary(form.errors.distinct)
 
     @formWithCsrf(action = controllers.interest.routes.TaxedInterestController.submit(taxYear)) {
 

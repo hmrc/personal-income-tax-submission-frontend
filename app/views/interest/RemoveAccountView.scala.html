@@ -45,7 +45,7 @@
 
 @layout(pageTitle = Some(messages("interest.remove-account.title")), taxYear = Some(taxYear)) {
 
-    @errorSummary(form.errors)
+    @errorSummary(form.errors.distinct)
 
     @formWithCsrf(action = controllers.interest.routes.RemoveAccountController.submit(taxYear, taxType, account.id.getOrElse(account.uniqueSessionId.getOrElse("")))){
 

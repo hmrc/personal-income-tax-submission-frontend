@@ -39,7 +39,7 @@
 
 @layout(pageTitle = Some(messages(pageTitle)), taxYear = Some(taxYear)) {
 
-    @errorSummary(form.errors, Some("yes_no_yes"))
+    @errorSummary(form.errors.distinct)
 
     @formWithCsrf(action = controllers.dividends.routes.ReceiveUkDividendsController.submit(taxYear)) {
 
