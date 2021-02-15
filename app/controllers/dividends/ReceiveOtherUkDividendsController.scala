@@ -41,6 +41,7 @@ class ReceiveOtherUkDividendsController @Inject()(
   def show(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
     val cyaData: Option[Boolean] = getModelFromSession[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA).flatMap(_.otherUkDividends)
     Ok(receiveOtherDividendsView(
+      //TODO Move messages to view level
       "dividends.other-dividends.heading." + (if (user.isAgent) "agent" else "individual"), cyaData.fold(yesNoForm)(yesNoForm.fill), taxYear))
   }
 
