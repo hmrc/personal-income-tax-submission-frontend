@@ -19,14 +19,15 @@
 @import views.html.templates.helpers.Button
 @import views.html.templates.helpers.Heading
 @import views.html.templates.helpers.BigDecimalCurrency
+@import utils.ViewUtils.summaryListRow
 
 @this(
     layout: Layout,
     formWithCSRF: FormWithCSRF,
-    cyaRow: CYARow,
     bigDecimalCurrency: BigDecimalCurrency,
     button: Button,
-    heading: Heading
+    heading: Heading,
+    govukSummaryList: GovukSummaryList
 )
 
 @(cya: DividendsCheckYourAnswersModel, prior: DividendsPriorSubmission = DividendsPriorSubmission(), taxYear: Int)(implicit user: User[AnyContent], messages: Messages, appConfig: AppConfig)
@@ -43,24 +44,42 @@
 
     @heading("dividends.cya.h1", Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 
-    <dl class="govuk-summary-list">
-        @if(prior.ukDividends.isEmpty) {
-            @cyaRow("dividends.cya.questions.1", trueFalseToYesNo(cya.ukDividends.getOrElse(false)), controllers.dividends.routes.ReceiveUkDividendsController.show(taxYear))
-        }
-        @if(cya.ukDividends.getOrElse(false)) {
-            @cya.ukDividendsAmount.map { amount =>
-                @cyaRow("dividends.cya.questions.2", bigDecimalToCurrency(amount), controllers.dividends.routes.UkDividendsAmountController.show(taxYear))
-            }
-        }
-        @if(prior.otherUkDividends.isEmpty) {
-            @cyaRow("dividends.cya.questions.3", trueFalseToYesNo(cya.otherUkDividends.getOrElse(false)), controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear))
-        }
-        @if(cya.otherUkDividends.getOrElse(false)) {
-            @cya.otherUkDividendsAmount.map { amount =>
-                @cyaRow("dividends.cya.questions.4", bigDecimalToCurrency(amount), controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear))
-            }
-        }
-    </dl>
+    @{
+        govukSummaryList(SummaryList(Seq(
+            if(prior.ukDividends.isEmpty) {
+                Some(summaryListRow(
+                    HtmlContent(messages("dividends.cya.questions.1")),
+                    HtmlContent(trueFalseToYesNo(cya.ukDividends.getOrElse(false))),
+                    actions = Seq((controllers.dividends.routes.ReceiveUkDividendsController.show(taxYear), messages("common.change"), None))
+                ))
+            } else { None },
+            if(cya.ukDividends.getOrElse(false)) {
+                cya.ukDividendsAmount.map { amount =>
+                    summaryListRow(
+                        HtmlContent(messages("dividends.cya.questions.2")),
+                        HtmlContent(bigDecimalToCurrency(amount)),
+                        actions = Seq((controllers.dividends.routes.UkDividendsAmountController.show(taxYear), messages("common.change"), None))
+                    )
+                }
+            } else { None },
+            if(prior.otherUkDividends.isEmpty) {
+                Some(summaryListRow(
+                    HtmlContent(messages("dividends.cya.questions.3")),
+                    HtmlContent(trueFalseToYesNo(cya.otherUkDividends.getOrElse(false))),
+                    actions = Seq((controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear), messages("common.change"), None))
+                ))
+            } else { None },
+            if(cya.otherUkDividends.getOrElse(false)) {
+                cya.otherUkDividendsAmount.map { amount =>
+                    summaryListRow(
+                        HtmlContent(messages("dividends.cya.questions.4")),
+                        HtmlContent(bigDecimalToCurrency(amount)),
+                        actions = Seq((controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear), messages("common.change"), None))
+                    )
+                }
+            } else { None }
+        ).flatten))
+    }
 
     @formWithCSRF(action = controllers.dividends.routes.DividendsCYAController.submit(taxYear)) {
         @button("common.saveAndContinue", classes = Some("govuk-!-margin-top-6"))

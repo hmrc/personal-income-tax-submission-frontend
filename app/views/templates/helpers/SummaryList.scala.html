@@ -14,9 +14,13 @@
  * limitations under the License.
  *@
 
-@import utils.ViewUtils.summaryListRow
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 
-@this()
+@this(govukSummaryList : GovukSummaryList)
 
-@(key: HtmlContent, value: HtmlContent, keyClasses: String= "govuk-!-width-one-third", valueClasses: String = "govuk-!-width-one-third", actionClasses: String = "govuk-!-width-one-third", actions: Seq[(Call, String, Option[String])])(implicit messages: Messages)
+@(rows: Seq[SummaryListRow])
 
+@govukSummaryList(SummaryList(
+    rows = rows
+))

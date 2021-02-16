@@ -38,6 +38,8 @@ class OtherUkDividendsAmountController @Inject()(
                                              implicit val appConfig: AppConfig
                                            ) extends FrontendController(cc) with I18nSupport {
 
+
+
   def view(
             formInput: Either[Form[PriorOrNewAmountModel], Form[CurrencyAmountModel]],
             priorSubmission: Option[DividendsPriorSubmission] = None,

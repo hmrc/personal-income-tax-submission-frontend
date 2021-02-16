@@ -23,10 +23,10 @@
 @import views.html.templates.helpers.Heading
 @import common.InterestTaxTypes._
 @import models.interest.InterestPriorSubmission
+@import utils.ViewUtils.summaryListRow
 
 @this(
     layout: Layout,
-    cyaRow: CYARow,
     bigDecimalCurrency: BigDecimalCurrency,
     formWithCSRF: FormWithCSRF,
     button: Button,
@@ -66,7 +66,11 @@
 
     <dl class="govuk-summary-list">
         @if(!priorSubmission.exists(_.hasUntaxed)) {
-            @cyaRow("interest.cya.questions.1", trueFalseToYesNo(cyaModel.untaxedUkInterest.getOrElse(false)), controllers.interest.routes.UntaxedInterestController.show(taxYear))
+            @summaryListRow(
+                HtmlContent(messages("interest.cya.questions.1")),
+                HtmlContent(trueFalseToYesNo(cyaModel.untaxedUkInterest.getOrElse(false))),
+                actions = Seq((controllers.interest.routes.UntaxedInterestController.show(taxYear), messages("common.change"), None))
+            )
         }
         @if(cyaModel.untaxedUkInterest.getOrElse(false)) {
             @cyaModel.untaxedUkAccounts.map { accounts =>
@@ -74,7 +78,11 @@
             }
         }
         @if(!priorSubmission.exists(_.hasTaxed)) {
-            @cyaRow("interest.cya.questions.3", trueFalseToYesNo(cyaModel.taxedUkInterest.getOrElse(false)), controllers.interest.routes.TaxedInterestController.show(taxYear))
+            @summaryListRow(
+                HtmlContent(messages("interest.cya.questions.3")),
+                HtmlContent(trueFalseToYesNo(cyaModel.taxedUkInterest.getOrElse(false))),
+                actions = Seq((controllers.interest.routes.TaxedInterestController.show(taxYear), messages("common.change"), None))
+            )
         }
         @if(cyaModel.taxedUkInterest.getOrElse(false)) {
             @cyaModel.taxedUkAccounts.map { accounts =>
