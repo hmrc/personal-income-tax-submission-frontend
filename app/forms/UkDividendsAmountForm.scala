@@ -16,26 +16,17 @@
 
 package forms
 
-import forms.validation.StringConstraints._
-import forms.validation.utils.ConstraintUtil._
-import forms.validation.utils.MappingUtil._
-import models.CurrencyAmountModel
+import forms.validation.mappings.MappingUtil._
 import play.api.data.Form
-import play.api.data.Forms.mapping
-import play.api.data.validation.Constraint
+
 
 object UkDividendsAmountForm {
 
   val ukDividendsAmount: String = "amount"
 
-  val amountNotEmpty: Constraint[String] = nonEmpty("dividends.uk-dividends-amount.error.empty")
 
-  def ukDividendsAmountForm(): Form[CurrencyAmountModel] = Form(
-    mapping(
-      ukDividendsAmount -> trimmedText.verifying(
-        amountNotEmpty andThen amountValidNumericalCharacters andThen amountValidCurrency andThen amountMaxLimit
-      )
-    )(CurrencyAmountModel.apply)(CurrencyAmountModel.unapply)
+  def ukDividendsAmountForm(): Form[BigDecimal] = Form(
+    ukDividendsAmount -> currency("dividends.uk-dividends-amount.error.empty")
   )
 }
 

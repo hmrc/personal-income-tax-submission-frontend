@@ -22,11 +22,11 @@ import utils.UnitTest
 
 class UntaxedInterestModelSpec extends UnitTest {
 
-  val model = UntaxedInterestModel("","")
+  val model = UntaxedInterestModel("account name",45.00)
 
   val jsonModel: JsObject = Json.obj(
-    "untaxedAccountName" -> "",
-    "untaxedAmount" -> "",
+    "untaxedAccountName" -> "account name",
+    "untaxedAmount" -> 45.00,
   )
 
   "UntaxedAmountModel" should {
@@ -36,7 +36,7 @@ class UntaxedInterestModelSpec extends UnitTest {
     }
 
     "parse from Json" in {
-      jsonModel.as[UntaxedInterestModel]
+      jsonModel.as[UntaxedInterestModel] shouldBe model
     }
   }
 

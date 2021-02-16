@@ -18,8 +18,7 @@ package forms
 
 import filters.InputFilters
 import forms.validation.StringConstraints._
-import forms.validation.utils.ConstraintUtil._
-import forms.validation.utils.MappingUtil._
+import forms.validation.mappings.MappingUtil._
 import models.UntaxedInterestModel
 import play.api.data.Form
 import play.api.data.Forms._
@@ -36,9 +35,7 @@ object UntaxedInterestAmountForm extends InputFilters{
   def untaxedInterestAmountForm(): Form[UntaxedInterestModel] = Form(
     mapping(
       untaxedAccountName -> trimmedText.verifying(nameNotEmpty),
-      untaxedAmount -> trimmedText.verifying(
-        amountNotEmpty andThen amountValidNumericalCharacters andThen amountValidCurrency andThen amountMaxLimit
-      )
+      untaxedAmount -> currency("interest.untaxed-uk-interest-amount.error.empty")
     )(UntaxedInterestModel.apply)(UntaxedInterestModel.unapply).transform[UntaxedInterestModel](
       details => details.copy(
         untaxedAccountName = filter(details.untaxedAccountName)

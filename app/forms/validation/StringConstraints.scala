@@ -22,26 +22,9 @@ import play.api.data.validation.{Constraint, Invalid, Valid}
 object StringConstraints {
 
   val charRegex = """^([ A-Za-z0-9&@£$€¥#.,:;-])*$"""
-  val intRegex = """^[0-9]*$"""
-
   val numericalCharacters = """[0-9.]*"""
 
   val monetaryRegex = """\d+|\d*\.\d{1,2}"""
-
-  val maxAmountRegex = """^([0-9]{1,11}$)|^([0-9]{1,11})\.\d{1,2}"""
-
-
-  val validateCurrency: String => Constraint[String] = msgKey => constraint[String](
-    value => if(value.matches(monetaryRegex)) Valid else Invalid(msgKey)
-  )
-
-  val validateInt: String => Constraint[String] = msgKey => constraint[String](
-    x => if (x.matches(intRegex)) Valid else Invalid(msgKey)
-  )
-
-  val validateNumericalCharacters: String => Constraint[String] = msgKey => constraint[String](
-    x => if (x.matches(numericalCharacters)) Valid else Invalid(msgKey)
-  )
 
   val validateChar: String => Constraint[String] = msgKey => constraint[String](
   x => if (x.matches(charRegex)) Valid else Invalid(msgKey)
@@ -51,20 +34,5 @@ object StringConstraints {
     x => if (x.isEmpty) Invalid(msgKey) else Valid
   )
 
-  val maxLength: (Int, String) => Constraint[String] = (length, msgKey) => constraint[String](
-    x => if (x.trim.length > length) Invalid(msgKey) else Valid
-  )
-
-  val noLeadingSpace: String => Constraint[String] = msgKey => constraint[String](
-    x => if (x.headOption.contains(" ".head)) Invalid(msgKey) else Valid
-  )
-
-  val maxAmount: String => Constraint[String] = msgKey => constraint[String](
-  x => if (x.matches(maxAmountRegex)) Valid else Invalid(msgKey)
-  )
-
-  val amountValidNumericalCharacters: Constraint[String] = validateNumericalCharacters("common.error.invalid_number")
-  val amountValidCurrency: Constraint[String] = validateCurrency("common.error.invalid_currency")
-  val amountMaxLimit: Constraint[String] = maxAmount("common.error.amountMaxLimit")
 
 }

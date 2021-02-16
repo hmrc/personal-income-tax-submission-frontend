@@ -27,7 +27,7 @@
 
 @this(layout: Layout, formWithCSRF: FormWithCSRF, errorSummaryDisplay: ErrorSummaryDisplay, priorOrNewForm: PriorOrNewForm, inputHelper: InputHelper)
 
-@(form: Either[Form[PriorOrNewAmountModel], Form[CurrencyAmountModel]], priorSubmission: Option[DividendsPriorSubmission], taxYear: Int, postAction: Call, preAmount: Option[BigDecimal] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(form: Either[Form[PriorOrNewAmountModel], Form[BigDecimal]], priorSubmission: Option[DividendsPriorSubmission], taxYear: Int, postAction: Call, preAmount: Option[BigDecimal] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @heading = {
  <span class="govuk-caption-l">@messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)</span>
@@ -38,7 +38,7 @@
  <script type="text/javascript" src="@routes.Assets.versioned("javascripts/hideAndShow.js")" ></script>
 }
 
-@currencyFormHtml(formInput: Form[CurrencyAmountModel], otherDividendsAmount: String) = {
+@currencyFormHtml(formInput: Form[BigDecimal], otherDividendsAmount: String) = {
  @errorSummaryDisplay(formInput.errors.distinct)
 
  @heading

@@ -18,8 +18,7 @@ package forms
 
 import filters.InputFilters
 import forms.validation.StringConstraints._
-import forms.validation.utils.ConstraintUtil._
-import forms.validation.utils.MappingUtil.trimmedText
+import forms.validation.mappings.MappingUtil.{currency, trimmedText}
 import models.TaxedInterestModel
 import play.api.data.Form
 import play.api.data.Forms.mapping
@@ -36,9 +35,7 @@ object TaxedInterestAmountForm extends InputFilters{
   def taxedInterestAmountForm(): Form[TaxedInterestModel] = Form(
     mapping(
       taxedAccountName -> trimmedText.verifying(nameNotEmpty),
-      taxedAmount -> trimmedText.verifying(
-        amountNotEmpty andThen amountValidNumericalCharacters andThen amountValidCurrency andThen amountMaxLimit
-      )
+      taxedAmount -> currency("interest.taxed-uk-interest-amount.error.empty")
     )(TaxedInterestModel.apply)(TaxedInterestModel.unapply).transform[TaxedInterestModel](
       details => details.copy(
         taxedAccountName = filter(details.taxedAccountName)

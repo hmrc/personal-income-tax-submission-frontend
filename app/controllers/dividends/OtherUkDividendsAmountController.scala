@@ -22,7 +22,7 @@ import controllers.predicates.AuthorisedAction
 import forms.{OtherDividendsAmountForm, PriorOrNewAmountForm}
 import javax.inject.Inject
 import models.formatHelpers.PriorOrNewAmountModel
-import models.{CurrencyAmountModel, DividendsCheckYourAnswersModel, DividendsPriorSubmission, User}
+import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, User}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.libs.json.{Json, Reads}
@@ -39,7 +39,7 @@ class OtherUkDividendsAmountController @Inject()(
                                            ) extends FrontendController(cc) with I18nSupport {
 
   def view(
-            formInput: Either[Form[PriorOrNewAmountModel], Form[CurrencyAmountModel]],
+            formInput: Either[Form[PriorOrNewAmountModel], Form[BigDecimal]],
             priorSubmission: Option[DividendsPriorSubmission] = None,
             taxYear: Int,
             preAmount: Option[BigDecimal] = None
@@ -111,13 +111,13 @@ class OtherUkDividendsAmountController @Inject()(
             formWithErrors => BadRequest(view(Right(formWithErrors), taxYear = taxYear))
           },
           {
-            formModel =>
+            bigDecimal =>
               DividendsCheckYourAnswersModel.fromSession().fold {
                 Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
               } {
                 cyaModel =>
                   Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))
-                    .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherUkDividendsAmount = Some(BigDecimal(formModel.amount))).asJsonString)
+                    .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(otherUkDividendsAmount = Some(bigDecimal)).asJsonString)
               }
           }
         )
