@@ -16,7 +16,7 @@
 
 package connectors.httpparsers
 
-import models.{DesErrorBodyModel, DesErrorModel}
+import models.{ApiErrorBodyModel, ApiErrorModel}
 import play.api.http.Status._
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 import utils.PagerDutyHelper.PagerDutyKeys._
@@ -24,7 +24,7 @@ import utils.PagerDutyHelper.pagerDutyLog
 
 object InterestSubmissionHttpParser {
 
-  type InterestSubmissionsResponse = Either[DesErrorModel, Int]
+  type InterestSubmissionsResponse = Either[ApiErrorModel, Int]
 
   implicit object InterestSubmissionResponseReads extends HttpReads[InterestSubmissionsResponse] {
     override def read(method: String, url: String, response: HttpResponse): InterestSubmissionsResponse = {
@@ -46,22 +46,22 @@ object InterestSubmissionHttpParser {
     }
   }
   private def logMessage(response:HttpResponse): Option[String] ={
-    Some(s"[InterestSubmissionHttpParser][read] Received ${response.status} from DES. Body:${response.body}")
+    Some(s"[InterestSubmissionHttpParser][read] Received ${response.status} from API. Body:${response.body}")
   }
 
   private def handleDESError(response: HttpResponse, statusOverride: Option[Int] = None): InterestSubmissionsResponse = {
     val status = statusOverride.getOrElse(response.status)
 
     try {
-      response.json.validate[DesErrorBodyModel].fold[InterestSubmissionsResponse](
+      response.json.validate[ApiErrorBodyModel].fold[InterestSubmissionsResponse](
         jsonErrors => {
-          pagerDutyLog(UNEXPECTED_RESPONSE_FROM_API, Some(s"[InterestSubmissionHttpParser][read] Unexpected Json from DES."))
-          Left(DesErrorModel(status, DesErrorBodyModel.parsingError))
+          pagerDutyLog(UNEXPECTED_RESPONSE_FROM_API, Some(s"[InterestSubmissionHttpParser][read] Unexpected Json from API."))
+          Left(ApiErrorModel(status, ApiErrorBodyModel.parsingError))
         },
-        parsedError => Left(DesErrorModel(status, parsedError))
+        parsedError => Left(ApiErrorModel(status, parsedError))
       )
     } catch {
-      case _: Exception => Left(DesErrorModel(status, DesErrorBodyModel.parsingError))
+      case _: Exception => Left(ApiErrorModel(status, ApiErrorBodyModel.parsingError))
     }
   }
 

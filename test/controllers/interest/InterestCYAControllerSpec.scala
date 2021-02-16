@@ -20,7 +20,7 @@ import audit.{AuditModel, CreateOrAmendInterestAuditDetail}
 import common.{InterestTaxTypes, SessionValues}
 import config.{ErrorHandler, MockAuditService}
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
-import models.{DesErrorBodyModel, DesErrorModel}
+import models.{ApiErrorBodyModel, ApiErrorModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalamock.handlers.CallHandler
@@ -35,7 +35,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import utils.UnitTestWithApp
 import views.html.interest.InterestCYAView
-import views.html.templates.ErrorTemplate
+import views.html.templates.{ServiceUnavailableTemplate, UnauthorisedTemplate}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -44,7 +44,8 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
   lazy val view: InterestCYAView = app.injector.instanceOf[InterestCYAView]
   lazy val submissionService: InterestSubmissionService = mock[InterestSubmissionService]
   val errorHandler: ErrorHandler = mock[ErrorHandler]
-  val errorTemplate: ErrorTemplate = app.injector.instanceOf[ErrorTemplate]
+  val serviceUnavailableTemplate: ServiceUnavailableTemplate = app.injector.instanceOf[ServiceUnavailableTemplate]
+  val unauthorisedTemplate: UnauthorisedTemplate = app.injector.instanceOf[UnauthorisedTemplate]
 
   lazy val controller: InterestCYAController = new InterestCYAController(
     mockMessagesControllerComponents,
@@ -120,7 +121,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
 
         (errorHandler.handleError(_: Int)(_: Request[_]))
           .expects(400, *)
-          .returning(InternalServerError(errorTemplate(400)))
+          .returning(InternalServerError(unauthorisedTemplate()))
 
         lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequest.withSession(
           SessionValues.CLIENT_NINO -> "AA123456A"
@@ -245,8 +246,8 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
               None
             )
 
-            val errorResponseFromDes: Either[DesErrorModel, Int] =
-              Left(DesErrorModel(INTERNAL_SERVER_ERROR, DesErrorBodyModel("error", "error")))
+            val errorResponseFromDes: Either[ApiErrorModel, Int] =
+              Left(ApiErrorModel(INTERNAL_SERVER_ERROR, ApiErrorBodyModel("error", "error")))
 
             lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
               SessionValues.CLIENT_MTDITID -> Json.toJson("someMtdItid").toString(),
@@ -260,7 +261,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
 
             (errorHandler.handleError(_: Int)(_: Request[_]))
               .expects(500, *)
-              .returning(InternalServerError(errorTemplate(500)))
+              .returning(InternalServerError(unauthorisedTemplate()))
 
             val result: Future[Result] = controller.submit(2020)(request)
 
@@ -276,8 +277,8 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
               None
             )
 
-            val errorResponseFromDes: Either[DesErrorModel, Int] =
-              Left(DesErrorModel(SERVICE_UNAVAILABLE, DesErrorBodyModel("error", "error")))
+            val errorResponseFromDes: Either[ApiErrorModel, Int] =
+              Left(ApiErrorModel(SERVICE_UNAVAILABLE, ApiErrorBodyModel("error", "error")))
 
             lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
               SessionValues.CLIENT_MTDITID -> Json.toJson("someMtdItid").toString(),
@@ -291,7 +292,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
 
             (errorHandler.handleError(_: Int)(_: Request[_]))
               .expects(503, *)
-              .returning(ServiceUnavailable(errorTemplate(503)))
+              .returning(ServiceUnavailable(serviceUnavailableTemplate(503)))
 
             val result: Future[Result] = controller.submit(2020)(request)
 

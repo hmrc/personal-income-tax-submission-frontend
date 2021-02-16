@@ -19,8 +19,8 @@ package models
 import play.api.libs.json.{JsObject, Json}
 import utils.UnitTest
 
-class DesErrorBodyModelSpec extends UnitTest {
-  val model: DesErrorBodyModel = new DesErrorBodyModel(
+class ApiErrorBodyModelSpec extends UnitTest {
+  val model: ApiErrorBodyModel = new ApiErrorBodyModel(
     "SERVICE_UNAVAILABLE", "The service is currently unavailable")
 
   val jsModel: JsObject = Json.obj(
@@ -35,7 +35,7 @@ class DesErrorBodyModelSpec extends UnitTest {
     }
 
     "parse from json" in {
-      jsModel.as[DesErrorBodyModel]
+      jsModel.as[ApiErrorBodyModel]
     }
   }
 
