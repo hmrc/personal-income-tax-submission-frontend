@@ -18,7 +18,6 @@ package forms
 
 import filters.InputFilters
 import forms.validation.StringConstraints._
-import forms.validation.utils.ConstraintUtil._
 import forms.validation.mappings.MappingUtil.{currency, trimmedText}
 import models.TaxedInterestModel
 import play.api.data.Form

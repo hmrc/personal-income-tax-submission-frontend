@@ -106,16 +106,16 @@ class UkDividendsAmountController @Inject()(
             formWithErrors => BadRequest(view(Right(formWithErrors), taxYear = taxYear))
           },
           {
-            formModel =>
+            bigDecimal =>
               DividendsCheckYourAnswersModel.fromSession().fold {
                 Redirect(redirectLocation(taxYear, None))
                   .addingToSession(SessionValues.DIVIDENDS_CYA ->
-                    DividendsCheckYourAnswersModel().copy(ukDividends = Some(true), ukDividendsAmount = Some(formModel)).asJsonString)
+                    DividendsCheckYourAnswersModel().copy(ukDividends = Some(true), ukDividendsAmount = Some(bigDecimal)).asJsonString)
               } {
                 cyaModel =>
-                  Redirect(redirectLocation(taxYear, Some(cyaModel.copy(ukDividends = Some(true), ukDividendsAmount = Some(formModel)))))
+                  Redirect(redirectLocation(taxYear, Some(cyaModel.copy(ukDividends = Some(true), ukDividendsAmount = Some(bigDecimal)))))
                     .addingToSession(SessionValues.DIVIDENDS_CYA ->
-                      cyaModel.copy(ukDividends = Some(true), ukDividendsAmount = Some(formModel)).asJsonString)
+                      cyaModel.copy(ukDividends = Some(true), ukDividendsAmount = Some(bigDecimal)).asJsonString)
               }
           }
         )

@@ -87,14 +87,16 @@ object PriorOrNewAmountForm {
 
     val otherAmountInput = "other-amount-input"
 
+    val commaReplacement = amount.replace(",", "").replace("£", "")
+
     val errors: Seq[String] = checks.flatMap { case (func, errorKey) =>
-      if (!func(amount)) Some(errorKey) else None
+      if (!func(commaReplacement)) Some(errorKey) else None
     }
 
     if (errors.nonEmpty) {
       Left(Seq(FormError(otherAmountInput, messages(errors.head))))
     } else {
-      Right(Some(BigDecimal(amount)))
+      Right(Some(BigDecimal(commaReplacement)))
     }
   }
 
