@@ -19,7 +19,7 @@ package controllers.dividends
 import common.SessionValues
 import connectors.DividendsSubmissionConnector
 import helpers.PlaySessionCookieBaker
-import models.{DesErrorBodyModel, DesErrorModel, DividendsCheckYourAnswersModel, DividendsResponseModel, DividendsSubmissionModel}
+import models.{ApiErrorBodyModel, ApiErrorModel, DividendsCheckYourAnswersModel, DividendsResponseModel, DividendsSubmissionModel}
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.json.Json
@@ -170,7 +170,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
 
         val result = await(connector.submitDividends(dividendsBody, nino, mtdidid, taxYear))
 
-        result shouldBe Left(DesErrorModel(SERVICE_UNAVAILABLE, DesErrorBodyModel("SERVICE_UNAVAILABLE", "the service is currently unavailable")))
+        result shouldBe Left(ApiErrorModel(SERVICE_UNAVAILABLE, ApiErrorBodyModel("SERVICE_UNAVAILABLE", "the service is currently unavailable")))
       }
     }
 
@@ -187,7 +187,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
 
         val result = await(connector.submitDividends(dividendsBody, nino, mtdidid, taxYear))
 
-        result shouldBe Left(DesErrorModel(INTERNAL_SERVER_ERROR, DesErrorBodyModel("INTERNAL_SERVER_ERROR", "unexpected status returned from DES")))
+        result shouldBe Left(ApiErrorModel(INTERNAL_SERVER_ERROR, ApiErrorBodyModel("INTERNAL_SERVER_ERROR", "unexpected status returned from DES")))
       }
     }
   }

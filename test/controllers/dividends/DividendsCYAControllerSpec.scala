@@ -33,7 +33,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import utils.UnitTestWithApp
 import views.html.dividends.DividendsCYAView
-import views.html.templates.ErrorTemplate
+import views.html.templates.{ServiceUnavailableTemplate, UnauthorisedTemplate, NotFoundTemplate}
 
 import scala.concurrent.Future
 
@@ -41,7 +41,8 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
 
   val service = mock[DividendsSubmissionService]
   val errorHandler = mock[ErrorHandler]
-  val errorTemplate = app.injector.instanceOf[ErrorTemplate]
+  val serviceUnavailableTemplate = app.injector.instanceOf[ServiceUnavailableTemplate]
+  val unauthorisedTemplate = app.injector.instanceOf[UnauthorisedTemplate]
 
 
   val controller = new DividendsCYAController(
@@ -217,8 +218,8 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
 
       "redirect to the 500 error template page when there is a problem posting data" in new TestWithAuth {
 
-        val errorResponseFromDes: Either[DesErrorModel, DividendsResponseModel] =
-          Left(DesErrorModel(INTERNAL_SERVER_ERROR, DesErrorBodyModel("error", "error")))
+        val errorResponseFromDes: Either[ApiErrorModel, DividendsResponseModel] =
+          Left(ApiErrorModel(INTERNAL_SERVER_ERROR, ApiErrorBodyModel("error", "error")))
 
         val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
           SessionValues.CLIENT_MTDITID -> Json.toJson("someMtdItid").toString(),
@@ -232,7 +233,7 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
 
         (errorHandler.handleError(_: Int)(_: Request[_]))
           .expects(500, *)
-          .returning(InternalServerError(errorTemplate(500)))
+          .returning(InternalServerError(unauthorisedTemplate()))
 
         val result: Future[Result] = controller.submit(2020)(request)
 
@@ -242,7 +243,7 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
 
       "redirect to the 503 service unavailable page when the service is unavailable" in new TestWithAuth(){
 
-        val errorResponseFromDes: Either[DesErrorModel, DividendsResponseModel] = Left(DesErrorModel(SERVICE_UNAVAILABLE, DesErrorBodyModel("error", "error")))
+        val errorResponseFromDes: Either[ApiErrorModel, DividendsResponseModel] = Left(ApiErrorModel(SERVICE_UNAVAILABLE, ApiErrorBodyModel("error", "error")))
 
         val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
           SessionValues.CLIENT_MTDITID -> Json.toJson("someMtdItid").toString(),
@@ -256,7 +257,7 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
 
         (errorHandler.handleError(_: Int)(_: Request[_]))
           .expects(503, *)
-          .returning(InternalServerError(errorTemplate(503)))
+          .returning(InternalServerError(serviceUnavailableTemplate(503)))
 
         val result: Future[Result] = controller.submit(2020)(request)
 

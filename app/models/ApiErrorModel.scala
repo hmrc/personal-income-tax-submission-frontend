@@ -16,4 +16,4 @@
 
 package models
 
-case class DesErrorModel(status: Int, body: DesErrorBodyModel)
+case class ApiErrorModel(status: Int, body: ApiErrorBodyModel)

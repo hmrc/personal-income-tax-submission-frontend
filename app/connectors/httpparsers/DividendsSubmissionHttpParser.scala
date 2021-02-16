@@ -16,14 +16,14 @@
 
 package connectors.httpparsers
 
-import models.{DesErrorBodyModel, DesErrorModel, DividendsResponseModel}
+import models.{ApiErrorBodyModel, ApiErrorModel, DividendsResponseModel}
 import play.api.http.Status._
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 import utils.PagerDutyHelper.PagerDutyKeys._
 import utils.PagerDutyHelper.pagerDutyLog
 
 object DividendsSubmissionHttpParser {
-  type DividendsSubmissionsResponse = Either[DesErrorModel, DividendsResponseModel]
+  type DividendsSubmissionsResponse = Either[ApiErrorModel, DividendsResponseModel]
 
   implicit object DividendsSubmissionResponseReads extends HttpReads[DividendsSubmissionsResponse] {
     override def read(method: String, url: String, response: HttpResponse): DividendsSubmissionsResponse = {
@@ -54,15 +54,15 @@ object DividendsSubmissionHttpParser {
     val status = statusOverride.getOrElse(response.status)
 
     try {
-      response.json.validate[DesErrorBodyModel].fold[DividendsSubmissionsResponse](
+      response.json.validate[ApiErrorBodyModel].fold[DividendsSubmissionsResponse](
         jsonErrors => {
           pagerDutyLog(UNEXPECTED_RESPONSE_FROM_API, Some(s"[DividendsSubmissionHttpParser][read] Unexpected Json from DES."))
-          Left(DesErrorModel(status, DesErrorBodyModel.parsingError))
+          Left(ApiErrorModel(status, ApiErrorBodyModel.parsingError))
         },
-        parsedError => Left(DesErrorModel(status, parsedError))
+        parsedError => Left(ApiErrorModel(status, parsedError))
       )
     } catch {
-      case _: Exception => Left(DesErrorModel(status, DesErrorBodyModel.parsingError))
+      case _: Exception => Left(ApiErrorModel(status, ApiErrorBodyModel.parsingError))
     }
   }
 

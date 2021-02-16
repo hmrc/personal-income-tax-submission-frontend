@@ -18,7 +18,7 @@ package services
 
 import connectors.InterestSubmissionConnector
 import connectors.httpparsers.InterestSubmissionHttpParser.InterestSubmissionsResponse
-import models.{DesErrorBodyModel, DesErrorModel}
+import models.{ApiErrorBodyModel, ApiErrorModel}
 import models.httpResponses.ErrorResponse
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestSubmissionModel}
 import play.api.test.Helpers.{BAD_REQUEST, NO_CONTENT}
@@ -90,13 +90,13 @@ class InterestSubmissionServiceSpec extends UnitTest {
           (connector.submit(_: Seq[InterestSubmissionModel], _: String, _: Int, _: String)(_: HeaderCarrier, _: ExecutionContext))
             .expects(accounts, "AA123456A", taxYear, "1234567890", *, *)
             .returning(Future.successful(
-              Left(DesErrorModel(INTERNAL_SERVER_ERROR, DesErrorBodyModel("test", "test")))
+              Left(ApiErrorModel(INTERNAL_SERVER_ERROR, ApiErrorBodyModel("test", "test")))
             ))
 
           await(service.submit(cyaModel, "AA123456A", taxYear, "1234567890"))
         }
 
-        result shouldBe Left(DesErrorModel(INTERNAL_SERVER_ERROR, DesErrorBodyModel("test", "test")))
+        result shouldBe Left(ApiErrorModel(INTERNAL_SERVER_ERROR, ApiErrorBodyModel("test", "test")))
       }
 
     }

@@ -21,7 +21,7 @@ import common.{InterestTaxTypes, PageLocations, SessionValues}
 import config.{AppConfig, ErrorHandler}
 import controllers.predicates.AuthorisedAction
 import models.interest.{InterestCYAModel, InterestPriorSubmission}
-import models.{DesErrorBodyModel, DesErrorModel, User}
+import models.{ApiErrorBodyModel, ApiErrorModel, User}
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc._
@@ -82,7 +82,7 @@ class InterestCYAController @Inject()(
       }
       case _ =>
         logger.info("[InterestCYAController][submit] CYA data or NINO missing from session.")
-        Future.successful(Left(DesErrorModel(BAD_REQUEST, DesErrorBodyModel("MISSING_DATA", "CYA data or NINO missing from session."))))
+        Future.successful(Left(ApiErrorModel(BAD_REQUEST, ApiErrorBodyModel("MISSING_DATA", "CYA data or NINO missing from session."))))
     }).map {
       case Right(_) =>
         Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).clearSessionData()

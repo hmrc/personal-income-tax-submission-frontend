@@ -21,19 +21,20 @@ import org.jsoup.nodes.Document
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n._
 import utils.{UnitTest, ViewTest}
-import views.html.templates.{ErrorTemplate, NotFoundTemplate}
+import views.html.templates.{ServiceUnavailableTemplate, UnauthorisedTemplate, NotFoundTemplate}
 
 
 
 class ErrorHandlerSpec extends UnitTest with GuiceOneAppPerSuite with ViewTest {
 
-  val errorTemplate: ErrorTemplate = app.injector.instanceOf[ErrorTemplate]
+  val serviceUnavailableTemplate: ServiceUnavailableTemplate = app.injector.instanceOf[ServiceUnavailableTemplate]
   val notFoundTemplate: NotFoundTemplate = app.injector.instanceOf[NotFoundTemplate]
+  val unauthorisedTemplate: UnauthorisedTemplate = app.injector.instanceOf[UnauthorisedTemplate]
 
   val mockMessagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
   val mockFrontendAppConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
-  val errorHandler = new ErrorHandler(errorTemplate, mockMessagesApi, notFoundTemplate)(mockFrontendAppConfig)
+  val errorHandler = new ErrorHandler(unauthorisedTemplate, serviceUnavailableTemplate, mockMessagesApi, notFoundTemplate)(mockFrontendAppConfig)
 
 
 

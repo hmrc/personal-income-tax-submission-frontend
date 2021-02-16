@@ -17,7 +17,7 @@
 package connectors
 
 import models.interest.InterestSubmissionModel
-import models.{DesErrorBodyModel, DesErrorModel}
+import models.{ApiErrorBodyModel, ApiErrorModel}
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import utils.IntegrationTest
@@ -56,7 +56,7 @@ class InterestSubmissionConnectorISpec extends IntegrationTest {
 
         val result = await(connector.submit(body, nino, taxYear, mtditid))
 
-        result shouldBe Left(DesErrorModel(BAD_REQUEST, DesErrorBodyModel.parsingError))
+        result shouldBe Left(ApiErrorModel(BAD_REQUEST, ApiErrorBodyModel.parsingError))
       }
 
     }
@@ -74,7 +74,7 @@ class InterestSubmissionConnectorISpec extends IntegrationTest {
 
         val result = await(connector.submit(body, nino, taxYear, mtditid))
 
-        result shouldBe Left(DesErrorModel(INTERNAL_SERVER_ERROR, DesErrorBodyModel("INTERNAL_SERVER_ERROR", "there has been an error downstream")))
+        result shouldBe Left(ApiErrorModel(INTERNAL_SERVER_ERROR, ApiErrorBodyModel("INTERNAL_SERVER_ERROR", "there has been an error downstream")))
       }
     }
 
@@ -91,7 +91,7 @@ class InterestSubmissionConnectorISpec extends IntegrationTest {
 
         val result = await(connector.submit(body, nino, taxYear, mtditid))
 
-        result shouldBe Left(DesErrorModel(SERVICE_UNAVAILABLE, DesErrorBodyModel("SERVICE_UNAVAILABLE", "the service is currently unavailable")))
+        result shouldBe Left(ApiErrorModel(SERVICE_UNAVAILABLE, ApiErrorBodyModel("SERVICE_UNAVAILABLE", "the service is currently unavailable")))
       }
     }
 
@@ -107,7 +107,7 @@ class InterestSubmissionConnectorISpec extends IntegrationTest {
 
         val result = await(connector.submit(body, nino, taxYear, mtditid))
 
-        result shouldBe Left(DesErrorModel(INTERNAL_SERVER_ERROR, DesErrorBodyModel("INTERNAL_SERVER_ERROR", "Unexpected status returned from DES")))
+        result shouldBe Left(ApiErrorModel(INTERNAL_SERVER_ERROR, ApiErrorBodyModel("INTERNAL_SERVER_ERROR", "Unexpected status returned from DES")))
       }
 
     }

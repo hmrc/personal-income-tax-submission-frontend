@@ -18,9 +18,9 @@ package models
 
 import play.api.libs.json.{Json, OFormat}
 
-case class DesErrorBodyModel(code: String, description: String)
+case class ApiErrorBodyModel(code: String, description: String)
 
-object DesErrorBodyModel{
-  implicit val formats: OFormat[DesErrorBodyModel] = Json.format[DesErrorBodyModel]
-  val parsingError = DesErrorBodyModel("PARSING_ERROR", "Error parsing response from DES")
+object ApiErrorBodyModel{
+  implicit val formats: OFormat[ApiErrorBodyModel] = Json.format[ApiErrorBodyModel]
+  val parsingError: ApiErrorBodyModel = ApiErrorBodyModel("PARSING_ERROR", "Error parsing response from API")
 }
