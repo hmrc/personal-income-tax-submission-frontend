@@ -37,7 +37,11 @@ class AppConfigSpec extends UnitTest {
       val expectedFeedbackUrl =
         s"http://contact-frontend:9250/contact/beta-feedback?service=$expectedServiceIdentifier&backUrl=$expectedBackUrl"
 
+      val expectedContactUrl = s"http://contact-frontend:9250/contact/contact-hmrc?service=$expectedServiceIdentifier"
+
       appConfig.feedbackUrl(fakeRequest) shouldBe expectedFeedbackUrl
+
+      appConfig.contactUrl shouldBe expectedContactUrl
     }
   }
 }

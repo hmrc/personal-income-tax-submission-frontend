@@ -52,4 +52,6 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
   def feedbackUrl(implicit request: RequestHeader): String = {
     s"$contactFrontEndUrl/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=$requestUri"
   }
+
+  lazy val contactUrl = s"$contactFrontEndUrl/contact/contact-hmrc?service=$contactFormServiceIdentifier"
 }
