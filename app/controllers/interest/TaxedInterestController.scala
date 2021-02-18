@@ -17,14 +17,13 @@
 package controllers.interest
 
 import java.util.UUID.randomUUID
-
 import common.SessionValues
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import forms.YesNoForm
+import models.User
 import javax.inject.Inject
-
-import models.interest.InterestCYAModel
+import models.interest.{InterestCYAModel, InterestPriorSubmission}
 import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.{Lang, Messages}
@@ -46,9 +45,13 @@ class TaxedInterestController @Inject()(
   implicit val messages: Messages = mcc.messagesApi.preferred(Seq(Lang("en")))
   val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("interest.taxed-uk-interest.errors.noRadioSelected")
 
-  def show(taxYear: Int): Action[AnyContent] = authorisedAction { implicit user =>
-    val cyaData: Option[Boolean] = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA).flatMap(_.taxedUkInterest)
-    Ok(taxedInterestView(cyaData.fold(yesNoForm)(yesNoForm.fill), taxYear))
+  def show(taxYear: Int): Action[AnyContent] = authorisedAction { implicit user: User[AnyContent] =>
+    InterestPriorSubmission.fromSession() match {
+      case Some(prior) if prior.hasTaxed => Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
+      case _ =>
+        val cyaData: Option[Boolean] = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA).flatMap(_.taxedUkInterest)
+        Ok(taxedInterestView(cyaData.fold(yesNoForm)(yesNoForm.fill), taxYear))
+    }
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authorisedAction { implicit user =>

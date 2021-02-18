@@ -22,8 +22,8 @@ import utils.UnitTest
 class DividendsPriorSubmissionSpec extends UnitTest {
 
   val validModel: DividendsPriorSubmission = DividendsPriorSubmission(
-    ukDividends = Some(10),
-    otherUkDividends = Some(10)
+    ukDividends = Some(10.00),
+    otherUkDividends = Some(10.00)
   )
 
   val validJson: JsObject = Json.obj(
@@ -39,6 +39,17 @@ class DividendsPriorSubmissionSpec extends UnitTest {
 
     "parse to json" in {
       Json.toJson(validModel) shouldBe validJson
+    }
+
+  }
+
+  ".asJsonString" should {
+
+    "return a string of Json" in {
+      DividendsPriorSubmission(Some(100.00), Some(100.00)).asJsonString shouldBe Json.stringify(Json.obj(
+        "ukDividends" -> 100.00,
+        "otherUkDividends" -> 100.00
+      ))
     }
 
   }
