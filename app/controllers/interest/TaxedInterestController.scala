@@ -47,7 +47,7 @@ class TaxedInterestController @Inject()(
   val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("interest.taxed-uk-interest.errors.noRadioSelected")
 
   def show(taxYear: Int): Action[AnyContent] = authorisedAction { implicit user =>
-    val pageTitle = "interest.taxed-uk-interest.heading." + (if (user.isAgent) "agent" else "individual")
+    val pageTitle = "interest.taxed-uk-interest.title." + (if (user.isAgent) "agent" else "individual")
     Ok(taxedInterestView(pageTitle, yesNoForm, taxYear))
   }
 
@@ -58,7 +58,7 @@ class TaxedInterestController @Inject()(
       {
         formWithErrors =>
           BadRequest(taxedInterestView(
-            pageTitle = "interest.taxed-uk-interest.heading." + (if (user.isAgent) "agent" else "individual"),
+            pageTitle = "interest.taxed-uk-interest.title." + (if (user.isAgent) "agent" else "individual"),
             form = formWithErrors,
             taxYear = taxYear
           ))

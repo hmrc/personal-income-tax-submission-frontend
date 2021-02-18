@@ -41,8 +41,8 @@ class ChangeAccountAmountViewSpec extends ViewTest {
   val expectedUntaxedH1 = "Monzo untaxed interest earned"
   val expectedTaxedH1 = "Monzo taxed interest earned"
 
-  val expectedUntaxedTitle = "Untaxed interest earned - Register your income tax return with HMRC - Gov.UK"
-  val expectedTaxedTitle = "Taxed interest earned - Register your income tax return with HMRC - Gov.UK"
+  val expectedUntaxedTitle = s"Untaxed interest earned - $serviceName - $govUkExtension"
+  val expectedTaxedTitle = s"Taxed interest earned - $serviceName - $govUkExtension"
 
   val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
 

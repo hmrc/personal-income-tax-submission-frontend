@@ -42,7 +42,7 @@ class InterestAccountsViewSpec extends ViewTest {
 
   object ExpectedValues {
     val h1Singular = "You have added 1 account"
-    val h1Plural: Int => String = amount => s"You have added $amount accounts"
+    val h1Plural = "You have added 2 accounts"
 
     val caption = "Interest for 06 April 2019 to 05 April 2020"
 
@@ -51,8 +51,8 @@ class InterestAccountsViewSpec extends ViewTest {
 
     val addAnotherAccount = "Add another account"
 
-    val titleSingle = "You have added 1 account"
-    val titlePlural = "You have added 2 accounts"
+    val titleSingle = s"$h1Singular - $serviceName - $govUkExtension"
+    val titlePlural = s"$h1Plural - $serviceName - $govUkExtension"
   }
 
   "InterestAccountsView when untaxed" should {
@@ -178,7 +178,7 @@ class InterestAccountsViewSpec extends ViewTest {
         }
 
         "has the correct h1" in {
-          assertH1(ExpectedValues.h1Plural(2))
+          assertH1(ExpectedValues.h1Plural)
         }
 
         "has two account rows" in {
@@ -366,7 +366,7 @@ class InterestAccountsViewSpec extends ViewTest {
         }
 
         "has the correct h1" in {
-          assertH1(ExpectedValues.h1Plural(2))
+          assertH1(ExpectedValues.h1Plural)
         }
 
         "has two account rows" in {

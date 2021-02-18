@@ -45,7 +45,7 @@ class UntaxedInterestController @Inject()(
   val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("interest.untaxed-uk-interest.errors.noRadioSelected")
 
   def show(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
-    val pageTitle: String = "interest.untaxed-uk-interest.heading." + (if (user.isAgent) "agent" else "individual")
+    val pageTitle: String = "interest.untaxed-uk-interest.title." + (if (user.isAgent) "agent" else "individual")
     Ok(untaxedInterestView(pageTitle, yesNoForm, taxYear))
   }
 
@@ -58,7 +58,7 @@ class UntaxedInterestController @Inject()(
         formWithErrors =>
           BadRequest(
             untaxedInterestView(
-              "interest.untaxed-uk-interest.heading." + (if (user.isAgent) "agent" else "individual"),
+              "interest.untaxed-uk-interest.title." + (if (user.isAgent) "agent" else "individual"),
               formWithErrors,
               taxYear
             )

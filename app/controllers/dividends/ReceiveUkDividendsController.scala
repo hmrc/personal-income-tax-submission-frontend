@@ -43,11 +43,11 @@ class ReceiveUkDividendsController @Inject()(
     DividendsCheckYourAnswersModel.fromSession() match {
       case Some(model) if model.ukDividends.isDefined =>
         //TODO Move messages to view level
-        Ok(receiveUkDividendsView("dividends.uk-dividends.heading." + (if (user.isAgent) "agent" else "individual"),
+        Ok(receiveUkDividendsView("dividends.uk-dividends.title." + (if (user.isAgent) "agent" else "individual"),
           yesNoForm, taxYear, model.ukDividends.get.toString))
       case _ =>
         //TODO Move messages to view level
-        Ok(receiveUkDividendsView("dividends.uk-dividends.heading." + (if (user.isAgent) "agent" else "individual"), yesNoForm, taxYear))
+        Ok(receiveUkDividendsView("dividends.uk-dividends.title." + (if (user.isAgent) "agent" else "individual"), yesNoForm, taxYear))
     }
   }
 
@@ -56,7 +56,7 @@ class ReceiveUkDividendsController @Inject()(
       {
         formWithErrors => BadRequest(
           //TODO Move messages to view level
-          receiveUkDividendsView("dividends.uk-dividends.heading." + (if (user.isAgent) "agent" else "individual"), formWithErrors, taxYear)
+          receiveUkDividendsView("dividends.uk-dividends.title." + (if (user.isAgent) "agent" else "individual"), formWithErrors, taxYear)
         )
       },
       {

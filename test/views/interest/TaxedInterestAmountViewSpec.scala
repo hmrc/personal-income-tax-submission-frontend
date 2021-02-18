@@ -51,9 +51,9 @@ class TaxedInterestAmountViewSpec extends ViewTest{
           controllers.interest.routes.TaxedInterestAmountController.submit(taxYear,id)
         )(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
-        val expectedTitle = "UK Interest - Register your income tax return with HMRC - Gov.UK"
         val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
         val expectedH1 = "UK taxed interest account details"
+        val expectedTitle = s"$expectedH1 - $serviceName - $govUkExtension"
 
         "has the correct h1" in {
           elementText(h1Selector) shouldBe expectedH1
@@ -76,11 +76,11 @@ class TaxedInterestAmountViewSpec extends ViewTest{
           controllers.interest.routes.TaxedInterestAmountController.submit(taxYear,id)
         )(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
-        val expectedTitle = "UK Interest - Register your income tax return with HMRC - Gov.UK"
         val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
         val expectedErrorTitle = "There is a problem"
         val expectedErrorText = "Enter the amount of taxed interest earned"
         val expectedH1 = "UK taxed interest account details"
+        val expectedTitle = s"$expectedH1 - $serviceName - $govUkExtension"
 
         "has the correct h1" in {
           elementText(h1Selector) shouldBe expectedH1
