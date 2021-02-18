@@ -20,12 +20,14 @@
 @import views.html.templates.helpers.Button
 @import views.html.templates.helpers.Heading
 @import java.util.UUID.randomUUID
+@import utils.ViewUtils._
 
 @this(
     layout: Layout,
     formWithCSRF: FormWithCSRF,
     button: Button,
-    heading: Heading
+    heading: Heading,
+    govukSummaryList: GovukSummaryList
 )
 
 @(taxYear: Int, accounts: Seq[InterestAccountModel], taxType: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
@@ -66,34 +68,34 @@
     }
 }
 
-@accountRow(account: InterestAccountModel, changeLink: Call, removeLink: Call) = {
-    <div class="govuk-summary-list__row">
-        <dd class="govuk-summary-list__value">
-            @account.accountName
-        </dd>
-        @if(account.id.nonEmpty) {
-            <dd class="govuk-summary-list__actions"></dd>
-        }
-        <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="@changeLink">
-            @messages("common.change")
-            </a>
-        </dd>
-        @if(account.id.isEmpty) {
-            <dd class="govuk-summary-list__actions">
-                <a class="govuk-link" href="@removeLink">
-                @messages("common.remove")
-                </a>
-            </dd>
-        }
-    </div>
-}
-
 @addNewAccountLink = @{
     taxType match {
         case `UNTAXED` => controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, randomUUID().toString)
         case `TAXED` => controllers.interest.routes.TaxedInterestAmountController.show(taxYear, randomUUID().toString)
     }
+}
+
+@accountRow2(account: InterestAccountModel, changeLink: Call, removeLink: Call) = {
+<div class="govuk-summary-list__row">
+    <dd class="govuk-summary-list__value">
+        @account.accountName
+    </dd>
+    @if(account.id.nonEmpty) {
+    <dd class="govuk-summary-list__actions"></dd>
+    }
+    <dd class="govuk-summary-list__actions">
+        <a class="govuk-link" href="@changeLink">
+            @messages("common.change")
+        </a>
+    </dd>
+    @if(account.id.isEmpty) {
+    <dd class="govuk-summary-list__actions">
+        <a class="govuk-link" href="@removeLink">
+            @messages("common.remove")
+        </a>
+    </dd>
+    }
+</div>
 }
 
 @layout(Some(h1Text), taxYear = Some(taxYear)) {
@@ -102,9 +104,9 @@
 
     @if(accounts.nonEmpty) {
         <div class="govuk-summary-list">
-        @accounts.map { account =>
-            @accountRow(account, accountChangeCall(account), accountRemoveCall(account))
-        }
+            @accounts.map { account =>
+            @accountRow2(account, accountChangeCall(account), accountRemoveCall(account))
+            }
         </div>
     }
 

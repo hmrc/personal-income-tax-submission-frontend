@@ -16,6 +16,7 @@
 
 package utils
 
+import models.interest.InterestAccountModel
 import play.api.i18n.Messages
 import play.api.mvc.Call
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
@@ -46,6 +47,28 @@ object ViewUtils {
         )},
         classes = actionClasses
       ))
+    )
+  }
+
+  def accountRow(account: InterestAccountModel, changeLink: Call, removeLink: Call)(implicit messages: Messages): SummaryListRow = {
+
+    //TODO Revisit this as doesn't really fit CYA pattern
+    // @{
+    //            govukSummaryList(SummaryList(
+    //                accounts.map { account =>
+    //                    accountRow(account, accountChangeCall(account), accountRemoveCall(account))
+    //                }
+    //            ))
+    //        }
+
+    summaryListRow(
+      HtmlContent(account.accountName),
+      HtmlContent(account.accountName),
+      actions = if(account.id.nonEmpty){
+        Seq((changeLink, messages("common.change"), None))
+      } else{
+        Seq((changeLink, messages("common.change"), None),(removeLink, messages("common.remove"), None))
+      }
     )
   }
 
