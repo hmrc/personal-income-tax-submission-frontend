@@ -18,19 +18,34 @@ package services
 
 import connectors.DividendsSubmissionConnector
 import connectors.httpparsers.DividendsSubmissionHttpParser.DividendsSubmissionsResponse
+
 import javax.inject.Inject
-import models.{DividendsCheckYourAnswersModel, DividendsSubmissionModel}
+import models.{DividendsCheckYourAnswersModel, DividendsResponseModel, DividendsSubmissionModel}
+import play.api.Logger
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import play.api.http.Status.NO_CONTENT
 
 class DividendsSubmissionService @Inject()(dividendsSubmissionConnector: DividendsSubmissionConnector){
 
   def submitDividends(body: Option[DividendsCheckYourAnswersModel], nino: String, mtditid: String, taxYear: Int)
                      (implicit hc: HeaderCarrier): Future[DividendsSubmissionsResponse] = {
-    val nonOptBody = body.getOrElse(DividendsCheckYourAnswersModel(Some(false), None, Some(false), None))
-    val newBody = new DividendsSubmissionModel(nonOptBody.ukDividendsAmount, nonOptBody.otherUkDividendsAmount)
-    dividendsSubmissionConnector.submitDividends(newBody, nino, mtditid, taxYear)
+
+    lazy val logger: Logger = Logger(this.getClass.getName)
+
+    val nonOptBody: DividendsCheckYourAnswersModel = body.getOrElse(DividendsCheckYourAnswersModel(Some(false), None, Some(false), None))
+
+    nonOptBody match {
+      case DividendsCheckYourAnswersModel(Some(false), _, Some(false), _) =>
+        logger.info("[DividendsSubmissionService][submitDividends] User has entered No & No to both dividends questions. " +
+          "Not submitting data to DES.")
+        Future(Right(DividendsResponseModel(NO_CONTENT)))
+      case _ =>
+        val newBody = new DividendsSubmissionModel(nonOptBody.ukDividendsAmount, nonOptBody.otherUkDividendsAmount)
+        dividendsSubmissionConnector.submitDividends(newBody, nino, mtditid, taxYear)
+    }
   }
 
 }

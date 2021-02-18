@@ -36,11 +36,6 @@ class ErrorHandlerSpec extends UnitTest with GuiceOneAppPerSuite with ViewTest {
 
   val errorHandler = new ErrorHandler(unauthorisedTemplate, serviceUnavailableTemplate, mockMessagesApi, notFoundTemplate)(mockFrontendAppConfig)
 
-
-
-  val serviceUnavailable: Int = 503
-  val internalServerError: Int = 500
-
   ".handleError" should {
 
     "when given a 503" should {
