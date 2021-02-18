@@ -49,10 +49,10 @@ class ChangeAccountAmountViewSpec extends ViewTest {
   val expectedErrorTitle = "There is a problem"
   val expectedErrorText = "Select £5000 or enter a different amount"
 
-  val priorAmountRadio = "#prior-amount"
-  val priorAmountRadioText = "#main-content > div > div > form > div > fieldset > div > div:nth-child(1) > label"
-  val newAmountRadio = "#other-amount"
-  val newAmountInput = "#other-amount-input"
+  val priorAmountRadio = "#whichAmount"
+  val priorAmountRadioText = "#main-content > div > div > form > div > div > fieldset > div > div:nth-child(1) > label"
+  val newAmountRadio = "#otherAmount"
+  val newAmountInput = "#amount"
 
   val account = InterestAccountModel(Some("qwerty"), "Monzo", 5000)
 
@@ -71,7 +71,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = changeAccountAmountView(
-            priorOrNewAmountForm,
+            priorOrNewAmountForm.fill(PriorOrNewAmountModel("other",None)),
             testCall,
             taxYear,
             UNTAXED,
@@ -175,7 +175,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = changeAccountAmountView(
-            priorOrNewAmountForm,
+            priorOrNewAmountForm.fill(PriorOrNewAmountModel("other",None)),
             testCall,
             taxYear,
             TAXED,

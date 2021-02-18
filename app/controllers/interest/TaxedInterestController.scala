@@ -23,7 +23,7 @@ import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import forms.YesNoForm
 import javax.inject.Inject
-import models.formatHelpers.YesNoModel
+
 import models.interest.InterestCYAModel
 import play.api.Logger
 import play.api.data.Form
@@ -44,11 +44,12 @@ class TaxedInterestController @Inject()(
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
   implicit val messages: Messages = mcc.messagesApi.preferred(Seq(Lang("en")))
-  val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("interest.taxed-uk-interest.errors.noRadioSelected")
+  val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("interest.taxed-uk-interest.errors.noRadioSelected")
 
   def show(taxYear: Int): Action[AnyContent] = authorisedAction { implicit user =>
     val pageTitle = "interest.taxed-uk-interest.title." + (if (user.isAgent) "agent" else "individual")
-    Ok(taxedInterestView(pageTitle, yesNoForm, taxYear))
+    val cyaData: Option[Boolean] = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA).flatMap(_.taxedUkInterest)
+    Ok(taxedInterestView(pageTitle, cyaData.fold(yesNoForm)(yesNoForm.fill), taxYear))
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authorisedAction { implicit user =>
@@ -67,13 +68,13 @@ class TaxedInterestController @Inject()(
         yesNoModel =>
           optionalCyaData match {
             case Some(cyaData) =>
-              val updatedCya = cyaData.copy(taxedUkInterest = Some(yesNoModel.asBoolean), taxedUkAccounts = if (yesNoModel.asBoolean) {
+              val updatedCya = cyaData.copy(taxedUkInterest = Some(yesNoModel), taxedUkAccounts = if (yesNoModel) {
                 cyaData.taxedUkAccounts
               } else {
                 None
               })
 
-              if (yesNoModel.asBoolean) {
+              if (yesNoModel) {
                 Redirect(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id = randomUUID().toString))
                   .addingToSession(SessionValues.INTEREST_CYA -> updatedCya.asJsonString)
               } else {

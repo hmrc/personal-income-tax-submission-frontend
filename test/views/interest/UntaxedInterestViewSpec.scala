@@ -17,7 +17,7 @@
 package views.interest
 
 import forms.YesNoForm
-import models.formatHelpers.YesNoModel
+
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.data.{Form, FormError}
@@ -26,15 +26,16 @@ import views.html.interest.UntaxedInterestView
 
 class UntaxedInterestViewSpec extends ViewTest {
 
-  lazy val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("Select yes if untaxed interest " +
+
+  lazy val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("Select yes if untaxed interest " +
     "was received from companies in the uk")
 
   lazy val untaxedInterestView: UntaxedInterestView = app.injector.instanceOf[UntaxedInterestView]
 
   val h1Selector = "h1"
   val captionSelector = ".govuk-caption-l"
-  val yesOptionSelector = "#yes_no_yes"
-  val noOptionSelector = "#yes_no_no"
+  val yesOptionSelector = "#value"
+  val noOptionSelector = "#value-no"
   val continueButtonSelector = "#continue"
 
   val errorSummarySelector = ".govuk-error-summary"

@@ -17,7 +17,7 @@
 package views.interest
 
 import forms.YesNoForm
-import models.formatHelpers.YesNoModel
+
 import models.interest.InterestAccountModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -27,7 +27,7 @@ import views.html.interest.RemoveAccountView
 
 class RemoveAccountViewSpec extends ViewTest {
 
-  lazy val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("Select yes to remove this account")
+  lazy val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("Select yes to remove this account")
 
   lazy val removeAccountView: RemoveAccountView = app.injector.instanceOf[RemoveAccountView]
 
@@ -40,8 +40,8 @@ class RemoveAccountViewSpec extends ViewTest {
 
   val h1Selector = "h1"
   val captionSelector = ".govuk-caption-l"
-  val yesOptionSelector = "#yes_no_yes"
-  val noOptionSelector = "#yes_no_no"
+  val yesOptionSelector = "#value"
+  val noOptionSelector = "#value-no"
   val continueButtonSelector = "#continue"
 
   val errorSummarySelector = ".govuk-error-summary"

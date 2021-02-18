@@ -38,6 +38,8 @@ class OtherUkDividendsAmountController @Inject()(
                                              implicit val appConfig: AppConfig
                                            ) extends FrontendController(cc) with I18nSupport {
 
+
+
   def view(
             formInput: Either[Form[PriorOrNewAmountModel], Form[BigDecimal]],
             priorSubmission: Option[DividendsPriorSubmission] = None,
@@ -59,18 +61,23 @@ class OtherUkDividendsAmountController @Inject()(
     val dividendsPriorSubmissionSession = getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
     val checkYourAnswerSession = getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
 
+    val previousAmount: Option[BigDecimal] = checkYourAnswerSession.flatMap(_.otherUkDividendsAmount)
+
+    def form(prior: BigDecimal): Form[PriorOrNewAmountModel] = {
+      if(previousAmount.isDefined && previousAmount.get != prior){
+        PriorOrNewAmountForm.priorOrNewAmountForm(prior).fill(PriorOrNewAmountModel("other",previousAmount))
+      } else {
+        PriorOrNewAmountForm.priorOrNewAmountForm(prior).fill(PriorOrNewAmountModel("other",None))
+      }
+    }
+
     (dividendsPriorSubmissionSession, checkYourAnswerSession) match {
-      case (Some(prior), Some(cya)) if prior.otherUkDividends.nonEmpty =>
-        Ok(view(
-          Left(PriorOrNewAmountForm.priorOrNewAmountForm(prior.otherUkDividends.get)),
-          Some(prior),
-          taxYear,
-          cya.otherUkDividendsAmount
-        ))
-      case (Some(prior), None) if prior.otherUkDividends.nonEmpty =>
-        Ok(view(Left(PriorOrNewAmountForm.priorOrNewAmountForm(prior.otherUkDividends.get)), Some(prior), taxYear))
+      case (Some(submission@DividendsPriorSubmission(_, Some(prior))), _) => Ok(view(Left(form(prior)), Some(submission), taxYear))
       case (None, Some(cya)) =>
-        Ok(view(Right(OtherDividendsAmountForm.otherDividendsAmountForm()), taxYear = taxYear, preAmount = cya.otherUkDividendsAmount))
+        Ok(view(Right(cya.otherUkDividendsAmount.fold(
+          OtherDividendsAmountForm.otherDividendsAmountForm()
+        )(amount => OtherDividendsAmountForm.otherDividendsAmountForm().fill(amount))
+        ), taxYear = taxYear, preAmount = cya.otherUkDividendsAmount))
       case _ =>
         Ok(view(Right(OtherDividendsAmountForm.otherDividendsAmountForm()), taxYear = taxYear))
     }

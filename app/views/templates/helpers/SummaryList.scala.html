@@ -15,18 +15,12 @@
  *@
 
 @import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 
-@this(govukPhaseBanner : GovukPhaseBanner)
+@this(govukSummaryList : GovukSummaryList)
 
-@()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(rows: Seq[SummaryListRow])
 
-@govukPhaseBanner(PhaseBanner(
-    tag = Some(Tag(
-        content = Text(messages("betaBar.beta"))
-    )),
-    content = HtmlContent(content)
+@govukSummaryList(SummaryList(
+    rows = rows
 ))
-
-@content = {
-    @messages("betaBar.banner.message.1") <a class="govuk-link" href="@{appConfig.feedbackUrl}">@messages("betaBar.banner.message.2")</a> @messages("betaBar.banner.message.3")
-}

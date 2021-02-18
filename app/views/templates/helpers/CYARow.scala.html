@@ -14,20 +14,9 @@
  * limitations under the License.
  *@
 
+@import utils.ViewUtils.summaryListRow
+
 @this()
 
-@(question: String, content: String, link: Call)(implicit messages: Messages)
+@(key: HtmlContent, value: HtmlContent, keyClasses: String= "govuk-!-width-one-third", valueClasses: String = "govuk-!-width-one-third", actionClasses: String = "govuk-!-width-one-third", actions: Seq[(Call, String, Option[String])])(implicit messages: Messages)
 
-<div class="govuk-summary-list__row">
-    <dt class="govuk-summary-list__key">
-    @messages(question)
-    </dt>
-    <dd class="govuk-summary-list__value">
-    @content
-    </dd>
-    <dd class="govuk-summary-list__actions">
-        <a class="govuk-link" href="@link">
-            @messages("common.change")
-        </a>
-    </dd>
-</div>

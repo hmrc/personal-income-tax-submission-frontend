@@ -14,16 +14,15 @@ common.change = Change
 common.aDifferentAmount = A different amount
 common.enterAmount = Enter amount
 common.remove = Remove
-
 common.opensInNewWindowOrTab = (opens in new tab)
-
 common.help.getHelpWithThisPage = Get help with this page
-
 common.error.errorKey = Error:
 common.error.invalid_number = Enter an amount using numbers 0 to 9
 common.error.priorOrNewAmount.noRadioSelected = Select £{0} or enter a different amount
 common.error.amountMaxLimit = Enter an amount less than £100,000,000,000
 common.error.invalid_currency_format = Enter an amount in pounds and pence
+
+error.summary.title = There is a problem
 
 dividends.caption = Dividends
 interest.caption = Interest

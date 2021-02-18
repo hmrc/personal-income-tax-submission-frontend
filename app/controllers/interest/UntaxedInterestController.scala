@@ -21,7 +21,7 @@ import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import forms.YesNoForm
 import javax.inject.Inject
-import models.formatHelpers.YesNoModel
+
 import models.interest.InterestCYAModel
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Lang, Messages}
@@ -42,11 +42,12 @@ class UntaxedInterestController @Inject()(
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
   implicit val messages: Messages = mcc.messagesApi.preferred(Seq(Lang("en")))
-  val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("interest.untaxed-uk-interest.errors.noRadioSelected")
+  val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("interest.untaxed-uk-interest.errors.noRadioSelected")
 
   def show(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
     val pageTitle: String = "interest.untaxed-uk-interest.title." + (if (user.isAgent) "agent" else "individual")
-    Ok(untaxedInterestView(pageTitle, yesNoForm, taxYear))
+    val cyaData: Option[Boolean] = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA).flatMap(_.untaxedUkInterest)
+    Ok(untaxedInterestView(pageTitle, cyaData.fold(yesNoForm)(yesNoForm.fill), taxYear))
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
@@ -66,13 +67,13 @@ class UntaxedInterestController @Inject()(
       },
       {
         yesNoModel =>
-          val updatedCya = cyaData.copy(untaxedUkInterest = Some(yesNoModel.asBoolean), untaxedUkAccounts = if (yesNoModel.asBoolean) {
+          val updatedCya = cyaData.copy(untaxedUkInterest = Some(yesNoModel), untaxedUkAccounts = if (yesNoModel) {
             cyaData.untaxedUkAccounts
           } else {
             None
           })
 
-          (yesNoModel.asBoolean, updatedCya.isFinished) match {
+          (yesNoModel, updatedCya.isFinished) match {
             case (true, false) =>
               Redirect(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, id = randomUUID().toString))
                 .addingToSession(SessionValues.INTEREST_CYA -> updatedCya.asJsonString)
