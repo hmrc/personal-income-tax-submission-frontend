@@ -67,7 +67,7 @@ class TaxedInterestAmountController @Inject()(
       val accountAmount = account.map(_.amount)
 
       val model: Option[TaxedInterestModel] = (accountName, accountAmount) match {
-        case (Some(name), Some(amount)) => Some(TaxedInterestModel(name, amount.toString()))
+        case (Some(name), Some(amount)) => Some(TaxedInterestModel(name, amount))
         case _ => None
       }
 
@@ -91,7 +91,7 @@ class TaxedInterestAmountController @Inject()(
         ))
     }, {
       completeForm =>
-        val newAmount: BigDecimal = BigDecimal(completeForm.taxedAmount)
+        val newAmount: BigDecimal = completeForm.taxedAmount
 
         def createNewAccount: InterestAccountModel = InterestAccountModel(None, completeForm.taxedAccountName, newAmount, Some(id))
 

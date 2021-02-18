@@ -21,9 +21,9 @@ import utils.UnitTest
 
 class CurrencyAmountModelSpec extends UnitTest {
 
-  val model: CurrencyAmountModel = CurrencyAmountModel("")
+  val model: CurrencyAmountModel = CurrencyAmountModel(45.00)
   val jsonModel: JsObject = Json.obj(
-    "amount" -> ""
+    "amount" -> 45.00
   )
 
   "CurrencyAmountModel" should {
@@ -33,7 +33,7 @@ class CurrencyAmountModelSpec extends UnitTest {
     }
 
     "parse from Json" in {
-      jsonModel.as[CurrencyAmountModel]
+      jsonModel.as[CurrencyAmountModel] shouldBe model
     }
   }
 

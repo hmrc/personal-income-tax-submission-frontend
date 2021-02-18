@@ -62,7 +62,7 @@ class UntaxedInterestAmountController @Inject()(
       val accountAmount = account.map(_.amount)
 
       val model: Option[UntaxedInterestModel] = (accountName, accountAmount) match {
-        case (Some(name), Some(amount)) => Some(UntaxedInterestModel(name, amount.toString()))
+        case (Some(name), Some(amount)) => Some(UntaxedInterestModel(name, amount))
         case _ => None
       }
 
@@ -86,7 +86,7 @@ class UntaxedInterestAmountController @Inject()(
         ))
     }, {
       completeForm =>
-        val newAmount: BigDecimal = BigDecimal(completeForm.untaxedAmount)
+        val newAmount: BigDecimal = completeForm.untaxedAmount
 
         def createNewAccount: InterestAccountModel = InterestAccountModel(None, completeForm.untaxedAccountName, newAmount, Some(id))
 

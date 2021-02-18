@@ -17,14 +17,13 @@
 package forms
 
 import forms.OtherDividendsAmountForm._
-import models.CurrencyAmountModel
 import play.api.data.{Form, FormError}
 import utils.UnitTest
 
 
 class OtherDividendsAmountFormSpec extends UnitTest {
 
-  def form: Form[CurrencyAmountModel] = {
+  def form: Form[BigDecimal] = {
     OtherDividendsAmountForm.otherDividendsAmountForm()
   }
 
@@ -39,7 +38,7 @@ class OtherDividendsAmountFormSpec extends UnitTest {
     "correctly validate a currency" when {
       "a valid currency is entered" in {
         val testInput = Map(otherDividendsAmount -> testCurrencyValid)
-        val expected = CurrencyAmountModel(testCurrencyValid)
+        val expected = BigDecimal(testCurrencyValid)
         val actual = form.bind(testInput).value
 
         actual shouldBe Some(expected)
@@ -65,7 +64,7 @@ class OtherDividendsAmountFormSpec extends UnitTest {
       val testInput = Map(otherDividendsAmount -> testCurrencyInvalidFormat)
 
       val invalidFormatTest = form.bind(testInput)
-      invalidFormatTest.errors should contain(FormError(otherDividendsAmount, "common.error.invalid_currency"))
+      invalidFormatTest.errors should contain(FormError(otherDividendsAmount, "common.error.invalid_currency_format"))
     }
 
     "invalidate a currency that is too big" in {
@@ -77,7 +76,7 @@ class OtherDividendsAmountFormSpec extends UnitTest {
 
     "remove a leading space from a currency" in {
       val testInput = Map(otherDividendsAmount -> (" " + testCurrencyValid))
-      val expected = CurrencyAmountModel(testCurrencyValid)
+      val expected = BigDecimal(testCurrencyValid)
       val leadingSpaceTest = form.bind(testInput).value
 
       leadingSpaceTest shouldBe Some(expected)

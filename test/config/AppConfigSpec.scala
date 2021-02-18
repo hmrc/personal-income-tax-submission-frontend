@@ -23,21 +23,30 @@ import utils.UnitTest
 class AppConfigSpec extends UnitTest {
   private val mockServicesConfig: ServicesConfig = mock[ServicesConfig]
   private val appUrl = "http://localhost:9308"
-  (mockServicesConfig.baseUrl _).expects("contact-frontend").returns("http://contact-frontend:9250")
+  private val appConfig = new AppConfig(mockServicesConfig)
+
+  (mockServicesConfig.baseUrl(_: String)).expects("contact-frontend").returns("http://contact-frontend:9250")
+
+  (mockServicesConfig.getConfString(_: String, _: String))
+    .expects("contact-frontend.baseUrl", *)
+    .returns("http://contact-frontend:9250")
+
   (mockServicesConfig.getString _).expects("microservice.url").returns(appUrl)
 
   "AppConfig" should {
 
     "return correct feedbackUrl" in {
-      val appConfig = new AppConfig(mockServicesConfig)
-
       val expectedBackUrl = SafeRedirectUrl(appUrl + fakeRequest.uri).encodedUrl
       val expectedServiceIdentifier = "update-and-submit-income-tax-return"
 
       val expectedFeedbackUrl =
         s"http://contact-frontend:9250/contact/beta-feedback?service=$expectedServiceIdentifier&backUrl=$expectedBackUrl"
 
+      val expectedContactUrl = s"http://contact-frontend:9250/contact/contact-hmrc?service=$expectedServiceIdentifier"
+
       appConfig.feedbackUrl(fakeRequest) shouldBe expectedFeedbackUrl
+
+      appConfig.contactUrl shouldBe expectedContactUrl
     }
   }
 }

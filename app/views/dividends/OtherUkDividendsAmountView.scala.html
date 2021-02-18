@@ -38,9 +38,9 @@
    bigDecimalCurrency: BigDecimalCurrency
 )
 
-@(form: Either[Form[PriorOrNewAmountModel], Form[CurrencyAmountModel]], priorSubmission: Option[DividendsPriorSubmission], taxYear: Int, postAction: Call, preAmount: Option[BigDecimal] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(form: Either[Form[PriorOrNewAmountModel], Form[BigDecimal]], priorSubmission: Option[DividendsPriorSubmission], taxYear: Int, postAction: Call, preAmount: Option[BigDecimal] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@currencyFormHtml(formInput: Form[CurrencyAmountModel]) = {
+@currencyFormHtml(formInput: Form[BigDecimal]) = {
 
    @errorSummary(formInput.errors.distinct)
 

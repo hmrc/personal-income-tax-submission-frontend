@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,18 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package forms
+@this()
 
-import forms.validation.mappings.MappingUtil._
-import play.api.data.Form
+@(
+        link: String,
+        messageKey: String,
+        id: Option[String] = None,
+        isExternal: Boolean = false
+)(implicit messages: Messages)
 
-object OtherDividendsAmountForm {
+<a href="@link" class="govuk-link" @id.map(x => s"id=$x") @if(isExternal) { target="_blank" }>@messages(messageKey)@if(isExternal)(" " + messages("common.opensInNewWindowOrTab"))</a>
 
-  val otherDividendsAmount: String = "amount"
-
-  def otherDividendsAmountForm(): Form[BigDecimal] = Form(
-    otherDividendsAmount -> currency("dividends.other-dividends-amount.error.empty")
-  )
-}

@@ -43,7 +43,10 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
     "/start"
 
   lazy private val appUrl: String = servicesConfig.getString("microservice.url")
-  lazy private val contactFrontEndUrl = servicesConfig.baseUrl("contact-frontend")
+  lazy private val contactFrontEndUrl = {
+    val contactUrl = servicesConfig.baseUrl("contact-frontend")
+    servicesConfig.getConfString("contact-frontend.baseUrl", contactUrl)
+  }
 
   lazy private val contactFormServiceIdentifier = "update-and-submit-income-tax-return"
 
@@ -52,4 +55,6 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
   def feedbackUrl(implicit request: RequestHeader): String = {
     s"$contactFrontEndUrl/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=$requestUri"
   }
+
+  lazy val contactUrl = s"$contactFrontEndUrl/contact/contact-hmrc?service=$contactFormServiceIdentifier"
 }
