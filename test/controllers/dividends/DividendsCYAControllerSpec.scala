@@ -216,7 +216,7 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
 
     "there is an error posting downstream" should {
 
-      "redirect to the 500 error template page when there is a problem posting data" in new TestWithAuth {
+      "redirect to the 500 unauthorised error template page when there is a problem posting data" in new TestWithAuth {
 
         val errorResponseFromDes: Either[ApiErrorModel, DividendsResponseModel] =
           Left(ApiErrorModel(INTERNAL_SERVER_ERROR, ApiErrorBodyModel("error", "error")))

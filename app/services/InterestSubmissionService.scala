@@ -18,13 +18,19 @@ package services
 
 import connectors.InterestSubmissionConnector
 import connectors.httpparsers.InterestSubmissionHttpParser.InterestSubmissionsResponse
+import models.DividendsResponseModel
+
 import javax.inject.Inject
 import models.interest.{InterestCYAModel, InterestSubmissionModel}
+import play.api.Logger
+import play.api.http.Status.NO_CONTENT
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class InterestSubmissionService @Inject()(interestSubmissionConnector: InterestSubmissionConnector) {
+
+  lazy val logger: Logger = Logger(this.getClass.getName)
 
   def submit(cyaData: InterestCYAModel, nino: String, taxYear: Int, mtditid: String)
             (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[InterestSubmissionsResponse] = {
@@ -39,7 +45,11 @@ class InterestSubmissionService @Inject()(interestSubmissionConnector: InterestS
 
     val body: Seq[InterestSubmissionModel] = untaxedAccounts ++ taxedAccounts
 
-    interestSubmissionConnector.submit(body, nino, taxYear, mtditid)
+    if(body.isEmpty){
+      logger.info("[InterestSubmissionService][submit] User has entered No & No to both interest questions. Not submitting data to DES.")
+      Future(Right(NO_CONTENT))
+    } else {
+      interestSubmissionConnector.submit(body, nino, taxYear, mtditid)
+    }
   }
-
 }
