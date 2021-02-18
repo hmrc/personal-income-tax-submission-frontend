@@ -26,7 +26,6 @@ import views.html.interest.UntaxedInterestView
 
 class UntaxedInterestViewSpec extends ViewTest {
 
-
   lazy val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("Select yes if untaxed interest " +
     "was received from companies in the uk")
 
@@ -50,14 +49,13 @@ class UntaxedInterestViewSpec extends ViewTest {
 
       "there are no form errors" which {
 
-
-        lazy val view = untaxedInterestView("Did you receive any untaxed interest from the UK?",
+        lazy val view = untaxedInterestView("Did you receive any untaxed interest from the UK? - Update and submit an Income Tax Return - Gov.UK",
           yesNoForm, taxYear)(user,implicitly,mockAppConfig)
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedTitle = "Did you receive any untaxed interest from the UK?"
         val expectedH1 = "Did you receive any untaxed interest from the UK?"
+        val expectedTitle = s"$expectedH1 - $serviceName - $govUkExtension"
         val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
 
         "contains the correct title" in {
@@ -90,15 +88,15 @@ class UntaxedInterestViewSpec extends ViewTest {
 
       "there are no form errors" which {
 
-        lazy val view = untaxedInterestView("Did you receive any untaxed interest from the UK?",
+        lazy val view = untaxedInterestView("Did you receive any untaxed interest from the UK? - Update and submit an Income Tax Return - Gov.UK",
           yesNoForm.copy(
           errors = Seq(FormError("yes_no", "Select yes if untaxed interest was received from companies in the UK"))),
           2020)(user,implicitly,mockAppConfig)
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedTitle = "Did you receive any untaxed interest from the UK?"
         val expectedH1 = "Did you receive any untaxed interest from the UK?"
+        val expectedTitle = s"$expectedH1 - $serviceName - $govUkExtension"
         val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
 
         val expectedErrorTitle = "There is a problem"
@@ -146,13 +144,13 @@ class UntaxedInterestViewSpec extends ViewTest {
 
       "there are no form errors" which {
 
-        lazy val view = untaxedInterestView("Did your client receive any untaxed interest from the UK?",
+        lazy val view = untaxedInterestView("Did your client receive any untaxed interest from the UK? - Update and submit an Income Tax Return - Gov.UK",
           yesNoForm,taxYear)(user.copy(arn = Some("XARN1234567")),implicitly,mockAppConfig)
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedTitle = "Did your client receive any untaxed interest from the UK?"
         val expectedH1 = "Did your client receive any untaxed interest from the UK?"
+        val expectedTitle = s"$expectedH1 - $serviceName - $govUkExtension"
         val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
 
         "contains the correct title" in {
@@ -186,15 +184,15 @@ class UntaxedInterestViewSpec extends ViewTest {
       "there is a form error" which {
 
         lazy val view = untaxedInterestView(
-          "Did your client receive any untaxed interest from the UK?",
+          "Did your client receive any untaxed interest from the UK? - Update and submit an Income Tax Return - Gov.UK",
           yesNoForm.copy(
             errors = Seq(FormError("yes_no", "Select yes if untaxed interest was received from companies in the UK"))),
           taxYear)(user.copy(arn = Some("XARN1234567")),implicitly,mockAppConfig)
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedTitle = "Did your client receive any untaxed interest from the UK?"
         val expectedH1 = "Did your client receive any untaxed interest from the UK?"
+        val expectedTitle = s"$expectedH1 - $serviceName - $govUkExtension"
         val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
 
         val expectedErrorTitle = "There is a problem"

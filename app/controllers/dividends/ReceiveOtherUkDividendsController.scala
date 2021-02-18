@@ -41,10 +41,10 @@ class ReceiveOtherUkDividendsController @Inject()(
   def show(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
     DividendsCheckYourAnswersModel.fromSession() match {
       case Some(model) if model.otherUkDividends.isDefined =>
-        Ok(receiveOtherDividendsView("dividends.other-dividends.heading." + (if (user.isAgent) "agent" else "individual"),
+        Ok(receiveOtherDividendsView("dividends.other-dividends.title." + (if (user.isAgent) "agent" else "individual"),
           yesNoForm, taxYear, model.otherUkDividends.get.toString))
       case _ =>
-        Ok(receiveOtherDividendsView("dividends.other-dividends.heading." + (if (user.isAgent) "agent" else "individual"), yesNoForm, taxYear))
+        Ok(receiveOtherDividendsView("dividends.other-dividends.title." + (if (user.isAgent) "agent" else "individual"), yesNoForm, taxYear))
     }
   }
 
@@ -52,7 +52,7 @@ class ReceiveOtherUkDividendsController @Inject()(
     yesNoForm.bindFromRequest().fold (
       {
         formWithErrors => BadRequest(
-          receiveOtherDividendsView("dividends.other-dividends.heading." + (if(user.isAgent) "agent" else "individual"), formWithErrors, taxYear)
+          receiveOtherDividendsView("dividends.other-dividends.title." + (if(user.isAgent) "agent" else "individual"), formWithErrors, taxYear)
         )
       },
       {

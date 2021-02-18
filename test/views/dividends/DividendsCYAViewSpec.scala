@@ -26,8 +26,8 @@ class DividendsCYAViewSpec extends ViewTest {
   val titleSelector = "h1"
   val captionSelector = ".govuk-caption-l"
 
-  val titleExpected = "Check your answers - Register your income tax return with HMRC - Gov.UK"
   val h1Expected = "Check your answers"
+  val titleExpected = s"$h1Expected - $serviceName - $govUkExtension"
   val captionExpected = "Dividends for 06 April 2019 to 05 April 2020"
 
   val changeLinkExpected = "Change"

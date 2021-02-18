@@ -44,6 +44,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
   val errorSummaryText = ".govuk-error-summary__body"
 
   val expectedH1 = "What is the total amount of dividends earned from companies in the UK?"
+  val expectedTitle = s"$expectedH1 - $serviceName - $govUkExtension"
   val expectedCaption = "Dividends for 06 April 2019 to 05 April 2020"
 
   val expectedErrorTitle = "There is a problem"
@@ -64,6 +65,10 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           lazy val view = ukDividendsAmountView(Right(ukDividendsAmountForm), None, taxYear, testCall)(user, implicitly, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
+
+          "contain the correct title" in {
+            document.title() shouldBe expectedTitle
+          }
 
           "contain the correct h1" in {
             elementText(h1Selector) shouldBe expectedH1
@@ -97,6 +102,10 @@ class UkDividendsAmountViewSpec extends ViewTest {
           )(user, implicitly, mockAppConfig)
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
+
+          "contain the correct title" in {
+            document.title() shouldBe expectedTitle
+          }
 
           "contain the correct h1" in {
             elementText(h1Selector) shouldBe expectedH1
@@ -140,6 +149,10 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
+          "contain the correct title" in {
+            document.title() shouldBe expectedTitle
+          }
+
           "contain the correct h1" in {
             elementText(h1Selector) shouldBe expectedH1
           }
@@ -173,6 +186,10 @@ class UkDividendsAmountViewSpec extends ViewTest {
           )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
+
+          "contain the correct title" in {
+            document.title() shouldBe expectedTitle
+          }
 
           "contain the correct h1" in {
             elementText(h1Selector) shouldBe expectedH1
@@ -223,6 +240,10 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
+          "contain the correct title" in {
+            document.title() shouldBe expectedTitle
+          }
+
           "contain the correct h1" in {
             elementText(h1Selector) shouldBe expectedH1
           }
@@ -272,6 +293,10 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
+          "contain the correct title" in {
+            document.title() shouldBe expectedTitle
+          }
+
           "contain the correct h1" in {
             elementText(h1Selector) shouldBe expectedH1
           }
@@ -314,6 +339,10 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
+          "contain the correct title" in {
+            document.title() shouldBe expectedTitle
+          }
+
           "contain the correct h1" in {
             elementText(h1Selector) shouldBe expectedH1
           }
@@ -346,6 +375,10 @@ class UkDividendsAmountViewSpec extends ViewTest {
           )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
+
+          "contain the correct title" in {
+            document.title() shouldBe expectedTitle
+          }
 
           "contain the correct h1" in {
             elementText(h1Selector) shouldBe expectedH1
