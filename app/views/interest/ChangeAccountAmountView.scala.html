@@ -36,6 +36,7 @@
     @heading(messages(s"interest.change-account.${taxType.toLowerCase}-heading", account.accountName), Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 }
 
+
 @otherAmountHtml = {
     @inputText(
             form,
@@ -47,7 +48,7 @@
         )
 }
 
-@layout(pageTitle = Some(messages(s"interest.change-account.${taxType.toLowerCase}-title")), taxYear = Some(taxYear)) {
+@layout(pageTitle = messages(s"interest.change-account.${taxType.toLowerCase}-title"), taxYear = Some(taxYear)) {
 
     @errorSummary(form.errors.distinct)
 

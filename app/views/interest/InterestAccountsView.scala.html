@@ -106,7 +106,7 @@
 </div>
 }
 
-@layout(Some(titleText), taxYear = Some(taxYear)) {
+@layout(titleText, taxYear = Some(taxYear)) {
 
     @heading(h1Text, Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 

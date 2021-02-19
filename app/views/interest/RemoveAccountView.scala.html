@@ -43,7 +43,7 @@
     }
 }
 
-@layout(pageTitle = Some(messages("interest.remove-account.title")), taxYear = Some(taxYear)) {
+@layout(pageTitle = messages("interest.remove-account.title"), taxYear = Some(taxYear)) {
 
     @errorSummary(form.errors.distinct)
 

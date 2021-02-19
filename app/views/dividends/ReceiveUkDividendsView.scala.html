@@ -37,7 +37,7 @@
     <p>@messages("dividends.uk-dividends.sub-heading")</p>
 }
 
-@layout(pageTitle = Some(messages(pageTitle)), taxYear = Some(taxYear)) {
+@layout(pageTitle = pageTitle, taxYear = Some(taxYear)) {
 
     @errorSummary(form.errors.distinct)
 

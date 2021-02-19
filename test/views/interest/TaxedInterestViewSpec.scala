@@ -45,7 +45,7 @@ class TaxedInterestViewSpec extends ViewTest {
     
     "Correctly render as an individual" when {
       "There are no form errors " which {
-        lazy val view = taxedInterestView("Did you receive any taxed interest from the UK? - Update and submit an Income Tax Return - Gov.UK",
+        lazy val view = taxedInterestView("Did you receive any taxed interest from the UK?",
           yesNoForm, taxYear)(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
         val expectedH1 = "Did you receive any taxed interest from the UK?"
@@ -77,7 +77,7 @@ class TaxedInterestViewSpec extends ViewTest {
     "correctly render with errors as an individual" when {
       "there are no form errors" which {
         lazy val view = taxedInterestView(
-          "Did you receive any taxed interest from the UK? - Update and submit an Income Tax Return - Gov.UK",
+          "Did you receive any taxed interest from the UK?",
           yesNoForm.copy(
             errors = Seq(FormError("yes_no", "Select yes if you received taxed interest from the UK"))),
           taxYear
@@ -131,7 +131,7 @@ class TaxedInterestViewSpec extends ViewTest {
       "there are no form errors" which {
 
         lazy val view = taxedInterestView(
-          "Did your client receive any taxed interest from the UK? - Update and submit an Income Tax Return - Gov.UK",
+          "Did your client receive any taxed interest from the UK?",
           yesNoForm, taxYear)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
@@ -166,7 +166,7 @@ class TaxedInterestViewSpec extends ViewTest {
     }
     "correctly render with errors as an agent" when {
       "there is a form error" which {
-        lazy val view = taxedInterestView("Did your client receive any taxed interest from the UK? - Update and submit an Income Tax Return - Gov.UK",
+        lazy val view = taxedInterestView("Did your client receive any taxed interest from the UK?",
           yesNoForm.copy(
             errors = Seq(FormError("yes_no", "Select yes if you received taxed interest from the UK"))),
           taxYear

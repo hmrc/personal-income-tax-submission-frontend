@@ -35,7 +35,7 @@
 
 @(form: Form[TaxedInterestModel], taxYear: Int, postAction: Call)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@layout(Some(messages("interest.taxed-uk-interest-details.title")), taxYear = Some(taxYear)) {
+@layout(messages("interest.taxed-uk-interest-details.title"), taxYear = Some(taxYear)) {
     @formWithCSRF(action = postAction) {
 
         @errorSummary(form.errors.distinct)

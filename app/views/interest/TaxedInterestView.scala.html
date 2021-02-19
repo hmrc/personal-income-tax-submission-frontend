@@ -45,7 +45,7 @@
     </p>
 }
 
-@layout(Some(messages(pageTitle)), taxYear = Some(taxYear)) {
+@layout(pageTitle, taxYear = Some(taxYear)) {
 
     @errorSummary(form.errors.distinct)
 
