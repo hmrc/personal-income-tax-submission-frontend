@@ -26,7 +26,7 @@ import views.html.interest.UntaxedInterestView
 
 class UntaxedInterestViewSpec extends ViewTest {
 
-  lazy val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("Select yes if untaxed interest " +
+  lazy val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("Select yes if untaxed interest " +
     "was received from companies in the uk")
 
   lazy val untaxedInterestView: UntaxedInterestView = app.injector.instanceOf[UntaxedInterestView]
@@ -49,7 +49,7 @@ class UntaxedInterestViewSpec extends ViewTest {
 
       "there are no form errors" which {
 
-        lazy val view = untaxedInterestView("Did you receive any untaxed interest from the UK?",
+        lazy val view = untaxedInterestView(
           yesNoForm, taxYear)(user,implicitly,mockAppConfig)
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -88,7 +88,7 @@ class UntaxedInterestViewSpec extends ViewTest {
 
       "there are no form errors" which {
 
-        lazy val view = untaxedInterestView("Did you receive any untaxed interest from the UK?",
+        lazy val view = untaxedInterestView(
           yesNoForm.copy(
           errors = Seq(FormError("yes_no", "Select yes if untaxed interest was received from companies in the UK"))),
           2020)(user,implicitly,mockAppConfig)
@@ -144,7 +144,7 @@ class UntaxedInterestViewSpec extends ViewTest {
 
       "there are no form errors" which {
 
-        lazy val view = untaxedInterestView("Did your client receive any untaxed interest from the UK?",
+        lazy val view = untaxedInterestView(
           yesNoForm,taxYear)(user.copy(arn = Some("XARN1234567")),implicitly,mockAppConfig)
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -184,7 +184,6 @@ class UntaxedInterestViewSpec extends ViewTest {
       "there is a form error" which {
 
         lazy val view = untaxedInterestView(
-          "Did your client receive any untaxed interest from the UK?",
           yesNoForm.copy(
             errors = Seq(FormError("yes_no", "Select yes if untaxed interest was received from companies in the UK"))),
           taxYear)(user.copy(arn = Some("XARN1234567")),implicitly,mockAppConfig)

@@ -45,9 +45,8 @@ class UntaxedInterestController @Inject()(
   val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("interest.untaxed-uk-interest.errors.noRadioSelected")
 
   def show(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
-    val pageTitle: String = "interest.untaxed-uk-interest.title." + (if (user.isAgent) "agent" else "individual")
     val cyaData: Option[Boolean] = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA).flatMap(_.untaxedUkInterest)
-    Ok(untaxedInterestView(pageTitle, cyaData.fold(yesNoForm)(yesNoForm.fill), taxYear))
+    Ok(untaxedInterestView(cyaData.fold(yesNoForm)(yesNoForm.fill), taxYear))
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
@@ -59,7 +58,6 @@ class UntaxedInterestController @Inject()(
         formWithErrors =>
           BadRequest(
             untaxedInterestView(
-              "interest.untaxed-uk-interest.title." + (if (user.isAgent) "agent" else "individual"),
               formWithErrors,
               taxYear
             )

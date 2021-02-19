@@ -53,7 +53,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
 
       "there are no form errors" which {
 
-        lazy val view = receiveUkDividendsView("Did you receive any dividends from companies in the UK?",
+        lazy val view = receiveUkDividendsView(
           yesNoForm, taxYear)(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
@@ -90,7 +90,6 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
       "there are no form errors" which {
 
         lazy val view = receiveUkDividendsView(
-          "Did you receive any dividends from companies in the UK?",
           yesNoForm.copy(
             errors = Seq(FormError("yes_no", "Select yes if dividends were received from the UK"))),
           taxYear
@@ -145,7 +144,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
 
       "there are no form errors" which {
 
-        lazy val view = receiveUkDividendsView("Did your client receive any dividends from companies in the UK?",
+        lazy val view = receiveUkDividendsView(
           yesNoForm, taxYear)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
@@ -182,7 +181,6 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
       "there is a form error" which {
 
         lazy val view = receiveUkDividendsView(
-          "Did your client receive any dividends from companies in the UK?",
           yesNoForm.copy(
             errors = Seq(FormError("yes_no", "Select yes if dividends were received from the UK"))),
           taxYear

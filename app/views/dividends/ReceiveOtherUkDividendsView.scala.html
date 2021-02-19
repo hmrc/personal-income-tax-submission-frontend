@@ -29,13 +29,17 @@
     details: Details
 )
 
-@(pageTitle: String, form: Form[Boolean], taxYear: Int, checked: String = "")(implicit user: User[_], messages: Messages, appConfig: AppConfig)
+@(form: Form[Boolean], taxYear: Int, checked: String = "")(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @headingForUse = @{
     if(user.isAgent) messages("dividends.other-dividends.heading.agent") else messages("dividends.other-dividends.heading.individual")
 }
 
-@layout(pageTitle = pageTitle, taxYear = Some(taxYear)) {
+@titleForUse = @{
+if(user.isAgent) messages("dividends.other-dividends.title.agent") else messages("dividends.other-dividends.title.individual")
+}
+
+@layout(pageTitle = titleForUse, taxYear = Some(taxYear)) {
 
     @errorSummary(form.errors.distinct)
 
