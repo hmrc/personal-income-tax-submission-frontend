@@ -17,7 +17,7 @@
 package controllers.interest
 
 import audit.{AuditModel, AuditService, CreateOrAmendInterestAuditDetail}
-import common.{InterestTaxTypes, PageLocations, SessionValues}
+import common.{InterestTaxTypes, SessionValues}
 import config.{AppConfig, ErrorHandler}
 import controllers.predicates.AuthorisedAction
 import models.interest.{InterestCYAModel, InterestPriorSubmission}

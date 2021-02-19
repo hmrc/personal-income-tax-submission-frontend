@@ -18,14 +18,12 @@ package services
 
 import connectors.InterestSubmissionConnector
 import connectors.httpparsers.InterestSubmissionHttpParser.InterestSubmissionsResponse
-import models.DividendsResponseModel
-
-import javax.inject.Inject
 import models.interest.{InterestCYAModel, InterestSubmissionModel}
 import play.api.Logger
 import play.api.http.Status.NO_CONTENT
 import uk.gov.hmrc.http.HeaderCarrier
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class InterestSubmissionService @Inject()(interestSubmissionConnector: InterestSubmissionConnector) {

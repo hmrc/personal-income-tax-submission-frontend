@@ -35,7 +35,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import utils.UnitTestWithApp
 import views.html.interest.InterestCYAView
-import views.html.templates.{ServiceUnavailableTemplate, UnauthorisedTemplate}
+import views.html.templates.{InternalServerErrorTemplate, ServiceUnavailableTemplate}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -45,7 +45,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
   lazy val submissionService: InterestSubmissionService = mock[InterestSubmissionService]
   val errorHandler: ErrorHandler = mock[ErrorHandler]
   val serviceUnavailableTemplate: ServiceUnavailableTemplate = app.injector.instanceOf[ServiceUnavailableTemplate]
-  val unauthorisedTemplate: UnauthorisedTemplate = app.injector.instanceOf[UnauthorisedTemplate]
+  val unauthorisedTemplate: InternalServerErrorTemplate = app.injector.instanceOf[InternalServerErrorTemplate]
 
   lazy val controller: InterestCYAController = new InterestCYAController(
     mockMessagesControllerComponents,

@@ -17,6 +17,7 @@
 package services
 
 import connectors.DividendsSubmissionConnector
+import connectors.httpparsers.DividendsSubmissionHttpParser.DividendsSubmissionsResponse
 import models.{ApiErrorBodyModel, ApiErrorModel, DividendsCheckYourAnswersModel, DividendsResponseModel, DividendsSubmissionModel}
 import play.api.http.Status._
 import uk.gov.hmrc.auth.core.AuthConnector
@@ -70,13 +71,17 @@ class DividendsSubmissionServiceSpec extends UnitTestWithApp{
         }
 
       "Given no model is supplied" in {
-        val blankData = DividendsSubmissionModel(None, None)
 
-        (connector.submitDividends(_: DividendsSubmissionModel, _: String, _: String, _: Int)(_: HeaderCarrier))
-          .expects(blankData, nino, mtdItid, taxYear, *).returning(Future.successful(Right(DividendsResponseModel(NO_CONTENT))))
+       lazy val result: DividendsSubmissionsResponse = {
+          val blankData = DividendsSubmissionModel(None, None)
 
-        val result = await(service.submitDividends(None, nino, mtdItid, taxYear))
+          (blankData, nino, mtdItid, taxYear, *)
+          Future.successful(Right(DividendsResponseModel(NO_CONTENT)))
+
+          await(service.submitDividends(None, nino, mtdItid, taxYear))
+        }
         result.isRight shouldBe true
+        result shouldBe Right(DividendsResponseModel(NO_CONTENT))
       }
     }
   }

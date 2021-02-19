@@ -33,7 +33,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import utils.UnitTestWithApp
 import views.html.dividends.DividendsCYAView
-import views.html.templates.{ServiceUnavailableTemplate, UnauthorisedTemplate, NotFoundTemplate}
+import views.html.templates.{InternalServerErrorTemplate, NotFoundTemplate, ServiceUnavailableTemplate}
 
 import scala.concurrent.Future
 
@@ -42,7 +42,7 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
   val service = mock[DividendsSubmissionService]
   val errorHandler = mock[ErrorHandler]
   val serviceUnavailableTemplate = app.injector.instanceOf[ServiceUnavailableTemplate]
-  val unauthorisedTemplate = app.injector.instanceOf[UnauthorisedTemplate]
+  val unauthorisedTemplate = app.injector.instanceOf[InternalServerErrorTemplate]
 
 
   val controller = new DividendsCYAController(

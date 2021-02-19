@@ -17,17 +17,18 @@
 package config
 
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Request, Result}
+import play.api.mvc.{Request, RequestHeader, Result}
 import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
-import views.html.templates.{ServiceUnavailableTemplate, NotFoundTemplate, UnauthorisedTemplate}
+import views.html.templates.{InternalServerErrorTemplate, NotFoundTemplate, ServiceUnavailableTemplate}
 import play.api.mvc.Results._
 import play.api.http.Status._
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.Future
 
 @Singleton
-class ErrorHandler @Inject()(unauthorisedTemplate: UnauthorisedTemplate,
+class ErrorHandler @Inject()(internalServerErrorTemplate: InternalServerErrorTemplate,
                              serviceUnavailableTemplate: ServiceUnavailableTemplate,
                              val messagesApi: MessagesApi,
                              notFoundTemplate: NotFoundTemplate)(implicit appConfig: AppConfig)
@@ -40,7 +41,16 @@ class ErrorHandler @Inject()(unauthorisedTemplate: UnauthorisedTemplate,
   def handleError(status: Int)(implicit request: Request[_]): Result = {
     status match {
       case SERVICE_UNAVAILABLE => ServiceUnavailable(serviceUnavailableTemplate(status))
-      case _ => InternalServerError(unauthorisedTemplate())
+      case _ => InternalServerError(internalServerErrorTemplate())
     }
   }
+
+  override def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] =
+    statusCode match {
+      case NOT_FOUND =>
+        Future.successful(NotFound(notFoundTemplate(request.withBody(""))))
+      case _ =>
+        Future.successful(InternalServerError(internalServerErrorTemplate()(request.withBody(""),request2Messages(request),appConfig)))
+    }
+
 }

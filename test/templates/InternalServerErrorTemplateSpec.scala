@@ -19,9 +19,9 @@ package templates
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import utils.ViewTest
-import views.html.templates.UnauthorisedTemplate
+import views.html.templates.InternalServerErrorTemplate
 
-class UnauthorisedTemplateSpec extends ViewTest {
+class InternalServerErrorTemplateSpec extends ViewTest {
 
   object Selectors {
 
@@ -43,10 +43,10 @@ class UnauthorisedTemplateSpec extends ViewTest {
   val bulletPoint2Expected = "use Self Assessment: general enquiries (opens in new tab) to speak to someone about your income tax"
   val bulletPoint2Link = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
 
-  lazy val unauthorisedTemplate: UnauthorisedTemplate = app.injector.instanceOf[UnauthorisedTemplate]
+  lazy val internalServerErrorTemplate: InternalServerErrorTemplate = app.injector.instanceOf[InternalServerErrorTemplate]
   lazy val appConfig = mockAppConfig
 
-  lazy val view = unauthorisedTemplate()(fakeRequest, messages, appConfig)
+  lazy val view = internalServerErrorTemplate()(fakeRequest, messages, appConfig)
   implicit lazy val document: Document = Jsoup.parse(view.body)
 
   "UnauthorisedTemplate" should {

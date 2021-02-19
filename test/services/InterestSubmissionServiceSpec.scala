@@ -67,18 +67,18 @@ class InterestSubmissionServiceSpec extends UnitTest {
           result shouldBe Right(NO_CONTENT)
         }
 
-        "the cya model has no accounts" in {
+        "the use has selected 'No' & 'No' when adding accounts" in {
           lazy val result: InterestSubmissionsResponse = {
-            (connector.submit(_: Seq[InterestSubmissionModel], _: String, _: Int, _: String)(_: HeaderCarrier, _: ExecutionContext))
-              .expects(Seq.empty[InterestSubmissionModel], "AA123456A", taxYear, "1234567890", *, *)
-              .returning(Future.successful(
+              (Seq.empty[InterestSubmissionModel], "AA123456A", taxYear, "1234567890", *, *)
+              Future.successful(
                 Right(NO_CONTENT)
-              ))
+              )
 
             await(service.submit(cyaModel.copy(Some(false), None, Some(false), None), "AA123456A", taxYear, "1234567890"))
           }
 
           result shouldBe Right(NO_CONTENT)
+
         }
       }
 
