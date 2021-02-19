@@ -25,8 +25,17 @@ class AppConfigSpec extends UnitTest {
   private val appUrl = "http://localhost:9308"
   private val appConfig = new AppConfig(mockServicesConfig)
 
-  (mockServicesConfig.baseUrl(_: String)).expects("contact-frontend").returns("http://contact-frontend:9250")
+  (mockServicesConfig.baseUrl(_: String)).expects("bas-gateway-frontend").returns("http://bas-gateway-frontend:9553")
+  (mockServicesConfig.getConfString(_: String, _: String))
+    .expects("bas-gateway-frontend.relativeUrl", *)
+    .returns("http://bas-gateway-frontend:9553")
 
+  (mockServicesConfig.baseUrl(_: String)).expects("feedback-frontend").returns("http://feedback-frontend:9553")
+  (mockServicesConfig.getConfString(_: String, _: String))
+    .expects("feedback-frontend.relativeUrl", *)
+    .returns("http://feedback-frontend:9514")
+
+  (mockServicesConfig.baseUrl(_: String)).expects("contact-frontend").returns("http://contact-frontend:9250")
   (mockServicesConfig.getConfString(_: String, _: String))
     .expects("contact-frontend.baseUrl", *)
     .returns("http://contact-frontend:9250")
@@ -39,14 +48,20 @@ class AppConfigSpec extends UnitTest {
       val expectedBackUrl = SafeRedirectUrl(appUrl + fakeRequest.uri).encodedUrl
       val expectedServiceIdentifier = "update-and-submit-income-tax-return"
 
-      val expectedFeedbackUrl =
+      val expectedBetaFeedbackUrl =
         s"http://contact-frontend:9250/contact/beta-feedback?service=$expectedServiceIdentifier&backUrl=$expectedBackUrl"
 
+      val expectedFeedbackSurveyUrl = s"http://feedback-frontend:9514/feedback/$expectedServiceIdentifier"
       val expectedContactUrl = s"http://contact-frontend:9250/contact/contact-hmrc?service=$expectedServiceIdentifier"
+      val expectedSignOutUrl = s"http://bas-gateway-frontend:9553/bas-gateway/sign-out-without-state"
 
-      appConfig.feedbackUrl(fakeRequest) shouldBe expectedFeedbackUrl
+      appConfig.betaFeedbackUrl(fakeRequest) shouldBe expectedBetaFeedbackUrl
+
+      appConfig.feedbackSurveyUrl shouldBe expectedFeedbackSurveyUrl
 
       appConfig.contactUrl shouldBe expectedContactUrl
+
+      appConfig.signOutUrl shouldBe expectedSignOutUrl
     }
   }
 }

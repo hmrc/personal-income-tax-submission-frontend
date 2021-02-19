@@ -1,2 +1,10 @@
 $govuk-is-ie8: true;
 @import "application";
+
+a.govuk-link.hmrc-sign-out-nav__link:active {
+  color: black;
+}
+
+a.govuk-link.hmrc-sign-out-nav__link:focus {
+  color: black;
+}
