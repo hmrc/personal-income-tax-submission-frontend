@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,20 +12,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@this()
+package controllers
 
-@()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+import config.AppConfig
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-<div class="govuk-phase-banner">
-    <p class="govuk-phase-banner__content">
-        <strong class="govuk-tag govuk-phase-banner__content__tag">
-            @messages("betaBar.beta")
-        </strong>
-        <span class="govuk-phase-banner__text">
-      @messages("betaBar.banner.message.1") <a class="govuk-link" href="@{appConfig.feedbackUrlWithCallbackUrl}">@messages("betaBar.banner.message.2")</a> @messages("betaBar.banner.message.3")
-    </span>
-    </p>
-</div>
+import javax.inject.Inject
 
+
+class SignOutController @Inject()(val mcc: MessagesControllerComponents,
+                                  appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
+
+  def signOut(): Action[AnyContent] = Action { _ =>
+    Redirect(appConfig.signOutUrl, Map("continue" -> Seq(appConfig.feedbackUrl)))
+  }
+
+}

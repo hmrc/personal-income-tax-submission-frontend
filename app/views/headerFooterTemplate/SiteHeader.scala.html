@@ -14,18 +14,15 @@
  * limitations under the License.
  *@
 
-@this()
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.header.Header
 
-@()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@this(govukHeader: HmrcHeader)
 
-<div class="govuk-phase-banner">
-    <p class="govuk-phase-banner__content">
-        <strong class="govuk-tag govuk-phase-banner__content__tag">
-            @messages("betaBar.beta")
-        </strong>
-        <span class="govuk-phase-banner__text">
-      @messages("betaBar.banner.message.1") <a class="govuk-link" href="@{appConfig.feedbackUrlWithCallbackUrl}">@messages("betaBar.banner.message.2")</a> @messages("betaBar.banner.message.3")
-    </span>
-    </p>
-</div>
+@(taxYear: Option[Int] =  None, showSignOut: Boolean = true)(implicit messages: Messages, appConfig: AppConfig)
 
+@govukHeader(Header(
+    homepageUrl = "https://www.gov.uk/",
+    serviceName = Some(messages("service.name")),
+    serviceUrl = appConfig.incomeTaxSubmissionStartUrl(taxYear.getOrElse(appConfig.defaultTaxYear)),
+    signOutHref = if(showSignOut) Some(controllers.routes.SignOutController.signOut().url) else None
+))

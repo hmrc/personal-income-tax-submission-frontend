@@ -14,9 +14,9 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.header.Header
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardFooter
 @import views.html.templates.helpers.Link
+@import views.html.headerFooterTemplate.SiteHeader
 
 
 @this(
@@ -26,13 +26,16 @@
         beforeBodyContent: BeforeBodyContent,
         hmrcStandardFooter: HmrcStandardFooter,
         getHelpLink: Link,
+        siteHeader: SiteHeader,
+        hmrcHeader: HmrcHeader
 )
 
 @(pageTitle: Option[String] = None,
         backLink: Boolean = true,
         headBlock: Option[Html] = None,
         scriptsBlock: Option[Html] = None,
-        taxYear: Option[Int] =  None
+        taxYear: Option[Int] =  None,
+        showSignOut: Boolean = true
 )(contentBlock: Html)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @scripts = {
@@ -40,14 +43,6 @@
     <script src='@controllers.routes.Assets.versioned("javascripts/application.min.js")'></script>
     <script>window.GOVUKFrontend.initAll();</script>
     @scriptsBlock.map(x => x)
-}
-
-@headerBlock = {
-    @govukHeader(Header(
-    homepageUrl = Some("https://www.gov.uk/"),
-    serviceName = Some(messages("service.name")),
-    serviceUrl = Some(appConfig.incomeTaxSubmissionStartUrl(taxYear.getOrElse(appConfig.defaultTaxYear)))
-    ))
 }
 
 @content = {
@@ -61,7 +56,7 @@
 @govukLayout(
     pageTitle = pageTitle,
     headBlock = Some(head(headBlock)),
-    headerBlock = Some(headerBlock),
+    headerBlock = Some(siteHeader()),
     scriptsBlock = Some(scripts),
     beforeContentBlock = Some(beforeBodyContent(backLink)),
     footerBlock = Some(hmrcStandardFooter())
