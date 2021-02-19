@@ -15,6 +15,8 @@ common.aDifferentAmount = A different amount
 common.enterAmount = Enter amount
 common.remove = Remove
 
+common.signOut = Sign out
+
 common.opensInNewWindowOrTab = (opens in new tab)
 
 common.help.getHelpWithThisPage = Get help with this page
