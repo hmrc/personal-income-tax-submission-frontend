@@ -15,14 +15,23 @@
  *@
 
 @import views.html.headerFooterTemplate.Layout
-@import views.html.templates.helpers.CYARow
 @import models.interest.InterestCYAModel
 @import models.interest.InterestAccountModel
 @import views.html.templates.helpers.BigDecimalCurrency
+@import views.html.templates.helpers.Button
+@import views.html.templates.helpers.Heading
 @import common.InterestTaxTypes._
 @import models.interest.InterestPriorSubmission
+@import utils.ViewUtils.summaryListRow
 
-@this(layout: Layout, cyaRow: CYARow, bigDecimalCurrency: BigDecimalCurrency, formWithCSRF: FormWithCSRF)
+@this(
+    layout: Layout,
+    bigDecimalCurrency: BigDecimalCurrency,
+    formWithCSRF: FormWithCSRF,
+    button: Button,
+    heading: Heading,
+    govukSummaryList: GovukSummaryList
+)
 @(cyaModel: InterestCYAModel, taxYear: Int, priorSubmission: Option[InterestPriorSubmission] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @trueFalseToYesNo(input: Boolean) = @{
@@ -33,51 +42,55 @@
     s"${bigDecimalCurrency(amount.toString)}"
 }
 
-@accountCyaRow(question: String, questionNumber: Int, content: Seq[InterestAccountModel], link: Call) = {
-    <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-        @messages(question)
-        </dt>
-        <dd class="govuk-summary-list__value">
-        @content.map { account =>
-            <div id="question@{questionNumber}account">@messages("interest.cya.accountDisplay", account.accountName, bigDecimalToCurrency(account.amount))</div>
-        }
-        </dd>
-        <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="@link">
-            @messages("common.change")
-            </a>
-        </dd>
-    </div>
+@accountsInfo(questionNumber: Int, accounts: Seq[InterestAccountModel]) = {
+    @accounts.zipWithIndex.map { case (account, id) =>
+        <div id="question-@{questionNumber}-account-@{id+1}">@messages("interest.cya.accountDisplay", account.accountName, bigDecimalToCurrency(account.amount))</div>
+    }
 }
 
 @layout(Some(messages("interest.cya.title")), taxYear = Some(taxYear)) {
 
-    <div class="govuk-caption-l">@messages("interest.caption", (taxYear - 1).toString, taxYear.toString)</div>
-    <h1 class="govuk-heading-l">@messages("interest.cya.h1")</h1>
+    @heading("interest.cya.h1", Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 
-    <dl class="govuk-summary-list">
-        @if(!priorSubmission.exists(_.hasUntaxed)) {
-            @cyaRow("interest.cya.questions.1", trueFalseToYesNo(cyaModel.untaxedUkInterest.getOrElse(false)), controllers.interest.routes.UntaxedInterestController.show(taxYear))
-        }
-        @if(cyaModel.untaxedUkInterest.getOrElse(false)) {
-            @cyaModel.untaxedUkAccounts.map { accounts =>
-                @accountCyaRow("interest.cya.questions.2", 2, accounts, controllers.interest.routes.AccountsController.show(taxYear, UNTAXED))
-            }
-        }
-        @if(!priorSubmission.exists(_.hasTaxed)) {
-            @cyaRow("interest.cya.questions.3", trueFalseToYesNo(cyaModel.taxedUkInterest.getOrElse(false)), controllers.interest.routes.TaxedInterestController.show(taxYear))
-        }
-        @if(cyaModel.taxedUkInterest.getOrElse(false)) {
-            @cyaModel.taxedUkAccounts.map { accounts =>
-                @accountCyaRow("interest.cya.questions.4", 4, accounts, controllers.interest.routes.AccountsController.show(taxYear, TAXED))
-            }
-        }
-    </dl>
+    @{
+        govukSummaryList(SummaryList(Seq(
+            if(!priorSubmission.exists(_.hasUntaxed)) {
+                Some(summaryListRow(
+                    HtmlContent(messages("interest.cya.questions.1")),
+                    HtmlContent(trueFalseToYesNo(cyaModel.untaxedUkInterest.getOrElse(false))),
+                    actions = Seq((controllers.interest.routes.UntaxedInterestController.show(taxYear), messages("common.change"), None))
+                ))
+            } else { None },
+            if(cyaModel.untaxedUkInterest.getOrElse(false)) {
+                cyaModel.untaxedUkAccounts.map { accounts =>
+                    summaryListRow(
+                        HtmlContent(messages("interest.cya.questions.2")),
+                        HtmlContent(accountsInfo(2, accounts)),
+                        actions = Seq((controllers.interest.routes.AccountsController.show(taxYear, UNTAXED), messages("common.change"), None))
+                    )
+                }
+            } else { None },
+            if(!priorSubmission.exists(_.hasTaxed)) {
+                Some(summaryListRow(
+                    HtmlContent(messages("interest.cya.questions.3")),
+                    HtmlContent(trueFalseToYesNo(cyaModel.taxedUkInterest.getOrElse(false))),
+                    actions = Seq((controllers.interest.routes.TaxedInterestController.show(taxYear), messages("common.change"), None))
+                ))
+            } else { None },
+            if(cyaModel.taxedUkInterest.getOrElse(false)) {
+                cyaModel.taxedUkAccounts.map { accounts =>
+                    summaryListRow(
+                        HtmlContent(messages("interest.cya.questions.4")),
+                        HtmlContent(accountsInfo(4, accounts)),
+                        actions = Seq((controllers.interest.routes.AccountsController.show(taxYear, TAXED), messages("common.change"), None))
+                    )
+                }
+            } else { None }
+        ).flatten))
+    }
+
 
     @formWithCSRF(action = controllers.interest.routes.InterestCYAController.submit(taxYear)) {
-        <button class="govuk-button govuk-!-margin-top-6" data-module="govuk-button">
-           @messages("common.saveAndContinue")
-        </button>
+        @button("common.saveAndContinue", classes = Some("govuk-!-margin-top-6"))
     }
 }

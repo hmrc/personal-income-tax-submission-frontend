@@ -19,49 +19,95 @@
 @import forms.OtherDividendsAmountForm._
 @import play.api.mvc.Request
 @import play.api.i18n.Messages
-@import views.html.templates.helpers.InputHelper
-@import views.html.templates.helpers.ErrorSummaryDisplay
-@import views.html.templates.helpers.ContinueButton
+@import views.html.templates.helpers.ErrorSummary
+@import views.html.templates.helpers.InputText
+@import views.html.templates.helpers.InputRadio
+@import views.html.templates.helpers.Button
+@import views.html.templates.helpers.Heading
 @import models.formatHelpers.PriorOrNewAmountModel
-@import views.html.templates.helpers.PriorOrNewForm
+@import views.html.templates.helpers.BigDecimalCurrency
 
-@this(layout: Layout, formWithCSRF: FormWithCSRF, errorSummaryDisplay: ErrorSummaryDisplay, priorOrNewForm: PriorOrNewForm, inputHelper: InputHelper)
+@this(
+   layout: Layout,
+   formWithCSRF: FormWithCSRF,
+   errorSummary: ErrorSummary,
+   button: Button,
+   inputText: InputText,
+   inputRadio: InputRadio,
+   heading: Heading,
+   bigDecimalCurrency: BigDecimalCurrency
+)
 
 @(form: Either[Form[PriorOrNewAmountModel], Form[BigDecimal]], priorSubmission: Option[DividendsPriorSubmission], taxYear: Int, postAction: Call, preAmount: Option[BigDecimal] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@heading = {
- <span class="govuk-caption-l">@messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)</span>
- <h1 class="govuk-heading-l govuk-!-margin-bottom-4">@messages("dividends.other-dividends-amount.heading")</h1>
-}
+@currencyFormHtml(formInput: Form[BigDecimal]) = {
 
-@scripts = {
- <script type="text/javascript" src="@routes.Assets.versioned("javascripts/hideAndShow.js")" ></script>
-}
+   @errorSummary(formInput.errors.distinct)
 
-@currencyFormHtml(formInput: Form[BigDecimal], otherDividendsAmount: String) = {
- @errorSummaryDisplay(formInput.errors.distinct)
-
- @heading
-
-  <div class="govuk-form-group">
-  @inputHelper(
-   field = formInput(otherDividendsAmount),
-   value = preAmount,
-   parentForm = otherDividendsAmountForm,
-   isNumeric = true
-  )
-  </div>
+   @inputText(
+      formInput,
+      id = "amount",
+      name = "amount",
+      label = "dividends.other-dividends-amount.heading",
+      isPageHeading = false,
+      currency = true,
+      subheading = Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)),
+      headingClasses = "govuk-!-margin-bottom-5"
+   )
 }
 
 @priorAmount() = @{
     priorSubmission.flatMap(_.otherUkDividends)
 }
 
-@layout(pageTitle = Some(messages("dividends.other-dividends-amount.title")), taxYear = Some(taxYear), scriptsBlock = Some(scripts)) {
+@otherAmountHtml(form: Form[PriorOrNewAmountModel]) = {
+    @inputText(
+        form,
+        id = "amount",
+        name = "amount",
+        label = "common.enterAmount",
+        isPageHeading = false,
+        currency = true
+    )
+}
 
- @formWithCSRF(action = postAction) {
-  @form.fold(priorForm => priorOrNewForm(heading, priorForm, priorAmount, "common.error.invalid_number", preAmount), currencyForm => currencyFormHtml(currencyForm, otherDividendsAmount))
-  @ContinueButton()
- }
+@priorOrNewForm(form: Form[PriorOrNewAmountModel]) = {
 
+    @errorSummary(form.errors.distinct)
+
+    <div class="@if(form.errors.nonEmpty) { govuk-form-group--error}">
+        @inputRadio(
+            form = form,
+            legend = messages("dividends.other-dividends-amount.heading"),
+            inline = false,
+            subheading = Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)),
+            name = "whichAmount",
+            items = Seq(
+                RadioItem(
+                    id = Some("whichAmount"),
+                    value = Some("prior"),
+                    content = Text(bigDecimalCurrency(priorAmount.getOrElse(BigDecimal("0")).toString).toString),
+                    checked = form("whichAmount").value.contains("prior")
+                ),
+                RadioItem(
+                    id = Some("otherAmount"),
+                    value = Some("other"),
+                    content = Text(messages("common.aDifferentAmount")),
+                    checked = form("whichAmount").value.contains("other"),
+                    conditionalHtml = Some(otherAmountHtml(form))
+                )
+            )
+        )
+    </div>
+}
+
+@layout(pageTitle = Some(messages("dividends.other-dividends-amount.title")), taxYear = Some(taxYear)) {
+
+    @formWithCSRF(action = postAction) {
+        @form.fold(
+            priorForm =>priorOrNewForm(priorForm),
+            currencyForm => currencyFormHtml(currencyForm)
+        )
+        @button()
+    }
 }

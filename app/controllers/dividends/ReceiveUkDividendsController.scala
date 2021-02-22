@@ -22,11 +22,11 @@ import controllers.predicates.AuthorisedAction
 import forms.YesNoForm
 import javax.inject.Inject
 import models.DividendsCheckYourAnswersModel
-import models.formatHelpers.YesNoModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import utils.SessionHelper
 import views.html.dividends.ReceiveUkDividendsView
 
 class ReceiveUkDividendsController @Inject()(
@@ -34,21 +34,16 @@ class ReceiveUkDividendsController @Inject()(
                                               authAction: AuthorisedAction,
                                               receiveUkDividendsView: ReceiveUkDividendsView,
                                               implicit val appConfig: AppConfig
-                                            ) extends FrontendController(cc) with I18nSupport {
+                                            ) extends FrontendController(cc) with I18nSupport with SessionHelper{
 
   //TODO Dependency inject bespoke ReceiveUkDividends form
-  val yesNoForm: Form[YesNoModel] = YesNoForm.yesNoForm("dividends.uk-dividends.errors.noChoice")
+  val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("dividends.uk-dividends.errors.noChoice")
 
   def show(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
-    DividendsCheckYourAnswersModel.fromSession() match {
-      case Some(model) if model.ukDividends.isDefined =>
-        //TODO Move messages to view level
-        Ok(receiveUkDividendsView("dividends.uk-dividends.heading." + (if (user.isAgent) "agent" else "individual"),
-          yesNoForm, taxYear, model.ukDividends.get.toString))
-      case _ =>
-        //TODO Move messages to view level
-        Ok(receiveUkDividendsView("dividends.uk-dividends.heading." + (if (user.isAgent) "agent" else "individual"), yesNoForm, taxYear))
-    }
+    val cyaData: Option[Boolean] = getModelFromSession[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA).flatMap(_.ukDividends)
+    Ok(receiveUkDividendsView(
+      //TODO Move messages to view level
+      "dividends.uk-dividends.heading." + (if (user.isAgent) "agent" else "individual"), cyaData.fold(yesNoForm)(yesNoForm.fill), taxYear))
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
@@ -62,7 +57,7 @@ class ReceiveUkDividendsController @Inject()(
       {
         yesNoModel =>
 
-          if (yesNoModel.asBoolean) {
+          if (yesNoModel) {
             DividendsCheckYourAnswersModel.fromSession() match {
               case Some(model) => Redirect(controllers.dividends.routes.UkDividendsAmountController.show(taxYear))
                 .addingToSession(SessionValues.DIVIDENDS_CYA -> model.copy(ukDividends = Some(true)).asJsonString)

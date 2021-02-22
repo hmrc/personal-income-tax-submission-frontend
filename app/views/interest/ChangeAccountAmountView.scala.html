@@ -15,44 +15,70 @@
  *@
 
 @import models.formatHelpers.PriorOrNewAmountModel
-@import views.html.templates.helpers.PriorOrNewForm
 @import views.html.headerFooterTemplate.Layout
-@import views.html.templates.helpers.{ContinueButton, ErrorSummaryDisplay, InputHelper}
+@import views.html.templates.helpers.{Button, ErrorSummary, Heading, InputRadio, BigDecimalCurrency, InputText}
 @import models.interest.InterestAccountModel
 @import common.InterestTaxTypes._
 
-@this(layout: Layout, formWithCSRF: FormWithCSRF, errorSummaryDisplay: ErrorSummaryDisplay, priorOrNewForm: PriorOrNewForm, inputHelper: InputHelper)
-@(form: Form[PriorOrNewAmountModel], postAction: Call, taxYear: Int, taxType: String, account: InterestAccountModel,  preAmount: Option[BigDecimal] = None)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
+@this(
+   layout: Layout,
+   formWithCSRF: FormWithCSRF,
+   errorSummary: ErrorSummary,
+   button: Button,
+   heading: Heading,
+   inputRadio: InputRadio,
+   inputText: InputText,
+   bigDecimalCurrency: BigDecimalCurrency
+)
+@(form: Form[PriorOrNewAmountModel], postAction: Call, taxYear: Int, taxType: String, account: InterestAccountModel)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
-@scripts = {
-    <script type="text/javascript" src="@routes.Assets.versioned("javascripts/hideAndShow.js")" ></script>
+@headingToUse = {
+    @heading(messages(s"interest.change-account.${taxType.toLowerCase}-heading", account.accountName), Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 }
 
-@headingRef = @{
-    taxType match {
-        case `UNTAXED` => "interest.change-account.untaxed-heading"
-        case `TAXED` => "interest.change-account.taxed-heading"
-    }
+@otherAmountHtml = {
+    @inputText(
+            form,
+            id = "amount",
+            name = "amount",
+            label = "common.enterAmount",
+            isPageHeading = false,
+            currency = true
+        )
 }
 
-@titleRef = @{
-    taxType match {
-        case `UNTAXED` => "interest.change-account.untaxed-title"
-        case `TAXED` => "interest.change-account.taxed-title"
-    }
-}
+@layout(pageTitle = Some(messages(s"interest.change-account.${taxType.toLowerCase}-title")), taxYear = Some(taxYear)) {
 
-@heading(account: InterestAccountModel) = {
-    <span class="govuk-caption-l">@messages("interest.caption", (taxYear - 1).toString, taxYear.toString)</span>
-    <h1 class="govuk-heading-l govuk-!-margin-bottom-4">@messages(headingRef, account.accountName)</h1>
-}
-
-@layout(pageTitle = Some(messages(titleRef)), scriptsBlock = Some(scripts), taxYear = Some(taxYear)) {
+    @errorSummary(form.errors.distinct)
 
     @formWithCSRF(action = postAction) {
 
-        @priorOrNewForm(heading(account), form, Some(account.amount), "common.error.invalid_number", preAmount)
+        <div class="@if(form.errors.nonEmpty) { govuk-form-group--error}">
+            @inputRadio(
+                form = form,
+                legend = messages(s"interest.change-account.${taxType.toLowerCase}-heading", account.accountName),
+                inline = false,
+                subheading = Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)),
+                name = "whichAmount",
+                items = Seq(
+                    RadioItem(
+                        id = Some("whichAmount"),
+                        value = Some("prior"),
+                        content = Text(bigDecimalCurrency(account.amount.toString).toString),
+                        checked = form("whichAmount").value.contains("prior")
+                    ),
+                    RadioItem(
+                        id = Some("otherAmount"),
+                        value = Some("other"),
+                        content = Text(messages("common.aDifferentAmount")),
+                        checked = form("whichAmount").value.contains("other"),
+                        conditionalHtml = Some(otherAmountHtml)
+                    )
+                )
+            )
+        </div>
 
-        @ContinueButton()
+
+        @button()
     }
 }

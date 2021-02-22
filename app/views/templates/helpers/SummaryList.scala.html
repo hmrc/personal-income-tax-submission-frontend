@@ -14,7 +14,13 @@
  * limitations under the License.
  *@
 
-@(alternativeText: Option[String] = None)(implicit messages: Messages)
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 
-<button formnovalidate class="govuk-button" type="submit" id="continue">@alternativeText.fold(messages("common.continue"))(x => x)</button>
+@this(govukSummaryList : GovukSummaryList)
 
+@(rows: Seq[SummaryListRow])
+
+@govukSummaryList(SummaryList(
+    rows = rows
+))
