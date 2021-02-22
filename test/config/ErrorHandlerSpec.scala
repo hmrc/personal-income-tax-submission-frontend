@@ -40,6 +40,9 @@ class ErrorHandlerSpec extends UnitTest with GuiceOneAppPerSuite with ViewTest {
 
   val errorHandler = new ErrorHandler(internalServerErrorTemplate, serviceUnavailableTemplate, mockMessagesApi, notFoundTemplate)(mockFrontendAppConfig)
 
+  val h1Expected = "Page not found"
+  val expectedTitle = s"$h1Expected - $serviceName - $govUkExtension"
+
   ".handleError" should {
 
     "return a ServiceUnavailable when passed a SERVICE_UNAVAILABLE 503" in {
@@ -70,7 +73,7 @@ class ErrorHandlerSpec extends UnitTest with GuiceOneAppPerSuite with ViewTest {
 
         "displays the correct page title" in {
 
-          document.title shouldBe "Page not found - GOV.UK"
+          document.title shouldBe expectedTitle
         }
       }
 

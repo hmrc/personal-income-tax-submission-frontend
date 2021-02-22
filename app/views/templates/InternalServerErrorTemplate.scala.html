@@ -16,13 +16,14 @@
 
 @import views.html.headerFooterTemplate.Layout
 @import uk.gov.hmrc.hmrcfrontend.views.html.components._
+@import views.html.templates.helpers.Heading
 
-@this(layout: Layout, hmrcPageHeading : HmrcPageHeading)
+@this(layout: Layout, heading: Heading)
 
 @()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @layout(pageTitle = messages("internal-server-error-template.title")) {
-    @hmrcPageHeading(PageHeading(text = messages("internal-server-error-template.heading")))
+    @heading(messages("internal-server-error-template.heading"), None, "govuk-!-margin-bottom-5")
     <p class="govuk-body">@messages("internal-server-error-template.paragraph.1")</p>
 
     <p class="govuk-body">@messages("error-template.paragraph.1.1")</p>

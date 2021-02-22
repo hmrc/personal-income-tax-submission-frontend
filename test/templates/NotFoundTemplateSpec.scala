@@ -16,7 +16,10 @@
 
 package templates
 
+import config.AppConfig
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import play.twirl.api.HtmlFormat
 import utils.ViewTest
 import views.html.templates.NotFoundTemplate
 
@@ -30,19 +33,19 @@ class NotFoundTemplateSpec extends ViewTest {
     val p3Selector = "#main-content > div > div > p:nth-child(4)"
   }
 
-  val pageTitle = "Page not found - GOV.UK"
   val h1Expected = "Page not found"
   val p1Expected = "If you typed the web address, check it is correct."
   val p2Expected = "If you used ‘copy and paste’ to enter the web address, check you copied the full address."
-  val p3Expected = "If the web address is correct or you selected a link or button, you can use Self Assessment: " +
+  val p3Expected: String = "If the web address is correct or you selected a link or button, you can use Self Assessment: " +
     "general enquiries (opens in new tab) to speak to someone about your income tax"
   val p3ExpectedLink = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
+  val expectedTitle = s"$h1Expected - $serviceName - $govUkExtension"
 
-  val notFoundTemplate = app.injector.instanceOf[NotFoundTemplate]
-  val appConfig = mockAppConfig
+  val notFoundTemplate: NotFoundTemplate = app.injector.instanceOf[NotFoundTemplate]
+  val appConfig: AppConfig = mockAppConfig
 
-  lazy val view = notFoundTemplate()(fakeRequest, messages, mockAppConfig)
-  implicit lazy val document = Jsoup.parse(view.body)
+  lazy val view: HtmlFormat.Appendable = notFoundTemplate()(fakeRequest, messages, mockAppConfig)
+  implicit lazy val document: Document = Jsoup.parse(view.body)
 
   "NotFoundTemplate" should {
 
@@ -50,7 +53,7 @@ class NotFoundTemplateSpec extends ViewTest {
 
       "has the correct page title" in {
 
-        document.title() shouldBe pageTitle
+        document.title() shouldBe expectedTitle
       }
 
       "has the correct heading" in {

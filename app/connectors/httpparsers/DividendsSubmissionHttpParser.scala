@@ -31,26 +31,26 @@ object DividendsSubmissionHttpParser {
         case NO_CONTENT => Right(DividendsResponseModel(NO_CONTENT))
         case BAD_REQUEST | FORBIDDEN | CONFLICT =>
           pagerDutyLog(FOURXX_RESPONSE_FROM_API, logMessage(response))
-          handleDESError(response)
+          handleApiError(response)
         case SERVICE_UNAVAILABLE =>
           pagerDutyLog(SERVICE_UNAVAILABLE_FROM_API, logMessage(response))
-          handleDESError(response)
+          handleApiError(response)
         case INTERNAL_SERVER_ERROR =>
           pagerDutyLog(INTERNAL_SERVER_ERROR_FROM_API, logMessage(response))
-          handleDESError(response)
+          handleApiError(response)
         case _ =>
           pagerDutyLog(UNEXPECTED_RESPONSE_FROM_API, logMessage(response))
-          handleDESError(response, Some(INTERNAL_SERVER_ERROR))
+          handleApiError(response, Some(INTERNAL_SERVER_ERROR))
       }
     }
   }
 
 
   private def logMessage(response:HttpResponse): Option[String] ={
-    Some(s"[DividendsSubmissionHttpParser][read] Received ${response.status} from DES. Body:${response.body}")
+    Some(s"[DividendsSubmissionHttpParser][read] Received ${response.status} from API. Body:${response.body}")
   }
 
-  private def handleDESError(response: HttpResponse, statusOverride: Option[Int] = None): DividendsSubmissionsResponse = {
+  private def handleApiError(response: HttpResponse, statusOverride: Option[Int] = None): DividendsSubmissionsResponse = {
     val status = statusOverride.getOrElse(response.status)
 
     try {

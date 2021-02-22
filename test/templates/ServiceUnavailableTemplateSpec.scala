@@ -19,6 +19,7 @@ package templates
 import config.AppConfig
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import play.twirl.api.HtmlFormat
 import utils.ViewTest
 import views.html.templates.ServiceUnavailableTemplate
 
@@ -35,7 +36,6 @@ class ServiceUnavailableTemplateSpec extends ViewTest {
 
   }
 
-  val pageTitle = "Sorry, the service is unavailable - GOV.UK"
   val h1Expected = "Sorry, the service is unavailable"
   val p1Expected = "You will be able to use this service later."
   val p2Expected = "You can also:"
@@ -43,12 +43,13 @@ class ServiceUnavailableTemplateSpec extends ViewTest {
   val bulletPoint1Link = "https://www.gov.uk/income-tax"
   val bulletPoint2Expected = "use Self Assessment: general enquiries (opens in new tab) to speak to someone about your income tax"
   val bulletPoint2Link = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
+  val expectedTitle = s"$h1Expected - $serviceName - $govUkExtension"
 
   lazy val serviceUnavailableTemplate: ServiceUnavailableTemplate = app.injector.instanceOf[ServiceUnavailableTemplate]
   lazy val appConfig: AppConfig = mockAppConfig
 
 
-  lazy val view = serviceUnavailableTemplate()(fakeRequest, messages, appConfig)
+  lazy val view: HtmlFormat.Appendable = serviceUnavailableTemplate()(fakeRequest, messages, appConfig)
   implicit lazy val document: Document = Jsoup.parse(view.body)
 
   "ServiceUnavailableTemplate" should {
@@ -57,7 +58,7 @@ class ServiceUnavailableTemplateSpec extends ViewTest {
 
       "has the correct title" in {
 
-        document.title() shouldBe pageTitle
+        document.title() shouldBe expectedTitle
       }
 
       "has the correct heading" in {

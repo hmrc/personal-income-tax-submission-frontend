@@ -32,16 +32,16 @@ object InterestSubmissionHttpParser {
         case NO_CONTENT => Right(NO_CONTENT)
         case BAD_REQUEST | FORBIDDEN | CONFLICT =>
           pagerDutyLog(FOURXX_RESPONSE_FROM_API, logMessage(response))
-          handleDESError(response)
+          handleApiError(response)
         case INTERNAL_SERVER_ERROR =>
           pagerDutyLog(INTERNAL_SERVER_ERROR_FROM_API, logMessage(response))
-          handleDESError(response)
+          handleApiError(response)
         case SERVICE_UNAVAILABLE =>
           pagerDutyLog(SERVICE_UNAVAILABLE_FROM_API, logMessage(response))
-          handleDESError(response)
+          handleApiError(response)
         case _ =>
           pagerDutyLog(UNEXPECTED_RESPONSE_FROM_API, logMessage(response))
-          handleDESError(response, Some(INTERNAL_SERVER_ERROR))
+          handleApiError(response, Some(INTERNAL_SERVER_ERROR))
       }
     }
   }
@@ -49,7 +49,7 @@ object InterestSubmissionHttpParser {
     Some(s"[InterestSubmissionHttpParser][read] Received ${response.status} from API. Body:${response.body}")
   }
 
-  private def handleDESError(response: HttpResponse, statusOverride: Option[Int] = None): InterestSubmissionsResponse = {
+  private def handleApiError(response: HttpResponse, statusOverride: Option[Int] = None): InterestSubmissionsResponse = {
     val status = statusOverride.getOrElse(response.status)
 
     try {

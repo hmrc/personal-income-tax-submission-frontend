@@ -34,7 +34,8 @@ class ErrorHandler @Inject()(internalServerErrorTemplate: InternalServerErrorTem
                              notFoundTemplate: NotFoundTemplate)(implicit appConfig: AppConfig)
     extends FrontendErrorHandler with I18nSupport {
 
-  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): Html = ???
+  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): Html =
+    internalServerErrorTemplate()
 
   override def notFoundTemplate(implicit request: Request[_]): Html = notFoundTemplate()
 

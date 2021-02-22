@@ -18,13 +18,12 @@ package services
 
 import connectors.InterestSubmissionConnector
 import connectors.httpparsers.InterestSubmissionHttpParser.InterestSubmissionsResponse
-import models.{ApiErrorBodyModel, ApiErrorModel}
-import models.httpResponses.ErrorResponse
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestSubmissionModel}
-import play.api.test.Helpers.{BAD_REQUEST, NO_CONTENT}
+import models.{ApiErrorBodyModel, ApiErrorModel}
+import play.api.http.Status._
+import play.api.test.Helpers.NO_CONTENT
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.UnitTest
-import play.api.http.Status._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -83,8 +82,6 @@ class InterestSubmissionServiceSpec extends UnitTest {
       }
 
       "the connector returns a left error response" in {
-
-        val error = ErrorResponse(BAD_REQUEST, "oh noes")
 
         lazy val result: InterestSubmissionsResponse = {
           (connector.submit(_: Seq[InterestSubmissionModel], _: String, _: Int, _: String)(_: HeaderCarrier, _: ExecutionContext))

@@ -16,12 +16,13 @@
 
 @import uk.gov.hmrc.hmrcfrontend.views.html.components._
 @import views.html.headerFooterTemplate.Layout
+@import views.html.templates.helpers.Heading
 
-@this(layout: Layout, hmrcPageHeading : HmrcPageHeading)
+@this(layout: Layout, heading: Heading)
 @()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @layout(pageTitle = messages("not-found-template.title")) {
-    @hmrcPageHeading(PageHeading(text = messages("not-found-template.heading")))
+    @heading(messages("not-found-template.heading"), None, "govuk-!-margin-bottom-5")
     <p class="govuk-body">@messages("not-found-template.paragraph.1")</p>
     <p class="govuk-body">@messages("not-found-template.paragraph.2")</p>
 

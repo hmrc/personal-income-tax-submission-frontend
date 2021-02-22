@@ -128,7 +128,7 @@ interest.change-account.taxed-title = Taxed interest earned
 interest.change-account.untaxed-heading = {0} untaxed interest earned
 interest.change-account.taxed-heading = {0} taxed interest earned
 
-not-found-template.title = Page not found - GOV.UK
+not-found-template.title = Page not found
 not-found-template.heading = Page not found
 not-found-template.paragraph.1 = If you typed the web address, check it is correct.
 not-found-template.paragraph.2 = If you used ‘copy and paste’ to enter the web address, check you copied the full address.
@@ -136,11 +136,11 @@ not-found-template.paragraph.3.1 = If the web address is correct or you selected
 not-found-template.paragraph.3.2 = Self Assessment: general enquiries (opens in new tab)
 not-found-template.paragraph.3.3 = to speak to someone about your income tax
 
-internal-server-error-template.title = Sorry, there is a problem with the service - GOV.UK
+internal-server-error-template.title = Sorry, there is a problem with the service
 internal-server-error-template.heading = Sorry, there is a problem with the service
 internal-server-error-template.paragraph.1 = Try again later.
 
-service-unavailable-error-template.title = Sorry, the service is unavailable - GOV.UK
+service-unavailable-error-template.title = Sorry, the service is unavailable
 service-unavailable-error-template.heading = Sorry, the service is unavailable
 service-unavailable-error-template.paragraph.1 = You will be able to use this service later.
 

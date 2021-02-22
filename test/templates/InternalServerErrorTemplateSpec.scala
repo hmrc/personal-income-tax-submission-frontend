@@ -16,8 +16,10 @@
 
 package templates
 
+import config.AppConfig
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import play.twirl.api.HtmlFormat
 import utils.ViewTest
 import views.html.templates.InternalServerErrorTemplate
 
@@ -34,7 +36,6 @@ class InternalServerErrorTemplateSpec extends ViewTest {
 
   }
 
-  val pageTitle = "Sorry, there is a problem with the service - GOV.UK"
   val h1Expected = "Sorry, there is a problem with the service"
   val p1Expected = "Try again later."
   val p2Expected = "You can also:"
@@ -43,10 +44,12 @@ class InternalServerErrorTemplateSpec extends ViewTest {
   val bulletPoint2Expected = "use Self Assessment: general enquiries (opens in new tab) to speak to someone about your income tax"
   val bulletPoint2Link = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
 
-  lazy val internalServerErrorTemplate: InternalServerErrorTemplate = app.injector.instanceOf[InternalServerErrorTemplate]
-  lazy val appConfig = mockAppConfig
+  val expectedTitle = s"$h1Expected - $serviceName - $govUkExtension"
 
-  lazy val view = internalServerErrorTemplate()(fakeRequest, messages, appConfig)
+  lazy val internalServerErrorTemplate: InternalServerErrorTemplate = app.injector.instanceOf[InternalServerErrorTemplate]
+  lazy val appConfig: AppConfig = mockAppConfig
+
+  lazy val view: HtmlFormat.Appendable = internalServerErrorTemplate()(fakeRequest, messages, appConfig)
   implicit lazy val document: Document = Jsoup.parse(view.body)
 
   "UnauthorisedTemplate" should {
@@ -55,7 +58,7 @@ class InternalServerErrorTemplateSpec extends ViewTest {
 
       "has the correct title" in {
 
-        document.title() shouldBe pageTitle
+        document.title() shouldBe expectedTitle
       }
 
       "has the correct heading" in {
