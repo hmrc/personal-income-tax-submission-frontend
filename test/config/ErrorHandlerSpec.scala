@@ -19,9 +19,13 @@ package config
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.http.Status._
 import play.api.i18n._
+import play.api.mvc.Result
 import utils.{UnitTest, ViewTest}
 import views.html.templates.{InternalServerErrorTemplate, NotFoundTemplate, ServiceUnavailableTemplate}
+
+import scala.concurrent.Future
 
 
 
@@ -38,18 +42,40 @@ class ErrorHandlerSpec extends UnitTest with GuiceOneAppPerSuite with ViewTest {
 
   ".handleError" should {
 
-    "when given a 503" should {
+    "return a ServiceUnavailable when passed a SERVICE_UNAVAILABLE 503" in {
 
-      lazy val view = errorHandler.notFoundTemplate
-      lazy implicit val document: Document = Jsoup.parse(view.body)
 
-      "display the correct page title" in {
+      val result: Future[Result] = Future.successful(errorHandler.handleError(503)(fakeRequest))
 
-        document.title shouldBe "Page not found - GOV.UK"
-      }
+      bodyOf(result) should include("Sorry, the service is unavailable")
+      status(result) shouldBe SERVICE_UNAVAILABLE
+
+    }
+    "return an InternalServerError when passed anything other than a 503" in {
+
+      val result: Future[Result] = Future.successful(errorHandler.handleError(400)(fakeRequest))
+
+      bodyOf(result) should include("Sorry, there is a problem with the service")
+      status(result) shouldBe INTERNAL_SERVER_ERROR
 
     }
   }
+
+    "the NotFoundTemplate" should {
+
+      "return the notFoundTemplate when an incorrect web address when been entered" which {
+
+        lazy val view = errorHandler.notFoundTemplate
+        lazy implicit val document: Document = Jsoup.parse(view.body)
+
+        "displays the correct page title" in {
+
+          document.title shouldBe "Page not found - GOV.UK"
+        }
+      }
+
+
+    }
 
 
 }

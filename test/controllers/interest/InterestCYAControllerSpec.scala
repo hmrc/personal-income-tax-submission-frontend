@@ -292,7 +292,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
 
             (errorHandler.handleError(_: Int)(_: Request[_]))
               .expects(503, *)
-              .returning(ServiceUnavailable(serviceUnavailableTemplate(503)))
+              .returning(ServiceUnavailable(serviceUnavailableTemplate()))
 
             val result: Future[Result] = controller.submit(2020)(request)
 

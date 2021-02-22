@@ -40,7 +40,7 @@ class ErrorHandler @Inject()(internalServerErrorTemplate: InternalServerErrorTem
 
   def handleError(status: Int)(implicit request: Request[_]): Result = {
     status match {
-      case SERVICE_UNAVAILABLE => ServiceUnavailable(serviceUnavailableTemplate(status))
+      case SERVICE_UNAVAILABLE => ServiceUnavailable(serviceUnavailableTemplate())
       case _ => InternalServerError(internalServerErrorTemplate())
     }
   }

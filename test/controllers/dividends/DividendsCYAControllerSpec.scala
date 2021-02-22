@@ -25,7 +25,7 @@ import org.jsoup.nodes.Document
 import org.scalamock.handlers.CallHandler
 import play.api.http.Status._
 import play.api.libs.json.Json
-import play.api.mvc.Results.InternalServerError
+import play.api.mvc.Results._
 import play.api.mvc.{AnyContentAsEmpty, Request, Result}
 import play.api.test.FakeRequest
 import services.DividendsSubmissionService
@@ -33,7 +33,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import utils.UnitTestWithApp
 import views.html.dividends.DividendsCYAView
-import views.html.templates.{InternalServerErrorTemplate, NotFoundTemplate, ServiceUnavailableTemplate}
+import views.html.templates.{InternalServerErrorTemplate, ServiceUnavailableTemplate}
 
 import scala.concurrent.Future
 
@@ -256,8 +256,8 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
 
 
         (errorHandler.handleError(_: Int)(_: Request[_]))
-          .expects(503, *)
-          .returning(InternalServerError(serviceUnavailableTemplate(503)))
+          .expects(*, *)
+          .returning(ServiceUnavailable(serviceUnavailableTemplate()))
 
         val result: Future[Result] = controller.submit(2020)(request)
 

@@ -48,7 +48,7 @@ class ServiceUnavailableTemplateSpec extends ViewTest {
   lazy val appConfig: AppConfig = mockAppConfig
 
 
-  lazy val view = serviceUnavailableTemplate(503)(fakeRequest, messages, appConfig)
+  lazy val view = serviceUnavailableTemplate()(fakeRequest, messages, appConfig)
   implicit lazy val document: Document = Jsoup.parse(view.body)
 
   "ServiceUnavailableTemplate" should {
