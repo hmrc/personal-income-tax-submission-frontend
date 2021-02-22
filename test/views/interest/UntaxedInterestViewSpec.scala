@@ -26,6 +26,7 @@ import views.html.interest.UntaxedInterestView
 
 class UntaxedInterestViewSpec extends ViewTest {
 
+
   lazy val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("Select yes if untaxed interest " +
     "was received from companies in the uk")
 

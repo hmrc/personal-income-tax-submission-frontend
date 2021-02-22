@@ -25,9 +25,9 @@
    layout: Layout,
    errorSummary: ErrorSummary,
    formWithCsrf: FormWithCSRF,
-   inputText: InputText,
-   button: Button,
-   heading: Heading
+   inputHelper: InputHelper,
+   nameInputHelper: NameInputHelper,
+   inputText: InputText
 )
 
 @(form: Form[UntaxedInterestModel], taxYear: Int, postAction: Call)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)

@@ -49,7 +49,7 @@ if(user.isAgent) messages("interest.untaxed-uk-interest.title.agent") else messa
     </p>
 }
 
-@layout(pageTitle = titleForUse, taxYear = Some(taxYear)) {
+@layout(titleForUse, taxYear = Some(taxYear)) {
 
     @errorSummary(form.errors.distinct)
 
