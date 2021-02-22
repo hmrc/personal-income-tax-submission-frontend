@@ -21,7 +21,7 @@
 
 @()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@layout(pageTitle = Some(messages("internal-server-error-template.title"))) {
+@layout(pageTitle = messages("internal-server-error-template.title")) {
     @hmrcPageHeading(PageHeading(text = messages("internal-server-error-template.heading")))
     <p class="govuk-body">@messages("internal-server-error-template.paragraph.1")</p>
 

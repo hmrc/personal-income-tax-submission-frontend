@@ -21,7 +21,7 @@
 
 @()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@layout(pageTitle = Some(messages("service-unavailable-error-template.title"))) {
+@layout(pageTitle = messages("service-unavailable-error-template.title")) {
 
     @hmrcPageHeading(PageHeading(text = messages("service-unavailable-error-template.heading")))
     <p class="govuk-body">@messages("service-unavailable-error-template.paragraph.1")</p>

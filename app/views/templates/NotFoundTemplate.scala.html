@@ -20,7 +20,7 @@
 @this(layout: Layout, hmrcPageHeading : HmrcPageHeading)
 @()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@layout(pageTitle = Some(messages("not-found-template.title"))) {
+@layout(pageTitle = messages("not-found-template.title")) {
     @hmrcPageHeading(PageHeading(text = messages("not-found-template.heading")))
     <p class="govuk-body">@messages("not-found-template.paragraph.1")</p>
     <p class="govuk-body">@messages("not-found-template.paragraph.2")</p>
