@@ -47,9 +47,8 @@ class TaxedInterestController @Inject()(
   val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("interest.taxed-uk-interest.errors.noRadioSelected")
 
   def show(taxYear: Int): Action[AnyContent] = authorisedAction { implicit user =>
-    val pageTitle = "interest.taxed-uk-interest.heading." + (if (user.isAgent) "agent" else "individual")
     val cyaData: Option[Boolean] = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA).flatMap(_.taxedUkInterest)
-    Ok(taxedInterestView(pageTitle, cyaData.fold(yesNoForm)(yesNoForm.fill), taxYear))
+    Ok(taxedInterestView(cyaData.fold(yesNoForm)(yesNoForm.fill), taxYear))
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authorisedAction { implicit user =>
@@ -59,7 +58,6 @@ class TaxedInterestController @Inject()(
       {
         formWithErrors =>
           BadRequest(taxedInterestView(
-            pageTitle = "interest.taxed-uk-interest.heading." + (if (user.isAgent) "agent" else "individual"),
             form = formWithErrors,
             taxYear = taxYear
           ))

@@ -39,7 +39,7 @@
     s"${bigDecimalCurrency(amount.toString)}"
 }
 
-@layout(pageTitle = Some(messages("dividends.cya.title")), taxYear = Some(taxYear)) {
+@layout(pageTitle = messages("dividends.cya.title"), taxYear = Some(taxYear)) {
 
     @heading("dividends.cya.h1", Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 

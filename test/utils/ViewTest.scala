@@ -42,6 +42,9 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
   val questionChangeLinkSelector: IntString = question => s"#main-content > div > div > dl > div:nth-child($question) > " +
     s"dd.govuk-summary-list__actions > a"
 
+  val serviceName = "Update and submit an Income Tax Return"
+  val govUkExtension = "GOV.UK"
+
   def elementText(selector: String)(implicit document: Document): String = {
     document.select(selector).text()
   }

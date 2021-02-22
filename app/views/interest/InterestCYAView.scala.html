@@ -48,7 +48,7 @@
     }
 }
 
-@layout(Some(messages("interest.cya.title")), taxYear = Some(taxYear)) {
+@layout(messages("interest.cya.title"), taxYear = Some(taxYear)) {
 
     @heading("interest.cya.h1", Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 

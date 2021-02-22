@@ -101,7 +101,7 @@
     </div>
 }
 
-@layout(pageTitle = Some(messages("dividends.other-dividends-amount.title")), taxYear = Some(taxYear)) {
+@layout(pageTitle = messages("dividends.other-dividends-amount.title"), taxYear = Some(taxYear)) {
 
     @formWithCSRF(action = postAction) {
         @form.fold(

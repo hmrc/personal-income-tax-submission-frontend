@@ -40,6 +40,14 @@
     }
 }
 
+@titleText = @{
+    if(accounts.length == 1) {
+        messages("interest.accounts.title.single")
+    } else {
+        messages("interest.accounts.title.multiple", accounts.length)
+    }
+}
+
 @accountChangeCall(account: InterestAccountModel) = @{
     val identifier = account.id.getOrElse(account.uniqueSessionId.getOrElse(""))
 
@@ -98,7 +106,7 @@
 </div>
 }
 
-@layout(Some(h1Text), taxYear = Some(taxYear)) {
+@layout(titleText, taxYear = Some(taxYear)) {
 
     @heading(h1Text, Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 

@@ -40,16 +40,14 @@ class ReceiveOtherUkDividendsController @Inject()(
 
   def show(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
     val cyaData: Option[Boolean] = getModelFromSession[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA).flatMap(_.otherUkDividends)
-    Ok(receiveOtherDividendsView(
-      //TODO Move messages to view level
-      "dividends.other-dividends.heading." + (if (user.isAgent) "agent" else "individual"), cyaData.fold(yesNoForm)(yesNoForm.fill), taxYear))
+    Ok(receiveOtherDividendsView(cyaData.fold(yesNoForm)(yesNoForm.fill), taxYear))
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
     yesNoForm.bindFromRequest().fold (
       {
         formWithErrors => BadRequest(
-          receiveOtherDividendsView("dividends.other-dividends.heading." + (if(user.isAgent) "agent" else "individual"), formWithErrors, taxYear)
+          receiveOtherDividendsView(formWithErrors, taxYear)
         )
       },
       {

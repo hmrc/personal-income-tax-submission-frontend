@@ -54,9 +54,9 @@ class UntaxedInterestAmountViewSpec extends ViewTest {
         )(user,implicitly,mockAppConfig)
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
-        val expectedTitle = "UK Interest - Register your income tax return with HMRC - Gov.UK"
         val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
         val expectedH1 = "UK untaxed interest account details"
+        val expectedTitle = s"$expectedH1 - $serviceName - $govUkExtension"
 
         "contains the correct title" in {
           document.title shouldBe expectedTitle
@@ -81,10 +81,11 @@ class UntaxedInterestAmountViewSpec extends ViewTest {
         )(user, implicitly, mockAppConfig)
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
-        val expectedTitle = "UK Interest - Register your income tax return with HMRC - Gov.UK"
         val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
         val expectedErrorTitle = "There is a problem"
         val expectedErrorText = "Enter the amount of untaxed interest earned"
+        val expectedH1 = "UK untaxed interest account details"
+        val expectedTitle = s"$expectedH1 - $serviceName - $govUkExtension"
 
         "contains the document title" in {
           document.title shouldBe expectedTitle

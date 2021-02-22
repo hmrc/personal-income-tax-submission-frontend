@@ -48,13 +48,14 @@ class RemoveAccountViewSpec extends ViewTest {
   val errorSummaryTitle = ".govuk-error-summary__title"
   val errorSummaryText = ".govuk-error-summary__body"
 
+  val expectedTitle = s"Are you sure you want to remove this account? - $serviceName - $govUkExtension"
+
   "Remove Account view" should {
 
     "Correctly render as an individual" when {
       "There are no form errors " which {
         lazy val view = removeAccountView(yesNoForm, taxYear, UNTAXED, account)(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
-        val expectedTitle = "Are you sure you want to remove this account? - Register your income tax return with HMRC - Gov.UK"
         val expectedH1 = "Are you sure you want to remove Monzo?"
         val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
 
@@ -89,7 +90,6 @@ class RemoveAccountViewSpec extends ViewTest {
         )(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedTitle = "Are you sure you want to remove this account? - Register your income tax return with HMRC - Gov.UK"
         val expectedH1 = "Are you sure you want to remove Monzo?"
         val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
         val expectedErrorTitle = "There is a problem"
@@ -139,7 +139,6 @@ class RemoveAccountViewSpec extends ViewTest {
           yesNoForm, taxYear, UNTAXED, account)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedTitle = "Are you sure you want to remove this account? - Register your income tax return with HMRC - Gov.UK"
         val expectedH1 = "Are you sure you want to remove Monzo?"
         val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
 
@@ -177,7 +176,6 @@ class RemoveAccountViewSpec extends ViewTest {
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedTitle = "Are you sure you want to remove this account? - Register your income tax return with HMRC - Gov.UK"
         val expectedH1 = "Are you sure you want to remove Monzo?"
         val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
 
