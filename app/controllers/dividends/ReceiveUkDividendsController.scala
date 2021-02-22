@@ -48,7 +48,6 @@ class ReceiveUkDividendsController @Inject()(
     yesNoForm.bindFromRequest().fold(
       {
         formWithErrors => BadRequest(
-          //TODO Move messages to view level
           receiveUkDividendsView(formWithErrors, taxYear)
         )
       },
