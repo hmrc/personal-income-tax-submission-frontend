@@ -33,9 +33,13 @@ class MockAppConfig extends MockFactory {
     override def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = "/overview"
     override def incomeTaxSubmissionStartUrl(taxYear: Int): String = "/start"
 
-    override def feedbackUrl(implicit request: RequestHeader): String = "feedbackUrl"
+    override lazy val feedbackSurveyUrl: String = "/feedbackUrl"
+
+    override def betaFeedbackUrl(implicit request: RequestHeader): String = "/feedbackUrl"
 
     override lazy val contactUrl: String = "/contact-frontend/contact"
+
+    override lazy val signOutUrl: String = "/sign-out-url"
   }
 }
 

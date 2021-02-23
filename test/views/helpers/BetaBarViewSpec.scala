@@ -40,7 +40,7 @@ class BetaBarViewSpec extends ViewTest {
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         "contains the correct href value" in {
-          element(aTagSelector).attr("href") shouldBe appConfig.feedbackUrl
+          element(aTagSelector).attr("href") shouldBe appConfig.betaFeedbackUrl
         }
       }
     }

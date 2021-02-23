@@ -6,3 +6,11 @@ $hmrc-assets-path: "/income-through-software/return/personal-income/assets/lib/h
 
 @import "timeout-dialog";
 @import "autocomplete";
+
+a.govuk-link.hmrc-sign-out-nav__link:active {
+  color: black;
+}
+
+a.govuk-link.hmrc-sign-out-nav__link:focus {
+  color: black;
+}
