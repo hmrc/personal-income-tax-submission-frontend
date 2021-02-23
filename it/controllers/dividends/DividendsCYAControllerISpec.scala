@@ -17,8 +17,9 @@
 package controllers.dividends
 
 import common.SessionValues
+import connectors.DividendsSubmissionConnector
 import helpers.PlaySessionCookieBaker
-import models.DividendsCheckYourAnswersModel
+import models.{ApiErrorBodyModel, ApiErrorModel, DividendsCheckYourAnswersModel, DividendsResponseModel, DividendsSubmissionModel}
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.json.Json
@@ -28,6 +29,18 @@ import utils.IntegrationTest
 class DividendsCYAControllerISpec extends IntegrationTest {
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
+  val connector: DividendsSubmissionConnector = app.injector.instanceOf[DividendsSubmissionConnector]
+
+  val taxYear = 2020
+  val mtdidid = "1234567890"
+  val nino = "AA123456A"
+
+  val dividends: Int = 10
+
+ lazy val dividendsBody: DividendsSubmissionModel = DividendsSubmissionModel(
+   Some(dividends),
+   Some(dividends)
+ )
 
   ".show" should {
 
@@ -87,30 +100,21 @@ class DividendsCYAControllerISpec extends IntegrationTest {
 
   }
 
-  ".post" should {
+  ".submit" should {
 
     "return an action" which {
 
       s"has an OK($OK) status" in {
 
-        lazy val result = {
-          authoriseIndividual()
-          stubGet("/income-through-software/return/2020/view", OK, "")
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.DIVIDENDS_CYA -> Json.prettyPrint(Json.toJson(DividendsCheckYourAnswersModel(ukDividends = Some(true),
-              Some(10),
-              otherUkDividends = Some(true),
-              Some(10)))),
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
-          stubPut(s"/income-tax-dividends/income-tax/nino//sources\\?mtditid=1234567890&taxYear=2020", 204, "")
+        val responseBody = DividendsSubmissionModel(
+          Some(10),
+          Some(10))
 
-          await(wsClient.url(s"$startUrl/2020/dividends/check-your-answers")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-            .post("{}"))
-        }
+        val connector = app.injector.instanceOf[DividendsSubmissionConnector]
+        stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=2020&mtditid=1234567890", 204, "{}")
+        val result = await(connector.submitDividends(responseBody, "AA123456A", "1234567890", 2020))
 
-        result.status shouldBe OK
+        result shouldBe Right(DividendsResponseModel(NO_CONTENT))
       }
 
       s"handle no nino is in the enrolments" in {
@@ -150,9 +154,41 @@ class DividendsCYAControllerISpec extends IntegrationTest {
         }
 
         result.status shouldBe UNAUTHORIZED
-
       }
+    }
 
+    "return a service unavailable response" when {
+
+      "one is retrieved from the endpoint" in {
+
+        val responseBody = Json.obj(
+          "code" -> "SERVICE_UNAVAILABLE",
+          "reason" -> "the service is currently unavailable"
+        )
+
+        stubPut(s"/income-tax-dividends/income-tax/nino/$nino/sources\\?taxYear=$taxYear&mtditid=$mtdidid", SERVICE_UNAVAILABLE, responseBody.toString())
+
+        val result = await(connector.submitDividends(dividendsBody, nino, mtdidid, taxYear))
+
+        result shouldBe Left(ApiErrorModel(SERVICE_UNAVAILABLE, ApiErrorBodyModel("SERVICE_UNAVAILABLE", "the service is currently unavailable")))
+      }
+    }
+
+    "return an unexpected response" when {
+
+      "one is retrieved from the endpoint" in {
+
+        val responseBody = Json.obj(
+          "code" -> "INTERNAL_SERVER_ERROR",
+          "reason" -> "unexpected status returned from DES"
+        )
+
+        stubPut(s"/income-tax-dividends/income-tax/nino/$nino/sources\\?taxYear=$taxYear&mtditid=$mtdidid", CREATED, responseBody.toString())
+
+        val result = await(connector.submitDividends(dividendsBody, nino, mtdidid, taxYear))
+
+        result shouldBe Left(ApiErrorModel(INTERNAL_SERVER_ERROR, ApiErrorBodyModel("INTERNAL_SERVER_ERROR", "unexpected status returned from DES")))
+      }
     }
   }
 }

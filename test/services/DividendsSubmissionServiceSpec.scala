@@ -17,8 +17,8 @@
 package services
 
 import connectors.DividendsSubmissionConnector
-import connectors.httpparsers.DividendsSubmissionHttpParser.BadRequestDividendsSubmissionException
-import models.{DividendsCheckYourAnswersModel, DividendsResponseModel, DividendsSubmissionModel}
+import connectors.httpparsers.DividendsSubmissionHttpParser.DividendsSubmissionsResponse
+import models.{ApiErrorBodyModel, ApiErrorModel, DividendsCheckYourAnswersModel, DividendsResponseModel, DividendsSubmissionModel}
 import play.api.http.Status._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.HeaderCarrier
@@ -62,7 +62,8 @@ class DividendsSubmissionServiceSpec extends UnitTestWithApp{
       "Given connector returns a left" in {
 
           (connector.submitDividends(_: DividendsSubmissionModel, _: String, _: String, _: Int)(_: HeaderCarrier))
-            .expects(dsmData, nino, mtdItid, taxYear, *).returning(Future.successful(Left(BadRequestDividendsSubmissionException)))
+            .expects(dsmData, nino, mtdItid, taxYear, *)
+            .returning(Future.successful(Left(ApiErrorModel(INTERNAL_SERVER_ERROR, ApiErrorBodyModel("test","test")))))
 
           val result = await(service.submitDividends(Some(cyaData), nino, mtdItid, taxYear))
           result.isLeft shouldBe true
@@ -70,13 +71,17 @@ class DividendsSubmissionServiceSpec extends UnitTestWithApp{
         }
 
       "Given no model is supplied" in {
-        val blankData = DividendsSubmissionModel(None, None)
 
-        (connector.submitDividends(_: DividendsSubmissionModel, _: String, _: String, _: Int)(_: HeaderCarrier))
-          .expects(blankData, nino, mtdItid, taxYear, *).returning(Future.successful(Right(DividendsResponseModel(NO_CONTENT))))
+       lazy val result: DividendsSubmissionsResponse = {
+          val blankData = DividendsSubmissionModel(None, None)
 
-        val result = await(service.submitDividends(None, nino, mtdItid, taxYear))
+          (blankData, nino, mtdItid, taxYear, *)
+          Future.successful(Right(DividendsResponseModel(NO_CONTENT)))
+
+          await(service.submitDividends(None, nino, mtdItid, taxYear))
+        }
         result.isRight shouldBe true
+        result shouldBe Right(DividendsResponseModel(NO_CONTENT))
       }
     }
   }

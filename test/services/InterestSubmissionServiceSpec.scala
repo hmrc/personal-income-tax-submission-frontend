@@ -18,9 +18,10 @@ package services
 
 import connectors.InterestSubmissionConnector
 import connectors.httpparsers.InterestSubmissionHttpParser.InterestSubmissionsResponse
-import models.httpResponses.ErrorResponse
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestSubmissionModel}
-import play.api.test.Helpers.{BAD_REQUEST, NO_CONTENT}
+import models.{ApiErrorBodyModel, ApiErrorModel}
+import play.api.http.Status._
+import play.api.test.Helpers.NO_CONTENT
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.UnitTest
 
@@ -65,36 +66,34 @@ class InterestSubmissionServiceSpec extends UnitTest {
           result shouldBe Right(NO_CONTENT)
         }
 
-        "the cya model has no accounts" in {
+        "the use has selected 'No' & 'No' when adding accounts" in {
           lazy val result: InterestSubmissionsResponse = {
-            (connector.submit(_: Seq[InterestSubmissionModel], _: String, _: Int, _: String)(_: HeaderCarrier, _: ExecutionContext))
-              .expects(Seq.empty[InterestSubmissionModel], "AA123456A", taxYear, "1234567890", *, *)
-              .returning(Future.successful(
+              (Seq.empty[InterestSubmissionModel], "AA123456A", taxYear, "1234567890", *, *)
+              Future.successful(
                 Right(NO_CONTENT)
-              ))
+              )
 
             await(service.submit(cyaModel.copy(Some(false), None, Some(false), None), "AA123456A", taxYear, "1234567890"))
           }
 
           result shouldBe Right(NO_CONTENT)
+
         }
       }
 
-      "the connector returns an error response" in {
-
-        val error = ErrorResponse(BAD_REQUEST, "oh noes")
+      "the connector returns a left error response" in {
 
         lazy val result: InterestSubmissionsResponse = {
           (connector.submit(_: Seq[InterestSubmissionModel], _: String, _: Int, _: String)(_: HeaderCarrier, _: ExecutionContext))
             .expects(accounts, "AA123456A", taxYear, "1234567890", *, *)
             .returning(Future.successful(
-              Left(error)
+              Left(ApiErrorModel(INTERNAL_SERVER_ERROR, ApiErrorBodyModel("test", "test")))
             ))
 
           await(service.submit(cyaModel, "AA123456A", taxYear, "1234567890"))
         }
 
-        result shouldBe Left(error)
+        result shouldBe Left(ApiErrorModel(INTERNAL_SERVER_ERROR, ApiErrorBodyModel("test", "test")))
       }
 
     }

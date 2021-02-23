@@ -26,7 +26,7 @@ import views.html.dividends.ReceiveUkDividendsView
 
 import scala.concurrent.Future
 
-class ReceiveUkDividendsControllerTest extends IntegrationTest{
+class ReceiveUkDividendsControllerTest extends IntegrationTest {
 
   lazy val frontendAppConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
