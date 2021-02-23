@@ -67,7 +67,7 @@ class InterestSubmissionConnectorISpec extends IntegrationTest {
 
         val responseBody = Json.obj(
           "code" -> "INTERNAL_SERVER_ERROR",
-          "description" -> "there has been an error downstream"
+          "reason" -> "there has been an error downstream"
         )
 
         stubPost(s"/income-tax-interest/income-tax/nino/$nino/sources\\?taxYear=$taxYear&mtditid=$mtditid", INTERNAL_SERVER_ERROR, responseBody.toString())
@@ -84,7 +84,7 @@ class InterestSubmissionConnectorISpec extends IntegrationTest {
 
         val responseBody = Json.obj(
           "code" -> "SERVICE_UNAVAILABLE",
-          "description" -> "the service is currently unavailable"
+          "reason" -> "the service is currently unavailable"
         )
 
         stubPost(s"/income-tax-interest/income-tax/nino/$nino/sources\\?taxYear=$taxYear&mtditid=$mtditid", SERVICE_UNAVAILABLE, responseBody.toString())
@@ -99,7 +99,7 @@ class InterestSubmissionConnectorISpec extends IntegrationTest {
 
       val responseBody = Json.obj(
         "code" -> "INTERNAL_SERVER_ERROR",
-        "description" -> "Unexpected status returned from DES"
+        "reason" -> "Unexpected status returned from DES"
       )
 
       "the response is not being handled explicitly when returned from the endpoint" in {

@@ -56,7 +56,7 @@ object DividendsSubmissionHttpParser {
     try {
       response.json.validate[ApiErrorBodyModel].fold[DividendsSubmissionsResponse](
         jsonErrors => {
-          pagerDutyLog(UNEXPECTED_RESPONSE_FROM_API, Some(s"[DividendsSubmissionHttpParser][read] Unexpected Json from DES."))
+          pagerDutyLog(UNEXPECTED_RESPONSE_FROM_API, Some(s"[DividendsSubmissionHttpParser][read] Unexpected Json from API."))
           Left(ApiErrorModel(status, ApiErrorBodyModel.parsingError))
         },
         parsedError => Left(ApiErrorModel(status, parsedError))

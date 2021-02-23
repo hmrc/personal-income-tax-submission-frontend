@@ -37,7 +37,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
 
   val dividends: Int = 10
 
- lazy val dividendsBody = DividendsSubmissionModel(
+ lazy val dividendsBody: DividendsSubmissionModel = DividendsSubmissionModel(
    Some(dividends),
    Some(dividends)
  )
@@ -163,7 +163,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
 
         val responseBody = Json.obj(
           "code" -> "SERVICE_UNAVAILABLE",
-          "description" -> "the service is currently unavailable"
+          "reason" -> "the service is currently unavailable"
         )
 
         stubPut(s"/income-tax-dividends/income-tax/nino/$nino/sources\\?taxYear=$taxYear&mtditid=$mtdidid", SERVICE_UNAVAILABLE, responseBody.toString())
@@ -180,7 +180,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
 
         val responseBody = Json.obj(
           "code" -> "INTERNAL_SERVER_ERROR",
-          "description" -> "unexpected status returned from DES"
+          "reason" -> "unexpected status returned from DES"
         )
 
         stubPut(s"/income-tax-dividends/income-tax/nino/$nino/sources\\?taxYear=$taxYear&mtditid=$mtdidid", CREATED, responseBody.toString())
