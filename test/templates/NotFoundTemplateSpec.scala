@@ -37,7 +37,7 @@ class NotFoundTemplateSpec extends ViewTest {
   val p1Expected = "If you typed the web address, check it is correct."
   val p2Expected = "If you used ‘copy and paste’ to enter the web address, check you copied the full address."
   val p3Expected: String = "If the web address is correct or you selected a link or button, you can use Self Assessment: " +
-    "general enquiries (opens in new tab) to speak to someone about your income tax"
+    "general enquiries (opens in new tab) to speak to someone about your income tax."
   val p3ExpectedLink = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
   val expectedTitle = s"$h1Expected - $serviceName - $govUkExtension"
 

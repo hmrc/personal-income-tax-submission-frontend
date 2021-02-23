@@ -134,7 +134,7 @@ not-found-template.paragraph.1 = If you typed the web address, check it is corre
 not-found-template.paragraph.2 = If you used ‘copy and paste’ to enter the web address, check you copied the full address.
 not-found-template.paragraph.3.1 = If the web address is correct or you selected a link or button, you can use
 not-found-template.paragraph.3.2 = Self Assessment: general enquiries (opens in new tab)
-not-found-template.paragraph.3.3 = to speak to someone about your income tax
+not-found-template.paragraph.3.3 = to speak to someone about your income tax.
 
 internal-server-error-template.title = Sorry, there is a problem with the service
 internal-server-error-template.heading = Sorry, there is a problem with the service
