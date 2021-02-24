@@ -21,6 +21,7 @@ import config.AppConfig
 import javax.inject.Inject
 import models.User
 import play.api.Logger
+import play.api.i18n.I18nSupport
 import play.api.mvc.Results._
 import play.api.mvc._
 import services.AuthService
@@ -29,18 +30,22 @@ import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{affinityGroup, allEnrolment
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
+import views.html.authErrorPages.AgentAuthErrorPageView
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class AuthorisedAction @Inject()(
-                                  appConfig: AppConfig
+                                  appConfig: AppConfig,
+                                  val agentAuthErrorPage: AgentAuthErrorPageView
                                 )(
                                   implicit val authService: AuthService,
                                   val mcc: MessagesControllerComponents
-                                ) extends ActionBuilder[User, AnyContent] {
+                                ) extends ActionBuilder[User, AnyContent] with I18nSupport {
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
   lazy val logger: Logger = Logger.apply(this.getClass)
+  implicit val config: AppConfig = appConfig
+  implicit val messagesApi = mcc.messagesApi
 
   override def parser: BodyParser[AnyContent] = mcc.parsers.default
 
@@ -98,7 +103,7 @@ class AuthorisedAction @Inject()(
           .retrieve(allEnrolments) { enrolments =>
             enrolmentGetIdentifierValue(EnrolmentKeys.Agent, EnrolmentIdentifiers.agentReference, enrolments) match {
               case Some(arn) =>
-                block(User(mtditid, Some(arn), nino))
+                block(User(mtditid, Some(arn),nino))
               case None =>
                 logger.error("[AuthorisedAction][agentAuthentication] Agent with no HMRC-AS-AGENT enrolment. Rendering unauthorised view.")
                 Future.successful(Forbidden("")) //TODO add agent unauthorised page
@@ -109,7 +114,7 @@ class AuthorisedAction @Inject()(
             Redirect(appConfig.signInUrl) //TODO Check this is the correct location
           case ex: AuthorisationException =>
             logger.error(s"[AgentPredicate][agentAuthentication] - Agent does not have delegated authority for Client.")
-            Unauthorized("") //TODO Redirect to unauthorised page
+            Unauthorized(agentAuthErrorPage()) //TODO Redirect to unauthorised page
         }
       case (_, None) =>
         logger.error("[AuthorisedAction][agentAuthentication] Agent expecting NINO in session, but NINO is missing. Redirecting to log in.")
