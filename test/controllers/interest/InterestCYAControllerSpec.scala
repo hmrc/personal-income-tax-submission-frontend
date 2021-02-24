@@ -111,6 +111,85 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
 
     }
 
+    "redirect the user to the most relevant page if journey has not been completed" when {
+
+      "upto Receive UK Untaxed Interest is filled in" when {
+
+        "the answer is yes" which {
+          lazy val result = controller.show(taxYear)(fakeRequest.withSession(
+            SessionValues.INTEREST_CYA -> InterestCYAModel(
+              Some(true), None, None, None
+            ).asJsonString
+          ))
+
+          s"has the SEE_OTHER($SEE_OTHER) status" in new TestWithAuth {
+            status(result) shouldBe SEE_OTHER
+          }
+
+          "redirects to the \"Untaxed UK Aamount\" page" in {
+            redirectUrl(result) should include(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, "").url)
+          }
+
+        }
+
+        "the answer is no" which {
+          lazy val result = controller.show(taxYear)(fakeRequest.withSession(
+            SessionValues.INTEREST_CYA -> InterestCYAModel(
+              Some(false), None, None, None
+            ).asJsonString
+          ))
+
+          s"has the SEE_OTHER($SEE_OTHER) status" in new TestWithAuth {
+            status(result) shouldBe SEE_OTHER
+          }
+
+          "redirects to the \"Receive Taxed UK Interest\" page" in {
+            redirectUrl(result) shouldBe controllers.interest.routes.TaxedInterestController.show(taxYear).url
+          }
+
+        }
+
+      }
+
+      "upto UK Untaxed Accounts is filled in" which {
+        lazy val result = controller.show(taxYear)(fakeRequest.withSession(
+          SessionValues.INTEREST_CYA -> InterestCYAModel(
+            Some(true), Some(Seq(InterestAccountModel(
+              None, "Some accounts", 100.00
+            ))), None, None
+          ).asJsonString
+        ))
+
+        s"has the SEE_OTHER($SEE_OTHER) status" in new TestWithAuth {
+          status(result) shouldBe SEE_OTHER
+        }
+
+        "redirects to the \"Receive Taxed UK Interest\" page" in {
+          redirectUrl(result) shouldBe controllers.interest.routes.TaxedInterestController.show(taxYear).url
+        }
+
+      }
+
+      "upto Receive UK Taxed Interest is filled in with a \"Yes\"" which {
+        lazy val result = controller.show(taxYear)(fakeRequest.withSession(
+          SessionValues.INTEREST_CYA -> InterestCYAModel(
+            Some(true), Some(Seq(InterestAccountModel(
+              None, "Some accounts", 100.00
+            ))), Some(true), None
+          ).asJsonString
+        ))
+
+        s"has the SEE_OTHER($SEE_OTHER) status" in new TestWithAuth {
+          status(result) shouldBe SEE_OTHER
+        }
+
+        "redirects to the \"Taxed UK Accounts\" page" in {
+          redirectUrl(result) should include(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, "").url)
+        }
+
+      }
+    }
+
   }
 
   ".submit" should {

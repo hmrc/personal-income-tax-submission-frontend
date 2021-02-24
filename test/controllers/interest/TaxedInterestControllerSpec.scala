@@ -16,9 +16,10 @@
 
 package controllers.interest
 
-import common.SessionValues
+import common.{InterestTaxTypes, SessionValues}
 import forms.YesNoForm
-import models.interest.{InterestAccountModel, InterestCYAModel}
+import models.DividendsPriorSubmission
+import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.Result
@@ -49,6 +50,28 @@ class TaxedInterestControllerSpec extends UnitTestWithApp{
 
         status(result) shouldBe OK
       }
+    }
+
+    "redirect the user to CYA" when {
+
+      "hasTaxed in the prior submission is set to true" which {
+        lazy val result: Future[Result] = controller.show(taxYear)(fakeRequest.withSession(
+          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(Json.obj(
+            "accountName" -> "Account",
+            "incomeSourceId" -> "anId",
+            "taxedUkInterest" -> 100.00
+          )).toString()
+        ))
+
+        s"has the SEE_OTHER($SEE_OTHER) status" in new TestWithAuth {
+          status(result) shouldBe SEE_OTHER
+        }
+
+        "the redirect URL is the CYA page" in {
+          redirectUrl(result) shouldBe controllers.interest.routes.InterestCYAController.show(taxYear).url
+        }
+      }
+
     }
   }
 

@@ -125,6 +125,76 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
 
     }
 
+    "redirect the user to the most relevant page if journey has not been completed" when {
+
+      "up to receive UK Dividends is filled in" when {
+
+        "the answer is Yes" which {
+          lazy val result = controller.show(taxYear)(fakeRequest.withSession(
+            SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(
+              Some(true), None, None, None
+            ).asJsonString
+          ))
+
+          s"has the SEE_OTHER($SEE_OTHER) status" in new TestWithAuth {
+            status(result) shouldBe SEE_OTHER
+          }
+
+          "redirects to the UK Dividends Amount page" in {
+            redirectUrl(result) shouldBe controllers.dividends.routes.UkDividendsAmountController.show(taxYear).url
+          }
+        }
+        "the answer is No" which {
+          lazy val result = controller.show(taxYear)(fakeRequest.withSession(
+            SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(
+              Some(false), None, None, None
+            ).asJsonString
+          ))
+
+          s"has the SEE_OTHER($SEE_OTHER) status" in new TestWithAuth {
+            status(result) shouldBe SEE_OTHER
+          }
+
+          "redirects to the Receive Other UK Dividends page" in {
+            redirectUrl(result) shouldBe controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear).url
+          }
+        }
+      }
+
+      "up to UK Dividends Amount is filled in" which {
+          lazy val result = controller.show(taxYear)(fakeRequest.withSession(
+            SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(
+              Some(true), Some(100.00), None, None
+            ).asJsonString
+          ))
+
+          s"has the SEE_OTHER($SEE_OTHER) status" in new TestWithAuth {
+            status(result) shouldBe SEE_OTHER
+          }
+
+          "redirects to the Receive Other UK Dividends page" in {
+            redirectUrl(result) shouldBe controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear).url
+          }
+      }
+
+      "up to Receive Other UK Dividends is filled in" which {
+          lazy val result = controller.show(taxYear)(fakeRequest.withSession(
+            SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(
+              Some(true), Some(100.00), Some(true), None
+            ).asJsonString
+          ))
+
+          s"has the SEE_OTHER($SEE_OTHER) status" in new TestWithAuth {
+            status(result) shouldBe SEE_OTHER
+          }
+
+          "redirects to the Other UK Dividends Amount page" in {
+            redirectUrl(result) shouldBe controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear).url
+          }
+      }
+
+    }
+
   }
 
   ".priorityOrderOrNone" should {

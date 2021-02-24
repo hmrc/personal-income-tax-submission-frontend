@@ -18,10 +18,10 @@ package controllers.dividends
 
 import common.SessionValues
 import forms.YesNoForm
-import models.DividendsCheckYourAnswersModel
+import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, User}
 import play.api.http.Status._
 import play.api.libs.json.Json
-import play.api.mvc.Result
+import play.api.mvc.{AnyContent, Result}
 import utils.UnitTestWithApp
 import views.html.dividends.ReceiveUkDividendsView
 
@@ -53,10 +53,28 @@ class ReceiveUkDividendsControllerSpec extends UnitTestWithApp {
     "return a result when there is a dividends CYA model in session" which {
 
       s"has an OK($OK) status" in new TestWithAuth {
-        val result: Future[Result] = controller.show(2020)(fakeRequest
-          .withSession(SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(Some(true), Some(67), None, None).asJsonString))
+        val result: Future[Result] = controller.show(taxYear)(fakeRequest
+          .withSession(SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(Some(true), Some(67.00), None, None).asJsonString))
 
         status(result) shouldBe OK
+      }
+
+    }
+
+    "redirect the user to CYA" when {
+
+      "UK Dividends in the prior submission contains a value" which {
+        lazy val result: Future[Result] = controller.show(taxYear)(fakeRequest.withSession(
+          SessionValues.DIVIDENDS_PRIOR_SUB -> DividendsPriorSubmission(Some(100.00), None).asJsonString
+        ))
+
+        s"has the SEE_OTHER($SEE_OTHER) status" in new TestWithAuth {
+          status(result) shouldBe SEE_OTHER
+        }
+
+        "the redirect URL is the CYA page" in {
+          redirectUrl(result) shouldBe controllers.dividends.routes.DividendsCYAController.show(taxYear).url
+        }
       }
 
     }
@@ -131,7 +149,7 @@ class ReceiveUkDividendsControllerSpec extends UnitTestWithApp {
 
       "the CYA model indicates it is finished and the user has pressed no" in new TestWithAuth {
         val amount = 100
-        val cyaModel = DividendsCheckYourAnswersModel(Some(true), Some(amount), Some(true), Some(amount))
+        val cyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(Some(true), Some(amount), Some(true), Some(amount))
 
         lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequest
             .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.no)
@@ -161,14 +179,13 @@ class ReceiveUkDividendsControllerSpec extends UnitTestWithApp {
       }
 
       "cya data does not exist" in new TestWithAuth {
-        val expectedModel = DividendsCheckYourAnswersModel(
-        )
+        val expectedModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(ukDividends = Some(true))
 
         val result: Future[Result] = controller.submit(taxYear)(fakeRequest
           .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes)
         )
 
-        await(result).session.get(SessionValues.DIVIDENDS_CYA).getOrElse(DividendsCheckYourAnswersModel()) shouldBe expectedModel
+        Json.parse(await(result).session.get(SessionValues.DIVIDENDS_CYA).get).as[DividendsCheckYourAnswersModel] shouldBe expectedModel
       }
 
     }
@@ -176,7 +193,7 @@ class ReceiveUkDividendsControllerSpec extends UnitTestWithApp {
     "throw a bad request" when {
 
       "the form is not filled" in new TestWithAuth{
-        val result: Future[Result] = controller.submit(2020)(fakeRequest)
+        val result: Future[Result] = controller.submit(taxYear)(fakeRequest)
 
         status(result) shouldBe BAD_REQUEST
       }

@@ -20,12 +20,13 @@ import audit.{AuditModel, AuditService, CreateOrAmendDividendsAuditDetail}
 import common.SessionValues
 import config.{AppConfig, ErrorHandler}
 import controllers.predicates.AuthorisedAction
+
 import javax.inject.Inject
 import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, DividendsResponseModel, User}
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.libs.json.{Json, Reads}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.DividendsSubmissionService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
@@ -69,6 +70,7 @@ class DividendsCYAController @Inject()(
         )
 
         Ok(dividendsCyaView(cyaModel, priorData, taxYear))
+      case (Some(cyaData), None) if !cyaData.isFinished => handleUnfinishedRedirect(cyaData, taxYear)
       case (Some(cyaData), None) => Ok(dividendsCyaView(cyaData, taxYear = taxYear))
       case (None, Some(priorData)) =>
         val cyaModel = DividendsCheckYourAnswersModel(
@@ -126,6 +128,15 @@ class DividendsCYAController @Inject()(
 
   private def getCya()(implicit user: User[_]): Option[DividendsCheckYourAnswersModel] = {
     getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
+  }
+
+  private[dividends] def handleUnfinishedRedirect(cya: DividendsCheckYourAnswersModel, taxYear: Int): Result = {
+    DividendsCheckYourAnswersModel.unapply(cya).getOrElse(None, None, None, None) match {
+      case (Some(true), None, None, None) => Redirect(controllers.dividends.routes.UkDividendsAmountController.show(taxYear))
+      case (Some(false), None, None, None) => Redirect(controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear))
+      case (Some(true), Some(_), None, None) => Redirect(controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear))
+      case _ => Redirect(controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear))
+    }
   }
 
 }

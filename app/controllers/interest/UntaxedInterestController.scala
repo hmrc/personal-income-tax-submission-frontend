@@ -20,9 +20,10 @@ import common.SessionValues
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import forms.YesNoForm
+
 import javax.inject.Inject
 
-import models.interest.InterestCYAModel
+import models.interest.{InterestCYAModel, InterestPriorSubmission}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Lang, Messages}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -45,8 +46,12 @@ class UntaxedInterestController @Inject()(
   val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("interest.untaxed-uk-interest.errors.noRadioSelected")
 
   def show(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
-    val cyaData: Option[Boolean] = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA).flatMap(_.untaxedUkInterest)
-    Ok(untaxedInterestView(cyaData.fold(yesNoForm)(yesNoForm.fill), taxYear))
+    InterestPriorSubmission.fromSession() match {
+      case Some(prior) if prior.hasUntaxed => Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
+      case _ =>
+        val cyaData: Option[Boolean] = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA).flatMap(_.untaxedUkInterest)
+        Ok(untaxedInterestView(cyaData.fold(yesNoForm)(yesNoForm.fill), taxYear))
+    }
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authAction { implicit user =>

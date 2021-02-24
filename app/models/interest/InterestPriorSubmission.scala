@@ -16,17 +16,20 @@
 
 package models.interest
 
-import common.InterestTaxTypes
+import common.{InterestTaxTypes, SessionValues}
+import models.User
 import play.api.libs.json._
 
-case class InterestPriorSubmission(hasUntaxed: Boolean, hasTaxed: Boolean, submissions: Option[Seq[InterestAccountModel]])
+case class InterestPriorSubmission(hasUntaxed: Boolean, hasTaxed: Boolean, submissions: Option[Seq[InterestAccountModel]]) {
+  def asJsonString: String = Json.toJson(this).toString()
+}
 
 object InterestPriorSubmission {
 
   implicit val reads: Reads[InterestPriorSubmission] = for {
     interestAccounts <- __.readNullable[JsArray]
   } yield {
-    interestAccounts.map(_.value.map(_.as[InterestAccountModel](InterestAccountModel.priorSubmissionReads))) match {
+    interestAccounts.map(_.value.flatMap(_.asOpt[InterestAccountModel](InterestAccountModel.priorSubmissionReads))) match {
       case Some(accounts) if accounts.nonEmpty =>
         InterestPriorSubmission(
           hasUntaxed = accounts.exists(_.priorType.contains(InterestTaxTypes.UNTAXED)),
@@ -38,7 +41,15 @@ object InterestPriorSubmission {
   }
 
   implicit val writes: OWrites[InterestPriorSubmission] = OWrites[InterestPriorSubmission] { model =>
-    Json.obj("submissions" -> Json.toJson(model.submissions))
+    if(model.submissions.nonEmpty) {
+      Json.obj("submissions" -> Json.toJson(model.submissions))
+    } else {
+      Json.obj()
+    }
+  }
+
+  def fromSession()(implicit user: User[_]): Option[InterestPriorSubmission] = {
+    user.session.get(SessionValues.INTEREST_PRIOR_SUB).flatMap(Json.parse(_).asOpt[InterestPriorSubmission])
   }
 
 }

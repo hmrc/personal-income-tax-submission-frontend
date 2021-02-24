@@ -18,7 +18,7 @@ package controllers.dividends
 
 import common.SessionValues
 import forms.YesNoForm
-import models.DividendsCheckYourAnswersModel
+import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.Result
@@ -36,12 +36,14 @@ class ReceiveOtherUkDividendsControllerSpec extends UnitTestWithApp {
     mockAppConfig
   )
 
+  val taxYear = 2020
+
   ".show" should {
 
     "return a result" which {
 
       s"has an OK($OK) status" in new TestWithAuth {
-        val result: Future[Result] = controller.show(2020)(fakeRequest)
+        val result: Future[Result] = controller.show(taxYear)(fakeRequest)
 
         status(result) shouldBe OK
       }
@@ -51,10 +53,28 @@ class ReceiveOtherUkDividendsControllerSpec extends UnitTestWithApp {
     "return a result when there is a dividends CYA model in session" which {
 
       s"has an OK($OK) status" in new TestWithAuth {
-        val result: Future[Result] = controller.show(2020)(fakeRequest
+        val result: Future[Result] = controller.show(taxYear)(fakeRequest
           .withSession(SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(None, None, Some(true), Some(67)).asJsonString))
 
         status(result) shouldBe OK
+      }
+
+    }
+
+    "redirect the user to CYA" when {
+
+      "UK Dividends in the prior submission contains a value" which {
+        lazy val result: Future[Result] = controller.show(taxYear)(fakeRequest.withSession(
+          SessionValues.DIVIDENDS_PRIOR_SUB -> DividendsPriorSubmission(None, Some(100.00)).asJsonString
+        ))
+
+        s"has the SEE_OTHER($SEE_OTHER) status" in new TestWithAuth {
+          status(result) shouldBe SEE_OTHER
+        }
+
+        "the redirect URL is the CYA page" in {
+          redirectUrl(result) shouldBe controllers.dividends.routes.DividendsCYAController.show(taxYear).url
+        }
       }
 
     }
@@ -69,24 +89,24 @@ class ReceiveOtherUkDividendsControllerSpec extends UnitTestWithApp {
 
         "the session data is empty" in new TestWithAuth {
 
-          val result: Future[Result] = controller.submit(2020)(fakeRequest.withFormUrlEncodedBody(
+          val result: Future[Result] = controller.submit(taxYear)(fakeRequest.withFormUrlEncodedBody(
             YesNoForm.yesNo -> YesNoForm.yes
           ))
 
           status(result) shouldBe SEE_OTHER
-          redirectUrl(result) shouldBe controllers.dividends.routes.OtherUkDividendsAmountController.show(2020).url
+          redirectUrl(result) shouldBe controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear).url
 
         }
 
         "the session data exist" in new TestWithAuth {
 
-          val result: Future[Result] = controller.submit(2020)(fakeRequest
+          val result: Future[Result] = controller.submit(taxYear)(fakeRequest
             .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes)
             .withSession(SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel().asJsonString)
           )
 
           status(result) shouldBe SEE_OTHER
-          redirectUrl(result) shouldBe controllers.dividends.routes.OtherUkDividendsAmountController.show(2020).url
+          redirectUrl(result) shouldBe controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear).url
 
         }
 
@@ -100,24 +120,24 @@ class ReceiveOtherUkDividendsControllerSpec extends UnitTestWithApp {
 
         "the session data is empty" in new TestWithAuth {
 
-          val result: Future[Result] = controller.submit(2020)(fakeRequest.withFormUrlEncodedBody(
+          val result: Future[Result] = controller.submit(taxYear)(fakeRequest.withFormUrlEncodedBody(
             YesNoForm.yesNo -> YesNoForm.no
           ))
 
           status(result) shouldBe SEE_OTHER
-          redirectUrl(result) shouldBe controllers.dividends.routes.DividendsCYAController.show(2020).url
+          redirectUrl(result) shouldBe controllers.dividends.routes.DividendsCYAController.show(taxYear).url
 
         }
 
         "the session data exist" in new TestWithAuth {
 
-          val result: Future[Result] = controller.submit(2020)(fakeRequest
+          val result: Future[Result] = controller.submit(taxYear)(fakeRequest
             .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.no)
             .withSession(SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel().asJsonString)
           )
 
           status(result) shouldBe SEE_OTHER
-          redirectUrl(result) shouldBe controllers.dividends.routes.DividendsCYAController.show(2020).url
+          redirectUrl(result) shouldBe controllers.dividends.routes.DividendsCYAController.show(taxYear).url
 
         }
 
@@ -128,12 +148,12 @@ class ReceiveOtherUkDividendsControllerSpec extends UnitTestWithApp {
     "add the cya data to session" when {
 
       "cya data already exist" in new TestWithAuth {
-        val expectedModel = DividendsCheckYourAnswersModel(
+        val expectedModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(
           ukDividends = Some(true),
           otherUkDividends = Some(true)
         )
 
-        val result: Future[Result] = controller.submit(2020)(fakeRequest
+        val result: Future[Result] = controller.submit(taxYear)(fakeRequest
           .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes)
           .withSession(SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(true)).asJsonString)
         )
@@ -146,7 +166,7 @@ class ReceiveOtherUkDividendsControllerSpec extends UnitTestWithApp {
           otherUkDividends = Some(true)
         )
 
-        val result: Future[Result] = controller.submit(2020)(fakeRequest
+        val result: Future[Result] = controller.submit(taxYear)(fakeRequest
           .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes)
         )
 
@@ -158,7 +178,7 @@ class ReceiveOtherUkDividendsControllerSpec extends UnitTestWithApp {
     "throw a bad request" when {
 
       "the form is not filled" in new TestWithAuth{
-        val result: Future[Result] = controller.submit(2020)(fakeRequest)
+        val result: Future[Result] = controller.submit(taxYear)(fakeRequest)
 
         status(result) shouldBe BAD_REQUEST
       }
