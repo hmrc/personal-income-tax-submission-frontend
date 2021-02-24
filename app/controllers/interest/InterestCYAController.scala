@@ -32,6 +32,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.InterestSessionHelper
 import views.html.interest.InterestCYAView
 
+import java.util.UUID.randomUUID
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -115,11 +116,10 @@ class InterestCYAController @Inject()(
   private def handleUnfinishedRedirect(cya: InterestCYAModel, taxYear: Int): Future[Result] = {
     Future.successful(
       InterestCYAModel.unapply(cya).getOrElse(None, None, None, None) match {
-        case (None, None, None, None) => Redirect(controllers.interest.routes.UntaxedInterestController.show(taxYear))
-        case (Some(true), None, None, None) => Redirect(controllers.interest.routes.AccountsController.show(taxYear, InterestTaxTypes.UNTAXED))
+        case (Some(true), None, None, None) => Redirect(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, randomUUID().toString))
         case (Some(false), None, None, None) => Redirect(controllers.interest.routes.TaxedInterestController.show(taxYear))
         case (Some(true), Some(_), None, None) => Redirect(controllers.interest.routes.TaxedInterestController.show(taxYear))
-        case _ => Redirect(controllers.interest.routes.AccountsController.show(taxYear, InterestTaxTypes.TAXED))
+        case _ => Redirect(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, randomUUID().toString))
       }
     )
   }

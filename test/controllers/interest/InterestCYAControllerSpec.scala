@@ -113,22 +113,6 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
 
     "redirect the user to the most relevant page if journey has not been completed" when {
 
-      "nothing is filled in" which {
-        lazy val result = controller.show(taxYear)(fakeRequest.withSession(
-          SessionValues.INTEREST_CYA -> InterestCYAModel(
-            None, None, None, None
-          ).asJsonString
-        ))
-
-        s"has the SEE_OTHER($SEE_OTHER) status" in new TestWithAuth {
-          status(result) shouldBe SEE_OTHER
-        }
-
-        "redirects to the \"Receive Untaxed UK Interest\" page" in {
-          redirectUrl(result) shouldBe controllers.interest.routes.UntaxedInterestController.show(taxYear).url
-        }
-      }
-
       "upto Receive UK Untaxed Interest is filled in" when {
 
         "the answer is yes" which {
@@ -142,8 +126,8 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
             status(result) shouldBe SEE_OTHER
           }
 
-          "redirects to the \"Untaxed UK Accounts\" page" in {
-            redirectUrl(result) shouldBe controllers.interest.routes.AccountsController.show(taxYear, InterestTaxTypes.UNTAXED).url
+          "redirects to the \"Untaxed UK Aamount\" page" in {
+            redirectUrl(result) should include(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, "").url)
           }
 
         }
@@ -200,7 +184,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
         }
 
         "redirects to the \"Taxed UK Accounts\" page" in {
-          redirectUrl(result) shouldBe controllers.interest.routes.AccountsController.show(taxYear, InterestTaxTypes.TAXED).url
+          redirectUrl(result) should include(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, "").url)
         }
 
       }

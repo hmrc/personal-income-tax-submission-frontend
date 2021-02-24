@@ -127,22 +127,6 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
 
     "redirect the user to the most relevant page if journey has not been completed" when {
 
-      "nothing is filled in" which {
-          lazy val result = controller.show(taxYear)(fakeRequest.withSession(
-            SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(
-              None, None, None, None
-            ).asJsonString
-          ))
-
-          s"has the SEE_OTHER($SEE_OTHER) status" in new TestWithAuth {
-            status(result) shouldBe SEE_OTHER
-          }
-
-          "redirects to the Receive UK Dividends page" in {
-            redirectUrl(result) shouldBe controllers.dividends.routes.ReceiveUkDividendsController.show(taxYear).url
-          }
-      }
-
       "up to receive UK Dividends is filled in" when {
 
         "the answer is Yes" which {

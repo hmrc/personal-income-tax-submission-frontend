@@ -18,10 +18,10 @@ package controllers.dividends
 
 import common.SessionValues
 import forms.YesNoForm
-import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
+import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, User}
 import play.api.http.Status._
 import play.api.libs.json.Json
-import play.api.mvc.Result
+import play.api.mvc.{AnyContent, Result}
 import utils.UnitTestWithApp
 import views.html.dividends.ReceiveUkDividendsView
 
@@ -179,13 +179,13 @@ class ReceiveUkDividendsControllerSpec extends UnitTestWithApp {
       }
 
       "cya data does not exist" in new TestWithAuth {
-        val expectedModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel()
+        val expectedModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(ukDividends = Some(true))
 
         val result: Future[Result] = controller.submit(taxYear)(fakeRequest
           .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes)
         )
 
-        await(result).session.get(SessionValues.DIVIDENDS_CYA).getOrElse(DividendsCheckYourAnswersModel()) shouldBe expectedModel
+        Json.parse(await(result).session.get(SessionValues.DIVIDENDS_CYA).get).as[DividendsCheckYourAnswersModel] shouldBe expectedModel
       }
 
     }

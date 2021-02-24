@@ -57,19 +57,19 @@ class ReceiveUkDividendsController @Inject()(
       },
       {
         yesNoModel =>
-
           if (yesNoModel) {
             DividendsCheckYourAnswersModel.fromSession() match {
               case Some(model) => Redirect(controllers.dividends.routes.UkDividendsAmountController.show(taxYear))
                 .addingToSession(SessionValues.DIVIDENDS_CYA -> model.copy(ukDividends = Some(true)).asJsonString)
               case None => Redirect(controllers.dividends.routes.UkDividendsAmountController.show(taxYear))
+                .addingToSession(SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(true)).asJsonString)
             }
           } else {
             DividendsCheckYourAnswersModel.fromSession() match {
               case Some(model) if model.isFinished => Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))
                 .addingToSession(SessionValues.DIVIDENDS_CYA -> model.copy(ukDividends = Some(false), ukDividendsAmount = None).asJsonString)
               case _ => Redirect(controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear))
-                .addingToSession(SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel().copy(ukDividends = Some(false)).asJsonString)
+                .addingToSession(SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(false)).asJsonString)
             }
           }
       }
