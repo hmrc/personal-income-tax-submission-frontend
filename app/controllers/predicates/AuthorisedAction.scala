@@ -114,7 +114,7 @@ class AuthorisedAction @Inject()(
             Redirect(appConfig.signInUrl) //TODO Check this is the correct location
           case ex: AuthorisationException =>
             logger.error(s"[AgentPredicate][agentAuthentication] - Agent does not have delegated authority for Client.")
-            Unauthorized(agentAuthErrorPage()) //TODO Redirect to unauthorised page
+            Unauthorized(agentAuthErrorPage())
         }
       case (_, None) =>
         logger.error("[AuthorisedAction][agentAuthentication] Agent expecting NINO in session, but NINO is missing. Redirecting to log in.")
