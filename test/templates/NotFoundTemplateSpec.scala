@@ -28,9 +28,9 @@ class NotFoundTemplateSpec extends ViewTest {
   object Selectors {
 
     val h1Selector = "#main-content > div > div > header > h1"
-    val p1Selector = "#main-content > div > div > p:nth-child(2)"
-    val p2Selector = "#main-content > div > div > p:nth-child(3)"
-    val p3Selector = "#main-content > div > div > p:nth-child(4)"
+    val p1Selector = "#main-content > div > div > div.govuk-body > p:nth-child(1)"
+    val p2Selector = "#main-content > div > div > div.govuk-body > p:nth-child(2)"
+    val p3Selector = "#main-content > div > div > div.govuk-body > p:nth-child(3)"
   }
 
   val h1Expected = "Page not found"

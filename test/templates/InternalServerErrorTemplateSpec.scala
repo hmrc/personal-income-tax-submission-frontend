@@ -28,11 +28,10 @@ class InternalServerErrorTemplateSpec extends ViewTest {
   object Selectors {
 
     val h1Selector = "#main-content > div > div > header > h1"
-    val p1Selector = "#main-content > div > div > p:nth-child(2)"
-    val p2Selector = "#main-content > div > div > p:nth-child(3)"
-    val bulletPoint1 = "#main-content > div > div > ul > li:nth-child(1) > p"
-    val bulletPoint1Link = "#main-content > div > div > ul > li:nth-child(1) > p > a"
-    val bulletPoint2 = "#main-content > div > div > ul > li:nth-child(2) > p"
+    val p1Selector = "#main-content > div > div > div.govuk-body > p:nth-child(1)"
+    val p2Selector = "#main-content > div > div > div.govuk-body > p:nth-child(2)"
+    val bulletPoint1 = "#main-content > div > div > ul > li:nth-child(1)"
+    val bulletPoint2 = "#main-content > div > div > ul > li:nth-child(2)"
 
   }
 
