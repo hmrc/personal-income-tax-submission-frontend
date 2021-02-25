@@ -151,3 +151,9 @@ error-template.paragraph.1.4 = for more information
 error-template.paragraph.2.1 = use
 error-template.paragraph.2.2 = Self Assessment: general enquiries (opens in new tab)
 error-template.paragraph.2.3 = to speak to someone about your income tax
+
+error.agent.title = There’s a problem
+error.agent.paragraph1 = You cannot view this client’s information. Your client needs to
+error.agent.paragraph2 = authorise you as their agent (open in a new tab)
+error.agent.paragraph3 = before you can sign into this service.
+error.agent.paragraph4 = Try another client’s details
