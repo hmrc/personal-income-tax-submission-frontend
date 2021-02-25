@@ -75,4 +75,15 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
     elementText(selector) shouldBe text
   }
 
+  def linkCheck(text: String, selector: String, href: String)(implicit document: Document): Unit = {
+    s"have a $text link" which {
+      s"has the text '$text'" in {
+        document.select(selector).text() shouldBe text
+      }
+      s"has a href to '$href'" in {
+        document.select(selector).attr("href") shouldBe href
+      }
+    }
+  }
+
 }
