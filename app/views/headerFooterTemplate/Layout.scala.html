@@ -33,6 +33,7 @@
         headBlock: Option[Html] = None,
         scriptsBlock: Option[Html] = None,
         taxYear: Option[Int] =  None,
+        hasErrors: Boolean = false,
         showSignOut: Boolean = true
 )(contentBlock: Html)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
@@ -61,7 +62,7 @@
 }
 
 @govukLayout(
-    pageTitle = Some(pageTitle + " - " + messages("service.name") + " - " + messages("service.govUkExtension")),
+    pageTitle = Some((if(hasErrors) messages("error.browser.title.prefix") + " " else "") + pageTitle + " - " + messages("service.name") + " - " + messages("service.govUkExtension")),
     headBlock = Some(head(headBlock)),
     headerBlock = Some(headerBlock),
     scriptsBlock = Some(scripts),

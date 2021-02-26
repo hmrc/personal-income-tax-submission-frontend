@@ -44,10 +44,11 @@ class OtherDividendsAmountViewSpec extends ViewTest {
   val errorSummaryText = ".govuk-error-summary__body"
 
   val expectedH1 = "What is the total amount of dividends from trusts or open ended investment companies?"
-  val expectedTitle = s"$expectedH1 - $serviceName - $govUkExtension"
+  val expectedTitle = "What is the total amount of dividends from trusts or open ended investment companies?"
   val expectedCaption = "Dividends for 06 April 2019 to 05 April 2020"
 
-  val expectedErrorTitle = "There is a problem"
+  val expectedErrorTitle = s"Error: $expectedTitle"
+  val expectedErrorSummaryTitle = "There is a problem"
   val expectedErrorText = "Enter the amount of dividends received from trusts or investment companies"
 
   val priorAmountRadio = "#whichAmount"
@@ -66,9 +67,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
           lazy val view = otherDividendsAmountView(Right(otherDividendsAmountForm), None, taxYear, testCall)(user, implicitly, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          "contain the correct title" in {
-            document.title shouldBe expectedTitle
-          }
+          titleCheck(expectedTitle)
 
           "contain the correct h1" in {
             elementText(h1Selector) shouldBe expectedH1
@@ -103,9 +102,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          "contain the correct title" in {
-            document.title shouldBe expectedTitle
-          }
+          titleCheck(expectedErrorTitle)
 
           "contain the correct h1" in {
             elementText(h1Selector) shouldBe expectedH1
@@ -128,7 +125,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
           }
 
           "contain an error title" in {
-            elementText(errorSummaryTitle) shouldBe expectedErrorTitle
+            elementText(errorSummaryTitle) shouldBe expectedErrorSummaryTitle
           }
 
           "contains an error message" in {
@@ -149,9 +146,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          "contain the correct title" in {
-            document.title shouldBe expectedTitle
-          }
+          titleCheck(expectedTitle)
 
           "contain the correct h1" in {
             elementText(h1Selector) shouldBe expectedH1
@@ -187,9 +182,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          "contain the correct title" in {
-            document.title shouldBe expectedTitle
-          }
+          titleCheck(expectedErrorTitle)
 
           "contain the correct h1" in {
             elementText(h1Selector) shouldBe expectedH1
@@ -212,7 +205,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
           }
 
           "contain an error title" in {
-            elementText(errorSummaryTitle) shouldBe expectedErrorTitle
+            elementText(errorSummaryTitle) shouldBe expectedErrorSummaryTitle
           }
 
           "contains an error message" in {
@@ -240,9 +233,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          "contain the correct title" in {
-            document.title shouldBe expectedTitle
-          }
+          titleCheck(expectedTitle)
 
           "contain the correct h1" in {
             elementText(h1Selector) shouldBe expectedH1
@@ -293,9 +284,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          "contain the correct title" in {
-            document.title shouldBe expectedTitle
-          }
+          titleCheck(expectedErrorTitle)
 
           "contain the correct h1" in {
             elementText(h1Selector) shouldBe expectedH1
@@ -318,7 +307,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
           }
 
           "contain an error title" in {
-            elementText(errorSummaryTitle) shouldBe expectedErrorTitle
+            elementText(errorSummaryTitle) shouldBe expectedErrorSummaryTitle
           }
 
           "contains an error message" in {
@@ -339,9 +328,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          "contain the correct title" in {
-            document.title shouldBe expectedTitle
-          }
+          titleCheck(expectedTitle)
 
           "contain the correct h1" in {
             elementText(h1Selector) shouldBe expectedH1
@@ -376,9 +363,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          "contain the correct title" in {
-            document.title shouldBe expectedTitle
-          }
+          titleCheck(expectedErrorTitle)
 
           "contain the correct h1" in {
             elementText(h1Selector) shouldBe expectedH1
@@ -401,7 +386,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
           }
 
           "contain an error title" in {
-            elementText(errorSummaryTitle) shouldBe expectedErrorTitle
+            elementText(errorSummaryTitle) shouldBe expectedErrorSummaryTitle
           }
 
           "contains an error message" in {

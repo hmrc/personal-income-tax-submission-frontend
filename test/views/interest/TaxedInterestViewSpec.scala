@@ -38,25 +38,34 @@ class TaxedInterestViewSpec extends ViewTest {
   val continueButtonSelector = "#continue"
 
   val errorSummarySelector = ".govuk-error-summary"
-  val errorSummaryTitle = ".govuk-error-summary__title"
-  val errorSummaryText = ".govuk-error-summary__body"
+  val errorSummaryTitleSelector = ".govuk-error-summary__title"
+  val errorSummaryTextSelector = ".govuk-error-summary__body"
+
+  val expectedIndividualH1 = "Did you receive any taxed interest from the UK?"
+  val expectedIndividualTitle = "Did you receive any taxed interest from the UK?"
+  val expectedIndividualErrorTitle = s"Error: $expectedIndividualTitle"
+  val expectedAgentH1 = "Did your client receive any taxed interest from the UK?"
+  val expectedAgentTitle = "Did your client receive any taxed interest from the UK?"
+  val expectedAgentErrorTitle = s"Error: $expectedAgentTitle"
+
+  val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
+
+  val expectedErrorSummaryTitle = "There is a problem"
+  val expectedErrorSummaryText = "Select yes if you received taxed interest from the UK"
+
 
   "Taxed interest view" should {
-    
+
     "Correctly render as an individual" when {
       "There are no form errors " which {
         lazy val view = taxedInterestView(
           yesNoForm, taxYear)(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
-        val expectedH1 = "Did you receive any taxed interest from the UK?"
-        val expectedTitle = s"$expectedH1 - $serviceName - $govUkExtension"
-        val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
 
-        "Contains the correct title" in {
-          document.title shouldBe expectedTitle
-        }
+        titleCheck(expectedIndividualTitle)
+
         "Contains the correct h1" in {
-          elementText(h1Selector) shouldBe expectedH1
+          elementText(h1Selector) shouldBe expectedIndividualH1
         }
         "Contains the correct caption" in {
           elementText(captionSelector) shouldBe expectedCaption
@@ -74,8 +83,9 @@ class TaxedInterestViewSpec extends ViewTest {
         }
       }
     }
+
     "correctly render with errors as an individual" when {
-      "there are no form errors" which {
+      "there are form errors" which {
         lazy val view = taxedInterestView(
           yesNoForm.copy(
             errors = Seq(FormError("yes_no", "Select yes if you received taxed interest from the UK"))),
@@ -83,18 +93,10 @@ class TaxedInterestViewSpec extends ViewTest {
         )(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedH1 = "Did you receive any taxed interest from the UK?"
-        val expectedTitle = s"$expectedH1 - $serviceName - $govUkExtension"
-        val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
-        val expectedErrorTitle = "There is a problem"
-        val expectedErrorText = "Select yes if you received taxed interest from the UK"
-
-        "contains the correct title" in {
-          document.title shouldBe expectedTitle
-        }
+        titleCheck(expectedIndividualErrorTitle)
 
         "contain the correct h1" in {
-          elementText(h1Selector) shouldBe expectedH1
+          elementText(h1Selector) shouldBe expectedIndividualH1
         }
 
         "contains the correct header caption" in {
@@ -118,11 +120,11 @@ class TaxedInterestViewSpec extends ViewTest {
         }
 
         "contain an error title" in {
-          elementText(errorSummaryTitle) shouldBe expectedErrorTitle
+          elementText(errorSummaryTitleSelector) shouldBe expectedErrorSummaryTitle
         }
 
         "contains an error message" in {
-          elementText(errorSummaryText) shouldBe expectedErrorText
+          elementText(errorSummaryTextSelector) shouldBe expectedErrorSummaryText
         }
       }
     }
@@ -133,16 +135,10 @@ class TaxedInterestViewSpec extends ViewTest {
           yesNoForm, taxYear)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedH1 = "Did your client receive any taxed interest from the UK?"
-        val expectedTitle = s"$expectedH1 - $serviceName - $govUkExtension"
-        val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
-
-        "contains the correct title" in {
-          document.title shouldBe expectedTitle
-        }
+        titleCheck(expectedAgentTitle)
 
         "contain the correct h1" in {
-          elementText(h1Selector) shouldBe expectedH1
+          elementText(h1Selector) shouldBe expectedAgentH1
         }
 
         "contains the correct header caption" in {
@@ -162,6 +158,7 @@ class TaxedInterestViewSpec extends ViewTest {
         }
       }
     }
+
     "correctly render with errors as an agent" when {
       "there is a form error" which {
         lazy val view = taxedInterestView(
@@ -172,18 +169,10 @@ class TaxedInterestViewSpec extends ViewTest {
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedH1 = "Did your client receive any taxed interest from the UK?"
-        val expectedTitle = s"$expectedH1 - $serviceName - $govUkExtension"
-        val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
-
-        val expectedErrorTitle = "There is a problem"
-        val expectedErrorText = "Select yes if you received taxed interest from the UK"
-        "contains the correct title" in {
-          document.title shouldBe expectedTitle
-        }
+        titleCheck(expectedAgentErrorTitle)
 
         "contain the correct h1" in {
-          elementText(h1Selector) shouldBe expectedH1
+          elementText(h1Selector) shouldBe expectedAgentTitle
         }
 
         "contains the correct header caption" in {
@@ -207,11 +196,11 @@ class TaxedInterestViewSpec extends ViewTest {
         }
 
         "contain an error title" in {
-          elementText(errorSummaryTitle) shouldBe expectedErrorTitle
+          elementText(errorSummaryTitleSelector) shouldBe expectedErrorSummaryTitle
         }
 
         "contains an error message" in {
-          elementText(errorSummaryText) shouldBe expectedErrorText
+          elementText(errorSummaryTextSelector) shouldBe expectedErrorSummaryText
         }
 
       }

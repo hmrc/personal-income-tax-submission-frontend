@@ -1,6 +1,7 @@
 service.name = Update and submit an Income Tax Return
 service.govUkExtension = GOV.UK
 
+error.browser.title.prefix = Error:
 betaBar.beta = beta
 betaBar.banner.message.1 = This is a new service – your
 betaBar.banner.message.2 = feedback
