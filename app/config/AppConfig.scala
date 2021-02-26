@@ -70,4 +70,10 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
   }
 
   lazy val signOutUrl: String = s"$basGatewayUrl/bas-gateway/sign-out-without-state"
+
+
+  lazy val timeoutDialogTimeout: Int = servicesConfig.getInt("timeoutDialogTimeout")
+  lazy val timeoutDialogCountdown: Int = servicesConfig.getInt("timeoutDialogCountdown")
+
+
 }
