@@ -16,8 +16,8 @@
 
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardFooter
 @import views.html.templates.helpers.Link
-@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.header.Header
 @import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardHeader
 
 @this(
         govukLayout: GovukLayout,
@@ -25,7 +25,7 @@
         beforeBodyContent: BeforeBodyContent,
         hmrcStandardFooter: HmrcStandardFooter,
         getHelpLink: Link,
-        hmrcHeader: HmrcHeader,
+        hmrcHeader: HmrcStandardHeader,
         hmrcTimeoutDialog: HmrcTimeoutDialog
 )
 
@@ -49,11 +49,10 @@
 }
 
 @headerBlock = {
-    @hmrcHeader(Header(
-        homepageUrl = "https://www.gov.uk/",
+    @hmrcHeader(
         serviceName = Some(messages("service.name")),
-        serviceUrl = appConfig.incomeTaxSubmissionStartUrl(taxYear.getOrElse(appConfig.defaultTaxYear)),
-        signOutHref = if(showSignOut) Some(controllers.routes.SignOutController.signOut().url) else None
+        serviceUrl = Some(appConfig.incomeTaxSubmissionStartUrl(taxYear.getOrElse(appConfig.defaultTaxYear))),
+        signOutUrl = if(showSignOut) Some(controllers.routes.SignOutController.signOut().url) else None
     ))
 }
 
