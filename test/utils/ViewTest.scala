@@ -75,6 +75,35 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
     elementText(selector) shouldBe text
   }
 
+  def titleCheck(title: String)(implicit document: Document): Unit = {
+    s"has a title of $title" in {
+      document.title() shouldBe s"$title - $serviceName - $govUkExtension"
+    }
+  }
+
+  def h1Check(header: String)(implicit document: Document): Unit = {
+    s"have a page heading of '$header'" in {
+      document.select("#main-content > div > div > header > h1").text() shouldBe header
+    }
+  }
+
+  def textOnPageCheck(text: String, selector: String)(implicit document: Document): Unit = {
+    s"have text on the screen of '$text'" in {
+      document.select(selector).text() shouldBe text
+    }
+  }
+
+  def buttonCheck(text: String, selector: String)(implicit document: Document): Unit = {
+    s"have a $text button" which {
+      s"has the text '$text'" in {
+        document.select(selector).text() shouldBe text
+      }
+      s"has a class of govuk-button" in {
+        document.select(selector).attr("class") shouldBe "govuk-button"
+      }
+    }
+  }
+
   def linkCheck(text: String, selector: String, href: String)(implicit document: Document): Unit = {
     s"have a $text link" which {
       s"has the text '$text'" in {
@@ -86,4 +115,28 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
     }
   }
 
+  def errorSummaryCheck(text: String, href: String)(implicit document: Document): Unit = {
+    "contains an error summary" in {
+      elementExist(".govuk-error-summary")
+    }
+    "contains the text 'There is a problem'" in {
+      document.select(".govuk-error-summary__title").text() shouldBe "There is a problem"
+    }
+    s"has a $text error in the error summary" which {
+      s"has the text '$text'" in {
+        document.select(".govuk-error-summary__body").text() shouldBe text
+      }
+      s"has a href to '$href'" in {
+        document.select(".govuk-error-summary__body").attr("href") shouldBe href
+      }
+    }
+  }
+
+  def errorAboveElementCheck(text: String)(implicit document: Document): Unit = {
+    s"has a $text error above the element" which {
+      s"has the text '$text'" in {
+        document.select(".govuk-error-message").text() shouldBe text
+      }
+    }
+  }
 }
