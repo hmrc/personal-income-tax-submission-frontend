@@ -22,7 +22,9 @@ common.error.errorKey = Error:
 common.error.invalid_number = Enter an amount using numbers 0 to 9
 common.error.priorOrNewAmount.noRadioSelected = Select £{0} or enter a different amount
 common.error.amountMaxLimit = Enter an amount less than £100,000,000,000
-common.error.invalid_currency_format = Enter an amount in pounds and pence
+common.error.invalid_currency_format = Enter the amount in the correct format
+
+common.currency.hint = For example, £600 or £193.54
 
 error.summary.title = There is a problem
 

@@ -61,7 +61,9 @@
             label = "interest.taxed-uk-interest-details.sub-heading2",
             isPageHeading = false,
             currency = true,
-            labelClasses = Some("govuk-!-font-weight-bold")
+            labelClasses = Some("govuk-!-font-weight-bold"),
+            hint = Some(Html(messages("common.currency.hint")))
+
         )
 
         @button()

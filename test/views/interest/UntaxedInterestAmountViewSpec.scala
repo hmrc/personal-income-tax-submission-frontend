@@ -43,6 +43,7 @@ class UntaxedInterestAmountViewSpec extends ViewTest {
   val expectedTitle = "UK untaxed interest account details"
   val expectedErrorTitle= s"Error: $expectedTitle"
   val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
+  val expectedHintText = "For example, £600 or £193.54"
 
   val expectedErrorSummaryTitle = "There is a problem"
   val expectedErrorSummaryText = "Enter the amount of untaxed interest earned"
@@ -63,15 +64,10 @@ class UntaxedInterestAmountViewSpec extends ViewTest {
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        titleCheck(expectedTitle)
-
-        "contains the correct caption" in {
-          elementText(captionSelector) shouldBe expectedCaption
-        }
-
-        "contains the correct h1" in {
-          elementText(h1Selector) shouldBe expectedH1
-        }
+        titleCheck(expectedH1)
+        captionCheck(expectedCaption)
+        hintTextCheck(expectedHintText)
+        h1Check(expectedH1, h1Selector)
       }
 
       "There are form errors" which {
@@ -85,15 +81,10 @@ class UntaxedInterestAmountViewSpec extends ViewTest {
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        titleCheck(expectedErrorTitle)
-
-        "contains the correct h1" in {
-          elementText(h1Selector) shouldBe expectedH1
-        }
-
-        "contains the correct header caption" in {
-          elementText(captionSelector) shouldBe expectedCaption
-        }
+        titleCheck(expectedH1, error = true)
+        captionCheck(expectedCaption)
+        hintTextCheck(expectedHintText)
+        buttonCheck("Continue", continueButtonSelector, "")
 
         "contains a continue button" in {
           elementExist(continueButtonSelector) shouldBe true

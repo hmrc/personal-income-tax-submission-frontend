@@ -103,7 +103,7 @@ class PriorOrNewAmountFormSpec extends UnitTestWithApp {
          otherAmountInputField -> "12345.123"
        )).errors
 
-       val expectedError = FormError("amount", Seq("Enter an amount in pounds and pence"))
+       val expectedError = FormError("amount", Seq("Enter the amount in the correct format"))
 
        result shouldBe Seq(expectedError)
      }

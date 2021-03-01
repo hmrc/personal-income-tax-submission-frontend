@@ -44,10 +44,9 @@ class OtherDividendsAmountViewSpec extends ViewTest {
   val errorSummaryText = ".govuk-error-summary__body"
 
   val expectedH1 = "What is the total amount of dividends from trusts or open ended investment companies?"
-  val expectedTitle = "What is the total amount of dividends from trusts or open ended investment companies?"
   val expectedCaption = "Dividends for 06 April 2019 to 05 April 2020"
+  val expectedHintText = "For example, £600 or £193.54"
 
-  val expectedErrorTitle = s"Error: $expectedTitle"
   val expectedErrorSummaryTitle = "There is a problem"
   val expectedErrorText = "Enter the amount of dividends received from trusts or investment companies"
 
@@ -67,15 +66,10 @@ class OtherDividendsAmountViewSpec extends ViewTest {
           lazy val view = otherDividendsAmountView(Right(otherDividendsAmountForm), None, taxYear, testCall)(user, implicitly, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          titleCheck(expectedTitle)
-
-          "contain the correct h1" in {
-            elementText(h1Selector) shouldBe expectedH1
-          }
-
-          "contains the correct header caption" in {
-            elementText(captionSelector) shouldBe expectedCaption
-          }
+          titleCheck(expectedH1)
+          h1Check(expectedH1, h1Selector)
+          captionCheck(expectedCaption)
+          hintTextCheck(expectedHintText)
 
           "contains an input box" in {
             elementExist(inputSelector) shouldBe true
@@ -102,15 +96,10 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          titleCheck(expectedErrorTitle)
-
-          "contain the correct h1" in {
-            elementText(h1Selector) shouldBe expectedH1
-          }
-
-          "contains the correct header caption" in {
-            elementText(captionSelector) shouldBe expectedCaption
-          }
+          titleCheck(expectedH1, error = true)
+          h1Check(expectedH1, h1Selector)
+          captionCheck(expectedCaption)
+          hintTextCheck(expectedHintText)
 
           "contains an input box" in {
             elementExist(inputSelector) shouldBe true
@@ -146,15 +135,10 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          titleCheck(expectedTitle)
-
-          "contain the correct h1" in {
-            elementText(h1Selector) shouldBe expectedH1
-          }
-
-          "contains the correct header caption" in {
-            elementText(captionSelector) shouldBe expectedCaption
-          }
+          titleCheck(expectedH1)
+          h1Check(expectedH1, h1Selector)
+          captionCheck(expectedCaption)
+          hintTextCheck(expectedHintText)
 
           "contains an input box" in {
             elementExist(inputSelector) shouldBe true
@@ -182,15 +166,10 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          titleCheck(expectedErrorTitle)
-
-          "contain the correct h1" in {
-            elementText(h1Selector) shouldBe expectedH1
-          }
-
-          "contains the correct header caption" in {
-            elementText(captionSelector) shouldBe expectedCaption
-          }
+          titleCheck(expectedH1, error = true)
+          h1Check(expectedH1, h1Selector)
+          captionCheck(expectedCaption)
+          hintTextCheck(expectedHintText)
 
           "contains an input box" in {
             elementExist(inputSelector) shouldBe true
@@ -233,15 +212,10 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          titleCheck(expectedTitle)
-
-          "contain the correct h1" in {
-            elementText(h1Selector) shouldBe expectedH1
-          }
-
-          "contains the correct header caption" in {
-            elementText(captionSelector) shouldBe expectedCaption
-          }
+          titleCheck(expectedH1)
+          h1Check(expectedH1, h1Selector)
+          captionCheck(expectedCaption)
+          hintTextCheck(expectedHintText)
 
           "contains a prior amount radio button" in {
             elementExist(priorAmountRadio) shouldBe true
@@ -284,15 +258,10 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          titleCheck(expectedErrorTitle)
-
-          "contain the correct h1" in {
-            elementText(h1Selector) shouldBe expectedH1
-          }
-
-          "contains the correct header caption" in {
-            elementText(captionSelector) shouldBe expectedCaption
-          }
+          titleCheck(expectedH1, error = true)
+          h1Check(expectedH1, h1Selector)
+          captionCheck(expectedCaption)
+          hintTextCheck(expectedHintText)
 
           "contains an input box" in {
             elementExist(inputSelector) shouldBe true
@@ -328,15 +297,10 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          titleCheck(expectedTitle)
-
-          "contain the correct h1" in {
-            elementText(h1Selector) shouldBe expectedH1
-          }
-
-          "contains the correct header caption" in {
-            elementText(captionSelector) shouldBe expectedCaption
-          }
+          titleCheck(expectedH1)
+          h1Check(expectedH1, h1Selector)
+          captionCheck(expectedCaption)
+          hintTextCheck(expectedHintText)
 
           "contains an input box" in {
             elementExist(inputSelector) shouldBe true
@@ -363,15 +327,10 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          titleCheck(expectedErrorTitle)
-
-          "contain the correct h1" in {
-            elementText(h1Selector) shouldBe expectedH1
-          }
-
-          "contains the correct header caption" in {
-            elementText(captionSelector) shouldBe expectedCaption
-          }
+          titleCheck(expectedH1, error = true)
+          h1Check(expectedH1, h1Selector)
+          captionCheck(expectedCaption)
+          hintTextCheck(expectedHintText)
 
           "contains an input box" in {
             elementExist(inputSelector) shouldBe true
