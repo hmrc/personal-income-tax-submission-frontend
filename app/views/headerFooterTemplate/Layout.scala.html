@@ -25,7 +25,8 @@
         beforeBodyContent: BeforeBodyContent,
         hmrcStandardFooter: HmrcStandardFooter,
         getHelpLink: Link,
-        hmrcHeader: HmrcHeader
+        hmrcHeader: HmrcHeader,
+        hmrcTimeoutDialog: HmrcTimeoutDialog
 )
 
 @(pageTitle: String,
@@ -34,13 +35,16 @@
         scriptsBlock: Option[Html] = None,
         taxYear: Option[Int] =  None,
         hasErrors: Boolean = false,
-        showSignOut: Boolean = true
+        showSignOut: Boolean = true,
+        timeout: Boolean = true
 )(contentBlock: Html)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @scripts = {
     <script src='@controllers.routes.Assets.versioned("lib/govuk-frontend/govuk/all.js")'></script>
+    <script src='@controllers.routes.Assets.versioned("lib/hmrc-frontend/hmrc/all.js")'></script>
     <script src='@controllers.routes.Assets.versioned("javascripts/application.min.js")'></script>
     <script>window.GOVUKFrontend.initAll();</script>
+    <script>window.HMRCFrontend.initAll();</script>
     @scriptsBlock.map(x => x)
 }
 
@@ -63,7 +67,7 @@
 
 @govukLayout(
     pageTitle = Some((if(hasErrors) messages("error.browser.title.prefix") + " " else "") + pageTitle + " - " + messages("service.name") + " - " + messages("service.govUkExtension")),
-    headBlock = Some(head(headBlock)),
+    headBlock = Some(head(headBlock, timeout)),
     headerBlock = Some(headerBlock),
     scriptsBlock = Some(scripts),
     beforeContentBlock = Some(beforeBodyContent(backLink)),
