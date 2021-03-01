@@ -75,6 +75,12 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
     elementText(selector) shouldBe text
   }
 
+  def titleCheck(title: String)(implicit document: Document): Unit = {
+    s"has a title of $title" in {
+      document.title() shouldBe s"$title - $serviceName - $govUkExtension"
+    }
+  }
+
   def linkCheck(text: String, selector: String, href: String)(implicit document: Document): Unit = {
     s"have a $text link" which {
       s"has the text '$text'" in {

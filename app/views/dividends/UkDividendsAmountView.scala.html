@@ -100,7 +100,14 @@
     </div>
 }
 
-@layout(pageTitle = messages("dividends.uk-dividends-amount.title"), taxYear = Some(taxYear)) {
+@hasFormErrors = @{
+    form.fold(
+        priorOrNew => priorOrNew.hasErrors,
+        bigDecimal => bigDecimal.hasErrors
+    )
+}
+
+@layout(pageTitle = messages("dividends.uk-dividends-amount.title"), taxYear = Some(taxYear), hasErrors = hasFormErrors) {
 
     @formWithCSRF(action = postAction) {
         @form.fold(

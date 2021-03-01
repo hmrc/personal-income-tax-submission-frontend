@@ -35,19 +35,21 @@ class ChangeAccountAmountViewSpec extends ViewTest {
   val continueButtonSelector = "#continue"
 
   val errorSummarySelector = ".govuk-error-summary"
-  val errorSummaryTitle = ".govuk-error-summary__title"
-  val errorSummaryText = ".govuk-error-summary__body"
+  val errorSummaryTitleSelector = ".govuk-error-summary__title"
+  val errorSummaryTextSelector = ".govuk-error-summary__body"
 
   val expectedUntaxedH1 = "Monzo untaxed interest earned"
   val expectedTaxedH1 = "Monzo taxed interest earned"
 
-  val expectedUntaxedTitle = s"Untaxed interest earned - $serviceName - $govUkExtension"
-  val expectedTaxedTitle = s"Taxed interest earned - $serviceName - $govUkExtension"
+  val expectedUntaxedTitle = "Untaxed interest earned"
+  val expectedUntaxedErrorTitle = s"Error: $expectedUntaxedTitle"
+  val expectedTaxedTitle = "Taxed interest earned"
+  val expectedTaxedErrorTitle = s"Error: $expectedTaxedTitle"
 
   val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
 
-  val expectedErrorTitle = "There is a problem"
-  val expectedErrorText = "Select £5000 or enter a different amount"
+  val expectedErrorSummaryTitle = "There is a problem"
+  val expectedErrorSummaryText = "Select £5000 or enter a different amount"
 
   val priorAmountRadio = "#whichAmount"
   val priorAmountRadioText = "#main-content > div > div > form > div > div > fieldset > div > div:nth-child(1) > label"
@@ -80,12 +82,10 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
+          titleCheck(expectedUntaxedTitle)
+
           "contains the correct h1" in {
             elementText(h1Selector) shouldBe expectedUntaxedH1
-          }
-
-          "contains the correct title" in {
-            document.title shouldBe expectedUntaxedTitle
           }
 
           "contains the correct header caption" in {
@@ -134,9 +134,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          "contains the correct h1" in {
-            elementText(h1Selector) shouldBe expectedUntaxedH1
-          }
+          titleCheck(expectedUntaxedErrorTitle)
 
           "contain the correct h1" in {
             elementText(h1Selector) shouldBe expectedUntaxedH1
@@ -159,11 +157,11 @@ class ChangeAccountAmountViewSpec extends ViewTest {
           }
 
           "contain an error title" in {
-            elementText(errorSummaryTitle) shouldBe expectedErrorTitle
+            elementText(errorSummaryTitleSelector) shouldBe expectedErrorSummaryTitle
           }
 
           "contains an error message" in {
-            elementText(errorSummaryText) shouldBe expectedErrorText
+            elementText(errorSummaryTextSelector) shouldBe expectedErrorSummaryText
           }
 
         }
@@ -184,12 +182,10 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
+          titleCheck(expectedTaxedTitle)
+
           "contains the correct h1" in {
             elementText(h1Selector) shouldBe expectedTaxedH1
-          }
-
-          "contains the correct title" in {
-            document.title shouldBe expectedTaxedTitle
           }
 
           "contains the correct header caption" in {
@@ -238,9 +234,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          "contains the correct h1" in {
-            elementText(h1Selector) shouldBe expectedTaxedH1
-          }
+          titleCheck(expectedTaxedErrorTitle)
 
           "contain the correct h1" in {
             elementText(h1Selector) shouldBe expectedTaxedH1
@@ -263,11 +257,11 @@ class ChangeAccountAmountViewSpec extends ViewTest {
           }
 
           "contain an error title" in {
-            elementText(errorSummaryTitle) shouldBe expectedErrorTitle
+            elementText(errorSummaryTitleSelector) shouldBe expectedErrorSummaryTitle
           }
 
           "contains an error message" in {
-            elementText(errorSummaryText) shouldBe expectedErrorText
+            elementText(errorSummaryTextSelector) shouldBe expectedErrorSummaryText
           }
 
         }

@@ -38,6 +38,15 @@ class TaxedInterestAmountViewSpec extends ViewTest{
   val errorSummaryTitle = ".govuk-error-summary__title"
   val errorSummaryText = ".govuk-error-summary__body"
 
+  val expectedH1 = "UK taxed interest account details"
+  val expectedTitle = "UK taxed interest account details"
+  val expectedErrorTitle = s"Error: $expectedTitle"
+
+  val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
+
+  val expectedErrorSummaryTitle = "There is a problem"
+  val expectedErrorSummaryText = "Enter the amount of taxed interest earned"
+
   val taxYear = 2020
   val id = "id"
 
@@ -51,17 +60,13 @@ class TaxedInterestAmountViewSpec extends ViewTest{
           controllers.interest.routes.TaxedInterestAmountController.submit(taxYear,id)
         )(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
-        val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
-        val expectedH1 = "UK taxed interest account details"
-        val expectedTitle = s"$expectedH1 - $serviceName - $govUkExtension"
+
+        titleCheck(expectedTitle)
 
         "has the correct h1" in {
           elementText(h1Selector) shouldBe expectedH1
         }
 
-        "Contains the correct title" in {
-          document.title shouldBe expectedTitle
-        }
         "Contains the correct caption" in {
           elementText(captionSelector) shouldBe expectedCaption
         }
@@ -69,6 +74,7 @@ class TaxedInterestAmountViewSpec extends ViewTest{
           elementExist(continueButtonSelector) shouldBe true
         }
       }
+
       "there are form errors " which {
         lazy val view = taxedInterestView(
           taxedInterestForm.copy(errors = Seq(FormError(taxedAmount, "interest.taxed-uk-interest-amount.error.empty"))),
@@ -76,19 +82,13 @@ class TaxedInterestAmountViewSpec extends ViewTest{
           controllers.interest.routes.TaxedInterestAmountController.submit(taxYear,id)
         )(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
-        val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
-        val expectedErrorTitle = "There is a problem"
-        val expectedErrorText = "Enter the amount of taxed interest earned"
-        val expectedH1 = "UK taxed interest account details"
-        val expectedTitle = s"$expectedH1 - $serviceName - $govUkExtension"
+
+        titleCheck(expectedErrorTitle)
 
         "has the correct h1" in {
           elementText(h1Selector) shouldBe expectedH1
         }
 
-        "contains the correct title" in {
-          document.title shouldBe expectedTitle
-        }
         "contains the correct header caption" in {
           elementText(captionSelector) shouldBe expectedCaption
         }
@@ -101,11 +101,11 @@ class TaxedInterestAmountViewSpec extends ViewTest{
         }
 
         "contain an error title" in {
-          elementText(errorSummaryTitle) shouldBe expectedErrorTitle
+          elementText(errorSummaryTitle) shouldBe expectedErrorSummaryTitle
         }
 
         "contains an error message" in {
-          elementText(errorSummaryText) shouldBe expectedErrorText
+          elementText(errorSummaryText) shouldBe expectedErrorSummaryText
         }
 
       }

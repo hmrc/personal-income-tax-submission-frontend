@@ -36,8 +36,16 @@ class UntaxedInterestAmountViewSpec extends ViewTest {
   val captionSelector = ".govuk-caption-l"
   val continueButtonSelector = "#continue"
   val errorSummarySelector = ".govuk-error-summary"
-  val errorSummaryTitle = ".govuk-error-summary__title"
-  val errorSummaryText = ".govuk-error-summary__body"
+  val errorSummaryTitleSelector = ".govuk-error-summary__title"
+  val errorSummaryTextSelector = ".govuk-error-summary__body"
+
+  val expectedH1 = "UK untaxed interest account details"
+  val expectedTitle = "UK untaxed interest account details"
+  val expectedErrorTitle= s"Error: $expectedTitle"
+  val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
+
+  val expectedErrorSummaryTitle = "There is a problem"
+  val expectedErrorSummaryText = "Enter the amount of untaxed interest earned"
 
   val taxYear = 2020
   val id = "id"
@@ -54,13 +62,8 @@ class UntaxedInterestAmountViewSpec extends ViewTest {
         )(user,implicitly,mockAppConfig)
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
-        val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
-        val expectedH1 = "UK untaxed interest account details"
-        val expectedTitle = s"$expectedH1 - $serviceName - $govUkExtension"
 
-        "contains the correct title" in {
-          document.title shouldBe expectedTitle
-        }
+        titleCheck(expectedTitle)
 
         "contains the correct caption" in {
           elementText(captionSelector) shouldBe expectedCaption
@@ -81,14 +84,11 @@ class UntaxedInterestAmountViewSpec extends ViewTest {
         )(user, implicitly, mockAppConfig)
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
-        val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
-        val expectedErrorTitle = "There is a problem"
-        val expectedErrorText = "Enter the amount of untaxed interest earned"
-        val expectedH1 = "UK untaxed interest account details"
-        val expectedTitle = s"$expectedH1 - $serviceName - $govUkExtension"
 
-        "contains the document title" in {
-          document.title shouldBe expectedTitle
+        titleCheck(expectedErrorTitle)
+
+        "contains the correct h1" in {
+          elementText(h1Selector) shouldBe expectedH1
         }
 
         "contains the correct header caption" in {
@@ -104,11 +104,11 @@ class UntaxedInterestAmountViewSpec extends ViewTest {
         }
 
         "contain an error title" in {
-          elementText(errorSummaryTitle) shouldBe expectedErrorTitle
+          elementText(errorSummaryTitleSelector) shouldBe expectedErrorSummaryTitle
         }
 
         "contains an error message" in {
-          elementText(errorSummaryText) shouldBe expectedErrorText
+          elementText(errorSummaryTextSelector) shouldBe expectedErrorSummaryText
         }
 
       }

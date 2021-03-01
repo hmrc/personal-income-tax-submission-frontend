@@ -35,11 +35,11 @@
     if(user.isAgent) messages("dividends.other-dividends.heading.agent") else messages("dividends.other-dividends.heading.individual")
 }
 
-@titleForUse = @{
-if(user.isAgent) messages("dividends.other-dividends.title.agent") else messages("dividends.other-dividends.title.individual")
-}
+@titleForUse = @{messages(s"dividends.other-dividends.title.${if(user.isAgent) "agent" else "individual"}")}
 
-@layout(pageTitle = titleForUse, taxYear = Some(taxYear)) {
+@hasFormErrors = @{form.hasErrors}
+
+@layout(pageTitle = titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors) {
 
     @errorSummary(form.errors.distinct)
 

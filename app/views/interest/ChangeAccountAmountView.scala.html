@@ -47,7 +47,9 @@
         )
 }
 
-@layout(pageTitle = messages(s"interest.change-account.${taxType.toLowerCase}-title"), taxYear = Some(taxYear)) {
+@hasFormErrors = @{form.hasErrors}
+
+@layout(pageTitle = messages(s"interest.change-account.${taxType.toLowerCase}-title"), taxYear = Some(taxYear), hasErrors = hasFormErrors) {
 
     @errorSummary(form.errors.distinct)
 

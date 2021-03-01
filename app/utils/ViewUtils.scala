@@ -16,7 +16,7 @@
 
 package utils
 
-import models.interest.InterestAccountModel
+import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.mvc.Call
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}

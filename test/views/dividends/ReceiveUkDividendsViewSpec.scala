@@ -42,9 +42,11 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
 
   val taxYear = 2020
   val expectedIndividualH1 = "Did you receive any dividends from companies in the UK?"
-  val expectedIndividualTitle = s"$expectedIndividualH1 - $serviceName - $govUkExtension"
+  val expectedIndividualTitle = "Did you receive any dividends from companies in the UK?"
+  val expectedIndividualErrorTitle = s"Error: $expectedIndividualTitle"
   val expectedAgentH1 = "Did your client receive any dividends from companies in the UK?"
-  val expectedAgentTitle = s"$expectedAgentH1 - $serviceName - $govUkExtension"
+  val expectedAgentTitle = "Did your client receive any dividends from companies in the UK?"
+  val expectedAgentErrorTitle = s"Error: $expectedAgentTitle"
   val expectedCaption = "Dividends for 06 April 2019 to 05 April 2020"
 
   "ReceivedDividendsView" should {
@@ -57,9 +59,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
           yesNoForm, taxYear)(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        "contains the correct title" in {
-          document.title shouldBe expectedIndividualTitle
-        }
+        titleCheck(expectedIndividualTitle)
 
         "contain the correct h1" in {
           elementText(h1Selector) shouldBe expectedIndividualH1
@@ -87,7 +87,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
 
     "correctly render with errors as an individual" when {
 
-      "there are no form errors" which {
+      "there are form errors" which {
 
         lazy val view = receiveUkDividendsView(
           yesNoForm.copy(
@@ -100,9 +100,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
         val expectedErrorTitle = "There is a problem"
         val expectedErrorText = "Select yes if dividends were received from the UK"
 
-        "contains the correct title" in {
-          document.title shouldBe expectedIndividualTitle
-        }
+        titleCheck(expectedIndividualErrorTitle)
 
         "contain the correct h1" in {
           elementText(h1Selector) shouldBe expectedIndividualH1
@@ -148,9 +146,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
           yesNoForm, taxYear)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        "contains the correct title" in {
-          document.title shouldBe expectedAgentTitle
-        }
+        titleCheck(expectedAgentTitle)
 
         "contain the correct h1" in {
           elementText(h1Selector) shouldBe expectedAgentH1
@@ -191,9 +187,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
         val expectedErrorTitle = "There is a problem"
         val expectedErrorText = "Select yes if dividends were received from the UK"
 
-        "contains the correct title" in {
-          document.title shouldBe expectedAgentTitle
-        }
+        titleCheck(expectedAgentErrorTitle)
 
         "contain the correct h1" in {
           elementText(h1Selector) shouldBe expectedAgentH1

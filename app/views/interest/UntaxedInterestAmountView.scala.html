@@ -32,7 +32,9 @@
 
 @(form: Form[UntaxedInterestModel], taxYear: Int, postAction: Call)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@layout(messages("interest.untaxed-uk-interest-details.title"), taxYear = Some(taxYear)) {
+@hasFormErrors = @{form.hasErrors}
+
+@layout(messages("interest.untaxed-uk-interest-details.title"), taxYear = Some(taxYear), hasErrors = hasFormErrors) {
     @formWithCsrf(action = postAction) {
 
         @errorSummary(form.errors.distinct)
