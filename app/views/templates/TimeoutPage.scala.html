@@ -15,16 +15,16 @@
  *@
 
 @import views.html.headerFooterTemplate.Layout
-@import views.html.templates.helpers.HeadingLarge
+@import views.html.templates.helpers.Heading
 @import views.html.templates.helpers.Button
 
-@this(heading : HeadingLarge, layout: Layout, formHelper: FormWithCSRF, button: Button)
+@this(heading : Heading, layout: Layout, formHelper: FormWithCSRF, button: Button)
 
 @(postAction: Call)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @layout(pageTitle = messages("timeout.heading"), backLink = false, timeout = false, showSignOut = false) {
 
-@heading(messages("timeout.heading"))
+@heading(messages("timeout.heading"), None, size = "xl")
 
 <div class="govuk-body">
     <p>@messages("timeout.p1")</p>
