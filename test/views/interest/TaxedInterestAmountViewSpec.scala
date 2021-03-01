@@ -46,6 +46,7 @@ class TaxedInterestAmountViewSpec extends ViewTest{
 
   val expectedErrorSummaryTitle = "There is a problem"
   val expectedErrorSummaryText = "Enter the amount of taxed interest earned"
+  val expectedHintText = "For example, £600 or £193.54"
 
   val taxYear = 2020
   val id = "id"
@@ -56,20 +57,16 @@ class TaxedInterestAmountViewSpec extends ViewTest{
       "there are no form errors " which {
         lazy val view = taxedInterestView(
           taxedInterestForm,
-          2020,
+          taxYear,
           controllers.interest.routes.TaxedInterestAmountController.submit(taxYear,id)
         )(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        titleCheck(expectedTitle)
+        h1Check(expectedH1, h1Selector)
+        titleCheck(expectedH1)
+        captionCheck(expectedCaption)
+        hintTextCheck(expectedHintText)
 
-        "has the correct h1" in {
-          elementText(h1Selector) shouldBe expectedH1
-        }
-
-        "Contains the correct caption" in {
-          elementText(captionSelector) shouldBe expectedCaption
-        }
         "contains a continue button" in {
           elementExist(continueButtonSelector) shouldBe true
         }
@@ -83,15 +80,11 @@ class TaxedInterestAmountViewSpec extends ViewTest{
         )(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        titleCheck(expectedErrorTitle)
+        h1Check(expectedH1, h1Selector)
+        titleCheck(expectedH1, error = true)
+        captionCheck(expectedCaption)
+        hintTextCheck(expectedHintText)
 
-        "has the correct h1" in {
-          elementText(h1Selector) shouldBe expectedH1
-        }
-
-        "contains the correct header caption" in {
-          elementText(captionSelector) shouldBe expectedCaption
-        }
         "contains a continue button" in {
           elementExist(continueButtonSelector) shouldBe true
         }

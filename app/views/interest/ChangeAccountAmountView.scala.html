@@ -36,6 +36,10 @@
     @heading(messages(s"interest.change-account.${taxType.toLowerCase}-heading", account.accountName), Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 }
 
+@hintText = {
+    @messages("common.currency.hint")
+}
+
 @otherAmountHtml = {
     @inputText(
             form,
@@ -43,7 +47,8 @@
             name = "amount",
             label = "common.enterAmount",
             isPageHeading = false,
-            currency = true
+            currency = true,
+            hint = Some(hintText)
         )
 }
 

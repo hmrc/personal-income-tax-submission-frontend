@@ -71,6 +71,47 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
     elementText("h1") shouldBe text
   }
 
+  def titleCheck(title: String, error: Boolean = false)(implicit document: Document): Unit = {
+    s"has a title of $title" in {
+      document.title() shouldBe s"${if(error) "Error: " else ""}$title - $serviceName - $govUkExtension"
+    }
+  }
+
+  def h1Check(header: String, selector: String = "#main-content > div > div > header > h1")(implicit document: Document): Unit = {
+    s"have a page heading of '$header'" in {
+      elementText(selector) shouldBe header
+    }
+  }
+
+  def textOnPageCheck(text: String, selector: String)(implicit document: Document): Unit = {
+    s"have text on the screen of '$text'" in {
+      elementText(selector) shouldBe text
+    }
+  }
+
+  def buttonCheck(text: String, selector: String, href: String)(implicit document: Document): Unit = {
+    s"have a $text button" which {
+      s"has the text '$text'" in {
+        elementText(selector) shouldBe text
+      }
+      s"has a href to '$href'" in {
+        document.select(selector).attr("href") shouldBe href
+      }
+    }
+  }
+
+  def hintTextCheck(text: String, selector: String = ".govuk-hint")(implicit document: Document): Unit = {
+    s"has the hint text of '$text'" in {
+      elementText(selector) shouldBe text
+    }
+  }
+
+  def captionCheck(text: String, selector: String = ".govuk-caption-l")(implicit document: Document): Unit = {
+    s"has the caption '$text'" in {
+      elementText(selector) shouldBe text
+    }
+  }
+
   def assertCaption(text: String, selector: String = ".govuk-caption-l")(implicit document: Document): Assertion = {
     elementText(selector) shouldBe text
   }
