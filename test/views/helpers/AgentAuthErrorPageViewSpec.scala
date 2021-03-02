@@ -16,17 +16,12 @@
 
 package views
 
-import config.AppConfig
 import org.jsoup.Jsoup
-import org.jsoup.nodes.{Document, Element}
+import org.jsoup.nodes.Document
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.{Messages, MessagesApi}
-import play.api.mvc.AnyContentAsEmpty
-import play.api.test.FakeRequest
 import utils.ViewTest
-import views.html.authErrorPages.AgentAuthErrorPageView
 
 class AgentAuthErrorPageViewSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with ViewTest{
 

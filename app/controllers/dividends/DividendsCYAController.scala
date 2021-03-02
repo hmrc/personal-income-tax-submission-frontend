@@ -20,8 +20,6 @@ import audit.{AuditModel, AuditService, CreateOrAmendDividendsAuditDetail}
 import common.SessionValues
 import config.{AppConfig, ErrorHandler}
 import controllers.predicates.AuthorisedAction
-
-import javax.inject.Inject
 import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, DividendsResponseModel, User}
 import play.api.Logger
 import play.api.i18n.I18nSupport
@@ -33,6 +31,7 @@ import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.DividendsCYAView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DividendsCYAController @Inject()(
@@ -93,7 +92,7 @@ class DividendsCYAController @Inject()(
     val priorData: Option[DividendsPriorSubmission] = getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
 
       dividendsSubmissionService.submitDividends(cyaData, user.nino, user.mtditid, taxYear).map {
-        case Right(DividendsResponseModel(NO_CONTENT)) =>
+        case Right(DividendsResponseModel(_)) =>
           auditSubmission(CreateOrAmendDividendsAuditDetail(cyaData, priorData, user.nino, user.mtditid, taxYear))
           Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).removingFromSession(SessionValues.DIVIDENDS_CYA, SessionValues.DIVIDENDS_PRIOR_SUB)
         case Left(error) => errorHandler.handleError(error.status)

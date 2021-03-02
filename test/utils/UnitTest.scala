@@ -27,7 +27,6 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.Lang
 import play.api.mvc.{AnyContentAsEmpty, ControllerComponents, Result, Session}
 import play.api.test.{FakeRequest, Helpers}
 import services.AuthService
