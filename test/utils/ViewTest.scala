@@ -83,7 +83,7 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
 
   def h1Check(header: String)(implicit document: Document): Unit = {
     s"have a page heading of '$header'" in {
-      document.select("#main-content > div > div > header > h1").text() shouldBe header
+      document.select(".govuk-heading-l").text() shouldBe header
     }
   }
 
@@ -115,6 +115,12 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
     }
   }
 
+  def inputFieldCheck(name: String, selector: String)(implicit document: Document): Unit = {
+    s"has a name of '$name'" in {
+      document.select(selector).attr("name") shouldBe name
+    }
+  }
+
   def errorSummaryCheck(text: String, href: String)(implicit document: Document): Unit = {
     "contains an error summary" in {
       elementExist(".govuk-error-summary")
@@ -127,7 +133,7 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
         document.select(".govuk-error-summary__body").text() shouldBe text
       }
       s"has a href to '$href'" in {
-        document.select(".govuk-error-summary__body").attr("href") shouldBe href
+        document.select(".govuk-error-summary__body > ul > li > a").attr("href") shouldBe href
       }
     }
   }
@@ -135,7 +141,7 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
   def errorAboveElementCheck(text: String)(implicit document: Document): Unit = {
     s"has a $text error above the element" which {
       s"has the text '$text'" in {
-        document.select(".govuk-error-message").text() shouldBe text
+        document.select(".govuk-error-message").text() shouldBe s"Error: $text"
       }
     }
   }

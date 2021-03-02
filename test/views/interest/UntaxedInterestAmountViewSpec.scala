@@ -17,102 +17,138 @@
 package views.interest
 
 import forms.UntaxedInterestAmountForm
-import forms.UntaxedInterestAmountForm._
 import models.UntaxedInterestModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import play.api.data.{Form, FormError}
+import play.api.data.Form
+import play.twirl.api.HtmlFormat
 import utils.ViewTest
 import views.html.interest.UntaxedInterestAmountView
 
-
-
-class UntaxedInterestAmountViewSpec extends ViewTest {
+class UntaxedInterestAmountViewSpec extends ViewTest{
 
   lazy val untaxedInterestForm: Form[UntaxedInterestModel] = UntaxedInterestAmountForm.untaxedInterestAmountForm()
   lazy val untaxedInterestView: UntaxedInterestAmountView = app.injector.instanceOf[UntaxedInterestAmountView]
 
-  val h1Selector = "h1"
   val captionSelector = ".govuk-caption-l"
   val continueButtonSelector = "#continue"
-  val errorSummarySelector = ".govuk-error-summary"
-  val errorSummaryTitle = ".govuk-error-summary__title"
-  val errorSummaryText = ".govuk-error-summary__body"
+  val whatWouldYouCallSelector = "#main-content > div > div > form > div:nth-child(2) > label"
+  val accountNameInputSelector = "input#untaxedAccountName"
+  val amountInterestSelector = "#main-content > div > div > form > div:nth-child(3) > label"
+  val poundPrefixSelector = ".govuk-input__prefix"
+  val interestEarnedInputSelector = "input#untaxedAmount"
 
   val taxYear = 2020
+  val taxYearMinusOne: Int = taxYear -1
   val id = "id"
 
-  "UntaxedInterestAmountView" should {
+  val titleText = "UK untaxed interest account details"
+  val errorTitleText = s"$titleText"
+  val h1Text = "UK untaxed interest account details"
+  val captionText = s"Interest for 06 April $taxYearMinusOne to 05 April $taxYear"
+  val whatWouldYouCallText = "What would you like to call this account?"
+  val amountInterestText = "Amount of interest earned"
+  val poundPrefixText = "£"
+  val continueButtonText = "Continue"
+
+  def newView(form: Form[UntaxedInterestModel]): HtmlFormat.Appendable = untaxedInterestView(
+    form,
+    taxYear,
+    controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear,id)
+  )(user, implicitly, mockAppConfig)
+
+  "Untaxed interest amount view " should {
 
     "Correctly render" when {
-      "There are no form errors" which {
 
-        lazy val view = untaxedInterestView(
-          untaxedInterestForm,
-          taxYear,
-          controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear,id)
-        )(user,implicitly,mockAppConfig)
+      "there are no form errors" which {
+        implicit lazy val document: Document = Jsoup.parse(newView(untaxedInterestForm).body)
 
-        implicit lazy val document: Document = Jsoup.parse(view.body)
-        val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
-        val expectedH1 = "UK untaxed interest account details"
-        val expectedTitle = s"$expectedH1 - $serviceName - $govUkExtension"
-
-        "contains the correct title" in {
-          document.title shouldBe expectedTitle
-        }
-
-        "contains the correct caption" in {
-          elementText(captionSelector) shouldBe expectedCaption
-        }
-
-        "contains the correct h1" in {
-          elementText(h1Selector) shouldBe expectedH1
-        }
+        titleCheck(titleText)
+        textOnPageCheck(captionText, captionSelector)
+        h1Check(h1Text)
+        textOnPageCheck(whatWouldYouCallText, whatWouldYouCallSelector)
+        inputFieldCheck("untaxedAccountName", accountNameInputSelector)
+        textOnPageCheck(amountInterestText, amountInterestSelector)
+        textOnPageCheck(poundPrefixText, poundPrefixSelector)
+        inputFieldCheck("untaxedAmount", interestEarnedInputSelector)
+        buttonCheck(continueButtonText, continueButtonSelector)
       }
 
-      "There are form errors" which {
+      "there are form errors " which {
 
-        lazy val view = untaxedInterestView(
-          untaxedInterestForm.copy(errors = Seq(FormError(untaxedAmount,
-          "interest.untaxed-uk-interest-amount.error.empty"))),
-          taxYear,
-          controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear,id)
-        )(user, implicitly, mockAppConfig)
+        "when passed a form without an empty untaxedAmount value" which {
 
-        implicit lazy val document: Document = Jsoup.parse(view.body)
-        val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
-        val expectedErrorTitle = "There is a problem"
-        val expectedErrorText = "Enter the amount of untaxed interest earned"
-        val expectedH1 = "UK untaxed interest account details"
-        val expectedTitle = s"$expectedH1 - $serviceName - $govUkExtension"
+          lazy val errorForm = untaxedInterestForm.bind(Map("untaxedAmount" -> "", "untaxedAccountName" -> "Account Name"))
+          implicit lazy val document: Document = Jsoup.parse(newView(errorForm).body)
+          val expectedErrorText = "Enter the amount of untaxed interest earned"
+          val errorSummaryHref = "#untaxedAmount"
 
-        "contains the document title" in {
-          document.title shouldBe expectedTitle
+          titleCheck(errorTitleText)
+          h1Check(h1Text)
+          errorSummaryCheck(expectedErrorText, errorSummaryHref)
+          textOnPageCheck(captionText, captionSelector)
+          errorAboveElementCheck(expectedErrorText)
+          buttonCheck(continueButtonText, continueButtonSelector)
         }
 
-        "contains the correct header caption" in {
-          elementText(captionSelector) shouldBe expectedCaption
+        "when passed a form without an empty untaxedAccountName value" which {
+          lazy val errorForm = untaxedInterestForm.bind(Map("untaxedAmount" -> "100.00", "untaxedAccountName" -> ""))
+          implicit lazy val document: Document = Jsoup.parse(newView(errorForm).body)
+          val expectedErrorText = "Enter an account name"
+          val errorSummaryHref = "#untaxedAccountName"
+
+          titleCheck(errorTitleText)
+          h1Check(h1Text)
+          errorSummaryCheck(expectedErrorText, errorSummaryHref)
+          textOnPageCheck(captionText, captionSelector)
+          errorAboveElementCheck(expectedErrorText)
+          buttonCheck(continueButtonText, continueButtonSelector)
         }
 
-        "contains a continue button" in {
-          elementExist(continueButtonSelector) shouldBe true
+        "when passed a form with a non monetary untaxedAmount value" which {
+          lazy val errorForm = untaxedInterestForm.bind(Map("untaxedAmount" -> "abc", "untaxedAccountName" -> "Account Name"))
+          implicit lazy val document: Document = Jsoup.parse(newView(errorForm).body)
+          val expectedErrorText = "Enter an amount using numbers 0 to 9"
+          val errorSummaryHref = "#untaxedAmount"
+
+          titleCheck(errorTitleText)
+          h1Check(h1Text)
+          errorSummaryCheck(expectedErrorText, errorSummaryHref)
+          textOnPageCheck(captionText, captionSelector)
+          errorAboveElementCheck(expectedErrorText)
+          buttonCheck(continueButtonText, continueButtonSelector)
         }
 
-        "contains an error" in {
-          elementExist(errorSummarySelector) shouldBe true
+        "when passed a form with a untaxedAmount value over £100,000,000,000" which {
+          lazy val errorForm = untaxedInterestForm.bind(Map("untaxedAmount" -> "£200,000,000,000", "untaxedAccountName" -> "Account Name"))
+          implicit lazy val document: Document = Jsoup.parse(newView(errorForm).body)
+          val expectedErrorText = "Enter an amount less than £100,000,000,000"
+          val errorSummaryHref = "#untaxedAmount"
+
+          titleCheck(errorTitleText)
+          h1Check(h1Text)
+          errorSummaryCheck(expectedErrorText, errorSummaryHref)
+          textOnPageCheck(captionText, captionSelector)
+          errorAboveElementCheck(expectedErrorText)
+          buttonCheck(continueButtonText, continueButtonSelector)
         }
 
-        "contain an error title" in {
-          elementText(errorSummaryTitle) shouldBe expectedErrorTitle
-        }
+        "when passed a form with invalid currency untaxedAmount value" which {
 
-        "contains an error message" in {
-          elementText(errorSummaryText) shouldBe expectedErrorText
-        }
+          lazy val errorForm = untaxedInterestForm.bind(Map("untaxedAmount" -> "100.00.00.00", "untaxedAccountName" -> "Account Name"))
+          implicit lazy val document: Document = Jsoup.parse(newView(errorForm).body)
+          val expectedErrorText = "Enter an amount in pounds and pence"
+          val errorSummaryHref = "#untaxedAmount"
 
+          titleCheck(errorTitleText)
+          h1Check(h1Text)
+          errorSummaryCheck(expectedErrorText, errorSummaryHref)
+          textOnPageCheck(captionText, captionSelector)
+          errorAboveElementCheck(expectedErrorText)
+          buttonCheck(continueButtonText, continueButtonSelector)
+        }
       }
     }
   }
-
 }

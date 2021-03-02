@@ -17,11 +17,10 @@
 package views.interest
 
 import forms.TaxedInterestAmountForm
-import forms.TaxedInterestAmountForm._
 import models.TaxedInterestModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import play.api.data.{Form, FormError}
+import play.api.data.Form
 import play.twirl.api.HtmlFormat
 import utils.ViewTest
 import views.html.interest.TaxedInterestAmountView
@@ -31,24 +30,29 @@ class TaxedInterestAmountViewSpec extends ViewTest{
   lazy val taxedInterestForm: Form[TaxedInterestModel] = TaxedInterestAmountForm.taxedInterestAmountForm()
   lazy val taxedInterestView: TaxedInterestAmountView = app.injector.instanceOf[TaxedInterestAmountView]
 
-  val h1Selector = "h1"
   val captionSelector = ".govuk-caption-l"
   val continueButtonSelector = "#continue"
-
-  val errorSummarySelector = ".govuk-error-summary"
-  val errorSummaryTitle = ".govuk-error-summary__title"
-  val errorSummaryText = ".govuk-error-summary__body"
+  val whatWouldYouCallSelector = "#main-content > div > div > form > div:nth-child(2) > label"
+  val accountNameInputSelector = "input#taxedAccountName"
+  val amountInterestSelector = "#main-content > div > div > form > div:nth-child(3) > label"
+  val poundPrefixSelector = ".govuk-input__prefix"
+  val interestEarnedInputSelector = "input#taxedAmount"
 
   val taxYear = 2020
+  val taxYearMinusOne: Int = taxYear -1
   val id = "id"
 
-  val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
-  val expectedH1 = "UK taxed interest account details"
-  val expectedTitle = s"$expectedH1 - $serviceName - $govUkExtension"
-  val expectedErrorTitle = "There is a problem"
+  val titleText = "UK taxed interest account details"
+  val errorTitleText = s"$titleText"
+  val h1Text = "UK taxed interest account details"
+  val captionText = s"Interest for 06 April $taxYearMinusOne to 05 April $taxYear"
+  val whatWouldYouCallText = "What would you like to call this account?"
+  val amountInterestText = "Amount of interest earned"
+  val poundPrefixText = "£"
+  val continueButtonText = "Continue"
 
   def newView(form: Form[TaxedInterestModel]): HtmlFormat.Appendable = taxedInterestView(
-    taxedInterestForm,
+    form,
     taxYear,
     controllers.interest.routes.TaxedInterestAmountController.submit(taxYear,id)
   )(user, implicitly, mockAppConfig)
@@ -57,175 +61,94 @@ class TaxedInterestAmountViewSpec extends ViewTest{
 
     "Correctly render" when {
 
+      "there are no form errors" which {
         implicit lazy val document: Document = Jsoup.parse(newView(taxedInterestForm).body)
 
-        "has the correct h1" in {
-          elementText(h1Selector) shouldBe expectedH1
-        }
-
-        "Contains the correct title" in {
-          document.title shouldBe expectedTitle
-        }
-        "Contains the correct caption" in {
-          elementText(captionSelector) shouldBe expectedCaption
-        }
-        "contains a continue button" in {
-          elementExist(continueButtonSelector) shouldBe true
-        }
+        titleCheck(titleText)
+        textOnPageCheck(captionText, captionSelector)
+        h1Check(h1Text)
+        textOnPageCheck(whatWouldYouCallText, whatWouldYouCallSelector)
+        inputFieldCheck("taxedAccountName", accountNameInputSelector)
+        textOnPageCheck(amountInterestText, amountInterestSelector)
+        textOnPageCheck(poundPrefixText, poundPrefixSelector)
+        inputFieldCheck("taxedAmount", interestEarnedInputSelector)
+        buttonCheck(continueButtonText, continueButtonSelector)
       }
 
       "there are form errors " which {
 
-        "when passed a form without a taxedAmount value" which {
+        "when passed a form without an empty taxedAmount value" which {
 
-          lazy val emptyTaxedAccountForm = taxedInterestForm.bind(Map("taxedAmount" -> "", "taxedAccountName" -> "Account Name"))
-          implicit lazy val document: Document = Jsoup.parse(newView(emptyTaxedAccountForm).body)
+          lazy val errorForm = taxedInterestForm.bind(Map("taxedAmount" -> "", "taxedAccountName" -> "Account Name"))
+          implicit lazy val document: Document = Jsoup.parse(newView(errorForm).body)
           val expectedErrorText = "Enter the amount of taxed interest earned"
+          val errorSummaryHref = "#taxedAmount"
 
-          titleCheck("Error: " + expectedTitle)
-          h1Check(expectedH1)
-          errorSummaryCheck(expectedErrorText, "#value")
-          textOnPageCheck(expectedCaption, captionSelector)
+          titleCheck(errorTitleText)
+          h1Check(h1Text)
+          errorSummaryCheck(expectedErrorText, errorSummaryHref)
+          textOnPageCheck(captionText, captionSelector)
           errorAboveElementCheck(expectedErrorText)
-          buttonCheck("Continue", continueButtonSelector)
+          buttonCheck(continueButtonText, continueButtonSelector)
         }
 
-        "when passed a form without a taxedAccountName value" which {
-
-          lazy val emptyTaxedAccountNameForm = taxedInterestForm.bind(Map("taxedAmount" -> "100.00", "taxedAccountName" -> ""))
-          implicit lazy val document: Document = Jsoup.parse(newView(emptyTaxedAccountNameForm).body)
+        "when passed a form without an empty taxedAccountName value" which {
+          lazy val errorForm = taxedInterestForm.bind(Map("taxedAmount" -> "100.00", "taxedAccountName" -> ""))
+          implicit lazy val document: Document = Jsoup.parse(newView(errorForm).body)
           val expectedErrorText = "Enter an account name"
+          val errorSummaryHref = "#taxedAccountName"
 
-          "has the correct h1" in {
-            elementText(h1Selector) shouldBe expectedH1
-          }
-
-          "contains the correct title" in {
-            document.title shouldBe expectedTitle
-          }
-          "contains the correct header caption" in {
-            elementText(captionSelector) shouldBe expectedCaption
-          }
-          "contains a continue button" in {
-            elementExist(continueButtonSelector) shouldBe true
-          }
-
-          "contains an error" in {
-            elementExist(errorSummarySelector) shouldBe true
-          }
-
-          "contain an error title" in {
-            elementText(errorSummaryTitle) shouldBe expectedErrorTitle
-          }
-
-          "contains an error message" in {
-            elementText(errorSummaryText) shouldBe expectedErrorText
-          }
-
+          titleCheck(errorTitleText)
+          h1Check(h1Text)
+          errorSummaryCheck(expectedErrorText, errorSummaryHref)
+          textOnPageCheck(captionText, captionSelector)
+          errorAboveElementCheck(expectedErrorText)
+          buttonCheck(continueButtonText, continueButtonSelector)
         }
 
         "when passed a form with a non monetary taxedAmount value" which {
-
-          lazy val emptyTaxedAccountForm = taxedInterestForm.bind(Map("taxedAmount" -> "abc", "taxedAccountName" -> "Account Name"))
-          implicit lazy val document: Document = Jsoup.parse(newView(emptyTaxedAccountForm).body)
+          lazy val errorForm = taxedInterestForm.bind(Map("taxedAmount" -> "abc", "taxedAccountName" -> "Account Name"))
+          implicit lazy val document: Document = Jsoup.parse(newView(errorForm).body)
           val expectedErrorText = "Enter an amount using numbers 0 to 9"
+          val errorSummaryHref = "#taxedAmount"
 
-          "has the correct h1" in {
-            elementText(h1Selector) shouldBe expectedH1
-          }
-
-          "contains the correct title" in {
-            document.title shouldBe expectedTitle
-          }
-          "contains the correct header caption" in {
-            elementText(captionSelector) shouldBe expectedCaption
-          }
-          "contains a continue button" in {
-            elementExist(continueButtonSelector) shouldBe true
-          }
-
-          "contains an error" in {
-            elementExist(errorSummarySelector) shouldBe true
-          }
-
-          "contain an error title" in {
-            elementText(errorSummaryTitle) shouldBe expectedErrorTitle
-          }
-
-          "contains an error message" in {
-            elementText(errorSummaryText) shouldBe expectedErrorText
-          }
-
+          titleCheck(errorTitleText)
+          h1Check(h1Text)
+          errorSummaryCheck(expectedErrorText, errorSummaryHref)
+          textOnPageCheck(captionText, captionSelector)
+          errorAboveElementCheck(expectedErrorText)
+          buttonCheck(continueButtonText, continueButtonSelector)
         }
 
         "when passed a form with a taxedAmount value over £100,000,000,000" which {
-
-          lazy val emptyTaxedAccountForm = taxedInterestForm.bind(Map("taxedAmount" -> "£200,000,000,000", "taxedAccountName" -> "Account Name"))
-          implicit lazy val document: Document = Jsoup.parse(newView(emptyTaxedAccountForm).body)
+          lazy val errorForm = taxedInterestForm.bind(Map("taxedAmount" -> "£200,000,000,000", "taxedAccountName" -> "Account Name"))
+          implicit lazy val document: Document = Jsoup.parse(newView(errorForm).body)
           val expectedErrorText = "Enter an amount less than £100,000,000,000"
+          val errorSummaryHref = "#taxedAmount"
 
-          "has the correct h1" in {
-            elementText(h1Selector) shouldBe expectedH1
-          }
-
-          "contains the correct title" in {
-            document.title shouldBe expectedTitle
-          }
-          "contains the correct header caption" in {
-            elementText(captionSelector) shouldBe expectedCaption
-          }
-          "contains a continue button" in {
-            elementExist(continueButtonSelector) shouldBe true
-          }
-
-          "contains an error" in {
-            elementExist(errorSummarySelector) shouldBe true
-          }
-
-          "contain an error title" in {
-            elementText(errorSummaryTitle) shouldBe expectedErrorTitle
-          }
-
-          "contains an error message" in {
-            elementText(errorSummaryText) shouldBe expectedErrorText
-          }
-
+          titleCheck(errorTitleText)
+          h1Check(h1Text)
+          errorSummaryCheck(expectedErrorText, errorSummaryHref)
+          textOnPageCheck(captionText, captionSelector)
+          errorAboveElementCheck(expectedErrorText)
+          buttonCheck(continueButtonText, continueButtonSelector)
         }
 
         "when passed a form with invalid currency taxedAmount value" which {
 
-          lazy val emptyTaxedAccountForm = taxedInterestForm.bind(Map("taxedAmount" -> "100.00.00.00", "taxedAccountName" -> "Account Name"))
-          implicit lazy val document: Document = Jsoup.parse(newView(emptyTaxedAccountForm).body)
+          lazy val errorForm = taxedInterestForm.bind(Map("taxedAmount" -> "100.00.00.00", "taxedAccountName" -> "Account Name"))
+          implicit lazy val document: Document = Jsoup.parse(newView(errorForm).body)
           val expectedErrorText = "Enter an amount in pounds and pence"
+          val errorSummaryHref = "#taxedAmount"
 
-          "has the correct h1" in {
-            elementText(h1Selector) shouldBe expectedH1
-          }
-
-          "contains the correct title" in {
-            document.title shouldBe expectedTitle
-          }
-          "contains the correct header caption" in {
-            elementText(captionSelector) shouldBe expectedCaption
-          }
-          "contains a continue button" in {
-            elementExist(continueButtonSelector) shouldBe true
-          }
-
-          "contains an error" in {
-            elementExist(errorSummarySelector) shouldBe true
-          }
-
-          "contain an error title" in {
-            elementText(errorSummaryTitle) shouldBe expectedErrorTitle
-          }
-
-          "contains an error message" in {
-            elementText(errorSummaryText) shouldBe expectedErrorText
-          }
-
+          titleCheck(errorTitleText)
+          h1Check(h1Text)
+          errorSummaryCheck(expectedErrorText, errorSummaryHref)
+          textOnPageCheck(captionText, captionSelector)
+          errorAboveElementCheck(expectedErrorText)
+          buttonCheck(continueButtonText, continueButtonSelector)
         }
-
       }
     }
+  }
 }
