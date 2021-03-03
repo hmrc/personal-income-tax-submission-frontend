@@ -77,7 +77,6 @@ lazy val microservice = Project(appName, file("."))
           "lib/govuk-frontend/govuk/all.js",
           "javascripts/jquery.min.js",
           "javascripts/app.js",
-          "javascripts/timeout/timeoutDialog.js",
           "javascripts/autocomplete.js"
         ))
     ),

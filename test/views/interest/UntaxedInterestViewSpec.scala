@@ -42,10 +42,10 @@ class UntaxedInterestViewSpec extends ViewTest {
   val continueSelector = "#continue"
 
   val expectedIndividualTitle = "Did you receive any untaxed interest from the UK?"
-  val expectedIndividualErrorTitle = s"$expectedIndividualTitle"
+  val expectedIndividualErrorTitle = s"Error: $expectedIndividualTitle"
   val expectedIndividualH1 = "Did you receive any untaxed interest from the UK?"
   val expectedAgentTitle = "Did your client receive any untaxed interest from the UK?"
-  val expectedAgentErrorTitle = s"$expectedAgentTitle"
+  val expectedAgentErrorTitle = s"Error: $expectedAgentTitle"
   val expectedAgentH1 = "Did your client receive any untaxed interest from the UK?"
   val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
   val forExampleText = "For example, interest from:"

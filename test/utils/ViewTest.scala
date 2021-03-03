@@ -81,6 +81,12 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
     }
   }
 
+  def hintTextCheck(text: String, selector: String = ".govuk-hint")(implicit document: Document): Unit = {
+    s"has the hint text of '$text'" in {
+      elementText(selector) shouldBe text
+    }
+  }
+
   def h1Check(header: String)(implicit document: Document): Unit = {
     s"have a page heading of '$header'" in {
       document.select(".govuk-heading-l").text() shouldBe header

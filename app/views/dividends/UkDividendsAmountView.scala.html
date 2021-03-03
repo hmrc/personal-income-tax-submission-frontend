@@ -40,18 +40,23 @@
 
 @(form: Either[Form[PriorOrNewAmountModel], Form[BigDecimal]], priorSubmission: Option[DividendsPriorSubmission], taxYear: Int, postAction: Call, preAmount: Option[BigDecimal] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
+@hintText = @{
+    Some(Html(messages("common.currency.hint")))
+}
+
 @currencyFormHtml(formInput: Form[BigDecimal]) = {
     @errorSummary(formInput.errors.distinct)
 
     @inputText(
-      formInput,
-      id = "amount",
-      name = "amount",
-      label = "dividends.uk-dividends-amount.heading",
-      isPageHeading = false,
-      currency = true,
-      subheading = Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)),
-      headingClasses = "govuk-!-margin-bottom-5"
+        formInput,
+        id = "amount",
+        name = "amount",
+        label = "dividends.uk-dividends-amount.heading",
+        isPageHeading = false,
+        currency = true,
+        subheading = Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)),
+        headingClasses = "govuk-!-margin-bottom-5",
+        hint = hintText
    )
 }
 
@@ -66,7 +71,8 @@
         name = "amount",
         label = "common.enterAmount",
         isPageHeading = false,
-        currency = true
+        currency = true,
+        hint = hintText
     )
 }
 
@@ -100,7 +106,14 @@
     </div>
 }
 
-@layout(pageTitle = messages("dividends.uk-dividends-amount.title"), taxYear = Some(taxYear)) {
+@hasFormErrors = @{
+    form.fold(
+        priorOrNew => priorOrNew.hasErrors,
+        bigDecimal => bigDecimal.hasErrors
+    )
+}
+
+@layout(pageTitle = messages("dividends.uk-dividends-amount.title"), taxYear = Some(taxYear), hasErrors = hasFormErrors) {
 
     @formWithCSRF(action = postAction) {
         @form.fold(

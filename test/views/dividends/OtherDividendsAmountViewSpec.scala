@@ -48,6 +48,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
   val expectedTitle = "What is the total amount of dividends from trusts or open ended investment companies?"
   val expectedErrorTitle = s"$expectedTitle"
   val expectedCaption = "Dividends for 06 April 2019 to 05 April 2020"
+  val expectedHintText = "For example, £600 or £193.54"
   val poundPrefixText = "£"
   val differentAmountText = "A different amount"
   val enterAmountText = "Enter amount"
@@ -72,6 +73,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
           titleCheck(expectedTitle)
           h1Check(expectedH1)
           textOnPageCheck(expectedCaption, captionSelector)
+          hintTextCheck(expectedHintText)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
           inputFieldCheck("amount", inputSelector)
           buttonCheck(continueText, continueButtonSelector)
@@ -167,6 +169,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
             errorSummaryCheck(expectedErrorText, "#amount")
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)

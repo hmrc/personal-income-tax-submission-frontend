@@ -56,4 +56,7 @@ GET         /:taxYear/interest/change-taxed-interest-account              contro
 POST        /:taxYear/interest/change-untaxed-interest-account            controllers.interest.ChangeAccountAmountController.submit(taxYear: Int, taxType = "untaxed", accountId : String)
 POST        /:taxYear/interest/change-taxed-interest-account              controllers.interest.ChangeAccountAmountController.submit(taxYear: Int, taxType = "taxed", accountId : String)
 
+GET         /keep-alive                                                   controllers.SessionExpiredController.keepAlive
+GET         /timeout                                                      controllers.SessionExpiredController.timeout
+
 GET         /assets/*file                                                 controllers.Assets.versioned(path = "/public", file: Asset)

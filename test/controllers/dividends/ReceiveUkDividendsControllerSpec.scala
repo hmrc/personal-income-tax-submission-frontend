@@ -18,10 +18,10 @@ package controllers.dividends
 
 import common.SessionValues
 import forms.YesNoForm
-import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, User}
+import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import play.api.http.Status._
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContent, Result}
+import play.api.mvc.Result
 import utils.UnitTestWithApp
 import views.html.dividends.ReceiveUkDividendsView
 

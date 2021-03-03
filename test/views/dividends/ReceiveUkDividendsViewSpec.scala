@@ -33,10 +33,10 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
   val taxYear = 2020
   val expectedIndividualH1 = "Did you receive any dividends from companies in the UK?"
   val expectedIndividualTitle = "Did you receive any dividends from companies in the UK?"
-  val expectedIndividualErrorTitle = s"$expectedIndividualTitle"
+  val expectedIndividualErrorTitle = s"Error: $expectedIndividualTitle"
   val expectedAgentH1 = "Did your client receive any dividends from companies in the UK?"
   val expectedAgentTitle = "Did your client receive any dividends from companies in the UK?"
-  val expectedAgentErrorTitle = s"$expectedAgentTitle"
+  val expectedAgentErrorTitle = s"Error: $expectedAgentTitle"
   val captionText = "Dividends for 06 April 2019 to 05 April 2020"
   val yourDividendsText = "Your dividend voucher will usually show your shares in the company and the dividends received."
   val yesText = "Yes"

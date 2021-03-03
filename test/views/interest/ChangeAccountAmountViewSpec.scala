@@ -26,7 +26,7 @@ import utils.ViewTest
 import views.html.interest.ChangeAccountAmountView
 
 class ChangeAccountAmountViewSpec extends ViewTest {
-  lazy val priorOrNewAmountForm: Form[PriorOrNewAmountModel] = PriorOrNewAmountForm.priorOrNewAmountForm(5000)
+  lazy val priorOrNewAmountForm: Form[PriorOrNewAmountModel] = PriorOrNewAmountForm.priorOrNewAmountForm(5000.00)
   lazy val changeAccountAmountView: ChangeAccountAmountView = app.injector.instanceOf[ChangeAccountAmountView]
 
   val h1Selector = "h1"
@@ -35,26 +35,28 @@ class ChangeAccountAmountViewSpec extends ViewTest {
   val continueButtonSelector = "#continue"
 
   val errorSummarySelector = ".govuk-error-summary"
-  val errorSummaryTitle = ".govuk-error-summary__title"
-  val errorSummaryText = ".govuk-error-summary__body"
+  val errorSummaryTitleSelector = ".govuk-error-summary__title"
+  val errorSummaryTextSelector = ".govuk-error-summary__body"
 
   val expectedUntaxedH1 = "Monzo untaxed interest earned"
   val expectedTaxedH1 = "Monzo taxed interest earned"
 
-  val expectedUntaxedTitle = s"Untaxed interest earned - $serviceName - $govUkExtension"
-  val expectedTaxedTitle = s"Taxed interest earned - $serviceName - $govUkExtension"
+  val expectedHintText = "For example, £600 or £193.54"
+
+  val expectedUntaxedTitle = "Untaxed interest earned"
+  val expectedTaxedTitle = "Taxed interest earned"
 
   val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
 
-  val expectedErrorTitle = "There is a problem"
-  val expectedErrorText = "Select £5000 or enter a different amount"
+  val expectedErrorSummaryTitle = "There is a problem"
+  val expectedErrorSummaryText = "Select £5000 or enter a different amount"
 
   val priorAmountRadio = "#whichAmount"
   val priorAmountRadioText = "#main-content > div > div > form > div > div > fieldset > div > div:nth-child(1) > label"
   val newAmountRadio = "#otherAmount"
   val newAmountInput = "#amount"
 
-  val account = InterestAccountModel(Some("qwerty"), "Monzo", 5000)
+  val account: InterestAccountModel = InterestAccountModel(Some("qwerty"), "Monzo", 5000.00)
 
   val taxYear = 2020
 
@@ -80,17 +82,10 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          "contains the correct h1" in {
-            elementText(h1Selector) shouldBe expectedUntaxedH1
-          }
-
-          "contains the correct title" in {
-            document.title shouldBe expectedUntaxedTitle
-          }
-
-          "contains the correct header caption" in {
-            elementText(captionSelector) shouldBe expectedCaption
-          }
+          titleCheck(expectedUntaxedTitle)
+          h1Check(expectedUntaxedH1, h1Selector)
+          captionCheck(expectedCaption)
+          hintTextCheck(expectedHintText)
 
           "contains a prior amount radio button" in {
             elementExist(priorAmountRadio) shouldBe true
@@ -134,17 +129,10 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          "contains the correct h1" in {
-            elementText(h1Selector) shouldBe expectedUntaxedH1
-          }
-
-          "contain the correct h1" in {
-            elementText(h1Selector) shouldBe expectedUntaxedH1
-          }
-
-          "contains the correct header caption" in {
-            elementText(captionSelector) shouldBe expectedCaption
-          }
+          titleCheck(expectedUntaxedTitle, error = true)
+          h1Check(expectedUntaxedH1, h1Selector)
+          captionCheck(expectedCaption)
+          hintTextCheck(expectedHintText)
 
           "contains an input box" in {
             elementExist(inputSelector) shouldBe true
@@ -159,11 +147,11 @@ class ChangeAccountAmountViewSpec extends ViewTest {
           }
 
           "contain an error title" in {
-            elementText(errorSummaryTitle) shouldBe expectedErrorTitle
+            elementText(errorSummaryTitleSelector) shouldBe expectedErrorSummaryTitle
           }
 
           "contains an error message" in {
-            elementText(errorSummaryText) shouldBe expectedErrorText
+            elementText(errorSummaryTextSelector) shouldBe expectedErrorSummaryText
           }
 
         }
@@ -184,17 +172,10 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          "contains the correct h1" in {
-            elementText(h1Selector) shouldBe expectedTaxedH1
-          }
-
-          "contains the correct title" in {
-            document.title shouldBe expectedTaxedTitle
-          }
-
-          "contains the correct header caption" in {
-            elementText(captionSelector) shouldBe expectedCaption
-          }
+          titleCheck(expectedTaxedTitle)
+          h1Check(expectedTaxedH1, h1Selector)
+          captionCheck(expectedCaption)
+          hintTextCheck(expectedHintText)
 
           "contains a prior amount radio button" in {
             elementExist(priorAmountRadio) shouldBe true
@@ -238,17 +219,10 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          "contains the correct h1" in {
-            elementText(h1Selector) shouldBe expectedTaxedH1
-          }
-
-          "contain the correct h1" in {
-            elementText(h1Selector) shouldBe expectedTaxedH1
-          }
-
-          "contains the correct header caption" in {
-            elementText(captionSelector) shouldBe expectedCaption
-          }
+          titleCheck(expectedTaxedTitle, error = true)
+          h1Check(expectedTaxedH1, h1Selector)
+          captionCheck(expectedCaption)
+          hintTextCheck(expectedHintText)
 
           "contains an input box" in {
             elementExist(inputSelector) shouldBe true
@@ -263,11 +237,11 @@ class ChangeAccountAmountViewSpec extends ViewTest {
           }
 
           "contain an error title" in {
-            elementText(errorSummaryTitle) shouldBe expectedErrorTitle
+            elementText(errorSummaryTitleSelector) shouldBe expectedErrorSummaryTitle
           }
 
           "contains an error message" in {
-            elementText(errorSummaryText) shouldBe expectedErrorText
+            elementText(errorSummaryTextSelector) shouldBe expectedErrorSummaryText
           }
 
         }

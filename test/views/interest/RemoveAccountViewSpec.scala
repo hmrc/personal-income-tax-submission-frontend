@@ -45,10 +45,16 @@ class RemoveAccountViewSpec extends ViewTest {
   val continueButtonSelector = "#continue"
 
   val errorSummarySelector = ".govuk-error-summary"
-  val errorSummaryTitle = ".govuk-error-summary__title"
-  val errorSummaryText = ".govuk-error-summary__body"
+  val errorSummaryTitleSelector = ".govuk-error-summary__title"
+  val errorSummaryTextSelector = ".govuk-error-summary__body"
 
-  val expectedTitle = s"Are you sure you want to remove this account? - $serviceName - $govUkExtension"
+  val expectedTitle = "Are you sure you want to remove this account?"
+  val expectedErrorTitle = s"Error: $expectedTitle"
+  val expectedH1 = "Are you sure you want to remove Monzo?"
+  val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
+
+  val expectedErrorSummaryTitle = "There is a problem"
+  val expectedErrorSummaryText = "Select yes to remove this account"
 
   "Remove Account view" should {
 
@@ -56,12 +62,9 @@ class RemoveAccountViewSpec extends ViewTest {
       "There are no form errors " which {
         lazy val view = removeAccountView(yesNoForm, taxYear, UNTAXED, account)(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
-        val expectedH1 = "Are you sure you want to remove Monzo?"
-        val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
 
-        "Contains the correct title" in {
-          document.title shouldBe expectedTitle
-        }
+        titleCheck(expectedTitle)
+
         "Contains the correct h1" in {
           elementText(h1Selector) shouldBe expectedH1
         }
@@ -82,7 +85,7 @@ class RemoveAccountViewSpec extends ViewTest {
       }
     }
     "correctly render with errors as an individual" when {
-      "there are no form errors" which {
+      "there are form errors" which {
         lazy val view = removeAccountView(
           yesNoForm.copy(
             errors = Seq(FormError("yes_no", "Select yes to remove this account"))),
@@ -90,14 +93,7 @@ class RemoveAccountViewSpec extends ViewTest {
         )(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedH1 = "Are you sure you want to remove Monzo?"
-        val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
-        val expectedErrorTitle = "There is a problem"
-        val expectedErrorText = "Select yes to remove this account"
-
-        "contains the correct title" in {
-          document.title shouldBe expectedTitle
-        }
+        titleCheck(expectedErrorTitle)
 
         "contain the correct h1" in {
           elementText(h1Selector) shouldBe expectedH1
@@ -124,11 +120,11 @@ class RemoveAccountViewSpec extends ViewTest {
         }
 
         "contain an error title" in {
-          elementText(errorSummaryTitle) shouldBe expectedErrorTitle
+          elementText(errorSummaryTitleSelector) shouldBe expectedErrorSummaryTitle
         }
 
         "contains an error message" in {
-          elementText(errorSummaryText) shouldBe expectedErrorText
+          elementText(errorSummaryTextSelector) shouldBe expectedErrorSummaryText
         }
       }
     }
@@ -139,12 +135,7 @@ class RemoveAccountViewSpec extends ViewTest {
           yesNoForm, taxYear, UNTAXED, account)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedH1 = "Are you sure you want to remove Monzo?"
-        val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
-
-        "contains the correct title" in {
-          document.title shouldBe expectedTitle
-        }
+        titleCheck(expectedTitle)
 
         "contain the correct h1" in {
           elementText(h1Selector) shouldBe expectedH1
@@ -176,14 +167,7 @@ class RemoveAccountViewSpec extends ViewTest {
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedH1 = "Are you sure you want to remove Monzo?"
-        val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
-
-        val expectedErrorTitle = "There is a problem"
-        val expectedErrorText = "Select yes to remove this account"
-        "contains the correct title" in {
-          document.title shouldBe expectedTitle
-        }
+        titleCheck(expectedErrorTitle)
 
         "contain the correct h1" in {
           elementText(h1Selector) shouldBe expectedH1
@@ -210,11 +194,11 @@ class RemoveAccountViewSpec extends ViewTest {
         }
 
         "contain an error title" in {
-          elementText(errorSummaryTitle) shouldBe expectedErrorTitle
+          elementText(errorSummaryTitleSelector) shouldBe expectedErrorSummaryTitle
         }
 
         "contains an error message" in {
-          elementText(errorSummaryText) shouldBe expectedErrorText
+          elementText(errorSummaryTextSelector) shouldBe expectedErrorSummaryText
         }
 
       }

@@ -32,10 +32,9 @@
 @headingForUse = @{
     if(user.isAgent) messages("interest.untaxed-uk-interest.heading.agent") else messages("interest.untaxed-uk-interest.heading.individual")
 }
+@titleForUse = @{messages(s"interest.untaxed-uk-interest.title.${if(user.isAgent) "agent" else "individual"}")}
 
-@titleForUse = @{
-if(user.isAgent) messages("interest.untaxed-uk-interest.title.agent") else messages("interest.untaxed-uk-interest.title.individual")
-}
+@hasFormErrors = @{form.hasErrors}
 
 @hint = {
     <p>
@@ -49,7 +48,7 @@ if(user.isAgent) messages("interest.untaxed-uk-interest.title.agent") else messa
     </p>
 }
 
-@layout(titleForUse, taxYear = Some(taxYear)) {
+@layout(titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors) {
 
     @errorSummary(form.errors.distinct)
 

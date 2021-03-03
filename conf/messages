@@ -1,6 +1,7 @@
 service.name = Update and submit an Income Tax Return
 service.govUkExtension = GOV.UK
 
+error.browser.title.prefix = Error:
 betaBar.beta = beta
 betaBar.banner.message.1 = This is a new service – your
 betaBar.banner.message.2 = feedback
@@ -21,7 +22,9 @@ common.error.errorKey = Error:
 common.error.invalid_number = Enter an amount using numbers 0 to 9
 common.error.priorOrNewAmount.noRadioSelected = Select £{0} or enter a different amount
 common.error.amountMaxLimit = Enter an amount less than £100,000,000,000
-common.error.invalid_currency_format = Enter an amount in pounds and pence
+common.error.invalid_currency_format = Enter the amount in the correct format
+
+common.currency.hint = For example, £600 or £193.54
 
 error.summary.title = There is a problem
 
@@ -157,3 +160,7 @@ error.agent.paragraph1 = You cannot view this client’s information. Your clien
 error.agent.paragraph2 = authorise you as their agent (open in a new tab)
 error.agent.paragraph3 = before you can sign into this service.
 error.agent.paragraph4 = Try another client’s details
+
+timeout.heading = For your security, we signed you out
+timeout.p1 = We did not save your answers.
+timeout.button = Sign in

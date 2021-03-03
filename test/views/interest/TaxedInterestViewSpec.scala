@@ -42,10 +42,10 @@ class TaxedInterestViewSpec extends ViewTest {
   val continueSelector = "#continue"
 
   val expectedIndividualTitle = "Did you receive any taxed interest from the UK?"
-  val expectedIndividualErrorTitle = s"$expectedIndividualTitle"
+  val expectedIndividualErrorTitle = s"Error: $expectedIndividualTitle"
   val expectedIndividualH1 = "Did you receive any taxed interest from the UK?"
   val expectedAgentTitle = "Did your client receive any taxed interest from the UK?"
-  val expectedAgentErrorTitle = s"$expectedAgentTitle"
+  val expectedAgentErrorTitle = s"Error: $expectedAgentTitle"
   val expectedAgentH1 = "Did your client receive any taxed interest from the UK?"
   val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
   val forExampleText = "For example, interest from:"
@@ -58,7 +58,7 @@ class TaxedInterestViewSpec extends ViewTest {
   val continueText = "Continue"
 
   "Taxed interest view" should {
-    
+
     "Correctly render as an individual" when {
       "There are no form errors " which {
         lazy val view = taxedInterestView(

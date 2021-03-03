@@ -18,7 +18,6 @@
 @import views.html.headerFooterTemplate.Layout
 @import views.html.templates.helpers.{Button, ErrorSummary, Heading, InputRadio, BigDecimalCurrency, InputText}
 @import models.interest.InterestAccountModel
-@import common.InterestTaxTypes._
 
 @this(
    layout: Layout,
@@ -32,8 +31,8 @@
 )
 @(form: Form[PriorOrNewAmountModel], postAction: Call, taxYear: Int, taxType: String, account: InterestAccountModel)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
-@headingToUse = {
-    @heading(messages(s"interest.change-account.${taxType.toLowerCase}-heading", account.accountName), Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
+@hintText = {
+    @messages("common.currency.hint")
 }
 
 @otherAmountHtml = {
@@ -43,11 +42,14 @@
             name = "amount",
             label = "common.enterAmount",
             isPageHeading = false,
-            currency = true
+            currency = true,
+            hint = Some(hintText)
         )
 }
 
-@layout(pageTitle = messages(s"interest.change-account.${taxType.toLowerCase}-title"), taxYear = Some(taxYear)) {
+@hasFormErrors = @{form.hasErrors}
+
+@layout(pageTitle = messages(s"interest.change-account.${taxType.toLowerCase}-title"), taxYear = Some(taxYear), hasErrors = hasFormErrors) {
 
     @errorSummary(form.errors.distinct)
 
