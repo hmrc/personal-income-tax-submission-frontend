@@ -17,7 +17,6 @@
 package views.interest
 
 import common.InterestTaxTypes
-import common.InterestTaxTypes._
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -36,43 +35,39 @@ class InterestCYAViewSpec extends ViewTest {
   val account1 = 1
   val account2 = 2
 
-  object Selectors {
-    val titleSelector = "title"
-    val h1Selector = "h1"
-    val captionSelector = ".govuk-caption-l"
-    val submitButton = ".govuk-button"
+  val titleSelector = "title"
+  val h1Selector = "h1"
+  val captionSelector = ".govuk-caption-l"
+  val submitButton = ".govuk-button"
 
-    val questionSelector: Int => String = questionNumber => s".govuk-summary-list__row:nth-child($questionNumber) > .govuk-summary-list__key"
+  val questionSelector: Int => String = questionNumber => s".govuk-summary-list__row:nth-child($questionNumber) > .govuk-summary-list__key"
+  val questionAccountSelector: (Int, Int, Int) => String = (questionNumber, accountNumber,account) =>
+    s"#question-$questionNumber-account-$account:nth-child($accountNumber)"
+  val questionChangeLinkSelector: Int => String = questionNumber => s"#main-content > div > div > dl > div:nth-child($questionNumber) " +
+    s"> dd.govuk-summary-list__actions > a"
+  val questionTextSelector: Int => String = question => s"#main-content > div > div > dl > div:nth-child($question) > dt"
 
-    val questionAccountSelector: (Int, Int, Int) => String = (questionNumber, accountNumber, account) => s"#question-${questionNumber}-account-${account}:nth-child($accountNumber)"
+  val yesNoQuestionAnswer: Int => String = questionNumber => s"#main-content > div > div > dl > div:nth-child($questionNumber) > dd.govuk-summary-list__value"
 
-    val questionChangeLinkSelector: Int => String = questionNumber => s"#main-content > div > div > dl > div:nth-child($questionNumber) " +
-      s"> dd.govuk-summary-list__actions > a"
+  val h1Expected = "Check your answers"
+  val titleExpected = "Check your answers"
+  val captionExpected = "Interest for 06 April 2019 to 05 April 2020"
 
-    val yesNoQuestionAnswer: Int => String = questionNumber => s"#main-content > div > div > dl > div:nth-child($questionNumber) > dd.govuk-summary-list__value"
-  }
+  val changeLinkExpected = "Change"
 
-  object ExpectedResult {
-    val h1Expected = "Check your answers"
-    val titleExpected = s"$h1Expected - $serviceName - $govUkExtension"
-    val captionExpected = "Interest for 06 April 2019 to 05 April 2020"
+  val questionUntaxedInterestExpected = "Untaxed UK Interest?"
+  val questionUntaxedInterestDetailsExpected = "Details for the untaxed UK interest?"
+  val questionTaxedInterestExpected = "Taxed UK Interest?"
+  val question4TaxedInterestDetailExpected = "Details for the taxed UK interest?"
 
-    val changeLinkExpected = "Change"
+  val untaxedInterestAccount1ExpectedTest = "UntaxedBank1 : £100"
+  val taxedInterestAccount1ExpectedTest = "TaxedBank1 : £200"
+  val taxedInterestAccount2ExpectedTest = "TaxedBank2 : £400"
 
-    val questionUntaxedInterestExpected = "Untaxed UK Interest?"
-    val questionUntaxedInterestDetailsExpected = "Details for the untaxed UK interest?"
-    val questionTaxedInterestExpected = "Taxed UK Interest?"
-    val question4TaxedInterestDetailExpected = "Details for the taxed UK interest?"
+  val submitText = "Save and continue"
 
-    val untaxedInterestAccount1ExpectedTest = "UntaxedBank1 : £100"
-    val taxedInterestAccount1ExpectedTest = "TaxedBank1 : £200"
-    val taxedInterestAccount2ExpectedTest = "TaxedBank2 : £400"
-
-    val submitText = "Save and continue"
-
-    val Yes = "Yes"
-    val No = "No"
-  }
+  val Yes = "Yes"
+  val No = "No"
 
   "InterestCYAView" should {
 
@@ -92,119 +87,48 @@ class InterestCYAViewSpec extends ViewTest {
         val render = view(cyaModel, taxYear)(fakeRequest, messages, mockAppConfig).body
         implicit val document: Document = Jsoup.parse(render)
 
-        "has the correct title" in {
-          assertTitle(ExpectedResult.titleExpected)
-        }
+        titleCheck(titleExpected)
+        h1Check(h1Expected)
+        textOnPageCheck(captionExpected, captionSelector)
 
-        "has the correct h1" in {
-          assertH1(ExpectedResult.h1Expected)
-        }
-
-        "has the correct caption" in {
-          elementText(Selectors.captionSelector) shouldBe ExpectedResult.captionExpected
-        }
-
-        "the submit button" which {
-
-          "exist" in {
-            elementExist(Selectors.submitButton) shouldBe true
+        s"have a $submitText button" which {
+          s"has the text '$submitText'" in {
+            document.select(submitButton).text() shouldBe submitText
           }
-
-          "has the correct text" in {
-            elementText(Selectors.submitButton) shouldBe ExpectedResult.submitText
+          s"has a class of govuk-button" in {
+            document.select(submitButton).attr("class") should include ("govuk-button")
           }
-
         }
 
-        "has the correct question 1 text" in {
-          elementText(Selectors.questionSelector(1)) shouldBe ExpectedResult.questionUntaxedInterestExpected
+        "has an area for question 1" which {
+          textOnPageCheck(questionUntaxedInterestExpected, questionSelector(1))
+          textOnPageCheck(Yes, yesNoQuestionAnswer(1))
+          linkCheck(changeLinkExpected, questionChangeLinkSelector(1),
+            s"/income-through-software/return/personal-income/$taxYear/interest/untaxed-uk-interest")
         }
 
-        "has the correct question 2 text" in {
-          elementText(Selectors.questionSelector(2)) shouldBe ExpectedResult.questionUntaxedInterestDetailsExpected
+        "has an area for question 2" which {
+          textOnPageCheck(questionUntaxedInterestDetailsExpected, questionSelector(2))
+          textOnPageCheck(untaxedInterestAccount1ExpectedTest, questionAccountSelector(question2, account1, 1))
+          linkCheck(changeLinkExpected, questionChangeLinkSelector(2),
+            s"/income-through-software/return/personal-income/$taxYear/interest/untaxed-uk-interest-account-summary")
         }
 
-        "has the correct question 3 text" in {
-          elementText(Selectors.questionSelector(3)) shouldBe ExpectedResult.questionTaxedInterestExpected
+        "has an area for question 3" which {
+          textOnPageCheck(questionTaxedInterestExpected, questionSelector(3))
+          textOnPageCheck(Yes, yesNoQuestionAnswer(3))
+          linkCheck(changeLinkExpected, questionChangeLinkSelector(3),
+            s"/income-through-software/return/personal-income/$taxYear/interest/taxed-uk-interest")
         }
 
-        "has the correct question 4 text" in {
-          //noinspection ScalaStyle
-          elementText(Selectors.questionSelector(4)) shouldBe ExpectedResult.question4TaxedInterestDetailExpected
+        "has an area for question 4" which {
+          textOnPageCheck(question4TaxedInterestDetailExpected, questionSelector(question4))
+          textOnPageCheck(taxedInterestAccount1ExpectedTest, questionAccountSelector(question4, account1, 1))
+          textOnPageCheck(taxedInterestAccount2ExpectedTest, questionAccountSelector(question4, account2, 2))
+          linkCheck(changeLinkExpected, questionChangeLinkSelector(question4),
+            s"/income-through-software/return/personal-income/$taxYear/interest/taxed-uk-interest-account-summary")
         }
-
-        "question 1 answer should be Yes" in {
-          elementText(Selectors.yesNoQuestionAnswer(1)) shouldBe ExpectedResult.Yes
-        }
-
-        "question 3 answer should be Yes" in {
-          elementText(Selectors.yesNoQuestionAnswer(3)) shouldBe ExpectedResult.Yes
-        }
-
-        "has the correct question 2 account text" in {
-          elementText(Selectors.questionAccountSelector(question2, account1, 1)) shouldBe ExpectedResult.untaxedInterestAccount1ExpectedTest
-        }
-
-        "has the correct question 4 account 1 text" in {
-          elementText(Selectors.questionAccountSelector(question4, account1, 1)) shouldBe ExpectedResult.taxedInterestAccount1ExpectedTest
-        }
-
-        "has the correct question 4 account 2 text" in {
-          elementText(Selectors.questionAccountSelector(question4, account2, 2)) shouldBe ExpectedResult.taxedInterestAccount2ExpectedTest
-        }
-
-        "question 1 change link" should {
-
-          "have the correct text" in {
-            elementText(Selectors.questionChangeLinkSelector(1)) shouldBe ExpectedResult.changeLinkExpected
-          }
-
-          "have the correct link" in {
-            element(Selectors.questionChangeLinkSelector(1)).attr("href") shouldBe controllers.interest.routes.UntaxedInterestController.show(taxYear).url
-          }
-
-        }
-
-        "question 2 change link" should {
-
-          "have the correct text" in {
-            elementText(Selectors.questionChangeLinkSelector(2)) shouldBe ExpectedResult.changeLinkExpected
-          }
-
-          "have the correct link" in {
-            element(Selectors.questionChangeLinkSelector(2)).attr("href") shouldBe controllers.interest.routes.AccountsController.show(taxYear, UNTAXED).url
-          }
-
-        }
-
-        "question 3 change link" should {
-
-          "have the correct text" in {
-            elementText(Selectors.questionChangeLinkSelector(3)) shouldBe ExpectedResult.changeLinkExpected
-          }
-
-          "have the correct link" in {
-            element(Selectors.questionChangeLinkSelector(3)).attr("href") shouldBe controllers.interest.routes.TaxedInterestController.show(taxYear).url
-          }
-
-        }
-
-        "question 4 change link" should {
-
-          "have the correct text" in {
-            //noinspection ScalaStyle
-            elementText(Selectors.questionChangeLinkSelector(4)) shouldBe ExpectedResult.changeLinkExpected
-          }
-
-          "have the correct link" in {
-            //noinspection ScalaStyle
-            element(Selectors.questionChangeLinkSelector(4)).attr("href") shouldBe controllers.interest.routes.AccountsController.show(taxYear, TAXED).url
-          }
-
-        }
-
       }
-
     }
 
     "renders only the yes/no questions" when {
@@ -220,79 +144,38 @@ class InterestCYAViewSpec extends ViewTest {
         val render = view(cyaModel, taxYear)(fakeRequest, messages, mockAppConfig).body
         implicit val document: Document = Jsoup.parse(render)
 
-        "has the correct title" in {
-          assertTitle(ExpectedResult.titleExpected)
-        }
+        titleCheck(titleExpected)
+        h1Check(h1Expected)
+        textOnPageCheck(captionExpected, captionSelector)
 
-        "has the correct h1" in {
-          assertH1(ExpectedResult.h1Expected)
-        }
-
-        "has the correct caption" in {
-          elementText(Selectors.captionSelector) shouldBe ExpectedResult.captionExpected
-        }
-
-        "the submit button" which {
-
-          "exist" in {
-            elementExist(Selectors.submitButton) shouldBe true
+        s"have a $submitText button" which {
+          s"has the text '$submitText'" in {
+            document.select(submitButton).text() shouldBe submitText
           }
-
-          "has the correct text" in {
-            elementText(Selectors.submitButton) shouldBe ExpectedResult.submitText
+          s"has a class of govuk-button" in {
+            document.select(submitButton).attr("class") should include ("govuk-button")
           }
-
         }
 
-        "question 1 should be the untaxed interest question" in {
-          elementText(questionTextSelector(1)) shouldBe ExpectedResult.questionUntaxedInterestExpected
+        "has an area for question 1" which {
+          textOnPageCheck(questionUntaxedInterestExpected, questionTextSelector(1))
+          textOnPageCheck(No, yesNoQuestionAnswer(1))
+          linkCheck(changeLinkExpected, questionChangeLinkSelector(1), s"/income-through-software/return/personal-income/$taxYear/interest/untaxed-uk-interest")
         }
 
-        "question 2 should be the taxed interest question" in {
-          elementText(questionTextSelector(2)) shouldBe ExpectedResult.questionTaxedInterestExpected
-        }
-
-        "question 1 answer should be No" in {
-          elementText(Selectors.yesNoQuestionAnswer(1)) shouldBe ExpectedResult.No
-        }
-
-        "question 2 answer should be No" in {
-          elementText(Selectors.yesNoQuestionAnswer(2)) shouldBe ExpectedResult.No
+        "has an area for question 2" which {
+          textOnPageCheck(questionTaxedInterestExpected, questionTextSelector(2))
+          textOnPageCheck(No, yesNoQuestionAnswer(2))
+          linkCheck(changeLinkExpected, questionChangeLinkSelector(2),s"/income-through-software/return/personal-income/$taxYear/interest/taxed-uk-interest")
         }
 
         "there is no question 3" in {
-          elementExist(Selectors.questionSelector(3)) shouldBe false
+          elementExist(questionSelector(3)) shouldBe false
         }
 
         "there is no question 4" in {
-          //noinspection ScalaStyle
-          elementExist(Selectors.questionSelector(4)) shouldBe false
+          elementExist(questionSelector(question4)) shouldBe false
         }
-
-        "question 1 change link" should {
-
-          "have the correct text" in {
-            elementText(Selectors.questionChangeLinkSelector(1)) shouldBe ExpectedResult.changeLinkExpected
-          }
-
-          "have the correct link" in {
-            element(Selectors.questionChangeLinkSelector(1)).attr("href") shouldBe controllers.interest.routes.UntaxedInterestController.show(taxYear).url
-          }
-
-        }
-
-        "question 2 change link" should {
-
-          "have the correct text" in {
-            elementText(Selectors.questionChangeLinkSelector(2)) shouldBe ExpectedResult.changeLinkExpected
-          }
-
-          "have the correct link" in {
-            element(Selectors.questionChangeLinkSelector(2)).attr("href") shouldBe controllers.interest.routes.TaxedInterestController.show(taxYear).url
-          }
-
-        }
-
       }
 
       "the user has both tax types prior" which {
@@ -314,85 +197,41 @@ class InterestCYAViewSpec extends ViewTest {
         val render = view(cyaModel, taxYear, Some(priorSubmission))(fakeRequest, messages, mockAppConfig).body
         implicit val document: Document = Jsoup.parse(render)
 
-        "has the correct title" in {
-          assertTitle(ExpectedResult.titleExpected)
-        }
+        titleCheck(titleExpected)
+        h1Check(h1Expected)
+        textOnPageCheck(captionExpected, captionSelector)
 
-        "has the correct h1" in {
-          assertH1(ExpectedResult.h1Expected)
-        }
-
-        "has the correct caption" in {
-          elementText(Selectors.captionSelector) shouldBe ExpectedResult.captionExpected
-        }
-
-        "the submit button" which {
-
-          "exist" in {
-            elementExist(Selectors.submitButton) shouldBe true
+        s"have a $submitText button" which {
+          s"has the text '$submitText'" in {
+            document.select(submitButton).text() shouldBe submitText
           }
-
-          "has the correct text" in {
-            elementText(Selectors.submitButton) shouldBe ExpectedResult.submitText
+          s"has a class of govuk-button" in {
+            document.select(submitButton).attr("class") should include ("govuk-button")
           }
-
         }
 
-        "question 1 should be the untaxed interest accounts question" in {
-          elementText(questionTextSelector(1)) shouldBe ExpectedResult.questionUntaxedInterestDetailsExpected
+        "has an area for question 1" which {
+          textOnPageCheck(questionUntaxedInterestDetailsExpected, questionTextSelector(1))
+          textOnPageCheck("TSB : £100", yesNoQuestionAnswer(1))
+          linkCheck(changeLinkExpected, questionChangeLinkSelector(1),
+            s"/income-through-software/return/personal-income/$taxYear/interest/untaxed-uk-interest-account-summary")
         }
 
-        "question 2 should be the taxed interest question" in {
-          elementText(questionTextSelector(2)) shouldBe ExpectedResult.question4TaxedInterestDetailExpected
-        }
-
-        "question 1 answer should be No" in {
-          elementText(Selectors.yesNoQuestionAnswer(1)) shouldBe "TSB : £100"
-        }
-
-        "question 2 answer should be No" in {
-          elementText(Selectors.yesNoQuestionAnswer(2)) shouldBe "TSB Account : £100"
+        "has an area for question 2" which {
+          textOnPageCheck(question4TaxedInterestDetailExpected, questionTextSelector(2))
+          textOnPageCheck("TSB Account : £100", yesNoQuestionAnswer(2))
+          linkCheck(changeLinkExpected, questionChangeLinkSelector(2),
+            s"/income-through-software/return/personal-income/$taxYear/interest/taxed-uk-interest-account-summary")
         }
 
         "there is no question 3" in {
-          elementExist(Selectors.questionSelector(3)) shouldBe false
+          elementExist(questionSelector(3)) shouldBe false
         }
 
         "there is no question 4" in {
-          //noinspection ScalaStyle
-          elementExist(Selectors.questionSelector(4)) shouldBe false
+          elementExist(questionSelector(question4)) shouldBe false
         }
-
-        "question 1 change link" should {
-
-          "have the correct text" in {
-            elementText(Selectors.questionChangeLinkSelector(1)) shouldBe ExpectedResult.changeLinkExpected
-          }
-
-          "have the correct link" in {
-            element(Selectors.questionChangeLinkSelector(1)).attr("href") shouldBe
-              controllers.interest.routes.AccountsController.show(taxYear, InterestTaxTypes.UNTAXED).url
-          }
-
-        }
-
-        "question 2 change link" should {
-
-          "have the correct text" in {
-            elementText(Selectors.questionChangeLinkSelector(2)) shouldBe ExpectedResult.changeLinkExpected
-          }
-
-          "have the correct link" in {
-            element(Selectors.questionChangeLinkSelector(2)).attr("href") shouldBe
-              controllers.interest.routes.AccountsController.show(taxYear, InterestTaxTypes.TAXED).url
-          }
-
-        }
-
       }
-
     }
-
   }
-
 }

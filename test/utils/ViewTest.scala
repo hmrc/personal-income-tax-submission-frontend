@@ -33,15 +33,6 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
   implicit lazy val messages: Messages = messagesApi.preferred(FakeRequest())
   implicit lazy val mockMessagesControllerComponents: MessagesControllerComponents = Helpers.stubMessagesControllerComponents()
 
-  type IntString = Int => String
-
-  //TODO move these as these are very test specific
-  val questionTextSelector: IntString = question => s"#main-content > div > div > dl > div:nth-child($question) > dt"
-  val questionAnswerSelector: IntString = question => s"#main-content > div > div > dl > div:nth-child($question) > " +
-    s"dd.govuk-summary-list__value"
-  val questionChangeLinkSelector: IntString = question => s"#main-content > div > div > dl > div:nth-child($question) > " +
-    s"dd.govuk-summary-list__actions > a"
-
   val serviceName = "Update and submit an Income Tax Return"
   val govUkExtension = "GOV.UK"
 

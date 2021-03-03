@@ -23,6 +23,15 @@ import utils.ViewTest
 import views.html.dividends.DividendsCYAView
 
 class DividendsCYAViewSpec extends ViewTest {
+
+  type IntString = Int => String
+
+  val questionTextSelector: IntString = question => s"#main-content > div > div > dl > div:nth-child($question) > dt"
+  val questionAnswerSelector: IntString = question => s"#main-content > div > div > dl > div:nth-child($question) > " +
+    s"dd.govuk-summary-list__value"
+  val questionChangeLinkSelector: IntString = question => s"#main-content > div > div > dl > div:nth-child($question) > " +
+    s"dd.govuk-summary-list__actions > a"
+
   val titleSelector = "h1"
   val captionSelector = ".govuk-caption-l"
 

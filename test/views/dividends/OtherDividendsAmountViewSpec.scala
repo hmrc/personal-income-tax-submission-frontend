@@ -97,6 +97,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
             errorSummaryCheck(expectedErrorText, "#amount")
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
@@ -121,6 +122,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
             errorSummaryCheck(expectedErrorText, "#amount")
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
@@ -145,6 +147,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
             errorSummaryCheck(expectedErrorText, "#amount")
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
@@ -190,6 +193,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
           titleCheck(expectedTitle)
           h1Check(expectedH1)
           textOnPageCheck(expectedCaption, captionSelector)
+          hintTextCheck(expectedHintText)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
           inputFieldCheck("amount", inputSelector)
           buttonCheck(continueText, continueButtonSelector)
@@ -213,6 +217,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
             errorSummaryCheck(expectedErrorText, "#amount")
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
@@ -237,6 +242,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
             errorSummaryCheck(expectedErrorText, "#amount")
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
@@ -261,6 +267,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
             errorSummaryCheck(expectedErrorText, "#amount")
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
@@ -285,6 +292,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
             errorSummaryCheck(expectedErrorText, "#amount")
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
@@ -313,6 +321,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
           titleCheck(expectedTitle)
           h1Check(expectedH1)
           textOnPageCheck(expectedCaption, captionSelector)
+          hintTextCheck(expectedHintText)
 
           textOnPageCheck(s"£$priorAmount", priorAmountSelector)
           textOnPageCheck(differentAmountText,differentAmountSelector)
@@ -339,6 +348,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
 
             textOnPageCheck(s"£$priorAmount", priorAmountSelector)
             textOnPageCheck(differentAmountText,differentAmountSelector)
@@ -364,6 +374,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
 
             textOnPageCheck(s"£$priorAmount", priorAmountSelector)
             textOnPageCheck(differentAmountText,differentAmountSelector)
@@ -389,6 +400,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
 
             textOnPageCheck(s"£$priorAmount", priorAmountSelector)
             textOnPageCheck(differentAmountText,differentAmountSelector)
@@ -414,6 +426,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
 
             textOnPageCheck(s"£$priorAmount", priorAmountSelector)
             textOnPageCheck(differentAmountText,differentAmountSelector)
@@ -445,6 +458,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
           titleCheck(expectedTitle)
           h1Check(expectedH1)
           textOnPageCheck(expectedCaption, captionSelector)
+          hintTextCheck(expectedHintText)
 
           textOnPageCheck(s"£$priorAmount", priorAmountSelector)
           textOnPageCheck(differentAmountText,differentAmountSelector)
@@ -471,6 +485,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
 
             textOnPageCheck(s"£$priorAmount", priorAmountSelector)
             textOnPageCheck(differentAmountText,differentAmountSelector)
@@ -496,6 +511,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
 
             textOnPageCheck(s"£$priorAmount", priorAmountSelector)
             textOnPageCheck(differentAmountText,differentAmountSelector)
@@ -521,6 +537,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
 
             textOnPageCheck(s"£$priorAmount", priorAmountSelector)
             textOnPageCheck(differentAmountText,differentAmountSelector)
@@ -546,6 +563,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
 
             textOnPageCheck(s"£$priorAmount", priorAmountSelector)
             textOnPageCheck(differentAmountText,differentAmountSelector)
