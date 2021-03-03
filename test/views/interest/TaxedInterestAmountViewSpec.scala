@@ -138,7 +138,7 @@ class TaxedInterestAmountViewSpec extends ViewTest{
 
           lazy val errorForm = taxedInterestForm.bind(Map("taxedAmount" -> "100.00.00.00", "taxedAccountName" -> "Account Name"))
           implicit lazy val document: Document = Jsoup.parse(newView(errorForm).body)
-          val expectedErrorText = "Enter an amount in pounds and pence"
+          val expectedErrorText = "Enter the amount in the correct format"
           val errorSummaryHref = "#taxedAmount"
 
           titleCheck(errorTitleText)

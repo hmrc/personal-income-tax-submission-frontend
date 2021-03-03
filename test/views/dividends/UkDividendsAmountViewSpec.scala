@@ -162,7 +162,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount in pounds and pence"
+            val expectedErrorText = "Enter the amount in the correct format"
 
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
@@ -276,7 +276,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount in pounds and pence"
+            val expectedErrorText = "Enter the amount in the correct format"
 
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
@@ -330,9 +330,9 @@ class UkDividendsAmountViewSpec extends ViewTest {
             )(user, implicitly, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount in pounds and pence"
+            val expectedErrorText = "Enter the amount in the correct format"
 
-            titleCheck(expectedTitle)
+            titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
 
@@ -357,7 +357,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             val expectedErrorText = "Enter an amount using numbers 0 to 9"
 
-            titleCheck(expectedTitle)
+            titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
 
@@ -382,7 +382,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             val expectedErrorText = "Enter an amount less than £100,000,000,000"
 
-            titleCheck(expectedTitle)
+            titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
 
@@ -405,9 +405,9 @@ class UkDividendsAmountViewSpec extends ViewTest {
             )(user, implicitly, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount in pounds and pence"
+            val expectedErrorText = "Enter the amount in the correct format"
 
-            titleCheck(expectedTitle)
+            titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
 
@@ -462,9 +462,9 @@ class UkDividendsAmountViewSpec extends ViewTest {
             )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount in pounds and pence"
+            val expectedErrorText = "Enter the amount in the correct format"
 
-            titleCheck(expectedTitle)
+            titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
 
@@ -489,7 +489,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             val expectedErrorText = "Enter an amount using numbers 0 to 9"
 
-            titleCheck(expectedTitle)
+            titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
 
@@ -514,7 +514,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             val expectedErrorText = "Enter an amount less than £100,000,000,000"
 
-            titleCheck(expectedTitle)
+            titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
 
@@ -537,9 +537,9 @@ class UkDividendsAmountViewSpec extends ViewTest {
             )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount in pounds and pence"
+            val expectedErrorText = "Enter the amount in the correct format"
 
-            titleCheck(expectedTitle)
+            titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
 

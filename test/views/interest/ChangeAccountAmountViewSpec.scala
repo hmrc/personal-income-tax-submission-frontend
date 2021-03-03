@@ -44,7 +44,9 @@ class ChangeAccountAmountViewSpec extends ViewTest {
   val expectedHintText = "For example, £600 or £193.54"
 
   val expectedUntaxedTitle = "Untaxed interest earned"
+  val expectedUntaxedErrorTitle = s"Error: $expectedUntaxedTitle"
   val expectedTaxedTitle = "Taxed interest earned"
+  val expectedTaxedErrorTitle = s"Error: $expectedTaxedTitle"
 
   val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
 
@@ -83,8 +85,8 @@ class ChangeAccountAmountViewSpec extends ViewTest {
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
           titleCheck(expectedUntaxedTitle)
-          h1Check(expectedUntaxedH1, h1Selector)
-          captionCheck(expectedCaption)
+          h1Check(expectedUntaxedH1)
+          textOnPageCheck(expectedCaption, captionSelector)
           hintTextCheck(expectedHintText)
 
           "contains a prior amount radio button" in {
@@ -129,9 +131,9 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          titleCheck(expectedUntaxedTitle, error = true)
-          h1Check(expectedUntaxedH1, h1Selector)
-          captionCheck(expectedCaption)
+          titleCheck(expectedUntaxedErrorTitle)
+          h1Check(expectedUntaxedH1)
+          textOnPageCheck(expectedCaption, captionSelector)
           hintTextCheck(expectedHintText)
 
           "contains an input box" in {
@@ -173,8 +175,8 @@ class ChangeAccountAmountViewSpec extends ViewTest {
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
           titleCheck(expectedTaxedTitle)
-          h1Check(expectedTaxedH1, h1Selector)
-          captionCheck(expectedCaption)
+          h1Check(expectedTaxedH1)
+          textOnPageCheck(expectedCaption, captionSelector)
           hintTextCheck(expectedHintText)
 
           "contains a prior amount radio button" in {
@@ -219,9 +221,9 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          titleCheck(expectedTaxedTitle, error = true)
-          h1Check(expectedTaxedH1, h1Selector)
-          captionCheck(expectedCaption)
+          titleCheck(expectedTaxedErrorTitle)
+          h1Check(expectedTaxedH1)
+          textOnPageCheck(expectedCaption, captionSelector)
           hintTextCheck(expectedHintText)
 
           "contains an input box" in {

@@ -46,7 +46,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
   val expectedH1 = "What is the total amount of dividends from trusts or open ended investment companies?"
   val expectedTitle = "What is the total amount of dividends from trusts or open ended investment companies?"
-  val expectedErrorTitle = s"$expectedTitle"
+  val expectedErrorTitle = s"Error: $expectedTitle"
   val expectedCaption = "Dividends for 06 April 2019 to 05 April 2020"
   val expectedHintText = "For example, £600 or £193.54"
   val poundPrefixText = "£"
@@ -164,7 +164,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount in pounds and pence"
+            val expectedErrorText = "Enter the amount in the correct format"
 
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
@@ -280,7 +280,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount in pounds and pence"
+            val expectedErrorText = "Enter the amount in the correct format"
 
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
@@ -334,9 +334,9 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             )(user, implicitly, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount in pounds and pence"
+            val expectedErrorText = "Enter the amount in the correct format"
 
-            titleCheck(expectedTitle)
+            titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
 
@@ -361,7 +361,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             val expectedErrorText = "Enter an amount using numbers 0 to 9"
 
-            titleCheck(expectedTitle)
+            titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
 
@@ -386,7 +386,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             val expectedErrorText = "Enter an amount less than £100,000,000,000"
 
-            titleCheck(expectedTitle)
+            titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
 
@@ -409,9 +409,9 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             )(user, implicitly, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount in pounds and pence"
+            val expectedErrorText = "Enter the amount in the correct format"
 
-            titleCheck(expectedTitle)
+            titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
 
@@ -466,9 +466,9 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount in pounds and pence"
+            val expectedErrorText = "Enter the amount in the correct format"
 
-            titleCheck(expectedTitle)
+            titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
 
@@ -493,7 +493,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             val expectedErrorText = "Enter an amount using numbers 0 to 9"
 
-            titleCheck(expectedTitle)
+            titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
 
@@ -518,7 +518,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             val expectedErrorText = "Enter an amount less than £100,000,000,000"
 
-            titleCheck(expectedTitle)
+            titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
 
@@ -541,9 +541,9 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount in pounds and pence"
+            val expectedErrorText = "Enter the amount in the correct format"
 
-            titleCheck(expectedTitle)
+            titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
 
