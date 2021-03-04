@@ -33,15 +33,6 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
   implicit lazy val messages: Messages = messagesApi.preferred(FakeRequest())
   implicit lazy val mockMessagesControllerComponents: MessagesControllerComponents = Helpers.stubMessagesControllerComponents()
 
-  type IntString = Int => String
-
-  //TODO move these as these are very test specific
-  val questionTextSelector: IntString = question => s"#main-content > div > div > dl > div:nth-child($question) > dt"
-  val questionAnswerSelector: IntString = question => s"#main-content > div > div > dl > div:nth-child($question) > " +
-    s"dd.govuk-summary-list__value"
-  val questionChangeLinkSelector: IntString = question => s"#main-content > div > div > dl > div:nth-child($question) > " +
-    s"dd.govuk-summary-list__actions > a"
-
   val serviceName = "Update and submit an Income Tax Return"
   val govUkExtension = "GOV.UK"
 
@@ -71,32 +62,13 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
     elementText("h1") shouldBe text
   }
 
-  def titleCheck(title: String, error: Boolean = false)(implicit document: Document): Unit = {
+  def assertCaption(text: String, selector: String = ".govuk-caption-l")(implicit document: Document): Assertion = {
+    elementText(selector) shouldBe text
+  }
+
+  def titleCheck(title: String)(implicit document: Document): Unit = {
     s"has a title of $title" in {
-      document.title() shouldBe s"${if(error) "Error: " else ""}$title - $serviceName - $govUkExtension"
-    }
-  }
-
-  def h1Check(header: String, selector: String = "#main-content > div > div > header > h1")(implicit document: Document): Unit = {
-    s"have a page heading of '$header'" in {
-      elementText(selector) shouldBe header
-    }
-  }
-
-  def textOnPageCheck(text: String, selector: String)(implicit document: Document): Unit = {
-    s"have text on the screen of '$text'" in {
-      elementText(selector) shouldBe text
-    }
-  }
-
-  def buttonCheck(text: String, selector: String, href: String)(implicit document: Document): Unit = {
-    s"have a $text button" which {
-      s"has the text '$text'" in {
-        elementText(selector) shouldBe text
-      }
-      s"has a href to '$href'" in {
-        document.select(selector).attr("href") shouldBe href
-      }
+      document.title() shouldBe s"$title - $serviceName - $govUkExtension"
     }
   }
 
@@ -106,19 +78,26 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
     }
   }
 
-  def captionCheck(text: String, selector: String = ".govuk-caption-l")(implicit document: Document): Unit = {
-    s"has the caption '$text'" in {
-      elementText(selector) shouldBe text
+  def h1Check(header: String)(implicit document: Document): Unit = {
+    s"have a page heading of '$header'" in {
+      document.select(".govuk-heading-l").text() shouldBe header
     }
   }
 
-  def assertCaption(text: String, selector: String = ".govuk-caption-l")(implicit document: Document): Assertion = {
-    elementText(selector) shouldBe text
+  def textOnPageCheck(text: String, selector: String)(implicit document: Document): Unit = {
+    s"have text on the screen of '$text'" in {
+      document.select(selector).text() shouldBe text
+    }
   }
 
-  def titleCheck(title: String)(implicit document: Document): Unit = {
-    s"has a title of $title" in {
-      document.title() shouldBe s"$title - $serviceName - $govUkExtension"
+  def buttonCheck(text: String, selector: String)(implicit document: Document): Unit = {
+    s"have a $text button" which {
+      s"has the text '$text'" in {
+        document.select(selector).text() shouldBe text
+      }
+      s"has a class of govuk-button" in {
+        document.select(selector).attr("class") shouldBe "govuk-button"
+      }
     }
   }
 
@@ -133,4 +112,34 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
     }
   }
 
+  def inputFieldCheck(name: String, selector: String)(implicit document: Document): Unit = {
+    s"has a name of '$name'" in {
+      document.select(selector).attr("name") shouldBe name
+    }
+  }
+
+  def errorSummaryCheck(text: String, href: String)(implicit document: Document): Unit = {
+    "contains an error summary" in {
+      elementExist(".govuk-error-summary")
+    }
+    "contains the text 'There is a problem'" in {
+      document.select(".govuk-error-summary__title").text() shouldBe "There is a problem"
+    }
+    s"has a $text error in the error summary" which {
+      s"has the text '$text'" in {
+        document.select(".govuk-error-summary__body").text() shouldBe text
+      }
+      s"has a href to '$href'" in {
+        document.select(".govuk-error-summary__body > ul > li > a").attr("href") shouldBe href
+      }
+    }
+  }
+
+  def errorAboveElementCheck(text: String)(implicit document: Document): Unit = {
+    s"has a $text error above the element" which {
+      s"has the text '$text'" in {
+        document.select(".govuk-error-message").text() shouldBe s"Error: $text"
+      }
+    }
+  }
 }

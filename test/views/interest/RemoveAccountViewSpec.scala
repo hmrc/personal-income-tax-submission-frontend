@@ -21,7 +21,7 @@ import forms.YesNoForm
 import models.interest.InterestAccountModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import play.api.data.{Form, FormError}
+import play.api.data.Form
 import utils.ViewTest
 import views.html.interest.RemoveAccountView
 
@@ -36,12 +36,11 @@ class RemoveAccountViewSpec extends ViewTest {
   val TAXED = "taxed"
   val UNTAXED = "untaxed"
 
-  val account = InterestAccountModel(Some("qwerty"), "Monzo", 9001.00)
+  val account: InterestAccountModel = InterestAccountModel(Some("qwerty"), "Monzo", 9001.00)
 
-  val h1Selector = "h1"
   val captionSelector = ".govuk-caption-l"
-  val yesOptionSelector = "#value"
-  val noOptionSelector = "#value-no"
+  val yesOptionSelector = "#main-content > div > div > form > div > fieldset > div.govuk-radios.govuk-radios--inline > div:nth-child(1) > label"
+  val noOptionSelector = "#main-content > div > div > form > div > fieldset > div.govuk-radios.govuk-radios--inline > div:nth-child(2) > label"
   val continueButtonSelector = "#continue"
 
   val errorSummarySelector = ".govuk-error-summary"
@@ -52,9 +51,12 @@ class RemoveAccountViewSpec extends ViewTest {
   val expectedErrorTitle = s"Error: $expectedTitle"
   val expectedH1 = "Are you sure you want to remove Monzo?"
   val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
+  val thisWillText = "This will remove all untaxed UK interest."
+  val yesText = "Yes"
+  val noText = "No"
+  val continueText = "Continue"
 
-  val expectedErrorSummaryTitle = "There is a problem"
-  val expectedErrorSummaryText = "Select yes to remove this account"
+  val expectedErrorText = "Select yes to remove this account"
 
   "Remove Account view" should {
 
@@ -64,143 +66,62 @@ class RemoveAccountViewSpec extends ViewTest {
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         titleCheck(expectedTitle)
+        textOnPageCheck(expectedCaption, captionSelector)
+        h1Check(expectedH1)
+//        TODO: Think of something for radio buttons
+        textOnPageCheck(yesText, yesOptionSelector)
+        textOnPageCheck(noText, noOptionSelector)
+        buttonCheck(continueText, continueButtonSelector)
+      }
 
-        "Contains the correct h1" in {
-          elementText(h1Selector) shouldBe expectedH1
-        }
-        "Contains the correct caption" in {
-          elementText(captionSelector) shouldBe expectedCaption
-        }
-        "contains a yes option" in {
-          elementExist(yesOptionSelector) shouldBe true
-        }
+      "There are form errors " when {
+        "no value is passed to the form" which {
+          lazy val view = removeAccountView(yesNoForm.bind(Map("value" -> "")), taxYear, UNTAXED, account)(user, implicitly, mockAppConfig)
+          implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        "contains a no option" in {
-          elementExist(noOptionSelector) shouldBe true
-        }
-
-        "contains a continue button" in {
-          elementExist(continueButtonSelector) shouldBe true
+          titleCheck(expectedErrorTitle)
+          errorSummaryCheck(expectedErrorText, "#value")
+          textOnPageCheck(expectedCaption, captionSelector)
+          h1Check(expectedH1)
+          errorAboveElementCheck(expectedErrorText)
+          //        TODO: Think of something for radio buttons
+          textOnPageCheck(yesText, yesOptionSelector)
+          textOnPageCheck(noText, noOptionSelector)
+          buttonCheck(continueText, continueButtonSelector)
         }
       }
     }
-    "correctly render with errors as an individual" when {
-      "there are form errors" which {
-        lazy val view = removeAccountView(
-          yesNoForm.copy(
-            errors = Seq(FormError("yes_no", "Select yes to remove this account"))),
-          taxYear, UNTAXED, account
-        )(user, implicitly, mockAppConfig)
-        implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        titleCheck(expectedErrorTitle)
-
-        "contain the correct h1" in {
-          elementText(h1Selector) shouldBe expectedH1
-        }
-
-        "contains the correct header caption" in {
-          elementText(captionSelector) shouldBe expectedCaption
-        }
-
-        "contains a yes option" in {
-          elementExist(yesOptionSelector) shouldBe true
-        }
-
-        "contains a no option" in {
-          elementExist(noOptionSelector) shouldBe true
-        }
-
-        "contains a continue button" in {
-          elementExist(continueButtonSelector) shouldBe true
-        }
-
-        "contains an error" in {
-          elementExist(errorSummarySelector) shouldBe true
-        }
-
-        "contain an error title" in {
-          elementText(errorSummaryTitleSelector) shouldBe expectedErrorSummaryTitle
-        }
-
-        "contains an error message" in {
-          elementText(errorSummaryTextSelector) shouldBe expectedErrorSummaryText
-        }
-      }
-    }
-    "correctly render with no errors as an agent" when {
-      "there are no form errors" which {
-
-        lazy val view = removeAccountView(
-          yesNoForm, taxYear, UNTAXED, account)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+    "Correctly render as an agent" when {
+      "There are no form errors " which {
+        lazy val view = removeAccountView(yesNoForm, taxYear, UNTAXED, account)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         titleCheck(expectedTitle)
-
-        "contain the correct h1" in {
-          elementText(h1Selector) shouldBe expectedH1
-        }
-
-        "contains the correct header caption" in {
-          elementText(captionSelector) shouldBe expectedCaption
-        }
-
-        "contains a yes option" in {
-          elementExist(yesOptionSelector) shouldBe true
-        }
-
-        "contains a no option" in {
-          elementExist(noOptionSelector) shouldBe true
-        }
-
-        "contains a continue button" in {
-          elementExist(continueButtonSelector) shouldBe true
-        }
+        textOnPageCheck(expectedCaption, captionSelector)
+        h1Check(expectedH1)
+        //        TODO: Think of something for radio buttons
+        textOnPageCheck(yesText, yesOptionSelector)
+        textOnPageCheck(noText, noOptionSelector)
+        buttonCheck(continueText, continueButtonSelector)
       }
-    }
-    "correctly render with errors as an agent" when {
-      "there is a form error" which {
-        lazy val view = removeAccountView(yesNoForm.copy(
-            errors = Seq(FormError("yes_no", "Select yes to remove this account"))),
-          taxYear, UNTAXED, account
-        )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
 
-        implicit lazy val document: Document = Jsoup.parse(view.body)
+      "There are form errors " when {
+        "no value is passed to the form" which {
+          lazy val view = removeAccountView(yesNoForm.bind(Map("value" -> "")), taxYear, UNTAXED,
+            account)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+          implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        titleCheck(expectedErrorTitle)
-
-        "contain the correct h1" in {
-          elementText(h1Selector) shouldBe expectedH1
+          titleCheck(expectedErrorTitle)
+          errorSummaryCheck(expectedErrorText, "#value")
+          textOnPageCheck(expectedCaption, captionSelector)
+          h1Check(expectedH1)
+          errorAboveElementCheck(expectedErrorText)
+          //        TODO: Think of something for radio buttons
+          textOnPageCheck(yesText, yesOptionSelector)
+          textOnPageCheck(noText, noOptionSelector)
+          buttonCheck(continueText, continueButtonSelector)
         }
-
-        "contains the correct header caption" in {
-          elementText(captionSelector) shouldBe expectedCaption
-        }
-
-        "contains a yes option" in {
-          elementExist(yesOptionSelector) shouldBe true
-        }
-
-        "contains a no option" in {
-          elementExist(noOptionSelector) shouldBe true
-        }
-
-        "contains a continue button" in {
-          elementExist(continueButtonSelector) shouldBe true
-        }
-
-        "contains an error" in {
-          elementExist(errorSummarySelector) shouldBe true
-        }
-
-        "contain an error title" in {
-          elementText(errorSummaryTitleSelector) shouldBe expectedErrorSummaryTitle
-        }
-
-        "contains an error message" in {
-          elementText(errorSummaryTextSelector) shouldBe expectedErrorSummaryText
-        }
-
       }
     }
   }

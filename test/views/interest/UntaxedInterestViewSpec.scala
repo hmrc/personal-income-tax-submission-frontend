@@ -26,195 +26,156 @@ import views.html.interest.UntaxedInterestView
 
 class UntaxedInterestViewSpec extends ViewTest {
 
-
-  lazy val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("Select yes if untaxed interest " +
-    "was received from companies in the uk")
+  lazy val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("Select yes if you received untaxed interest from the UK")
 
   lazy val untaxedInterestView: UntaxedInterestView = app.injector.instanceOf[UntaxedInterestView]
+  val taxYear = 2020
 
-  val h1Selector = "h1"
   val captionSelector = ".govuk-caption-l"
   val yesOptionSelector = "#value"
   val noOptionSelector = "#value-no"
-  val continueButtonSelector = "#continue"
+  val forExampleSelector = "#value-hint > p"
+  val bulletPointSelector = "#value-hint > ul > li"
+  val doNotIncludeSelector = "#value-hint"
+  val yesSelector = "#main-content > div > div > form > div > fieldset > div.govuk-radios.govuk-radios--inline > div:nth-child(1) > label"
+  val noSelector = "#main-content > div > div > form > div > fieldset > div.govuk-radios.govuk-radios--inline > div:nth-child(2) > label"
+  val continueSelector = "#continue"
 
-  val errorSummarySelector = ".govuk-error-summary"
-  val errorSummaryTitleSelector = ".govuk-error-summary__title"
-  val errorSummaryTextSelector = ".govuk-error-summary__body"
-
-  val expectedIndividualH1 = "Did you receive any untaxed interest from the UK?"
   val expectedIndividualTitle = "Did you receive any untaxed interest from the UK?"
   val expectedIndividualErrorTitle = s"Error: $expectedIndividualTitle"
-  val expectedAgentH1 = "Did your client receive any untaxed interest from the UK?"
+  val expectedIndividualH1 = "Did you receive any untaxed interest from the UK?"
   val expectedAgentTitle = "Did your client receive any untaxed interest from the UK?"
   val expectedAgentErrorTitle = s"Error: $expectedAgentTitle"
-
+  val expectedAgentH1 = "Did your client receive any untaxed interest from the UK?"
   val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
+  val forExampleText = "For example, interest from:"
+  val banksAndBuildingsText = "banks and building societies"
+  val savingsAndCreditText = "savings and credit union accounts"
+  val peerToPeerText = "peer-to-peer lending"
+  val doNotIncludeText: String = "This does not include any interest earned from an Individual Savings Account (ISA) or gilts. " +
+    "You’ll be able to add interest earned from gilts at a later date."
+  val yesText = "Yes"
+  val noText = "No"
+  val continueText = "Continue"
 
-  val expectedErrorSummaryTitle = "There is a problem"
-  val expectedErrorSummaryText = "Select yes if untaxed interest was received from companies in the UK"
+  "Untaxed interest view" should {
 
-  val taxYear = 2020
-
-  "ReceivedUntaxedInterestView" should {
-
-    "correctly render with no errors as an individual" when {
-
-      "there are no form errors" which {
-
+    "Correctly render as an individual" when {
+      "There are no form errors " which {
         lazy val view = untaxedInterestView(
-          yesNoForm, taxYear)(user,implicitly,mockAppConfig)
-
+          yesNoForm, taxYear)(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         titleCheck(expectedIndividualTitle)
+        h1Check(expectedIndividualH1)
+        textOnPageCheck(expectedCaption, captionSelector)
 
-        "contains the correct h1" in {
-          elementText(h1Selector) shouldBe expectedIndividualH1
+        s"have text on the screen of '$forExampleText'" in {
+          document.select(forExampleSelector).get(0).text() shouldBe forExampleText
         }
 
-        "contains the correct caption" in {
-          elementText(captionSelector) shouldBe expectedCaption
+        s"three bullet points on the screen" which {
+          s"has a first bullet point of '$banksAndBuildingsText'" in {
+            document.select(bulletPointSelector).get(0).text() shouldBe banksAndBuildingsText
+          }
+
+          s"has a second bullet point of '$savingsAndCreditText'" in {
+            document.select(bulletPointSelector).get(1).text() shouldBe savingsAndCreditText
+          }
+
+          s"has a third bullet point of '$peerToPeerText'" in {
+            document.select(bulletPointSelector).get(2).text() shouldBe peerToPeerText
+          }
         }
 
-        "contains a yes option" in {
-          elementExist(yesOptionSelector) shouldBe true
+        s"have text on the screen of '$doNotIncludeText'" in {
+          document.select(doNotIncludeSelector).text() should include (doNotIncludeText)
         }
 
-        "contains a no option" in {
-          elementExist(noOptionSelector) shouldBe true
-        }
+//      TODO: Think about something for a radio button
+        textOnPageCheck(yesText, yesSelector)
+//      TODO: Think about something for a radio button
+        textOnPageCheck(noText, noSelector)
 
-        "contains a continue button" in {
-          elementExist(continueButtonSelector) shouldBe true
-        }
+        buttonCheck(continueText, continueSelector)
       }
     }
-
-    "correctly render with errors as an individual"  when {
-
-      "there are form errors" which {
-
+    "correctly render with errors as an individual" when {
+      "no value is passed in" which {
         lazy val view = untaxedInterestView(
-          yesNoForm.copy(
-          errors = Seq(FormError("yes_no", "Select yes if untaxed interest was received from companies in the UK"))),
-          2020)(user,implicitly,mockAppConfig)
-
+          yesNoForm.bind(Map("value" -> "")),
+          taxYear
+        )(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
+        val expectedErrorText = "Select yes if you received untaxed interest from the UK"
+
         titleCheck(expectedIndividualErrorTitle)
-
-        "contains the correct h1" in {
-          elementText(h1Selector) shouldBe expectedIndividualH1
-        }
-
-        "contains the correct header caption" in {
-          elementText(captionSelector) shouldBe expectedCaption
-        }
-
-        "contains a yes option" in {
-          elementExist(yesOptionSelector) shouldBe true
-        }
-
-        "contains a no option" in {
-          elementExist(noOptionSelector) shouldBe true
-        }
-
-        "contains a continue button" in {
-          elementExist(continueButtonSelector) shouldBe true
-        }
-
-        "contains an error" in {
-          elementExist(errorSummarySelector) shouldBe true
-        }
-
-        "contains an error title" in {
-          elementText(errorSummaryTitleSelector) shouldBe expectedErrorSummaryTitle
-        }
-
-        "contains an error message" in {
-          elementText(errorSummaryTextSelector) shouldBe expectedErrorSummaryText
-        }
+        h1Check(expectedIndividualH1)
+        textOnPageCheck(expectedCaption, captionSelector)
+        errorSummaryCheck(expectedErrorText, "#value")
+        errorAboveElementCheck(expectedErrorText)
+        buttonCheck(continueText, continueSelector)
       }
     }
-
-    "correctly renders with no errors as an agent" when {
-
+    "correctly render with no errors as an agent" when {
       "there are no form errors" which {
 
         lazy val view = untaxedInterestView(
-          yesNoForm,taxYear)(user.copy(arn = Some("XARN1234567")),implicitly,mockAppConfig)
-
+          yesNoForm, taxYear)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         titleCheck(expectedAgentTitle)
+        h1Check(expectedAgentH1)
+        textOnPageCheck(expectedCaption, captionSelector)
 
-        "contain the correct h1" in {
-          elementText(h1Selector) shouldBe expectedAgentH1
+        s"have text on the screen of '$forExampleText'" in {
+          document.select(forExampleSelector).get(0).text() shouldBe forExampleText
         }
 
-        "contains the correct header caption" in {
-          elementText(captionSelector) shouldBe expectedCaption
+        s"three bullet points on the screen" which {
+          s"has a first bullet point of '$banksAndBuildingsText'" in {
+            document.select(bulletPointSelector).get(0).text() shouldBe banksAndBuildingsText
+          }
+
+          s"has a second bullet point of '$savingsAndCreditText'" in {
+            document.select(bulletPointSelector).get(1).text() shouldBe savingsAndCreditText
+          }
+
+          s"has a third bullet point of '$peerToPeerText'" in {
+            document.select(bulletPointSelector).get(2).text() shouldBe peerToPeerText
+          }
         }
 
-        "contains a yes option" in {
-          elementExist(yesOptionSelector) shouldBe true
+        s"have text on the screen of '$doNotIncludeText'" in {
+          document.select(doNotIncludeSelector).text() should include (doNotIncludeText)
         }
 
-        "contains a no option" in {
-          elementExist(noOptionSelector) shouldBe true
-        }
+//        TODO: Think about something for a radio button
+        textOnPageCheck(yesText, yesSelector)
+//        TODO: Think about something for a radio button
+        textOnPageCheck(noText, noSelector)
 
-        "contains a continue button" in {
-          elementExist(continueButtonSelector) shouldBe true
-        }
+        buttonCheck(continueText, continueSelector)
       }
     }
-
     "correctly render with errors as an agent" when {
-
       "there is a form error" which {
-
         lazy val view = untaxedInterestView(
-          yesNoForm.copy(
-            errors = Seq(FormError("yes_no", "Select yes if untaxed interest was received from companies in the UK"))),
-          taxYear)(user.copy(arn = Some("XARN1234567")),implicitly,mockAppConfig)
+          yesNoForm.bind(Map("value" -> "")),
+          taxYear
+        )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
+        val expectedErrorText = "Select yes if you received untaxed interest from the UK"
+
         titleCheck(expectedAgentErrorTitle)
-
-        "contain the correct h1" in {
-          elementText(h1Selector) shouldBe expectedAgentH1
-        }
-
-        "contains the correct header caption" in {
-          elementText(captionSelector) shouldBe expectedCaption
-        }
-
-        "contains a yes option" in {
-          elementExist(yesOptionSelector) shouldBe true
-        }
-
-        "contains a no option" in {
-          elementExist(noOptionSelector) shouldBe true
-        }
-
-        "contains a continue button" in {
-          elementExist(continueButtonSelector) shouldBe true
-        }
-
-        "contains an error" in {
-          elementExist(errorSummarySelector) shouldBe true
-        }
-
-        "contain an error title" in {
-          elementText(errorSummaryTitleSelector) shouldBe expectedErrorSummaryTitle
-        }
-
-        "contains an error message" in {
-          elementText(errorSummaryTextSelector) shouldBe expectedErrorSummaryText
-        }
+        h1Check(expectedAgentH1)
+        textOnPageCheck(expectedCaption, captionSelector)
+        errorSummaryCheck(expectedErrorText, "#value")
+        errorAboveElementCheck(expectedErrorText)
+        buttonCheck(continueText, continueSelector)
       }
     }
   }
