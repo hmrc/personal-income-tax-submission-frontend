@@ -28,6 +28,7 @@ class InterestCYAViewSpec extends ViewTest {
   lazy val view: InterestCYAView = app.injector.instanceOf[InterestCYAView]
 
   val taxYear = 2020
+  val taxYearMinusOne: Int = taxYear -1
 
   val question2 = 2
   val question4 = 4
@@ -51,7 +52,7 @@ class InterestCYAViewSpec extends ViewTest {
 
   val h1Expected = "Check your answers"
   val titleExpected = "Check your answers"
-  val captionExpected = "Interest for 06 April 2019 to 05 April 2020"
+  val captionExpected = s"Interest for 06 April $taxYearMinusOne to 05 April $taxYear"
 
   val changeLinkExpected = "Change"
 
@@ -63,6 +64,11 @@ class InterestCYAViewSpec extends ViewTest {
   val untaxedInterestAccount1ExpectedTest = "UntaxedBank1 : £100"
   val taxedInterestAccount1ExpectedTest = "TaxedBank1 : £200"
   val taxedInterestAccount2ExpectedTest = "TaxedBank2 : £400"
+
+  val changeUntaxedInterestHref = s"/income-through-software/return/personal-income/$taxYear/interest/untaxed-uk-interest"
+  val changeUntaxedInterestAmountHref = s"/income-through-software/return/personal-income/$taxYear/interest/untaxed-uk-interest-account-summary"
+  val changeTaxedInterestHref = s"/income-through-software/return/personal-income/$taxYear/interest/taxed-uk-interest"
+  val changeTaxedInterestAmountHref = s"/income-through-software/return/personal-income/$taxYear/interest/taxed-uk-interest-account-summary"
 
   val submitText = "Save and continue"
 
@@ -103,30 +109,26 @@ class InterestCYAViewSpec extends ViewTest {
         "has an area for question 1" which {
           textOnPageCheck(questionUntaxedInterestExpected, questionSelector(1))
           textOnPageCheck(Yes, yesNoQuestionAnswer(1))
-          linkCheck(changeLinkExpected, questionChangeLinkSelector(1),
-            s"/income-through-software/return/personal-income/$taxYear/interest/untaxed-uk-interest")
+          linkCheck(changeLinkExpected, questionChangeLinkSelector(1), changeUntaxedInterestHref)
         }
 
         "has an area for question 2" which {
           textOnPageCheck(questionUntaxedInterestDetailsExpected, questionSelector(2))
           textOnPageCheck(untaxedInterestAccount1ExpectedTest, questionAccountSelector(question2, account1, 1))
-          linkCheck(changeLinkExpected, questionChangeLinkSelector(2),
-            s"/income-through-software/return/personal-income/$taxYear/interest/untaxed-uk-interest-account-summary")
+          linkCheck(changeLinkExpected, questionChangeLinkSelector(2), changeUntaxedInterestAmountHref)
         }
 
         "has an area for question 3" which {
           textOnPageCheck(questionTaxedInterestExpected, questionSelector(3))
           textOnPageCheck(Yes, yesNoQuestionAnswer(3))
-          linkCheck(changeLinkExpected, questionChangeLinkSelector(3),
-            s"/income-through-software/return/personal-income/$taxYear/interest/taxed-uk-interest")
+          linkCheck(changeLinkExpected, questionChangeLinkSelector(3), changeTaxedInterestHref)
         }
 
         "has an area for question 4" which {
           textOnPageCheck(question4TaxedInterestDetailExpected, questionSelector(question4))
           textOnPageCheck(taxedInterestAccount1ExpectedTest, questionAccountSelector(question4, account1, 1))
           textOnPageCheck(taxedInterestAccount2ExpectedTest, questionAccountSelector(question4, account2, 2))
-          linkCheck(changeLinkExpected, questionChangeLinkSelector(question4),
-            s"/income-through-software/return/personal-income/$taxYear/interest/taxed-uk-interest-account-summary")
+          linkCheck(changeLinkExpected, questionChangeLinkSelector(question4), changeTaxedInterestAmountHref)
         }
       }
     }
@@ -160,13 +162,13 @@ class InterestCYAViewSpec extends ViewTest {
         "has an area for question 1" which {
           textOnPageCheck(questionUntaxedInterestExpected, questionTextSelector(1))
           textOnPageCheck(No, yesNoQuestionAnswer(1))
-          linkCheck(changeLinkExpected, questionChangeLinkSelector(1), s"/income-through-software/return/personal-income/$taxYear/interest/untaxed-uk-interest")
+          linkCheck(changeLinkExpected, questionChangeLinkSelector(1), changeUntaxedInterestHref)
         }
 
         "has an area for question 2" which {
           textOnPageCheck(questionTaxedInterestExpected, questionTextSelector(2))
           textOnPageCheck(No, yesNoQuestionAnswer(2))
-          linkCheck(changeLinkExpected, questionChangeLinkSelector(2),s"/income-through-software/return/personal-income/$taxYear/interest/taxed-uk-interest")
+          linkCheck(changeLinkExpected, questionChangeLinkSelector(2),changeTaxedInterestHref)
         }
 
         "there is no question 3" in {
@@ -213,15 +215,13 @@ class InterestCYAViewSpec extends ViewTest {
         "has an area for question 1" which {
           textOnPageCheck(questionUntaxedInterestDetailsExpected, questionTextSelector(1))
           textOnPageCheck("TSB : £100", yesNoQuestionAnswer(1))
-          linkCheck(changeLinkExpected, questionChangeLinkSelector(1),
-            s"/income-through-software/return/personal-income/$taxYear/interest/untaxed-uk-interest-account-summary")
+          linkCheck(changeLinkExpected, questionChangeLinkSelector(1), changeUntaxedInterestAmountHref)
         }
 
         "has an area for question 2" which {
           textOnPageCheck(question4TaxedInterestDetailExpected, questionTextSelector(2))
           textOnPageCheck("TSB Account : £100", yesNoQuestionAnswer(2))
-          linkCheck(changeLinkExpected, questionChangeLinkSelector(2),
-            s"/income-through-software/return/personal-income/$taxYear/interest/taxed-uk-interest-account-summary")
+          linkCheck(changeLinkExpected, questionChangeLinkSelector(2), changeTaxedInterestAmountHref)
         }
 
         "there is no question 3" in {

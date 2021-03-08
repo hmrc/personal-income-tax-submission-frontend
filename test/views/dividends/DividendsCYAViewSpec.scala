@@ -31,21 +31,33 @@ class DividendsCYAViewSpec extends ViewTest {
     s"dd.govuk-summary-list__value"
   val questionChangeLinkSelector: IntString = question => s"#main-content > div > div > dl > div:nth-child($question) > " +
     s"dd.govuk-summary-list__actions > a"
+  val continueButtonSelector = "#continue"
 
-  val titleSelector = "h1"
+  val question4 = 4
+  val fivePoundAmount = 5
+  val tenPoundAmount = 10
+  val taxYear = 2020
+  val taxYearMinusOne = taxYear - 1
+
   val captionSelector = ".govuk-caption-l"
 
   val h1Expected = "Check your answers"
-  val titleExpected = s"$h1Expected - $serviceName - $govUkExtension"
-  val captionExpected = "Dividends for 06 April 2019 to 05 April 2020"
+  val titleExpected = "Check your answers"
+  val captionExpected = s"Dividends for 06 April $taxYearMinusOne to 05 April $taxYear"
+  val continueButtonText = "Save and continue"
 
   val changeLinkExpected = "Change"
   val yesNoExpectedAnswer: Boolean => String = isYes => if(isYes) "Yes" else "No"
 
-  val question1TextExpected = "Dividends from UK companies?"
-  val question2TextExpected = "Amount of dividends from UK companies"
-  val question3TextExpected = "Dividends from unit trusts or investment companies?"
-  val question4TextExpected = "Amount of dividends from unit trusts or investment companies"
+  val ukDividendsHeader = "Dividends from UK companies?"
+  val ukDividendsAmount = "Amount of dividends from UK companies"
+  val otherDividendsHeader = "Dividends from unit trusts or investment companies?"
+  val otherDividendsAmount = "Amount of dividends from unit trusts or investment companies"
+
+  val changeUkDividendsHref = "/income-through-software/return/personal-income/2020/dividends/uk-dividends"
+  val changeUkDividendsAmountHref = "/income-through-software/return/personal-income/2020/dividends/uk-dividends-amount"
+  val changeOtherDividendsHref = "/income-through-software/return/personal-income/2020/dividends/other-dividends"
+  val changeOtherDividendsAmountHref = "/income-through-software/return/personal-income/2020/dividends/other-dividends-amount"
 
   "DividendsCYAView" should {
 
@@ -57,91 +69,50 @@ class DividendsCYAViewSpec extends ViewTest {
 
         val cyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(
           ukDividends = Some(true),
-          Some(5),
+          Some(fivePoundAmount),
           otherUkDividends = Some(true),
-          Some(10)
+          Some(tenPoundAmount)
         )
-        lazy val view = dividendsCyaView(cyaModel, taxYear = 2020)(user, implicitly, mockAppConfig)
+        lazy val view = dividendsCyaView(cyaModel, taxYear = taxYear)(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        "contains the correct title" in {
-          document.title() shouldBe titleExpected
+        titleCheck(titleExpected)
+        h1Check(h1Expected)
+        textOnPageCheck(captionExpected, captionSelector)
+
+        "has an area for question 1" which {
+          textOnPageCheck(ukDividendsHeader, questionTextSelector(1))
+          textOnPageCheck(yesNoExpectedAnswer(true), questionAnswerSelector(1))
+          linkCheck(changeLinkExpected, questionChangeLinkSelector(1), changeUkDividendsHref)
         }
 
-        "contains the correct heading" in {
-          elementText(titleSelector) shouldBe h1Expected
+        "has an area for question 2" which {
+          textOnPageCheck(ukDividendsAmount, questionTextSelector(2))
+          textOnPageCheck(s"£$fivePoundAmount", questionAnswerSelector(2))
+          linkCheck(changeLinkExpected, questionChangeLinkSelector(2), changeUkDividendsAmountHref)
         }
 
-        "contains the correct caption" in {
-          elementText(captionSelector) shouldBe captionExpected
+        "has an area for question 3" which {
+          textOnPageCheck(otherDividendsHeader, questionTextSelector(3))
+          textOnPageCheck(yesNoExpectedAnswer(true), questionAnswerSelector(3))
+          linkCheck(changeLinkExpected, questionChangeLinkSelector(3), changeOtherDividendsHref)
         }
 
-        "contains question 1" which {
-
-          "has the correct question text" in {
-            elementText(questionTextSelector(1)) shouldBe question1TextExpected
-          }
-
-          "has the correct answer" in {
-            elementText(questionAnswerSelector(1)) shouldBe yesNoExpectedAnswer(true)
-          }
-
-          "contains the change link" in {
-            elementText(questionChangeLinkSelector(1)) shouldBe changeLinkExpected
-          }
-
+        "has an area for question 4" which {
+          textOnPageCheck(otherDividendsAmount, questionTextSelector(question4))
+          textOnPageCheck(s"£$tenPoundAmount", questionAnswerSelector(question4))
+          linkCheck(changeLinkExpected, questionChangeLinkSelector(question4),changeOtherDividendsAmountHref)
         }
 
-        "contains question 2" which {
-
-          "has the correct question text" in {
-            elementText(questionTextSelector(2)) shouldBe question2TextExpected
+        s"have a $continueButtonText button" which {
+          s"has the text '$continueButtonText'" in {
+            document.select(continueButtonSelector).text() shouldBe continueButtonText
           }
-
-          "has the correct answer" in {
-            elementText(questionAnswerSelector(2)) shouldBe "£5"
+          s"has a class of govuk-button" in {
+            document.select(continueButtonSelector).attr("class") should include ("govuk-button")
           }
-
-          "contains the change link" in {
-            elementText(questionChangeLinkSelector(2)) shouldBe changeLinkExpected
-          }
-
         }
-
-        "contains question 3" which {
-
-          "has the correct question text" in {
-            elementText(questionTextSelector(3)) shouldBe question3TextExpected
-          }
-
-          "has the correct answer" in {
-            elementText(questionAnswerSelector(3)) shouldBe yesNoExpectedAnswer(true)
-          }
-
-          "contains the change link" in {
-            elementText(questionChangeLinkSelector(3)) shouldBe changeLinkExpected
-          }
-
-        }
-
-        "contains question 4" which {
-
-          "has the correct question text" in {
-            elementText(questionTextSelector(4)) shouldBe question4TextExpected
-          }
-
-          "has the correct answer" in {
-            elementText(questionAnswerSelector(4)) shouldBe "£10"
-          }
-
-          "contains the change link" in {
-            elementText(questionChangeLinkSelector(4)) shouldBe changeLinkExpected
-          }
-
-        }
-
       }
-
     }
 
     "render with the yesNo fields hidden" when {
@@ -150,123 +121,79 @@ class DividendsCYAViewSpec extends ViewTest {
 
         val cyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(
           ukDividends = Some(true),
-          Some(10),
+          Some(fivePoundAmount),
           otherUkDividends = Some(true),
-          Some(20)
+          Some(tenPoundAmount)
         )
 
         val priorSubmission: DividendsPriorSubmission = DividendsPriorSubmission(
-          Some(10),
-          Some(20)
+          Some(tenPoundAmount),
+          Some(fivePoundAmount)
         )
 
-        lazy val view = dividendsCyaView(cyaModel, priorSubmission, 2020)(user, implicitly, mockAppConfig)
+        lazy val view = dividendsCyaView(cyaModel, priorSubmission, taxYear)(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        "contains the correct title" in {
-          document.title() shouldBe titleExpected
+        titleCheck(titleExpected)
+        h1Check(h1Expected)
+        textOnPageCheck(captionExpected, captionSelector)
+
+        "has an area for question 1" which {
+          textOnPageCheck(ukDividendsAmount, questionTextSelector(1))
+          textOnPageCheck(s"£$fivePoundAmount", questionAnswerSelector(1))
+          linkCheck(changeLinkExpected, questionChangeLinkSelector(1), changeUkDividendsAmountHref)
         }
 
-        "contains the correct heading" in {
-          elementText(titleSelector) shouldBe h1Expected
+        "has an area for question 2" which {
+          textOnPageCheck(otherDividendsAmount, questionTextSelector(2))
+          textOnPageCheck(s"£$tenPoundAmount", questionAnswerSelector(2))
+          linkCheck(changeLinkExpected, questionChangeLinkSelector(2), changeOtherDividendsAmountHref)
         }
 
-        "contains the correct caption" in {
-          elementText(captionSelector) shouldBe captionExpected
+        s"have a $continueButtonText button" which {
+          s"has the text '$continueButtonText'" in {
+            document.select(continueButtonSelector).text() shouldBe continueButtonText
+          }
+          s"has a class of govuk-button" in {
+            document.select(continueButtonSelector).attr("class") should include ("govuk-button")
+          }
         }
-
-        "contains question 1" which {
-
-          "has the correct question text" in {
-            elementText(questionTextSelector(1)) shouldBe question2TextExpected
-          }
-
-          "has the correct answer" in {
-            elementText(questionAnswerSelector(1)) shouldBe "£10"
-          }
-
-          "contains the change link" in {
-            elementText(questionChangeLinkSelector(1)) shouldBe changeLinkExpected
-          }
-
-        }
-
-        "contains question 2" which {
-
-          "has the correct question text" in {
-            elementText(questionTextSelector(2)) shouldBe question4TextExpected
-          }
-
-          "has the correct answer" in {
-            elementText(questionAnswerSelector(2)) shouldBe "£20"
-          }
-
-          "contains the change link" in {
-            elementText(questionChangeLinkSelector(2)) shouldBe changeLinkExpected
-          }
-
-        }
-
       }
-
     }
 
     "render with the amount fields hidden" when {
 
-      "all boolean answers are now and amount answers are not filled in" which {
+      "all boolean answers are no and the amount answers are not filled in" which {
 
         val cyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel()
-        lazy val view = dividendsCyaView(cyaModel, taxYear = 2020)(user, implicitly, mockAppConfig)
+        lazy val view = dividendsCyaView(cyaModel, taxYear = taxYear)(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        "contains the correct title" in {
-          document.title() shouldBe titleExpected
+        titleCheck(titleExpected)
+        h1Check(h1Expected)
+        textOnPageCheck(captionExpected, captionSelector)
+
+        "has an area for question 1" which {
+          textOnPageCheck(ukDividendsHeader, questionTextSelector(1))
+          textOnPageCheck(yesNoExpectedAnswer(false), questionAnswerSelector(1))
+          linkCheck(changeLinkExpected, questionChangeLinkSelector(1), changeUkDividendsHref)
         }
 
-        "contains the correct heading" in {
-          elementText(titleSelector) shouldBe h1Expected
+        "has an area for question 2" which {
+          textOnPageCheck(otherDividendsHeader, questionTextSelector(2))
+          textOnPageCheck(yesNoExpectedAnswer(false), questionAnswerSelector(2))
+          linkCheck(changeLinkExpected, questionChangeLinkSelector(2), changeOtherDividendsHref)
         }
 
-        "contains the correct caption" in {
-          elementText(captionSelector) shouldBe captionExpected
+        s"have a $continueButtonText button" which {
+          s"has the text '$continueButtonText'" in {
+            document.select(continueButtonSelector).text() shouldBe continueButtonText
+          }
+          s"has a class of govuk-button" in {
+            document.select(continueButtonSelector).attr("class") should include ("govuk-button")
+          }
         }
-
-        "contains question 1" which {
-
-          "has the correct question text" in {
-            elementText(questionTextSelector(1)) shouldBe question1TextExpected
-          }
-
-          "has the correct answer" in {
-            elementText(questionAnswerSelector(1)) shouldBe yesNoExpectedAnswer(false)
-          }
-
-          "contains the change link" in {
-            elementText(questionChangeLinkSelector(1)) shouldBe changeLinkExpected
-          }
-
-        }
-
-        "contains question 3" which {
-
-          "has the correct question text" in {
-            elementText(questionTextSelector(2)) shouldBe question3TextExpected
-          }
-
-          "has the correct answer" in {
-            elementText(questionAnswerSelector(2)) shouldBe yesNoExpectedAnswer(false)
-          }
-
-          "contains the change link" in {
-            elementText(questionChangeLinkSelector(2)) shouldBe changeLinkExpected
-          }
-
-        }
-
       }
-
     }
-
   }
-
 }

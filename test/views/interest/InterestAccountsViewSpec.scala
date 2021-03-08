@@ -27,141 +27,85 @@ class InterestAccountsViewSpec extends ViewTest {
   lazy val view: InterestAccountsView = app.injector.instanceOf[InterestAccountsView]
 
   val taxYear = 2020
+  val taxYearMinusOne = taxYear -1
 
   val TAXED = "taxed"
   val UNTAXED = "untaxed"
 
-  object Selectors {
-    val accountRow: Int => String = rowNumber => s".govuk-summary-list__row:nth-child($rowNumber)"
-    val accountRowName: Int => String = rowNumber => accountRow(rowNumber) + " > dd:nth-child(1)"
-    val accountRowChange: Int => String = rowNumber => accountRow(rowNumber) + " > dd:nth-child(2) > a"
-    val accountRowRemove: Int => String = rowNumber => accountRow(rowNumber) + " > dd:nth-child(3)"
+  val accountRow: Int => String = rowNumber => s".govuk-summary-list__row:nth-child($rowNumber)"
+  val accountRowName: Int => String = rowNumber => accountRow(rowNumber) + " > dd:nth-child(1)"
+  val accountRowChange: Int => String = rowNumber => accountRow(rowNumber) + " > dd:nth-child(2) > a"
+  val accountRowRemove: Int => String = rowNumber => accountRow(rowNumber) + " > dd:nth-child(3)"
+  val captionSelector = ".govuk-caption-l"
+  val accountRowChangePriorSubmission: Int => String = rowNumber => accountRow(rowNumber) + " > dd:nth-child(3) > a"
+  val continueSelector = "#continue"
 
-    val accountRowChangePriorSubmission: Int => String = rowNumber => accountRow(rowNumber) + " > dd:nth-child(3) > a"
-  }
+  val changeUntaxedHref = "/income-through-software/return/personal-income/2020/interest/untaxed-uk-interest-details/qwerty"
+  val changePriorUntaxedHref = "/income-through-software/return/personal-income/2020/interest/change-untaxed-interest-account?accountId=azerty"
+  val changeTaxedHref = "/income-through-software/return/personal-income/2020/interest/taxed-uk-interest-details/qwerty"
+  val changePriorTaxedHref = "/income-through-software/return/personal-income/2020/interest/change-taxed-interest-account?accountId=azerty"
+  val removeUntaxedHref = "/income-through-software/return/personal-income/2020/interest/remove-untaxed-interest-account?accountId=qwerty"
+  val removeTaxedHref = "/income-through-software/return/personal-income/2020/interest/remove-taxed-interest-account?accountId=qwerty"
 
-  object ExpectedValues {
-    val h1Singular = "You have added 1 account"
-    val h1Plural = "You have added 2 accounts"
-
-    val caption = "Interest for 06 April 2019 to 05 April 2020"
-
-    val change = "Change"
-    val remove = "Remove"
-
-    val addAnotherAccount = "Add another account"
-
-    val titleSingle = s"$h1Singular - $serviceName - $govUkExtension"
-    val titlePlural = s"$h1Plural - $serviceName - $govUkExtension"
-  }
+  val titleSingle = "You have added 1 account"
+  val titlePlural = "You have added 2 accounts"
+  val h1Singular = "You have added 1 account"
+  val h1Plural = "You have added 2 accounts"
+  val captionText = s"Interest for 06 April $taxYearMinusOne to 05 April $taxYear"
+  val changeText = "Change"
+  val removeText = "Remove"
+  val addAnotherAccountText = "Add another account"
+  val continueText = "Continue"
 
   "InterestAccountsView when untaxed" should {
 
     "render with 1 row" when {
 
-      "there is a single account passed in that is not a prior submission" which {
+      "there is a single untaxed account passed in that is not a prior submission" which {
 
         lazy val result = view(taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9001.00, Some("qwerty"))
         ), UNTAXED)
         implicit val document: Document = Jsoup.parse(result.body)
 
-        "has the correct title" in {
-          assertTitle(ExpectedValues.titleSingle)
-        }
+        titleCheck(titleSingle)
+        textOnPageCheck(captionText, captionSelector)
+        h1Check(h1Singular)
+        textOnPageCheck( "Bank of UK", accountRowName(1))
+        linkCheck(changeText, accountRowChange(1),changeUntaxedHref)
 
-        "has the correct caption" in {
-          assertCaption(ExpectedValues.caption)
-        }
-
-        "has the correct h1" in {
-          assertH1(ExpectedValues.h1Singular)
-        }
-
-        "has a single account row" in {
-          elementExist(Selectors.accountRow(1)) shouldBe true
-          elementExist(Selectors.accountRow(2)) shouldBe false
-        }
-
-        "the row should have the correct account name" in {
-          elementText(Selectors.accountRowName(1)) shouldBe "Bank of UK"
-        }
-
-        "the row should have a change link" which {
-
-          "has the correct text" in {
-            elementText(Selectors.accountRowChange(1)) shouldBe ExpectedValues.change
+        "has a link for removing the account" which {
+          s"has the text $removeText" in {
+            document.select(accountRowRemove(1)).text() shouldBe removeText
           }
-
-          "has the correct link" in {
-            element(Selectors.accountRowChange(1)).attr("href") shouldBe controllers.interest.routes.UntaxedInterestAmountController
-              .show(taxYear, "qwerty").url
-          }
-
-        }
-
-        "the row should have a remove link" which {
-
-          "has the correct text" in {
-            elementText(Selectors.accountRowRemove(1)) shouldBe ExpectedValues.remove
-          }
-
-          "has the correct link" in {
-            element(Selectors.accountRowRemove(1) + "> a").attr("href") shouldBe
-              "/income-through-software/return/personal-income/2020/interest/remove-untaxed-interest-account?accountId=qwerty"
+          s"has the href '$removeUntaxedHref'" in {
+            document.select(accountRowRemove(1) + " > a").attr("href") shouldBe removeUntaxedHref
           }
         }
 
+        buttonCheck(continueText, continueSelector)
       }
 
-      "there is a single account passed in that is a prior submission" which {
+      "there is a single untaxed account passed in that is a prior submission" which {
 
         lazy val result = view(taxYear, Seq(
-          InterestAccountModel(Some("qwerty"), "Bank of UK", 9001.00)
+          InterestAccountModel(Some("azerty"), "Bank of UK", 9001.00)
         ), UNTAXED)
         implicit val document: Document = Jsoup.parse(result.body)
 
-        "has the correct title" in {
-          assertTitle(ExpectedValues.titleSingle)
-        }
+        titleCheck(titleSingle)
+        textOnPageCheck(captionText, captionSelector)
+        h1Check(h1Singular)
 
-        "has the correct caption" in {
-          assertCaption(ExpectedValues.caption)
-        }
-
-        "has the correct h1" in {
-          assertH1(ExpectedValues.h1Singular)
-        }
-
-        "has a single account row" in {
-          elementExist(Selectors.accountRow(1)) shouldBe true
-          elementExist(Selectors.accountRow(2)) shouldBe false
-        }
-
-        "the row should have the correct account name" in {
-          elementText(Selectors.accountRowName(1)) shouldBe "Bank of UK"
-        }
-
-        "the row should have a change link" which {
-
-          "has the correct text" in {
-            elementText(Selectors.accountRowChangePriorSubmission(1)) shouldBe ExpectedValues.change
-          }
-
-          "has the correct link" in {
-            element(Selectors.accountRowChangePriorSubmission(1)).attr("href") shouldBe controllers.interest.routes.ChangeAccountAmountController
-              .show(taxYear, "untaxed", "qwerty").url
-          }
-
-        }
-
+        textOnPageCheck( "Bank of UK", accountRowName(1))
+        linkCheck(changeText, accountRowChangePriorSubmission(1),changePriorUntaxedHref)
+        buttonCheck(continueText, continueSelector)
       }
-
     }
 
     "render with 2 rows" when {
 
-      "there are two accounts passed in" which {
+      "there are two accounts passed in, one new account and one prior" which {
 
         lazy val result = view(taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9000.01, Some("qwerty")),
@@ -169,187 +113,82 @@ class InterestAccountsViewSpec extends ViewTest {
         ), UNTAXED)
         implicit val document: Document = Jsoup.parse(result.body)
 
-        "has the correct title" in {
-          assertTitle(ExpectedValues.titlePlural)
-        }
+        titleCheck(titlePlural)
+        h1Check(h1Plural)
+        textOnPageCheck(captionText, captionSelector)
 
-        "has the correct caption" in {
-          assertCaption(ExpectedValues.caption)
-        }
+        "have an area for the first row" which {
+          textOnPageCheck("Bank of UK", accountRowName(1))
+          linkCheck(changeText, accountRowChange(1), changeUntaxedHref)
 
-        "has the correct h1" in {
-          assertH1(ExpectedValues.h1Plural)
-        }
-
-        "has two account rows" in {
-          elementExist(Selectors.accountRow(1)) shouldBe true
-          elementExist(Selectors.accountRow(2)) shouldBe true
-          elementExist(Selectors.accountRow(3)) shouldBe false
-        }
-
-        "the first row" should {
-          "have the correct account name" in {
-            elementText(Selectors.accountRowName(1)) shouldBe "Bank of UK"
-          }
-
-          "the row should have a change link" which {
-
-            "has the correct text" in {
-              elementText(Selectors.accountRowChange(1)) shouldBe ExpectedValues.change
+          "has a link for removing the account" which {
+            s"has the text $removeText" in {
+              document.select(accountRowRemove(1)).text() shouldBe removeText
             }
-
-            "has the correct link" in {
-              element(Selectors.accountRowChange(1)).attr("href") shouldBe
-                controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, "qwerty").url
-            }
-
-          }
-
-          "the row should have a remove link" which {
-
-            "has the correct text" in {
-              elementText(Selectors.accountRowRemove(1)) shouldBe ExpectedValues.remove
-            }
-
-            "has the correct link" in {
-              element(Selectors.accountRowRemove(1) + "> a").attr("href") shouldBe
-                "/income-through-software/return/personal-income/2020/interest/remove-untaxed-interest-account?accountId=qwerty"
+            s"has the href '$removeUntaxedHref'" in {
+              document.select(accountRowRemove(1) + " > a").attr("href") shouldBe removeUntaxedHref
             }
           }
         }
 
-        "the second row" should {
-          "have the correct account name" in {
-            elementText(Selectors.accountRowName(2)) shouldBe "Bank of EU"
-          }
-
-          "the row should have a change link" which {
-
-            "has the correct text" in {
-              elementText(Selectors.accountRowChangePriorSubmission(2)) shouldBe ExpectedValues.change
-            }
-
-            "has the correct link" in {
-              element(Selectors.accountRowChangePriorSubmission(2)).attr("href") shouldBe
-                controllers.interest.routes.ChangeAccountAmountController.show(taxYear, "untaxed", "azerty").url
-            }
-
-          }
+        "have an area for the second row" which {
+          textOnPageCheck("Bank of EU", accountRowName(2))
+          linkCheck(changeText, accountRowChangePriorSubmission(2), changePriorUntaxedHref)
         }
-
+        buttonCheck(continueText, continueSelector)
       }
-
     }
-
   }
 
   "InterestAccountsView when taxed" should {
 
     "render with 1 row" when {
 
-      "there is a single account passed in that is not a prior submission" which {
+      "there is a single taxed account passed in that is not a prior submission" which {
 
         lazy val result = view(taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9001.00, Some("qwerty"))
         ), TAXED)
         implicit val document: Document = Jsoup.parse(result.body)
 
-        "has the correct title" in {
-          assertTitle(ExpectedValues.titleSingle)
-        }
+        titleCheck(titleSingle)
+        textOnPageCheck(captionText, captionSelector)
+        h1Check(h1Singular)
+        textOnPageCheck( "Bank of UK", accountRowName(1))
+        linkCheck(changeText, accountRowChange(1), changeTaxedHref)
 
-        "has the correct caption" in {
-          assertCaption(ExpectedValues.caption)
-        }
-
-        "has the correct h1" in {
-          assertH1(ExpectedValues.h1Singular)
-        }
-
-        "has a single account row" in {
-          elementExist(Selectors.accountRow(1)) shouldBe true
-          elementExist(Selectors.accountRow(2)) shouldBe false
-        }
-
-        "the row should have the correct account name" in {
-          elementText(Selectors.accountRowName(1)) shouldBe "Bank of UK"
-        }
-
-        "the row should have a change link" which {
-
-          "has the correct text" in {
-            elementText(Selectors.accountRowChange(1)) shouldBe ExpectedValues.change
+        "has a link for removing the account" which {
+          s"has the text $removeText" in {
+            document.select(accountRowRemove(1)).text() shouldBe removeText
           }
-
-          "has the correct link" in {
-            element(Selectors.accountRowChange(1)).attr("href") shouldBe controllers.interest.routes.TaxedInterestAmountController
-              .show(taxYear, "qwerty").url
-          }
-
-        }
-
-        "the row should have a remove link" which {
-
-          "has the correct text" in {
-            elementText(Selectors.accountRowRemove(1)) shouldBe ExpectedValues.remove
-          }
-
-          "has the correct link" in {
-            element(Selectors.accountRowRemove(1) + "> a").attr("href") shouldBe
-              "/income-through-software/return/personal-income/2020/interest/remove-taxed-interest-account?accountId=qwerty"
+         s"has the href '$removeTaxedHref'" in {
+            document.select(accountRowRemove(1) + " > a").attr("href") shouldBe removeTaxedHref
           }
         }
 
+        buttonCheck(continueText, continueSelector)
       }
 
-      "there is a single account passed in that is a prior submission" which {
+      "there is a single taxed account passed in that is a prior submission" which {
 
         lazy val result = view(taxYear, Seq(
-          InterestAccountModel(Some("qwerty"), "Bank of UK", 9001.00)
+          InterestAccountModel(Some("azerty"), "Bank of UK", 9001.00)
         ), TAXED)
         implicit val document: Document = Jsoup.parse(result.body)
 
-        "has the correct title" in {
-          assertTitle(ExpectedValues.titleSingle)
-        }
+        titleCheck(titleSingle)
+        textOnPageCheck(captionText, captionSelector)
+        h1Check(h1Singular)
 
-        "has the correct caption" in {
-          assertCaption(ExpectedValues.caption)
-        }
-
-        "has the correct h1" in {
-          assertH1(ExpectedValues.h1Singular)
-        }
-
-        "has a single account row" in {
-          elementExist(Selectors.accountRow(1)) shouldBe true
-          elementExist(Selectors.accountRow(2)) shouldBe false
-        }
-
-        "the row should have the correct account name" in {
-          elementText(Selectors.accountRowName(1)) shouldBe "Bank of UK"
-        }
-
-        "the row should have a change link" which {
-
-          "has the correct text" in {
-            elementText(Selectors.accountRowChangePriorSubmission(1)) shouldBe ExpectedValues.change
-          }
-
-          "has the correct link" in {
-            element(Selectors.accountRowChangePriorSubmission(1)).attr("href") shouldBe controllers.interest.routes.ChangeAccountAmountController
-              .show(taxYear, "taxed", "qwerty").url
-          }
-
-        }
-
+        textOnPageCheck( "Bank of UK", accountRowName(1))
+        linkCheck(changeText, accountRowChangePriorSubmission(1), changePriorTaxedHref)
+        buttonCheck(continueText, continueSelector)
       }
-
     }
 
     "render with 2 rows" when {
 
-      "there are two accounts passed in" which {
+      "there are two accounts passed in, one new account and one prior" which {
 
         lazy val result = view(taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9000.01, Some("qwerty")),
@@ -357,79 +196,31 @@ class InterestAccountsViewSpec extends ViewTest {
         ), TAXED)
         implicit val document: Document = Jsoup.parse(result.body)
 
-        "has the correct title" in {
-          assertTitle(ExpectedValues.titlePlural)
-        }
+        titleCheck(titlePlural)
+        h1Check(h1Plural)
+        textOnPageCheck(captionText, captionSelector)
 
-        "has the correct caption" in {
-          assertCaption(ExpectedValues.caption)
-        }
+        "have an area for the first row" which {
+          textOnPageCheck("Bank of UK", accountRowName(1))
+          linkCheck(changeText, accountRowChange(1), changeTaxedHref)
 
-        "has the correct h1" in {
-          assertH1(ExpectedValues.h1Plural)
-        }
-
-        "has two account rows" in {
-          elementExist(Selectors.accountRow(1)) shouldBe true
-          elementExist(Selectors.accountRow(2)) shouldBe true
-          elementExist(Selectors.accountRow(3)) shouldBe false
-        }
-
-        "the first row" should {
-          "have the correct account name" in {
-            elementText(Selectors.accountRowName(1)) shouldBe "Bank of UK"
-          }
-
-          "the row should have a change link" which {
-
-            "has the correct text" in {
-              elementText(Selectors.accountRowChange(1)) shouldBe ExpectedValues.change
+          "has a link for removing the account" which {
+            s"has the text $removeText" in {
+              document.select(accountRowRemove(1)).text() shouldBe removeText
             }
-
-            "has the correct link" in {
-              element(Selectors.accountRowChange(1)).attr("href") shouldBe
-                controllers.interest.routes.TaxedInterestAmountController.show(taxYear, "qwerty").url
-            }
-
-          }
-
-          "the row should have a remove link" which {
-
-            "has the correct text" in {
-              elementText(Selectors.accountRowRemove(1)) shouldBe ExpectedValues.remove
-            }
-
-            "has the correct link" in {
-              element(Selectors.accountRowRemove(1) + "> a").attr("href") shouldBe
-                "/income-through-software/return/personal-income/2020/interest/remove-taxed-interest-account?accountId=qwerty"
-
+            s"has the href '$removeTaxedHref'" in {
+              document.select(accountRowRemove(1) + " > a").attr("href") shouldBe removeTaxedHref
             }
           }
         }
 
-        "the second row" should {
-          "have the correct account name" in {
-            elementText(Selectors.accountRowName(2)) shouldBe "Bank of EU"
-          }
-
-          "the row should have a change link" which {
-
-            "has the correct text" in {
-              elementText(Selectors.accountRowChangePriorSubmission(2)) shouldBe ExpectedValues.change
-            }
-
-            "has the correct link" in {
-              element(Selectors.accountRowChangePriorSubmission(2)).attr("href") shouldBe
-                controllers.interest.routes.ChangeAccountAmountController.show(taxYear, "taxed", "azerty").url
-            }
-
-          }
+        "have an area for the second row" which {
+          textOnPageCheck("Bank of EU", accountRowName(2))
+          linkCheck(changeText, accountRowChangePriorSubmission(2), changePriorTaxedHref)
         }
-
+        buttonCheck(continueText, continueSelector)
       }
-
     }
-
   }
 
 }

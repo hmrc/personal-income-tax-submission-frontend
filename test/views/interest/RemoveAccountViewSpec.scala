@@ -32,6 +32,7 @@ class RemoveAccountViewSpec extends ViewTest {
   lazy val removeAccountView: RemoveAccountView = app.injector.instanceOf[RemoveAccountView]
 
   val taxYear = 2020
+  val taxYearMinusOne: Int = taxYear -1
 
   val TAXED = "taxed"
   val UNTAXED = "untaxed"
@@ -42,6 +43,7 @@ class RemoveAccountViewSpec extends ViewTest {
   val yesOptionSelector = "#main-content > div > div > form > div > fieldset > div.govuk-radios.govuk-radios--inline > div:nth-child(1) > label"
   val noOptionSelector = "#main-content > div > div > form > div > fieldset > div.govuk-radios.govuk-radios--inline > div:nth-child(2) > label"
   val continueButtonSelector = "#continue"
+  val errorSummaryHref = "#value"
 
   val errorSummarySelector = ".govuk-error-summary"
   val errorSummaryTitleSelector = ".govuk-error-summary__title"
@@ -50,7 +52,7 @@ class RemoveAccountViewSpec extends ViewTest {
   val expectedTitle = "Are you sure you want to remove this account?"
   val expectedErrorTitle = s"Error: $expectedTitle"
   val expectedH1 = "Are you sure you want to remove Monzo?"
-  val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
+  val expectedCaption = s"Interest for 06 April $taxYearMinusOne to 05 April $taxYear"
   val thisWillText = "This will remove all untaxed UK interest."
   val yesText = "Yes"
   val noText = "No"
@@ -68,9 +70,8 @@ class RemoveAccountViewSpec extends ViewTest {
         titleCheck(expectedTitle)
         textOnPageCheck(expectedCaption, captionSelector)
         h1Check(expectedH1)
-//        TODO: Think of something for radio buttons
-        textOnPageCheck(yesText, yesOptionSelector)
-        textOnPageCheck(noText, noOptionSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueButtonSelector)
       }
 
@@ -80,13 +81,12 @@ class RemoveAccountViewSpec extends ViewTest {
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
           titleCheck(expectedErrorTitle)
-          errorSummaryCheck(expectedErrorText, "#value")
+          errorSummaryCheck(expectedErrorText, errorSummaryHref)
           textOnPageCheck(expectedCaption, captionSelector)
           h1Check(expectedH1)
           errorAboveElementCheck(expectedErrorText)
-          //        TODO: Think of something for radio buttons
-          textOnPageCheck(yesText, yesOptionSelector)
-          textOnPageCheck(noText, noOptionSelector)
+          radioButtonCheck(yesText, 1)
+          radioButtonCheck(noText, 2)
           buttonCheck(continueText, continueButtonSelector)
         }
       }
@@ -100,9 +100,8 @@ class RemoveAccountViewSpec extends ViewTest {
         titleCheck(expectedTitle)
         textOnPageCheck(expectedCaption, captionSelector)
         h1Check(expectedH1)
-        //        TODO: Think of something for radio buttons
-        textOnPageCheck(yesText, yesOptionSelector)
-        textOnPageCheck(noText, noOptionSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueButtonSelector)
       }
 
@@ -113,13 +112,12 @@ class RemoveAccountViewSpec extends ViewTest {
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
           titleCheck(expectedErrorTitle)
-          errorSummaryCheck(expectedErrorText, "#value")
+          errorSummaryCheck(expectedErrorText, errorSummaryHref)
           textOnPageCheck(expectedCaption, captionSelector)
           h1Check(expectedH1)
           errorAboveElementCheck(expectedErrorText)
-          //        TODO: Think of something for radio buttons
-          textOnPageCheck(yesText, yesOptionSelector)
-          textOnPageCheck(noText, noOptionSelector)
+          radioButtonCheck(yesText, 1)
+          radioButtonCheck(noText, 2)
           buttonCheck(continueText, continueButtonSelector)
         }
       }

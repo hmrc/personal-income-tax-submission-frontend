@@ -31,13 +31,14 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
   lazy val receiveUkDividendsView: ReceiveUkDividendsView = app.injector.instanceOf[ReceiveUkDividendsView]
 
   val taxYear = 2020
+  val taxYearMinusOne = taxYear -1
   val expectedIndividualH1 = "Did you receive any dividends from companies in the UK?"
   val expectedIndividualTitle = "Did you receive any dividends from companies in the UK?"
   val expectedIndividualErrorTitle = s"Error: $expectedIndividualTitle"
   val expectedAgentH1 = "Did your client receive any dividends from companies in the UK?"
   val expectedAgentTitle = "Did your client receive any dividends from companies in the UK?"
   val expectedAgentErrorTitle = s"Error: $expectedAgentTitle"
-  val captionText = "Dividends for 06 April 2019 to 05 April 2020"
+  val captionText = s"Dividends for 06 April $taxYearMinusOne to 05 April $taxYear"
   val yourDividendsText = "Your dividend voucher will usually show your shares in the company and the dividends received."
   val yesText = "Yes"
   val noText = "No"
@@ -45,8 +46,6 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
 
   val captionSelector = ".govuk-caption-l"
   val yourDividendsSelector = "#value-hint"
-  val yesSelector = "#main-content > div > div > form > div > fieldset > div.govuk-radios.govuk-radios--inline > div:nth-child(1) > label"
-  val noSelector = "#main-content > div > div > form > div > fieldset > div.govuk-radios.govuk-radios--inline > div:nth-child(2) > label"
   val continueSelector = "#continue"
 
   "ReceivedUKDividendsView" should {
@@ -63,10 +62,8 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
         h1Check(expectedIndividualH1)
         textOnPageCheck(captionText, captionSelector)
         textOnPageCheck(yourDividendsText, yourDividendsSelector)
-//        TODO: Think of something for the radio buttons
-        textOnPageCheck(yesText, yesSelector)
-//        TODO: Think of something for the radio buttons
-        textOnPageCheck(noText, noSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
       }
 
@@ -85,10 +82,8 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
         errorSummaryCheck(expectedErrorText, errorSummaryHref)
         textOnPageCheck(yourDividendsText, yourDividendsSelector)
         errorAboveElementCheck(expectedErrorText)
-//        TODO: Think of something for the radio buttons
-        textOnPageCheck(yesText, yesSelector)
-//        TODO: Think of something for the radio buttons
-        textOnPageCheck(noText, noSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
       }
     }
@@ -105,10 +100,8 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
         h1Check(expectedAgentH1)
         textOnPageCheck(captionText, captionSelector)
         textOnPageCheck(yourDividendsText, yourDividendsSelector)
-//        TODO: Think of something for the radio buttons
-        textOnPageCheck(yesText, yesSelector)
-//        TODO: Think of something for the radio buttons
-        textOnPageCheck(noText, noSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
       }
 
@@ -127,10 +120,8 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
         errorSummaryCheck(expectedErrorText, errorSummaryHref)
         textOnPageCheck(yourDividendsText, yourDividendsSelector)
         errorAboveElementCheck(expectedErrorText)
-//        TODO: Think of something for the radio buttons
-        textOnPageCheck(yesText, yesSelector)
-//        TODO: Think of something for the radio buttons
-        textOnPageCheck(noText, noSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
       }
     }
