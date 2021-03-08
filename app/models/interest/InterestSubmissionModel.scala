@@ -18,7 +18,7 @@ package models.interest
 
 import play.api.libs.json.{Json, OWrites}
 
-case class InterestSubmissionModel(id: Option[String], accountName: String, untaxedInterest: Option[BigDecimal], taxedInterest: Option[BigDecimal])
+case class InterestSubmissionModel(id: Option[String], accountName: String, untaxedUkInterest: Option[BigDecimal], taxedUkInterest: Option[BigDecimal])
 
 object InterestSubmissionModel {
   implicit val writes: OWrites[InterestSubmissionModel] = Json.writes[InterestSubmissionModel]

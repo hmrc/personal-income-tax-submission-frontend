@@ -81,7 +81,7 @@ class DividendsCYAController @Inject()(
         Ok(dividendsCyaView(cyaModel, priorData, taxYear))
           .addingToSession(SessionValues.DIVIDENDS_CYA -> Json.toJson(cyaModel).toString())
       case _ =>
-        logger.debug("[DividendsCYAController][show] No Check Your Answers data or Prior Submission data. Redirecting to overview.")
+        logger.info("[DividendsCYAController][show] No Check Your Answers data or Prior Submission data. Redirecting to overview.")
         Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
     }
 
