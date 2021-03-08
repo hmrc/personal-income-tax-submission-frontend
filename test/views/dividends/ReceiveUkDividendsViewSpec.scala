@@ -36,7 +36,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
   val expectedAgentH1 = "Did your client receive any dividends from companies in the UK?"
   val expectedAgentTitle = "Did your client receive any dividends from companies in the UK?"
   val expectedAgentErrorTitle = s"Error: $expectedAgentTitle"
-  val captionText = "Dividends for 06 April 2019 to 05 April 2020"
+  val captionText = "Dividends for 6 April 2019 to 5 April 2020"
   val yourDividendsText = "Your dividend voucher will usually show your shares in the company and the dividends received."
   val yesText = "Yes"
   val noText = "No"

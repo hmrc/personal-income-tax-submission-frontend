@@ -47,7 +47,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
   val expectedH1 = "What is the total amount of dividends from trusts or open ended investment companies?"
   val expectedTitle = "What is the total amount of dividends from trusts or open ended investment companies?"
   val expectedErrorTitle = s"Error: $expectedTitle"
-  val expectedCaption = "Dividends for 06 April 2019 to 05 April 2020"
+  val expectedCaption = "Dividends for 6 April 2019 to 5 April 2020"
   val expectedHintText = "For example, £600 or £193.54"
   val poundPrefixText = "£"
   val differentAmountText = "A different amount"
@@ -223,7 +223,6 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
             inputFieldCheck("amount", inputSelector)
             buttonCheck(continueText, continueButtonSelector)
-
           }
 
           "a non numeric value is passed in" which {
@@ -236,7 +235,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
-
+            
             val expectedErrorText = "Enter an amount using numbers 0 to 9"
 
             titleCheck(expectedErrorTitle)
