@@ -45,7 +45,7 @@ class TaxedInterestAmountViewSpec extends ViewTest{
   val titleText = "UK taxed interest account details"
   val errorTitleText = s"Error: $titleText"
   val h1Text = "UK taxed interest account details"
-  val captionText = s"Interest for 06 April $taxYearMinusOne to 05 April $taxYear"
+  val captionText = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
   val whatWouldYouCallText = "What would you like to call this account?"
   val amountInterestText = "Amount of interest earned"
   val poundPrefixText = "£"

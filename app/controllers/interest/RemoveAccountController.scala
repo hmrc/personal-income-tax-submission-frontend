@@ -65,7 +65,7 @@ class RemoveAccountController @Inject()(
           getTaxAccounts(taxType, cyaData) match {
             case Some(taxAccounts) if taxAccounts.nonEmpty =>
               useAccount(taxAccounts, accountId, taxType, taxYear) { account =>
-                Ok(view(yesNoForm, taxYear, taxType, account))
+                Ok(view(yesNoForm, taxYear, taxType, account, isLastAccount(taxType,priorSubmissionData,taxAccounts)))
               }
             case _ => missingAccountsRedirect(taxType, taxYear)
           }
@@ -79,6 +79,7 @@ class RemoveAccountController @Inject()(
 
   def submit(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = authorisedAction.async { implicit user =>
     val optionalCyaData: Option[InterestCYAModel] = user.session.get(SessionValues.INTEREST_CYA).flatMap(Json.parse(_).asOpt[InterestCYAModel])
+    val priorSubmissionData = user.session.get(SessionValues.INTEREST_PRIOR_SUB).flatMap(Json.parse(_).asOpt[InterestPriorSubmission])
 
     yesNoForm.bindFromRequest().fold(
       formWithErrors =>
@@ -86,7 +87,8 @@ class RemoveAccountController @Inject()(
           case Some(cyaData) =>
             getTaxAccounts(taxType, cyaData) match {
               case Some(taxAccounts) if taxAccounts.nonEmpty =>
-                useAccount(taxAccounts, accountId, taxType, taxYear)(account => BadRequest(view(formWithErrors, taxYear, taxType, account)))
+                useAccount(taxAccounts, accountId, taxType, taxYear)(account =>
+                  BadRequest(view(formWithErrors, taxYear, taxType, account, isLastAccount(taxType,priorSubmissionData,taxAccounts))))
               case _ => missingAccountsRedirect(taxType, taxYear)
             }
           case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
@@ -181,6 +183,24 @@ class RemoveAccountController @Inject()(
     accounts.find(account => account.id.getOrElse(account.uniqueSessionId.getOrElse("")) == identifier) match {
       case Some(account) => action(account)
       case _ => missingAccountsRedirect(taxType, taxYear)
+    }
+  }
+
+  private[interest] def isLastAccount(taxType: String, priorSubmission: Option[InterestPriorSubmission],taxAccounts: Seq[InterestAccountModel]): Boolean = {
+    lazy val blankPriorSub = InterestPriorSubmission(hasTaxed = false,hasUntaxed = false, submissions = None)
+    taxType match {
+      case TAXED =>
+        if (priorSubmission.getOrElse(blankPriorSub).hasTaxed) {
+          false
+        } else {
+          if(taxAccounts.length == 1) true else false
+        }
+      case UNTAXED =>
+        if(priorSubmission.getOrElse(blankPriorSub).hasUntaxed) {
+          false
+        } else {
+          if(taxAccounts.length == 1) true else false
+        }
     }
   }
 

@@ -61,21 +61,22 @@ dividends.other-dividends-amount.details.paragraph.3 = Equalisation payments are
 
 dividends.cya.title = Check your answers
 dividends.cya.h1 = Check your answers
-dividends.cya.questions.1 = Dividends from UK companies?
+dividends.cya.questions.1 = Dividends from UK companies
 dividends.cya.questions.2 = Amount of dividends from UK companies
-dividends.cya.questions.3 = Dividends from unit trusts or investment companies?
+dividends.cya.questions.3 = Dividends from unit trusts or investment companies
 dividends.cya.questions.4 = Amount of dividends from unit trusts or investment companies
 
 interest.cya.accountDisplay = {0} : {1}
 
-interest.caption = Interest for 06 April {0} to 05 April {1}
-dividends.caption = Dividends for 06 April {0} to 05 April {1}
+interest.caption = Interest for 6 April {0} to 5 April {1}
+dividends.caption = Dividends for 6 April {0} to 5 April {1}
 
 interest.untaxed-uk-interest.title.individual = Did you receive any untaxed interest from the UK?
 interest.untaxed-uk-interest.title.agent = Did your client receive any untaxed interest from the UK?
 interest.untaxed-uk-interest.heading.individual = Did you receive any untaxed interest from the UK?
 interest.untaxed-uk-interest.heading.agent = Did your client receive any untaxed interest from the UK?
-interest.untaxed-uk-interest.errors.noRadioSelected = Select yes if untaxed interest was received from companies in the UK
+interest.untaxed-uk-interest.errors.noRadioSelected.individual = Select yes if you received untaxed interest from the UK
+interest.untaxed-uk-interest.errors.noRadioSelected.agent = Select yes if your client received untaxed interest from the UK
 interest.untaxed-uk-interest.paragraph.1 = For example, interest from:
 interest.untaxed-uk-interest.list.1 = banks and building societies
 interest.untaxed-uk-interest.list.2 = savings and credit union accounts
@@ -89,6 +90,11 @@ interest.untaxed-uk-interest-details.sub-heading2 = Amount of interest earned
 interest.untaxed-uk-interest-name.error.empty = Enter an account name
 interest.untaxed-uk-interest-amount.error.empty = Enter the amount of untaxed interest earned
 
+interest.untaxed-uk-interest-accounts.h1.single = UK untaxed interest account
+interest.untaxed-uk-interest-accounts.h1.multiple = UK untaxed interest accounts
+interest.untaxed-uk-interest-accounts.title.single = UK untaxed interest account
+interest.untaxed-uk-interest-accounts.title.multiple = UK untaxed interest accounts
+
 interest.taxed-uk-interest.title.individual = Did you receive any taxed interest from the UK?
 interest.taxed-uk-interest.title.agent = Did your client receive any taxed interest from the UK?
 interest.taxed-uk-interest.heading.individual = Did you receive any taxed interest from the UK?
@@ -96,9 +102,10 @@ interest.taxed-uk-interest.heading.agent = Did your client receive any taxed int
 interest.taxed-uk-interest.paragraph.1 = For example, interest from:
 interest.taxed-uk-interest.list.1 = trust funds
 interest.taxed-uk-interest.list.2 = company bonds
-interest.taxed-uk-interest.list.3 = life-annuity payments
+interest.taxed-uk-interest.list.3 = life annuity payments
 interest.taxed-uk-interest.paragraph.2 = Do not include interest received from gilts. You’ll be able to add interest earned from gilts at a later date.
-interest.taxed-uk-interest.errors.noRadioSelected = Select yes if you received taxed interest from the UK
+interest.taxed-uk-interest.errors.noRadioSelected.individual = Select yes if you received taxed interest from the UK
+interest.taxed-uk-interest.errors.noRadioSelected.agent = Select yes if your client received taxed interest from the UK
 
 interest.taxed-uk-interest-details.title = UK taxed interest account details
 interest.taxed-uk-interest-details.heading = UK taxed interest account details
@@ -107,18 +114,19 @@ interest.taxed-uk-interest-details.sub-heading2 = Amount of interest earned
 interest.taxed-uk-interest-name.error.empty = Enter an account name
 interest.taxed-uk-interest-amount.error.empty = Enter the amount of taxed interest earned
 
-interest.accounts.h1.single = You have added 1 account
-interest.accounts.h1.multiple = You have added {0} accounts
-interest.accounts.title.single = You have added 1 account
-interest.accounts.title.multiple = You have added {0} accounts
+interest.taxed-uk-interest-accounts.h1.single = UK taxed interest account
+interest.taxed-uk-interest-accounts.h1.multiple = UK taxed interest accounts
+interest.taxed-uk-interest-accounts.title.single = UK taxed interest account
+interest.taxed-uk-interest-accounts.title.multiple = UK taxed interest accounts
+
 interest.accounts.addAnotherAccount = Add another account
 
 interest.cya.h1 = Check your answers
 interest.cya.title = Check your answers
-interest.cya.questions.1 = Untaxed UK Interest?
-interest.cya.questions.2 = Details for the untaxed UK interest?
-interest.cya.questions.3 = Taxed UK Interest?
-interest.cya.questions.4 = Details for the taxed UK interest?
+interest.cya.questions.1 = Untaxed UK Interest
+interest.cya.questions.2 = Details for the untaxed UK interest
+interest.cya.questions.3 = Taxed UK Interest
+interest.cya.questions.4 = Details for the taxed UK interest
 
 interest.remove-account.title = Are you sure you want to remove this account?
 interest.remove-account.heading = Are you sure you want to remove {0}?
