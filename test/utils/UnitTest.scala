@@ -34,6 +34,7 @@ import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Retrieval, ~}
+import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.tools.Stubs.stubMessagesControllerComponents
 import views.html.authErrorPages.AgentAuthErrorPageView
@@ -92,7 +93,7 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
   }
 
   //noinspection ScalaStyle
-  def mockAuth(nino: Option[String]) = {
+  def mockAuth(nino: Option[String], returnedConfidenceLevel: ConfidenceLevel = ConfidenceLevel.L200) = {
     val enrolments = Enrolments(Set(
       Enrolment(EnrolmentKeys.Individual, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.individualId, "1234567890")), "Activated"),
       Enrolment(EnrolmentKeys.Agent, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.agentReference, "0987654321")), "Activated")
@@ -101,18 +102,21 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
     ))
     (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
       .expects(*, *, *, *)
-      .returning(Future.successful(new ~(enrolments, None)))
+      .returning(Future.successful(enrolments and None and returnedConfidenceLevel))
   }
 
   //noinspection ScalaStyle
   def mockAuthAsAgent() = {
-    val enrolments = Enrolments(Set(
+    val enrolments: Enrolments = Enrolments(Set(
       Enrolment(EnrolmentKeys.Individual, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.individualId, "1234567890")), "Activated"),
       Enrolment(EnrolmentKeys.Agent, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.agentReference, "0987654321")), "Activated")
     ))
+
+    val agentStuff: Enrolments ~ Some[AffinityGroup] ~ ConfidenceLevel = enrolments and Some(AffinityGroup.Agent) and ConfidenceLevel.L50
+
     (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
-      .expects(*, Retrievals.allEnrolments and Retrievals.affinityGroup, *, *)
-      .returning(Future.successful(new ~(enrolments, Some(AffinityGroup.Agent))))
+      .expects(*, Retrievals.allEnrolments and Retrievals.affinityGroup and Retrievals.confidenceLevel, *, *)
+      .returning(Future.successful(agentStuff))
 
     (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
       .expects(*, *, *, *)

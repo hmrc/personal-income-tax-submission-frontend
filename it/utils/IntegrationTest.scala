@@ -30,14 +30,16 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Result}
 import play.api.{Application, Environment, Mode}
 import services.AuthService
-import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.~
+import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
+import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Enrolment, EnrolmentIdentifier, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.authErrorPages.AgentAuthErrorPageView
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
 
-trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneServerPerSuite with WireMockHelper with BeforeAndAfterAll{
+trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneServerPerSuite with WireMockHelper with BeforeAndAfterAll {
 
   implicit lazy val user: User[AnyContent] = new User[AnyContent]("1234567890", None, "AA123456A")
 
@@ -101,20 +103,44 @@ trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneServerPerSu
     ConfidenceLevel.L500
   )
 
-  def authService(stubbedRetrieval: Future[_], acceptedConfidenceLevel: Seq[ConfidenceLevel]) = new AuthService(
+  def authService(stubbedRetrieval: Future[_], acceptedConfidenceLevel: Seq[ConfidenceLevel]): AuthService = new AuthService(
     new MockAuthConnector(stubbedRetrieval, acceptedConfidenceLevel)
   )
 
-  def authAction(stubbedRetrieval: Future[_], acceptedConfidenceLevel: Seq[ConfidenceLevel] = Seq.empty[ConfidenceLevel]) = new AuthorisedAction(
+  def authAction(
+                  stubbedRetrieval: Future[_],
+                  acceptedConfidenceLevel: Seq[ConfidenceLevel] = Seq.empty[ConfidenceLevel]
+                ): AuthorisedAction = new AuthorisedAction(
     appConfig,
     agentAuthErrorPage
   )(
-    authService(stubbedRetrieval, if(acceptedConfidenceLevel.nonEmpty) {
+    authService(stubbedRetrieval, if (acceptedConfidenceLevel.nonEmpty) {
       acceptedConfidenceLevel
     } else {
       defaultAcceptedConfidenceLevels
     }),
     mcc
+  )
+
+  def successfulRetrieval: Future[Enrolments ~ Some[AffinityGroup] ~ ConfidenceLevel] = Future.successful(
+    Enrolments(Set(
+      Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "1234567890")), "Activated", None),
+      Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
+    )) and Some(AffinityGroup.Individual) and ConfidenceLevel.L200
+  )
+
+  def insufficientConfidenceRetrieval: Future[Enrolments ~ Some[AffinityGroup] ~ ConfidenceLevel] = Future.successful(
+    Enrolments(Set(
+      Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "1234567890")), "Activated", None),
+      Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
+    )) and Some(AffinityGroup.Individual) and ConfidenceLevel.L50
+  )
+
+  def incorrectCredsRetrieval: Future[Enrolments ~ Some[AffinityGroup] ~ ConfidenceLevel] = Future.successful(
+    Enrolments(Set(
+      Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("UTR", "1234567890")), "Activated", None),
+      Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
+    )) and Some(AffinityGroup.Individual) and ConfidenceLevel.L200
   )
 
 }
