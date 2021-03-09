@@ -19,18 +19,21 @@
 @import common.InterestTaxTypes._
 @import views.html.templates.helpers.Button
 @import views.html.templates.helpers.Heading
-@import java.util.UUID.randomUUID
-
+@import views.html.templates.helpers.InputRadio
+@import views.html.templates.helpers.ErrorSummary
 
 @this(
     layout: Layout,
     formWithCSRF: FormWithCSRF,
     button: Button,
     heading: Heading,
-    govukSummaryList: GovukSummaryList
+    inputRadio: InputRadio,
+    errorSummary: ErrorSummary,
 )
 
-@(taxYear: Int, accounts: Seq[InterestAccountModel], taxType: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(form: Form[Boolean], taxYear: Int, accounts: Seq[InterestAccountModel], taxType: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+
+@hasFormErrors = @{form.hasErrors}
 
 @h1Text = @{
         (taxType, accounts.length)  match {
@@ -78,51 +81,65 @@
     }
 }
 
-@addNewAccountLink = @{
-    taxType match {
-        case `UNTAXED` => controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, randomUUID().toString)
-        case `TAXED` => controllers.interest.routes.TaxedInterestAmountController.show(taxYear, randomUUID().toString)
-    }
+@accountRow(account: InterestAccountModel, changeLink: Call, removeLink: Call) = {
+    <li class="hmrc-add-to-a-list__contents">
+        <span class="hmrc-add-to-a-list__identifier hmrc-add-to-a-list__identifier--light">
+            @account.accountName
+        </span>
+        @if(account.id.nonEmpty) {
+            <span class="hmrc-add-to-a-list__change"></span>
+        }
+        <span class="hmrc-add-to-a-list__change">
+            <a class="govuk-link" href="@changeLink">
+                <span aria-hidden="true">@messages("common.change")</span>
+                <span class="govuk-visually-hidden">@messages("common.change") @account.accountName @messages("common.account-details")</span>
+            </a>
+        </span>
+        @if(account.id.isEmpty) {
+            <span class="hmrc-add-to-a-list__remove">
+                <a class="govuk-link" href="@removeLink">
+                    <span aria-hidden="true">@messages("common.remove")</span>
+                    <span class="govuk-visually-hidden">@messages("common.remove") @account.accountName @messages("common.account")</span>
+                </a>
+            </span>
+        }
+    </li>
 }
 
-@accountRow2(account: InterestAccountModel, changeLink: Call, removeLink: Call) = {
-<div class="govuk-summary-list__row">
-    <dd class="govuk-summary-list__value">
-        @account.accountName
-    </dd>
-    @if(account.id.nonEmpty) {
-    <dd class="govuk-summary-list__actions"></dd>
-    }
-    <dd class="govuk-summary-list__actions">
-        <a class="govuk-link" href="@changeLink">
-            @messages("common.change")
-        </a>
-    </dd>
-    @if(account.id.isEmpty) {
-    <dd class="govuk-summary-list__actions">
-        <a class="govuk-link" href="@removeLink">
-            @messages("common.remove")
-        </a>
-    </dd>
-    }
-</div>
+@hint = {
+    <span id="interest-account-view-radio-hint" class="govuk-hint">
+        @messages("interest.account.tell-us-about-all")
+    </span>
 }
 
-@layout(titleText, taxYear = Some(taxYear)) {
+@layout(titleText, taxYear = Some(taxYear), hasErrors = hasFormErrors) {
+
+    @errorSummary(form.errors.distinct)
 
     @heading(h1Text, Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 
     @if(accounts.nonEmpty) {
-        <div class="govuk-summary-list">
-            @accounts.map { account =>
-            @accountRow2(account, accountChangeCall(account), accountRemoveCall(account))
-            }
+        <div class="govuk-form-group">
+            <ul class="hmrc-add-to-a-list hmrc-add-to-a-list--short">
+                @accounts.map { account =>
+                    @accountRow(account, accountChangeCall(account), accountRemoveCall(account))
+                }
+            </ul>
         </div>
     }
 
-    <div class="govuk-!-margin-bottom-6"><a class="govuk-link govuk-!-font-size-19" href=@addNewAccountLink>@messages("interest.accounts.addAnotherAccount")</a></div>
 
     @formWithCSRF(controllers.interest.routes.AccountsController.submit(taxYear, taxType)) {
+        @inputRadio(
+            form = form,
+            legend = messages("interest.account.add-another"),
+            legendAsHeading = false,
+            hint = Some(hint),
+            inline = true,
+            subheading = None,
+            classes = "govuk-fieldset__legend--m"
+        )
+
         @button()
     }
 }

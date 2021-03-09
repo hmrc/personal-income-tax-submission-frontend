@@ -38,7 +38,11 @@
     name = name,
     fieldset = Some(Fieldset(
         legend = Some(Legend(
-            content = if(subheading.isDefined) HtmlContent(heading(messages(legend, headingMessageArgs:_*), Some(subheading.get), headingClasses)) else Text(messages(legend, headingMessageArgs:_*)),
+            content = if(subheading.isDefined) {
+                HtmlContent(heading(messages(legend, headingMessageArgs: _*), Some(subheading.get), headingClasses))
+            } else {
+                Text(messages(legend, headingMessageArgs:_*))
+            },
             isPageHeading = legendAsHeading,
             classes = classes
         ))

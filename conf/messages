@@ -16,6 +16,8 @@ common.change = Change
 common.aDifferentAmount = A different amount
 common.enterAmount = Enter amount
 common.remove = Remove
+common.account = account
+common.account-details = account details
 common.opensInNewWindowOrTab = (opens in new tab)
 common.help.getHelpWithThisPage = Get help with this page
 common.error.errorKey = Error:
@@ -79,6 +81,9 @@ interest.cya.accountDisplay = {0} : {1}
 interest.caption = Interest for 6 April {0} to 5 April {1}
 dividends.caption = Dividends for 6 April {0} to 5 April {1}
 
+interest.account.add-another = Do you need to add another account?
+interest.account.tell-us-about-all = You must tell us about all your accounts.
+
 interest.untaxed-uk-interest.title.individual = Did you receive any untaxed interest from the UK?
 interest.untaxed-uk-interest.title.agent = Did your client receive any untaxed interest from the UK?
 interest.untaxed-uk-interest.heading.individual = Did you receive any untaxed interest from the UK?
@@ -91,6 +96,7 @@ interest.untaxed-uk-interest.list.2 = savings and credit union accounts
 interest.untaxed-uk-interest.list.3 = peer-to-peer lending
 interest.untaxed-uk-interest.paragraph.2 = This does not include any interest earned from an Individual Savings Account (ISA) or gilts. You’ll be able to add interest earned from gilts at a later date.
 
+interest.untaxed-uk-interest.accounts.summary = Untaxed account summary
 interest.untaxed-uk-interest-details.title = UK untaxed interest account details
 interest.untaxed-uk-interest-details.heading = UK untaxed interest account details
 interest.untaxed-uk-interest-details.sub-heading1 = What would you like to call this account?
@@ -98,6 +104,7 @@ interest.untaxed-uk-interest-details.sub-heading2 = Amount of interest earned
 interest.untaxed-uk-interest-name.error.empty = Enter an account name
 interest.untaxed-uk-interest-amount.error.empty = Enter the amount of untaxed interest earned
 
+interest.taxed-uk-interest.accounts.summary = Taxed account summary
 interest.untaxed-uk-interest-accounts.h1.single = UK untaxed interest account
 interest.untaxed-uk-interest-accounts.h1.multiple = UK untaxed interest accounts
 interest.untaxed-uk-interest-accounts.title.single = UK untaxed interest account

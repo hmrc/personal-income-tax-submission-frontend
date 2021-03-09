@@ -16,9 +16,10 @@
 
 package controllers.interest
 
-import common.SessionValues
+import common.{SessionValues, UUID}
+import forms.YesNoForm
 import models.interest.{InterestAccountModel, InterestCYAModel}
-import play.api.mvc.{AnyContentAsEmpty, Result}
+import play.api.mvc.{AnyContentAsFormUrlEncoded, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import utils.UnitTestWithApp
@@ -33,15 +34,29 @@ class AccountsControllerSpec extends UnitTestWithApp {
 
   val taxYear = 2020
 
-  lazy val controller = new AccountsController(stubMessagesControllerComponents(), app.injector.instanceOf[InterestAccountsView], authorisedAction)
+  private val uuid = java.util.UUID.randomUUID().toString
+
+  private val uuidGenerator = new UUID { override def randomUUID: String = uuid }
+
+  lazy val controller = new AccountsController(
+    stubMessagesControllerComponents(),
+    app.injector.instanceOf[InterestAccountsView],
+    authorisedAction,
+    uuidGenerator
+  )
 
   lazy val interestCyaModel = InterestCYAModel(
     Some(true), Some(Seq(InterestAccountModel(Some("azerty"), "Account 1", 100.01))),
     Some(true), Some(Seq(InterestAccountModel(Some("qwerty"), "Account 2", 9001.01)))
   )
 
-  def maxRequest(cyaModel: InterestCYAModel = interestCyaModel): FakeRequest[AnyContentAsEmpty.type] = fakeRequest
+  def maxRequest(cyaModel: InterestCYAModel = interestCyaModel): FakeRequest[AnyContentAsFormUrlEncoded] = fakeRequest
     .withSession(SessionValues.INTEREST_CYA -> cyaModel.asJsonString)
+    .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.no)
+
+  def maxRequestWithYesOnForm(cyaModel: InterestCYAModel = interestCyaModel): FakeRequest[AnyContentAsFormUrlEncoded] = fakeRequest
+    .withSession(SessionValues.INTEREST_CYA -> cyaModel.asJsonString)
+    .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes)
 
   ".show" when {
 
@@ -252,6 +267,45 @@ class AccountsControllerSpec extends UnitTestWithApp {
             redirectUrl(result) shouldBe controllers.interest.routes.UntaxedInterestController.show(taxYear).url
           }
 
+        }
+
+      }
+
+    }
+
+    "redirect to the appropriate taxed or untaxed page so user can add another account" when {
+
+      "the radio button selected is 'Yes'" when {
+
+        "tax type is TAXED" which {
+          lazy val result = controller.submit(taxYear, TAXED)(maxRequestWithYesOnForm(interestCyaModel.copy(
+            untaxedUkInterest = Some(false),
+            untaxedUkAccounts = None
+          )))
+
+          s"has a status of SEE_OTHER($SEE_OTHER)" in new TestWithAuth {
+            status(result) shouldBe SEE_OTHER
+          }
+
+          "has the correct redirect url" in {
+            redirectUrl(result) shouldBe controllers.interest.routes.TaxedInterestAmountController.show(taxYear, uuid).url
+          }
+
+        }
+
+        "tax type is UNTAXED" which {
+          lazy val result = controller.submit(taxYear, UNTAXED)(maxRequestWithYesOnForm(interestCyaModel.copy(
+            taxedUkInterest = Some(false),
+            taxedUkAccounts = None
+          )))
+
+          s"has a status of SEE_OTHER($SEE_OTHER)" in new TestWithAuth {
+            status(result) shouldBe SEE_OTHER
+          }
+
+          "has the correct redirect url" in {
+            redirectUrl(result) shouldBe controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, uuid).url
+          }
         }
 
       }

@@ -16,7 +16,6 @@
 
 package utils
 
-import play.api.i18n.Messages
 import play.api.mvc.Call
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
@@ -28,7 +27,7 @@ object ViewUtils {
                      keyClasses: String= "govuk-!-width-one-third",
                      valueClasses: String = "govuk-!-width-one-third",
                      actionClasses: String = "govuk-!-width-one-third",
-                     actions: Seq[(Call, String, Option[String])])(implicit messages: Messages): SummaryListRow = {
+                     actions: Seq[(Call, String, Option[String])]): SummaryListRow = {
     SummaryListRow(
       key = Key(
         content = key,
