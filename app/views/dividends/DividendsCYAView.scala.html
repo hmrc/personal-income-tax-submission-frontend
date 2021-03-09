@@ -49,7 +49,7 @@
                 Some(summaryListRow(
                     HtmlContent(messages("dividends.cya.questions.1")),
                     HtmlContent(trueFalseToYesNo(cya.ukDividends.getOrElse(false))),
-                    actions = Seq((controllers.dividends.routes.ReceiveUkDividendsController.show(taxYear), messages("common.change"), None))
+                    actions = Seq((controllers.dividends.routes.ReceiveUkDividendsController.show(taxYear), messages("common.change"), Some(messages(s"dividends.cya.changeUkDividends.${if(user.isAgent) "agent" else "individual"}"))))
                 ))
             } else { None },
             if(cya.ukDividends.getOrElse(false)) {
@@ -57,7 +57,7 @@
                     summaryListRow(
                         HtmlContent(messages("dividends.cya.questions.2")),
                         HtmlContent(bigDecimalToCurrency(amount)),
-                        actions = Seq((controllers.dividends.routes.UkDividendsAmountController.show(taxYear), messages("common.change"), None))
+                        actions = Seq((controllers.dividends.routes.UkDividendsAmountController.show(taxYear), messages("common.change"), Some(messages(s"dividends.cya.changeUkDividendsAmount.${if(user.isAgent) "agent" else "individual"}"))))
                     )
                 }
             } else { None },
@@ -65,7 +65,7 @@
                 Some(summaryListRow(
                     HtmlContent(messages("dividends.cya.questions.3")),
                     HtmlContent(trueFalseToYesNo(cya.otherUkDividends.getOrElse(false))),
-                    actions = Seq((controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear), messages("common.change"), None))
+                    actions = Seq((controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear), messages("common.change"), Some(messages(s"dividends.cya.changeOtherDividends.${if(user.isAgent) "agent" else "individual"}"))))
                 ))
             } else { None },
             if(cya.otherUkDividends.getOrElse(false)) {
@@ -73,7 +73,7 @@
                     summaryListRow(
                         HtmlContent(messages("dividends.cya.questions.4")),
                         HtmlContent(bigDecimalToCurrency(amount)),
-                        actions = Seq((controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear), messages("common.change"), None))
+                        actions = Seq((controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear), messages("common.change"), Some(messages(s"dividends.cya.changeOtherDividendsAmount.${if(user.isAgent) "agent" else "individual"}"))))
                     )
                 }
             } else { None }
