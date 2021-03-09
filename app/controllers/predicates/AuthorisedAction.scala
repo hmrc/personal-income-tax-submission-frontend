@@ -62,8 +62,7 @@ class AuthorisedAction @Inject()(
         checkAuthorisation(block, enrolments, isAgent = true)(request, headerCarrier)
       case enrolments ~ _ ~ confidenceLevel if confidenceLevel.level >= minimumConfidenceLevel =>
         checkAuthorisation(block, enrolments)(request, headerCarrier)
-      case _ ~ _ ~ confidenceLevel if confidenceLevel.level < minimumConfidenceLevel =>
-        Redirect(appConfig.incomeTaxSubmissionIvRedirect)
+      case _ => Redirect(appConfig.incomeTaxSubmissionIvRedirect)
     } recover {
       case _: NoActiveSession =>
         logger.error(s"AgentPredicate][authoriseAsAgent] - No active session. Redirecting to ${appConfig.signInUrl}")

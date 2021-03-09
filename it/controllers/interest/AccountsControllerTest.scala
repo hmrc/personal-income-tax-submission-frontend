@@ -28,7 +28,7 @@ import views.html.interest.InterestAccountsView
 
 import scala.concurrent.Future
 
-class AccountsControllerTest extends IntegrationTest{
+class AccountsControllerTest extends IntegrationTest {
 
   lazy val taxYear = 2021
 
