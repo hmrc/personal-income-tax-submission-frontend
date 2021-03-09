@@ -30,5 +30,4 @@ trait SessionHelper {
   def getModelFromSession[T](key: String)(implicit request: Request[_], reads: Reads[T]): Option[T] = {
     getFromSession(key).flatMap(sessionData => Json.parse(sessionData).asOpt[T])
   }
-
 }

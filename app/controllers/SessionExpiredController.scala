@@ -16,8 +16,8 @@
 
 package controllers
 
+import common.SessionValues
 import config.AppConfig
-
 import javax.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
@@ -34,6 +34,10 @@ class SessionExpiredController @Inject()(val mcc: MessagesControllerComponents,
   def keepAlive(): Action[AnyContent] = Action(NoContent)
 
   def timeout: Action[AnyContent] = Action { implicit request =>
-      Ok(timeoutPage(Call("GET", appConfig.incomeTaxSubmissionStartUrl(appConfig.defaultTaxYear)))).withNewSession
+
+    getModelFromSession[Int](SessionValues.TAX_YEAR) match {
+      case Some(taxYear) => Ok(timeoutPage(Call("GET", appConfig.incomeTaxSubmissionStartUrl(taxYear)))).withNewSession
+      case None => Ok(timeoutPage(Call("GET", appConfig.incomeTaxSubmissionStartUrl(appConfig.defaultTaxYear)))).withNewSession
+    }
   }
 }
