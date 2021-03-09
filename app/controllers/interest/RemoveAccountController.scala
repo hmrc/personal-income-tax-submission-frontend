@@ -193,13 +193,13 @@ class RemoveAccountController @Inject()(
         if (priorSubmission.getOrElse(blankPriorSub).hasTaxed) {
           false
         } else {
-          if(taxAccounts.length == 1) true else false
+          taxAccounts.length == 1
         }
       case UNTAXED =>
         if(priorSubmission.getOrElse(blankPriorSub).hasUntaxed) {
           false
         } else {
-          if(taxAccounts.length == 1) true else false
+          taxAccounts.length == 1
         }
     }
   }
