@@ -51,14 +51,14 @@ class InterestCYAViewSpec extends ViewTest {
 
   val h1Expected = "Check your answers"
   val titleExpected = "Check your answers"
-  val captionExpected = "Interest for 06 April 2019 to 05 April 2020"
+  val captionExpected = "Interest for 6 April 2019 to 5 April 2020"
 
   val changeLinkExpected = "Change"
 
-  val questionUntaxedInterestExpected = "Untaxed UK Interest?"
-  val questionUntaxedInterestDetailsExpected = "Details for the untaxed UK interest?"
-  val questionTaxedInterestExpected = "Taxed UK Interest?"
-  val question4TaxedInterestDetailExpected = "Details for the taxed UK interest?"
+  val questionUntaxedInterestExpected = "Untaxed UK Interest"
+  val questionUntaxedInterestDetailsExpected = "Details for the untaxed UK interest"
+  val questionTaxedInterestExpected = "Taxed UK Interest"
+  val question4TaxedInterestDetailExpected = "Details for the taxed UK interest"
 
   val untaxedInterestAccount1ExpectedTest = "UntaxedBank1 : £100"
   val taxedInterestAccount1ExpectedTest = "TaxedBank1 : £200"

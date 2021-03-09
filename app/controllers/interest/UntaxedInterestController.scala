@@ -43,13 +43,13 @@ class UntaxedInterestController @Inject()(
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
   implicit val messages: Messages = mcc.messagesApi.preferred(Seq(Lang("en")))
-  val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("interest.untaxed-uk-interest.errors.noRadioSelected")
 
   def show(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
     InterestPriorSubmission.fromSession() match {
       case Some(prior) if prior.hasUntaxed => Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
       case _ =>
         val cyaData: Option[Boolean] = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA).flatMap(_.untaxedUkInterest)
+        val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(s"interest.untaxed-uk-interest.errors.noRadioSelected.${if(user.isAgent) "agent" else "individual"}")
         Ok(untaxedInterestView(cyaData.fold(yesNoForm)(yesNoForm.fill), taxYear))
     }
   }
@@ -57,6 +57,7 @@ class UntaxedInterestController @Inject()(
   def submit(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
     val cyaData: InterestCYAModel = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
       .getOrElse(InterestCYAModel(None, None, None, None))
+    val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(s"interest.untaxed-uk-interest.errors.noRadioSelected.${if(user.isAgent) "agent" else "individual"}")
 
     yesNoForm.bindFromRequest().fold(
       {
