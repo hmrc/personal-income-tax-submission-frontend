@@ -29,7 +29,7 @@
     inputRadio: InputRadio
 )
 
-@(form: Form[Boolean], taxYear: Int, taxType: String, account: InterestAccountModel)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
+@(form: Form[Boolean], taxYear: Int, taxType: String, account: InterestAccountModel, isLastAccount: Boolean)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @headingToUse = @{
     val accountName = account.accountName
@@ -38,7 +38,7 @@
 
 @hintText = @{
     taxType match {
-        case `TAXED` => messages("interest.remove-account.taxed-hint")
+        case `TAXED`=> messages("interest.remove-account.taxed-hint")
         case `UNTAXED` => messages("interest.remove-account.untaxed-hint")
     }
 }
@@ -54,7 +54,7 @@
         @inputRadio(
             form = form,
             legend = headingToUse,
-            hint = Some(hint),
+            hint = if(isLastAccount) Some(hint) else None,
             inline = true,
             subheading = Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString))
         )
@@ -64,5 +64,7 @@
 }
 
 @hint = {
-    <p>@hintText</p>
+    <div class="govuk-body">
+        <p>@hintText</p>
+    </div>
 }

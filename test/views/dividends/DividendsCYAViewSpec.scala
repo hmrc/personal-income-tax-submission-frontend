@@ -43,15 +43,15 @@ class DividendsCYAViewSpec extends ViewTest {
 
   val h1Expected = "Check your answers"
   val titleExpected = "Check your answers"
-  val captionExpected = s"Dividends for 06 April $taxYearMinusOne to 05 April $taxYear"
+  val captionExpected = s"Dividends for 6 April $taxYearMinusOne to 5 April $taxYear"
   val continueButtonText = "Save and continue"
 
   val changeLinkExpected = "Change"
   val yesNoExpectedAnswer: Boolean => String = isYes => if(isYes) "Yes" else "No"
 
-  val ukDividendsHeader = "Dividends from UK companies?"
+  val ukDividendsHeader = "Dividends from UK companies"
   val ukDividendsAmount = "Amount of dividends from UK companies"
-  val otherDividendsHeader = "Dividends from unit trusts or investment companies?"
+  val otherDividendsHeader = "Dividends from unit trusts or investment companies"
   val otherDividendsAmount = "Amount of dividends from unit trusts or investment companies"
 
   val changeUkDividendsHref = "/income-through-software/return/personal-income/2020/dividends/uk-dividends"

@@ -47,7 +47,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
   val expectedH1 = "What is the total amount of dividends earned from companies in the UK?"
   val expectedTitle = "What is the total amount of dividends earned from companies in the UK?"
   val expectedErrorTitle = s"Error: $expectedTitle"
-  val expectedCaption = s"Dividends for 06 April $taxYearMinusOne to 05 April $taxYear"
+  val expectedCaption = s"Dividends for 6 April $taxYearMinusOne to 5 April $taxYear"
   val poundPrefixText = "£"
   val differentAmountText = "A different amount"
   val enterAmountText = "Enter amount"

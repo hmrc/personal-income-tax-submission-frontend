@@ -47,11 +47,15 @@ class InterestAccountsViewSpec extends ViewTest {
   val removeUntaxedHref = "/income-through-software/return/personal-income/2020/interest/remove-untaxed-interest-account?accountId=qwerty"
   val removeTaxedHref = "/income-through-software/return/personal-income/2020/interest/remove-taxed-interest-account?accountId=qwerty"
 
-  val titleSingle = "You have added 1 account"
-  val titlePlural = "You have added 2 accounts"
-  val h1Singular = "You have added 1 account"
-  val h1Plural = "You have added 2 accounts"
-  val captionText = s"Interest for 06 April $taxYearMinusOne to 05 April $taxYear"
+  val untaxedH1Singular = "UK untaxed interest account"
+  val untaxedH1Plural = "UK untaxed interest accounts"
+  val taxedH1Singular = "UK taxed interest account"
+  val taxedH1Plural = "UK taxed interest accounts"
+  val untaxedTitleSingle = "UK untaxed interest account"
+  val untaxedTitlePlural = "UK untaxed interest accounts"
+  val taxedTitleSingle = "UK taxed interest account"
+  val taxedTitlePlural = "UK taxed interest accounts"
+  val captionText = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
   val changeText = "Change"
   val removeText = "Remove"
   val addAnotherAccountText = "Add another account"
@@ -68,9 +72,9 @@ class InterestAccountsViewSpec extends ViewTest {
         ), UNTAXED)
         implicit val document: Document = Jsoup.parse(result.body)
 
-        titleCheck(titleSingle)
+        titleCheck(untaxedTitleSingle)
         textOnPageCheck(captionText, captionSelector)
-        h1Check(h1Singular)
+        h1Check(untaxedH1Singular)
         textOnPageCheck( "Bank of UK", accountRowName(1))
         linkCheck(changeText, accountRowChange(1),changeUntaxedHref)
 
@@ -93,9 +97,9 @@ class InterestAccountsViewSpec extends ViewTest {
         ), UNTAXED)
         implicit val document: Document = Jsoup.parse(result.body)
 
-        titleCheck(titleSingle)
+        titleCheck(untaxedTitleSingle)
         textOnPageCheck(captionText, captionSelector)
-        h1Check(h1Singular)
+        h1Check(untaxedH1Singular)
 
         textOnPageCheck( "Bank of UK", accountRowName(1))
         linkCheck(changeText, accountRowChangePriorSubmission(1),changePriorUntaxedHref)
@@ -113,8 +117,8 @@ class InterestAccountsViewSpec extends ViewTest {
         ), UNTAXED)
         implicit val document: Document = Jsoup.parse(result.body)
 
-        titleCheck(titlePlural)
-        h1Check(h1Plural)
+        titleCheck(untaxedTitlePlural)
+        h1Check(untaxedH1Plural)
         textOnPageCheck(captionText, captionSelector)
 
         "have an area for the first row" which {
@@ -151,9 +155,9 @@ class InterestAccountsViewSpec extends ViewTest {
         ), TAXED)
         implicit val document: Document = Jsoup.parse(result.body)
 
-        titleCheck(titleSingle)
+        titleCheck(taxedTitleSingle)
         textOnPageCheck(captionText, captionSelector)
-        h1Check(h1Singular)
+        h1Check(taxedH1Singular)
         textOnPageCheck( "Bank of UK", accountRowName(1))
         linkCheck(changeText, accountRowChange(1), changeTaxedHref)
 
@@ -176,9 +180,9 @@ class InterestAccountsViewSpec extends ViewTest {
         ), TAXED)
         implicit val document: Document = Jsoup.parse(result.body)
 
-        titleCheck(titleSingle)
+        titleCheck(taxedTitleSingle)
         textOnPageCheck(captionText, captionSelector)
-        h1Check(h1Singular)
+        h1Check(taxedH1Singular)
 
         textOnPageCheck( "Bank of UK", accountRowName(1))
         linkCheck(changeText, accountRowChangePriorSubmission(1), changePriorTaxedHref)
@@ -196,8 +200,8 @@ class InterestAccountsViewSpec extends ViewTest {
         ), TAXED)
         implicit val document: Document = Jsoup.parse(result.body)
 
-        titleCheck(titlePlural)
-        h1Check(h1Plural)
+        titleCheck(taxedTitlePlural)
+        h1Check(taxedH1Plural)
         textOnPageCheck(captionText, captionSelector)
 
         "have an area for the first row" which {

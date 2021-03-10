@@ -26,7 +26,8 @@ import views.html.interest.UntaxedInterestView
 
 class UntaxedInterestViewSpec extends ViewTest {
 
-  lazy val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("Select yes if you received untaxed interest from the UK")
+  lazy val yesNoFormIndividual: Form[Boolean] = YesNoForm.yesNoForm("Select yes if you received untaxed interest from the UK")
+  lazy val yesNoFormAgent: Form[Boolean] = YesNoForm.yesNoForm("Select yes if your client received untaxed interest from the UK")
 
   lazy val untaxedInterestView: UntaxedInterestView = app.injector.instanceOf[UntaxedInterestView]
   val taxYear = 2020
@@ -44,7 +45,7 @@ class UntaxedInterestViewSpec extends ViewTest {
   val expectedAgentTitle = "Did your client receive any untaxed interest from the UK?"
   val expectedAgentErrorTitle = s"Error: $expectedAgentTitle"
   val expectedAgentH1 = "Did your client receive any untaxed interest from the UK?"
-  val expectedCaption = s"Interest for 06 April $taxYearMinusOne to 05 April $taxYear"
+  val expectedCaption = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
   val forExampleText = "For example, interest from:"
   val banksAndBuildingsText = "banks and building societies"
   val savingsAndCreditText = "savings and credit union accounts"
@@ -61,7 +62,7 @@ class UntaxedInterestViewSpec extends ViewTest {
     "Correctly render as an individual" when {
       "There are no form errors " which {
         lazy val view = untaxedInterestView(
-          yesNoForm, taxYear)(user, implicitly, mockAppConfig)
+          yesNoFormIndividual, taxYear)(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         titleCheck(expectedIndividualTitle)
@@ -98,7 +99,7 @@ class UntaxedInterestViewSpec extends ViewTest {
     "correctly render with errors as an individual" when {
       "no value is passed in" which {
         lazy val view = untaxedInterestView(
-          yesNoForm.bind(Map("value" -> "")),
+          yesNoFormIndividual.bind(Map("value" -> "")),
           taxYear
         )(user, implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -117,7 +118,7 @@ class UntaxedInterestViewSpec extends ViewTest {
       "there are no form errors" which {
 
         lazy val view = untaxedInterestView(
-          yesNoForm, taxYear)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+          yesNoFormAgent, taxYear)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         titleCheck(expectedAgentTitle)
@@ -155,13 +156,13 @@ class UntaxedInterestViewSpec extends ViewTest {
     "correctly render with errors as an agent" when {
       "there is a form error" which {
         lazy val view = untaxedInterestView(
-          yesNoForm.bind(Map("value" -> "")),
+          yesNoFormAgent.bind(Map("value" -> "")),
           taxYear
         )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedErrorText = "Select yes if you received untaxed interest from the UK"
+        val expectedErrorText = "Select yes if your client received untaxed interest from the UK"
 
         titleCheck(expectedAgentErrorTitle)
         h1Check(expectedAgentH1)

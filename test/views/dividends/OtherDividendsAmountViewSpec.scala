@@ -47,7 +47,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
   val expectedH1 = "What is the total amount of dividends from trusts or open ended investment companies?"
   val expectedTitle = "What is the total amount of dividends from trusts or open ended investment companies?"
   val expectedErrorTitle = s"Error: $expectedTitle"
-  val expectedCaption = s"Dividends for 06 April $taxYearMinusOne to 05 April $taxYear"
+  val expectedCaption = s"Dividends for 6 April $taxYearMinusOne to 5 April $taxYear"
   val expectedHintText = "For example, £600 or £193.54"
   val poundPrefixText = "£"
   val differentAmountText = "A different amount"
@@ -224,7 +224,6 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
             inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
-
           }
 
           "a non numeric value is passed in" which {
