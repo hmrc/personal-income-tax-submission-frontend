@@ -25,6 +25,7 @@ import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Retrieval, ~}
+import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.UnitTest
 
@@ -307,8 +308,8 @@ class AuthorisedActionSpec extends UnitTest {
             Enrolment(EnrolmentKeys.nino, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.nino, nino)), "Activated")
           ))
           (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
-            .expects(*, Retrievals.allEnrolments and Retrievals.affinityGroup, *, *)
-            .returning(Future.successful(new ~(enrolments, Some(AffinityGroup.Agent))))
+            .expects(*, Retrievals.allEnrolments and Retrievals.affinityGroup and Retrievals.confidenceLevel, *, *)
+            .returning(Future.successful(enrolments and Some(AffinityGroup.Agent) and ConfidenceLevel.L50))
 
           auth.invokeBlock(fakeRequestWithNino, block)
         }

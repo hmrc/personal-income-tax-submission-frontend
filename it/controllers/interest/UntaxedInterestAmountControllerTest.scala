@@ -18,8 +18,7 @@ package controllers.interest
 
 import config.AppConfig
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{OK, UNAUTHORIZED}
-import uk.gov.hmrc.auth.core.retrieve.~
+import play.api.test.Helpers.{OK, SEE_OTHER, UNAUTHORIZED}
 import uk.gov.hmrc.auth.core._
 import utils.IntegrationTest
 import views.html.interest.UntaxedInterestAmountView
@@ -27,9 +26,11 @@ import views.html.interest.UntaxedInterestAmountView
 import java.util.UUID.randomUUID
 import scala.concurrent.Future
 
-class UntaxedInterestAmountControllerTest extends IntegrationTest{
+class UntaxedInterestAmountControllerTest extends IntegrationTest {
 
   lazy val frontendAppConfig: AppConfig = app.injector.instanceOf[AppConfig]
+
+  val taxYear = 2021
 
   def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq()): UntaxedInterestAmountController = {
     new UntaxedInterestAmountController(
@@ -46,15 +47,8 @@ class UntaxedInterestAmountControllerTest extends IntegrationTest{
 
       "all auth requirements are met" in {
         lazy val uuid = randomUUID().toString
-        val retrieval: Future[Enrolments ~ Some[AffinityGroup]] = Future.successful(new ~(
-          Enrolments(Set(
-            Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "1234567890")), "Activated", None),
-            Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
-          )),
-          Some(AffinityGroup.Individual)
-        ))
 
-        val result = await(controller(retrieval).show(2021, uuid)
+        val result = await(controller(successfulRetrieval).show(taxYear, uuid)
         (FakeRequest()))
 
         result.header.status shouldBe OK
@@ -63,34 +57,23 @@ class UntaxedInterestAmountControllerTest extends IntegrationTest{
 
     s"return an UNAUTHORISED ($UNAUTHORIZED)" when {
 
-      "the confidence level is too low" in {
+      "it contains the wrong credentials" in {
         lazy val uuid = randomUUID().toString
-        val retrieval: Future[Enrolments ~ Some[AffinityGroup]] = Future.successful(new ~(
-          Enrolments(Set(
-            Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "1234567890")), "Activated", None),
-            Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
-          )),
-          Some(AffinityGroup.Individual)
-        ))
-
-        val result = await(controller(retrieval, Seq(ConfidenceLevel.L500)).show(2021, uuid)(FakeRequest()))
+        val result = await(controller(incorrectCredsRetrieval).show(taxYear, uuid)(FakeRequest()))
 
         result.header.status shouldBe UNAUTHORIZED
       }
 
-      "it contains the wrong credentials" in {
+    }
+
+    "redirect the user to the IV journey in income-tax-submission-frontend" when {
+
+      "the user hsa an insufficient confidence level" in {
         lazy val uuid = randomUUID().toString
-        val retrieval: Future[Enrolments ~ Some[AffinityGroup]] = Future.successful(new ~(
-          Enrolments(Set(
-            Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("UTR", "1234567890")), "Activated", None),
-            Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
-          )),
-          Some(AffinityGroup.Individual)
-        ))
+        val result = await(controller(insufficientConfidenceRetrieval).show(taxYear, uuid)(FakeRequest()))
 
-        val result = await(controller(retrieval).show(2021, uuid)(FakeRequest()))
-
-        result.header.status shouldBe UNAUTHORIZED
+        result.header.status shouldBe SEE_OTHER
+        result.header.headers("Location") shouldBe "http://localhost:11111/income-through-software/return/iv-uplift"
       }
 
     }
