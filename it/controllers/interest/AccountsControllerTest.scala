@@ -16,20 +16,21 @@
 
 package controllers.interest
 
-import common.SessionValues
+import common.{InterestTaxTypes, SessionValues}
 import config.AppConfig
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{OK, UNAUTHORIZED}
-import uk.gov.hmrc.auth.core.retrieve.~
+import play.api.test.Helpers.{OK, SEE_OTHER, UNAUTHORIZED}
 import uk.gov.hmrc.auth.core._
 import utils.IntegrationTest
 import views.html.interest.InterestAccountsView
 
 import scala.concurrent.Future
 
-class AccountsControllerTest extends IntegrationTest{
+class AccountsControllerTest extends IntegrationTest {
+
+  lazy val taxYear = 2021
 
   lazy val frontendAppConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
@@ -47,18 +48,11 @@ class AccountsControllerTest extends IntegrationTest{
 
       "all auth requirements are met" in {
         lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 25))),
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25)))
+          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 25.00))),
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25.00)))
         )
-        val retrieval: Future[Enrolments ~ Some[AffinityGroup]] = Future.successful(new ~(
-          Enrolments(Set(
-            Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "1234567890")), "Activated", None),
-            Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
-          )),
-          Some(AffinityGroup.Individual)
-        ))
 
-        val result = await(controller(retrieval).show(2021, "untaxed")
+        val result = await(controller(successfulRetrieval).show(taxYear, InterestTaxTypes.UNTAXED)
         (FakeRequest().withSession(SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)))))
 
         result.header.status shouldBe OK
@@ -67,34 +61,22 @@ class AccountsControllerTest extends IntegrationTest{
 
     s"return an UNAUTHORISED ($UNAUTHORIZED)" when {
 
-      "the confidence level is too low" in {
-        val retrieval: Future[Enrolments ~ Some[AffinityGroup]] = Future.successful(new ~(
-          Enrolments(Set(
-            Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "1234567890")), "Activated", None),
-            Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
-          )),
-          Some(AffinityGroup.Individual)
-        ))
-
-        val result = await(controller(retrieval, Seq(ConfidenceLevel.L500)).show(2021, "untaxed")(FakeRequest()))
-
-        result.header.status shouldBe UNAUTHORIZED
-      }
-
       "it contains the wrong credentials" in {
-        val retrieval: Future[Enrolments ~ Some[AffinityGroup]] = Future.successful(new ~(
-          Enrolments(Set(
-            Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("UTR", "1234567890")), "Activated", None),
-            Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
-          )),
-          Some(AffinityGroup.Individual)
-        ))
-
-        val result = await(controller(retrieval).show(2021, "untaxed")(FakeRequest()))
+        val result = await(controller(incorrectCredsRetrieval).show(taxYear, InterestTaxTypes.UNTAXED)(FakeRequest()))
 
         result.header.status shouldBe UNAUTHORIZED
       }
 
+    }
+
+    "redirect to the IV journey in income-tax-submission-frontend" when {
+
+      "the confidence level is too low" in {
+        val result = await(controller(insufficientConfidenceRetrieval, Seq(ConfidenceLevel.L500)).show(taxYear, InterestTaxTypes.UNTAXED)(FakeRequest()))
+
+        result.header.status shouldBe SEE_OTHER
+        result.header.headers("Location") shouldBe "http://localhost:11111/income-through-software/return/iv-uplift"
+      }
     }
   }
 

@@ -25,7 +25,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import common.{EnrolmentIdentifiers, EnrolmentKeys}
 import play.api.http.Status._
 import play.api.libs.json.{JsObject, Json}
-import uk.gov.hmrc.auth.core.AffinityGroup
+import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel}
 
 trait WireMockHelper {
 
@@ -136,33 +136,41 @@ trait WireMockHelper {
     )
   )
 
-  private def successfulAuthResponse(affinityGroup: Option[AffinityGroup], enrolments: JsObject*): JsObject = {
+  private def successfulAuthResponse(affinityGroup: Option[AffinityGroup], confidenceLevel: ConfidenceLevel, enrolments: JsObject*): JsObject = {
     affinityGroup match {
       case Some(group) => Json.obj(
-        "affinityGroup" -> affinityGroup,
-        "allEnrolments" -> enrolments
+        "affinityGroup" -> group,
+        "allEnrolments" -> enrolments,
+        "confidenceLevel" -> confidenceLevel
       )
       case _ => Json.obj(
-        "allEnrolments" -> enrolments
+        "allEnrolments" -> enrolments,
+        "confidenceLevel" -> confidenceLevel
       )
     }
   }
 
   def authoriseIndividual(withNino: Boolean = true): StubMapping = {
-    stubPost(authoriseUri, OK, Json.prettyPrint(successfulAuthResponse(Some(AffinityGroup.Individual),
-      Seq(mtditEnrolment) ++ (if (withNino) Seq(ninoEnrolment) else Seq.empty[JsObject]): _*)))
+    stubPost(authoriseUri, OK, Json.prettyPrint(successfulAuthResponse(Some(AffinityGroup.Individual), ConfidenceLevel.L200,
+      enrolments = Seq(mtditEnrolment) ++ (if (withNino) Seq(ninoEnrolment) else Seq.empty[JsObject]): _*)))
   }
 
   def authoriseIndividualUnauthorized(): StubMapping = {
-    stubPost(authoriseUri, UNAUTHORIZED, Json.prettyPrint(successfulAuthResponse(Some(AffinityGroup.Individual), Seq(mtditEnrolment, ninoEnrolment): _*)))
+    stubPost(authoriseUri, UNAUTHORIZED, Json.prettyPrint(
+      successfulAuthResponse(Some(AffinityGroup.Individual), ConfidenceLevel.L200, Seq(mtditEnrolment, ninoEnrolment): _*)
+    ))
   }
 
   def authoriseAgent(): StubMapping = {
-    stubPost(authoriseUri, OK, Json.prettyPrint(successfulAuthResponse(Some(AffinityGroup.Agent), Seq(asAgentEnrolment, mtditEnrolment): _*)))
+    stubPost(authoriseUri, OK, Json.prettyPrint(
+      successfulAuthResponse(Some(AffinityGroup.Agent), ConfidenceLevel.L200, Seq(asAgentEnrolment, mtditEnrolment): _*)
+    ))
   }
 
   def authoriseAgentUnauthorized(): StubMapping = {
-    stubPost(authoriseUri, UNAUTHORIZED, Json.prettyPrint(successfulAuthResponse(Some(AffinityGroup.Agent), Seq(asAgentEnrolment, mtditEnrolment): _*)))
+    stubPost(authoriseUri, UNAUTHORIZED, Json.prettyPrint(
+      successfulAuthResponse(Some(AffinityGroup.Agent), ConfidenceLevel.L200, Seq(asAgentEnrolment, mtditEnrolment): _*)
+    ))
   }
 
 }

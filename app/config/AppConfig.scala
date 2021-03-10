@@ -35,12 +35,15 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
 
   lazy val defaultTaxYear: Int = servicesConfig.getInt(ConfigKeys.defaultTaxYear)
 
-  def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = servicesConfig.getString(ConfigKeys.incomeTaxSubmissionFrontend) +
-    servicesConfig.getString("microservice.services.income-tax-submission-frontend.context") + "/" + taxYear +
+  def incomeTaxSubmissionBaseUrl: String = servicesConfig.getString(ConfigKeys.incomeTaxSubmissionFrontend) +
+    servicesConfig.getString("microservice.services.income-tax-submission-frontend.context")
+
+  def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.overview")
-  def incomeTaxSubmissionStartUrl(taxYear: Int): String = servicesConfig.getString(ConfigKeys.incomeTaxSubmissionFrontend) +
-    servicesConfig.getString("microservice.services.income-tax-submission-frontend.context") + "/" + taxYear +
+  def incomeTaxSubmissionStartUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear +
     "/start"
+  def incomeTaxSubmissionIvRedirect: String = incomeTaxSubmissionBaseUrl +
+    servicesConfig.getString("microservice.services.income-tax-submission-frontend.iv-redirect")
 
   lazy private val appUrl: String = servicesConfig.getString("microservice.url")
   lazy private val contactFrontEndUrl = {
@@ -74,6 +77,4 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
 
   lazy val timeoutDialogTimeout: Int = servicesConfig.getInt("timeoutDialogTimeout")
   lazy val timeoutDialogCountdown: Int = servicesConfig.getInt("timeoutDialogCountdown")
-
-
 }

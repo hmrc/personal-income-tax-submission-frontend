@@ -21,8 +21,7 @@ import config.AppConfig
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{OK, UNAUTHORIZED}
-import uk.gov.hmrc.auth.core.retrieve.~
+import play.api.test.Helpers.{OK, SEE_OTHER, UNAUTHORIZED}
 import uk.gov.hmrc.auth.core._
 import utils.IntegrationTest
 import views.html.interest.ChangeAccountAmountView
@@ -30,6 +29,8 @@ import views.html.interest.ChangeAccountAmountView
 import scala.concurrent.Future
 
 class ChangeAccountAmountControllerTest extends IntegrationTest{
+
+  val taxYear = 2021
 
   lazy val frontendAppConfig: AppConfig = app.injector.instanceOf[AppConfig]
   def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq()): ChangeAccountAmountController = {
@@ -48,7 +49,7 @@ class ChangeAccountAmountControllerTest extends IntegrationTest{
       "all auth requirements are met" in {
         lazy val interestCYA = InterestCYAModel(
           Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25)))
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25.00)))
         )
         lazy val priorSub = Json.arr(
           Json.obj(
@@ -57,15 +58,7 @@ class ChangeAccountAmountControllerTest extends IntegrationTest{
             "taxedUkInterest" -> 25
           )
         )
-        val retrieval: Future[Enrolments ~ Some[AffinityGroup]] = Future.successful(new ~(
-          Enrolments(Set(
-            Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "1234567890")), "Activated", None),
-            Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
-          )),
-          Some(AffinityGroup.Individual)
-        ))
-
-        val result = await(controller(retrieval).show(2021, "taxed", "TaxedId")
+        val result = await(controller(successfulRetrieval).show(taxYear, "taxed", "TaxedId")
         (FakeRequest().withSession(
           (SessionValues.INTEREST_CYA, Json.prettyPrint(Json.toJson(interestCYA))),
           (SessionValues.INTEREST_PRIOR_SUB, priorSub.toString()))
@@ -77,39 +70,10 @@ class ChangeAccountAmountControllerTest extends IntegrationTest{
 
     s"return an UNAUTHORISED ($UNAUTHORIZED)" when {
 
-      "the confidence level is too low" in {
-        lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25)))
-        )
-        lazy val priorSub = Json.arr(
-          Json.obj(
-            "accountName" -> "Taxed Account",
-            "incomeSourceId" -> "TaxedId",
-            "taxedUkInterest" -> 25
-          )
-        )
-        val retrieval: Future[Enrolments ~ Some[AffinityGroup]] = Future.successful(new ~(
-          Enrolments(Set(
-            Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "1234567890")), "Activated", None),
-            Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
-          )),
-          Some(AffinityGroup.Individual)
-        ))
-
-        val result = await(controller(retrieval, Seq(ConfidenceLevel.L500)).show(2021, "taxed", "TaxedId")
-        (FakeRequest().withSession(
-          (SessionValues.INTEREST_CYA, Json.prettyPrint(Json.toJson(interestCYA))),
-          (SessionValues.INTEREST_PRIOR_SUB, priorSub.toString()))
-        ))
-
-        result.header.status shouldBe UNAUTHORIZED
-      }
-
       "it contains the wrong credentials" in {
         lazy val interestCYA = InterestCYAModel(
           Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25)))
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25.00)))
         )
         lazy val priorSub = Json.arr(
           Json.obj(
@@ -118,15 +82,8 @@ class ChangeAccountAmountControllerTest extends IntegrationTest{
             "taxedUkInterest" -> 25
           )
         )
-        val retrieval: Future[Enrolments ~ Some[AffinityGroup]] = Future.successful(new ~(
-          Enrolments(Set(
-            Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("UTR", "1234567890")), "Activated", None),
-            Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
-          )),
-          Some(AffinityGroup.Individual)
-        ))
 
-        val result = await(controller(retrieval).show(2021, "taxed", "TaxedId")
+        val result = await(controller(incorrectCredsRetrieval).show(taxYear, "taxed", "TaxedId")
         (FakeRequest().withSession(
           (SessionValues.INTEREST_CYA, Json.prettyPrint(Json.toJson(interestCYA))),
           (SessionValues.INTEREST_PRIOR_SUB, priorSub.toString()))
@@ -135,6 +92,32 @@ class ChangeAccountAmountControllerTest extends IntegrationTest{
         result.header.status shouldBe UNAUTHORIZED
       }
 
+    }
+
+    "redirect to the IV journey in income-tax-submission-frontend" when {
+
+      "the confidence level is too low" in {
+        lazy val interestCYA = InterestCYAModel(
+          Some(false), None,
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25.00)))
+        )
+        lazy val priorSub = Json.arr(
+          Json.obj(
+            "accountName" -> "Taxed Account",
+            "incomeSourceId" -> "TaxedId",
+            "taxedUkInterest" -> 25
+          )
+        )
+
+        val result = await(controller(insufficientConfidenceRetrieval, Seq(ConfidenceLevel.L500)).show(taxYear, "taxed", "TaxedId")
+        (FakeRequest().withSession(
+          (SessionValues.INTEREST_CYA, Json.prettyPrint(Json.toJson(interestCYA))),
+          (SessionValues.INTEREST_PRIOR_SUB, priorSub.toString()))
+        ))
+
+        result.header.status shouldBe SEE_OTHER
+        result.header.headers("Location") shouldBe "http://localhost:11111/income-through-software/return/iv-uplift"
+      }
     }
 
   }
