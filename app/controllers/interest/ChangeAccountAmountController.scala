@@ -18,8 +18,9 @@ package controllers.interest
 
 import common.{InterestTaxTypes, SessionValues}
 import config.AppConfig
-import controllers.predicates.AuthorisedAction
+import controllers.predicates.{AuthorisedAction, TaxYearFilter}
 import forms.PriorOrNewAmountForm
+
 import javax.inject.Inject
 import models.formatHelpers.PriorOrNewAmountModel
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
@@ -37,7 +38,7 @@ class ChangeAccountAmountController @Inject()(
                                              authAction: AuthorisedAction,
                                              changeAccountAmountView: ChangeAccountAmountView,
                                              implicit val appConfig: AppConfig
-                                           ) extends FrontendController(cc) with I18nSupport {
+                                           ) extends FrontendController(cc) with I18nSupport with TaxYearFilter{
 
   def view(
             formInput: Form[PriorOrNewAmountModel],
@@ -67,6 +68,8 @@ class ChangeAccountAmountController @Inject()(
       }
     }
 
+    taxYearFilter(taxYear)(
+
     (singleAccount, checkYourAnswerSession) match {
       case (None, Some(_)) => Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType))
       case (Some(accountModel), Some(cya)) =>
@@ -84,6 +87,7 @@ class ChangeAccountAmountController @Inject()(
         Ok(view(form, accountModel, taxYear, taxType, accountId))
       case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
     }
+    )
   }
 
   def submit(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = authAction { implicit user =>

@@ -17,12 +17,12 @@
 package controllers.interest
 
 import java.util.UUID.randomUUID
-
 import common.InterestTaxTypes.TAXED
 import common.{InterestTaxTypes, SessionValues}
 import config.AppConfig
-import controllers.predicates.AuthorisedAction
+import controllers.predicates.{AuthorisedAction, TaxYearFilter}
 import forms.TaxedInterestAmountForm
+
 import javax.inject.Inject
 import models.TaxedInterestModel
 import models.interest.{InterestAccountModel, InterestCYAModel}
@@ -42,7 +42,7 @@ class TaxedInterestAmountController @Inject()(
                                                taxedInterestAmountView: TaxedInterestAmountView
                                              )(
                                                implicit appConfig: AppConfig
-                                             ) extends FrontendController(mcc) with InterestSessionHelper {
+                                             ) extends FrontendController(mcc) with InterestSessionHelper with TaxYearFilter{
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
   implicit val messages: Messages = mcc.messagesApi.preferred(Seq(Lang("en")))
@@ -54,6 +54,7 @@ class TaxedInterestAmountController @Inject()(
 
     val idMatchesPreviouslySubmittedAccount: Boolean = optionalCyaData.flatMap(_.taxedUkAccounts.map(_.exists(_.id.contains(id)))).getOrElse(false)
 
+    taxYearFilter(taxYear)(
     if (idMatchesPreviouslySubmittedAccount) {
       Redirect(controllers.interest.routes.ChangeAccountAmountController.show(taxYear, TAXED, id))
 
@@ -79,6 +80,7 @@ class TaxedInterestAmountController @Inject()(
     } else {
       Redirect(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, randomUUID().toString))
     }
+    )
   }
 
   def submit(taxYear: Int, id: String): Action[AnyContent] = authorisedAction { implicit user =>

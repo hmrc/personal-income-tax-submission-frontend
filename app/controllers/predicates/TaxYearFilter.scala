@@ -28,25 +28,25 @@ trait TaxYearFilter {
 
   private[controllers] def taxYearFilterFuture(taxYear: Int)(f: => Future[Result])(implicit request: Request[_], appConfig: AppConfig): Future[Result] = {
 
-    val config = 2022
+    val config = appConfig.defaultTaxYear
 
     if(taxYear == config){
       f
     } else {
       logger.info(s"Invalid tax year, adding default tax year to session")
-      Future.successful(Redirect("/error/invalid-tax-year").addingToSession("TAX_YEAR" -> config.toString))
+      Future.successful(Redirect(controllers.routes.TaxYearErrorController.show()).addingToSession("TAX_YEAR" -> config.toString))
     }
   }
 
   private[controllers] def taxYearFilter(taxYear: Int)(f: => Result)(implicit request: Request[_], appConfig: AppConfig): Result = {
 
-    val config = 2022
+    val config = appConfig.defaultTaxYear
 
     if(taxYear == config){
       f
     } else {
       logger.info(s"Invalid tax year, adding default tax year to session")
-      Redirect("/error/invalid-tax-year").addingToSession("TAX_YEAR" -> config.toString)
+      Redirect(controllers.routes.TaxYearErrorController.show()).addingToSession("TAX_YEAR" -> config.toString)
     }
   }
 }

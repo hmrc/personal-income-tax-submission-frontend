@@ -19,7 +19,7 @@ package controllers.interest
 import common.InterestTaxTypes._
 import common.{SessionValues, UUID}
 import config.AppConfig
-import controllers.predicates.AuthorisedAction
+import controllers.predicates.{AuthorisedAction, TaxYearFilter}
 import forms.YesNoForm
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.Logger
@@ -41,7 +41,7 @@ class AccountsController @Inject()(
                                     uuid: UUID
                                   )(
                                     implicit appConfig: AppConfig
-                                  ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper {
+                                  ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper with TaxYearFilter{
 
   private val logger = Logger.logger
 
@@ -59,6 +59,7 @@ class AccountsController @Inject()(
 
     val optionalCyaData: Option[InterestCYAModel] = user.session.get(SessionValues.INTEREST_CYA).flatMap(Json.parse(_).asOpt[InterestCYAModel])
 
+    taxYearFilter(taxYear)(
     optionalCyaData match {
       case Some(cyaData) =>
         getTaxAccounts(taxType, cyaData) match {
@@ -69,6 +70,7 @@ class AccountsController @Inject()(
         logger.info("[AccountsController][show] No CYA data in session. Redirecting to the overview page.")
         overviewRedirect
     }
+    )
   }
 
   def submit(taxYear: Int, taxType: String): Action[AnyContent] = authorisedAction.async { implicit user =>

@@ -193,3 +193,6 @@ error.agent.paragraph4 = Try another client’s details
 timeout.heading = For your security, we signed you out
 timeout.p1 = We did not save your answers.
 timeout.button = Sign in
+
+taxYear-error-template.paragraph.1 = You can only enter information for the 2021 to 2022 tax year.
+taxYear-error-template.paragraph.2 = Check that you’ve entered the correct web address.

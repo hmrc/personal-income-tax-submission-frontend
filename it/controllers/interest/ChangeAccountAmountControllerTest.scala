@@ -30,9 +30,12 @@ import scala.concurrent.Future
 
 class ChangeAccountAmountControllerTest extends IntegrationTest{
 
-  val taxYear = 2021
-
   lazy val frontendAppConfig: AppConfig = app.injector.instanceOf[AppConfig]
+
+  val taxYear: Int = 2022
+  val invalidTaxYear: Int = 2023
+  val amount: BigDecimal = 25
+
   def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq()): ChangeAccountAmountController = {
     new ChangeAccountAmountController(
       mcc,
@@ -49,7 +52,7 @@ class ChangeAccountAmountControllerTest extends IntegrationTest{
       "all auth requirements are met" in {
         lazy val interestCYA = InterestCYAModel(
           Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25.00)))
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
         )
         lazy val priorSub = Json.arr(
           Json.obj(
@@ -73,7 +76,7 @@ class ChangeAccountAmountControllerTest extends IntegrationTest{
       "it contains the wrong credentials" in {
         lazy val interestCYA = InterestCYAModel(
           Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25.00)))
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
         )
         lazy val priorSub = Json.arr(
           Json.obj(
@@ -99,7 +102,7 @@ class ChangeAccountAmountControllerTest extends IntegrationTest{
       "the confidence level is too low" in {
         lazy val interestCYA = InterestCYAModel(
           Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25.00)))
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
         )
         lazy val priorSub = Json.arr(
           Json.obj(
@@ -108,6 +111,13 @@ class ChangeAccountAmountControllerTest extends IntegrationTest{
             "taxedUkInterest" -> 25
           )
         )
+        val retrieval: Future[Enrolments ~ Some[AffinityGroup]] = Future.successful(new ~(
+          Enrolments(Set(
+            Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("UTR", "1234567890")), "Activated", None),
+            Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
+          )),
+          Some(AffinityGroup.Individual)
+        ))
 
         val result = await(controller(insufficientConfidenceRetrieval, Seq(ConfidenceLevel.L500)).show(taxYear, "taxed", "TaxedId")
         (FakeRequest().withSession(
@@ -118,6 +128,36 @@ class ChangeAccountAmountControllerTest extends IntegrationTest{
         result.header.status shouldBe SEE_OTHER
         result.header.headers("Location") shouldBe "http://localhost:11111/income-through-software/return/iv-uplift"
       }
+
+    }
+    "Redirect when an invalid tax year has been added to the url" in {
+
+      lazy val interestCYA = InterestCYAModel(
+        Some(false), None,
+        Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
+      )
+      lazy val priorSub = Json.arr(
+        Json.obj(
+          "accountName" -> "Taxed Account",
+          "incomeSourceId" -> "TaxedId",
+          "taxedUkInterest" -> 25
+        )
+      )
+      val retrieval: Future[Enrolments ~ Some[AffinityGroup]] = Future.successful(new ~(
+        Enrolments(Set(
+          Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "1234567890")), "Activated", None),
+          Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
+        )),
+        Some(AffinityGroup.Individual)
+      ))
+
+      val result = await(controller(retrieval).show(invalidTaxYear, "taxed", "TaxedId")
+      (FakeRequest().withSession(
+        (SessionValues.INTEREST_CYA, Json.prettyPrint(Json.toJson(interestCYA))),
+        (SessionValues.INTEREST_PRIOR_SUB, priorSub.toString()))
+      ))
+
+      result.header.status shouldBe SEE_OTHER
     }
 
   }
