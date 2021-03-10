@@ -65,6 +65,14 @@ dividends.cya.questions.1 = Dividends from UK companies
 dividends.cya.questions.2 = Amount of dividends from UK companies
 dividends.cya.questions.3 = Dividends from unit trusts or investment companies
 dividends.cya.questions.4 = Amount of dividends from unit trusts or investment companies
+dividends.cya.changeUkDividends.individual = if you got dividends from UK-based companies.
+dividends.cya.changeUkDividends.agent = if your client got dividends from UK-based companies.
+dividends.cya.changeUkDividendsAmount.individual = how much you got from UK-based companies.
+dividends.cya.changeUkDividendsAmount.agent = how much your client got from UK-based companies.
+dividends.cya.changeOtherDividends.individual = if you got dividends from trusts or investment companies based in the UK.
+dividends.cya.changeOtherDividends.agent = if your client got dividends from trusts or investment companies based in the UK.
+dividends.cya.changeOtherDividendsAmount.individual = how much you got in dividends from trusts or investment companies based in the UK.
+dividends.cya.changeOtherDividendsAmount.agent = how much your client got in dividends from trusts or investment companies based in the UK.
 
 interest.cya.accountDisplay = {0} : {1}
 
@@ -127,6 +135,12 @@ interest.cya.questions.1 = Untaxed UK Interest
 interest.cya.questions.2 = Details for the untaxed UK interest
 interest.cya.questions.3 = Taxed UK Interest
 interest.cya.questions.4 = Details for the taxed UK interest
+interest.cya.changeUntaxedInterest.individual = whether you got untaxed interest from UK accounts.
+interest.cya.changeUntaxedInterest.agent = whether your client got untaxed interest from UK accounts.
+interest.cya.changeUntaxedDetails = or add a new UK account with untaxed interest.
+interest.cya.changeTaxedInterest.individual = whether you got taxed interest from UK accounts.
+interest.cya.changeTaxedInterest.agent = whether your client got taxed interest from UK accounts.
+interest.cya.changeTaxedDetails = or add a new UK account with untaxed interest.
 
 interest.remove-account.title = Are you sure you want to remove this account?
 interest.remove-account.heading = Are you sure you want to remove {0}?
