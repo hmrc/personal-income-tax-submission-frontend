@@ -41,18 +41,22 @@ class InterestAccountsViewSpec extends ViewTest {
   }
 
   object ExpectedValues {
-    val h1Singular = "You have added 1 account"
-    val h1Plural = "You have added 2 accounts"
+    val untaxedH1Singular = "UK untaxed interest account"
+    val untaxedH1Plural = "UK untaxed interest accounts"
+    val taxedH1Singular = "UK taxed interest account"
+    val taxedH1Plural = "UK taxed interest accounts"
 
-    val caption = "Interest for 06 April 2019 to 05 April 2020"
+    val caption = "Interest for 6 April 2019 to 5 April 2020"
 
     val change = "Change"
     val remove = "Remove"
 
     val addAnotherAccount = "Add another account"
 
-    val titleSingle = s"$h1Singular - $serviceName - $govUkExtension"
-    val titlePlural = s"$h1Plural - $serviceName - $govUkExtension"
+    val untaxedTitleSingle = s"$untaxedH1Singular - $serviceName - $govUkExtension"
+    val untaxedTitlePlural = s"$untaxedH1Plural - $serviceName - $govUkExtension"
+    val taxedTitleSingle = s"$taxedH1Singular - $serviceName - $govUkExtension"
+    val taxedTitlePlural = s"$taxedH1Plural - $serviceName - $govUkExtension"
   }
 
   "InterestAccountsView when untaxed" should {
@@ -67,7 +71,7 @@ class InterestAccountsViewSpec extends ViewTest {
         implicit val document: Document = Jsoup.parse(result.body)
 
         "has the correct title" in {
-          assertTitle(ExpectedValues.titleSingle)
+          assertTitle(ExpectedValues.untaxedTitleSingle)
         }
 
         "has the correct caption" in {
@@ -75,7 +79,7 @@ class InterestAccountsViewSpec extends ViewTest {
         }
 
         "has the correct h1" in {
-          assertH1(ExpectedValues.h1Singular)
+          assertH1(ExpectedValues.untaxedH1Singular)
         }
 
         "has a single account row" in {
@@ -122,7 +126,7 @@ class InterestAccountsViewSpec extends ViewTest {
         implicit val document: Document = Jsoup.parse(result.body)
 
         "has the correct title" in {
-          assertTitle(ExpectedValues.titleSingle)
+          assertTitle(ExpectedValues.untaxedTitleSingle)
         }
 
         "has the correct caption" in {
@@ -130,7 +134,7 @@ class InterestAccountsViewSpec extends ViewTest {
         }
 
         "has the correct h1" in {
-          assertH1(ExpectedValues.h1Singular)
+          assertH1(ExpectedValues.untaxedH1Singular)
         }
 
         "has a single account row" in {
@@ -170,7 +174,7 @@ class InterestAccountsViewSpec extends ViewTest {
         implicit val document: Document = Jsoup.parse(result.body)
 
         "has the correct title" in {
-          assertTitle(ExpectedValues.titlePlural)
+          assertTitle(ExpectedValues.untaxedTitlePlural)
         }
 
         "has the correct caption" in {
@@ -178,7 +182,7 @@ class InterestAccountsViewSpec extends ViewTest {
         }
 
         "has the correct h1" in {
-          assertH1(ExpectedValues.h1Plural)
+          assertH1(ExpectedValues.untaxedH1Plural)
         }
 
         "has two account rows" in {
@@ -255,7 +259,7 @@ class InterestAccountsViewSpec extends ViewTest {
         implicit val document: Document = Jsoup.parse(result.body)
 
         "has the correct title" in {
-          assertTitle(ExpectedValues.titleSingle)
+          assertTitle(ExpectedValues.taxedTitleSingle)
         }
 
         "has the correct caption" in {
@@ -263,7 +267,7 @@ class InterestAccountsViewSpec extends ViewTest {
         }
 
         "has the correct h1" in {
-          assertH1(ExpectedValues.h1Singular)
+          assertH1(ExpectedValues.taxedH1Singular)
         }
 
         "has a single account row" in {
@@ -310,7 +314,7 @@ class InterestAccountsViewSpec extends ViewTest {
         implicit val document: Document = Jsoup.parse(result.body)
 
         "has the correct title" in {
-          assertTitle(ExpectedValues.titleSingle)
+          assertTitle(ExpectedValues.taxedTitleSingle)
         }
 
         "has the correct caption" in {
@@ -318,7 +322,7 @@ class InterestAccountsViewSpec extends ViewTest {
         }
 
         "has the correct h1" in {
-          assertH1(ExpectedValues.h1Singular)
+          assertH1(ExpectedValues.taxedH1Singular)
         }
 
         "has a single account row" in {
@@ -358,7 +362,7 @@ class InterestAccountsViewSpec extends ViewTest {
         implicit val document: Document = Jsoup.parse(result.body)
 
         "has the correct title" in {
-          assertTitle(ExpectedValues.titlePlural)
+          assertTitle(ExpectedValues.taxedTitlePlural)
         }
 
         "has the correct caption" in {
@@ -366,7 +370,7 @@ class InterestAccountsViewSpec extends ViewTest {
         }
 
         "has the correct h1" in {
-          assertH1(ExpectedValues.h1Plural)
+          assertH1(ExpectedValues.taxedH1Plural)
         }
 
         "has two account rows" in {

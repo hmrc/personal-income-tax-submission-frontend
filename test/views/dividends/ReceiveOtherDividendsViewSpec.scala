@@ -47,7 +47,7 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
   val expectedAgentH1 = "Did your client receive any dividends from trusts or open ended investment companies?"
   val expectedAgentTitle = "Did your client receive any dividends from trusts or open ended investment companies?"
   val expectedAgentErrorTitle = s"Error: $expectedAgentTitle"
-  val expectedCaption = "Dividends for 06 April 2019 to 05 April 2020"
+  val expectedCaption = "Dividends for 6 April 2019 to 5 April 2020"
   val thisIncludesAuthText: String = "This includes authorised unit trusts or investment funds. If your dividend is automatically " +
     "re-invested, you must still include it."
   val doNotIncludeText = "Do not include any amounts shown as 'equalisation' on your dividend voucher."

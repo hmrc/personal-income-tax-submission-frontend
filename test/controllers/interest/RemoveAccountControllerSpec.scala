@@ -16,9 +16,9 @@
 
 package controllers.interest
 
-import common.SessionValues
+import common.{InterestTaxTypes, SessionValues}
 import forms.YesNoForm
-import models.interest.{InterestAccountModel, InterestCYAModel}
+import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.Result
@@ -688,5 +688,56 @@ class RemoveAccountControllerSpec extends UnitTestWithApp{
     }
 
   }
+
+    ".isLastAccount" should {
+
+      "have taxed typed as TAXED" when {
+        "is true" in {
+          val result = controller.isLastAccount(taxType = TAXED, priorSubmission = None,
+            taxAccounts = Seq(InterestAccountModel(Some("taxedId"), "Taxed Account", 9023.11)))
+
+          result shouldBe true
+        }
+        "is false with prior submission" in {
+          val result = controller.isLastAccount(taxType = TAXED, priorSubmission = Some(
+            InterestPriorSubmission(hasUntaxed = false, hasTaxed = true, Some(Seq(InterestAccountModel(
+                Some("qwerty"),"TSB Account", 500.00, priorType = Some(InterestTaxTypes.TAXED)))))),
+            taxAccounts = Seq(InterestAccountModel(Some("taxedId"), "Taxed Account", 9023.11)))
+
+          result shouldBe false
+        }
+        "is false with no prior submission" in {
+          val result = controller.isLastAccount(taxType = TAXED, priorSubmission = None,
+            taxAccounts = Seq(InterestAccountModel(Some("taxedId"), "Taxed Account", 9023.11),
+              InterestAccountModel(Some("taxedId2"), "Taxed Account 2", 2000.20)))
+
+          result shouldBe false
+        }
+      }
+
+      "have taxed typed as UNTAXED" when {
+        "is true" in {
+          val result = controller.isLastAccount(taxType = UNTAXED, priorSubmission = None,
+            taxAccounts = Seq(InterestAccountModel(Some("untaxedId"), "Untaxed Account", 9023.11)))
+
+          result shouldBe true
+        }
+        "is false with prior submission" in {
+          val result = controller.isLastAccount(taxType = UNTAXED, priorSubmission = Some(
+            InterestPriorSubmission(hasUntaxed = true, hasTaxed = false, Some(Seq(InterestAccountModel(
+              Some("qwerty"),"TSB Account", 500.00, priorType = Some(InterestTaxTypes.UNTAXED)))))),
+            taxAccounts = Seq(InterestAccountModel(Some("untaxedId"), "Untaxed Account", 9023.11)))
+
+          result shouldBe false
+        }
+        "is false with no prior submission" in {
+          val result = controller.isLastAccount(taxType = UNTAXED, priorSubmission = None,
+            taxAccounts = Seq(InterestAccountModel(Some("untaxedId"), "Untaxed Account", 9023.11),
+              InterestAccountModel(Some("untaxedId2"), "Untaxed Account 2", 2000.20)))
+
+          result shouldBe false
+        }
+      }
+    }
 
 }

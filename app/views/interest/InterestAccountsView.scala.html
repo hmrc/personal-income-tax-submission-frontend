@@ -33,18 +33,20 @@
 @(taxYear: Int, accounts: Seq[InterestAccountModel], taxType: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @h1Text = @{
-    if(accounts.length == 1) {
-        messages("interest.accounts.h1.single")
-    } else {
-        messages("interest.accounts.h1.multiple", accounts.length)
+        (taxType, accounts.length)  match {
+        case(`TAXED`, 1) => messages("interest.taxed-uk-interest-accounts.h1.single")
+        case(`UNTAXED`,1) => messages("interest.untaxed-uk-interest-accounts.h1.single")
+        case(`TAXED`, _ ) => messages("interest.taxed-uk-interest-accounts.h1.multiple")
+        case(`UNTAXED`, _ ) => messages("interest.untaxed-uk-interest-accounts.h1.multiple")
     }
 }
 
 @titleText = @{
-    if(accounts.length == 1) {
-        messages("interest.accounts.title.single")
-    } else {
-        messages("interest.accounts.title.multiple", accounts.length)
+        (taxType, accounts.length)  match {
+        case(`TAXED`, 1) => messages("interest.taxed-uk-interest-accounts.title.single")
+        case(`UNTAXED`,1) => messages("interest.untaxed-uk-interest-accounts.title.single")
+        case(`TAXED`, _ ) => messages("interest.taxed-uk-interest-accounts.title.multiple")
+        case(`UNTAXED`, _ ) => messages("interest.untaxed-uk-interest-accounts.title.multiple")
     }
 }
 

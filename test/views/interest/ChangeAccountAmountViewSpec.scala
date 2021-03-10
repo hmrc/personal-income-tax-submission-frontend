@@ -48,7 +48,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
   val expectedTaxedTitle = "Taxed interest earned"
   val expectedTaxedErrorTitle = s"Error: $expectedTaxedTitle"
 
-  val expectedCaption = "Interest for 06 April 2019 to 05 April 2020"
+  val expectedCaption = "Interest for 6 April 2019 to 5 April 2020"
 
   val expectedErrorSummaryTitle = "There is a problem"
   val expectedErrorSummaryText = "Select £5000 or enter a different amount"
