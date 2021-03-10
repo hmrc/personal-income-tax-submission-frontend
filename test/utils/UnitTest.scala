@@ -112,11 +112,11 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
       Enrolment(EnrolmentKeys.Agent, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.agentReference, "0987654321")), "Activated")
     ))
 
-    val agentStuff: Enrolments ~ Some[AffinityGroup] ~ ConfidenceLevel = enrolments and Some(AffinityGroup.Agent) and ConfidenceLevel.L50
+    val agentRetrievals: Enrolments ~ Some[AffinityGroup] ~ ConfidenceLevel = enrolments and Some(AffinityGroup.Agent) and ConfidenceLevel.L50
 
     (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
       .expects(*, Retrievals.allEnrolments and Retrievals.affinityGroup and Retrievals.confidenceLevel, *, *)
-      .returning(Future.successful(agentStuff))
+      .returning(Future.successful(agentRetrievals))
 
     (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
       .expects(*, *, *, *)
