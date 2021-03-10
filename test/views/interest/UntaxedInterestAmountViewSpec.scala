@@ -50,6 +50,8 @@ class UntaxedInterestAmountViewSpec extends ViewTest{
   val amountInterestText = "Amount of interest earned"
   val poundPrefixText = "£"
   val continueButtonText = "Continue"
+  val untaxedAccountNameInput = "untaxedAccountName"
+  val untaxedAmountInput = "untaxedAmount"
 
   def newView(form: Form[UntaxedInterestModel]): HtmlFormat.Appendable = untaxedInterestView(
     form,
@@ -68,10 +70,10 @@ class UntaxedInterestAmountViewSpec extends ViewTest{
         textOnPageCheck(captionText, captionSelector)
         h1Check(h1Text)
         textOnPageCheck(whatWouldYouCallText, whatWouldYouCallSelector)
-        inputFieldCheck("untaxedAccountName", accountNameInputSelector)
+        inputFieldCheck(untaxedAccountNameInput, accountNameInputSelector)
         textOnPageCheck(amountInterestText, amountInterestSelector)
         textOnPageCheck(poundPrefixText, poundPrefixSelector)
-        inputFieldCheck("untaxedAmount", interestEarnedInputSelector)
+        inputFieldCheck(untaxedAmountInput, interestEarnedInputSelector)
         buttonCheck(continueButtonText, continueButtonSelector)
       }
 

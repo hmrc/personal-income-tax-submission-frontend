@@ -101,6 +101,19 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
     }
   }
 
+  def radioButtonCheck(text: String, radioNumber: Int)(implicit document: Document): Unit = {
+    s"have a $text radio button" which {
+      s"is of type radio button" in {
+        val selector = ".govuk-radios__item > input"
+        document.select(selector).get(radioNumber - 1).attr("type") shouldBe "radio"
+      }
+      s"has the text $text" in {
+        val selector = ".govuk-radios__item > label"
+        document.select(selector).get(radioNumber - 1).text() shouldBe text
+      }
+    }
+  }
+
   def linkCheck(text: String, selector: String, href: String)(implicit document: Document): Unit = {
     s"have a $text link" which {
       s"has the text '$text'" in {

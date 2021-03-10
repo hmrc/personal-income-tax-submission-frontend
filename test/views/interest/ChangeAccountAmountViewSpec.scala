@@ -29,48 +29,43 @@ class ChangeAccountAmountViewSpec extends ViewTest {
   lazy val priorOrNewAmountForm: Form[PriorOrNewAmountModel] = PriorOrNewAmountForm.priorOrNewAmountForm(5000.00)
   lazy val changeAccountAmountView: ChangeAccountAmountView = app.injector.instanceOf[ChangeAccountAmountView]
 
+  val priorAmountValue = 5000
+  val taxYear = 2020
+  val taxYearMinusOne: Int = taxYear -1
+
   val h1Selector = "h1"
   val captionSelector = ".govuk-caption-l"
   val inputSelector = ".govuk-input"
   val continueButtonSelector = "#continue"
-
   val errorSummarySelector = ".govuk-error-summary"
   val errorSummaryTitleSelector = ".govuk-error-summary__title"
   val errorSummaryTextSelector = ".govuk-error-summary__body"
-
-  val expectedUntaxedH1 = "Monzo untaxed interest earned"
-  val expectedTaxedH1 = "Monzo taxed interest earned"
-
-  val expectedHintText = "For example, £600 or £193.54"
+  val priorAmountRadioText = "#main-content > div > div > form > div > div > fieldset > div > div:nth-child(1) > label"
+  val newAmountRadio = "#otherAmount"
+  val newAmountInput = "#amount"
+  val amountInputName = "amount"
 
   val expectedUntaxedTitle = "Untaxed interest earned"
   val expectedUntaxedErrorTitle = s"Error: $expectedUntaxedTitle"
   val expectedTaxedTitle = "Taxed interest earned"
   val expectedTaxedErrorTitle = s"Error: $expectedTaxedTitle"
+  val expectedCaption = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
+  val expectedUntaxedH1 = "Monzo untaxed interest earned"
+  val expectedTaxedH1 = "Monzo taxed interest earned"
+  val expectedHintText = "For example, £600 or £193.54"
+  val continueText = "Continue"
+  val differentAmountText = "A different amount"
 
-  val expectedCaption = "Interest for 6 April 2019 to 5 April 2020"
-
-  val expectedErrorSummaryTitle = "There is a problem"
-  val expectedErrorSummaryText = "Select £5000 or enter a different amount"
-
-  val priorAmountRadio = "#whichAmount"
-  val priorAmountRadioText = "#main-content > div > div > form > div > div > fieldset > div > div:nth-child(1) > label"
-  val newAmountRadio = "#otherAmount"
-  val newAmountInput = "#amount"
-
-  val account: InterestAccountModel = InterestAccountModel(Some("qwerty"), "Monzo", 5000.00)
-
-  val taxYear = 2020
+  val account: InterestAccountModel = InterestAccountModel(Some("qwerty"), "Monzo", priorAmountValue)
 
   val TAXED = "taxed"
   val UNTAXED = "untaxed"
-
 
   "ChangeAccountAmountView" when {
 
     "passed a prior or new form" should {
 
-      "correctly render with no errors as an individual with an untaxed account" when {
+      "correctly render for an individual with an untaxed account" when {
 
         "there are no form errors" which {
 
@@ -87,80 +82,175 @@ class ChangeAccountAmountViewSpec extends ViewTest {
           titleCheck(expectedUntaxedTitle)
           h1Check(expectedUntaxedH1)
           textOnPageCheck(expectedCaption, captionSelector)
-          hintTextCheck(expectedHintText)
-
-          "contains a prior amount radio button" in {
-            elementExist(priorAmountRadio) shouldBe true
-          }
-
-          "prior amount radio button contains amount returned in prior amount model" in {
-            elementText(priorAmountRadioText) shouldBe "£5000"
-          }
-
-          "contains a new amount radio button" in {
-            elementExist(newAmountRadio) shouldBe true
-          }
+          radioButtonCheck(s"£$priorAmountValue", 1)
+          radioButtonCheck(differentAmountText, 2)
 
           "new amount radio button is already selected" in {
             element(newAmountRadio).attributes().hasKey("checked") shouldBe true
           }
 
-          "contains a new amount input field" in {
-            elementExist(newAmountInput) shouldBe true
-          }
-
-          "contains a continue button" in {
-            elementExist(continueButtonSelector) shouldBe true
-          }
-
-        }
-
-      }
-
-      "correctly render with errors as an individual with an untaxed account" when {
-
-        "there are form errors" which {
-
-          lazy val view = changeAccountAmountView(
-            priorOrNewAmountForm.withError("amount","Select £5000 or enter a different amount"),
-            testCall,
-            taxYear,
-            UNTAXED,
-            account
-          )(user, implicitly, mockAppConfig)
-
-          implicit lazy val document: Document = Jsoup.parse(view.body)
-
-          titleCheck(expectedUntaxedErrorTitle)
-          h1Check(expectedUntaxedH1)
-          textOnPageCheck(expectedCaption, captionSelector)
           hintTextCheck(expectedHintText)
+          textOnPageCheck(s"£$priorAmountValue", priorAmountRadioText)
+          inputFieldCheck(amountInputName, newAmountInput)
+          buttonCheck(continueText, continueButtonSelector)
+        }
 
-          "contains an input box" in {
-            elementExist(inputSelector) shouldBe true
+        "there are form errors" when {
+
+          "neither radio button is chosen" which {
+            lazy val view = changeAccountAmountView(
+              priorOrNewAmountForm.bind(Map("whichAmount" -> "", "amount" -> "")),
+              testCall,
+              taxYear,
+              UNTAXED,
+              account
+            )(user, implicitly, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorSummaryText = s"Select £5,000 or enter a different amount"
+
+            titleCheck(expectedUntaxedErrorTitle)
+            errorSummaryCheck(expectedErrorSummaryText, "#whichAmount")
+            h1Check(expectedUntaxedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorAboveElementCheck(expectedErrorSummaryText)
+            radioButtonCheck(s"£$priorAmountValue", 1)
+            radioButtonCheck(differentAmountText, 2)
+
+            "new amount radio button is not selected" in {
+              element(newAmountRadio).attributes().hasKey("checked") shouldBe false
+            }
+
+            inputFieldCheck(amountInputName, newAmountInput)
+            buttonCheck(continueText, continueButtonSelector)
           }
 
-          "contains a continue button" in {
-            elementExist(continueButtonSelector) shouldBe true
+          "an empty value for amount is passed in" which {
+            lazy val view = changeAccountAmountView(
+              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "")),
+              testCall,
+              taxYear,
+              UNTAXED,
+              account
+            )(user, implicitly, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorSummaryText = "Enter the amount in the correct format"
+
+            titleCheck(expectedUntaxedErrorTitle)
+            errorSummaryCheck(expectedErrorSummaryText, newAmountInput)
+            h1Check(expectedUntaxedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorAboveElementCheck(expectedErrorSummaryText)
+            radioButtonCheck(s"£$priorAmountValue", 1)
+            radioButtonCheck(differentAmountText, 2)
+
+            "new amount radio button is already selected" in {
+              element(newAmountRadio).attributes().hasKey("checked") shouldBe true
+            }
+
+            inputFieldCheck(amountInputName, newAmountInput)
+            buttonCheck(continueText, continueButtonSelector)
           }
 
-          "contains an error" in {
-            elementExist(errorSummarySelector) shouldBe true
+          "an invalid value for amount is passed in" which {
+            lazy val view = changeAccountAmountView(
+              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "abc")),
+              testCall,
+              taxYear,
+              UNTAXED,
+              account
+            )(user, implicitly, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorSummaryText = "Enter an amount using numbers 0 to 9"
+
+            titleCheck(expectedUntaxedErrorTitle)
+            errorSummaryCheck(expectedErrorSummaryText, newAmountInput)
+            h1Check(expectedUntaxedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorAboveElementCheck(expectedErrorSummaryText)
+            radioButtonCheck(s"£$priorAmountValue", 1)
+            radioButtonCheck(differentAmountText, 2)
+
+            "new amount radio button is already selected" in {
+              element(newAmountRadio).attributes().hasKey("checked") shouldBe true
+            }
+
+            inputFieldCheck(amountInputName, newAmountInput)
+            buttonCheck(continueText, continueButtonSelector)
           }
 
-          "contain an error title" in {
-            elementText(errorSummaryTitleSelector) shouldBe expectedErrorSummaryTitle
+          "a value greater than 100,000,000,000 is passed in" which {
+            lazy val view = changeAccountAmountView(
+              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "200,000,000,000")),
+              testCall,
+              taxYear,
+              UNTAXED,
+              account
+            )(user, implicitly, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorSummaryText = "Enter an amount less than £100,000,000,000"
+
+            titleCheck(expectedUntaxedErrorTitle)
+            errorSummaryCheck(expectedErrorSummaryText, newAmountInput)
+            h1Check(expectedUntaxedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorAboveElementCheck(expectedErrorSummaryText)
+            radioButtonCheck(s"£$priorAmountValue", 1)
+            radioButtonCheck(differentAmountText, 2)
+
+            "new amount radio button is already selected" in {
+              element(newAmountRadio).attributes().hasKey("checked") shouldBe true
+            }
+
+            inputFieldCheck(amountInputName, newAmountInput)
+            buttonCheck(continueText, continueButtonSelector)
           }
 
-          "contains an error message" in {
-            elementText(errorSummaryTextSelector) shouldBe expectedErrorSummaryText
+          "an invalid format value for amount is passed in" which {
+            lazy val view = changeAccountAmountView(
+              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "100.00.00")),
+              testCall,
+              taxYear,
+              UNTAXED,
+              account
+            )(user, implicitly, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorSummaryText = "Enter the amount in the correct format"
+
+            titleCheck(expectedUntaxedErrorTitle)
+            errorSummaryCheck(expectedErrorSummaryText, newAmountInput)
+            h1Check(expectedUntaxedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorAboveElementCheck(expectedErrorSummaryText)
+            radioButtonCheck(s"£$priorAmountValue", 1)
+            radioButtonCheck(differentAmountText, 2)
+
+            "new amount radio button is already selected" in {
+              element(newAmountRadio).attributes().hasKey("checked") shouldBe true
+            }
+
+            inputFieldCheck(amountInputName, newAmountInput)
+            buttonCheck(continueText, continueButtonSelector)
           }
 
         }
-
       }
 
-      "correctly render with no errors as an individual with a taxed account" when {
+      "correctly render for an individual with a taxed account" when {
 
         "there are no form errors" which {
 
@@ -178,80 +268,172 @@ class ChangeAccountAmountViewSpec extends ViewTest {
           h1Check(expectedTaxedH1)
           textOnPageCheck(expectedCaption, captionSelector)
           hintTextCheck(expectedHintText)
-
-          "contains a prior amount radio button" in {
-            elementExist(priorAmountRadio) shouldBe true
-          }
-
-          "prior amount radio button contains amount returned in prior amount model" in {
-            elementText(priorAmountRadioText) shouldBe "£5000"
-          }
-
-          "contains a new amount radio button" in {
-            elementExist(newAmountRadio) shouldBe true
-          }
+          radioButtonCheck(s"£$priorAmountValue", 1)
+          radioButtonCheck(differentAmountText, 2)
 
           "new amount radio button is already selected" in {
             element(newAmountRadio).attributes().hasKey("checked") shouldBe true
           }
 
-          "contains a new amount input field" in {
-            elementExist(newAmountInput) shouldBe true
+          inputFieldCheck(amountInputName, newAmountInput)
+          buttonCheck(continueText, continueButtonSelector)
+        }
+
+        "there are form errors" when {
+
+          "neither radio button is chosen" which {
+            lazy val view = changeAccountAmountView(
+              priorOrNewAmountForm.bind(Map("whichAmount" -> "", "amount" -> "")),
+              testCall,
+              taxYear,
+              TAXED,
+              account
+            )(user, implicitly, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorSummaryText = s"Select £5,000 or enter a different amount"
+
+            titleCheck(expectedTaxedErrorTitle)
+            errorSummaryCheck(expectedErrorSummaryText, "#whichAmount")
+            h1Check(expectedTaxedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorAboveElementCheck(expectedErrorSummaryText)
+            radioButtonCheck(s"£$priorAmountValue", 1)
+            radioButtonCheck(differentAmountText, 2)
+
+            "new amount radio button is already selected" in {
+              element(newAmountRadio).attributes().hasKey("checked") shouldBe false
+            }
+
+            inputFieldCheck(amountInputName, newAmountInput)
+            buttonCheck(continueText, continueButtonSelector)
           }
 
-          "contains a continue button" in {
-            elementExist(continueButtonSelector) shouldBe true
+          "an empty value for amount is passed in" which {
+            lazy val view = changeAccountAmountView(
+              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "")),
+              testCall,
+              taxYear,
+              TAXED,
+              account
+            )(user, implicitly, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorSummaryText = "Enter the amount in the correct format"
+
+            titleCheck(expectedTaxedErrorTitle)
+            errorSummaryCheck(expectedErrorSummaryText, newAmountInput)
+            h1Check(expectedTaxedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorAboveElementCheck(expectedErrorSummaryText)
+            radioButtonCheck(s"£$priorAmountValue", 1)
+            radioButtonCheck(differentAmountText, 2)
+
+            "new amount radio button is already selected" in {
+              element(newAmountRadio).attributes().hasKey("checked") shouldBe true
+            }
+
+            inputFieldCheck(amountInputName, newAmountInput)
+            buttonCheck(continueText, continueButtonSelector)
+          }
+
+          "an invalid value for amount is passed in" which {
+            lazy val view = changeAccountAmountView(
+              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "abc")),
+              testCall,
+              taxYear,
+              TAXED,
+              account
+            )(user, implicitly, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorSummaryText = "Enter an amount using numbers 0 to 9"
+
+            titleCheck(expectedTaxedErrorTitle)
+            errorSummaryCheck(expectedErrorSummaryText, newAmountInput)
+            h1Check(expectedTaxedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorAboveElementCheck(expectedErrorSummaryText)
+            radioButtonCheck(s"£$priorAmountValue", 1)
+            radioButtonCheck(differentAmountText, 2)
+
+            "new amount radio button is already selected" in {
+              element(newAmountRadio).attributes().hasKey("checked") shouldBe true
+            }
+
+            inputFieldCheck(amountInputName, newAmountInput)
+            buttonCheck(continueText, continueButtonSelector)
+          }
+
+          "a value greater than 100,000,000,000 is passed in" which {
+            lazy val view = changeAccountAmountView(
+              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "200,000,000,000")),
+              testCall,
+              taxYear,
+              TAXED,
+              account
+            )(user, implicitly, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorSummaryText = "Enter an amount less than £100,000,000,000"
+
+            titleCheck(expectedTaxedErrorTitle)
+            errorSummaryCheck(expectedErrorSummaryText, newAmountInput)
+            h1Check(expectedTaxedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorAboveElementCheck(expectedErrorSummaryText)
+            radioButtonCheck(s"£$priorAmountValue", 1)
+            radioButtonCheck(differentAmountText, 2)
+
+            "new amount radio button is already selected" in {
+              element(newAmountRadio).attributes().hasKey("checked") shouldBe true
+            }
+
+            inputFieldCheck(amountInputName, newAmountInput)
+            buttonCheck(continueText, continueButtonSelector)
+          }
+
+          "an invalid format value for amount is passed in" which {
+            lazy val view = changeAccountAmountView(
+              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "100.00.00")),
+              testCall,
+              taxYear,
+              TAXED,
+              account
+            )(user, implicitly, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorSummaryText = "Enter the amount in the correct format"
+
+            titleCheck(expectedTaxedErrorTitle)
+            errorSummaryCheck(expectedErrorSummaryText, newAmountInput)
+            h1Check(expectedTaxedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorAboveElementCheck(expectedErrorSummaryText)
+            radioButtonCheck(s"£$priorAmountValue", 1)
+            radioButtonCheck(differentAmountText, 2)
+
+            "new amount radio button is already selected" in {
+              element(newAmountRadio).attributes().hasKey("checked") shouldBe true
+            }
+
+            inputFieldCheck(amountInputName, newAmountInput)
+            buttonCheck(continueText, continueButtonSelector)
           }
 
         }
-
-      }
-
-      "correctly render with errors as an individual with a taxed account" when {
-
-        "there are form errors" which {
-
-          lazy val view = changeAccountAmountView(
-            priorOrNewAmountForm.withError("amount","Select £5000 or enter a different amount"),
-            testCall,
-            taxYear,
-            TAXED,
-            account
-          )(user, implicitly, mockAppConfig)
-
-          implicit lazy val document: Document = Jsoup.parse(view.body)
-
-          titleCheck(expectedTaxedErrorTitle)
-          h1Check(expectedTaxedH1)
-          textOnPageCheck(expectedCaption, captionSelector)
-          hintTextCheck(expectedHintText)
-
-          "contains an input box" in {
-            elementExist(inputSelector) shouldBe true
-          }
-
-          "contains a continue button" in {
-            elementExist(continueButtonSelector) shouldBe true
-          }
-
-          "contains an error" in {
-            elementExist(errorSummarySelector) shouldBe true
-          }
-
-          "contain an error title" in {
-            elementText(errorSummaryTitleSelector) shouldBe expectedErrorSummaryTitle
-          }
-
-          "contains an error message" in {
-            elementText(errorSummaryTextSelector) shouldBe expectedErrorSummaryText
-          }
-
-        }
-
       }
 
     }
-
   }
-
 }

@@ -32,6 +32,7 @@ class RemoveAccountViewSpec extends ViewTest {
   lazy val removeAccountView: RemoveAccountView = app.injector.instanceOf[RemoveAccountView]
 
   val taxYear = 2020
+  val taxYearMinusOne: Int = taxYear -1
 
   val TAXED = "taxed"
   val UNTAXED = "untaxed"
@@ -43,6 +44,7 @@ class RemoveAccountViewSpec extends ViewTest {
   val yesOptionSelector = "#main-content > div > div > form > div > fieldset > div.govuk-radios.govuk-radios--inline > div:nth-child(1) > label"
   val noOptionSelector = "#main-content > div > div > form > div > fieldset > div.govuk-radios.govuk-radios--inline > div:nth-child(2) > label"
   val continueButtonSelector = "#continue"
+  val errorSummaryHref = "#value"
 
   val errorSummarySelector = ".govuk-error-summary"
   val errorSummaryTitleSelector = ".govuk-error-summary__title"
@@ -51,7 +53,7 @@ class RemoveAccountViewSpec extends ViewTest {
   val expectedTitle = "Are you sure you want to remove this account?"
   val expectedErrorTitle = s"Error: $expectedTitle"
   val expectedH1 = "Are you sure you want to remove Monzo?"
-  val expectedCaption = "Interest for 6 April 2019 to 5 April 2020"
+  val expectedCaption = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
   val thisWillTextUntaxed = "This will remove all untaxed UK interest."
   val thisWillTextTaxed = "This will remove all taxed UK interest."
   val yesText = "Yes"
@@ -62,20 +64,36 @@ class RemoveAccountViewSpec extends ViewTest {
 
   "Remove Account view" should {
 
-    "Correctly render for untaxed account" when {
+    "Correctly render for an untaxed account" when {
+      "the user is an individual" when {
+        "There are no form errors " when {
+          "The account is not the last account" which {
+            lazy val view = removeAccountView(yesNoForm, taxYear, UNTAXED, account, isLastAccount = false)(user, implicitly, mockAppConfig)
+            implicit lazy val document: Document = Jsoup.parse(view.body)
 
-      "Correctly render as an individual" when {
-        "There are no form errors " which {
-          lazy val view = removeAccountView(yesNoForm, taxYear, UNTAXED, account, isLastAccount = false)(user, implicitly, mockAppConfig)
-          implicit lazy val document: Document = Jsoup.parse(view.body)
+            titleCheck(expectedTitle)
+            textOnPageCheck(expectedCaption, captionSelector)
+            h1Check(expectedH1)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
+            buttonCheck(continueText, continueButtonSelector)
+          }
 
-          titleCheck(expectedTitle)
-          textOnPageCheck(expectedCaption, captionSelector)
-          h1Check(expectedH1)
-          //        TODO: Think of something for radio buttons
-          textOnPageCheck(yesText, yesOptionSelector)
-          textOnPageCheck(noText, noOptionSelector)
-          buttonCheck(continueText, continueButtonSelector)
+          "The last account is being removed" which {
+            lazy val view = removeAccountView(yesNoForm, taxYear, UNTAXED, account,
+              isLastAccount = true)(user, implicitly, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            titleCheck(expectedTitle)
+            textOnPageCheck(expectedCaption, captionSelector)
+            h1Check(expectedH1)
+            textOnPageCheck(thisWillTextUntaxed, thisWillTextSelector)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
+            buttonCheck(continueText, continueButtonSelector)
+          }
+
         }
 
         "There are form errors " when {
@@ -86,48 +104,46 @@ class RemoveAccountViewSpec extends ViewTest {
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             titleCheck(expectedErrorTitle)
-            errorSummaryCheck(expectedErrorText, "#value")
+            errorSummaryCheck(expectedErrorText, errorSummaryHref)
             textOnPageCheck(expectedCaption, captionSelector)
             h1Check(expectedH1)
             errorAboveElementCheck(expectedErrorText)
-            //        TODO: Think of something for radio buttons
-            textOnPageCheck(yesText, yesOptionSelector)
-            textOnPageCheck(noText, noOptionSelector)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
             buttonCheck(continueText, continueButtonSelector)
           }
         }
-
-        "The last account is being removed" which {
-          lazy val view = removeAccountView(yesNoForm, taxYear, UNTAXED, account,
-            isLastAccount = true)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
-
-          implicit lazy val document: Document = Jsoup.parse(view.body)
-
-          titleCheck(expectedTitle)
-          textOnPageCheck(expectedCaption, captionSelector)
-          h1Check(expectedH1)
-          //        TODO: Think of something for radio buttons
-          textOnPageCheck(thisWillTextUntaxed, thisWillTextSelector)
-          textOnPageCheck(yesText, yesOptionSelector)
-          textOnPageCheck(noText, noOptionSelector)
-          buttonCheck(continueText, continueButtonSelector)
-        }
       }
 
-      "Correctly render as an agent" when {
-        "There are no form errors " which {
-          lazy val view = removeAccountView(yesNoForm, taxYear, UNTAXED, account,
-            isLastAccount = false)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+      "the user is as an agent" when {
+        "There are no form errors " when {
+          "The account is not the last account" which {
+            lazy val view = removeAccountView(yesNoForm, taxYear, UNTAXED, account, isLastAccount = false)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+            implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          implicit lazy val document: Document = Jsoup.parse(view.body)
+            titleCheck(expectedTitle)
+            textOnPageCheck(expectedCaption, captionSelector)
+            h1Check(expectedH1)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
+            buttonCheck(continueText, continueButtonSelector)
+          }
 
-          titleCheck(expectedTitle)
-          textOnPageCheck(expectedCaption, captionSelector)
-          h1Check(expectedH1)
-          //        TODO: Think of something for radio buttons
-          textOnPageCheck(yesText, yesOptionSelector)
-          textOnPageCheck(noText, noOptionSelector)
-          buttonCheck(continueText, continueButtonSelector)
+          "The last account is being removed" which {
+            lazy val view = removeAccountView(yesNoForm, taxYear, UNTAXED, account,
+              isLastAccount = true)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            titleCheck(expectedTitle)
+            textOnPageCheck(expectedCaption, captionSelector)
+            h1Check(expectedH1)
+            textOnPageCheck(thisWillTextUntaxed, thisWillTextSelector)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
+            buttonCheck(continueText, continueButtonSelector)
+          }
+
         }
 
         "There are form errors " when {
@@ -137,50 +153,48 @@ class RemoveAccountViewSpec extends ViewTest {
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             titleCheck(expectedErrorTitle)
-            errorSummaryCheck(expectedErrorText, "#value")
+            errorSummaryCheck(expectedErrorText, errorSummaryHref)
             textOnPageCheck(expectedCaption, captionSelector)
             h1Check(expectedH1)
             errorAboveElementCheck(expectedErrorText)
-            //        TODO: Think of something for radio buttons
-            textOnPageCheck(yesText, yesOptionSelector)
-            textOnPageCheck(noText, noOptionSelector)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
             buttonCheck(continueText, continueButtonSelector)
           }
-        }
-
-        "The last account is being removed " which {
-          lazy val view = removeAccountView(yesNoForm, taxYear, UNTAXED, account,
-            isLastAccount = true)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
-
-          implicit lazy val document: Document = Jsoup.parse(view.body)
-
-          titleCheck(expectedTitle)
-          textOnPageCheck(expectedCaption, captionSelector)
-          h1Check(expectedH1)
-          //        TODO: Think of something for radio buttons
-          textOnPageCheck(thisWillTextUntaxed, thisWillTextSelector)
-          textOnPageCheck(yesText, yesOptionSelector)
-          textOnPageCheck(noText, noOptionSelector)
-          buttonCheck(continueText, continueButtonSelector)
         }
       }
     }
 
+    "Correctly render for an taxed account" when {
+      "the user is an individual" when {
+        "There are no form errors " when {
+          "The account is not the last account" which {
+            lazy val view = removeAccountView(yesNoForm, taxYear, TAXED, account, isLastAccount = false)(user, implicitly, mockAppConfig)
+            implicit lazy val document: Document = Jsoup.parse(view.body)
 
-    "Correctly render for taxed account" when {
+            titleCheck(expectedTitle)
+            textOnPageCheck(expectedCaption, captionSelector)
+            h1Check(expectedH1)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
+            buttonCheck(continueText, continueButtonSelector)
+          }
 
-      "Correctly render as an individual" when {
-        "There are no form errors " which {
-          lazy val view = removeAccountView(yesNoForm, taxYear, TAXED, account, isLastAccount = false)(user, implicitly, mockAppConfig)
-          implicit lazy val document: Document = Jsoup.parse(view.body)
+          "The last account is being removed" which {
+            lazy val view = removeAccountView(yesNoForm, taxYear, TAXED, account,
+              isLastAccount = true)(user, implicitly, mockAppConfig)
 
-          titleCheck(expectedTitle)
-          textOnPageCheck(expectedCaption, captionSelector)
-          h1Check(expectedH1)
-          //        TODO: Think of something for radio buttons
-          textOnPageCheck(yesText, yesOptionSelector)
-          textOnPageCheck(noText, noOptionSelector)
-          buttonCheck(continueText, continueButtonSelector)
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            titleCheck(expectedTitle)
+            textOnPageCheck(expectedCaption, captionSelector)
+            h1Check(expectedH1)
+            textOnPageCheck(thisWillTextTaxed, thisWillTextSelector)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
+            buttonCheck(continueText, continueButtonSelector)
+          }
+
         }
 
         "There are form errors " when {
@@ -191,48 +205,46 @@ class RemoveAccountViewSpec extends ViewTest {
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             titleCheck(expectedErrorTitle)
-            errorSummaryCheck(expectedErrorText, "#value")
+            errorSummaryCheck(expectedErrorText, errorSummaryHref)
             textOnPageCheck(expectedCaption, captionSelector)
             h1Check(expectedH1)
             errorAboveElementCheck(expectedErrorText)
-            //        TODO: Think of something for radio buttons
-            textOnPageCheck(yesText, yesOptionSelector)
-            textOnPageCheck(noText, noOptionSelector)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
             buttonCheck(continueText, continueButtonSelector)
           }
         }
-
-        "The last account is being removed" which {
-          lazy val view = removeAccountView(yesNoForm, taxYear, TAXED, account,
-            isLastAccount = true)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
-
-          implicit lazy val document: Document = Jsoup.parse(view.body)
-
-          titleCheck(expectedTitle)
-          textOnPageCheck(expectedCaption, captionSelector)
-          h1Check(expectedH1)
-          //        TODO: Think of something for radio buttons
-          textOnPageCheck(thisWillTextTaxed, thisWillTextSelector)
-          textOnPageCheck(yesText, yesOptionSelector)
-          textOnPageCheck(noText, noOptionSelector)
-          buttonCheck(continueText, continueButtonSelector)
-        }
       }
 
-      "Correctly render as an agent" when {
-        "There are no form errors " which {
-          lazy val view = removeAccountView(yesNoForm, taxYear, TAXED, account,
-            isLastAccount = false)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+      "the user is as an agent" when {
+        "There are no form errors " when {
+          "The account is not the last account" which {
+            lazy val view = removeAccountView(yesNoForm, taxYear, TAXED, account, isLastAccount = false)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+            implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          implicit lazy val document: Document = Jsoup.parse(view.body)
+            titleCheck(expectedTitle)
+            textOnPageCheck(expectedCaption, captionSelector)
+            h1Check(expectedH1)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
+            buttonCheck(continueText, continueButtonSelector)
+          }
 
-          titleCheck(expectedTitle)
-          textOnPageCheck(expectedCaption, captionSelector)
-          h1Check(expectedH1)
-          //        TODO: Think of something for radio buttons
-          textOnPageCheck(yesText, yesOptionSelector)
-          textOnPageCheck(noText, noOptionSelector)
-          buttonCheck(continueText, continueButtonSelector)
+          "The last account is being removed" which {
+            lazy val view = removeAccountView(yesNoForm, taxYear, TAXED, account,
+              isLastAccount = true)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            titleCheck(expectedTitle)
+            textOnPageCheck(expectedCaption, captionSelector)
+            h1Check(expectedH1)
+            textOnPageCheck(thisWillTextTaxed, thisWillTextSelector)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
+            buttonCheck(continueText, continueButtonSelector)
+          }
+
         }
 
         "There are form errors " when {
@@ -242,31 +254,14 @@ class RemoveAccountViewSpec extends ViewTest {
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             titleCheck(expectedErrorTitle)
-            errorSummaryCheck(expectedErrorText, "#value")
+            errorSummaryCheck(expectedErrorText, errorSummaryHref)
             textOnPageCheck(expectedCaption, captionSelector)
             h1Check(expectedH1)
             errorAboveElementCheck(expectedErrorText)
-            //        TODO: Think of something for radio buttons
-            textOnPageCheck(yesText, yesOptionSelector)
-            textOnPageCheck(noText, noOptionSelector)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
             buttonCheck(continueText, continueButtonSelector)
           }
-        }
-
-        "The last account is being removed " which {
-          lazy val view = removeAccountView(yesNoForm, taxYear, TAXED, account,
-            isLastAccount = true)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
-
-          implicit lazy val document: Document = Jsoup.parse(view.body)
-
-          titleCheck(expectedTitle)
-          textOnPageCheck(expectedCaption, captionSelector)
-          h1Check(expectedH1)
-          //        TODO: Think of something for radio buttons
-          textOnPageCheck(thisWillTextTaxed, thisWillTextSelector)
-          textOnPageCheck(yesText, yesOptionSelector)
-          textOnPageCheck(noText, noOptionSelector)
-          buttonCheck(continueText, continueButtonSelector)
         }
       }
     }

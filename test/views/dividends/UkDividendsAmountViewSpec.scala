@@ -35,19 +35,19 @@ class UkDividendsAmountViewSpec extends ViewTest {
   lazy val ukDividendsAmountView: UkDividendsAmountView = app.injector.instanceOf[UkDividendsAmountView]
 
   val taxYear: Int = 2020
+  val taxYearMinusOne: Int = taxYear -1
 
   val poundPrefixSelector = ".govuk-input__prefix"
   val captionSelector = ".govuk-caption-l"
   val inputSelector = ".govuk-input"
   val continueButtonSelector = "#continue"
-  val differentAmountSelector = "#main-content > div > div > form > div > div > fieldset > div > div:nth-child(2) > label"
   val enterAmountSelector = "#conditional-otherAmount > div > label"
   val priorAmountSelector = "#main-content > div > div > form > div > div > fieldset > div > div:nth-child(1) > label"
 
   val expectedH1 = "What is the total amount of dividends earned from companies in the UK?"
   val expectedTitle = "What is the total amount of dividends earned from companies in the UK?"
   val expectedErrorTitle = s"Error: $expectedTitle"
-  val expectedCaption = "Dividends for 6 April 2019 to 5 April 2020"
+  val expectedCaption = s"Dividends for 6 April $taxYearMinusOne to 5 April $taxYear"
   val poundPrefixText = "£"
   val differentAmountText = "A different amount"
   val enterAmountText = "Enter amount"
@@ -57,6 +57,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
   val priorAmountRadioText = "#main-content > div > div > form > div > div > fieldset > div > div:nth-child(1) > label"
   val newAmountRadio = "#otherAmount"
   val newAmountInput = "#amount"
+  val amountInputName = "amount"
 
   "UkDividendsAmountView" should {
 
@@ -73,7 +74,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           h1Check(expectedH1)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
-          inputFieldCheck("amount", inputSelector)
+          inputFieldCheck(amountInputName, inputSelector)
           buttonCheck(continueText, continueButtonSelector)
         }
 
@@ -95,10 +96,10 @@ class UkDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
-            errorSummaryCheck(expectedErrorText, "#amount")
+            errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
-            inputFieldCheck("amount", inputSelector)
+            inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
 
           }
@@ -119,10 +120,10 @@ class UkDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
-            errorSummaryCheck(expectedErrorText, "#amount")
+            errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
-            inputFieldCheck("amount", inputSelector)
+            inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
 
           }
@@ -143,10 +144,10 @@ class UkDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
-            errorSummaryCheck(expectedErrorText, "#amount")
+            errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
-            inputFieldCheck("amount", inputSelector)
+            inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
 
           }
@@ -167,10 +168,10 @@ class UkDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
-            errorSummaryCheck(expectedErrorText, "#amount")
+            errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
-            inputFieldCheck("amount", inputSelector)
+            inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
           }
         }
@@ -180,14 +181,15 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
         "there are no form errors" which {
 
-          lazy val view = ukDividendsAmountView(Right(ukDividendsAmountForm), None, taxYear, testCall)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+          lazy val view = ukDividendsAmountView(Right(ukDividendsAmountForm), None, taxYear,
+            testCall)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
           titleCheck(expectedTitle)
           h1Check(expectedH1)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
-          inputFieldCheck("amount", inputSelector)
+          inputFieldCheck(amountInputName, inputSelector)
           buttonCheck(continueText, continueButtonSelector)
         }
 
@@ -209,10 +211,10 @@ class UkDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
-            errorSummaryCheck(expectedErrorText, "#amount")
+            errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
-            inputFieldCheck("amount", inputSelector)
+            inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
 
           }
@@ -233,10 +235,10 @@ class UkDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
-            errorSummaryCheck(expectedErrorText, "#amount")
+            errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
-            inputFieldCheck("amount", inputSelector)
+            inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
 
           }
@@ -257,10 +259,10 @@ class UkDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
-            errorSummaryCheck(expectedErrorText, "#amount")
+            errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
-            inputFieldCheck("amount", inputSelector)
+            inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
 
           }
@@ -281,10 +283,10 @@ class UkDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
-            errorSummaryCheck(expectedErrorText, "#amount")
+            errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
-            inputFieldCheck("amount", inputSelector)
+            inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
           }
         }
@@ -309,13 +311,11 @@ class UkDividendsAmountViewSpec extends ViewTest {
           titleCheck(expectedTitle)
           h1Check(expectedH1)
           textOnPageCheck(expectedCaption, captionSelector)
-
-          textOnPageCheck(s"£$priorAmount", priorAmountSelector)
-          textOnPageCheck(differentAmountText,differentAmountSelector)
+          radioButtonCheck(s"£$priorAmount", 1)
+          radioButtonCheck(differentAmountText, 2)
           textOnPageCheck(enterAmountText, enterAmountSelector)
-
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
-          inputFieldCheck("amount", inputSelector)
+          inputFieldCheck(amountInputName, inputSelector)
           buttonCheck(continueText, continueButtonSelector)
         }
 
@@ -335,14 +335,13 @@ class UkDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
-
-            textOnPageCheck(s"£$priorAmount", priorAmountSelector)
-            textOnPageCheck(differentAmountText,differentAmountSelector)
+            radioButtonCheck(s"£$priorAmount", 1)
+            radioButtonCheck(differentAmountText, 2)
             textOnPageCheck(enterAmountText, enterAmountSelector)
-            errorSummaryCheck(expectedErrorText, "#amount")
+            errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
-            inputFieldCheck("amount", inputSelector)
+            inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
           }
 
@@ -360,14 +359,13 @@ class UkDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
-
-            textOnPageCheck(s"£$priorAmount", priorAmountSelector)
-            textOnPageCheck(differentAmountText,differentAmountSelector)
+            radioButtonCheck(s"£$priorAmount", 1)
+            radioButtonCheck(differentAmountText, 2)
             textOnPageCheck(enterAmountText, enterAmountSelector)
-            errorSummaryCheck(expectedErrorText, "#amount")
+            errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
-            inputFieldCheck("amount", inputSelector)
+            inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
           }
 
@@ -385,14 +383,13 @@ class UkDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
-
-            textOnPageCheck(s"£$priorAmount", priorAmountSelector)
-            textOnPageCheck(differentAmountText,differentAmountSelector)
+            radioButtonCheck(s"£$priorAmount", 1)
+            radioButtonCheck(differentAmountText, 2)
             textOnPageCheck(enterAmountText, enterAmountSelector)
-            errorSummaryCheck(expectedErrorText, "#amount")
+            errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
-            inputFieldCheck("amount", inputSelector)
+            inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
           }
 
@@ -410,14 +407,13 @@ class UkDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
-
-            textOnPageCheck(s"£$priorAmount", priorAmountSelector)
-            textOnPageCheck(differentAmountText,differentAmountSelector)
+            radioButtonCheck(s"£$priorAmount", 1)
+            radioButtonCheck(differentAmountText, 2)
             textOnPageCheck(enterAmountText, enterAmountSelector)
-            errorSummaryCheck(expectedErrorText, "#amount")
+            errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
-            inputFieldCheck("amount", inputSelector)
+            inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
           }
         }
@@ -441,13 +437,11 @@ class UkDividendsAmountViewSpec extends ViewTest {
           titleCheck(expectedTitle)
           h1Check(expectedH1)
           textOnPageCheck(expectedCaption, captionSelector)
-
-          textOnPageCheck(s"£$priorAmount", priorAmountSelector)
-          textOnPageCheck(differentAmountText,differentAmountSelector)
+          radioButtonCheck(s"£$priorAmount", 1)
+          radioButtonCheck(differentAmountText, 2)
           textOnPageCheck(enterAmountText, enterAmountSelector)
-
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
-          inputFieldCheck("amount", inputSelector)
+          inputFieldCheck(amountInputName, inputSelector)
           buttonCheck(continueText, continueButtonSelector)
         }
 
@@ -467,14 +461,13 @@ class UkDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
-
-            textOnPageCheck(s"£$priorAmount", priorAmountSelector)
-            textOnPageCheck(differentAmountText,differentAmountSelector)
+            radioButtonCheck(s"£$priorAmount", 1)
+            radioButtonCheck(differentAmountText, 2)
             textOnPageCheck(enterAmountText, enterAmountSelector)
-            errorSummaryCheck(expectedErrorText, "#amount")
+            errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
-            inputFieldCheck("amount", inputSelector)
+            inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
           }
 
@@ -492,14 +485,13 @@ class UkDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
-
-            textOnPageCheck(s"£$priorAmount", priorAmountSelector)
-            textOnPageCheck(differentAmountText,differentAmountSelector)
+            radioButtonCheck(s"£$priorAmount", 1)
+            radioButtonCheck(differentAmountText, 2)
             textOnPageCheck(enterAmountText, enterAmountSelector)
-            errorSummaryCheck(expectedErrorText, "#amount")
+            errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
-            inputFieldCheck("amount", inputSelector)
+            inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
           }
 
@@ -517,14 +509,13 @@ class UkDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
-
-            textOnPageCheck(s"£$priorAmount", priorAmountSelector)
-            textOnPageCheck(differentAmountText,differentAmountSelector)
+            radioButtonCheck(s"£$priorAmount", 1)
+            radioButtonCheck(differentAmountText, 2)
             textOnPageCheck(enterAmountText, enterAmountSelector)
-            errorSummaryCheck(expectedErrorText, "#amount")
+            errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
-            inputFieldCheck("amount", inputSelector)
+            inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
           }
 
@@ -542,14 +533,13 @@ class UkDividendsAmountViewSpec extends ViewTest {
             titleCheck(expectedErrorTitle)
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
-
-            textOnPageCheck(s"£$priorAmount", priorAmountSelector)
-            textOnPageCheck(differentAmountText,differentAmountSelector)
+            radioButtonCheck(s"£$priorAmount", 1)
+            radioButtonCheck(differentAmountText, 2)
             textOnPageCheck(enterAmountText, enterAmountSelector)
-            errorSummaryCheck(expectedErrorText, "#amount")
+            errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
-            inputFieldCheck("amount", inputSelector)
+            inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
           }
         }

@@ -17,6 +17,7 @@
 package views.interest
 
 import forms.YesNoForm
+
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.data.Form
@@ -30,15 +31,13 @@ class TaxedInterestViewSpec extends ViewTest {
 
   lazy val taxedInterestView: TaxedInterestView = app.injector.instanceOf[TaxedInterestView]
   val taxYear = 2020
+  val taxYearMinusOne: Int = taxYear -1
 
   val captionSelector = ".govuk-caption-l"
-  val yesOptionSelector = "#value"
-  val noOptionSelector = "#value-no"
+  val valueHref = "#value"
   val forExampleSelector = "#value-hint > p"
   val bulletPointSelector = "#value-hint > ul > li"
   val doNotIncludeSelector = "#value-hint"
-  val yesSelector = "#main-content > div > div > form > div > fieldset > div.govuk-radios.govuk-radios--inline > div:nth-child(1) > label"
-  val noSelector = "#main-content > div > div > form > div > fieldset > div.govuk-radios.govuk-radios--inline > div:nth-child(2) > label"
   val continueSelector = "#continue"
 
   val expectedIndividualTitle = "Did you receive any taxed interest from the UK?"
@@ -47,7 +46,7 @@ class TaxedInterestViewSpec extends ViewTest {
   val expectedAgentTitle = "Did your client receive any taxed interest from the UK?"
   val expectedAgentErrorTitle = s"Error: $expectedAgentTitle"
   val expectedAgentH1 = "Did your client receive any taxed interest from the UK?"
-  val expectedCaption = "Interest for 6 April 2019 to 5 April 2020"
+  val expectedCaption = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
   val forExampleText = "For example, interest from:"
   val trustFundsText = "trust funds"
   val companyBondsText = "company bonds"
@@ -91,10 +90,8 @@ class TaxedInterestViewSpec extends ViewTest {
           document.select(doNotIncludeSelector).text() should include (doNotIncludeText)
         }
 
-//        Think about something for a radio button
-        textOnPageCheck(yesText, yesSelector)
-//        Think about something for a radio button
-        textOnPageCheck(noText, noSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
 
         buttonCheck(continueText, continueSelector)
       }
@@ -112,7 +109,7 @@ class TaxedInterestViewSpec extends ViewTest {
         titleCheck(expectedIndividualErrorTitle)
         h1Check(expectedIndividualH1)
         textOnPageCheck(expectedCaption, captionSelector)
-        errorSummaryCheck(expectedErrorText, "#value")
+        errorSummaryCheck(expectedErrorText, valueHref)
         errorAboveElementCheck(expectedErrorText)
         buttonCheck(continueText, continueSelector)
       }
@@ -150,10 +147,8 @@ class TaxedInterestViewSpec extends ViewTest {
           document.select(doNotIncludeSelector).text() should include (doNotIncludeText)
         }
 
-//        TODO: Think about something for a radio button
-        textOnPageCheck(yesText, yesSelector)
-//        TODO: Think about something for a radio button
-        textOnPageCheck(noText, noSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
 
         buttonCheck(continueText, continueSelector)
       }
@@ -172,7 +167,7 @@ class TaxedInterestViewSpec extends ViewTest {
         titleCheck(expectedAgentErrorTitle)
         h1Check(expectedAgentH1)
         textOnPageCheck(expectedCaption, captionSelector)
-        errorSummaryCheck(expectedErrorText, "#value")
+        errorSummaryCheck(expectedErrorText, valueHref)
         errorAboveElementCheck(expectedErrorText)
         buttonCheck(continueText, continueSelector)
       }

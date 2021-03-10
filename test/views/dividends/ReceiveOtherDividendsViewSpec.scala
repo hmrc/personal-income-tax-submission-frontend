@@ -29,17 +29,19 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
 
   lazy val receiveOtherDividendsView: ReceiveOtherUkDividendsView = app.injector.instanceOf[ReceiveOtherUkDividendsView]
 
+  val taxYear = 2020
+  val taxYearMinusOne = taxYear -1
+
   val captionSelector = ".govuk-caption-l"
   val thisIncludesAuthSelector = "#value-hint > p:nth-child(1)"
   val doNotIncludeSelector = "#value-hint > p:nth-child(2)"
-  val yesSelector = "#main-content > div > div > form > div > fieldset > div.govuk-radios.govuk-radios--inline > div:nth-child(1) > label"
-  val noSelector = "#main-content > div > div > form > div > fieldset > div.govuk-radios.govuk-radios--inline > div:nth-child(2) > label"
   val continueSelector = "#continue"
   val whatAreInvestmentSelector = "#main-content > div > div > details > summary > span"
   val investmentTrustSelector = "#main-content > div > div > details > div > p:nth-child(1)"
   val unitTrustsSelector = "#main-content > div > div > details > div > p:nth-child(2)"
   val equalisationPaymentsSelector = "#main-content > div > div > details > div > p:nth-child(3)"
   val continueButtonSelector = "#continue"
+  val expectedErrorHref = "#value"
 
   val expectedIndividualH1 = "Did you receive any dividends from trusts or open ended investment companies?"
   val expectedIndividualTitle = "Did you receive any dividends from trusts or open ended investment companies?"
@@ -47,7 +49,7 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
   val expectedAgentH1 = "Did your client receive any dividends from trusts or open ended investment companies?"
   val expectedAgentTitle = "Did your client receive any dividends from trusts or open ended investment companies?"
   val expectedAgentErrorTitle = s"Error: $expectedAgentTitle"
-  val expectedCaption = "Dividends for 6 April 2019 to 5 April 2020"
+  val expectedCaption = s"Dividends for 6 April $taxYearMinusOne to 5 April $taxYear"
   val thisIncludesAuthText: String = "This includes authorised unit trusts or investment funds. If your dividend is automatically " +
     "re-invested, you must still include it."
   val doNotIncludeText = "Do not include any amounts shown as 'equalisation' on your dividend voucher."
@@ -62,8 +64,6 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
   val equalisationPaymentsText:String = "Equalisation payments are what an investor receives after making an investment part way" +
     " through a distribution period. They’re made up of the income generated before the investment and included in the price" +
     " paid for each unit. They are not considered income as it is a return of part of the investor’s capital."
-
-  val taxYear = 2020
 
   "ReceivedDividendsView" should {
 
@@ -80,10 +80,8 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
         textOnPageCheck(expectedCaption, captionSelector)
         textOnPageCheck(thisIncludesAuthText, thisIncludesAuthSelector)
         textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
-        //        TODO: Think of something for the radio buttons
-        textOnPageCheck(yesText, yesSelector)
-        //        TODO: Think of something for the radio buttons
-        textOnPageCheck(noText, noSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueButtonSelector)
         textOnPageCheck(whatAreInvestmentText, whatAreInvestmentSelector)
         textOnPageCheck(investmentTrustText, investmentTrustSelector)
@@ -107,13 +105,11 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
           titleCheck(expectedIndividualErrorTitle)
           h1Check(expectedIndividualH1)
           textOnPageCheck(expectedCaption, captionSelector)
-          errorSummaryCheck(expectedErrorText, "#value")
+          errorSummaryCheck(expectedErrorText, expectedErrorHref)
           textOnPageCheck(thisIncludesAuthText, thisIncludesAuthSelector)
           textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
-          //        TODO: Think of something for the radio buttons
-          textOnPageCheck(yesText, yesSelector)
-          //        TODO: Think of something for the radio buttons
-          textOnPageCheck(noText, noSelector)
+          radioButtonCheck(yesText, 1)
+          radioButtonCheck(noText, 2)
           errorAboveElementCheck(expectedErrorText)
           buttonCheck(continueText, continueButtonSelector)
           textOnPageCheck(whatAreInvestmentText, whatAreInvestmentSelector)
@@ -137,10 +133,8 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
         textOnPageCheck(expectedCaption, captionSelector)
         textOnPageCheck(thisIncludesAuthText, thisIncludesAuthSelector)
         textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
-        //        TODO: Think of something for the radio buttons
-        textOnPageCheck(yesText, yesSelector)
-        //        TODO: Think of something for the radio buttons
-        textOnPageCheck(noText, noSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueButtonSelector)
         textOnPageCheck(whatAreInvestmentText, whatAreInvestmentSelector)
         textOnPageCheck(investmentTrustText, investmentTrustSelector)
@@ -164,13 +158,11 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
           titleCheck(expectedAgentErrorTitle)
           h1Check(expectedAgentH1)
           textOnPageCheck(expectedCaption, captionSelector)
-          errorSummaryCheck(expectedErrorText, "#value")
+          errorSummaryCheck(expectedErrorText, expectedErrorHref)
           textOnPageCheck(thisIncludesAuthText, thisIncludesAuthSelector)
           textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
-          //        TODO: Think of something for the radio buttons
-          textOnPageCheck(yesText, yesSelector)
-          //        TODO: Think of something for the radio buttons
-          textOnPageCheck(noText, noSelector)
+          radioButtonCheck(yesText, 1)
+          radioButtonCheck(noText, 2)
           errorAboveElementCheck(expectedErrorText)
           buttonCheck(continueText, continueButtonSelector)
           textOnPageCheck(whatAreInvestmentText, whatAreInvestmentSelector)

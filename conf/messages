@@ -140,7 +140,7 @@ interest.cya.changeUntaxedInterest.agent = whether your client got untaxed inter
 interest.cya.changeUntaxedDetails = or add a new UK account with untaxed interest.
 interest.cya.changeTaxedInterest.individual = whether you got taxed interest from UK accounts.
 interest.cya.changeTaxedInterest.agent = whether your client got taxed interest from UK accounts.
-interest.cya.changeTaxedDetails = or add a new UK account with untaxed interest.
+interest.cya.changeTaxedDetails = or add a new UK account with taxed interest.
 
 interest.remove-account.title = Are you sure you want to remove this account?
 interest.remove-account.heading = Are you sure you want to remove {0}?
