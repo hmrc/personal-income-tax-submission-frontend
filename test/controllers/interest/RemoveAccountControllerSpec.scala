@@ -38,7 +38,7 @@ class RemoveAccountControllerSpec extends UnitTestWithApp{
     authorisedAction
   )(mockAppConfig)
 
-  val taxYear = 2020
+  val taxYear = 2022
   val untaxedId1 = "UntaxedId1"
   val untaxedId2 = "UntaxedId2"
   val taxedId1 = "TaxedId1"
@@ -210,6 +210,18 @@ class RemoveAccountControllerSpec extends UnitTestWithApp{
             redirectUrl(result) shouldBe controllers.interest.routes.TaxedInterestController.show(taxYear).url
           }
         }
+      }
+    }
+
+    "Redirect to the tax year error " when {
+
+      "an invalid tax year has been added to the url" in new TestWithAuth() {
+
+        val invalidTaxYear = 2023
+        lazy val result: Future[Result] = controller.show(invalidTaxYear, TAXED, untaxedId1)(fakeRequest)
+
+        redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
+
       }
     }
 

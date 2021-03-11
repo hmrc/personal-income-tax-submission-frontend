@@ -41,7 +41,7 @@ class AccountsController @Inject()(
                                     uuid: UUID
                                   )(
                                     implicit appConfig: AppConfig
-                                  ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper with TaxYearFilter{
+                                  ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper with TaxYearFilter {
 
   private val logger = Logger.logger
 

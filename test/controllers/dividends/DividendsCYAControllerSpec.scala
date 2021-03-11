@@ -56,7 +56,7 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
     mockAppConfig
   )
 
-  val taxYear = 2020
+  val taxYear = 2022
   val firstAmount = 10
   val secondAmount = 20
   val successResponseCode = 204
@@ -193,6 +193,18 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
           }
       }
 
+    }
+
+    "Redirect to the tax year error " when {
+
+      "an invalid tax year has been added to the url" in new TestWithAuth() {
+
+        val invalidTaxYear = 2023
+        lazy val result: Future[Result] = controller.show(invalidTaxYear)(fakeRequest)
+
+        redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
+
+      }
     }
 
   }

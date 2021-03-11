@@ -34,7 +34,7 @@ class TaxedInterestAmountControllerSpec extends UnitTestWithApp {
   lazy val controller = new TaxedInterestAmountController(mockMessagesControllerComponents,
     authorisedAction, app.injector.instanceOf[TaxedInterestAmountView])(mockAppConfig)
 
-  val taxYear = 2020
+  val taxYear = 2022
   val id = "9563b361-6333-449f-8721-eab2572b3437"
 
   ".show" should {
@@ -72,7 +72,8 @@ class TaxedInterestAmountControllerSpec extends UnitTestWithApp {
           ))
 
         status(result) shouldBe SEE_OTHER
-        redirectUrl(result) should include(controllers.interest.routes.TaxedInterestAmountController.show(taxYear,"9563b361-6333-449f-8721-eab2572b3437").url.dropRight(36))
+        redirectUrl(result) should include(controllers.interest.routes
+          .TaxedInterestAmountController.show(taxYear,"9563b361-6333-449f-8721-eab2572b3437").url.dropRight(36))
 
       }
       "modifying previous submitted data, with CYA data" in new TestWithAuth {
@@ -91,6 +92,18 @@ class TaxedInterestAmountControllerSpec extends UnitTestWithApp {
 
       }
 
+    }
+
+    "Redirect to the tax year error " when {
+
+      "an invalid tax year has been added to the url" in new TestWithAuth() {
+
+        val invalidTaxYear = 2023
+        lazy val result: Future[Result] = controller.show(invalidTaxYear, id)(fakeRequest)
+
+        redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
+
+      }
     }
 
   }

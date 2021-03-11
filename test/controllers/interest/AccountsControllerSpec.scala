@@ -32,7 +32,7 @@ class AccountsControllerSpec extends UnitTestWithApp {
   val TAXED = "taxed"
   val UNTAXED = "untaxed"
 
-  val taxYear = 2020
+  val taxYear = 2022
 
   private val uuid = java.util.UUID.randomUUID().toString
 
@@ -45,7 +45,7 @@ class AccountsControllerSpec extends UnitTestWithApp {
     uuidGenerator
   )
 
-  lazy val interestCyaModel = InterestCYAModel(
+  lazy val interestCyaModel: InterestCYAModel = InterestCYAModel(
     Some(true), Some(Seq(InterestAccountModel(Some("azerty"), "Account 1", 100.01))),
     Some(true), Some(Seq(InterestAccountModel(Some("qwerty"), "Account 2", 9001.01)))
   )
@@ -152,7 +152,19 @@ class AccountsControllerSpec extends UnitTestWithApp {
 
     }
 
+    "Redirect to the tax year error " when {
+
+      "an invalid tax year has been added to the url" in new TestWithAuth() {
+
+        val invalidTaxYear = 2023
+        lazy val result: Future[Result] = controller.show(invalidTaxYear, TAXED)(fakeRequest)
+
+        redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
+
+      }
+    }
   }
+
 
   ".submit" should {
 

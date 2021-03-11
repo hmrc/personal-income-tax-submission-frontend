@@ -56,7 +56,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
     errorHandler
   )(mockAppConfig)
 
-  val taxYear: Int = 2020
+  val taxYear: Int = 2022
   val arbitraryAmount: Int = 100
 
   ".show" should {
@@ -190,6 +190,18 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
       }
     }
 
+    "Redirect to the tax year error " when {
+
+      "an invalid tax year has been added to the url" in new TestWithAuth() {
+
+        val invalidTaxYear = 2023
+        lazy val result: Future[Result] = controller.show(invalidTaxYear)(fakeRequest)
+
+        redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
+
+      }
+    }
+
   }
 
   ".submit" should {
@@ -215,7 +227,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
 
         "the submission is successful" in new TestWithAuth {
 
-          lazy val detail: CreateOrAmendInterestAuditDetail = CreateOrAmendInterestAuditDetail(Some(cyaModel), None, "AA123456A", "1234567890", 2020)
+          lazy val detail: CreateOrAmendInterestAuditDetail = CreateOrAmendInterestAuditDetail(Some(cyaModel), None, "AA123456A", "1234567890", taxYear)
 
           lazy val event: AuditModel[CreateOrAmendInterestAuditDetail] = AuditModel("CreateOrAmendInterestUpdate", "createOrAmendInterestUpdate", detail)
 
@@ -281,7 +293,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
             ))
           )
           lazy val detail: CreateOrAmendInterestAuditDetail = CreateOrAmendInterestAuditDetail(Some(cyaModel),
-            Some(previousSubmission), "AA123456A", "1234567890", 2020)
+            Some(previousSubmission), "AA123456A", "1234567890", taxYear)
 
           lazy val event: AuditModel[CreateOrAmendInterestAuditDetail] = AuditModel("CreateOrAmendInterestUpdate", "createOrAmendInterestUpdate", detail)
 
@@ -335,14 +347,14 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
             )
 
             (submissionService.submit(_: InterestCYAModel, _: String, _: Int, _: String)(_: HeaderCarrier, _: ExecutionContext))
-              .expects(cyaModel, "AA123456A", 2020, "1234567890", *, *)
+              .expects(cyaModel, "AA123456A", taxYear, "1234567890", *, *)
               .returning(Future.successful(errorResponseFromDes))
 
             (errorHandler.handleError(_: Int)(_: Request[_]))
               .expects(500, *)
               .returning(InternalServerError(unauthorisedTemplate()))
 
-            val result: Future[Result] = controller.submit(2020)(request)
+            val result: Future[Result] = controller.submit(taxYear)(request)
 
             val document: Document = Jsoup.parse(bodyOf(result))
             document.select("h1").first().text() shouldBe "Sorry, there is a problem with the service"
@@ -366,14 +378,14 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
             )
 
             (submissionService.submit(_: InterestCYAModel, _: String, _: Int, _: String)(_: HeaderCarrier, _: ExecutionContext))
-              .expects(cyaModel, "AA123456A", 2020, "1234567890", *, *)
+              .expects(cyaModel, "AA123456A", taxYear, "1234567890", *, *)
               .returning(Future.successful(errorResponseFromDes))
 
             (errorHandler.handleError(_: Int)(_: Request[_]))
               .expects(503, *)
               .returning(ServiceUnavailable(serviceUnavailableTemplate()))
 
-            val result: Future[Result] = controller.submit(2020)(request)
+            val result: Future[Result] = controller.submit(taxYear)(request)
 
             val document: Document = Jsoup.parse(bodyOf(result))
             document.select("h1").first().text() shouldBe "Sorry, the service is unavailable"

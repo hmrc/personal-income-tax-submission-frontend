@@ -39,7 +39,7 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
   val amountTypeField = "whichAmount"
   val otherAmountInputField = "amount"
 
-  val taxYear = 2020
+  val taxYear = 2022
   val untaxedId = "UntaxedId"
   val taxedId = "TaxedId"
 
@@ -186,6 +186,18 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
 
       }
 
+    }
+
+    "Redirect to the tax year error " when {
+
+      "an invalid tax year has been added to the url" in new TestWithAuth() {
+
+        val invalidTaxYear = 2023
+        lazy val result: Future[Result] = controller.show(invalidTaxYear, TAXED, taxedId)(fakeRequest)
+
+        redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
+
+      }
     }
 
   }

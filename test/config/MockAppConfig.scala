@@ -28,7 +28,7 @@ class MockAppConfig extends MockFactory {
     override lazy val dividendsBaseUrl: String = "/dividends"
     override lazy val interestBaseUrl: String = "/interest"
 
-    override lazy val defaultTaxYear: Int = 2020
+    override lazy val defaultTaxYear: Int = 2022
 
     override def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = "/overview"
     override def incomeTaxSubmissionStartUrl(taxYear: Int): String = "/start"

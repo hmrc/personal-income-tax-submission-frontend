@@ -31,6 +31,9 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest{
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
+  val taxYear: Int = 2022
+  val amount: BigDecimal = 25
+
   ".show" should {
 
     "return an action" when {
@@ -39,7 +42,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest{
 
         lazy val interestCYA = InterestCYAModel(
           Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25)))
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
         )
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
@@ -47,7 +50,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest{
 
         lazy val result = {
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest-details/TaxedId")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/taxed-uk-interest-details/TaxedId")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .get())
         }
@@ -61,10 +64,10 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest{
       "there is no CYA data in session" which {
         lazy val result = {
           authoriseIndividual()
-          stubGet("/income-through-software/return/2020/view", OK, "<title>Overview Page</title>")
+          stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
 
 
-          await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest-details/TaxedId")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/taxed-uk-interest-details/TaxedId")
             .get())
         }
 
@@ -77,10 +80,10 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest{
       "the authorization fails" which {
         lazy val result = {
           authoriseIndividualUnauthorized()
-          stubGet("/income-through-software/return/2020/view", OK, "<title>Overview Page</title>")
+          stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
 
 
-          await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest-details/TaxedId")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/taxed-uk-interest-details/TaxedId")
             .get())
         }
 
@@ -99,7 +102,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest{
 
         lazy val interestCYA = InterestCYAModel(
           Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25)))
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
         )
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
@@ -107,7 +110,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest{
 
         lazy val result = {
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest-details/TaxedId")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/taxed-uk-interest-details/TaxedId")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .post(Map(TaxedInterestAmountForm.taxedAmount -> "67.66",
               TaxedInterestAmountForm.taxedAccountName -> "Santander")))
@@ -123,7 +126,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest{
 
         lazy val interestCYA = InterestCYAModel(
           Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25)))
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
         )
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
@@ -131,7 +134,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest{
 
         lazy val result = {
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest-details/TaxedId")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/taxed-uk-interest-details/TaxedId")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .post(Map[String, String]()))
         }
@@ -146,7 +149,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest{
 
         lazy val interestCYA = InterestCYAModel(
           Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25)))
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
         )
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
@@ -154,7 +157,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest{
 
         lazy val result = {
           authoriseIndividualUnauthorized()
-          await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest-details/TaxedId")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/taxed-uk-interest-details/TaxedId")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .post(Map[String, String]()))
         }

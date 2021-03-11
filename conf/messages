@@ -25,6 +25,9 @@ common.error.invalid_number = Enter an amount using numbers 0 to 9
 common.error.priorOrNewAmount.noRadioSelected = Select £{0} or enter a different amount
 common.error.amountMaxLimit = Enter an amount less than £100,000,000,000
 common.error.invalid_currency_format = Enter the amount in the correct format
+common.error.self-assessment.paragraph.1.1 = If the web address is correct or you selected a link or button, you can use
+common.error.self-assessment.paragraph.1.2 = Self Assessment: general enquiries (opens in new tab)
+common.error.self-assessment.paragraph.1.3 = to speak to someone about your income tax.
 
 common.currency.hint = For example, £600 or £193.54
 
@@ -164,9 +167,6 @@ not-found-template.title = Page not found
 not-found-template.heading = Page not found
 not-found-template.paragraph.1 = If you typed the web address, check it is correct.
 not-found-template.paragraph.2 = If you used ‘copy and paste’ to enter the web address, check you copied the full address.
-not-found-template.paragraph.3.1 = If the web address is correct or you selected a link or button, you can use
-not-found-template.paragraph.3.2 = Self Assessment: general enquiries (opens in new tab)
-not-found-template.paragraph.3.3 = to speak to someone about your income tax.
 
 internal-server-error-template.title = Sorry, there is a problem with the service
 internal-server-error-template.heading = Sorry, there is a problem with the service

@@ -34,7 +34,7 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
   lazy val view: UntaxedInterestAmountView = app.injector.instanceOf[UntaxedInterestAmountView]
   lazy val controller = new UntaxedInterestAmountController(mockMessagesControllerComponents, authorisedAction,view, mockAppConfig)
 
-  val taxYear = 2020
+  val taxYear = 2022
   val id = "9563b361-6333-449f-8721-eab2572b3437"
 
   ".show" should {
@@ -86,6 +86,18 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
           ))
 
         status(result) shouldBe SEE_OTHER
+      }
+    }
+
+    "Redirect to the tax year error " when {
+
+      "an invalid tax year has been added to the url" in new TestWithAuth() {
+
+        val invalidTaxYear = 2023
+        lazy val result: Future[Result] = controller.show(invalidTaxYear, id)(fakeRequest)
+
+        redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
+
       }
     }
   }

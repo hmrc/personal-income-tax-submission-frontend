@@ -30,6 +30,9 @@ class RemoveAccountControllerISpec extends IntegrationTest{
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
+  val taxYear: Int = 2022
+  val amount: BigDecimal = 25
+
   ".show untaxed" should {
 
     s"returns an action" when {
@@ -37,8 +40,8 @@ class RemoveAccountControllerISpec extends IntegrationTest{
       "there is CYA data in session" which {
 
         lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 25))),
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25)))
+          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
         )
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
@@ -46,7 +49,7 @@ class RemoveAccountControllerISpec extends IntegrationTest{
 
         lazy val result = {
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/2020/interest/remove-untaxed-interest-account?accountId=UntaxedId")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .get())
         }
@@ -60,10 +63,10 @@ class RemoveAccountControllerISpec extends IntegrationTest{
       "there is no CYA data in session" which {
         lazy val result = {
           authoriseIndividual()
-          stubGet("/income-through-software/return/2020/view", OK, "<title>Overview Page</title>")
+          stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
 
 
-          await(wsClient.url(s"$startUrl/2020/interest/remove-untaxed-interest-account?accountId=UntaxedId")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
             .get())
         }
 
@@ -76,10 +79,10 @@ class RemoveAccountControllerISpec extends IntegrationTest{
       "the authorization fails" which {
         lazy val result = {
           authoriseIndividualUnauthorized()
-          stubGet("/income-through-software/return/2020/view", OK, "<title>Overview Page</title>")
+          stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
 
 
-          await(wsClient.url(s"$startUrl/2020/interest/remove-untaxed-interest-account?accountId=UntaxedId")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
             .get())
         }
 
@@ -99,8 +102,8 @@ class RemoveAccountControllerISpec extends IntegrationTest{
       "there is CYA data in session" which {
 
         lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 25))),
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25)))
+          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
         )
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
@@ -108,7 +111,7 @@ class RemoveAccountControllerISpec extends IntegrationTest{
 
         lazy val result = {
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/2020/interest/remove-taxed-interest-account?accountId=TaxedId")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .get())
         }
@@ -122,10 +125,10 @@ class RemoveAccountControllerISpec extends IntegrationTest{
       "there is no CYA data in session" which {
         lazy val result = {
           authoriseIndividual()
-          stubGet("/income-through-software/return/2020/view", OK, "<title>Overview Page</title>")
+          stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
 
 
-          await(wsClient.url(s"$startUrl/2020/interest/remove-taxed-interest-account?accountId=TaxedId")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
             .get())
         }
 
@@ -139,7 +142,7 @@ class RemoveAccountControllerISpec extends IntegrationTest{
         lazy val result = {
           authoriseIndividualUnauthorized()
           stubGet("/income-through-software/return/2020/view", OK, "<title>Overview Page</title>")
-          await(wsClient.url(s"$startUrl/2020/interest/remove-taxed-interest-account?accountId=TaxedId")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
             .get())
         }
 
@@ -160,7 +163,7 @@ class RemoveAccountControllerISpec extends IntegrationTest{
         lazy val result: WSResponse = {
           authoriseIndividual()
           await(
-            wsClient.url(s"$startUrl/2020/interest/remove-untaxed-interest-account?accountId=UntaxedId")
+            wsClient.url(s"$startUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
               .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
           )
         }
@@ -173,8 +176,8 @@ class RemoveAccountControllerISpec extends IntegrationTest{
     s"return a BAD_REQUEST($BAD_REQUEST) status" in {
 
       lazy val interestCYA = InterestCYAModel(
-        Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 25))),
-        Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25)))
+        Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
+        Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
       )
       lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
         SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
@@ -182,7 +185,7 @@ class RemoveAccountControllerISpec extends IntegrationTest{
 
       lazy val result: WSResponse = {
         authoriseIndividual()
-        await(wsClient.url(s"$startUrl/2020/interest/remove-untaxed-interest-account?accountId=UntaxedId")
+        await(wsClient.url(s"$startUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
           .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
           .post(Map[String,String]()))
       }
@@ -193,7 +196,7 @@ class RemoveAccountControllerISpec extends IntegrationTest{
     "returns an action when auth call fails" which {
       lazy val result: WSResponse = {
         authoriseIndividualUnauthorized()
-        await(wsClient.url(s"$startUrl/2020/interest/remove-untaxed-interest-account?accountId=UntaxedId")
+        await(wsClient.url(s"$startUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
           .post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
       }
       "has an UNAUTHORIZED(401) status" in {
@@ -211,7 +214,7 @@ class RemoveAccountControllerISpec extends IntegrationTest{
         lazy val result: WSResponse = {
           authoriseIndividual()
           await(
-            wsClient.url(s"$startUrl/2020/interest/remove-taxed-interest-account?accountId=TaxedId")
+            wsClient.url(s"$startUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
               .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
           )
         }
@@ -224,8 +227,8 @@ class RemoveAccountControllerISpec extends IntegrationTest{
     s"return a BAD_REQUEST($BAD_REQUEST) status" in {
 
       lazy val interestCYA = InterestCYAModel(
-        Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 25))),
-        Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25)))
+        Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
+        Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
       )
       lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
         SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
@@ -233,7 +236,7 @@ class RemoveAccountControllerISpec extends IntegrationTest{
 
       lazy val result: WSResponse = {
         authoriseIndividual()
-        await(wsClient.url(s"$startUrl/2020/interest/remove-taxed-interest-account?accountId=TaxedId")
+        await(wsClient.url(s"$startUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
           .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
           .post(Map[String, String]()))
       }
@@ -244,7 +247,7 @@ class RemoveAccountControllerISpec extends IntegrationTest{
     "returns an action when auth call fails" which {
       lazy val result: WSResponse = {
         authoriseIndividualUnauthorized()
-        await(wsClient.url(s"$startUrl/2020/interest/remove-taxed-interest-account?accountId=TaxedId")
+        await(wsClient.url(s"$startUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
           .post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
       }
       "has an UNAUTHORIZED(401) status" in {

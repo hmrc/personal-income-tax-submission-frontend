@@ -30,6 +30,9 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest {
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
+  val taxYear: Int = 2022
+  val amount: BigDecimal = 25
+
   ".show taxed" should {
 
     "return an action" when {
@@ -38,12 +41,12 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest {
 
         lazy val interestCYA = InterestCYAModel(
           Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25)))
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
         )
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
         ))
-        lazy val url: String = s"$startUrl/2022/interest/change-taxed-interest-account?accountId=TaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-interest-account?accountId=TaxedId"
 
         lazy val result = {
           authoriseIndividual()
@@ -58,7 +61,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest {
 
       "there is no CYA data in session" which {
 
-        lazy val url: String = s"$startUrl/2022/interest/change-taxed-interest-account?accountId=TaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-interest-account?accountId=TaxedId"
 
         lazy val result = {
           authoriseIndividual()
@@ -75,12 +78,12 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest {
 
         lazy val interestCYA = InterestCYAModel(
           Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25)))
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
         )
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
         ))
-        lazy val url: String = s"$startUrl/2022/interest/change-taxed-interest-account?accountId=TaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-interest-account?accountId=TaxedId"
 
         lazy val result = {
           authoriseIndividualUnauthorized()
@@ -103,13 +106,13 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest {
       "there is CYA data in session" which {
 
         lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 25))),
+          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
           Some(false), None
         )
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
         ))
-        lazy val url: String = s"$startUrl/2022/interest/change-untaxed-interest-account?accountId=UntaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-interest-account?accountId=UntaxedId"
 
         lazy val result = {
           authoriseIndividual()
@@ -124,7 +127,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest {
 
       "there is no CYA data in session" which {
 
-        lazy val url: String = s"$startUrl/2022/interest/change-untaxed-interest-account?accountId=UntaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-interest-account?accountId=UntaxedId"
 
         lazy val result = {
           authoriseIndividual()
@@ -140,13 +143,13 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest {
       "the authorization fails" which {
 
         lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 25))),
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25)))
+          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
         )
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
         ))
-        lazy val url: String = s"$startUrl/2020/interest/change-untaxed-interest-account?accountId=UntaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-interest-account?accountId=UntaxedId"
 
         lazy val result = {
           authoriseIndividualUnauthorized()
@@ -170,12 +173,12 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest {
 
         lazy val interestCYA = InterestCYAModel(
           Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25)))
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
         )
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
         ))
-        lazy val url: String = s"$startUrl/2022/interest/change-taxed-interest-account?accountId=TaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-interest-account?accountId=TaxedId"
 
         lazy val result = {
           authoriseIndividual()
@@ -190,7 +193,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest {
 
       "there is no CYA data in session" which {
 
-        lazy val url: String = s"$startUrl/2022/interest/change-taxed-interest-account?accountId=TaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-interest-account?accountId=TaxedId"
 
         lazy val result = {
           authoriseIndividual()
@@ -207,12 +210,12 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest {
 
         lazy val interestCYA = InterestCYAModel(
           Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25)))
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
         )
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
         ))
-        lazy val url: String = s"$startUrl/2020/interest/change-taxed-interest-account?accountId=TaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-interest-account?accountId=TaxedId"
 
         lazy val result = {
           authoriseIndividualUnauthorized()
@@ -235,13 +238,13 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest {
       "there is CYA data in session" which {
 
         lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 25))),
+          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
           Some(false), None
         )
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
         ))
-        lazy val url: String = s"$startUrl/2020/interest/change-untaxed-interest-account?accountId=UntaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-interest-account?accountId=UntaxedId"
 
         lazy val result = {
           authoriseIndividual()
@@ -256,7 +259,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest {
 
       "there is no CYA data in session" which {
 
-        lazy val url: String = s"$startUrl/2022/interest/change-untaxed-interest-account?accountId=UntaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-interest-account?accountId=UntaxedId"
 
         lazy val result = {
           authoriseIndividual()
@@ -272,13 +275,13 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest {
       "the authorization fails" which {
 
         lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 25))),
+          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
           Some(false), None
         )
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
         ))
-        lazy val url: String = s"$startUrl/2020/interest/change-untaxed-interest-account?accountId=UntaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-interest-account?accountId=UntaxedId"
 
         lazy val result = {
           authoriseIndividualUnauthorized()

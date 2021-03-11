@@ -32,6 +32,9 @@ class AccountsControllerISpec extends IntegrationTest{
 
   val yesNoForm = Map(YesNoForm.yesNo -> YesNoForm.no)
 
+  val taxYear: Int = 2022
+  val amount: BigDecimal = 25
+
   ".show with untaxed" should {
 
     s"return an action" when {
@@ -39,8 +42,8 @@ class AccountsControllerISpec extends IntegrationTest{
       "there is CYA data in session" which {
 
         lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 25))),
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25)))
+          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
         )
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
@@ -48,7 +51,7 @@ class AccountsControllerISpec extends IntegrationTest{
 
         lazy val result = {
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/2020/interest/untaxed-uk-interest-account-summary")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest-account-summary")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .get())
         }
@@ -60,7 +63,7 @@ class AccountsControllerISpec extends IntegrationTest{
       "there is no CYA data in session" which {
         lazy val result = {
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/2020/interest/untaxed-uk-interest-account-summary")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest-account-summary")
             .withHttpHeaders("Csrf-Token" -> "nocheck")
             .get())
         }
@@ -72,7 +75,7 @@ class AccountsControllerISpec extends IntegrationTest{
       "the authorization fails" which {
         lazy val result = {
           authoriseIndividualUnauthorized()
-          await(wsClient.url(s"$startUrl/2020/interest/untaxed-uk-interest-account-summary")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest-account-summary")
             .withHttpHeaders("Csrf-Token" -> "nocheck")
             .get())
         }
@@ -90,8 +93,8 @@ class AccountsControllerISpec extends IntegrationTest{
       "there is CYA data in session" which {
 
         lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 25))),
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25)))
+          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
         )
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
@@ -99,7 +102,7 @@ class AccountsControllerISpec extends IntegrationTest{
 
         lazy val result = {
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest-account-summary")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/taxed-uk-interest-account-summary")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .get())
         }
@@ -111,7 +114,7 @@ class AccountsControllerISpec extends IntegrationTest{
       "there is no CYA data in session" which {
         lazy val result = {
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest-account-summary")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/taxed-uk-interest-account-summary")
             .withHttpHeaders("Csrf-Token" -> "nocheck")
             .get())
         }
@@ -123,7 +126,7 @@ class AccountsControllerISpec extends IntegrationTest{
       "the authorization fails" which {
         lazy val result = {
           authoriseIndividualUnauthorized()
-          await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest-account-summary")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/taxed-uk-interest-account-summary")
             .withHttpHeaders("Csrf-Token" -> "nocheck")
             .get())
         }
@@ -141,8 +144,8 @@ class AccountsControllerISpec extends IntegrationTest{
       "there is CYA data in session" which {
 
         lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 25))),
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25)))
+          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
         )
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
@@ -150,7 +153,7 @@ class AccountsControllerISpec extends IntegrationTest{
 
         lazy val result = {
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/2020/interest/untaxed-uk-interest-account-summary")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest-account-summary")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .post(yesNoForm))
         }
@@ -163,7 +166,7 @@ class AccountsControllerISpec extends IntegrationTest{
 
         lazy val result = {
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/2020/interest/untaxed-uk-interest-account-summary")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest-account-summary")
             .withHttpHeaders("Csrf-Token" -> "nocheck")
             .post(yesNoForm))
         }
@@ -175,7 +178,7 @@ class AccountsControllerISpec extends IntegrationTest{
       "the authorization fails" which {
         lazy val result = {
           authoriseIndividualUnauthorized()
-          await(wsClient.url(s"$startUrl/2020/interest/untaxed-uk-interest-account-summary")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest-account-summary")
             .withHttpHeaders("Csrf-Token" -> "nocheck")
             .post(yesNoForm))
         }
@@ -193,8 +196,8 @@ class AccountsControllerISpec extends IntegrationTest{
       "there is CYA data in session" which {
 
         lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 25))),
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25))))
+          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount))))
 
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
@@ -202,7 +205,7 @@ class AccountsControllerISpec extends IntegrationTest{
 
         lazy val result = {
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest-account-summary")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/taxed-uk-interest-account-summary")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .post(yesNoForm))
         }
@@ -215,7 +218,7 @@ class AccountsControllerISpec extends IntegrationTest{
 
         lazy val result = {
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest-account-summary")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/taxed-uk-interest-account-summary")
             .withHttpHeaders("Csrf-Token" -> "nocheck")
             .post(yesNoForm))
         }
@@ -227,7 +230,7 @@ class AccountsControllerISpec extends IntegrationTest{
       "the authorization fails" which {
         lazy val result = {
           authoriseIndividualUnauthorized()
-          await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest-account-summary")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/taxed-uk-interest-account-summary")
             .withHttpHeaders("Csrf-Token" -> "nocheck")
             .post(yesNoForm))
         }
