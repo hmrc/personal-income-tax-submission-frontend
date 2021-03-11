@@ -24,7 +24,6 @@ import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{OK, SEE_OTHER, UNAUTHORIZED}
 import services.InterestSubmissionService
-import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core._
 import utils.IntegrationTest
 import views.html.interest.InterestCYAView
@@ -59,15 +58,8 @@ class InterestCYAControllerTest extends IntegrationTest {
           Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
           Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
         )
-        val retrieval: Future[Enrolments ~ Some[AffinityGroup]] = Future.successful(new ~(
-          Enrolments(Set(
-            Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "1234567890")), "Activated", None),
-            Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
-          )),
-          Some(AffinityGroup.Individual)
-        ))
 
-        val result = await(controller(retrieval).show(taxYear)
+        val result = await(controller(successfulRetrieval).show(taxYear)
         (FakeRequest().withSession(SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)))))
 
         result.header.status shouldBe OK
@@ -98,15 +90,8 @@ class InterestCYAControllerTest extends IntegrationTest {
         Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
         Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
       )
-      val retrieval: Future[Enrolments ~ Some[AffinityGroup]] = Future.successful(new ~(
-        Enrolments(Set(
-          Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "1234567890")), "Activated", None),
-          Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
-        )),
-        Some(AffinityGroup.Individual)
-      ))
 
-      val result = await(controller(retrieval).show(invalidTaxYear)
+      val result = await(controller(successfulRetrieval).show(invalidTaxYear)
       (FakeRequest().withSession(SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)))))
 
       result.header.status shouldBe SEE_OTHER

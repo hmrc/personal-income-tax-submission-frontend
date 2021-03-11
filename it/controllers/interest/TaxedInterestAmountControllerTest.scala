@@ -79,15 +79,7 @@ class TaxedInterestAmountControllerTest extends IntegrationTest {
 
     "Redirect when an invalid tax year has been added to the url" in {
       lazy val uuid = randomUUID().toString
-      val retrieval: Future[Enrolments ~ Some[AffinityGroup]] = Future.successful(new ~(
-        Enrolments(Set(
-          Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "1234567890")), "Activated", None),
-          Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
-        )),
-        Some(AffinityGroup.Individual)
-      ))
-
-      val result = await(controller(retrieval).show(invalidTaxYear, uuid)(FakeRequest()))
+      val result = await(controller(successfulRetrieval).show(invalidTaxYear, uuid)(FakeRequest()))
 
       result.header.status shouldBe SEE_OTHER
     }

@@ -18,8 +18,7 @@ package controllers.interest
 
 import config.AppConfig
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{OK, UNAUTHORIZED, SEE_OTHER}
-import uk.gov.hmrc.auth.core.retrieve.~
+import play.api.test.Helpers.{OK, SEE_OTHER, UNAUTHORIZED}
 import uk.gov.hmrc.auth.core._
 import utils.IntegrationTest
 import views.html.interest.TaxedInterestView
@@ -70,15 +69,8 @@ class TaxedInterestControllerTest extends IntegrationTest{
     }
 
     "Redirect when an invalid tax year has been added to the url" in {
-      val retrieval: Future[Enrolments ~ Some[AffinityGroup]] = Future.successful(new ~(
-        Enrolments(Set(
-          Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "1234567890")), "Activated", None),
-          Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
-        )),
-        Some(AffinityGroup.Individual)
-      ))
 
-      val result = await(controller(retrieval).show(invalidTaxYear)
+      val result = await(controller(successfulRetrieval).show(invalidTaxYear)
       (FakeRequest()))
 
       result.header.status shouldBe SEE_OTHER

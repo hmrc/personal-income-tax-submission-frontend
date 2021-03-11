@@ -32,7 +32,9 @@ class ReceiveUkDividendsControllerTest extends IntegrationTest {
   val taxYear: Int = 2022
   val invalidTaxYear: Int = 2023
 
-  def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq())= new ReceiveUkDividendsController(
+  def controller(
+                  stubbedRetrieval: Future[_],
+                ): ReceiveUkDividendsController = new ReceiveUkDividendsController(
     mcc,
     authAction(stubbedRetrieval),
     app.injector.instanceOf[ReceiveUkDividendsView],
@@ -71,15 +73,8 @@ class ReceiveUkDividendsControllerTest extends IntegrationTest {
     }
 
     "Redirect when an incorrect url has been added to the url" in {
-      val retrieval: Future[Enrolments ~ Some[AffinityGroup]] = Future.successful(new ~(
-        Enrolments(Set(
-          Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "1234567890")), "Activated", None),
-          Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
-        )),
-        Some(AffinityGroup.Individual)
-      ))
 
-      val result = await(controller(retrieval).show(invalidTaxYear)(FakeRequest()))
+      val result = await(controller(successfulRetrieval).show(invalidTaxYear)(FakeRequest()))
 
       result.header.status shouldBe SEE_OTHER
     }

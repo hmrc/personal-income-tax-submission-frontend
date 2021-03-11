@@ -53,13 +53,6 @@ class RemoveAccountControllerTest extends IntegrationTest {
           Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
           Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
         )
-        val retrieval: Future[Enrolments ~ Some[AffinityGroup]] = Future.successful(new ~(
-          Enrolments(Set(
-            Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "1234567890")), "Activated", None),
-            Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
-          )),
-          Some(AffinityGroup.Individual)
-        ))
 
         val result = await(controller(successfulRetrieval).show(taxYear, InterestTaxTypes.TAXED, "TaxedId")
         (FakeRequest().withSession(SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)))))
@@ -91,20 +84,9 @@ class RemoveAccountControllerTest extends IntegrationTest {
     }
 
     "Redirect when an invalid tax year has been added to the url" in {
-      lazy val interestCYA = InterestCYAModel(
-        Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-        Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
-      )
-      val retrieval: Future[Enrolments ~ Some[AffinityGroup]] = Future.successful(new ~(
-        Enrolments(Set(
-          Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "1234567890")), "Activated", None),
-          Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
-        )),
-        Some(AffinityGroup.Individual)
-      ))
 
-      val result = await(controller(retrieval).show(invalidTaxYear, "taxed", "TaxedId")
-      (FakeRequest().withSession(SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)))))
+      val result = await(controller(successfulRetrieval).show(invalidTaxYear, "taxed", "TaxedId")
+      (FakeRequest()))
 
       result.header.status shouldBe SEE_OTHER
     }

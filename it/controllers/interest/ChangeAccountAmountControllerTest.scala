@@ -111,13 +111,6 @@ class ChangeAccountAmountControllerTest extends IntegrationTest{
             "taxedUkInterest" -> 25
           )
         )
-        val retrieval: Future[Enrolments ~ Some[AffinityGroup]] = Future.successful(new ~(
-          Enrolments(Set(
-            Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("UTR", "1234567890")), "Activated", None),
-            Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
-          )),
-          Some(AffinityGroup.Individual)
-        ))
 
         val result = await(controller(insufficientConfidenceRetrieval, Seq(ConfidenceLevel.L500)).show(taxYear, "taxed", "TaxedId")
         (FakeRequest().withSession(
@@ -143,15 +136,8 @@ class ChangeAccountAmountControllerTest extends IntegrationTest{
           "taxedUkInterest" -> 25
         )
       )
-      val retrieval: Future[Enrolments ~ Some[AffinityGroup]] = Future.successful(new ~(
-        Enrolments(Set(
-          Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "1234567890")), "Activated", None),
-          Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
-        )),
-        Some(AffinityGroup.Individual)
-      ))
 
-      val result = await(controller(retrieval).show(invalidTaxYear, "taxed", "TaxedId")
+      val result = await(controller(successfulRetrieval).show(invalidTaxYear, "taxed", "TaxedId")
       (FakeRequest().withSession(
         (SessionValues.INTEREST_CYA, Json.prettyPrint(Json.toJson(interestCYA))),
         (SessionValues.INTEREST_PRIOR_SUB, priorSub.toString()))

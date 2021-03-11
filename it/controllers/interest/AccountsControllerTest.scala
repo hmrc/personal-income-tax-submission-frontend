@@ -87,15 +87,8 @@ class AccountsControllerTest extends IntegrationTest {
         Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
         Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
       )
-      val retrieval: Future[Enrolments ~ Some[AffinityGroup]] = Future.successful(new ~(
-        Enrolments(Set(
-          Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "1234567890")), "Activated", None),
-          Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
-        )),
-        Some(AffinityGroup.Individual)
-      ))
 
-      val result = await(controller(retrieval).show(invalidTaxYear, "untaxed")
+      val result = await(controller(successfulRetrieval).show(invalidTaxYear, "untaxed")
       (FakeRequest().withSession(SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)))))
 
       result.header.status shouldBe SEE_OTHER
