@@ -19,7 +19,7 @@ package controllers.interest
 import audit.{AuditModel, AuditService, CreateOrAmendInterestAuditDetail}
 import common.{InterestTaxTypes, SessionValues}
 import config.{AppConfig, ErrorHandler}
-import controllers.predicates.AuthorisedAction
+import controllers.predicates.{AuthorisedAction, TaxYearFilter}
 import models.interest.{InterestCYAModel, InterestPriorSubmission}
 import models.{ApiErrorBodyModel, ApiErrorModel, User}
 import play.api.Logger
@@ -46,7 +46,7 @@ class InterestCYAController @Inject()(
                                      )
                                      (
                                        implicit appConfig: AppConfig
-                                     ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper {
+                                     ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper with TaxYearFilter{
 
   private val logger = Logger.logger
   implicit val executionContext: ExecutionContext = mcc.executionContext
@@ -55,6 +55,7 @@ class InterestCYAController @Inject()(
     val priorSubmission = getModelFromSession[InterestPriorSubmission](SessionValues.INTEREST_PRIOR_SUB)
     val cyaModel = getCyaModel()
 
+    taxYearFilterFuture(taxYear)(
     cyaModel match {
       case Some(cyaData) if !cyaData.isFinished => handleUnfinishedRedirect(cyaData, taxYear)
       case Some(cyaData) =>
@@ -68,6 +69,7 @@ class InterestCYAController @Inject()(
         logger.info("[InterestCYAController][show] No CYA data in session. Redirecting to the overview page.")
         Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
     }
+    )
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit user =>

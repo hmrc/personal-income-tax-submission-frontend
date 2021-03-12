@@ -30,9 +30,11 @@ import scala.concurrent.Future
 
 class ChangeAccountAmountControllerTest extends IntegrationTest{
 
-  val taxYear = 2021
-
   lazy val frontendAppConfig: AppConfig = app.injector.instanceOf[AppConfig]
+
+  val taxYear: Int = 2022
+  val amount: BigDecimal = 25
+
   def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq()): ChangeAccountAmountController = {
     new ChangeAccountAmountController(
       mcc,
@@ -49,7 +51,7 @@ class ChangeAccountAmountControllerTest extends IntegrationTest{
       "all auth requirements are met" in {
         lazy val interestCYA = InterestCYAModel(
           Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25.00)))
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
         )
         lazy val priorSub = Json.arr(
           Json.obj(
@@ -73,7 +75,7 @@ class ChangeAccountAmountControllerTest extends IntegrationTest{
       "it contains the wrong credentials" in {
         lazy val interestCYA = InterestCYAModel(
           Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25.00)))
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
         )
         lazy val priorSub = Json.arr(
           Json.obj(
@@ -99,7 +101,7 @@ class ChangeAccountAmountControllerTest extends IntegrationTest{
       "the confidence level is too low" in {
         lazy val interestCYA = InterestCYAModel(
           Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25.00)))
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
         )
         lazy val priorSub = Json.arr(
           Json.obj(
@@ -118,6 +120,7 @@ class ChangeAccountAmountControllerTest extends IntegrationTest{
         result.header.status shouldBe SEE_OTHER
         result.header.headers("Location") shouldBe "http://localhost:11111/income-through-software/return/iv-uplift"
       }
+
     }
 
   }

@@ -19,10 +19,9 @@ package controllers.interest
 import common.InterestTaxTypes._
 import common.SessionValues
 import config.AppConfig
-import controllers.predicates.AuthorisedAction
+import controllers.predicates.{AuthorisedAction, TaxYearFilter}
 import forms.YesNoForm
 import models.User
-
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
 import play.api.Logger
 import play.api.data.Form
@@ -41,7 +40,7 @@ class RemoveAccountController @Inject()(
                                          authorisedAction: AuthorisedAction
                                        )(
                                          implicit appConfig: AppConfig
-                                       ) extends FrontendController(mcc) with I18nSupport {
+                                       ) extends FrontendController(mcc) with I18nSupport with TaxYearFilter {
 
   private val logger = Logger.logger
   val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("interest.remove-account.errors.noRadioSelected")
@@ -57,6 +56,7 @@ class RemoveAccountController @Inject()(
     val isPriorSubmission: Boolean =
       priorSubmissionData.exists(_.submissions.getOrElse(Seq.empty[InterestAccountModel]).map(_.id.contains(accountId)).foldRight(false)(_ || _))
 
+    taxYearFilter(taxYear)(
     if (isPriorSubmission) {
       priorAccountExistsRedirect(taxType, taxYear)
     } else {
@@ -75,6 +75,7 @@ class RemoveAccountController @Inject()(
 
       }
     }
+    )
   }
 
   def submit(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = authorisedAction.async { implicit user =>

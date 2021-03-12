@@ -17,10 +17,14 @@
 package controllers.dividends
 
 import common.SessionValues
+import config.AppConfig
+import controllers.predicates.AuthorisedAction
 import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.Result
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.play.bootstrap.tools.Stubs.stubMessagesControllerComponents
 import utils.UnitTestWithApp
 import views.html.dividends.UkDividendsAmountView
 
@@ -37,7 +41,7 @@ class UkDividendsAmountControllerSpec extends UnitTestWithApp {
 
   val amountTypeField = "whichAmount"
   val otherAmountInputField = "amount"
-  val taxYear = 2020
+  val taxYear = 2022
 
   ".show" should {
 
@@ -94,6 +98,34 @@ class UkDividendsAmountControllerSpec extends UnitTestWithApp {
         bodyOf(result) shouldNot include("govuk-error-summary")
       }
 
+    }
+
+    "Redirect to the tax year error " when {
+
+      "an invalid tax year has been added to the url" in new TestWithAuth() {
+
+        val mockAppConfFeatureSwitch: AppConfig = new AppConfig(mock[ServicesConfig]){
+          override lazy val defaultTaxYear: Int = 2022
+          override lazy val taxYearErrorFeature = true
+        }
+
+        val authorisedActionFeatureSwitch = new AuthorisedAction(mockAppConfFeatureSwitch,
+          agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
+
+        lazy val featureSwitchController = new UkDividendsAmountController(
+          mockMessagesControllerComponents,
+          authorisedActionFeatureSwitch,
+          app.injector.instanceOf[UkDividendsAmountView],
+          mockAppConfFeatureSwitch
+        )
+
+
+        val invalidTaxYear = 2023
+        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(fakeRequest)
+
+        redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
+
+      }
     }
 
   }

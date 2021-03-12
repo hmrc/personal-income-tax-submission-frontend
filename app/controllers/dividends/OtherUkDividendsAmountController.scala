@@ -18,8 +18,9 @@ package controllers.dividends
 
 import common.SessionValues
 import config.AppConfig
-import controllers.predicates.AuthorisedAction
+import controllers.predicates.{AuthorisedAction, TaxYearFilter}
 import forms.{OtherDividendsAmountForm, PriorOrNewAmountForm}
+
 import javax.inject.Inject
 import models.formatHelpers.PriorOrNewAmountModel
 import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, User}
@@ -36,7 +37,7 @@ class OtherUkDividendsAmountController @Inject()(
                                              authAction: AuthorisedAction,
                                              otherDividendsAmountView: OtherUkDividendsAmountView,
                                              implicit val appConfig: AppConfig
-                                           ) extends FrontendController(cc) with I18nSupport {
+                                           ) extends FrontendController(cc) with I18nSupport with TaxYearFilter{
 
 
 
@@ -71,6 +72,7 @@ class OtherUkDividendsAmountController @Inject()(
       }
     }
 
+    taxYearFilter(taxYear)(
     (dividendsPriorSubmissionSession, checkYourAnswerSession) match {
       case (Some(submission@DividendsPriorSubmission(_, Some(prior))), _) => Ok(view(Left(form(prior)), Some(submission), taxYear))
       case (None, Some(cya)) =>
@@ -81,6 +83,7 @@ class OtherUkDividendsAmountController @Inject()(
       case _ =>
         Ok(view(Right(OtherDividendsAmountForm.otherDividendsAmountForm()), taxYear = taxYear))
     }
+    )
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authAction { implicit user =>

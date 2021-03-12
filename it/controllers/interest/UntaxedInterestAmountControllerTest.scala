@@ -30,7 +30,7 @@ class UntaxedInterestAmountControllerTest extends IntegrationTest {
 
   lazy val frontendAppConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
-  val taxYear = 2021
+  val taxYear: Int = 2022
 
   def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq()): UntaxedInterestAmountController = {
     new UntaxedInterestAmountController(

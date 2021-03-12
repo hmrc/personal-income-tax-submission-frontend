@@ -17,12 +17,12 @@
 package controllers.interest
 
 import java.util.UUID.randomUUID
-
 import common.InterestTaxTypes.UNTAXED
 import common.{InterestTaxTypes, SessionValues}
 import config.AppConfig
-import controllers.predicates.AuthorisedAction
+import controllers.predicates.{AuthorisedAction, TaxYearFilter}
 import forms.UntaxedInterestAmountForm
+
 import javax.inject.Inject
 import models.UntaxedInterestModel
 import models.interest.{InterestAccountModel, InterestCYAModel}
@@ -39,7 +39,7 @@ class UntaxedInterestAmountController @Inject()(
                                                  authAction: AuthorisedAction,
                                                  untaxedInterestAmountView: UntaxedInterestAmountView,
                                                  implicit val appConfig: AppConfig
-                                               ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper {
+                                               ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper with TaxYearFilter {
 
   val untaxedInterestAmountForm: Form[UntaxedInterestModel] = UntaxedInterestAmountForm.untaxedInterestAmountForm()
 
@@ -49,6 +49,7 @@ class UntaxedInterestAmountController @Inject()(
 
     val idMatchesPreviouslySubmittedAccount: Boolean = optionalCyaData.flatMap(_.untaxedUkAccounts.map(_.exists(_.id.contains(id)))).getOrElse(false)
 
+    taxYearFilter(taxYear)(
     if (idMatchesPreviouslySubmittedAccount) {
       Redirect(controllers.interest.routes.ChangeAccountAmountController.show(taxYear, UNTAXED, id))
 
@@ -73,7 +74,8 @@ class UntaxedInterestAmountController @Inject()(
       ))
     } else {
       Redirect(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, randomUUID().toString))
-    }
+      }
+    )
   }
 
   def submit(taxYear: Int, id: String): Action[AnyContent] = authAction { implicit user =>

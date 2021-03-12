@@ -18,7 +18,7 @@ package controllers.interest
 
 import config.AppConfig
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{OK, UNAUTHORIZED}
+import play.api.test.Helpers.{OK, SEE_OTHER, UNAUTHORIZED}
 import uk.gov.hmrc.auth.core._
 import utils.IntegrationTest
 import views.html.interest.TaxedInterestView
@@ -27,9 +27,9 @@ import scala.concurrent.Future
 
 class TaxedInterestControllerTest extends IntegrationTest{
 
-  val taxYear = 2021
-
   lazy val frontendAppConfig: AppConfig = app.injector.instanceOf[AppConfig]
+
+  val taxYear: Int = 2022
 
   def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq()): TaxedInterestController = {
     new TaxedInterestController(
@@ -66,6 +66,7 @@ class TaxedInterestControllerTest extends IntegrationTest{
       }
 
     }
+
   }
 
 }

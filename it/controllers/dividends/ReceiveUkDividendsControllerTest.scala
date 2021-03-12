@@ -27,9 +27,10 @@ import scala.concurrent.Future
 
 class ReceiveUkDividendsControllerTest extends IntegrationTest {
 
-  val taxYear = 2021
-
   lazy val frontendAppConfig: AppConfig = app.injector.instanceOf[AppConfig]
+
+  val taxYear: Int = 2022
+  val invalidTaxYear: Int = 2023
 
   def controller(
                   stubbedRetrieval: Future[_],
@@ -70,6 +71,7 @@ class ReceiveUkDividendsControllerTest extends IntegrationTest {
         result.header.headers("Location") shouldBe "http://localhost:11111/income-through-software/return/iv-uplift"
       }
     }
+
 
   }
 

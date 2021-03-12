@@ -18,10 +18,14 @@ package controllers.interest
 
 import common.InterestTaxTypes.UNTAXED
 import common.SessionValues
+import config.AppConfig
+import controllers.predicates.AuthorisedAction
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.Result
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.play.bootstrap.tools.Stubs.stubMessagesControllerComponents
 import utils.UnitTestWithApp
 import views.html.interest.UntaxedInterestAmountView
 
@@ -34,7 +38,7 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
   lazy val view: UntaxedInterestAmountView = app.injector.instanceOf[UntaxedInterestAmountView]
   lazy val controller = new UntaxedInterestAmountController(mockMessagesControllerComponents, authorisedAction,view, mockAppConfig)
 
-  val taxYear = 2020
+  val taxYear = 2022
   val id = "9563b361-6333-449f-8721-eab2572b3437"
 
   ".show" should {
@@ -86,6 +90,29 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
           ))
 
         status(result) shouldBe SEE_OTHER
+      }
+    }
+
+    "Redirect to the tax year error " when {
+
+      "an invalid tax year has been added to the url" in new TestWithAuth() {
+
+        val mockAppConfFeatureSwitch: AppConfig = new AppConfig(mock[ServicesConfig]){
+          override lazy val defaultTaxYear: Int = 2022
+          override lazy val taxYearErrorFeature = true
+        }
+
+        val authorisedActionFeatureSwitchOn = new AuthorisedAction(mockAppConfFeatureSwitch,
+          agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
+
+        lazy val featureSwitchController = new UntaxedInterestAmountController(mockMessagesControllerComponents,
+          authorisedActionFeatureSwitchOn,view, mockAppConfFeatureSwitch)
+
+        val invalidTaxYear = 2023
+        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear, id)(fakeRequest)
+
+        redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
+
       }
     }
   }

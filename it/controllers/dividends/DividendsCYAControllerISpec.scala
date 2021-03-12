@@ -31,11 +31,11 @@ class DividendsCYAControllerISpec extends IntegrationTest {
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
   val connector: DividendsSubmissionConnector = app.injector.instanceOf[DividendsSubmissionConnector]
 
-  val taxYear = 2020
+  val taxYear = 2022
   val mtdidid = "1234567890"
   val nino = "AA123456A"
 
-  val dividends: Int = 10
+  val dividends: BigDecimal = 10
 
  lazy val dividendsBody: DividendsSubmissionModel = DividendsSubmissionModel(
    Some(dividends),
@@ -54,7 +54,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
 
         lazy val result = {
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/2020/dividends/check-your-answers")
+          await(wsClient.url(s"$startUrl/$taxYear/dividends/check-your-answers")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .get())
         }
@@ -68,10 +68,10 @@ class DividendsCYAControllerISpec extends IntegrationTest {
       "there is no CYA data in session" which {
         lazy val result = {
           authoriseIndividual()
-          stubGet("/income-through-software/return/2020/view", OK, "<title>Overview Page</title>")
+          stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
 
 
-          await(wsClient.url(s"$startUrl/2020/dividends/check-your-answers")
+          await(wsClient.url(s"$startUrl/$taxYear/dividends/check-your-answers")
             .get())
         }
 
@@ -84,7 +84,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
       "the authorization fails" which {
         lazy val result = {
           authoriseIndividualUnauthorized()
-          stubGet("/income-through-software/return/2020/view", OK, "<title>Overview Page</title>")
+          stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
 
 
           await(wsClient.url(s"$startUrl/2020/dividends/check-your-answers")
@@ -107,12 +107,12 @@ class DividendsCYAControllerISpec extends IntegrationTest {
       s"has an OK($OK) status" in {
 
         val responseBody = DividendsSubmissionModel(
-          Some(10),
-          Some(10))
+          Some(dividends),
+          Some(dividends))
 
         val connector = app.injector.instanceOf[DividendsSubmissionConnector]
-        stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=2020&mtditid=1234567890", 204, "{}")
-        val result = await(connector.submitDividends(responseBody, "AA123456A", "1234567890", 2020))
+        stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear&mtditid=1234567890", NO_CONTENT, "{}")
+        val result = await(connector.submitDividends(responseBody, "AA123456A", "1234567890", taxYear))
 
         result shouldBe Right(DividendsResponseModel(NO_CONTENT))
       }
@@ -120,17 +120,17 @@ class DividendsCYAControllerISpec extends IntegrationTest {
       s"handle no nino is in the enrolments" in {
         lazy val result = {
           authoriseIndividual(false)
-          stubGet("/income-through-software/return/2020/view", OK, "")
+          stubGet(s"/income-through-software/return/$taxYear/view", OK, "")
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
             SessionValues.DIVIDENDS_CYA -> Json.prettyPrint(Json.toJson(DividendsCheckYourAnswersModel(
               ukDividends = Some(true),
-              Some(10),
+              Some(dividends),
               otherUkDividends = Some(true),
-              Some(10)
+              Some(dividends)
             ))),
           ))
 
-          await(wsClient.url(s"$startUrl/2020/dividends/check-your-answers")
+          await(wsClient.url(s"$startUrl/$taxYear/dividends/check-your-answers")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .post("{}"))
         }
@@ -141,14 +141,14 @@ class DividendsCYAControllerISpec extends IntegrationTest {
       "the authorization fails" in {
         lazy val result = {
           authoriseIndividualUnauthorized()
-          stubGet("/income-through-software/return/2020/view", OK, "")
+          stubGet(s"/income-through-software/return/$taxYear/view", OK, "")
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
             SessionValues.DIVIDENDS_CYA -> Json.prettyPrint(Json.toJson(DividendsCheckYourAnswersModel(ukDividends = Some(true),
-              Some(10),
+              Some(dividends),
               otherUkDividends = Some(true),
-              Some(10)))),
+              Some(dividends)))),
           ))
-          await(wsClient.url(s"$startUrl/2020/dividends/check-your-answers")
+          await(wsClient.url(s"$startUrl/$taxYear/dividends/check-your-answers")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .post("{}"))
         }

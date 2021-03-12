@@ -25,4 +25,5 @@ object SessionValues {
   val INTEREST_PRIOR_SUB = "INTEREST_PRIOR_SUB"
 
   val INTEREST_CYA = "INTEREST_CYA"
+  val TAX_YEAR = "TAX_YEAR"
 }

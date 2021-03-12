@@ -29,6 +29,9 @@ import utils.IntegrationTest
 
 class UntaxedInterestAmountControllerISpec extends IntegrationTest{
 
+  val taxYear: Int = 2022
+  val amount: BigDecimal = 25
+
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
   ".show" should {
@@ -38,7 +41,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest{
       s"has an OK($OK) status" which {
 
         lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 25))),
+          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
           Some(false), None
         )
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
@@ -47,7 +50,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest{
 
         lazy val result = {
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/2020/interest/untaxed-uk-interest-details/UntaxedId")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest-details/UntaxedId")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .get())
         }
@@ -61,10 +64,10 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest{
       "there is no CYA data in session" which {
         lazy val result = {
           authoriseIndividual()
-          stubGet("/income-through-software/return/2020/view", OK, "<title>Overview Page</title>")
+          stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
 
 
-          await(wsClient.url(s"$startUrl/2020/interest/untaxed-uk-interest-details/UntaxedId")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest-details/UntaxedId")
             .get())
         }
 
@@ -77,10 +80,10 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest{
       "the authorization fails" which {
         lazy val result = {
           authoriseIndividualUnauthorized()
-          stubGet("/income-through-software/return/2020/view", OK, "<title>Overview Page</title>")
+          stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
 
 
-          await(wsClient.url(s"$startUrl/2020/interest/untaxed-uk-interest-details/UntaxedId")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest-details/UntaxedId")
             .get())
         }
 
@@ -98,10 +101,10 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest{
       "there is no CYA data in session" which {
         lazy val result = {
           authoriseIndividual()
-          stubGet("/income-through-software/return/2020/view", OK, "<title>Overview Page</title>")
+          stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
 
 
-          await(wsClient.url(s"$startUrl/2020/interest/untaxed-uk-interest-details/UntaxedId")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest-details/UntaxedId")
             .post(Map(UntaxedInterestAmountForm.untaxedAmount -> "67.66",
               UntaxedInterestAmountForm.untaxedAccountName -> "Santander")))
         }
@@ -113,7 +116,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest{
       s"there is form data" which {
 
         lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 25))),
+          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
           Some(false), None
         )
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
@@ -122,7 +125,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest{
 
         lazy val result = {
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/2020/interest/untaxed-uk-interest-details/UntaxedId")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest-details/UntaxedId")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .post(Map(UntaxedInterestAmountForm.untaxedAmount -> "67.66",
               UntaxedInterestAmountForm.untaxedAccountName -> "Santander")))
@@ -137,7 +140,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest{
       s"there is no form data" which {
 
         lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 25))),
+          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
           Some(false), None
         )
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
@@ -146,7 +149,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest{
 
         lazy val result = {
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/2020/interest/untaxed-uk-interest-details/UntaxedId")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest-details/UntaxedId")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .post(Map[String, String]()))
         }
@@ -160,7 +163,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest{
       s"return an UNAUTHORIZED($UNAUTHORIZED) status" which {
 
         lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 25))),
+          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
           Some(false), None
         )
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
@@ -169,7 +172,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest{
 
         lazy val result = {
           authoriseIndividualUnauthorized()
-          await(wsClient.url(s"$startUrl/2020/interest/untaxed-uk-interest-details/UntaxedId")
+          await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest-details/UntaxedId")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .post(Map[String, String]()))
         }

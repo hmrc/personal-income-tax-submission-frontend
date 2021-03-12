@@ -18,7 +18,7 @@ package controllers.dividends
 
 import common.SessionValues
 import config.AppConfig
-import controllers.predicates.AuthorisedAction
+import controllers.predicates.{AuthorisedAction, TaxYearFilter}
 import forms.YesNoForm
 
 import javax.inject.Inject
@@ -35,17 +35,19 @@ class ReceiveUkDividendsController @Inject()(
                                               authAction: AuthorisedAction,
                                               receiveUkDividendsView: ReceiveUkDividendsView,
                                               implicit val appConfig: AppConfig
-                                            ) extends FrontendController(cc) with I18nSupport with SessionHelper {
+                                            ) extends FrontendController(cc) with I18nSupport with SessionHelper with TaxYearFilter {
 
   val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("dividends.uk-dividends.errors.noChoice")
 
   def show(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
+    taxYearFilter(taxYear)(
     DividendsPriorSubmission.fromSession() match {
       case Some(prior) if prior.ukDividends.nonEmpty => Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))
       case _ =>
         val cyaData: Option[Boolean] = getModelFromSession[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA).flatMap(_.ukDividends)
         Ok(receiveUkDividendsView(cyaData.fold(yesNoForm)(yesNoForm.fill), taxYear))
     }
+    )
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authAction { implicit user =>

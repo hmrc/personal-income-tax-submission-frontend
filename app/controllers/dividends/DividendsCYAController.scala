@@ -19,7 +19,7 @@ package controllers.dividends
 import audit.{AuditModel, AuditService, CreateOrAmendDividendsAuditDetail}
 import common.SessionValues
 import config.{AppConfig, ErrorHandler}
-import controllers.predicates.AuthorisedAction
+import controllers.predicates.{AuthorisedAction, TaxYearFilter}
 import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, DividendsResponseModel, User}
 import play.api.Logger
 import play.api.i18n.I18nSupport
@@ -44,7 +44,7 @@ class DividendsCYAController @Inject()(
                                       )
                                       (
                                         implicit appConfig: AppConfig
-                                      ) extends FrontendController(mcc) with I18nSupport {
+                                      ) extends FrontendController(mcc) with I18nSupport with TaxYearFilter{
 
   lazy val logger: Logger = Logger(this.getClass.getName)
   implicit val executionContext: ExecutionContext = mcc.executionContext
@@ -53,6 +53,8 @@ class DividendsCYAController @Inject()(
   def show(taxYear: Int): Action[AnyContent] = authorisedAction { implicit user =>
     val priorSubmissionData: Option[DividendsPriorSubmission] = getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
     val cyaSessionData: Option[DividendsCheckYourAnswersModel] = getCya()
+
+    taxYearFilter(taxYear)(
     (cyaSessionData, priorSubmissionData) match {
       case (Some(cyaData), Some(priorData)) =>
         val ukDividendsExist = cyaData.ukDividends.getOrElse(priorData.ukDividends.nonEmpty)
@@ -84,7 +86,7 @@ class DividendsCYAController @Inject()(
         logger.info("[DividendsCYAController][show] No Check Your Answers data or Prior Submission data. Redirecting to overview.")
         Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
     }
-
+    )
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit user =>

@@ -53,7 +53,7 @@
         serviceName = Some(messages("service.name")),
         serviceUrl = Some(appConfig.incomeTaxSubmissionStartUrl(taxYear.getOrElse(appConfig.defaultTaxYear))),
         signOutUrl = if(showSignOut) Some(controllers.routes.SignOutController.signOut().url) else None
-    ))
+    )
 }
 
 @content = {

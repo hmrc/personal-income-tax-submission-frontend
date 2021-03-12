@@ -28,9 +28,9 @@ import scala.concurrent.Future
 
 class TaxedInterestAmountControllerTest extends IntegrationTest {
 
-  val taxYear = 2021
-
   lazy val frontendAppConfig: AppConfig = app.injector.instanceOf[AppConfig]
+
+  val taxYear: Int = 2022
 
   def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq()): TaxedInterestAmountController = {
     new TaxedInterestAmountController(

@@ -32,9 +32,10 @@ import scala.concurrent.Future
 
 class InterestCYAControllerTest extends IntegrationTest {
 
-  val taxYear = 2021
-
   lazy val frontendAppConfig: AppConfig = app.injector.instanceOf[AppConfig]
+
+  val taxYear: Int = 2022
+  val amount: BigDecimal = 25
 
   def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq()): InterestCYAController = {
     new InterestCYAController(
@@ -53,13 +54,12 @@ class InterestCYAControllerTest extends IntegrationTest {
 
       "all auth requirements are met" in {
         lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 25.00))),
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25.00)))
+          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
         )
 
-        val result = await(controller(successfulRetrieval).show(taxYear)(
-          FakeRequest().withSession(SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))))
-        )
+        val result = await(controller(successfulRetrieval).show(taxYear)
+        (FakeRequest().withSession(SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)))))
 
         result.header.status shouldBe OK
       }
@@ -83,6 +83,7 @@ class InterestCYAControllerTest extends IntegrationTest {
         result.header.headers("Location") shouldBe "http://localhost:11111/income-through-software/return/iv-uplift"
       }
     }
+
   }
 
 }

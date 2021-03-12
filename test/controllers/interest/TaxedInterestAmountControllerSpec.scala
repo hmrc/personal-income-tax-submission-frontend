@@ -18,10 +18,14 @@ package controllers.interest
 
 import common.InterestTaxTypes._
 import common.SessionValues
+import config.AppConfig
+import controllers.predicates.AuthorisedAction
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.Result
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.play.bootstrap.tools.Stubs.stubMessagesControllerComponents
 import utils.UnitTestWithApp
 import views.html.interest.TaxedInterestAmountView
 
@@ -34,7 +38,7 @@ class TaxedInterestAmountControllerSpec extends UnitTestWithApp {
   lazy val controller = new TaxedInterestAmountController(mockMessagesControllerComponents,
     authorisedAction, app.injector.instanceOf[TaxedInterestAmountView])(mockAppConfig)
 
-  val taxYear = 2020
+  val taxYear = 2022
   val id = "9563b361-6333-449f-8721-eab2572b3437"
 
   ".show" should {
@@ -72,7 +76,8 @@ class TaxedInterestAmountControllerSpec extends UnitTestWithApp {
           ))
 
         status(result) shouldBe SEE_OTHER
-        redirectUrl(result) should include(controllers.interest.routes.TaxedInterestAmountController.show(taxYear,"9563b361-6333-449f-8721-eab2572b3437").url.dropRight(36))
+        redirectUrl(result) should include(controllers.interest.routes
+          .TaxedInterestAmountController.show(taxYear,"9563b361-6333-449f-8721-eab2572b3437").url.dropRight(36))
 
       }
       "modifying previous submitted data, with CYA data" in new TestWithAuth {
@@ -91,6 +96,29 @@ class TaxedInterestAmountControllerSpec extends UnitTestWithApp {
 
       }
 
+    }
+
+    "Redirect to the tax year error " when {
+
+      "an invalid tax year has been added to the url" in new TestWithAuth() {
+
+        val mockAppConfFeatureSwitch: AppConfig = new AppConfig(mock[ServicesConfig]){
+          override lazy val defaultTaxYear: Int = 2022
+          override lazy val taxYearErrorFeature = true
+        }
+
+        val authorisedActionFeatureSwitch = new AuthorisedAction(mockAppConfFeatureSwitch,
+          agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
+
+        lazy val featureSwitchController = new TaxedInterestAmountController(mockMessagesControllerComponents,
+          authorisedActionFeatureSwitch, app.injector.instanceOf[TaxedInterestAmountView])(mockAppConfFeatureSwitch)
+
+        val invalidTaxYear = 2023
+        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear, id)(fakeRequest)
+
+        redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
+
+      }
     }
 
   }

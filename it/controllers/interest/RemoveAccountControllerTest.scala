@@ -30,9 +30,10 @@ import scala.concurrent.Future
 
 class RemoveAccountControllerTest extends IntegrationTest {
 
-  val taxYear = 2021
-
   lazy val frontendAppConfig: AppConfig = app.injector.instanceOf[AppConfig]
+
+  val taxYear: Int = 2022
+  val amount: BigDecimal = 25
 
   def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq()): RemoveAccountController = {
     new RemoveAccountController(
@@ -48,8 +49,8 @@ class RemoveAccountControllerTest extends IntegrationTest {
 
       "all auth requirements are met" in {
         lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 25.00))),
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25.00)))
+          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
+          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
         )
 
         val result = await(controller(successfulRetrieval).show(taxYear, InterestTaxTypes.TAXED, "TaxedId")

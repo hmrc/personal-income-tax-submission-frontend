@@ -46,5 +46,21 @@ class SessionExpiredControllerSpec extends UnitTestWithApp with DefaultAwaitTime
       charset(result) shouldBe Some("utf-8")
     }
 
+    "timeout() is called with a tax year key it" should {
+
+      val request = FakeRequest("GET", "/sign-out")
+
+      val responseF = controller.timeout()(request.withSession("TAX_YEAR" -> "2022"))
+
+      "return status code OK" in {
+        status(responseF) shouldBe OK
+      }
+
+      "return HTML" in {
+        contentType(responseF) shouldBe Some("text/html")
+        charset(responseF) shouldBe Some("utf-8")
+      }
+    }
+
   }
 }
