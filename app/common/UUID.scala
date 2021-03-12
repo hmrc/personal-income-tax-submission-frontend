@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package config
+package common
 
-import com.google.inject.AbstractModule
-import common.UUID
+trait UUID {
+  def randomUUID: String
+}
 
-class Modules extends AbstractModule {
-
-
-  override def configure(): Unit = {
-    bind(classOf[AppConfig]).asEagerSingleton()
-    bind(classOf[UUID]).toInstance(UUID())
+object UUID {
+  def apply(): UUID = new UUID {
+    override def randomUUID: String = java.util.UUID.randomUUID().toString
   }
-
 }

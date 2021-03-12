@@ -18,6 +18,7 @@ package utils
 
 import models.User
 import org.jsoup.nodes.{Document, Element}
+import org.jsoup.select.Elements
 import org.scalatest.Assertion
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Messages, MessagesApi}
@@ -35,6 +36,10 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
 
   val serviceName = "Update and submit an Income Tax Return"
   val govUkExtension = "GOV.UK"
+
+  def elements(selector: String)(implicit document: Document): Elements = {
+    document.select(selector)
+  }
 
   def elementText(selector: String)(implicit document: Document): String = {
     document.select(selector).text()

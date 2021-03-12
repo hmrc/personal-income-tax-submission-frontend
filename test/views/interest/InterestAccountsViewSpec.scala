@@ -16,6 +16,7 @@
 
 package views.interest
 
+import forms.YesNoForm
 import models.interest.InterestAccountModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -32,12 +33,22 @@ class InterestAccountsViewSpec extends ViewTest {
   val TAXED = "taxed"
   val UNTAXED = "untaxed"
 
-  val accountRow: Int => String = rowNumber => s".govuk-summary-list__row:nth-child($rowNumber)"
-  val accountRowName: Int => String = rowNumber => accountRow(rowNumber) + " > dd:nth-child(1)"
-  val accountRowChange: Int => String = rowNumber => accountRow(rowNumber) + " > dd:nth-child(2) > a"
-  val accountRowRemove: Int => String = rowNumber => accountRow(rowNumber) + " > dd:nth-child(3)"
+  private val untaxedYesNoForm =
+    YesNoForm.yesNoForm("Select yes if you received untaxed interest from the UK").bind(Map("value" -> "true"))
+  private val taxedYesNoForm =
+    YesNoForm.yesNoForm("Select yes if you received taxed interest from the UK").bind(Map("value" -> "true"))
+
+  val accountRow: Int => String = rowNumber => s".govuk-form-group > ul > li:nth-child($rowNumber)"
+  val accountRowName: Int => String = rowNumber => accountRow(rowNumber) + " > span:nth-child(1)"
+  val accountRowChange: Int => String = rowNumber => accountRow(rowNumber) + " > span:nth-child(2) > a"
+  val accountRowChangeHidden: Int => String = rowNumber => accountRow(rowNumber) + " > span:nth-child(2) > a > span.govuk-visually-hidden"
+  val accountRowRemove: Int => String = rowNumber => accountRow(rowNumber) + " > span:nth-child(3) > a"
+  val accountRowRemoveHidden: Int => String = rowNumber => accountRow(rowNumber) + " > span:nth-child(3) > a > span.govuk-visually-hidden"
+
+  val accountRowChangePriorSubmission: Int => String = rowNumber => accountRow(rowNumber) + " > span:nth-child(3) > a"
+  val accountRowChangePriorSubmissionHidden: Int => String = rowNumber => accountRow(rowNumber) + " > span:nth-child(3) > a > span.govuk-visually-hidden"
+
   val captionSelector = ".govuk-caption-l"
-  val accountRowChangePriorSubmission: Int => String = rowNumber => accountRow(rowNumber) + " > dd:nth-child(3) > a"
   val continueSelector = "#continue"
 
   val changeUntaxedHref = "/income-through-software/return/personal-income/2020/interest/untaxed-uk-interest-details/qwerty"
@@ -60,14 +71,13 @@ class InterestAccountsViewSpec extends ViewTest {
   val removeText = "Remove"
   val addAnotherAccountText = "Add another account"
   val continueText = "Continue"
+  val errorTitleText: String => String = (titleText: String) => s"Error: $titleText"
 
   "InterestAccountsView when untaxed" should {
-
     "render with 1 row" when {
 
       "there is a single untaxed account passed in that is not a prior submission" which {
-
-        lazy val result = view(taxYear, Seq(
+        lazy val result = view(untaxedYesNoForm, taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9001.00, Some("qwerty"))
         ), UNTAXED)
         implicit val document: Document = Jsoup.parse(result.body)
@@ -76,14 +86,30 @@ class InterestAccountsViewSpec extends ViewTest {
         textOnPageCheck(captionText, captionSelector)
         h1Check(untaxedH1Singular)
         textOnPageCheck( "Bank of UK", accountRowName(1))
-        linkCheck(changeText, accountRowChange(1),changeUntaxedHref)
+
+        "has a link for changing the account" which {
+          "has the correct text" in {
+            element(accountRowChange(1)).child(0).text shouldBe changeText
+          }
+
+          "has the correct hidden text" in {
+            element(accountRowChangeHidden(1)).text shouldBe s"$changeText Bank of UK account details"
+          }
+
+          "has the correct link" in {
+            element(accountRowChange(1)).attr("href") shouldBe changeUntaxedHref
+          }
+        }
 
         "has a link for removing the account" which {
           s"has the text $removeText" in {
-            document.select(accountRowRemove(1)).text() shouldBe removeText
+            element(accountRowRemove(1)).child(0).text() shouldBe removeText
           }
-          s"has the href '$removeUntaxedHref'" in {
-            document.select(accountRowRemove(1) + " > a").attr("href") shouldBe removeUntaxedHref
+          s"has the correct hidden text" in {
+            element(accountRowRemoveHidden(1)).text shouldBe s"$removeText Bank of UK account"
+          }
+          s"has the correct link" in {
+            element(accountRowRemove(1)).attr("href") shouldBe removeUntaxedHref
           }
         }
 
@@ -92,7 +118,7 @@ class InterestAccountsViewSpec extends ViewTest {
 
       "there is a single untaxed account passed in that is a prior submission" which {
 
-        lazy val result = view(taxYear, Seq(
+        lazy val result = view(untaxedYesNoForm, taxYear, Seq(
           InterestAccountModel(Some("azerty"), "Bank of UK", 9001.00)
         ), UNTAXED)
         implicit val document: Document = Jsoup.parse(result.body)
@@ -102,7 +128,64 @@ class InterestAccountsViewSpec extends ViewTest {
         h1Check(untaxedH1Singular)
 
         textOnPageCheck( "Bank of UK", accountRowName(1))
-        linkCheck(changeText, accountRowChangePriorSubmission(1),changePriorUntaxedHref)
+
+        "has a link for changing the account" which {
+          "has the correct text" in {
+            element(accountRowChangePriorSubmission(1)).child(0).text shouldBe changeText
+          }
+          "has the correct hidden text" in {
+            element(accountRowChangePriorSubmissionHidden(1)).text shouldBe s"$changeText Bank of UK account details"
+          }
+          "has the correct link" in {
+            element(accountRowChangePriorSubmission(1)).attr("href") shouldBe changePriorUntaxedHref
+          }
+        }
+
+        buttonCheck(continueText, continueSelector)
+      }
+
+      "the radio button form is not selected" which {
+        val yesNoForm =
+          YesNoForm.yesNoForm("Select yes if you received untaxed interest from the UK").bind(Map("value" -> ""))
+        lazy val result = view(yesNoForm, taxYear, Seq(
+          InterestAccountModel(None, "Bank of UK", 9001.00, Some("qwerty"))
+        ), UNTAXED)
+        implicit val document: Document = Jsoup.parse(result.body)
+
+        textOnPageCheck(captionText, captionSelector)
+        h1Check(untaxedH1Singular)
+        textOnPageCheck( "Bank of UK", accountRowName(1))
+
+        val expectedErrorText = "Select yes if you received untaxed interest from the UK"
+
+        titleCheck(errorTitleText(untaxedTitleSingle))
+        errorSummaryCheck(expectedErrorText, "#value")
+        errorAboveElementCheck(expectedErrorText)
+
+        "has a link for changing the account" which {
+          "has the correct text" in {
+            element(accountRowChange(1)).child(0).text shouldBe changeText
+          }
+          "has the correct hidden text" in {
+            element(accountRowChangeHidden(1)).text shouldBe s"$changeText Bank of UK account details"
+          }
+          "has the correct link" in {
+            element(accountRowChange(1)).attr("href") shouldBe changeUntaxedHref
+          }
+        }
+
+        "has a link for removing the account" which {
+          s"has the text $removeText" in {
+            element(accountRowRemove(1)).child(0).text() shouldBe removeText
+          }
+          s"has the correct hidden text" in {
+            element(accountRowRemoveHidden(1)).text shouldBe s"$removeText Bank of UK account"
+          }
+          s"has the correct" in {
+            element(accountRowRemove(1)).attr("href") shouldBe removeUntaxedHref
+          }
+        }
+
         buttonCheck(continueText, continueSelector)
       }
     }
@@ -111,7 +194,7 @@ class InterestAccountsViewSpec extends ViewTest {
 
       "there are two accounts passed in, one new account and one prior" which {
 
-        lazy val result = view(taxYear, Seq(
+        lazy val result = view(untaxedYesNoForm, taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9000.01, Some("qwerty")),
           InterestAccountModel(Some("azerty"), "Bank of EU", 1234.56)
         ), UNTAXED)
@@ -122,22 +205,43 @@ class InterestAccountsViewSpec extends ViewTest {
         textOnPageCheck(captionText, captionSelector)
 
         "have an area for the first row" which {
-          textOnPageCheck("Bank of UK", accountRowName(1))
-          linkCheck(changeText, accountRowChange(1), changeUntaxedHref)
+          "has a link for changing the account" which {
+            "has the correct text" in {
+              element(accountRowChange(1)).child(0).text shouldBe changeText
+            }
+            "has the correct hidden text" in {
+              element(accountRowChangeHidden(1)).text shouldBe s"$changeText Bank of UK account details"
+            }
+            "has the correct link" in {
+              element(accountRowChange(1)).attr("href") shouldBe changeUntaxedHref
+            }
+          }
 
           "has a link for removing the account" which {
             s"has the text $removeText" in {
-              document.select(accountRowRemove(1)).text() shouldBe removeText
+              element(accountRowRemove(1)).child(0).text() shouldBe removeText
             }
-            s"has the href '$removeUntaxedHref'" in {
-              document.select(accountRowRemove(1) + " > a").attr("href") shouldBe removeUntaxedHref
+            s"has the correct hidden text" in {
+              element(accountRowRemoveHidden(1)).text shouldBe s"$removeText Bank of UK account"
+            }
+            s"has the correct link" in {
+              element(accountRowRemove(1)).attr("href") shouldBe removeUntaxedHref
             }
           }
         }
 
         "have an area for the second row" which {
-          textOnPageCheck("Bank of EU", accountRowName(2))
-          linkCheck(changeText, accountRowChangePriorSubmission(2), changePriorUntaxedHref)
+          "has a link for changing the account" which {
+            "has the correct text" in {
+              element(accountRowChangePriorSubmission(2)).child(0).text shouldBe changeText
+            }
+            "has the correct hidden text" in {
+              element(accountRowChangePriorSubmissionHidden(2)).text shouldBe s"$changeText Bank of EU account details"
+            }
+            "has the correct link" in {
+              element(accountRowChangePriorSubmission(2)).attr("href") shouldBe changePriorUntaxedHref
+            }
+          }
         }
         buttonCheck(continueText, continueSelector)
       }
@@ -150,7 +254,7 @@ class InterestAccountsViewSpec extends ViewTest {
 
       "there is a single taxed account passed in that is not a prior submission" which {
 
-        lazy val result = view(taxYear, Seq(
+        lazy val result = view(taxedYesNoForm, taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9001.00, Some("qwerty"))
         ), TAXED)
         implicit val document: Document = Jsoup.parse(result.body)
@@ -159,14 +263,28 @@ class InterestAccountsViewSpec extends ViewTest {
         textOnPageCheck(captionText, captionSelector)
         h1Check(taxedH1Singular)
         textOnPageCheck( "Bank of UK", accountRowName(1))
-        linkCheck(changeText, accountRowChange(1), changeTaxedHref)
+
+        "has a link for changing the account" which {
+          "has the correct text" in {
+            element(accountRowChange(1)).child(0).text shouldBe changeText
+          }
+          "has the correct hidden text" in {
+            element(accountRowChangeHidden(1)).text shouldBe s"$changeText Bank of UK account details"
+          }
+          "has the correct link" in {
+            element(accountRowChange(1)).attr("href") shouldBe changeTaxedHref
+          }
+        }
 
         "has a link for removing the account" which {
           s"has the text $removeText" in {
-            document.select(accountRowRemove(1)).text() shouldBe removeText
+            element(accountRowRemove(1)).child(0).text() shouldBe removeText
           }
-         s"has the href '$removeTaxedHref'" in {
-            document.select(accountRowRemove(1) + " > a").attr("href") shouldBe removeTaxedHref
+          s"has the correct hidden text" in {
+            element(accountRowRemoveHidden(1)).text shouldBe s"$removeText Bank of UK account"
+          }
+          s"has the correct link" in {
+            element(accountRowRemove(1)).attr("href") shouldBe removeTaxedHref
           }
         }
 
@@ -175,7 +293,7 @@ class InterestAccountsViewSpec extends ViewTest {
 
       "there is a single taxed account passed in that is a prior submission" which {
 
-        lazy val result = view(taxYear, Seq(
+        lazy val result = view(taxedYesNoForm, taxYear, Seq(
           InterestAccountModel(Some("azerty"), "Bank of UK", 9001.00)
         ), TAXED)
         implicit val document: Document = Jsoup.parse(result.body)
@@ -184,8 +302,18 @@ class InterestAccountsViewSpec extends ViewTest {
         textOnPageCheck(captionText, captionSelector)
         h1Check(taxedH1Singular)
 
-        textOnPageCheck( "Bank of UK", accountRowName(1))
-        linkCheck(changeText, accountRowChangePriorSubmission(1), changePriorTaxedHref)
+        "has a link for changing the account" which {
+          "has the correct text" in {
+            element(accountRowChangePriorSubmission(1)).child(0).text shouldBe changeText
+          }
+          "has the correct hidden text" in {
+            element(accountRowChangePriorSubmissionHidden(1)).text shouldBe s"$changeText Bank of UK account details"
+          }
+          "has the correct link" in {
+            element(accountRowChangePriorSubmission(1)).attr("href") shouldBe changePriorTaxedHref
+          }
+        }
+
         buttonCheck(continueText, continueSelector)
       }
     }
@@ -193,8 +321,7 @@ class InterestAccountsViewSpec extends ViewTest {
     "render with 2 rows" when {
 
       "there are two accounts passed in, one new account and one prior" which {
-
-        lazy val result = view(taxYear, Seq(
+        lazy val result = view(taxedYesNoForm, taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9000.01, Some("qwerty")),
           InterestAccountModel(Some("azerty"), "Bank of EU", 1234.56)
         ), TAXED)
@@ -205,22 +332,44 @@ class InterestAccountsViewSpec extends ViewTest {
         textOnPageCheck(captionText, captionSelector)
 
         "have an area for the first row" which {
-          textOnPageCheck("Bank of UK", accountRowName(1))
-          linkCheck(changeText, accountRowChange(1), changeTaxedHref)
+
+          "has a link for changing the account" which {
+            "has the correct text" in {
+              element(accountRowChange(1)).child(0).text shouldBe changeText
+            }
+            "has the correct hidden text" in {
+              element(accountRowChangeHidden(1)).text shouldBe s"$changeText Bank of UK account details"
+            }
+            "has the correct link" in {
+              element(accountRowChange(1)).attr("href") shouldBe changeTaxedHref
+            }
+          }
 
           "has a link for removing the account" which {
             s"has the text $removeText" in {
-              document.select(accountRowRemove(1)).text() shouldBe removeText
+              element(accountRowRemove(1)).child(0).text() shouldBe removeText
             }
-            s"has the href '$removeTaxedHref'" in {
-              document.select(accountRowRemove(1) + " > a").attr("href") shouldBe removeTaxedHref
+            "has the correct hidden text" in {
+              element(accountRowRemoveHidden(1)).text shouldBe s"$removeText Bank of UK account"
+            }
+            s"has the correct link" in {
+              element(accountRowRemove(1)).attr("href") shouldBe removeTaxedHref
             }
           }
         }
 
         "have an area for the second row" which {
-          textOnPageCheck("Bank of EU", accountRowName(2))
-          linkCheck(changeText, accountRowChangePriorSubmission(2), changePriorTaxedHref)
+          "has a link for changing the account" which {
+            "has the correct text" in {
+              element(accountRowChangePriorSubmission(2)).child(0).text shouldBe changeText
+            }
+            "has the correct hidden text" in {
+              element(accountRowChangePriorSubmissionHidden(2)).text shouldBe s"$changeText Bank of EU account details"
+            }
+            "has the correct link" in {
+              element(accountRowChangePriorSubmission(2)).attr("href") shouldBe changePriorTaxedHref
+            }
+          }
         }
         buttonCheck(continueText, continueSelector)
       }

@@ -17,6 +17,7 @@
 package controllers.interest
 
 import common.SessionValues
+import forms.YesNoForm
 import helpers.PlaySessionCookieBaker
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.http.HeaderNames
@@ -28,6 +29,8 @@ import utils.IntegrationTest
 class AccountsControllerISpec extends IntegrationTest{
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
+
+  val yesNoForm = Map(YesNoForm.yesNo -> YesNoForm.no)
 
   ".show with untaxed" should {
 
@@ -149,7 +152,7 @@ class AccountsControllerISpec extends IntegrationTest{
           authoriseIndividual()
           await(wsClient.url(s"$startUrl/2020/interest/untaxed-uk-interest-account-summary")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-            .post("{}"))
+            .post(yesNoForm))
         }
         s"has an OK($OK) status" in {
           result.status shouldBe OK
@@ -162,7 +165,7 @@ class AccountsControllerISpec extends IntegrationTest{
           authoriseIndividual()
           await(wsClient.url(s"$startUrl/2020/interest/untaxed-uk-interest-account-summary")
             .withHttpHeaders("Csrf-Token" -> "nocheck")
-            .post("{}"))
+            .post(yesNoForm))
         }
         s"has an OK($NOT_FOUND) status" in {
           result.status shouldBe NOT_FOUND
@@ -174,7 +177,7 @@ class AccountsControllerISpec extends IntegrationTest{
           authoriseIndividualUnauthorized()
           await(wsClient.url(s"$startUrl/2020/interest/untaxed-uk-interest-account-summary")
             .withHttpHeaders("Csrf-Token" -> "nocheck")
-            .post("{}"))
+            .post(yesNoForm))
         }
         s"has an OK($UNAUTHORIZED) status" in {
           result.status shouldBe UNAUTHORIZED
@@ -201,7 +204,7 @@ class AccountsControllerISpec extends IntegrationTest{
           authoriseIndividual()
           await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest-account-summary")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-            .post("{}"))
+            .post(yesNoForm))
         }
         s"has an OK($OK) status" in {
           result.status shouldBe OK
@@ -210,12 +213,11 @@ class AccountsControllerISpec extends IntegrationTest{
 
       "there is no CYA data in session" which {
 
-
         lazy val result = {
           authoriseIndividual()
           await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest-account-summary")
             .withHttpHeaders("Csrf-Token" -> "nocheck")
-            .post("{}"))
+            .post(yesNoForm))
         }
         s"has an OK($NOT_FOUND) status" in {
           result.status shouldBe NOT_FOUND
@@ -227,7 +229,7 @@ class AccountsControllerISpec extends IntegrationTest{
           authoriseIndividualUnauthorized()
           await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest-account-summary")
             .withHttpHeaders("Csrf-Token" -> "nocheck")
-            .post("{}"))
+            .post(yesNoForm))
         }
         s"has an OK($UNAUTHORIZED) status" in {
           result.status shouldBe UNAUTHORIZED
