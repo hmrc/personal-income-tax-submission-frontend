@@ -33,7 +33,6 @@ class RemoveAccountControllerTest extends IntegrationTest {
   lazy val frontendAppConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
   val taxYear: Int = 2022
-  val invalidTaxYear: Int = 2023
   val amount: BigDecimal = 25
 
   def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq()): RemoveAccountController = {
@@ -81,14 +80,6 @@ class RemoveAccountControllerTest extends IntegrationTest {
         result.header.status shouldBe SEE_OTHER
         result.header.headers("Location") shouldBe "http://localhost:11111/income-through-software/return/iv-uplift"
       }
-    }
-
-    "Redirect when an invalid tax year has been added to the url" in {
-
-      val result = await(controller(successfulRetrieval).show(invalidTaxYear, "taxed", "TaxedId")
-      (FakeRequest()))
-
-      result.header.status shouldBe SEE_OTHER
     }
   }
 

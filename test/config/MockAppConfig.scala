@@ -31,6 +31,7 @@ class MockAppConfig extends MockFactory {
     override lazy val defaultTaxYear: Int = 2022
 
     override def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = "/overview"
+
     override def incomeTaxSubmissionStartUrl(taxYear: Int): String = "/start"
 
     override lazy val feedbackSurveyUrl: String = "/feedbackUrl"
@@ -43,6 +44,8 @@ class MockAppConfig extends MockFactory {
 
     override lazy val timeoutDialogTimeout: Int = 900
     override lazy val timeoutDialogCountdown: Int = 120
+
+    override lazy val taxYearErrorFeature: Boolean = false
   }
 }
 

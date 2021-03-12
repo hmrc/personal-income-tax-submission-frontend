@@ -72,13 +72,6 @@ class ReceiveOtherUkDividendsControllerTest extends IntegrationTest {
 
     }
 
-    "Redirect when an invalid tax year has been added to the url" in {
-
-      val result = await(controller(successfulRetrieval).show(invalidTaxYear)(FakeRequest()))
-
-      result.header.status shouldBe SEE_OTHER
-    }
-
   }
 
 }

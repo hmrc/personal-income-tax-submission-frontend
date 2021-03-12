@@ -18,7 +18,8 @@ package controllers.interest
 
 import audit.{AuditModel, CreateOrAmendInterestAuditDetail}
 import common.{InterestTaxTypes, SessionValues}
-import config.{ErrorHandler, MockAuditService}
+import config.{AppConfig, ErrorHandler, MockAuditService}
+import controllers.predicates.AuthorisedAction
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
 import models.{ApiErrorBodyModel, ApiErrorModel}
 import org.jsoup.Jsoup
@@ -33,6 +34,8 @@ import play.api.test.FakeRequest
 import services.InterestSubmissionService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.play.bootstrap.tools.Stubs.stubMessagesControllerComponents
 import utils.UnitTestWithApp
 import views.html.interest.InterestCYAView
 import views.html.templates.{InternalServerErrorTemplate, ServiceUnavailableTemplate}
@@ -194,8 +197,25 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
 
       "an invalid tax year has been added to the url" in new TestWithAuth() {
 
+        val mockAppConfFeatureSwitch: AppConfig = new AppConfig(mock[ServicesConfig]){
+          override lazy val defaultTaxYear: Int = 2022
+          override lazy val taxYearErrorFeature = true
+        }
+
+        val authorisedActionFeatureSwitch = new AuthorisedAction(mockAppConfFeatureSwitch,
+          agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
+
+        lazy val featureSwitchController: InterestCYAController = new InterestCYAController(
+          mockMessagesControllerComponents,
+          authorisedActionFeatureSwitch,
+          view,
+          submissionService,
+          mockAuditService,
+          errorHandler
+        )(mockAppConfFeatureSwitch)
+
         val invalidTaxYear = 2023
-        lazy val result: Future[Result] = controller.show(invalidTaxYear)(fakeRequest)
+        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(fakeRequest)
 
         redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
 

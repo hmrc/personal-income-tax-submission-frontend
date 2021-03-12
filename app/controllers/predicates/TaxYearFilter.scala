@@ -16,6 +16,7 @@
 
 package controllers.predicates
 
+import common.SessionValues
 import config.AppConfig
 import play.api.Logger.logger
 import play.api.mvc.{Request, Result}
@@ -30,23 +31,36 @@ trait TaxYearFilter {
 
     val config = appConfig.defaultTaxYear
 
-    if(taxYear == config){
+    if (!appConfig.taxYearErrorFeature) {
+
       f
+
     } else {
-      logger.info(s"Invalid tax year, adding default tax year to session")
-      Future.successful(Redirect(controllers.routes.TaxYearErrorController.show()).addingToSession("TAX_YEAR" -> config.toString))
+
+      if (taxYear == config) {
+        f
+      } else {
+        logger.info(s"Invalid tax year, adding default tax year to session")
+        Future.successful(Redirect(controllers.routes.TaxYearErrorController.show()).addingToSession(SessionValues.TAX_YEAR -> config.toString))
+      }
     }
   }
-
   private[controllers] def taxYearFilter(taxYear: Int)(f: => Result)(implicit request: Request[_], appConfig: AppConfig): Result = {
 
     val config = appConfig.defaultTaxYear
 
-    if(taxYear == config){
+    if (!appConfig.taxYearErrorFeature) {
+
       f
+
     } else {
-      logger.info(s"Invalid tax year, adding default tax year to session")
-      Redirect(controllers.routes.TaxYearErrorController.show()).addingToSession("TAX_YEAR" -> config.toString)
+
+      if (taxYear == config) {
+        f
+      } else {
+        logger.info(s"Invalid tax year, adding default tax year to session")
+        Redirect(controllers.routes.TaxYearErrorController.show()).addingToSession(SessionValues.TAX_YEAR -> config.toString)
+      }
     }
   }
 }

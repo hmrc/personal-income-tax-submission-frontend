@@ -30,7 +30,6 @@ class UntaxedInterestControllerTest extends IntegrationTest{
   lazy val frontendAppConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
   val taxYear: Int = 2022
-  val invalidTaxYear: Int = 2023
 
   def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq()): UntaxedInterestController = {
     new UntaxedInterestController(
@@ -66,13 +65,6 @@ class UntaxedInterestControllerTest extends IntegrationTest{
         result.header.status shouldBe UNAUTHORIZED
       }
 
-      "Redirect when an invalid tax year has been added to the url" in {
-
-        val result = await(controller(successfulRetrieval).show(invalidTaxYear)
-        (FakeRequest()))
-
-        result.header.status shouldBe SEE_OTHER
-      }
     }
   }
 

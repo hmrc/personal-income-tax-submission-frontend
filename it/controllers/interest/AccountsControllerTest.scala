@@ -33,7 +33,6 @@ class AccountsControllerTest extends IntegrationTest {
   lazy val frontendAppConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
   val taxYear: Int = 2022
-  val invalidTaxYear: Int = 2023
   val amount: BigDecimal = 25
 
   def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq()): AccountsController = {
@@ -82,17 +81,6 @@ class AccountsControllerTest extends IntegrationTest {
       }
     }
 
-    "Redirect when an invalid tax year has been added to the url" in {
-      lazy val interestCYA = InterestCYAModel(
-        Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-        Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
-      )
-
-      val result = await(controller(successfulRetrieval).show(invalidTaxYear, "untaxed")
-      (FakeRequest().withSession(SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)))))
-
-      result.header.status shouldBe SEE_OTHER
-    }
   }
 
 }

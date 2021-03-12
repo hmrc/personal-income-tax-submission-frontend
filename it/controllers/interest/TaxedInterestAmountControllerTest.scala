@@ -31,7 +31,6 @@ class TaxedInterestAmountControllerTest extends IntegrationTest {
   lazy val frontendAppConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
   val taxYear: Int = 2022
-  val invalidTaxYear: Int = 2023
 
   def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq()): TaxedInterestAmountController = {
     new TaxedInterestAmountController(
@@ -75,13 +74,6 @@ class TaxedInterestAmountControllerTest extends IntegrationTest {
         result.header.headers("Location") shouldBe "http://localhost:11111/income-through-software/return/iv-uplift"
       }
 
-    }
-
-    "Redirect when an invalid tax year has been added to the url" in {
-      lazy val uuid = randomUUID().toString
-      val result = await(controller(successfulRetrieval).show(invalidTaxYear, uuid)(FakeRequest()))
-
-      result.header.status shouldBe SEE_OTHER
     }
 
   }

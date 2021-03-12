@@ -18,10 +18,15 @@ package controllers.interest
 
 import common.{SessionValues, UUID}
 import forms.YesNoForm
+import common.SessionValues
+import config.AppConfig
+import controllers.predicates.AuthorisedAction
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.mvc.{AnyContentAsFormUrlEncoded, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.play.bootstrap.tools.Stubs.stubMessagesControllerComponents
 import utils.UnitTestWithApp
 import views.html.interest.InterestAccountsView
 
@@ -156,8 +161,20 @@ class AccountsControllerSpec extends UnitTestWithApp {
 
       "an invalid tax year has been added to the url" in new TestWithAuth() {
 
+        val mockAppConfFeatureSwitch: AppConfig = new AppConfig(mock[ServicesConfig]){
+          override lazy val defaultTaxYear: Int = 2022
+          override lazy val taxYearErrorFeature = true
+        }
+
+        val authorisedActionFeatureSwitch = new AuthorisedAction(mockAppConfFeatureSwitch,
+          agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
+
+        lazy val featureSwitchController = new AccountsController(stubMessagesControllerComponents(),
+          app.injector.instanceOf[InterestAccountsView], authorisedActionFeatureSwitch, uuidGenerator)(mockAppConfFeatureSwitch)
+
+
         val invalidTaxYear = 2023
-        lazy val result: Future[Result] = controller.show(invalidTaxYear, TAXED)(fakeRequest)
+        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear, TAXED)(fakeRequest)
 
         redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
 

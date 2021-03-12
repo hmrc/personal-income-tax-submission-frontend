@@ -33,7 +33,6 @@ class ChangeAccountAmountControllerTest extends IntegrationTest{
   lazy val frontendAppConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
   val taxYear: Int = 2022
-  val invalidTaxYear: Int = 2023
   val amount: BigDecimal = 25
 
   def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq()): ChangeAccountAmountController = {
@@ -122,28 +121,6 @@ class ChangeAccountAmountControllerTest extends IntegrationTest{
         result.header.headers("Location") shouldBe "http://localhost:11111/income-through-software/return/iv-uplift"
       }
 
-    }
-    "Redirect when an invalid tax year has been added to the url" in {
-
-      lazy val interestCYA = InterestCYAModel(
-        Some(false), None,
-        Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
-      )
-      lazy val priorSub = Json.arr(
-        Json.obj(
-          "accountName" -> "Taxed Account",
-          "incomeSourceId" -> "TaxedId",
-          "taxedUkInterest" -> 25
-        )
-      )
-
-      val result = await(controller(successfulRetrieval).show(invalidTaxYear, "taxed", "TaxedId")
-      (FakeRequest().withSession(
-        (SessionValues.INTEREST_CYA, Json.prettyPrint(Json.toJson(interestCYA))),
-        (SessionValues.INTEREST_PRIOR_SUB, priorSub.toString()))
-      ))
-
-      result.header.status shouldBe SEE_OTHER
     }
 
   }
