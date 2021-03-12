@@ -31,36 +31,29 @@ trait TaxYearFilter {
 
     val config = appConfig.defaultTaxYear
 
-    if (!appConfig.taxYearErrorFeature) {
+    if (taxYear == config || !appConfig.taxYearErrorFeature) {
 
       f
 
     } else {
 
-      if (taxYear == config) {
-        f
-      } else {
-        logger.info(s"Invalid tax year, adding default tax year to session")
-        Future.successful(Redirect(controllers.routes.TaxYearErrorController.show()).addingToSession(SessionValues.TAX_YEAR -> config.toString))
-      }
+      logger.info(s"Invalid tax year, adding default tax year to session")
+      Future.successful(Redirect(controllers.routes.TaxYearErrorController.show()).addingToSession(SessionValues.TAX_YEAR -> config.toString))
     }
   }
+
   private[controllers] def taxYearFilter(taxYear: Int)(f: => Result)(implicit request: Request[_], appConfig: AppConfig): Result = {
 
     val config = appConfig.defaultTaxYear
 
-    if (!appConfig.taxYearErrorFeature) {
+    if (taxYear == config || !appConfig.taxYearErrorFeature) {
 
       f
 
-    } else {
-
-      if (taxYear == config) {
-        f
       } else {
+
         logger.info(s"Invalid tax year, adding default tax year to session")
         Redirect(controllers.routes.TaxYearErrorController.show()).addingToSession(SessionValues.TAX_YEAR -> config.toString)
       }
     }
-  }
 }
