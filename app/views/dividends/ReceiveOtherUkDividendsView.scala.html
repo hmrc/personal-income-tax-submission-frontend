@@ -52,12 +52,11 @@
             inline = true,
             subheading = Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString))
         )
-
+        @details("dividends.other-dividends-amount.details.title", detailsHtml)
         @button()
 
     }
 
-    @details("dividends.other-dividends-amount.details.title", detailsHtml)
 }
 
 @hint = {
