@@ -16,14 +16,12 @@
 
 package controllers.interest
 
-import java.util.UUID.randomUUID
 import common.InterestTaxTypes.TAXED
 import common.{InterestTaxTypes, SessionValues}
 import config.AppConfig
-import controllers.predicates.{AuthorisedAction, TaxYearFilter}
+import controllers.predicates.AuthorisedAction
+import controllers.predicates.TaxYearAction.taxYearAction
 import forms.TaxedInterestAmountForm
-
-import javax.inject.Inject
 import models.TaxedInterestModel
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.Logger
@@ -34,27 +32,28 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.InterestSessionHelper
 import views.html.interest.TaxedInterestAmountView
 
+import java.util.UUID.randomUUID
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class TaxedInterestAmountController @Inject()(
-                                               mcc: MessagesControllerComponents,
                                                authorisedAction: AuthorisedAction,
                                                taxedInterestAmountView: TaxedInterestAmountView
                                              )(
-                                               implicit appConfig: AppConfig
-                                             ) extends FrontendController(mcc) with InterestSessionHelper with TaxYearFilter{
+                                               implicit appConfig: AppConfig,
+                                               implicit val mcc: MessagesControllerComponents
+                                             ) extends FrontendController(mcc) with InterestSessionHelper {
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
   implicit val messages: Messages = mcc.messagesApi.preferred(Seq(Lang("en")))
   val taxedInterestAmountForm: Form[TaxedInterestModel] = TaxedInterestAmountForm.taxedInterestAmountForm()
 
-  def show(taxYear: Int, id: String): Action[AnyContent] = authorisedAction { implicit user =>
+  def show(taxYear: Int, id: String): Action[AnyContent] = (authorisedAction andThen taxYearAction(taxYear)) { implicit user =>
 
     val optionalCyaData = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
 
     val idMatchesPreviouslySubmittedAccount: Boolean = optionalCyaData.flatMap(_.taxedUkAccounts.map(_.exists(_.id.contains(id)))).getOrElse(false)
 
-    taxYearFilter(taxYear)(
     if (idMatchesPreviouslySubmittedAccount) {
       Redirect(controllers.interest.routes.ChangeAccountAmountController.show(taxYear, TAXED, id))
 
@@ -80,7 +79,6 @@ class TaxedInterestAmountController @Inject()(
     } else {
       Redirect(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, randomUUID().toString))
     }
-    )
   }
 
   def submit(taxYear: Int, id: String): Action[AnyContent] = authorisedAction { implicit user =>

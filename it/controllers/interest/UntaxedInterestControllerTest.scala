@@ -18,7 +18,7 @@ package controllers.interest
 
 import config.AppConfig
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{OK, SEE_OTHER, UNAUTHORIZED}
+import play.api.test.Helpers.{OK, UNAUTHORIZED}
 import uk.gov.hmrc.auth.core._
 import utils.IntegrationTest
 import views.html.interest.UntaxedInterestView
@@ -33,10 +33,10 @@ class UntaxedInterestControllerTest extends IntegrationTest{
 
   def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq()): UntaxedInterestController = {
     new UntaxedInterestController(
-      mcc,
       authAction(stubbedRetrieval, acceptedConfidenceLevels),
       app.injector.instanceOf[UntaxedInterestView])(
-      frontendAppConfig
+      frontendAppConfig,
+      mcc,
     )
   }
 

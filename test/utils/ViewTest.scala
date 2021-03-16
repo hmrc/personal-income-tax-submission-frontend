@@ -16,23 +16,20 @@
 
 package utils
 
-import models.User
 import org.jsoup.nodes.{Document, Element}
 import org.jsoup.select.Elements
 import org.scalatest.Assertion
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Messages, MessagesApi}
-import play.api.mvc.{AnyContent, Call, MessagesControllerComponents}
-import play.api.test.{FakeRequest, Helpers}
+import play.api.mvc.Call
+import play.api.test.FakeRequest
 
 trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
 
   val testBackUrl = "/test-back-url"
   val testCall: Call = Call("POST", "/test-url")
-  implicit lazy val user: User[AnyContent] = new User[AnyContent]("1234567890", None, "AA123456A")(FakeRequest())
   implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
   implicit lazy val messages: Messages = messagesApi.preferred(FakeRequest())
-  implicit lazy val mockMessagesControllerComponents: MessagesControllerComponents = Helpers.stubMessagesControllerComponents()
 
   val serviceName = "Update and submit an Income Tax Return"
   val govUkExtension = "GOV.UK"

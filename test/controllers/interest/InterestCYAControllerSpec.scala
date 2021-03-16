@@ -51,13 +51,12 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
   val unauthorisedTemplate: InternalServerErrorTemplate = app.injector.instanceOf[InternalServerErrorTemplate]
 
   lazy val controller: InterestCYAController = new InterestCYAController(
-    mockMessagesControllerComponents,
     authorisedAction,
     view,
     submissionService,
     mockAuditService,
     errorHandler
-  )(mockAppConfig)
+  )(mockAppConfig, mockMessagesControllerComponents)
 
   val taxYear: Int = 2022
   val arbitraryAmount: Int = 100
@@ -206,13 +205,12 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
           agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
 
         lazy val featureSwitchController: InterestCYAController = new InterestCYAController(
-          mockMessagesControllerComponents,
           authorisedActionFeatureSwitch,
           view,
           submissionService,
           mockAuditService,
           errorHandler
-        )(mockAppConfFeatureSwitch)
+        )(mockAppConfFeatureSwitch, mockMessagesControllerComponents)
 
         val invalidTaxYear = 2023
         lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(fakeRequest)

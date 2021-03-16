@@ -19,7 +19,8 @@ package controllers.interest
 import common.InterestTaxTypes._
 import common.{SessionValues, UUID}
 import config.AppConfig
-import controllers.predicates.{AuthorisedAction, TaxYearFilter}
+import controllers.predicates.AuthorisedAction
+import controllers.predicates.TaxYearAction.taxYearAction
 import forms.YesNoForm
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.Logger
@@ -35,13 +36,13 @@ import javax.inject.Inject
 import scala.concurrent.Future
 
 class AccountsController @Inject()(
-                                    mcc: MessagesControllerComponents,
                                     view: InterestAccountsView,
                                     authorisedAction: AuthorisedAction,
                                     uuid: UUID
                                   )(
-                                    implicit appConfig: AppConfig
-                                  ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper with TaxYearFilter {
+                                    implicit appConfig: AppConfig,
+                                    implicit val mcc: MessagesControllerComponents
+                                  ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper {
 
   private val logger = Logger.logger
 
@@ -54,12 +55,11 @@ class AccountsController @Inject()(
     }
   }
 
-  def show(taxYear: Int, taxType: String): Action[AnyContent] = authorisedAction.async { implicit user =>
+  def show(taxYear: Int, taxType: String): Action[AnyContent] = (authorisedAction andThen taxYearAction(taxYear)).async { implicit user =>
     def overviewRedirect = Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
 
     val optionalCyaData: Option[InterestCYAModel] = user.session.get(SessionValues.INTEREST_CYA).flatMap(Json.parse(_).asOpt[InterestCYAModel])
 
-    taxYearFilter(taxYear)(
     optionalCyaData match {
       case Some(cyaData) =>
         getTaxAccounts(taxType, cyaData) match {
@@ -70,7 +70,6 @@ class AccountsController @Inject()(
         logger.info("[AccountsController][show] No CYA data in session. Redirecting to the overview page.")
         overviewRedirect
     }
-    )
   }
 
   def submit(taxYear: Int, taxType: String): Action[AnyContent] = authorisedAction.async { implicit user =>

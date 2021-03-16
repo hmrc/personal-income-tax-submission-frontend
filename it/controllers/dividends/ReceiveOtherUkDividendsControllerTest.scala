@@ -33,7 +33,7 @@ class ReceiveOtherUkDividendsControllerTest extends IntegrationTest {
   val invalidTaxYear: Int = 2023
 
   def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq()): ReceiveOtherUkDividendsController =
-    new ReceiveOtherUkDividendsController(
+    new ReceiveOtherUkDividendsController()(
       mcc,
       authAction(stubbedRetrieval, acceptedConfidenceLevels),
       app.injector.instanceOf[ReceiveOtherUkDividendsView],

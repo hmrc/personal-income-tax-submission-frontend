@@ -22,12 +22,13 @@ import com.codahale.metrics.SharedMetricRegistries
 import common.{EnrolmentIdentifiers, EnrolmentKeys, SessionValues}
 import config.{AppConfig, MockAppConfig}
 import controllers.predicates.AuthorisedAction
+import models.User
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.mvc.{AnyContentAsEmpty, ControllerComponents, Result, Session}
+import play.api.mvc.{AnyContent, AnyContentAsEmpty, ControllerComponents, MessagesControllerComponents, Result, Session}
 import play.api.test.{FakeRequest, Helpers}
 import services.AuthService
 import uk.gov.hmrc.auth.core._
@@ -58,7 +59,7 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
 
   def await[T](awaitable: Awaitable[T]): T = Await.result(awaitable, Duration.Inf)
 
-  implicit val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+  val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   val fakeRequestWithMtditidAndNino: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
     SessionValues.CLIENT_MTDITID -> "1234567890",
     SessionValues.CLIENT_NINO -> "A123456A"
@@ -74,6 +75,9 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
   implicit val mockAuthConnector: AuthConnector = mock[AuthConnector]
   implicit val mockAuthService: AuthService = new AuthService(mockAuthConnector)
   val agentAuthErrorPageView: AgentAuthErrorPageView = app.injector.instanceOf[AgentAuthErrorPageView]
+
+  implicit lazy val mockMessagesControllerComponents: MessagesControllerComponents = Helpers.stubMessagesControllerComponents()
+  implicit lazy val user: User[AnyContent] = new User[AnyContent]("1234567890", None, "AA123456A")(fakeRequest)
 
   val authorisedAction = new AuthorisedAction(mockAppConfig, agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
 

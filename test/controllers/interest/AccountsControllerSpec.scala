@@ -44,10 +44,10 @@ class AccountsControllerSpec extends UnitTestWithApp {
   private val uuidGenerator = new UUID { override def randomUUID: String = uuid }
 
   lazy val controller = new AccountsController(
-    stubMessagesControllerComponents(),
     app.injector.instanceOf[InterestAccountsView],
-    authorisedAction,
-    uuidGenerator
+    authorisedAction,uuidGenerator)(
+    mockAppConfig,
+    mockMessagesControllerComponents
   )
 
   lazy val interestCyaModel: InterestCYAModel = InterestCYAModel(
@@ -169,8 +169,8 @@ class AccountsControllerSpec extends UnitTestWithApp {
         val authorisedActionFeatureSwitch = new AuthorisedAction(mockAppConfFeatureSwitch,
           agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
 
-        lazy val featureSwitchController = new AccountsController(stubMessagesControllerComponents(),
-          app.injector.instanceOf[InterestAccountsView], authorisedActionFeatureSwitch, uuidGenerator)(mockAppConfFeatureSwitch)
+        lazy val featureSwitchController = new AccountsController(
+          app.injector.instanceOf[InterestAccountsView], authorisedActionFeatureSwitch, uuidGenerator)(mockAppConfFeatureSwitch, mockMessagesControllerComponents)
 
 
         val invalidTaxYear = 2023

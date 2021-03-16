@@ -37,9 +37,11 @@ class RemoveAccountControllerTest extends IntegrationTest {
 
   def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq()): RemoveAccountController = {
     new RemoveAccountController(
-      mcc,
       app.injector.instanceOf[RemoveAccountView],
       authAction(stubbedRetrieval, acceptedConfidenceLevels)
+    )(
+      frontendAppConfig,
+      mcc
     )
   }
 

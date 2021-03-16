@@ -37,11 +37,12 @@ class AccountsControllerTest extends IntegrationTest {
 
   def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq()): AccountsController = {
     new AccountsController(
-      mcc,
       app.injector.instanceOf[InterestAccountsView],
       authAction(stubbedRetrieval, acceptedConfidenceLevels),
       app.injector.instanceOf[UUID]
-    )
+    )(
+      frontendAppConfig,
+      mcc)
   }
 
   "Hitting the show endpoint" should {

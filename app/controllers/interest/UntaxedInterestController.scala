@@ -18,11 +18,9 @@ package controllers.interest
 
 import common.SessionValues
 import config.AppConfig
-import controllers.predicates.{AuthorisedAction, TaxYearFilter}
+import controllers.predicates.AuthorisedAction
+import controllers.predicates.TaxYearAction.taxYearAction
 import forms.YesNoForm
-
-import javax.inject.Inject
-
 import models.interest.{InterestCYAModel, InterestPriorSubmission}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Lang, Messages}
@@ -31,22 +29,22 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.InterestSessionHelper
 import views.html.interest.UntaxedInterestView
 
-import scala.concurrent.ExecutionContext
 import java.util.UUID.randomUUID
+import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 
 class UntaxedInterestController @Inject()(
-                                           mcc: MessagesControllerComponents,
                                            authAction: AuthorisedAction,
                                            untaxedInterestView: UntaxedInterestView)(
-                                           implicit val appConfig: AppConfig)
-  extends FrontendController(mcc) with I18nSupport with InterestSessionHelper with TaxYearFilter {
+                                           implicit val appConfig: AppConfig,
+                                           implicit val mcc: MessagesControllerComponents)
+  extends FrontendController(mcc) with I18nSupport with InterestSessionHelper {
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
   implicit val messages: Messages = mcc.messagesApi.preferred(Seq(Lang("en")))
   val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("interest.untaxed-uk-interest.errors.noRadioSelected")
 
-  def show(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
-    taxYearFilter(taxYear)(
+  def show(taxYear: Int): Action[AnyContent] = (authAction andThen taxYearAction(taxYear)) { implicit user =>
     InterestPriorSubmission.fromSession() match {
       case Some(prior) if prior.hasUntaxed => Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
       case _ =>
@@ -54,7 +52,6 @@ class UntaxedInterestController @Inject()(
         val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(s"interest.untaxed-uk-interest.errors.noRadioSelected.${if(user.isAgent) "agent" else "individual"}")
         Ok(untaxedInterestView(cyaData.fold(yesNoForm)(yesNoForm.fill), taxYear))
     }
-    )
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authAction { implicit user =>

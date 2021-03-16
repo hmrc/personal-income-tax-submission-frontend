@@ -36,7 +36,7 @@ class ChangeAccountAmountControllerTest extends IntegrationTest{
   val amount: BigDecimal = 25
 
   def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq()): ChangeAccountAmountController = {
-    new ChangeAccountAmountController(
+    new ChangeAccountAmountController()(
       mcc,
       authAction(stubbedRetrieval, acceptedConfidenceLevels),
       app.injector.instanceOf[ChangeAccountAmountView],

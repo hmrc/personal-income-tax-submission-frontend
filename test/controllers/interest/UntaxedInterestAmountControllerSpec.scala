@@ -36,7 +36,7 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
   implicit def wrapOptional[T](input: T): Option[T] = Some(input)
 
   lazy val view: UntaxedInterestAmountView = app.injector.instanceOf[UntaxedInterestAmountView]
-  lazy val controller = new UntaxedInterestAmountController(mockMessagesControllerComponents, authorisedAction,view, mockAppConfig)
+  lazy val controller = new UntaxedInterestAmountController()(mockMessagesControllerComponents, authorisedAction,view, mockAppConfig)
 
   val taxYear = 2022
   val id = "9563b361-6333-449f-8721-eab2572b3437"
@@ -105,7 +105,7 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
         val authorisedActionFeatureSwitchOn = new AuthorisedAction(mockAppConfFeatureSwitch,
           agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
 
-        lazy val featureSwitchController = new UntaxedInterestAmountController(mockMessagesControllerComponents,
+        lazy val featureSwitchController = new UntaxedInterestAmountController()(mockMessagesControllerComponents,
           authorisedActionFeatureSwitchOn,view, mockAppConfFeatureSwitch)
 
         val invalidTaxYear = 2023
