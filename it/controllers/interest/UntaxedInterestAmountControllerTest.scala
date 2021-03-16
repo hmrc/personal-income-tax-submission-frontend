@@ -33,7 +33,7 @@ class UntaxedInterestAmountControllerTest extends IntegrationTest {
   val taxYear: Int = 2022
 
   def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq()): UntaxedInterestAmountController = {
-    new UntaxedInterestAmountController(
+    new UntaxedInterestAmountController()(
       mcc,
       authAction(stubbedRetrieval, acceptedConfidenceLevels),
       app.injector.instanceOf[UntaxedInterestAmountView],

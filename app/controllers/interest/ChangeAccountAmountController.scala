@@ -18,13 +18,12 @@ package controllers.interest
 
 import common.{InterestTaxTypes, SessionValues}
 import config.AppConfig
-import controllers.predicates.{AuthorisedAction, TaxYearFilter}
+import controllers.predicates.AuthorisedAction
+import controllers.predicates.TaxYearAction.taxYearAction
 import forms.PriorOrNewAmountForm
-
-import javax.inject.Inject
+import models.User
 import models.formatHelpers.PriorOrNewAmountModel
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
-import models.User
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.libs.json.{Json, Reads}
@@ -33,12 +32,14 @@ import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.interest.ChangeAccountAmountView
 
+import javax.inject.Inject
+
 class ChangeAccountAmountController @Inject()(
-                                             cc: MessagesControllerComponents,
+                                             implicit val cc: MessagesControllerComponents,
                                              authAction: AuthorisedAction,
                                              changeAccountAmountView: ChangeAccountAmountView,
                                              implicit val appConfig: AppConfig
-                                           ) extends FrontendController(cc) with I18nSupport with TaxYearFilter{
+                                           ) extends FrontendController(cc) with I18nSupport {
 
   def view(
             formInput: Form[PriorOrNewAmountModel],
@@ -56,7 +57,7 @@ class ChangeAccountAmountController @Inject()(
       account = priorSubmission)
   }
 
-  def show(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = authAction { implicit user =>
+  def show(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = (authAction andThen taxYearAction(taxYear)) { implicit user =>
     val interestPriorSubmissionSession = getSessionData[InterestPriorSubmission](SessionValues.INTEREST_PRIOR_SUB)
     val checkYourAnswerSession: Option[InterestCYAModel] = getSessionData[InterestCYAModel](SessionValues.INTEREST_CYA)
 
@@ -67,8 +68,6 @@ class ChangeAccountAmountController @Inject()(
         }
       }
     }
-
-    taxYearFilter(taxYear)(
 
     (singleAccount, checkYourAnswerSession) match {
       case (None, Some(_)) => Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType))
@@ -87,7 +86,6 @@ class ChangeAccountAmountController @Inject()(
         Ok(view(form, accountModel, taxYear, taxType, accountId))
       case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
     }
-    )
   }
 
   def submit(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = authAction { implicit user =>

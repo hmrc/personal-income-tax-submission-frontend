@@ -37,10 +37,9 @@ class RemoveAccountControllerSpec extends UnitTestWithApp{
   implicit def wrapOption[T](input: T): Option[T] = Some(input)
 
   lazy val controller = new RemoveAccountController(
-    mockMessagesControllerComponents,
     app.injector.instanceOf[RemoveAccountView],
     authorisedAction
-  )(mockAppConfig)
+  )(mockAppConfig, mockMessagesControllerComponents)
 
   val taxYear = 2022
   val untaxedId1 = "UntaxedId1"
@@ -230,10 +229,9 @@ class RemoveAccountControllerSpec extends UnitTestWithApp{
           agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
 
         lazy val featureSwitchController = new RemoveAccountController(
-          mockMessagesControllerComponents,
           app.injector.instanceOf[RemoveAccountView],
           authorisedActionFeatureSwitch
-        )(mockAppConfFeatureSwitch)
+        )(mockAppConfFeatureSwitch, mockMessagesControllerComponents)
 
         val invalidTaxYear = 2023
         lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear, TAXED, untaxedId1)(fakeRequest)

@@ -32,7 +32,7 @@ import scala.concurrent.Future
 
 class OtherUkDividendsAmountControllerSpec extends UnitTestWithApp {
 
-  lazy val controller = new OtherUkDividendsAmountController(
+  lazy val controller = new OtherUkDividendsAmountController()(
     mockMessagesControllerComponents,
     authorisedAction,
     app.injector.instanceOf[OtherUkDividendsAmountView],
@@ -112,7 +112,7 @@ class OtherUkDividendsAmountControllerSpec extends UnitTestWithApp {
         val authorisedActionFeatureSwitch = new AuthorisedAction(mockAppConfFeatureSwitch,
           agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
 
-        lazy val featureSwitchController = new OtherUkDividendsAmountController(
+        lazy val featureSwitchController = new OtherUkDividendsAmountController()(
           mockMessagesControllerComponents,
           authorisedActionFeatureSwitch,
           app.injector.instanceOf[OtherUkDividendsAmountView],

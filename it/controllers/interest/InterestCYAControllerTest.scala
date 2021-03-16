@@ -39,12 +39,14 @@ class InterestCYAControllerTest extends IntegrationTest {
 
   def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq()): InterestCYAController = {
     new InterestCYAController(
-      mcc,
       authAction(stubbedRetrieval, acceptedConfidenceLevels),
       app.injector.instanceOf[InterestCYAView],
       app.injector.instanceOf[InterestSubmissionService],
       app.injector.instanceOf[AuditService],
       app.injector.instanceOf[ErrorHandler]
+    )(
+      frontendAppConfig,
+      mcc
     )
   }
 

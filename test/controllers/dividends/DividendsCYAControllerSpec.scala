@@ -49,14 +49,14 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
 
 
   val controller = new DividendsCYAController(
-    mockMessagesControllerComponents,
     app.injector.instanceOf[DividendsCYAView],
     service,
     authorisedAction,
     mockAuditService,
     errorHandler
   )(
-    mockAppConfig
+    mockAppConfig,
+    mockMessagesControllerComponents
   )
 
   val taxYear = 2022
@@ -211,14 +211,14 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
           agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
 
         val featureSwitchController = new DividendsCYAController(
-          mockMessagesControllerComponents,
           app.injector.instanceOf[DividendsCYAView],
           service,
           authorisedActionFeatureSwitch,
           mockAuditService,
           errorHandler
         )(
-          mockAppConfFeatureSwitch
+          mockAppConfFeatureSwitch,
+          mockMessagesControllerComponents
         )
 
         val invalidTaxYear = 2023

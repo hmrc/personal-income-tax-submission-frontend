@@ -18,10 +18,9 @@ package controllers.dividends
 
 import common.SessionValues
 import config.AppConfig
-import controllers.predicates.{AuthorisedAction, TaxYearFilter}
+import controllers.predicates.AuthorisedAction
+import controllers.predicates.TaxYearAction.taxYearAction
 import forms.{OtherDividendsAmountForm, PriorOrNewAmountForm}
-
-import javax.inject.Inject
 import models.formatHelpers.PriorOrNewAmountModel
 import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, User}
 import play.api.data.Form
@@ -32,12 +31,14 @@ import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.OtherUkDividendsAmountView
 
+import javax.inject.Inject
+
 class OtherUkDividendsAmountController @Inject()(
-                                             cc: MessagesControllerComponents,
+                                             implicit val cc: MessagesControllerComponents,
                                              authAction: AuthorisedAction,
                                              otherDividendsAmountView: OtherUkDividendsAmountView,
                                              implicit val appConfig: AppConfig
-                                           ) extends FrontendController(cc) with I18nSupport with TaxYearFilter{
+                                           ) extends FrontendController(cc) with I18nSupport {
 
 
 
@@ -58,7 +59,7 @@ class OtherUkDividendsAmountController @Inject()(
 
   }
 
-  def show(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
+  def show(taxYear: Int): Action[AnyContent] = (authAction andThen taxYearAction(taxYear)) { implicit user =>
     val dividendsPriorSubmissionSession = getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
     val checkYourAnswerSession = getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
 
@@ -72,7 +73,6 @@ class OtherUkDividendsAmountController @Inject()(
       }
     }
 
-    taxYearFilter(taxYear)(
     (dividendsPriorSubmissionSession, checkYourAnswerSession) match {
       case (Some(submission@DividendsPriorSubmission(_, Some(prior))), _) => Ok(view(Left(form(prior)), Some(submission), taxYear))
       case (None, Some(cya)) =>
@@ -83,7 +83,6 @@ class OtherUkDividendsAmountController @Inject()(
       case _ =>
         Ok(view(Right(OtherDividendsAmountForm.otherDividendsAmountForm()), taxYear = taxYear))
     }
-    )
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authAction { implicit user =>

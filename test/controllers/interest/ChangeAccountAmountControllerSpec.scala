@@ -33,7 +33,7 @@ import scala.concurrent.Future
 
 class ChangeAccountAmountControllerSpec extends ViewTest {
 
-  lazy val controller = new ChangeAccountAmountController(
+  lazy val controller = new ChangeAccountAmountController()(
     mockMessagesControllerComponents,
     authorisedAction,
     app.injector.instanceOf[ChangeAccountAmountView],
@@ -205,7 +205,7 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
         val authorisedActionFeatureSwitch = new AuthorisedAction(mockAppConfFeatureSwitch,
           agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
 
-        lazy val featureSwitchController = new ChangeAccountAmountController(
+        lazy val featureSwitchController = new ChangeAccountAmountController()(
           mockMessagesControllerComponents,
           authorisedActionFeatureSwitch,
           app.injector.instanceOf[ChangeAccountAmountView],

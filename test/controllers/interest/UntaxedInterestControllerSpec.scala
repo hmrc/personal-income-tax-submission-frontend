@@ -38,10 +38,9 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
   val view: UntaxedInterestView = app.injector.instanceOf[UntaxedInterestView]
 
   lazy val controller = new UntaxedInterestController(
-    mockMessagesControllerComponents,
     authorisedAction,
     view
-  )(mockAppConfig)
+  )(mockAppConfig, mockMessagesControllerComponents)
 
 
   val taxYear = 2022
@@ -93,10 +92,9 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
           agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
 
         lazy val featureSwitchController = new UntaxedInterestController(
-          mockMessagesControllerComponents,
           authorisedActionFeatureSwitch,
           view
-        )(mockAppConfFeatureSwitch)
+        )(mockAppConfFeatureSwitch, mockMessagesControllerComponents)
 
         val invalidTaxYear = 2023
         lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(fakeRequest)

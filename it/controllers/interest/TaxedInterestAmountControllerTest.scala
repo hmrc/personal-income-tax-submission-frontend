@@ -34,9 +34,11 @@ class TaxedInterestAmountControllerTest extends IntegrationTest {
 
   def controller(stubbedRetrieval: Future[_], acceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq()): TaxedInterestAmountController = {
     new TaxedInterestAmountController(
-      mcc,
       authAction(stubbedRetrieval, acceptedConfidenceLevels),
       app.injector.instanceOf[TaxedInterestAmountView]
+    )(
+      frontendAppConfig,
+      mcc
     )
   }
 

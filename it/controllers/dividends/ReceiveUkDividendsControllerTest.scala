@@ -34,7 +34,7 @@ class ReceiveUkDividendsControllerTest extends IntegrationTest {
 
   def controller(
                   stubbedRetrieval: Future[_],
-                ): ReceiveUkDividendsController = new ReceiveUkDividendsController(
+                ): ReceiveUkDividendsController = new ReceiveUkDividendsController()(
     mcc,
     authAction(stubbedRetrieval),
     app.injector.instanceOf[ReceiveUkDividendsView],

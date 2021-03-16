@@ -24,9 +24,7 @@ import play.api.test.{FakeRequest, Helpers}
 
 trait UnitTestWithApp extends UnitTest with GuiceOneAppPerSuite {
 
-  implicit lazy val user: User[AnyContent] = new User[AnyContent]("1234567890", None, "AA123456A")(FakeRequest())
   implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
   implicit lazy val messages: Messages = messagesApi.preferred(FakeRequest())
-  implicit lazy val mockMessagesControllerComponents: MessagesControllerComponents = Helpers.stubMessagesControllerComponents()
 
 }

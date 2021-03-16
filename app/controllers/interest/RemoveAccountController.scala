@@ -19,7 +19,8 @@ package controllers.interest
 import common.InterestTaxTypes._
 import common.SessionValues
 import config.AppConfig
-import controllers.predicates.{AuthorisedAction, TaxYearFilter}
+import controllers.predicates.AuthorisedAction
+import controllers.predicates.TaxYearAction.taxYearAction
 import forms.YesNoForm
 import models.User
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
@@ -35,19 +36,19 @@ import javax.inject.Inject
 import scala.concurrent.Future
 
 class RemoveAccountController @Inject()(
-                                         mcc: MessagesControllerComponents,
                                          view: RemoveAccountView,
                                          authorisedAction: AuthorisedAction
                                        )(
-                                         implicit appConfig: AppConfig
-                                       ) extends FrontendController(mcc) with I18nSupport with TaxYearFilter {
+                                         implicit appConfig: AppConfig,
+                                         implicit val mcc: MessagesControllerComponents
+                                       ) extends FrontendController(mcc) with I18nSupport {
 
   private val logger = Logger.logger
   val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("interest.remove-account.errors.noRadioSelected")
 
   implicit def resultToFutureResult: Result => Future[Result] = baseResult => Future.successful(baseResult)
 
-  def show(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = authorisedAction.async { implicit user =>
+  def show(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = (authorisedAction andThen taxYearAction(taxYear)).async { implicit user =>
     def overviewRedirect = Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
 
     val optionalCyaData: Option[InterestCYAModel] = user.session.get(SessionValues.INTEREST_CYA).flatMap(Json.parse(_).asOpt[InterestCYAModel])
@@ -56,7 +57,6 @@ class RemoveAccountController @Inject()(
     val isPriorSubmission: Boolean =
       priorSubmissionData.exists(_.submissions.getOrElse(Seq.empty[InterestAccountModel]).map(_.id.contains(accountId)).foldRight(false)(_ || _))
 
-    taxYearFilter(taxYear)(
     if (isPriorSubmission) {
       priorAccountExistsRedirect(taxType, taxYear)
     } else {
@@ -75,7 +75,6 @@ class RemoveAccountController @Inject()(
 
       }
     }
-    )
   }
 
   def submit(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = authorisedAction.async { implicit user =>

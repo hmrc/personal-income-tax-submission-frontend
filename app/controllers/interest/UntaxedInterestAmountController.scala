@@ -16,14 +16,12 @@
 
 package controllers.interest
 
-import java.util.UUID.randomUUID
 import common.InterestTaxTypes.UNTAXED
 import common.{InterestTaxTypes, SessionValues}
 import config.AppConfig
-import controllers.predicates.{AuthorisedAction, TaxYearFilter}
+import controllers.predicates.AuthorisedAction
+import controllers.predicates.TaxYearAction.taxYearAction
 import forms.UntaxedInterestAmountForm
-
-import javax.inject.Inject
 import models.UntaxedInterestModel
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.Logger
@@ -34,22 +32,24 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.InterestSessionHelper
 import views.html.interest.UntaxedInterestAmountView
 
+import java.util.UUID.randomUUID
+import javax.inject.Inject
+
 class UntaxedInterestAmountController @Inject()(
-                                                 mcc: MessagesControllerComponents,
+                                                 implicit val mcc: MessagesControllerComponents,
                                                  authAction: AuthorisedAction,
                                                  untaxedInterestAmountView: UntaxedInterestAmountView,
                                                  implicit val appConfig: AppConfig
-                                               ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper with TaxYearFilter {
+                                               ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper {
 
   val untaxedInterestAmountForm: Form[UntaxedInterestModel] = UntaxedInterestAmountForm.untaxedInterestAmountForm()
 
-  def show(taxYear: Int, id: String): Action[AnyContent] = authAction { implicit user =>
+  def show(taxYear: Int, id: String): Action[AnyContent] = (authAction andThen taxYearAction(taxYear)) { implicit user =>
 
     val optionalCyaData = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
 
     val idMatchesPreviouslySubmittedAccount: Boolean = optionalCyaData.flatMap(_.untaxedUkAccounts.map(_.exists(_.id.contains(id)))).getOrElse(false)
 
-    taxYearFilter(taxYear)(
     if (idMatchesPreviouslySubmittedAccount) {
       Redirect(controllers.interest.routes.ChangeAccountAmountController.show(taxYear, UNTAXED, id))
 
@@ -75,7 +75,6 @@ class UntaxedInterestAmountController @Inject()(
     } else {
       Redirect(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, randomUUID().toString))
       }
-    )
   }
 
   def submit(taxYear: Int, id: String): Action[AnyContent] = authAction { implicit user =>
