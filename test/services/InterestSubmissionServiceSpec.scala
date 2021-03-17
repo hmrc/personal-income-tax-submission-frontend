@@ -17,9 +17,9 @@
 package services
 
 import connectors.InterestSubmissionConnector
-import connectors.httpparsers.InterestSubmissionHttpParser.InterestSubmissionsResponse
+import connectors.httpParsers.InterestSubmissionHttpParser.InterestSubmissionsResponse
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestSubmissionModel}
-import models.{ApiErrorBodyModel, ApiErrorModel}
+import models.{APIErrorBodyModel, APIErrorModel}
 import play.api.http.Status._
 import play.api.test.Helpers.NO_CONTENT
 import uk.gov.hmrc.http.HeaderCarrier
@@ -87,13 +87,13 @@ class InterestSubmissionServiceSpec extends UnitTest {
           (connector.submit(_: Seq[InterestSubmissionModel], _: String, _: Int, _: String)(_: HeaderCarrier, _: ExecutionContext))
             .expects(accounts, "AA123456A", taxYear, "1234567890", *, *)
             .returning(Future.successful(
-              Left(ApiErrorModel(INTERNAL_SERVER_ERROR, ApiErrorBodyModel("test", "test")))
+              Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("test", "test")))
             ))
 
           await(service.submit(cyaModel, "AA123456A", taxYear, "1234567890"))
         }
 
-        result shouldBe Left(ApiErrorModel(INTERNAL_SERVER_ERROR, ApiErrorBodyModel("test", "test")))
+        result shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("test", "test")))
       }
 
     }

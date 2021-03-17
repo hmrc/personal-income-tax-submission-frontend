@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package connectors.httpparsers
+package connectors.httpParsers
 
-import models.{ApiErrorBodyModel, ApiErrorModel, DividendsResponseModel}
+import models.{APIErrorBodyModel, APIErrorModel, DividendsResponseModel}
 import play.api.http.Status._
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 import utils.PagerDutyHelper.PagerDutyKeys._
 import utils.PagerDutyHelper.pagerDutyLog
 
-object DividendsSubmissionHttpParser {
-  type DividendsSubmissionsResponse = Either[ApiErrorModel, DividendsResponseModel]
+object DividendsSubmissionHttpParser extends APIParser {
+  type DividendsSubmissionsResponse = Either[APIErrorModel, DividendsResponseModel]
+
+  override val parserName: String = "DividendsSubmissionHttpParser"
+  override val service: String = "income-tax-dividends"
 
   implicit object DividendsSubmissionResponseReads extends HttpReads[DividendsSubmissionsResponse] {
     override def read(method: String, url: String, response: HttpResponse): DividendsSubmissionsResponse = {
@@ -31,39 +34,17 @@ object DividendsSubmissionHttpParser {
         case NO_CONTENT => Right(DividendsResponseModel(NO_CONTENT))
         case BAD_REQUEST | FORBIDDEN | CONFLICT =>
           pagerDutyLog(FOURXX_RESPONSE_FROM_API, logMessage(response))
-          handleApiError(response)
+          handleAPIError(response)
         case SERVICE_UNAVAILABLE =>
           pagerDutyLog(SERVICE_UNAVAILABLE_FROM_API, logMessage(response))
-          handleApiError(response)
+          handleAPIError(response)
         case INTERNAL_SERVER_ERROR =>
           pagerDutyLog(INTERNAL_SERVER_ERROR_FROM_API, logMessage(response))
-          handleApiError(response)
+          handleAPIError(response)
         case _ =>
           pagerDutyLog(UNEXPECTED_RESPONSE_FROM_API, logMessage(response))
-          handleApiError(response, Some(INTERNAL_SERVER_ERROR))
+          handleAPIError(response, Some(INTERNAL_SERVER_ERROR))
       }
     }
   }
-
-
-  private def logMessage(response:HttpResponse): Option[String] ={
-    Some(s"[DividendsSubmissionHttpParser][read] Received ${response.status} from API. Body:${response.body}")
-  }
-
-  private def handleApiError(response: HttpResponse, statusOverride: Option[Int] = None): DividendsSubmissionsResponse = {
-    val status = statusOverride.getOrElse(response.status)
-
-    try {
-      response.json.validate[ApiErrorBodyModel].fold[DividendsSubmissionsResponse](
-        jsonErrors => {
-          pagerDutyLog(UNEXPECTED_RESPONSE_FROM_API, Some(s"[DividendsSubmissionHttpParser][read] Unexpected Json from API."))
-          Left(ApiErrorModel(status, ApiErrorBodyModel.parsingError))
-        },
-        parsedError => Left(ApiErrorModel(status, parsedError))
-      )
-    } catch {
-      case _: Exception => Left(ApiErrorModel(status, ApiErrorBodyModel.parsingError))
-    }
-  }
-
 }

@@ -21,7 +21,7 @@ import common.{InterestTaxTypes, SessionValues}
 import config.{AppConfig, ErrorHandler, MockAuditService}
 import controllers.predicates.AuthorisedAction
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
-import models.{ApiErrorBodyModel, ApiErrorModel}
+import models.{APIErrorBodyModel, APIErrorModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalamock.handlers.CallHandler
@@ -355,8 +355,8 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
               None
             )
 
-            val errorResponseFromDes: Either[ApiErrorModel, Int] =
-              Left(ApiErrorModel(INTERNAL_SERVER_ERROR, ApiErrorBodyModel("error", "error")))
+            val errorResponseFromDes: Either[APIErrorModel, Int] =
+              Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("error", "error")))
 
             lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
               SessionValues.CLIENT_MTDITID -> Json.toJson("someMtdItid").toString(),
@@ -386,8 +386,8 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
               None
             )
 
-            val errorResponseFromDes: Either[ApiErrorModel, Int] =
-              Left(ApiErrorModel(SERVICE_UNAVAILABLE, ApiErrorBodyModel("error", "error")))
+            val errorResponseFromDes: Either[APIErrorModel, Int] =
+              Left(APIErrorModel(SERVICE_UNAVAILABLE, APIErrorBodyModel("error", "error")))
 
             lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
               SessionValues.CLIENT_MTDITID -> Json.toJson("someMtdItid").toString(),

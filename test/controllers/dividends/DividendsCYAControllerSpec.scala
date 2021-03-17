@@ -323,8 +323,8 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
 
       "redirect to the 500 unauthorised error template page when there is a problem posting data" in new TestWithAuth {
 
-        val errorResponseFromDes: Either[ApiErrorModel, DividendsResponseModel] =
-          Left(ApiErrorModel(INTERNAL_SERVER_ERROR, ApiErrorBodyModel("error", "error")))
+        val errorResponseFromDes: Either[APIErrorModel, DividendsResponseModel] =
+          Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("error", "error")))
 
         val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
           SessionValues.CLIENT_MTDITID -> Json.toJson("someMtdItid").toString(),
@@ -348,7 +348,7 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
 
       "redirect to the 503 service unavailable page when the service is unavailable" in new TestWithAuth(){
 
-        val errorResponseFromDes: Either[ApiErrorModel, DividendsResponseModel] = Left(ApiErrorModel(SERVICE_UNAVAILABLE, ApiErrorBodyModel("error", "error")))
+        val errorResponseFromDes: Either[APIErrorModel, DividendsResponseModel] = Left(APIErrorModel(SERVICE_UNAVAILABLE, APIErrorBodyModel("error", "error")))
 
         val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
           SessionValues.CLIENT_MTDITID -> Json.toJson("someMtdItid").toString(),

@@ -17,7 +17,7 @@
 package connectors
 
 import models.interest.InterestSubmissionModel
-import models.{ApiErrorBodyModel, ApiErrorModel}
+import models.{APIErrorBodyModel, APIErrorModel, APIErrorsBodyModel}
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import utils.IntegrationTest
@@ -51,12 +51,40 @@ class InterestSubmissionConnectorISpec extends IntegrationTest {
 
     "return an bad request response" when {
 
+      "non json is returned" in {
+        stubPost(s"/income-tax-interest/income-tax/nino/$nino/sources\\?taxYear=$taxYear&mtditid=$mtditid", BAD_REQUEST, "")
+
+        val result = await(connector.submit(body, nino, taxYear, mtditid))
+
+        result shouldBe Left(APIErrorModel(BAD_REQUEST, APIErrorBodyModel.parsingError))
+      }
+
+      "API Returns multiple errors" in {
+        val expectedResult = APIErrorModel(BAD_REQUEST, APIErrorsBodyModel(Seq(
+          APIErrorBodyModel("INVALID_IDTYPE","ID is invalid"),
+          APIErrorBodyModel("INVALID_IDTYPE_2","ID 2 is invalid"))))
+
+        val responseBody = Json.obj(
+          "failures" -> Json.arr(
+            Json.obj("code" -> "INVALID_IDTYPE",
+              "reason" -> "ID is invalid"),
+            Json.obj("code" -> "INVALID_IDTYPE_2",
+              "reason" -> "ID 2 is invalid")
+          )
+        )
+        stubPost(s"/income-tax-interest/income-tax/nino/$nino/sources\\?taxYear=$taxYear&mtditid=$mtditid", BAD_REQUEST, responseBody.toString())
+
+        val result = await(connector.submit(body, nino, taxYear, mtditid))
+
+        result shouldBe Left(expectedResult)
+      }
+
       "one is retrieved from the endpoint" in {
         stubPost(s"/income-tax-interest/income-tax/nino/$nino/sources\\?taxYear=$taxYear&mtditid=$mtditid", BAD_REQUEST, "{}")
 
         val result = await(connector.submit(body, nino, taxYear, mtditid))
 
-        result shouldBe Left(ApiErrorModel(BAD_REQUEST, ApiErrorBodyModel.parsingError))
+        result shouldBe Left(APIErrorModel(BAD_REQUEST, APIErrorBodyModel.parsingError))
       }
 
     }
@@ -74,7 +102,7 @@ class InterestSubmissionConnectorISpec extends IntegrationTest {
 
         val result = await(connector.submit(body, nino, taxYear, mtditid))
 
-        result shouldBe Left(ApiErrorModel(INTERNAL_SERVER_ERROR, ApiErrorBodyModel("INTERNAL_SERVER_ERROR", "there has been an error downstream")))
+        result shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("INTERNAL_SERVER_ERROR", "there has been an error downstream")))
       }
     }
 
@@ -91,7 +119,7 @@ class InterestSubmissionConnectorISpec extends IntegrationTest {
 
         val result = await(connector.submit(body, nino, taxYear, mtditid))
 
-        result shouldBe Left(ApiErrorModel(SERVICE_UNAVAILABLE, ApiErrorBodyModel("SERVICE_UNAVAILABLE", "the service is currently unavailable")))
+        result shouldBe Left(APIErrorModel(SERVICE_UNAVAILABLE, APIErrorBodyModel("SERVICE_UNAVAILABLE", "the service is currently unavailable")))
       }
     }
 
@@ -107,7 +135,7 @@ class InterestSubmissionConnectorISpec extends IntegrationTest {
 
         val result = await(connector.submit(body, nino, taxYear, mtditid))
 
-        result shouldBe Left(ApiErrorModel(INTERNAL_SERVER_ERROR, ApiErrorBodyModel("INTERNAL_SERVER_ERROR", "Unexpected status returned from DES")))
+        result shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("INTERNAL_SERVER_ERROR", "Unexpected status returned from DES")))
       }
 
     }

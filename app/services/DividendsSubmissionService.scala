@@ -17,7 +17,7 @@
 package services
 
 import connectors.DividendsSubmissionConnector
-import connectors.httpparsers.DividendsSubmissionHttpParser.DividendsSubmissionsResponse
+import connectors.httpParsers.DividendsSubmissionHttpParser.DividendsSubmissionsResponse
 
 import javax.inject.Inject
 import models.{DividendsCheckYourAnswersModel, DividendsResponseModel, DividendsSubmissionModel}

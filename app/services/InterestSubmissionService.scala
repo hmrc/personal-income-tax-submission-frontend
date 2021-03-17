@@ -17,7 +17,7 @@
 package services
 
 import connectors.InterestSubmissionConnector
-import connectors.httpparsers.InterestSubmissionHttpParser.InterestSubmissionsResponse
+import connectors.httpParsers.InterestSubmissionHttpParser.InterestSubmissionsResponse
 import models.interest.{InterestCYAModel, InterestSubmissionModel}
 import play.api.Logger
 import play.api.http.Status.NO_CONTENT
