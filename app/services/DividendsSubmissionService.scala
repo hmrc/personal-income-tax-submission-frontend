@@ -44,7 +44,7 @@ class DividendsSubmissionService @Inject()(dividendsSubmissionConnector: Dividen
         Future(Right(DividendsResponseModel(NO_CONTENT)))
       case _ =>
         val newBody = new DividendsSubmissionModel(nonOptBody.ukDividendsAmount, nonOptBody.otherUkDividendsAmount)
-        dividendsSubmissionConnector.submitDividends(newBody, nino, mtditid, taxYear)
+        dividendsSubmissionConnector.submitDividends(newBody, nino, taxYear)(hc.withExtraHeaders("mtditid" -> mtditid))
     }
   }
 

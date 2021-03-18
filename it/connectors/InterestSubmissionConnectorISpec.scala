@@ -16,6 +16,7 @@
 
 package connectors
 
+import com.github.tomakehurst.wiremock.http.HttpHeader
 import models.interest.InterestSubmissionModel
 import models.{APIErrorBodyModel, APIErrorModel, APIErrorsBodyModel}
 import play.api.libs.json.Json
@@ -31,18 +32,18 @@ class InterestSubmissionConnectorISpec extends IntegrationTest {
     InterestSubmissionModel(Some("ano'id"), "ano'name", None, Some(999.99))
   )
 
-  lazy val nino = "A123456A"
-  lazy val taxYear = 2020
-  lazy val mtditid = "1234567890"
+  val taxYear = 2020
+
+  val expectedHeaders = Seq(new HttpHeader("mtditid", mtditid))
 
   ".submit" should {
 
     "return a successful response" when {
 
       "one is retrieved from the endpoint" in {
-        stubPost(s"/income-tax-interest/income-tax/nino/$nino/sources\\?taxYear=$taxYear&mtditid=$mtditid", NO_CONTENT, "{}")
+        stubPost(s"/income-tax-interest/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}", expectedHeaders)
 
-        val result = await(connector.submit(body, nino, taxYear, mtditid))
+        val result = await(connector.submit(body, nino, taxYear))
 
         result shouldBe Right(NO_CONTENT)
       }
@@ -52,9 +53,9 @@ class InterestSubmissionConnectorISpec extends IntegrationTest {
     "return an bad request response" when {
 
       "non json is returned" in {
-        stubPost(s"/income-tax-interest/income-tax/nino/$nino/sources\\?taxYear=$taxYear&mtditid=$mtditid", BAD_REQUEST, "")
+        stubPost(s"/income-tax-interest/income-tax/nino/$nino/sources\\?taxYear=$taxYear", BAD_REQUEST, "", expectedHeaders)
 
-        val result = await(connector.submit(body, nino, taxYear, mtditid))
+        val result = await(connector.submit(body, nino, taxYear))
 
         result shouldBe Left(APIErrorModel(BAD_REQUEST, APIErrorBodyModel.parsingError))
       }
@@ -72,17 +73,22 @@ class InterestSubmissionConnectorISpec extends IntegrationTest {
               "reason" -> "ID 2 is invalid")
           )
         )
-        stubPost(s"/income-tax-interest/income-tax/nino/$nino/sources\\?taxYear=$taxYear&mtditid=$mtditid", BAD_REQUEST, responseBody.toString())
+        stubPost(
+          s"/income-tax-interest/income-tax/nino/$nino/sources\\?taxYear=$taxYear",
+          BAD_REQUEST,
+          responseBody.toString(),
+          expectedHeaders
+        )
 
-        val result = await(connector.submit(body, nino, taxYear, mtditid))
+        val result = await(connector.submit(body, nino, taxYear))
 
         result shouldBe Left(expectedResult)
       }
 
       "one is retrieved from the endpoint" in {
-        stubPost(s"/income-tax-interest/income-tax/nino/$nino/sources\\?taxYear=$taxYear&mtditid=$mtditid", BAD_REQUEST, "{}")
+        stubPost(s"/income-tax-interest/income-tax/nino/$nino/sources\\?taxYear=$taxYear", BAD_REQUEST, "{}", expectedHeaders)
 
-        val result = await(connector.submit(body, nino, taxYear, mtditid))
+        val result = await(connector.submit(body, nino, taxYear))
 
         result shouldBe Left(APIErrorModel(BAD_REQUEST, APIErrorBodyModel.parsingError))
       }
@@ -98,9 +104,9 @@ class InterestSubmissionConnectorISpec extends IntegrationTest {
           "reason" -> "there has been an error downstream"
         )
 
-        stubPost(s"/income-tax-interest/income-tax/nino/$nino/sources\\?taxYear=$taxYear&mtditid=$mtditid", INTERNAL_SERVER_ERROR, responseBody.toString())
+        stubPost(s"/income-tax-interest/income-tax/nino/$nino/sources\\?taxYear=$taxYear", INTERNAL_SERVER_ERROR, responseBody.toString(), expectedHeaders)
 
-        val result = await(connector.submit(body, nino, taxYear, mtditid))
+        val result = await(connector.submit(body, nino, taxYear))
 
         result shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("INTERNAL_SERVER_ERROR", "there has been an error downstream")))
       }
@@ -115,9 +121,9 @@ class InterestSubmissionConnectorISpec extends IntegrationTest {
           "reason" -> "the service is currently unavailable"
         )
 
-        stubPost(s"/income-tax-interest/income-tax/nino/$nino/sources\\?taxYear=$taxYear&mtditid=$mtditid", SERVICE_UNAVAILABLE, responseBody.toString())
+        stubPost(s"/income-tax-interest/income-tax/nino/$nino/sources\\?taxYear=$taxYear", SERVICE_UNAVAILABLE, responseBody.toString(), expectedHeaders)
 
-        val result = await(connector.submit(body, nino, taxYear, mtditid))
+        val result = await(connector.submit(body, nino, taxYear))
 
         result shouldBe Left(APIErrorModel(SERVICE_UNAVAILABLE, APIErrorBodyModel("SERVICE_UNAVAILABLE", "the service is currently unavailable")))
       }
@@ -131,9 +137,9 @@ class InterestSubmissionConnectorISpec extends IntegrationTest {
       )
 
       "the response is not being handled explicitly when returned from the endpoint" in {
-        stubPost(s"/income-tax-interest/income-tax/nino/$nino/sources\\?taxYear=$taxYear&mtditid=$mtditid", CREATED, responseBody.toString())
+        stubPost(s"/income-tax-interest/income-tax/nino/$nino/sources\\?taxYear=$taxYear", CREATED, responseBody.toString(), expectedHeaders)
 
-        val result = await(connector.submit(body, nino, taxYear, mtditid))
+        val result = await(connector.submit(body, nino, taxYear))
 
         result shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("INTERNAL_SERVER_ERROR", "Unexpected status returned from DES")))
       }

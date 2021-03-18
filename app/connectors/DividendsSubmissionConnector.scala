@@ -28,9 +28,9 @@ import scala.concurrent.{ExecutionContext, Future}
 class DividendsSubmissionConnector @Inject()(val http: HttpClient,  appConfig: AppConfig)
                                             (implicit ec: ExecutionContext) extends RawResponseReads {
 
-  def submitDividends(body: DividendsSubmissionModel, nino: String, mtditid: String, taxYear: Int)
+  def submitDividends(body: DividendsSubmissionModel, nino: String, taxYear: Int)
                      (implicit hc: HeaderCarrier): Future[DividendsSubmissionsResponse] = {
-      val dividendsSubmissionUrl: String = appConfig.dividendsBaseUrl + s"/income-tax/nino/$nino/sources?taxYear=$taxYear&mtditid=$mtditid"
+      val dividendsSubmissionUrl: String = appConfig.dividendsBaseUrl + s"/income-tax/nino/$nino/sources?taxYear=$taxYear"
       http.PUT[DividendsSubmissionModel, DividendsSubmissionsResponse](dividendsSubmissionUrl, body)
   }
 }

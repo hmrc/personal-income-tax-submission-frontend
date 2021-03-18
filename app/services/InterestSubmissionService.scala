@@ -47,7 +47,7 @@ class InterestSubmissionService @Inject()(interestSubmissionConnector: InterestS
       logger.info("[InterestSubmissionService][submit] User has entered No & No to both interest questions. Not submitting data to DES.")
       Future(Right(NO_CONTENT))
     } else {
-      interestSubmissionConnector.submit(body, nino, taxYear, mtditid)
+      interestSubmissionConnector.submit(body, nino, taxYear)(hc.withExtraHeaders("mtditid" -> mtditid), ec)
     }
   }
 }

@@ -34,6 +34,8 @@ class InterestSubmissionServiceSpec extends UnitTest {
 
   val taxYear: Int = 2020
 
+  val mtdItid = "1234567890"
+
   ".submit" should {
 
     "return a successful response" when {
@@ -54,13 +56,13 @@ class InterestSubmissionServiceSpec extends UnitTest {
 
         "the cya model has accounts" in {
           lazy val result: InterestSubmissionsResponse = {
-            (connector.submit(_: Seq[InterestSubmissionModel], _: String, _: Int, _: String)(_: HeaderCarrier, _: ExecutionContext))
-              .expects(accounts, "AA123456A", taxYear, "1234567890", *, *)
+            (connector.submit(_: Seq[InterestSubmissionModel], _: String, _: Int)(_: HeaderCarrier, _: ExecutionContext))
+              .expects(accounts, "AA123456A", taxYear, emptyHeaderCarrier.withExtraHeaders("mtditid"-> mtdItid), *)
               .returning(Future.successful(
                 Right(NO_CONTENT)
               ))
 
-            await(service.submit(cyaModel, "AA123456A", taxYear, "1234567890"))
+            await(service.submit(cyaModel, "AA123456A", taxYear, mtdItid))
           }
 
           result shouldBe Right(NO_CONTENT)
@@ -68,7 +70,7 @@ class InterestSubmissionServiceSpec extends UnitTest {
 
         "the use has selected 'No' & 'No' when adding accounts" in {
           lazy val result: InterestSubmissionsResponse = {
-              (Seq.empty[InterestSubmissionModel], "AA123456A", taxYear, "1234567890", *, *)
+              (Seq.empty[InterestSubmissionModel], "AA123456A", taxYear, mtdItid, *, *)
               Future.successful(
                 Right(NO_CONTENT)
               )
@@ -84,13 +86,13 @@ class InterestSubmissionServiceSpec extends UnitTest {
       "the connector returns a left error response" in {
 
         lazy val result: InterestSubmissionsResponse = {
-          (connector.submit(_: Seq[InterestSubmissionModel], _: String, _: Int, _: String)(_: HeaderCarrier, _: ExecutionContext))
-            .expects(accounts, "AA123456A", taxYear, "1234567890", *, *)
+          (connector.submit(_: Seq[InterestSubmissionModel], _: String, _: Int)(_: HeaderCarrier, _: ExecutionContext))
+            .expects(accounts, "AA123456A", taxYear, emptyHeaderCarrier.withExtraHeaders("mtditid"-> mtdItid), *)
             .returning(Future.successful(
               Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("test", "test")))
             ))
 
-          await(service.submit(cyaModel, "AA123456A", taxYear, "1234567890"))
+          await(service.submit(cyaModel, "AA123456A", taxYear, mtdItid))
         }
 
         result shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("test", "test")))

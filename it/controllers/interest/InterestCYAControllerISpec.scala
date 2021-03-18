@@ -16,12 +16,13 @@
 
 package controllers.interest
 
+import com.github.tomakehurst.wiremock.http.HttpHeader
 import common.SessionValues
 import controllers.Assets.NOT_FOUND
 import helpers.PlaySessionCookieBaker
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.http.HeaderNames
-import play.api.http.Status.{OK, UNAUTHORIZED, NO_CONTENT}
+import play.api.http.Status.{NO_CONTENT, OK, UNAUTHORIZED}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import utils.IntegrationTest
@@ -97,6 +98,8 @@ class InterestCYAControllerISpec extends IntegrationTest{
 
   ".post" should {
 
+    val expectedHeaders = Seq(new HttpHeader("mtditid", mtditid))
+
     "return an action" which {
 
       s"has an OK($OK) status" in {
@@ -111,7 +114,7 @@ class InterestCYAControllerISpec extends IntegrationTest{
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
             SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
           ))
-          stubPost(s"/income-tax-interest/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear&mtditid=1234567890", NO_CONTENT, "")
+          stubPost(s"/income-tax-interest/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "", expectedHeaders)
 
           await(wsClient.url(s"$startUrl/$taxYear/interest/check-your-answers")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")

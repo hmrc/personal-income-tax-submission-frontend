@@ -32,8 +32,6 @@ class DividendsCYAControllerISpec extends IntegrationTest {
   val connector: DividendsSubmissionConnector = app.injector.instanceOf[DividendsSubmissionConnector]
 
   val taxYear = 2022
-  val mtdidid = "1234567890"
-  val nino = "AA123456A"
 
   val dividends: BigDecimal = 10
 
@@ -104,6 +102,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
 
     "return an action" which {
 
+      // TODO - this test is a duplicate and it needs to be changed to make a call to the app using wsClient, see DividendsSubmissionConnectorSpec
       s"has an OK($OK) status" in {
 
         val responseBody = DividendsSubmissionModel(
@@ -111,8 +110,8 @@ class DividendsCYAControllerISpec extends IntegrationTest {
           Some(dividends))
 
         val connector = app.injector.instanceOf[DividendsSubmissionConnector]
-        stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear&mtditid=1234567890", NO_CONTENT, "{}")
-        val result = await(connector.submitDividends(responseBody, "AA123456A", "1234567890", taxYear))
+        stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
+        val result = await(connector.submitDividends(responseBody, "AA123456A", taxYear))
 
         result shouldBe Right(DividendsResponseModel(NO_CONTENT))
       }
@@ -159,6 +158,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
 
     "return a service unavailable response" when {
 
+      // TODO - this a service test and not a controller test, see DividendsSubmissionConnectorSpec
       "one is retrieved from the endpoint" in {
 
         val responseBody = Json.obj(
@@ -166,9 +166,9 @@ class DividendsCYAControllerISpec extends IntegrationTest {
           "reason" -> "the service is currently unavailable"
         )
 
-        stubPut(s"/income-tax-dividends/income-tax/nino/$nino/sources\\?taxYear=$taxYear&mtditid=$mtdidid", SERVICE_UNAVAILABLE, responseBody.toString())
+        stubPut(s"/income-tax-dividends/income-tax/nino/$nino/sources\\?taxYear=$taxYear", SERVICE_UNAVAILABLE, responseBody.toString())
 
-        val result = await(connector.submitDividends(dividendsBody, nino, mtdidid, taxYear))
+        val result = await(connector.submitDividends(dividendsBody, nino, taxYear))
 
         result shouldBe Left(APIErrorModel(SERVICE_UNAVAILABLE, APIErrorBodyModel("SERVICE_UNAVAILABLE", "the service is currently unavailable")))
       }
@@ -176,6 +176,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
 
     "return an unexpected response" when {
 
+      // TODO - this a service test and not a controller test, see DividendsSubmissionConnectorSpec
       "one is retrieved from the endpoint" in {
 
         val responseBody = Json.obj(
@@ -183,9 +184,9 @@ class DividendsCYAControllerISpec extends IntegrationTest {
           "reason" -> "unexpected status returned from DES"
         )
 
-        stubPut(s"/income-tax-dividends/income-tax/nino/$nino/sources\\?taxYear=$taxYear&mtditid=$mtdidid", CREATED, responseBody.toString())
+        stubPut(s"/income-tax-dividends/income-tax/nino/$nino/sources\\?taxYear=$taxYear", CREATED, responseBody.toString())
 
-        val result = await(connector.submitDividends(dividendsBody, nino, mtdidid, taxYear))
+        val result = await(connector.submitDividends(dividendsBody, nino, taxYear))
 
         result shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("INTERNAL_SERVER_ERROR", "unexpected status returned from DES")))
       }

@@ -26,7 +26,7 @@ import utils.UnitTestWithApp
 
 import scala.concurrent.Future
 
-class DividendsSubmissionServiceSpec extends UnitTestWithApp{
+class DividendsSubmissionServiceSpec extends UnitTestWithApp {
 
   val connector: DividendsSubmissionConnector = mock[DividendsSubmissionConnector]
   val auth: AuthConnector = mock[AuthConnector]
@@ -52,8 +52,8 @@ class DividendsSubmissionServiceSpec extends UnitTestWithApp{
 
       "Given connector returns a right" in  {
 
-        (connector.submitDividends(_: DividendsSubmissionModel, _: String, _: String, _: Int)(_: HeaderCarrier))
-          .expects(dsmData, nino, mtdItid, taxYear, *).returning(Future.successful(Right(DividendsResponseModel(NO_CONTENT))))
+        (connector.submitDividends(_: DividendsSubmissionModel, _: String, _: Int)(_: HeaderCarrier))
+          .expects(dsmData, nino, taxYear, emptyHeaderCarrier.withExtraHeaders("mtditid"-> mtdItid)).returning(Future.successful(Right(DividendsResponseModel(NO_CONTENT))))
 
         val result = await(service.submitDividends(Some(cyaData), nino, mtdItid, taxYear))
         result.isRight shouldBe true
@@ -61,8 +61,8 @@ class DividendsSubmissionServiceSpec extends UnitTestWithApp{
       }
       "Given connector returns a left" in {
 
-          (connector.submitDividends(_: DividendsSubmissionModel, _: String, _: String, _: Int)(_: HeaderCarrier))
-            .expects(dsmData, nino, mtdItid, taxYear, *)
+          (connector.submitDividends(_: DividendsSubmissionModel, _: String, _: Int)(_: HeaderCarrier))
+            .expects(dsmData, nino, taxYear, emptyHeaderCarrier.withExtraHeaders("mtditid"-> mtdItid))
             .returning(Future.successful(Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("test","test")))))
 
           val result = await(service.submitDividends(Some(cyaData), nino, mtdItid, taxYear))
@@ -75,7 +75,7 @@ class DividendsSubmissionServiceSpec extends UnitTestWithApp{
        lazy val result: DividendsSubmissionsResponse = {
           val blankData = DividendsSubmissionModel(None, None)
 
-          (blankData, nino, mtdItid, taxYear, *)
+          (blankData, nino, mtdItid, taxYear, emptyHeaderCarrier.withExtraHeaders("mtditid"-> mtdItid))
           Future.successful(Right(DividendsResponseModel(NO_CONTENT)))
 
           await(service.submitDividends(None, nino, mtdItid, taxYear))
