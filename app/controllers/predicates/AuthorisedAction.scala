@@ -65,10 +65,10 @@ class AuthorisedAction @Inject()(
       case _ => Redirect(appConfig.incomeTaxSubmissionIvRedirect)
     } recover {
       case _: NoActiveSession =>
-        logger.error(s"AgentPredicate][authoriseAsAgent] - No active session. Redirecting to ${appConfig.signInUrl}")
+        logger.error(s"[AuthorisedAction][invokeBlock] - No active session. Redirecting to ${appConfig.signInUrl}")
         Redirect(appConfig.signInUrl)
       case _: AuthorisationException =>
-        logger.error(s"[AgentPredicate][authoriseAsAgent] - Agent does not have delegated authority for Client.")
+        logger.error(s"[AuthorisedAction][invokeBlock] - Customer is not authorised to use this service.")
         Redirect(controllers.errors.routes.UnauthorisedUserErrorController.show())
     }
   }
@@ -83,9 +83,9 @@ class AuthorisedAction @Inject()(
       logger.error(s"[AuthorisedAction][checkAuthorisation] Relevant identifier missing. Agent: $isAgent")
       if (isAgent) {
         Future.successful(Redirect(controllers.errors.routes.YouNeedAgentServicesController.show()))
-      }
-      else {
-        Future.successful(Unauthorized("No relevant identifier. Is agent: " + isAgent))
+      } else {
+        logger.error(s"[AuthorisedAction][checkAuthorisation] Relevant identifier missing. Agent: $isAgent")
+        Redirect(controllers.errors.routes.IndividualAuthErrorController.show())
       }
     } { userId =>
       if (isAgent) agentAuthentication(block) else individualAuthentication(block, enrolments, userId)
@@ -121,7 +121,7 @@ class AuthorisedAction @Inject()(
           } recover {
           case _: NoActiveSession =>
             logger.error(s"AgentPredicate][agentAuthentication] - No active session. Redirecting to ${appConfig.signInUrl}")
-            Redirect(appConfig.signInUrl) //TODO Check this is the correct location
+            Redirect(appConfig.signInUrl)
           case ex: AuthorisationException =>
             logger.error(s"[AgentPredicate][agentAuthentication] - Agent does not have delegated authority for Client.")
             Unauthorized(agentAuthErrorPage())

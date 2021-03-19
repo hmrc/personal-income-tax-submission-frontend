@@ -194,6 +194,11 @@ error.agent.paragraph2 = authorise you as their agent (opens in new tab)
 error.agent.paragraph3 = before you can sign in to this service.
 error.agent.paragraph4 = Try another client’s details
 
+error.unauthorised.title = You cannot view this page
+error.unauthorised.1 = You need to
+error.unauthorised.2 = sign up for Making Tax Digital for Income Tax
+error.unauthorised.3 = before you can view this page.
+
 youNeedAgentServices.title = You cannot view this page
 youNeedAgentServices.heading = You cannot view this page
 youNeedAgentServices.p1 = You need to
