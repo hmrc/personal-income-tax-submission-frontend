@@ -16,11 +16,9 @@
 
 package utils
 
-import models.User
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Messages, MessagesApi}
-import play.api.mvc.{AnyContent, MessagesControllerComponents}
-import play.api.test.{FakeRequest, Helpers}
+import play.api.test.FakeRequest
 
 trait UnitTestWithApp extends UnitTest with GuiceOneAppPerSuite {
 

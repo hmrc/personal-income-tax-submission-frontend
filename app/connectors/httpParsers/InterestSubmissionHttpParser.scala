@@ -16,7 +16,7 @@
 
 package connectors.httpParsers
 
-import models.{APIErrorBodyModel, APIErrorModel}
+import models.APIErrorModel
 import play.api.http.Status._
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 import utils.PagerDutyHelper.PagerDutyKeys._

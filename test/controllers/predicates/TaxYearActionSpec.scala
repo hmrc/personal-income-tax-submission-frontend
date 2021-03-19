@@ -17,9 +17,8 @@
 package controllers.predicates
 
 import controllers.Assets.SEE_OTHER
-import models.User
-import play.api.mvc.{AnyContent, Result}
-import utils.{UnitTest, UnitTestWithApp}
+import play.api.mvc.Result
+import utils.UnitTestWithApp
 
 import scala.concurrent.Future
 
