@@ -36,7 +36,5 @@ class YouNeedAgentServicesControllerSpec extends UnitTestWithApp with DefaultAwa
       status(result) shouldBe UNAUTHORIZED
       contentType(result) shouldBe Some("text/html")
     }
-
   }
-
 }

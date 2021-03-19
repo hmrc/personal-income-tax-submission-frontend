@@ -32,5 +32,4 @@ class YouNeedAgentServicesController @Inject()(val mcc: MessagesControllerCompon
   def show(): Action[AnyContent] = Action.async { implicit request =>
     Future.successful(Unauthorized(youNeedAgentServicesPage()))
   }
-
 }
