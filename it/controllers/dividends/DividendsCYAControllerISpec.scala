@@ -170,7 +170,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
 
         val result = await(connector.submitDividends(dividendsBody, nino, mtdidid, taxYear))
 
-        result shouldBe Left(ApiErrorModel(SERVICE_UNAVAILABLE, ApiErrorBodyModel("SERVICE_UNAVAILABLE", "the service is currently unavailable")))
+        result shouldBe Left(APIErrorModel(SERVICE_UNAVAILABLE, APIErrorBodyModel("SERVICE_UNAVAILABLE", "the service is currently unavailable")))
       }
     }
 
@@ -187,7 +187,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
 
         val result = await(connector.submitDividends(dividendsBody, nino, mtdidid, taxYear))
 
-        result shouldBe Left(ApiErrorModel(INTERNAL_SERVER_ERROR, ApiErrorBodyModel("INTERNAL_SERVER_ERROR", "unexpected status returned from DES")))
+        result shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("INTERNAL_SERVER_ERROR", "unexpected status returned from DES")))
       }
     }
   }

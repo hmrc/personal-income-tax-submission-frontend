@@ -17,7 +17,7 @@
 package connectors
 
 import config.AppConfig
-import connectors.httpparsers.InterestSubmissionHttpParser.{InterestSubmissionResponseReads, InterestSubmissionsResponse}
+import connectors.httpParsers.InterestSubmissionHttpParser.{InterestSubmissionResponseReads, InterestSubmissionsResponse}
 import javax.inject.Inject
 import models.interest.InterestSubmissionModel
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
