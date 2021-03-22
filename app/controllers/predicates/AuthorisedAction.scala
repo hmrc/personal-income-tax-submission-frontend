@@ -81,7 +81,12 @@ class AuthorisedAction @Inject()(
 
     enrolmentGetIdentifierValue(neededKey, neededIdentifier, enrolments).fold[Future[Result]] {
       logger.error(s"[AuthorisedAction][checkAuthorisation] Relevant identifier missing. Agent: $isAgent")
-      Unauthorized("No relevant identifier. Is agent: " + isAgent)
+      if (isAgent) {
+        Future.successful(Redirect(controllers.errors.routes.YouNeedAgentServicesController.show()))
+      }
+      else {
+        Future.successful(Unauthorized("No relevant identifier. Is agent: " + isAgent))
+      }
     } { userId =>
       if (isAgent) agentAuthentication(block) else individualAuthentication(block, enrolments, userId)
     }
@@ -111,7 +116,7 @@ class AuthorisedAction @Inject()(
                 block(User(mtditid, Some(arn),nino))
               case None =>
                 logger.error("[AuthorisedAction][agentAuthentication] Agent with no HMRC-AS-AGENT enrolment. Rendering unauthorised view.")
-                Future.successful(Forbidden("")) //TODO add agent unauthorised page
+                Future.successful(Redirect(controllers.errors.routes.YouNeedAgentServicesController.show()))
             }
           } recover {
           case _: NoActiveSession =>

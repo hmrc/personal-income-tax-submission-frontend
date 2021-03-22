@@ -173,7 +173,7 @@ class AuthorisedActionSpec extends UnitTest {
       }
     }
 
-    "return a Forbidden" when {
+    "return a redirect" when {
 
       "the user does not have an enrolment for the agent" in {
         val enrolments = Enrolments(Set(
@@ -186,7 +186,7 @@ class AuthorisedActionSpec extends UnitTest {
             .returning(Future.successful(enrolments))
           auth.agentAuthentication(block)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
         }
-        status(result) shouldBe FORBIDDEN
+        status(result) shouldBe SEE_OTHER
       }
     }
 
@@ -238,7 +238,7 @@ class AuthorisedActionSpec extends UnitTest {
 
     }
 
-    "return an Unauthorised" when {
+    "return an Unauthorised for an individual, or a Redirect for an agent" when {
 
       "the enrolments do not contain an MTDITID for a user" in {
         lazy val result = auth.checkAuthorisation(block, Enrolments(Set()))
@@ -249,7 +249,7 @@ class AuthorisedActionSpec extends UnitTest {
       "the enrolments do not contain an AgentReferenceNumber for an agent" in {
         lazy val result = auth.checkAuthorisation(block, Enrolments(Set()), isAgent = true)
 
-        status(result) shouldBe UNAUTHORIZED
+        status(result) shouldBe SEE_OTHER
       }
 
     }
