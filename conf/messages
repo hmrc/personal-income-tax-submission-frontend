@@ -193,7 +193,7 @@ error.agent.paragraph4 = Try another client’s details
 youNeedAgentServices.title = You cannot view this page
 youNeedAgentServices.heading = You cannot view this page
 youNeedAgentServices.p1 = You need to
-youNeedAgentServices.p2 = create an agent services account (opens in new tab)
+youNeedAgentServices.p2 = create an agent services account
 youNeedAgentServices.p3 = before you can view this page.
 
 timeout.heading = For your security, we signed you out

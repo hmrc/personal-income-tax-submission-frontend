@@ -33,7 +33,7 @@ class YouNeedAgentServicesViewSpec extends AnyWordSpec with Matchers with GuiceO
   lazy val pageHeadingText = "You cannot view this page"
   lazy val pageTitleText = "You cannot view this page"
   lazy val youNeedText = "You need to"
-  lazy val createAnAgentText = "create an agent services account (opens in new tab)"
+  lazy val createAnAgentText = "create an agent services account"
   lazy val beforeYouCanText = "before you can view this page."
   lazy val createAnAgentLink = "https://www.gov.uk/guidance/get-an-hmrc-agent-services-account"
 
