@@ -35,10 +35,10 @@ class DividendsCYAControllerISpec extends IntegrationTest {
 
   val dividends: BigDecimal = 10
 
- lazy val dividendsBody: DividendsSubmissionModel = DividendsSubmissionModel(
-   Some(dividends),
-   Some(dividends)
- )
+  lazy val dividendsBody: DividendsSubmissionModel = DividendsSubmissionModel(
+    Some(dividends),
+    Some(dividends)
+  )
 
   ".show" should {
 
@@ -102,10 +102,9 @@ class DividendsCYAControllerISpec extends IntegrationTest {
 
     "return an action" which {
 
-      // TODO - this test is a duplicate and it needs to be changed to make a call to the app using wsClient, see DividendsSubmissionConnectorSpec
       s"has an OK(200) status" in {
         authoriseIndividual()
-        stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear&mtditid=1234567890", NO_CONTENT, "{}")
+        stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
         stubGet("/income-through-software/return/2022/view", OK, "{}")
 
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
@@ -118,8 +117,8 @@ class DividendsCYAControllerISpec extends IntegrationTest {
         ))
 
         val result: WSResponse = await(wsClient.url(s"$startUrl/$taxYear/dividends/check-your-answers")
-        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-        .post("{}"))
+          .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+          .post("{}"))
 
         result.status shouldBe OK
       }
@@ -164,12 +163,11 @@ class DividendsCYAControllerISpec extends IntegrationTest {
       }
     }
 
-    "return a service unavailable response" when {
+    "return a service is unavailable" when {
 
-      // TODO - this a service test and not a controller test, see DividendsSubmissionConnectorSpec
       "one is retrieved from the endpoint" in {
         authoriseIndividual()
-        stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear&mtditid=1234567890", SERVICE_UNAVAILABLE, "{}")
+        stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", SERVICE_UNAVAILABLE, "{}")
 
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.DIVIDENDS_CYA -> Json.prettyPrint(Json.toJson(DividendsCheckYourAnswersModel(
@@ -186,13 +184,14 @@ class DividendsCYAControllerISpec extends IntegrationTest {
 
         result.status shouldBe SERVICE_UNAVAILABLE
       }
+
     }
 
     "return an internal server error" when {
 
       "an unhandled response is returned from the income-tax backend" in {
         authoriseIndividual()
-        stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear&mtditid=1234567890", IM_A_TEAPOT, "{}")
+        stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", IM_A_TEAPOT, "{}")
 
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.DIVIDENDS_CYA -> Json.prettyPrint(Json.toJson(DividendsCheckYourAnswersModel(
