@@ -29,9 +29,10 @@ class InterestSubmissionConnector @Inject()(
                                              appConfig: AppConfig
                                            ) {
 
-  def submit(body: Seq[InterestSubmissionModel], nino: String, taxYear: Int, mtditid: String)
+  def submit(body: Seq[InterestSubmissionModel], nino: String, taxYear: Int)
             (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[InterestSubmissionsResponse] = {
-    val url: String = appConfig.interestBaseUrl + s"/income-tax/nino/$nino/sources?taxYear=$taxYear&mtditid=$mtditid"
+    val url: String = appConfig.interestBaseUrl + s"/income-tax/nino/$nino/sources?taxYear=$taxYear"
+
     httpClient.POST[Seq[InterestSubmissionModel], InterestSubmissionsResponse](url, body)
   }
 

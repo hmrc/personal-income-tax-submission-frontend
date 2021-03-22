@@ -16,10 +16,11 @@
 
 package connectors
 
-import models.DividendsSubmissionModel
-import uk.gov.hmrc.http.HeaderCarrier
-import utils.IntegrationTest
+import com.github.tomakehurst.wiremock.http.HttpHeader
+import connectors.httpParsers.DividendsSubmissionHttpParser.DividendsSubmissionsResponse
+import models.{APIErrorBodyModel, APIErrorModel, DividendsResponseModel, DividendsSubmissionModel}
 import play.api.http.Status._
+import utils.IntegrationTest
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
@@ -31,27 +32,29 @@ class DividendsSubmissionConnectorSpec extends IntegrationTest{
     Some(10),
     Some(10)
   )
-  val nino = "nino"
-  val mtditid = "mtditid"
+
   val taxYear = 2020
-  implicit val hc =  HeaderCarrier()
+
+  val expectedHeaders = Seq(new HttpHeader("mtditid", mtditid))
 
   "DividendsSubmissionConnectorSpec" should {
     "Return a success result" when {
       "Dividends returns a 204" in {
-        stubPut(s"/income-tax-dividends/income-tax/nino/$nino/sources\\?taxYear=$taxYear&mtditid=$mtditid", NO_CONTENT, "{}")
-        val result = Await.result(connector.submitDividends(body, nino, mtditid, taxYear), Duration.Inf)
-        result.isRight shouldBe true
+        stubPut(s"/income-tax-dividends/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}", expectedHeaders)
+        val result: DividendsSubmissionsResponse = Await.result(connector.submitDividends(body, nino, taxYear), Duration.Inf)
+        result shouldBe Right(DividendsResponseModel(NO_CONTENT))
       }
+
       "Dividends returns a 400" in {
-        stubPut(s"/income-tax-dividends/income-tax/nino/$nino/sources\\?taxYear=$taxYear&mtditid=$mtditid", BAD_REQUEST, "{}")
-        val result = Await.result(connector.submitDividends(body, nino, mtditid, taxYear), Duration.Inf)
-        result.isLeft shouldBe true
+        stubPut(s"/income-tax-dividends/income-tax/nino/$nino/sources\\?taxYear=$taxYear", BAD_REQUEST, "{}", expectedHeaders)
+        val result = Await.result(connector.submitDividends(body, nino, taxYear), Duration.Inf)
+        result shouldBe Left(APIErrorModel(BAD_REQUEST, APIErrorBodyModel("PARSING_ERROR", "Error parsing response from API")))
       }
+
       "Dividends returns a 500" in {
-        stubPut(s"/income-tax-dividends/income-tax/nino/$nino/sources\\?taxYear=$taxYear&mtditid=$mtditid", INTERNAL_SERVER_ERROR, "{}")
-        val result = Await.result(connector.submitDividends(body, nino, mtditid, taxYear), Duration.Inf)
-        result.isLeft shouldBe true
+        stubPut(s"/income-tax-dividends/income-tax/nino/$nino/sources\\?taxYear=$taxYear", INTERNAL_SERVER_ERROR, "{}", expectedHeaders)
+        val result = Await.result(connector.submitDividends(body, nino, taxYear), Duration.Inf)
+        result shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("PARSING_ERROR", "Error parsing response from API")))
       }
     }
   }
