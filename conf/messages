@@ -184,6 +184,10 @@ error-template.paragraph.2.1 = use
 error-template.paragraph.2.2 = Self Assessment: general enquiries (opens in new tab)
 error-template.paragraph.2.3 = to speak to someone about your income tax
 
+error.unauthorised-user.title = You are not authorised to use this service
+error.unauthorised-user.heading = You are not authorised to use this service
+error.unauthorised-user.paragraph.1.1 = You can:
+
 error.agent.title = There’s a problem
 error.agent.paragraph1 = You cannot view this client’s information. Your client needs to
 error.agent.paragraph2 = authorise you as their agent (opens in new tab)

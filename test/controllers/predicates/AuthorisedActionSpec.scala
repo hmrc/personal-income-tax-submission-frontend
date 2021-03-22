@@ -289,7 +289,7 @@ class AuthorisedActionSpec extends UnitTest {
       }
     }
 
-    "return an Unauthorised" when {
+    "return a redirect" when {
 
       "the authorisation service returns an AuthorisationException exception" in {
         object AuthException extends AuthorisationException("Some reason")
@@ -298,7 +298,7 @@ class AuthorisedActionSpec extends UnitTest {
           mockAuthReturnException(AuthException)
           auth.invokeBlock(fakeRequest, block)
         }
-        status(result) shouldBe UNAUTHORIZED
+        status(result) shouldBe SEE_OTHER
       }
 
       "there is no MTDITID value in session for an agent" in {
