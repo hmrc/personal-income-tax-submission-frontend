@@ -61,6 +61,8 @@ GET         /timeout                                                      contro
 
 GET         /error/wrong-tax-year                                         controllers.TaxYearErrorController.show
 
+GET         /error/not-authorised-to-use-service                          controllers.errors.UnauthorisedUserErrorController.show
+
 GET         /assets/*file                                                 controllers.Assets.versioned(path = "/public", file: Asset)
 
 GET        /error/you-need-agent-services-account       controllers.errors.YouNeedAgentServicesController.show

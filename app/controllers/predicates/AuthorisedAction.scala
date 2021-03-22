@@ -69,7 +69,7 @@ class AuthorisedAction @Inject()(
         Redirect(appConfig.signInUrl)
       case _: AuthorisationException =>
         logger.error(s"[AgentPredicate][authoriseAsAgent] - Agent does not have delegated authority for Client.")
-        Unauthorized("") //TODO Redirect to unauthorised page
+        Redirect(controllers.errors.routes.UnauthorisedUserErrorController.show())
     }
   }
 
