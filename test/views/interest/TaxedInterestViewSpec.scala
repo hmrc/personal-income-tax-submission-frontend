@@ -35,8 +35,10 @@ class TaxedInterestViewSpec extends ViewTest {
 
   val captionSelector = ".govuk-caption-l"
   val valueHref = "#value"
-  val forExampleSelector = "#value-hint > p"
-  val bulletPointSelector = "#value-hint > ul > li"
+  val forExampleSelector = "#value-hint > p:nth-child(1)"
+  val bulletPointSelector1 = "#value-hint > ul > li:nth-child(1)"
+  val bulletPointSelector2 = "#value-hint > ul > li:nth-child(2)"
+  val bulletPointSelector3 = "#value-hint > ul > li:nth-child(3)"
   val doNotIncludeSelector = "#value-hint > p:nth-child(3)"
   val continueSelector = "#continue"
 
@@ -68,23 +70,10 @@ class TaxedInterestViewSpec extends ViewTest {
         h1Check(expectedIndividualH1)
         textOnPageCheck(expectedCaption, captionSelector)
 
-        s"have text on the screen of '$forExampleText'" in {
-          document.select(forExampleSelector).get(0).text() shouldBe forExampleText
-        }
-
-        s"three bullet points on the screen" which {
-          s"has a first bullet point of '$trustFundsText'" in {
-            document.select(bulletPointSelector).get(0).text() shouldBe trustFundsText
-          }
-
-          s"has a second bullet point of '$companyBondsText'" in {
-            document.select(bulletPointSelector).get(1).text() shouldBe companyBondsText
-          }
-
-          s"has a third bullet point of '$lifeAnnuityText'" in {
-            document.select(bulletPointSelector).get(2).text() shouldBe lifeAnnuityText
-          }
-        }
+        textOnPageCheck(forExampleText, forExampleSelector)
+        textOnPageCheck(trustFundsText, bulletPointSelector1)
+        textOnPageCheck(companyBondsText, bulletPointSelector2)
+        textOnPageCheck(lifeAnnuityText, bulletPointSelector3)
 
         textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
 
@@ -123,23 +112,10 @@ class TaxedInterestViewSpec extends ViewTest {
         h1Check(expectedAgentH1)
         textOnPageCheck(expectedCaption, captionSelector)
 
-        s"have text on the screen of '$forExampleText'" in {
-          document.select(forExampleSelector).get(0).text() shouldBe forExampleText
-        }
-
-        s"three bullet points on the screen" which {
-          s"has a first bullet point of '$trustFundsText'" in {
-            document.select(bulletPointSelector).get(0).text() shouldBe trustFundsText
-          }
-
-          s"has a second bullet point of '$companyBondsText'" in {
-            document.select(bulletPointSelector).get(1).text() shouldBe companyBondsText
-          }
-
-          s"has a third bullet point of '$lifeAnnuityText'" in {
-            document.select(bulletPointSelector).get(2).text() shouldBe lifeAnnuityText
-          }
-        }
+        textOnPageCheck(forExampleText, forExampleSelector)
+        textOnPageCheck(trustFundsText, bulletPointSelector1)
+        textOnPageCheck(companyBondsText, bulletPointSelector2)
+        textOnPageCheck(lifeAnnuityText, bulletPointSelector3)
 
         textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
 
