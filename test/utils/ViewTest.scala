@@ -80,9 +80,9 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
     }
   }
 
-  def h1Check(header: String)(implicit document: Document): Unit = {
+  def h1Check(header: String, size: String = "l")(implicit document: Document): Unit = {
     s"have a page heading of '$header'" in {
-      document.select(".govuk-heading-l").text() shouldBe header
+      document.select(s".govuk-heading-$size").text() shouldBe header
     }
   }
 

@@ -60,6 +60,7 @@ GET         /keep-alive                                                   contro
 GET         /timeout                                                      controllers.SessionExpiredController.timeout
 
 GET         /error/wrong-tax-year                                         controllers.TaxYearErrorController.show
+GET         /error/you-need-to-sign-up                                    controllers.errors.IndividualAuthErrorController.show
 
 GET         /error/not-authorised-to-use-service                          controllers.errors.UnauthorisedUserErrorController.show
 
