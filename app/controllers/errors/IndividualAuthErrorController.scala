@@ -20,9 +20,7 @@ import config.AppConfig
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SessionHelper
-import views.html.authErrorPages.{AgentAuthErrorPageView, IndividualUnauthorisedView}
-import views.html.templates.TaxYearErrorTemplate
+import views.html.authErrorPages.IndividualUnauthorisedView
 
 import javax.inject.Inject
 

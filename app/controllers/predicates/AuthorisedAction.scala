@@ -84,7 +84,6 @@ class AuthorisedAction @Inject()(
       if (isAgent) {
         Future.successful(Redirect(controllers.errors.routes.YouNeedAgentServicesController.show()))
       } else {
-        logger.error(s"[AuthorisedAction][checkAuthorisation] Relevant identifier missing. Agent: $isAgent")
         Redirect(controllers.errors.routes.IndividualAuthErrorController.show())
       }
     } { userId =>

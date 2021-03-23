@@ -253,10 +253,16 @@ class AuthorisedActionSpec extends UnitTest {
 
       }
 
-      "the enrolments do not contain an AgentReferenceNumber for an agent" in {
+      "the enrolments do not contain an AgentReferenceNumber for an agent" which {
         lazy val result = auth.checkAuthorisation(block, Enrolments(Set()), isAgent = true)
 
-        status(result) shouldBe SEE_OTHER
+        "has the correct status" in {
+          status(result) shouldBe SEE_OTHER
+        }
+
+        "redirects to the unauthorised individual page" in {
+          redirectUrl(result) shouldBe "/income-through-software/return/personal-income/error/you-need-agent-services-account"
+        }
       }
 
     }

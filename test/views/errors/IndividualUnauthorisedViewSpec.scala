@@ -35,12 +35,12 @@ class IndividualUnauthorisedViewSpec extends ViewTest {
 
   "IndividualUnauthorisedView" should {
 
-    "render the paage" which {
+    "render the page" which {
       implicit lazy val document: Document = Jsoup.parse(view().toString())
 
       titleCheck(validTitle)
       h1Check(validTitle, "xl")
-      textOnPageCheck("You need to sign up for Making Tax Digital for Income Tax before you can view this page.", paragraphSelector)
+      textOnPageCheck(pageContent, paragraphSelector)
       linkCheck(linkContent, linkSelector, linkHref)
     }
 
