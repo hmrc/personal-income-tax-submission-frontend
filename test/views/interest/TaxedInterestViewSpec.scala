@@ -37,7 +37,7 @@ class TaxedInterestViewSpec extends ViewTest {
   val valueHref = "#value"
   val forExampleSelector = "#value-hint > p"
   val bulletPointSelector = "#value-hint > ul > li"
-  val doNotIncludeSelector = "#value-hint"
+  val doNotIncludeSelector = "#value-hint > p:nth-child(3)"
   val continueSelector = "#continue"
 
   val expectedIndividualTitle = "Did you receive any taxed interest from the UK?"
@@ -87,7 +87,7 @@ class TaxedInterestViewSpec extends ViewTest {
         }
 
         s"have text on the screen of '$doNotIncludeText'" in {
-          document.select(doNotIncludeSelector).text() should include (doNotIncludeText)
+          document.select(doNotIncludeSelector).text() shouldBe doNotIncludeText
         }
 
         radioButtonCheck(yesText, 1)
@@ -144,7 +144,7 @@ class TaxedInterestViewSpec extends ViewTest {
         }
 
         s"have text on the screen of '$doNotIncludeText'" in {
-          document.select(doNotIncludeSelector).text() should include (doNotIncludeText)
+          document.select(doNotIncludeSelector).text() shouldBe doNotIncludeText
         }
 
         radioButtonCheck(yesText, 1)
