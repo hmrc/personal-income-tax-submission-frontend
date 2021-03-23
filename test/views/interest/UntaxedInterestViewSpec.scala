@@ -34,9 +34,11 @@ class UntaxedInterestViewSpec extends ViewTest {
   val taxYearMinusOne: Int = taxYear -1
 
   val captionSelector = ".govuk-caption-l"
-  val forExampleSelector = "#value-hint > p"
-  val bulletPointSelector = "#value-hint > ul > li"
-  val doNotIncludeSelector = "#value-hint"
+  val forExampleSelector = "#value-hint > p:nth-child(1)"
+  val bulletPointSelector1 = "#value-hint > ul > li:nth-child(1)"
+  val bulletPointSelector2 = "#value-hint > ul > li:nth-child(2)"
+  val bulletPointSelector3 = "#value-hint > ul > li:nth-child(3)"
+  val doNotIncludeSelector = "#value-hint > p:nth-child(3)"
   val continueSelector = "#continue"
 
   val expectedIndividualTitle = "Did you receive any untaxed interest from the UK?"
@@ -69,27 +71,12 @@ class UntaxedInterestViewSpec extends ViewTest {
         h1Check(expectedIndividualH1)
         textOnPageCheck(expectedCaption, captionSelector)
 
-        s"have text on the screen of '$forExampleText'" in {
-          document.select(forExampleSelector).get(0).text() shouldBe forExampleText
-        }
+        textOnPageCheck(forExampleText, forExampleSelector)
+        textOnPageCheck(banksAndBuildingsText, bulletPointSelector1)
+        textOnPageCheck(savingsAndCreditText, bulletPointSelector2)
+        textOnPageCheck(peerToPeerText, bulletPointSelector3)
 
-        s"three bullet points on the screen" which {
-          s"has a first bullet point of '$banksAndBuildingsText'" in {
-            document.select(bulletPointSelector).get(0).text() shouldBe banksAndBuildingsText
-          }
-
-          s"has a second bullet point of '$savingsAndCreditText'" in {
-            document.select(bulletPointSelector).get(1).text() shouldBe savingsAndCreditText
-          }
-
-          s"has a third bullet point of '$peerToPeerText'" in {
-            document.select(bulletPointSelector).get(2).text() shouldBe peerToPeerText
-          }
-        }
-
-        s"have text on the screen of '$doNotIncludeText'" in {
-          document.select(doNotIncludeSelector).text() should include (doNotIncludeText)
-        }
+        textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
 
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
@@ -125,27 +112,12 @@ class UntaxedInterestViewSpec extends ViewTest {
         h1Check(expectedAgentH1)
         textOnPageCheck(expectedCaption, captionSelector)
 
-        s"have text on the screen of '$forExampleText'" in {
-          document.select(forExampleSelector).get(0).text() shouldBe forExampleText
-        }
+        textOnPageCheck(forExampleText, forExampleSelector)
+        textOnPageCheck(banksAndBuildingsText, bulletPointSelector1)
+        textOnPageCheck(savingsAndCreditText, bulletPointSelector2)
+        textOnPageCheck(peerToPeerText, bulletPointSelector3)
 
-        s"three bullet points on the screen" which {
-          s"has a first bullet point of '$banksAndBuildingsText'" in {
-            document.select(bulletPointSelector).get(0).text() shouldBe banksAndBuildingsText
-          }
-
-          s"has a second bullet point of '$savingsAndCreditText'" in {
-            document.select(bulletPointSelector).get(1).text() shouldBe savingsAndCreditText
-          }
-
-          s"has a third bullet point of '$peerToPeerText'" in {
-            document.select(bulletPointSelector).get(2).text() shouldBe peerToPeerText
-          }
-        }
-
-        s"have text on the screen of '$doNotIncludeText'" in {
-          document.select(doNotIncludeSelector).text() should include (doNotIncludeText)
-        }
+        textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
 
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
