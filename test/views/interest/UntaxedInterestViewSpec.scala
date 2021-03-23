@@ -87,9 +87,7 @@ class UntaxedInterestViewSpec extends ViewTest {
           }
         }
 
-        s"have text on the screen of '$doNotIncludeText'" in {
-          document.select(doNotIncludeSelector).text() shouldBe doNotIncludeText
-        }
+        textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
 
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
@@ -143,9 +141,7 @@ class UntaxedInterestViewSpec extends ViewTest {
           }
         }
 
-        s"have text on the screen of '$doNotIncludeText'" in {
-          document.select(doNotIncludeSelector).text() shouldBe doNotIncludeText
-        }
+        textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
 
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
