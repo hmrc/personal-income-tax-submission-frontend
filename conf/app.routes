@@ -66,4 +66,6 @@ GET         /error/not-authorised-to-use-service                          contro
 
 GET         /assets/*file                                                 controllers.Assets.versioned(path = "/public", file: Asset)
 
-GET        /error/you-need-agent-services-account       controllers.errors.YouNeedAgentServicesController.show
+GET        /error/you-need-agent-services-account                         controllers.errors.YouNeedAgentServicesController.show
+
+GET        /language/:lang                                                controllers.LanguageSwitchController.switchToLanguage(lang: String)

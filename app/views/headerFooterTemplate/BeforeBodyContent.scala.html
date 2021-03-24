@@ -16,12 +16,19 @@
 
 @import views.html.templates.helpers.BetaBar
 
-@this(betaBar: BetaBar,
-      govukBackLink: GovukBackLink)
+@this(betaBar: BetaBar,hmrcLanguageSelect : HmrcLanguageSelect,govukBackLink: GovukBackLink)
 
 @(backLink: Boolean = true)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @betaBar()
+
+@if(appConfig.welshToggleEnabled) {
+ @hmrcLanguageSelect(LanguageSelect(
+   language = utils.LanguageUtil.checkLanguage,
+     En -> appConfig.routeToSwitchLanguage("english").toString,
+     Cy -> appConfig.routeToSwitchLanguage("cymraeg").toString
+   ))
+}
 
 @if(backLink) {
     @govukBackLink(BackLink(href = "#", content = Text(messages("common.back")), attributes = Map("id" -> "back-link")))

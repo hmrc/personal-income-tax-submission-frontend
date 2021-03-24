@@ -8,3 +8,9 @@ a.govuk-link.hmrc-sign-out-nav__link:active {
 a.govuk-link.hmrc-sign-out-nav__link:focus {
   color: black;
 }
+
+.hmrc-language-select {
+  @include govuk-media-query($from: desktop) {
+    float: right;
+  }
+ }

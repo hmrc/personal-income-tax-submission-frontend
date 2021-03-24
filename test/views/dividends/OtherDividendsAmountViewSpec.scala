@@ -35,7 +35,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
   lazy val otherDividendsAmountView: OtherUkDividendsAmountView = app.injector.instanceOf[OtherUkDividendsAmountView]
 
   val taxYear: Int = 2020
-  val taxYearMinusOne = taxYear -1
+  val taxYearMinusOne: Int = taxYear -1
 
   val poundPrefixSelector = ".govuk-input__prefix"
   val captionSelector = ".govuk-caption-l"
@@ -60,7 +60,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
   val newAmountInput = "#amount"
   val amountInputName = "amount"
 
-  "UkDividendsAmountView" should {
+  "UkDividendsAmountView in English" should {
 
     "Render successfully without prior data" when {
 
@@ -68,10 +68,11 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
         "there are no form errors" which {
 
-          lazy val view = otherDividendsAmountView(Right(otherDividendsAmountForm), None, taxYear, testCall)(user, implicitly, mockAppConfig)
+          lazy val view = otherDividendsAmountView(Right(otherDividendsAmountForm), None, taxYear, testCall)(user, messages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
           titleCheck(expectedTitle)
+          welshToggleCheck("English")
           h1Check(expectedH1)
           textOnPageCheck(expectedCaption, captionSelector)
           hintTextCheck(expectedHintText)
@@ -89,13 +90,14 @@ class OtherDividendsAmountViewSpec extends ViewTest {
               None,
               taxYear,
               testCall
-            )(user, implicitly, mockAppConfig)
+            )(user, messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             val expectedErrorText = "Enter the amount of dividends received from trusts or investment companies"
 
             titleCheck(expectedErrorTitle)
+            welshToggleCheck("English")
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
             hintTextCheck(expectedHintText)
@@ -114,13 +116,14 @@ class OtherDividendsAmountViewSpec extends ViewTest {
               None,
               taxYear,
               testCall
-            )(user, implicitly, mockAppConfig)
+            )(user, messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             val expectedErrorText = "Enter an amount using numbers 0 to 9"
 
             titleCheck(expectedErrorTitle)
+            welshToggleCheck("English")
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
             hintTextCheck(expectedHintText)
@@ -139,13 +142,14 @@ class OtherDividendsAmountViewSpec extends ViewTest {
               None,
               taxYear,
               testCall
-            )(user, implicitly, mockAppConfig)
+            )(user, messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             val expectedErrorText = "Enter an amount less than £100,000,000,000"
 
             titleCheck(expectedErrorTitle)
+            welshToggleCheck("English")
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
             hintTextCheck(expectedHintText)
@@ -164,13 +168,14 @@ class OtherDividendsAmountViewSpec extends ViewTest {
               None,
               taxYear,
               testCall
-            )(user, implicitly, mockAppConfig)
+            )(user, messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             val expectedErrorText = "Enter the amount in the correct format"
 
             titleCheck(expectedErrorTitle)
+            welshToggleCheck("English")
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
             hintTextCheck(expectedHintText)
@@ -188,10 +193,11 @@ class OtherDividendsAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = otherDividendsAmountView(Right(otherDividendsAmountForm), None,
-            taxYear, testCall)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+            taxYear, testCall)(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
           titleCheck(expectedTitle)
+          welshToggleCheck("English")
           h1Check(expectedH1)
           textOnPageCheck(expectedCaption, captionSelector)
           hintTextCheck(expectedHintText)
@@ -209,13 +215,14 @@ class OtherDividendsAmountViewSpec extends ViewTest {
               None,
               taxYear,
               testCall
-            )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+            )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             val expectedErrorText = "Enter the amount of dividends received from trusts or investment companies"
 
             titleCheck(expectedErrorTitle)
+            welshToggleCheck("English")
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
             hintTextCheck(expectedHintText)
@@ -233,13 +240,14 @@ class OtherDividendsAmountViewSpec extends ViewTest {
               None,
               taxYear,
               testCall
-            )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+            )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             val expectedErrorText = "Enter an amount using numbers 0 to 9"
 
             titleCheck(expectedErrorTitle)
+            welshToggleCheck("English")
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
             hintTextCheck(expectedHintText)
@@ -258,13 +266,14 @@ class OtherDividendsAmountViewSpec extends ViewTest {
               None,
               taxYear,
               testCall
-            )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+            )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             val expectedErrorText = "Enter an amount less than £100,000,000,000"
 
             titleCheck(expectedErrorTitle)
+            welshToggleCheck("English")
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
             hintTextCheck(expectedHintText)
@@ -283,13 +292,14 @@ class OtherDividendsAmountViewSpec extends ViewTest {
               None,
               taxYear,
               testCall
-            )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+            )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             val expectedErrorText = "Enter the amount in the correct format"
 
             titleCheck(expectedErrorTitle)
+            welshToggleCheck("English")
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
             hintTextCheck(expectedHintText)
@@ -315,10 +325,11 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             Some(DividendsPriorSubmission(None, Some(priorAmount))),
             taxYear,
             testCall
-          )(user, implicitly, mockAppConfig)
+          )(user, messages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
           titleCheck(expectedTitle)
+          welshToggleCheck("English")
           h1Check(expectedH1)
           textOnPageCheck(expectedCaption, captionSelector)
           hintTextCheck(expectedHintText)
@@ -338,12 +349,13 @@ class OtherDividendsAmountViewSpec extends ViewTest {
               Some(DividendsPriorSubmission(None, Some(priorAmount))),
               taxYear,
               testCall
-            )(user, implicitly, mockAppConfig)
+            )(user, messages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             val expectedErrorText = "Enter the amount in the correct format"
 
             titleCheck(expectedErrorTitle)
+            welshToggleCheck("English")
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
             hintTextCheck(expectedHintText)
@@ -363,12 +375,13 @@ class OtherDividendsAmountViewSpec extends ViewTest {
               Some(DividendsPriorSubmission(None, Some(priorAmount))),
               taxYear,
               testCall
-            )(user, implicitly, mockAppConfig)
+            )(user, messages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             val expectedErrorText = "Enter an amount using numbers 0 to 9"
 
             titleCheck(expectedErrorTitle)
+            welshToggleCheck("English")
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
             hintTextCheck(expectedHintText)
@@ -388,12 +401,13 @@ class OtherDividendsAmountViewSpec extends ViewTest {
               Some(DividendsPriorSubmission(None, Some(priorAmount))),
               taxYear,
               testCall
-            )(user, implicitly, mockAppConfig)
+            )(user, messages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             val expectedErrorText = "Enter an amount less than £100,000,000,000"
 
             titleCheck(expectedErrorTitle)
+            welshToggleCheck("English")
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
             hintTextCheck(expectedHintText)
@@ -413,12 +427,13 @@ class OtherDividendsAmountViewSpec extends ViewTest {
               Some(DividendsPriorSubmission(None, Some(priorAmount))),
               taxYear,
               testCall
-            )(user, implicitly, mockAppConfig)
+            )(user, messages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             val expectedErrorText = "Enter the amount in the correct format"
 
             titleCheck(expectedErrorTitle)
+            welshToggleCheck("English")
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
             hintTextCheck(expectedHintText)
@@ -446,10 +461,11 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             Some(DividendsPriorSubmission(None, Some(priorAmount))),
             taxYear,
             testCall
-          )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+          )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
           titleCheck(expectedTitle)
+          welshToggleCheck("English")
           h1Check(expectedH1)
           textOnPageCheck(expectedCaption, captionSelector)
           hintTextCheck(expectedHintText)
@@ -470,12 +486,13 @@ class OtherDividendsAmountViewSpec extends ViewTest {
               Some(DividendsPriorSubmission(None, Some(priorAmount))),
               taxYear,
               testCall
-            )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+            )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             val expectedErrorText = "Enter the amount in the correct format"
 
             titleCheck(expectedErrorTitle)
+            welshToggleCheck("English")
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
             hintTextCheck(expectedHintText)
@@ -495,12 +512,13 @@ class OtherDividendsAmountViewSpec extends ViewTest {
               Some(DividendsPriorSubmission(None, Some(priorAmount))),
               taxYear,
               testCall
-            )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+            )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             val expectedErrorText = "Enter an amount using numbers 0 to 9"
 
             titleCheck(expectedErrorTitle)
+            welshToggleCheck("English")
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
             hintTextCheck(expectedHintText)
@@ -520,12 +538,13 @@ class OtherDividendsAmountViewSpec extends ViewTest {
               Some(DividendsPriorSubmission(None, Some(priorAmount))),
               taxYear,
               testCall
-            )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+            )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             val expectedErrorText = "Enter an amount less than £100,000,000,000"
 
             titleCheck(expectedErrorTitle)
+            welshToggleCheck("English")
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
             hintTextCheck(expectedHintText)
@@ -545,12 +564,13 @@ class OtherDividendsAmountViewSpec extends ViewTest {
               Some(DividendsPriorSubmission(None, Some(priorAmount))),
               taxYear,
               testCall
-            )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+            )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             val expectedErrorText = "Enter the amount in the correct format"
 
             titleCheck(expectedErrorTitle)
+            welshToggleCheck("English")
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
             hintTextCheck(expectedHintText)
@@ -567,4 +587,533 @@ class OtherDividendsAmountViewSpec extends ViewTest {
       }
     }
   }
+
+  "UkDividendsAmountView in Welsh" should {
+
+    "Render successfully without prior data" when {
+
+      "correctly render for an individual" when {
+
+        "there are no form errors" which {
+
+          lazy val view = otherDividendsAmountView(Right(otherDividendsAmountForm), None, taxYear, testCall)(user, welshMessages, mockAppConfig)
+          implicit lazy val document: Document = Jsoup.parse(view.body)
+
+          titleCheck(expectedTitle)
+          welshToggleCheck("Welsh")
+          h1Check(expectedH1)
+          textOnPageCheck(expectedCaption, captionSelector)
+          hintTextCheck(expectedHintText)
+          textOnPageCheck(poundPrefixText, poundPrefixSelector)
+          inputFieldCheck(amountInputName, inputSelector)
+          buttonCheck(continueText, continueButtonSelector)
+        }
+
+        "there are form errors" when {
+
+          "an empty value is passed in" which {
+
+            lazy val view = otherDividendsAmountView(
+              Right(otherDividendsAmountForm.bind(Map("amount" -> ""))),
+              None,
+              taxYear,
+              testCall
+            )(user, welshMessages, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorText = "Enter the amount of dividends received from trusts or investment companies"
+
+            titleCheck(expectedErrorTitle)
+            welshToggleCheck("Welsh")
+            h1Check(expectedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorSummaryCheck(expectedErrorText, newAmountInput)
+            errorAboveElementCheck(expectedErrorText)
+            textOnPageCheck(poundPrefixText, poundPrefixSelector)
+            inputFieldCheck(amountInputName, inputSelector)
+            buttonCheck(continueText, continueButtonSelector)
+
+          }
+
+          "a non numeric value is passed in" which {
+
+            lazy val view = otherDividendsAmountView(
+              Right(otherDividendsAmountForm.bind(Map("amount" -> "abc"))),
+              None,
+              taxYear,
+              testCall
+            )(user, welshMessages, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorText = "Enter an amount using numbers 0 to 9"
+
+            titleCheck(expectedErrorTitle)
+            welshToggleCheck("Welsh")
+            h1Check(expectedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorSummaryCheck(expectedErrorText, newAmountInput)
+            errorAboveElementCheck(expectedErrorText)
+            textOnPageCheck(poundPrefixText, poundPrefixSelector)
+            inputFieldCheck(amountInputName, inputSelector)
+            buttonCheck(continueText, continueButtonSelector)
+
+          }
+
+          "a value bigger than £100,000,000,000 is passed in" which {
+
+            lazy val view = otherDividendsAmountView(
+              Right(otherDividendsAmountForm.bind(Map("amount" -> "200,000,000,000"))),
+              None,
+              taxYear,
+              testCall
+            )(user, welshMessages, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorText = "Enter an amount less than £100,000,000,000"
+
+            titleCheck(expectedErrorTitle)
+            welshToggleCheck("Welsh")
+            h1Check(expectedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorSummaryCheck(expectedErrorText, newAmountInput)
+            errorAboveElementCheck(expectedErrorText)
+            textOnPageCheck(poundPrefixText, poundPrefixSelector)
+            inputFieldCheck(amountInputName, inputSelector)
+            buttonCheck(continueText, continueButtonSelector)
+
+          }
+
+          "an invalid format value is passed in" which {
+
+            lazy val view = otherDividendsAmountView(
+              Right(otherDividendsAmountForm.bind(Map("amount" -> "10.00.00.00"))),
+              None,
+              taxYear,
+              testCall
+            )(user, welshMessages, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorText = "Enter the amount in the correct format"
+
+            titleCheck(expectedErrorTitle)
+            welshToggleCheck("Welsh")
+            h1Check(expectedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorSummaryCheck(expectedErrorText, newAmountInput)
+            errorAboveElementCheck(expectedErrorText)
+            textOnPageCheck(poundPrefixText, poundPrefixSelector)
+            inputFieldCheck(amountInputName, inputSelector)
+            buttonCheck(continueText, continueButtonSelector)
+          }
+        }
+      }
+
+      "correctly render for an agent" when {
+
+        "there are no form errors" which {
+
+          lazy val view = otherDividendsAmountView(Right(otherDividendsAmountForm), None,
+            taxYear, testCall)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+          implicit lazy val document: Document = Jsoup.parse(view.body)
+
+          titleCheck(expectedTitle)
+          welshToggleCheck("Welsh")
+          h1Check(expectedH1)
+          textOnPageCheck(expectedCaption, captionSelector)
+          hintTextCheck(expectedHintText)
+          textOnPageCheck(poundPrefixText, poundPrefixSelector)
+          inputFieldCheck(amountInputName, inputSelector)
+          buttonCheck(continueText, continueButtonSelector)
+        }
+
+        "there are form errors" when {
+
+          "an empty value is passed in" which {
+
+            lazy val view = otherDividendsAmountView(
+              Right(otherDividendsAmountForm.bind(Map("amount" -> ""))),
+              None,
+              taxYear,
+              testCall
+            )(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorText = "Enter the amount of dividends received from trusts or investment companies"
+
+            titleCheck(expectedErrorTitle)
+            welshToggleCheck("Welsh")
+            h1Check(expectedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorSummaryCheck(expectedErrorText, newAmountInput)
+            errorAboveElementCheck(expectedErrorText)
+            textOnPageCheck(poundPrefixText, poundPrefixSelector)
+            inputFieldCheck(amountInputName, inputSelector)
+            buttonCheck(continueText, continueButtonSelector)
+          }
+
+          "a non numeric value is passed in" which {
+
+            lazy val view = otherDividendsAmountView(
+              Right(otherDividendsAmountForm.bind(Map("amount" -> "abc"))),
+              None,
+              taxYear,
+              testCall
+            )(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorText = "Enter an amount using numbers 0 to 9"
+
+            titleCheck(expectedErrorTitle)
+            welshToggleCheck("Welsh")
+            h1Check(expectedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorSummaryCheck(expectedErrorText, newAmountInput)
+            errorAboveElementCheck(expectedErrorText)
+            textOnPageCheck(poundPrefixText, poundPrefixSelector)
+            inputFieldCheck(amountInputName, inputSelector)
+            buttonCheck(continueText, continueButtonSelector)
+
+          }
+
+          "a value bigger than £100,000,000,000 is passed in" which {
+
+            lazy val view = otherDividendsAmountView(
+              Right(otherDividendsAmountForm.bind(Map("amount" -> "200,000,000,000"))),
+              None,
+              taxYear,
+              testCall
+            )(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorText = "Enter an amount less than £100,000,000,000"
+
+            titleCheck(expectedErrorTitle)
+            welshToggleCheck("Welsh")
+            h1Check(expectedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorSummaryCheck(expectedErrorText, newAmountInput)
+            errorAboveElementCheck(expectedErrorText)
+            textOnPageCheck(poundPrefixText, poundPrefixSelector)
+            inputFieldCheck(amountInputName, inputSelector)
+            buttonCheck(continueText, continueButtonSelector)
+
+          }
+
+          "an invalid format value is passed in" which {
+
+            lazy val view = otherDividendsAmountView(
+              Right(otherDividendsAmountForm.bind(Map("amount" -> "10.00.00.00"))),
+              None,
+              taxYear,
+              testCall
+            )(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorText = "Enter the amount in the correct format"
+
+            titleCheck(expectedErrorTitle)
+            welshToggleCheck("Welsh")
+            h1Check(expectedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorSummaryCheck(expectedErrorText, newAmountInput)
+            errorAboveElementCheck(expectedErrorText)
+            textOnPageCheck(poundPrefixText, poundPrefixSelector)
+            inputFieldCheck(amountInputName, inputSelector)
+            buttonCheck(continueText, continueButtonSelector)
+          }
+        }
+      }
+
+    }
+
+    "Render successfully with prior data" when {
+
+      "correctly render for an individual" when {
+
+        "there are no form errors" which {
+
+          lazy val view = otherDividendsAmountView(
+            Left(priorOrNewAmountForm.fill(PriorOrNewAmountModel("other",None))),
+            Some(DividendsPriorSubmission(None, Some(priorAmount))),
+            taxYear,
+            testCall
+          )(user, welshMessages, mockAppConfig)
+          implicit lazy val document: Document = Jsoup.parse(view.body)
+
+          titleCheck(expectedTitle)
+          welshToggleCheck("Welsh")
+          h1Check(expectedH1)
+          textOnPageCheck(expectedCaption, captionSelector)
+          hintTextCheck(expectedHintText)
+          radioButtonCheck(s"£$priorAmount", 1)
+          radioButtonCheck(differentAmountText, 2)
+          textOnPageCheck(enterAmountText, enterAmountSelector)
+          textOnPageCheck(poundPrefixText, poundPrefixSelector)
+          inputFieldCheck(amountInputName, inputSelector)
+          buttonCheck(continueText, continueButtonSelector)
+        }
+
+        "there are form errors" when {
+
+          "an empty value is passed in" which {
+            lazy val view = otherDividendsAmountView(
+              Left(priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> ""))),
+              Some(DividendsPriorSubmission(None, Some(priorAmount))),
+              taxYear,
+              testCall
+            )(user, welshMessages, mockAppConfig)
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorText = "Enter the amount in the correct format"
+
+            titleCheck(expectedErrorTitle)
+            welshToggleCheck("Welsh")
+            h1Check(expectedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            radioButtonCheck(s"£$priorAmount", 1)
+            radioButtonCheck(differentAmountText, 2)
+            textOnPageCheck(enterAmountText, enterAmountSelector)
+            errorSummaryCheck(expectedErrorText, newAmountInput)
+            errorAboveElementCheck(expectedErrorText)
+            textOnPageCheck(poundPrefixText, poundPrefixSelector)
+            inputFieldCheck(amountInputName, inputSelector)
+            buttonCheck(continueText, continueButtonSelector)
+          }
+
+          "a non numeric value is passed in" which {
+            lazy val view = otherDividendsAmountView(
+              Left(priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "abc"))),
+              Some(DividendsPriorSubmission(None, Some(priorAmount))),
+              taxYear,
+              testCall
+            )(user, welshMessages, mockAppConfig)
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorText = "Enter an amount using numbers 0 to 9"
+
+            titleCheck(expectedErrorTitle)
+            welshToggleCheck("Welsh")
+            h1Check(expectedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            radioButtonCheck(s"£$priorAmount", 1)
+            radioButtonCheck(differentAmountText, 2)
+            textOnPageCheck(enterAmountText, enterAmountSelector)
+            errorSummaryCheck(expectedErrorText, newAmountInput)
+            errorAboveElementCheck(expectedErrorText)
+            textOnPageCheck(poundPrefixText, poundPrefixSelector)
+            inputFieldCheck(amountInputName, inputSelector)
+            buttonCheck(continueText, continueButtonSelector)
+          }
+
+          "a value bigger than £100,000,000,000 is passed in" which {
+            lazy val view = otherDividendsAmountView(
+              Left(priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "200,000,000,000"))),
+              Some(DividendsPriorSubmission(None, Some(priorAmount))),
+              taxYear,
+              testCall
+            )(user, welshMessages, mockAppConfig)
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorText = "Enter an amount less than £100,000,000,000"
+
+            titleCheck(expectedErrorTitle)
+            welshToggleCheck("Welsh")
+            h1Check(expectedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            radioButtonCheck(s"£$priorAmount", 1)
+            radioButtonCheck(differentAmountText, 2)
+            textOnPageCheck(enterAmountText, enterAmountSelector)
+            errorSummaryCheck(expectedErrorText, newAmountInput)
+            errorAboveElementCheck(expectedErrorText)
+            textOnPageCheck(poundPrefixText, poundPrefixSelector)
+            inputFieldCheck(amountInputName, inputSelector)
+            buttonCheck(continueText, continueButtonSelector)
+          }
+
+          "an invalid format value is passed in" which {
+            lazy val view = otherDividendsAmountView(
+              Left(priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "100.000.00.00"))),
+              Some(DividendsPriorSubmission(None, Some(priorAmount))),
+              taxYear,
+              testCall
+            )(user, welshMessages, mockAppConfig)
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorText = "Enter the amount in the correct format"
+
+            titleCheck(expectedErrorTitle)
+            welshToggleCheck("Welsh")
+            h1Check(expectedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            radioButtonCheck(s"£$priorAmount", 1)
+            radioButtonCheck(differentAmountText, 2)
+            textOnPageCheck(enterAmountText, enterAmountSelector)
+            errorSummaryCheck(expectedErrorText, newAmountInput)
+            errorAboveElementCheck(expectedErrorText)
+            textOnPageCheck(poundPrefixText, poundPrefixSelector)
+            inputFieldCheck(amountInputName, inputSelector)
+            buttonCheck(continueText, continueButtonSelector)
+          }
+        }
+      }
+    }
+
+    "Render successfully with prior data" when {
+
+      "correctly render for an agent" when {
+
+        "there are no form errors" which {
+
+          lazy val view = otherDividendsAmountView(
+            Left(priorOrNewAmountForm.fill(PriorOrNewAmountModel("other",None))),
+            Some(DividendsPriorSubmission(None, Some(priorAmount))),
+            taxYear,
+            testCall
+          )(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+          implicit lazy val document: Document = Jsoup.parse(view.body)
+
+          titleCheck(expectedTitle)
+          welshToggleCheck("Welsh")
+          h1Check(expectedH1)
+          textOnPageCheck(expectedCaption, captionSelector)
+          hintTextCheck(expectedHintText)
+          radioButtonCheck(s"£$priorAmount", 1)
+          radioButtonCheck(differentAmountText, 2)
+          textOnPageCheck(enterAmountText, enterAmountSelector)
+
+          textOnPageCheck(poundPrefixText, poundPrefixSelector)
+          inputFieldCheck(amountInputName, inputSelector)
+          buttonCheck(continueText, continueButtonSelector)
+        }
+
+        "there are form errors" when {
+
+          "an empty value is passed in" which {
+            lazy val view = otherDividendsAmountView(
+              Left(priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> ""))),
+              Some(DividendsPriorSubmission(None, Some(priorAmount))),
+              taxYear,
+              testCall
+            )(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorText = "Enter the amount in the correct format"
+
+            titleCheck(expectedErrorTitle)
+            welshToggleCheck("Welsh")
+            h1Check(expectedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            radioButtonCheck(s"£$priorAmount", 1)
+            radioButtonCheck(differentAmountText, 2)
+            textOnPageCheck(enterAmountText, enterAmountSelector)
+            errorSummaryCheck(expectedErrorText, newAmountInput)
+            errorAboveElementCheck(expectedErrorText)
+            textOnPageCheck(poundPrefixText, poundPrefixSelector)
+            inputFieldCheck(amountInputName, inputSelector)
+            buttonCheck(continueText, continueButtonSelector)
+          }
+
+          "a non numeric value is passed in" which {
+            lazy val view = otherDividendsAmountView(
+              Left(priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "abc"))),
+              Some(DividendsPriorSubmission(None, Some(priorAmount))),
+              taxYear,
+              testCall
+            )(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorText = "Enter an amount using numbers 0 to 9"
+
+            titleCheck(expectedErrorTitle)
+            welshToggleCheck("Welsh")
+            h1Check(expectedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            radioButtonCheck(s"£$priorAmount", 1)
+            radioButtonCheck(differentAmountText, 2)
+            textOnPageCheck(enterAmountText, enterAmountSelector)
+            errorSummaryCheck(expectedErrorText, newAmountInput)
+            errorAboveElementCheck(expectedErrorText)
+            textOnPageCheck(poundPrefixText, poundPrefixSelector)
+            inputFieldCheck(amountInputName, inputSelector)
+            buttonCheck(continueText, continueButtonSelector)
+          }
+
+          "a value bigger than £100,000,000,000 is passed in" which {
+            lazy val view = otherDividendsAmountView(
+              Left(priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "200,000,000,000"))),
+              Some(DividendsPriorSubmission(None, Some(priorAmount))),
+              taxYear,
+              testCall
+            )(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorText = "Enter an amount less than £100,000,000,000"
+
+            titleCheck(expectedErrorTitle)
+            welshToggleCheck("Welsh")
+            h1Check(expectedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            radioButtonCheck(s"£$priorAmount", 1)
+            radioButtonCheck(differentAmountText, 2)
+            textOnPageCheck(enterAmountText, enterAmountSelector)
+            errorSummaryCheck(expectedErrorText, newAmountInput)
+            errorAboveElementCheck(expectedErrorText)
+            textOnPageCheck(poundPrefixText, poundPrefixSelector)
+            inputFieldCheck(amountInputName, inputSelector)
+            buttonCheck(continueText, continueButtonSelector)
+          }
+
+          "an invalid format value is passed in" which {
+            lazy val view = otherDividendsAmountView(
+              Left(priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "100.000.00.00"))),
+              Some(DividendsPriorSubmission(None, Some(priorAmount))),
+              taxYear,
+              testCall
+            )(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorText = "Enter the amount in the correct format"
+
+            titleCheck(expectedErrorTitle)
+            welshToggleCheck("Welsh")
+            h1Check(expectedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            radioButtonCheck(s"£$priorAmount", 1)
+            radioButtonCheck(differentAmountText, 2)
+            textOnPageCheck(enterAmountText, enterAmountSelector)
+            errorSummaryCheck(expectedErrorText, newAmountInput)
+            errorAboveElementCheck(expectedErrorText)
+            textOnPageCheck(poundPrefixText, poundPrefixSelector)
+            inputFieldCheck(amountInputName, inputSelector)
+            buttonCheck(continueText, continueButtonSelector)
+          }
+        }
+      }
+    }
+  }
+
 }

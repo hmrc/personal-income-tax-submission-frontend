@@ -41,7 +41,6 @@ class UntaxedInterestController @Inject()(
   extends FrontendController(mcc) with I18nSupport with InterestSessionHelper {
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
-  implicit val messages: Messages = mcc.messagesApi.preferred(Seq(Lang("en")))
   val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("interest.untaxed-uk-interest.errors.noRadioSelected")
 
   def show(taxYear: Int): Action[AnyContent] = (authAction andThen taxYearAction(taxYear)) { implicit user =>
