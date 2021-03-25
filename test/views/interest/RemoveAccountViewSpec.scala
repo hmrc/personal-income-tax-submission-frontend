@@ -44,6 +44,7 @@ class RemoveAccountViewSpec extends ViewTest {
   val yesOptionSelector = "#main-content > div > div > form > div > fieldset > div.govuk-radios.govuk-radios--inline > div:nth-child(1) > label"
   val noOptionSelector = "#main-content > div > div > form > div > fieldset > div.govuk-radios.govuk-radios--inline > div:nth-child(2) > label"
   val continueButtonSelector = "#continue"
+  val continueButtonFormSelector = "#main-content > div > div > form"
   val errorSummaryHref = "#value"
 
   val errorSummarySelector = ".govuk-error-summary"
@@ -77,6 +78,7 @@ class RemoveAccountViewSpec extends ViewTest {
             radioButtonCheck(yesText, 1)
             radioButtonCheck(noText, 2)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, UNTAXED, account.id.get).url, continueButtonFormSelector)
           }
 
           "The last account is being removed" which {
@@ -92,6 +94,7 @@ class RemoveAccountViewSpec extends ViewTest {
             radioButtonCheck(yesText, 1)
             radioButtonCheck(noText, 2)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, UNTAXED, account.id.get).url, continueButtonFormSelector)
           }
 
         }
@@ -111,6 +114,7 @@ class RemoveAccountViewSpec extends ViewTest {
             radioButtonCheck(yesText, 1)
             radioButtonCheck(noText, 2)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, UNTAXED, account.id.get).url, continueButtonFormSelector)
           }
         }
       }
@@ -127,6 +131,7 @@ class RemoveAccountViewSpec extends ViewTest {
             radioButtonCheck(yesText, 1)
             radioButtonCheck(noText, 2)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, UNTAXED, account.id.get).url, continueButtonFormSelector)
           }
 
           "The last account is being removed" which {
@@ -142,6 +147,7 @@ class RemoveAccountViewSpec extends ViewTest {
             radioButtonCheck(yesText, 1)
             radioButtonCheck(noText, 2)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, UNTAXED, account.id.get).url, continueButtonFormSelector)
           }
 
         }
@@ -160,6 +166,7 @@ class RemoveAccountViewSpec extends ViewTest {
             radioButtonCheck(yesText, 1)
             radioButtonCheck(noText, 2)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, UNTAXED, account.id.get).url, continueButtonFormSelector)
           }
         }
       }
@@ -178,6 +185,7 @@ class RemoveAccountViewSpec extends ViewTest {
             radioButtonCheck(yesText, 1)
             radioButtonCheck(noText, 2)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, TAXED, account.id.get).url, continueButtonFormSelector)
           }
 
           "The last account is being removed" which {
@@ -193,6 +201,7 @@ class RemoveAccountViewSpec extends ViewTest {
             radioButtonCheck(yesText, 1)
             radioButtonCheck(noText, 2)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, TAXED, account.id.get).url, continueButtonFormSelector)
           }
 
         }
@@ -212,6 +221,7 @@ class RemoveAccountViewSpec extends ViewTest {
             radioButtonCheck(yesText, 1)
             radioButtonCheck(noText, 2)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, TAXED, account.id.get).url, continueButtonFormSelector)
           }
         }
       }
@@ -228,6 +238,7 @@ class RemoveAccountViewSpec extends ViewTest {
             radioButtonCheck(yesText, 1)
             radioButtonCheck(noText, 2)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, TAXED, account.id.get).url, continueButtonFormSelector)
           }
 
           "The last account is being removed" which {
@@ -243,6 +254,7 @@ class RemoveAccountViewSpec extends ViewTest {
             radioButtonCheck(yesText, 1)
             radioButtonCheck(noText, 2)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, TAXED, account.id.get).url, continueButtonFormSelector)
           }
 
         }
@@ -261,6 +273,7 @@ class RemoveAccountViewSpec extends ViewTest {
             radioButtonCheck(yesText, 1)
             radioButtonCheck(noText, 2)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, TAXED, account.id.get).url, continueButtonFormSelector)
           }
         }
       }

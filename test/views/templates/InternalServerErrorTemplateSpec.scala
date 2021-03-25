@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package templates
+package views.templates
 
 import config.AppConfig
 import org.jsoup.Jsoup
@@ -31,7 +31,9 @@ class InternalServerErrorTemplateSpec extends ViewTest {
     val p1Selector = "#main-content > div > div > div.govuk-body > p:nth-child(1)"
     val p2Selector = "#main-content > div > div > div.govuk-body > p:nth-child(2)"
     val bulletPoint1 = "#main-content > div > div > ul > li:nth-child(1)"
+    val bulletPointLinkSelector1 = "#govuk-income-tax-link"
     val bulletPoint2 = "#main-content > div > div > ul > li:nth-child(2)"
+    val bulletPointLinkSelector2 = "#govuk-self-assessment-link"
 
   }
 
@@ -40,10 +42,11 @@ class InternalServerErrorTemplateSpec extends ViewTest {
   val p2Expected = "You can also:"
   val bulletPoint1Expected = "go to the Income Tax home page (opens in new tab) for more information"
   val bulletPoint1Link = "https://www.gov.uk/income-tax"
+  val bulletPoint1LinkText = "Income Tax home page (opens in new tab)"
   val bulletPoint2Expected = "use Self Assessment: general enquiries (opens in new tab) to speak to someone about your income tax"
   val bulletPoint2Link = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
+  val bulletPoint2LinkText = "Self Assessment: general enquiries (opens in new tab)"
 
-  val expectedTitle = s"$h1Expected - $serviceName - $govUkExtension"
 
   lazy val internalServerErrorTemplate: InternalServerErrorTemplate = app.injector.instanceOf[InternalServerErrorTemplate]
   lazy val appConfig: AppConfig = mockAppConfig
@@ -55,47 +58,16 @@ class InternalServerErrorTemplateSpec extends ViewTest {
 
     "render the page correctly" which {
 
-      "has the correct title" in {
+      titleCheck(h1Expected)
+      h1Check(h1Expected, "xl")
+      textOnPageCheck(p1Expected, Selectors.p1Selector)
+      textOnPageCheck(p2Expected, Selectors.p2Selector)
 
-        document.title() shouldBe expectedTitle
-      }
+      textOnPageCheck(bulletPoint1Expected,Selectors.bulletPoint1)
+      linkCheck(bulletPoint1LinkText, Selectors.bulletPointLinkSelector1, bulletPoint1Link)
 
-      "has the correct heading" in {
-
-        elementText(Selectors.h1Selector) shouldBe h1Expected
-      }
-
-      "has the correct p1" in {
-
-        elementText(Selectors.p1Selector) shouldBe p1Expected
-
-      }
-
-      "has the correct p2" in {
-
-        elementText(Selectors.p2Selector) shouldBe p2Expected
-
-      }
-
-      "has the correct 1st bullet point" in {
-
-        elementText(Selectors.bulletPoint1) shouldBe bulletPoint1Expected
-      }
-
-      "has the correct link in the 1st bullet point" in {
-
-        document.select(s"""[id=govuk-income-tax-link]""").attr("href") shouldBe bulletPoint1Link
-      }
-
-      "has the correct 2nd bullet point" in {
-
-       elementText(Selectors.bulletPoint2) shouldBe bulletPoint2Expected
-      }
-
-      "has the correct link in the 2nd bullet point" in {
-
-        document.select(s"""[id=govuk-self-assessment-link]""").attr("href") shouldBe bulletPoint2Link
-      }
+      textOnPageCheck(bulletPoint2Expected,Selectors.bulletPoint2)
+      linkCheck(bulletPoint2LinkText, Selectors.bulletPointLinkSelector2, bulletPoint2Link)
 
     }
   }

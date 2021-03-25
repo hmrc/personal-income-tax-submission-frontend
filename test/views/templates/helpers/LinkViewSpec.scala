@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package views.helpers
+package views.templates.helpers
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document

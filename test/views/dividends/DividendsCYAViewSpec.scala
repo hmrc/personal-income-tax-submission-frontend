@@ -32,6 +32,7 @@ class DividendsCYAViewSpec extends ViewTest {
   val questionChangeLinkSelector: IntString = question => s"#main-content > div > div > dl > div:nth-child($question) > " +
     s"dd.govuk-summary-list__actions > a"
   val continueButtonSelector = "#continue"
+  val continueButtonFormSelector = "#main-content > div > div > form"
 
   val question4 = 4
   val fivePoundAmount = 5
@@ -45,6 +46,7 @@ class DividendsCYAViewSpec extends ViewTest {
   val titleExpected = "Check your answers"
   val captionExpected = s"Dividends for 6 April $taxYearMinusOne to 5 April $taxYear"
   val continueButtonText = "Save and continue"
+  val continueButtonLink = "/income-through-software/return/personal-income/2020/dividends/check-your-answers"
 
   val changeLinkExpected = "Change"
   val yesNoExpectedAnswer: Boolean => String = isYes => if(isYes) "Yes" else "No"
@@ -115,14 +117,8 @@ class DividendsCYAViewSpec extends ViewTest {
             linkCheck(s"$changeLinkExpected $changeOtherDividendsAmountIndividualHiddenText", questionChangeLinkSelector(question4), changeOtherDividendsAmountHref)
           }
 
-          s"have a $continueButtonText button" which {
-            s"has the text '$continueButtonText'" in {
-              document.select(continueButtonSelector).text() shouldBe continueButtonText
-            }
-            s"has a class of govuk-button" in {
-              document.select(continueButtonSelector).attr("class") should include("govuk-button")
-            }
-          }
+          buttonCheck(continueButtonText, continueButtonSelector)
+          formPostLinkCheck(continueButtonLink, continueButtonFormSelector)
         }
       }
 
@@ -161,14 +157,8 @@ class DividendsCYAViewSpec extends ViewTest {
             linkCheck(s"$changeLinkExpected $changeOtherDividendsAmountIndividualHiddenText", questionChangeLinkSelector(2), changeOtherDividendsAmountHref)
           }
 
-          s"have a $continueButtonText button" which {
-            s"has the text '$continueButtonText'" in {
-              document.select(continueButtonSelector).text() shouldBe continueButtonText
-            }
-            s"has a class of govuk-button" in {
-              document.select(continueButtonSelector).attr("class") should include("govuk-button")
-            }
-          }
+          buttonCheck(continueButtonText, continueButtonSelector)
+          formPostLinkCheck(continueButtonLink, continueButtonFormSelector)
         }
       }
 
@@ -196,14 +186,9 @@ class DividendsCYAViewSpec extends ViewTest {
             linkCheck(s"$changeLinkExpected $changeOtherDividendsIndividualHiddenText", questionChangeLinkSelector(2), changeOtherDividendsHref)
           }
 
-          s"have a $continueButtonText button" which {
-            s"has the text '$continueButtonText'" in {
-              document.select(continueButtonSelector).text() shouldBe continueButtonText
-            }
-            s"has a class of govuk-button" in {
-              document.select(continueButtonSelector).attr("class") should include("govuk-button")
-            }
-          }
+          buttonCheck(continueButtonText, continueButtonSelector)
+          formPostLinkCheck(continueButtonLink, continueButtonFormSelector)
+
         }
       }
     }
@@ -251,14 +236,8 @@ class DividendsCYAViewSpec extends ViewTest {
             linkCheck(s"$changeLinkExpected $changeOtherDividendsAmountAgentHiddenText", questionChangeLinkSelector(question4), changeOtherDividendsAmountHref)
           }
 
-          s"have a $continueButtonText button" which {
-            s"has the text '$continueButtonText'" in {
-              document.select(continueButtonSelector).text() shouldBe continueButtonText
-            }
-            s"has a class of govuk-button" in {
-              document.select(continueButtonSelector).attr("class") should include("govuk-button")
-            }
-          }
+          buttonCheck(continueButtonText, continueButtonSelector)
+          formPostLinkCheck(continueButtonLink, continueButtonFormSelector)
         }
       }
 
@@ -297,14 +276,8 @@ class DividendsCYAViewSpec extends ViewTest {
             linkCheck(s"$changeLinkExpected $changeOtherDividendsAmountAgentHiddenText", questionChangeLinkSelector(2), changeOtherDividendsAmountHref)
           }
 
-          s"have a $continueButtonText button" which {
-            s"has the text '$continueButtonText'" in {
-              document.select(continueButtonSelector).text() shouldBe continueButtonText
-            }
-            s"has a class of govuk-button" in {
-              document.select(continueButtonSelector).attr("class") should include("govuk-button")
-            }
-          }
+          buttonCheck(continueButtonText, continueButtonSelector)
+          formPostLinkCheck(continueButtonLink, continueButtonFormSelector)
         }
       }
 
@@ -332,14 +305,8 @@ class DividendsCYAViewSpec extends ViewTest {
             linkCheck(s"$changeLinkExpected $changeOtherDividendsAgentHiddenText", questionChangeLinkSelector(2), changeOtherDividendsHref)
           }
 
-          s"have a $continueButtonText button" which {
-            s"has the text '$continueButtonText'" in {
-              document.select(continueButtonSelector).text() shouldBe continueButtonText
-            }
-            s"has a class of govuk-button" in {
-              document.select(continueButtonSelector).attr("class") should include("govuk-button")
-            }
-          }
+          buttonCheck(continueButtonText, continueButtonSelector)
+          formPostLinkCheck(continueButtonLink, continueButtonFormSelector)
         }
       }
     }

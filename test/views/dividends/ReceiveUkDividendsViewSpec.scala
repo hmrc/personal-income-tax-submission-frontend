@@ -42,10 +42,12 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
   val yesText = "Yes"
   val noText = "No"
   val continueText = "Continue"
+  val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/uk-dividends"
 
   val captionSelector = ".govuk-caption-l"
   val yourDividendsSelector = "#value-hint"
   val continueSelector = "#continue"
+  val continueButtonFormSelector = "#main-content > div > div > form"
 
   "ReceivedUKDividendsView" should {
 
@@ -64,6 +66,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(continueLink, continueButtonFormSelector)
       }
 
       "there is a form error due to no radio button selected" which {
@@ -84,6 +87,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(continueLink, continueButtonFormSelector)
       }
     }
 
@@ -102,6 +106,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(continueLink, continueButtonFormSelector)
       }
 
       "there is a form error due to no radio button selected" which {
@@ -122,6 +127,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(continueLink, continueButtonFormSelector)
       }
     }
   }

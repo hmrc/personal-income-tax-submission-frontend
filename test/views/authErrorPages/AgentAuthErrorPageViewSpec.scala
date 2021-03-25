@@ -29,10 +29,8 @@ class AgentAuthErrorPageViewSpec extends AnyWordSpec with Matchers with GuiceOne
   val p1Selector = "#main-content > div > div > p:nth-child(2)"
   val p2Selector = "#main-content > div > div > p:nth-child(3)"
   val authoriseAsAnAgentLinkSelector = "#client_auth_link"
-  val h1Selector = ".govuk-heading-xl"
 
-  val pageHeadingText = "There’s a problem"
-  val pageTitleText = "There’s a problem"
+  val h1Expected = "There’s a problem"
   val youCannotViewText: String = "You cannot view this client’s information. Your client needs to"
   val authoriseYouAsText = "authorise you as their agent (opens in new tab)"
   val beforeYouCanTryText = "before you can sign in to this service."
@@ -44,11 +42,8 @@ class AgentAuthErrorPageViewSpec extends AnyWordSpec with Matchers with GuiceOne
 
   "AgentAuthErrorPageView " should {
     "Render correctly" which {
-      titleCheck(pageTitleText)
-
-      "has an xl header" in {
-        document.select(h1Selector).text() shouldBe pageHeadingText
-      }
+      titleCheck(h1Expected)
+      h1Check(h1Expected, "xl")
 
       textOnPageCheck(s"$youCannotViewText $authoriseYouAsText $beforeYouCanTryText", p1Selector)
       linkCheck(authoriseYouAsText, authoriseAsAnAgentLinkSelector, authoriseAsAnAgentLink)

@@ -37,6 +37,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
   val captionSelector = ".govuk-caption-l"
   val inputSelector = ".govuk-input"
   val continueButtonSelector = "#continue"
+  val continueFormSelector = "#main-content > div > div > form"
   val errorSummarySelector = ".govuk-error-summary"
   val errorSummaryTitleSelector = ".govuk-error-summary__title"
   val errorSummaryTextSelector = ".govuk-error-summary__body"
@@ -54,6 +55,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
   val expectedTaxedH1 = "Monzo taxed interest earned"
   val expectedHintText = "For example, £600 or £193.54"
   val continueText = "Continue"
+  val continueLink = "/test-url"
   val differentAmountText = "A different amount"
 
   val account: InterestAccountModel = InterestAccountModel(Some("qwerty"), "Monzo", priorAmountValue)
@@ -93,6 +95,8 @@ class ChangeAccountAmountViewSpec extends ViewTest {
           textOnPageCheck(s"£$priorAmountValue", priorAmountRadioText)
           inputFieldCheck(amountInputName, newAmountInput)
           buttonCheck(continueText, continueButtonSelector)
+          formPostLinkCheck(continueLink, continueFormSelector)
+
         }
 
         "there are form errors" when {
@@ -125,6 +129,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
             inputFieldCheck(amountInputName, newAmountInput)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueFormSelector)
           }
 
           "an empty value for amount is passed in" which {
@@ -155,6 +160,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
             inputFieldCheck(amountInputName, newAmountInput)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueFormSelector)
           }
 
           "an invalid value for amount is passed in" which {
@@ -185,6 +191,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
             inputFieldCheck(amountInputName, newAmountInput)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueFormSelector)
           }
 
           "a value greater than 100,000,000,000 is passed in" which {
@@ -215,6 +222,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
             inputFieldCheck(amountInputName, newAmountInput)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueFormSelector)
           }
 
           "an invalid format value for amount is passed in" which {
@@ -245,6 +253,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
             inputFieldCheck(amountInputName, newAmountInput)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueFormSelector)
           }
 
         }
@@ -277,6 +286,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           inputFieldCheck(amountInputName, newAmountInput)
           buttonCheck(continueText, continueButtonSelector)
+          formPostLinkCheck(continueLink, continueFormSelector)
         }
 
         "there are form errors" when {
@@ -309,6 +319,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
             inputFieldCheck(amountInputName, newAmountInput)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueFormSelector)
           }
 
           "an empty value for amount is passed in" which {
@@ -339,6 +350,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
             inputFieldCheck(amountInputName, newAmountInput)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueFormSelector)
           }
 
           "an invalid value for amount is passed in" which {
@@ -369,6 +381,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
             inputFieldCheck(amountInputName, newAmountInput)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueFormSelector)
           }
 
           "a value greater than 100,000,000,000 is passed in" which {
@@ -399,6 +412,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
             inputFieldCheck(amountInputName, newAmountInput)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueFormSelector)
           }
 
           "an invalid format value for amount is passed in" which {
@@ -429,6 +443,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
             inputFieldCheck(amountInputName, newAmountInput)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueFormSelector)
           }
 
         }

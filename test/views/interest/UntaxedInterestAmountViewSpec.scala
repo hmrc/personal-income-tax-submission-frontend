@@ -32,6 +32,7 @@ class UntaxedInterestAmountViewSpec extends ViewTest{
 
   val captionSelector = ".govuk-caption-l"
   val continueButtonSelector = "#continue"
+  val continueButtonFormSelector = "#main-content > div > div > form"
   val whatWouldYouCallSelector = "#main-content > div > div > form > div:nth-child(2) > label"
   val accountNameInputSelector = "input#untaxedAccountName"
   val amountInterestSelector = "#main-content > div > div > form > div:nth-child(3) > label"
@@ -75,6 +76,7 @@ class UntaxedInterestAmountViewSpec extends ViewTest{
         textOnPageCheck(poundPrefixText, poundPrefixSelector)
         inputFieldCheck(untaxedAmountInput, interestEarnedInputSelector)
         buttonCheck(continueButtonText, continueButtonSelector)
+        formPostLinkCheck(controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear,id).url, continueButtonFormSelector)
       }
 
       "there are form errors " which {
@@ -92,6 +94,7 @@ class UntaxedInterestAmountViewSpec extends ViewTest{
           textOnPageCheck(captionText, captionSelector)
           errorAboveElementCheck(expectedErrorText)
           buttonCheck(continueButtonText, continueButtonSelector)
+          formPostLinkCheck(controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear,id).url, continueButtonFormSelector)
         }
 
         "when passed a form without an empty untaxedAccountName value" which {
@@ -106,6 +109,7 @@ class UntaxedInterestAmountViewSpec extends ViewTest{
           textOnPageCheck(captionText, captionSelector)
           errorAboveElementCheck(expectedErrorText)
           buttonCheck(continueButtonText, continueButtonSelector)
+          formPostLinkCheck(controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear,id).url, continueButtonFormSelector)
         }
 
         "when passed a form with a non monetary untaxedAmount value" which {
@@ -120,6 +124,7 @@ class UntaxedInterestAmountViewSpec extends ViewTest{
           textOnPageCheck(captionText, captionSelector)
           errorAboveElementCheck(expectedErrorText)
           buttonCheck(continueButtonText, continueButtonSelector)
+          formPostLinkCheck(controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear,id).url, continueButtonFormSelector)
         }
 
         "when passed a form with a untaxedAmount value over £100,000,000,000" which {
@@ -134,6 +139,7 @@ class UntaxedInterestAmountViewSpec extends ViewTest{
           textOnPageCheck(captionText, captionSelector)
           errorAboveElementCheck(expectedErrorText)
           buttonCheck(continueButtonText, continueButtonSelector)
+          formPostLinkCheck(controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear,id).url, continueButtonFormSelector)
         }
 
         "when passed a form with invalid currency untaxedAmount value" which {
@@ -149,6 +155,7 @@ class UntaxedInterestAmountViewSpec extends ViewTest{
           textOnPageCheck(captionText, captionSelector)
           errorAboveElementCheck(expectedErrorText)
           buttonCheck(continueButtonText, continueButtonSelector)
+          formPostLinkCheck(controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear,id).url, continueButtonFormSelector)
         }
       }
     }
