@@ -38,7 +38,7 @@ class DividendsCYAViewSpec extends ViewTest {
   val fivePoundAmount = 5
   val tenPoundAmount = 10
   val taxYear = 2020
-  val taxYearMinusOne = taxYear - 1
+  val taxYearMinusOne: Int = taxYear - 1
 
   val captionSelector = ".govuk-caption-l"
 
@@ -70,7 +70,7 @@ class DividendsCYAViewSpec extends ViewTest {
   val changeOtherDividendsAgentHiddenText = "if your client got dividends from trusts or investment companies based in the UK."
   val changeOtherDividendsAmountAgentHiddenText = "how much your client got in dividends from trusts or investment companies based in the UK."
 
-  "DividendsCYAView" should {
+  "DividendsCYAView in English" should {
 
     def dividendsCyaView: DividendsCYAView = app.injector.instanceOf[DividendsCYAView]
 
@@ -86,10 +86,11 @@ class DividendsCYAViewSpec extends ViewTest {
             otherUkDividends = Some(true),
             Some(tenPoundAmount)
           )
-          lazy val view = dividendsCyaView(cyaModel, taxYear = taxYear)(user, implicitly, mockAppConfig)
+          lazy val view = dividendsCyaView(cyaModel, taxYear = taxYear)(user, messages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
           titleCheck(titleExpected)
+          welshToggleCheck("English")
           h1Check(h1Expected)
           textOnPageCheck(captionExpected, captionSelector)
 
@@ -114,7 +115,8 @@ class DividendsCYAViewSpec extends ViewTest {
           "has an area for question 4" which {
             textOnPageCheck(otherDividendsAmount, questionTextSelector(question4))
             textOnPageCheck(s"£$tenPoundAmount", questionAnswerSelector(question4))
-            linkCheck(s"$changeLinkExpected $changeOtherDividendsAmountIndividualHiddenText", questionChangeLinkSelector(question4), changeOtherDividendsAmountHref)
+            linkCheck(s"$changeLinkExpected $changeOtherDividendsAmountIndividualHiddenText",
+              questionChangeLinkSelector(question4), changeOtherDividendsAmountHref)
           }
 
           buttonCheck(continueButtonText, continueButtonSelector)
@@ -138,10 +140,11 @@ class DividendsCYAViewSpec extends ViewTest {
             Some(fivePoundAmount)
           )
 
-          lazy val view = dividendsCyaView(cyaModel, priorSubmission, taxYear)(user, implicitly, mockAppConfig)
+          lazy val view = dividendsCyaView(cyaModel, priorSubmission, taxYear)(user, messages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
           titleCheck(titleExpected)
+          welshToggleCheck("English")
           h1Check(h1Expected)
           textOnPageCheck(captionExpected, captionSelector)
 
@@ -167,10 +170,11 @@ class DividendsCYAViewSpec extends ViewTest {
         "all boolean answers are no and the amount answers are not filled in" which {
 
           val cyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel()
-          lazy val view = dividendsCyaView(cyaModel, taxYear = taxYear)(user, implicitly, mockAppConfig)
+          lazy val view = dividendsCyaView(cyaModel, taxYear = taxYear)(user, messages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
           titleCheck(titleExpected)
+          welshToggleCheck("English")
           h1Check(h1Expected)
           textOnPageCheck(captionExpected, captionSelector)
 
@@ -205,10 +209,11 @@ class DividendsCYAViewSpec extends ViewTest {
             otherUkDividends = Some(true),
             Some(tenPoundAmount)
           )
-          lazy val view = dividendsCyaView(cyaModel, taxYear = taxYear)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+          lazy val view = dividendsCyaView(cyaModel, taxYear = taxYear)(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
           titleCheck(titleExpected)
+          welshToggleCheck("English")
           h1Check(h1Expected)
           textOnPageCheck(captionExpected, captionSelector)
 
@@ -257,10 +262,11 @@ class DividendsCYAViewSpec extends ViewTest {
             Some(fivePoundAmount)
           )
 
-          lazy val view = dividendsCyaView(cyaModel, priorSubmission, taxYear)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+          lazy val view = dividendsCyaView(cyaModel, priorSubmission, taxYear)(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
           titleCheck(titleExpected)
+          welshToggleCheck("English")
           h1Check(h1Expected)
           textOnPageCheck(captionExpected, captionSelector)
 
@@ -286,10 +292,11 @@ class DividendsCYAViewSpec extends ViewTest {
         "all boolean answers are no and the amount answers are not filled in" which {
 
           val cyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel()
-          lazy val view = dividendsCyaView(cyaModel, taxYear = taxYear)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+          lazy val view = dividendsCyaView(cyaModel, taxYear = taxYear)(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
           titleCheck(titleExpected)
+          welshToggleCheck("English")
           h1Check(h1Expected)
           textOnPageCheck(captionExpected, captionSelector)
 
@@ -312,4 +319,290 @@ class DividendsCYAViewSpec extends ViewTest {
     }
 
   }
+
+  "DividendsCYAView in Welsh" should {
+
+    def dividendsCyaView: DividendsCYAView = app.injector.instanceOf[DividendsCYAView]
+
+    "Render correctly for an individual" when {
+
+      "the page has all fields showing" when {
+
+        "all boolean answers are yes and amount answers are filled in" which {
+
+          val cyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(
+            ukDividends = Some(true),
+            Some(fivePoundAmount),
+            otherUkDividends = Some(true),
+            Some(tenPoundAmount)
+          )
+          lazy val view = dividendsCyaView(cyaModel, taxYear = taxYear)(user, welshMessages, mockAppConfig)
+          implicit lazy val document: Document = Jsoup.parse(view.body)
+
+          titleCheck(titleExpected)
+          welshToggleCheck("Welsh")
+          h1Check(h1Expected)
+          textOnPageCheck(captionExpected, captionSelector)
+
+          "has an area for question 1" which {
+            textOnPageCheck(ukDividendsHeader, questionTextSelector(1))
+            textOnPageCheck(yesNoExpectedAnswer(true), questionAnswerSelector(1))
+            linkCheck(s"$changeLinkExpected $changeUkDividendsIndividualHiddenText", questionChangeLinkSelector(1), changeUkDividendsHref)
+          }
+
+          "has an area for question 2" which {
+            textOnPageCheck(ukDividendsAmount, questionTextSelector(2))
+            textOnPageCheck(s"£$fivePoundAmount", questionAnswerSelector(2))
+            linkCheck(s"$changeLinkExpected $changeUkDividendsAmountIndividualHiddenText", questionChangeLinkSelector(2), changeUkDividendsAmountHref)
+          }
+
+          "has an area for question 3" which {
+            textOnPageCheck(otherDividendsHeader, questionTextSelector(3))
+            textOnPageCheck(yesNoExpectedAnswer(true), questionAnswerSelector(3))
+            linkCheck(s"$changeLinkExpected $changeOtherDividendsIndividualHiddenText", questionChangeLinkSelector(3), changeOtherDividendsHref)
+          }
+
+          "has an area for question 4" which {
+            textOnPageCheck(otherDividendsAmount, questionTextSelector(question4))
+            textOnPageCheck(s"£$tenPoundAmount", questionAnswerSelector(question4))
+            linkCheck(s"$changeLinkExpected $changeOtherDividendsAmountIndividualHiddenText",
+              questionChangeLinkSelector(question4), changeOtherDividendsAmountHref)
+          }
+
+          s"have a $continueButtonText button" which {
+            s"has the text '$continueButtonText'" in {
+              document.select(continueButtonSelector).text() shouldBe continueButtonText
+            }
+            s"has a class of govuk-button" in {
+              document.select(continueButtonSelector).attr("class") should include("govuk-button")
+            }
+          }
+        }
+      }
+
+      "the page has the yesNo fields hidden" when {
+
+        "prior values are available" which {
+
+          val cyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(
+            ukDividends = Some(true),
+            Some(fivePoundAmount),
+            otherUkDividends = Some(true),
+            Some(tenPoundAmount)
+          )
+
+          val priorSubmission: DividendsPriorSubmission = DividendsPriorSubmission(
+            Some(tenPoundAmount),
+            Some(fivePoundAmount)
+          )
+
+          lazy val view = dividendsCyaView(cyaModel, priorSubmission, taxYear)(user, welshMessages, mockAppConfig)
+          implicit lazy val document: Document = Jsoup.parse(view.body)
+
+          titleCheck(titleExpected)
+          welshToggleCheck("Welsh")
+          h1Check(h1Expected)
+          textOnPageCheck(captionExpected, captionSelector)
+
+          "has an area for question 1" which {
+            textOnPageCheck(ukDividendsAmount, questionTextSelector(1))
+            textOnPageCheck(s"£$fivePoundAmount", questionAnswerSelector(1))
+            linkCheck(s"$changeLinkExpected $changeUkDividendsAmountIndividualHiddenText", questionChangeLinkSelector(1), changeUkDividendsAmountHref)
+          }
+
+          "has an area for question 2" which {
+            textOnPageCheck(otherDividendsAmount, questionTextSelector(2))
+            textOnPageCheck(s"£$tenPoundAmount", questionAnswerSelector(2))
+            linkCheck(s"$changeLinkExpected $changeOtherDividendsAmountIndividualHiddenText", questionChangeLinkSelector(2), changeOtherDividendsAmountHref)
+          }
+
+          s"have a $continueButtonText button" which {
+            s"has the text '$continueButtonText'" in {
+              document.select(continueButtonSelector).text() shouldBe continueButtonText
+            }
+            s"has a class of govuk-button" in {
+              document.select(continueButtonSelector).attr("class") should include("govuk-button")
+            }
+          }
+        }
+      }
+
+      "the page has the amount fields hidden" when {
+
+        "all boolean answers are no and the amount answers are not filled in" which {
+
+          val cyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel()
+          lazy val view = dividendsCyaView(cyaModel, taxYear = taxYear)(user, welshMessages, mockAppConfig)
+          implicit lazy val document: Document = Jsoup.parse(view.body)
+
+          titleCheck(titleExpected)
+          welshToggleCheck("Welsh")
+          h1Check(h1Expected)
+          textOnPageCheck(captionExpected, captionSelector)
+
+          "has an area for question 1" which {
+            textOnPageCheck(ukDividendsHeader, questionTextSelector(1))
+            textOnPageCheck(yesNoExpectedAnswer(false), questionAnswerSelector(1))
+            linkCheck(s"$changeLinkExpected $changeUkDividendsIndividualHiddenText", questionChangeLinkSelector(1), changeUkDividendsHref)
+          }
+
+          "has an area for question 2" which {
+            textOnPageCheck(otherDividendsHeader, questionTextSelector(2))
+            textOnPageCheck(yesNoExpectedAnswer(false), questionAnswerSelector(2))
+            linkCheck(s"$changeLinkExpected $changeOtherDividendsIndividualHiddenText", questionChangeLinkSelector(2), changeOtherDividendsHref)
+          }
+
+          s"have a $continueButtonText button" which {
+            s"has the text '$continueButtonText'" in {
+              document.select(continueButtonSelector).text() shouldBe continueButtonText
+            }
+            s"has a class of govuk-button" in {
+              document.select(continueButtonSelector).attr("class") should include("govuk-button")
+            }
+          }
+        }
+      }
+    }
+
+    "Render correctly for an agent" when {
+
+      "the page has all fields showing" when {
+
+        "all boolean answers are yes and amount answers are filled in" which {
+
+          val cyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(
+            ukDividends = Some(true),
+            Some(fivePoundAmount),
+            otherUkDividends = Some(true),
+            Some(tenPoundAmount)
+          )
+          lazy val view = dividendsCyaView(cyaModel, taxYear = taxYear)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+          implicit lazy val document: Document = Jsoup.parse(view.body)
+
+          titleCheck(titleExpected)
+          welshToggleCheck("Welsh")
+          h1Check(h1Expected)
+          textOnPageCheck(captionExpected, captionSelector)
+
+          "has an area for question 1" which {
+            textOnPageCheck(ukDividendsHeader, questionTextSelector(1))
+            textOnPageCheck(yesNoExpectedAnswer(true), questionAnswerSelector(1))
+            linkCheck(s"$changeLinkExpected $changeUkDividendsAgentHiddenText", questionChangeLinkSelector(1), changeUkDividendsHref)
+          }
+
+          "has an area for question 2" which {
+            textOnPageCheck(ukDividendsAmount, questionTextSelector(2))
+            textOnPageCheck(s"£$fivePoundAmount", questionAnswerSelector(2))
+            linkCheck(s"$changeLinkExpected $changeUkDividendsAmountAgentHiddenText", questionChangeLinkSelector(2), changeUkDividendsAmountHref)
+          }
+
+          "has an area for question 3" which {
+            textOnPageCheck(otherDividendsHeader, questionTextSelector(3))
+            textOnPageCheck(yesNoExpectedAnswer(true), questionAnswerSelector(3))
+            linkCheck(s"$changeLinkExpected $changeOtherDividendsAgentHiddenText", questionChangeLinkSelector(3), changeOtherDividendsHref)
+          }
+
+          "has an area for question 4" which {
+            textOnPageCheck(otherDividendsAmount, questionTextSelector(question4))
+            textOnPageCheck(s"£$tenPoundAmount", questionAnswerSelector(question4))
+            linkCheck(s"$changeLinkExpected $changeOtherDividendsAmountAgentHiddenText", questionChangeLinkSelector(question4), changeOtherDividendsAmountHref)
+          }
+
+          s"have a $continueButtonText button" which {
+            s"has the text '$continueButtonText'" in {
+              document.select(continueButtonSelector).text() shouldBe continueButtonText
+            }
+            s"has a class of govuk-button" in {
+              document.select(continueButtonSelector).attr("class") should include("govuk-button")
+            }
+          }
+        }
+      }
+
+      "the page has the yesNo fields hidden" when {
+
+        "prior values are available" which {
+
+          val cyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(
+            ukDividends = Some(true),
+            Some(fivePoundAmount),
+            otherUkDividends = Some(true),
+            Some(tenPoundAmount)
+          )
+
+          val priorSubmission: DividendsPriorSubmission = DividendsPriorSubmission(
+            Some(tenPoundAmount),
+            Some(fivePoundAmount)
+          )
+
+          lazy val view = dividendsCyaView(cyaModel, priorSubmission, taxYear)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+          implicit lazy val document: Document = Jsoup.parse(view.body)
+
+          titleCheck(titleExpected)
+          welshToggleCheck("Welsh")
+          h1Check(h1Expected)
+          textOnPageCheck(captionExpected, captionSelector)
+
+          "has an area for question 1" which {
+            textOnPageCheck(ukDividendsAmount, questionTextSelector(1))
+            textOnPageCheck(s"£$fivePoundAmount", questionAnswerSelector(1))
+            linkCheck(s"$changeLinkExpected $changeUkDividendsAmountAgentHiddenText", questionChangeLinkSelector(1), changeUkDividendsAmountHref)
+          }
+
+          "has an area for question 2" which {
+            textOnPageCheck(otherDividendsAmount, questionTextSelector(2))
+            textOnPageCheck(s"£$tenPoundAmount", questionAnswerSelector(2))
+            linkCheck(s"$changeLinkExpected $changeOtherDividendsAmountAgentHiddenText", questionChangeLinkSelector(2), changeOtherDividendsAmountHref)
+          }
+
+          s"have a $continueButtonText button" which {
+            s"has the text '$continueButtonText'" in {
+              document.select(continueButtonSelector).text() shouldBe continueButtonText
+            }
+            s"has a class of govuk-button" in {
+              document.select(continueButtonSelector).attr("class") should include("govuk-button")
+            }
+          }
+        }
+      }
+
+      "the page has the amount fields hidden" when {
+
+        "all boolean answers are no and the amount answers are not filled in" which {
+
+          val cyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel()
+          lazy val view = dividendsCyaView(cyaModel, taxYear = taxYear)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+          implicit lazy val document: Document = Jsoup.parse(view.body)
+
+          titleCheck(titleExpected)
+          welshToggleCheck("Welsh")
+          h1Check(h1Expected)
+          textOnPageCheck(captionExpected, captionSelector)
+
+          "has an area for question 1" which {
+            textOnPageCheck(ukDividendsHeader, questionTextSelector(1))
+            textOnPageCheck(yesNoExpectedAnswer(false), questionAnswerSelector(1))
+            linkCheck(s"$changeLinkExpected $changeUkDividendsAgentHiddenText", questionChangeLinkSelector(1), changeUkDividendsHref)
+          }
+
+          "has an area for question 2" which {
+            textOnPageCheck(otherDividendsHeader, questionTextSelector(2))
+            textOnPageCheck(yesNoExpectedAnswer(false), questionAnswerSelector(2))
+            linkCheck(s"$changeLinkExpected $changeOtherDividendsAgentHiddenText", questionChangeLinkSelector(2), changeOtherDividendsHref)
+          }
+
+          s"have a $continueButtonText button" which {
+            s"has the text '$continueButtonText'" in {
+              document.select(continueButtonSelector).text() shouldBe continueButtonText
+            }
+            s"has a class of govuk-button" in {
+              document.select(continueButtonSelector).attr("class") should include("govuk-button")
+            }
+          }
+        }
+      }
+    }
+
+  }
+
 }

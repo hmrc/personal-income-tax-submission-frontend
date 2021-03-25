@@ -25,7 +25,7 @@ import models.User
 import models.interest.{InterestCYAModel, InterestPriorSubmission}
 import play.api.Logger
 import play.api.data.Form
-import play.api.i18n.{Lang, Messages}
+import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.InterestSessionHelper
@@ -41,10 +41,9 @@ class TaxedInterestController @Inject()(
                                          taxedInterestView: TaxedInterestView
                                        )(implicit appConfig: AppConfig,
                                          implicit val mcc: MessagesControllerComponents
-                                        ) extends FrontendController(mcc) with InterestSessionHelper {
+                                        ) extends FrontendController(mcc) with InterestSessionHelper with I18nSupport {
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
-  implicit val messages: Messages = mcc.messagesApi.preferred(Seq(Lang("en")))
 
   def show(taxYear: Int): Action[AnyContent] = (authorisedAction andThen taxYearAction(taxYear)) { implicit user: User[AnyContent] =>
 

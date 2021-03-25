@@ -23,7 +23,7 @@ import controllers.predicates.TaxYearAction.taxYearAction
 import forms.YesNoForm
 import models.interest.{InterestCYAModel, InterestPriorSubmission}
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, Lang, Messages}
+import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.InterestSessionHelper
@@ -41,7 +41,6 @@ class UntaxedInterestController @Inject()(
   extends FrontendController(mcc) with I18nSupport with InterestSessionHelper {
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
-  implicit val messages: Messages = mcc.messagesApi.preferred(Seq(Lang("en")))
   val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("interest.untaxed-uk-interest.errors.noRadioSelected")
 
   def show(taxYear: Int): Action[AnyContent] = (authAction andThen taxYearAction(taxYear)) { implicit user =>

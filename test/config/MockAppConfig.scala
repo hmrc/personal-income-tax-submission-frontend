@@ -46,6 +46,8 @@ class MockAppConfig extends MockFactory {
     override lazy val timeoutDialogCountdown: Int = 120
 
     override lazy val taxYearErrorFeature: Boolean = true
+
+    override lazy val welshToggleEnabled: Boolean = true
+
   }
 }
-
