@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package templates
+package views.templates
 
 import config.AppConfig
 import org.jsoup.Jsoup
@@ -40,7 +40,6 @@ class TimeoutPageSpec extends ViewTest {
   val buttonExpectedText = "Sign in"
   val buttonExpectedUrl: String = "buttonUrl"
 
-  val expectedTitle = s"$h1Expected - $serviceName - $govUkExtension"
 
   val timeoutPage: TimeoutPage = app.injector.instanceOf[TimeoutPage]
   val appConfig: AppConfig = mockAppConfig
@@ -52,33 +51,13 @@ class TimeoutPageSpec extends ViewTest {
 
     "render the page correct" which {
 
-      "has the correct title" in {
+      titleCheck(h1Expected)
+      h1Check(h1Expected, "xl")
 
-        document.title() shouldBe expectedTitle
-      }
+      textOnPageCheck(p1Expected,Selectors.p1Selector)
+      buttonCheck(buttonExpectedText, Selectors.buttonSelector)
+      formGetLinkCheck(buttonExpectedUrl, Selectors.formSelector)
 
-      "has the correct heading" in {
-
-        elementText(Selectors.h1Selector) shouldBe h1Expected
-      }
-
-      "has the correct p1" in {
-
-        elementText(Selectors.p1Selector) shouldBe p1Expected
-      }
-
-      "has the correct button text" in {
-
-        elementText(Selectors.buttonSelector) shouldBe buttonExpectedText
-
-      }
-
-      "has the correct button link" in {
-
-        element(Selectors.formSelector).attr("action") shouldBe buttonExpectedUrl
-        element(Selectors.formSelector).attr("method") shouldBe "GET"
-
-      }
     }
   }
 }

@@ -40,6 +40,7 @@ class InterestCYAViewSpec extends ViewTest {
   val h1Selector = "h1"
   val captionSelector = ".govuk-caption-l"
   val submitButton = ".govuk-button"
+  val submitButtonForm = "#main-content > div > div > form"
 
   val questionSelector: Int => String = questionNumber => s".govuk-summary-list__row:nth-child($questionNumber) > .govuk-summary-list__key"
   val questionAccountSelector: (Int, Int, Int) => String = (questionNumber, accountNumber,account) =>
@@ -78,6 +79,7 @@ class InterestCYAViewSpec extends ViewTest {
   val changeTaxedInterestAmountHref = s"/income-through-software/return/personal-income/$taxYear/interest/taxed-uk-interest-account-summary"
 
   val submitText = "Save and continue"
+  val submitLink = s"/income-through-software/return/personal-income/$taxYear/interest/check-your-answers"
 
   val Yes = "Yes"
   val No = "No"
@@ -106,14 +108,8 @@ class InterestCYAViewSpec extends ViewTest {
           h1Check(h1Expected)
           textOnPageCheck(captionExpected, captionSelector)
 
-          s"have a $submitText button" which {
-            s"has the text '$submitText'" in {
-              document.select(submitButton).text() shouldBe submitText
-            }
-            s"has a class of govuk-button" in {
-              document.select(submitButton).attr("class") should include("govuk-button")
-            }
-          }
+          buttonCheck(submitText, submitButton)
+          formPostLinkCheck(submitLink, submitButtonForm)
 
           "has an area for question 1" which {
             textOnPageCheck(questionUntaxedInterestExpected, questionSelector(1))
@@ -159,14 +155,8 @@ class InterestCYAViewSpec extends ViewTest {
           h1Check(h1Expected)
           textOnPageCheck(captionExpected, captionSelector)
 
-          s"have a $submitText button" which {
-            s"has the text '$submitText'" in {
-              document.select(submitButton).text() shouldBe submitText
-            }
-            s"has a class of govuk-button" in {
-              document.select(submitButton).attr("class") should include("govuk-button")
-            }
-          }
+          buttonCheck(submitText, submitButton)
+          formPostLinkCheck(submitLink, submitButtonForm)
 
           "has an area for question 1" which {
             textOnPageCheck(questionUntaxedInterestExpected, questionTextSelector(1))
@@ -212,14 +202,8 @@ class InterestCYAViewSpec extends ViewTest {
           h1Check(h1Expected)
           textOnPageCheck(captionExpected, captionSelector)
 
-          s"have a $submitText button" which {
-            s"has the text '$submitText'" in {
-              document.select(submitButton).text() shouldBe submitText
-            }
-            s"has a class of govuk-button" in {
-              document.select(submitButton).attr("class") should include("govuk-button")
-            }
-          }
+          buttonCheck(submitText, submitButton)
+          formPostLinkCheck(submitLink, submitButtonForm)
 
           "has an area for question 1" which {
             textOnPageCheck(questionUntaxedInterestDetailsExpected, questionTextSelector(1))

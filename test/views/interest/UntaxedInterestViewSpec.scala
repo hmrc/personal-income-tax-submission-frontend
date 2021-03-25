@@ -40,6 +40,7 @@ class UntaxedInterestViewSpec extends ViewTest {
   val bulletPointSelector3 = "#value-hint > ul > li:nth-child(3)"
   val doNotIncludeSelector = "#value-hint > p:nth-child(3)"
   val continueSelector = "#continue"
+  val continueFormSelector = "#main-content > div > div > form"
 
   val expectedIndividualTitle = "Did you receive any untaxed interest from the UK?"
   val expectedIndividualErrorTitle = s"Error: $expectedIndividualTitle"
@@ -57,6 +58,7 @@ class UntaxedInterestViewSpec extends ViewTest {
   val yesText = "Yes"
   val noText = "No"
   val continueText = "Continue"
+  val continueLink = s"/income-through-software/return/personal-income/$taxYear/interest/untaxed-uk-interest"
   val errorSummaryHref = "#value"
 
   "Untaxed interest view" should {
@@ -81,6 +83,7 @@ class UntaxedInterestViewSpec extends ViewTest {
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(continueLink, continueFormSelector)
       }
     }
     "correctly render with errors as an individual" when {
@@ -99,6 +102,7 @@ class UntaxedInterestViewSpec extends ViewTest {
         errorSummaryCheck(expectedErrorText, errorSummaryHref)
         errorAboveElementCheck(expectedErrorText)
         buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(continueLink, continueFormSelector)
       }
     }
     "correctly render with no errors as an agent" when {
@@ -123,6 +127,7 @@ class UntaxedInterestViewSpec extends ViewTest {
         radioButtonCheck(noText, 2)
 
         buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(continueLink, continueFormSelector)
       }
     }
     "correctly render with errors as an agent" when {
@@ -142,6 +147,7 @@ class UntaxedInterestViewSpec extends ViewTest {
         errorSummaryCheck(expectedErrorText, errorSummaryHref)
         errorAboveElementCheck(expectedErrorText)
         buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(continueLink, continueFormSelector)
       }
     }
   }

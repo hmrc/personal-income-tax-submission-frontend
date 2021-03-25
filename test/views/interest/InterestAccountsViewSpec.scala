@@ -50,6 +50,7 @@ class InterestAccountsViewSpec extends ViewTest {
 
   val captionSelector = ".govuk-caption-l"
   val continueSelector = "#continue"
+  val continueFormSelector = "#main-content > div > div > form"
 
   val changeUntaxedHref = "/income-through-software/return/personal-income/2020/interest/untaxed-uk-interest-details/qwerty"
   val changePriorUntaxedHref = "/income-through-software/return/personal-income/2020/interest/change-untaxed-interest-account?accountId=azerty"
@@ -114,6 +115,7 @@ class InterestAccountsViewSpec extends ViewTest {
         }
 
         buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(controllers.interest.routes.AccountsController.submit(taxYear, UNTAXED).url, continueFormSelector)
       }
 
       "there is a single untaxed account passed in that is a prior submission" which {
@@ -142,6 +144,7 @@ class InterestAccountsViewSpec extends ViewTest {
         }
 
         buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(controllers.interest.routes.AccountsController.submit(taxYear, UNTAXED).url, continueFormSelector)
       }
 
       "the radio button form is not selected" which {
@@ -187,6 +190,7 @@ class InterestAccountsViewSpec extends ViewTest {
         }
 
         buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(controllers.interest.routes.AccountsController.submit(taxYear, UNTAXED).url, continueFormSelector)
       }
     }
 
@@ -244,6 +248,7 @@ class InterestAccountsViewSpec extends ViewTest {
           }
         }
         buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(controllers.interest.routes.AccountsController.submit(taxYear, UNTAXED).url, continueFormSelector)
       }
     }
   }
@@ -289,6 +294,7 @@ class InterestAccountsViewSpec extends ViewTest {
         }
 
         buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(controllers.interest.routes.AccountsController.submit(taxYear, TAXED).url, continueFormSelector)
       }
 
       "there is a single taxed account passed in that is a prior submission" which {
@@ -315,6 +321,7 @@ class InterestAccountsViewSpec extends ViewTest {
         }
 
         buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(controllers.interest.routes.AccountsController.submit(taxYear, TAXED).url, continueFormSelector)
       }
     }
 
@@ -372,6 +379,7 @@ class InterestAccountsViewSpec extends ViewTest {
           }
         }
         buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(controllers.interest.routes.AccountsController.submit(taxYear, TAXED).url, continueFormSelector)
       }
     }
   }

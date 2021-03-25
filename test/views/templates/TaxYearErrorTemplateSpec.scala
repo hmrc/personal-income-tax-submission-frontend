@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package templates
+package views.templates
 
 import config.AppConfig
 import org.jsoup.Jsoup
@@ -31,6 +31,7 @@ class TaxYearErrorTemplateSpec extends ViewTest {
     val p1Selector = "#main-content > div > div > div.govuk-body > p:nth-child(1)"
     val p2Selector = "#main-content > div > div > div.govuk-body > p:nth-child(2)"
     val p3Selector = "#main-content > div > div > div.govuk-body > p:nth-child(3)"
+    val linkSelector = "#govuk-self-assessment-link"
   }
 
   val h1Expected = "Page not found"
@@ -39,7 +40,7 @@ class TaxYearErrorTemplateSpec extends ViewTest {
   val p3Expected: String = "If the web address is correct or you selected a link or button, you can use Self Assessment: " +
     "general enquiries (opens in new tab) to speak to someone about your income tax."
   val p3ExpectedLink = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
-  val expectedTitle = s"$h1Expected - $serviceName - $govUkExtension"
+  val p3ExpectedLinkText = "Self Assessment: general enquiries (opens in new tab)"
 
   val taxYearErrorTemplate: TaxYearErrorTemplate = app.injector.instanceOf[TaxYearErrorTemplate]
   val appConfig: AppConfig = mockAppConfig
@@ -51,35 +52,13 @@ class TaxYearErrorTemplateSpec extends ViewTest {
 
     "render the page correctly" which {
 
-      "has the correct page title" in {
+      titleCheck(h1Expected)
+      h1Check(h1Expected, "xl")
 
-        document.title() shouldBe expectedTitle
-      }
-
-      "has the correct heading" in {
-
-        elementText(Selectors.h1Selector) shouldBe h1Expected
-      }
-
-      "has the correct p1" in {
-
-        elementText(Selectors.p1Selector) shouldBe p1Expected
-      }
-
-      "has the correct p2" in {
-
-        elementText(Selectors.p2Selector) shouldBe p2Expected
-      }
-
-      "has the correct p3" in {
-
-        elementText(Selectors.p3Selector) shouldBe p3Expected
-      }
-
-      "has the correct link in 3rd paragraph" in {
-
-        document.select(s"""[id=govuk-self-assessment-link]""").attr("href") shouldBe p3ExpectedLink
-      }
+      textOnPageCheck(p1Expected,Selectors.p1Selector)
+      textOnPageCheck(p2Expected,Selectors.p2Selector)
+      textOnPageCheck(p3Expected,Selectors.p3Selector)
+      linkCheck(p3ExpectedLinkText, Selectors.linkSelector, p3ExpectedLink)
     }
   }
 

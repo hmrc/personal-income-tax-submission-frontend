@@ -41,6 +41,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
   val captionSelector = ".govuk-caption-l"
   val inputSelector = ".govuk-input"
   val continueButtonSelector = "#continue"
+  val continueButtonFormSelector = "#main-content > div > div > form"
   val enterAmountSelector = "#conditional-otherAmount > div > label"
   val priorAmountSelector = "#main-content > div > div > form > div > div > fieldset > div > div:nth-child(1) > label"
 
@@ -53,6 +54,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
   val differentAmountText = "A different amount"
   val enterAmountText = "Enter amount"
   val continueText = "Continue"
+  val continueLink = "/test-url"
 
   val priorAmountRadio = "#whichAmount"
   val priorAmountRadioText = "#main-content > div > div > form > div > div > fieldset > div > div:nth-child(1) > label"
@@ -78,6 +80,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
           inputFieldCheck(amountInputName, inputSelector)
           buttonCheck(continueText, continueButtonSelector)
+          formPostLinkCheck(continueLink, continueButtonFormSelector)
         }
 
         "there are form errors" when {
@@ -104,6 +107,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
             inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueButtonFormSelector)
 
           }
 
@@ -129,6 +133,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
             inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueButtonFormSelector)
 
           }
 
@@ -154,6 +159,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
             inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueButtonFormSelector)
 
           }
 
@@ -179,6 +185,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
             inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueButtonFormSelector)
           }
         }
       }
@@ -198,6 +205,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
           inputFieldCheck(amountInputName, inputSelector)
           buttonCheck(continueText, continueButtonSelector)
+          formPostLinkCheck(continueLink, continueButtonFormSelector)
         }
 
         "there are form errors" when {
@@ -224,6 +232,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
             inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueButtonFormSelector)
           }
 
           "a non numeric value is passed in" which {
@@ -248,6 +257,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
             inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueButtonFormSelector)
 
           }
 
@@ -273,6 +283,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
             inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueButtonFormSelector)
 
           }
 
@@ -298,6 +309,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
             inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueButtonFormSelector)
           }
         }
       }
@@ -328,6 +340,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
           inputFieldCheck(amountInputName, inputSelector)
           buttonCheck(continueText, continueButtonSelector)
+          formPostLinkCheck(continueLink, continueButtonFormSelector)
         }
 
         "there are form errors" when {
@@ -355,6 +368,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
             inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueButtonFormSelector)
           }
 
           "a non numeric value is passed in" which {
@@ -380,6 +394,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
             inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueButtonFormSelector)
           }
 
           "a value bigger than £100,000,000,000 is passed in" which {
@@ -405,6 +420,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
             inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueButtonFormSelector)
           }
 
           "an invalid format value is passed in" which {
@@ -430,6 +446,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
             inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueButtonFormSelector)
           }
         }
       }
@@ -460,6 +477,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
           inputFieldCheck(amountInputName, inputSelector)
           buttonCheck(continueText, continueButtonSelector)
+          formPostLinkCheck(continueLink, continueButtonFormSelector)
         }
 
         "there are form errors" when {
@@ -487,6 +505,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
             inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueButtonFormSelector)
           }
 
           "a non numeric value is passed in" which {
@@ -512,6 +531,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
             inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueButtonFormSelector)
           }
 
           "a value bigger than £100,000,000,000 is passed in" which {
@@ -537,6 +557,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
             inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueButtonFormSelector)
           }
 
           "an invalid format value is passed in" which {
@@ -562,6 +583,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
             inputFieldCheck(amountInputName, inputSelector)
             buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueButtonFormSelector)
           }
         }
       }

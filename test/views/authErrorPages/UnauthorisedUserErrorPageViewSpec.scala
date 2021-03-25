@@ -26,15 +26,13 @@ import views.html.authErrorPages.UnauthorisedUserErrorPageView
 
 class UnauthorisedUserErrorPageViewSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with ViewTest {
 
-  val h1Selector = "#main-content > div > div > header > h1"
   val p1Selector = "#main-content > div > div > div.govuk-body > p"
   val p2Selector = "#main-content > div > div > ul > li:nth-child(1)"
   val p3Selector = "#main-content > div > div > ul > li:nth-child(2)"
   val incomeTaxHomePageLinkSelector = "#govuk-income-tax-link"
   val selfAssessmentLinkSelector = "#govuk-self-assessment-link"
 
-  val pageTitleText = "You are not authorised to use this service"
-  val pageHeadingText = "You are not authorised to use this service"
+  val h1Expected = "You are not authorised to use this service"
   val youCanText = "You can:"
   val goToTheText = "go to the"
   val incomeTaxHomePageText = "Income Tax home page (opens in new tab)"
@@ -52,11 +50,8 @@ class UnauthorisedUserErrorPageViewSpec extends AnyWordSpec with Matchers with G
 
     "Render page correctly" which {
 
-      titleCheck(pageTitleText)
-
-      "has an xl header" in {
-        document.select(h1Selector).text() shouldBe pageHeadingText
-      }
+      titleCheck(h1Expected)
+      h1Check(h1Expected, "xl")
 
       textOnPageCheck(youCanText, p1Selector)
       textOnPageCheck(s"$goToTheText $incomeTaxHomePageText $forMoreInformationText",p2Selector)

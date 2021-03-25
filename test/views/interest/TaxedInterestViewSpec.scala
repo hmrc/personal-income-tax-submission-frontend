@@ -41,6 +41,7 @@ class TaxedInterestViewSpec extends ViewTest {
   val bulletPointSelector3 = "#value-hint > ul > li:nth-child(3)"
   val doNotIncludeSelector = "#value-hint > p:nth-child(3)"
   val continueSelector = "#continue"
+  val continueFormSelector = "#main-content > div > div > form"
 
   val expectedIndividualTitle = "Did you receive any taxed interest from the UK?"
   val expectedIndividualErrorTitle = s"Error: $expectedIndividualTitle"
@@ -57,6 +58,7 @@ class TaxedInterestViewSpec extends ViewTest {
   val yesText = "Yes"
   val noText = "No"
   val continueText = "Continue"
+  val continueLink = s"/income-through-software/return/personal-income/$taxYear/interest/taxed-uk-interest"
 
   "Taxed interest view" should {
 
@@ -81,6 +83,7 @@ class TaxedInterestViewSpec extends ViewTest {
         radioButtonCheck(noText, 2)
 
         buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(continueLink, continueFormSelector)
       }
     }
     "correctly render with errors as an individual" when {
@@ -99,6 +102,7 @@ class TaxedInterestViewSpec extends ViewTest {
         errorSummaryCheck(expectedErrorText, valueHref)
         errorAboveElementCheck(expectedErrorText)
         buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(continueLink, continueFormSelector)
       }
     }
     "correctly render with no errors as an agent" when {
@@ -123,6 +127,7 @@ class TaxedInterestViewSpec extends ViewTest {
         radioButtonCheck(noText, 2)
 
         buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(continueLink, continueFormSelector)
       }
     }
     "correctly render with errors as an agent" when {
@@ -142,6 +147,7 @@ class TaxedInterestViewSpec extends ViewTest {
         errorSummaryCheck(expectedErrorText, valueHref)
         errorAboveElementCheck(expectedErrorText)
         buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(continueLink, continueFormSelector)
       }
     }
   }

@@ -36,6 +36,7 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
   val thisIncludesAuthSelector = "#value-hint > p:nth-child(1)"
   val doNotIncludeSelector = "#value-hint > p:nth-child(2)"
   val continueSelector = "#continue"
+  val continueButtonFormSelector = "#main-content > div > div > form"
   val whatAreInvestmentSelector = "#main-content > div > div > form > details > summary > span"
   val investmentTrustSelector = "#main-content > div > div > form > details > div > p:nth-child(1)"
   val unitTrustsSelector = "#main-content > div > div > form > details > div > p:nth-child(2)"
@@ -56,6 +57,7 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
   val yesText = "Yes"
   val noText = "No"
   val continueText = "Continue"
+  val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/other-dividends"
   val whatAreInvestmentText = "What are investment trusts and companies?"
   val investmentTrustText:String = "Investment trusts are public companies that aim to make money through buying and selling shares " +
     "or assets in other companies. They let you join a group of other investors with a fund manager to get the best possible return for your money."
@@ -83,6 +85,7 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueButtonSelector)
+        formPostLinkCheck(continueLink, continueButtonFormSelector)
         textOnPageCheck(whatAreInvestmentText, whatAreInvestmentSelector)
         textOnPageCheck(investmentTrustText, investmentTrustSelector)
         textOnPageCheck(unitTrustsText, unitTrustsSelector)
@@ -112,6 +115,7 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
           radioButtonCheck(noText, 2)
           errorAboveElementCheck(expectedErrorText)
           buttonCheck(continueText, continueButtonSelector)
+          formPostLinkCheck(continueLink, continueButtonFormSelector)
           textOnPageCheck(whatAreInvestmentText, whatAreInvestmentSelector)
           textOnPageCheck(investmentTrustText, investmentTrustSelector)
           textOnPageCheck(unitTrustsText, unitTrustsSelector)
@@ -136,6 +140,7 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueButtonSelector)
+        formPostLinkCheck(continueLink, continueButtonFormSelector)
         textOnPageCheck(whatAreInvestmentText, whatAreInvestmentSelector)
         textOnPageCheck(investmentTrustText, investmentTrustSelector)
         textOnPageCheck(unitTrustsText, unitTrustsSelector)
@@ -165,6 +170,7 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
           radioButtonCheck(noText, 2)
           errorAboveElementCheck(expectedErrorText)
           buttonCheck(continueText, continueButtonSelector)
+          formPostLinkCheck(continueLink, continueButtonFormSelector)
           textOnPageCheck(whatAreInvestmentText, whatAreInvestmentSelector)
           textOnPageCheck(investmentTrustText, investmentTrustSelector)
           textOnPageCheck(unitTrustsText, unitTrustsSelector)

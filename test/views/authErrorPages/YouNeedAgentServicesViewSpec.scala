@@ -28,10 +28,8 @@ class YouNeedAgentServicesViewSpec extends AnyWordSpec with Matchers with GuiceO
 
   val p1Selector = "#main-content > div > div > p"
   val createAnAgentLinkSelector = "#create_agent_services_link"
-  val h1Selector = ".govuk-heading-xl"
 
-  lazy val pageHeadingText = "You cannot view this page"
-  lazy val pageTitleText = "You cannot view this page"
+  lazy val h1Expected = "You cannot view this page"
   lazy val youNeedText = "You need to"
   lazy val createAnAgentText = "create an agent services account"
   lazy val beforeYouCanText = "before you can view this page."
@@ -42,11 +40,8 @@ class YouNeedAgentServicesViewSpec extends AnyWordSpec with Matchers with GuiceO
 
   "YouNeedAgentServicesView " should {
     "Correctly render" which {
-      titleCheck(pageTitleText)
-
-      "has an xl header" in {
-        document.select(h1Selector).text() shouldBe pageHeadingText
-      }
+      titleCheck(h1Expected)
+      h1Check(h1Expected, "xl")
 
       textOnPageCheck(s"$youNeedText $createAnAgentText $beforeYouCanText", p1Selector)
       linkCheck(createAnAgentText, createAnAgentLinkSelector, createAnAgentLink)
