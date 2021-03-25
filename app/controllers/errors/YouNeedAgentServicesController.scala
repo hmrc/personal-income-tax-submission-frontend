@@ -23,7 +23,6 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.authErrorPages.YouNeedAgentServicesView
 
 import javax.inject.Inject
-import scala.concurrent.Future
 
 class YouNeedAgentServicesController @Inject()(val mcc: MessagesControllerComponents,
                                                youNeedAgentServicesPage: YouNeedAgentServicesView,

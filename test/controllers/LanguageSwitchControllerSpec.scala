@@ -37,8 +37,16 @@ class LanguageSwitchControllerSpec extends UnitTest with GuiceOneAppPerSuite {
     messagesApi = stubMessagesApi())
 
   "calling the SwitchToLanguage method" when {
-    "return a redirect" in {
+    "return a redirect with the referer url" in {
+      val result = controller.switchToLanguage("en")(fakeRequest.withHeaders("Referer" -> "/referrer-url"))
+      status(result) shouldBe Status.SEE_OTHER
+    }
+    "return a redirect to the fallback url with a default taxYear" in {
       val result = controller.switchToLanguage("en")(fakeRequest)
+      status(result) shouldBe Status.SEE_OTHER
+    }
+    "return a redirect to the fallback url with a specific taxYear" in {
+      val result = controller.switchToLanguage("en")(fakeRequest.withSession("TAX_YEAR" -> "2010"))
       status(result) shouldBe Status.SEE_OTHER
     }
   }
