@@ -50,15 +50,39 @@ class ServiceUnavailableTemplateSpec extends ViewTest {
   lazy val serviceUnavailableTemplate: ServiceUnavailableTemplate = app.injector.instanceOf[ServiceUnavailableTemplate]
   lazy val appConfig: AppConfig = mockAppConfig
 
-
-  lazy val view: HtmlFormat.Appendable = serviceUnavailableTemplate()(fakeRequest, messages, appConfig)
-  implicit lazy val document: Document = Jsoup.parse(view.body)
-
-  "ServiceUnavailableTemplate" should {
+  "ServiceUnavailableTemplate in English" should {
 
     "render the page correct" which {
 
+      lazy val view: HtmlFormat.Appendable = serviceUnavailableTemplate()(fakeRequest, messages, appConfig)
+      implicit lazy val document: Document = Jsoup.parse(view.body)
+
       titleCheck(h1Expected)
+      welshToggleCheck("English")
+      h1Check(h1Expected, "xl")
+
+      textOnPageCheck(p1Expected,Selectors.p1Selector)
+      textOnPageCheck(p2Expected,Selectors.p2Selector)
+
+      textOnPageCheck(bulletPoint1Expected,Selectors.bulletPoint1)
+      linkCheck(bulletPoint1LinkText, Selectors.bulletPointLinkSelector1, bulletPoint1Link)
+
+      textOnPageCheck(bulletPoint2Expected,Selectors.bulletPoint2)
+      linkCheck(bulletPoint2LinkText, Selectors.bulletPointLinkSelector2, bulletPoint2Link)
+
+
+    }
+  }
+
+  "ServiceUnavailableTemplate in Welsh" should {
+
+    "render the page correct" which {
+
+      lazy val view: HtmlFormat.Appendable = serviceUnavailableTemplate()(fakeRequest, welshMessages, appConfig)
+      implicit lazy val document: Document = Jsoup.parse(view.body)
+
+      titleCheck(h1Expected)
+      welshToggleCheck("Welsh")
       h1Check(h1Expected, "xl")
 
       textOnPageCheck(p1Expected,Selectors.p1Selector)

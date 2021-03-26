@@ -45,14 +45,34 @@ class NotFoundTemplateSpec extends ViewTest {
   val notFoundTemplate: NotFoundTemplate = app.injector.instanceOf[NotFoundTemplate]
   val appConfig: AppConfig = mockAppConfig
 
-  lazy val view: HtmlFormat.Appendable = notFoundTemplate()(fakeRequest, messages, mockAppConfig)
-  implicit lazy val document: Document = Jsoup.parse(view.body)
-
-  "NotFoundTemplate" should {
+  "NotFoundTemplate in English" should {
 
     "render the page correctly" which {
 
+      lazy val view: HtmlFormat.Appendable = notFoundTemplate()(fakeRequest, messages, mockAppConfig)
+      implicit lazy val document: Document = Jsoup.parse(view.body)
+
       titleCheck(h1Expected)
+      welshToggleCheck("English")
+      h1Check(h1Expected, "xl")
+
+      textOnPageCheck(p1Expected,Selectors.p1Selector)
+      textOnPageCheck(p2Expected,Selectors.p2Selector)
+      textOnPageCheck(p3Expected,Selectors.p3Selector)
+      linkCheck(p3ExpectedLinkText, Selectors.linkSelector, p3ExpectedLink)
+
+    }
+  }
+
+  "NotFoundTemplate in Welsh" should {
+
+    "render the page correctly" which {
+
+      lazy val view: HtmlFormat.Appendable = notFoundTemplate()(fakeRequest, welshMessages, mockAppConfig)
+      implicit lazy val document: Document = Jsoup.parse(view.body)
+
+      titleCheck(h1Expected)
+      welshToggleCheck("Welsh")
       h1Check(h1Expected, "xl")
 
       textOnPageCheck(p1Expected,Selectors.p1Selector)

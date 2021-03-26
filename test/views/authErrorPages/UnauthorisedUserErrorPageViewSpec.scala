@@ -21,6 +21,7 @@ import org.jsoup.nodes.Document
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.twirl.api.Html
 import utils.ViewTest
 import views.html.authErrorPages.UnauthorisedUserErrorPageView
 
@@ -44,15 +45,37 @@ class UnauthorisedUserErrorPageViewSpec extends AnyWordSpec with Matchers with G
   val selfAssessmentLink = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
 
   val unauthorisedUserErrorPageView: UnauthorisedUserErrorPageView = app.injector.instanceOf[UnauthorisedUserErrorPageView]
-  lazy implicit val document: Document = Jsoup.parse(unauthorisedUserErrorPageView().body)
 
-  "UnauthorisedUserErrorPageView" should {
+  "UnauthorisedUserErrorPageView in English" should {
 
     "Render page correctly" which {
 
-      titleCheck(h1Expected)
-      h1Check(h1Expected, "xl")
+      lazy val view: Html = unauthorisedUserErrorPageView()(fakeRequest, messages, mockAppConfig)
+      lazy implicit val document: Document = Jsoup.parse(view.body)
 
+      titleCheck(h1Expected)
+      welshToggleCheck("English")
+      h1Check(h1Expected, "xl")
+      textOnPageCheck(youCanText, p1Selector)
+      textOnPageCheck(s"$goToTheText $incomeTaxHomePageText $forMoreInformationText",p2Selector)
+      linkCheck(incomeTaxHomePageText, incomeTaxHomePageLinkSelector, incomeTaxHomePageLink)
+      textOnPageCheck(s"$useText $selfAssessmentText $toSpeakText", p3Selector)
+      linkCheck(selfAssessmentText, selfAssessmentLinkSelector, selfAssessmentLink)
+
+    }
+
+  }
+
+  "UnauthorisedUserErrorPageView in Welsh" should {
+
+    "Render page correctly" which {
+
+      lazy val view: Html = unauthorisedUserErrorPageView()(fakeRequest, welshMessages, mockAppConfig)
+      lazy implicit val document: Document = Jsoup.parse(view.body)
+
+      titleCheck(h1Expected)
+      welshToggleCheck("Welsh")
+      h1Check(h1Expected, "xl")
       textOnPageCheck(youCanText, p1Selector)
       textOnPageCheck(s"$goToTheText $incomeTaxHomePageText $forMoreInformationText",p2Selector)
       linkCheck(incomeTaxHomePageText, incomeTaxHomePageLinkSelector, incomeTaxHomePageLink)

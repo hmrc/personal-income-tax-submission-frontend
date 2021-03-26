@@ -63,16 +63,17 @@ class RemoveAccountViewSpec extends ViewTest {
 
   val expectedErrorText = "Select yes to remove this account"
 
-  "Remove Account view" should {
+  "Remove Account view in English" should {
 
     "Correctly render for an untaxed account" when {
       "the user is an individual" when {
         "There are no form errors " when {
           "The account is not the last account" which {
-            lazy val view = removeAccountView(yesNoForm, taxYear, UNTAXED, account, isLastAccount = false)(user, implicitly, mockAppConfig)
+            lazy val view = removeAccountView(yesNoForm, taxYear, UNTAXED, account, isLastAccount = false)(user, messages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             titleCheck(expectedTitle)
+            welshToggleCheck("English")
             textOnPageCheck(expectedCaption, captionSelector)
             h1Check(expectedH1)
             radioButtonCheck(yesText, 1)
@@ -83,11 +84,12 @@ class RemoveAccountViewSpec extends ViewTest {
 
           "The last account is being removed" which {
             lazy val view = removeAccountView(yesNoForm, taxYear, UNTAXED, account,
-              isLastAccount = true)(user, implicitly, mockAppConfig)
+              isLastAccount = true)(user, messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             titleCheck(expectedTitle)
+            welshToggleCheck("English")
             textOnPageCheck(expectedCaption, captionSelector)
             h1Check(expectedH1)
             textOnPageCheck(thisWillTextUntaxed, thisWillTextSelector)
@@ -102,11 +104,12 @@ class RemoveAccountViewSpec extends ViewTest {
         "There are form errors " when {
           "no value is passed to the form" which {
             lazy val view = removeAccountView(yesNoForm.bind(Map("value" -> "")), taxYear, UNTAXED, account,
-              isLastAccount = false)(user, implicitly, mockAppConfig)
+              isLastAccount = false)(user, messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             titleCheck(expectedErrorTitle)
+            welshToggleCheck("English")
             errorSummaryCheck(expectedErrorText, errorSummaryHref)
             textOnPageCheck(expectedCaption, captionSelector)
             h1Check(expectedH1)
@@ -122,10 +125,12 @@ class RemoveAccountViewSpec extends ViewTest {
       "the user is as an agent" when {
         "There are no form errors " when {
           "The account is not the last account" which {
-            lazy val view = removeAccountView(yesNoForm, taxYear, UNTAXED, account, isLastAccount = false)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+            lazy val view = removeAccountView(yesNoForm, taxYear, UNTAXED, account,
+              isLastAccount = false)(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             titleCheck(expectedTitle)
+            welshToggleCheck("English")
             textOnPageCheck(expectedCaption, captionSelector)
             h1Check(expectedH1)
             radioButtonCheck(yesText, 1)
@@ -136,11 +141,12 @@ class RemoveAccountViewSpec extends ViewTest {
 
           "The last account is being removed" which {
             lazy val view = removeAccountView(yesNoForm, taxYear, UNTAXED, account,
-              isLastAccount = true)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+              isLastAccount = true)(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             titleCheck(expectedTitle)
+            welshToggleCheck("English")
             textOnPageCheck(expectedCaption, captionSelector)
             h1Check(expectedH1)
             textOnPageCheck(thisWillTextUntaxed, thisWillTextSelector)
@@ -155,10 +161,11 @@ class RemoveAccountViewSpec extends ViewTest {
         "There are form errors " when {
           "no value is passed to the form" which {
             lazy val view = removeAccountView(yesNoForm.bind(Map("value" -> "")), taxYear, UNTAXED,
-              account, isLastAccount = false)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+              account, isLastAccount = false)(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             titleCheck(expectedErrorTitle)
+            welshToggleCheck("English")
             errorSummaryCheck(expectedErrorText, errorSummaryHref)
             textOnPageCheck(expectedCaption, captionSelector)
             h1Check(expectedH1)
@@ -176,10 +183,11 @@ class RemoveAccountViewSpec extends ViewTest {
       "the user is an individual" when {
         "There are no form errors " when {
           "The account is not the last account" which {
-            lazy val view = removeAccountView(yesNoForm, taxYear, TAXED, account, isLastAccount = false)(user, implicitly, mockAppConfig)
+            lazy val view = removeAccountView(yesNoForm, taxYear, TAXED, account, isLastAccount = false)(user, messages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             titleCheck(expectedTitle)
+            welshToggleCheck("English")
             textOnPageCheck(expectedCaption, captionSelector)
             h1Check(expectedH1)
             radioButtonCheck(yesText, 1)
@@ -190,11 +198,12 @@ class RemoveAccountViewSpec extends ViewTest {
 
           "The last account is being removed" which {
             lazy val view = removeAccountView(yesNoForm, taxYear, TAXED, account,
-              isLastAccount = true)(user, implicitly, mockAppConfig)
+              isLastAccount = true)(user, messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             titleCheck(expectedTitle)
+            welshToggleCheck("English")
             textOnPageCheck(expectedCaption, captionSelector)
             h1Check(expectedH1)
             textOnPageCheck(thisWillTextTaxed, thisWillTextSelector)
@@ -209,11 +218,12 @@ class RemoveAccountViewSpec extends ViewTest {
         "There are form errors " when {
           "no value is passed to the form" which {
             lazy val view = removeAccountView(yesNoForm.bind(Map("value" -> "")), taxYear, TAXED, account,
-              isLastAccount = false)(user, implicitly, mockAppConfig)
+              isLastAccount = false)(user, messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             titleCheck(expectedErrorTitle)
+            welshToggleCheck("English")
             errorSummaryCheck(expectedErrorText, errorSummaryHref)
             textOnPageCheck(expectedCaption, captionSelector)
             h1Check(expectedH1)
@@ -229,10 +239,12 @@ class RemoveAccountViewSpec extends ViewTest {
       "the user is as an agent" when {
         "There are no form errors " when {
           "The account is not the last account" which {
-            lazy val view = removeAccountView(yesNoForm, taxYear, TAXED, account, isLastAccount = false)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+            lazy val view = removeAccountView(yesNoForm, taxYear, TAXED, account,
+              isLastAccount = false)(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             titleCheck(expectedTitle)
+            welshToggleCheck("English")
             textOnPageCheck(expectedCaption, captionSelector)
             h1Check(expectedH1)
             radioButtonCheck(yesText, 1)
@@ -243,11 +255,12 @@ class RemoveAccountViewSpec extends ViewTest {
 
           "The last account is being removed" which {
             lazy val view = removeAccountView(yesNoForm, taxYear, TAXED, account,
-              isLastAccount = true)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+              isLastAccount = true)(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             titleCheck(expectedTitle)
+            welshToggleCheck("English")
             textOnPageCheck(expectedCaption, captionSelector)
             h1Check(expectedH1)
             textOnPageCheck(thisWillTextTaxed, thisWillTextSelector)
@@ -262,10 +275,242 @@ class RemoveAccountViewSpec extends ViewTest {
         "There are form errors " when {
           "no value is passed to the form" which {
             lazy val view = removeAccountView(yesNoForm.bind(Map("value" -> "")), taxYear, TAXED,
-              account, isLastAccount = false)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+              account, isLastAccount = false)(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             titleCheck(expectedErrorTitle)
+            welshToggleCheck("English")
+            errorSummaryCheck(expectedErrorText, errorSummaryHref)
+            textOnPageCheck(expectedCaption, captionSelector)
+            h1Check(expectedH1)
+            errorAboveElementCheck(expectedErrorText)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
+            buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, TAXED, account.id.get).url, continueButtonFormSelector)
+          }
+        }
+      }
+    }
+  }
+
+  "Remove Account view in Welsh" should {
+
+    "Correctly render for an untaxed account" when {
+      "the user is an individual" when {
+        "There are no form errors " when {
+          "The account is not the last account" which {
+            lazy val view = removeAccountView(yesNoForm, taxYear, UNTAXED, account, isLastAccount = false)(user, welshMessages, mockAppConfig)
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            titleCheck(expectedTitle)
+            welshToggleCheck("Welsh")
+            textOnPageCheck(expectedCaption, captionSelector)
+            h1Check(expectedH1)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
+            buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, UNTAXED, account.id.get).url, continueButtonFormSelector)
+          }
+
+          "The last account is being removed" which {
+            lazy val view = removeAccountView(yesNoForm, taxYear, UNTAXED, account,
+              isLastAccount = true)(user, welshMessages, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            titleCheck(expectedTitle)
+            welshToggleCheck("Welsh")
+            textOnPageCheck(expectedCaption, captionSelector)
+            h1Check(expectedH1)
+            textOnPageCheck(thisWillTextUntaxed, thisWillTextSelector)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
+            buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, UNTAXED, account.id.get).url, continueButtonFormSelector)
+          }
+
+        }
+
+        "There are form errors " when {
+          "no value is passed to the form" which {
+            lazy val view = removeAccountView(yesNoForm.bind(Map("value" -> "")), taxYear, UNTAXED, account,
+              isLastAccount = false)(user, welshMessages, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            titleCheck(expectedErrorTitle)
+            welshToggleCheck("Welsh")
+            errorSummaryCheck(expectedErrorText, errorSummaryHref)
+            textOnPageCheck(expectedCaption, captionSelector)
+            h1Check(expectedH1)
+            errorAboveElementCheck(expectedErrorText)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
+            buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, UNTAXED, account.id.get).url, continueButtonFormSelector)
+          }
+        }
+      }
+
+      "the user is as an agent" when {
+        "There are no form errors " when {
+          "The account is not the last account" which {
+            lazy val view = removeAccountView(yesNoForm, taxYear, UNTAXED, account,
+              isLastAccount = false)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            titleCheck(expectedTitle)
+            welshToggleCheck("Welsh")
+            textOnPageCheck(expectedCaption, captionSelector)
+            h1Check(expectedH1)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
+            buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, UNTAXED, account.id.get).url, continueButtonFormSelector)
+          }
+
+          "The last account is being removed" which {
+            lazy val view = removeAccountView(yesNoForm, taxYear, UNTAXED, account,
+              isLastAccount = true)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            titleCheck(expectedTitle)
+            welshToggleCheck("Welsh")
+            textOnPageCheck(expectedCaption, captionSelector)
+            h1Check(expectedH1)
+            textOnPageCheck(thisWillTextUntaxed, thisWillTextSelector)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
+            buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, UNTAXED, account.id.get).url, continueButtonFormSelector)
+          }
+
+        }
+
+        "There are form errors " when {
+          "no value is passed to the form" which {
+            lazy val view = removeAccountView(yesNoForm.bind(Map("value" -> "")), taxYear, UNTAXED,
+              account, isLastAccount = false)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            titleCheck(expectedErrorTitle)
+            welshToggleCheck("Welsh")
+            errorSummaryCheck(expectedErrorText, errorSummaryHref)
+            textOnPageCheck(expectedCaption, captionSelector)
+            h1Check(expectedH1)
+            errorAboveElementCheck(expectedErrorText)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
+            buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, UNTAXED, account.id.get).url, continueButtonFormSelector)
+          }
+        }
+      }
+    }
+
+    "Correctly render for an taxed account" when {
+      "the user is an individual" when {
+        "There are no form errors " when {
+          "The account is not the last account" which {
+            lazy val view = removeAccountView(yesNoForm, taxYear, TAXED, account, isLastAccount = false)(user, welshMessages, mockAppConfig)
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            titleCheck(expectedTitle)
+            welshToggleCheck("Welsh")
+            textOnPageCheck(expectedCaption, captionSelector)
+            h1Check(expectedH1)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
+            buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, TAXED, account.id.get).url, continueButtonFormSelector)
+          }
+
+          "The last account is being removed" which {
+            lazy val view = removeAccountView(yesNoForm, taxYear, TAXED, account,
+              isLastAccount = true)(user, welshMessages, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            titleCheck(expectedTitle)
+            welshToggleCheck("Welsh")
+            textOnPageCheck(expectedCaption, captionSelector)
+            h1Check(expectedH1)
+            textOnPageCheck(thisWillTextTaxed, thisWillTextSelector)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
+            buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, TAXED, account.id.get).url, continueButtonFormSelector)
+          }
+
+        }
+
+        "There are form errors " when {
+          "no value is passed to the form" which {
+            lazy val view = removeAccountView(yesNoForm.bind(Map("value" -> "")), taxYear, TAXED, account,
+              isLastAccount = false)(user, welshMessages, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            titleCheck(expectedErrorTitle)
+            welshToggleCheck("Welsh")
+            errorSummaryCheck(expectedErrorText, errorSummaryHref)
+            textOnPageCheck(expectedCaption, captionSelector)
+            h1Check(expectedH1)
+            errorAboveElementCheck(expectedErrorText)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
+            buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, TAXED, account.id.get).url, continueButtonFormSelector)
+          }
+        }
+      }
+
+      "the user is as an agent" when {
+        "There are no form errors " when {
+          "The account is not the last account" which {
+            lazy val view = removeAccountView(yesNoForm, taxYear, TAXED, account,
+              isLastAccount = false)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            titleCheck(expectedTitle)
+            welshToggleCheck("Welsh")
+            textOnPageCheck(expectedCaption, captionSelector)
+            h1Check(expectedH1)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
+            buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, TAXED, account.id.get).url, continueButtonFormSelector)
+          }
+
+          "The last account is being removed" which {
+            lazy val view = removeAccountView(yesNoForm, taxYear, TAXED, account,
+              isLastAccount = true)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            titleCheck(expectedTitle)
+            welshToggleCheck("Welsh")
+            textOnPageCheck(expectedCaption, captionSelector)
+            h1Check(expectedH1)
+            textOnPageCheck(thisWillTextTaxed, thisWillTextSelector)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
+            buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, TAXED, account.id.get).url, continueButtonFormSelector)
+          }
+
+        }
+
+        "There are form errors " when {
+          "no value is passed to the form" which {
+            lazy val view = removeAccountView(yesNoForm.bind(Map("value" -> "")), taxYear, TAXED,
+              account, isLastAccount = false)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            titleCheck(expectedErrorTitle)
+            welshToggleCheck("Welsh")
             errorSummaryCheck(expectedErrorText, errorSummaryHref)
             textOnPageCheck(expectedCaption, captionSelector)
             h1Check(expectedH1)
