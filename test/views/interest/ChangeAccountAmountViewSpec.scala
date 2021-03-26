@@ -63,7 +63,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
   val TAXED = "taxed"
   val UNTAXED = "untaxed"
 
-  "ChangeAccountAmountView" when {
+  "ChangeAccountAmountView in English" when {
 
     "passed a prior or new form" should {
 
@@ -77,11 +77,12 @@ class ChangeAccountAmountViewSpec extends ViewTest {
             taxYear,
             UNTAXED,
             account
-          )(user, implicitly, mockAppConfig)
+          )(user, messages, mockAppConfig)
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
           titleCheck(expectedUntaxedTitle)
+          welshToggleCheck("English")
           h1Check(expectedUntaxedH1)
           textOnPageCheck(expectedCaption, captionSelector)
           radioButtonCheck(s"£$priorAmountValue", 1)
@@ -108,13 +109,14 @@ class ChangeAccountAmountViewSpec extends ViewTest {
               taxYear,
               UNTAXED,
               account
-            )(user, implicitly, mockAppConfig)
+            )(user, messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             val expectedErrorSummaryText = s"Select £5,000 or enter a different amount"
 
             titleCheck(expectedUntaxedErrorTitle)
+            welshToggleCheck("English")
             errorSummaryCheck(expectedErrorSummaryText, "#whichAmount")
             h1Check(expectedUntaxedH1)
             textOnPageCheck(expectedCaption, captionSelector)
@@ -139,13 +141,14 @@ class ChangeAccountAmountViewSpec extends ViewTest {
               taxYear,
               UNTAXED,
               account
-            )(user, implicitly, mockAppConfig)
+            )(user, messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             val expectedErrorSummaryText = "Enter the amount in the correct format"
 
             titleCheck(expectedUntaxedErrorTitle)
+            welshToggleCheck("English")
             errorSummaryCheck(expectedErrorSummaryText, newAmountInput)
             h1Check(expectedUntaxedH1)
             textOnPageCheck(expectedCaption, captionSelector)
@@ -170,13 +173,14 @@ class ChangeAccountAmountViewSpec extends ViewTest {
               taxYear,
               UNTAXED,
               account
-            )(user, implicitly, mockAppConfig)
+            )(user, messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             val expectedErrorSummaryText = "Enter an amount using numbers 0 to 9"
 
             titleCheck(expectedUntaxedErrorTitle)
+            welshToggleCheck("English")
             errorSummaryCheck(expectedErrorSummaryText, newAmountInput)
             h1Check(expectedUntaxedH1)
             textOnPageCheck(expectedCaption, captionSelector)
@@ -201,13 +205,14 @@ class ChangeAccountAmountViewSpec extends ViewTest {
               taxYear,
               UNTAXED,
               account
-            )(user, implicitly, mockAppConfig)
+            )(user, messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             val expectedErrorSummaryText = "Enter an amount less than £100,000,000,000"
 
             titleCheck(expectedUntaxedErrorTitle)
+            welshToggleCheck("English")
             errorSummaryCheck(expectedErrorSummaryText, newAmountInput)
             h1Check(expectedUntaxedH1)
             textOnPageCheck(expectedCaption, captionSelector)
@@ -232,13 +237,14 @@ class ChangeAccountAmountViewSpec extends ViewTest {
               taxYear,
               UNTAXED,
               account
-            )(user, implicitly, mockAppConfig)
+            )(user, messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             val expectedErrorSummaryText = "Enter the amount in the correct format"
 
             titleCheck(expectedUntaxedErrorTitle)
+            welshToggleCheck("English")
             errorSummaryCheck(expectedErrorSummaryText, newAmountInput)
             h1Check(expectedUntaxedH1)
             textOnPageCheck(expectedCaption, captionSelector)
@@ -269,11 +275,12 @@ class ChangeAccountAmountViewSpec extends ViewTest {
             taxYear,
             TAXED,
             account
-          )(user, implicitly, mockAppConfig)
+          )(user, messages, mockAppConfig)
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
           titleCheck(expectedTaxedTitle)
+          welshToggleCheck("English")
           h1Check(expectedTaxedH1)
           textOnPageCheck(expectedCaption, captionSelector)
           hintTextCheck(expectedHintText)
@@ -298,13 +305,14 @@ class ChangeAccountAmountViewSpec extends ViewTest {
               taxYear,
               TAXED,
               account
-            )(user, implicitly, mockAppConfig)
+            )(user, messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             val expectedErrorSummaryText = s"Select £5,000 or enter a different amount"
 
             titleCheck(expectedTaxedErrorTitle)
+            welshToggleCheck("English")
             errorSummaryCheck(expectedErrorSummaryText, "#whichAmount")
             h1Check(expectedTaxedH1)
             textOnPageCheck(expectedCaption, captionSelector)
@@ -329,13 +337,14 @@ class ChangeAccountAmountViewSpec extends ViewTest {
               taxYear,
               TAXED,
               account
-            )(user, implicitly, mockAppConfig)
+            )(user, messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             val expectedErrorSummaryText = "Enter the amount in the correct format"
 
             titleCheck(expectedTaxedErrorTitle)
+            welshToggleCheck("English")
             errorSummaryCheck(expectedErrorSummaryText, newAmountInput)
             h1Check(expectedTaxedH1)
             textOnPageCheck(expectedCaption, captionSelector)
@@ -360,13 +369,14 @@ class ChangeAccountAmountViewSpec extends ViewTest {
               taxYear,
               TAXED,
               account
-            )(user, implicitly, mockAppConfig)
+            )(user, messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             val expectedErrorSummaryText = "Enter an amount using numbers 0 to 9"
 
             titleCheck(expectedTaxedErrorTitle)
+            welshToggleCheck("English")
             errorSummaryCheck(expectedErrorSummaryText, newAmountInput)
             h1Check(expectedTaxedH1)
             textOnPageCheck(expectedCaption, captionSelector)
@@ -391,13 +401,14 @@ class ChangeAccountAmountViewSpec extends ViewTest {
               taxYear,
               TAXED,
               account
-            )(user, implicitly, mockAppConfig)
+            )(user, messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             val expectedErrorSummaryText = "Enter an amount less than £100,000,000,000"
 
             titleCheck(expectedTaxedErrorTitle)
+            welshToggleCheck("English")
             errorSummaryCheck(expectedErrorSummaryText, newAmountInput)
             h1Check(expectedTaxedH1)
             textOnPageCheck(expectedCaption, captionSelector)
@@ -422,13 +433,415 @@ class ChangeAccountAmountViewSpec extends ViewTest {
               taxYear,
               TAXED,
               account
-            )(user, implicitly, mockAppConfig)
+            )(user, messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
             val expectedErrorSummaryText = "Enter the amount in the correct format"
 
             titleCheck(expectedTaxedErrorTitle)
+            welshToggleCheck("English")
+            errorSummaryCheck(expectedErrorSummaryText, newAmountInput)
+            h1Check(expectedTaxedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorAboveElementCheck(expectedErrorSummaryText)
+            radioButtonCheck(s"£$priorAmountValue", 1)
+            radioButtonCheck(differentAmountText, 2)
+
+            "new amount radio button is already selected" in {
+              element(newAmountRadio).attributes().hasKey("checked") shouldBe true
+            }
+
+            inputFieldCheck(amountInputName, newAmountInput)
+            buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueFormSelector)
+          }
+
+        }
+      }
+
+    }
+  }
+
+  "ChangeAccountAmountView in Welsh" when {
+
+    "passed a prior or new form" should {
+
+      "correctly render for an individual with an untaxed account" when {
+
+        "there are no form errors" which {
+
+          lazy val view = changeAccountAmountView(
+            priorOrNewAmountForm.fill(PriorOrNewAmountModel("other",None)),
+            testCall,
+            taxYear,
+            UNTAXED,
+            account
+          )(user, welshMessages, mockAppConfig)
+
+          implicit lazy val document: Document = Jsoup.parse(view.body)
+
+          titleCheck(expectedUntaxedTitle)
+          welshToggleCheck("Welsh")
+          h1Check(expectedUntaxedH1)
+          textOnPageCheck(expectedCaption, captionSelector)
+          radioButtonCheck(s"£$priorAmountValue", 1)
+          radioButtonCheck(differentAmountText, 2)
+
+          "new amount radio button is already selected" in {
+            element(newAmountRadio).attributes().hasKey("checked") shouldBe true
+          }
+
+          hintTextCheck(expectedHintText)
+          textOnPageCheck(s"£$priorAmountValue", priorAmountRadioText)
+          inputFieldCheck(amountInputName, newAmountInput)
+          buttonCheck(continueText, continueButtonSelector)
+          formPostLinkCheck(continueLink, continueFormSelector)
+
+        }
+
+        "there are form errors" when {
+
+          "neither radio button is chosen" which {
+            lazy val view = changeAccountAmountView(
+              priorOrNewAmountForm.bind(Map("whichAmount" -> "", "amount" -> "")),
+              testCall,
+              taxYear,
+              UNTAXED,
+              account
+            )(user, welshMessages, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorSummaryText = s"Select £5,000 or enter a different amount"
+
+            titleCheck(expectedUntaxedErrorTitle)
+            welshToggleCheck("Welsh")
+            errorSummaryCheck(expectedErrorSummaryText, "#whichAmount")
+            h1Check(expectedUntaxedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorAboveElementCheck(expectedErrorSummaryText)
+            radioButtonCheck(s"£$priorAmountValue", 1)
+            radioButtonCheck(differentAmountText, 2)
+
+            "new amount radio button is not selected" in {
+              element(newAmountRadio).attributes().hasKey("checked") shouldBe false
+            }
+
+            inputFieldCheck(amountInputName, newAmountInput)
+            buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueFormSelector)
+          }
+
+          "an empty value for amount is passed in" which {
+            lazy val view = changeAccountAmountView(
+              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "")),
+              testCall,
+              taxYear,
+              UNTAXED,
+              account
+            )(user, welshMessages, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorSummaryText = "Enter the amount in the correct format"
+
+            titleCheck(expectedUntaxedErrorTitle)
+            welshToggleCheck("Welsh")
+            errorSummaryCheck(expectedErrorSummaryText, newAmountInput)
+            h1Check(expectedUntaxedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorAboveElementCheck(expectedErrorSummaryText)
+            radioButtonCheck(s"£$priorAmountValue", 1)
+            radioButtonCheck(differentAmountText, 2)
+
+            "new amount radio button is already selected" in {
+              element(newAmountRadio).attributes().hasKey("checked") shouldBe true
+            }
+
+            inputFieldCheck(amountInputName, newAmountInput)
+            buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueFormSelector)
+          }
+
+          "an invalid value for amount is passed in" which {
+            lazy val view = changeAccountAmountView(
+              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "abc")),
+              testCall,
+              taxYear,
+              UNTAXED,
+              account
+            )(user, welshMessages, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorSummaryText = "Enter an amount using numbers 0 to 9"
+
+            titleCheck(expectedUntaxedErrorTitle)
+            welshToggleCheck("Welsh")
+            errorSummaryCheck(expectedErrorSummaryText, newAmountInput)
+            h1Check(expectedUntaxedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorAboveElementCheck(expectedErrorSummaryText)
+            radioButtonCheck(s"£$priorAmountValue", 1)
+            radioButtonCheck(differentAmountText, 2)
+
+            "new amount radio button is already selected" in {
+              element(newAmountRadio).attributes().hasKey("checked") shouldBe true
+            }
+
+            inputFieldCheck(amountInputName, newAmountInput)
+            buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueFormSelector)
+          }
+
+          "a value greater than 100,000,000,000 is passed in" which {
+            lazy val view = changeAccountAmountView(
+              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "200,000,000,000")),
+              testCall,
+              taxYear,
+              UNTAXED,
+              account
+            )(user, welshMessages, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorSummaryText = "Enter an amount less than £100,000,000,000"
+
+            titleCheck(expectedUntaxedErrorTitle)
+            welshToggleCheck("Welsh")
+            errorSummaryCheck(expectedErrorSummaryText, newAmountInput)
+            h1Check(expectedUntaxedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorAboveElementCheck(expectedErrorSummaryText)
+            radioButtonCheck(s"£$priorAmountValue", 1)
+            radioButtonCheck(differentAmountText, 2)
+
+            "new amount radio button is already selected" in {
+              element(newAmountRadio).attributes().hasKey("checked") shouldBe true
+            }
+
+            inputFieldCheck(amountInputName, newAmountInput)
+            buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueFormSelector)
+          }
+
+          "an invalid format value for amount is passed in" which {
+            lazy val view = changeAccountAmountView(
+              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "100.00.00")),
+              testCall,
+              taxYear,
+              UNTAXED,
+              account
+            )(user, welshMessages, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorSummaryText = "Enter the amount in the correct format"
+
+            titleCheck(expectedUntaxedErrorTitle)
+            welshToggleCheck("Welsh")
+            errorSummaryCheck(expectedErrorSummaryText, newAmountInput)
+            h1Check(expectedUntaxedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorAboveElementCheck(expectedErrorSummaryText)
+            radioButtonCheck(s"£$priorAmountValue", 1)
+            radioButtonCheck(differentAmountText, 2)
+
+            "new amount radio button is already selected" in {
+              element(newAmountRadio).attributes().hasKey("checked") shouldBe true
+            }
+
+            inputFieldCheck(amountInputName, newAmountInput)
+            buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueFormSelector)
+          }
+
+        }
+      }
+
+      "correctly render for an individual with a taxed account" when {
+
+        "there are no form errors" which {
+
+          lazy val view = changeAccountAmountView(
+            priorOrNewAmountForm.fill(PriorOrNewAmountModel("other",None)),
+            testCall,
+            taxYear,
+            TAXED,
+            account
+          )(user, welshMessages, mockAppConfig)
+
+          implicit lazy val document: Document = Jsoup.parse(view.body)
+
+          titleCheck(expectedTaxedTitle)
+          welshToggleCheck("Welsh")
+          h1Check(expectedTaxedH1)
+          textOnPageCheck(expectedCaption, captionSelector)
+          hintTextCheck(expectedHintText)
+          radioButtonCheck(s"£$priorAmountValue", 1)
+          radioButtonCheck(differentAmountText, 2)
+
+          "new amount radio button is already selected" in {
+            element(newAmountRadio).attributes().hasKey("checked") shouldBe true
+          }
+
+          inputFieldCheck(amountInputName, newAmountInput)
+          buttonCheck(continueText, continueButtonSelector)
+          formPostLinkCheck(continueLink, continueFormSelector)
+        }
+
+        "there are form errors" when {
+
+          "neither radio button is chosen" which {
+            lazy val view = changeAccountAmountView(
+              priorOrNewAmountForm.bind(Map("whichAmount" -> "", "amount" -> "")),
+              testCall,
+              taxYear,
+              TAXED,
+              account
+            )(user, welshMessages, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorSummaryText = s"Select £5,000 or enter a different amount"
+
+            titleCheck(expectedTaxedErrorTitle)
+            welshToggleCheck("Welsh")
+            errorSummaryCheck(expectedErrorSummaryText, "#whichAmount")
+            h1Check(expectedTaxedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorAboveElementCheck(expectedErrorSummaryText)
+            radioButtonCheck(s"£$priorAmountValue", 1)
+            radioButtonCheck(differentAmountText, 2)
+
+            "new amount radio button is already selected" in {
+              element(newAmountRadio).attributes().hasKey("checked") shouldBe false
+            }
+
+            inputFieldCheck(amountInputName, newAmountInput)
+            buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueFormSelector)
+          }
+
+          "an empty value for amount is passed in" which {
+            lazy val view = changeAccountAmountView(
+              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "")),
+              testCall,
+              taxYear,
+              TAXED,
+              account
+            )(user, welshMessages, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorSummaryText = "Enter the amount in the correct format"
+
+            titleCheck(expectedTaxedErrorTitle)
+            welshToggleCheck("Welsh")
+            errorSummaryCheck(expectedErrorSummaryText, newAmountInput)
+            h1Check(expectedTaxedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorAboveElementCheck(expectedErrorSummaryText)
+            radioButtonCheck(s"£$priorAmountValue", 1)
+            radioButtonCheck(differentAmountText, 2)
+
+            "new amount radio button is already selected" in {
+              element(newAmountRadio).attributes().hasKey("checked") shouldBe true
+            }
+
+            inputFieldCheck(amountInputName, newAmountInput)
+            buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueFormSelector)
+          }
+
+          "an invalid value for amount is passed in" which {
+            lazy val view = changeAccountAmountView(
+              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "abc")),
+              testCall,
+              taxYear,
+              TAXED,
+              account
+            )(user, welshMessages, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorSummaryText = "Enter an amount using numbers 0 to 9"
+
+            titleCheck(expectedTaxedErrorTitle)
+            welshToggleCheck("Welsh")
+            errorSummaryCheck(expectedErrorSummaryText, newAmountInput)
+            h1Check(expectedTaxedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorAboveElementCheck(expectedErrorSummaryText)
+            radioButtonCheck(s"£$priorAmountValue", 1)
+            radioButtonCheck(differentAmountText, 2)
+
+            "new amount radio button is already selected" in {
+              element(newAmountRadio).attributes().hasKey("checked") shouldBe true
+            }
+
+            inputFieldCheck(amountInputName, newAmountInput)
+            buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueFormSelector)
+          }
+
+          "a value greater than 100,000,000,000 is passed in" which {
+            lazy val view = changeAccountAmountView(
+              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "200,000,000,000")),
+              testCall,
+              taxYear,
+              TAXED,
+              account
+            )(user, welshMessages, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorSummaryText = "Enter an amount less than £100,000,000,000"
+
+            titleCheck(expectedTaxedErrorTitle)
+            welshToggleCheck("Welsh")
+            errorSummaryCheck(expectedErrorSummaryText, newAmountInput)
+            h1Check(expectedTaxedH1)
+            textOnPageCheck(expectedCaption, captionSelector)
+            hintTextCheck(expectedHintText)
+            errorAboveElementCheck(expectedErrorSummaryText)
+            radioButtonCheck(s"£$priorAmountValue", 1)
+            radioButtonCheck(differentAmountText, 2)
+
+            "new amount radio button is already selected" in {
+              element(newAmountRadio).attributes().hasKey("checked") shouldBe true
+            }
+
+            inputFieldCheck(amountInputName, newAmountInput)
+            buttonCheck(continueText, continueButtonSelector)
+            formPostLinkCheck(continueLink, continueFormSelector)
+          }
+
+          "an invalid format value for amount is passed in" which {
+            lazy val view = changeAccountAmountView(
+              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "100.00.00")),
+              testCall,
+              taxYear,
+              TAXED,
+              account
+            )(user, welshMessages, mockAppConfig)
+
+            implicit lazy val document: Document = Jsoup.parse(view.body)
+
+            val expectedErrorSummaryText = "Enter the amount in the correct format"
+
+            titleCheck(expectedTaxedErrorTitle)
+            welshToggleCheck("Welsh")
             errorSummaryCheck(expectedErrorSummaryText, newAmountInput)
             h1Check(expectedTaxedH1)
             textOnPageCheck(expectedCaption, captionSelector)

@@ -21,7 +21,7 @@ import org.jsoup.nodes.Document
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.twirl.api.HtmlFormat
+import play.twirl.api.Html
 import utils.ViewTest
 
 class AgentAuthErrorPageViewSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with ViewTest{
@@ -37,14 +37,30 @@ class AgentAuthErrorPageViewSpec extends AnyWordSpec with Matchers with GuiceOne
   val tryAnotherClientText = "Try another client’s details"
   val authoriseAsAnAgentLink = "https://www.gov.uk/guidance/client-authorisation-an-overview"
 
-  val view: HtmlFormat.Appendable = agentAuthErrorPageView()
-  lazy implicit val document: Document = Jsoup.parse(view.body)
+  "AgentAuthErrorPageView in English" should {
 
-  "AgentAuthErrorPageView " should {
     "Render correctly" which {
-      titleCheck(h1Expected)
-      h1Check(h1Expected, "xl")
+      lazy val view: Html = agentAuthErrorPageView()(fakeRequest, messages, mockAppConfig)
+      lazy implicit val document: Document = Jsoup.parse(view.body)
 
+      titleCheck(h1Expected)
+      welshMessages("English")
+      h1Check(h1Expected, "xl")
+      textOnPageCheck(s"$youCannotViewText $authoriseYouAsText $beforeYouCanTryText", p1Selector)
+      linkCheck(authoriseYouAsText, authoriseAsAnAgentLinkSelector, authoriseAsAnAgentLink)
+      textOnPageCheck(tryAnotherClientText, p2Selector)
+    }
+  }
+
+  "AgentAuthErrorPageView in Welsh" should {
+
+    "Render correctly" which {
+      lazy val view: Html = agentAuthErrorPageView()(fakeRequest, welshMessages, mockAppConfig)
+      lazy implicit val document: Document = Jsoup.parse(view.body)
+
+      titleCheck(h1Expected)
+      welshMessages("Welsh")
+      h1Check(h1Expected, "xl")
       textOnPageCheck(s"$youCannotViewText $authoriseYouAsText $beforeYouCanTryText", p1Selector)
       linkCheck(authoriseYouAsText, authoriseAsAnAgentLinkSelector, authoriseAsAnAgentLink)
       textOnPageCheck(tryAnotherClientText, p2Selector)

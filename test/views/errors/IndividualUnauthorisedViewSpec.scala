@@ -18,6 +18,7 @@ package views.errors
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import play.twirl.api.Html
 import utils.ViewTest
 import views.html.authErrorPages.IndividualUnauthorisedView
 
@@ -33,12 +34,16 @@ class IndividualUnauthorisedViewSpec extends ViewTest {
   val paragraphSelector: String = ".govuk-body"
   val linkSelector: String = paragraphSelector + " > a"
 
-  "IndividualUnauthorisedView" should {
+  val individualUnauthorisedView: IndividualUnauthorisedView = app.injector.instanceOf[IndividualUnauthorisedView]
+
+  "IndividualUnauthorisedView in English" should {
 
     "render the page" which {
-      implicit lazy val document: Document = Jsoup.parse(view().toString())
+      lazy val view: Html = individualUnauthorisedView()(fakeRequest, messages, mockAppConfig)
+      implicit lazy val document: Document = Jsoup.parse(view.body)
 
       titleCheck(validTitle)
+      welshToggleCheck("English")
       h1Check(validTitle, "xl")
       textOnPageCheck(pageContent, paragraphSelector)
       linkCheck(linkContent, linkSelector, linkHref)
@@ -46,4 +51,18 @@ class IndividualUnauthorisedViewSpec extends ViewTest {
 
   }
 
+  "IndividualUnauthorisedView in Welsh" should {
+
+    "render the page" which {
+      lazy val view: Html = individualUnauthorisedView()(fakeRequest, welshMessages, mockAppConfig)
+      implicit lazy val document: Document = Jsoup.parse(view.body)
+
+      titleCheck(validTitle)
+      welshToggleCheck("Welsh")
+      h1Check(validTitle, "xl")
+      textOnPageCheck(pageContent, paragraphSelector)
+      linkCheck(linkContent, linkSelector, linkHref)
+    }
+
+  }
 }

@@ -60,15 +60,16 @@ class TaxedInterestViewSpec extends ViewTest {
   val continueText = "Continue"
   val continueLink = s"/income-through-software/return/personal-income/$taxYear/interest/taxed-uk-interest"
 
-  "Taxed interest view" should {
+  "Taxed interest view in English" should {
 
     "Correctly render as an individual" when {
       "There are no form errors " which {
         lazy val view = taxedInterestView(
-          yesNoFormIndividual, taxYear)(user, implicitly, mockAppConfig)
+          yesNoFormIndividual, taxYear)(user, messages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         titleCheck(expectedIndividualTitle)
+        welshToggleCheck("English")
         h1Check(expectedIndividualH1)
         textOnPageCheck(expectedCaption, captionSelector)
 
@@ -91,12 +92,13 @@ class TaxedInterestViewSpec extends ViewTest {
         lazy val view = taxedInterestView(
           yesNoFormIndividual.bind(Map("value" -> "")),
           taxYear
-        )(user, implicitly, mockAppConfig)
+        )(user, messages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         val expectedErrorText = "Select yes if you received taxed interest from the UK"
 
         titleCheck(expectedIndividualErrorTitle)
+        welshToggleCheck("English")
         h1Check(expectedIndividualH1)
         textOnPageCheck(expectedCaption, captionSelector)
         errorSummaryCheck(expectedErrorText, valueHref)
@@ -109,10 +111,11 @@ class TaxedInterestViewSpec extends ViewTest {
       "there are no form errors" which {
 
         lazy val view = taxedInterestView(
-          yesNoFormAgent, taxYear)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+          yesNoFormAgent, taxYear)(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         titleCheck(expectedAgentTitle)
+        welshToggleCheck("English")
         h1Check(expectedAgentH1)
         textOnPageCheck(expectedCaption, captionSelector)
 
@@ -135,13 +138,110 @@ class TaxedInterestViewSpec extends ViewTest {
         lazy val view = taxedInterestView(
           yesNoFormAgent.bind(Map("value" -> "")),
           taxYear
-        )(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+        )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         val expectedErrorText = "Select yes if your client received taxed interest from the UK"
 
         titleCheck(expectedAgentErrorTitle)
+        welshToggleCheck("English")
+        h1Check(expectedAgentH1)
+        textOnPageCheck(expectedCaption, captionSelector)
+        errorSummaryCheck(expectedErrorText, valueHref)
+        errorAboveElementCheck(expectedErrorText)
+        buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(continueLink, continueFormSelector)
+      }
+    }
+  }
+
+  "Taxed interest view in Welsh" should {
+
+    "Correctly render as an individual" when {
+      "There are no form errors " which {
+        lazy val view = taxedInterestView(
+          yesNoFormIndividual, taxYear)(user, welshMessages, mockAppConfig)
+        implicit lazy val document: Document = Jsoup.parse(view.body)
+
+        titleCheck(expectedIndividualTitle)
+        welshToggleCheck("Welsh")
+        h1Check(expectedIndividualH1)
+        textOnPageCheck(expectedCaption, captionSelector)
+
+        textOnPageCheck(forExampleText, forExampleSelector)
+        textOnPageCheck(trustFundsText, bulletPointSelector1)
+        textOnPageCheck(companyBondsText, bulletPointSelector2)
+        textOnPageCheck(lifeAnnuityText, bulletPointSelector3)
+
+        textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
+
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
+
+        buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(continueLink, continueFormSelector)
+      }
+    }
+    "correctly render with errors as an individual" when {
+      "no value is passed in" which {
+        lazy val view = taxedInterestView(
+          yesNoFormIndividual.bind(Map("value" -> "")),
+          taxYear
+        )(user, welshMessages, mockAppConfig)
+        implicit lazy val document: Document = Jsoup.parse(view.body)
+
+        val expectedErrorText = "Select yes if you received taxed interest from the UK"
+
+        titleCheck(expectedIndividualErrorTitle)
+        welshToggleCheck("Welsh")
+        h1Check(expectedIndividualH1)
+        textOnPageCheck(expectedCaption, captionSelector)
+        errorSummaryCheck(expectedErrorText, valueHref)
+        errorAboveElementCheck(expectedErrorText)
+        buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(continueLink, continueFormSelector)
+      }
+    }
+    "correctly render with no errors as an agent" when {
+      "there are no form errors" which {
+
+        lazy val view = taxedInterestView(
+          yesNoFormAgent, taxYear)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+        implicit lazy val document: Document = Jsoup.parse(view.body)
+
+        titleCheck(expectedAgentTitle)
+        welshToggleCheck("Welsh")
+        h1Check(expectedAgentH1)
+        textOnPageCheck(expectedCaption, captionSelector)
+
+        textOnPageCheck(forExampleText, forExampleSelector)
+        textOnPageCheck(trustFundsText, bulletPointSelector1)
+        textOnPageCheck(companyBondsText, bulletPointSelector2)
+        textOnPageCheck(lifeAnnuityText, bulletPointSelector3)
+
+        textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
+
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
+
+        buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(continueLink, continueFormSelector)
+      }
+    }
+    "correctly render with errors as an agent" when {
+      "there is a form error" which {
+        lazy val view = taxedInterestView(
+          yesNoFormAgent.bind(Map("value" -> "")),
+          taxYear
+        )(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+
+        implicit lazy val document: Document = Jsoup.parse(view.body)
+
+        val expectedErrorText = "Select yes if your client received taxed interest from the UK"
+
+        titleCheck(expectedAgentErrorTitle)
+        welshToggleCheck("Welsh")
         h1Check(expectedAgentH1)
         textOnPageCheck(expectedCaption, captionSelector)
         errorSummaryCheck(expectedErrorText, valueHref)

@@ -58,9 +58,9 @@ class TaxedInterestAmountViewSpec extends ViewTest{
     form,
     taxYear,
     controllers.interest.routes.TaxedInterestAmountController.submit(taxYear,id)
-  )(user, implicitly, mockAppConfig)
+  )(user, messages, mockAppConfig)
 
-  "Taxed interest amount view " should {
+  "Taxed interest amount view in English" should {
 
     "Correctly render" when {
 
@@ -68,6 +68,7 @@ class TaxedInterestAmountViewSpec extends ViewTest{
         implicit lazy val document: Document = Jsoup.parse(newView(taxedInterestForm).body)
 
         titleCheck(titleText)
+        welshToggleCheck("English")
         textOnPageCheck(captionText, captionSelector)
         h1Check(h1Text)
         textOnPageCheck(whatWouldYouCallText, whatWouldYouCallSelector)
@@ -89,6 +90,7 @@ class TaxedInterestAmountViewSpec extends ViewTest{
           val errorSummaryHref = "#taxedAmount"
 
           titleCheck(errorTitleText)
+          welshToggleCheck("English")
           h1Check(h1Text)
           errorSummaryCheck(expectedErrorText, errorSummaryHref)
           textOnPageCheck(captionText, captionSelector)
@@ -104,6 +106,7 @@ class TaxedInterestAmountViewSpec extends ViewTest{
           val errorSummaryHref = "#taxedAccountName"
 
           titleCheck(errorTitleText)
+          welshToggleCheck("English")
           h1Check(h1Text)
           errorSummaryCheck(expectedErrorText, errorSummaryHref)
           textOnPageCheck(captionText, captionSelector)
@@ -119,6 +122,7 @@ class TaxedInterestAmountViewSpec extends ViewTest{
           val errorSummaryHref = "#taxedAmount"
 
           titleCheck(errorTitleText)
+          welshToggleCheck("English")
           h1Check(h1Text)
           errorSummaryCheck(expectedErrorText, errorSummaryHref)
           textOnPageCheck(captionText, captionSelector)
@@ -134,6 +138,7 @@ class TaxedInterestAmountViewSpec extends ViewTest{
           val errorSummaryHref = "#taxedAmount"
 
           titleCheck(errorTitleText)
+          welshToggleCheck("English")
           h1Check(h1Text)
           errorSummaryCheck(expectedErrorText, errorSummaryHref)
           textOnPageCheck(captionText, captionSelector)
@@ -150,6 +155,120 @@ class TaxedInterestAmountViewSpec extends ViewTest{
           val errorSummaryHref = "#taxedAmount"
 
           titleCheck(errorTitleText)
+          welshToggleCheck("English")
+          h1Check(h1Text)
+          errorSummaryCheck(expectedErrorText, errorSummaryHref)
+          textOnPageCheck(captionText, captionSelector)
+          errorAboveElementCheck(expectedErrorText)
+          buttonCheck(continueButtonText, continueButtonSelector)
+          formPostLinkCheck(controllers.interest.routes.TaxedInterestAmountController.submit(taxYear,id).url, continueButtonFormSelector)
+        }
+      }
+    }
+  }
+
+  def newViewWelsh(form: Form[TaxedInterestModel]): HtmlFormat.Appendable = taxedInterestView(
+    form,
+    taxYear,
+    controllers.interest.routes.TaxedInterestAmountController.submit(taxYear,id)
+  )(user, welshMessages, mockAppConfig)
+
+  "Taxed interest amount view in Welsh" should {
+
+    "Correctly render" when {
+
+      "there are no form errors" which {
+        implicit lazy val document: Document = Jsoup.parse(newViewWelsh(taxedInterestForm).body)
+
+        titleCheck(titleText)
+        welshToggleCheck("Welsh")
+        textOnPageCheck(captionText, captionSelector)
+        h1Check(h1Text)
+        textOnPageCheck(whatWouldYouCallText, whatWouldYouCallSelector)
+        inputFieldCheck(taxedAccountNameInput, accountNameInputSelector)
+        textOnPageCheck(amountInterestText, amountInterestSelector)
+        textOnPageCheck(poundPrefixText, poundPrefixSelector)
+        inputFieldCheck(taxedAmountInput, interestEarnedInputSelector)
+        buttonCheck(continueButtonText, continueButtonSelector)
+        formPostLinkCheck(controllers.interest.routes.TaxedInterestAmountController.submit(taxYear,id).url, continueButtonFormSelector)
+      }
+
+      "there are form errors " which {
+
+        "when passed a form without an empty taxedAmount value" which {
+
+          lazy val errorForm = taxedInterestForm.bind(Map("taxedAmount" -> "", "taxedAccountName" -> "Account Name"))
+          implicit lazy val document: Document = Jsoup.parse(newViewWelsh(errorForm).body)
+          val expectedErrorText = "Enter the amount of taxed interest earned"
+          val errorSummaryHref = "#taxedAmount"
+
+          titleCheck(errorTitleText)
+          welshToggleCheck("Welsh")
+          h1Check(h1Text)
+          errorSummaryCheck(expectedErrorText, errorSummaryHref)
+          textOnPageCheck(captionText, captionSelector)
+          errorAboveElementCheck(expectedErrorText)
+          buttonCheck(continueButtonText, continueButtonSelector)
+          formPostLinkCheck(controllers.interest.routes.TaxedInterestAmountController.submit(taxYear,id).url, continueButtonFormSelector)
+        }
+
+        "when passed a form without an empty taxedAccountName value" which {
+          lazy val errorForm = taxedInterestForm.bind(Map("taxedAmount" -> "100.00", "taxedAccountName" -> ""))
+          implicit lazy val document: Document = Jsoup.parse(newViewWelsh(errorForm).body)
+          val expectedErrorText = "Enter an account name"
+          val errorSummaryHref = "#taxedAccountName"
+
+          titleCheck(errorTitleText)
+          welshToggleCheck("Welsh")
+          h1Check(h1Text)
+          errorSummaryCheck(expectedErrorText, errorSummaryHref)
+          textOnPageCheck(captionText, captionSelector)
+          errorAboveElementCheck(expectedErrorText)
+          buttonCheck(continueButtonText, continueButtonSelector)
+          formPostLinkCheck(controllers.interest.routes.TaxedInterestAmountController.submit(taxYear,id).url, continueButtonFormSelector)
+        }
+
+        "when passed a form with a non monetary taxedAmount value" which {
+          lazy val errorForm = taxedInterestForm.bind(Map("taxedAmount" -> "abc", "taxedAccountName" -> "Account Name"))
+          implicit lazy val document: Document = Jsoup.parse(newViewWelsh(errorForm).body)
+          val expectedErrorText = "Enter an amount using numbers 0 to 9"
+          val errorSummaryHref = "#taxedAmount"
+
+          titleCheck(errorTitleText)
+          welshToggleCheck("Welsh")
+          h1Check(h1Text)
+          errorSummaryCheck(expectedErrorText, errorSummaryHref)
+          textOnPageCheck(captionText, captionSelector)
+          errorAboveElementCheck(expectedErrorText)
+          buttonCheck(continueButtonText, continueButtonSelector)
+          formPostLinkCheck(controllers.interest.routes.TaxedInterestAmountController.submit(taxYear,id).url, continueButtonFormSelector)
+        }
+
+        "when passed a form with a taxedAmount value over £100,000,000,000" which {
+          lazy val errorForm = taxedInterestForm.bind(Map("taxedAmount" -> "£200,000,000,000", "taxedAccountName" -> "Account Name"))
+          implicit lazy val document: Document = Jsoup.parse(newViewWelsh(errorForm).body)
+          val expectedErrorText = "Enter an amount less than £100,000,000,000"
+          val errorSummaryHref = "#taxedAmount"
+
+          titleCheck(errorTitleText)
+          welshToggleCheck("Welsh")
+          h1Check(h1Text)
+          errorSummaryCheck(expectedErrorText, errorSummaryHref)
+          textOnPageCheck(captionText, captionSelector)
+          errorAboveElementCheck(expectedErrorText)
+          buttonCheck(continueButtonText, continueButtonSelector)
+          formPostLinkCheck(controllers.interest.routes.TaxedInterestAmountController.submit(taxYear,id).url, continueButtonFormSelector)
+        }
+
+        "when passed a form with invalid currency taxedAmount value" which {
+
+          lazy val errorForm = taxedInterestForm.bind(Map("taxedAmount" -> "100.00.00.00", "taxedAccountName" -> "Account Name"))
+          implicit lazy val document: Document = Jsoup.parse(newViewWelsh(errorForm).body)
+          val expectedErrorText = "Enter the amount in the correct format"
+          val errorSummaryHref = "#taxedAmount"
+
+          titleCheck(errorTitleText)
+          welshToggleCheck("Welsh")
           h1Check(h1Text)
           errorSummaryCheck(expectedErrorText, errorSummaryHref)
           textOnPageCheck(captionText, captionSelector)

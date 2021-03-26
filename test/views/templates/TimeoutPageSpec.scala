@@ -44,14 +44,34 @@ class TimeoutPageSpec extends ViewTest {
   val timeoutPage: TimeoutPage = app.injector.instanceOf[TimeoutPage]
   val appConfig: AppConfig = mockAppConfig
 
-  lazy val view: HtmlFormat.Appendable = timeoutPage(Call("GET", buttonExpectedUrl))(fakeRequest, messages, mockAppConfig)
-  implicit lazy val document: Document = Jsoup.parse(view.body)
 
-  "ServiceUnavailableTemplate" should {
+  "Timeout Page when called in English" should {
 
     "render the page correct" which {
 
+      lazy val view: HtmlFormat.Appendable = timeoutPage(Call("GET", buttonExpectedUrl))(fakeRequest, messages, mockAppConfig)
+      implicit lazy val document: Document = Jsoup.parse(view.body)
+
       titleCheck(h1Expected)
+      welshToggleCheck("English")
+      h1Check(h1Expected, "xl")
+
+      textOnPageCheck(p1Expected,Selectors.p1Selector)
+      buttonCheck(buttonExpectedText, Selectors.buttonSelector)
+      formGetLinkCheck(buttonExpectedUrl, Selectors.formSelector)
+
+    }
+  }
+
+  "Timeout Page when called in Welsh" should {
+
+    "render the page correct" which {
+
+      lazy val view: HtmlFormat.Appendable = timeoutPage(Call("GET", buttonExpectedUrl))(fakeRequest, welshMessages, mockAppConfig)
+      implicit lazy val document: Document = Jsoup.parse(view.body)
+
+      titleCheck(h1Expected)
+      welshToggleCheck("Welsh")
       h1Check(h1Expected, "xl")
 
       textOnPageCheck(p1Expected,Selectors.p1Selector)

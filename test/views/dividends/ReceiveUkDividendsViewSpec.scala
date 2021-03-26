@@ -30,7 +30,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
   lazy val receiveUkDividendsView: ReceiveUkDividendsView = app.injector.instanceOf[ReceiveUkDividendsView]
 
   val taxYear = 2020
-  val taxYearMinusOne = taxYear -1
+  val taxYearMinusOne: Int = taxYear -1
   val expectedIndividualH1 = "Did you receive any dividends from companies in the UK?"
   val expectedIndividualTitle = "Did you receive any dividends from companies in the UK?"
   val expectedIndividualErrorTitle = s"Error: $expectedIndividualTitle"
@@ -49,17 +49,18 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
   val continueSelector = "#continue"
   val continueButtonFormSelector = "#main-content > div > div > form"
 
-  "ReceivedUKDividendsView" should {
+  "ReceivedUKDividendsView in English" should {
 
     "correctly render for an individual" when {
 
       "there are no form errors" which {
 
         lazy val view = receiveUkDividendsView(
-          yesNoForm, taxYear)(user, implicitly, mockAppConfig)
+          yesNoForm, taxYear)(user, messages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         titleCheck(expectedIndividualTitle)
+        welshToggleCheck("English")
         h1Check(expectedIndividualH1)
         textOnPageCheck(captionText, captionSelector)
         textOnPageCheck(yourDividendsText, yourDividendsSelector)
@@ -72,13 +73,14 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
       "there is a form error due to no radio button selected" which {
 
         lazy val view = receiveUkDividendsView(
-          yesNoForm.bind(Map("value" -> "")), taxYear)(user, implicitly, mockAppConfig)
+          yesNoForm.bind(Map("value" -> "")), taxYear)(user, messages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         val expectedErrorText = "Select yes if dividends were received from the UK"
         val errorSummaryHref = "#value"
 
         titleCheck(expectedIndividualErrorTitle)
+        welshToggleCheck("English")
         h1Check(expectedIndividualH1)
         textOnPageCheck(captionText, captionSelector)
         errorSummaryCheck(expectedErrorText, errorSummaryHref)
@@ -96,10 +98,11 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
       "there are no form errors" which {
 
         lazy val view = receiveUkDividendsView(
-          yesNoForm, taxYear)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+          yesNoForm, taxYear)(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         titleCheck(expectedAgentTitle)
+        welshToggleCheck("English")
         h1Check(expectedAgentH1)
         textOnPageCheck(captionText, captionSelector)
         textOnPageCheck(yourDividendsText, yourDividendsSelector)
@@ -112,13 +115,101 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
       "there is a form error due to no radio button selected" which {
 
         lazy val view = receiveUkDividendsView(
-          yesNoForm.bind(Map("value" -> "")), taxYear)(user.copy(arn = Some("XARN1234567")), implicitly, mockAppConfig)
+          yesNoForm.bind(Map("value" -> "")), taxYear)(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         val expectedErrorText = "Select yes if dividends were received from the UK"
         val errorSummaryHref = "#value"
 
         titleCheck(expectedAgentErrorTitle)
+        welshToggleCheck("English")
+        h1Check(expectedAgentH1)
+        textOnPageCheck(captionText, captionSelector)
+        errorSummaryCheck(expectedErrorText, errorSummaryHref)
+        textOnPageCheck(yourDividendsText, yourDividendsSelector)
+        errorAboveElementCheck(expectedErrorText)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
+        buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(continueLink, continueButtonFormSelector)
+      }
+    }
+  }
+
+  "ReceivedUKDividendsView in Welsh" should {
+
+    "correctly render for an individual" when {
+
+      "there are no form errors" which {
+
+        lazy val view = receiveUkDividendsView(
+          yesNoForm, taxYear)(user, welshMessages, mockAppConfig)
+        implicit lazy val document: Document = Jsoup.parse(view.body)
+
+        titleCheck(expectedIndividualTitle)
+        welshToggleCheck("Welsh")
+        h1Check(expectedIndividualH1)
+        textOnPageCheck(captionText, captionSelector)
+        textOnPageCheck(yourDividendsText, yourDividendsSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
+        buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(continueLink, continueButtonFormSelector)
+      }
+
+      "there is a form error due to no radio button selected" which {
+
+        lazy val view = receiveUkDividendsView(
+          yesNoForm.bind(Map("value" -> "")), taxYear)(user, welshMessages, mockAppConfig)
+        implicit lazy val document: Document = Jsoup.parse(view.body)
+
+        val expectedErrorText = "Select yes if dividends were received from the UK"
+        val errorSummaryHref = "#value"
+
+        titleCheck(expectedIndividualErrorTitle)
+        welshToggleCheck("Welsh")
+        h1Check(expectedIndividualH1)
+        textOnPageCheck(captionText, captionSelector)
+        errorSummaryCheck(expectedErrorText, errorSummaryHref)
+        textOnPageCheck(yourDividendsText, yourDividendsSelector)
+        errorAboveElementCheck(expectedErrorText)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
+        buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(continueLink, continueButtonFormSelector)
+      }
+    }
+
+    "correctly render for an agent" when {
+
+      "there are no form errors" which {
+
+        lazy val view = receiveUkDividendsView(
+          yesNoForm, taxYear)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+        implicit lazy val document: Document = Jsoup.parse(view.body)
+
+        titleCheck(expectedAgentTitle)
+        welshToggleCheck("Welsh")
+        h1Check(expectedAgentH1)
+        textOnPageCheck(captionText, captionSelector)
+        textOnPageCheck(yourDividendsText, yourDividendsSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
+        buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(continueLink, continueButtonFormSelector)
+      }
+
+      "there is a form error due to no radio button selected" which {
+
+        lazy val view = receiveUkDividendsView(
+          yesNoForm.bind(Map("value" -> "")), taxYear)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+        implicit lazy val document: Document = Jsoup.parse(view.body)
+
+        val expectedErrorText = "Select yes if dividends were received from the UK"
+        val errorSummaryHref = "#value"
+
+        titleCheck(expectedAgentErrorTitle)
+        welshToggleCheck("Welsh")
         h1Check(expectedAgentH1)
         textOnPageCheck(captionText, captionSelector)
         errorSummaryCheck(expectedErrorText, errorSummaryHref)
