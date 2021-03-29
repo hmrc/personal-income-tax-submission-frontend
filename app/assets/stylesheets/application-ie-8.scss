@@ -13,4 +13,12 @@ a.govuk-link.hmrc-sign-out-nav__link:focus {
   @include govuk-media-query($from: desktop) {
     float: right;
   }
- }
+}
+
+.js-hidden {
+    display: none;
+}
+.js-enabled .js-hidden {
+    display: block;
+}
+
