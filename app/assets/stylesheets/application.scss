@@ -20,3 +20,10 @@ a.govuk-link.hmrc-sign-out-nav__link:focus {
     float: right;
   }
  }
+
+.js-hidden {
+    display: none;
+}
+.js-enabled .js-hidden {
+    display: block;
+}
