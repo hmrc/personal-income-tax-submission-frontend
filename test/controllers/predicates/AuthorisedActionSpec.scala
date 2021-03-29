@@ -25,6 +25,7 @@ import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{allEnrolments, confidenceLevel}
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.UnitTest
@@ -83,7 +84,12 @@ class AuthorisedActionSpec extends UnitTest {
           Enrolment(EnrolmentKeys.nino, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.nino, nino)), "Activated")
         ))
 
-        lazy val result: Future[Result] = auth.individualAuthentication[AnyContent](block, enrolments, mtditid)(fakeRequest)
+        lazy val result: Future[Result] = {
+          (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
+            .expects(*, allEnrolments and confidenceLevel, *, *)
+            .returning(Future.successful(enrolments and ConfidenceLevel.L200))
+          auth.individualAuthentication[AnyContent](block)(fakeRequest, emptyHeaderCarrier)
+        }
 
         "returns an OK status" in {
           status(result) shouldBe OK
@@ -100,18 +106,68 @@ class AuthorisedActionSpec extends UnitTest {
 
       "the nino enrolment is missing" which {
         val block: User[AnyContent] => Future[Result] = user => Future.successful(Ok(user.mtditid))
-        val mtditid = "AAAAAA"
         val enrolments = Enrolments(Set())
 
-        lazy val result: Future[Result] = auth.individualAuthentication[AnyContent](block, enrolments, mtditid)(fakeRequest)
+        lazy val result: Future[Result] = {
+          (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
+            .expects(*, allEnrolments and confidenceLevel, *, *)
+            .returning(Future.successful(enrolments and ConfidenceLevel.L200))
+          auth.individualAuthentication[AnyContent](block)(fakeRequest, emptyHeaderCarrier)
+        }
 
         "returns a forbidden" in {
           status(result) shouldBe SEE_OTHER
         }
       }
 
+      "the individual enrolment is missing but there is a nino" which {
+        val block: User[AnyContent] => Future[Result] = user => Future.successful(Ok(user.mtditid))
+        val nino = "AA123456A"
+        val enrolments = Enrolments(Set(Enrolment("HMRC-NI", Seq(EnrolmentIdentifier(EnrolmentIdentifiers.nino, nino)), "Activated")))
+
+        lazy val result: Future[Result] = {
+          (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
+            .expects(*, allEnrolments and confidenceLevel, *, *)
+            .returning(Future.successful(enrolments and ConfidenceLevel.L200))
+          auth.individualAuthentication[AnyContent](block)(fakeRequest, emptyHeaderCarrier)
+        }
+
+        "returns an Unauthorised" in {
+          status(result) shouldBe SEE_OTHER
+        }
+        "returns an redirect to the correct page" in {
+          redirectUrl(result) shouldBe "/income-through-software/return/personal-income/error/you-need-to-sign-up"
+        }
+      }
+
     }
 
+    "return the user to IV Uplift" when {
+
+      "the confidence level is below minimum" which {
+        val block: User[AnyContent] => Future[Result] = user => Future.successful(Ok(user.mtditid))
+        val mtditid = "1234567890"
+        val enrolments = Enrolments(Set(
+          Enrolment(EnrolmentKeys.Individual, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.individualId, mtditid)), "Activated"),
+          Enrolment(EnrolmentKeys.nino, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.nino, "AA123456A")), "Activated")
+        ))
+
+        lazy val result: Future[Result] = {
+          (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
+            .expects(*, allEnrolments and confidenceLevel, *, *)
+            .returning(Future.successful(enrolments and ConfidenceLevel.L50))
+          auth.individualAuthentication[AnyContent](block)(fakeRequest, emptyHeaderCarrier)
+        }
+
+        "has a status of 303" in {
+          status(result) shouldBe SEE_OTHER
+        }
+
+        "redirects to the iv url" in {
+          await(result).header.headers("Location") shouldBe "/income-through-software/return/iv-uplift"
+        }
+      }
+    }
   }
 
   ".agentAuthenticated" should {
@@ -192,83 +248,6 @@ class AuthorisedActionSpec extends UnitTest {
 
   }
 
-  ".checkAuthorisation" should {
-
-    lazy val block: User[AnyContent] => Future[Result] = user =>
-      Future.successful(Ok(s"mtditid: ${user.mtditid}${user.arn.fold("")(arn => " arn: " + arn)}"))
-
-    lazy val enrolments = Enrolments(Set(
-      Enrolment(EnrolmentKeys.Individual, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.individualId, "1234567890")), "Activated"),
-      Enrolment(EnrolmentKeys.Agent, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.agentReference, "1234567890")), "Activated"),
-      Enrolment(EnrolmentKeys.nino, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.nino, nino)), "Activated")
-    ))
-
-    "perform the block action" when {
-
-      "the user is authenticated as an individual" which {
-        lazy val result = auth.checkAuthorisation(block, enrolments)
-
-        "returns an OK (200) status" in {
-          status(result) shouldBe OK
-        }
-
-        "returns the correct body" in {
-          bodyOf(result) shouldBe "mtditid: 1234567890"
-        }
-      }
-
-      "the user is authenticated as an agent" which {
-        lazy val result = {
-
-          (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
-            .expects(*, *, *, *)
-            .returning(Future.successful(enrolments))
-
-          auth.checkAuthorisation(block, enrolments, isAgent = true)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
-        }
-
-        "returns an OK (200) status" in {
-          status(result) shouldBe OK
-        }
-
-        "returns the correct body" in {
-          bodyOf(result) shouldBe "mtditid: 1234567890 arn: 1234567890"
-        }
-      }
-
-    }
-
-    "return a Redirect" when {
-
-      "the enrolments do not contain an MTDITID for a user" which {
-        lazy val result = auth.checkAuthorisation(block, Enrolments(Set()))
-
-        "has the correct status" in {
-          status(result) shouldBe SEE_OTHER
-        }
-
-        "redirects to the unauthorised individual page" in {
-          redirectUrl(result) shouldBe "/income-through-software/return/personal-income/error/you-need-to-sign-up"
-        }
-
-      }
-
-      "the enrolments do not contain an AgentReferenceNumber for an agent" which {
-        lazy val result = auth.checkAuthorisation(block, Enrolments(Set()), isAgent = true)
-
-        "has the correct status" in {
-          status(result) shouldBe SEE_OTHER
-        }
-
-        "redirects to the unauthorised individual page" in {
-          redirectUrl(result) shouldBe "/income-through-software/return/personal-income/error/you-need-agent-services-account"
-        }
-      }
-
-    }
-
-  }
-
   ".invokeBlock" should {
 
     lazy val block: User[AnyContent] => Future[Result] = user =>
@@ -316,17 +295,15 @@ class AuthorisedActionSpec extends UnitTest {
 
       "there is no MTDITID value in session for an agent" in {
         lazy val result = {
-          lazy val enrolments = Enrolments(Set(
-            Enrolment(EnrolmentKeys.Agent, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.agentReference, "0987654321")), "Activated"),
-            Enrolment(EnrolmentKeys.nino, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.nino, nino)), "Activated")
-          ))
+
           (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
-            .expects(*, Retrievals.allEnrolments and Retrievals.affinityGroup and Retrievals.confidenceLevel, *, *)
-            .returning(Future.successful(enrolments and Some(AffinityGroup.Agent) and ConfidenceLevel.L50))
+            .expects(*, Retrievals.affinityGroup, *, *)
+            .returning(Future.successful(Some(AffinityGroup.Agent)))
 
           auth.invokeBlock(fakeRequestWithNino, block)
         }
-        status(result) shouldBe UNAUTHORIZED
+        status(result) shouldBe SEE_OTHER
+        redirectUrl(result) shouldBe "/report-quarterly/income-and-expenses/view/agents/client-utr"
       }
 
     }

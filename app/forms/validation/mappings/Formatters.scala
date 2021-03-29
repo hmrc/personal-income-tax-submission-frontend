@@ -36,6 +36,7 @@ trait Formatters {
       Map(key -> value.trim)
   }
 
+  //TODO Fix Scalastyle
   private[mappings] def currencyFormatter(requiredKey: String,
                                           invalidNumericKey: String,
                                           nonNumericKey: String,
