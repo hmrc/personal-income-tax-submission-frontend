@@ -77,14 +77,7 @@ class AuthorisedAction @Inject()(
 
         (optionalMtdItId, optionalNino) match {
           case (Some(mtdItId), Some(nino)) =>
-            enrolments.enrolments.collectFirst {
-              case Enrolment(EnrolmentKeys.Individual, enrolmentIdentifiers, _, _)
-                if enrolmentIdentifiers.exists(identifier => identifier.key == EnrolmentIdentifiers.individualId) =>
-                block(User(mtdItId, None, nino))
-            } getOrElse {
-              logger.info("[AuthorisedAction][individualAuthentication] Non-agent with an invalid MTDITID.")
-              Future.successful(Redirect(controllers.errors.routes.UnauthorisedUserErrorController.show()))
-            }
+            block(User(mtdItId, None, nino))
           case (_, None) =>
             logger.info(s"[AuthorisedAction][individualAuthentication] - No active session. Redirecting to ${appConfig.signInUrl}")
             Future.successful(Redirect(appConfig.signInUrl))
