@@ -33,6 +33,7 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
   lazy val signInUrl: String = s"$signInBaseUrl?continue=$signInContinueUrl&origin=$signInOrigin"
   lazy val dividendsBaseUrl: String = servicesConfig.baseUrl("income-tax-dividends") + "/income-tax-dividends"
   lazy val interestBaseUrl: String = servicesConfig.baseUrl("income-tax-interest") + "/income-tax-interest"
+  lazy val giftAidBaseUrl: String = servicesConfig.baseUrl("income-tax-gift-aid") + "/income-tax-gift-aid"
 
   lazy val defaultTaxYear: Int = servicesConfig.getInt(ConfigKeys.defaultTaxYear)
 

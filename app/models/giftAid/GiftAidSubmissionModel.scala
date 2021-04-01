@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package common
+package models.giftAid
 
-object SessionValues {
-  val CLIENT_MTDITID = "ClientMTDID"
-  val CLIENT_NINO = "ClientNino"
+import play.api.libs.json.{Json, OFormat}
 
-  val DIVIDENDS_CYA = "DIVIDENDS_CYA"
-  val DIVIDENDS_PRIOR_SUB = "DIVIDENDS_PRIOR_SUB"
-  val INTEREST_PRIOR_SUB = "INTEREST_PRIOR_SUB"
+case class GiftAidSubmissionModel(giftAidPaymentsModel: GiftAidPaymentsModel,
+                                  giftsModel: GiftsModel)
 
-  val INTEREST_CYA = "INTEREST_CYA"
-  val TAX_YEAR = "TAX_YEAR"
-
-  val GIFT_AID_PRIOR_SUB = "GIFT_AID_PRIOR_SUB"
+object GiftAidSubmissionModel {
+  implicit val format: OFormat[GiftAidSubmissionModel] = Json.format[GiftAidSubmissionModel]
 }

@@ -68,6 +68,8 @@ trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneServerPerSu
     "microservice.services.income-tax-dividends.port" -> wiremockPort.toString,
     "microservice.services.income-tax-interest.host" -> wiremockHost,
     "microservice.services.income-tax-interest.port" -> wiremockPort.toString,
+    "microservice.services.income-tax-gift-aid.host" -> wiremockHost,
+    "microservice.services.income-tax-gift-aid.port" -> wiremockPort.toString,
     "signIn.url" -> s"/auth-login-stub/gg-sign-in",
   )
 

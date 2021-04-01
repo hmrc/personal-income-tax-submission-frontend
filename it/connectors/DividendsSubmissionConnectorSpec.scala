@@ -33,7 +33,7 @@ class DividendsSubmissionConnectorSpec extends IntegrationTest{
     Some(10)
   )
 
-  val taxYear = 2020
+  val taxYear = 2022
 
   val expectedHeaders = Seq(new HttpHeader("mtditid", mtditid))
 
