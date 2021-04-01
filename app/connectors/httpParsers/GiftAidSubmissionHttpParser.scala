@@ -26,7 +26,7 @@ object GiftAidSubmissionHttpParser extends APIParser {
 
   type GiftAidSubmissionsResponse = Either[APIErrorModel, Int]
 
-  override val parserName: String = "GiftAidHttpParser"
+  override val parserName: String = "GiftAidSubmissionHttpParser"
   override val service: String = "income-tax-gift-aid"
 
   implicit object GiftAidSubmissionResponseReads extends HttpReads[GiftAidSubmissionsResponse] {
