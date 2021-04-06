@@ -24,6 +24,7 @@ class GiftAidSubmissionModelSpec extends UnitTest {
   val validGiftAidPaymentsModel: GiftAidPaymentsModel = GiftAidPaymentsModel(
     nonUkCharitiesCharityNames = List("non uk charity name","non uk charity name 2"),
     currentYear = 2022,
+    oneOffCurrentYear = 2021,
     currentYearTreatedAsPreviousYear = 2021,
     nextYearTreatedAsCurrentYear = 2023,
     nonUkCharities = 5
@@ -42,17 +43,18 @@ class GiftAidSubmissionModelSpec extends UnitTest {
   )
 
   val validJson: JsObject = Json.obj(
-    "giftAidPaymentsModel" -> Json.obj(
+    "giftAidPayments" -> Json.obj(
       "nonUkCharitiesCharityNames" -> Json.arr(
         "non uk charity name",
         "non uk charity name 2"
       ),
       "currentYear" -> 2022,
+      "oneOffCurrentYear" -> 2021,
       "currentYearTreatedAsPreviousYear" -> 2021,
       "nextYearTreatedAsCurrentYear" -> 2023,
       "nonUkCharities" -> 5
     ),
-    "giftsModel" -> Json.obj(
+    "gifts" -> Json.obj(
       "investmentsNonUkCharitiesCharityNames" -> Json.arr(
         "charity name"
       ),
