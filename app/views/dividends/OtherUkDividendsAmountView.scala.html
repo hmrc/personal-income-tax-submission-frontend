@@ -16,110 +16,80 @@
 
 @import play.api.data.Form
 @import views.html.headerFooterTemplate.Layout
-@import play.api.mvc.Request
 @import play.api.i18n.Messages
 @import views.html.templates.helpers.ErrorSummary
 @import views.html.templates.helpers.InputText
 @import views.html.templates.helpers.InputRadio
 @import views.html.templates.helpers.Button
 @import views.html.templates.helpers.Heading
-@import models.formatHelpers.PriorOrNewAmountModel
 @import views.html.templates.helpers.BigDecimalCurrency
 
 @this(
-   layout: Layout,
-   formWithCSRF: FormWithCSRF,
-   errorSummary: ErrorSummary,
-   button: Button,
-   inputText: InputText,
-   inputRadio: InputRadio,
-   heading: Heading,
-   bigDecimalCurrency: BigDecimalCurrency
+        layout: Layout,
+        formWithCSRF: FormWithCSRF,
+        errorSummary: ErrorSummary,
+        button: Button,
+        inputText: InputText,
+        inputRadio: InputRadio,
+        heading: Heading,
+        bigDecimalCurrency: BigDecimalCurrency
 )
 
-@(form: Either[Form[PriorOrNewAmountModel], Form[BigDecimal]], priorSubmission: Option[DividendsPriorSubmission], taxYear: Int, postAction: Call, preAmount: Option[BigDecimal] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(form: Form[BigDecimal], priorSubmission: Option[DividendsPriorSubmission], taxYear: Int, postAction: Call, preAmount: Option[BigDecimal] = None)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
+
+@titleForUse = @{
+    messages(s"dividends.other-dividends-amount.title.${if(user.isAgent) "agent" else "individual"}")
+}
+
+@headingForUse = @{
+    messages(s"dividends.other-dividends-amount.heading.${if(user.isAgent) "agent" else "individual"}")
+}
 
 @hintText = @{
     Some(Html(messages("common.currency.hint")))
 }
-
 @currencyFormHtml(formInput: Form[BigDecimal]) = {
 
-   @errorSummary(formInput.errors.distinct)
+@errorSummary(formInput.errors.distinct)
 
-   @inputText(
-      formInput,
-      id = "amount",
-      name = "amount",
-      label = "dividends.other-dividends-amount.heading",
-      isPageHeading = false,
-      currency = true,
-      subheading = Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)),
-      headingClasses = "govuk-!-margin-bottom-5",
-       hint = hintText
-   )
+@heading(s"dividends.other-dividends-amount.heading.${if(user.isAgent) "agent" else "individual"}", Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
+
+@inputText(
+    formInput,
+    id = "amount",
+    name = "amount",
+    label = if(priorSubmission.isDefined) {
+        val part1 = messages(s"dividends.other-dividends-amount.change-amount.prior.common.1")
+        val part2 = messages(s"dividends.other-dividends-amount.change-amount.prior.${if(user.isAgent) "agent" else "individual"}")
+        val part3 = bigDecimalCurrency(priorAmount.getOrElse(BigDecimal("0")).toString)
+        val part4 = messages("dividends.other-dividends-amount.change-amount.prior.common.2")
+        s"$part1 $part2 $part3 $part4"
+    } else {
+        messages(s"dividends.other-dividends-amount.change-amount.caption.${if(user.isAgent) "agent" else "individual"}")
+    },
+    labelClasses = Some("govuk-!-margin-bottom-4"),
+    isPageHeading = false,
+    currency = true,
+    hint = hintText)
 }
 
 @priorAmount() = @{
-    priorSubmission.flatMap(_.otherUkDividends)
-}
+    if(preAmount.isDefined) {
+        preAmount
+    } else {
+        priorSubmission.flatMap(_.otherUkDividends)
+    }
 
-@otherAmountHtml(form: Form[PriorOrNewAmountModel]) = {
-    @inputText(
-        form,
-        id = "amount",
-        name = "amount",
-        label = "common.enterAmount",
-        isPageHeading = false,
-        currency = true,
-        hint = hintText
-    )
-}
-
-@priorOrNewForm(form: Form[PriorOrNewAmountModel]) = {
-
-    @errorSummary(form.errors.distinct)
-
-    <div class="@if(form.errors.nonEmpty) { govuk-form-group--error}">
-        @inputRadio(
-            form = form,
-            legend = messages("dividends.other-dividends-amount.heading"),
-            inline = false,
-            subheading = Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)),
-            name = "whichAmount",
-            items = Seq(
-                RadioItem(
-                    id = Some("whichAmount"),
-                    value = Some("prior"),
-                    content = Text(bigDecimalCurrency(priorAmount.getOrElse(BigDecimal("0")).toString).toString),
-                    checked = form("whichAmount").value.contains("prior")
-                ),
-                RadioItem(
-                    id = Some("otherAmount"),
-                    value = Some("other"),
-                    content = Text(messages("common.aDifferentAmount")),
-                    checked = form("whichAmount").value.contains("other"),
-                    conditionalHtml = Some(otherAmountHtml(form))
-                )
-            )
-        )
-    </div>
 }
 
 @hasFormErrors = @{
-    form.fold(
-        priorOrNew => priorOrNew.hasErrors,
-        bigDecimal => bigDecimal.hasErrors
-    )
+    form.hasErrors
 }
 
-@layout(pageTitle = messages("dividends.other-dividends-amount.title"), taxYear = Some(taxYear), hasErrors = hasFormErrors) {
+@layout(pageTitle = titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors) {
 
     @formWithCSRF(action = postAction) {
-        @form.fold(
-            priorForm =>priorOrNewForm(priorForm),
-            currencyForm => currencyFormHtml(currencyForm)
-        )
+        @currencyFormHtml(form)
         @button()
     }
 }
