@@ -31,17 +31,17 @@ class GiftAidSubmissionConnectorSpec extends IntegrationTest {
 
   lazy val connector: GiftAidSubmissionConnector = app.injector.instanceOf[GiftAidSubmissionConnector]
 
-  val currentTaxYear = 1000.89
-  val oneOffCurrentTaxYear = 605.99
-  val nextTaxYear = 999.99
-  val previousTaxYear = 10.21
-  val nonUkCharitiesAmount = 55.55
-  val landAndBuildingsAmount = 10.21
-  val sharesOrSecuritiesAmount = 10.21
-  val investmentsNonUkCharitiesAmount = 10.21
+  val currentTaxYear: Option[BigDecimal] = Some(1000.89)
+  val oneOffCurrentTaxYear: Option[BigDecimal] = Some(605.99)
+  val nextTaxYear: Option[BigDecimal] = Some(999.99)
+  val previousTaxYear: Option[BigDecimal] = Some(10.21)
+  val nonUkCharitiesAmount: Option[BigDecimal] = Some(55.55)
+  val landAndBuildingsAmount: Option[BigDecimal] = Some(10.21)
+  val sharesOrSecuritiesAmount: Option[BigDecimal] = Some(10.21)
+  val investmentsNonUkCharitiesAmount: Option[BigDecimal] = Some(10.21)
 
   val validGiftAidPaymentsModel: GiftAidPaymentsModel = GiftAidPaymentsModel(
-    nonUkCharitiesCharityNames = List("non uk charity name", "non uk charity name 2"),
+    nonUkCharitiesCharityNames = Some(List("non uk charity name", "non uk charity name 2")),
     currentYear = currentTaxYear,
     oneOffCurrentYear = oneOffCurrentTaxYear,
     currentYearTreatedAsPreviousYear = previousTaxYear,
@@ -50,15 +50,15 @@ class GiftAidSubmissionConnectorSpec extends IntegrationTest {
   )
 
   val validGiftsModel: GiftsModel = GiftsModel(
-    investmentsNonUkCharitiesCharityNames = List("charity name"),
+    investmentsNonUkCharitiesCharityNames = Some(List("charity name")),
     landAndBuildings = landAndBuildingsAmount,
     sharesOrSecurities = sharesOrSecuritiesAmount,
     investmentsNonUkCharities = investmentsNonUkCharitiesAmount
   )
 
   val validGiftAidModel: GiftAidSubmissionModel = GiftAidSubmissionModel(
-    validGiftAidPaymentsModel,
-    validGiftsModel
+    Some(validGiftAidPaymentsModel),
+    Some(validGiftsModel)
   )
 
   val taxYear = 2022

@@ -18,12 +18,12 @@ package models.giftAid
 
 import play.api.libs.json.{Json, OFormat}
 
-case class GiftAidPaymentsModel(nonUkCharitiesCharityNames: List[String],
-                                currentYear: BigDecimal,
-                                oneOffCurrentYear: BigDecimal,
-                                currentYearTreatedAsPreviousYear: BigDecimal,
-                                nextYearTreatedAsCurrentYear: BigDecimal,
-                                nonUkCharities: BigDecimal)
+case class GiftAidPaymentsModel(nonUkCharitiesCharityNames: Option[List[String]] = None,
+                                currentYear: Option[BigDecimal] = None,
+                                oneOffCurrentYear: Option[BigDecimal] = None,
+                                currentYearTreatedAsPreviousYear: Option[BigDecimal] = None,
+                                nextYearTreatedAsCurrentYear: Option[BigDecimal] = None,
+                                nonUkCharities: Option[BigDecimal] = None)
 
 object GiftAidPaymentsModel {
   implicit val format: OFormat[GiftAidPaymentsModel] = Json.format[GiftAidPaymentsModel]
