@@ -23,18 +23,18 @@ class GiftAidSubmissionModelSpec extends UnitTest {
 
   val validGiftAidPaymentsModel: GiftAidPaymentsModel = GiftAidPaymentsModel(
     nonUkCharitiesCharityNames = List("non uk charity name","non uk charity name 2"),
-    currentYear = 2022,
-    oneOffCurrentYear = 2021,
-    currentYearTreatedAsPreviousYear = 2021,
-    nextYearTreatedAsCurrentYear = 2023,
-    nonUkCharities = 5
+    currentYear = 1000.89,
+    oneOffCurrentYear = 605.99,
+    currentYearTreatedAsPreviousYear = 10.21,
+    nextYearTreatedAsCurrentYear = 999.99,
+    nonUkCharities = 55.55
   )
 
   val validGiftsModel: GiftsModel = GiftsModel(
     investmentsNonUkCharitiesCharityNames = List("charity name"),
-    landAndBuildings = 10,
-    sharesOrSecurities = 10,
-    investmentsNonUkCharities = 10
+    landAndBuildings = 10.21,
+    sharesOrSecurities = 10.21,
+    investmentsNonUkCharities = 10.21
   )
 
   val validGiftAidModel: GiftAidSubmissionModel = GiftAidSubmissionModel(
@@ -48,19 +48,19 @@ class GiftAidSubmissionModelSpec extends UnitTest {
         "non uk charity name",
         "non uk charity name 2"
       ),
-      "currentYear" -> 2022,
-      "oneOffCurrentYear" -> 2021,
-      "currentYearTreatedAsPreviousYear" -> 2021,
-      "nextYearTreatedAsCurrentYear" -> 2023,
-      "nonUkCharities" -> 5
+      "currentYear" -> 1000.89,
+      "oneOffCurrentYear" -> 605.99,
+      "currentYearTreatedAsPreviousYear" -> 10.21,
+      "nextYearTreatedAsCurrentYear" -> 999.99,
+      "nonUkCharities" -> 55.55
     ),
     "gifts" -> Json.obj(
       "investmentsNonUkCharitiesCharityNames" -> Json.arr(
         "charity name"
       ),
-      "landAndBuildings" -> 10,
-      "sharesOrSecurities" -> 10,
-      "investmentsNonUkCharities" -> 10
+      "landAndBuildings" -> 10.21,
+      "sharesOrSecurities" -> 10.21,
+      "investmentsNonUkCharities" -> 10.21
     )
   )
 

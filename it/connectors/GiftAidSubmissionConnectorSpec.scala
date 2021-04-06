@@ -31,14 +31,14 @@ class GiftAidSubmissionConnectorSpec extends IntegrationTest {
 
   lazy val connector: GiftAidSubmissionConnector = app.injector.instanceOf[GiftAidSubmissionConnector]
 
-  val currentTaxYear = 2022
-  val oneOffCurrentTaxYear = 2021
-  val nextTaxYear = 2023
-  val previousTaxYear = 2021
-  val nonUkCharitiesAmount = 5
-  val landAndBuildingsAmount = 10
-  val sharesOrSecuritiesAmount = 10
-  val investmentsNonUkCharitiesAmount = 10
+  val currentTaxYear = 1000.89
+  val oneOffCurrentTaxYear = 605.99
+  val nextTaxYear = 999.99
+  val previousTaxYear = 10.21
+  val nonUkCharitiesAmount = 55.55
+  val landAndBuildingsAmount = 10.21
+  val sharesOrSecuritiesAmount = 10.21
+  val investmentsNonUkCharitiesAmount = 10.21
 
   val validGiftAidPaymentsModel: GiftAidPaymentsModel = GiftAidPaymentsModel(
     nonUkCharitiesCharityNames = List("non uk charity name", "non uk charity name 2"),
