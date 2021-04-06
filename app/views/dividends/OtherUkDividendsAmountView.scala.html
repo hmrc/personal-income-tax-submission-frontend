@@ -41,10 +41,6 @@
     messages(s"dividends.other-dividends-amount.title.${if(user.isAgent) "agent" else "individual"}")
 }
 
-@headingForUse = @{
-    messages(s"dividends.other-dividends-amount.heading.${if(user.isAgent) "agent" else "individual"}")
-}
-
 @hintText = @{
     Some(Html(messages("common.currency.hint")))
 }
