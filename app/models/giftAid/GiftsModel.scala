@@ -18,10 +18,10 @@ package models.giftAid
 
 import play.api.libs.json.{Json, OFormat}
 
-case class GiftsModel(investmentsNonUkCharitiesCharityNames: List[String],
-                      landAndBuildings: Int,
-                      sharesOrSecurities: Int,
-                      investmentsNonUkCharities: Int)
+case class GiftsModel(investmentsNonUkCharitiesCharityNames: Option[List[String]] = None,
+                      landAndBuildings: Option[BigDecimal] = None,
+                      sharesOrSecurities: Option[BigDecimal] = None,
+                      investmentsNonUkCharities: Option[BigDecimal] = None)
 
 object GiftsModel {
   implicit val format: OFormat[GiftsModel] = Json.format[GiftsModel]

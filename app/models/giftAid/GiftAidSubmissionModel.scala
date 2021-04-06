@@ -18,8 +18,8 @@ package models.giftAid
 
 import play.api.libs.json.{Json, OFormat}
 
-case class GiftAidSubmissionModel(giftAidPaymentsModel: GiftAidPaymentsModel,
-                                  giftsModel: GiftsModel)
+case class GiftAidSubmissionModel(giftAidPayments: Option[GiftAidPaymentsModel] = None,
+                                  gifts: Option[GiftsModel] = None)
 
 object GiftAidSubmissionModel {
   implicit val format: OFormat[GiftAidSubmissionModel] = Json.format[GiftAidSubmissionModel]

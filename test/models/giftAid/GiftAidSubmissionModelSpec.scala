@@ -22,43 +22,45 @@ import utils.UnitTest
 class GiftAidSubmissionModelSpec extends UnitTest {
 
   val validGiftAidPaymentsModel: GiftAidPaymentsModel = GiftAidPaymentsModel(
-    nonUkCharitiesCharityNames = List("non uk charity name","non uk charity name 2"),
-    currentYear = 2022,
-    currentYearTreatedAsPreviousYear = 2021,
-    nextYearTreatedAsCurrentYear = 2023,
-    nonUkCharities = 5
+    nonUkCharitiesCharityNames = Some(List("non uk charity name","non uk charity name 2")),
+    currentYear = Some(1000.89),
+    oneOffCurrentYear = Some(605.99),
+    currentYearTreatedAsPreviousYear = Some(10.21),
+    nextYearTreatedAsCurrentYear = Some(999.99),
+    nonUkCharities = Some(55.55)
   )
 
   val validGiftsModel: GiftsModel = GiftsModel(
-    investmentsNonUkCharitiesCharityNames = List("charity name"),
-    landAndBuildings = 10,
-    sharesOrSecurities = 10,
-    investmentsNonUkCharities = 10
+    investmentsNonUkCharitiesCharityNames = Some(List("charity name")),
+    landAndBuildings = Some(10.21),
+    sharesOrSecurities = Some(10.21),
+    investmentsNonUkCharities = Some(10.21)
   )
 
   val validGiftAidModel: GiftAidSubmissionModel = GiftAidSubmissionModel(
-    validGiftAidPaymentsModel,
-    validGiftsModel
+    Some(validGiftAidPaymentsModel),
+    Some(validGiftsModel)
   )
 
   val validJson: JsObject = Json.obj(
-    "giftAidPaymentsModel" -> Json.obj(
+    "giftAidPayments" -> Json.obj(
       "nonUkCharitiesCharityNames" -> Json.arr(
         "non uk charity name",
         "non uk charity name 2"
       ),
-      "currentYear" -> 2022,
-      "currentYearTreatedAsPreviousYear" -> 2021,
-      "nextYearTreatedAsCurrentYear" -> 2023,
-      "nonUkCharities" -> 5
+      "currentYear" -> 1000.89,
+      "oneOffCurrentYear" -> 605.99,
+      "currentYearTreatedAsPreviousYear" -> 10.21,
+      "nextYearTreatedAsCurrentYear" -> 999.99,
+      "nonUkCharities" -> 55.55
     ),
-    "giftsModel" -> Json.obj(
+    "gifts" -> Json.obj(
       "investmentsNonUkCharitiesCharityNames" -> Json.arr(
         "charity name"
       ),
-      "landAndBuildings" -> 10,
-      "sharesOrSecurities" -> 10,
-      "investmentsNonUkCharities" -> 10
+      "landAndBuildings" -> 10.21,
+      "sharesOrSecurities" -> 10.21,
+      "investmentsNonUkCharities" -> 10.21
     )
   )
 
