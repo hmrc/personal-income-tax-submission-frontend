@@ -16,9 +16,8 @@
 
 package views.dividends
 
-import forms.{PriorOrNewAmountForm, OtherDividendsAmountForm}
+import forms.OtherDividendsAmountForm
 import models.DividendsPriorSubmission
-import models.formatHelpers.PriorOrNewAmountModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.data.Form
@@ -30,8 +29,6 @@ class OtherDividendsAmountViewSpec extends ViewTest {
   val priorAmount = 20
 
   lazy val otherDividendsAmountForm: Form[BigDecimal] = OtherDividendsAmountForm.otherDividendsAmountForm()
-  lazy val priorOrNewAmountForm: Form[PriorOrNewAmountModel] = PriorOrNewAmountForm.priorOrNewAmountForm(priorAmount)
-
   lazy val otherDividendsAmountView: OtherUkDividendsAmountView = app.injector.instanceOf[OtherUkDividendsAmountView]
 
   val taxYear: Int = 2020
