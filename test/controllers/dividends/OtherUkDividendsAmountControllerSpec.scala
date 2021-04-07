@@ -57,7 +57,6 @@ class OtherUkDividendsAmountControllerSpec extends UnitTestWithApp {
         }
 
         status(result) shouldBe OK
-        bodyOf(result) should include("whichAmount")
         bodyOf(result) shouldNot include("govuk-error-summary")
       }
 
@@ -72,7 +71,6 @@ class OtherUkDividendsAmountControllerSpec extends UnitTestWithApp {
         }
 
         status(result) shouldBe OK
-        bodyOf(result) should include("whichAmount")
         bodyOf(result) should include("50")
         bodyOf(result) should include("100")
         bodyOf(result) shouldNot include("govuk-error-summary")
@@ -159,34 +157,7 @@ class OtherUkDividendsAmountControllerSpec extends UnitTestWithApp {
         bodyOf(result) should include("common.error.invalid_number")
       }
 
-      "the amount type does not pass validation with prior data" in new TestWithAuth {
-        lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequest
-          .withSession(
-            SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(otherUkDividends = Some(true))).toString(),
-            SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(None, Some(otherDividendSubmitValue))).toString()
-          )
-          .withFormUrlEncodedBody(
-            amountTypeField -> "notAValidType",
-            otherAmountInputField -> "50"
-          ))
 
-        status(result) shouldBe BAD_REQUEST
-        bodyOf(result) should include("common.error.priorOrNewAmount.noRadioSelected")
-      }
-
-      "the amount type other is submitted but no amount is submitted" in new TestWithAuth {
-        lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequest
-          .withSession(
-            SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(otherUkDividends = Some(true))).toString(),
-            SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(None, Some(otherDividendSubmitValue))).toString()
-          )
-          .withFormUrlEncodedBody(
-            amountTypeField -> "other"
-          ))
-
-        status(result) shouldBe BAD_REQUEST
-        bodyOf(result) should include("common.error.priorOrNewAmount.noRadioSelected")
-      }
 
     }
 
@@ -240,9 +211,7 @@ class OtherUkDividendsAmountControllerSpec extends UnitTestWithApp {
 
       "has a cya data with an other dividends entry and prior submission data with an amount type of prior" in new TestWithAuth {
         lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequest
-          .withFormUrlEncodedBody(
-            amountTypeField -> "prior"
-          )
+          .withFormUrlEncodedBody("amount" -> "120000")
           .withSession(
             SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(
               otherUkDividendsAmount = Some(otherDividendSubmitValue)

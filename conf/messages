@@ -53,8 +53,17 @@ dividends.uk-dividends-amount.title = What is the total amount of dividends earn
 dividends.uk-dividends-amount.heading = What is the total amount of dividends earned from companies in the UK?
 dividends.uk-dividends-amount.error.empty = Enter the amount of dividends earned from the UK
 
-dividends.other-dividends-amount.title = What is the total amount of dividends from trusts or open ended investment companies?
-dividends.other-dividends-amount.heading = What is the total amount of dividends from trusts or open ended investment companies?
+dividends.other-dividends-amount.title.individual = How much did you get in dividends from UK-based trusts and open-ended investment companies?
+dividends.other-dividends-amount.title.agent = How much did your client get in dividends from UK-based trusts and open-ended investment companies?
+dividends.other-dividends-amount.heading.individual = How much did you get in dividends from UK-based trusts and open-ended investment companies?
+dividends.other-dividends-amount.heading.agent = How much did your client get in dividends from UK-based trusts and open-ended investment companies?
+dividends.other-dividends-amount.change-amount.caption.individual = Tell us the value of the dividends you got, in pounds. You can find this information in your dividend voucher.
+dividends.other-dividends-amount.change-amount.caption.agent = Tell us the value of the dividends your client got, in pounds. You can find this information in their dividend voucher.
+dividends.other-dividends-amount.change-amount.prior.common.1 = You told us
+dividends.other-dividends-amount.change-amount.prior.common.2 = in dividends from UK-based trusts and open-ended investment companies this year. Tell us if this has changed.
+dividends.other-dividends-amount.change-amount.prior.individual = you got
+dividends.other-dividends-amount.change-amount.prior.agent = your client got
+
 dividends.other-dividends-amount.form.caption = Enter the amount of dividends as shown  on your dividend voucher.
 dividends.other-dividends-amount.error.empty = Enter the amount of dividends received from trusts or investment companies
 dividends.other-dividends-amount.paragraph.1 = This includes authorised unit trusts or investment funds. If your dividend is automatically re-invested, you must still include it.
