@@ -20,7 +20,7 @@ import common.{InterestTaxTypes, SessionValues}
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.TaxYearAction.taxYearAction
-import forms.PriorOrNewAmountForm
+import forms.{ChangeAccountAmountForm, PriorOrNewAmountForm}
 import models.User
 import models.formatHelpers.PriorOrNewAmountModel
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
@@ -42,7 +42,7 @@ class ChangeAccountAmountController @Inject()(
                                            ) extends FrontendController(cc) with I18nSupport {
 
   def view(
-            formInput: Form[PriorOrNewAmountModel],
+            formInput: Form[BigDecimal],
             priorSubmission: InterestAccountModel,
             taxYear: Int,
             taxType: String,
@@ -75,15 +75,9 @@ class ChangeAccountAmountController @Inject()(
 
         val previousAmount: Option[BigDecimal] = extractPreAmount(taxType,Some(cya),accountId)
 
-        val form = {
-          if(previousAmount.isDefined && previousAmount.get != accountModel.amount){
-            PriorOrNewAmountForm.priorOrNewAmountForm(accountModel.amount).fill(PriorOrNewAmountModel("other",previousAmount))
-          } else {
-            PriorOrNewAmountForm.priorOrNewAmountForm(accountModel.amount).fill(PriorOrNewAmountModel("other",None))
-          }
-        }
+        val formValue: BigDecimal = extractPreAmount(taxType,Some(cya),accountId).getOrElse(accountModel.amount)
 
-        Ok(view(form, accountModel, taxYear, taxType, accountId))
+        Ok(view(ChangeAccountAmountForm.changeAccountAmountForm(user.isAgent).fill(formValue), accountModel, taxYear, taxType, accountId))
       case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
     }
   }
@@ -102,25 +96,23 @@ class ChangeAccountAmountController @Inject()(
     checkYourAnswerSession match {
       case Some(cyaData) =>
         singleAccount match {
-          case Some(account) => PriorOrNewAmountForm.priorOrNewAmountForm (account.amount).bindFromRequest().fold ( {
+          case Some(account) =>
+
+            ChangeAccountAmountForm.changeAccountAmountForm(user.isAgent).bindFromRequest().fold(
+              form
+            )
+
+
+            PriorOrNewAmountForm.priorOrNewAmountForm (account.amount).bindFromRequest().fold ( {
             formWithErrors => BadRequest(view(formWithErrors, account, taxYear, taxType, accountId))
           }, {
             formModel =>
-              import PriorOrNewAmountModel._
-              formModel.whichAmount match {
-                case `prior` =>
-                  val updatedAccounts = updateAccounts(taxType, cyaData, accountId, account.amount)
-                  val updatedCYA = replaceAccounts(taxType, cyaData, updatedAccounts)
-                  Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)).addingToSession(
-                    SessionValues.INTEREST_CYA -> updatedCYA.asJsonString
-                  )
-                case `other` =>
                   val updatedAccounts = updateAccounts(taxType, cyaData, accountId, formModel.amount.get)
                   val updatedCYA = replaceAccounts(taxType, cyaData, updatedAccounts)
                   Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)).addingToSession(
                     SessionValues.INTEREST_CYA -> updatedCYA.asJsonString
                   )
-              }
+
           }
           )
           case _ => Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType))

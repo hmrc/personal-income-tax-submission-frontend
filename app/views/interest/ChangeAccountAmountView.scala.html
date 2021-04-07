@@ -29,54 +29,41 @@
    inputText: InputText,
    bigDecimalCurrency: BigDecimalCurrency
 )
-@(form: Form[PriorOrNewAmountModel], postAction: Call, taxYear: Int, taxType: String, account: InterestAccountModel)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
+@(form: Form[BigDecimal], postAction: Call, taxYear: Int, taxType: String, account: InterestAccountModel)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @hintText = {
     @messages("common.currency.hint")
 }
 
-@otherAmountHtml = {
-    @inputText(
-            form,
-            id = "amount",
-            name = "amount",
-            label = "common.enterAmount",
-            isPageHeading = false,
-            currency = true,
-            hint = Some(hintText)
-        )
-}
 
 @hasFormErrors = @{form.hasErrors}
 
-@layout(pageTitle = messages(s"interest.change-account.${taxType.toLowerCase}-title"), taxYear = Some(taxYear), hasErrors = hasFormErrors) {
+@layout(pageTitle = messages(s"interest.change-account.${taxType.toLowerCase}-title.${if(user.isAgent) "agent" else "individual"}"), taxYear = Some(taxYear), hasErrors = hasFormErrors) {
 
     @errorSummary(form.errors.distinct)
+
+    @heading(messages(s"interest.change-account.${taxType.toLowerCase}-heading.${if(user.isAgent) "agent" else "individual"}", account.accountName), Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
 
     @formWithCSRF(action = postAction) {
 
         <div class="@if(form.errors.nonEmpty) { govuk-form-group--error}">
-            @inputRadio(
-                form = form,
-                legend = messages(s"interest.change-account.${taxType.toLowerCase}-heading", account.accountName),
-                inline = false,
-                subheading = Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)),
-                name = "whichAmount",
-                items = Seq(
-                    RadioItem(
-                        id = Some("whichAmount"),
-                        value = Some("prior"),
-                        content = Text(bigDecimalCurrency(account.amount.toString).toString),
-                        checked = form("whichAmount").value.contains("prior")
-                    ),
-                    RadioItem(
-                        id = Some("otherAmount"),
-                        value = Some("other"),
-                        content = Text(messages("common.aDifferentAmount")),
-                        checked = form("whichAmount").value.contains("other"),
-                        conditionalHtml = Some(otherAmountHtml)
-                    )
-                )
+
+            @inputText(
+                form,
+                id = "amount",
+                name = "amount",
+                label = {
+                    val part1 = messages("interest.change-account.label.prior.common1")
+                    val part2 = messages(s"interest.change-account.label.prior.${if(user.isAgent) "agent" else "individual"}")
+                    val part3 = bigDecimalCurrency(account.amount.toString)
+                    val part4 = messages(s"interest.change-account.${taxType.toLowerCase}-label.prior.common2")
+                    s"$part1 $part2 $part3 $part4"
+                },
+                labelClasses = Some("govuk-!-margin-bottom-4"),
+                isPageHeading = false,
+                currency = true,
+                hint = Some(Html(messages("common.currency.hint")))
+
             )
         </div>
 

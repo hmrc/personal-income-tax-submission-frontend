@@ -158,10 +158,20 @@ interest.remove-account.untaxed-hint = This will remove all untaxed UK interest.
 interest.remove-account.taxed-hint = This will remove all taxed UK interest.
 interest.remove-account.errors.noRadioSelected = Select yes to remove this account
 
-interest.change-account.untaxed-title = Untaxed interest earned
-interest.change-account.taxed-title = Taxed interest earned
-interest.change-account.untaxed-heading = {0} untaxed interest earned
-interest.change-account.taxed-heading = {0} taxed interest earned
+interest.change-account.untaxed-title.individual = How much untaxed UK interest did you get?
+interest.change-account.untaxed-title.agent = How much untaxed UK interest did your client get?
+interest.change-account.taxed-title.individual = How much taxed UK interest did you get?
+interest.change-account.taxed-title.agent = How much taxed UK interest did your client get?
+interest.change-account.untaxed-heading.individual = {0}: how much untaxed UK interest did you get?
+interest.change-account.untaxed-heading.agent = {0}: how much untaxed UK interest did your client get?
+interest.change-account.taxed-heading.individual = {0}: how much taxed UK interest did you get?
+interest.change-account.taxed-heading.agent = {0}: how much taxed UK interest did your client get?
+
+interest.change-account.label.prior.common1 = You told us
+interest.change-account.label.prior.individual = you got
+interest.change-account.label.prior.agent = your client got
+interest.change-account.taxed-label.prior.common2 = taxed UK interest. Tell us if this has changed.
+interest.change-account.untaxed-label.prior.common2 = untaxed UK interest. Tell us if this has changed.
 
 not-found-template.title = Page not found
 not-found-template.heading = Page not found
