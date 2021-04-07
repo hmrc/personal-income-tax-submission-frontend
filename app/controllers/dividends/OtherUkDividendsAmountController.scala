@@ -20,8 +20,7 @@ import common.SessionValues
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.TaxYearAction.taxYearAction
-import forms.{OtherDividendsAmountForm, PriorOrNewAmountForm}
-import models.formatHelpers.PriorOrNewAmountModel
+import forms.OtherDividendsAmountForm
 import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, User}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
