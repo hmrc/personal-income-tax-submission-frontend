@@ -221,3 +221,8 @@ timeout.button = Sign in
 
 taxYear-error-template.paragraph.1 = You can only enter information for the 2021 to 2022 tax year.
 taxYear-error-template.paragraph.2 = Check that you’ve entered the correct web address.
+
+changeAccountAmount.required = Enter the amount of {0} UK interest you got
+changeAccountAmount.required.agent = Enter the amount of {0} UK interest your client got
+changeAccountAmount.format = Enter the amount of {0} UK interest in the correct format
+changeAccountAmount.amountMaxLimit = The amount of {0} UK interest must be less than £99,999,999,999.99

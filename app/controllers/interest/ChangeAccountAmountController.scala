@@ -20,9 +20,8 @@ import common.{InterestTaxTypes, SessionValues}
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.TaxYearAction.taxYearAction
-import forms.{ChangeAccountAmountForm, PriorOrNewAmountForm}
+import forms.ChangeAccountAmountForm
 import models.User
-import models.formatHelpers.PriorOrNewAmountModel
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
@@ -46,7 +45,8 @@ class ChangeAccountAmountController @Inject()(
             priorSubmission: InterestAccountModel,
             taxYear: Int,
             taxType: String,
-            accountId: String
+            accountId: String,
+            preAmount:Option[BigDecimal] = None
           )(implicit user: User[AnyContent]): Html = {
 
     changeAccountAmountView(
@@ -54,7 +54,8 @@ class ChangeAccountAmountController @Inject()(
       postAction = controllers.interest.routes.ChangeAccountAmountController.submit(taxYear, taxType, accountId),
       taxYear = taxYear,
       taxType = taxType,
-      account = priorSubmission)
+      account = priorSubmission,
+      preAmount = preAmount)
   }
 
   def show(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = (authAction andThen taxYearAction(taxYear)) { implicit user =>
@@ -73,9 +74,19 @@ class ChangeAccountAmountController @Inject()(
       case (None, Some(_)) => Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType))
       case (Some(accountModel), Some(cya)) =>
 
-        val formValue: BigDecimal = extractPreAmount(taxType,Some(cya),accountId).getOrElse(accountModel.amount)
+        val previousAmount: Option[BigDecimal] = extractPreAmount(taxType,Some(cya),accountId)
 
-        Ok(view(ChangeAccountAmountForm.changeAccountAmountForm(user.isAgent, taxType).fill(formValue), accountModel, taxYear, taxType, accountId))
+        val form: Form[BigDecimal] = {
+          if(previousAmount.contains(accountModel.amount)) {
+            ChangeAccountAmountForm.changeAccountAmountForm(user.isAgent, taxType)
+          }
+            else{
+            ChangeAccountAmountForm.changeAccountAmountForm(user.isAgent, taxType).
+              fill(previousAmount.getOrElse(accountModel.amount))
+          }
+        }
+
+        Ok(view(form, accountModel, taxYear, taxType, accountId, Some(previousAmount.getOrElse(accountModel.amount))))
       case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
     }
   }
@@ -91,12 +102,15 @@ class ChangeAccountAmountController @Inject()(
         }
       }
     }
+
     checkYourAnswerSession match {
       case Some(cyaData) =>
         singleAccount match {
           case Some(account) =>
+            val previousAmount = extractPreAmount(taxType,Some(cyaData),accountId)
+
             ChangeAccountAmountForm.changeAccountAmountForm(user.isAgent, taxType).bindFromRequest().fold(
-              formWithErrors => BadRequest(view(formWithErrors, account, taxYear, taxType, accountId)),
+              formWithErrors => BadRequest(view(formWithErrors, account, taxYear, taxType, accountId, previousAmount)),
               formModel => {
                 val updatedAccounts = updateAccounts(taxType, cyaData, accountId, formModel)
                 val updatedCYA = replaceAccounts(taxType, cyaData, updatedAccounts)

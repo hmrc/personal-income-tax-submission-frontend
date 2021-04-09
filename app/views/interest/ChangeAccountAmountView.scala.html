@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import models.formatHelpers.PriorOrNewAmountModel
 @import views.html.headerFooterTemplate.Layout
 @import views.html.templates.helpers.{Button, ErrorSummary, Heading, InputRadio, BigDecimalCurrency, InputText}
 @import models.interest.InterestAccountModel
@@ -29,12 +28,7 @@
    inputText: InputText,
    bigDecimalCurrency: BigDecimalCurrency
 )
-@(form: Form[BigDecimal], postAction: Call, taxYear: Int, taxType: String, account: InterestAccountModel)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
-
-@hintText = {
-    @messages("common.currency.hint")
-}
-
+@(form: Form[BigDecimal], postAction: Call, taxYear: Int, taxType: String, account: InterestAccountModel, preAmount:Option[BigDecimal] = None)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @hasFormErrors = @{form.hasErrors}
 
@@ -55,7 +49,7 @@
                 label = {
                     val part1 = messages("interest.change-account.label.prior.common1")
                     val part2 = messages(s"interest.change-account.label.prior.${if(user.isAgent) "agent" else "individual"}")
-                    val part3 = bigDecimalCurrency(account.amount.toString)
+                    val part3 = bigDecimalCurrency(preAmount.getOrElse(BigDecimal("0")).toString)
                     val part4 = messages(s"interest.change-account.${taxType.toLowerCase}-label.prior.common2")
                     s"$part1 $part2 $part3 $part4"
                 },

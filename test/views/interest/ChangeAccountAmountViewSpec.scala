@@ -16,8 +16,8 @@
 
 package views.interest
 
-import forms.PriorOrNewAmountForm
-import models.formatHelpers.PriorOrNewAmountModel
+
+import forms.ChangeAccountAmountForm
 import models.interest.InterestAccountModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -26,12 +26,14 @@ import utils.ViewTest
 import views.html.interest.ChangeAccountAmountView
 
 class ChangeAccountAmountViewSpec extends ViewTest {
-  lazy val priorOrNewAmountForm: Form[PriorOrNewAmountModel] = PriorOrNewAmountForm.priorOrNewAmountForm(5000.00)
+
+  def changeAccountAmountForm(isAgent: Boolean, taxType: String): Form[BigDecimal] = ChangeAccountAmountForm.changeAccountAmountForm(isAgent, taxType)
+
   lazy val changeAccountAmountView: ChangeAccountAmountView = app.injector.instanceOf[ChangeAccountAmountView]
 
   val priorAmountValue = 5000
   val taxYear = 2020
-  val taxYearMinusOne: Int = taxYear -1
+  val taxYearMinusOne: Int = taxYear - 1
 
   val h1Selector = "h1"
   val captionSelector = ".govuk-caption-l"
@@ -65,10 +67,13 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
   def youToldUsUntaxedIndividual(amount: String): String =
     s"You told us you got £$amount untaxed UK interest. Tell us if this has changed."
+
   def youToldUsUntaxedAgent(amount: String): String =
     s"You told us your client got £$amount untaxed UK interest. Tell us if this has changed."
+
   def youToldUsTaxedIndividual(amount: String): String =
     s"You told us you got £$amount taxed UK interest. Tell us if this has changed."
+
   def youToldUsTaxedAgent(amount: String): String =
     s"You told us your client got £$amount taxed UK interest. Tell us if this has changed."
 
@@ -76,6 +81,8 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
   val TAXED = "taxed"
   val UNTAXED = "untaxed"
+  val anAgent = true
+  val anIndividual = false
 
   "ChangeAccountAmountView in English" when {
 
@@ -86,11 +93,12 @@ class ChangeAccountAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = changeAccountAmountView(
-            priorOrNewAmountForm.fill(PriorOrNewAmountModel("other",None)),
+            changeAccountAmountForm(anIndividual, UNTAXED).fill(priorAmountValue),
             testCall,
             taxYear,
             UNTAXED,
-            account
+            account,
+            Some(priorAmountValue)
           )(user, messages, mockAppConfig)
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -112,16 +120,17 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an empty value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "")),
+              changeAccountAmountForm(anIndividual, UNTAXED).bind(Map("amount" -> "")),
               testCall,
               taxYear,
               UNTAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user, messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorSummaryText = "Enter the amount in the correct format"
+            val expectedErrorSummaryText = "Enter the amount of untaxed UK interest you got"
 
             titleCheck(expectedUntaxedErrorTitleIndividual)
             welshToggleCheck("English")
@@ -138,11 +147,12 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "abc")),
+              changeAccountAmountForm(anIndividual, UNTAXED).bind(Map("amount" -> "abc")),
               testCall,
               taxYear,
               UNTAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user, messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -164,16 +174,17 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "a value greater than 100,000,000,000 is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "200,000,000,000")),
+              changeAccountAmountForm(anIndividual, UNTAXED).bind(Map("amount" -> "200,000,000,000")),
               testCall,
               taxYear,
               UNTAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user, messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorSummaryText = "Enter an amount less than £100,000,000,000"
+            val expectedErrorSummaryText = "The amount of untaxed UK interest must be less than £99,999,999,999.99"
 
             titleCheck(expectedUntaxedErrorTitleIndividual)
             welshToggleCheck("English")
@@ -190,16 +201,17 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid format value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "100.00.00")),
+              changeAccountAmountForm(anIndividual, UNTAXED).bind(Map("amount" -> "100.00.00")),
               testCall,
               taxYear,
               UNTAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user, messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorSummaryText = "Enter the amount in the correct format"
+            val expectedErrorSummaryText = "Enter the amount of untaxed UK interest in the correct format"
 
             titleCheck(expectedUntaxedErrorTitleIndividual)
             welshToggleCheck("English")
@@ -222,11 +234,12 @@ class ChangeAccountAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = changeAccountAmountView(
-            priorOrNewAmountForm.fill(PriorOrNewAmountModel("other",None)),
+            changeAccountAmountForm(anIndividual, TAXED).fill(priorAmountValue),
             testCall,
             taxYear,
             TAXED,
-            account
+            account,
+            Some(priorAmountValue)
           )(user, messages, mockAppConfig)
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -246,16 +259,17 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an empty value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "")),
+              changeAccountAmountForm(anIndividual, TAXED).bind(Map("amount" -> "")),
               testCall,
               taxYear,
               TAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user, messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorSummaryText = "Enter the amount in the correct format"
+            val expectedErrorSummaryText = "Enter the amount of taxed UK interest you got"
 
             titleCheck(expectedTaxedErrorTitleIndividual)
             welshToggleCheck("English")
@@ -272,11 +286,12 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "abc")),
+              changeAccountAmountForm(anIndividual, TAXED).bind(Map("amount" -> "abc")),
               testCall,
               taxYear,
               TAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user, messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -298,16 +313,17 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "a value greater than 100,000,000,000 is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "200,000,000,000")),
+              changeAccountAmountForm(anIndividual, TAXED).bind(Map("amount" -> "200,000,000,000")),
               testCall,
               taxYear,
               TAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user, messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorSummaryText = "Enter an amount less than £100,000,000,000"
+            val expectedErrorSummaryText = "The amount of taxed UK interest must be less than £99,999,999,999.99"
 
             titleCheck(expectedTaxedErrorTitleIndividual)
             welshToggleCheck("English")
@@ -324,16 +340,17 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid format value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "100.00.00")),
+              changeAccountAmountForm(anIndividual, TAXED).bind(Map("amount" -> "100.00.00")),
               testCall,
               taxYear,
               TAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user, messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorSummaryText = "Enter the amount in the correct format"
+            val expectedErrorSummaryText = "Enter the amount of taxed UK interest in the correct format"
 
             titleCheck(expectedTaxedErrorTitleIndividual)
             welshToggleCheck("English")
@@ -356,11 +373,12 @@ class ChangeAccountAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = changeAccountAmountView(
-            priorOrNewAmountForm.fill(PriorOrNewAmountModel("other",None)),
+            changeAccountAmountForm(anAgent, UNTAXED).fill(priorAmountValue),
             testCall,
             taxYear,
             UNTAXED,
-            account
+            account,
+            Some(priorAmountValue)
           )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -382,16 +400,17 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an empty value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "")),
+              changeAccountAmountForm(anAgent, UNTAXED).bind(Map("amount" -> "")),
               testCall,
               taxYear,
               UNTAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorSummaryText = "Enter the amount in the correct format"
+            val expectedErrorSummaryText = "Enter the amount of untaxed UK interest your client got"
 
             titleCheck(expectedUntaxedErrorTitleAgent)
             welshToggleCheck("English")
@@ -408,11 +427,12 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "abc")),
+              changeAccountAmountForm(anAgent, UNTAXED).bind(Map("amount" -> "abc")),
               testCall,
               taxYear,
               UNTAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -434,16 +454,17 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "a value greater than 100,000,000,000 is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "200,000,000,000")),
+              changeAccountAmountForm(anAgent, UNTAXED).bind(Map("amount" -> "200,000,000,000")),
               testCall,
               taxYear,
               UNTAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorSummaryText = "Enter an amount less than £100,000,000,000"
+            val expectedErrorSummaryText = "The amount of untaxed UK interest must be less than £99,999,999,999.99"
 
             titleCheck(expectedUntaxedErrorTitleAgent)
             welshToggleCheck("English")
@@ -460,16 +481,17 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid format value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "100.00.00")),
+              changeAccountAmountForm(anAgent, UNTAXED).bind(Map("amount" -> "100.00.00")),
               testCall,
               taxYear,
               UNTAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorSummaryText = "Enter the amount in the correct format"
+            val expectedErrorSummaryText = "Enter the amount of untaxed UK interest in the correct format"
 
             titleCheck(expectedUntaxedErrorTitleAgent)
             welshToggleCheck("English")
@@ -492,11 +514,12 @@ class ChangeAccountAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = changeAccountAmountView(
-            priorOrNewAmountForm.fill(PriorOrNewAmountModel("other",None)),
+            changeAccountAmountForm(anAgent, TAXED).fill(priorAmountValue),
             testCall,
             taxYear,
             TAXED,
-            account
+            account,
+            Some(priorAmountValue)
           )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -516,16 +539,17 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an empty value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "")),
+              changeAccountAmountForm(anAgent, TAXED).bind(Map("amount" -> "")),
               testCall,
               taxYear,
               TAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorSummaryText = "Enter the amount in the correct format"
+            val expectedErrorSummaryText = "Enter the amount of taxed UK interest your client got"
 
             titleCheck(expectedTaxedErrorTitleAgent)
             welshToggleCheck("English")
@@ -542,11 +566,12 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "abc")),
+              changeAccountAmountForm(anAgent, TAXED).bind(Map("amount" -> "abc")),
               testCall,
               taxYear,
               TAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -568,16 +593,17 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "a value greater than 100,000,000,000 is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "200,000,000,000")),
+              changeAccountAmountForm(anAgent, TAXED).bind(Map("amount" -> "200,000,000,000")),
               testCall,
               taxYear,
               TAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorSummaryText = "Enter an amount less than £100,000,000,000"
+            val expectedErrorSummaryText = "The amount of taxed UK interest must be less than £99,999,999,999.99"
 
             titleCheck(expectedTaxedErrorTitleAgent)
             welshToggleCheck("English")
@@ -594,16 +620,17 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid format value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "100.00.00")),
+              changeAccountAmountForm(anAgent, TAXED).bind(Map("amount" -> "100.00.00")),
               testCall,
               taxYear,
               TAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorSummaryText = "Enter the amount in the correct format"
+            val expectedErrorSummaryText = "Enter the amount of taxed UK interest in the correct format"
 
             titleCheck(expectedTaxedErrorTitleAgent)
             welshToggleCheck("English")
@@ -633,11 +660,12 @@ class ChangeAccountAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = changeAccountAmountView(
-            priorOrNewAmountForm.fill(PriorOrNewAmountModel("other",None)),
+            changeAccountAmountForm(anIndividual, UNTAXED).fill(priorAmountValue),
             testCall,
             taxYear,
             UNTAXED,
-            account
+            account,
+            Some(priorAmountValue)
           )(user, welshMessages, mockAppConfig)
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -659,16 +687,17 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an empty value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "")),
+              changeAccountAmountForm(anIndividual, UNTAXED).bind(Map("amount" -> "")),
               testCall,
               taxYear,
               UNTAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user, welshMessages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorSummaryText = "Enter the amount in the correct format"
+            val expectedErrorSummaryText = "Enter the amount of untaxed UK interest you got"
 
             titleCheck(expectedUntaxedErrorTitleIndividual)
             welshToggleCheck("Welsh")
@@ -685,11 +714,12 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "abc")),
+              changeAccountAmountForm(anIndividual, UNTAXED).bind(Map("amount" -> "abc")),
               testCall,
               taxYear,
               UNTAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user, welshMessages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -711,16 +741,17 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "a value greater than 100,000,000,000 is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "200,000,000,000")),
+              changeAccountAmountForm(anIndividual, UNTAXED).bind(Map("amount" -> "200,000,000,000")),
               testCall,
               taxYear,
               UNTAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user, welshMessages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorSummaryText = "Enter an amount less than £100,000,000,000"
+            val expectedErrorSummaryText = "The amount of untaxed UK interest must be less than £99,999,999,999.99"
 
             titleCheck(expectedUntaxedErrorTitleIndividual)
             welshToggleCheck("Welsh")
@@ -737,16 +768,17 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid format value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "100.00.00")),
+              changeAccountAmountForm(anIndividual, UNTAXED).bind(Map("amount" -> "100.00.00")),
               testCall,
               taxYear,
               UNTAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user, welshMessages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorSummaryText = "Enter the amount in the correct format"
+            val expectedErrorSummaryText = "Enter the amount of untaxed UK interest in the correct format"
 
             titleCheck(expectedUntaxedErrorTitleIndividual)
             welshToggleCheck("Welsh")
@@ -769,11 +801,12 @@ class ChangeAccountAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = changeAccountAmountView(
-            priorOrNewAmountForm.fill(PriorOrNewAmountModel("other",None)),
+            changeAccountAmountForm(anIndividual, TAXED).fill(priorAmountValue),
             testCall,
             taxYear,
             TAXED,
-            account
+            account,
+            Some(priorAmountValue)
           )(user, welshMessages, mockAppConfig)
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -793,16 +826,17 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an empty value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "")),
+              changeAccountAmountForm(anIndividual, TAXED).bind(Map("amount" -> "")),
               testCall,
               taxYear,
               TAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user, welshMessages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorSummaryText = "Enter the amount in the correct format"
+            val expectedErrorSummaryText = "Enter the amount of taxed UK interest you got"
 
             titleCheck(expectedTaxedErrorTitleIndividual)
             welshToggleCheck("Welsh")
@@ -819,11 +853,12 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "abc")),
+              changeAccountAmountForm(anIndividual, TAXED).bind(Map("amount" -> "abc")),
               testCall,
               taxYear,
               TAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user, welshMessages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -845,16 +880,17 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "a value greater than 100,000,000,000 is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "200,000,000,000")),
+              changeAccountAmountForm(anIndividual, TAXED).bind(Map("amount" -> "200,000,000,000")),
               testCall,
               taxYear,
               TAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user, welshMessages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorSummaryText = "Enter an amount less than £100,000,000,000"
+            val expectedErrorSummaryText = "The amount of taxed UK interest must be less than £99,999,999,999.99"
 
             titleCheck(expectedTaxedErrorTitleIndividual)
             welshToggleCheck("Welsh")
@@ -871,16 +907,17 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid format value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "100.00.00")),
+              changeAccountAmountForm(anIndividual, TAXED).bind(Map("amount" -> "100.00.00")),
               testCall,
               taxYear,
               TAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user, welshMessages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorSummaryText = "Enter the amount in the correct format"
+            val expectedErrorSummaryText = "Enter the amount of taxed UK interest in the correct format"
 
             titleCheck(expectedTaxedErrorTitleIndividual)
             welshToggleCheck("Welsh")
@@ -903,11 +940,12 @@ class ChangeAccountAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = changeAccountAmountView(
-            priorOrNewAmountForm.fill(PriorOrNewAmountModel("other",None)),
+            changeAccountAmountForm(anAgent, UNTAXED).fill(priorAmountValue),
             testCall,
             taxYear,
             UNTAXED,
-            account
+            account,
+            Some(priorAmountValue)
           )(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -929,16 +967,17 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an empty value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "")),
+              changeAccountAmountForm(anAgent, UNTAXED).bind(Map("amount" -> "")),
               testCall,
               taxYear,
               UNTAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorSummaryText = "Enter the amount in the correct format"
+            val expectedErrorSummaryText = "Enter the amount of untaxed UK interest your client got"
 
             titleCheck(expectedUntaxedErrorTitleAgent)
             welshToggleCheck("English")
@@ -955,11 +994,12 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "abc")),
+              changeAccountAmountForm(anAgent, UNTAXED).bind(Map("amount" -> "abc")),
               testCall,
               taxYear,
               UNTAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -981,16 +1021,17 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "a value greater than 100,000,000,000 is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "200,000,000,000")),
+              changeAccountAmountForm(anAgent, UNTAXED).bind(Map("amount" -> "200,000,000,000")),
               testCall,
               taxYear,
               UNTAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorSummaryText = "Enter an amount less than £100,000,000,000"
+            val expectedErrorSummaryText = "The amount of untaxed UK interest must be less than £99,999,999,999.99"
 
             titleCheck(expectedUntaxedErrorTitleAgent)
             welshToggleCheck("Welsh")
@@ -1007,16 +1048,17 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid format value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "100.00.00")),
+              changeAccountAmountForm(anAgent, UNTAXED).bind(Map("amount" -> "100.00.00")),
               testCall,
               taxYear,
               UNTAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorSummaryText = "Enter the amount in the correct format"
+            val expectedErrorSummaryText = "Enter the amount of untaxed UK interest in the correct format"
 
             titleCheck(expectedUntaxedErrorTitleAgent)
             welshToggleCheck("Welsh")
@@ -1039,11 +1081,12 @@ class ChangeAccountAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = changeAccountAmountView(
-            priorOrNewAmountForm.fill(PriorOrNewAmountModel("other",None)),
+            changeAccountAmountForm(anAgent, TAXED).fill(priorAmountValue),
             testCall,
             taxYear,
             TAXED,
-            account
+            account,
+            Some(priorAmountValue)
           )(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -1063,16 +1106,17 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an empty value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "")),
+              changeAccountAmountForm(anAgent, TAXED).bind(Map("amount" -> "")),
               testCall,
               taxYear,
               TAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorSummaryText = "Enter the amount in the correct format"
+            val expectedErrorSummaryText = "Enter the amount of taxed UK interest your client got"
 
             titleCheck(expectedTaxedErrorTitleAgent)
             welshToggleCheck("Welsh")
@@ -1089,11 +1133,12 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "abc")),
+              changeAccountAmountForm(anAgent, TAXED).bind(Map("amount" -> "abc")),
               testCall,
               taxYear,
               TAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
@@ -1115,16 +1160,17 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "a value greater than 100,000,000,000 is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "200,000,000,000")),
+              changeAccountAmountForm(anAgent, TAXED).bind(Map("amount" -> "200,000,000,000")),
               testCall,
               taxYear,
               TAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorSummaryText = "Enter an amount less than £100,000,000,000"
+            val expectedErrorSummaryText = "The amount of taxed UK interest must be less than £99,999,999,999.99"
 
             titleCheck(expectedTaxedErrorTitleAgent)
             welshToggleCheck("Welsh")
@@ -1141,16 +1187,17 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid format value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "100.00.00")),
+              changeAccountAmountForm(anAgent, TAXED).bind(Map("whichAmount" -> "other", "amount" -> "100.00.00")),
               testCall,
               taxYear,
               TAXED,
-              account
+              account,
+              Some(priorAmountValue)
             )(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorSummaryText = "Enter the amount in the correct format"
+            val expectedErrorSummaryText = "Enter the amount of taxed UK interest in the correct format"
 
             titleCheck(expectedTaxedErrorTitleAgent)
             welshToggleCheck("Welsh")
