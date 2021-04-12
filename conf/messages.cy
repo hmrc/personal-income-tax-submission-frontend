@@ -173,6 +173,13 @@ interest.change-account.taxed-title = Taxed interest earned
 interest.change-account.untaxed-heading = {0} untaxed interest earned
 interest.change-account.taxed-heading = {0} taxed interest earned
 
+charity.uk-charity.title.individual = Did you use Gift Aid to donate to charity?
+charity.uk-charity.title.agent = Did your client use Gift Aid to donate to charity?
+charity.uk-charity.heading.individual = Did you use Gift Aid to donate to charity?
+charity.uk-charity.heading.agent = Did your client use Gift Aid to donate to charity?
+charity.uk-charity.errors.noChoice.individual = Select yes if you used Gift Aid to donate to charity
+charity.uk-charity.errors.noChoice.agent = Select yes if your client used Gift Aid to donate to charity
+
 not-found-template.title = Page not found
 not-found-template.heading = Page not found
 not-found-template.paragraph.1 = If you typed the web address, check it is correct.
