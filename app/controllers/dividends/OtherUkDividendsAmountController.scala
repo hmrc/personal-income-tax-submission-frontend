@@ -52,20 +52,28 @@ class OtherUkDividendsAmountController @Inject()(
       form = formInput,
       priorSubmission = priorSubmission,
       taxYear = taxYear,
-      postAction = controllers.dividends.routes.OtherUkDividendsAmountController.submit(taxYear)
+      postAction = controllers.dividends.routes.OtherUkDividendsAmountController.submit(taxYear),
+      preAmount = preAmount
     )
 
   }
 
   def show(taxYear: Int): Action[AnyContent] = (authAction andThen taxYearAction(taxYear)) { implicit user =>
-    val dividendsPriorSubmissionSession = getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
-    val checkYourAnswerSession = getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
+    val dividendsPriorSubmissionSession: Option[DividendsPriorSubmission] = getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
+    val checkYourAnswerSession: Option[DividendsCheckYourAnswersModel] = getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
 
     val previousAmount: Option[BigDecimal] = checkYourAnswerSession.flatMap(_.otherUkDividendsAmount)
 
     (dividendsPriorSubmissionSession, checkYourAnswerSession) match {
       case (Some(submission@DividendsPriorSubmission(_, Some(prior))), _) =>
-        Ok(view(OtherDividendsAmountForm.otherDividendsAmountForm().fill(previousAmount.getOrElse(prior)), Some(submission), taxYear, previousAmount))
+
+        if(previousAmount.contains(prior)) {
+          Ok(view(OtherDividendsAmountForm.otherDividendsAmountForm(), Some(submission), taxYear, previousAmount))
+        }
+        else {
+          Ok(view(OtherDividendsAmountForm.otherDividendsAmountForm().fill(previousAmount.getOrElse(prior)), Some(submission), taxYear, previousAmount))
+        }
+
       case (None, Some(cya)) =>
         Ok(view(cya.otherUkDividendsAmount.fold(
           OtherDividendsAmountForm.otherDividendsAmountForm()
@@ -81,9 +89,13 @@ class OtherUkDividendsAmountController @Inject()(
     implicit val priorSubmissionSessionData: Option[DividendsPriorSubmission] =
       getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
 
+    val previousAmount: Option[BigDecimal] = getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
+      .flatMap(_.otherUkDividendsAmount)
+
     OtherDividendsAmountForm.otherDividendsAmountForm().bindFromRequest().fold(
       {
-        formWithErrors => BadRequest(view(formWithErrors, taxYear = taxYear))
+        formWithErrors => BadRequest(view(formWithErrors, taxYear = taxYear,
+          priorSubmission = priorSubmissionSessionData, preAmount = previousAmount))
       },
       {
         bigDecimal =>
