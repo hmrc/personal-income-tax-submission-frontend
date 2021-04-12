@@ -56,6 +56,9 @@ GET         /:taxYear/interest/change-taxed-interest-account              contro
 POST        /:taxYear/interest/change-untaxed-interest-account            controllers.interest.ChangeAccountAmountController.submit(taxYear: Int, taxType = "untaxed", accountId : String)
 POST        /:taxYear/interest/change-taxed-interest-account              controllers.interest.ChangeAccountAmountController.submit(taxYear: Int, taxType = "taxed", accountId : String)
 
+GET         /:taxYear/charity/uk-charity                                  controllers.charity.GiftAidDonationsController.show(taxYear: Int)
+POST        /:taxYear/charity/uk-charity                                  controllers.charity.GiftAidDonationsController.submit(taxYear: Int)
+
 GET         /keep-alive                                                   controllers.SessionExpiredController.keepAlive
 GET         /timeout                                                      controllers.SessionExpiredController.timeout
 
