@@ -37,89 +37,61 @@
      bigDecimalCurrency: BigDecimalCurrency
 )
 
-@(form: Either[Form[PriorOrNewAmountModel], Form[BigDecimal]], priorSubmission: Option[DividendsPriorSubmission], taxYear: Int, postAction: Call, preAmount: Option[BigDecimal] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(form: Form[BigDecimal], priorSubmission: Option[DividendsPriorSubmission], taxYear: Int, postAction: Call, preAmount: Option[BigDecimal] = None)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @hintText = @{
     Some(Html(messages("common.currency.hint")))
 }
 
+@titleForUse = @{
+    messages(s"dividends.uk-dividends-amount.title.${if(user.isAgent) "agent" else "individual"}")
+}
+
+@headingForUse = @{
+    messages(s"dividends.uk-dividends-amount.heading.${if(user.isAgent) "agent" else "individual"}")
+}
+
 @currencyFormHtml(formInput: Form[BigDecimal]) = {
     @errorSummary(formInput.errors.distinct)
+
+    @heading(headingForUse, Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
 
     @inputText(
         formInput,
         id = "amount",
         name = "amount",
-        label = "dividends.uk-dividends-amount.heading",
+        label = if(priorAmount.isDefined) {
+                    val part1 = messages(s"dividends.uk-dividends-amount.change-amount.prior.common.1")
+                    val part2 = messages(s"dividends.uk-dividends-amount.change-amount.prior.${if(user.isAgent) "agent" else "individual"}")
+                    val part3 = bigDecimalCurrency(priorAmount.get.toString)
+                    val part4 = messages("dividends.uk-dividends-amount.change-amount.prior.common.2")
+                    s"$part1 $part2 $part3 $part4"
+                } else {
+                    messages(s"dividends.uk-dividends-amount.change-amount.caption.${if(user.isAgent) "agent" else "individual"}")
+                },
+        labelClasses = Some("govuk-!-margin-bottom-4"),
         isPageHeading = false,
         currency = true,
-        subheading = Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)),
-        headingClasses = "govuk-!-margin-bottom-5",
         hint = hintText
    )
 }
 
 @priorAmount() = @{
-    priorSubmission.flatMap(_.ukDividends)
-}
-
-@otherAmountHtml(form: Form[PriorOrNewAmountModel]) = {
-    @inputText(
-        form,
-        id = "amount",
-        name = "amount",
-        label = "common.enterAmount",
-        isPageHeading = false,
-        currency = true,
-        hint = hintText
-    )
-}
-
-@priorOrNewForm(form: Form[PriorOrNewAmountModel]) = {
-
-    @errorSummary(form.errors.distinct)
-
-    <div class="@if(form.errors.nonEmpty) { govuk-form-group--error}">
-        @inputRadio(
-            form = form,
-            legend = messages("dividends.uk-dividends-amount.heading"),
-            inline = false,
-            subheading = Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)),
-            name = "whichAmount",
-            items = Seq(
-                RadioItem(
-                    id = Some("whichAmount"),
-                    value = Some("prior"),
-                    content = Text(bigDecimalCurrency(priorAmount.getOrElse(BigDecimal("0")).toString).toString),
-                    checked = form("whichAmount").value.contains("prior")
-                ),
-                RadioItem(
-                    id = Some("otherAmount"),
-                    value = Some("other"),
-                    content = Text(messages("common.aDifferentAmount")),
-                    checked = form("whichAmount").value.contains("other"),
-                    conditionalHtml = Some(otherAmountHtml(form))
-                )
-            )
-        )
-    </div>
+    if(preAmount.isDefined) {
+        preAmount
+    } else {
+        priorSubmission.flatMap(_.ukDividends)
+    }
 }
 
 @hasFormErrors = @{
-    form.fold(
-        priorOrNew => priorOrNew.hasErrors,
-        bigDecimal => bigDecimal.hasErrors
-    )
+    form.hasErrors
 }
 
-@layout(pageTitle = messages("dividends.uk-dividends-amount.title"), taxYear = Some(taxYear), hasErrors = hasFormErrors) {
+@layout(pageTitle = titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors) {
 
     @formWithCSRF(action = postAction) {
-        @form.fold(
-            priorForm =>priorOrNewForm(priorForm),
-            currencyForm => currencyFormHtml(currencyForm)
-        )
+        @currencyFormHtml(form)
         @button()
     }
-
 }

@@ -63,6 +63,10 @@ class AccountsControllerSpec extends UnitTestWithApp {
     .withSession(SessionValues.INTEREST_CYA -> cyaModel.asJsonString)
     .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes)
 
+  def maxRequestWithInvalidForm(cyaModel: InterestCYAModel = interestCyaModel): FakeRequest[AnyContentAsFormUrlEncoded] = fakeRequest
+    .withSession(SessionValues.INTEREST_CYA -> cyaModel.asJsonString)
+    .withFormUrlEncodedBody(YesNoForm.yesNo -> "maybe")
+
   ".show" when {
 
     "provided the taxType of 'taxed'" should {
@@ -339,6 +343,36 @@ class AccountsControllerSpec extends UnitTestWithApp {
 
       }
 
+    }
+
+    "Return a bad request" when {
+
+      "An invalid radio is selected" when {
+
+        "tax type is TAXED" which {
+          lazy val result = controller.submit(taxYear, TAXED)(maxRequestWithInvalidForm(interestCyaModel.copy(
+            untaxedUkInterest = Some(false),
+            untaxedUkAccounts = None
+          )))
+
+          s"has a status of SEE_OTHER($BAD_REQUEST)" in new TestWithAuth {
+            status(result) shouldBe BAD_REQUEST
+          }
+
+        }
+
+        "tax type is UNTAXED" which {
+          lazy val result = controller.submit(taxYear, UNTAXED)(maxRequestWithInvalidForm(interestCyaModel.copy(
+            taxedUkInterest = Some(false),
+            taxedUkAccounts = None
+          )))
+
+          s"has a status of SEE_OTHER($BAD_REQUEST)" in new TestWithAuth {
+            status(result) shouldBe BAD_REQUEST
+          }
+
+        }
+      }
     }
 
   }
