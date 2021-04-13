@@ -35,7 +35,7 @@
         bigDecimalCurrency: BigDecimalCurrency
 )
 
-@(form: Form[BigDecimal], priorSubmission: Option[DividendsPriorSubmission], taxYear: Int, postAction: Call, preAmount: Option[BigDecimal] = None)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
+@(form: Form[BigDecimal], priorSubmission: Option[DividendsPriorSubmission], taxYear: Int, postAction: Call, preAmount: Option[BigDecimal] = None, firstTime: Boolean = false)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @titleForUse = @{
     messages(s"dividends.other-dividends-amount.title.${if(user.isAgent) "agent" else "individual"}")
@@ -51,22 +51,23 @@
 @heading(s"dividends.other-dividends-amount.heading.${if(user.isAgent) "agent" else "individual"}", Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
 
 @inputText(
-    formInput,
-    id = "amount",
-    name = "amount",
-    label = if(priorSubmission.isDefined) {
-        val part1 = messages(s"dividends.other-dividends-amount.change-amount.prior.common.1")
-        val part2 = messages(s"dividends.other-dividends-amount.change-amount.prior.${if(user.isAgent) "agent" else "individual"}")
-        val part3 = bigDecimalCurrency(priorAmount.getOrElse(BigDecimal("0")).toString)
-        val part4 = messages("dividends.other-dividends-amount.change-amount.prior.common.2")
-        s"$part1 $part2 $part3 $part4"
-    } else {
-        messages(s"dividends.other-dividends-amount.change-amount.caption.${if(user.isAgent) "agent" else "individual"}")
-    },
-    labelClasses = Some("govuk-!-margin-bottom-4"),
-    isPageHeading = false,
-    currency = true,
-    hint = hintText)
+        formInput,
+        id = "amount",
+        name = "amount",
+        label = if(priorSubmission.isDefined) {
+            val part1 = messages(s"dividends.other-dividends-amount.change-amount.prior.common.1")
+            val part2 = messages(s"dividends.other-dividends-amount.change-amount.prior.${if(user.isAgent) "agent" else "individual"}")
+            val part3 = bigDecimalCurrency(priorAmount.getOrElse(BigDecimal("0")).toString)
+            val part4 = messages("dividends.other-dividends-amount.change-amount.prior.common.2")
+            s"$part1 $part2 $part3 $part4"
+        } else {
+            messages(s"dividends.other-dividends-amount.change-amount.caption.${if(user.isAgent) "agent" else "individual"}")
+        },
+        labelClasses = Some("govuk-!-margin-bottom-4"),
+        isPageHeading = false,
+        currency = true,
+        hint = hintText
+    )
 }
 
 @priorAmount() = @{
@@ -75,7 +76,6 @@
     } else {
         priorSubmission.flatMap(_.otherUkDividends)
     }
-
 }
 
 @hasFormErrors = @{
