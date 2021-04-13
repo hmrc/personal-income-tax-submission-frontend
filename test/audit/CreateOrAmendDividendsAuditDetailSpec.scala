@@ -20,7 +20,7 @@ import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import play.api.libs.json.Json
 import utils.UnitTest
 
-class CreateOrAmendsAuditDetailSpec extends UnitTest {
+class CreateOrAmendDividendsAuditDetailSpec extends UnitTest {
 
   val body =  DividendsCheckYourAnswersModel(
     Some(true),
@@ -35,6 +35,7 @@ class CreateOrAmendsAuditDetailSpec extends UnitTest {
   )
   private val nino = "AA123456A"
   private val mtditid = "1234567890"
+  private val userType = "Individual"
   private val taxYear = 2020
 
 
@@ -54,10 +55,11 @@ class CreateOrAmendsAuditDetailSpec extends UnitTest {
           ),
           "nino" -> "AA123456A",
           "mtditid" -> "1234567890",
+          "userType" -> "Individual",
           "taxYear" -> 2020
         )
 
-          val model = CreateOrAmendDividendsAuditDetail(Some(body), Some(prior), nino, mtditid, taxYear)
+          val model = CreateOrAmendDividendsAuditDetail(Some(body), Some(prior), nino, mtditid, userType, taxYear)
         Json.toJson(model) shouldBe json
         }
       }

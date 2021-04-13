@@ -32,6 +32,7 @@ import play.api.mvc.Results._
 import play.api.mvc.{AnyContentAsEmpty, Request, Result}
 import play.api.test.FakeRequest
 import services.InterestSubmissionService
+import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -56,10 +57,14 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
     submissionService,
     mockAuditService,
     errorHandler
-  )(mockAppConfig, mockMessagesControllerComponents)
+  )(mockAppConfig,
+    mockAuthService,
+    mockMessagesControllerComponents)
 
   val taxYear: Int = 2022
   val arbitraryAmount: Int = 100
+  val agentAffinityGroup: String = "Agent"
+  val individualAffinityGroup: String = "Individual"
 
   ".show" should {
 
@@ -210,7 +215,8 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
           submissionService,
           mockAuditService,
           errorHandler
-        )(mockAppConfFeatureSwitch, mockMessagesControllerComponents)
+        )(mockAppConfFeatureSwitch, mockAuthService,
+          mockMessagesControllerComponents)
 
         val invalidTaxYear = 2023
         lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(fakeRequest)
@@ -245,7 +251,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
 
         "the submission is successful" in new TestWithAuth {
 
-          lazy val detail: CreateOrAmendInterestAuditDetail = CreateOrAmendInterestAuditDetail(Some(cyaModel), None, "AA123456A", "1234567890", taxYear)
+          lazy val detail: CreateOrAmendInterestAuditDetail = CreateOrAmendInterestAuditDetail(Some(cyaModel), None, "AA123456A", "1234567890", individualAffinityGroup, taxYear)
 
           lazy val event: AuditModel[CreateOrAmendInterestAuditDetail] = AuditModel("CreateOrAmendInterestUpdate", "createOrAmendInterestUpdate", detail)
 
@@ -261,6 +267,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
             .expects(cyaModel, "AA123456A", taxYear, "1234567890", *, *)
             .returning(Future.successful(Right(NO_CONTENT)))
 
+          mockAffinityGroup(AffinityGroup.Individual)
           verifyInterestAudit
 
           lazy val result: Future[Result] = {
@@ -311,7 +318,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
             ))
           )
           lazy val detail: CreateOrAmendInterestAuditDetail = CreateOrAmendInterestAuditDetail(Some(cyaModel),
-            Some(previousSubmission), "AA123456A", "1234567890", taxYear)
+            Some(previousSubmission), "AA123456A", "1234567890", agentAffinityGroup, taxYear)
 
           lazy val event: AuditModel[CreateOrAmendInterestAuditDetail] = AuditModel("CreateOrAmendInterestUpdate", "createOrAmendInterestUpdate", detail)
 
@@ -327,6 +334,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
             .expects(cyaModel, "AA123456A", taxYear, "1234567890", *, *)
             .returning(Future.successful(Right(NO_CONTENT)))
 
+          mockAffinityGroup(AffinityGroup.Agent)
           verifyInterestAudit
 
           lazy val result: Future[Result] = {

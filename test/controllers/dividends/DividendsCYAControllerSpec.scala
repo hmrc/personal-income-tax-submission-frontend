@@ -30,6 +30,7 @@ import play.api.mvc.Results._
 import play.api.mvc.{AnyContentAsEmpty, Request, Result}
 import play.api.test.FakeRequest
 import services.DividendsSubmissionService
+import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -56,6 +57,7 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
     errorHandler
   )(
     mockAppConfig,
+    mockAuthService,
     mockMessagesControllerComponents
   )
 
@@ -65,6 +67,7 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
   val successResponseCode = 204
   val internalServerErrorResponse = 500
   val serviceUnavailableResponse = 503
+  val affinityGroup: String = "Individual"
 
   val internalServerErrorModel: DividendsResponseModel = DividendsResponseModel(internalServerErrorResponse)
 
@@ -218,6 +221,7 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
           errorHandler
         )(
           mockAppConfFeatureSwitch,
+          mockAuthService,
           mockMessagesControllerComponents
         )
 
@@ -291,7 +295,7 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
 
       "there is session data " in new TestWithAuth {
         lazy val detail: CreateOrAmendDividendsAuditDetail =
-          CreateOrAmendDividendsAuditDetail(Some(cyaSessionData), Some(priorData), "AA123456A", "1234567890", taxYear)
+          CreateOrAmendDividendsAuditDetail(Some(cyaSessionData), Some(priorData), "AA123456A", "1234567890", affinityGroup, taxYear)
 
         lazy val event: AuditModel[CreateOrAmendDividendsAuditDetail] =
           AuditModel("CreateOrAmendDividendsUpdate", "createOrAmendDividendsUpdate", detail)
@@ -307,7 +311,7 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
         (service.submitDividends(_: Option[DividendsCheckYourAnswersModel], _: String, _: String, _: Int)(_:HeaderCarrier))
           .expects(Some(cyaSessionData), "AA123456A", "1234567890", taxYear, *)
           .returning(Future.successful(Right(DividendsResponseModel(successResponseCode))))
-
+        mockAffinityGroup(AffinityGroup.Individual)
         verifyDividendsAudit
 
         lazy val result: Future[Result] = controller.submit(taxYear)(request)
@@ -365,7 +369,6 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
           .returning(ServiceUnavailable(serviceUnavailableTemplate()))
 
         val result: Future[Result] = controller.submit(2020)(request)
-
 
         val document: Document = Jsoup.parse(bodyOf(result))
         document.select("h1").first().text() shouldBe "Sorry, the service is unavailable"

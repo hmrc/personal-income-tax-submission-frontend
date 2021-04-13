@@ -23,6 +23,7 @@ case class CreateOrAmendInterestAuditDetail(body: Option[InterestCYAModel],
                                             prior: Option[InterestPriorSubmission],
                                             nino: String,
                                             mtditid: String,
+                                            userType: String,
                                             taxYear: Int)
 
 object CreateOrAmendInterestAuditDetail {

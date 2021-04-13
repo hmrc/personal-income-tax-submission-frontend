@@ -133,6 +133,13 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
   }
 
   //noinspection ScalaStyle
+  def mockAffinityGroup(affinityGroup: AffinityGroup) = {
+    (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
+      .expects(*, *, *, *)
+      .returning(Future.successful(Some(affinityGroup)))
+  }
+
+  //noinspection ScalaStyle
   def mockAuthReturnException(exception: Exception) = {
     (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
       .expects(*, *, *, *)
