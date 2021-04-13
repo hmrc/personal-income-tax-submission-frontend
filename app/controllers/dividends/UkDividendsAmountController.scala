@@ -20,8 +20,7 @@ import common.SessionValues
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.TaxYearAction.taxYearAction
-import forms.{PriorOrNewAmountForm, UkDividendsAmountForm}
-import models.formatHelpers.PriorOrNewAmountModel
+import forms.UkDividendsAmountForm
 import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, User}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
@@ -41,7 +40,7 @@ class UkDividendsAmountController @Inject()(
                                            ) extends FrontendController(cc) with I18nSupport {
 
   def view(
-            formInput: Either[Form[PriorOrNewAmountModel], Form[BigDecimal]],
+            formInput: Form[BigDecimal],
             priorSubmission: Option[DividendsPriorSubmission] = None,
             taxYear: Int,
             preAmount: Option[BigDecimal] = None
@@ -63,59 +62,34 @@ class UkDividendsAmountController @Inject()(
 
     val previousAmount: Option[BigDecimal] = checkYourAnswerSession.flatMap(_.ukDividendsAmount)
 
-    def form(prior: BigDecimal): Form[PriorOrNewAmountModel] = {
-      if(previousAmount.isDefined && previousAmount.get != prior){
-        PriorOrNewAmountForm.priorOrNewAmountForm(prior).fill(PriorOrNewAmountModel("other",previousAmount))
-      } else {
-        PriorOrNewAmountForm.priorOrNewAmountForm(prior).fill(PriorOrNewAmountModel("other",None))
-      }
-    }
-
     (dividendsPriorSubmissionSession, checkYourAnswerSession) match {
-      case (Some(submission@DividendsPriorSubmission(Some(prior), _)), _) => Ok(view(Left(form(prior)), Some(submission), taxYear))
+      case (Some(submission@DividendsPriorSubmission(Some(prior), _)), _) =>
+        if(previousAmount.contains(prior)) {
+          Ok(view(UkDividendsAmountForm.ukDividendsAmountForm(), Some(submission), taxYear, previousAmount))
+        }
+        else {
+          Ok(view(UkDividendsAmountForm.ukDividendsAmountForm().fill(previousAmount.getOrElse(prior)), Some(submission), taxYear, previousAmount))
+        }
       case (None, Some(cya)) =>
-        Ok(view(Right(cya.ukDividendsAmount.fold(
+        Ok(view(cya.ukDividendsAmount.fold(
           UkDividendsAmountForm.ukDividendsAmountForm()
-        )(amount => UkDividendsAmountForm.ukDividendsAmountForm().fill(amount))
-        ), taxYear = taxYear, preAmount = cya.ukDividendsAmount))
+        )(amount => UkDividendsAmountForm.ukDividendsAmountForm.fill(amount)), taxYear = taxYear))
       case _ =>
-        Ok(view(Right(UkDividendsAmountForm.ukDividendsAmountForm()), taxYear = taxYear))
+        Ok(view(UkDividendsAmountForm.ukDividendsAmountForm(), taxYear = taxYear))
     }
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
 
-    implicit val priorSubmissionSessionData: Option[DividendsPriorSubmission] =
+    implicit val priorSubmissionSessionData: Option[DividendsPriorSubmission] = {
       getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
+    }
+    val previousAmount: Option[BigDecimal] = getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
+      .flatMap(_.ukDividendsAmount)
 
-    priorSubmissionSessionData match {
-      case Some(priorSubmission) if priorSubmission.ukDividends.nonEmpty =>
-        PriorOrNewAmountForm.priorOrNewAmountForm(priorSubmission.ukDividends.get).bindFromRequest().fold(
+    UkDividendsAmountForm.ukDividendsAmountForm().bindFromRequest().fold(
           {
-            formWithErrors => BadRequest(view(Left(formWithErrors), Some(priorSubmission), taxYear))
-          },
-          {
-            formModel =>
-              DividendsCheckYourAnswersModel.fromSession().fold {
-                Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-              } {
-                cyaModel =>
-                  import PriorOrNewAmountModel._
-                  formModel.whichAmount match {
-                    case `prior` =>
-                      Redirect(redirectLocation(taxYear, Some(cyaModel.copy(ukDividendsAmount = priorSubmission.ukDividends))))
-                        .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(ukDividendsAmount = priorSubmission.ukDividends).asJsonString)
-                    case `other` =>
-                      Redirect(redirectLocation(taxYear, Some(cyaModel.copy(ukDividendsAmount = formModel.amount))))
-                        .addingToSession(SessionValues.DIVIDENDS_CYA -> cyaModel.copy(ukDividendsAmount = formModel.amount).asJsonString)
-                  }
-              }
-          }
-        )
-      case _ =>
-        UkDividendsAmountForm.ukDividendsAmountForm().bindFromRequest().fold(
-          {
-            formWithErrors => BadRequest(view(Right(formWithErrors), taxYear = taxYear))
+            formWithErrors => BadRequest(view(formWithErrors, priorSubmission = priorSubmissionSessionData, taxYear = taxYear, preAmount = previousAmount))
           },
           {
             bigDecimal =>
@@ -132,7 +106,6 @@ class UkDividendsAmountController @Inject()(
           }
         )
 
-    }
   }
 
   private[dividends] def redirectLocation(taxYear: Int, cyaData: Option[DividendsCheckYourAnswersModel])(
