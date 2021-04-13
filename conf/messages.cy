@@ -35,6 +35,7 @@ error.summary.title = There is a problem
 
 dividends.caption = Dividends
 interest.caption = Interest
+charity.caption = Charitable giving for 6 April {0} to 5 April {1}
 
 dividends.uk-dividends.title.individual = Did you receive any dividends from companies in the UK?
 dividends.uk-dividends.title.agent = Did your client receive any dividends from companies in the UK?
@@ -171,6 +172,13 @@ interest.change-account.untaxed-title = Untaxed interest earned
 interest.change-account.taxed-title = Taxed interest earned
 interest.change-account.untaxed-heading = {0} untaxed interest earned
 interest.change-account.taxed-heading = {0} taxed interest earned
+
+charity.uk-charity.title.individual = Did you use Gift Aid to donate to charity?
+charity.uk-charity.title.agent = Did your client use Gift Aid to donate to charity?
+charity.uk-charity.heading.individual = Did you use Gift Aid to donate to charity?
+charity.uk-charity.heading.agent = Did your client use Gift Aid to donate to charity?
+charity.uk-charity.errors.noChoice.individual = Select yes if you used Gift Aid to donate to charity
+charity.uk-charity.errors.noChoice.agent = Select yes if your client used Gift Aid to donate to charity
 
 not-found-template.title = Page not found
 not-found-template.heading = Page not found

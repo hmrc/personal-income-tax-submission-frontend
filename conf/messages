@@ -92,6 +92,7 @@ interest.cya.accountDisplay = {0} : {1}
 
 interest.caption = Interest for 6 April {0} to 5 April {1}
 dividends.caption = Dividends for 6 April {0} to 5 April {1}
+charity.caption = Charitable giving for 6 April {0} to 5 April {1}
 
 interest.account.add-another = Do you need to add another account?
 interest.account.tell-us-about-all = You must tell us about all your accounts.
@@ -171,6 +172,13 @@ interest.change-account.untaxed-title = Untaxed interest earned
 interest.change-account.taxed-title = Taxed interest earned
 interest.change-account.untaxed-heading = {0} untaxed interest earned
 interest.change-account.taxed-heading = {0} taxed interest earned
+
+charity.uk-charity.title.individual = Did you use Gift Aid to donate to charity?
+charity.uk-charity.title.agent = Did your client use Gift Aid to donate to charity?
+charity.uk-charity.heading.individual = Did you use Gift Aid to donate to charity?
+charity.uk-charity.heading.agent = Did your client use Gift Aid to donate to charity?
+charity.uk-charity.errors.noChoice.individual = Select yes if you used Gift Aid to donate to charity
+charity.uk-charity.errors.noChoice.agent = Select yes if your client used Gift Aid to donate to charity
 
 not-found-template.title = Page not found
 not-found-template.heading = Page not found
