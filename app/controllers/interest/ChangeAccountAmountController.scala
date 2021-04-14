@@ -76,15 +76,7 @@ class ChangeAccountAmountController @Inject()(
 
         val previousAmount: Option[BigDecimal] = extractPreAmount(taxType,Some(cya),accountId)
 
-        val form: Form[BigDecimal] = {
-          if(previousAmount.contains(accountModel.amount)) {
-            ChangeAccountAmountForm.changeAccountAmountForm(user.isAgent, taxType)
-          }
-            else{
-            ChangeAccountAmountForm.changeAccountAmountForm(user.isAgent, taxType).
-              fill(previousAmount.getOrElse(accountModel.amount))
-          }
-        }
+        val form: Form[BigDecimal] = ChangeAccountAmountForm.changeAccountAmountForm(user.isAgent, taxType)
 
         Ok(view(form, accountModel, taxYear, taxType, accountId, Some(previousAmount.getOrElse(accountModel.amount))))
       case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
