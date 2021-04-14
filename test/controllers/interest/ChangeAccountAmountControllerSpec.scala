@@ -71,6 +71,11 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
     Some(false), None
   )
 
+  lazy val untaxedInterestCyaModelSameValue = InterestCYAModel(
+    Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 5000))),
+    Some(false), None
+  )
+
   lazy val taxedInterestCyaModel = InterestCYAModel(
     Some(false), None,
     Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25)))
@@ -90,6 +95,17 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
                 SessionValues.INTEREST_CYA -> untaxedInterestCyaModel.asJsonString))
           }
           status(result) shouldBe OK
+          bodyOf(result) should include("50")
+        }
+
+        "there is prior and cya data in session and amounts are same" in new TestWithAuth {
+
+          lazy val result: Future[Result] = {
+            controller.show(taxYear, UNTAXED, untaxedId)(fakeRequest
+              .withSession(SessionValues.INTEREST_PRIOR_SUB -> untaxedPriorDataModel.toString,
+                SessionValues.INTEREST_CYA -> untaxedInterestCyaModelSameValue.asJsonString))
+          }
+          status(result) shouldBe OK
           bodyOf(result) should include("5000")
         }
 
@@ -104,7 +120,7 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
                   ).asJsonString))
           }
           status(result) shouldBe OK
-          bodyOf(result) should include("5000")
+          bodyOf(result) should include("50")
         }
 
       }
@@ -146,7 +162,8 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
                 SessionValues.INTEREST_CYA -> taxedInterestCyaModel.asJsonString))
           }
           status(result) shouldBe OK
-          bodyOf(result) should include("2500")
+          println(bodyOf(result))
+          bodyOf(result) should include("25")
 
         }
 
@@ -161,7 +178,7 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
                   ).asJsonString))
           }
           status(result) shouldBe OK
-          bodyOf(result) should include("2500")
+          bodyOf(result) should include("25")
         }
 
       }
@@ -248,17 +265,6 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
       }
 
       "successfully redirect to the Account overview page" when {
-        "the prior account  amount is selected as the chosen value" in new TestWithAuth {
-          lazy val result: Future[Result] = controller.submit(taxYear, UNTAXED, untaxedId)(fakeRequest
-            .withSession(SessionValues.INTEREST_PRIOR_SUB -> untaxedPriorDataModel.toString,
-              SessionValues.INTEREST_CYA -> untaxedInterestCyaModel.asJsonString)
-            .withFormUrlEncodedBody(
-              amountTypeField -> "prior"
-            ))
-
-          status(result) shouldBe SEE_OTHER
-          redirectUrl(result) shouldBe controllers.interest.routes.AccountsController.show(taxYear, UNTAXED).url
-        }
 
         "the account amount is updated" in new TestWithAuth {
           lazy val result: Future[Result] = controller.submit(taxYear, UNTAXED, untaxedId)(fakeRequest
@@ -322,17 +328,6 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
       }
 
       "successfully redirect to the Account overview page" when {
-        "the prior account amount is selected as the chosen value" in new TestWithAuth {
-          lazy val result: Future[Result] = controller.submit(taxYear, TAXED, taxedId)(fakeRequest
-            .withSession(SessionValues.INTEREST_PRIOR_SUB -> taxedPriorDataModel.toString,
-              SessionValues.INTEREST_CYA -> taxedInterestCyaModel.asJsonString)
-            .withFormUrlEncodedBody(
-              amountTypeField -> "prior"
-            ))
-
-          status(result) shouldBe SEE_OTHER
-          redirectUrl(result) shouldBe controllers.interest.routes.AccountsController.show(taxYear, TAXED).url
-        }
 
         "the account amount is updated" in new TestWithAuth {
           lazy val result: Future[Result] = controller.submit(taxYear, TAXED, taxedId)(fakeRequest

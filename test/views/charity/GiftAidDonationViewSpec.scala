@@ -22,7 +22,6 @@ import org.jsoup.nodes.Document
 import play.api.data.Form
 import utils.ViewTest
 import views.html.charity.GiftAidDonationView
-import views.html.dividends.ReceiveUkDividendsView
 
 class GiftAidDonationViewSpec extends ViewTest {
 
@@ -131,4 +130,88 @@ class GiftAidDonationViewSpec extends ViewTest {
       }
     }
   }
+
+  "GiftAidDonationView in Welsh" should {
+
+    "correctly render for an individual" when {
+
+      "there are no form errors" which {
+
+        lazy val view = gitAidDonationView(
+          yesNoForm, taxYear)(user, welshMessages, mockAppConfig)
+        implicit lazy val document: Document = Jsoup.parse(view.body)
+
+        titleCheck(expectedIndividualTitle)
+        welshToggleCheck("Welsh")
+        h1Check(expectedIndividualH1)
+        textOnPageCheck(captionText, captionSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
+        buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(continueLink, continueButtonFormSelector)
+      }
+
+      "there is a form error due to no radio button selected" which {
+
+        lazy val view = gitAidDonationView(
+          yesNoForm.bind(Map("value" -> "")), taxYear)(user, welshMessages, mockAppConfig)
+        implicit lazy val document: Document = Jsoup.parse(view.body)
+
+        val expectedErrorText = "Select yes if you used Gift Aid to donate to charity"
+        val errorSummaryHref = "#value"
+
+        titleCheck(expectedIndividualErrorTitle)
+        welshToggleCheck("Welsh")
+        h1Check(expectedIndividualH1)
+        textOnPageCheck(captionText, captionSelector)
+        errorSummaryCheck(expectedErrorText, errorSummaryHref)
+        errorAboveElementCheck(expectedErrorText)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
+        buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(continueLink, continueButtonFormSelector)
+      }
+    }
+
+    "correctly render for an agent" when {
+
+      "there are no form errors" which {
+
+        lazy val view = gitAidDonationView(
+          yesNoFormAgent, taxYear)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+        implicit lazy val document: Document = Jsoup.parse(view.body)
+
+        titleCheck(expectedAgentTitle)
+        welshToggleCheck("Welsh")
+        h1Check(expectedAgentH1)
+        textOnPageCheck(captionText, captionSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
+        buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(continueLink, continueButtonFormSelector)
+      }
+
+      "there is a form error due to no radio button selected" which {
+
+        lazy val view = gitAidDonationView(
+          yesNoFormAgent.bind(Map("value" -> "")), taxYear)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+        implicit lazy val document: Document = Jsoup.parse(view.body)
+
+        val expectedErrorText = "Select yes if your client used Gift Aid to donate to charity"
+        val errorSummaryHref = "#value"
+
+        titleCheck(expectedAgentErrorTitle)
+        welshToggleCheck("Welsh")
+        h1Check(expectedAgentH1)
+        textOnPageCheck(captionText, captionSelector)
+        errorSummaryCheck(expectedErrorText, errorSummaryHref)
+        errorAboveElementCheck(expectedErrorText)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
+        buttonCheck(continueText, continueSelector)
+        formPostLinkCheck(continueLink, continueButtonFormSelector)
+      }
+    }
+  }
+
 }

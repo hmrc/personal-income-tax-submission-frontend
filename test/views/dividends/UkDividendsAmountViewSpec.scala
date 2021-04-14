@@ -16,9 +16,8 @@
 
 package views.dividends
 
-import forms.{PriorOrNewAmountForm, UkDividendsAmountForm}
+import forms.UkDividendsAmountForm
 import models.DividendsPriorSubmission
-import models.formatHelpers.PriorOrNewAmountModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.data.Form
@@ -30,8 +29,6 @@ class UkDividendsAmountViewSpec extends ViewTest {
   val priorAmount = 20
 
   lazy val ukDividendsAmountForm: Form[BigDecimal] = UkDividendsAmountForm.ukDividendsAmountForm()
-  lazy val priorOrNewAmountForm: Form[PriorOrNewAmountModel] = PriorOrNewAmountForm.priorOrNewAmountForm(priorAmount)
-
   lazy val ukDividendsAmountView: UkDividendsAmountView = app.injector.instanceOf[UkDividendsAmountView]
 
   val taxYear: Int = 2020
@@ -42,24 +39,27 @@ class UkDividendsAmountViewSpec extends ViewTest {
   val inputSelector = ".govuk-input"
   val continueButtonSelector = "#continue"
   val continueButtonFormSelector = "#main-content > div > div > form"
-  val enterAmountSelector = "#conditional-otherAmount > div > label"
-  val priorAmountSelector = "#main-content > div > div > form > div > div > fieldset > div > div:nth-child(1) > label"
+  val youToldUsSelector = "#main-content > div > div > form > div > label"
 
-  val expectedH1 = "What is the total amount of dividends earned from companies in the UK?"
-  val expectedTitle = "What is the total amount of dividends earned from companies in the UK?"
+  val expectedH1 = "How much did you get in dividends from UK-based companies?"
+  val expectedTitle = "How much did you get in dividends from UK-based companies?"
+  val expectedTitleAgent = "How much did your client get in dividends from UK-based companies?"
+  val expectedH1Agent = "How much did your client get in dividends from UK-based companies?"
   val expectedErrorTitle = s"Error: $expectedTitle"
+  val expectedErrorTitleAgent = s"Error: $expectedTitleAgent"
   val expectedCaption = s"Dividends for 6 April $taxYearMinusOne to 5 April $taxYear"
   val poundPrefixText = "£"
-  val differentAmountText = "A different amount"
-  val enterAmountText = "Enter amount"
   val continueText = "Continue"
   val continueLink = "/test-url"
 
-  val priorAmountRadio = "#whichAmount"
-  val priorAmountRadioText = "#main-content > div > div > form > div > div > fieldset > div > div:nth-child(1) > label"
-  val newAmountRadio = "#otherAmount"
   val newAmountInput = "#amount"
   val amountInputName = "amount"
+
+  def youToldUsPriorTextIndividual(amount: String): String =
+    s"You told us you got £$amount in dividends from UK-based companies this year. Tell us if this has changed."
+
+  def youToldUsPriorTextAgent(amount: String): String =
+    s"You told us your client got £$amount in dividends from UK-based companies this year. Tell us if this has changed."
 
   "UkDividendsAmountView in English" should {
 
@@ -69,7 +69,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
         "there are no form errors" which {
 
-          lazy val view = ukDividendsAmountView(Right(ukDividendsAmountForm), None, taxYear, testCall)(user, messages, mockAppConfig)
+          lazy val view = ukDividendsAmountView(ukDividendsAmountForm, None, taxYear, testCall)(user, messages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
           titleCheck(expectedTitle)
@@ -87,7 +87,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "an empty value is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              Right(ukDividendsAmountForm.bind(Map("amount" -> ""))),
+              ukDividendsAmountForm.bind(Map("amount" -> "")),
               None,
               taxYear,
               testCall
@@ -113,7 +113,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "a non numeric value is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              Right(ukDividendsAmountForm.bind(Map("amount" -> "abc"))),
+              ukDividendsAmountForm.bind(Map("amount" -> "abc")),
               None,
               taxYear,
               testCall
@@ -139,7 +139,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "a value bigger than £100,000,000,000 is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              Right(ukDividendsAmountForm.bind(Map("amount" -> "200,000,000,000"))),
+              ukDividendsAmountForm.bind(Map("amount" -> "200,000,000,000")),
               None,
               taxYear,
               testCall
@@ -165,7 +165,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "an invalid format value is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              Right(ukDividendsAmountForm.bind(Map("amount" -> "10.00.00.00"))),
+              ukDividendsAmountForm.bind(Map("amount" -> "10.00.00.00")),
               None,
               taxYear,
               testCall
@@ -193,13 +193,13 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
         "there are no form errors" which {
 
-          lazy val view = ukDividendsAmountView(Right(ukDividendsAmountForm), None, taxYear,
+          lazy val view = ukDividendsAmountView(ukDividendsAmountForm, None, taxYear,
             testCall)(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          titleCheck(expectedTitle)
+          titleCheck(expectedTitleAgent)
           welshToggleCheck("English")
-          h1Check(expectedH1)
+          h1Check(expectedH1Agent)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
           inputFieldCheck(amountInputName, inputSelector)
@@ -212,7 +212,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "an empty value is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              Right(ukDividendsAmountForm.bind(Map("amount" -> ""))),
+              ukDividendsAmountForm.bind(Map("amount" -> "")),
               None,
               taxYear,
               testCall
@@ -222,9 +222,9 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             val expectedErrorText = "Enter the amount of dividends earned from the UK"
 
-            titleCheck(expectedErrorTitle)
+            titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
-            h1Check(expectedH1)
+            h1Check(expectedH1Agent)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -238,7 +238,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "a non numeric value is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              Right(ukDividendsAmountForm.bind(Map("amount" -> "abc"))),
+              ukDividendsAmountForm.bind(Map("amount" -> "abc")),
               None,
               taxYear,
               testCall
@@ -248,9 +248,9 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             val expectedErrorText = "Enter an amount using numbers 0 to 9"
 
-            titleCheck(expectedErrorTitle)
+            titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
-            h1Check(expectedH1)
+            h1Check(expectedH1Agent)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -264,7 +264,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "a value bigger than £100,000,000,000 is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              Right(ukDividendsAmountForm.bind(Map("amount" -> "200,000,000,000"))),
+              ukDividendsAmountForm.bind(Map("amount" -> "200,000,000,000")),
               None,
               taxYear,
               testCall
@@ -274,9 +274,9 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             val expectedErrorText = "Enter an amount less than £100,000,000,000"
 
-            titleCheck(expectedErrorTitle)
+            titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
-            h1Check(expectedH1)
+            h1Check(expectedH1Agent)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -290,7 +290,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "an invalid format value is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              Right(ukDividendsAmountForm.bind(Map("amount" -> "10.00.00.00"))),
+              ukDividendsAmountForm.bind(Map("amount" -> "10.00.00.00")),
               None,
               taxYear,
               testCall
@@ -300,9 +300,9 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             val expectedErrorText = "Enter the amount in the correct format"
 
-            titleCheck(expectedErrorTitle)
+            titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
-            h1Check(expectedH1)
+            h1Check(expectedH1Agent)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -323,7 +323,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = ukDividendsAmountView(
-                      Left(priorOrNewAmountForm.fill(PriorOrNewAmountModel("other",None))),
+                      ukDividendsAmountForm,
                       Some(DividendsPriorSubmission(Some(priorAmount))),
                       taxYear,
                       testCall
@@ -334,10 +334,8 @@ class UkDividendsAmountViewSpec extends ViewTest {
           welshToggleCheck("English")
           h1Check(expectedH1)
           textOnPageCheck(expectedCaption, captionSelector)
-          radioButtonCheck(s"£$priorAmount", 1)
-          radioButtonCheck(differentAmountText, 2)
-          textOnPageCheck(enterAmountText, enterAmountSelector)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
+          textOnPageCheck(youToldUsPriorTextIndividual(priorAmount.toString), youToldUsSelector)
           inputFieldCheck(amountInputName, inputSelector)
           buttonCheck(continueText, continueButtonSelector)
           formPostLinkCheck(continueLink, continueButtonFormSelector)
@@ -347,22 +345,19 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "an empty value is passed in" which {
             lazy val view = ukDividendsAmountView(
-              Left(priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> ""))),
+              ukDividendsAmountForm.bind(Map("amount" -> "")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
             )(user, messages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter the amount in the correct format"
+            val expectedErrorText = "Enter the amount of dividends earned from the UK"
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("English")
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
-            radioButtonCheck(s"£$priorAmount", 1)
-            radioButtonCheck(differentAmountText, 2)
-            textOnPageCheck(enterAmountText, enterAmountSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
@@ -373,7 +368,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "a non numeric value is passed in" which {
             lazy val view = ukDividendsAmountView(
-              Left(priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "abc"))),
+              ukDividendsAmountForm.bind(Map("amount" -> "abc")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
@@ -386,9 +381,6 @@ class UkDividendsAmountViewSpec extends ViewTest {
             welshToggleCheck("English")
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
-            radioButtonCheck(s"£$priorAmount", 1)
-            radioButtonCheck(differentAmountText, 2)
-            textOnPageCheck(enterAmountText, enterAmountSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
@@ -399,7 +391,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "a value bigger than £100,000,000,000 is passed in" which {
             lazy val view = ukDividendsAmountView(
-              Left(priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "200,000,000,000"))),
+              ukDividendsAmountForm.bind(Map("amount" -> "200,000,000,000")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
@@ -412,9 +404,6 @@ class UkDividendsAmountViewSpec extends ViewTest {
             welshToggleCheck("English")
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
-            radioButtonCheck(s"£$priorAmount", 1)
-            radioButtonCheck(differentAmountText, 2)
-            textOnPageCheck(enterAmountText, enterAmountSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
@@ -425,7 +414,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "an invalid format value is passed in" which {
             lazy val view = ukDividendsAmountView(
-              Left(priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "100.000.00.00"))),
+              ukDividendsAmountForm.bind(Map("amount" -> "100.000.00.00")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
@@ -438,9 +427,6 @@ class UkDividendsAmountViewSpec extends ViewTest {
             welshToggleCheck("English")
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
-            radioButtonCheck(s"£$priorAmount", 1)
-            radioButtonCheck(differentAmountText, 2)
-            textOnPageCheck(enterAmountText, enterAmountSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
@@ -459,21 +445,19 @@ class UkDividendsAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = ukDividendsAmountView(
-            Left(priorOrNewAmountForm.fill(PriorOrNewAmountModel("other",None))),
+            ukDividendsAmountForm,
             Some(DividendsPriorSubmission(Some(priorAmount))),
             taxYear,
             testCall
           )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          titleCheck(expectedTitle)
+          titleCheck(expectedTitleAgent)
           welshToggleCheck("English")
-          h1Check(expectedH1)
+          h1Check(expectedH1Agent)
           textOnPageCheck(expectedCaption, captionSelector)
-          radioButtonCheck(s"£$priorAmount", 1)
-          radioButtonCheck(differentAmountText, 2)
-          textOnPageCheck(enterAmountText, enterAmountSelector)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
+          textOnPageCheck(youToldUsPriorTextAgent(priorAmount.toString), youToldUsSelector)
           inputFieldCheck(amountInputName, inputSelector)
           buttonCheck(continueText, continueButtonSelector)
           formPostLinkCheck(continueLink, continueButtonFormSelector)
@@ -483,22 +467,19 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "an empty value is passed in" which {
             lazy val view = ukDividendsAmountView(
-              Left(priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> ""))),
+              ukDividendsAmountForm.bind(Map("amount" -> "")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
             )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter the amount in the correct format"
+            val expectedErrorText = "Enter the amount of dividends earned from the UK"
 
-            titleCheck(expectedErrorTitle)
+            titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
-            h1Check(expectedH1)
+            h1Check(expectedH1Agent)
             textOnPageCheck(expectedCaption, captionSelector)
-            radioButtonCheck(s"£$priorAmount", 1)
-            radioButtonCheck(differentAmountText, 2)
-            textOnPageCheck(enterAmountText, enterAmountSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
@@ -509,7 +490,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "a non numeric value is passed in" which {
             lazy val view = ukDividendsAmountView(
-              Left(priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "abc"))),
+              ukDividendsAmountForm.bind(Map("amount" -> "abc")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
@@ -518,13 +499,10 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             val expectedErrorText = "Enter an amount using numbers 0 to 9"
 
-            titleCheck(expectedErrorTitle)
+            titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
-            h1Check(expectedH1)
+            h1Check(expectedH1Agent)
             textOnPageCheck(expectedCaption, captionSelector)
-            radioButtonCheck(s"£$priorAmount", 1)
-            radioButtonCheck(differentAmountText, 2)
-            textOnPageCheck(enterAmountText, enterAmountSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
@@ -535,7 +513,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "a value bigger than £100,000,000,000 is passed in" which {
             lazy val view = ukDividendsAmountView(
-              Left(priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "200,000,000,000"))),
+              ukDividendsAmountForm.bind(Map("amount" -> "200,000,000,000")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
@@ -544,13 +522,10 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             val expectedErrorText = "Enter an amount less than £100,000,000,000"
 
-            titleCheck(expectedErrorTitle)
+            titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
-            h1Check(expectedH1)
+            h1Check(expectedH1Agent)
             textOnPageCheck(expectedCaption, captionSelector)
-            radioButtonCheck(s"£$priorAmount", 1)
-            radioButtonCheck(differentAmountText, 2)
-            textOnPageCheck(enterAmountText, enterAmountSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
@@ -561,7 +536,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "an invalid format value is passed in" which {
             lazy val view = ukDividendsAmountView(
-              Left(priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "100.000.00.00"))),
+              ukDividendsAmountForm.bind(Map("amount" -> "100.000.00.00")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
@@ -570,13 +545,10 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             val expectedErrorText = "Enter the amount in the correct format"
 
-            titleCheck(expectedErrorTitle)
+            titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
-            h1Check(expectedH1)
+            h1Check(expectedH1Agent)
             textOnPageCheck(expectedCaption, captionSelector)
-            radioButtonCheck(s"£$priorAmount", 1)
-            radioButtonCheck(differentAmountText, 2)
-            textOnPageCheck(enterAmountText, enterAmountSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
@@ -596,7 +568,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
         "there are no form errors" which {
 
-          lazy val view = ukDividendsAmountView(Right(ukDividendsAmountForm), None, taxYear, testCall)(user, welshMessages, mockAppConfig)
+          lazy val view = ukDividendsAmountView(ukDividendsAmountForm, None, taxYear, testCall)(user, welshMessages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
           titleCheck(expectedTitle)
@@ -613,7 +585,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "an empty value is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              Right(ukDividendsAmountForm.bind(Map("amount" -> ""))),
+              ukDividendsAmountForm.bind(Map("amount" -> "")),
               None,
               taxYear,
               testCall
@@ -638,7 +610,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "a non numeric value is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              Right(ukDividendsAmountForm.bind(Map("amount" -> "abc"))),
+              ukDividendsAmountForm.bind(Map("amount" -> "abc")),
               None,
               taxYear,
               testCall
@@ -663,7 +635,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "a value bigger than £100,000,000,000 is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              Right(ukDividendsAmountForm.bind(Map("amount" -> "200,000,000,000"))),
+              ukDividendsAmountForm.bind(Map("amount" -> "200,000,000,000")),
               None,
               taxYear,
               testCall
@@ -688,7 +660,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "an invalid format value is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              Right(ukDividendsAmountForm.bind(Map("amount" -> "10.00.00.00"))),
+              ukDividendsAmountForm.bind(Map("amount" -> "10.00.00.00")),
               None,
               taxYear,
               testCall
@@ -715,13 +687,13 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
         "there are no form errors" which {
 
-          lazy val view = ukDividendsAmountView(Right(ukDividendsAmountForm), None, taxYear,
+          lazy val view = ukDividendsAmountView(ukDividendsAmountForm, None, taxYear,
             testCall)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          titleCheck(expectedTitle)
+          titleCheck(expectedTitleAgent)
           welshToggleCheck("Welsh")
-          h1Check(expectedH1)
+          h1Check(expectedH1Agent)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
           inputFieldCheck(amountInputName, inputSelector)
@@ -733,7 +705,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "an empty value is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              Right(ukDividendsAmountForm.bind(Map("amount" -> ""))),
+              ukDividendsAmountForm.bind(Map("amount" -> "")),
               None,
               taxYear,
               testCall
@@ -743,9 +715,9 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             val expectedErrorText = "Enter the amount of dividends earned from the UK"
 
-            titleCheck(expectedErrorTitle)
+            titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1)
+            h1Check(expectedH1Agent)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -758,7 +730,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "a non numeric value is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              Right(ukDividendsAmountForm.bind(Map("amount" -> "abc"))),
+              ukDividendsAmountForm.bind(Map("amount" -> "abc")),
               None,
               taxYear,
               testCall
@@ -768,9 +740,9 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             val expectedErrorText = "Enter an amount using numbers 0 to 9"
 
-            titleCheck(expectedErrorTitle)
+            titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1)
+            h1Check(expectedH1Agent)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -783,7 +755,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "a value bigger than £100,000,000,000 is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              Right(ukDividendsAmountForm.bind(Map("amount" -> "200,000,000,000"))),
+              ukDividendsAmountForm.bind(Map("amount" -> "200,000,000,000")),
               None,
               taxYear,
               testCall
@@ -793,9 +765,9 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             val expectedErrorText = "Enter an amount less than £100,000,000,000"
 
-            titleCheck(expectedErrorTitle)
+            titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1)
+            h1Check(expectedH1Agent)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -808,7 +780,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "an invalid format value is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              Right(ukDividendsAmountForm.bind(Map("amount" -> "10.00.00.00"))),
+              ukDividendsAmountForm.bind(Map("amount" -> "10.00.00.00")),
               None,
               taxYear,
               testCall
@@ -818,9 +790,9 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             val expectedErrorText = "Enter the amount in the correct format"
 
-            titleCheck(expectedErrorTitle)
+            titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1)
+            h1Check(expectedH1Agent)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -840,7 +812,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = ukDividendsAmountView(
-            Left(priorOrNewAmountForm.fill(PriorOrNewAmountModel("other",None))),
+            ukDividendsAmountForm,
             Some(DividendsPriorSubmission(Some(priorAmount))),
             taxYear,
             testCall
@@ -851,9 +823,6 @@ class UkDividendsAmountViewSpec extends ViewTest {
           welshToggleCheck("Welsh")
           h1Check(expectedH1)
           textOnPageCheck(expectedCaption, captionSelector)
-          radioButtonCheck(s"£$priorAmount", 1)
-          radioButtonCheck(differentAmountText, 2)
-          textOnPageCheck(enterAmountText, enterAmountSelector)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
           inputFieldCheck(amountInputName, inputSelector)
           buttonCheck(continueText, continueButtonSelector)
@@ -863,22 +832,19 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "an empty value is passed in" which {
             lazy val view = ukDividendsAmountView(
-              Left(priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> ""))),
+              ukDividendsAmountForm.bind(Map("amount" -> "")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
             )(user, welshMessages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter the amount in the correct format"
+            val expectedErrorText = "Enter the amount of dividends earned from the UK"
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("Welsh")
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
-            radioButtonCheck(s"£$priorAmount", 1)
-            radioButtonCheck(differentAmountText, 2)
-            textOnPageCheck(enterAmountText, enterAmountSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
@@ -888,7 +854,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "a non numeric value is passed in" which {
             lazy val view = ukDividendsAmountView(
-              Left(priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "abc"))),
+              ukDividendsAmountForm.bind(Map("amount" -> "abc")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
@@ -901,9 +867,6 @@ class UkDividendsAmountViewSpec extends ViewTest {
             welshToggleCheck("Welsh")
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
-            radioButtonCheck(s"£$priorAmount", 1)
-            radioButtonCheck(differentAmountText, 2)
-            textOnPageCheck(enterAmountText, enterAmountSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
@@ -913,7 +876,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "a value bigger than £100,000,000,000 is passed in" which {
             lazy val view = ukDividendsAmountView(
-              Left(priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "200,000,000,000"))),
+              ukDividendsAmountForm.bind(Map("amount" -> "200,000,000,000")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
@@ -926,9 +889,6 @@ class UkDividendsAmountViewSpec extends ViewTest {
             welshToggleCheck("Welsh")
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
-            radioButtonCheck(s"£$priorAmount", 1)
-            radioButtonCheck(differentAmountText, 2)
-            textOnPageCheck(enterAmountText, enterAmountSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
@@ -938,7 +898,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "an invalid format value is passed in" which {
             lazy val view = ukDividendsAmountView(
-              Left(priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "100.000.00.00"))),
+              ukDividendsAmountForm.bind(Map("amount" -> "100.000.00.00")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
@@ -951,9 +911,6 @@ class UkDividendsAmountViewSpec extends ViewTest {
             welshToggleCheck("Welsh")
             h1Check(expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
-            radioButtonCheck(s"£$priorAmount", 1)
-            radioButtonCheck(differentAmountText, 2)
-            textOnPageCheck(enterAmountText, enterAmountSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
@@ -971,20 +928,17 @@ class UkDividendsAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = ukDividendsAmountView(
-            Left(priorOrNewAmountForm.fill(PriorOrNewAmountModel("other",None))),
+            ukDividendsAmountForm,
             Some(DividendsPriorSubmission(Some(priorAmount))),
             taxYear,
             testCall
           )(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          titleCheck(expectedTitle)
+          titleCheck(expectedTitleAgent)
           welshToggleCheck("Welsh")
-          h1Check(expectedH1)
+          h1Check(expectedH1Agent)
           textOnPageCheck(expectedCaption, captionSelector)
-          radioButtonCheck(s"£$priorAmount", 1)
-          radioButtonCheck(differentAmountText, 2)
-          textOnPageCheck(enterAmountText, enterAmountSelector)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
           inputFieldCheck(amountInputName, inputSelector)
           buttonCheck(continueText, continueButtonSelector)
@@ -994,22 +948,19 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "an empty value is passed in" which {
             lazy val view = ukDividendsAmountView(
-              Left(priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> ""))),
+              ukDividendsAmountForm.bind(Map("amount" -> "")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
             )(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter the amount in the correct format"
+            val expectedErrorText = "Enter the amount of dividends earned from the UK"
 
-            titleCheck(expectedErrorTitle)
+            titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1)
+            h1Check(expectedH1Agent)
             textOnPageCheck(expectedCaption, captionSelector)
-            radioButtonCheck(s"£$priorAmount", 1)
-            radioButtonCheck(differentAmountText, 2)
-            textOnPageCheck(enterAmountText, enterAmountSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
@@ -1019,7 +970,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "a non numeric value is passed in" which {
             lazy val view = ukDividendsAmountView(
-              Left(priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "abc"))),
+              ukDividendsAmountForm.bind(Map("amount" -> "abc")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
@@ -1028,13 +979,10 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             val expectedErrorText = "Enter an amount using numbers 0 to 9"
 
-            titleCheck(expectedErrorTitle)
+            titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1)
+            h1Check(expectedH1Agent)
             textOnPageCheck(expectedCaption, captionSelector)
-            radioButtonCheck(s"£$priorAmount", 1)
-            radioButtonCheck(differentAmountText, 2)
-            textOnPageCheck(enterAmountText, enterAmountSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
@@ -1044,7 +992,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "a value bigger than £100,000,000,000 is passed in" which {
             lazy val view = ukDividendsAmountView(
-              Left(priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "200,000,000,000"))),
+              ukDividendsAmountForm.bind(Map("amount" -> "200,000,000,000")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
@@ -1053,13 +1001,10 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             val expectedErrorText = "Enter an amount less than £100,000,000,000"
 
-            titleCheck(expectedErrorTitle)
+            titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1)
+            h1Check(expectedH1Agent)
             textOnPageCheck(expectedCaption, captionSelector)
-            radioButtonCheck(s"£$priorAmount", 1)
-            radioButtonCheck(differentAmountText, 2)
-            textOnPageCheck(enterAmountText, enterAmountSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
@@ -1069,7 +1014,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "an invalid format value is passed in" which {
             lazy val view = ukDividendsAmountView(
-              Left(priorOrNewAmountForm.bind(Map("whichAmount" -> "other", "amount" -> "100.000.00.00"))),
+              ukDividendsAmountForm.bind(Map("amount" -> "100.000.00.00")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
@@ -1078,13 +1023,10 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             val expectedErrorText = "Enter the amount in the correct format"
 
-            titleCheck(expectedErrorTitle)
+            titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1)
+            h1Check(expectedH1Agent)
             textOnPageCheck(expectedCaption, captionSelector)
-            radioButtonCheck(s"£$priorAmount", 1)
-            radioButtonCheck(differentAmountText, 2)
-            textOnPageCheck(enterAmountText, enterAmountSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
             textOnPageCheck(poundPrefixText, poundPrefixSelector)
