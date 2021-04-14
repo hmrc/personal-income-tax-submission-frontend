@@ -64,11 +64,11 @@ class UkDividendsAmountController @Inject()(
 
     (dividendsPriorSubmissionSession, checkYourAnswerSession) match {
       case (Some(submission@DividendsPriorSubmission(Some(prior), _)), _) =>
-          Ok(view(UkDividendsAmountForm.ukDividendsAmountForm().fill(previousAmount.getOrElse(prior)), Some(submission), taxYear, previousAmount))
+          Ok(view(UkDividendsAmountForm.ukDividendsAmountForm, Some(submission), taxYear, previousAmount))
       case (None, Some(cya)) =>
         Ok(view(cya.ukDividendsAmount.fold(
           UkDividendsAmountForm.ukDividendsAmountForm()
-        )(amount => UkDividendsAmountForm.ukDividendsAmountForm().fill(amount)), taxYear = taxYear))
+        )(amount => UkDividendsAmountForm.ukDividendsAmountForm), taxYear = taxYear))
 
 
       case _ =>
