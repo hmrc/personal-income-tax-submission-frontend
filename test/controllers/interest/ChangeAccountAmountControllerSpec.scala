@@ -71,11 +71,6 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
     Some(false), None
   )
 
-  lazy val untaxedInterestCyaModelSameValue = InterestCYAModel(
-    Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 5000))),
-    Some(false), None
-  )
-
   lazy val taxedInterestCyaModel = InterestCYAModel(
     Some(false), None,
     Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25)))
@@ -96,17 +91,6 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
           }
           status(result) shouldBe OK
           bodyOf(result) should include("50")
-        }
-
-        "there is prior and cya data in session and amounts are same" in new TestWithAuth {
-
-          lazy val result: Future[Result] = {
-            controller.show(taxYear, UNTAXED, untaxedId)(fakeRequest
-              .withSession(SessionValues.INTEREST_PRIOR_SUB -> untaxedPriorDataModel.toString,
-                SessionValues.INTEREST_CYA -> untaxedInterestCyaModelSameValue.asJsonString))
-          }
-          status(result) shouldBe OK
-          bodyOf(result) should include("5000")
         }
 
         "there is prior and cya data in session with a unique session id" in new TestWithAuth {
