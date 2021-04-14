@@ -22,7 +22,6 @@ common.opensInNewWindowOrTab = (opens in new tab)
 common.help.getHelpWithThisPage = Get help with this page
 common.error.errorKey = Error:
 common.error.invalid_number = Enter an amount using numbers 0 to 9
-common.error.priorOrNewAmount.noRadioSelected = Select £{0} or enter a different amount
 common.error.amountMaxLimit = Enter an amount less than £100,000,000,000
 common.error.invalid_currency_format = Enter the amount in the correct format
 common.error.self-assessment.paragraph.1.1 = If the web address is correct or you selected a link or button, you can use
@@ -178,10 +177,27 @@ interest.remove-account.untaxed-hint = This will remove all untaxed UK interest.
 interest.remove-account.taxed-hint = This will remove all taxed UK interest.
 interest.remove-account.errors.noRadioSelected = Select yes to remove this account
 
-interest.change-account.untaxed-title = Untaxed interest earned
-interest.change-account.taxed-title = Taxed interest earned
-interest.change-account.untaxed-heading = {0} untaxed interest earned
-interest.change-account.taxed-heading = {0} taxed interest earned
+interest.change-account.untaxed-title.individual = How much untaxed UK interest did you get?
+interest.change-account.untaxed-title.agent = How much untaxed UK interest did your client get?
+interest.change-account.taxed-title.individual = How much taxed UK interest did you get?
+interest.change-account.taxed-title.agent = How much taxed UK interest did your client get?
+interest.change-account.untaxed-heading.individual = {0}: how much untaxed UK interest did you get?
+interest.change-account.untaxed-heading.agent = {0}: how much untaxed UK interest did your client get?
+interest.change-account.taxed-heading.individual = {0}: how much taxed UK interest did you get?
+interest.change-account.taxed-heading.agent = {0}: how much taxed UK interest did your client get?
+
+interest.change-account.label.prior.common1 = You told us
+interest.change-account.label.prior.individual = you got
+interest.change-account.label.prior.agent = your client got
+interest.change-account.taxed-label.prior.common2 = taxed UK interest. Tell us if this has changed.
+interest.change-account.untaxed-label.prior.common2 = untaxed UK interest. Tell us if this has changed.
+
+charity.uk-charity.title.individual = Did you use Gift Aid to donate to charity?
+charity.uk-charity.title.agent = Did your client use Gift Aid to donate to charity?
+charity.uk-charity.heading.individual = Did you use Gift Aid to donate to charity?
+charity.uk-charity.heading.agent = Did your client use Gift Aid to donate to charity?
+charity.uk-charity.errors.noChoice.individual = Select yes if you used Gift Aid to donate to charity
+charity.uk-charity.errors.noChoice.agent = Select yes if your client used Gift Aid to donate to charity
 
 charity.uk-charity.title.individual = Did you use Gift Aid to donate to charity?
 charity.uk-charity.title.agent = Did your client use Gift Aid to donate to charity?
@@ -238,3 +254,8 @@ timeout.button = Sign in
 
 taxYear-error-template.paragraph.1 = You can only enter information for the 2021 to 2022 tax year.
 taxYear-error-template.paragraph.2 = Check that you’ve entered the correct web address.
+
+changeAccountAmount.required.individual = Enter the amount of {0} UK interest you got
+changeAccountAmount.required.agent = Enter the amount of {0} UK interest your client got
+changeAccountAmount.format = Enter the amount of {0} UK interest in the correct format
+changeAccountAmount.amountMaxLimit = The amount of {0} UK interest must be less than £99,999,999,999.99

@@ -76,6 +76,21 @@ class OtherUkDividendsAmountControllerSpec extends UnitTestWithApp {
         bodyOf(result) shouldNot include("govuk-error-summary")
       }
 
+      "there is a prior submission and check your answer data in session and not fill form when amounts are same" in new TestWithAuth {
+        val amount = 50
+
+        lazy val result: Future[Result] = {
+          controller.show(taxYear)(fakeRequest.withSession(
+            SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(None, Some(otherDividendSubmitValue))).toString(),
+            SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(None, None, Some(true), Some(amount))).toString()
+          ))
+        }
+
+        status(result) shouldBe OK
+        bodyOf(result) should include("50")
+        bodyOf(result) shouldNot include("govuk-error-summary")
+      }
+
       "there is a prior submission in session, but no Other Dividends value" in new TestWithAuth {
         lazy val result: Future[Result] = {
           controller.show(taxYear)(fakeRequest.withSession(

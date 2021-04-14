@@ -14,11 +14,24 @@
  * limitations under the License.
  */
 
-package models.formatHelpers
+package forms
 
-case class PriorOrNewAmountModel(whichAmount: String, amount: Option[BigDecimal])
+import forms.validation.mappings.MappingUtil._
+import play.api.data.Form
+import common.InterestTaxTypes._
 
-object PriorOrNewAmountModel {
-  val prior = "prior"
-  val other = "other"
+object ChangeAccountAmountForm {
+
+  val amount: String = "amount"
+
+  def changeAccountAmountForm(isAgent: Boolean, taxType: String): Form[BigDecimal] = Form(
+    amount -> currency(
+      if (isAgent) "changeAccountAmount.required.agent" else "changeAccountAmount.required.individual",
+      invalidNumeric = "changeAccountAmount.format",
+      maxAmountKey = "changeAccountAmount.amountMaxLimit",
+      args = Seq(if(taxType.equals(TAXED)) "taxed" else "untaxed")
+    )
+  )
 }
+
+
