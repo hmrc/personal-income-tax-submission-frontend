@@ -26,7 +26,7 @@ import models.{APIErrorBodyModel, APIErrorModel, User}
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import services.{AuthService, InterestSubmissionService}
+import services.InterestSubmissionService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -34,7 +34,6 @@ import utils.InterestSessionHelper
 import views.html.interest.InterestCYAView
 import java.util.UUID.randomUUID
 import javax.inject.Inject
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.affinityGroup
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -47,7 +46,6 @@ class InterestCYAController @Inject()(
                                      )
                                      (
                                        implicit appConfig: AppConfig,
-                                       implicit val authService: AuthService,
                                        implicit val mcc: MessagesControllerComponents
                                      ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper {
 
@@ -79,22 +77,19 @@ class InterestCYAController @Inject()(
     val priorSubmission: Option[InterestPriorSubmission] = getModelFromSession[InterestPriorSubmission](SessionValues.INTEREST_PRIOR_SUB)
 
     (cyaDataOptional match {
-      case Some(cyaData) => interestSubmissionService.submit(cyaData, user.nino, taxYear, user.mtditid).flatMap {
+      case Some(cyaData) => interestSubmissionService.submit(cyaData, user.nino, taxYear, user.mtditid).map {
         case response@Right(_) =>
-          authService.authorised().retrieve(affinityGroup) {
-            case Some(affinityGroup) =>
-              val model = CreateOrAmendInterestAuditDetail(Some(cyaData), priorSubmission, user.nino, user.mtditid, affinityGroup.toString, taxYear)
-              auditSubmission(model)
-              Future.successful(response)
-          }
-        case response => Future.successful(response)
+          val model = CreateOrAmendInterestAuditDetail(Some(cyaData), priorSubmission, user.nino, user.mtditid, user.affinityGroup.toLowerCase, taxYear)
+          auditSubmission(model)
+          response
+        case response => response
       }
       case _ =>
         logger.info("[InterestCYAController][submit] CYA data or NINO missing from session.")
         Future.successful(Left(APIErrorModel(BAD_REQUEST, APIErrorBodyModel("MISSING_DATA", "CYA data or NINO missing from session."))))
-    }).flatMap {
-      case Right(_) => Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).clearSessionData())
-      case Left(error) => Future.successful(errorHandler.handleError(error.status))
+    }).map {
+      case Right(_) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).clearSessionData()
+      case Left(error) => errorHandler.handleError(error.status)
     }
   }
 

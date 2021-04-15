@@ -26,13 +26,12 @@ import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.libs.json.{Json, Reads}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{DividendsSubmissionService, AuthService}
+import services.DividendsSubmissionService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.DividendsCYAView
 import javax.inject.Inject
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.affinityGroup
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -45,7 +44,6 @@ class DividendsCYAController @Inject()(
                                       )
                                       (
                                         implicit appConfig: AppConfig,
-                                        implicit val authService: AuthService,
                                         implicit val mcc: MessagesControllerComponents
                                       ) extends FrontendController(mcc) with I18nSupport {
 
@@ -94,14 +92,11 @@ class DividendsCYAController @Inject()(
     val cyaData: Option[DividendsCheckYourAnswersModel] = getCya()
     val priorData: Option[DividendsPriorSubmission] = getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
 
-    dividendsSubmissionService.submitDividends(cyaData, user.nino, user.mtditid, taxYear).flatMap {
+    dividendsSubmissionService.submitDividends(cyaData, user.nino, user.mtditid, taxYear).map {
       case Right(DividendsResponseModel(_)) =>
-        authService.authorised().retrieve(affinityGroup) {
-          case Some(affinityGroup) =>
-            auditSubmission(CreateOrAmendDividendsAuditDetail(cyaData, priorData, user.nino, user.mtditid, affinityGroup.toString, taxYear))
-            Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).removingFromSession(SessionValues.DIVIDENDS_CYA, SessionValues.DIVIDENDS_PRIOR_SUB))
-        }
-      case Left(error) => Future.successful(errorHandler.handleError(error.status))
+        auditSubmission(CreateOrAmendDividendsAuditDetail(cyaData, priorData, user.nino, user.mtditid, user.affinityGroup.toLowerCase(), taxYear))
+        Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).removingFromSession(SessionValues.DIVIDENDS_CYA, SessionValues.DIVIDENDS_PRIOR_SUB)
+      case Left(error) => errorHandler.handleError(error.status)
     }
   }
 

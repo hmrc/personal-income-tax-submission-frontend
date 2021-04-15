@@ -43,8 +43,9 @@ trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneServerPerSu
 
   val nino = "A123456A"
   val mtditid = "1234567890"
+  val affinityGroup = "Individual"
 
-  implicit lazy val user: User[AnyContent] = new User[AnyContent](mtditid, None, nino)
+  implicit lazy val user: User[AnyContent] = new User[AnyContent](mtditid, None, nino, affinityGroup)
 
   implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
   implicit val headerCarrier: HeaderCarrier = HeaderCarrier().withExtraHeaders("mtditid" -> mtditid)

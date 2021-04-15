@@ -56,8 +56,8 @@ class AuthorisedAction @Inject()(
     implicit lazy val headerCarrier: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
 
     authService.authorised.retrieve(affinityGroup) {
-      case Some(AffinityGroup.Agent) => agentAuthentication(block)(request, headerCarrier)
-      case _ => individualAuthentication(block)(request, headerCarrier)
+      case Some(agentUser@AffinityGroup.Agent) => agentAuthentication(block, agentUser)(request, headerCarrier)
+      case Some(individualUser) => individualAuthentication(block, individualUser)(request, headerCarrier)
     } recover {
       case _: NoActiveSession =>
         logger.info(s"[AuthorisedAction][invokeBlock] - No active session. Redirecting to ${appConfig.signInUrl}")
@@ -68,7 +68,7 @@ class AuthorisedAction @Inject()(
     }
   }
 
-  def individualAuthentication[A](block: User[A] => Future[Result])
+  def individualAuthentication[A](block: User[A] => Future[Result], individualUser: AffinityGroup)
                                  (implicit request: Request[A], hc: HeaderCarrier): Future[Result] = {
     authService.authorised.retrieve(allEnrolments and confidenceLevel) {
       case enrolments ~ userConfidence if userConfidence.level >= minimumConfidenceLevel =>
@@ -77,7 +77,7 @@ class AuthorisedAction @Inject()(
 
         (optionalMtdItId, optionalNino) match {
           case (Some(mtdItId), Some(nino)) =>
-            block(User(mtdItId, None, nino))
+            block(User(mtdItId, None, nino, individualUser.toString))
           case (_, None) =>
             logger.info(s"[AuthorisedAction][individualAuthentication] - No active session. Redirecting to ${appConfig.signInUrl}")
             Future.successful(Redirect(appConfig.signInUrl))
@@ -85,13 +85,14 @@ class AuthorisedAction @Inject()(
             logger.info(s"[AuthorisedAction][individualAuthentication] - User has no MTD IT enrolment. Redirecting user to sign up for MTD.")
             Future.successful(Redirect(controllers.errors.routes.IndividualAuthErrorController.show()))
         }
+
       case _ =>
         logger.info("[AuthorisedAction][individualAuthentication] User has confidence level below 200, routing user to IV uplift.")
         Future(Redirect(appConfig.incomeTaxSubmissionIvRedirect))
     }
   }
 
-  private[predicates] def agentAuthentication[A](block: User[A] => Future[Result])
+  private[predicates] def agentAuthentication[A](block: User[A] => Future[Result], agentUser: AffinityGroup)
                                                 (implicit request: Request[A], hc: HeaderCarrier): Future[Result] = {
 
     lazy val agentDelegatedAuthRuleKey = "mtd-it-auth"
@@ -109,10 +110,9 @@ class AuthorisedAction @Inject()(
         authService
           .authorised(agentAuthPredicate(mtdItId))
           .retrieve(allEnrolments) { enrolments =>
-
             enrolmentGetIdentifierValue(EnrolmentKeys.Agent, EnrolmentIdentifiers.agentReference, enrolments) match {
               case Some(arn) =>
-                block(User(mtdItId, Some(arn), nino))
+                block(User(mtdItId, Some(arn), nino, agentUser.toString))
               case None =>
                 logger.info("[AuthorisedAction][agentAuthentication] Agent with no HMRC-AS-AGENT enrolment. Rendering unauthorised view.")
                 Future.successful(Redirect(controllers.errors.routes.YouNeedAgentServicesController.show()))

@@ -77,7 +77,7 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
   val agentAuthErrorPageView: AgentAuthErrorPageView = app.injector.instanceOf[AgentAuthErrorPageView]
 
   implicit lazy val mockMessagesControllerComponents: MessagesControllerComponents = Helpers.stubMessagesControllerComponents()
-  implicit lazy val user: User[AnyContent] = new User[AnyContent]("1234567890", None, "AA123456A")(fakeRequest)
+  implicit lazy val user: User[AnyContent] = new User[AnyContent]("1234567890", None, "AA123456A", "Individual")(fakeRequest)
 
   val authorisedAction = new AuthorisedAction(mockAppConfig, agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
 
@@ -130,13 +130,6 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
     (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
       .expects(*, Retrievals.allEnrolments, *, *)
       .returning(Future.successful(enrolments))
-  }
-
-  //noinspection ScalaStyle
-  def mockAffinityGroup(affinityGroup: AffinityGroup) = {
-    (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
-      .expects(*, *, *, *)
-      .returning(Future.successful(Some(affinityGroup)))
   }
 
   //noinspection ScalaStyle
