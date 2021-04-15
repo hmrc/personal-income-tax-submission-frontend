@@ -42,20 +42,20 @@ import scala.concurrent.Future
 
 class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
 
-  val service = mock[DividendsSubmissionService]
-  val errorHandler = mock[ErrorHandler]
-  val serviceUnavailableTemplate = app.injector.instanceOf[ServiceUnavailableTemplate]
-  val unauthorisedTemplate = app.injector.instanceOf[InternalServerErrorTemplate]
+  val service: DividendsSubmissionService = mock[DividendsSubmissionService]
+  val errorHandler: ErrorHandler = mock[ErrorHandler]
+  val serviceUnavailableTemplate: ServiceUnavailableTemplate = app.injector.instanceOf[ServiceUnavailableTemplate]
+  val unauthorisedTemplate: InternalServerErrorTemplate = app.injector.instanceOf[InternalServerErrorTemplate]
 
 
   val controller = new DividendsCYAController(
     app.injector.instanceOf[DividendsCYAView],
     service,
-    authorisedAction,
     mockAuditService,
     errorHandler
   )(
     mockAppConfig,
+    authorisedAction,
     mockMessagesControllerComponents
   )
 
@@ -214,11 +214,11 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
         val featureSwitchController = new DividendsCYAController(
           app.injector.instanceOf[DividendsCYAView],
           service,
-          authorisedActionFeatureSwitch,
           mockAuditService,
           errorHandler
         )(
           mockAppConfFeatureSwitch,
+          authorisedActionFeatureSwitch,
           mockMessagesControllerComponents
         )
 

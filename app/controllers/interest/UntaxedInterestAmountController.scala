@@ -18,8 +18,10 @@ package controllers.interest
 
 import common.InterestTaxTypes.UNTAXED
 import common.{InterestTaxTypes, SessionValues}
-import config.AppConfig
+import config.{AppConfig, INTEREST}
 import controllers.predicates.AuthorisedAction
+import controllers.predicates.CommonPredicates.commonPredicates
+import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.TaxYearAction.taxYearAction
 import forms.UntaxedInterestAmountForm
 import models.UntaxedInterestModel
@@ -44,7 +46,7 @@ class UntaxedInterestAmountController @Inject()(
 
   val untaxedInterestAmountForm: Form[UntaxedInterestModel] = UntaxedInterestAmountForm.untaxedInterestAmountForm()
 
-  def show(taxYear: Int, id: String): Action[AnyContent] = (authAction andThen taxYearAction(taxYear)) { implicit user =>
+  def show(taxYear: Int, id: String): Action[AnyContent] = commonPredicates(taxYear, INTEREST).apply { implicit user =>
 
     val optionalCyaData = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
 
@@ -77,7 +79,7 @@ class UntaxedInterestAmountController @Inject()(
       }
   }
 
-  def submit(taxYear: Int, id: String): Action[AnyContent] = authAction { implicit user =>
+  def submit(taxYear: Int, id: String): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, INTEREST)) { implicit user =>
     untaxedInterestAmountForm.bindFromRequest().fold({
       formWithErrors =>
         BadRequest(untaxedInterestAmountView(

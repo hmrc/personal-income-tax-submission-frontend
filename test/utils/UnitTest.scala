@@ -20,9 +20,10 @@ import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
 import com.codahale.metrics.SharedMetricRegistries
 import common.{EnrolmentIdentifiers, EnrolmentKeys, SessionValues}
-import config.{AppConfig, MockAppConfig}
+import config.{AppConfig, JourneyKey, MockAppConfig}
 import controllers.predicates.AuthorisedAction
 import models.User
+import org.scalamock.handlers.CallHandler1
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
@@ -111,7 +112,7 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
 
     (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
       .expects(*, Retrievals.allEnrolments and Retrievals.confidenceLevel, *, *)
-      .returning(Future.successful(enrolments and ConfidenceLevel.L200))
+      .returning(Future.successful(enrolments and returnedConfidenceLevel))
   }
 
   //noinspection ScalaStyle
@@ -138,5 +139,8 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
       .expects(*, *, *, *)
       .returning(Future.failed(exception))
   }
+
+  def mockJourneyFeatureSwitchOn: CallHandler1[JourneyKey, Boolean] = mockAppConfig.isJourneyAvailable _ expects * returning true
+  def mockJourneyFeatureSwitchOff: CallHandler1[JourneyKey, Boolean] = mockAppConfig.isJourneyAvailable _ expects * returning false
 
 }

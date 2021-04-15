@@ -17,8 +17,10 @@
 package controllers.dividends
 
 import common.SessionValues
-import config.AppConfig
+import config.{AppConfig, DIVIDENDS}
 import controllers.predicates.AuthorisedAction
+import controllers.predicates.CommonPredicates.commonPredicates
+import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.TaxYearAction.taxYearAction
 import forms.OtherDividendsAmountForm
 import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, User}
@@ -58,7 +60,7 @@ class OtherUkDividendsAmountController @Inject()(
 
   }
 
-  def show(taxYear: Int): Action[AnyContent] = (authAction andThen taxYearAction(taxYear)) { implicit user =>
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).apply { implicit user =>
     val dividendsPriorSubmissionSession: Option[DividendsPriorSubmission] = getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
     val checkYourAnswerSession: Option[DividendsCheckYourAnswersModel] = getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
 
@@ -84,7 +86,7 @@ class OtherUkDividendsAmountController @Inject()(
     }
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
+  def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, DIVIDENDS)) { implicit user =>
 
     implicit val priorSubmissionSessionData: Option[DividendsPriorSubmission] =
       getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)

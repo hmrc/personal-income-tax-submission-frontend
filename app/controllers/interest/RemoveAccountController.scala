@@ -18,8 +18,10 @@ package controllers.interest
 
 import common.InterestTaxTypes._
 import common.SessionValues
-import config.AppConfig
+import config.{AppConfig, INTEREST}
 import controllers.predicates.AuthorisedAction
+import controllers.predicates.CommonPredicates.commonPredicates
+import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.TaxYearAction.taxYearAction
 import forms.YesNoForm
 import models.User
@@ -36,11 +38,11 @@ import javax.inject.Inject
 import scala.concurrent.Future
 
 class RemoveAccountController @Inject()(
-                                         view: RemoveAccountView,
-                                         authorisedAction: AuthorisedAction
+                                         view: RemoveAccountView
                                        )(
                                          implicit appConfig: AppConfig,
-                                         implicit val mcc: MessagesControllerComponents
+                                         implicit val mcc: MessagesControllerComponents,
+                                         authorisedAction: AuthorisedAction
                                        ) extends FrontendController(mcc) with I18nSupport {
 
   private val logger = Logger.logger
@@ -48,7 +50,7 @@ class RemoveAccountController @Inject()(
 
   implicit def resultToFutureResult: Result => Future[Result] = baseResult => Future.successful(baseResult)
 
-  def show(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = (authorisedAction andThen taxYearAction(taxYear)).async { implicit user =>
+  def show(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
     def overviewRedirect = Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
 
     val optionalCyaData: Option[InterestCYAModel] = user.session.get(SessionValues.INTEREST_CYA).flatMap(Json.parse(_).asOpt[InterestCYAModel])
@@ -65,7 +67,7 @@ class RemoveAccountController @Inject()(
           getTaxAccounts(taxType, cyaData) match {
             case Some(taxAccounts) if taxAccounts.nonEmpty =>
               useAccount(taxAccounts, accountId, taxType, taxYear) { account =>
-                Ok(view(yesNoForm, taxYear, taxType, account, isLastAccount(taxType,priorSubmissionData,taxAccounts)))
+                Ok(view(yesNoForm, taxYear, taxType, account, isLastAccount(taxType, priorSubmissionData, taxAccounts)))
               }
             case _ => missingAccountsRedirect(taxType, taxYear)
           }
@@ -77,31 +79,32 @@ class RemoveAccountController @Inject()(
     }
   }
 
-  def submit(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = authorisedAction.async { implicit user =>
-    val optionalCyaData: Option[InterestCYAModel] = user.session.get(SessionValues.INTEREST_CYA).flatMap(Json.parse(_).asOpt[InterestCYAModel])
-    val priorSubmissionData = user.session.get(SessionValues.INTEREST_PRIOR_SUB).flatMap(Json.parse(_).asOpt[InterestPriorSubmission])
+  def submit(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] =
+    (authorisedAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
+      val optionalCyaData: Option[InterestCYAModel] = user.session.get(SessionValues.INTEREST_CYA).flatMap(Json.parse(_).asOpt[InterestCYAModel])
+      val priorSubmissionData = user.session.get(SessionValues.INTEREST_PRIOR_SUB).flatMap(Json.parse(_).asOpt[InterestPriorSubmission])
 
-    yesNoForm.bindFromRequest().fold(
-      formWithErrors =>
-        optionalCyaData match {
-          case Some(cyaData) =>
-            getTaxAccounts(taxType, cyaData) match {
-              case Some(taxAccounts) if taxAccounts.nonEmpty =>
-                useAccount(taxAccounts, accountId, taxType, taxYear)(account =>
-                  BadRequest(view(formWithErrors, taxYear, taxType, account, isLastAccount(taxType,priorSubmissionData,taxAccounts))))
-              case _ => missingAccountsRedirect(taxType, taxYear)
-            }
-          case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-        },
-      yesNoModel =>
-        optionalCyaData match {
-          case Some(cyaData) => removeAccount(taxYear, taxType, accountId, yesNoModel, cyaData)
-          case _ =>
-            logger.info("[RemoveAccountController][submit] No CYA data in session. Redirecting to the overview page.")
-            Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-        }
-    )
-  }
+      yesNoForm.bindFromRequest().fold(
+        formWithErrors =>
+          optionalCyaData match {
+            case Some(cyaData) =>
+              getTaxAccounts(taxType, cyaData) match {
+                case Some(taxAccounts) if taxAccounts.nonEmpty =>
+                  useAccount(taxAccounts, accountId, taxType, taxYear)(account =>
+                    BadRequest(view(formWithErrors, taxYear, taxType, account, isLastAccount(taxType, priorSubmissionData, taxAccounts))))
+                case _ => missingAccountsRedirect(taxType, taxYear)
+              }
+            case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+          },
+        yesNoModel =>
+          optionalCyaData match {
+            case Some(cyaData) => removeAccount(taxYear, taxType, accountId, yesNoModel, cyaData)
+            case _ =>
+              logger.info("[RemoveAccountController][submit] No CYA data in session. Redirecting to the overview page.")
+              Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+          }
+      )
+    }
 
   private[interest] def removeAccount(
                                        taxYear: Int,
@@ -186,8 +189,8 @@ class RemoveAccountController @Inject()(
     }
   }
 
-  private[interest] def isLastAccount(taxType: String, priorSubmission: Option[InterestPriorSubmission],taxAccounts: Seq[InterestAccountModel]): Boolean = {
-    lazy val blankPriorSub = InterestPriorSubmission(hasTaxed = false,hasUntaxed = false, submissions = None)
+  private[interest] def isLastAccount(taxType: String, priorSubmission: Option[InterestPriorSubmission], taxAccounts: Seq[InterestAccountModel]): Boolean = {
+    lazy val blankPriorSub = InterestPriorSubmission(hasTaxed = false, hasUntaxed = false, submissions = None)
     taxType match {
       case TAXED =>
         if (priorSubmission.getOrElse(blankPriorSub).hasTaxed) {
@@ -196,7 +199,7 @@ class RemoveAccountController @Inject()(
           taxAccounts.length == 1
         }
       case UNTAXED =>
-        if(priorSubmission.getOrElse(blankPriorSub).hasUntaxed) {
+        if (priorSubmission.getOrElse(blankPriorSub).hasUntaxed) {
           false
         } else {
           taxAccounts.length == 1

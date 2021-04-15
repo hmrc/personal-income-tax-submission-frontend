@@ -18,8 +18,10 @@ package controllers.dividends
 
 import audit.{AuditModel, AuditService, CreateOrAmendDividendsAuditDetail}
 import common.SessionValues
-import config.{AppConfig, ErrorHandler}
+import config.{AppConfig, DIVIDENDS, ErrorHandler}
 import controllers.predicates.AuthorisedAction
+import controllers.predicates.CommonPredicates.commonPredicates
+import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.TaxYearAction.taxYearAction
 import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, DividendsResponseModel, User}
 import play.api.Logger
@@ -38,19 +40,19 @@ import scala.concurrent.{ExecutionContext, Future}
 class DividendsCYAController @Inject()(
                                         dividendsCyaView: DividendsCYAView,
                                         dividendsSubmissionService: DividendsSubmissionService,
-                                        authorisedAction: AuthorisedAction,
                                         auditService: AuditService,
                                         errorHandler: ErrorHandler
                                       )
                                       (
                                         implicit appConfig: AppConfig,
+                                        authorisedAction: AuthorisedAction,
                                         implicit val mcc: MessagesControllerComponents
                                       ) extends FrontendController(mcc) with I18nSupport {
 
   lazy val logger: Logger = Logger(this.getClass.getName)
   implicit val executionContext: ExecutionContext = mcc.executionContext
 
-  def show(taxYear: Int): Action[AnyContent] = (authorisedAction andThen taxYearAction(taxYear)) { implicit user =>
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).apply { implicit user =>
     val priorSubmissionData: Option[DividendsPriorSubmission] = getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
     val cyaSessionData: Option[DividendsCheckYourAnswersModel] = getCya()
 
@@ -89,7 +91,7 @@ class DividendsCYAController @Inject()(
 
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit user =>
+  def submit(taxYear: Int): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, DIVIDENDS)).async { implicit user =>
     val cyaData: Option[DividendsCheckYourAnswersModel] = getCya()
     val priorData: Option[DividendsPriorSubmission] = getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
 

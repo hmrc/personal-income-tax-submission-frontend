@@ -20,45 +20,41 @@ import config.{AppConfig, GIFT_AID}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
-import forms.YesNoForm
-import models.User
+import forms.DonatedViaGiftAidAmountForm
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SessionHelper
-import views.html.charity.GiftAidDonationView
+import views.html.charity.GiftAidDonatedAmountView
 
 import javax.inject.Inject
 
-class GiftAidDonationsController @Inject()(
-                                              implicit val cc: MessagesControllerComponents,
-                                              authAction: AuthorisedAction,
-                                              giftAidDonationView: GiftAidDonationView,
-                                              implicit val appConfig: AppConfig
-                                            ) extends FrontendController(cc) with I18nSupport with SessionHelper {
-
-  val yesNoForm: User[AnyContent] => Form[Boolean] = user => {
-    val missingInputError = s"charity.uk-charity.errors.noChoice.${if (user.isAgent) "agent" else "individual"}"
-    YesNoForm.yesNoForm(missingInputError)
-  }
+class GiftAidDonatedAmountController @Inject()(
+                                                implicit cc: MessagesControllerComponents,
+                                                authAction: AuthorisedAction,
+                                                appConfig: AppConfig,
+                                                view: GiftAidDonatedAmountView
+                                              ) extends FrontendController(cc) with I18nSupport {
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
-    Ok(giftAidDonationView(yesNoForm(user), taxYear))
-  }
+    lazy val form: Form[BigDecimal] = DonatedViaGiftAidAmountForm.donatedViaGiftAidForm(user.isAgent)
 
+    Ok(view(taxYear, form, None))
+  }
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)) { implicit user =>
-    yesNoForm(user).bindFromRequest().fold(
-      {
-        formWithErrors =>
-          BadRequest(
-            giftAidDonationView(formWithErrors, taxYear)
-          )
+    lazy val form: Form[BigDecimal] = DonatedViaGiftAidAmountForm.donatedViaGiftAidForm(user.isAgent)
+
+    form.bindFromRequest().fold(
+      { formWithErrors =>
+        BadRequest(view(taxYear, formWithErrors, None))
       },
-      {
-        yesNoForm => Ok("Next Page")
+      { submittedAmount =>
+        //TODO Add to data model during wireup
+        Ok("YAY NEXT PAGE") //TODO direct to next page during wireup
       }
     )
+
   }
+
 }
