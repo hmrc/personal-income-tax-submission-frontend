@@ -31,8 +31,8 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.DividendsCYAView
-
 import javax.inject.Inject
+
 import scala.concurrent.{ExecutionContext, Future}
 
 class DividendsCYAController @Inject()(
@@ -49,7 +49,6 @@ class DividendsCYAController @Inject()(
 
   lazy val logger: Logger = Logger(this.getClass.getName)
   implicit val executionContext: ExecutionContext = mcc.executionContext
-
 
   def show(taxYear: Int): Action[AnyContent] = (authorisedAction andThen taxYearAction(taxYear)) { implicit user =>
     val priorSubmissionData: Option[DividendsPriorSubmission] = getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
@@ -94,13 +93,12 @@ class DividendsCYAController @Inject()(
     val cyaData: Option[DividendsCheckYourAnswersModel] = getCya()
     val priorData: Option[DividendsPriorSubmission] = getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
 
-      dividendsSubmissionService.submitDividends(cyaData, user.nino, user.mtditid, taxYear).map {
-        case Right(DividendsResponseModel(_)) =>
-          auditSubmission(CreateOrAmendDividendsAuditDetail(cyaData, priorData, user.nino, user.mtditid, taxYear))
-          Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).removingFromSession(SessionValues.DIVIDENDS_CYA, SessionValues.DIVIDENDS_PRIOR_SUB)
-        case Left(error) => errorHandler.handleError(error.status)
-      }
-
+    dividendsSubmissionService.submitDividends(cyaData, user.nino, user.mtditid, taxYear).map {
+      case Right(DividendsResponseModel(_)) =>
+        auditSubmission(CreateOrAmendDividendsAuditDetail(cyaData, priorData, user.nino, user.mtditid, user.affinityGroup.toLowerCase(), taxYear))
+        Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).removingFromSession(SessionValues.DIVIDENDS_CYA, SessionValues.DIVIDENDS_PRIOR_SUB)
+      case Left(error) => errorHandler.handleError(error.status)
+    }
   }
 
   private[dividends] def priorityOrderOrNone(priority: Option[BigDecimal], other: Option[BigDecimal], yesNoResult: Boolean): Option[BigDecimal] = {

@@ -56,10 +56,13 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
     submissionService,
     mockAuditService,
     errorHandler
-  )(mockAppConfig, mockMessagesControllerComponents)
+  )(mockAppConfig,
+    mockMessagesControllerComponents)
 
   val taxYear: Int = 2022
   val arbitraryAmount: Int = 100
+  val agentAffinityGroup: String = "Agent"
+  val individualAffinityGroup: String = "Individual"
 
   ".show" should {
 
@@ -210,7 +213,8 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
           submissionService,
           mockAuditService,
           errorHandler
-        )(mockAppConfFeatureSwitch, mockMessagesControllerComponents)
+        )(mockAppConfFeatureSwitch,
+          mockMessagesControllerComponents)
 
         val invalidTaxYear = 2023
         lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(fakeRequest)
@@ -245,7 +249,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
 
         "the submission is successful" in new TestWithAuth {
 
-          lazy val detail: CreateOrAmendInterestAuditDetail = CreateOrAmendInterestAuditDetail(Some(cyaModel), None, "AA123456A", "1234567890", taxYear)
+          lazy val detail: CreateOrAmendInterestAuditDetail = CreateOrAmendInterestAuditDetail(Some(cyaModel), None, "AA123456A", "1234567890", individualAffinityGroup.toLowerCase, taxYear)
 
           lazy val event: AuditModel[CreateOrAmendInterestAuditDetail] = AuditModel("CreateOrAmendInterestUpdate", "createOrAmendInterestUpdate", detail)
 
@@ -277,7 +281,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
           redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)
         }
 
-        "the submission is successful when there is a prior submission" in new TestWithAuth {
+        "the submission is successful when there is a prior submission" in new TestWithAuth(isAgent = true) {
 
           lazy val priorDataModel: JsArray = Json.arr(
             Json.obj(
@@ -311,7 +315,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
             ))
           )
           lazy val detail: CreateOrAmendInterestAuditDetail = CreateOrAmendInterestAuditDetail(Some(cyaModel),
-            Some(previousSubmission), "AA123456A", "1234567890", taxYear)
+            Some(previousSubmission), "AA123456A", "1234567890", agentAffinityGroup.toLowerCase(), taxYear)
 
           lazy val event: AuditModel[CreateOrAmendInterestAuditDetail] = AuditModel("CreateOrAmendInterestUpdate", "createOrAmendInterestUpdate", detail)
 

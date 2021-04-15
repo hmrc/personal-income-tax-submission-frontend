@@ -23,6 +23,7 @@ case class CreateOrAmendDividendsAuditDetail(body: Option[DividendsCheckYourAnsw
                                              prior: Option[DividendsPriorSubmission],
                                              nino: String,
                                              mtditid: String,
+                                             userType: String,
                                              taxYear: Int)
 
 object CreateOrAmendDividendsAuditDetail {

@@ -88,7 +88,7 @@ class AuthorisedActionSpec extends UnitTest {
           (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
             .expects(*, allEnrolments and confidenceLevel, *, *)
             .returning(Future.successful(enrolments and ConfidenceLevel.L200))
-          auth.individualAuthentication[AnyContent](block)(fakeRequest, emptyHeaderCarrier)
+          auth.individualAuthentication[AnyContent](block, AffinityGroup.Individual)(fakeRequest, emptyHeaderCarrier)
         }
 
         "returns an OK status" in {
@@ -112,7 +112,7 @@ class AuthorisedActionSpec extends UnitTest {
           (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
             .expects(*, allEnrolments and confidenceLevel, *, *)
             .returning(Future.successful(enrolments and ConfidenceLevel.L200))
-          auth.individualAuthentication[AnyContent](block)(fakeRequest, emptyHeaderCarrier)
+          auth.individualAuthentication[AnyContent](block, AffinityGroup.Individual)(fakeRequest, emptyHeaderCarrier)
         }
 
         "returns a forbidden" in {
@@ -129,7 +129,7 @@ class AuthorisedActionSpec extends UnitTest {
           (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
             .expects(*, allEnrolments and confidenceLevel, *, *)
             .returning(Future.successful(enrolments and ConfidenceLevel.L200))
-          auth.individualAuthentication[AnyContent](block)(fakeRequest, emptyHeaderCarrier)
+          auth.individualAuthentication[AnyContent](block, AffinityGroup.Individual)(fakeRequest, emptyHeaderCarrier)
         }
 
         "returns an Unauthorised" in {
@@ -156,7 +156,7 @@ class AuthorisedActionSpec extends UnitTest {
           (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
             .expects(*, allEnrolments and confidenceLevel, *, *)
             .returning(Future.successful(enrolments and ConfidenceLevel.L50))
-          auth.individualAuthentication[AnyContent](block)(fakeRequest, emptyHeaderCarrier)
+          auth.individualAuthentication[AnyContent](block, AffinityGroup.Individual)(fakeRequest, emptyHeaderCarrier)
         }
 
         "has a status of 303" in {
@@ -188,7 +188,7 @@ class AuthorisedActionSpec extends UnitTest {
             .expects(*, *, *, *)
             .returning(Future.successful(enrolments))
 
-          auth.agentAuthentication(block)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
+          auth.agentAuthentication(block, AffinityGroup.Agent)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
         }
 
         "has a status of OK" in {
@@ -208,7 +208,7 @@ class AuthorisedActionSpec extends UnitTest {
 
         lazy val result = {
           mockAuthReturnException(AuthException)
-          auth.agentAuthentication(block)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
+          auth.agentAuthentication(block, AffinityGroup.Agent)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
         }
         status(result) shouldBe UNAUTHORIZED
       }
@@ -222,7 +222,7 @@ class AuthorisedActionSpec extends UnitTest {
 
         lazy val result = {
           mockAuthReturnException(NoActiveSession)
-          auth.agentAuthentication(block)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
+          auth.agentAuthentication(block, AffinityGroup.Agent)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
         }
 
         status(result) shouldBe SEE_OTHER
@@ -240,7 +240,7 @@ class AuthorisedActionSpec extends UnitTest {
           (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
             .expects(*, *, *, *)
             .returning(Future.successful(enrolments))
-          auth.agentAuthentication(block)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
+          auth.agentAuthentication(block, AffinityGroup.Agent)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
         }
         status(result) shouldBe SEE_OTHER
       }

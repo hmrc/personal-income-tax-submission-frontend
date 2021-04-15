@@ -32,9 +32,9 @@ import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.InterestSessionHelper
 import views.html.interest.InterestCYAView
-
 import java.util.UUID.randomUUID
 import javax.inject.Inject
+
 import scala.concurrent.{ExecutionContext, Future}
 
 class InterestCYAController @Inject()(
@@ -47,7 +47,6 @@ class InterestCYAController @Inject()(
                                      (
                                        implicit appConfig: AppConfig,
                                        implicit val mcc: MessagesControllerComponents
-
                                      ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper {
 
   private val logger = Logger.logger
@@ -80,7 +79,7 @@ class InterestCYAController @Inject()(
     (cyaDataOptional match {
       case Some(cyaData) => interestSubmissionService.submit(cyaData, user.nino, taxYear, user.mtditid).map {
         case response@Right(_) =>
-          val model = CreateOrAmendInterestAuditDetail(Some(cyaData), priorSubmission, user.nino, user.mtditid, taxYear)
+          val model = CreateOrAmendInterestAuditDetail(Some(cyaData), priorSubmission, user.nino, user.mtditid, user.affinityGroup.toLowerCase, taxYear)
           auditSubmission(model)
           response
         case response => response
@@ -89,8 +88,7 @@ class InterestCYAController @Inject()(
         logger.info("[InterestCYAController][submit] CYA data or NINO missing from session.")
         Future.successful(Left(APIErrorModel(BAD_REQUEST, APIErrorBodyModel("MISSING_DATA", "CYA data or NINO missing from session."))))
     }).map {
-      case Right(_) =>
-        Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).clearSessionData()
+      case Right(_) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).clearSessionData()
       case Left(error) => errorHandler.handleError(error.status)
     }
   }
