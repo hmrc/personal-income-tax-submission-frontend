@@ -68,7 +68,7 @@ class UkDividendsAmountController @Inject()(
       case (None, Some(cya)) =>
         Ok(view(cya.ukDividendsAmount.fold(
           UkDividendsAmountForm.ukDividendsAmountForm()
-        )(amount => UkDividendsAmountForm.ukDividendsAmountForm), taxYear = taxYear))
+        )(amount => UkDividendsAmountForm.ukDividendsAmountForm.fill(amount)), taxYear = taxYear))
 
 
       case _ =>
