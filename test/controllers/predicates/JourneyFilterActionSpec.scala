@@ -21,6 +21,7 @@ import models.User
 import play.api.mvc.{AnyContent, Result}
 import utils.UnitTest
 import play.api.http.Status.SEE_OTHER
+import uk.gov.hmrc.auth.core.AffinityGroup
 
 class JourneyFilterActionSpec extends UnitTest {
   val taxYear: Int = 2022
@@ -37,7 +38,7 @@ class JourneyFilterActionSpec extends UnitTest {
 
       "the provided journey key is set to true" in {
         mockAppConf.isJourneyAvailable _ expects INTEREST returning true
-        val result = await(filter.refine(new User[AnyContent]("asdfasfasdf", None, "AA123456A")(fakeRequest)))
+        val result = await(filter.refine(new User[AnyContent]("asdfasfasdf", None, "AA123456A", AffinityGroup.Individual.toString)(fakeRequest)))
 
         result.isRight shouldBe true
       }
@@ -50,7 +51,7 @@ class JourneyFilterActionSpec extends UnitTest {
         lazy val result = {
           mockAppConf.isJourneyAvailable _ expects INTEREST returning false
           mockAppConf.incomeTaxSubmissionOverviewUrl _ expects taxYear returning "/overview"
-          await(filter.refine(new User[AnyContent]("asdfasfasdf", None, "AA123456A")(fakeRequest)))
+          await(filter.refine(new User[AnyContent]("asdfasfasdf", None, "AA123456A", AffinityGroup.Individual.toString)(fakeRequest)))
         }
 
         "has a status of 303" in {

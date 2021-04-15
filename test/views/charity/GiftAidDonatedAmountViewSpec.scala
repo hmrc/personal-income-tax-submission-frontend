@@ -21,6 +21,7 @@ import models.User
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.data.Form
+import uk.gov.hmrc.auth.core.AffinityGroup
 import utils.ViewTest
 import views.html.charity.GiftAidDonatedAmountView
 
@@ -63,7 +64,7 @@ class GiftAidDonatedAmountViewSpec extends ViewTest {
     "accessed as an individual" should {
       import IndividualExpected._
 
-      implicit val user: User[_] = User("asdf", None, "AA123456A")(fakeRequest)
+      implicit val user: User[_] = User("asdf", None, "AA123456A", AffinityGroup.Individual.toString)(fakeRequest)
       implicit lazy val document: Document = Jsoup.parse(view(taxYear, form(false), None).body)
 
       titleCheck(expectedTitle)
@@ -79,7 +80,7 @@ class GiftAidDonatedAmountViewSpec extends ViewTest {
     "accessed as an agent" should {
       import AgentExpected._
 
-      implicit val user: User[_] = User("asdf", Some("asdf"), "AA123456A")(fakeRequest)
+      implicit val user: User[_] = User("asdf", Some("asdf"), "AA123456A", AffinityGroup.Agent.toString)(fakeRequest)
       implicit lazy val document: Document = Jsoup.parse(view(taxYear, form(true), None).body)
 
       titleCheck(expectedTitle)
@@ -99,7 +100,7 @@ class GiftAidDonatedAmountViewSpec extends ViewTest {
     "accessed as an individual" should {
       import IndividualExpected._
 
-      implicit val user: User[_] = User("asdf", None, "AA123456A")(fakeRequest)
+      implicit val user: User[_] = User("asdf", None, "AA123456A", AffinityGroup.Individual.toString)(fakeRequest)
       implicit lazy val document: Document = Jsoup.parse(view(taxYear, form(false).bind(Map("amount" -> "")), None).body)
 
       titleCheck(expectedTitle)
@@ -118,7 +119,7 @@ class GiftAidDonatedAmountViewSpec extends ViewTest {
     "accessed as an agent" should {
       import AgentExpected._
 
-      implicit val user: User[_] = User("asdf", Some("asdf"), "AA123456A")(fakeRequest)
+      implicit val user: User[_] = User("asdf", Some("asdf"), "AA123456A", AffinityGroup.Agent.toString)(fakeRequest)
       implicit lazy val document: Document = Jsoup.parse(view(taxYear, form(true).bind(Map("amount" -> "")), None).body)
 
       titleCheck(expectedTitle)
