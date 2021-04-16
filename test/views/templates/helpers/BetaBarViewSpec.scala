@@ -35,9 +35,10 @@ class BetaBarViewSpec extends ViewTest {
       "use appConfig.feedbackUrl in the beta banner link" which {
 
         implicit val appConfig: AppConfig = new MockAppConfig().config
-        lazy val view = betaBar()(fakeRequest, messages, appConfig)
+        lazy val view = betaBar(isAgent = false)(fakeRequest, messages, appConfig)
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
+        implicit val isAgent: Boolean = false
 
         "contains the correct href value" in {
           element(aTagSelector).attr("href") shouldBe appConfig.betaFeedbackUrl

@@ -55,7 +55,9 @@ class AppConfigSpec extends UnitTest {
       val expectedContactUrl = s"http://contact-frontend:9250/contact/contact-hmrc?service=$expectedServiceIdentifier"
       val expectedSignOutUrl = s"http://bas-gateway-frontend:9553/bas-gateway/sign-out-without-state"
 
-      appConfig.betaFeedbackUrl(fakeRequest) shouldBe expectedBetaFeedbackUrl
+      implicit val isAgent: Boolean = false
+
+      appConfig.betaFeedbackUrl(fakeRequest, isAgent) shouldBe expectedBetaFeedbackUrl
 
       appConfig.feedbackSurveyUrl shouldBe expectedFeedbackSurveyUrl
 
