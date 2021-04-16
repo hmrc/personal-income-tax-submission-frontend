@@ -18,10 +18,13 @@ package controllers.interest
 
 import common.InterestTaxTypes._
 import common.{SessionValues, UUID}
-import config.AppConfig
+import config.{AppConfig, INTEREST}
 import controllers.predicates.AuthorisedAction
+import controllers.predicates.CommonPredicates.commonPredicates
+import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.TaxYearAction.taxYearAction
 import forms.YesNoForm
+import models.User
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.Logger
 import play.api.data.Form
@@ -37,11 +40,11 @@ import scala.concurrent.Future
 
 class AccountsController @Inject()(
                                     view: InterestAccountsView,
-                                    authorisedAction: AuthorisedAction,
                                     uuid: UUID
                                   )(
                                     implicit appConfig: AppConfig,
-                                    implicit val mcc: MessagesControllerComponents
+                                    implicit val mcc: MessagesControllerComponents,
+                                    implicit val authorisedAction: AuthorisedAction
                                   ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper {
 
   private val logger = Logger.logger
@@ -50,17 +53,18 @@ class AccountsController @Inject()(
 
   private def yesNoForm(taxType: String): Form[Boolean] = {
     taxType match {
-      case `TAXED` => YesNoForm.yesNoForm ("interest.taxed-uk-interest.errors.noRadioSelected.individual")
-      case `UNTAXED` => YesNoForm.yesNoForm ("interest.untaxed-uk-interest.errors.noRadioSelected.individual")
+      case `TAXED` => YesNoForm.yesNoForm("interest.taxed-uk-interest.errors.noRadioSelected.individual")
+      case `UNTAXED` => YesNoForm.yesNoForm("interest.untaxed-uk-interest.errors.noRadioSelected.individual")
     }
   }
 
-  def show(taxYear: Int, taxType: String): Action[AnyContent] = (authorisedAction andThen taxYearAction(taxYear)).async { implicit user =>
-    def overviewRedirect = Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+  private def getOptionalCyaData()(implicit user: User[AnyContent]): Option[InterestCYAModel] =
+    user.session.get(SessionValues.INTEREST_CYA).flatMap(Json.parse(_).asOpt[InterestCYAModel])
 
-    val optionalCyaData: Option[InterestCYAModel] = user.session.get(SessionValues.INTEREST_CYA).flatMap(Json.parse(_).asOpt[InterestCYAModel])
+  def show(taxYear: Int, taxType: String): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
+    def overviewRedirect: Result = Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
 
-    optionalCyaData match {
+    getOptionalCyaData() match {
       case Some(cyaData) =>
         getTaxAccounts(taxType, cyaData) match {
           case Some(taxAccounts) if taxAccounts.nonEmpty => Ok(view(yesNoForm(taxType), taxYear, taxAccounts, taxType))
@@ -72,16 +76,15 @@ class AccountsController @Inject()(
     }
   }
 
-  def submit(taxYear: Int, taxType: String): Action[AnyContent] = authorisedAction.async { implicit user =>
-    val optionalCyaData: Option[InterestCYAModel] = user.session.get(SessionValues.INTEREST_CYA).flatMap(Json.parse(_).asOpt[InterestCYAModel])
+  def submit(taxYear: Int, taxType: String): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
 
-    def checkInterestDataIsPresent: Either[Result, InterestCYAModel] = optionalCyaData.toRight{
+    def checkInterestDataIsPresent: Either[Result, InterestCYAModel] = getOptionalCyaData().toRight {
       logger.info("[AccountsController][submit] No CYA data in session. Redirecting to the overview page.")
       Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
     }
 
     def checkTaxAccounts(cyaData: InterestCYAModel) = {
-      getTaxAccounts(taxType, cyaData).collect{
+      getTaxAccounts(taxType, cyaData).collect {
         case taxAccounts: Seq[InterestAccountModel] if taxAccounts.nonEmpty => Right(taxAccounts)
       }.getOrElse(Left(missingAccountsRedirect(taxType, taxYear)))
     }

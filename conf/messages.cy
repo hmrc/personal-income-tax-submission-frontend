@@ -199,12 +199,18 @@ charity.uk-charity.heading.agent = Did your client use Gift Aid to donate to cha
 charity.uk-charity.errors.noChoice.individual = Select yes if you used Gift Aid to donate to charity
 charity.uk-charity.errors.noChoice.agent = Select yes if your client used Gift Aid to donate to charity
 
-charity.uk-charity.title.individual = Did you use Gift Aid to donate to charity?
-charity.uk-charity.title.agent = Did your client use Gift Aid to donate to charity?
-charity.uk-charity.heading.individual = Did you use Gift Aid to donate to charity?
-charity.uk-charity.heading.agent = Did your client use Gift Aid to donate to charity?
-charity.uk-charity.errors.noChoice.individual = Select yes if you used Gift Aid to donate to charity
-charity.uk-charity.errors.noChoice.agent = Select yes if your client used Gift Aid to donate to charity
+charity.amount-via-gift-aid.individual.title = How much did you donate to charity by using Gift Aid?
+charity.amount-via-gift-aid.individual.p = Do not include the Gift Aid that was added to your donation.
+charity.amount-via-gift-aid.agent.title = How much did your client donate to charity by using Gift Aid?
+charity.amount-via-gift-aid.agent.p = Do not include the Gift Aid that was added to your client’s donation.
+charity.amount-via-gift-aid.input.label = Total amount for the year
+charity.amount-via-gift-aid.input.hint-text = For example, £600 or £193.53
+charity.amount-via-gift-aid.error.individual.no-input = Enter the amount you donated to charity by using Gift Aid
+charity.amount-via-gift-aid.error.individual.incorrect-format = Enter the amount you donated to charity in the correct format
+charity.amount-via-gift-aid.error.individual.too-high = The amount you donated to charity must be less than £100,000,000,000
+charity.amount-via-gift-aid.error.agent.no-input = Enter the amount your client donated to charity by using Gift Aid
+charity.amount-via-gift-aid.error.agent.incorrect-format = Enter the amount your client donated to charity in the correct format
+charity.amount-via-gift-aid.error.agent.too-high = The amount your client donated to charity must be less than £100,000,000,000
 
 not-found-template.title = Page not found
 not-found-template.heading = Page not found

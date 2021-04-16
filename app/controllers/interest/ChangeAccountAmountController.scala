@@ -17,9 +17,9 @@
 package controllers.interest
 
 import common.{InterestTaxTypes, SessionValues}
-import config.AppConfig
+import config.{AppConfig, INTEREST}
 import controllers.predicates.AuthorisedAction
-import controllers.predicates.TaxYearAction.taxYearAction
+import controllers.predicates.CommonPredicates.commonPredicates
 import forms.ChangeAccountAmountForm
 import models.User
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
@@ -58,17 +58,11 @@ class ChangeAccountAmountController @Inject()(
       preAmount = preAmount)
   }
 
-  def show(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = (authAction andThen taxYearAction(taxYear)) { implicit user =>
+  def show(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = commonPredicates(taxYear, INTEREST).apply { implicit user =>
     val interestPriorSubmissionSession = getSessionData[InterestPriorSubmission](SessionValues.INTEREST_PRIOR_SUB)
     val checkYourAnswerSession: Option[InterestCYAModel] = getSessionData[InterestCYAModel](SessionValues.INTEREST_CYA)
 
-    val singleAccount: Option[InterestAccountModel] = interestPriorSubmissionSession.flatMap { unwrappedPrior =>
-      unwrappedPrior.submissions.flatMap { unwrappedAccounts =>
-        unwrappedAccounts.find { account =>
-          account.id.contains(accountId)
-        }
-      }
-    }
+    val singleAccount: Option[InterestAccountModel] = getSingleAccount(accountId, interestPriorSubmissionSession)
 
     (singleAccount, checkYourAnswerSession) match {
       case (None, Some(_)) => Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType))
@@ -95,13 +89,7 @@ class ChangeAccountAmountController @Inject()(
     val interestPriorSubmissionSession = getSessionData[InterestPriorSubmission](SessionValues.INTEREST_PRIOR_SUB)
     val checkYourAnswerSession = getSessionData[InterestCYAModel](SessionValues.INTEREST_CYA)
 
-    val singleAccount: Option[InterestAccountModel] = interestPriorSubmissionSession.flatMap { unwrappedPrior =>
-      unwrappedPrior.submissions.flatMap { unwrappedAccounts =>
-        unwrappedAccounts.find { account =>
-          account.id.contains(accountId)
-        }
-      }
-    }
+    val singleAccount: Option[InterestAccountModel] = getSingleAccount(accountId, interestPriorSubmissionSession)
 
     checkYourAnswerSession match {
       case Some(cyaData) =>
@@ -122,6 +110,16 @@ class ChangeAccountAmountController @Inject()(
           case _ => Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType))
         }
       case _ => Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType))
+    }
+  }
+
+  private def getSingleAccount(accountId: String, interestPriorSubmissionSession: Option[InterestPriorSubmission]): Option[InterestAccountModel] = {
+    interestPriorSubmissionSession.flatMap { unwrappedPrior =>
+      unwrappedPrior.submissions.flatMap { unwrappedAccounts =>
+        unwrappedAccounts.find { account =>
+          account.id.contains(accountId)
+        }
+      }
     }
   }
 

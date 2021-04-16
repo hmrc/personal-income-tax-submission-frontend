@@ -36,9 +36,8 @@ class TaxedInterestControllerSpec extends UnitTestWithApp{
   implicit def wrapOption[T](input: T): Option[T] = Some(input)
 
   lazy val controller = new TaxedInterestController(
-    authorisedAction,
     app.injector.instanceOf[TaxedInterestView]
-  )(mockAppConfig, mockMessagesControllerComponents)
+  )(mockAppConfig, authorisedAction, mockMessagesControllerComponents)
 
   val taxYear = 2022
   val id = "9563b361-6333-449f-8721-eab2572b3437"
@@ -89,9 +88,8 @@ class TaxedInterestControllerSpec extends UnitTestWithApp{
           agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
 
         lazy val featureSwitchController = new TaxedInterestController(
-          authorisedActionFeatureSwitch,
           app.injector.instanceOf[TaxedInterestView]
-        )(mockAppConfFeatureSwitch, mockMessagesControllerComponents)
+        )(mockAppConfFeatureSwitch, authorisedActionFeatureSwitch, mockMessagesControllerComponents)
 
         val invalidTaxYear = 2023
         lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(fakeRequest)

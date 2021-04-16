@@ -18,8 +18,10 @@ package controllers.interest
 
 import common.InterestTaxTypes.TAXED
 import common.{InterestTaxTypes, SessionValues}
-import config.AppConfig
+import config.{AppConfig, INTEREST}
 import controllers.predicates.AuthorisedAction
+import controllers.predicates.CommonPredicates.commonPredicates
+import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.TaxYearAction.taxYearAction
 import forms.TaxedInterestAmountForm
 import models.TaxedInterestModel
@@ -37,17 +39,17 @@ import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class TaxedInterestAmountController @Inject()(
-                                               authorisedAction: AuthorisedAction,
                                                taxedInterestAmountView: TaxedInterestAmountView
                                              )(
                                                implicit appConfig: AppConfig,
+                                               authorisedAction: AuthorisedAction,
                                                implicit val mcc: MessagesControllerComponents
                                              ) extends FrontendController(mcc) with InterestSessionHelper with I18nSupport {
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
   val taxedInterestAmountForm: Form[TaxedInterestModel] = TaxedInterestAmountForm.taxedInterestAmountForm()
 
-  def show(taxYear: Int, id: String): Action[AnyContent] = (authorisedAction andThen taxYearAction(taxYear)) { implicit user =>
+  def show(taxYear: Int, id: String): Action[AnyContent] = commonPredicates(taxYear, INTEREST).apply { implicit user =>
 
     val optionalCyaData = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
 
@@ -80,7 +82,7 @@ class TaxedInterestAmountController @Inject()(
     }
   }
 
-  def submit(taxYear: Int, id: String): Action[AnyContent] = authorisedAction { implicit user =>
+  def submit(taxYear: Int, id: String): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, INTEREST)) { implicit user =>
     taxedInterestAmountForm.bindFromRequest().fold({
       formWithErrors =>
         BadRequest(taxedInterestAmountView(

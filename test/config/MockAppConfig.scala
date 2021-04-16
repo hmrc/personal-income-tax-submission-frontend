@@ -54,5 +54,7 @@ class MockAppConfig extends MockFactory {
     override def incomeTaxSubmissionBaseUrl: String = ""
 
     override def incomeTaxSubmissionIvRedirect: String = "/income-through-software/return/iv-uplift"
+
+    override def isJourneyAvailable(journeyKey: JourneyKey): Boolean = true
   }
 }

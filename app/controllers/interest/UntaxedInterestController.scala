@@ -17,8 +17,9 @@
 package controllers.interest
 
 import common.SessionValues
-import config.AppConfig
+import config.{AppConfig, INTEREST}
 import controllers.predicates.AuthorisedAction
+import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.TaxYearAction.taxYearAction
 import forms.YesNoForm
 import models.interest.{InterestCYAModel, InterestPriorSubmission}
@@ -34,16 +35,16 @@ import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class UntaxedInterestController @Inject()(
-                                           authAction: AuthorisedAction,
                                            untaxedInterestView: UntaxedInterestView)(
                                            implicit val appConfig: AppConfig,
+                                           authAction: AuthorisedAction,
                                            implicit val mcc: MessagesControllerComponents)
   extends FrontendController(mcc) with I18nSupport with InterestSessionHelper {
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
   val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("interest.untaxed-uk-interest.errors.noRadioSelected")
 
-  def show(taxYear: Int): Action[AnyContent] = (authAction andThen taxYearAction(taxYear)) { implicit user =>
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).apply { implicit user =>
     InterestPriorSubmission.fromSession() match {
       case Some(prior) if prior.hasUntaxed => Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
       case _ =>

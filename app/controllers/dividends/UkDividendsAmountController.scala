@@ -17,9 +17,10 @@
 package controllers.dividends
 
 import common.SessionValues
-import config.AppConfig
+import config.{AppConfig, DIVIDENDS}
 import controllers.predicates.AuthorisedAction
-import controllers.predicates.TaxYearAction.taxYearAction
+import controllers.predicates.CommonPredicates.commonPredicates
+import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.UkDividendsAmountForm
 import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, User}
 import play.api.data.Form
@@ -56,7 +57,7 @@ class UkDividendsAmountController @Inject()(
 
   }
 
-  def show(taxYear: Int): Action[AnyContent] = (authAction andThen taxYearAction(taxYear)) { implicit user =>
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).apply { implicit user =>
     val dividendsPriorSubmissionSession = getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
     val checkYourAnswerSession = getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
 
@@ -81,7 +82,7 @@ class UkDividendsAmountController @Inject()(
     }
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
+  def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, DIVIDENDS)) { implicit user =>
 
     implicit val priorSubmissionSessionData: Option[DividendsPriorSubmission] = {
       getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)

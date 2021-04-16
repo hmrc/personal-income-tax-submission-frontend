@@ -59,6 +59,9 @@ POST        /:taxYear/interest/change-taxed-interest-account              contro
 GET         /:taxYear/charity/uk-charity                                  controllers.charity.GiftAidDonationsController.show(taxYear: Int)
 POST        /:taxYear/charity/uk-charity                                  controllers.charity.GiftAidDonationsController.submit(taxYear: Int)
 
+GET         /:taxYear/charity/uk-charity-amount                           controllers.charity.GiftAidDonatedAmountController.show(taxYear: Int)
+POST        /:taxYear/charity/uk-charity-amount                           controllers.charity.GiftAidDonatedAmountController.submit(taxYear: Int)
+
 GET         /keep-alive                                                   controllers.SessionExpiredController.keepAlive
 GET         /timeout                                                      controllers.SessionExpiredController.timeout
 
@@ -69,6 +72,6 @@ GET         /error/not-authorised-to-use-service                          contro
 
 GET         /assets/*file                                                 controllers.Assets.versioned(path = "/public", file: Asset)
 
-GET        /error/you-need-agent-services-account                         controllers.errors.YouNeedAgentServicesController.show
+GET         /error/you-need-agent-services-account                        controllers.errors.YouNeedAgentServicesController.show
 
-GET        /language/:lang                                                controllers.LanguageSwitchController.switchToLanguage(lang: String)
+GET         /language/:lang                                               controllers.LanguageSwitchController.switchToLanguage(lang: String)

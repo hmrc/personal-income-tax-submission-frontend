@@ -18,8 +18,10 @@ package controllers.interest
 
 import audit.{AuditModel, AuditService, CreateOrAmendInterestAuditDetail}
 import common.{InterestTaxTypes, SessionValues}
-import config.{AppConfig, ErrorHandler}
+import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.AuthorisedAction
+import controllers.predicates.CommonPredicates.commonPredicates
+import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.TaxYearAction.taxYearAction
 import models.interest.{InterestCYAModel, InterestPriorSubmission}
 import models.{APIErrorBodyModel, APIErrorModel, User}
@@ -38,7 +40,6 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class InterestCYAController @Inject()(
-                                       authorisedAction: AuthorisedAction,
                                        interestCyaView: InterestCYAView,
                                        interestSubmissionService: InterestSubmissionService,
                                        auditService: AuditService,
@@ -46,13 +47,14 @@ class InterestCYAController @Inject()(
                                      )
                                      (
                                        implicit appConfig: AppConfig,
+                                       authorisedAction: AuthorisedAction,
                                        implicit val mcc: MessagesControllerComponents
                                      ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper {
 
   private val logger = Logger.logger
   implicit val executionContext: ExecutionContext = mcc.executionContext
 
-  def show(taxYear: Int): Action[AnyContent] = (authorisedAction andThen taxYearAction(taxYear)).async { implicit user =>
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
     val priorSubmission = getModelFromSession[InterestPriorSubmission](SessionValues.INTEREST_PRIOR_SUB)
     val cyaModel = getCyaModel()
 
@@ -72,7 +74,7 @@ class InterestCYAController @Inject()(
 
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit user =>
+  def submit(taxYear: Int): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
     val cyaDataOptional = getCyaModel()
     val priorSubmission: Option[InterestPriorSubmission] = getModelFromSession[InterestPriorSubmission](SessionValues.INTEREST_PRIOR_SUB)
 

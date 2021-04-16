@@ -41,13 +41,17 @@ class AccountsControllerSpec extends UnitTestWithApp {
 
   private val uuid = java.util.UUID.randomUUID().toString
 
-  private val uuidGenerator = new UUID { override def randomUUID: String = uuid }
+  private val uuidGenerator = new UUID {
+    override def randomUUID: String = uuid
+  }
 
   lazy val controller = new AccountsController(
     app.injector.instanceOf[InterestAccountsView],
-    authorisedAction,uuidGenerator)(
+    uuidGenerator
+  )(
     mockAppConfig,
-    mockMessagesControllerComponents
+    mockMessagesControllerComponents,
+    authorisedAction
   )
 
   lazy val interestCyaModel: InterestCYAModel = InterestCYAModel(
@@ -165,7 +169,7 @@ class AccountsControllerSpec extends UnitTestWithApp {
 
       "an invalid tax year has been added to the url" in new TestWithAuth() {
 
-        val mockAppConfFeatureSwitch: AppConfig = new AppConfig(mock[ServicesConfig]){
+        val mockAppConfFeatureSwitch: AppConfig = new AppConfig(mock[ServicesConfig]) {
           override lazy val defaultTaxYear: Int = 2022
           override lazy val taxYearErrorFeature = true
         }
@@ -174,7 +178,7 @@ class AccountsControllerSpec extends UnitTestWithApp {
           agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
 
         lazy val featureSwitchController = new AccountsController(
-          app.injector.instanceOf[InterestAccountsView], authorisedActionFeatureSwitch, uuidGenerator)(mockAppConfFeatureSwitch, mockMessagesControllerComponents)
+          app.injector.instanceOf[InterestAccountsView], uuidGenerator)(mockAppConfFeatureSwitch, mockMessagesControllerComponents, authorisedActionFeatureSwitch)
 
 
         val invalidTaxYear = 2023

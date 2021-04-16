@@ -17,8 +17,10 @@
 package controllers.interest
 
 import common.SessionValues
-import config.AppConfig
+import config.{AppConfig, INTEREST}
 import controllers.predicates.AuthorisedAction
+import controllers.predicates.CommonPredicates.commonPredicates
+import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.TaxYearAction.taxYearAction
 import forms.YesNoForm
 import models.User
@@ -37,15 +39,15 @@ import scala.concurrent.ExecutionContext
 
 
 class TaxedInterestController @Inject()(
-                                         authorisedAction: AuthorisedAction,
                                          taxedInterestView: TaxedInterestView
                                        )(implicit appConfig: AppConfig,
+                                         authorisedAction: AuthorisedAction,
                                          implicit val mcc: MessagesControllerComponents
                                         ) extends FrontendController(mcc) with InterestSessionHelper with I18nSupport {
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
 
-  def show(taxYear: Int): Action[AnyContent] = (authorisedAction andThen taxYearAction(taxYear)) { implicit user: User[AnyContent] =>
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).apply { implicit user: User[AnyContent] =>
 
     InterestPriorSubmission.fromSession() match {
       case Some(prior) if prior.hasTaxed => Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
@@ -56,7 +58,7 @@ class TaxedInterestController @Inject()(
     }
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = authorisedAction { implicit user =>
+  def submit(taxYear: Int): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, INTEREST)) { implicit user =>
     val optionalCyaData: Option[InterestCYAModel] = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
     val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(s"interest.taxed-uk-interest.errors.noRadioSelected.${if(user.isAgent) "agent" else "individual"}")
 

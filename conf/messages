@@ -32,8 +32,9 @@ common.currency.hint = For example, £600 or £193.54
 
 error.summary.title = There is a problem
 
-dividends.caption = Dividends
-interest.caption = Interest
+interest.caption = Interest for 6 April {0} to 5 April {1}
+dividends.caption = Dividends for 6 April {0} to 5 April {1}
+charity.caption = Charitable giving for 6 April {0} to 5 April {1}
 
 dividends.uk-dividends.title.individual = Did you receive any dividends from companies in the UK?
 dividends.uk-dividends.title.agent = Did your client receive any dividends from companies in the UK?
@@ -98,10 +99,6 @@ dividends.cya.changeOtherDividendsAmount.individual = how much you got in divide
 dividends.cya.changeOtherDividendsAmount.agent = how much your client got in dividends from trusts or investment companies based in the UK.
 
 interest.cya.accountDisplay = {0} : {1}
-
-interest.caption = Interest for 6 April {0} to 5 April {1}
-dividends.caption = Dividends for 6 April {0} to 5 April {1}
-charity.caption = Charitable giving for 6 April {0} to 5 April {1}
 
 interest.account.add-another = Do you need to add another account?
 interest.account.tell-us-about-all = You must tell us about all your accounts.
@@ -198,6 +195,19 @@ charity.uk-charity.heading.individual = Did you use Gift Aid to donate to charit
 charity.uk-charity.heading.agent = Did your client use Gift Aid to donate to charity?
 charity.uk-charity.errors.noChoice.individual = Select yes if you used Gift Aid to donate to charity
 charity.uk-charity.errors.noChoice.agent = Select yes if your client used Gift Aid to donate to charity
+
+charity.amount-via-gift-aid.individual.title = How much did you donate to charity by using Gift Aid?
+charity.amount-via-gift-aid.individual.p = Do not include the Gift Aid that was added to your donation.
+charity.amount-via-gift-aid.agent.title = How much did your client donate to charity by using Gift Aid?
+charity.amount-via-gift-aid.agent.p = Do not include the Gift Aid that was added to your client’s donation.
+charity.amount-via-gift-aid.input.label = Total amount for the year
+charity.amount-via-gift-aid.input.hint-text = For example, £600 or £193.53
+charity.amount-via-gift-aid.error.individual.no-input = Enter the amount you donated to charity by using Gift Aid
+charity.amount-via-gift-aid.error.individual.incorrect-format = Enter the amount you donated to charity in the correct format
+charity.amount-via-gift-aid.error.individual.too-high = The amount you donated to charity must be less than £100,000,000,000
+charity.amount-via-gift-aid.error.agent.no-input = Enter the amount your client donated to charity by using Gift Aid
+charity.amount-via-gift-aid.error.agent.incorrect-format = Enter the amount your client donated to charity in the correct format
+charity.amount-via-gift-aid.error.agent.too-high = The amount your client donated to charity must be less than £100,000,000,000
 
 not-found-template.title = Page not found
 not-found-template.heading = Page not found
