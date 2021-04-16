@@ -44,7 +44,7 @@ class AccountsController @Inject()(
                                   )(
                                     implicit appConfig: AppConfig,
                                     implicit val mcc: MessagesControllerComponents,
-                                    implicit val authorisedAction: AuthorisedAction,
+                                    implicit val authorisedAction: AuthorisedAction
                                   ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper {
 
   private val logger = Logger.logger
