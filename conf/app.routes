@@ -56,8 +56,11 @@ GET         /:taxYear/interest/change-taxed-interest-account              contro
 POST        /:taxYear/interest/change-untaxed-interest-account            controllers.interest.ChangeAccountAmountController.submit(taxYear: Int, taxType = "untaxed", accountId : String)
 POST        /:taxYear/interest/change-taxed-interest-account              controllers.interest.ChangeAccountAmountController.submit(taxYear: Int, taxType = "taxed", accountId : String)
 
-GET         /:taxYear/charity/uk-charity                                  controllers.charity.GiftAidDonationsController.show(taxYear: Int)
-POST        /:taxYear/charity/uk-charity                                  controllers.charity.GiftAidDonationsController.submit(taxYear: Int)
+GET         /:taxYear/charity/charity-donation-using-gift-aid             controllers.charity.GiftAidDonationsController.show(taxYear: Int)
+POST        /:taxYear/charity/charity-donation-using-gift-aid             controllers.charity.GiftAidDonationsController.submit(taxYear: Int)
+
+GET         /:taxYear/charity/overseas-charity-donations-using-gift-aid   controllers.charity.OverseasGiftAidDonationsController.show(taxYear: Int)
+POST        /:taxYear/charity/overseas-charity-donations-using-gift-aid   controllers.charity.OverseasGiftAidDonationsController.submit(taxYear: Int)
 
 GET         /:taxYear/charity/uk-charity-amount                           controllers.charity.GiftAidDonatedAmountController.show(taxYear: Int)
 POST        /:taxYear/charity/uk-charity-amount                           controllers.charity.GiftAidDonatedAmountController.submit(taxYear: Int)
