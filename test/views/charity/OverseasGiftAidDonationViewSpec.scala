@@ -21,39 +21,39 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.data.Form
 import utils.ViewTest
-import views.html.charity.GiftAidDonationView
+import views.html.charity.OverseasGiftAidDonationView
 
-class GiftAidDonationViewSpec extends ViewTest {
+class OverseasGiftAidDonationViewSpec extends ViewTest {
 
-  lazy val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("Select yes if you used Gift Aid to donate to charity")
-  lazy val yesNoFormAgent: Form[Boolean] = YesNoForm.yesNoForm("Select yes if your client used Gift Aid to donate to charity")
-  lazy val gitAidDonationView: GiftAidDonationView = app.injector.instanceOf[GiftAidDonationView]
+  lazy val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("Select yes if you used Gift Aid to donate to an overseas charity")
+  lazy val yesNoFormAgent: Form[Boolean] = YesNoForm.yesNoForm("Select yes if your client used Gift Aid to donate to an overseas charity")
+  lazy val overseasGitAidDonationView: OverseasGiftAidDonationView = app.injector.instanceOf[OverseasGiftAidDonationView]
 
   val taxYear = 2020
-  val taxYearMinusOne: Int = taxYear -1
-  val expectedIndividualH1 = "Did you use Gift Aid to donate to charity?"
-  val expectedIndividualTitle = "Did you use Gift Aid to donate to charity?"
+  val taxYearMinusOne: Int = taxYear - 1
+  val expectedIndividualH1 = "Did you use Gift Aid to donate to an overseas charity?"
+  val expectedIndividualTitle = "Did you use Gift Aid to donate to an overseas charity?"
   val expectedIndividualErrorTitle = s"Error: $expectedIndividualTitle"
-  val expectedAgentH1 = "Did your client use Gift Aid to donate to charity?"
-  val expectedAgentTitle = "Did your client use Gift Aid to donate to charity?"
+  val expectedAgentH1 = "Did your client use Gift Aid to donate to an overseas charity?"
+  val expectedAgentTitle = "Did your client use Gift Aid to donate to an overseas charity?"
   val expectedAgentErrorTitle = s"Error: $expectedAgentTitle"
   val captionText = s"Charitable giving for 6 April $taxYearMinusOne to 5 April $taxYear"
   val yesText = "Yes"
   val noText = "No"
   val continueText = "Continue"
-  val continueLink = s"/income-through-software/return/personal-income/$taxYear/charity/charity-donation-using-gift-aid"
+  val continueLink = s"/income-through-software/return/personal-income/$taxYear/charity/overseas-charity-donations-using-gift-aid"
   val captionSelector = ".govuk-caption-l"
   val yourDividendsSelector = "#value-hint"
   val continueSelector = "#continue"
   val continueButtonFormSelector = "#main-content > div > div > form"
 
-  "GiftAidDonationView in English" should {
+  "OverseasGitAidDonationView in English" should {
 
     "correctly render for an individual" when {
 
       "there are no form errors" which {
 
-        lazy val view = gitAidDonationView(
+        lazy val view = overseasGitAidDonationView(
           yesNoForm, taxYear)(user, messages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
@@ -69,11 +69,11 @@ class GiftAidDonationViewSpec extends ViewTest {
 
       "there is a form error due to no radio button selected" which {
 
-        lazy val view = gitAidDonationView(
+        lazy val view = overseasGitAidDonationView(
           yesNoForm.bind(Map("value" -> "")), taxYear)(user, messages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedErrorText = "Select yes if you used Gift Aid to donate to charity"
+        val expectedErrorText = "Select yes if you used Gift Aid to donate to an overseas charity"
         val errorSummaryHref = "#value"
 
         titleCheck(expectedIndividualErrorTitle)
@@ -93,7 +93,7 @@ class GiftAidDonationViewSpec extends ViewTest {
 
       "there are no form errors" which {
 
-        lazy val view = gitAidDonationView(
+        lazy val view = overseasGitAidDonationView(
           yesNoFormAgent, taxYear)(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
@@ -109,11 +109,11 @@ class GiftAidDonationViewSpec extends ViewTest {
 
       "there is a form error due to no radio button selected" which {
 
-        lazy val view = gitAidDonationView(
+        lazy val view = overseasGitAidDonationView(
           yesNoFormAgent.bind(Map("value" -> "")), taxYear)(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedErrorText = "Select yes if your client used Gift Aid to donate to charity"
+        val expectedErrorText = "Select yes if your client used Gift Aid to donate to an overseas charity"
         val errorSummaryHref = "#value"
 
         titleCheck(expectedAgentErrorTitle)
@@ -136,7 +136,7 @@ class GiftAidDonationViewSpec extends ViewTest {
 
       "there are no form errors" which {
 
-        lazy val view = gitAidDonationView(
+        lazy val view = overseasGitAidDonationView(
           yesNoForm, taxYear)(user, welshMessages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
@@ -152,11 +152,11 @@ class GiftAidDonationViewSpec extends ViewTest {
 
       "there is a form error due to no radio button selected" which {
 
-        lazy val view = gitAidDonationView(
+        lazy val view = overseasGitAidDonationView(
           yesNoForm.bind(Map("value" -> "")), taxYear)(user, welshMessages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedErrorText = "Select yes if you used Gift Aid to donate to charity"
+        val expectedErrorText = "Select yes if you used Gift Aid to donate to an overseas charity"
         val errorSummaryHref = "#value"
 
         titleCheck(expectedIndividualErrorTitle)
@@ -176,7 +176,7 @@ class GiftAidDonationViewSpec extends ViewTest {
 
       "there are no form errors" which {
 
-        lazy val view = gitAidDonationView(
+        lazy val view = overseasGitAidDonationView(
           yesNoFormAgent, taxYear)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
@@ -192,11 +192,11 @@ class GiftAidDonationViewSpec extends ViewTest {
 
       "there is a form error due to no radio button selected" which {
 
-        lazy val view = gitAidDonationView(
+        lazy val view = overseasGitAidDonationView(
           yesNoFormAgent.bind(Map("value" -> "")), taxYear)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedErrorText = "Select yes if your client used Gift Aid to donate to charity"
+        val expectedErrorText = "Select yes if your client used Gift Aid to donate to an overseas charity"
         val errorSummaryHref = "#value"
 
         titleCheck(expectedAgentErrorTitle)

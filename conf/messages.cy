@@ -238,6 +238,13 @@ charity.gift-aid-one-off-amount.paragraph.1.agent = Do not include the Gift Aid 
 charity.gift-aid-one-off-amount.input.label = Total amount for the year, in pounds
 charity.gift-aid-one-off-amount.input.hint-text = For example, £600 or £193.54
 
+charity.overseas-gift-aid.title.individual = Did you use Gift Aid to donate to an overseas charity?
+charity.overseas-gift-aid.title.agent = Did your client use Gift Aid to donate to an overseas charity?
+charity.overseas-gift-aid.heading.individual = Did you use Gift Aid to donate to an overseas charity?
+charity.overseas-gift-aid.heading.agent = Did your client use Gift Aid to donate to an overseas charity?
+charity.overseas-gift-aid.errors.noChoice.individual = Select yes if you used Gift Aid to donate to an overseas charity
+charity.overseas-gift-aid.errors.noChoice.agent = Select yes if your client used Gift Aid to donate to an overseas charity
+
 not-found-template.title = Page not found
 not-found-template.heading = Page not found
 not-found-template.paragraph.1 = If you typed the web address, check it is correct.
