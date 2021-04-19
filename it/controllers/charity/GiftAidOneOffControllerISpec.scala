@@ -17,63 +17,62 @@
 package controllers.charity
 
 import common.SessionValues
+import forms.YesNoForm
 import helpers.PlaySessionCookieBaker
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.{WSClient, WSResponse}
 import utils.IntegrationTest
 
-class GiftAidDonatedAmountControllerISpec extends IntegrationTest {
+class GiftAidOneOffControllerISpec extends IntegrationTest {
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
-  lazy val controller: GiftAidDonatedAmountController = app.injector.instanceOf[GiftAidDonatedAmountController]
+  lazy val controller: GiftAidOneOffController = app.injector.instanceOf[GiftAidOneOffController]
   val taxYear: Int = 2022
+    "as an individual" when {
 
-  "as an individual" when {
+      ".show" should {
 
-    ".show" should {
+        "returns an action" which {
+          lazy val result: WSResponse = {
+            authoriseIndividual()
+            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/oneoff-charity-donations").get())
+          }
 
-      "returns an action" which {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/uk-charity-amount")
-            .get())
+          "has an OK(200) status" in {
+            result.status shouldBe OK
+          }
+
         }
 
-        "has an OK(200) status" in {
+      }
+
+      ".submit" should {
+
+        s"return an OK($OK) status" in {
+          lazy val result: WSResponse = {
+            authoriseIndividual()
+            await(
+              wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/oneoff-charity-donations")
+                .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
+            )
+          }
+
           result.status shouldBe OK
         }
 
-      }
-    }
+        s"return a BAD_REQUEST($BAD_REQUEST) status" in {
+          lazy val result: WSResponse = {
+            authoriseIndividual()
+            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/oneoff-charity-donations").post(Map[String, String]()))
+          }
 
-    ".submit" should {
-
-      s"return an OK($OK) status" in {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(
-            wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/uk-charity-amount")
-              .post(Map("amount" -> "123000.42"))
-          )
+          result.status shouldBe BAD_REQUEST
         }
 
-        result.status shouldBe OK
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status" in {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/uk-charity-amount")
-            .post(Map[String, String]()))
-        }
-
-        result.status shouldBe BAD_REQUEST
       }
 
     }
-
-  }
 
   "as an agent" when {
 
@@ -87,7 +86,7 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest {
           ))
 
           authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/uk-charity-amount")
+          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/oneoff-charity-donations")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
             .get())
         }
@@ -110,9 +109,9 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest {
 
             authoriseAgent()
             await(
-              wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/uk-charity-amount")
+              wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/oneoff-charity-donations")
                 .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-                .post(Map("amount" -> "12344.98"))
+                .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
             )
           }
 
@@ -130,7 +129,7 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest {
             ))
 
             authoriseAgent()
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/uk-charity-amount")
+            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/oneoff-charity-donations")
               .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
               .post(Map[String, String]()))
           }

@@ -16,12 +16,12 @@
 
 @this(
     govukRadios: GovukRadios,
-    heading: Heading
+    headingHelper: Heading
 )
 
 @(
     form: Form[_],
-    legend: String,
+    heading: String,
     items: Seq[RadioItem] = Seq(),
     legendAsHeading: Boolean = false,
     headingMessageArgs: Seq[String] = Seq(),
@@ -30,19 +30,25 @@
     inline: Boolean = false,
     subheading: Option[String] = None,
     headingClasses: String = "",
-    name: String = "value"
+    name: String = "value",
+    content: Option[Html] = None
 )(implicit messages: Messages)
+
+@contentHtml = {
+    @if(subheading.isDefined) {
+        @headingHelper(messages(heading, headingMessageArgs: _*), Some(subheading.get), headingClasses)
+    } else {
+        <p>messages(heading, headingMessageArgs:_*))</p>
+    }
+    @content
+}
 
 @govukRadios(Radios(
     classes = s"${if(inline){"govuk-radios--inline"}}",
     name = name,
     fieldset = Some(Fieldset(
         legend = Some(Legend(
-            content = if(subheading.isDefined) {
-                HtmlContent(heading(messages(legend, headingMessageArgs: _*), Some(subheading.get), headingClasses))
-            } else {
-                Text(messages(legend, headingMessageArgs:_*))
-            },
+            content = HtmlContent(contentHtml),
             isPageHeading = legendAsHeading,
             classes = classes
         ))
@@ -64,5 +70,3 @@
     ),
     errorMessage = form(name).error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*))))
 ))
-
-

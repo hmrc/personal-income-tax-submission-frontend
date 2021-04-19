@@ -27,27 +27,40 @@
     inputRadio:InputRadio
 )
 
-@(form: Form[Boolean], taxYear: Int, checked: String = "")(implicit user: User[_], messages: Messages, appConfig: AppConfig)
+@(form: Form[Boolean], taxYear: Int, giftAidDonations: Int)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @headingForUse = @{
-    if(user.isAgent) messages("charity.uk-charity.heading.agent") else messages("charity.uk-charity.heading.individual")
+    if(user.isAgent) messages("charity.one-off.heading.agent") else messages("charity.one-off.heading.individual")
 }
 
-@titleForUse = @{messages(s"charity.uk-charity.title.${if(user.isAgent) "agent" else "individual"}")}
+@titleForUse = @{messages(s"charity.one-off.title.${if(user.isAgent) "agent" else "individual"}")}
 
 @hasFormErrors = @{form.hasErrors}
+
+@contentHtml = {
+<div class="govuk-body">
+    <p>
+        @{if(user.isAgent) messages("charity.one-off.caption.agent_1", giftAidDonations) else messages("charity.one-off.caption.individual_1", giftAidDonations)}
+    </p>
+    <p>
+        @{if(user.isAgent) messages("charity.one-off.caption.agent_2") else messages("charity.one-off.caption.individual_2")}
+    </p>
+</div>
+}
 
 @layout(pageTitle = titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors) {
 
     @errorSummary(form.errors.distinct)
 
-    @formWithCsrf(action = controllers.charity.routes.GiftAidDonationsController.submit(taxYear)) {
+    @formWithCsrf(action = controllers.charity.routes.GiftAidOneOffController.submit(taxYear)) {
 
         @inputRadio(
             form = form,
             heading = headingForUse,
+            hint = None,
             inline = true,
-            subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString))
+            subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)),
+            content = Some(contentHtml)
         )
 
         @button()

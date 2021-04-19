@@ -22,7 +22,6 @@ import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
-import controllers.predicates.TaxYearAction.taxYearAction
 import models.interest.{InterestCYAModel, InterestPriorSubmission}
 import models.{APIErrorBodyModel, APIErrorModel, User}
 import play.api.Logger
@@ -34,9 +33,9 @@ import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.InterestSessionHelper
 import views.html.interest.InterestCYAView
+
 import java.util.UUID.randomUUID
 import javax.inject.Inject
-
 import scala.concurrent.{ExecutionContext, Future}
 
 class InterestCYAController @Inject()(

@@ -212,6 +212,18 @@ charity.amount-via-gift-aid.error.agent.no-input = Enter the amount your client 
 charity.amount-via-gift-aid.error.agent.incorrect-format = Enter the amount your client donated to charity in the correct format
 charity.amount-via-gift-aid.error.agent.too-high = The amount your client donated to charity must be less than £100,000,000,000
 
+charity.one-off.title.individual = Did you make one-off donations?
+charity.one-off.title.agent = Did your client make one-off donations?
+charity.one-off.heading.individual = Did you make one-off donations?
+charity.one-off.heading.agent = Did your client make one-off donations?
+charity.one-off.caption.individual_1 = You told us you used Gift Aid to donate £{0} to charity. Tell us if any of this was made as one-off payments.
+charity.one-off.caption.agent_1 = You told us your client used Gift Aid to donate £{0} to charity. Tell us if any of this was made as one-off payments.
+charity.one-off.caption.individual_2 = One-off donations are payments you did not repeat.
+charity.one-off.caption.agent_2 = One-off donations are payments your client did not repeat.
+charity.one-off.errors.noChoice.individual = Select yes if you made a one-off donation to charity
+charity.one-off.errors.noChoice.agent = Select yes if your client made a one-off donation to charity
+
+
 not-found-template.title = Page not found
 not-found-template.heading = Page not found
 not-found-template.paragraph.1 = If you typed the web address, check it is correct.
