@@ -38,9 +38,9 @@ titleText, form.hasErrors
 
 @heading(titleText, Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)))
 
-<p class="govuk-body govuk-!-padding-top-3">@paragraphText</p>
+<p class="govuk-body govuk-!"></p>
 
-@formWithCsrf(controllers.charity.routes.GiftAidOvereasAmountController.submit(taxYear)) {
+@formWithCsrf(controllers.charity.routes.GiftAidOverseasAmountController.submit(taxYear)) {
 @inputField(
 form,
 "amount",

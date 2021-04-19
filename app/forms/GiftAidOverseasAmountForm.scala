@@ -25,11 +25,11 @@ object GiftAidOverseasAmountForm {
 
   def giftAidOverseasAmountForm(isAgent: Boolean): Form[BigDecimal] = Form(
     giftAidOverseasAmount -> currency(
-      requiredKey = if(isAgent) "charity.gift-aid-one-off-amount.error.empty.agent" else "charity.gift-aid-one-off-amount.error.empty.individual",
-      invalidNumeric = if (isAgent) "charity.gift-aid-one-off-amount.error.incorrect-format.agent" else {
-        "charity.gift-aid-one-off-amount.error.incorrect-format.individual"
+      requiredKey = if(isAgent) "charity.amount-overseas-gift-aid.error.empty.agent" else "charity.amount-overseas-gift-aid.error.empty.individual",
+      invalidNumeric = if (isAgent) "charity.amount-overseas-gift-aid.error.incorrect-format.agent" else {
+        "charity.amount-overseas-gift-aid.error.incorrect-format.individual"
       },
-      maxAmountKey = if(isAgent) "charity.gift-aid-one-off-amount.error.too-high.agent" else "charity.gift-aid-one-off-amount.error.too-high.individual"
+      maxAmountKey = if(isAgent) "charity.amount-overseas-gift-aid.error.too-high.agent" else "charity.amount-overseas-gift-aid.error.too-high.individual"
     )
   )
 
