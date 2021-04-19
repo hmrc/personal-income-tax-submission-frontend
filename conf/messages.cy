@@ -212,6 +212,13 @@ charity.amount-via-gift-aid.error.agent.no-input = Enter the amount your client 
 charity.amount-via-gift-aid.error.agent.incorrect-format = Enter the amount your client donated to charity in the correct format
 charity.amount-via-gift-aid.error.agent.too-high = The amount your client donated to charity must be less than £100,000,000,000
 
+charity.overseas-gift-aid.title.individual = Did you use Gift Aid to donate to an overseas charity?
+charity.overseas-gift-aid.title.agent = Did your client use Gift Aid to donate to an overseas charity?
+charity.overseas-gift-aid.heading.individual = Did you use Gift Aid to donate to an overseas charity?
+charity.overseas-gift-aid.heading.agent = Did your client use Gift Aid to donate to an overseas charity?
+charity.overseas-gift-aid.errors.noChoice.individual = Select yes if you used Gift Aid to donate to an overseas charity
+charity.overseas-gift-aid.errors.noChoice.agent = Select yes if your client used Gift Aid to donate to an overseas charity
+
 not-found-template.title = Page not found
 not-found-template.heading = Page not found
 not-found-template.paragraph.1 = If you typed the web address, check it is correct.
