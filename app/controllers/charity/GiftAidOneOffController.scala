@@ -20,7 +20,6 @@ import config.{AppConfig, GIFT_AID}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
-import controllers.predicates.TaxYearAction.taxYearAction
 import forms.YesNoForm
 import models.User
 import play.api.data.Form
@@ -46,7 +45,7 @@ class GiftAidOneOffController @Inject()(
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
     Ok(giftAidOneOffView(yesNoForm(user), taxYear, giftAidDonations = 100))
-    // giftAidDonations to be retrieved from session
+    //TODO giftAidDonations to be retrieved from session
   }
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)) { implicit user =>

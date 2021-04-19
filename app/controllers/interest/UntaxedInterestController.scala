@@ -20,7 +20,6 @@ import common.SessionValues
 import config.{AppConfig, INTEREST}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
-import controllers.predicates.TaxYearAction.taxYearAction
 import forms.YesNoForm
 import models.interest.{InterestCYAModel, InterestPriorSubmission}
 import play.api.data.Form

@@ -17,7 +17,6 @@
 package controllers.charity
 
 import common.SessionValues
-import forms.YesNoForm
 import helpers.PlaySessionCookieBaker
 import play.api.http.HeaderNames
 import play.api.http.Status._

@@ -132,7 +132,7 @@
     @formWithCSRF(controllers.interest.routes.AccountsController.submit(taxYear, taxType)) {
         @inputRadio(
             form = form,
-            legend = messages("interest.account.add-another"),
+            heading = messages("interest.account.add-another"),
             legendAsHeading = false,
             hint = Some(hint),
             inline = true,

@@ -37,13 +37,15 @@
 
 @hasFormErrors = @{form.hasErrors}
 
-@hint = {
-<p>
-    @{if(user.isAgent) messages("charity.one-off.caption.agent_1", giftAidDonations) else messages("charity.one-off.caption.individual_1", giftAidDonations)}
-</p>
-<p>
-    @{if(user.isAgent) messages("charity.one-off.caption.agent_2") else messages("charity.one-off.caption.individual_2")}
-</p>
+@contentHtml = {
+<div class="govuk-body">
+    <p>
+        @{if(user.isAgent) messages("charity.one-off.caption.agent_1", giftAidDonations) else messages("charity.one-off.caption.individual_1", giftAidDonations)}
+    </p>
+    <p>
+        @{if(user.isAgent) messages("charity.one-off.caption.agent_2") else messages("charity.one-off.caption.individual_2")}
+    </p>
+</div>
 }
 
 @layout(pageTitle = titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors) {
@@ -54,10 +56,11 @@
 
         @inputRadio(
             form = form,
-            legend = headingForUse,
-            hint = Some(hint),
+            heading = headingForUse,
+            hint = None,
             inline = true,
-            subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString))
+            subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)),
+            content = Some(contentHtml)
         )
 
         @button()

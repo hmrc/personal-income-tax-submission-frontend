@@ -36,7 +36,7 @@ class GiftAidOneOffControllerISpec extends IntegrationTest {
         "returns an action" which {
           lazy val result: WSResponse = {
             authoriseIndividual()
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/one-off").get())
+            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/oneoff-charity-donations").get())
           }
 
           "has an OK(200) status" in {
@@ -53,7 +53,7 @@ class GiftAidOneOffControllerISpec extends IntegrationTest {
           lazy val result: WSResponse = {
             authoriseIndividual()
             await(
-              wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/one-off")
+              wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/oneoff-charity-donations")
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
             )
           }
@@ -64,7 +64,7 @@ class GiftAidOneOffControllerISpec extends IntegrationTest {
         s"return a BAD_REQUEST($BAD_REQUEST) status" in {
           lazy val result: WSResponse = {
             authoriseIndividual()
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/one-off").post(Map[String, String]()))
+            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/oneoff-charity-donations").post(Map[String, String]()))
           }
 
           result.status shouldBe BAD_REQUEST
@@ -86,7 +86,7 @@ class GiftAidOneOffControllerISpec extends IntegrationTest {
           ))
 
           authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/one-off")
+          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/oneoff-charity-donations")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
             .get())
         }
@@ -109,7 +109,7 @@ class GiftAidOneOffControllerISpec extends IntegrationTest {
 
             authoriseAgent()
             await(
-              wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/one-off")
+              wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/oneoff-charity-donations")
                 .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
             )
@@ -129,7 +129,7 @@ class GiftAidOneOffControllerISpec extends IntegrationTest {
             ))
 
             authoriseAgent()
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/one-off")
+            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/oneoff-charity-donations")
               .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
               .post(Map[String, String]()))
           }

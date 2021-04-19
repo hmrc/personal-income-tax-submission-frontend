@@ -21,7 +21,6 @@ import config.{AppConfig, DIVIDENDS}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
-import controllers.predicates.TaxYearAction.taxYearAction
 import forms.YesNoForm
 import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import play.api.data.Form

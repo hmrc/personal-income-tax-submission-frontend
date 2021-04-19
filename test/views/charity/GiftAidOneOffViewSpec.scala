@@ -21,7 +21,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.data.Form
 import utils.ViewTest
-import views.html.charity.{GiftAidDonationView, GiftAidOneOffView}
+import views.html.charity.GiftAidOneOffView
 
 class GiftAidOneOffViewSpec extends ViewTest {
 
@@ -46,11 +46,11 @@ class GiftAidOneOffViewSpec extends ViewTest {
   val yesText = "Yes"
   val noText = "No"
   val continueText = "Continue"
-  val continueLink = s"/income-through-software/return/personal-income/$taxYear/charity/one-off"
+  val continueLink = s"/income-through-software/return/personal-income/$taxYear/charity/oneoff-charity-donations"
 
   val captionSelector = "#main-content > div > div > form > div > fieldset > legend > header > p"
-  val p1Selector = "#value-hint > p:nth-child(1)"
-  val p2Selector = "#value-hint > p:nth-child(2)"
+  val p1Selector = "#main-content > div > div > form > div > fieldset > legend > div > p:nth-child(1)"
+  val p2Selector = "#main-content > div > div > form > div > fieldset > legend > div > p:nth-child(2)"
   val continueSelector = "#continue"
   val continueButtonFormSelector = "#main-content > div > div > form"
 

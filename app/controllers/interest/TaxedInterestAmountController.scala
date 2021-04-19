@@ -22,7 +22,6 @@ import config.{AppConfig, INTEREST}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
-import controllers.predicates.TaxYearAction.taxYearAction
 import forms.TaxedInterestAmountForm
 import models.TaxedInterestModel
 import models.interest.{InterestAccountModel, InterestCYAModel}
