@@ -86,7 +86,7 @@ class InterestAccountsViewSpec extends ViewTest {
       "there is a single untaxed account passed in that is not a prior submission" which {
         lazy val result = view(untaxedYesNoForm, taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9001.00, Some("qwerty"))
-        ), UNTAXED)(fakeRequest, messages, mockAppConfig)
+        ), UNTAXED, isAgent = false)(fakeRequest, messages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
         titleCheck(untaxedTitleSingle)
@@ -133,7 +133,7 @@ class InterestAccountsViewSpec extends ViewTest {
 
         lazy val result = view(untaxedYesNoForm, taxYear, Seq(
           InterestAccountModel(Some("azerty"), "Bank of UK", 9001.00)
-        ), UNTAXED)(fakeRequest, messages, mockAppConfig)
+        ), UNTAXED, isAgent = false)(fakeRequest, messages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
         titleCheck(untaxedTitleSingle)
@@ -168,7 +168,7 @@ class InterestAccountsViewSpec extends ViewTest {
           YesNoForm.yesNoForm("Select yes if you received untaxed interest from the UK").bind(Map("value" -> ""))
         lazy val result = view(yesNoForm, taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9001.00, Some("qwerty"))
-        ), UNTAXED)(fakeRequest, messages, mockAppConfig)
+        ), UNTAXED, isAgent = false)(fakeRequest, messages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
         welshToggleCheck("English")
@@ -222,7 +222,7 @@ class InterestAccountsViewSpec extends ViewTest {
         lazy val result = view(untaxedYesNoForm, taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9000.01, Some("qwerty")),
           InterestAccountModel(Some("azerty"), "Bank of EU", 1234.56)
-        ), UNTAXED)(fakeRequest, messages, mockAppConfig)
+        ), UNTAXED, isAgent = false)(fakeRequest, messages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
         titleCheck(untaxedTitlePlural)
@@ -287,7 +287,7 @@ class InterestAccountsViewSpec extends ViewTest {
 
         lazy val result = view(taxedYesNoForm, taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9001.00, Some("qwerty"))
-        ), TAXED)(fakeRequest, messages, mockAppConfig)
+        ), TAXED, isAgent = false)(fakeRequest, messages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
         titleCheck(taxedTitleSingle)
@@ -332,7 +332,7 @@ class InterestAccountsViewSpec extends ViewTest {
 
         lazy val result = view(taxedYesNoForm, taxYear, Seq(
           InterestAccountModel(Some("azerty"), "Bank of UK", 9001.00)
-        ), TAXED)(fakeRequest, messages, mockAppConfig)
+        ), TAXED, isAgent = false)(fakeRequest, messages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
         titleCheck(taxedTitleSingle)
@@ -367,7 +367,7 @@ class InterestAccountsViewSpec extends ViewTest {
         lazy val result = view(taxedYesNoForm, taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9000.01, Some("qwerty")),
           InterestAccountModel(Some("azerty"), "Bank of EU", 1234.56)
-        ), TAXED)(fakeRequest, messages, mockAppConfig)
+        ), TAXED, isAgent = false)(fakeRequest, messages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
         titleCheck(taxedTitlePlural)
@@ -431,7 +431,7 @@ class InterestAccountsViewSpec extends ViewTest {
       "there is a single untaxed account passed in that is not a prior submission" which {
         lazy val result = view(untaxedYesNoForm, taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9001.00, Some("qwerty"))
-        ), UNTAXED)(fakeRequest, welshMessages, mockAppConfig)
+        ), UNTAXED, isAgent = false)(fakeRequest, welshMessages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
         titleCheck(untaxedTitleSingle)
@@ -478,7 +478,7 @@ class InterestAccountsViewSpec extends ViewTest {
 
         lazy val result = view(untaxedYesNoForm, taxYear, Seq(
           InterestAccountModel(Some("azerty"), "Bank of UK", 9001.00)
-        ), UNTAXED)(fakeRequest, welshMessages, mockAppConfig)
+        ), UNTAXED, isAgent = false)(fakeRequest, welshMessages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
         titleCheck(untaxedTitleSingle)
@@ -513,7 +513,7 @@ class InterestAccountsViewSpec extends ViewTest {
           YesNoForm.yesNoForm("Select yes if you received untaxed interest from the UK").bind(Map("value" -> ""))
         lazy val result = view(yesNoForm, taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9001.00, Some("qwerty"))
-        ), UNTAXED)(fakeRequest, welshMessages, mockAppConfig)
+        ), UNTAXED, false)(fakeRequest, welshMessages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
         welshToggleCheck("Welsh")
@@ -567,7 +567,7 @@ class InterestAccountsViewSpec extends ViewTest {
         lazy val result = view(untaxedYesNoForm, taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9000.01, Some("qwerty")),
           InterestAccountModel(Some("azerty"), "Bank of EU", 1234.56)
-        ), UNTAXED)(fakeRequest, welshMessages, mockAppConfig)
+        ), UNTAXED, isAgent = false)(fakeRequest, welshMessages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
         titleCheck(untaxedTitlePlural)
@@ -632,7 +632,7 @@ class InterestAccountsViewSpec extends ViewTest {
 
         lazy val result = view(taxedYesNoForm, taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9001.00, Some("qwerty"))
-        ), TAXED)(fakeRequest, welshMessages, mockAppConfig)
+        ), TAXED, isAgent = false)(fakeRequest, welshMessages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
         titleCheck(taxedTitleSingle)
@@ -677,7 +677,7 @@ class InterestAccountsViewSpec extends ViewTest {
 
         lazy val result = view(taxedYesNoForm, taxYear, Seq(
           InterestAccountModel(Some("azerty"), "Bank of UK", 9001.00)
-        ), TAXED)(fakeRequest, welshMessages, mockAppConfig)
+        ), TAXED, isAgent = false)(fakeRequest, welshMessages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
         titleCheck(taxedTitleSingle)
@@ -712,7 +712,7 @@ class InterestAccountsViewSpec extends ViewTest {
         lazy val result = view(taxedYesNoForm, taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9000.01, Some("qwerty")),
           InterestAccountModel(Some("azerty"), "Bank of EU", 1234.56)
-        ), TAXED)(fakeRequest, welshMessages, mockAppConfig)
+        ), TAXED, isAgent = false)(fakeRequest, welshMessages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
         titleCheck(taxedTitlePlural)
