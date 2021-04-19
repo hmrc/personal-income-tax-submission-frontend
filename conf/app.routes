@@ -65,6 +65,9 @@ POST        /:taxYear/charity/uk-charity-amount                           contro
 GET         /:taxYear/charity/oneoff-charity-donations                    controllers.charity.GiftAidOneOffController.show(taxYear: Int)
 POST        /:taxYear/charity/oneoff-charity-donations                    controllers.charity.GiftAidOneOffController.submit(taxYear: Int)
 
+GET         /:taxYear/charity/amount-donated-as-oneoff                    controllers.charity.GiftAidOneOffAmountController.show(taxYear: Int)
+POST        /:taxYear/charity/amount-donated-as-oneoff                    controllers.charity.GiftAidOneOffAmountController.submit(taxYear: Int)
+
 GET         /keep-alive                                                   controllers.SessionExpiredController.keepAlive
 GET         /timeout                                                      controllers.SessionExpiredController.timeout
 

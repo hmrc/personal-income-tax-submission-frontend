@@ -16,39 +16,39 @@
 
 package views.charity
 
-import forms.DonatedViaGiftAidAmountForm
+import forms.charity.GiftAidOneOffAmountForm
 import models.User
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.data.Form
 import uk.gov.hmrc.auth.core.AffinityGroup
 import utils.ViewTest
-import views.html.charity.GiftAidDonatedAmountView
+import views.html.charity.GiftAidOneOffAmountView
 
-class GiftAidDonatedAmountViewSpec extends ViewTest {
+class GiftAidOneOffAmountViewSpec extends ViewTest {
 
   val taxYear = 2022
-  def form(isAgent: Boolean): Form[BigDecimal] = DonatedViaGiftAidAmountForm.donatedViaGiftAidForm(isAgent)
-  lazy val view: GiftAidDonatedAmountView = app.injector.instanceOf[GiftAidDonatedAmountView]
+  def form(isAgent: Boolean): Form[BigDecimal] = GiftAidOneOffAmountForm.giftAidOneOffAmountForm(isAgent)
+  lazy val view: GiftAidOneOffAmountView = app.injector.instanceOf[GiftAidOneOffAmountView]
 
   object IndividualExpected {
-    val expectedTitle = "How much did you donate to charity by using Gift Aid?"
-    val expectedH1 = "How much did you donate to charity by using Gift Aid?"
-    val expectedParagraph = "Do not include the Gift Aid that was added to your donation."
-    val expectedError = "Enter the amount you donated to charity by using Gift Aid"
+    val expectedTitle = "How much did you donate to charity as one-off payments?"
+    val expectedH1 = "How much did you donate to charity as one-off payments?"
+    val expectedParagraph = "Do not include the Gift Aid added to your donation."
+    val expectedError = "Enter the amount you donated to charity as one-off payments"
   }
 
   object AgentExpected {
-    val expectedTitle = "How much did your client donate to charity by using Gift Aid?"
-    val expectedH1 = "How much did your client donate to charity by using Gift Aid?"
-    val expectedParagraph = "Do not include the Gift Aid that was added to your client’s donation."
-    val expectedError = "Enter the amount your client donated to charity by using Gift Aid"
+    val expectedTitle = "How much did your client donate to charity as one-off payments?"
+    val expectedH1 = "How much did your client donate to charity as one-off payments?"
+    val expectedParagraph = "Do not include the Gift Aid added to your client’s donation."
+    val expectedError = "Enter the amount your client donated to charity as one-off payments"
   }
 
   val expectedCaption = "Charitable giving for 6 April 2021 to 5 April 2022"
   val expectedInputName = "amount"
   val expectedButtonText = "Continue"
-  val expectedInputLabelText = "Total amount for the year"
+  val expectedInputLabelText = "Total amount for the year, in pounds"
   val expectedInputHintText = "For example, £600 or £193.54"
   val expectedErrorLink = "#amount"
 
@@ -59,7 +59,7 @@ class GiftAidDonatedAmountViewSpec extends ViewTest {
   val inputLabelSelector = ".govuk-label"
   val inputHintTextSelector = ".govuk-hint"
 
-  "GiftAidDonatedAmountView with no errors" when {
+  "GiftAidOneOffAmount with no errors" when {
 
     "accessed as an individual" should {
       import IndividualExpected._
@@ -95,7 +95,7 @@ class GiftAidDonatedAmountViewSpec extends ViewTest {
 
   }
 
-  "GiftAidDonatedAmountView with errors" when {
+  "GiftAidOneOffAmount with errors" when {
 
     "accessed as an individual" should {
       import IndividualExpected._
