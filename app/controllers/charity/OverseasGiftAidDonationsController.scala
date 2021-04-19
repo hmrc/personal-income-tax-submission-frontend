@@ -19,15 +19,15 @@ package controllers.charity
 import config.{AppConfig, GIFT_AID}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
-import controllers.predicates.TaxYearAction.taxYearAction
-import forms.{DonatedViaGiftAidAmountForm, YesNoForm}
+import controllers.predicates.JourneyFilterAction.journeyFilterAction
+import forms.YesNoForm
 import models.User
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
-import views.html.charity.{GiftAidDonationView, OverseasGiftAidDonationView}
+import views.html.charity.OverseasGiftAidDonationView
 
 import javax.inject.Inject
 
@@ -44,12 +44,12 @@ class OverseasGiftAidDonationsController @Inject()(
     YesNoForm.yesNoForm(missingInputError)
   }
 
-  def show(taxYear: Int): Action[AnyContent] = (authAction andThen taxYearAction(taxYear)) { implicit user =>
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
     Ok(overseasGiftAidDonationView(yesNoForm(user), taxYear))
   }
 
 
-  def submit(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
+  def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)) { implicit user =>
     yesNoForm(user).bindFromRequest().fold(
       {
         formWithErrors =>
