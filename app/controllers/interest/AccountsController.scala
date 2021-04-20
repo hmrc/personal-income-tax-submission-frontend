@@ -66,7 +66,7 @@ class AccountsController @Inject()(
     getOptionalCyaData() match {
       case Some(cyaData) =>
         getTaxAccounts(taxType, cyaData) match {
-          case Some(taxAccounts) if taxAccounts.nonEmpty => Ok(view(yesNoForm(taxType), taxYear, taxAccounts, taxType))
+          case Some(taxAccounts) if taxAccounts.nonEmpty => Ok(view(yesNoForm(taxType), taxYear, taxAccounts, taxType, isAgent = user.isAgent))
           case _ => missingAccountsRedirect(taxType, taxYear)
         }
       case _ =>
@@ -90,7 +90,7 @@ class AccountsController @Inject()(
 
     def checkForm(taxAccounts: Seq[InterestAccountModel]) = {
       yesNoForm(taxType).bindFromRequest().fold(
-        { formWithErrors => Left(BadRequest(view(formWithErrors, taxYear, taxAccounts, taxType))) },
+        { formWithErrors => Left(BadRequest(view(formWithErrors, taxYear, taxAccounts, taxType, isAgent = user.isAgent))) },
         { yesNoModel => Right(yesNoModel) }
       )
     }

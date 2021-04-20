@@ -90,7 +90,7 @@
     }
 }
 
-@layout(pageTitle = titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors) {
+@layout(pageTitle = titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors, isAgent = user.isAgent) {
 
     @formWithCSRF(action = postAction) {
         @currencyFormHtml(form)

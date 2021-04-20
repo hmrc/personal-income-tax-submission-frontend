@@ -48,7 +48,7 @@
     }
 }
 
-@layout(messages("interest.cya.title"), taxYear = Some(taxYear)) {
+@layout(messages("interest.cya.title"), taxYear = Some(taxYear), isAgent = user.isAgent) {
 
     @heading("interest.cya.h1", Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 

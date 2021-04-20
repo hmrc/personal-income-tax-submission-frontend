@@ -45,7 +45,7 @@
 
 @hasFormErrors = @{form.hasErrors}
 
-@layout(pageTitle = messages("interest.remove-account.title"), taxYear = Some(taxYear), hasErrors = hasFormErrors) {
+@layout(pageTitle = messages("interest.remove-account.title"), taxYear = Some(taxYear), hasErrors = hasFormErrors, isAgent = user.isAgent) {
 
     @errorSummary(form.errors.distinct)
 
