@@ -5,20 +5,20 @@
 
 GET         /sign-out                                                     controllers.SignOutController.signOut()
 
-GET         /:taxYear/dividends/uk-dividends                              controllers.dividends.ReceiveUkDividendsController.show(taxYear: Int)
-POST        /:taxYear/dividends/uk-dividends                              controllers.dividends.ReceiveUkDividendsController.submit(taxYear: Int)
+GET         /:taxYear/dividends/dividends-from-uk-companies                         controllers.dividends.ReceiveUkDividendsController.show(taxYear: Int)
+POST        /:taxYear/dividends/dividends-from-uk-companies                         controllers.dividends.ReceiveUkDividendsController.submit(taxYear: Int)
 
-GET         /:taxYear/dividends/other-dividends                           controllers.dividends.ReceiveOtherUkDividendsController.show(taxYear: Int)
-POST        /:taxYear/dividends/other-dividends                           controllers.dividends.ReceiveOtherUkDividendsController.submit(taxYear: Int)
+GET         /:taxYear/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies                           controllers.dividends.ReceiveOtherUkDividendsController.show(taxYear: Int)
+POST        /:taxYear/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies                           controllers.dividends.ReceiveOtherUkDividendsController.submit(taxYear: Int)
 
-GET         /:taxYear/dividends/uk-dividends-amount                       controllers.dividends.UkDividendsAmountController.show(taxYear: Int)
-POST        /:taxYear/dividends/uk-dividends-amount                       controllers.dividends.UkDividendsAmountController.submit(taxYear: Int)
+GET         /:taxYear/dividends/how-much-dividends-from-uk-companies      controllers.dividends.UkDividendsAmountController.show(taxYear: Int)
+POST        /:taxYear/dividends/how-much-dividends-from-uk-companies      controllers.dividends.UkDividendsAmountController.submit(taxYear: Int)
 
-GET         /:taxYear/dividends/other-dividends-amount                    controllers.dividends.OtherUkDividendsAmountController.show(taxYear: Int)
-POST        /:taxYear/dividends/other-dividends-amount                    controllers.dividends.OtherUkDividendsAmountController.submit(taxYear: Int)
+GET         /:taxYear/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies                    controllers.dividends.OtherUkDividendsAmountController.show(taxYear: Int)
+POST        /:taxYear/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies                    controllers.dividends.OtherUkDividendsAmountController.submit(taxYear: Int)
 
-GET         /:taxYear/dividends/check-your-answers                        controllers.dividends.DividendsCYAController.show(taxYear: Int)
-POST        /:taxYear/dividends/check-your-answers                        controllers.dividends.DividendsCYAController.submit(taxYear: Int)
+GET         /:taxYear/dividends/check-income-from-dividends                       controllers.dividends.DividendsCYAController.show(taxYear: Int)
+POST        /:taxYear/dividends/check-income-from-dividends                        controllers.dividends.DividendsCYAController.submit(taxYear: Int)
 
 GET         /:taxYear/interest/untaxed-uk-interest-account-summary        controllers.interest.AccountsController.show(taxYear: Int, taxType = "untaxed")
 GET         /:taxYear/interest/taxed-uk-interest-account-summary          controllers.interest.AccountsController.show(taxYear: Int, taxType = "taxed")

@@ -19,14 +19,15 @@ package forms
 import forms.validation.mappings.MappingUtil._
 import play.api.data.Form
 import common.InterestTaxTypes._
+import models.User
 
 object ChangeAccountAmountForm {
 
   val amount: String = "amount"
 
-  def changeAccountAmountForm(isAgent: Boolean, taxType: String): Form[BigDecimal] = Form(
+  def changeAccountAmountForm(taxType: String)(implicit user: User[_]): Form[BigDecimal] = Form(
     amount -> currency(
-      if (isAgent) "changeAccountAmount.required.agent" else "changeAccountAmount.required.individual",
+      if (user.isAgent) "changeAccountAmount.required.agent" else "changeAccountAmount.required.individual",
       invalidNumeric = "changeAccountAmount.format",
       maxAmountKey = "changeAccountAmount.amountMaxLimit",
       args = Seq(if(taxType.equals(TAXED)) "taxed" else "untaxed")

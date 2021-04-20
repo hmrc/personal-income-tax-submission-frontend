@@ -36,8 +36,6 @@
 
     @errorSummary(form.errors.distinct)
 
-    @heading(messages(s"interest.change-account.${taxType.toLowerCase}-heading.${if(user.isAgent) "agent" else "individual"}", account.accountName), Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
-
     @formWithCSRF(action = postAction) {
 
         <div class="@if(form.errors.nonEmpty) { govuk-form-group--error}">
@@ -46,22 +44,28 @@
                 form,
                 id = "amount",
                 name = "amount",
-                label = {
-                    val part1 = messages("interest.change-account.label.prior.common1")
-                    val part2 = messages(s"interest.change-account.label.prior.${if(user.isAgent) "agent" else "individual"}")
-                    val part3 = bigDecimalCurrency(preAmount.getOrElse(BigDecimal("0")).toString)
-                    val part4 = messages(s"interest.change-account.${taxType.toLowerCase}-label.prior.common2")
-                    s"$part1 $part2 $part3 $part4"
-                },
+                heading = messages(s"interest.change-account.${taxType.toLowerCase}-heading.${if(user.isAgent) "agent" else "individual"}", account.accountName),
+                content = Some(contentHtml),
                 labelClasses = Some("govuk-!-margin-bottom-4"),
                 isPageHeading = false,
                 currency = true,
-                hint = Some(Html(messages("common.currency.hint")))
-
+                hint = Some(Html(messages("common.currency.hint"))),
+                subheading = Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)),
+                headingClasses = "govuk-!-margin-bottom-2"
             )
         </div>
 
 
         @button()
     }
+}
+
+@contentHtml = {
+
+    <p>
+    @messages("interest.change-account.label.prior.common1")
+    @messages(s"interest.change-account.label.prior.${if(user.isAgent) "agent" else "individual"}")
+    @bigDecimalCurrency(preAmount.getOrElse(BigDecimal("0")).toString)
+    @messages(s"interest.change-account.${taxType.toLowerCase}-label.prior.common2")
+    </p>
 }

@@ -17,13 +17,23 @@
 package forms
 
 import forms.ChangeAccountAmountForm._
+import models.User
 import play.api.data.{Form, FormError}
+import play.api.mvc.AnyContent
 import utils.UnitTest
 
 
 class ChangeAccountAmountFormSpec extends UnitTest {
 
-  def form(isAgent: Boolean, taxType: String): Form[BigDecimal] = changeAccountAmountForm(isAgent, taxType)
+  def agentForm(taxType: String): Form[BigDecimal] = {
+    val agentUser: User[AnyContent] = user.copy(arn = Some("XARN1234567890"))
+    changeAccountAmountForm(taxType)(agentUser)
+  }
+
+  def individualForm(taxType: String): Form[BigDecimal] = {
+    val individualUser: User[AnyContent] = user
+    changeAccountAmountForm(taxType)(individualUser)
+  }
 
   lazy val testCurrencyValid = 1000
   lazy val testCurrencyEmpty = ""
@@ -33,8 +43,6 @@ class ChangeAccountAmountFormSpec extends UnitTest {
 
   val TAXED = "taxed"
   val UNTAXED = "untaxed"
-  val anAgent = true
-  val anIndividual = false
 
   "ChangeAccountAmountFormSpec" should {
 
@@ -45,39 +53,39 @@ class ChangeAccountAmountFormSpec extends UnitTest {
         "a valid currency is entered" in {
           val testInput = Map(amount -> testCurrencyValid.toString)
           val expected = testCurrencyValid
-          val actual = form(anIndividual, UNTAXED).bind(testInput).value
+          val actual = individualForm(UNTAXED).bind(testInput).value
           actual shouldBe Some(expected)
         }
       }
 
       "invalidate an empty currency" in {
         val testInput = Map(amount -> testCurrencyEmpty)
-        val emptyTest = form(anIndividual, UNTAXED).bind(testInput)
+        val emptyTest = individualForm(UNTAXED).bind(testInput)
         emptyTest.errors should contain(FormError(amount, "changeAccountAmount.required.individual", List(UNTAXED)))
       }
 
       "invalidate currency that includes invalid characters" in {
         val testInput = Map(amount -> testCurrencyInvalidInt)
-        val invalidCharTest = form(anIndividual, UNTAXED).bind(testInput)
+        val invalidCharTest = individualForm(UNTAXED).bind(testInput)
         invalidCharTest.errors should contain(FormError(amount, "common.error.invalid_number", List(UNTAXED)))
       }
 
       "invalidate a currency that has incorrect formatting" in {
         val testInput = Map(amount -> testCurrencyInvalidFormat.toString)
-        val invalidFormatTest = form(anIndividual, UNTAXED).bind(testInput)
+        val invalidFormatTest = individualForm(UNTAXED).bind(testInput)
         invalidFormatTest.errors should contain(FormError(amount, "changeAccountAmount.format", List(UNTAXED)))
       }
 
       "invalidate a currency that is too big" in {
         val testInput = Map(amount -> testCurrencyTooBig)
-        val bigCurrencyTest = form(anIndividual, UNTAXED).bind(testInput)
+        val bigCurrencyTest = individualForm(UNTAXED).bind(testInput)
         bigCurrencyTest.errors should contain(FormError(amount, "changeAccountAmount.amountMaxLimit", List(UNTAXED)))
       }
 
       "remove a leading space from a currency" in {
         val testInput = Map(amount -> (" " + testCurrencyValid))
         val expected = testCurrencyValid
-        val leadingSpaceTest = form(anIndividual, UNTAXED).bind(testInput).value
+        val leadingSpaceTest = individualForm(UNTAXED).bind(testInput).value
         leadingSpaceTest shouldBe Some(expected)
       }
     }
@@ -89,39 +97,39 @@ class ChangeAccountAmountFormSpec extends UnitTest {
         "a valid currency is entered" in {
           val testInput = Map(amount -> testCurrencyValid.toString)
           val expected = testCurrencyValid
-          val actual = form(anIndividual, TAXED).bind(testInput).value
+          val actual = individualForm(TAXED).bind(testInput).value
           actual shouldBe Some(expected)
         }
       }
 
       "invalidate an empty currency" in {
         val testInput = Map(amount -> testCurrencyEmpty)
-        val emptyTest = form(anIndividual, TAXED).bind(testInput)
+        val emptyTest = individualForm(TAXED).bind(testInput)
         emptyTest.errors should contain(FormError(amount, "changeAccountAmount.required.individual", List(TAXED)))
       }
 
       "invalidate currency that includes invalid characters" in {
         val testInput = Map(amount -> testCurrencyInvalidInt)
-        val invalidCharTest = form(anIndividual, TAXED).bind(testInput)
+        val invalidCharTest = individualForm(TAXED).bind(testInput)
         invalidCharTest.errors should contain(FormError(amount, "common.error.invalid_number", List(TAXED)))
       }
 
       "invalidate a currency that has incorrect formatting" in {
         val testInput = Map(amount -> testCurrencyInvalidFormat.toString)
-        val invalidFormatTest = form(anIndividual, TAXED).bind(testInput)
+        val invalidFormatTest = individualForm(TAXED).bind(testInput)
         invalidFormatTest.errors should contain(FormError(amount, "changeAccountAmount.format", List(TAXED)))
       }
 
       "invalidate a currency that is too big" in {
         val testInput = Map(amount -> testCurrencyTooBig)
-        val bigCurrencyTest = form(anIndividual, TAXED).bind(testInput)
+        val bigCurrencyTest = individualForm(TAXED).bind(testInput)
         bigCurrencyTest.errors should contain(FormError(amount, "changeAccountAmount.amountMaxLimit", List(TAXED)))
       }
 
       "remove a leading space from a currency" in {
         val testInput = Map(amount -> (" " + testCurrencyValid))
         val expected = testCurrencyValid
-        val leadingSpaceTest = form(anIndividual, TAXED).bind(testInput).value
+        val leadingSpaceTest = individualForm(TAXED).bind(testInput).value
         leadingSpaceTest shouldBe Some(expected)
       }
     }
@@ -133,39 +141,39 @@ class ChangeAccountAmountFormSpec extends UnitTest {
         "a valid currency is entered" in {
           val testInput = Map(amount -> testCurrencyValid.toString)
           val expected = testCurrencyValid
-          val actual = form(anAgent, UNTAXED).bind(testInput).value
+          val actual = agentForm(UNTAXED).bind(testInput).value
           actual shouldBe Some(expected)
         }
       }
 
       "invalidate an empty currency" in {
         val testInput = Map(amount -> testCurrencyEmpty)
-        val emptyTest = form(anAgent, UNTAXED).bind(testInput)
+        val emptyTest = agentForm(UNTAXED).bind(testInput)
         emptyTest.errors should contain(FormError(amount, "changeAccountAmount.required.agent", List(UNTAXED)))
       }
 
       "invalidate currency that includes invalid characters" in {
         val testInput = Map(amount -> testCurrencyInvalidInt)
-        val invalidCharTest = form(anAgent, UNTAXED).bind(testInput)
+        val invalidCharTest = agentForm(UNTAXED).bind(testInput)
         invalidCharTest.errors should contain(FormError(amount, "common.error.invalid_number", List(UNTAXED)))
       }
 
       "invalidate a currency that has incorrect formatting" in {
         val testInput = Map(amount -> testCurrencyInvalidFormat.toString)
-        val invalidFormatTest = form(anAgent, UNTAXED).bind(testInput)
+        val invalidFormatTest = agentForm(UNTAXED).bind(testInput)
         invalidFormatTest.errors should contain(FormError(amount, "changeAccountAmount.format", List(UNTAXED)))
       }
 
       "invalidate a currency that is too big" in {
         val testInput = Map(amount -> testCurrencyTooBig)
-        val bigCurrencyTest = form(anAgent, UNTAXED).bind(testInput)
+        val bigCurrencyTest = agentForm(UNTAXED).bind(testInput)
         bigCurrencyTest.errors should contain(FormError(amount, "changeAccountAmount.amountMaxLimit", List(UNTAXED)))
       }
 
       "remove a leading space from a currency" in {
         val testInput = Map(amount -> (" " + testCurrencyValid))
         val expected = testCurrencyValid
-        val leadingSpaceTest = form(anAgent, UNTAXED).bind(testInput).value
+        val leadingSpaceTest = agentForm(UNTAXED).bind(testInput).value
         leadingSpaceTest shouldBe Some(expected)
       }
     }
@@ -177,39 +185,39 @@ class ChangeAccountAmountFormSpec extends UnitTest {
         "a valid currency is entered" in {
           val testInput = Map(amount -> testCurrencyValid.toString)
           val expected = testCurrencyValid
-          val actual = form(anAgent, TAXED).bind(testInput).value
+          val actual = agentForm(TAXED).bind(testInput).value
           actual shouldBe Some(expected)
         }
       }
 
       "invalidate an empty currency" in {
         val testInput = Map(amount -> testCurrencyEmpty)
-        val emptyTest = form(anAgent, TAXED).bind(testInput)
+        val emptyTest = agentForm(TAXED).bind(testInput)
         emptyTest.errors should contain(FormError(amount, "changeAccountAmount.required.agent", List(TAXED)))
       }
 
       "invalidate currency that includes invalid characters" in {
         val testInput = Map(amount -> testCurrencyInvalidInt)
-        val invalidCharTest = form(anAgent, TAXED).bind(testInput)
+        val invalidCharTest = agentForm(TAXED).bind(testInput)
         invalidCharTest.errors should contain(FormError(amount, "common.error.invalid_number", List(TAXED)))
       }
 
       "invalidate a currency that has incorrect formatting" in {
         val testInput = Map(amount -> testCurrencyInvalidFormat.toString)
-        val invalidFormatTest = form(anAgent, TAXED).bind(testInput)
+        val invalidFormatTest = agentForm(TAXED).bind(testInput)
         invalidFormatTest.errors should contain(FormError(amount, "changeAccountAmount.format", List(TAXED)))
       }
 
       "invalidate a currency that is too big" in {
         val testInput = Map(amount -> testCurrencyTooBig)
-        val bigCurrencyTest = form(anAgent, TAXED).bind(testInput)
+        val bigCurrencyTest = agentForm(TAXED).bind(testInput)
         bigCurrencyTest.errors should contain(FormError(amount, "changeAccountAmount.amountMaxLimit", List(TAXED)))
       }
 
       "remove a leading space from a currency" in {
         val testInput = Map(amount -> (" " + testCurrencyValid))
         val expected = testCurrencyValid
-        val leadingSpaceTest = form(anAgent, TAXED).bind(testInput).value
+        val leadingSpaceTest = agentForm(TAXED).bind(testInput).value
         leadingSpaceTest shouldBe Some(expected)
       }
     }

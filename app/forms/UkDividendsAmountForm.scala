@@ -17,6 +17,7 @@
 package forms
 
 import forms.validation.mappings.MappingUtil._
+import models.User
 import play.api.data.Form
 
 
@@ -24,9 +25,12 @@ object UkDividendsAmountForm {
 
   val ukDividendsAmount: String = "amount"
 
-
-  def ukDividendsAmountForm(): Form[BigDecimal] = Form(
-    ukDividendsAmount -> currency("dividends.uk-dividends-amount.error.empty")
+  def ukDividendsAmountForm(implicit user: User[_]): Form[BigDecimal] = Form(
+    ukDividendsAmount -> currency(
+      s"dividends.uk-dividends-amount.error.empty.${if(user.isAgent) "agent" else "individual"}",
+      invalidNumeric = s"dividends.uk-dividends-amount.error.invalidFormat.${if(user.isAgent) "agent" else "individual"}",
+      nonNumericKey = s"dividends.uk-dividends-amount.error.invalidFormat.${if(user.isAgent) "agent" else "individual"}",
+      maxAmountKey = s"dividends.uk-dividends-amount.error.amountMaxLimit")
   )
 }
 

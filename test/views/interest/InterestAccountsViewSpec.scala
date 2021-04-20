@@ -51,6 +51,8 @@ class InterestAccountsViewSpec extends ViewTest {
   val captionSelector = ".govuk-caption-l"
   val continueSelector = "#continue"
   val continueFormSelector = "#main-content > div > div > form"
+  val doYouNeedSelector = "#main-content > div > div > form > div > fieldset > legend > p"
+  val youMustTellSelector = "#interest-account-view-radio-hint"
 
   val changeUntaxedHref = "/income-through-software/return/personal-income/2020/interest/untaxed-uk-interest-details/qwerty"
   val changePriorUntaxedHref = "/income-through-software/return/personal-income/2020/interest/change-untaxed-interest-account?accountId=azerty"
@@ -73,6 +75,10 @@ class InterestAccountsViewSpec extends ViewTest {
   val addAnotherAccountText = "Add another account"
   val continueText = "Continue"
   val errorTitleText: String => String = (titleText: String) => s"Error: $titleText"
+  val doYouNeedText = "Do you need to add another account?"
+  val youMustTellText = "You must tell us about all your accounts."
+  val yesText = "Yes"
+  val noText = "No"
 
   "InterestAccountsView when untaxed in English" should {
     "render with 1 row" when {
@@ -115,6 +121,10 @@ class InterestAccountsViewSpec extends ViewTest {
           }
         }
 
+        textOnPageCheck(doYouNeedText, doYouNeedSelector)
+        textOnPageCheck(youMustTellText, youMustTellSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
         formPostLinkCheck(controllers.interest.routes.AccountsController.submit(taxYear, UNTAXED).url, continueFormSelector)
       }
@@ -145,6 +155,10 @@ class InterestAccountsViewSpec extends ViewTest {
           }
         }
 
+        textOnPageCheck(doYouNeedText, doYouNeedSelector)
+        textOnPageCheck(youMustTellText, youMustTellSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
         formPostLinkCheck(controllers.interest.routes.AccountsController.submit(taxYear, UNTAXED).url, continueFormSelector)
       }
@@ -192,6 +206,10 @@ class InterestAccountsViewSpec extends ViewTest {
           }
         }
 
+        textOnPageCheck(doYouNeedText, doYouNeedSelector)
+        textOnPageCheck(youMustTellText, youMustTellSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
         formPostLinkCheck(controllers.interest.routes.AccountsController.submit(taxYear, UNTAXED).url, continueFormSelector)
       }
@@ -251,6 +269,10 @@ class InterestAccountsViewSpec extends ViewTest {
             }
           }
         }
+        textOnPageCheck(doYouNeedText, doYouNeedSelector)
+        textOnPageCheck(youMustTellText, youMustTellSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
         formPostLinkCheck(controllers.interest.routes.AccountsController.submit(taxYear, UNTAXED).url, continueFormSelector)
       }
@@ -298,6 +320,10 @@ class InterestAccountsViewSpec extends ViewTest {
           }
         }
 
+        textOnPageCheck(doYouNeedText, doYouNeedSelector)
+        textOnPageCheck(youMustTellText, youMustTellSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
         formPostLinkCheck(controllers.interest.routes.AccountsController.submit(taxYear, TAXED).url, continueFormSelector)
       }
@@ -326,6 +352,10 @@ class InterestAccountsViewSpec extends ViewTest {
           }
         }
 
+        textOnPageCheck(doYouNeedText, doYouNeedSelector)
+        textOnPageCheck(youMustTellText, youMustTellSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
         formPostLinkCheck(controllers.interest.routes.AccountsController.submit(taxYear, TAXED).url, continueFormSelector)
       }
@@ -385,6 +415,10 @@ class InterestAccountsViewSpec extends ViewTest {
             }
           }
         }
+        textOnPageCheck(doYouNeedText, doYouNeedSelector)
+        textOnPageCheck(youMustTellText, youMustTellSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
         formPostLinkCheck(controllers.interest.routes.AccountsController.submit(taxYear, TAXED).url, continueFormSelector)
       }
@@ -432,6 +466,10 @@ class InterestAccountsViewSpec extends ViewTest {
           }
         }
 
+        textOnPageCheck(doYouNeedText, doYouNeedSelector)
+        textOnPageCheck(youMustTellText, youMustTellSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
         formPostLinkCheck(controllers.interest.routes.AccountsController.submit(taxYear, UNTAXED).url, continueFormSelector)
       }
@@ -462,6 +500,10 @@ class InterestAccountsViewSpec extends ViewTest {
           }
         }
 
+        textOnPageCheck(doYouNeedText, doYouNeedSelector)
+        textOnPageCheck(youMustTellText, youMustTellSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
         formPostLinkCheck(controllers.interest.routes.AccountsController.submit(taxYear, UNTAXED).url, continueFormSelector)
       }
@@ -509,6 +551,10 @@ class InterestAccountsViewSpec extends ViewTest {
           }
         }
 
+        textOnPageCheck(doYouNeedText, doYouNeedSelector)
+        textOnPageCheck(youMustTellText, youMustTellSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
         formPostLinkCheck(controllers.interest.routes.AccountsController.submit(taxYear, UNTAXED).url, continueFormSelector)
       }
@@ -568,6 +614,10 @@ class InterestAccountsViewSpec extends ViewTest {
             }
           }
         }
+        textOnPageCheck(doYouNeedText, doYouNeedSelector)
+        textOnPageCheck(youMustTellText, youMustTellSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
         formPostLinkCheck(controllers.interest.routes.AccountsController.submit(taxYear, UNTAXED).url, continueFormSelector)
       }
@@ -615,6 +665,10 @@ class InterestAccountsViewSpec extends ViewTest {
           }
         }
 
+        textOnPageCheck(doYouNeedText, doYouNeedSelector)
+        textOnPageCheck(youMustTellText, youMustTellSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
         formPostLinkCheck(controllers.interest.routes.AccountsController.submit(taxYear, TAXED).url, continueFormSelector)
       }
@@ -643,6 +697,10 @@ class InterestAccountsViewSpec extends ViewTest {
           }
         }
 
+        textOnPageCheck(doYouNeedText, doYouNeedSelector)
+        textOnPageCheck(youMustTellText, youMustTellSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
         formPostLinkCheck(controllers.interest.routes.AccountsController.submit(taxYear, TAXED).url, continueFormSelector)
       }
@@ -702,6 +760,10 @@ class InterestAccountsViewSpec extends ViewTest {
             }
           }
         }
+        textOnPageCheck(doYouNeedText, doYouNeedSelector)
+        textOnPageCheck(youMustTellText, youMustTellSelector)
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
         formPostLinkCheck(controllers.interest.routes.AccountsController.submit(taxYear, TAXED).url, continueFormSelector)
       }

@@ -39,9 +39,13 @@
     s"${bigDecimalCurrency(amount.toString)}"
 }
 
-@layout(pageTitle = messages("dividends.cya.title"), taxYear = Some(taxYear)) {
+@headingForUse = @{messages(s"dividends.cya.heading.${if(user.isAgent) "agent" else "individual"}")}
 
-    @heading("dividends.cya.h1", Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
+@titleForUse = @{messages(s"dividends.cya.title.${if(user.isAgent) "agent" else "individual"}")}
+
+@layout(pageTitle = titleForUse, taxYear = Some(taxYear)) {
+
+    @heading(headingForUse, Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 
     @{
         govukSummaryList(SummaryList(Seq(

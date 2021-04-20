@@ -42,33 +42,35 @@ class DividendsCYAViewSpec extends ViewTest {
 
   val captionSelector = ".govuk-caption-l"
 
-  val h1Expected = "Check your answers"
-  val titleExpected = "Check your answers"
+  val h1ExpectedAgent = "Check your client’s income from dividends"
+  val titleExpectedAgent = "Check your client’s income from dividends"
+  val h1ExpectedIndividual = "Check your income from dividends"
+  val titleExpectedIndividual = "Check your income from dividends"
   val captionExpected = s"Dividends for 6 April $taxYearMinusOne to 5 April $taxYear"
   val continueButtonText = "Save and continue"
-  val continueButtonLink = "/income-through-software/return/personal-income/2020/dividends/check-your-answers"
+  val continueButtonLink = "/income-through-software/return/personal-income/2020/dividends/check-income-from-dividends"
 
   val changeLinkExpected = "Change"
   val yesNoExpectedAnswer: Boolean => String = isYes => if(isYes) "Yes" else "No"
 
-  val ukDividendsHeader = "Dividends from UK companies"
-  val ukDividendsAmount = "Amount of dividends from UK companies"
-  val otherDividendsHeader = "Dividends from unit trusts or investment companies"
-  val otherDividendsAmount = "Amount of dividends from unit trusts or investment companies"
+  val ukDividendsHeader = "Dividends from UK-based companies"
+  val ukDividendsAmount = "Value of dividends from UK-based companies"
+  val otherDividendsHeader = "Dividends from UK-based unit trusts or open-ended investment companies"
+  val otherDividendsAmount = "Value of dividends from UK-based unit trusts or open-ended investment companies"
 
-  val changeUkDividendsHref = "/income-through-software/return/personal-income/2020/dividends/uk-dividends"
-  val changeUkDividendsAmountHref = "/income-through-software/return/personal-income/2020/dividends/uk-dividends-amount"
-  val changeOtherDividendsHref = "/income-through-software/return/personal-income/2020/dividends/other-dividends"
-  val changeOtherDividendsAmountHref = "/income-through-software/return/personal-income/2020/dividends/other-dividends-amount"
+  val changeUkDividendsHref = "/income-through-software/return/personal-income/2020/dividends/dividends-from-uk-companies"
+  val changeUkDividendsAmountHref = "/income-through-software/return/personal-income/2020/dividends/how-much-dividends-from-uk-companies"
+  val changeOtherDividendsHref = "/income-through-software/return/personal-income/2020/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
+  val changeOtherDividendsAmountHref = "/income-through-software/return/personal-income/2020/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
 
   val changeUkDividendsIndividualHiddenText = "if you got dividends from UK-based companies."
   val changeUkDividendsAmountIndividualHiddenText = "how much you got from UK-based companies."
-  val changeOtherDividendsIndividualHiddenText = "if you got dividends from trusts or investment companies based in the UK."
-  val changeOtherDividendsAmountIndividualHiddenText = "how much you got in dividends from trusts or investment companies based in the UK."
+  val changeOtherDividendsIndividualHiddenText = "if you got dividends from trusts or open-ended investment companies based in the UK."
+  val changeOtherDividendsAmountIndividualHiddenText = "how much you got in dividends from trusts or open-ended investment companies based in the UK."
   val changeUkDividendsAgentHiddenText = "if your client got dividends from UK-based companies."
   val changeUkDividendsAmountAgentHiddenText = "how much your client got from UK-based companies."
-  val changeOtherDividendsAgentHiddenText = "if your client got dividends from trusts or investment companies based in the UK."
-  val changeOtherDividendsAmountAgentHiddenText = "how much your client got in dividends from trusts or investment companies based in the UK."
+  val changeOtherDividendsAgentHiddenText = "if your client got dividends from trusts or open-ended investment companies based in the UK."
+  val changeOtherDividendsAmountAgentHiddenText = "how much your client got in dividends from trusts or open-ended investment companies based in the UK."
 
   "DividendsCYAView in English" should {
 
@@ -89,9 +91,9 @@ class DividendsCYAViewSpec extends ViewTest {
           lazy val view = dividendsCyaView(cyaModel, taxYear = taxYear)(user, messages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          titleCheck(titleExpected)
+          titleCheck(titleExpectedIndividual)
           welshToggleCheck("English")
-          h1Check(h1Expected)
+          h1Check(h1ExpectedIndividual)
           textOnPageCheck(captionExpected, captionSelector)
 
           "has an area for question 1" which {
@@ -143,9 +145,9 @@ class DividendsCYAViewSpec extends ViewTest {
           lazy val view = dividendsCyaView(cyaModel, priorSubmission, taxYear)(user, messages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          titleCheck(titleExpected)
+          titleCheck(titleExpectedIndividual)
           welshToggleCheck("English")
-          h1Check(h1Expected)
+          h1Check(h1ExpectedIndividual)
           textOnPageCheck(captionExpected, captionSelector)
 
           "has an area for question 1" which {
@@ -173,9 +175,9 @@ class DividendsCYAViewSpec extends ViewTest {
           lazy val view = dividendsCyaView(cyaModel, taxYear = taxYear)(user, messages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          titleCheck(titleExpected)
+          titleCheck(titleExpectedIndividual)
           welshToggleCheck("English")
-          h1Check(h1Expected)
+          h1Check(h1ExpectedIndividual)
           textOnPageCheck(captionExpected, captionSelector)
 
           "has an area for question 1" which {
@@ -212,9 +214,9 @@ class DividendsCYAViewSpec extends ViewTest {
           lazy val view = dividendsCyaView(cyaModel, taxYear = taxYear)(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          titleCheck(titleExpected)
+          titleCheck(titleExpectedAgent)
           welshToggleCheck("English")
-          h1Check(h1Expected)
+          h1Check(h1ExpectedAgent)
           textOnPageCheck(captionExpected, captionSelector)
 
           "has an area for question 1" which {
@@ -265,9 +267,9 @@ class DividendsCYAViewSpec extends ViewTest {
           lazy val view = dividendsCyaView(cyaModel, priorSubmission, taxYear)(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          titleCheck(titleExpected)
+          titleCheck(titleExpectedAgent)
           welshToggleCheck("English")
-          h1Check(h1Expected)
+          h1Check(h1ExpectedAgent)
           textOnPageCheck(captionExpected, captionSelector)
 
           "has an area for question 1" which {
@@ -295,9 +297,9 @@ class DividendsCYAViewSpec extends ViewTest {
           lazy val view = dividendsCyaView(cyaModel, taxYear = taxYear)(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          titleCheck(titleExpected)
+          titleCheck(titleExpectedAgent)
           welshToggleCheck("English")
-          h1Check(h1Expected)
+          h1Check(h1ExpectedAgent)
           textOnPageCheck(captionExpected, captionSelector)
 
           "has an area for question 1" which {
@@ -339,9 +341,9 @@ class DividendsCYAViewSpec extends ViewTest {
           lazy val view = dividendsCyaView(cyaModel, taxYear = taxYear)(user, welshMessages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          titleCheck(titleExpected)
+          titleCheck(titleExpectedIndividual)
           welshToggleCheck("Welsh")
-          h1Check(h1Expected)
+          h1Check(h1ExpectedIndividual)
           textOnPageCheck(captionExpected, captionSelector)
 
           "has an area for question 1" which {
@@ -399,9 +401,9 @@ class DividendsCYAViewSpec extends ViewTest {
           lazy val view = dividendsCyaView(cyaModel, priorSubmission, taxYear)(user, welshMessages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          titleCheck(titleExpected)
+          titleCheck(titleExpectedIndividual)
           welshToggleCheck("Welsh")
-          h1Check(h1Expected)
+          h1Check(h1ExpectedIndividual)
           textOnPageCheck(captionExpected, captionSelector)
 
           "has an area for question 1" which {
@@ -435,9 +437,9 @@ class DividendsCYAViewSpec extends ViewTest {
           lazy val view = dividendsCyaView(cyaModel, taxYear = taxYear)(user, welshMessages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          titleCheck(titleExpected)
+          titleCheck(titleExpectedIndividual)
           welshToggleCheck("Welsh")
-          h1Check(h1Expected)
+          h1Check(h1ExpectedIndividual)
           textOnPageCheck(captionExpected, captionSelector)
 
           "has an area for question 1" which {
@@ -479,9 +481,9 @@ class DividendsCYAViewSpec extends ViewTest {
           lazy val view = dividendsCyaView(cyaModel, taxYear = taxYear)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          titleCheck(titleExpected)
+          titleCheck(titleExpectedAgent)
           welshToggleCheck("Welsh")
-          h1Check(h1Expected)
+          h1Check(h1ExpectedAgent)
           textOnPageCheck(captionExpected, captionSelector)
 
           "has an area for question 1" which {
@@ -538,9 +540,9 @@ class DividendsCYAViewSpec extends ViewTest {
           lazy val view = dividendsCyaView(cyaModel, priorSubmission, taxYear)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          titleCheck(titleExpected)
+          titleCheck(titleExpectedAgent)
           welshToggleCheck("Welsh")
-          h1Check(h1Expected)
+          h1Check(h1ExpectedAgent)
           textOnPageCheck(captionExpected, captionSelector)
 
           "has an area for question 1" which {
@@ -574,9 +576,9 @@ class DividendsCYAViewSpec extends ViewTest {
           lazy val view = dividendsCyaView(cyaModel, taxYear = taxYear)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          titleCheck(titleExpected)
+          titleCheck(titleExpectedAgent)
           welshToggleCheck("Welsh")
-          h1Check(h1Expected)
+          h1Check(h1ExpectedAgent)
           textOnPageCheck(captionExpected, captionSelector)
 
           "has an area for question 1" which {

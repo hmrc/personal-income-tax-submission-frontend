@@ -72,10 +72,10 @@ class ChangeAccountAmountController @Inject()(
 
         val form: Form[BigDecimal] = {
           if(previousAmount.contains(accountModel.amount)) {
-            ChangeAccountAmountForm.changeAccountAmountForm(user.isAgent, taxType)
+            ChangeAccountAmountForm.changeAccountAmountForm(taxType)
           }
             else{
-            ChangeAccountAmountForm.changeAccountAmountForm(user.isAgent, taxType).
+            ChangeAccountAmountForm.changeAccountAmountForm(taxType).
               fill(previousAmount.getOrElse(accountModel.amount))
           }
         }
@@ -97,7 +97,7 @@ class ChangeAccountAmountController @Inject()(
           case Some(account) =>
             val previousAmount = extractPreAmount(taxType,Some(cyaData),accountId)
 
-            ChangeAccountAmountForm.changeAccountAmountForm(user.isAgent, taxType).bindFromRequest().fold(
+            ChangeAccountAmountForm.changeAccountAmountForm(taxType).bindFromRequest().fold(
               formWithErrors => BadRequest(view(formWithErrors, account, taxYear, taxType, accountId, previousAmount)),
               formModel => {
                 val updatedAccounts = updateAccounts(taxType, cyaData, accountId, formModel)

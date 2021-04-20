@@ -39,19 +39,19 @@ class ReceiveOtherUkDividendsController @Inject()(
                                                    implicit val appConfig: AppConfig
                                           ) extends FrontendController(cc) with I18nSupport with SessionHelper {
 
-  val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("dividends.other-dividends.errors.noChoice")
+  def yesNoForm(isAgent: Boolean): Form[Boolean] = YesNoForm.yesNoForm(s"dividends.other-dividends.errors.noChoice.${if(isAgent) "agent" else "individual"}")
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).apply { implicit user =>
     DividendsPriorSubmission.fromSession() match {
       case Some(prior) if prior.otherUkDividends.nonEmpty => Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))
       case _ =>
         val cyaData: Option[Boolean] = getModelFromSession[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA).flatMap(_.otherUkDividends)
-        Ok(receiveOtherDividendsView(cyaData.fold(yesNoForm)(yesNoForm.fill), taxYear))
+        Ok(receiveOtherDividendsView(cyaData.fold(yesNoForm(user.isAgent))(yesNoForm(user.isAgent).fill), taxYear))
     }
   }
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, DIVIDENDS)) { implicit user =>
-    yesNoForm.bindFromRequest().fold (
+    yesNoForm(user.isAgent).bindFromRequest().fold (
       {
         formWithErrors => BadRequest(
           receiveOtherDividendsView(formWithErrors, taxYear)

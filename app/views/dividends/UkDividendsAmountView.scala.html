@@ -52,25 +52,18 @@
 @currencyFormHtml(formInput: Form[BigDecimal]) = {
     @errorSummary(formInput.errors.distinct)
 
-    @heading(headingForUse, Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
-
     @inputText(
         formInput,
         id = "amount",
         name = "amount",
-        label = if(priorAmount.isDefined) {
-                    val part1 = messages(s"dividends.uk-dividends-amount.change-amount.prior.common.1")
-                    val part2 = messages(s"dividends.uk-dividends-amount.change-amount.prior.${if(user.isAgent) "agent" else "individual"}")
-                    val part3 = bigDecimalCurrency(priorAmount.get.toString)
-                    val part4 = messages("dividends.uk-dividends-amount.change-amount.prior.common.2")
-                    s"$part1 $part2 $part3 $part4"
-                } else {
-                    messages(s"dividends.uk-dividends-amount.change-amount.caption.${if(user.isAgent) "agent" else "individual"}")
-                },
+        heading = headingForUse,
+        content = Some(contentHtml),
         labelClasses = Some("govuk-!-margin-bottom-4"),
         isPageHeading = false,
         currency = true,
-        hint = hintText
+        hint = hintText,
+        subheading = Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)),
+        headingClasses = "govuk-!-margin-bottom-2"
    )
 }
 
@@ -84,6 +77,21 @@
 
 @hasFormErrors = @{
     form.hasErrors
+}
+
+@contentHtml = {
+    @if(priorAmount.isDefined) {
+        <p>
+        @messages(s"dividends.uk-dividends-amount.change-amount.prior.common.1")
+        @messages(s"dividends.uk-dividends-amount.change-amount.prior.${if(user.isAgent) "agent" else "individual"}")
+        @bigDecimalCurrency(priorAmount.get.toString)
+        @messages("dividends.uk-dividends-amount.change-amount.prior.common.2")
+        </p>
+    } else {
+        <p>
+        @messages(s"dividends.uk-dividends-amount.change-amount.caption.${if(user.isAgent) "agent" else "individual"}")
+        </p>
+    }
 }
 
 @layout(pageTitle = titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors) {

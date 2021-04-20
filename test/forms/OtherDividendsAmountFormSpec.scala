@@ -17,14 +17,22 @@
 package forms
 
 import forms.OtherDividendsAmountForm._
+import models.User
 import play.api.data.{Form, FormError}
+import play.api.mvc.AnyContent
 import utils.UnitTest
 
 
 class OtherDividendsAmountFormSpec extends UnitTest {
 
-  def form: Form[BigDecimal] = {
-    OtherDividendsAmountForm.otherDividendsAmountForm()
+  def agentForm: Form[BigDecimal] = {
+    val agentUser: User[AnyContent] = user.copy(arn = Some("XARN1234567890"))
+    OtherDividendsAmountForm.otherDividendsAmountForm(agentUser)
+  }
+
+  def individualForm: Form[BigDecimal] = {
+    val individualUser: User[AnyContent] = user
+    OtherDividendsAmountForm.otherDividendsAmountForm(individualUser)
   }
 
   lazy val testCurrencyValid = "1000"
@@ -39,45 +47,67 @@ class OtherDividendsAmountFormSpec extends UnitTest {
       "a valid currency is entered" in {
         val testInput = Map(otherDividendsAmount -> testCurrencyValid)
         val expected = BigDecimal(testCurrencyValid)
-        val actual = form.bind(testInput).value
+        val actual = individualForm.bind(testInput).value
 
         actual shouldBe Some(expected)
       }
     }
 
-    "invalidate an empty currency" in {
+    "invalidate an empty currency for an individual" in {
       val testInput = Map(otherDividendsAmount -> testCurrencyEmpty)
 
-      val emptyTest = form.bind(testInput)
-      emptyTest.errors should contain(FormError(otherDividendsAmount, "dividends.other-dividends-amount.error.empty"))
+      val emptyTest = individualForm.bind(testInput)
+      emptyTest.errors should contain(FormError(otherDividendsAmount, "dividends.other-dividends-amount.error.empty.individual"))
     }
 
-    "invalidate a currency that includes invalid characters" in {
+    "invalidate an empty currency for an agent" in {
+      val testInput = Map(otherDividendsAmount -> testCurrencyEmpty)
+
+      val emptyTest = agentForm.bind(testInput)
+      emptyTest.errors should contain(FormError(otherDividendsAmount, "dividends.other-dividends-amount.error.empty.agent"))
+    }
+
+    "invalidate a currency that includes invalid characters for an individual" in {
 
       val testInput = Map(otherDividendsAmount -> testCurrencyInvalidInt)
 
-      val invalidCharTest = form.bind(testInput)
-      invalidCharTest.errors should contain(FormError(otherDividendsAmount, "common.error.invalid_number"))
+      val invalidCharTest = individualForm.bind(testInput)
+      invalidCharTest.errors should contain(FormError(otherDividendsAmount, "dividends.other-dividends-amount.error.invalidFormat.individual"))
     }
 
-    "invalidate a currency that has incorrect formatting" in {
+    "invalidate a currency that includes invalid characters for an agent" in {
+
+      val testInput = Map(otherDividendsAmount -> testCurrencyInvalidInt)
+
+      val invalidCharTest = agentForm.bind(testInput)
+      invalidCharTest.errors should contain(FormError(otherDividendsAmount, "dividends.other-dividends-amount.error.invalidFormat.agent"))
+    }
+
+    "invalidate a currency that has incorrect formatting for an individual" in {
       val testInput = Map(otherDividendsAmount -> testCurrencyInvalidFormat)
 
-      val invalidFormatTest = form.bind(testInput)
-      invalidFormatTest.errors should contain(FormError(otherDividendsAmount, "common.error.invalid_currency_format"))
+      val invalidFormatTest = individualForm.bind(testInput)
+      invalidFormatTest.errors should contain(FormError(otherDividendsAmount, "dividends.other-dividends-amount.error.invalidFormat.individual"))
+    }
+
+    "invalidate a currency that has incorrect formatting for an agent" in {
+      val testInput = Map(otherDividendsAmount -> testCurrencyInvalidFormat)
+
+      val invalidFormatTest = agentForm.bind(testInput)
+      invalidFormatTest.errors should contain(FormError(otherDividendsAmount, "dividends.other-dividends-amount.error.invalidFormat.agent"))
     }
 
     "invalidate a currency that is too big" in {
       val testInput = Map(otherDividendsAmount -> testCurrencyTooBig)
 
-      val bigCurrencyTest = form.bind(testInput)
-      bigCurrencyTest.errors should contain(FormError(otherDividendsAmount, "common.error.amountMaxLimit"))
+      val bigCurrencyTest = individualForm.bind(testInput)
+      bigCurrencyTest.errors should contain(FormError(otherDividendsAmount, "dividends.other-dividends-amount.error.amountMaxLimit"))
     }
 
     "remove a leading space from a currency" in {
       val testInput = Map(otherDividendsAmount -> (" " + testCurrencyValid))
       val expected = BigDecimal(testCurrencyValid)
-      val leadingSpaceTest = form.bind(testInput).value
+      val leadingSpaceTest = individualForm.bind(testInput).value
 
       leadingSpaceTest shouldBe Some(expected)
     }

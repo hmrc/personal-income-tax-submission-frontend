@@ -18,16 +18,27 @@ package views.interest
 
 
 import forms.ChangeAccountAmountForm
+import models.User
 import models.interest.InterestAccountModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.data.Form
+import play.api.mvc.AnyContent
 import utils.ViewTest
 import views.html.interest.ChangeAccountAmountView
 
 class ChangeAccountAmountViewSpec extends ViewTest {
 
-  def changeAccountAmountForm(isAgent: Boolean, taxType: String): Form[BigDecimal] = ChangeAccountAmountForm.changeAccountAmountForm(isAgent, taxType)
+  def changeAccountAmountAgentForm(taxType: String): Form[BigDecimal] = {
+    val agentUser: User[AnyContent] = user.copy(arn = Some("XARN1234567890"))
+    ChangeAccountAmountForm.changeAccountAmountForm(taxType)(agentUser)
+  }
+
+  def changeAccountAmountIndividualForm(taxType: String): Form[BigDecimal] = {
+    val individualUser: User[AnyContent] = user
+    ChangeAccountAmountForm.changeAccountAmountForm(taxType)(individualUser)
+  }
+
 
   lazy val changeAccountAmountView: ChangeAccountAmountView = app.injector.instanceOf[ChangeAccountAmountView]
 
@@ -43,7 +54,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
   val errorSummaryTextSelector = ".govuk-error-summary__body"
   val newAmountInputSelector = "#amount"
   val amountInputName = "amount"
-  val youToldUsSelector = "#main-content > div > div > form > div > div > label"
+  val youToldUsSelector = "#main-content > div > div > form > div > div > label > p"
 
   val expectedUntaxedTitleIndividual = "How much untaxed UK interest did you get?"
   val expectedUntaxedTitleAgent = "How much untaxed UK interest did your client get?"
@@ -79,8 +90,6 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
   val TAXED = "taxed"
   val UNTAXED = "untaxed"
-  val anAgent = true
-  val anIndividual = false
 
   "ChangeAccountAmountView in English" when {
 
@@ -91,7 +100,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = changeAccountAmountView(
-            changeAccountAmountForm(anIndividual, UNTAXED).fill(priorAmountValue),
+            changeAccountAmountIndividualForm(UNTAXED).fill(priorAmountValue),
             testCall,
             taxYear,
             UNTAXED,
@@ -118,7 +127,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an empty value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anIndividual, UNTAXED).bind(Map("amount" -> "")),
+              changeAccountAmountIndividualForm(UNTAXED).bind(Map("amount" -> "")),
               testCall,
               taxYear,
               UNTAXED,
@@ -145,7 +154,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anIndividual, UNTAXED).bind(Map("amount" -> "abc")),
+              changeAccountAmountIndividualForm(UNTAXED).bind(Map("amount" -> "abc")),
               testCall,
               taxYear,
               UNTAXED,
@@ -172,7 +181,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "a value greater than 100,000,000,000 is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anIndividual, UNTAXED).bind(Map("amount" -> "200,000,000,000")),
+              changeAccountAmountIndividualForm(UNTAXED).bind(Map("amount" -> "200,000,000,000")),
               testCall,
               taxYear,
               UNTAXED,
@@ -199,7 +208,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid format value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anIndividual, UNTAXED).bind(Map("amount" -> "100.00.00")),
+              changeAccountAmountIndividualForm(UNTAXED).bind(Map("amount" -> "100.00.00")),
               testCall,
               taxYear,
               UNTAXED,
@@ -232,7 +241,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = changeAccountAmountView(
-            changeAccountAmountForm(anIndividual, TAXED).fill(priorAmountValue),
+            changeAccountAmountIndividualForm(TAXED).fill(priorAmountValue),
             testCall,
             taxYear,
             TAXED,
@@ -257,7 +266,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an empty value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anIndividual, TAXED).bind(Map("amount" -> "")),
+              changeAccountAmountIndividualForm(TAXED).bind(Map("amount" -> "")),
               testCall,
               taxYear,
               TAXED,
@@ -284,7 +293,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anIndividual, TAXED).bind(Map("amount" -> "abc")),
+              changeAccountAmountIndividualForm(TAXED).bind(Map("amount" -> "abc")),
               testCall,
               taxYear,
               TAXED,
@@ -311,7 +320,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "a value greater than 100,000,000,000 is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anIndividual, TAXED).bind(Map("amount" -> "200,000,000,000")),
+              changeAccountAmountIndividualForm(TAXED).bind(Map("amount" -> "200,000,000,000")),
               testCall,
               taxYear,
               TAXED,
@@ -338,7 +347,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid format value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anIndividual, TAXED).bind(Map("amount" -> "100.00.00")),
+              changeAccountAmountIndividualForm(TAXED).bind(Map("amount" -> "100.00.00")),
               testCall,
               taxYear,
               TAXED,
@@ -371,7 +380,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = changeAccountAmountView(
-            changeAccountAmountForm(anAgent, UNTAXED).fill(priorAmountValue),
+            changeAccountAmountAgentForm(UNTAXED).fill(priorAmountValue),
             testCall,
             taxYear,
             UNTAXED,
@@ -398,7 +407,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an empty value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anAgent, UNTAXED).bind(Map("amount" -> "")),
+              changeAccountAmountAgentForm(UNTAXED).bind(Map("amount" -> "")),
               testCall,
               taxYear,
               UNTAXED,
@@ -425,7 +434,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anAgent, UNTAXED).bind(Map("amount" -> "abc")),
+              changeAccountAmountAgentForm(UNTAXED).bind(Map("amount" -> "abc")),
               testCall,
               taxYear,
               UNTAXED,
@@ -452,7 +461,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "a value greater than 100,000,000,000 is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anAgent, UNTAXED).bind(Map("amount" -> "200,000,000,000")),
+              changeAccountAmountAgentForm(UNTAXED).bind(Map("amount" -> "200,000,000,000")),
               testCall,
               taxYear,
               UNTAXED,
@@ -479,7 +488,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid format value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anAgent, UNTAXED).bind(Map("amount" -> "100.00.00")),
+              changeAccountAmountAgentForm(UNTAXED).bind(Map("amount" -> "100.00.00")),
               testCall,
               taxYear,
               UNTAXED,
@@ -512,7 +521,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = changeAccountAmountView(
-            changeAccountAmountForm(anAgent, TAXED).fill(priorAmountValue),
+            changeAccountAmountAgentForm(TAXED).fill(priorAmountValue),
             testCall,
             taxYear,
             TAXED,
@@ -537,7 +546,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an empty value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anAgent, TAXED).bind(Map("amount" -> "")),
+              changeAccountAmountAgentForm(TAXED).bind(Map("amount" -> "")),
               testCall,
               taxYear,
               TAXED,
@@ -564,7 +573,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anAgent, TAXED).bind(Map("amount" -> "abc")),
+              changeAccountAmountAgentForm(TAXED).bind(Map("amount" -> "abc")),
               testCall,
               taxYear,
               TAXED,
@@ -591,7 +600,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "a value greater than 100,000,000,000 is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anAgent, TAXED).bind(Map("amount" -> "200,000,000,000")),
+              changeAccountAmountAgentForm(TAXED).bind(Map("amount" -> "200,000,000,000")),
               testCall,
               taxYear,
               TAXED,
@@ -618,7 +627,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid format value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anAgent, TAXED).bind(Map("amount" -> "100.00.00")),
+              changeAccountAmountAgentForm(TAXED).bind(Map("amount" -> "100.00.00")),
               testCall,
               taxYear,
               TAXED,
@@ -658,7 +667,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = changeAccountAmountView(
-            changeAccountAmountForm(anIndividual, UNTAXED).fill(priorAmountValue),
+            changeAccountAmountIndividualForm(UNTAXED).fill(priorAmountValue),
             testCall,
             taxYear,
             UNTAXED,
@@ -685,7 +694,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an empty value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anIndividual, UNTAXED).bind(Map("amount" -> "")),
+              changeAccountAmountIndividualForm(UNTAXED).bind(Map("amount" -> "")),
               testCall,
               taxYear,
               UNTAXED,
@@ -712,7 +721,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anIndividual, UNTAXED).bind(Map("amount" -> "abc")),
+              changeAccountAmountIndividualForm(UNTAXED).bind(Map("amount" -> "abc")),
               testCall,
               taxYear,
               UNTAXED,
@@ -739,7 +748,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "a value greater than 100,000,000,000 is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anIndividual, UNTAXED).bind(Map("amount" -> "200,000,000,000")),
+              changeAccountAmountIndividualForm(UNTAXED).bind(Map("amount" -> "200,000,000,000")),
               testCall,
               taxYear,
               UNTAXED,
@@ -766,7 +775,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid format value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anIndividual, UNTAXED).bind(Map("amount" -> "100.00.00")),
+              changeAccountAmountIndividualForm(UNTAXED).bind(Map("amount" -> "100.00.00")),
               testCall,
               taxYear,
               UNTAXED,
@@ -799,7 +808,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = changeAccountAmountView(
-            changeAccountAmountForm(anIndividual, TAXED).fill(priorAmountValue),
+            changeAccountAmountIndividualForm(TAXED).fill(priorAmountValue),
             testCall,
             taxYear,
             TAXED,
@@ -824,7 +833,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an empty value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anIndividual, TAXED).bind(Map("amount" -> "")),
+              changeAccountAmountIndividualForm(TAXED).bind(Map("amount" -> "")),
               testCall,
               taxYear,
               TAXED,
@@ -851,7 +860,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anIndividual, TAXED).bind(Map("amount" -> "abc")),
+              changeAccountAmountIndividualForm(TAXED).bind(Map("amount" -> "abc")),
               testCall,
               taxYear,
               TAXED,
@@ -878,7 +887,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "a value greater than 100,000,000,000 is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anIndividual, TAXED).bind(Map("amount" -> "200,000,000,000")),
+              changeAccountAmountIndividualForm(TAXED).bind(Map("amount" -> "200,000,000,000")),
               testCall,
               taxYear,
               TAXED,
@@ -905,7 +914,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid format value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anIndividual, TAXED).bind(Map("amount" -> "100.00.00")),
+              changeAccountAmountIndividualForm(TAXED).bind(Map("amount" -> "100.00.00")),
               testCall,
               taxYear,
               TAXED,
@@ -938,7 +947,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = changeAccountAmountView(
-            changeAccountAmountForm(anAgent, UNTAXED).fill(priorAmountValue),
+            changeAccountAmountAgentForm(UNTAXED).fill(priorAmountValue),
             testCall,
             taxYear,
             UNTAXED,
@@ -965,7 +974,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an empty value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anAgent, UNTAXED).bind(Map("amount" -> "")),
+              changeAccountAmountAgentForm(UNTAXED).bind(Map("amount" -> "")),
               testCall,
               taxYear,
               UNTAXED,
@@ -992,7 +1001,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anAgent, UNTAXED).bind(Map("amount" -> "abc")),
+              changeAccountAmountAgentForm(UNTAXED).bind(Map("amount" -> "abc")),
               testCall,
               taxYear,
               UNTAXED,
@@ -1019,7 +1028,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "a value greater than 100,000,000,000 is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anAgent, UNTAXED).bind(Map("amount" -> "200,000,000,000")),
+              changeAccountAmountAgentForm(UNTAXED).bind(Map("amount" -> "200,000,000,000")),
               testCall,
               taxYear,
               UNTAXED,
@@ -1046,7 +1055,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid format value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anAgent, UNTAXED).bind(Map("amount" -> "100.00.00")),
+              changeAccountAmountAgentForm(UNTAXED).bind(Map("amount" -> "100.00.00")),
               testCall,
               taxYear,
               UNTAXED,
@@ -1079,7 +1088,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = changeAccountAmountView(
-            changeAccountAmountForm(anAgent, TAXED).fill(priorAmountValue),
+            changeAccountAmountAgentForm(TAXED).fill(priorAmountValue),
             testCall,
             taxYear,
             TAXED,
@@ -1104,7 +1113,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an empty value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anAgent, TAXED).bind(Map("amount" -> "")),
+              changeAccountAmountAgentForm(TAXED).bind(Map("amount" -> "")),
               testCall,
               taxYear,
               TAXED,
@@ -1131,7 +1140,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anAgent, TAXED).bind(Map("amount" -> "abc")),
+              changeAccountAmountAgentForm(TAXED).bind(Map("amount" -> "abc")),
               testCall,
               taxYear,
               TAXED,
@@ -1158,7 +1167,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "a value greater than 100,000,000,000 is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anAgent, TAXED).bind(Map("amount" -> "200,000,000,000")),
+              changeAccountAmountAgentForm(TAXED).bind(Map("amount" -> "200,000,000,000")),
               testCall,
               taxYear,
               TAXED,
@@ -1185,7 +1194,7 @@ class ChangeAccountAmountViewSpec extends ViewTest {
 
           "an invalid format value for amount is passed in" which {
             lazy val view = changeAccountAmountView(
-              changeAccountAmountForm(anAgent, TAXED).bind(Map("whichAmount" -> "other", "amount" -> "100.00.00")),
+              changeAccountAmountAgentForm(TAXED).bind(Map("whichAmount" -> "other", "amount" -> "100.00.00")),
               testCall,
               taxYear,
               TAXED,

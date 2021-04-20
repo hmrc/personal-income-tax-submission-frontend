@@ -34,6 +34,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
   val taxYear = 2022
 
   val dividends: BigDecimal = 10
+  val dividendsCheckYourAnswersUrl = s"$startUrl/$taxYear/dividends/check-income-from-dividends"
 
   lazy val dividendsBody: DividendsSubmissionModel = DividendsSubmissionModel(
     Some(dividends),
@@ -52,7 +53,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
 
         lazy val result = {
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/$taxYear/dividends/check-your-answers")
+          await(wsClient.url(dividendsCheckYourAnswersUrl)
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .get())
         }
@@ -69,7 +70,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
           stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
 
 
-          await(wsClient.url(s"$startUrl/$taxYear/dividends/check-your-answers")
+          await(wsClient.url(dividendsCheckYourAnswersUrl)
             .get())
         }
 
@@ -85,7 +86,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
           stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
 
 
-          await(wsClient.url(s"$startUrl/2020/dividends/check-your-answers")
+          await(wsClient.url(dividendsCheckYourAnswersUrl)
             .get())
         }
 
@@ -116,7 +117,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
           ))),
         ))
 
-        val result: WSResponse = await(wsClient.url(s"$startUrl/$taxYear/dividends/check-your-answers")
+        val result: WSResponse = await(wsClient.url(dividendsCheckYourAnswersUrl)
           .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
           .post("{}"))
 
@@ -136,7 +137,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
             ))),
           ))
 
-          await(wsClient.url(s"$startUrl/$taxYear/dividends/check-your-answers")
+          await(wsClient.url(dividendsCheckYourAnswersUrl)
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .post("{}"))
         }
@@ -154,7 +155,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
               otherUkDividends = Some(true),
               Some(dividends)))),
           ))
-          await(wsClient.url(s"$startUrl/$taxYear/dividends/check-your-answers")
+          await(wsClient.url(dividendsCheckYourAnswersUrl)
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .post("{}"))
         }
@@ -178,7 +179,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
           ))),
         ))
 
-        val result: WSResponse = await(wsClient.url(s"$startUrl/$taxYear/dividends/check-your-answers")
+        val result: WSResponse = await(wsClient.url(dividendsCheckYourAnswersUrl)
           .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
           .post("{}"))
 
@@ -202,7 +203,7 @@ class DividendsCYAControllerISpec extends IntegrationTest {
           ))),
         ))
 
-        val result: WSResponse = await(wsClient.url(s"$startUrl/$taxYear/dividends/check-your-answers")
+        val result: WSResponse = await(wsClient.url(dividendsCheckYourAnswersUrl)
           .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
           .post("{}"))
 
