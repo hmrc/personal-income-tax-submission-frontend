@@ -25,27 +25,29 @@ import views.html.dividends.ReceiveUkDividendsView
 
 class ReceiveUkDividendsViewSpec extends ViewTest {
 
-  lazy val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("Select yes if dividends were received from the UK")
+  lazy val yesNoFormIndividual: Form[Boolean] = YesNoForm.yesNoForm("Select yes if you got dividends from UK-based companies")
+  lazy val yesNoFormAgent: Form[Boolean] = YesNoForm.yesNoForm("Select yes if your client got dividends from UK-based companies")
 
   lazy val receiveUkDividendsView: ReceiveUkDividendsView = app.injector.instanceOf[ReceiveUkDividendsView]
 
   val taxYear = 2020
   val taxYearMinusOne: Int = taxYear -1
-  val expectedIndividualH1 = "Did you receive any dividends from companies in the UK?"
-  val expectedIndividualTitle = "Did you receive any dividends from companies in the UK?"
+  val expectedIndividualH1 = "Did you get dividends from UK-based companies?"
+  val expectedIndividualTitle = "Did you get dividends from UK-based companies?"
   val expectedIndividualErrorTitle = s"Error: $expectedIndividualTitle"
-  val expectedAgentH1 = "Did your client receive any dividends from companies in the UK?"
-  val expectedAgentTitle = "Did your client receive any dividends from companies in the UK?"
+  val expectedAgentH1 = "Did your client get dividends from UK-based companies?"
+  val expectedAgentTitle = "Did your client get dividends from UK-based companies?"
   val expectedAgentErrorTitle = s"Error: $expectedAgentTitle"
   val captionText = s"Dividends for 6 April $taxYearMinusOne to 5 April $taxYear"
-  val yourDividendsText = "Your dividend voucher will usually show your shares in the company and the dividends received."
+  val yourDividendsTextIndividual = "Your dividend voucher will tell you the shares you have in the company and the amount of the dividend you got."
+  val yourDividendsTextAgent = "Your client’s dividend voucher will tell you the shares they have in the company and the amount of the dividend they got."
   val yesText = "Yes"
   val noText = "No"
   val continueText = "Continue"
-  val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/uk-dividends"
+  val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/dividends-from-uk-companies"
 
   val captionSelector = ".govuk-caption-l"
-  val yourDividendsSelector = "#value-hint"
+  val yourDividendsSelector = "#main-content > div > div > form > div > fieldset > legend > p"
   val continueSelector = "#continue"
   val continueButtonFormSelector = "#main-content > div > div > form"
 
@@ -56,14 +58,14 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
       "there are no form errors" which {
 
         lazy val view = receiveUkDividendsView(
-          yesNoForm, taxYear)(user, messages, mockAppConfig)
+          yesNoFormIndividual, taxYear)(user, messages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         titleCheck(expectedIndividualTitle)
         welshToggleCheck("English")
         h1Check(expectedIndividualH1)
         textOnPageCheck(captionText, captionSelector)
-        textOnPageCheck(yourDividendsText, yourDividendsSelector)
+        textOnPageCheck(yourDividendsTextIndividual, yourDividendsSelector)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
@@ -73,10 +75,10 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
       "there is a form error due to no radio button selected" which {
 
         lazy val view = receiveUkDividendsView(
-          yesNoForm.bind(Map("value" -> "")), taxYear)(user, messages, mockAppConfig)
+          yesNoFormIndividual.bind(Map("value" -> "")), taxYear)(user, messages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedErrorText = "Select yes if dividends were received from the UK"
+        val expectedErrorText = "Select yes if you got dividends from UK-based companies"
         val errorSummaryHref = "#value"
 
         titleCheck(expectedIndividualErrorTitle)
@@ -84,7 +86,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
         h1Check(expectedIndividualH1)
         textOnPageCheck(captionText, captionSelector)
         errorSummaryCheck(expectedErrorText, errorSummaryHref)
-        textOnPageCheck(yourDividendsText, yourDividendsSelector)
+        textOnPageCheck(yourDividendsTextIndividual, yourDividendsSelector)
         errorAboveElementCheck(expectedErrorText)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
@@ -98,14 +100,14 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
       "there are no form errors" which {
 
         lazy val view = receiveUkDividendsView(
-          yesNoForm, taxYear)(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
+          yesNoFormAgent, taxYear)(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         titleCheck(expectedAgentTitle)
         welshToggleCheck("English")
         h1Check(expectedAgentH1)
         textOnPageCheck(captionText, captionSelector)
-        textOnPageCheck(yourDividendsText, yourDividendsSelector)
+        textOnPageCheck(yourDividendsTextAgent, yourDividendsSelector)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
@@ -115,10 +117,10 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
       "there is a form error due to no radio button selected" which {
 
         lazy val view = receiveUkDividendsView(
-          yesNoForm.bind(Map("value" -> "")), taxYear)(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
+          yesNoFormAgent.bind(Map("value" -> "")), taxYear)(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedErrorText = "Select yes if dividends were received from the UK"
+        val expectedErrorText = "Select yes if your client got dividends from UK-based companies"
         val errorSummaryHref = "#value"
 
         titleCheck(expectedAgentErrorTitle)
@@ -126,7 +128,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
         h1Check(expectedAgentH1)
         textOnPageCheck(captionText, captionSelector)
         errorSummaryCheck(expectedErrorText, errorSummaryHref)
-        textOnPageCheck(yourDividendsText, yourDividendsSelector)
+        textOnPageCheck(yourDividendsTextAgent, yourDividendsSelector)
         errorAboveElementCheck(expectedErrorText)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
@@ -143,14 +145,14 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
       "there are no form errors" which {
 
         lazy val view = receiveUkDividendsView(
-          yesNoForm, taxYear)(user, welshMessages, mockAppConfig)
+          yesNoFormIndividual, taxYear)(user, welshMessages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         titleCheck(expectedIndividualTitle)
         welshToggleCheck("Welsh")
         h1Check(expectedIndividualH1)
         textOnPageCheck(captionText, captionSelector)
-        textOnPageCheck(yourDividendsText, yourDividendsSelector)
+        textOnPageCheck(yourDividendsTextIndividual, yourDividendsSelector)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
@@ -160,10 +162,10 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
       "there is a form error due to no radio button selected" which {
 
         lazy val view = receiveUkDividendsView(
-          yesNoForm.bind(Map("value" -> "")), taxYear)(user, welshMessages, mockAppConfig)
+          yesNoFormIndividual.bind(Map("value" -> "")), taxYear)(user, welshMessages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedErrorText = "Select yes if dividends were received from the UK"
+        val expectedErrorText = "Select yes if you got dividends from UK-based companies"
         val errorSummaryHref = "#value"
 
         titleCheck(expectedIndividualErrorTitle)
@@ -171,7 +173,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
         h1Check(expectedIndividualH1)
         textOnPageCheck(captionText, captionSelector)
         errorSummaryCheck(expectedErrorText, errorSummaryHref)
-        textOnPageCheck(yourDividendsText, yourDividendsSelector)
+        textOnPageCheck(yourDividendsTextIndividual, yourDividendsSelector)
         errorAboveElementCheck(expectedErrorText)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
@@ -185,14 +187,14 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
       "there are no form errors" which {
 
         lazy val view = receiveUkDividendsView(
-          yesNoForm, taxYear)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+          yesNoFormAgent, taxYear)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         titleCheck(expectedAgentTitle)
         welshToggleCheck("Welsh")
         h1Check(expectedAgentH1)
         textOnPageCheck(captionText, captionSelector)
-        textOnPageCheck(yourDividendsText, yourDividendsSelector)
+        textOnPageCheck(yourDividendsTextAgent, yourDividendsSelector)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
@@ -202,10 +204,10 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
       "there is a form error due to no radio button selected" which {
 
         lazy val view = receiveUkDividendsView(
-          yesNoForm.bind(Map("value" -> "")), taxYear)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+          yesNoFormAgent.bind(Map("value" -> "")), taxYear)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedErrorText = "Select yes if dividends were received from the UK"
+        val expectedErrorText = "Select yes if your client got dividends from UK-based companies"
         val errorSummaryHref = "#value"
 
         titleCheck(expectedAgentErrorTitle)
@@ -213,7 +215,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
         h1Check(expectedAgentH1)
         textOnPageCheck(captionText, captionSelector)
         errorSummaryCheck(expectedErrorText, errorSummaryHref)
-        textOnPageCheck(yourDividendsText, yourDividendsSelector)
+        textOnPageCheck(yourDividendsTextAgent, yourDividendsSelector)
         errorAboveElementCheck(expectedErrorText)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)

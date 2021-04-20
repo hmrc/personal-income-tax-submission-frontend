@@ -25,7 +25,9 @@ import views.html.dividends.ReceiveOtherUkDividendsView
 
 class ReceiveOtherDividendsViewSpec extends ViewTest {
 
-  lazy val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("Select yes if dividends were received trusts or investment companies")
+  lazy val yesNoFormIndividual: Form[Boolean] = YesNoForm.yesNoForm("Select yes if you got dividends from UK-based trusts or open-ended investment companies")
+  lazy val yesNoFormAgent: Form[Boolean] = YesNoForm.yesNoForm("Select yes if your " +
+    "client got dividends from UK-based trusts or open-ended investment companies")
 
   lazy val receiveOtherDividendsView: ReceiveOtherUkDividendsView = app.injector.instanceOf[ReceiveOtherUkDividendsView]
 
@@ -33,39 +35,47 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
   val taxYearMinusOne: Int = taxYear -1
 
   val captionSelector = ".govuk-caption-l"
-  val thisIncludesAuthSelector = "#value-hint > p:nth-child(1)"
-  val doNotIncludeSelector = "#value-hint > p:nth-child(2)"
   val continueSelector = "#continue"
   val continueButtonFormSelector = "#main-content > div > div > form"
-  val whatAreInvestmentSelector = "#main-content > div > div > form > details > summary > span"
-  val investmentTrustSelector = "#main-content > div > div > form > details > div > p:nth-child(1)"
-  val unitTrustsSelector = "#main-content > div > div > form > details > div > p:nth-child(2)"
-  val equalisationPaymentsSelector = "#main-content > div > div > form > details > div > p:nth-child(3)"
+  val youMustAlsoSelector = "#main-content > div > div > form > div > fieldset > legend > div:nth-child(2) > p"
+  val authorisedBulletSelector = "#main-content > div > div > form > div > fieldset > legend > ul > li:nth-child(1)"
+  val investmentBulletSelector = "#main-content > div > div > form > div > fieldset > legend > ul > li:nth-child(2)"
+  val yourDividendsBulletSelector = "#main-content > div > div > form > div > fieldset > legend > ul > li:nth-child(3)"
+  val youDoNotNeedSelector = "#main-content > div > div > form > div > fieldset > legend > div:nth-child(4) > p"
+  val whatAreInvestmentSelector = "#main-content > div > div > form > details:nth-child(2) > summary > span"
+  val investmentTrustSelector = "#main-content > div > div > form > details:nth-child(2) > div > p:nth-child(1)"
+  val unitTrustsSelector = "#main-content > div > div > form > details:nth-child(2) > div > p:nth-child(2)"
+  val openEndedSelector = "#main-content > div > div > form > details:nth-child(2) > div > p:nth-child(3)"
+  val whatAreEqualisationSelector = "#main-content > div > div > form > details:nth-child(3) > summary > span"
+  val equalisationPaymentsSelector = "#main-content > div > div > form > details:nth-child(3) > div > p"
   val continueButtonSelector = "#continue"
   val expectedErrorHref = "#value"
 
-  val expectedIndividualH1 = "Did you receive any dividends from trusts or open ended investment companies?"
-  val expectedIndividualTitle = "Did you receive any dividends from trusts or open ended investment companies?"
+  val expectedIndividualH1 = "Did you get dividends from UK-based trusts or open-ended investment companies?"
+  val expectedIndividualTitle = "Did you get dividends from UK-based trusts or open-ended investment companies?"
   val expectedIndividualErrorTitle = s"Error: $expectedIndividualTitle"
-  val expectedAgentH1 = "Did your client receive any dividends from trusts or open ended investment companies?"
-  val expectedAgentTitle = "Did your client receive any dividends from trusts or open ended investment companies?"
+  val expectedAgentH1 = "Did your client get dividends from UK-based trusts or open-ended investment companies?"
+  val expectedAgentTitle = "Did your client get dividends from UK-based trusts or open-ended investment companies?"
   val expectedAgentErrorTitle = s"Error: $expectedAgentTitle"
   val expectedCaption = s"Dividends for 6 April $taxYearMinusOne to 5 April $taxYear"
-  val thisIncludesAuthText: String = "This includes authorised unit trusts or investment funds. If your dividend is automatically " +
-    "re-invested, you must still include it."
-  val doNotIncludeText = "Do not include any amounts shown as 'equalisation' on your dividend voucher."
+  val youMustAlsoText = "You must also tell us about:"
+  val authorisedBulletText = "authorised unit trusts"
+  val investmentBulletText = "investment trusts"
+  val yourDividendsBulletText = "your dividends that were automatically reinvested"
+  val youDoNotNeedAgentText = "You do not need to tell us about amounts shown as 'equalisation' on your client’s dividend voucher."
+  val youDoNotNeedIndividualText = "You do not need to tell us about amounts shown as 'equalisation' on your dividend voucher."
+  val whatAreInvestmentText = "What are investment trusts, unit trusts and open-ended investment companies?"
+  val investmentTrustText = "Investment trusts make money through buying and selling shares or assets in other companies."
+  val unitTrustsText: String = "Unit trusts make money by buying and selling bonds or shares on the stock market. The fund is split " +
+    "into units which an investor buys. A fund manager creates and cancels units when investors join and leave the trust."
+  val openEndedText = "Open-ended investment companies are like unit trusts but create and cancel shares, rather than units, when investors join or leave."
+  val whatAreEqualisationText = "What are equalisation payments?"
+  val equalisationPaymentsText: String = "Equalisation payments are given to investors to make sure they’re charged fairly based " +
+    "on the performance of the trust. Equalisation payments are not counted as income because they’re a return of part of an investment."
   val yesText = "Yes"
   val noText = "No"
   val continueText = "Continue"
-  val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/other-dividends"
-  val whatAreInvestmentText = "What are investment trusts and companies?"
-  val investmentTrustText:String = "Investment trusts are public companies that aim to make money through buying and selling shares " +
-    "or assets in other companies. They let you join a group of other investors with a fund manager to get the best possible return for your money."
-  val unitTrustsText:String = "Unit trusts and open ended investment companies are the most popular investment funds. Open ended investment " +
-    "companies are like unit trusts except that they’re run like a company. They create and cancel shares rather than units when investors join or leave."
-  val equalisationPaymentsText:String = "Equalisation payments are what an investor receives after making an investment part way" +
-    " through a distribution period. They’re made up of the income generated before the investment and included in the price" +
-    " paid for each unit. They are not considered income as it is a return of part of the investor’s capital."
+  val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
 
   "ReceivedDividendsView in English" should {
 
@@ -74,15 +84,18 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
       "there are no form errors" which {
 
         lazy val view = receiveOtherDividendsView(
-          yesNoForm, taxYear)(user, messages, mockAppConfig)
+          yesNoFormIndividual, taxYear)(user, messages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         titleCheck(expectedIndividualTitle)
         welshToggleCheck("English")
         h1Check(expectedIndividualH1)
         textOnPageCheck(expectedCaption, captionSelector)
-        textOnPageCheck(thisIncludesAuthText, thisIncludesAuthSelector)
-        textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
+        textOnPageCheck(youMustAlsoText, youMustAlsoSelector)
+        textOnPageCheck(authorisedBulletText, authorisedBulletSelector)
+        textOnPageCheck(investmentBulletText, investmentBulletSelector)
+        textOnPageCheck(yourDividendsBulletText, yourDividendsBulletSelector)
+        textOnPageCheck(youDoNotNeedIndividualText, youDoNotNeedSelector)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueButtonSelector)
@@ -90,6 +103,8 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
         textOnPageCheck(whatAreInvestmentText, whatAreInvestmentSelector)
         textOnPageCheck(investmentTrustText, investmentTrustSelector)
         textOnPageCheck(unitTrustsText, unitTrustsSelector)
+        textOnPageCheck(openEndedText, openEndedSelector)
+        textOnPageCheck(whatAreEqualisationText, whatAreEqualisationSelector)
         textOnPageCheck(equalisationPaymentsText, equalisationPaymentsSelector)
       }
 
@@ -98,21 +113,24 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
         "a form with an empty value field is passed in" which {
 
           lazy val view = receiveOtherDividendsView(
-            yesNoForm.bind(Map("value" -> "")),
+            yesNoFormIndividual.bind(Map("value" -> "")),
             taxYear
           )(user, messages, mockAppConfig)
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          val expectedErrorText = "Select yes if dividends were received trusts or investment companies"
+          val expectedErrorText = "Select yes if you got dividends from UK-based trusts or open-ended investment companies"
 
           titleCheck(expectedIndividualErrorTitle)
           welshToggleCheck("English")
           h1Check(expectedIndividualH1)
           textOnPageCheck(expectedCaption, captionSelector)
           errorSummaryCheck(expectedErrorText, expectedErrorHref)
-          textOnPageCheck(thisIncludesAuthText, thisIncludesAuthSelector)
-          textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
+          textOnPageCheck(youMustAlsoText, youMustAlsoSelector)
+          textOnPageCheck(authorisedBulletText, authorisedBulletSelector)
+          textOnPageCheck(investmentBulletText, investmentBulletSelector)
+          textOnPageCheck(yourDividendsBulletText, yourDividendsBulletSelector)
+          textOnPageCheck(youDoNotNeedIndividualText, youDoNotNeedSelector)
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
           errorAboveElementCheck(expectedErrorText)
@@ -121,6 +139,8 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
           textOnPageCheck(whatAreInvestmentText, whatAreInvestmentSelector)
           textOnPageCheck(investmentTrustText, investmentTrustSelector)
           textOnPageCheck(unitTrustsText, unitTrustsSelector)
+          textOnPageCheck(openEndedText, openEndedSelector)
+          textOnPageCheck(whatAreEqualisationText, whatAreEqualisationSelector)
           textOnPageCheck(equalisationPaymentsText, equalisationPaymentsSelector)
         }
       }
@@ -131,15 +151,18 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
       "there are no form errors" which {
 
         lazy val view = receiveOtherDividendsView(
-          yesNoForm, taxYear)(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
+          yesNoFormAgent, taxYear)(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         titleCheck(expectedAgentTitle)
         welshToggleCheck("English")
         h1Check(expectedAgentH1)
         textOnPageCheck(expectedCaption, captionSelector)
-        textOnPageCheck(thisIncludesAuthText, thisIncludesAuthSelector)
-        textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
+        textOnPageCheck(youMustAlsoText, youMustAlsoSelector)
+        textOnPageCheck(authorisedBulletText, authorisedBulletSelector)
+        textOnPageCheck(investmentBulletText, investmentBulletSelector)
+        textOnPageCheck(yourDividendsBulletText, yourDividendsBulletSelector)
+        textOnPageCheck(youDoNotNeedAgentText, youDoNotNeedSelector)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueButtonSelector)
@@ -147,6 +170,8 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
         textOnPageCheck(whatAreInvestmentText, whatAreInvestmentSelector)
         textOnPageCheck(investmentTrustText, investmentTrustSelector)
         textOnPageCheck(unitTrustsText, unitTrustsSelector)
+        textOnPageCheck(openEndedText, openEndedSelector)
+        textOnPageCheck(whatAreEqualisationText, whatAreEqualisationSelector)
         textOnPageCheck(equalisationPaymentsText, equalisationPaymentsSelector)
       }
 
@@ -155,21 +180,24 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
         "a form with an empty value field is passed in" which {
 
           lazy val view = receiveOtherDividendsView(
-            yesNoForm.bind(Map("value" -> "")),
+            yesNoFormAgent.bind(Map("value" -> "")),
             taxYear
           )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          val expectedErrorText = "Select yes if dividends were received trusts or investment companies"
+          val expectedErrorText = "Select yes if your client got dividends from UK-based trusts or open-ended investment companies"
 
           titleCheck(expectedAgentErrorTitle)
           welshToggleCheck("English")
           h1Check(expectedAgentH1)
           textOnPageCheck(expectedCaption, captionSelector)
           errorSummaryCheck(expectedErrorText, expectedErrorHref)
-          textOnPageCheck(thisIncludesAuthText, thisIncludesAuthSelector)
-          textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
+          textOnPageCheck(youMustAlsoText, youMustAlsoSelector)
+          textOnPageCheck(authorisedBulletText, authorisedBulletSelector)
+          textOnPageCheck(investmentBulletText, investmentBulletSelector)
+          textOnPageCheck(yourDividendsBulletText, yourDividendsBulletSelector)
+          textOnPageCheck(youDoNotNeedAgentText, youDoNotNeedSelector)
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
           errorAboveElementCheck(expectedErrorText)
@@ -178,6 +206,8 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
           textOnPageCheck(whatAreInvestmentText, whatAreInvestmentSelector)
           textOnPageCheck(investmentTrustText, investmentTrustSelector)
           textOnPageCheck(unitTrustsText, unitTrustsSelector)
+          textOnPageCheck(openEndedText, openEndedSelector)
+          textOnPageCheck(whatAreEqualisationText, whatAreEqualisationSelector)
           textOnPageCheck(equalisationPaymentsText, equalisationPaymentsSelector)
         }
       }
@@ -191,15 +221,18 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
       "there are no form errors" which {
 
         lazy val view = receiveOtherDividendsView(
-          yesNoForm, taxYear)(user, welshMessages, mockAppConfig)
+          yesNoFormIndividual, taxYear)(user, welshMessages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         titleCheck(expectedIndividualTitle)
         welshToggleCheck("Welsh")
         h1Check(expectedIndividualH1)
         textOnPageCheck(expectedCaption, captionSelector)
-        textOnPageCheck(thisIncludesAuthText, thisIncludesAuthSelector)
-        textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
+        textOnPageCheck(youMustAlsoText, youMustAlsoSelector)
+        textOnPageCheck(authorisedBulletText, authorisedBulletSelector)
+        textOnPageCheck(investmentBulletText, investmentBulletSelector)
+        textOnPageCheck(yourDividendsBulletText, yourDividendsBulletSelector)
+        textOnPageCheck(youDoNotNeedIndividualText, youDoNotNeedSelector)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueButtonSelector)
@@ -207,6 +240,8 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
         textOnPageCheck(whatAreInvestmentText, whatAreInvestmentSelector)
         textOnPageCheck(investmentTrustText, investmentTrustSelector)
         textOnPageCheck(unitTrustsText, unitTrustsSelector)
+        textOnPageCheck(openEndedText, openEndedSelector)
+        textOnPageCheck(whatAreEqualisationText, whatAreEqualisationSelector)
         textOnPageCheck(equalisationPaymentsText, equalisationPaymentsSelector)
       }
 
@@ -215,21 +250,24 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
         "a form with an empty value field is passed in" which {
 
           lazy val view = receiveOtherDividendsView(
-            yesNoForm.bind(Map("value" -> "")),
+            yesNoFormIndividual.bind(Map("value" -> "")),
             taxYear
           )(user, welshMessages, mockAppConfig)
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          val expectedErrorText = "Select yes if dividends were received trusts or investment companies"
+          val expectedErrorText = "Select yes if you got dividends from UK-based trusts or open-ended investment companies"
 
           titleCheck(expectedIndividualErrorTitle)
           welshToggleCheck("Welsh")
           h1Check(expectedIndividualH1)
           textOnPageCheck(expectedCaption, captionSelector)
           errorSummaryCheck(expectedErrorText, expectedErrorHref)
-          textOnPageCheck(thisIncludesAuthText, thisIncludesAuthSelector)
-          textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
+          textOnPageCheck(youMustAlsoText, youMustAlsoSelector)
+          textOnPageCheck(authorisedBulletText, authorisedBulletSelector)
+          textOnPageCheck(investmentBulletText, investmentBulletSelector)
+          textOnPageCheck(yourDividendsBulletText, yourDividendsBulletSelector)
+          textOnPageCheck(youDoNotNeedIndividualText, youDoNotNeedSelector)
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
           errorAboveElementCheck(expectedErrorText)
@@ -238,6 +276,8 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
           textOnPageCheck(whatAreInvestmentText, whatAreInvestmentSelector)
           textOnPageCheck(investmentTrustText, investmentTrustSelector)
           textOnPageCheck(unitTrustsText, unitTrustsSelector)
+          textOnPageCheck(openEndedText, openEndedSelector)
+          textOnPageCheck(whatAreEqualisationText, whatAreEqualisationSelector)
           textOnPageCheck(equalisationPaymentsText, equalisationPaymentsSelector)
         }
       }
@@ -248,15 +288,18 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
       "there are no form errors" which {
 
         lazy val view = receiveOtherDividendsView(
-          yesNoForm, taxYear)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
+          yesNoFormAgent, taxYear)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
         titleCheck(expectedAgentTitle)
         welshToggleCheck("Welsh")
         h1Check(expectedAgentH1)
         textOnPageCheck(expectedCaption, captionSelector)
-        textOnPageCheck(thisIncludesAuthText, thisIncludesAuthSelector)
-        textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
+        textOnPageCheck(youMustAlsoText, youMustAlsoSelector)
+        textOnPageCheck(authorisedBulletText, authorisedBulletSelector)
+        textOnPageCheck(investmentBulletText, investmentBulletSelector)
+        textOnPageCheck(yourDividendsBulletText, yourDividendsBulletSelector)
+        textOnPageCheck(youDoNotNeedAgentText, youDoNotNeedSelector)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueButtonSelector)
@@ -264,6 +307,8 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
         textOnPageCheck(whatAreInvestmentText, whatAreInvestmentSelector)
         textOnPageCheck(investmentTrustText, investmentTrustSelector)
         textOnPageCheck(unitTrustsText, unitTrustsSelector)
+        textOnPageCheck(openEndedText, openEndedSelector)
+        textOnPageCheck(whatAreEqualisationText, whatAreEqualisationSelector)
         textOnPageCheck(equalisationPaymentsText, equalisationPaymentsSelector)
       }
 
@@ -272,21 +317,24 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
         "a form with an empty value field is passed in" which {
 
           lazy val view = receiveOtherDividendsView(
-            yesNoForm.bind(Map("value" -> "")),
+            yesNoFormAgent.bind(Map("value" -> "")),
             taxYear
           )(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
 
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
-          val expectedErrorText = "Select yes if dividends were received trusts or investment companies"
+          val expectedErrorText = "Select yes if your client got dividends from UK-based trusts or open-ended investment companies"
 
           titleCheck(expectedAgentErrorTitle)
           welshToggleCheck("Welsh")
           h1Check(expectedAgentH1)
           textOnPageCheck(expectedCaption, captionSelector)
           errorSummaryCheck(expectedErrorText, expectedErrorHref)
-          textOnPageCheck(thisIncludesAuthText, thisIncludesAuthSelector)
-          textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
+          textOnPageCheck(youMustAlsoText, youMustAlsoSelector)
+          textOnPageCheck(authorisedBulletText, authorisedBulletSelector)
+          textOnPageCheck(investmentBulletText, investmentBulletSelector)
+          textOnPageCheck(yourDividendsBulletText, yourDividendsBulletSelector)
+          textOnPageCheck(youDoNotNeedAgentText, youDoNotNeedSelector)
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
           errorAboveElementCheck(expectedErrorText)
@@ -295,6 +343,8 @@ class ReceiveOtherDividendsViewSpec extends ViewTest {
           textOnPageCheck(whatAreInvestmentText, whatAreInvestmentSelector)
           textOnPageCheck(investmentTrustText, investmentTrustSelector)
           textOnPageCheck(unitTrustsText, unitTrustsSelector)
+          textOnPageCheck(openEndedText, openEndedSelector)
+          textOnPageCheck(whatAreEqualisationText, whatAreEqualisationSelector)
           textOnPageCheck(equalisationPaymentsText, equalisationPaymentsSelector)
         }
       }

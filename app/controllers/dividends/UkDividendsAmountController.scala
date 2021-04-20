@@ -66,19 +66,19 @@ class UkDividendsAmountController @Inject()(
     (dividendsPriorSubmissionSession, checkYourAnswerSession) match {
       case (Some(submission@DividendsPriorSubmission(Some(prior), _)), _) =>
         if(previousAmount.contains(prior)) {
-          Ok(view(UkDividendsAmountForm.ukDividendsAmountForm(), Some(submission), taxYear, previousAmount))
+          Ok(view(UkDividendsAmountForm.ukDividendsAmountForm, Some(submission), taxYear, previousAmount))
         }
         else {
-          Ok(view(UkDividendsAmountForm.ukDividendsAmountForm().fill(previousAmount.getOrElse(prior)), Some(submission), taxYear, previousAmount))
+          Ok(view(UkDividendsAmountForm.ukDividendsAmountForm.fill(previousAmount.getOrElse(prior)), Some(submission), taxYear, previousAmount))
         }
       case (None, Some(cya)) =>
         Ok(view(cya.ukDividendsAmount.fold(
-          UkDividendsAmountForm.ukDividendsAmountForm()
-        )(amount => UkDividendsAmountForm.ukDividendsAmountForm().fill(amount)), taxYear = taxYear))
+          UkDividendsAmountForm.ukDividendsAmountForm
+        )(amount => UkDividendsAmountForm.ukDividendsAmountForm.fill(amount)), taxYear = taxYear))
 
 
       case _ =>
-        Ok(view(UkDividendsAmountForm.ukDividendsAmountForm(), taxYear = taxYear))
+        Ok(view(UkDividendsAmountForm.ukDividendsAmountForm, taxYear = taxYear))
     }
   }
 
@@ -90,7 +90,7 @@ class UkDividendsAmountController @Inject()(
     val previousAmount: Option[BigDecimal] = getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
       .flatMap(_.ukDividendsAmount)
 
-    UkDividendsAmountForm.ukDividendsAmountForm().bindFromRequest().fold(
+    UkDividendsAmountForm.ukDividendsAmountForm.bindFromRequest().fold(
           {
             formWithErrors => BadRequest(view(formWithErrors, priorSubmission = priorSubmissionSessionData, taxYear = taxYear, preAmount = previousAmount))
           },

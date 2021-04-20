@@ -17,10 +17,11 @@
 package views.dividends
 
 import forms.UkDividendsAmountForm
-import models.DividendsPriorSubmission
+import models.{DividendsPriorSubmission, User}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.data.Form
+import play.api.mvc.AnyContent
 import utils.ViewTest
 import views.html.dividends.UkDividendsAmountView
 
@@ -28,7 +29,16 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
   val priorAmount = 20
 
-  lazy val ukDividendsAmountForm: Form[BigDecimal] = UkDividendsAmountForm.ukDividendsAmountForm()
+  def ukDividendsAmountAgentForm: Form[BigDecimal] = {
+    val agentUser: User[AnyContent] = user.copy(arn = Some("XARN1234567890"))
+    UkDividendsAmountForm.ukDividendsAmountForm(agentUser)
+  }
+
+  def ukDividendsAmountIndividualForm: Form[BigDecimal] = {
+    val individualUser: User[AnyContent] = user
+    UkDividendsAmountForm.ukDividendsAmountForm(individualUser)
+  }
+
   lazy val ukDividendsAmountView: UkDividendsAmountView = app.injector.instanceOf[UkDividendsAmountView]
 
   val taxYear: Int = 2020
@@ -39,7 +49,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
   val inputSelector = ".govuk-input"
   val continueButtonSelector = "#continue"
   val continueButtonFormSelector = "#main-content > div > div > form"
-  val youToldUsSelector = "#main-content > div > div > form > div > label"
+  val youToldUsSelector = "#main-content > div > div > form > div > label > p"
 
   val expectedH1 = "How much did you get in dividends from UK-based companies?"
   val expectedTitle = "How much did you get in dividends from UK-based companies?"
@@ -69,7 +79,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
         "there are no form errors" which {
 
-          lazy val view = ukDividendsAmountView(ukDividendsAmountForm, None, taxYear, testCall)(user, messages, mockAppConfig)
+          lazy val view = ukDividendsAmountView(ukDividendsAmountIndividualForm, None, taxYear, testCall)(user, messages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
           titleCheck(expectedTitle)
@@ -87,7 +97,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "an empty value is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "")),
+              ukDividendsAmountIndividualForm.bind(Map("amount" -> "")),
               None,
               taxYear,
               testCall
@@ -95,7 +105,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter the amount of dividends earned from the UK"
+            val expectedErrorText = "Enter how much you got in dividends from UK-based companies"
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("English")
@@ -113,7 +123,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "a non numeric value is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "abc")),
+              ukDividendsAmountIndividualForm.bind(Map("amount" -> "abc")),
               None,
               taxYear,
               testCall
@@ -121,7 +131,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount using numbers 0 to 9"
+            val expectedErrorText = "Enter how much you got in dividends in the correct format"
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("English")
@@ -139,7 +149,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "a value bigger than £100,000,000,000 is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "200,000,000,000")),
+              ukDividendsAmountIndividualForm.bind(Map("amount" -> "200,000,000,000")),
               None,
               taxYear,
               testCall
@@ -147,7 +157,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount less than £100,000,000,000"
+            val expectedErrorText = "The amount of dividends from UK-based companies must be less than £100,000,000,000"
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("English")
@@ -165,7 +175,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "an invalid format value is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "10.00.00.00")),
+              ukDividendsAmountIndividualForm.bind(Map("amount" -> "10.00.00.00")),
               None,
               taxYear,
               testCall
@@ -173,7 +183,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter the amount in the correct format"
+            val expectedErrorText = "Enter how much you got in dividends in the correct format"
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("English")
@@ -193,7 +203,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
         "there are no form errors" which {
 
-          lazy val view = ukDividendsAmountView(ukDividendsAmountForm, None, taxYear,
+          lazy val view = ukDividendsAmountView(ukDividendsAmountAgentForm, None, taxYear,
             testCall)(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
@@ -212,7 +222,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "an empty value is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "")),
+              ukDividendsAmountAgentForm.bind(Map("amount" -> "")),
               None,
               taxYear,
               testCall
@@ -220,7 +230,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter the amount of dividends earned from the UK"
+            val expectedErrorText = "Enter how much your client got in dividends from UK-based companies"
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
@@ -238,7 +248,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "a non numeric value is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "abc")),
+              ukDividendsAmountAgentForm.bind(Map("amount" -> "abc")),
               None,
               taxYear,
               testCall
@@ -246,7 +256,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount using numbers 0 to 9"
+            val expectedErrorText = "Enter how much your client got in dividends in the correct format"
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
@@ -264,7 +274,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "a value bigger than £100,000,000,000 is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "200,000,000,000")),
+              ukDividendsAmountAgentForm.bind(Map("amount" -> "200,000,000,000")),
               None,
               taxYear,
               testCall
@@ -272,7 +282,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount less than £100,000,000,000"
+            val expectedErrorText = "The amount of dividends from UK-based companies must be less than £100,000,000,000"
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
@@ -290,7 +300,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "an invalid format value is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "10.00.00.00")),
+              ukDividendsAmountAgentForm.bind(Map("amount" -> "10.00.00.00")),
               None,
               taxYear,
               testCall
@@ -298,7 +308,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter the amount in the correct format"
+            val expectedErrorText = "Enter how much your client got in dividends in the correct format"
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
@@ -323,7 +333,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = ukDividendsAmountView(
-                      ukDividendsAmountForm,
+                      ukDividendsAmountIndividualForm,
                       Some(DividendsPriorSubmission(Some(priorAmount))),
                       taxYear,
                       testCall
@@ -345,14 +355,14 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "an empty value is passed in" which {
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "")),
+              ukDividendsAmountIndividualForm.bind(Map("amount" -> "")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
             )(user, messages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter the amount of dividends earned from the UK"
+            val expectedErrorText = "Enter how much you got in dividends from UK-based companies"
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("English")
@@ -368,14 +378,14 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "a non numeric value is passed in" which {
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "abc")),
+              ukDividendsAmountIndividualForm.bind(Map("amount" -> "abc")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
             )(user, messages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount using numbers 0 to 9"
+            val expectedErrorText = "Enter how much you got in dividends in the correct format"
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("English")
@@ -391,14 +401,14 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "a value bigger than £100,000,000,000 is passed in" which {
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "200,000,000,000")),
+              ukDividendsAmountIndividualForm.bind(Map("amount" -> "200,000,000,000")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
             )(user, messages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount less than £100,000,000,000"
+            val expectedErrorText = "The amount of dividends from UK-based companies must be less than £100,000,000,000"
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("English")
@@ -414,14 +424,14 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "an invalid format value is passed in" which {
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "100.000.00.00")),
+              ukDividendsAmountIndividualForm.bind(Map("amount" -> "100.000.00.00")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
             )(user, messages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter the amount in the correct format"
+            val expectedErrorText = "Enter how much you got in dividends in the correct format"
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("English")
@@ -445,7 +455,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = ukDividendsAmountView(
-            ukDividendsAmountForm,
+            ukDividendsAmountAgentForm,
             Some(DividendsPriorSubmission(Some(priorAmount))),
             taxYear,
             testCall
@@ -467,14 +477,14 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "an empty value is passed in" which {
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "")),
+              ukDividendsAmountAgentForm.bind(Map("amount" -> "")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
             )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter the amount of dividends earned from the UK"
+            val expectedErrorText = "Enter how much your client got in dividends from UK-based companies"
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
@@ -490,14 +500,14 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "a non numeric value is passed in" which {
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "abc")),
+              ukDividendsAmountAgentForm.bind(Map("amount" -> "abc")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
             )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount using numbers 0 to 9"
+            val expectedErrorText = "Enter how much your client got in dividends in the correct format"
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
@@ -513,14 +523,14 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "a value bigger than £100,000,000,000 is passed in" which {
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "200,000,000,000")),
+              ukDividendsAmountAgentForm.bind(Map("amount" -> "200,000,000,000")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
             )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount less than £100,000,000,000"
+            val expectedErrorText = "The amount of dividends from UK-based companies must be less than £100,000,000,000"
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
@@ -536,14 +546,14 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "an invalid format value is passed in" which {
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "100.000.00.00")),
+              ukDividendsAmountAgentForm.bind(Map("amount" -> "100.000.00.00")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
             )(user.copy(arn = Some("XARN1234567")), messages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter the amount in the correct format"
+            val expectedErrorText = "Enter how much your client got in dividends in the correct format"
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
@@ -568,7 +578,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
         "there are no form errors" which {
 
-          lazy val view = ukDividendsAmountView(ukDividendsAmountForm, None, taxYear, testCall)(user, welshMessages, mockAppConfig)
+          lazy val view = ukDividendsAmountView(ukDividendsAmountIndividualForm, None, taxYear, testCall)(user, welshMessages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
           titleCheck(expectedTitle)
@@ -585,7 +595,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "an empty value is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "")),
+              ukDividendsAmountIndividualForm.bind(Map("amount" -> "")),
               None,
               taxYear,
               testCall
@@ -593,7 +603,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter the amount of dividends earned from the UK"
+            val expectedErrorText = "Enter how much you got in dividends from UK-based companies"
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("Welsh")
@@ -610,7 +620,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "a non numeric value is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "abc")),
+              ukDividendsAmountIndividualForm.bind(Map("amount" -> "abc")),
               None,
               taxYear,
               testCall
@@ -618,7 +628,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount using numbers 0 to 9"
+            val expectedErrorText = "Enter how much you got in dividends in the correct format"
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("Welsh")
@@ -635,7 +645,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "a value bigger than £100,000,000,000 is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "200,000,000,000")),
+              ukDividendsAmountIndividualForm.bind(Map("amount" -> "200,000,000,000")),
               None,
               taxYear,
               testCall
@@ -643,7 +653,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount less than £100,000,000,000"
+            val expectedErrorText = "The amount of dividends from UK-based companies must be less than £100,000,000,000"
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("Welsh")
@@ -660,7 +670,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "an invalid format value is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "10.00.00.00")),
+              ukDividendsAmountIndividualForm.bind(Map("amount" -> "10.00.00.00")),
               None,
               taxYear,
               testCall
@@ -668,7 +678,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter the amount in the correct format"
+            val expectedErrorText = "Enter how much you got in dividends in the correct format"
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("Welsh")
@@ -687,7 +697,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
         "there are no form errors" which {
 
-          lazy val view = ukDividendsAmountView(ukDividendsAmountForm, None, taxYear,
+          lazy val view = ukDividendsAmountView(ukDividendsAmountAgentForm, None, taxYear,
             testCall)(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
           implicit lazy val document: Document = Jsoup.parse(view.body)
 
@@ -705,7 +715,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "an empty value is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "")),
+              ukDividendsAmountAgentForm.bind(Map("amount" -> "")),
               None,
               taxYear,
               testCall
@@ -713,7 +723,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter the amount of dividends earned from the UK"
+            val expectedErrorText = "Enter how much your client got in dividends from UK-based companies"
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
@@ -730,7 +740,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "a non numeric value is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "abc")),
+              ukDividendsAmountAgentForm.bind(Map("amount" -> "abc")),
               None,
               taxYear,
               testCall
@@ -738,7 +748,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount using numbers 0 to 9"
+            val expectedErrorText = "Enter how much your client got in dividends in the correct format"
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
@@ -755,7 +765,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "a value bigger than £100,000,000,000 is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "200,000,000,000")),
+              ukDividendsAmountAgentForm.bind(Map("amount" -> "200,000,000,000")),
               None,
               taxYear,
               testCall
@@ -763,7 +773,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount less than £100,000,000,000"
+            val expectedErrorText = "The amount of dividends from UK-based companies must be less than £100,000,000,000"
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
@@ -780,7 +790,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           "an invalid format value is passed in" which {
 
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "10.00.00.00")),
+              ukDividendsAmountAgentForm.bind(Map("amount" -> "10.00.00.00")),
               None,
               taxYear,
               testCall
@@ -788,7 +798,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter the amount in the correct format"
+            val expectedErrorText = "Enter how much your client got in dividends in the correct format"
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
@@ -812,7 +822,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = ukDividendsAmountView(
-            ukDividendsAmountForm,
+            ukDividendsAmountIndividualForm,
             Some(DividendsPriorSubmission(Some(priorAmount))),
             taxYear,
             testCall
@@ -832,14 +842,14 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "an empty value is passed in" which {
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "")),
+              ukDividendsAmountIndividualForm.bind(Map("amount" -> "")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
             )(user, welshMessages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter the amount of dividends earned from the UK"
+            val expectedErrorText = "Enter how much you got in dividends from UK-based companies"
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("Welsh")
@@ -854,14 +864,14 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "a non numeric value is passed in" which {
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "abc")),
+              ukDividendsAmountIndividualForm.bind(Map("amount" -> "abc")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
             )(user, welshMessages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount using numbers 0 to 9"
+            val expectedErrorText = "Enter how much you got in dividends in the correct format"
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("Welsh")
@@ -876,14 +886,14 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "a value bigger than £100,000,000,000 is passed in" which {
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "200,000,000,000")),
+              ukDividendsAmountIndividualForm.bind(Map("amount" -> "200,000,000,000")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
             )(user, welshMessages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount less than £100,000,000,000"
+            val expectedErrorText = "The amount of dividends from UK-based companies must be less than £100,000,000,000"
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("Welsh")
@@ -898,14 +908,14 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "an invalid format value is passed in" which {
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "100.000.00.00")),
+              ukDividendsAmountIndividualForm.bind(Map("amount" -> "100.000.00.00")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
             )(user, welshMessages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter the amount in the correct format"
+            val expectedErrorText = "Enter how much you got in dividends in the correct format"
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("Welsh")
@@ -928,7 +938,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
         "there are no form errors" which {
 
           lazy val view = ukDividendsAmountView(
-            ukDividendsAmountForm,
+            ukDividendsAmountAgentForm,
             Some(DividendsPriorSubmission(Some(priorAmount))),
             taxYear,
             testCall
@@ -948,14 +958,14 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "an empty value is passed in" which {
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "")),
+              ukDividendsAmountAgentForm.bind(Map("amount" -> "")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
             )(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter the amount of dividends earned from the UK"
+            val expectedErrorText = "Enter how much your client got in dividends from UK-based companies"
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
@@ -970,14 +980,14 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "a non numeric value is passed in" which {
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "abc")),
+              ukDividendsAmountAgentForm.bind(Map("amount" -> "abc")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
             )(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount using numbers 0 to 9"
+            val expectedErrorText = "Enter how much your client got in dividends in the correct format"
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
@@ -992,14 +1002,14 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "a value bigger than £100,000,000,000 is passed in" which {
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "200,000,000,000")),
+              ukDividendsAmountAgentForm.bind(Map("amount" -> "200,000,000,000")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
             )(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter an amount less than £100,000,000,000"
+            val expectedErrorText = "The amount of dividends from UK-based companies must be less than £100,000,000,000"
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
@@ -1014,14 +1024,14 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           "an invalid format value is passed in" which {
             lazy val view = ukDividendsAmountView(
-              ukDividendsAmountForm.bind(Map("amount" -> "100.000.00.00")),
+              ukDividendsAmountAgentForm.bind(Map("amount" -> "100.000.00.00")),
               Some(DividendsPriorSubmission(Some(priorAmount))),
               taxYear,
               testCall
             )(user.copy(arn = Some("XARN1234567")), welshMessages, mockAppConfig)
             implicit lazy val document: Document = Jsoup.parse(view.body)
 
-            val expectedErrorText = "Enter the amount in the correct format"
+            val expectedErrorText = "Enter how much your client got in dividends in the correct format"
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")

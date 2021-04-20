@@ -18,26 +18,22 @@
 @import views.html.templates.helpers.ErrorSummary
 @import views.html.templates.helpers.Button
 @import views.html.templates.helpers.InputRadio
+@import views.html.templates.helpers.Heading
 
 @this(
     layout: Layout,
     formWithCsrf: FormWithCSRF,
     errorSummary: ErrorSummary,
     button: Button,
+    heading: Heading,
     inputRadio:InputRadio
 )
 
 @(form: Form[Boolean], taxYear: Int, checked: String = "")(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
-@headingForUse = @{
-    if(user.isAgent) messages("dividends.uk-dividends.heading.agent") else messages("dividends.uk-dividends.heading.individual")
-}
+@headingForUse = @{messages(s"dividends.uk-dividends.heading.${if(user.isAgent) "agent" else "individual"}")}
 
 @titleForUse = @{messages(s"dividends.uk-dividends.title.${if(user.isAgent) "agent" else "individual"}")}
-
-@hint = {
-    <p>@messages("dividends.uk-dividends.sub-heading")</p>
-}
 
 @hasFormErrors = @{form.hasErrors}
 
@@ -50,11 +46,18 @@
         @inputRadio(
             form = form,
             heading = headingForUse,
-            hint = Some(hint),
+            hint = None,
             inline = true,
-            subheading = Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString))
+            classes = "govuk-!-margin-bottom-4",
+            subheading = Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)),
+            content = Some(detailsHtml)
         )
 
         @button()
     }
+
+}
+
+@detailsHtml = {
+<p>@messages(s"dividends.uk-dividends.sub-heading.${if(user.isAgent) "agent" else "individual"}")</p>
 }

@@ -47,7 +47,7 @@
             form,
             id = "taxedAccountName",
             name = "taxedAccountName",
-            label = "interest.taxed-uk-interest-details.sub-heading1",
+            heading = "interest.taxed-uk-interest-details.sub-heading1",
             isPageHeading = false,
             classes = Some("govuk-input--width-20")
         )
@@ -56,11 +56,10 @@
             form,
             id = "taxedAmount",
             name = "taxedAmount",
-            label = "interest.taxed-uk-interest-details.sub-heading2",
+            heading = "interest.taxed-uk-interest-details.sub-heading2",
             isPageHeading = false,
             currency = true,
             hint = Some(Html(messages("common.currency.hint")))
-
         )
 
         @button()

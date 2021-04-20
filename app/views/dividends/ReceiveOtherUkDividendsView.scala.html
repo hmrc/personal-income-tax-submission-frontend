@@ -19,6 +19,7 @@
 @import views.html.templates.helpers.ErrorSummary
 @import views.html.templates.helpers.InputRadio
 @import views.html.templates.helpers.Details
+@import views.html.templates.helpers.Heading
 
 @this(
     layout: Layout,
@@ -26,14 +27,13 @@
     errorSummary: ErrorSummary,
     button: Button,
     inputRadio: InputRadio,
+    heading: Heading,
     details: Details
 )
 
 @(form: Form[Boolean], taxYear: Int, checked: String = "")(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
-@headingForUse = @{
-    if(user.isAgent) messages("dividends.other-dividends.heading.agent") else messages("dividends.other-dividends.heading.individual")
-}
+@headingForUse = @{messages(s"dividends.other-dividends.heading.${if(user.isAgent) "agent" else "individual"}")}
 
 @titleForUse = @{messages(s"dividends.other-dividends.title.${if(user.isAgent) "agent" else "individual"}")}
 
@@ -48,24 +48,40 @@
         @inputRadio(
             form = form,
             heading = headingForUse,
-            hint = Some(hint),
+            hint = None,
             inline = true,
-            subheading = Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString))
+            classes = "govuk-!-margin-bottom-4",
+            subheading = Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)),
+            content = Some(contentHtml)
         )
-        @details("dividends.other-dividends-amount.details.title", detailsHtml)
+        @details("dividends.other-dividends.details.title", detailsHtml)
+        @details("dividends.other-dividends.details2.title", secondDetailsHtml)
         @button()
 
     }
 
 }
 
-@hint = {
-    <p>@messages("dividends.other-dividends-amount.paragraph.1")</p>
-    <p>@messages("dividends.other-dividends-amount.paragraph.2")</p>
+@contentHtml = {
+    <div class="govuk-body">
+    <p>@messages("dividends.other-dividends.paragraph.1")</p>
+    </div>
+    <ul>
+        <li>@messages("dividends.other-dividends.bullet.1")</li>
+        <li>@messages("dividends.other-dividends.bullet.2")</li>
+        <li>@messages("dividends.other-dividends.bullet.3")</li>
+    </ul>
+    <div class="govuk-body">
+    <p>@messages(s"dividends.other-dividends.paragraph.2.${if(user.isAgent) "agent" else "individual"}")</p>
+    </div>
 }
 
 @detailsHtml = {
-    <p>@messages("dividends.other-dividends-amount.details.paragraph.1")</p>
-    <p>@messages("dividends.other-dividends-amount.details.paragraph.2")</p>
-    <p>@messages("dividends.other-dividends-amount.details.paragraph.3")</p>
+    <p>@messages("dividends.other-dividends.details.paragraph.1")</p>
+    <p>@messages("dividends.other-dividends.details.paragraph.2")</p>
+    <p>@messages("dividends.other-dividends.details.paragraph.3")</p>
+}
+
+@secondDetailsHtml = {
+    <p>@messages("dividends.other-dividends.details2.paragraph.1")</p>
 }

@@ -32,6 +32,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest {
 
   val taxYear: Int = 2022
   val amount: BigDecimal = 500
+  val receiveUkDividendsUrl = s"$startUrl/$taxYear/dividends/dividends-from-uk-companies"
 
   "as an individual" when {
 
@@ -40,7 +41,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest {
       "returns an action when data is not in session" which {
         lazy val result: WSResponse = {
           authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/dividends/uk-dividends").get())
+          await(wsClient.url(receiveUkDividendsUrl).get())
         }
 
         "has an OK(200) status" in {
@@ -57,7 +58,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest {
 
         lazy val result: WSResponse = {
           authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/dividends/uk-dividends")
+          await(wsClient.url(receiveUkDividendsUrl)
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").get())
         }
 
@@ -74,7 +75,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest {
         ))
         lazy val result: WSResponse = {
           authoriseIndividualUnauthorized()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/dividends/uk-dividends")
+          await(wsClient.url(receiveUkDividendsUrl)
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").get())
         }
         "has an UNAUTHORIZED(401) status" in {
@@ -92,7 +93,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest {
           lazy val result: WSResponse = {
             authoriseIndividual()
             await(
-              wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$amount/dividends/uk-dividends")
+              wsClient.url(receiveUkDividendsUrl)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
             )
           }
@@ -105,7 +106,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest {
       s"return a BAD_REQUEST($BAD_REQUEST) status" in {
         lazy val result: WSResponse = {
           authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/dividends/uk-dividends")
+          await(wsClient.url(receiveUkDividendsUrl)
             .post(Map[String, String]()))
         }
 
@@ -115,7 +116,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest {
       "returns an action when auth call fails" which {
         lazy val result: WSResponse = {
           authoriseIndividualUnauthorized()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/dividends/uk-dividends")
+          await(wsClient.url(receiveUkDividendsUrl)
             .post(Map[String, String]()))
         }
         "has an UNAUTHORIZED(401) status" in {
@@ -139,7 +140,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest {
           ))
 
           authoriseAgent()
-          await(wsClient.url(s"$startUrl/$taxYear/dividends/uk-dividends")
+          await(wsClient.url(receiveUkDividendsUrl)
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
             .get())
         }
@@ -156,7 +157,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest {
         ))
         lazy val result: WSResponse = {
           authoriseAgentUnauthorized()
-          await(wsClient.url(s"$startUrl/$taxYear/dividends/uk-dividends")
+          await(wsClient.url(receiveUkDividendsUrl)
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie).get())
         }
         "has an UNAUTHORIZED(401) status" in {
@@ -178,7 +179,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest {
 
             authoriseAgent()
             await(
-              wsClient.url(s"$startUrl/$taxYear/dividends/uk-dividends")
+              wsClient.url(receiveUkDividendsUrl)
                 .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
             )
@@ -198,7 +199,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest {
             ))
 
             authoriseAgent()
-            await(wsClient.url(s"$startUrl/$taxYear/dividends/uk-dividends")
+            await(wsClient.url(receiveUkDividendsUrl)
               .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
               .post(Map[String, String]()))
           }
@@ -215,7 +216,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest {
           ))
 
           authoriseAgentUnauthorized()
-          await(wsClient.url(s"$startUrl/$taxYear/dividends/uk-dividends")
+          await(wsClient.url(receiveUkDividendsUrl)
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .post(Map[String, String]()))
         }

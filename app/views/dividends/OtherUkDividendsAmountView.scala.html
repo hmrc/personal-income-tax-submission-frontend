@@ -48,25 +48,18 @@
 
 @errorSummary(formInput.errors.distinct)
 
-@heading(s"dividends.other-dividends-amount.heading.${if(user.isAgent) "agent" else "individual"}", Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
-
 @inputText(
         formInput,
         id = "amount",
         name = "amount",
-        label = if(priorSubmission.isDefined) {
-            val part1 = messages(s"dividends.other-dividends-amount.change-amount.prior.common.1")
-            val part2 = messages(s"dividends.other-dividends-amount.change-amount.prior.${if(user.isAgent) "agent" else "individual"}")
-            val part3 = bigDecimalCurrency(priorAmount.getOrElse(BigDecimal("0")).toString)
-            val part4 = messages("dividends.other-dividends-amount.change-amount.prior.common.2")
-            s"$part1 $part2 $part3 $part4"
-        } else {
-            messages(s"dividends.other-dividends-amount.change-amount.caption.${if(user.isAgent) "agent" else "individual"}")
-        },
+        heading = s"dividends.other-dividends-amount.heading.${if(user.isAgent) "agent" else "individual"}",
+        content = Some(contentHtml),
         labelClasses = Some("govuk-!-margin-bottom-4"),
         isPageHeading = false,
         currency = true,
-        hint = hintText
+        hint = hintText,
+        subheading = Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)),
+        headingClasses = "govuk-!-margin-bottom-2"
     )
 }
 
@@ -80,6 +73,21 @@
 
 @hasFormErrors = @{
     form.hasErrors
+}
+
+@contentHtml = {
+    @if(priorSubmission.isDefined) {
+        <p>
+        @messages(s"dividends.other-dividends-amount.change-amount.prior.common.1")
+        @messages(s"dividends.other-dividends-amount.change-amount.prior.${if(user.isAgent) "agent" else "individual"}")
+        @bigDecimalCurrency(priorAmount.getOrElse(BigDecimal("0")).toString)
+        @messages("dividends.other-dividends-amount.change-amount.prior.common.2")
+        </p>
+    } else {
+        <p>
+        @messages(s"dividends.other-dividends-amount.change-amount.caption.${if(user.isAgent) "agent" else "individual"}")
+        </p>
+    }
 }
 
 @layout(pageTitle = titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors) {
