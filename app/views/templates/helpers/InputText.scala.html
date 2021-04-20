@@ -38,7 +38,7 @@
     @if(subheading.isDefined) {
     @headingHelper(messages(heading, headingMessageArgs: _*), Some(subheading.get), headingClasses)
     } else {
-        <p>@messages(heading, headingMessageArgs:_*)</p>
+        <div>@messages(heading, headingMessageArgs:_*)</div>
     }
     @content
 }
