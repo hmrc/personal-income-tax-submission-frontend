@@ -26,7 +26,7 @@ class SignOutControllerTest extends UnitTestWithApp with DefaultAwaitTimeout {
 
   val controller = new SignOutController(mockMessagesControllerComponents, mockAppConfig)
 
-  "SigOutController" should {
+  "SignOutController, when accessed as an individual" should {
 
     "redirect user to exit survey" when {
 
@@ -35,6 +35,28 @@ class SignOutControllerTest extends UnitTestWithApp with DefaultAwaitTimeout {
         val request = FakeRequest("GET", "/sign-out")
 
         val responseF = controller.signOut(isAgent = false)(request)
+
+        "return status code 303" in {
+          status(responseF) shouldBe SEE_OTHER
+        }
+
+        "return a Location header containing the sign out url with feedback url" in {
+          header(LOCATION, responseF) shouldBe Some("/sign-out-url?continue=%2FfeedbackUrl")
+        }
+      }
+
+    }
+  }
+
+  "SignOutController, when accessed as an agent" should {
+
+    "redirect user to exit survey" when {
+
+      "signOut() is called it" should {
+
+        val request = FakeRequest("GET", "/sign-out")
+
+        val responseF = controller.signOut(isAgent = true)(request)
 
         "return status code 303" in {
           status(responseF) shouldBe SEE_OTHER
