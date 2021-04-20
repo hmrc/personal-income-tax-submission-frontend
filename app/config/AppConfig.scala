@@ -16,7 +16,6 @@
 
 package config
 
-import models.User
 import play.api.i18n.Lang
 import play.api.mvc.{Call, RequestHeader}
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
