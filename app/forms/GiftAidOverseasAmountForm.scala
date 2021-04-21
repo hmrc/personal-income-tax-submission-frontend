@@ -29,6 +29,9 @@ object GiftAidOverseasAmountForm {
       invalidNumeric = if (isAgent) "charity.amount-overseas-gift-aid.error.incorrect-format.agent" else {
         "charity.amount-overseas-gift-aid.error.incorrect-format.individual"
       },
+      nonNumericKey = if (isAgent) "charity.amount-overseas-gift-aid.error.incorrect-format.agent" else {
+        "charity.amount-overseas-gift-aid.error.incorrect-format.individual"
+      },
       maxAmountKey = if(isAgent) "charity.amount-overseas-gift-aid.error.too-high.agent" else "charity.amount-overseas-gift-aid.error.too-high.individual"
     )
   )
