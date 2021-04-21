@@ -43,7 +43,7 @@
 
 @titleForUse = @{messages(s"dividends.cya.title.${if(user.isAgent) "agent" else "individual"}")}
 
-@layout(pageTitle = titleForUse, taxYear = Some(taxYear)) {
+@layout(pageTitle = titleForUse, taxYear = Some(taxYear), isAgent = user.isAgent) {
 
     @heading(headingForUse, Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 

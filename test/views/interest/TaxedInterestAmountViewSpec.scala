@@ -57,7 +57,8 @@ class TaxedInterestAmountViewSpec extends ViewTest{
   def newView(form: Form[TaxedInterestModel]): HtmlFormat.Appendable = taxedInterestView(
     form,
     taxYear,
-    controllers.interest.routes.TaxedInterestAmountController.submit(taxYear,id)
+    controllers.interest.routes.TaxedInterestAmountController.submit(taxYear,id),
+    isAgent = true
   )(user, messages, mockAppConfig)
 
   "Taxed interest amount view in English" should {
@@ -170,7 +171,8 @@ class TaxedInterestAmountViewSpec extends ViewTest{
   def newViewWelsh(form: Form[TaxedInterestModel]): HtmlFormat.Appendable = taxedInterestView(
     form,
     taxYear,
-    controllers.interest.routes.TaxedInterestAmountController.submit(taxYear,id)
+    controllers.interest.routes.TaxedInterestAmountController.submit(taxYear,id),
+    isAgent = true
   )(user, welshMessages, mockAppConfig)
 
   "Taxed interest amount view in Welsh" should {

@@ -33,17 +33,26 @@ class BetaBarViewSpec extends ViewTest {
     "provided with an implicit appConfig" should {
 
       "use appConfig.feedbackUrl in the beta banner link" which {
-
         implicit val appConfig: AppConfig = new MockAppConfig().config
-        lazy val view = betaBar()(fakeRequest, messages, appConfig)
 
-        implicit lazy val document: Document = Jsoup.parse(view.body)
+        "contains the correct href value when the service is accessed as an individual" in {
 
-        "contains the correct href value" in {
+          lazy val view = betaBar(isAgent = false)(fakeRequest, messages, appConfig)
+          implicit lazy val document: Document = Jsoup.parse(view.body)
+          implicit val isAgent: Boolean = false
+
+          element(aTagSelector).attr("href") shouldBe appConfig.betaFeedbackUrl
+        }
+
+        "contains the correct href value the service is accessed as an agent" in {
+
+          lazy val view = betaBar(isAgent = true)(fakeRequest, messages, appConfig)
+          implicit lazy val document: Document = Jsoup.parse(view.body)
+          implicit val isAgent: Boolean = true
+
           element(aTagSelector).attr("href") shouldBe appConfig.betaFeedbackUrl
         }
       }
     }
   }
-
 }

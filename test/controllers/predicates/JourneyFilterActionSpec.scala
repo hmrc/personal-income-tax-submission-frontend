@@ -18,10 +18,10 @@ package controllers.predicates
 
 import config.{AppConfig, INTEREST}
 import models.User
-import play.api.mvc.{AnyContent, Result}
-import utils.UnitTest
 import play.api.http.Status.SEE_OTHER
+import play.api.mvc.AnyContent
 import uk.gov.hmrc.auth.core.AffinityGroup
+import utils.UnitTest
 
 class JourneyFilterActionSpec extends UnitTest {
   val taxYear: Int = 2022

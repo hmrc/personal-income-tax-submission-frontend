@@ -16,9 +16,7 @@
 
 package forms
 
-import forms.UntaxedInterestAmountForm._
-import models.UntaxedInterestModel
-import play.api.data.{Form, FormError}
+import play.api.data.Form
 import utils.UnitTest
 
 class DonatedViaGiftAidAmountFormSpec extends UnitTest {

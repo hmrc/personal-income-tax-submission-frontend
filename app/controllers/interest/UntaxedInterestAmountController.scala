@@ -71,7 +71,8 @@ class UntaxedInterestAmountController @Inject()(
       Ok(untaxedInterestAmountView(
         form = model.fold(untaxedInterestAmountForm)(untaxedInterestAmountForm.fill),
         taxYear = taxYear,
-        postAction = controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear, id)
+        postAction = controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear, id),
+        isAgent = user.isAgent
       ))
     } else {
       Redirect(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, randomUUID().toString))
@@ -84,7 +85,8 @@ class UntaxedInterestAmountController @Inject()(
         BadRequest(untaxedInterestAmountView(
           form = formWithErrors,
           taxYear = taxYear,
-          postAction = controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear,id)
+          postAction = controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear,id),
+          isAgent = user.isAgent
         ))
     }, {
       completeForm =>

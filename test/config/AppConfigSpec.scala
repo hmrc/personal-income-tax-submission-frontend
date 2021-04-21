@@ -44,7 +44,7 @@ class AppConfigSpec extends UnitTest {
 
   "AppConfig" should {
 
-    "return correct feedbackUrl" in {
+    "return the correct feedbackUrl when the user is an individual" in {
       val expectedBackUrl = SafeRedirectUrl(appUrl + fakeRequest.uri).encodedUrl
       val expectedServiceIdentifier = "update-and-submit-income-tax-return"
 
@@ -55,7 +55,32 @@ class AppConfigSpec extends UnitTest {
       val expectedContactUrl = s"http://contact-frontend:9250/contact/contact-hmrc?service=$expectedServiceIdentifier"
       val expectedSignOutUrl = s"http://bas-gateway-frontend:9553/bas-gateway/sign-out-without-state"
 
-      appConfig.betaFeedbackUrl(fakeRequest) shouldBe expectedBetaFeedbackUrl
+      implicit val isAgent: Boolean = false
+
+      appConfig.betaFeedbackUrl(fakeRequest, isAgent) shouldBe expectedBetaFeedbackUrl
+
+      appConfig.feedbackSurveyUrl shouldBe expectedFeedbackSurveyUrl
+
+      appConfig.contactUrl shouldBe expectedContactUrl
+
+      appConfig.signOutUrl shouldBe expectedSignOutUrl
+    }
+
+    "return the correct feedback url when the user is an agent" in {
+
+      val expectedBackUrl = SafeRedirectUrl(appUrl + fakeRequest.uri).encodedUrl
+      val expectedServiceIdentifierAgent = "update-and-submit-income-tax-return-agent"
+
+      val expectedBetaFeedbackUrl =
+        s"http://contact-frontend:9250/contact/beta-feedback?service=$expectedServiceIdentifierAgent&backUrl=$expectedBackUrl"
+
+      val expectedFeedbackSurveyUrl = s"http://feedback-frontend:9514/feedback/$expectedServiceIdentifierAgent"
+      val expectedContactUrl = s"http://contact-frontend:9250/contact/contact-hmrc?service=$expectedServiceIdentifierAgent"
+      val expectedSignOutUrl = s"http://bas-gateway-frontend:9553/bas-gateway/sign-out-without-state"
+
+      implicit val isAgent: Boolean = true
+
+      appConfig.betaFeedbackUrl(fakeRequest, isAgent) shouldBe expectedBetaFeedbackUrl
 
       appConfig.feedbackSurveyUrl shouldBe expectedFeedbackSurveyUrl
 

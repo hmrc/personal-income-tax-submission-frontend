@@ -51,7 +51,7 @@
     </p>
 }
 
-@layout(titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors) {
+@layout(titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors, isAgent = user.isAgent) {
 
     @errorSummary(form.errors.distinct)
 

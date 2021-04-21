@@ -37,7 +37,7 @@
 
 @hasFormErrors = @{form.hasErrors}
 
-@layout(pageTitle = titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors) {
+@layout(pageTitle = titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors, isAgent = user.isAgent) {
 
     @errorSummary(form.errors.distinct)
 

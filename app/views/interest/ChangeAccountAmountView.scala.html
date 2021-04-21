@@ -32,7 +32,7 @@
 
 @hasFormErrors = @{form.hasErrors}
 
-@layout(pageTitle = messages(s"interest.change-account.${taxType.toLowerCase}-title.${if(user.isAgent) "agent" else "individual"}"), taxYear = Some(taxYear), hasErrors = hasFormErrors) {
+@layout(pageTitle = messages(s"interest.change-account.${taxType.toLowerCase}-title.${if(user.isAgent) "agent" else "individual"}"), taxYear = Some(taxYear), hasErrors = hasFormErrors, isAgent = user.isAgent) {
 
     @errorSummary(form.errors.distinct)
 

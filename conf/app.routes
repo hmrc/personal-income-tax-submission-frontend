@@ -3,7 +3,7 @@
 ->          /govuk-frontend                                               govuk.Routes
 ->          /hmrc-frontend                                                hmrcfrontend.Routes
 
-GET         /sign-out                                                     controllers.SignOutController.signOut()
+GET         /sign-out                                                     controllers.SignOutController.signOut(isAgent: Boolean)
 
 GET         /:taxYear/dividends/dividends-from-uk-companies                         controllers.dividends.ReceiveUkDividendsController.show(taxYear: Int)
 POST        /:taxYear/dividends/dividends-from-uk-companies                         controllers.dividends.ReceiveUkDividendsController.submit(taxYear: Int)
