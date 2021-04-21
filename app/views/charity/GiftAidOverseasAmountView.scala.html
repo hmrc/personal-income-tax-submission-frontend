@@ -34,23 +34,22 @@ messages("charity.amount-overseas-gift-aid.title.individual")
 @layout(
 titleText, form.hasErrors
 ) {
+
 @errorSummary(form.errors)
 
 @heading(titleText, Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)))
 
-<p class="govuk-body govuk-!"></p>
-
 @formWithCsrf(controllers.charity.routes.GiftAidOverseasAmountController.submit(taxYear)) {
-@inputField(
-form,
-"amount",
-"amount",
-messages("charity.amount-overseas-gift-aid.input.label"),
-hint = Some(Html(messages("charity.amount-overseas-gift-aid.input.hint-text"))),
-isPageHeading = false,
-currency = true,
-autocomplete = prefill
-)
-@button()
-}
+    @inputField(
+        form,
+        "amount",
+        "amount",
+        messages("charity.amount-overseas-gift-aid.input.label"),
+        hint = Some(Html(messages("charity.amount-overseas-gift-aid.input.hint-text"))),
+        isPageHeading = false,
+        currency = true,
+        autocomplete = prefill
+    )
+    @button()
+    }
 }
