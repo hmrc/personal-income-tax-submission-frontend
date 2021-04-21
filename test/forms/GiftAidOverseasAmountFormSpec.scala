@@ -58,7 +58,7 @@ class GiftAidOverseasAmountFormSpec extends UnitTest {
         val testInput = Map(giftAidOverseasAmount -> testCurrencyInvalidInt)
 
         val invalidCharTest = form(isAgent = true).bind(testInput)
-        invalidCharTest.errors should contain(FormError(giftAidOverseasAmount, "common.error.invalid_number"))
+        invalidCharTest.errors should contain(FormError(giftAidOverseasAmount, "charity.amount-overseas-gift-aid.error.incorrect-format.agent"))
       }
 
       "invalidate a currency that has incorrect formatting" in {
@@ -108,7 +108,7 @@ class GiftAidOverseasAmountFormSpec extends UnitTest {
         val testInput = Map(giftAidOverseasAmount -> testCurrencyInvalidInt)
 
         val invalidCharTest = form(isAgent = false).bind(testInput)
-        invalidCharTest.errors should contain(FormError(giftAidOverseasAmount, "common.error.invalid_number"))
+        invalidCharTest.errors should contain(FormError(giftAidOverseasAmount, "charity.amount-overseas-gift-aid.error.incorrect-format.individual"))
       }
 
       "invalidate a currency that has incorrect formatting" in {
