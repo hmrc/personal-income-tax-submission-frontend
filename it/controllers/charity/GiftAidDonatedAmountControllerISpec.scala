@@ -36,7 +36,7 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest {
       "returns an action" which {
         lazy val result: WSResponse = {
           authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/uk-charity-amount")
+          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-using-gift-aid")
             .get())
         }
 
@@ -53,7 +53,7 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest {
         lazy val result: WSResponse = {
           authoriseIndividual()
           await(
-            wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/uk-charity-amount")
+            wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-using-gift-aid")
               .post(Map("amount" -> "123000.42"))
           )
         }
@@ -64,7 +64,7 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest {
       s"return a BAD_REQUEST($BAD_REQUEST) status" in {
         lazy val result: WSResponse = {
           authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/uk-charity-amount")
+          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-using-gift-aid")
             .post(Map[String, String]()))
         }
 
@@ -87,7 +87,7 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest {
           ))
 
           authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/uk-charity-amount")
+          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-using-gift-aid")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
             .get())
         }
@@ -110,7 +110,7 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest {
 
             authoriseAgent()
             await(
-              wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/uk-charity-amount")
+              wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-using-gift-aid")
                 .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
                 .post(Map("amount" -> "12344.98"))
             )
@@ -130,7 +130,7 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest {
             ))
 
             authoriseAgent()
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/uk-charity-amount")
+            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-using-gift-aid")
               .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
               .post(Map[String, String]()))
           }

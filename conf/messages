@@ -34,7 +34,7 @@ error.summary.title = There is a problem
 
 interest.caption = Interest for 6 April {0} to 5 April {1}
 dividends.caption = Dividends for 6 April {0} to 5 April {1}
-charity.caption = Charitable giving for 6 April {0} to 5 April {1}
+charity.caption = Donations to charity for 6 April {0} to 5 April {1}
 
 dividends.uk-dividends.title.individual = Did you get dividends from UK-based companies?
 dividends.uk-dividends.title.agent = Did your client get dividends from UK-based companies?

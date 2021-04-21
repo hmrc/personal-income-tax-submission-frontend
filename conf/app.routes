@@ -62,8 +62,8 @@ POST        /:taxYear/charity/charity-donation-using-gift-aid             contro
 GET         /:taxYear/charity/overseas-charity-donations-using-gift-aid   controllers.charity.OverseasGiftAidDonationsController.show(taxYear: Int)
 POST        /:taxYear/charity/overseas-charity-donations-using-gift-aid   controllers.charity.OverseasGiftAidDonationsController.submit(taxYear: Int)
 
-GET         /:taxYear/charity/uk-charity-amount                           controllers.charity.GiftAidDonatedAmountController.show(taxYear: Int)
-POST        /:taxYear/charity/uk-charity-amount                           controllers.charity.GiftAidDonatedAmountController.submit(taxYear: Int)
+GET         /:taxYear/charity/amount-donated-using-gift-aid               controllers.charity.GiftAidDonatedAmountController.show(taxYear: Int)
+POST        /:taxYear/charity/amount-donated-using-gift-aid               controllers.charity.GiftAidDonatedAmountController.submit(taxYear: Int)
 
 GET         /:taxYear/charity/oneoff-charity-donations                    controllers.charity.GiftAidOneOffController.show(taxYear: Int)
 POST        /:taxYear/charity/oneoff-charity-donations                    controllers.charity.GiftAidOneOffController.submit(taxYear: Int)
