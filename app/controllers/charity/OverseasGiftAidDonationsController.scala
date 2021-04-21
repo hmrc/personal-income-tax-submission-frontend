@@ -40,7 +40,7 @@ class OverseasGiftAidDonationsController @Inject()(
 
 
   val yesNoForm: User[AnyContent] => Form[Boolean] = user => {
-    val missingInputError = s"charity.overseas-gift-aid.errors.errors.noChoice.${if (user.isAgent) "agent" else "individual"}"
+    val missingInputError = s"charity.overseas-gift-aid.errors.noChoice.${if (user.isAgent) "agent" else "individual"}"
     YesNoForm.yesNoForm(missingInputError)
   }
 
