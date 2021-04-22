@@ -43,7 +43,7 @@ class GiftAidOverseasAmountViewSpec extends ViewTest {
     val expectedError = "Enter the amount your client donated to overseas charities"
   }
 
-  val expectedCaption = "Charitable giving for 6 April 2021 to 5 April 2022"
+  val expectedCaption = "Donations to charity for 6 April 2021 to 5 April 2022"
   val expectedInputName = "amount"
   val expectedButtonText = "Continue"
   val expectedInputLabelText = "Total amount, in pounds"
@@ -53,7 +53,7 @@ class GiftAidOverseasAmountViewSpec extends ViewTest {
   val captionSelector = ".govuk-caption-l"
   val inputFieldSelector = "#amount"
   val buttonSelector = ".govuk-button"
-  val inputLabelSelector = ".govuk-label"
+  val inputLabelSelector = ""
   val inputHintTextSelector = ".govuk-hint"
 
   "GiftAidOverseasAmount with no errors" when {

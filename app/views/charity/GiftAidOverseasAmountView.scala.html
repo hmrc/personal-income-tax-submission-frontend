@@ -47,7 +47,7 @@ messages(s"charity.amount-overseas-gift-aid.heading.${if(user.isAgent) "agent" e
         id = "amount",
         name = "amount",
         heading = headingForUse,
-        content = Some(Html(messages("charity.amount-overseas-gift-aid.input.label"))),
+        content = Some(contentHtml),
         labelClasses = Some("govuk-!-margin-bottom-4"),
         isPageHeading = false,
         currency = true,
@@ -58,4 +58,9 @@ messages(s"charity.amount-overseas-gift-aid.heading.${if(user.isAgent) "agent" e
     @button()
     }
 
+@contentHtml = {
+    <p>
+        @messages("charity.amount-overseas-gift-aid.input.label")
+    </p>
+    }
 }
