@@ -30,26 +30,32 @@ messages("charity.amount-overseas-gift-aid.title.agent")
 messages("charity.amount-overseas-gift-aid.title.individual")
 }
 }
+@headingForUse = @{
+messages(s"charity.amount-overseas-gift-aid.heading.${if(user.isAgent) "agent" else "individual"}")
+}
 
-@layout(
-titleText, form.hasErrors
-) {
+
+
+@layout(titleText, form.hasErrors) {
 
 @errorSummary(form.errors)
 
-@heading(titleText, Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)))
 
 @formWithCsrf(controllers.charity.routes.GiftAidOverseasAmountController.submit(taxYear)) {
     @inputField(
         form,
-        "amount",
-        "amount",
-        messages("charity.amount-overseas-gift-aid.input.label"),
-        hint = Some(Html(messages("charity.amount-overseas-gift-aid.input.hint-text"))),
+        id = "amount",
+        name = "amount",
+        heading = headingForUse,
+        content = Some(Html(messages("charity.amount-overseas-gift-aid.input.label"))),
+        labelClasses = Some("govuk-!-margin-bottom-4"),
         isPageHeading = false,
         currency = true,
-        autocomplete = prefill
+        hint = Some(Html(messages("charity.amount-overseas-gift-aid.input.hint-text"))),
+        subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)),
+        headingClasses = "govuk-!-margin-bottom-2"
     )
     @button()
     }
+
 }
