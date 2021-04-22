@@ -57,7 +57,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
     errorHandler
   )(mockAppConfig, authorisedAction, mockMessagesControllerComponents)
 
-  val taxYear: Int = 2022
+  val taxYear: Int = mockAppConfig.defaultTaxYear
   val arbitraryAmount: Int = 100
   val agentAffinityGroup: String = "Agent"
   val individualAffinityGroup: String = "Individual"
@@ -68,6 +68,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
 
       "there is CYA data in session" in new TestWithAuth {
         lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
+          SessionValues.TAX_YEAR -> taxYear.toString,
           SessionValues.INTEREST_CYA -> InterestCYAModel(
             Some(true), Some(Seq(InterestAccountModel(None, "", arbitraryAmount))),
             Some(true), Some(Seq(InterestAccountModel(None, "", arbitraryAmount)))
@@ -81,6 +82,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
 
       "there is no CYA data but is prior submission data in session" in new TestWithAuth {
         lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
+          SessionValues.TAX_YEAR -> taxYear.toString,
           SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
             Json.obj(
               "accountName" -> "Bank of Winterhold",
@@ -106,7 +108,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
 
       "there is no CYA data in session" in new TestWithAuth {
 
-        lazy val result: Future[Result] = controller.show(taxYear)(FakeRequest())
+        lazy val result: Future[Result] = controller.show(taxYear)(FakeRequest().withSession(SessionValues.TAX_YEAR -> taxYear.toString))
 
         status(result) shouldBe SEE_OTHER
         redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)
@@ -120,6 +122,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
 
         "the answer is yes" which {
           lazy val result = controller.show(taxYear)(fakeRequest.withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
             SessionValues.INTEREST_CYA -> InterestCYAModel(
               Some(true), None, None, None
             ).asJsonString
@@ -137,6 +140,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
 
         "the answer is no" which {
           lazy val result = controller.show(taxYear)(fakeRequest.withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
             SessionValues.INTEREST_CYA -> InterestCYAModel(
               Some(false), None, None, None
             ).asJsonString
@@ -156,6 +160,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
 
       "upto UK Untaxed Accounts is filled in" which {
         lazy val result = controller.show(taxYear)(fakeRequest.withSession(
+          SessionValues.TAX_YEAR -> taxYear.toString,
           SessionValues.INTEREST_CYA -> InterestCYAModel(
             Some(true), Some(Seq(InterestAccountModel(
               None, "Some accounts", 100.00
@@ -175,6 +180,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
 
       "upto Receive UK Taxed Interest is filled in with a \"Yes\"" which {
         lazy val result = controller.show(taxYear)(fakeRequest.withSession(
+          SessionValues.TAX_YEAR -> taxYear.toString,
           SessionValues.INTEREST_CYA -> InterestCYAModel(
             Some(true), Some(Seq(InterestAccountModel(
               None, "Some accounts", 100.00
@@ -213,7 +219,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
         )(mockAppConfFeatureSwitch, authorisedActionFeatureSwitch, mockMessagesControllerComponents)
 
         val invalidTaxYear = 2023
-        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(fakeRequest)
+        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(fakeRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString))
 
         redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
 

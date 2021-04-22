@@ -71,7 +71,8 @@ trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneServerPerSu
     "microservice.services.income-tax-interest.port" -> wiremockPort.toString,
     "microservice.services.income-tax-gift-aid.host" -> wiremockHost,
     "microservice.services.income-tax-gift-aid.port" -> wiremockPort.toString,
-    "signIn.url" -> s"/auth-login-stub/gg-sign-in"
+    "signIn.url" -> s"/auth-login-stub/gg-sign-in",
+    "taxYearChangeResetsSession" -> "false"
   )
 
   lazy val agentAuthErrorPage: AgentAuthErrorPageView = app.injector.instanceOf[AgentAuthErrorPageView]

@@ -21,7 +21,7 @@ import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.http.Status._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsArray, Json}
 import play.api.mvc.Result
 import play.api.test.Helpers.SEE_OTHER
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -50,7 +50,7 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
   val UNTAXED = "untaxed"
   val TAXED = "taxed"
 
-  lazy val untaxedPriorDataModel = Json.arr(
+  lazy val untaxedPriorDataModel: JsArray = Json.arr(
     Json.obj(
       "accountName" -> "Untaxed Account",
       "incomeSourceId" -> "UntaxedId",
@@ -58,7 +58,7 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
     )
   )
 
-  lazy val taxedPriorDataModel = Json.arr(
+  lazy val taxedPriorDataModel: JsArray = Json.arr(
     Json.obj(
       "accountName" -> "Taxed Account",
       "incomeSourceId" -> "TaxedId",
@@ -66,19 +66,19 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
     )
   )
 
-  lazy val untaxedInterestCyaModel = InterestCYAModel(
-    Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 50))),
+  lazy val untaxedInterestCyaModel: InterestCYAModel = InterestCYAModel(
+    Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 50.00))),
     Some(false), None
   )
 
-  lazy val untaxedInterestCyaModelSameValue = InterestCYAModel(
-    Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 5000))),
+  lazy val untaxedInterestCyaModelSameValue: InterestCYAModel = InterestCYAModel(
+    Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 5000.00))),
     Some(false), None
   )
 
-  lazy val taxedInterestCyaModel = InterestCYAModel(
+  lazy val taxedInterestCyaModel: InterestCYAModel = InterestCYAModel(
     Some(false), None,
-    Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25)))
+    Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25.00)))
   )
 
 
@@ -91,8 +91,11 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
         "there is prior and cya data in session" in new TestWithAuth {
           lazy val result: Future[Result] = {
             controller.show(taxYear, UNTAXED, untaxedId)(fakeRequest
-              .withSession(SessionValues.INTEREST_PRIOR_SUB -> untaxedPriorDataModel.toString,
-                SessionValues.INTEREST_CYA -> untaxedInterestCyaModel.asJsonString))
+              .withSession(
+                SessionValues.TAX_YEAR -> taxYear.toString,
+                SessionValues.INTEREST_PRIOR_SUB -> untaxedPriorDataModel.toString,
+                SessionValues.INTEREST_CYA -> untaxedInterestCyaModel.asJsonString)
+            )
           }
           status(result) shouldBe OK
           bodyOf(result) should include("50")
@@ -102,8 +105,11 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
 
           lazy val result: Future[Result] = {
             controller.show(taxYear, UNTAXED, untaxedId)(fakeRequest
-              .withSession(SessionValues.INTEREST_PRIOR_SUB -> untaxedPriorDataModel.toString,
-                SessionValues.INTEREST_CYA -> untaxedInterestCyaModelSameValue.asJsonString))
+              .withSession(
+                SessionValues.TAX_YEAR -> taxYear.toString,
+                SessionValues.INTEREST_PRIOR_SUB -> untaxedPriorDataModel.toString,
+                SessionValues.INTEREST_CYA -> untaxedInterestCyaModelSameValue.asJsonString)
+            )
           }
           status(result) shouldBe OK
           bodyOf(result) should include("5000")
@@ -112,12 +118,15 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
         "there is prior and cya data in session with a unique session id" in new TestWithAuth {
           lazy val result: Future[Result] = {
             controller.show(taxYear, UNTAXED, untaxedId)(fakeRequest
-              .withSession(SessionValues.INTEREST_PRIOR_SUB -> untaxedPriorDataModel.toString,
+              .withSession(
+                SessionValues.TAX_YEAR -> taxYear.toString,
+                SessionValues.INTEREST_PRIOR_SUB -> untaxedPriorDataModel.toString,
                 SessionValues.INTEREST_CYA ->
                   InterestCYAModel(
-                    Some(true), Some(Seq(InterestAccountModel(None, "Untaxed Account", 50, Some("UntaxedId")))),
+                    Some(true), Some(Seq(InterestAccountModel(None, "Untaxed Account", 50.00, Some("UntaxedId")))),
                     Some(false), None
-                  ).asJsonString))
+                  ).asJsonString)
+            )
           }
           status(result) shouldBe OK
           bodyOf(result) should include("50")
@@ -129,7 +138,10 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
         "there is no prior data but there is cya data in session" in new TestWithAuth {
           lazy val result: Future[Result] = {
             controller.show(taxYear, UNTAXED, untaxedId)(fakeRequest
-              .withSession(SessionValues.INTEREST_CYA -> untaxedInterestCyaModel.asJsonString))
+              .withSession(
+                SessionValues.TAX_YEAR -> taxYear.toString,
+                SessionValues.INTEREST_CYA -> untaxedInterestCyaModel.asJsonString)
+            )
           }
           status(result) shouldBe SEE_OTHER
           redirectUrl(result) shouldBe controllers.interest.routes.AccountsController.show(taxYear, UNTAXED).url
@@ -141,7 +153,7 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
       "redirect to the overview page" when {
         "there is neither prior nor cya data in session" in new TestWithAuth {
           lazy val result: Future[Result] = {
-            controller.show(taxYear, UNTAXED, untaxedId)(fakeRequest)
+            controller.show(taxYear, UNTAXED, untaxedId)(fakeRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString))
           }
           status(result) shouldBe SEE_OTHER
           redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)
@@ -158,11 +170,13 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
         "there is prior and cya data in session" in new TestWithAuth {
           lazy val result: Future[Result] = {
             controller.show(taxYear, TAXED, taxedId)(fakeRequest
-              .withSession(SessionValues.INTEREST_PRIOR_SUB -> taxedPriorDataModel.toString,
-                SessionValues.INTEREST_CYA -> taxedInterestCyaModel.asJsonString))
+              .withSession(
+                SessionValues.TAX_YEAR -> taxYear.toString,
+                SessionValues.INTEREST_PRIOR_SUB -> taxedPriorDataModel.toString,
+                SessionValues.INTEREST_CYA -> taxedInterestCyaModel.asJsonString)
+            )
           }
           status(result) shouldBe OK
-          println(bodyOf(result))
           bodyOf(result) should include("25")
 
         }
@@ -170,12 +184,15 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
         "there is prior and cya data in session with a unique session id" in new TestWithAuth {
           lazy val result: Future[Result] = {
             controller.show(taxYear, TAXED, taxedId)(fakeRequest
-              .withSession(SessionValues.INTEREST_PRIOR_SUB -> taxedPriorDataModel.toString,
+              .withSession(
+                SessionValues.TAX_YEAR -> taxYear.toString,
+                SessionValues.INTEREST_PRIOR_SUB -> taxedPriorDataModel.toString,
                 SessionValues.INTEREST_CYA ->
                   InterestCYAModel(
                     Some(false), None,
-                    Some(true), Some(Seq(InterestAccountModel(None, "Taxed Account", 25, Some("TaxedId"))))
-                  ).asJsonString))
+                    Some(true), Some(Seq(InterestAccountModel(None, "Taxed Account", 25.00, Some("TaxedId"))))
+                  ).asJsonString)
+            )
           }
           status(result) shouldBe OK
           bodyOf(result) should include("25")
@@ -187,7 +204,10 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
         "there is no prior data but there is cya data in session" in new TestWithAuth {
           lazy val result: Future[Result] = {
             controller.show(taxYear, TAXED, taxedId)(fakeRequest
-              .withSession(SessionValues.INTEREST_CYA -> taxedInterestCyaModel.asJsonString))
+              .withSession(
+                SessionValues.TAX_YEAR -> taxYear.toString,
+                SessionValues.INTEREST_CYA -> taxedInterestCyaModel.asJsonString)
+            )
           }
           status(result) shouldBe SEE_OTHER
           redirectUrl(result) shouldBe controllers.interest.routes.AccountsController.show(taxYear, TAXED).url
@@ -199,7 +219,7 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
       "redirect to the overview page" when {
         "there is neither prior nor cya data in session" in new TestWithAuth {
           lazy val result: Future[Result] = {
-            controller.show(taxYear, TAXED, taxedId)(fakeRequest)
+            controller.show(taxYear, TAXED, taxedId)(fakeRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString))
           }
           status(result) shouldBe SEE_OTHER
           redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)
@@ -230,7 +250,9 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
         )
 
         val invalidTaxYear = 2023
-        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear, TAXED, taxedId)(fakeRequest)
+        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear, TAXED, taxedId)(
+          fakeRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString)
+        )
 
         redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
 

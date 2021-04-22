@@ -62,6 +62,7 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
 
   val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   val fakeRequestWithMtditidAndNino: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
+    SessionValues.TAX_YEAR -> "2022",
     SessionValues.CLIENT_MTDITID -> "1234567890",
     SessionValues.CLIENT_NINO -> "A123456A"
   )

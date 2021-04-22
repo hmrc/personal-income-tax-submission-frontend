@@ -40,7 +40,7 @@ class UkDividendsAmountControllerSpec extends UnitTestWithApp {
   )
 
   val amountInputField = "amount"
-  val taxYear = 2022
+  val taxYear = mockAppConfig.defaultTaxYear
 
   ".show" should {
 
@@ -51,6 +51,7 @@ class UkDividendsAmountControllerSpec extends UnitTestWithApp {
       "there is a prior submission in session" in new TestWithAuth {
         lazy val result: Future[Result] = {
           controller.show(taxYear)(fakeRequest.withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
             SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(Some(ukDividendSubmitAmount), None)).toString()
           ))
         }
@@ -65,6 +66,7 @@ class UkDividendsAmountControllerSpec extends UnitTestWithApp {
 
         lazy val result: Future[Result] = {
           controller.show(taxYear)(fakeRequest.withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
             SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(Some(ukDividendSubmitAmount), None)).toString(),
             SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(Some(true), Some(amount))).toString()
           ))
@@ -81,6 +83,7 @@ class UkDividendsAmountControllerSpec extends UnitTestWithApp {
 
         lazy val result: Future[Result] = {
           controller.show(taxYear)(fakeRequest.withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
             SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(Some(ukDividendSubmitAmount), None)).toString(),
             SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(Some(true), Some(amount), None, None)).toString()
           ))
@@ -94,6 +97,7 @@ class UkDividendsAmountControllerSpec extends UnitTestWithApp {
       "there is a prior submission in session, but no UK Dividends value" in new TestWithAuth {
         lazy val result: Future[Result] = {
           controller.show(taxYear)(fakeRequest.withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
             SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(None, None)).toString()
           ))
         }
@@ -104,7 +108,7 @@ class UkDividendsAmountControllerSpec extends UnitTestWithApp {
 
       "there is no prior submission in session" in new TestWithAuth {
         lazy val result: Future[Result] = {
-          controller.show(taxYear)(fakeRequest)
+          controller.show(taxYear)(fakeRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString))
         }
 
         status(result) shouldBe OK
@@ -134,7 +138,7 @@ class UkDividendsAmountControllerSpec extends UnitTestWithApp {
 
 
         val invalidTaxYear = 2023
-        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(fakeRequest)
+        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(fakeRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString))
 
         redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
 

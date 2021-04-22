@@ -30,6 +30,7 @@ import utils.UnitTestWithApp
 import views.html.interest.TaxedInterestAmountView
 
 import scala.concurrent.Future
+import scala.language.implicitConversions
 
 class TaxedInterestAmountControllerSpec extends UnitTestWithApp {
 
@@ -39,15 +40,15 @@ class TaxedInterestAmountControllerSpec extends UnitTestWithApp {
     mockAppConfig, authorisedAction, mockMessagesControllerComponents
   )
 
-  val taxYear = 2022
-  val id = "9563b361-6333-449f-8721-eab2572b3437"
+  val taxYear: Int = mockAppConfig.defaultTaxYear
+  val id: String = "9563b361-6333-449f-8721-eab2572b3437"
 
   ".show" should {
 
     "return an OK" when {
 
       "modify is None" in new TestWithAuth {
-        lazy val result: Future[Result] = controller.show(taxYear, id)(fakeRequest)
+        lazy val result: Future[Result] = controller.show(taxYear, id)(fakeRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString))
 
         status(result) shouldBe OK
       }
@@ -55,6 +56,7 @@ class TaxedInterestAmountControllerSpec extends UnitTestWithApp {
       "modifying previous in session data, with CYA data" in new TestWithAuth {
         lazy val result: Future[Result] = controller.show(taxYear, "9563b361-6333-449f-8721-eab2572b3437")(fakeRequest
           .withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
             SessionValues.INTEREST_CYA -> InterestCYAModel(false, None, true, Seq(
               InterestAccountModel(Some("qwerty"), "TSB 1", 300.00, None),
               InterestAccountModel(None, "TSB 2", 300.00, Some("9563b361-6333-449f-8721-eab2572b3437")),
@@ -68,6 +70,7 @@ class TaxedInterestAmountControllerSpec extends UnitTestWithApp {
       "id is not correct format, with CYA data" in new TestWithAuth {
         lazy val result: Future[Result] = controller.show(taxYear, "id")(fakeRequest
           .withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
             SessionValues.INTEREST_CYA -> InterestCYAModel(false, None, true, Seq(
               InterestAccountModel(Some("qwerty"), "TSB 1", 300.00, None),
               InterestAccountModel(None, "TSB 2", 300.00, Some("9563b361-6333-449f-8721-eab2572b3437")),
@@ -78,12 +81,14 @@ class TaxedInterestAmountControllerSpec extends UnitTestWithApp {
 
         status(result) shouldBe SEE_OTHER
         redirectUrl(result) should include(controllers.interest.routes
-          .TaxedInterestAmountController.show(taxYear,"9563b361-6333-449f-8721-eab2572b3437").url.dropRight(36))
+          .TaxedInterestAmountController.show(taxYear,"9563b361-6333-449f-8721-eab2572b3437").url.dropRight(36)
+        )
 
       }
       "modifying previous submitted data, with CYA data" in new TestWithAuth {
         lazy val result: Future[Result] = controller.show(taxYear, "qwerty")(fakeRequest
           .withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
             SessionValues.INTEREST_CYA -> InterestCYAModel(false, None, true, Seq(
               InterestAccountModel(Some("qwerty"), "TSB 1", 300.00, None),
               InterestAccountModel(None, "TSB 2", 300.00, Some("9563b361-6333-449f-8721-eab2572b3437")),
@@ -116,7 +121,7 @@ class TaxedInterestAmountControllerSpec extends UnitTestWithApp {
         )
 
         val invalidTaxYear = 2023
-        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear, id)(fakeRequest)
+        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear, id)(fakeRequest.withSession(SessionValues.TAX_YEAR -> mockAppConfFeatureSwitch.defaultTaxYear.toString))
 
         redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
 

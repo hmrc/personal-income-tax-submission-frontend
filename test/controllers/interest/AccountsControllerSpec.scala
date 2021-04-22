@@ -37,7 +37,7 @@ class AccountsControllerSpec extends UnitTestWithApp {
   val TAXED = "taxed"
   val UNTAXED = "untaxed"
 
-  val taxYear = 2022
+  val taxYear: Int = mockAppConfig.defaultTaxYear
 
   private val uuid = java.util.UUID.randomUUID().toString
 
@@ -60,15 +60,15 @@ class AccountsControllerSpec extends UnitTestWithApp {
   )
 
   def maxRequest(cyaModel: InterestCYAModel = interestCyaModel): FakeRequest[AnyContentAsFormUrlEncoded] = fakeRequest
-    .withSession(SessionValues.INTEREST_CYA -> cyaModel.asJsonString)
+    .withSession(SessionValues.TAX_YEAR -> taxYear.toString, SessionValues.INTEREST_CYA -> cyaModel.asJsonString)
     .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.no)
 
   def maxRequestWithYesOnForm(cyaModel: InterestCYAModel = interestCyaModel): FakeRequest[AnyContentAsFormUrlEncoded] = fakeRequest
-    .withSession(SessionValues.INTEREST_CYA -> cyaModel.asJsonString)
+    .withSession(SessionValues.TAX_YEAR -> taxYear.toString, SessionValues.INTEREST_CYA -> cyaModel.asJsonString)
     .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes)
 
   def maxRequestWithInvalidForm(cyaModel: InterestCYAModel = interestCyaModel): FakeRequest[AnyContentAsFormUrlEncoded] = fakeRequest
-    .withSession(SessionValues.INTEREST_CYA -> cyaModel.asJsonString)
+    .withSession(SessionValues.TAX_YEAR -> taxYear.toString, SessionValues.INTEREST_CYA -> cyaModel.asJsonString)
     .withFormUrlEncodedBody(YesNoForm.yesNo -> "maybe")
 
   ".show" when {
