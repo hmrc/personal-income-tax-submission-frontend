@@ -258,6 +258,19 @@ charity.overseas-gift-aid.heading.agent = Did your client use Gift Aid to donate
 charity.overseas-gift-aid.errors.noChoice.individual = Select yes if you used Gift Aid to donate to an overseas charity
 charity.overseas-gift-aid.errors.noChoice.agent = Select yes if your client used Gift Aid to donate to an overseas charity
 
+charity.amount-overseas-gift-aid.title.individual = How much did you donate to overseas charities by using Gift Aid?
+charity.amount-overseas-gift-aid.title.agent = How much did your client donate to overseas charities by using Gift Aid?
+charity.amount-overseas-gift-aid.heading.individual = How much did you donate to overseas charities by using Gift Aid?
+charity.amount-overseas-gift-aid.heading.agent = How much did your client donate to overseas charities by using Gift Aid?
+charity.amount-overseas-gift-aid.error.empty.individual = Enter the amount you donated to overseas charities
+charity.amount-overseas-gift-aid.error.empty.agent = Enter the amount your client donated to overseas charities
+charity.amount-overseas-gift-aid.error.incorrect-format.individual = Enter the amount you donated to overseas charities in the correct format
+charity.amount-overseas-gift-aid.error.incorrect-format.agent = Enter the amount your client donated to overseas charities in the correct format
+charity.amount-overseas-gift-aid.error.too-high.individual = The amount you donated to overseas charities must be less than £100,000,000,000
+charity.amount-overseas-gift-aid.error.too-high.agent = The amount your client donated to overseas charities must be less than £100,000,000,000
+charity.amount-overseas-gift-aid.input.label = Total amount, in pounds
+charity.amount-overseas-gift-aid.input.hint-text = For example, £600 or £193.54
+
 not-found-template.title = Page not found
 not-found-template.heading = Page not found
 not-found-template.paragraph.1 = If you typed the web address, check it is correct.
