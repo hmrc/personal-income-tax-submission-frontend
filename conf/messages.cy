@@ -291,6 +291,10 @@ charity.overseas-gift-aid-summary.noChoice = Select yes if you need to add anoth
 charity.overseas-gift-aid-summary.hiddenChange = Change details you’ve entered for {0}
 charity.overseas-gift-aid-summary.hiddenRemove = Remove {0}
 
+charity.remove-overseas-charity.title = Are you sure you want to remove this overseas charity?
+charity.remove-overseas-charity.heading = Are you sure you want to remove this overseas charity?
+charity.remove-overseas-charity.noChoice = Select yes to remove this overseas charity
+
 not-found-template.title = Page not found
 not-found-template.heading = Page not found
 not-found-template.paragraph.1 = If you typed the web address, check it is correct.
