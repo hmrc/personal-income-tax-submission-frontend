@@ -24,12 +24,13 @@
 @(taxYear: Int, form: Form[BigDecimal], prefill: Option[String])(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @titleText = @{
-if(user.isAgent) {
-messages("charity.amount-overseas-gift-aid.title.agent")
-} else {
-messages("charity.amount-overseas-gift-aid.title.individual")
+    if(user.isAgent) {
+        messages("charity.amount-overseas-gift-aid.title.agent")
+    } else {
+        messages("charity.amount-overseas-gift-aid.title.individual")
+    }
 }
-}
+
 @headingForUse = @{
 messages(s"charity.amount-overseas-gift-aid.heading.${if(user.isAgent) "agent" else "individual"}")
 }
