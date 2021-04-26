@@ -49,7 +49,7 @@ class OverseasGiftAidSummaryControllerISpec extends IntegrationTest {
   object Content {
     val heading = "Overseas charities you used Gift Aid to donate to"
     val headingAgent = "Overseas charities your client used Gift Aid to donate to"
-    val caption = "Charitable giving for 6 April 2021 to 5 April 2022"
+    val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
     val charity1 = "overseasCharity1"
     val charity2 = "overseasCharity2"
     val question = "Do you need to add another overseas charity?"
