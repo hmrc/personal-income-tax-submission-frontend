@@ -47,7 +47,7 @@ class TaxYearAction @Inject()(taxYear: Int)(
         if (sameTaxYear || !appConfig.taxYearSwitchResetsSession) {
           Right(request)
         } else {
-          logger.debug("[TaxYearAction][refine] Tax year provided is different than that in session. Redirecting to overview.")
+          logger.info("[TaxYearAction][refine] Tax year provided is different than that in session. Redirecting to overview.")
           Left(
             Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
               .addingToSession(TAX_YEAR -> taxYear.toString)
