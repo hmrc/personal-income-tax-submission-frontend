@@ -36,7 +36,7 @@ class RemoveOverseasCharityControllerISpec extends IntegrationTest {
 
     val heading = "h1"
     val caption = ".govuk-caption-l"
-    val errorSummary = "#error-summary-title"
+    val errorSummaryNoSelection = ".govuk-error-summary__body > ul > li > a"
     val yesRadioButton = ".govuk-radios__item:nth-child(1) > label"
     val noRadioButton = ".govuk-radios__item:nth-child(2) > label"
 
@@ -100,23 +100,28 @@ class RemoveOverseasCharityControllerISpec extends IntegrationTest {
           result.status shouldBe OK
         }
 
-        s"return a BAD_REQUEST($BAD_REQUEST) status" in {
+        "when there is an incorrect input" should {
           lazy val result: WSResponse = {
             authoriseIndividual()
             await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity").post(Map[String, String]()))
           }
           lazy val document: Document = Jsoup.parse(result.body)
 
-          result.status shouldBe BAD_REQUEST
+          s"return a BAD_REQUEST($BAD_REQUEST) status" in {
 
-          "have the correct page content" in {
 
-            document.title() shouldBe Content.expectedErrorTitle
-            document.select(Selectors.errorSummary) shouldBe Content.noSelectionError
+
+            result.status shouldBe BAD_REQUEST
+          }
+            "have the correct page content" in {
+
+              document.title() shouldBe Content.expectedErrorTitle
+              document.select(Selectors.errorSummaryNoSelection).text() shouldBe Content.noSelectionError
+            }
           }
         }
       }
-    }
+
 
     "as an agent" when {
 
