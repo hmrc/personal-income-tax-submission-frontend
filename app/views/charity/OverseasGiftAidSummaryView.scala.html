@@ -1,0 +1,83 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import views.html.headerFooterTemplate.Layout
+@import views.html.templates.helpers.ErrorSummary
+@import views.html.templates.helpers.Heading
+@import views.html.templates.helpers.Button
+@import views.html.templates.helpers.InputRadio
+
+@this(layout: Layout,
+        formWithCsrf: FormWithCSRF,
+        errorSummary: ErrorSummary,
+        button: Button,
+        heading: Heading,
+        inputRadio: InputRadio,
+        govukSummaryList : GovukSummaryList)
+
+@(form: Form[Boolean], taxYear: Int, overseasCharities: List[String])(implicit user: User[_], messages: Messages, appConfig: AppConfig)
+
+@titleForUse = @{messages(s"charity.overseas-gift-aid-summary.title.${if(user.isAgent) "agent" else "individual"}")}
+
+@hasFormErrors = @{form.hasErrors}
+
+@overseasGiftAidList = {
+    <div class="govuk-form-group">
+        <ul class="hmrc-add-to-a-list hmrc-add-to-a-list--short">
+        @for(charity <- overseasCharities){
+            <li class="hmrc-add-to-a-list__contents">
+                <span class="hmrc-add-to-a-list__identifier hmrc-add-to-a-list__identifier--light">
+                    @charity
+                </span>
+                <span class="hmrc-add-to-a-list__change">
+                    <a class="govuk-link" href="#"> @*TODO - update href*@
+                        <span aria-hidden="true">@messages("common.change")</span>
+                        <span class="govuk-visually-hidden">@{messages("charity.overseas-gift-aid-summary.hiddenChange", charity)}</span>
+                    </a>
+                </span>
+                <span class="hmrc-add-to-a-list__remove">
+                    <a class="govuk-link" href="#"> @*TODO - update href*@
+                        <span aria-hidden="true">@messages("common.remove")</span>
+                        <span class="govuk-visually-hidden">@{messages("charity.overseas-gift-aid-summary.hiddenRemove", charity)}</span>
+                    </a>
+                </span>
+            </li>
+        }
+        </ul>
+    </div>
+}
+
+@layout(pageTitle = titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors) {
+
+    @errorSummary(form.errors.distinct)
+
+    @heading(titleForUse, Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)))
+
+    @overseasGiftAidList
+
+    @formWithCsrf(action = controllers.charity.routes.OverseasGiftAidSummaryController.submit(taxYear)) {
+
+        @inputRadio(
+            form = form,
+            heading = messages("charity.overseas-gift-aid-summary.question"),
+            hint = Some(Html(messages(s"charity.overseas-gift-aid-summary.hint.${if(user.isAgent) "agent" else "individual"}"))),
+            classes = "govuk-fieldset__legend--m",
+            inline = true
+        )
+
+        @button()
+    }
+}

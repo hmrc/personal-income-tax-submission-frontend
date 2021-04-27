@@ -51,7 +51,7 @@ class InterestAccountsViewSpec extends ViewTest {
   val captionSelector = ".govuk-caption-l"
   val continueSelector = "#continue"
   val continueFormSelector = "#main-content > div > div > form"
-  val doYouNeedSelector = "#main-content > div > div > form > div > fieldset > legend > div"
+  val doYouNeedSelector = "#main-content > div > div > form > div > fieldset > legend"
   val youMustTellSelector = "#interest-account-view-radio-hint"
 
   val changeUntaxedHref = "/income-through-software/return/personal-income/2020/interest/untaxed-uk-interest-details/qwerty"
