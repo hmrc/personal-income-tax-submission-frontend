@@ -35,7 +35,7 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
   lazy val interestBaseUrl: String = servicesConfig.baseUrl("income-tax-interest") + "/income-tax-interest"
   lazy val giftAidBaseUrl: String = servicesConfig.baseUrl("income-tax-gift-aid") + "/income-tax-gift-aid"
 
-  lazy val defaultTaxYear: Int = servicesConfig.getInt(ConfigKeys.defaultTaxYear)
+  def defaultTaxYear: Int = servicesConfig.getInt(ConfigKeys.defaultTaxYear)
 
   def incomeTaxSubmissionBaseUrl: String = servicesConfig.getString(ConfigKeys.incomeTaxSubmissionFrontend) +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.context")
@@ -84,7 +84,7 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
   lazy val timeoutDialogTimeout: Int = servicesConfig.getInt("timeoutDialogTimeout")
   lazy val timeoutDialogCountdown: Int = servicesConfig.getInt("timeoutDialogCountdown")
 
-  lazy val taxYearErrorFeature: Boolean = servicesConfig.getBoolean("taxYearErrorFeatureSwitch")
+  def taxYearErrorFeature: Boolean = servicesConfig.getBoolean("taxYearErrorFeatureSwitch")
 
   def languageMap: Map[String, Lang] = Map(
     "english" -> Lang("en"),
@@ -97,4 +97,6 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
   lazy val welshToggleEnabled: Boolean = servicesConfig.getBoolean("feature-switch.welshToggleEnabled")
 
   def isJourneyAvailable(journeyKey: JourneyKey): Boolean = servicesConfig.getBoolean("feature-switch.journeys." + journeyKey.stringify)
+
+  def taxYearSwitchResetsSession: Boolean = servicesConfig.getBoolean("taxYearChangeResetsSession")
 }

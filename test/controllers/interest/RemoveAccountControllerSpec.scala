@@ -22,7 +22,7 @@ import controllers.predicates.AuthorisedAction
 import forms.YesNoForm
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
 import play.api.http.Status._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsArray, Json}
 import play.api.mvc.Result
 import play.api.test.Helpers.SEE_OTHER
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -32,7 +32,7 @@ import views.html.interest.RemoveAccountView
 
 import scala.concurrent.Future
 
-class RemoveAccountControllerSpec extends UnitTestWithApp{
+class RemoveAccountControllerSpec extends UnitTestWithApp {
 
   implicit def wrapOption[T](input: T): Option[T] = Some(input)
 
@@ -40,7 +40,7 @@ class RemoveAccountControllerSpec extends UnitTestWithApp{
     app.injector.instanceOf[RemoveAccountView]
   )(mockAppConfig, mockMessagesControllerComponents, authorisedAction)
 
-  val taxYear = 2022
+  val taxYear: Int = mockAppConfig.defaultTaxYear
   val untaxedId1 = "UntaxedId1"
   val untaxedId2 = "UntaxedId2"
   val taxedId1 = "TaxedId1"
@@ -49,7 +49,7 @@ class RemoveAccountControllerSpec extends UnitTestWithApp{
   val TAXED = "taxed"
   val UNTAXED = "untaxed"
 
-  lazy val priorDataModel = Json.arr(
+  lazy val priorDataModel: JsArray = Json.arr(
     Json.obj(
       "accountName" -> "Untaxed Account",
       "incomeSourceId" -> "UntaxedId1",
@@ -85,7 +85,7 @@ class RemoveAccountControllerSpec extends UnitTestWithApp{
 
         s"has an OK($OK) status" in new TestWithAuth {
           val result: Future[Result] = controller.show(taxYear, UNTAXED, untaxedId1)(fakeRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes)
-            .withSession(SessionValues.INTEREST_CYA -> untaxedInterestCyaModel.asJsonString))
+            .withSession(SessionValues.TAX_YEAR -> taxYear.toString, SessionValues.INTEREST_CYA -> untaxedInterestCyaModel.asJsonString))
 
           status(result) shouldBe OK
         }
@@ -98,7 +98,7 @@ class RemoveAccountControllerSpec extends UnitTestWithApp{
 
         s"has an OK($OK) status" in new TestWithAuth {
           val result: Future[Result] = controller.show(taxYear, TAXED, taxedId1)(fakeRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes)
-            .withSession(SessionValues.INTEREST_CYA -> taxedInterestCyaModel.asJsonString))
+            .withSession(SessionValues.TAX_YEAR -> taxYear.toString, SessionValues.INTEREST_CYA -> taxedInterestCyaModel.asJsonString))
 
           status(result) shouldBe OK
         }
@@ -124,7 +124,7 @@ class RemoveAccountControllerSpec extends UnitTestWithApp{
 
       "redirect to the untaxed interest page when missing untaxed data" which {
         lazy val result: Future[Result] = controller.show(taxYear, UNTAXED, untaxedId1)(fakeRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes)
-          .withSession(SessionValues.INTEREST_CYA -> taxedInterestCyaModel.asJsonString))
+          .withSession(SessionValues.TAX_YEAR -> taxYear.toString, SessionValues.INTEREST_CYA -> taxedInterestCyaModel.asJsonString))
 
         s"has status of SEE_OTHER($SEE_OTHER)" in new TestWithAuth {
           status(result) shouldBe SEE_OTHER
@@ -138,7 +138,7 @@ class RemoveAccountControllerSpec extends UnitTestWithApp{
 
       "redirect to the taxed interest page when missing taxed data" which {
         lazy val result: Future[Result] = controller.show(taxYear, TAXED, taxedId1)(fakeRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes)
-          .withSession(SessionValues.INTEREST_CYA -> untaxedInterestCyaModel.asJsonString))
+          .withSession(SessionValues.TAX_YEAR -> taxYear.toString, SessionValues.INTEREST_CYA -> untaxedInterestCyaModel.asJsonString))
 
         s"has status of SEE_OTHER($SEE_OTHER)" in new TestWithAuth {
           status(result) shouldBe SEE_OTHER
@@ -152,42 +152,51 @@ class RemoveAccountControllerSpec extends UnitTestWithApp{
 
     "if there is  prior submission data" should {
 
-        "redirect to the taxed interest controller page" when {
+      "redirect to the taxed interest controller page" when {
 
-          "we try to remove a taxed interest account" which {
-            lazy val result: Future[Result] = controller.show(taxYear, TAXED, taxedId1)(fakeRequest
-              .withSession(SessionValues.INTEREST_CYA -> taxedInterestCyaModel.asJsonString,
-                SessionValues.INTEREST_PRIOR_SUB -> priorDataModel.toString))
+        "we try to remove a taxed interest account" which {
+          lazy val result: Future[Result] = controller.show(taxYear, TAXED, taxedId1)(fakeRequest
+            .withSession(
+              SessionValues.TAX_YEAR -> taxYear.toString,
+              SessionValues.INTEREST_CYA -> taxedInterestCyaModel.asJsonString,
+              SessionValues.INTEREST_PRIOR_SUB -> priorDataModel.toString
+            ))
 
-            "has a status of SEE_OTHER" in new TestWithAuth {
-              status(result) shouldBe SEE_OTHER
-            }
-            "has the correct redirect URL" in {
-              redirectUrl(result) shouldBe controllers.interest.routes.AccountsController.show(taxYear, TAXED).url
-            }
+          "has a status of SEE_OTHER" in new TestWithAuth {
+            status(result) shouldBe SEE_OTHER
           }
-
-          "we try to remove an untaxed interest account" which {
-            lazy val result: Future[Result] = controller.show(taxYear, UNTAXED, untaxedId1)(fakeRequest
-              .withSession(SessionValues.INTEREST_CYA -> untaxedInterestCyaModel.asJsonString,
-                SessionValues.INTEREST_PRIOR_SUB -> priorDataModel.toString))
-
-            "has a status of SEE_OTHER" in new TestWithAuth {
-              status(result) shouldBe SEE_OTHER
-            }
-            "has the correct redirect URL" in {
-              redirectUrl(result) shouldBe controllers.interest.routes.AccountsController.show(taxYear, UNTAXED).url
-            }
+          "has the correct redirect URL" in {
+            redirectUrl(result) shouldBe controllers.interest.routes.AccountsController.show(taxYear, TAXED).url
           }
         }
+
+        "we try to remove an untaxed interest account" which {
+          lazy val result: Future[Result] = controller.show(taxYear, UNTAXED, untaxedId1)(fakeRequest
+            .withSession(
+              SessionValues.TAX_YEAR -> taxYear.toString,
+              SessionValues.INTEREST_CYA -> untaxedInterestCyaModel.asJsonString,
+              SessionValues.INTEREST_PRIOR_SUB -> priorDataModel.toString)
+          )
+
+          "has a status of SEE_OTHER" in new TestWithAuth {
+            status(result) shouldBe SEE_OTHER
+          }
+          "has the correct redirect URL" in {
+            redirectUrl(result) shouldBe controllers.interest.routes.AccountsController.show(taxYear, UNTAXED).url
+          }
+        }
+      }
 
       "Not redirect" when {
 
         "The prior submission data is empty" which {
 
           lazy val result: Future[Result] = controller.show(taxYear, TAXED, taxedId1)(fakeRequest
-            .withSession(SessionValues.INTEREST_CYA -> taxedInterestCyaModel.asJsonString,
-              SessionValues.INTEREST_PRIOR_SUB -> Json.arr().toString))
+            .withSession(
+              SessionValues.TAX_YEAR -> taxYear.toString,
+              SessionValues.INTEREST_CYA -> taxedInterestCyaModel.asJsonString,
+              SessionValues.INTEREST_PRIOR_SUB -> Json.arr().toString
+            ))
 
           "has a status of OK" in new TestWithAuth {
             status(result) shouldBe OK
@@ -202,7 +211,7 @@ class RemoveAccountControllerSpec extends UnitTestWithApp{
 
         "there is missing taxed account data within the model" which {
           lazy val result: Future[Result] = controller.show(taxYear, TAXED, taxedId1)(fakeRequest
-            .withSession(SessionValues.INTEREST_CYA -> missingTaxedInterestCyaModelData.asJsonString))
+            .withSession(SessionValues.TAX_YEAR -> taxYear.toString, SessionValues.INTEREST_CYA -> missingTaxedInterestCyaModelData.asJsonString))
 
           s"has status of SEE_OTHER($SEE_OTHER)" in new TestWithAuth {
             status(result) shouldBe SEE_OTHER
@@ -219,7 +228,7 @@ class RemoveAccountControllerSpec extends UnitTestWithApp{
 
       "an invalid tax year has been added to the url" in new TestWithAuth() {
 
-        val mockAppConfFeatureSwitch: AppConfig = new AppConfig(mock[ServicesConfig]){
+        val mockAppConfFeatureSwitch: AppConfig = new AppConfig(mock[ServicesConfig]) {
           override lazy val defaultTaxYear: Int = 2022
           override lazy val taxYearErrorFeature = true
         }
@@ -715,55 +724,55 @@ class RemoveAccountControllerSpec extends UnitTestWithApp{
 
   }
 
-    ".isLastAccount" should {
+  ".isLastAccount" should {
 
-      "have taxed typed as TAXED" when {
-        "is true" in {
-          val result = controller.isLastAccount(taxType = TAXED, priorSubmission = None,
-            taxAccounts = Seq(InterestAccountModel(Some("taxedId"), "Taxed Account", 9023.11)))
+    "have taxed typed as TAXED" when {
+      "is true" in {
+        val result = controller.isLastAccount(taxType = TAXED, priorSubmission = None,
+          taxAccounts = Seq(InterestAccountModel(Some("taxedId"), "Taxed Account", 9023.11)))
 
-          result shouldBe true
-        }
-        "is false with prior submission" in {
-          val result = controller.isLastAccount(taxType = TAXED, priorSubmission = Some(
-            InterestPriorSubmission(hasUntaxed = false, hasTaxed = true, Some(Seq(InterestAccountModel(
-                Some("qwerty"),"TSB Account", 500.00, priorType = Some(InterestTaxTypes.TAXED)))))),
-            taxAccounts = Seq(InterestAccountModel(Some("taxedId"), "Taxed Account", 9023.11)))
-
-          result shouldBe false
-        }
-        "is false with no prior submission" in {
-          val result = controller.isLastAccount(taxType = TAXED, priorSubmission = None,
-            taxAccounts = Seq(InterestAccountModel(Some("taxedId"), "Taxed Account", 9023.11),
-              InterestAccountModel(Some("taxedId2"), "Taxed Account 2", 2000.20)))
-
-          result shouldBe false
-        }
+        result shouldBe true
       }
+      "is false with prior submission" in {
+        val result = controller.isLastAccount(taxType = TAXED, priorSubmission = Some(
+          InterestPriorSubmission(hasUntaxed = false, hasTaxed = true, Some(Seq(InterestAccountModel(
+            Some("qwerty"), "TSB Account", 500.00, priorType = Some(InterestTaxTypes.TAXED)))))),
+          taxAccounts = Seq(InterestAccountModel(Some("taxedId"), "Taxed Account", 9023.11)))
 
-      "have taxed typed as UNTAXED" when {
-        "is true" in {
-          val result = controller.isLastAccount(taxType = UNTAXED, priorSubmission = None,
-            taxAccounts = Seq(InterestAccountModel(Some("untaxedId"), "Untaxed Account", 9023.11)))
+        result shouldBe false
+      }
+      "is false with no prior submission" in {
+        val result = controller.isLastAccount(taxType = TAXED, priorSubmission = None,
+          taxAccounts = Seq(InterestAccountModel(Some("taxedId"), "Taxed Account", 9023.11),
+            InterestAccountModel(Some("taxedId2"), "Taxed Account 2", 2000.20)))
 
-          result shouldBe true
-        }
-        "is false with prior submission" in {
-          val result = controller.isLastAccount(taxType = UNTAXED, priorSubmission = Some(
-            InterestPriorSubmission(hasUntaxed = true, hasTaxed = false, Some(Seq(InterestAccountModel(
-              Some("qwerty"),"TSB Account", 500.00, priorType = Some(InterestTaxTypes.UNTAXED)))))),
-            taxAccounts = Seq(InterestAccountModel(Some("untaxedId"), "Untaxed Account", 9023.11)))
-
-          result shouldBe false
-        }
-        "is false with no prior submission" in {
-          val result = controller.isLastAccount(taxType = UNTAXED, priorSubmission = None,
-            taxAccounts = Seq(InterestAccountModel(Some("untaxedId"), "Untaxed Account", 9023.11),
-              InterestAccountModel(Some("untaxedId2"), "Untaxed Account 2", 2000.20)))
-
-          result shouldBe false
-        }
+        result shouldBe false
       }
     }
+
+    "have taxed typed as UNTAXED" when {
+      "is true" in {
+        val result = controller.isLastAccount(taxType = UNTAXED, priorSubmission = None,
+          taxAccounts = Seq(InterestAccountModel(Some("untaxedId"), "Untaxed Account", 9023.11)))
+
+        result shouldBe true
+      }
+      "is false with prior submission" in {
+        val result = controller.isLastAccount(taxType = UNTAXED, priorSubmission = Some(
+          InterestPriorSubmission(hasUntaxed = true, hasTaxed = false, Some(Seq(InterestAccountModel(
+            Some("qwerty"), "TSB Account", 500.00, priorType = Some(InterestTaxTypes.UNTAXED)))))),
+          taxAccounts = Seq(InterestAccountModel(Some("untaxedId"), "Untaxed Account", 9023.11)))
+
+        result shouldBe false
+      }
+      "is false with no prior submission" in {
+        val result = controller.isLastAccount(taxType = UNTAXED, priorSubmission = None,
+          taxAccounts = Seq(InterestAccountModel(Some("untaxedId"), "Untaxed Account", 9023.11),
+            InterestAccountModel(Some("untaxedId2"), "Untaxed Account 2", 2000.20)))
+
+        result shouldBe false
+      }
+    }
+  }
 
 }

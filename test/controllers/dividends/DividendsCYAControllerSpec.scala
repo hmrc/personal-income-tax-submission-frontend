@@ -59,7 +59,7 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
     mockMessagesControllerComponents
   )
 
-  val taxYear = 2022
+  val taxYear: Int = mockAppConfig.defaultTaxYear
   val firstAmount = 10
   val secondAmount = 20
   val successResponseCode = 204
@@ -87,6 +87,7 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
 
       "there is CYA session data and prior submission data" in new TestWithAuth {
         val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
+          SessionValues.TAX_YEAR -> taxYear.toString,
           SessionValues.DIVIDENDS_CYA -> Json.toJson(cyaSessionData).toString,
           SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(priorData).toString
         )
@@ -98,6 +99,7 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
 
       "there is CYA session data and no prior submission data" in new TestWithAuth {
         val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
+          SessionValues.TAX_YEAR -> taxYear.toString,
           SessionValues.DIVIDENDS_CYA -> Json.toJson(cyaSessionData).toString
         )
 
@@ -108,6 +110,7 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
 
       "there is prior submission data and no CYA session data" in new TestWithAuth {
         val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
+          SessionValues.TAX_YEAR -> taxYear.toString,
           SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(priorData).toString
         )
 
@@ -121,7 +124,7 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
     "redirect to the overview page" when {
 
       "there is no session data" in new TestWithAuth {
-        val result: Future[Result] = controller.show(taxYear)(FakeRequest())
+        val result: Future[Result] = controller.show(taxYear)(FakeRequest().withSession(SessionValues.TAX_YEAR -> taxYear.toString))
 
         status(result) shouldBe SEE_OTHER
         redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)
@@ -135,6 +138,7 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
 
         "the answer is Yes" which {
           lazy val result = controller.show(taxYear)(fakeRequest.withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
             SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(
               Some(true), None, None, None
             ).asJsonString
@@ -150,6 +154,7 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
         }
         "the answer is No" which {
           lazy val result = controller.show(taxYear)(fakeRequest.withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
             SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(
               Some(false), None, None, None
             ).asJsonString
@@ -167,6 +172,7 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
 
       "up to UK Dividends Amount is filled in" which {
           lazy val result = controller.show(taxYear)(fakeRequest.withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
             SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(
               Some(true), Some(100.00), None, None
             ).asJsonString
@@ -183,6 +189,7 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
 
       "up to Receive Other UK Dividends is filled in" which {
           lazy val result = controller.show(taxYear)(fakeRequest.withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
             SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(
               Some(true), Some(100.00), Some(true), None
             ).asJsonString
@@ -224,7 +231,9 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
 
         val invalidTaxYear = 2023
 
-        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(fakeRequest)
+        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(
+          fakeRequest.withSession(SessionValues.TAX_YEAR -> mockAppConfFeatureSwitch.defaultTaxYear.toString)
+        )
 
         redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
 

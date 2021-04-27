@@ -31,7 +31,7 @@ import views.html.interest.TaxedInterestView
 
 import scala.concurrent.Future
 
-class TaxedInterestControllerSpec extends UnitTestWithApp{
+class TaxedInterestControllerSpec extends UnitTestWithApp {
 
   implicit def wrapOption[T](input: T): Option[T] = Some(input)
 
@@ -39,7 +39,7 @@ class TaxedInterestControllerSpec extends UnitTestWithApp{
     app.injector.instanceOf[TaxedInterestView]
   )(mockAppConfig, authorisedAction, mockMessagesControllerComponents)
 
-  val taxYear = 2022
+  val taxYear = mockAppConfig.defaultTaxYear
   val id = "9563b361-6333-449f-8721-eab2572b3437"
 
   ".show for an individual" should {
@@ -47,7 +47,9 @@ class TaxedInterestControllerSpec extends UnitTestWithApp{
     "return a result" which {
 
       s"has an OK($OK) status" in new TestWithAuth {
-        val result: Future[Result] = controller.show(taxYear)(fakeRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
+        val result: Future[Result] = controller.show(taxYear)(fakeRequest
+          .withSession(SessionValues.TAX_YEAR -> taxYear.toString)
+          .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
 
         status(result) shouldBe OK
       }
@@ -57,6 +59,7 @@ class TaxedInterestControllerSpec extends UnitTestWithApp{
 
       "hasTaxed in the prior submission is set to true" which {
         lazy val result: Future[Result] = controller.show(taxYear)(fakeRequest.withSession(
+          SessionValues.TAX_YEAR -> taxYear.toString,
           SessionValues.INTEREST_PRIOR_SUB -> Json.arr(Json.obj(
             "accountName" -> "Account",
             "incomeSourceId" -> "anId",
@@ -79,7 +82,7 @@ class TaxedInterestControllerSpec extends UnitTestWithApp{
 
       "an invalid tax year has been added to the url" in new TestWithAuth() {
 
-        val mockAppConfFeatureSwitch: AppConfig = new AppConfig(mock[ServicesConfig]){
+        val mockAppConfFeatureSwitch: AppConfig = new AppConfig(mock[ServicesConfig]) {
           override lazy val defaultTaxYear: Int = 2022
           override lazy val taxYearErrorFeature = true
         }
@@ -92,7 +95,7 @@ class TaxedInterestControllerSpec extends UnitTestWithApp{
         )(mockAppConfFeatureSwitch, authorisedActionFeatureSwitch, mockMessagesControllerComponents)
 
         val invalidTaxYear = 2023
-        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(fakeRequest)
+        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(fakeRequest.withSession(SessionValues.TAX_YEAR -> mockAppConfFeatureSwitch.defaultTaxYear.toString))
 
         redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
 
@@ -106,7 +109,9 @@ class TaxedInterestControllerSpec extends UnitTestWithApp{
     "return a result" which {
 
       s"has an OK($OK) status" in new TestWithAuth(isAgent = true) {
-        val result: Future[Result] = controller.show(taxYear)(fakeRequestWithMtditidAndNino.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
+        val result: Future[Result] = controller.show(taxYear)(fakeRequestWithMtditidAndNino
+          .withSession(SessionValues.TAX_YEAR -> taxYear.toString)
+          .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
 
         status(result) shouldBe OK
       }
@@ -128,6 +133,7 @@ class TaxedInterestControllerSpec extends UnitTestWithApp{
             YesNoForm.yesNo -> YesNoForm.yes
           )
           .withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
             SessionValues.INTEREST_CYA -> InterestCYAModel(
               false,
               None,
@@ -161,6 +167,7 @@ class TaxedInterestControllerSpec extends UnitTestWithApp{
             YesNoForm.yesNo -> YesNoForm.no
           )
           .withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
             SessionValues.INTEREST_CYA -> InterestCYAModel(
               false, None,
               true, Seq(InterestAccountModel(None, "asdf", 100.00, None))
@@ -193,9 +200,11 @@ class TaxedInterestControllerSpec extends UnitTestWithApp{
 
       "there is no CYA data" which {
 
-        lazy val result = controller.submit(taxYear)(fakeRequest.withFormUrlEncodedBody(
-          YesNoForm.yesNo -> YesNoForm.yes
-        ))
+        lazy val result = controller.submit(taxYear)(fakeRequest
+          .withSession(SessionValues.TAX_YEAR -> taxYear.toString)
+          .withFormUrlEncodedBody(
+            YesNoForm.yesNo -> YesNoForm.yes
+          ))
 
         s"has status of SEE_OTHER($SEE_OTHER)" in new TestWithAuth {
           status(result) shouldBe SEE_OTHER
@@ -212,7 +221,7 @@ class TaxedInterestControllerSpec extends UnitTestWithApp{
     "return a bad request" when {
 
       "there is an issue with the form submission" in new TestWithAuth {
-        lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequest)
+        lazy val result: Future[Result] = controller.submit(taxYear)(fakeRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString))
 
         status(result) shouldBe BAD_REQUEST
       }

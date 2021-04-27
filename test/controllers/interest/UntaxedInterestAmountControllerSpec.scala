@@ -38,7 +38,7 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
   lazy val view: UntaxedInterestAmountView = app.injector.instanceOf[UntaxedInterestAmountView]
   lazy val controller = new UntaxedInterestAmountController()(mockMessagesControllerComponents, authorisedAction,view, mockAppConfig)
 
-  val taxYear = 2022
+  val taxYear = mockAppConfig.defaultTaxYear
   val id = "9563b361-6333-449f-8721-eab2572b3437"
 
   ".show" should {
@@ -46,7 +46,7 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
     "return an OK" when {
 
       "modify is None" in new TestWithAuth {
-        lazy val result: Future[Result] = controller.show(taxYear, id)(fakeRequest)
+        lazy val result: Future[Result] = controller.show(taxYear, id)(fakeRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString))
 
         status(result) shouldBe OK
       }
@@ -54,6 +54,7 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
       "matches against a previous submitted amount with CYA data" in new TestWithAuth {
         lazy val result: Future[Result] = controller.show(taxYear, "qwerty")(fakeRequest
           .withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
             SessionValues.INTEREST_CYA -> InterestCYAModel(true, Seq(
               InterestAccountModel(Some("qwerty"), "TSB 1", 300.00, None),
               InterestAccountModel(None, "TSB 2", 300.00, Some("qwerty")),
@@ -68,6 +69,7 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
       "modifying an existing session, with CYA data" in new TestWithAuth {
         lazy val result: Future[Result] = controller.show(taxYear, "9563b361-6333-449f-8721-eab2572b3437")(fakeRequest
           .withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
             SessionValues.INTEREST_CYA -> InterestCYAModel(true, Seq(
               InterestAccountModel(Some("qwerty-previous-sub"), "TSB 1", 300.00, None),
               InterestAccountModel(None, "TSB 2", 300.00, Some("9563b361-6333-449f-8721-eab2572b3437")),
@@ -81,6 +83,7 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
       "invalid id, with CYA data" in new TestWithAuth {
         lazy val result: Future[Result] = controller.show(taxYear, "id")(fakeRequest
           .withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
             SessionValues.INTEREST_CYA -> InterestCYAModel(true, Seq(
               InterestAccountModel(Some("qwerty-previous-sub"), "TSB 1", 300.00, None),
               InterestAccountModel(None, "TSB 2", 300.00, Some("9563b361-6333-449f-8721-eab2572b3437")),

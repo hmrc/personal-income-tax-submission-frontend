@@ -40,14 +40,14 @@ class ReceiveUkDividendsControllerSpec extends UnitTestWithApp {
     mockAppConfig
   )
 
-  val taxYear = 2022
+  val taxYear = mockAppConfig.defaultTaxYear
 
   ".show" should {
 
     "return a result" which {
 
       s"has an OK($OK) status" in new TestWithAuth {
-        val result: Future[Result] = controller.show(taxYear)(fakeRequest)
+        val result: Future[Result] = controller.show(taxYear)(fakeRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString))
 
         status(result) shouldBe OK
       }
@@ -58,7 +58,10 @@ class ReceiveUkDividendsControllerSpec extends UnitTestWithApp {
 
       s"has an OK($OK) status" in new TestWithAuth {
         val result: Future[Result] = controller.show(taxYear)(fakeRequest
-          .withSession(SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(Some(true), Some(67.00), None, None).asJsonString))
+          .withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
+            SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(Some(true), Some(67.00), None, None).asJsonString)
+        )
 
         status(result) shouldBe OK
       }
@@ -69,6 +72,7 @@ class ReceiveUkDividendsControllerSpec extends UnitTestWithApp {
 
       "UK Dividends in the prior submission contains a value" which {
         lazy val result: Future[Result] = controller.show(taxYear)(fakeRequest.withSession(
+          SessionValues.TAX_YEAR -> taxYear.toString,
           SessionValues.DIVIDENDS_PRIOR_SUB -> DividendsPriorSubmission(Some(100.00), None).asJsonString
         ))
 
@@ -104,7 +108,7 @@ class ReceiveUkDividendsControllerSpec extends UnitTestWithApp {
 
 
         val invalidTaxYear = 2023
-        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(fakeRequest)
+        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(fakeRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString))
 
         redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
 

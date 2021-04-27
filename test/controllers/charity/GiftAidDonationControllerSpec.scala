@@ -16,6 +16,7 @@
 
 package controllers.charity
 
+import common.SessionValues
 import play.api.http.Status._
 import play.api.mvc.Result
 import utils.UnitTestWithApp
@@ -32,14 +33,14 @@ class GiftAidDonationControllerSpec extends UnitTestWithApp {
     mockAppConfig
   )
 
-  val taxYear = 2022
+  val taxYear = mockAppConfig.defaultTaxYear
 
   ".show" should {
 
     "return a result" which {
 
       s"has an OK($OK) status" in new TestWithAuth {
-        val result: Future[Result] = controller.show(taxYear)(fakeRequest)
+        val result: Future[Result] = controller.show(taxYear)(fakeRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString))
         status(result) shouldBe OK
       }
 

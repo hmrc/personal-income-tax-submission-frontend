@@ -42,7 +42,7 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
   )(mockAppConfig, authorisedAction, mockMessagesControllerComponents)
 
 
-  val taxYear = 2022
+  val taxYear: Int = mockAppConfig.defaultTaxYear
   val id = "9563b361-6333-449f-8721-eab2572b3437"
 
   ".show for an individual" should {
@@ -50,7 +50,10 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
     "return a result" which {
 
       s"has an OK($OK) status" in new TestWithAuth {
-        val result: Future[Result] = controller.show(taxYear)(fakeRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
+        val result: Future[Result] = controller.show(taxYear)(fakeRequest
+          .withSession(SessionValues.TAX_YEAR -> taxYear.toString)
+          .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes
+          ))
 
         status(result) shouldBe OK
       }
@@ -60,6 +63,7 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
 
       "hasUntaxed in the prior submission is set to true" which {
         lazy val result: Future[Result] = controller.show(taxYear)(fakeRequest.withSession(
+          SessionValues.TAX_YEAR -> taxYear.toString,
           SessionValues.INTEREST_PRIOR_SUB -> Json.arr(Json.obj(
             "accountName" -> "Account",
             "incomeSourceId" -> "anId",
@@ -82,7 +86,7 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
 
       "an invalid tax year has been added to the url" in new TestWithAuth() {
 
-        val mockAppConfFeatureSwitch: AppConfig = new AppConfig(mock[ServicesConfig]){
+        val mockAppConfFeatureSwitch: AppConfig = new AppConfig(mock[ServicesConfig]) {
           override lazy val defaultTaxYear: Int = 2022
           override lazy val taxYearErrorFeature = true
         }
@@ -95,7 +99,7 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
         )(mockAppConfFeatureSwitch, authorisedActionFeatureSwitch, mockMessagesControllerComponents)
 
         val invalidTaxYear = 2023
-        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(fakeRequest)
+        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(fakeRequest.withSession(SessionValues.TAX_YEAR -> mockAppConfFeatureSwitch.defaultTaxYear.toString))
 
         redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
 

@@ -28,7 +28,7 @@ class MockAppConfig extends MockFactory {
     override lazy val dividendsBaseUrl: String = "/dividends"
     override lazy val interestBaseUrl: String = "/interest"
 
-    override lazy val defaultTaxYear: Int = 2022
+    override def defaultTaxYear: Int = 2022
 
     override def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = "/overview"
 
@@ -45,7 +45,7 @@ class MockAppConfig extends MockFactory {
     override lazy val timeoutDialogTimeout: Int = 900
     override lazy val timeoutDialogCountdown: Int = 120
 
-    override lazy val taxYearErrorFeature: Boolean = true
+    override def taxYearErrorFeature: Boolean = true
 
     override lazy val welshToggleEnabled: Boolean = true
 
@@ -56,5 +56,7 @@ class MockAppConfig extends MockFactory {
     override def incomeTaxSubmissionIvRedirect: String = "/income-through-software/return/iv-uplift"
 
     override def isJourneyAvailable(journeyKey: JourneyKey): Boolean = true
+
+    override def taxYearSwitchResetsSession: Boolean = true
   }
 }

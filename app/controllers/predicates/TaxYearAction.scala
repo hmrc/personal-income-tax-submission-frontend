@@ -16,7 +16,7 @@
 
 package controllers.predicates
 
-import common.SessionValues
+import common.SessionValues._
 import config.AppConfig
 import controllers.Assets.Redirect
 import models.User
@@ -38,13 +38,26 @@ class TaxYearAction @Inject()(taxYear: Int)(
   implicit val messagesApi: MessagesApi = mcc.messagesApi
 
   override def refine[A](request: User[A]): Future[Either[Result, User[A]]] = {
+    implicit val implicitRequest: User[A] = request
+
     Future.successful(
-      if (taxYear == appConfig.defaultTaxYear || !appConfig.taxYearErrorFeature) {
-        Right(request)
+      if (!appConfig.taxYearErrorFeature || taxYear == appConfig.defaultTaxYear) {
+        val sameTaxYear = request.session.get(TAX_YEAR).exists(_.toInt == taxYear)
+
+        if (sameTaxYear || !appConfig.taxYearSwitchResetsSession) {
+          Right(request)
+        } else {
+          logger.info("[TaxYearAction][refine] Tax year provided is different than that in session. Redirecting to overview.")
+          Left(
+            Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+              .addingToSession(TAX_YEAR -> taxYear.toString)
+              .removingFromSession(DIVIDENDS_CYA, INTEREST_CYA, DIVIDENDS_PRIOR_SUB, INTEREST_PRIOR_SUB, GIFT_AID_PRIOR_SUB)
+          )
+        }
       } else {
         logger.info(s"Invalid tax year, adding default tax year to session")
         Left(Redirect(controllers.routes.TaxYearErrorController.show())
-          .addingToSession(SessionValues.TAX_YEAR -> config.defaultTaxYear.toString)(request))
+          .addingToSession(TAX_YEAR -> config.defaultTaxYear.toString))
       }
     )
   }
