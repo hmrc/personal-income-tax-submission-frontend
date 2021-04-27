@@ -55,7 +55,7 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
   val captionSelector: String = "#main-content > div > div > form > div > label > header > p"
   val inputFieldSelector: String = "#name"
   val buttonSelector: String = ".govuk-button"
-  val inputHintTextSelector: String = "#name-hint > p"
+  val inputHintTextSelector: String = "#main-content > div > div > form > div > label > p"
   val errorSelector: String = "#main-content > div > div > div.govuk-error-summary > div > ul > li > a"
 
   val serviceName = "Update and submit an Income Tax Return"

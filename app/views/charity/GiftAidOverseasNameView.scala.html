@@ -40,7 +40,7 @@
 
 @headingForUse = @{(titleText)}
 
-@hint = {
+@content = {
     <p>
     @messages("charity.gift-aid-overseas-name.hint")
     </p>
@@ -59,13 +59,14 @@
             id = "name",
             name = "name",
             heading = headingForUse,
-            hint = Some(hint),
             isPageHeading = false,
             subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)),
             classes = Some("govuk-input--width-20"),
-            headingClasses = "govuk-!-margin-bottom-2"
+            headingClasses = "govuk-!-margin-bottom-2",
+            content = Some(content)
         )
 
         @button()
     }
 }
+

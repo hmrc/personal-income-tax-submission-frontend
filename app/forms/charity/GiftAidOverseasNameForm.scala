@@ -40,10 +40,4 @@ object GiftAidOverseasNameForm {
         notEmpty(isAgent) andThen NotCharLimit andThen NotInvalidChar andThen notDuplicate(previousNames)
       )
   )
-
-
-
-
-
-
 }

@@ -21,7 +21,7 @@ import play.api.data.validation.{Constraint, Invalid, Valid}
 
 object StringConstraints {
 
-  val charRegex = """^([ A-Za-z0-9&@£$€¥#.,:;-])*$"""
+  val charRegex = """^([ A-Za-z0-9&@£#/.,*’()-])*$"""
   val numericalCharacters = """[0-9.]*"""
 
   val monetaryRegex = """\d+|\d*\.\d{1,2}"""
@@ -34,8 +34,8 @@ object StringConstraints {
     x => if (x.length <= maxChars) Valid else Invalid(msgKey)
   )
 
-  def validateNotDuplicate(maxChars: List[String]): String => Constraint[String] = msgKey => constraint[String](
-    x => if (maxChars.contains(x)) Invalid(msgKey) else Valid
+  def validateNotDuplicate(previousEntrys: List[String]): String => Constraint[String] = msgKey => constraint[String](
+    x => if (previousEntrys.contains(x)) Invalid(msgKey) else Valid
   )
 
   val nonEmpty: String => Constraint[String] = msgKey => constraint[String](
