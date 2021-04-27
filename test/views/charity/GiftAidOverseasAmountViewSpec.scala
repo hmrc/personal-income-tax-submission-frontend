@@ -53,7 +53,7 @@ class GiftAidOverseasAmountViewSpec extends ViewTest {
   val captionSelector = ".govuk-caption-l"
   val inputFieldSelector = "#amount"
   val buttonSelector = ".govuk-button"
-  val inputLabelSelector = "#main-content > div > div > form > div > label > p"
+  val inputLabelSelector = "#main-content > div > div > form > div > label > div"
   val inputHintTextSelector = ".govuk-hint"
 
   "GiftAidOverseasAmount with no errors" when {

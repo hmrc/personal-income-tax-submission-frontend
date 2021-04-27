@@ -49,7 +49,7 @@
         name = "amount",
         heading = headingForUse,
         content = Some(contentHtml),
-        labelClasses = Some("govuk-!-margin-bottom-4"),
+        labelClasses = Some("govuk-!-margin-bottom-1"),
         isPageHeading = false,
         currency = true,
         hint = Some(Html(messages("charity.amount-overseas-gift-aid.input.hint-text"))),
@@ -61,7 +61,7 @@
 }
 
 @contentHtml = {
-    <p>
+    <div>
         @messages("charity.amount-overseas-gift-aid.input.label")
-    </p>
+    </div>
 }
