@@ -57,7 +57,7 @@ class StringConstraintsSpec extends Constraints with AnyWordSpecLike with Matche
         val lowerCaseAlphabet = ('a' to 'z').mkString
         val upperCaseAlphabet = lowerCaseAlphabet.toUpperCase()
         val oneToNine = (1 to 9).mkString
-        val otherChar = "&@£$€¥#.,:;-"
+        val otherChar = "&@£/()*.,-"
         val space = ""
 
         StringConstraints.validateChar(errMsgInvalidChar)(lowerCaseAlphabet + upperCaseAlphabet + space + oneToNine + otherChar + space) shouldBe Valid
