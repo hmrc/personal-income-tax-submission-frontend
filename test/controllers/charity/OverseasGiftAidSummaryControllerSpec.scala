@@ -16,6 +16,7 @@
 
 package controllers.charity
 
+import common.SessionValues
 import forms.YesNoForm
 import play.api.mvc.Result
 import utils.UnitTestWithApp
@@ -45,7 +46,7 @@ class OverseasGiftAidSummaryControllerSpec extends UnitTestWithApp {
   "Calling the .show method" should {
 
     "return a 200 status" in new TestWithAuth {
-      val result: Future[Result] = controller.show(taxYear)(fakeRequest)
+      val result: Future[Result] = controller.show(taxYear)(fakeRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString))
       status(result) shouldBe OK
     }
   }

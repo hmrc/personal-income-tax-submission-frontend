@@ -33,10 +33,14 @@ class OverseasGiftAidSummaryControllerISpec extends IntegrationTest {
     val caption = ".govuk-caption-l"
     val charity1 = ".hmrc-add-to-a-list__contents:nth-child(1) > .hmrc-add-to-a-list__identifier"
     val charity2 = ".hmrc-add-to-a-list__contents:nth-child(2) > .hmrc-add-to-a-list__identifier"
-    val change1 = ".hmrc-add-to-a-list__contents:nth-child(1) > .hmrc-add-to-a-list__change > a > span"
-    val change2 = ".hmrc-add-to-a-list__contents:nth-child(2) > .hmrc-add-to-a-list__change > a > span"
-    val remove1 = ".hmrc-add-to-a-list__contents:nth-child(1) > .hmrc-add-to-a-list__remove > a > span"
-    val remove2 = ".hmrc-add-to-a-list__contents:nth-child(2) > .hmrc-add-to-a-list__remove > a > span"
+    val change1 = ".hmrc-add-to-a-list__contents:nth-child(1) > .hmrc-add-to-a-list__change > a > span:nth-child(1)"
+    val change1hidden = ".hmrc-add-to-a-list__contents:nth-child(1) > .hmrc-add-to-a-list__change > a > span:nth-child(2)"
+    val change2 = ".hmrc-add-to-a-list__contents:nth-child(2) > .hmrc-add-to-a-list__change > a > span:nth-child(1)"
+    val change2hidden = ".hmrc-add-to-a-list__contents:nth-child(2) > .hmrc-add-to-a-list__change > a > span:nth-child(2)"
+    val remove1 = ".hmrc-add-to-a-list__contents:nth-child(1) > .hmrc-add-to-a-list__remove > a > span:nth-child(1)"
+    val remove1hidden = ".hmrc-add-to-a-list__contents:nth-child(1) > .hmrc-add-to-a-list__remove > a > span:nth-child(2)"
+    val remove2 = ".hmrc-add-to-a-list__contents:nth-child(2) > .hmrc-add-to-a-list__remove > a > span:nth-child(1)"
+    val remove2hidden = ".hmrc-add-to-a-list__contents:nth-child(2) > .hmrc-add-to-a-list__remove > a > span:nth-child(2)"
     val question = ".govuk-fieldset__legend"
     val hint = "#value-hint"
     val yesRadio = ".govuk-radios__item:nth-child(1) > label"
@@ -57,6 +61,10 @@ class OverseasGiftAidSummaryControllerISpec extends IntegrationTest {
     val hintAgent = "You must tell us about all the overseas charities your client donated to."
     val change = "Change"
     val remove = "Remove"
+    val hiddenChange1 = "Change details you’ve entered for overseasCharity1"
+    val hiddenRemove1 = "Remove overseasCharity1"
+    val hiddenChange2 = "Change details you’ve entered for overseasCharity2"
+    val hiddenRemove2 = "Remove overseasCharity2"
     val yes = "Yes"
     val no = "No"
     val errorSummary = "There is a problem"
@@ -91,11 +99,15 @@ class OverseasGiftAidSummaryControllerISpec extends IntegrationTest {
           document.select(Selectors.heading).text() shouldBe Content.heading
           document.select(Selectors.caption).text() shouldBe Content.caption
           document.select(Selectors.charity1).text() shouldBe Content.charity1
-          document.select(Selectors.change1).text() should include(Content.change)
-          document.select(Selectors.remove1).text() should include(Content.remove)
+          document.select(Selectors.change1).text() shouldBe Content.change
+          document.select(Selectors.change1hidden).text() shouldBe Content.hiddenChange1
+          document.select(Selectors.remove1).text() shouldBe Content.remove
+          document.select(Selectors.remove1hidden).text() shouldBe Content.hiddenRemove1
           document.select(Selectors.charity2).text() shouldBe Content.charity2
-          document.select(Selectors.change2).text() should include(Content.change)
-          document.select(Selectors.remove2).text() should include(Content.remove)
+          document.select(Selectors.change2).text() shouldBe Content.change
+          document.select(Selectors.change2hidden).text() shouldBe Content.hiddenChange2
+          document.select(Selectors.remove2).text() shouldBe Content.remove
+          document.select(Selectors.remove2hidden).text() shouldBe Content.hiddenRemove2
           document.select(Selectors.question).text() shouldBe Content.question
           document.select(Selectors.hint).text() shouldBe Content.hint
           document.select(Selectors.yesRadio).text() shouldBe Content.yes
@@ -133,10 +145,14 @@ class OverseasGiftAidSummaryControllerISpec extends IntegrationTest {
           document.select(Selectors.caption).text() shouldBe Content.caption
           document.select(Selectors.charity1).text() shouldBe Content.charity1
           document.select(Selectors.change1).text() should include(Content.change)
-          document.select(Selectors.remove1).text() should include(Content.remove)
+          document.select(Selectors.change1hidden).text() shouldBe Content.hiddenChange1
+          document.select(Selectors.remove1).text() shouldBe Content.remove
+          document.select(Selectors.remove1hidden).text() shouldBe Content.hiddenRemove1
           document.select(Selectors.charity2).text() shouldBe Content.charity2
-          document.select(Selectors.change2).text() should include(Content.change)
-          document.select(Selectors.remove2).text() should include(Content.remove)
+          document.select(Selectors.change2).text() shouldBe Content.change
+          document.select(Selectors.change2hidden).text() shouldBe Content.hiddenChange2
+          document.select(Selectors.remove2).text() shouldBe Content.remove
+          document.select(Selectors.remove2hidden).text() shouldBe Content.hiddenRemove2
           document.select(Selectors.question).text() shouldBe Content.question
           document.select(Selectors.hint).text() shouldBe Content.hintAgent
           document.select(Selectors.yesRadio).text() shouldBe Content.yes
