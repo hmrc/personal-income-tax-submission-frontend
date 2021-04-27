@@ -16,6 +16,7 @@
 
 package controllers.charity
 
+import common.SessionValues
 import utils.UnitTestWithApp
 import views.html.charity.RemoveOverseasCharityView
 import play.api.http.Status._
@@ -40,7 +41,7 @@ class RemoveOverseasControllerSpec extends UnitTestWithApp {
 
       s"has an OK($OK) result" in new TestWithAuth {
 
-        val result: Future[Result] = controller.show(taxYear)(fakeRequest)
+        val result: Future[Result] = controller.show(taxYear)(fakeRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString))
 
         status(result) shouldBe OK
       }
