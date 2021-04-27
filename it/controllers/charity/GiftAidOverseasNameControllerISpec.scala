@@ -43,7 +43,7 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
     val expectedError: String = "Enter the name of the overseas charity your client used Gift Aid to donate to"
   }
 
-  val expectedCaption: String = "Charitable giving for 6 April 2021 to 5 April 2022"
+  val expectedCaption: String = "Donations to charity for 6 April 2021 to 5 April 2022"
   val expectedInputName: String = "name"
   val expectedButtonText: String = "Continue"
   val expectedInputHintText: String = "You can add more than one charity."
