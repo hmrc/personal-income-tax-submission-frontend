@@ -40,6 +40,8 @@ class RemoveOverseasCharityController @Inject()(
   val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(s"charity.remove-overseas-charity.noChoice")
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
+
+    // TODO - overseas charity to be retrieved from session
     Ok(removeOverseasCharityView(yesNoForm, taxYear))
   }
 
@@ -53,7 +55,7 @@ class RemoveOverseasCharityController @Inject()(
           )
       },
       {
-        yesNoForm => Ok("Next Page")
+        yesNoForm => Ok("Next Page")    // TODO - Direct to next page during wireup
       }
     )
 
