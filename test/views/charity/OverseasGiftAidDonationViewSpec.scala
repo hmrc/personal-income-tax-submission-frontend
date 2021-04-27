@@ -37,7 +37,7 @@ class OverseasGiftAidDonationViewSpec extends ViewTest {
   val expectedAgentH1 = "Did your client use Gift Aid to donate to an overseas charity?"
   val expectedAgentTitle = "Did your client use Gift Aid to donate to an overseas charity?"
   val expectedAgentErrorTitle = s"Error: $expectedAgentTitle"
-  val captionText = s"Donations to charity for 6 April $taxYearMinusOne to 5 April $taxYear"
+  val captionText = s"Charitable giving for 6 April $taxYearMinusOne to 5 April $taxYear"
   val yesText = "Yes"
   val noText = "No"
   val continueText = "Continue"

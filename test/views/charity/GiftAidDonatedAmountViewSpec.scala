@@ -45,7 +45,7 @@ class GiftAidDonatedAmountViewSpec extends ViewTest {
     val expectedError = "Enter the amount your client donated to charity by using Gift Aid"
   }
 
-  val expectedCaption = "Donations to charity for 6 April 2021 to 5 April 2022"
+  val expectedCaption = "Charitable giving for 6 April 2021 to 5 April 2022"
   val expectedInputName = "amount"
   val expectedButtonText = "Continue"
   val expectedInputLabelText = "Total amount for the year"

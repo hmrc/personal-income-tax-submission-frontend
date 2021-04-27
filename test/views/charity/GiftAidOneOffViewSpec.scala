@@ -42,7 +42,7 @@ class GiftAidOneOffViewSpec extends ViewTest {
   val expectedAgentPara1 = s"You told us your client used Gift Aid to donate £$giftAidDonations to charity. Tell us if any of this was made as one-off payments."
   val expectedAgentPara2 = "One-off donations are payments your client did not repeat."
   val expectedAgentErrorTitle = s"Error: $expectedAgentTitle"
-  val captionText = s"Donations to charity for 6 April $taxYearMinusOne to 5 April $taxYear"
+  val captionText = s"Charitable giving for 6 April $taxYearMinusOne to 5 April $taxYear"
   val yesText = "Yes"
   val noText = "No"
   val continueText = "Continue"

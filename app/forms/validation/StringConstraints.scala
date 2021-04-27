@@ -27,7 +27,15 @@ object StringConstraints {
   val monetaryRegex = """\d+|\d*\.\d{1,2}"""
 
   val validateChar: String => Constraint[String] = msgKey => constraint[String](
-  x => if (x.matches(charRegex)) Valid else Invalid(msgKey)
+    x => if (x.matches(charRegex)) Valid else Invalid(msgKey)
+  )
+
+  def validateSize(maxChars: Int): String => Constraint[String] = msgKey => constraint[String](
+    x => if (x.length <= maxChars) Valid else Invalid(msgKey)
+  )
+
+  def validateNotDuplicate(maxChars: List[String]): String => Constraint[String] = msgKey => constraint[String](
+    x => if (maxChars.contains(x)) Invalid(msgKey) else Valid
   )
 
   val nonEmpty: String => Constraint[String] = msgKey => constraint[String](
