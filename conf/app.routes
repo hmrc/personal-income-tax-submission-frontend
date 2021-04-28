@@ -80,6 +80,9 @@ POST        /:taxYear/charity/overseas-charities-donated-to               contro
 GET         /:taxYear/charity/name-of-overseas-charity                    controllers.charity.GiftAidOverseasNameController.show(taxYear: Int)
 POST        /:taxYear/charity/name-of-overseas-charity                    controllers.charity.GiftAidOverseasNameController.submit(taxYear: Int)
 
+GET         /:taxYear/charity/remove-overseas-charity                     controllers.charity.RemoveOverseasCharityController.show(taxYear: Int)
+POST        /:taxYear/charity/remove-overseas-charity                     controllers.charity.RemoveOverseasCharityController.submit(taxYear: Int)
+
 GET         /keep-alive                                                   controllers.SessionExpiredController.keepAlive
 GET         /timeout                                                      controllers.SessionExpiredController.timeout
 
