@@ -46,7 +46,7 @@ class GiftAidOneOffViewSpec extends ViewTest {
   val yesText = "Yes"
   val noText = "No"
   val continueText = "Continue"
-  val continueLink = s"/income-through-software/return/personal-income/$taxYear/charity/oneoff-charity-donations"
+  val continueLink = s"/income-through-software/return/personal-income/$taxYear/charity/one-off-charity-donations"
 
   val captionSelector = "#main-content > div > div > form > div > fieldset > legend > header > p"
   val p1Selector = "#main-content > div > div > form > div > fieldset > legend > div > p:nth-child(1)"
