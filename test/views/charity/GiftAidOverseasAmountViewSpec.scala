@@ -35,12 +35,14 @@ class GiftAidOverseasAmountViewSpec extends ViewTest {
     val expectedTitle = "How much did you donate to overseas charities by using Gift Aid?"
     val expectedH1 = "How much did you donate to overseas charities by using Gift Aid?"
     val expectedError = "Enter the amount you donated to overseas charities"
+    val expectedErrorTitle = s"Error: $expectedTitle"
   }
 
   object AgentExpected {
     val expectedTitle = "How much did your client donate to overseas charities by using Gift Aid?"
     val expectedH1 = "How much did your client donate to overseas charities by using Gift Aid?"
     val expectedError = "Enter the amount your client donated to overseas charities"
+    val expectedErrorTitle = s"Error: $expectedTitle"
   }
 
   val expectedCaption = "Donations to charity for 6 April 2021 to 5 April 2022"
@@ -99,7 +101,7 @@ class GiftAidOverseasAmountViewSpec extends ViewTest {
       implicit val user: User[_] = User("asdf", None, "AA123456A", AffinityGroup.Individual.toString)(fakeRequest)
       implicit lazy val document: Document = Jsoup.parse(view(taxYear, form(false).bind(Map("amount" -> "")), None).body)
 
-      titleCheck(expectedTitle)
+      titleCheck(expectedErrorTitle)
       h1Check(expectedH1)
       textOnPageCheck(expectedCaption, captionSelector)
       textOnPageCheck(expectedInputLabelText, inputLabelSelector)
@@ -117,7 +119,7 @@ class GiftAidOverseasAmountViewSpec extends ViewTest {
       implicit val user: User[_] = User("asdf", Some("asdf"), "AA123456A", AffinityGroup.Agent.toString)(fakeRequest)
       implicit lazy val document: Document = Jsoup.parse(view(taxYear, form(true).bind(Map("amount" -> "")), None).body)
 
-      titleCheck(expectedTitle)
+      titleCheck(expectedErrorTitle)
       h1Check(expectedH1)
       textOnPageCheck(expectedCaption, captionSelector)
       textOnPageCheck(expectedInputLabelText, inputLabelSelector)

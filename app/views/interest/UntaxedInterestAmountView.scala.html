@@ -37,7 +37,7 @@
 
 @hasFormErrors = @{form.hasErrors}
 
-@layout(messages("interest.untaxed-uk-interest-details.title"), taxYear = Some(taxYear), hasErrors = hasFormErrors, isAgent = isAgent) {
+@layout(pageTitle = messages("interest.untaxed-uk-interest-details.title"), taxYear = Some(taxYear), hasErrors = hasFormErrors, isAgent = isAgent) {
     @formWithCsrf(action = postAction) {
 
         @errorSummary(form.errors.distinct)

@@ -82,14 +82,14 @@
 @contentHtml = {
     @if(priorAmount.isDefined) {
         <p>
-        @messages(s"dividends.uk-dividends-amount.change-amount.prior.common.1")
-        @messages(s"dividends.uk-dividends-amount.change-amount.prior.${if(user.isAgent) "agent" else "individual"}")
-        @bigDecimalCurrency(priorAmount.get.toString)
-        @messages("dividends.uk-dividends-amount.change-amount.prior.common.2")
+            @messages(s"dividends.uk-dividends-amount.change-amount.prior.common.1")
+            @messages(s"dividends.uk-dividends-amount.change-amount.prior.${if(user.isAgent) "agent" else "individual"}")
+            @bigDecimalCurrency(priorAmount.get.toString)
+            @messages("dividends.uk-dividends-amount.change-amount.prior.common.2")
         </p>
     } else {
         <p>
-        @messages(s"dividends.uk-dividends-amount.change-amount.caption.${if(user.isAgent) "agent" else "individual"}")
+            @messages(s"dividends.uk-dividends-amount.change-amount.caption.${if(user.isAgent) "agent" else "individual"}")
         </p>
     }
 }

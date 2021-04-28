@@ -35,28 +35,25 @@
     messages(s"charity.amount-overseas-gift-aid.heading.${if(user.isAgent) "agent" else "individual"}")
 }
 
+@layout(pageTitle = titleText, taxYear = Some(taxYear), hasErrors = form.hasErrors) {
 
+    @errorSummary(form.errors)
 
-@layout(titleText, form.hasErrors) {
-
-@errorSummary(form.errors)
-
-
-@formWithCsrf(controllers.charity.routes.GiftAidOverseasAmountController.submit(taxYear)) {
-    @inputField(
-        form,
-        id = "amount",
-        name = "amount",
-        heading = headingForUse,
-        content = Some(contentHtml),
-        labelClasses = Some("govuk-!-margin-bottom-1"),
-        isPageHeading = false,
-        currency = true,
-        hint = Some(Html(messages("charity.amount-overseas-gift-aid.input.hint-text"))),
-        subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)),
-        headingClasses = "govuk-!-margin-bottom-2"
-    )
-    @button()
+    @formWithCsrf(controllers.charity.routes.GiftAidOverseasAmountController.submit(taxYear)) {
+        @inputField(
+            form,
+            id = "amount",
+            name = "amount",
+            heading = headingForUse,
+            content = Some(contentHtml),
+            labelClasses = Some("govuk-!-margin-bottom-1"),
+            isPageHeading = false,
+            currency = true,
+            hint = Some(Html(messages("charity.amount-overseas-gift-aid.input.hint-text"))),
+            subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)),
+            headingClasses = "govuk-!-margin-bottom-2"
+        )
+        @button()
     }
 }
 

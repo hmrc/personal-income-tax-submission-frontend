@@ -213,8 +213,10 @@ charity.uk-charity.errors.noChoice.individual = Select yes if you used Gift Aid 
 charity.uk-charity.errors.noChoice.agent = Select yes if your client used Gift Aid to donate to charity
 
 charity.amount-via-gift-aid.individual.title = How much did you donate to charity by using Gift Aid?
+charity.amount-via-gift-aid.individual.heading = How much did you donate to charity by using Gift Aid?
 charity.amount-via-gift-aid.individual.p = Do not include the Gift Aid that was added to your donation.
 charity.amount-via-gift-aid.agent.title = How much did your client donate to charity by using Gift Aid?
+charity.amount-via-gift-aid.agent.heading = How much did your client donate to charity by using Gift Aid?
 charity.amount-via-gift-aid.agent.p = Do not include the Gift Aid that was added to your client’s donation.
 charity.amount-via-gift-aid.input.label = Total amount for the year
 charity.amount-via-gift-aid.input.hint-text = For example, £600 or £193.54
