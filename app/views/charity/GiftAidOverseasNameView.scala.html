@@ -15,7 +15,6 @@
  *@
 
 @import play.api.i18n.Messages
-@import play.api.mvc.Request
 @import views.html.headerFooterTemplate.Layout
 @import views.html.templates.helpers.{Button, ErrorSummary, InputText, Heading}
 
@@ -46,7 +45,7 @@
     </p>
 }
 
-@layout(titleText, form.hasErrors) {
+@layout(pageTitle = titleText, taxYear = Some(taxYear), hasErrors = form.hasErrors) {
 
 @errorSummary(form.errors)
 

@@ -36,6 +36,7 @@ class GiftAidOneOffAmountViewSpec extends ViewTest {
     val expectedH1 = "How much did you donate to charity as one-off payments?"
     val expectedParagraph = "Do not include the Gift Aid added to your donation."
     val expectedError = "Enter the amount you donated to charity as one-off payments"
+    val expectedErrorTitle = s"Error: $expectedTitle"
   }
 
   object AgentExpected {
@@ -43,6 +44,7 @@ class GiftAidOneOffAmountViewSpec extends ViewTest {
     val expectedH1 = "How much did your client donate to charity as one-off payments?"
     val expectedParagraph = "Do not include the Gift Aid added to your client’s donation."
     val expectedError = "Enter the amount your client donated to charity as one-off payments"
+    val expectedErrorTitle = s"Error: $expectedTitle"
   }
 
   val expectedCaption = "Donations to charity for 6 April 2021 to 5 April 2022"
@@ -53,10 +55,10 @@ class GiftAidOneOffAmountViewSpec extends ViewTest {
   val expectedErrorLink = "#amount"
 
   val captionSelector = ".govuk-caption-l"
-  val paragraphSelector = "#main-content > div > div > p"
+  val paragraphSelector = "#main-content > div > div > form > div > label > p"
   val inputFieldSelector = "#amount"
   val buttonSelector = ".govuk-button"
-  val inputLabelSelector = ".govuk-label"
+  val inputLabelSelector = "#main-content > div > div > form > div > label > div"
   val inputHintTextSelector = ".govuk-hint"
 
   "GiftAidOneOffAmount with no errors" when {
@@ -103,7 +105,7 @@ class GiftAidOneOffAmountViewSpec extends ViewTest {
       implicit val user: User[_] = User("asdf", None, "AA123456A", AffinityGroup.Individual.toString)(fakeRequest)
       implicit lazy val document: Document = Jsoup.parse(view(taxYear, form(false).bind(Map("amount" -> "")), None).body)
 
-      titleCheck(expectedTitle)
+      titleCheck(expectedErrorTitle)
       h1Check(expectedH1)
       textOnPageCheck(expectedCaption, captionSelector)
       textOnPageCheck(expectedParagraph, paragraphSelector)
@@ -122,7 +124,7 @@ class GiftAidOneOffAmountViewSpec extends ViewTest {
       implicit val user: User[_] = User("asdf", Some("asdf"), "AA123456A", AffinityGroup.Agent.toString)(fakeRequest)
       implicit lazy val document: Document = Jsoup.parse(view(taxYear, form(true).bind(Map("amount" -> "")), None).body)
 
-      titleCheck(expectedTitle)
+      titleCheck(expectedErrorTitle)
       h1Check(expectedH1)
       textOnPageCheck(expectedCaption, captionSelector)
       textOnPageCheck(expectedParagraph, paragraphSelector)

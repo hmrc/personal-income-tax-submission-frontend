@@ -35,12 +35,14 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
     val expectedTitle: String = "Name of overseas charity you used Gift Aid to donate to"
     val expectedH1: String = "Name of overseas charity you used Gift Aid to donate to"
     val expectedError: String = "Enter the name of the overseas charity you used Gift Aid to donate to"
+    val expectedErrorTitle = s"Error: $expectedTitle"
   }
 
   object AgentExpected {
     val expectedTitle: String = "Name of overseas charity your client used Gift Aid to donate to"
     val expectedH1: String = "Name of overseas charity your client used Gift Aid to donate to"
     val expectedError: String = "Enter the name of the overseas charity your client used Gift Aid to donate to"
+    val expectedErrorTitle = s"Error: $expectedTitle"
   }
 
   val expectedCaption: String = "Donations to charity for 6 April 2021 to 5 April 2022"
@@ -119,6 +121,7 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
 
         result.status shouldBe BAD_REQUEST
         document.select(errorSelector).text() shouldBe expectedError
+        document.title() shouldBe s"$expectedErrorTitle - $serviceName - $govUkExtension"
       }
 
       s"return a BAD_REQUEST($BAD_REQUEST) status with an invalid Character error" in {
@@ -133,6 +136,7 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
 
         result.status shouldBe BAD_REQUEST
         document.select(errorSelector).text() shouldBe expectedInvalidCharError
+        document.title() shouldBe s"$expectedErrorTitle - $serviceName - $govUkExtension"
       }
 
       s"return a BAD_REQUEST($BAD_REQUEST) status with an character limit error" in {
@@ -147,6 +151,7 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
 
         result.status shouldBe BAD_REQUEST
         document.select(errorSelector).text() shouldBe expectedCharLimitError
+        document.title() shouldBe s"$expectedErrorTitle - $serviceName - $govUkExtension"
       }
       s"return a BAD_REQUEST($BAD_REQUEST) status with an duplicate name error" in {
         val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
@@ -165,6 +170,7 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
 
         result.status shouldBe BAD_REQUEST
         document.select(errorSelector).text() shouldBe expectedDuplicateError
+        document.title() shouldBe s"$expectedErrorTitle - $serviceName - $govUkExtension"
       }
 
     }
@@ -243,6 +249,7 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
 
           result.status shouldBe BAD_REQUEST
           document.select(errorSelector).text() shouldBe expectedError
+          document.title() shouldBe s"$expectedErrorTitle - $serviceName - $govUkExtension"
         }
       }
 

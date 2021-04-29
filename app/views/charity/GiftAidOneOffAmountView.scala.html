@@ -24,32 +24,34 @@
 @(taxYear: Int, form: Form[BigDecimal], prefill: Option[String])(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @titleText = @{
-    if(user.isAgent) {
-        messages("charity.gift-aid-one-off-amount.title.agent")
-    } else {
-        messages("charity.gift-aid-one-off-amount.title.individual")
-    }
+    messages(s"charity.gift-aid-one-off-amount.title.${if(user.isAgent) "agent" else "individual"}")
+}
+
+@headingForUse = @{
+    messages(s"charity.gift-aid-one-off-amount.heading.${if(user.isAgent) "agent" else "individual"}")
 }
 
 @paragraphText = @{
     if(user.isAgent) messages("charity.gift-aid-one-off-amount.paragraph.1.agent") else messages("charity.gift-aid-one-off-amount.paragraph.1.individual")
 }
 
-@layout(
-    titleText, form.hasErrors
-) {
-    @errorSummary(form.errors)
-
-    @heading(titleText, Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)))
-
+@contentHtml = {
     <p class="govuk-body govuk-!-padding-top-3">@paragraphText</p>
+    <div>@messages("charity.gift-aid-one-off-amount.input.label")</div>
+}
+
+@layout(pageTitle = titleText, taxYear = Some(taxYear), hasErrors = form.hasErrors) {
+
+    @errorSummary(form.errors)
 
     @formWithCsrf(controllers.charity.routes.GiftAidOneOffAmountController.submit(taxYear)) {
         @inputField(
             form,
-            "amount",
-            "amount",
-            messages("charity.gift-aid-one-off-amount.input.label"),
+            id = "amount",
+            name = "amount",
+            heading = headingForUse,
+            subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)),
+            content = Some(contentHtml),
             hint = Some(Html(messages("charity.gift-aid-one-off-amount.input.hint-text"))),
             isPageHeading = false,
             currency = true,
