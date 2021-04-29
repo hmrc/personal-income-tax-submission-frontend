@@ -16,9 +16,10 @@
 
 package forms
 
+import forms.charity.GiftAidOverseasAmountForm
 import play.api.data.{Form, FormError}
 import utils.UnitTest
-import forms.GiftAidOverseasAmountForm._
+import forms.charity.GiftAidOverseasAmountForm._
 
 class GiftAidOverseasAmountFormSpec extends UnitTest {
 

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package forms
+package forms.charity
 
-import forms.validation.mappings.MappingUtil._
+import forms.validation.mappings.MappingUtil.currency
 import play.api.data.Form
 
 object GiftAidOverseasAmountForm {
@@ -25,16 +25,15 @@ object GiftAidOverseasAmountForm {
 
   def giftAidOverseasAmountForm(isAgent: Boolean): Form[BigDecimal] = Form(
     giftAidOverseasAmount -> currency(
-      requiredKey = if(isAgent) "charity.amount-overseas-gift-aid.error.empty.agent" else "charity.amount-overseas-gift-aid.error.empty.individual",
+      requiredKey = if (isAgent) "charity.amount-overseas-gift-aid.error.empty.agent" else "charity.amount-overseas-gift-aid.error.empty.individual",
       invalidNumeric = if (isAgent) "charity.amount-overseas-gift-aid.error.incorrect-format.agent" else {
         "charity.amount-overseas-gift-aid.error.incorrect-format.individual"
       },
       nonNumericKey = if (isAgent) "charity.amount-overseas-gift-aid.error.incorrect-format.agent" else {
         "charity.amount-overseas-gift-aid.error.incorrect-format.individual"
       },
-      maxAmountKey = if(isAgent) "charity.amount-overseas-gift-aid.error.too-high.agent" else "charity.amount-overseas-gift-aid.error.too-high.individual"
+      maxAmountKey = if (isAgent) "charity.amount-overseas-gift-aid.error.too-high.agent" else "charity.amount-overseas-gift-aid.error.too-high.individual"
     )
   )
 
 }
-

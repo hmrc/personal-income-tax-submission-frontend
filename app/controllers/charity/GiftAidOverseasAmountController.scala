@@ -20,7 +20,7 @@ import config.{AppConfig, GIFT_AID}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
-import forms.GiftAidOverseasAmountForm
+import forms.charity.GiftAidOverseasAmountForm
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
