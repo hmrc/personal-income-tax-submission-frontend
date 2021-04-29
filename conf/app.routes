@@ -109,6 +109,11 @@ POST        /:taxYear/charity/amount-added-to-last-tax-year                     
 
 GET         /keep-alive                                                                                      controllers.SessionExpiredController.keepAlive
 GET         /timeout                                                                                         controllers.SessionExpiredController.timeout
+GET         /:taxYear/charity/donations-after-5-april-xxxx                controllers.charity.DonationsToPreviousTaxYearController.show(taxYear: Int)
+POST        /:taxYear/charity/donations-after-5-april-xxxx                controllers.charity.DonationsToPreviousTaxYearController.submit(taxYear: Int)
+
+GET         /keep-alive                                                   controllers.SessionExpiredController.keepAlive
+GET         /timeout                                                      controllers.SessionExpiredController.timeout
 
 GET         /error/wrong-tax-year                                                                            controllers.TaxYearErrorController.show
 GET         /error/you-need-to-sign-up                                                                       controllers.errors.IndividualAuthErrorController.show
