@@ -101,6 +101,9 @@ POST        /:taxYear/charity/donation-of-land-or-property                      
 GET         /:taxYear/charity/value-of-shares-or-securities                                                  controllers.charity.GiftAidTotalShareSecurityAmountController.show(taxYear: Int)
 POST        /:taxYear/charity/value-of-shares-or-securities                                                  controllers.charity.GiftAidTotalShareSecurityAmountController.submit(taxYear: Int)
 
+GET         /:taxYear/charity/amount-added-to-last-tax-year                                                  controllers.charity.LastTaxYearAmountController.show(taxYear: Int)
+POST        /:taxYear/charity/amount-added-to-last-tax-year                                                  controllers.charity.LastTaxYearAmountController.submit(taxYear: Int)
+
 GET         /keep-alive                                                                                      controllers.SessionExpiredController.keepAlive
 GET         /timeout                                                                                         controllers.SessionExpiredController.timeout
 

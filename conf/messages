@@ -293,6 +293,17 @@ charity.overseas-gift-aid-summary.noChoice = Select yes if you need to add anoth
 charity.overseas-gift-aid-summary.hiddenChange = Change details you’ve entered for {0}
 charity.overseas-gift-aid-summary.hiddenRemove = Remove {0}
 
+charity.last-tax-year-donation-amount.title.individual = How much of your donation do you want to add to the last tax year?
+charity.last-tax-year-donation-amount.title.agent = How much of your client’s donation do you want to add to the last tax year?
+charity.last-tax-year-donation-amount.para.individual = Do not include the Gift Aid added to your donation.
+charity.last-tax-year-donation-amount.para.agent = Do not include the Gift Aid added to your client’s donation.
+charity.last-tax-year-donation-amount.hint = For example, £600 or £193.54
+charity.last-tax-year-donation-amount.error.no-entry.individual = Enter the amount of your donation you want to add to the last tax year
+charity.last-tax-year-donation-amount.error.no-entry.agent = Enter the amount of your client’s donation you want to add to the last tax year
+charity.last-tax-year-donation-amount.error.invalid = Enter the amount you want to add to the last tax year in the correct format
+charity.last-tax-year-donation-amount.error.maximum.individual = The amount of your donation you add to the last tax year must be less than £100,000,000,000
+charity.last-tax-year-donation-amount.error.maximum.agent = The amount of your client’s donation you add to the last tax year must be less than £100,000,000,000
+
 charity.remove-overseas-charity.title = Are you sure you want to remove this overseas charity?
 charity.remove-overseas-charity.heading = Are you sure you want to remove this overseas charity?
 charity.remove-overseas-charity.noChoice = Select yes to remove this overseas charity

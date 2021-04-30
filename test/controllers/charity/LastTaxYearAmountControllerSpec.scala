@@ -17,31 +17,23 @@
 package controllers.charity
 
 import common.SessionValues
-import forms.YesNoForm
+import forms.charity.LastTaxYearAmountForm
+import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.mvc.Result
 import utils.UnitTestWithApp
-import views.html.charity.OverseasGiftAidSummaryView
-import play.api.http.Status._
+import views.html.charity.LastTaxYearAmountView
 
 import scala.concurrent.Future
 
-class OverseasGiftAidSummaryControllerSpec extends UnitTestWithApp {
+class LastTaxYearAmountControllerSpec extends UnitTestWithApp {
 
   val taxYear: Int = 2022
 
-  lazy val controller = new OverseasGiftAidSummaryController(
-    app.injector.instanceOf[OverseasGiftAidSummaryView])(
+  lazy val controller = new LastTaxYearAmountController(
+    app.injector.instanceOf[LastTaxYearAmountView])(
     mockMessagesControllerComponents,
     authorisedAction,
     mockAppConfig)
-
-  "Calling the 'getOverseasCharities' method" should {
-
-    "return the list of overseas charities donated to" in {
-
-      controller.getOverseasCharities shouldBe List("overseasCharity1", "overseasCharity2")
-    }
-  }
 
   "Calling the .show method" should {
 
@@ -53,9 +45,9 @@ class OverseasGiftAidSummaryControllerSpec extends UnitTestWithApp {
 
   "Calling the .submit method" when {
 
-    "an option has been selected" should {
+    "an amount has been input" should {
       lazy val result = controller.submit(taxYear)(fakeRequest.withFormUrlEncodedBody(
-        YesNoForm.yesNo -> YesNoForm.yes
+        LastTaxYearAmountForm.lastTaxYearAmount -> "8008135"
       ))
 
       s"has a status of SEE_OTHER($SEE_OTHER)" in new TestWithAuth {

@@ -1,0 +1,58 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import views.html.headerFooterTemplate.Layout
+@import views.html.templates.helpers.InputText
+@import views.html.templates.helpers.ErrorSummary
+@import views.html.templates.helpers.Heading
+@import views.html.templates.helpers.Button
+
+@this(layout: Layout,
+        formWithCsrf: FormWithCSRF,
+        errorSummary: ErrorSummary,
+        button: Button,
+        heading: Heading,
+        inputField: InputText)
+
+@(taxYear: Int, form: Form[BigDecimal], prefill: Option[String])(implicit user: User[_], messages: Messages, appConfig: AppConfig)
+
+@titleText = @{messages(s"charity.last-tax-year-donation-amount.title.${if(user.isAgent) "agent" else "individual"}")}
+
+@paragraphText = @{messages(s"charity.last-tax-year-donation-amount.para.${if(user.isAgent) "agent" else "individual"}")}
+
+@layout(
+    titleText, form.hasErrors
+) {
+    @errorSummary(form.errors)
+
+    @heading(titleText, Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)))
+
+    <p class="govuk-body govuk-!-padding-top-3">@paragraphText</p>
+
+    @formWithCsrf(controllers.charity.routes.LastTaxYearAmountController.submit(taxYear)) {
+        @inputField(
+            form,
+            "amount",
+            "amount",
+            "",
+            hint = Some(Html(messages("charity.last-tax-year-donation-amount.hint"))),
+            isPageHeading = false,
+            currency = true,
+            autocomplete = prefill
+        )
+        @button()
+    }
+}
