@@ -297,6 +297,14 @@ charity.remove-overseas-charity.title = Are you sure you want to remove this ove
 charity.remove-overseas-charity.heading = Are you sure you want to remove this overseas charity?
 charity.remove-overseas-charity.noChoice = Select yes to remove this overseas charity
 
+charity.amount-from-next-tax-year.title.individual = How much of the donations you made after 5 April 2020 do you want to add to this tax year?
+charity.amount-from-next-tax-year.title.agent = How much of the donations your client made after 5 April 2020 do you want to add to this tax year?
+charity.amount-from-next-tax-year.errors.no-entry.individual = Enter the amount of your donation made after 5 April 2020 you want to add to this tax year
+charity.amount-from-next-tax-year.errors.no-entry.agent = Enter the amount of your client’s donation made after 5 April 2020 you want to add to this tax year
+charity.amount-from-next-tax-year.errors.wrong-format = Enter the amount you want to add to this tax year in the correct format
+charity.amount-from-next-tax-year.errors.max-amount.individual = The amount of your donation made after 5 April 2020 you add to the last tax year must be less than £100,000,000,000
+charity.amount-from-next-tax-year.errors.max-amount.agent = The amount of your client’s donation made after 5 April 2020 you add to the last tax year must be less than £100,000,000,000
+
 not-found-template.title = Page not found
 not-found-template.heading = Page not found
 not-found-template.paragraph.1 = If you typed the web address, check it is correct.

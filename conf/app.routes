@@ -83,6 +83,9 @@ POST        /:taxYear/charity/name-of-overseas-charity                          
 GET         /:taxYear/charity/remove-overseas-charity                                                        controllers.charity.RemoveOverseasCharityController.show(taxYear: Int)
 POST        /:taxYear/charity/remove-overseas-charity                                                        controllers.charity.RemoveOverseasCharityController.submit(taxYear: Int)
 
+GET         /:taxYear/charity/amount-after-5-april-:someTaxYear-added-to-this-tax-year                       controllers.charity.GiftAidAppendNextYearTaxAmountController.show(taxYear: Int, someTaxYear: Int)
+POST        /:taxYear/charity/amount-after-5-april-:someTaxYear-added-to-this-tax-year                       controllers.charity.GiftAidAppendNextYearTaxAmountController.submit(taxYear: Int, someTaxYear: Int)
+
 GET         /keep-alive                                                                                      controllers.SessionExpiredController.keepAlive
 GET         /timeout                                                                                         controllers.SessionExpiredController.timeout
 
