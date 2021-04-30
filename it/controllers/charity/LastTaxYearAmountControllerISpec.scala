@@ -30,7 +30,7 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest {
   object Selectors {
     val heading = "h1"
     val caption = ".govuk-caption-l"
-    val para = ".govuk-grid-column-two-thirds > .govuk-body"
+    val para = "label > p"
     val hint = "#amount-hint"
 
     val errorSummary = "#error-summary-title"

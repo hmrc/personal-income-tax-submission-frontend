@@ -31,27 +31,26 @@
 
 @titleText = @{messages(s"charity.last-tax-year-donation-amount.title.${if(user.isAgent) "agent" else "individual"}")}
 
-@paragraphText = @{messages(s"charity.last-tax-year-donation-amount.para.${if(user.isAgent) "agent" else "individual"}")}
+@paragraphText = {<p class="govuk-body">@{messages(s"charity.last-tax-year-donation-amount.para.${if(user.isAgent) "agent" else "individual"}")}</p>}
 
 @layout(
     titleText, form.hasErrors
 ) {
     @errorSummary(form.errors)
 
-    @heading(titleText, Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)))
-
-    <p class="govuk-body govuk-!-padding-top-3">@paragraphText</p>
-
     @formWithCsrf(controllers.charity.routes.LastTaxYearAmountController.submit(taxYear)) {
         @inputField(
             form,
             "amount",
             "amount",
-            "",
+            titleText,
+            headingClasses = "govuk-!-margin-bottom-2",
             hint = Some(Html(messages("charity.last-tax-year-donation-amount.hint"))),
             isPageHeading = false,
             currency = true,
-            autocomplete = prefill
+            subheading = Some(messages("charity.caption", (taxYear-1).toString, taxYear.toString)),
+            autocomplete = prefill,
+            content = Some(paragraphText)
         )
         @button()
     }
