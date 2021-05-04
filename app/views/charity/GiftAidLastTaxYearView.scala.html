@@ -1,0 +1,69 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import views.html.headerFooterTemplate.Layout
+@import views.html.templates.helpers.ErrorSummary
+@import views.html.templates.helpers.Button
+@import views.html.templates.helpers.InputRadio
+
+@this(
+    layout: Layout,
+    formWithCsrf: FormWithCSRF,
+    errorSummary: ErrorSummary,
+    button: Button,
+    inputRadio:InputRadio
+)
+
+@(form: Form[Boolean], taxYear: Int, giftAidDonations: BigDecimal)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
+
+@headingForUse = @{
+    if(user.isAgent) messages("charity.last-tax-year.heading.agent") else messages("charity.last-tax-year.heading.individual")
+}
+
+@titleForUse = @{messages(s"charity.last-tax-year.title.${if(user.isAgent) "agent" else "individual"}")}
+
+@hasFormErrors = @{form.hasErrors}
+
+@contentHtml = {
+<div class="govuk-body">
+    <p>
+        @{if(user.isAgent) messages("charity.last-tax-year.content_1.agent", giftAidDonations, (taxYear - 2).toString, (taxYear - 1).toString)
+        else messages("charity.last-tax-year.content_1.individual", giftAidDonations, (taxYear - 2).toString, (taxYear - 1).toString)}
+    </p>
+    <p>
+        @{if(user.isAgent) messages("charity.last-tax-year.content_2.agent") else messages("charity.last-tax-year.content_2.individual")}
+    </p>
+</div>
+}
+
+@layout(pageTitle = titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors) {
+
+    @errorSummary(form.errors.distinct)
+
+    @formWithCsrf(action = controllers.charity.routes.GiftAidOneOffController.submit(taxYear)) {
+
+        @inputRadio(
+            form = form,
+            heading = headingForUse,
+            hint = None,
+            inline = true,
+            subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)),
+            content = Some(contentHtml)
+        )
+
+        @button()
+    }
+}
