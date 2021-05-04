@@ -43,7 +43,6 @@ class GiftAidDonationViewSpec extends ViewTest {
   val continueText = "Continue"
   val continueLink = s"/income-through-software/return/personal-income/$taxYear/charity/charity-donation-using-gift-aid"
   val captionSelector = ".govuk-caption-l"
-  val yourDividendsSelector = "#value-hint"
   val continueSelector = "#continue"
   val continueButtonFormSelector = "#main-content > div > div > form"
 

@@ -312,6 +312,13 @@ charity.amount-from-next-tax-year.errors.wrong-format = Enter the amount you wan
 charity.amount-from-next-tax-year.errors.max-amount.individual = The amount of your donation made after 5 April {0} you add to the last tax year must be less than £100,000,000,000
 charity.amount-from-next-tax-year.errors.max-amount.agent = The amount of your client’s donation made after 5 April {0} you add to the last tax year must be less than £100,000,000,000
 
+charity.qualifying-shares-or-securities.title.individual = Did you donate qualifying shares or securities to charity?
+charity.qualifying-shares-or-securities.title.agent = Did your client donate qualifying shares or securities to charity?
+charity.qualifying-shares-or-securities.heading.individual = Did you donate qualifying shares or securities to charity?
+charity.qualifying-shares-or-securities.heading.agent = Did your client donate qualifying shares or securities to charity?
+charity.qualifying-shares-or-securities.errors.noChoice.individual = Select yes if you donated shares or securities to charity
+charity.qualifying-shares-or-securities.errors.noChoice.agent = Select yes if your client donated shares or securities to charity
+
 not-found-template.title = Page not found
 not-found-template.heading = Page not found
 not-found-template.paragraph.1 = If you typed the web address, check it is correct.
