@@ -19,7 +19,7 @@ package connectors
 import config.AppConfig
 import connectors.httpParsers.GiftAidSubmissionHttpParser._
 import javax.inject.Inject
-import models.giftAid.GiftAidSubmissionModel
+import models.charity.GiftAidSubmissionModel
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
 import scala.concurrent.{ExecutionContext, Future}

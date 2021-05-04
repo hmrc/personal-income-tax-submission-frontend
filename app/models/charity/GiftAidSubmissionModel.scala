@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package models.giftAid
+package models.charity
 
 import play.api.libs.json.{Json, OFormat}
 

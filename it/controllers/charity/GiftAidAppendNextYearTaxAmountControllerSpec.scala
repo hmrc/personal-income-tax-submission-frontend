@@ -24,10 +24,9 @@ import play.api.http.HeaderNames
 import play.api.libs.ws.{WSClient, WSResponse}
 import utils.{IntegrationTest, ViewHelpers}
 import play.api.http.Status._
-import play.api.mvc.{Action, AnyContent, Result}
+import play.api.mvc.Result
 import play.api.test.FakeRequest
 
-import scala.concurrent.Future
 
 class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with ViewHelpers {
 

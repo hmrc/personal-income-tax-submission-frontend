@@ -19,7 +19,7 @@ package controllers.charity
 import common.SessionValues
 import common.SessionValues.GIFT_AID_PRIOR_SUB
 import helpers.PlaySessionCookieBaker
-import models.giftAid.{GiftAidPaymentsModel, GiftAidSubmissionModel}
+import models.charity.{GiftAidPaymentsModel, GiftAidSubmissionModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames

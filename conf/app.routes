@@ -89,6 +89,9 @@ POST        /:taxYear/charity/donation-of-shares-securities-land-or-property    
 GET         /:taxYear/charity/amount-after-5-april-:someTaxYear-added-to-this-tax-year                       controllers.charity.GiftAidAppendNextYearTaxAmountController.show(taxYear: Int, someTaxYear: Int)
 POST        /:taxYear/charity/amount-after-5-april-:someTaxYear-added-to-this-tax-year                       controllers.charity.GiftAidAppendNextYearTaxAmountController.submit(taxYear: Int, someTaxYear: Int)
 
+GET         /:taxYear/charity/donation-of-shares-or-securities                                               controllers.charity.GiftAidQualifyingSharesSecuritiesController.show(taxYear: Int)
+POST        /:taxYear/charity/donation-of-shares-or-securities                                               controllers.charity.GiftAidQualifyingSharesSecuritiesController.submit(taxYear: Int)
+
 GET         /keep-alive                                                                                      controllers.SessionExpiredController.keepAlive
 GET         /timeout                                                                                         controllers.SessionExpiredController.timeout
 
