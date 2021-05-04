@@ -29,9 +29,7 @@
 
 @(form: Form[Boolean], taxYear: Int, checked: String = "")(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
-@headingForUse = @{
-    if(user.isAgent) messages("charity.shares-securities-land-property.heading.agent") else messages("charity.shares-securities-land-property.heading.individual")
-}
+@headingForUse = @{messages(s"charity.shares-securities-land-property.heading.${if(user.isAgent) "agent" else "individual"}")}
 
 @titleForUse = @{messages(s"charity.shares-securities-land-property.title.${if(user.isAgent) "agent" else "individual"}")}
 
