@@ -53,7 +53,7 @@
 
     @errorSummary(form.errors.distinct)
 
-    @formWithCsrf(action = controllers.charity.routes.GiftAidOneOffController.submit(taxYear)) {
+    @formWithCsrf(action = controllers.charity.routes.GiftAidLastTaxYearController.submit(taxYear)) {
 
         @inputRadio(
             form = form,

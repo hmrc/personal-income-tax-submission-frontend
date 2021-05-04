@@ -68,8 +68,6 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
     GiftAidSubmissionModel(Some(GiftAidPaymentsModel(Some(List("JaneDoe")), None, None, Some(150.00), None, None)),None)
 
 
-
-
     "as an individual" when {
     import IndividualExpected._
 
@@ -101,6 +99,18 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
           radioButtonCheck(noText, 2)
           buttonCheck(expectedContinue, continueSelector)
 
+        }
+        "returns an redirect" which {
+          lazy val result: WSResponse = {
+            authoriseIndividual()
+            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/add-charity-donations-to-last-tax-year")
+              .withHttpHeaders("Csrf-Token" -> "nocheck")
+              .get())
+          }
+          "has an Bad_request status" in {
+            result.status shouldBe NOT_FOUND
+            result.uri.toString shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+          }
         }
 
       }
@@ -137,8 +147,20 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
           errorSummaryCheck(expectedError,errorSummaryHref)
           errorAboveElementCheck(expectedError)
         }
+        s"return a redirect when without session data" which {
+          lazy val result: WSResponse = {
+            authoriseIndividual()
+            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/add-charity-donations-to-last-tax-year")
+              .withHttpHeaders("Csrf-Token" -> "nocheck")
+              .post(Map[String, String]()))
+          }
 
+          "has an NOT_FOUND status and redirect to overview page" in {
+            result.status shouldBe NOT_FOUND
+            result.uri.toString shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+          }
 
+        }
 
       }
 
@@ -175,6 +197,23 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(expectedContinue, continueSelector)
+      }
+      "returns an redirect" which {
+        lazy val result: WSResponse = {
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A",
+          ))
+
+          authoriseAgent()
+          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/add-charity-donations-to-last-tax-year")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
+            .get())
+        }
+        "has an NOT_FOUND status" in {
+          result.status shouldBe NOT_FOUND
+          result.uri.toString shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+        }
       }
     }
 
@@ -226,6 +265,25 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
           errorSummaryCheck(expectedError,errorSummaryHref)
           errorAboveElementCheck(expectedError)
         }
+      }
+      s"return a redirect when without session data" which {
+        lazy val result: WSResponse = {
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A",
+          ))
+
+          authoriseAgent()
+          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/add-charity-donations-to-last-tax-year")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+            .post(Map[String, String]()))
+        }
+
+        "has an NOT_FOUND status and redirect to overview page" in {
+          result.status shouldBe NOT_FOUND
+          result.uri.toString shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+        }
+
       }
 
     }

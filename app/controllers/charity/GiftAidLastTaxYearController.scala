@@ -25,7 +25,7 @@ import forms.YesNoForm
 import models.User
 import models.giftAid.GiftAidSubmissionModel
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, Messages}
+import play.api.i18n.I18nSupport
 import play.api.libs.json.{Json, Reads}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -50,24 +50,24 @@ class GiftAidLastTaxYearController @Inject()(
 
     //TODO giftAidDonations to be retrieved from session
     //TODO Only take user to page if data is present
-    val treatedAsPreviousYear = getSessionData[GiftAidSubmissionModel](SessionValues.GIFT_AID_PRIOR_SUB).
-      flatMap(_.giftAidPayments).flatMap(_.currentYearTreatedAsPreviousYear).getOrElse(BigDecimal.apply(100.00))
-
-    Ok(giftAidLastTaxYearView(yesNoForm(user), taxYear, giftAidDonations = treatedAsPreviousYear))
+    getSessionData[GiftAidSubmissionModel](SessionValues.GIFT_AID_PRIOR_SUB).
+      flatMap(_.giftAidPayments).flatMap(_.currentYearTreatedAsPreviousYear) match {
+      case Some(previousDonation) => Ok(giftAidLastTaxYearView(yesNoForm(user), taxYear, previousDonation))
+      case None => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+    }
 
   }
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)) { implicit user =>
 
-    val treatedAsPreviousYear = getSessionData[GiftAidSubmissionModel](SessionValues.GIFT_AID_PRIOR_SUB).
-      flatMap(_.giftAidPayments).flatMap(_.currentYearTreatedAsPreviousYear).getOrElse(BigDecimal.apply(100.00))
-
     yesNoForm(user).bindFromRequest().fold(
       {
         formWithErrors =>
-          BadRequest(
-            giftAidLastTaxYearView(formWithErrors, taxYear, (treatedAsPreviousYear))
-          )
+          getSessionData[GiftAidSubmissionModel](SessionValues.GIFT_AID_PRIOR_SUB).
+            flatMap(_.giftAidPayments).flatMap(_.currentYearTreatedAsPreviousYear) match {
+            case Some(previousDonation) => BadRequest(giftAidLastTaxYearView(formWithErrors, taxYear, previousDonation))
+            case None => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+          }
       },
       {
         yesNoForm => Ok("Next Page")
