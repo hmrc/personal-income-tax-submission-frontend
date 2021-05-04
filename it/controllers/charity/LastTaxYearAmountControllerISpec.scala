@@ -23,16 +23,12 @@ import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status.OK
 import play.api.libs.ws.WSClient
-import utils.IntegrationTest
+import utils.{IntegrationTest, ViewHelpers}
 
-class LastTaxYearAmountControllerISpec extends IntegrationTest {
+class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers {
 
   object Selectors {
-    val heading = "h1"
-    val caption = ".govuk-caption-l"
     val para = "label > p"
-    val hint = "#amount-hint"
-
     val errorSummary = "#error-summary-title"
     val noSelectionError = ".govuk-error-summary__body > ul > li > a"
     val errorMessage = "#value-error"
@@ -45,10 +41,13 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest {
     val para = "Do not include the Gift Aid added to your donation."
     val paraAgent = "Do not include the Gift Aid added to your client’s donation."
     val hint = "For example, £600 or £193.54"
+    val button = "Continue"
 
-    val errorSummary = "There is a problem"
     val noSelectionError = "Enter the amount of your donation you want to add to the last tax year"
     val noSelectionErrorAgent = "Enter the amount of your client’s donation you want to add to the last tax year"
+    val tooLongError = "The amount of your donation you add to the last tax year must be less than £100,000,000,000"
+    val tooLongErrorAgent = "The amount of your client’s donation you add to the last tax year must be less than £100,000,000,000"
+    val invalidFormatError = "Enter the amount you want to add to the last tax year in the correct format"
   }
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
@@ -69,23 +68,24 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest {
             .withHttpHeaders("Csrf-Token" -> "nocheck")
             .get())
         }
-        lazy val document: Document = Jsoup.parse(result.body)
+        implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+        "return the page" which {
+          titleCheck(Content.heading)
+          h1Check(Content.heading)
+          textOnPageCheck(Content.para, Selectors.para)
+          inputFieldCheck("amount", ".govuk-input")
+          hintTextCheck(Content.hint)
+          captionCheck(Content.caption)
+          buttonCheck(Content.button)
+
+          elementExtinct(Selectors.errorSummary)
+          elementExtinct(Selectors.noSelectionError)
+          elementExtinct(Selectors.errorMessage)
+        }
 
         s"have an OK($OK) status" in {
           result.status shouldBe OK
-        }
-
-        "display the page content" in {
-          document.select(Selectors.heading).text() shouldBe Content.heading
-          document.select(Selectors.caption).text() shouldBe Content.caption
-          document.select(Selectors.para).text() shouldBe Content.para
-          document.select(Selectors.hint).text() shouldBe Content.hint
-        }
-
-        "not display an error" in {
-          document.select(Selectors.errorSummary).isEmpty shouldBe true
-          document.select(Selectors.noSelectionError).isEmpty shouldBe true
-          document.select(Selectors.errorMessage).isEmpty shouldBe true
         }
       }
 
@@ -102,23 +102,232 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest {
             .get())
         }
 
-        lazy val document: Document = Jsoup.parse(result.body)
+        implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+        "return the page" which {
+          titleCheck(Content.headingAgent)
+          h1Check(Content.headingAgent)
+          textOnPageCheck(Content.paraAgent, Selectors.para)
+          inputFieldCheck("amount", ".govuk-input")
+          hintTextCheck(Content.hint)
+          captionCheck(Content.caption)
+          buttonCheck(Content.button)
+
+          elementExtinct(Selectors.errorSummary)
+          elementExtinct(Selectors.noSelectionError)
+          elementExtinct(Selectors.errorMessage)
+        }
 
         s"have an OK($OK) status" in {
           result.status shouldBe OK
         }
+      }
+    }
+  }
 
-        "display the page content" in {
-          document.select(Selectors.heading).text() shouldBe Content.headingAgent
-          document.select(Selectors.caption).text() shouldBe Content.caption
-          document.select(Selectors.para).text() shouldBe Content.paraAgent
-          document.select(Selectors.hint).text() shouldBe Content.hint
+  "calling POST" when {
+
+    "an individual" when {
+
+      "the form data is valid" should {
+
+        "return an OK" in {
+          lazy val result = {
+            authoriseIndividual()
+            await(wsClient.url(lastTaxYearAmountUrl).post(Map[String, String](
+              "amount" -> "1234"
+            )))
+          }
+
+          result.status shouldBe OK
         }
 
-        "not display an error" in {
-          document.select(Selectors.errorSummary).isEmpty shouldBe true
-          document.select(Selectors.noSelectionError).isEmpty shouldBe true
-          document.select(Selectors.errorMessage).isEmpty shouldBe true
+      }
+
+      "return an error" when {
+
+        "the submitted data is empty" which {
+          lazy val result = {
+            authoriseIndividual()
+            await(wsClient.url(lastTaxYearAmountUrl).post(Map[String, String](
+              "amount" -> ""
+            )))
+          }
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          titleCheck("Error: " + Content.heading)
+          h1Check(Content.heading)
+          textOnPageCheck(Content.para, Selectors.para)
+          inputFieldCheck("amount", ".govuk-input")
+          hintTextCheck(Content.hint)
+          captionCheck(Content.caption)
+          buttonCheck(Content.button)
+
+          errorSummaryCheck(Content.noSelectionError, "#amount")
+          errorAboveElementCheck(Content.noSelectionError)
+        }
+
+        "the submitted data is too long" which {
+          lazy val result = {
+            authoriseIndividual()
+            await(wsClient.url(lastTaxYearAmountUrl).post(Map(
+              "amount" -> "999999999999999999999999999999999999999999999999"
+            )))
+          }
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          titleCheck("Error: " + Content.heading)
+          h1Check(Content.heading)
+          textOnPageCheck(Content.para, Selectors.para)
+          inputFieldCheck("amount", ".govuk-input")
+          hintTextCheck(Content.hint)
+          captionCheck(Content.caption)
+          buttonCheck(Content.button)
+
+          errorSummaryCheck(Content.tooLongError, "#amount")
+          errorAboveElementCheck(Content.tooLongError)
+        }
+
+        "the submitted data is in the incorrect format" which {
+          lazy val result = {
+            authoriseIndividual()
+            await(wsClient.url(lastTaxYearAmountUrl).post(Map(
+              "amount" -> ".."
+            )))
+          }
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          titleCheck("Error: " + Content.heading)
+          h1Check(Content.heading)
+          textOnPageCheck(Content.para, Selectors.para)
+          inputFieldCheck("amount", ".govuk-input")
+          hintTextCheck(Content.hint)
+          captionCheck(Content.caption)
+          buttonCheck(Content.button)
+
+          errorSummaryCheck(Content.invalidFormatError, "#amount")
+          errorAboveElementCheck(Content.invalidFormatError)
+        }
+      }
+
+    }
+
+    "an agent" when {
+
+      "the form data is valid" should {
+
+        "return an OK" in {
+          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
+            SessionValues.TAX_YEAR -> taxYear.toString,
+            SessionValues.CLIENT_NINO -> "AA123456A",
+            SessionValues.CLIENT_MTDITID -> "1234567890"
+          ))
+
+          lazy val result = {
+            authoriseAgent()
+            await(wsClient.url(lastTaxYearAmountUrl).withHttpHeaders(
+              HeaderNames.COOKIE -> playSessionCookies,
+              "Csrf-Token" -> "nocheck"
+            ).post(Map[String, String](
+              "amount" -> "1234"
+            )))
+          }
+
+          result.status shouldBe OK
+        }
+
+      }
+
+      "return an error" when {
+
+        "the submitted data is empty" which {
+          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
+            SessionValues.TAX_YEAR -> taxYear.toString,
+            SessionValues.CLIENT_NINO -> "AA123456A",
+            SessionValues.CLIENT_MTDITID -> "1234567890"
+          ))
+
+          lazy val result = {
+            authoriseAgent()
+            await(wsClient.url(lastTaxYearAmountUrl).withHttpHeaders(
+              HeaderNames.COOKIE -> playSessionCookies,
+              "Csrf-Token" -> "nocheck"
+            ).post(Map[String, String](
+              "amount" -> ""
+            )))
+          }
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          titleCheck("Error: " + Content.headingAgent)
+          h1Check(Content.headingAgent)
+          textOnPageCheck(Content.paraAgent, Selectors.para)
+          inputFieldCheck("amount", ".govuk-input")
+          hintTextCheck(Content.hint)
+          captionCheck(Content.caption)
+          buttonCheck(Content.button)
+
+          errorSummaryCheck(Content.noSelectionErrorAgent, "#amount")
+          errorAboveElementCheck(Content.noSelectionErrorAgent)
+        }
+
+        "the submitted data is too long" which {
+          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
+            SessionValues.TAX_YEAR -> taxYear.toString,
+            SessionValues.CLIENT_NINO -> "AA123456A",
+            SessionValues.CLIENT_MTDITID -> "1234567890"
+          ))
+
+          lazy val result = {
+            authoriseAgent()
+            await(wsClient.url(lastTaxYearAmountUrl).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, "Csrf-Token" -> "nocheck").post(Map(
+              "amount" -> "999999999999999999999999999999999999999999999999"
+            )))
+          }
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          titleCheck("Error: " + Content.headingAgent)
+          h1Check(Content.headingAgent)
+          textOnPageCheck(Content.paraAgent, Selectors.para)
+          inputFieldCheck("amount", ".govuk-input")
+          hintTextCheck(Content.hint)
+          captionCheck(Content.caption)
+          buttonCheck(Content.button)
+
+          errorSummaryCheck(Content.tooLongErrorAgent, "#amount")
+          errorAboveElementCheck(Content.tooLongErrorAgent)
+        }
+
+        "the submitted data is in the incorrect format" which {
+          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
+            SessionValues.TAX_YEAR -> taxYear.toString,
+            SessionValues.CLIENT_NINO -> "AA123456A",
+            SessionValues.CLIENT_MTDITID -> "1234567890"
+          ))
+
+          lazy val result = {
+            authoriseAgent()
+            await(wsClient.url(lastTaxYearAmountUrl).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, "Csrf-Token" -> "nocheck").post(Map(
+              "amount" -> ".."
+            )))
+          }
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          titleCheck("Error: " + Content.headingAgent)
+          h1Check(Content.headingAgent)
+          textOnPageCheck(Content.paraAgent, Selectors.para)
+          inputFieldCheck("amount", ".govuk-input")
+          hintTextCheck(Content.hint)
+          captionCheck(Content.caption)
+          buttonCheck(Content.button)
+
+          errorSummaryCheck(Content.invalidFormatError, "#amount")
+          errorAboveElementCheck(Content.invalidFormatError)
         }
       }
 

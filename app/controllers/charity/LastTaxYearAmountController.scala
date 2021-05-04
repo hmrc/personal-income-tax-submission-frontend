@@ -20,7 +20,7 @@ import config.{AppConfig, GIFT_AID}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
-import forms.charity.LastTaxYearAmountForm
+import forms.AmountForm
 import javax.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
@@ -35,16 +35,22 @@ class LastTaxYearAmountController @Inject()(view: LastTaxYearAmountView)(
                                             appConfig: AppConfig
                                           ) extends FrontendController(cc) with I18nSupport  {
 
-  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
-    lazy val form: Form[BigDecimal] = LastTaxYearAmountForm.lastTaxYearAmountForm(user.isAgent)
+  def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
 
-    Ok(view(taxYear, form, None))
+  def form(implicit isAgent: Boolean, taxYear: Int): Form[BigDecimal] = AmountForm.amountForm(
+    emptyFieldKey = "charity.last-tax-year-donation-amount.error.no-entry." + agentOrIndividual,
+    wrongFormatKey = "charity.last-tax-year-donation-amount.error.invalid",
+    exceedsMaxAmountKey = "charity.last-tax-year-donation-amount.error.maximum." + agentOrIndividual,
+    emptyFieldArguments = Seq(taxYear.toString)
+  )
+
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
+    Ok(view(taxYear, form(user.isAgent, taxYear), None))
   }
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)) { implicit user =>
-    lazy val form: Form[BigDecimal] = LastTaxYearAmountForm.lastTaxYearAmountForm(user.isAgent)
 
-    form.bindFromRequest().fold(
+    form(user.isAgent, taxYear).bindFromRequest().fold(
       {
         formWithErrors =>
           BadRequest(
