@@ -16,7 +16,7 @@
 
 package views.charity
 
-import forms.GiftAidOverseasAmountForm
+import forms.charity.GiftAidOverseasAmountForm
 import models.User
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
