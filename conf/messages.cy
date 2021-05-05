@@ -297,6 +297,17 @@ charity.remove-overseas-charity.title = Are you sure you want to remove this ove
 charity.remove-overseas-charity.heading = Are you sure you want to remove this overseas charity?
 charity.remove-overseas-charity.noChoice = Select yes to remove this overseas charity
 
+charity.last-tax-year.title.individual = Do you want to add any of your donations to the last tax year?
+charity.last-tax-year.title.agent = Do you want to add any of your client’s donations to the last tax year?
+charity.last-tax-year.heading.individual = Do you want to add any of your donations to the last tax year?
+charity.last-tax-year.heading.agent = Do you want to add any of your client’s donations to the last tax year?
+charity.last-tax-year.content_1.individual = You told us you donated £{0} to charity by using Gift Aid. You can add some of this donation to the 6 April {1} to 5 April {2} tax year.
+charity.last-tax-year.content_1.agent = You told us your client donated £{0} to charity by using Gift Aid. You can add some of this donation to the 6 April {1} to 5 April {2} tax year.
+charity.last-tax-year.content_2.individual = You might want to do this if you paid higher rate tax last year but will not this year.
+charity.last-tax-year.content_2.agent = You might want to do this if your client paid higher rate tax last year but will not this year.
+charity.last-tax-year.errors.noChoice.individual = Select yes to add any of your donations to the last tax year
+charity.last-tax-year.errors.noChoice.agent = Select yes to add any of your client’s donations to the last tax year
+
 charity.shares-securities-land-property.title.individual = Did you donate shares, securities, land or property to charity?
 charity.shares-securities-land-property.title.agent = Did your client donate shares, securities, land or property to charity?
 charity.shares-securities-land-property.heading.individual = Did you donate shares, securities, land or property to charity?

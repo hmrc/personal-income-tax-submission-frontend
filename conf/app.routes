@@ -83,6 +83,9 @@ POST        /:taxYear/charity/name-of-overseas-charity                          
 GET         /:taxYear/charity/remove-overseas-charity                                                        controllers.charity.RemoveOverseasCharityController.show(taxYear: Int)
 POST        /:taxYear/charity/remove-overseas-charity                                                        controllers.charity.RemoveOverseasCharityController.submit(taxYear: Int)
 
+GET         /:taxYear/charity/add-charity-donations-to-last-tax-year                                         controllers.charity.GiftAidLastTaxYearController.show(taxYear: Int)
+POST        /:taxYear/charity/add-charity-donations-to-last-tax-year                                         controllers.charity.GiftAidLastTaxYearController.submit(taxYear: Int)
+
 GET         /:taxYear/charity/donation-of-shares-securities-land-or-property                                 controllers.charity.GiftAidSharesSecuritiesLandPropertyDonationController.show(taxYear: Int)
 POST        /:taxYear/charity/donation-of-shares-securities-land-or-property                                 controllers.charity.GiftAidSharesSecuritiesLandPropertyDonationController.submit(taxYear: Int)
 
