@@ -55,7 +55,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
   object ExpectedErrors {
     val tooLong = "The amount of your donation made after 5 April 2022 you add to the last tax year must be less than £100,000,000,000"
     val emptyField = "Enter the amount of your donation made after 5 April 2022 you want to add to this tax year"
-    val incorrectFormat = "Enter an amount using numbers 0 to 9"
+    val incorrectFormat = "Enter the amount you want to add to this tax year in the correct format"
 
     val tooLongAgent = "The amount of your client’s donation made after 5 April 2022 you add to the last tax year must be less than £100,000,000,000"
     val emptyFieldAgent = "Enter the amount of your client’s donation made after 5 April 2022 you want to add to this tax year"

@@ -337,6 +337,15 @@ charity.donated-land-or-property.heading.agent = Did your client donate land or 
 charity.donated-land-or-property.errors.noChoice.individual = Select yes if you donated land or property to charity
 charity.donated-land-or-property.errors.noChoice.agent = Select yes if your client donated land or property to charity
 
+charity.shares-or-securities.heading = What is the total value of shares or securities donated to charity?
+charity.shares-or-securities.input.label = Total value, in pounds
+charity.shares-or-securities.error.empty-field.individual = Enter the value of shares or securities you donated to charity
+charity.shares-or-securities.error.empty-field.agent = Enter the value of shares or securities your client donated to charity
+charity.shares-or-securities.error.max-amount.individual = The value of your shares or securities must be less than £100,000,000,000
+charity.shares-or-securities.error.max-amount.agent = The value of your client’s shares or securities must be less than £100,000,000,000
+charity.shares-or-securities.error.wrong-format.individual = Enter the value of shares or securities you donated to charity in the correct format
+charity.shares-or-securities.error.wrong-format.agent = Enter the value of shares or securities your client donated to charity in the correct format
+
 not-found-template.title = Page not found
 not-found-template.heading = Page not found
 not-found-template.paragraph.1 = If you typed the web address, check it is correct.
