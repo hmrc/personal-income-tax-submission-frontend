@@ -23,7 +23,7 @@ import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.YesNoForm
 import models.User
-import models.giftAid.GiftAidSubmissionModel
+import models.charity.GiftAidSubmissionModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.libs.json.{Json, Reads}
