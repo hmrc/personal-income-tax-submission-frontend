@@ -29,9 +29,7 @@
 
 @(form: Form[Boolean], taxYear: Int, giftAidDonations: BigDecimal)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
-@headingForUse = @{
-    if(user.isAgent) messages("charity.last-tax-year.heading.agent") else messages("charity.last-tax-year.heading.individual")
-}
+@headingForUse = @{messages(s"charity.last-tax-year.heading.${if(user.isAgent) "agent" else "individual"}")}
 
 @titleForUse = @{messages(s"charity.last-tax-year.title.${if(user.isAgent) "agent" else "individual"}")}
 
@@ -40,11 +38,10 @@
 @contentHtml = {
 <div class="govuk-body">
     <p>
-        @{if(user.isAgent) messages("charity.last-tax-year.content_1.agent", giftAidDonations, (taxYear - 2).toString, (taxYear - 1).toString)
-        else messages("charity.last-tax-year.content_1.individual", giftAidDonations, (taxYear - 2).toString, (taxYear - 1).toString)}
+        @{messages(s"charity.last-tax-year.content_1.${if(user.isAgent) "agent" else "individual"}", giftAidDonations, (taxYear - 2).toString, (taxYear - 1).toString)}
     </p>
     <p>
-        @{if(user.isAgent) messages("charity.last-tax-year.content_2.agent") else messages("charity.last-tax-year.content_2.individual")}
+        @{messages(s"charity.last-tax-year.content_2.${if(user.isAgent) "agent" else "individual"}", giftAidDonations, (taxYear - 2).toString, (taxYear - 1).toString)}
     </p>
 </div>
 }
