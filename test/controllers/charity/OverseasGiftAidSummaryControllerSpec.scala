@@ -58,7 +58,7 @@ class OverseasGiftAidSummaryControllerSpec extends UnitTestWithApp {
         YesNoForm.yesNo -> YesNoForm.yes
       ))
 
-      s"has a status of SEE_OTHER($SEE_OTHER" in new TestWithAuth {
+      s"has a status of SEE_OTHER($SEE_OTHER)" in new TestWithAuth {
         status(result) shouldBe SEE_OTHER
       }
     }

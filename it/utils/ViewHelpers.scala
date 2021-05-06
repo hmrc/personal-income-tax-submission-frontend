@@ -36,6 +36,12 @@ trait ViewHelpers { self: AnyWordSpec with Matchers =>
     !document().select(selector).isEmpty
   }
 
+  def elementExtinct(selector: String)(implicit document: () => Document): Unit = {
+    s"does not display element with selector: $selector" in {
+      document().select(selector).isEmpty shouldBe true
+    }
+  }
+
   def titleCheck(title: String)(implicit document: () => Document): Unit = {
     s"has a title of $title" in {
       document().title() shouldBe s"$title - $serviceName - $govUkExtension"
