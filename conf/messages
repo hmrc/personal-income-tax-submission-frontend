@@ -330,6 +330,13 @@ charity.qualifying-shares-or-securities.heading.agent = Did your client donate q
 charity.qualifying-shares-or-securities.errors.noChoice.individual = Select yes if you donated shares or securities to charity
 charity.qualifying-shares-or-securities.errors.noChoice.agent = Select yes if your client donated shares or securities to charity
 
+charity.donated-land-or-property.title.individual = Did you donate land or property to charity?
+charity.donated-land-or-property.title.agent = Did your client donate land or property to charity?
+charity.donated-land-or-property.heading.individual = Did you donate land or property to charity?
+charity.donated-land-or-property.heading.agent = Did your client donate land or property to charity?
+charity.donated-land-or-property.errors.noChoice.individual = Select yes if you donated land or property to charity
+charity.donated-land-or-property.errors.noChoice.agent = Select yes if your client donated land or property to charity
+
 not-found-template.title = Page not found
 not-found-template.heading = Page not found
 not-found-template.paragraph.1 = If you typed the web address, check it is correct.

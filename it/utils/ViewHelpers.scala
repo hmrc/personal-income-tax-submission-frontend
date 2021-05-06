@@ -25,6 +25,9 @@ trait ViewHelpers { self: AnyWordSpec with Matchers =>
   val serviceName = "Update and submit an Income Tax Return"
   val govUkExtension = "GOV.UK"
 
+  val ENGLISH = "English"
+  val WELSH = "Welsh"
+
   def elementText(selector: String)(implicit document: () => Document): String = {
     document().select(selector).text()
   }
@@ -140,6 +143,15 @@ trait ViewHelpers { self: AnyWordSpec with Matchers =>
       s"has the text '$text'" in {
         document().select(".govuk-error-message").text() shouldBe s"Error: $text"
       }
+    }
+  }
+
+  def noErrorsCheck()(implicit document: () => Document): Unit = {
+    "there is no error summary" in {
+      elementExist(".govuk-error-summary") shouldBe false
+    }
+    "there is no error above the form" in {
+      elementExist(".govuk-error-message") shouldBe false
     }
   }
 
