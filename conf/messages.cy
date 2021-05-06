@@ -371,10 +371,10 @@ charity.donations-to-previous-tax-year.errors.noChoice.individual = Select yes t
 charity.donations-to-previous-tax-year.errors.noChoice.agent = Select yes to add any of your client's donations made after 5 April 2020 to this tax year
 charity.donations-to-previous-tax-year.title = Do you want to add any donations made after 5 April 2020 to this tax year?
 charity.donations-to-previous-tax-year.heading = Do you want to add any donations made after 5 April 2020 to this tax year?
-charity.donations-to-previous-tax-year.individual.paragraph.1.individual = If you made donations after 5 April 2020, you can add them to the 6 April 2019 to 5 April 2020 tax year.
-charity.donations-to-previous-tax-year.individual.paragraph.2.individual = You might want to do this if you want tax relief sooner.
-charity.donations-to-previous-tax-year.individual.paragraph.1.agent = If your client made donations after 5 April 2020, you can add them to the 6 April 2019 to 5 April 2020 tax year.
-charity.donations-to-previous-tax-year.individual.paragraph.2.agent = You might want to do this if your client wants tax relief sooner.
+charity.donations-to-previous-tax-year.paragraph.1.individual = If you made donations after 5 April 2020, you can add them to the 6 April 2019 to 5 April 2020 tax year.
+charity.donations-to-previous-tax-year.paragraph.2.individual = You might want to do this if you want tax relief sooner.
+charity.donations-to-previous-tax-year.paragraph.1.agent = If your client made donations after 5 April 2020, you can add them to the 6 April 2019 to 5 April 2020 tax year.
+charity.donations-to-previous-tax-year.paragraph.2.agent = You might want to do this if your client wants tax relief sooner.
 
 not-found-template.title = Page not found
 not-found-template.heading = Page not found

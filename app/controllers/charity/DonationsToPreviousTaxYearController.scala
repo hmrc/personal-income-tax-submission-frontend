@@ -28,7 +28,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.charity.DonationsToPreviousTaxYearView
-
 import javax.inject.Inject
 
 class DonationsToPreviousTaxYearController @Inject() (
@@ -38,19 +37,19 @@ class DonationsToPreviousTaxYearController @Inject() (
                                                       implicit val appConfig: AppConfig
                                                      ) extends FrontendController(cc) with I18nSupport with SessionHelper {
 
-  val yesNoForm: User[AnyContent] => Form[Boolean] = user => {
+  val yesNoForm: (User[AnyContent], Int) => Form[Boolean] = (user, taxYear) => {
     val missingInputError = s"charity.donations-to-previous-tax-year.errors.noChoice.${if (user.isAgent) "agent" else "individual"}"
-    YesNoForm.yesNoForm(missingInputError)
+    YesNoForm.yesNoForm(missingInputError, Seq(taxYear.toString))
   }
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
 
-    Ok(donationsToPreviousTaxYearView(yesNoForm(user), taxYear))
+    Ok(donationsToPreviousTaxYearView(yesNoForm(user, taxYear), taxYear))
 
   }
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)) { implicit user =>
-    yesNoForm(user).bindFromRequest().fold(
+    yesNoForm(user, taxYear).bindFromRequest().fold(
       {
         formWithErrors =>
           BadRequest(donationsToPreviousTaxYearView(formWithErrors, taxYear))
