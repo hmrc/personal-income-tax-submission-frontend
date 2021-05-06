@@ -57,22 +57,23 @@ trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneServerPerSu
 
   def await[T](awaitable: Awaitable[T]): T = Await.result(awaitable, Duration.Inf)
 
-  def config: Map[String, String] = Map(
-    "auditing.enabled" -> "false",
+  def config: Map[String, Any] = Map(
+    "auditing.enabled" -> false,
+    "metrics.enabled" -> false,
     "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck",
     "microservice.services.income-tax-submission-frontend.host" -> wiremockHost,
-    "microservice.services.income-tax-submission-frontend.port" -> wiremockPort.toString,
+    "microservice.services.income-tax-submission-frontend.port" -> wiremockPort,
     "income-tax-submission-frontend.url" -> s"http://$wiremockHost:$wiremockPort",
     "microservice.services.auth.host" -> wiremockHost,
-    "microservice.services.auth.port" -> wiremockPort.toString,
+    "microservice.services.auth.port" -> wiremockPort,
     "microservice.services.income-tax-dividends.host" -> wiremockHost,
-    "microservice.services.income-tax-dividends.port" -> wiremockPort.toString,
+    "microservice.services.income-tax-dividends.port" -> wiremockPort,
     "microservice.services.income-tax-interest.host" -> wiremockHost,
-    "microservice.services.income-tax-interest.port" -> wiremockPort.toString,
+    "microservice.services.income-tax-interest.port" -> wiremockPort,
     "microservice.services.income-tax-gift-aid.host" -> wiremockHost,
-    "microservice.services.income-tax-gift-aid.port" -> wiremockPort.toString,
+    "microservice.services.income-tax-gift-aid.port" -> wiremockPort,
     "signIn.url" -> s"/auth-login-stub/gg-sign-in",
-    "taxYearChangeResetsSession" -> "false"
+    "taxYearChangeResetsSession" -> false
   )
 
   lazy val agentAuthErrorPage: AgentAuthErrorPageView = app.injector.instanceOf[AgentAuthErrorPageView]
