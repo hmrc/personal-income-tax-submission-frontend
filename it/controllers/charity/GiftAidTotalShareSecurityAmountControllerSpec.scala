@@ -23,8 +23,6 @@ import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.{WSClient, WSResponse}
-import play.api.mvc.Result
-import play.api.test.FakeRequest
 import utils.{IntegrationTest, ViewHelpers}
 
 class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with ViewHelpers {
@@ -34,8 +32,6 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
 
   def url: String =
     s"http://localhost:$port/income-through-software/return/personal-income/$defaultTaxYear/charity/value-of-shares-or-securities"
-
-  def langUrl: String = s"http://localhost:$port/income-through-software/return/personal-income/language/cymraeg"
 
   object Selectors {
     val titleSelector = "title"
@@ -371,10 +367,6 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
       "an individual" should {
 
         "return a page" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            "PLAY_LANG" -> "cy"
-          ))
-
           lazy val result: WSResponse = {
             authoriseIndividual()
             await(wsClient.url(url).withHttpHeaders(
