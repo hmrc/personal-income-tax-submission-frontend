@@ -23,23 +23,20 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.libs.ws.{WSClient, WSResponse}
-import utils.IntegrationTest
+import utils.{IntegrationTest, ViewHelpers}
 import play.api.http.Status.{BAD_REQUEST, OK}
 
-class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest {
+class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with ViewHelpers {
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
   lazy val controller: DonationsToPreviousTaxYearController = app.injector.instanceOf[DonationsToPreviousTaxYearController]
 
   val taxYear: Int = 2022
 
+  val url: String = s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donations-after-5-april-2022"
+
   object Selectors {
 
-    val heading = "h1"
-    val caption = ".govuk-caption-l"
-    val errorSummaryNoSelection = ".govuk-error-summary__body > ul > li > a"
-    val yesRadioButton = ".govuk-radios__item:nth-child(1) > label"
-    val noRadioButton = ".govuk-radios__item:nth-child(2) > label"
     val paragraph1HintText = "#main-content > div > div > form > div > fieldset > legend > div > p:nth-child(1)"
     val paragraph2HintText = "#main-content > div > div > form > div > fieldset > legend > div > p:nth-child(2)"
 
@@ -47,174 +44,176 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest {
 
   object Content {
 
-    val expectedTitle = "Do you want to add any donations made after 5 April 2022 to this tax year? - Update and submit an Income Tax Return - GOV.UK"
-    val expectedErrorTitle = "Error: Do you want to add any donations made after 5 April 2022 to this tax year? - Update and submit an Income Tax Return - GOV.UK"
     val expectedHeading = "Do you want to add any donations made after 5 April 2022 to this tax year?"
     val expectedCaption = "Donations to charity for 6 April 2021 to 5 April 2022"
     val expectedParagraph1Individual = "If you made donations after 5 April 2022, you can add them to the 6 April 2021 to 5 April 2022 tax year."
     val expectedParagraph1Agent = "If your client made donations after 5 April 2022, you can add them to the 6 April 2021 to 5 April 2022 tax year."
     val expectedParagraph2Individual = "You might want to do this if you want tax relief sooner."
     val expectedParagraph2Agent = "You might want to do this if your client wants tax relief sooner."
+    val yesText = "Yes"
+    val noText = "No"
+    val button = "Continue"
+
+    val errorText = "Select yes to add any of your donations made after 5 April 2022 to this tax year"
+    val errorTextAgent = "Select yes to add any of your client’s donations made after 5 April 2022 to this tax year"
+    val errorHref = "#value"
 
   }
 
-  "as an individual" when {
 
-    ".show" should {
 
-      "return an action" which {
+
+
+  "calling GET" when {
+
+    "the user is an individual" should {
+
+      "return a page" which {
         lazy val result: WSResponse = {
           authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donations-after-5-april-2022").get())
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-        "has an OK(200) response" in {
-
-          result.status shouldBe OK
+          await(wsClient.url(url).get())
         }
 
-        "display the page content" in {
+        implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-          document.title() shouldBe Content.expectedTitle
-          document.select(Selectors.heading).text() shouldBe Content.expectedHeading
-          document.select(Selectors.caption).text() shouldBe Content.expectedCaption
-          document.select(Selectors.paragraph1HintText).text() shouldBe Content.expectedParagraph1Individual
-          document.select(Selectors.paragraph2HintText).text() shouldBe Content.expectedParagraph2Individual
-
-        }
+        titleCheck(Content.expectedHeading)
+        h1Check(Content.expectedHeading)
+        textOnPageCheck(Content.expectedParagraph1Individual, Selectors.paragraph1HintText)
+        textOnPageCheck(Content.expectedParagraph2Individual, Selectors.paragraph2HintText)
+        radioButtonCheck(Content.yesText, 1)
+        radioButtonCheck(Content.noText, 2)
+        captionCheck(Content.expectedCaption)
+        buttonCheck(Content.button)
       }
     }
 
-    ".submit" should {
+    "the user is an agent" should {
 
-      "return an OK (200) response" in {
-
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donations-after-5-april-xxxx")
-            .post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
-        }
-
-        result.status shouldBe OK
-
-      }
-
-      "when there is an incorrect input" should {
+      "return a page" which {
+        lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
+          SessionValues.TAX_YEAR -> taxYear.toString,
+          SessionValues.CLIENT_NINO -> "AA123456A",
+          SessionValues.CLIENT_MTDITID -> "1234567890"
+        ))
 
         lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donations-after-5-april-xxxx")
-            .post(Map[String, String]()))
-        }
-
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        "return a BadRequest (400) response" in {
-
-          result.status shouldBe BAD_REQUEST
-        }
-
-        "have the correct page content" in {
-
-          document.title() shouldBe Content.expectedErrorTitle
-        }
-      }
-    }
-  }
-
-  "as an agent" when {
-
-    ".show" should {
-
-      "return an action" which {
-
-        lazy val result: WSResponse = {
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
-
           authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donations-after-5-april-xxxx")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
-            .get())
+          await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, "Csrf-Token" -> "nocheck").get())
         }
 
-        lazy val document: Document = Jsoup.parse(result.body)
+        implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-        "has an OK (200) response" in {
-
-          result.status shouldBe OK
-        }
-
-        "displays the page content" in {
-
-          document.title() shouldBe Content.expectedTitle
-          document.select(Selectors.heading).text() shouldBe Content.expectedHeading
-          document.select(Selectors.caption).text() shouldBe Content.expectedCaption
-          document.select(Selectors.paragraph1HintText).text() shouldBe Content.expectedParagraph1Agent
-          document.select(Selectors.paragraph2HintText).text() shouldBe Content.expectedParagraph2Agent
-        }
+        titleCheck(Content.expectedHeading)
+        h1Check(Content.expectedHeading)
+        textOnPageCheck(Content.expectedParagraph1Agent, Selectors.paragraph1HintText)
+        textOnPageCheck(Content.expectedParagraph2Agent, Selectors.paragraph2HintText)
+        radioButtonCheck(Content.yesText, 1)
+        radioButtonCheck(Content.noText, 2)
+        captionCheck(Content.expectedCaption)
+        buttonCheck(Content.button)
       }
+
     }
+  }
 
-    ".submit" when {
+  "Calling POST" when {
 
-      "there is correct form data" should {
+    "the user is an individual" when {
 
-        "return a response" which {
+      "a radio button has been selected" should {
 
+        "return an OK" in {
           lazy val result: WSResponse = {
-
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"))
-
-            authoriseAgent()
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donations-after-5-april-xxxx")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+            authoriseIndividual()
+            await(wsClient.url(url)
               .post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
           }
 
-
-          "has an Ok (200) response" in {
-
-            result.status shouldBe OK
-          }
+          result.status shouldBe OK
         }
       }
 
-      "there is no form data" should {
+      "no radio button has been selected" should {
 
-        "return a response" which {
+        lazy val result: WSResponse = {
+          authoriseIndividual()
+          await(wsClient.url(url)
+            .post(Map(YesNoForm.yesNo -> "")))
+        }
+
+        implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+        titleCheck("Error: " + Content.expectedHeading)
+        h1Check(Content.expectedHeading)
+        textOnPageCheck(Content.expectedParagraph1Individual, Selectors.paragraph1HintText)
+        textOnPageCheck(Content.expectedParagraph2Individual, Selectors.paragraph2HintText)
+        radioButtonCheck(Content.yesText, 1)
+        radioButtonCheck(Content.noText, 2)
+        captionCheck(Content.expectedCaption)
+        buttonCheck(Content.button)
+
+        errorSummaryCheck(Content.errorText, Content.errorHref)
+        errorAboveElementCheck(Content.errorText)
+
+        "return a BAD_REQUEST" in {
+          result.status shouldBe BAD_REQUEST
+        }
+      }
+    }
+
+    "the user is an agent" when {
+
+      "a radio button has been selected" should {
+
+        "return an OK" in {
+          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
+            SessionValues.TAX_YEAR -> taxYear.toString,
+            SessionValues.CLIENT_NINO -> "AA123456A",
+            SessionValues.CLIENT_MTDITID -> "1234567890"
+          ))
 
           lazy val result: WSResponse = {
-
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"))
-
             authoriseAgent()
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donations-after-5-april-xxxx")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-              .post(Map[String, String]()))
+            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, "Csrf-Token" -> "nocheck")
+              .post(Map[String, String](YesNoForm.yesNo -> YesNoForm.yes)))
           }
 
-          lazy val document: Document = Jsoup.parse(result.body)
+          result.status shouldBe OK
+        }
+      }
 
-          "has a BadRequest (400) response" in {
+      "no radio button has been selected" should {
 
-            result.status shouldBe BAD_REQUEST
-          }
+        lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
+          SessionValues.TAX_YEAR -> taxYear.toString,
+          SessionValues.CLIENT_NINO -> "AA123456A",
+          SessionValues.CLIENT_MTDITID -> "1234567890"
+        ))
 
-          "has the error page content" in {
+        lazy val result: WSResponse = {
+          authoriseAgent()
+          await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, "Csrf-Token" -> "nocheck")
+            .post(Map[String, String](YesNoForm.yesNo -> "")))
+        }
 
-            document.title() shouldBe Content.expectedErrorTitle
-          }
+        implicit def document: () => Document = () => Jsoup.parse(result.body)
 
+        titleCheck("Error: " + Content.expectedHeading)
+        h1Check(Content.expectedHeading)
+        textOnPageCheck(Content.expectedParagraph1Agent, Selectors.paragraph1HintText)
+        textOnPageCheck(Content.expectedParagraph2Agent, Selectors.paragraph2HintText)
+        radioButtonCheck(Content.yesText, 1)
+        radioButtonCheck(Content.noText, 2)
+        captionCheck(Content.expectedCaption)
+        buttonCheck(Content.button)
+
+        errorSummaryCheck(Content.errorTextAgent, Content.errorHref)
+        errorAboveElementCheck(Content.errorTextAgent)
+
+        "return a BAD_REQUEST" in {
+          result.status shouldBe BAD_REQUEST
         }
       }
     }
   }
-
 }
