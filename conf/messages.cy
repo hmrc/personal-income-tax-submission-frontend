@@ -326,6 +326,16 @@ charity.shares-securities-land-property.heading.agent = Did your client donate s
 charity.shares-securities-land-property.noChoice.individual = Select yes if you donated shares, securities, land or property to charity
 charity.shares-securities-land-property.noChoice.agent = Select yes if your client donated shares, securities, land or property to charity
 
+charity.land-or-property.title = What is the value of land or property donated to charity?
+charity.land-or-property.heading = What is the value of land or property donated to charity?
+charity.land-or-property.label = Total value, in pounds
+charity.land-or-property.errors.no-entry.individual = Enter the value of land or property you donated to charity
+charity.land-or-property.errors.no-entry.agent = Enter the value of land or property your client donated to charity
+charity.land-or-property.errors.wrong-format.individual = Enter the value of land or property you donated to charity in the correct format
+charity.land-or-property.errors.wrong-format.agent = Enter the value of land or property your client donated to charity in the correct format
+charity.Land-or-property.errors.max-amount.individual = The value of your land or property must be less than £100,000,000,000
+charity.Land-or-property.errors.max-amount.agent = The value of your client’s land or property must be less than £100,000,000,000
+
 charity.amount-from-next-tax-year.title.individual = How much of the donations you made after 5 April 2020 do you want to add to this tax year?
 charity.amount-from-next-tax-year.title.agent = How much of the donations your client made after 5 April 2020 do you want to add to this tax year?
 charity.amount-from-next-tax-year.errors.no-entry.individual = Enter the amount of your donation made after 5 April 2020 you want to add to this tax year
