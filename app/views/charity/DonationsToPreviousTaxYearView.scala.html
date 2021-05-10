@@ -52,7 +52,7 @@ inputRadio:InputRadio
 
 @errorSummary(form.errors.distinct)
 
-    @formWithCsrf(action = controllers.charity.routes.DonationsToPreviousTaxYearController.submit(taxYear)) {
+    @formWithCsrf(action = controllers.charity.routes.DonationsToPreviousTaxYearController.submit(taxYear, taxYear)) {
 
         @inputRadio(
                     form = form,

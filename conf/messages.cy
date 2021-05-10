@@ -367,13 +367,13 @@ charity.shares-or-securities.error.max-amount.agent = The value of your clientâ€
 charity.shares-or-securities.error.wrong-format.individual = Enter the value of shares or securities you donated to charity in the correct format
 charity.shares-or-securities.error.wrong-format.agent = Enter the value of shares or securities your client donated to charity in the correct format
 
-charity.donations-to-previous-tax-year.errors.noChoice.individual = Select yes to add any of your donations made after 5 April 2020 to this tax year
-charity.donations-to-previous-tax-year.errors.noChoice.agent = Select yes to add any of your client's donations made after 5 April 2020 to this tax year
-charity.donations-to-previous-tax-year.title = Do you want to add any donations made after 5 April 2020 to this tax year?
-charity.donations-to-previous-tax-year.heading = Do you want to add any donations made after 5 April 2020 to this tax year?
-charity.donations-to-previous-tax-year.paragraph.1.individual = If you made donations after 5 April 2020, you can add them to the 6 April 2019 to 5 April 2020 tax year.
+charity.donations-to-previous-tax-year.errors.noChoice.individual = Select yes to add any of your donations made after 5 April {0} to this tax year
+charity.donations-to-previous-tax-year.errors.noChoice.agent = Select yes to add any of your clientâ€™s donations made after 5 April {0} to this tax year
+charity.donations-to-previous-tax-year.title = Do you want to add any donations made after 5 April {0} to this tax year?
+charity.donations-to-previous-tax-year.heading = Do you want to add any donations made after 5 April {0} to this tax year?
+charity.donations-to-previous-tax-year.paragraph.1.individual = If you made donations after 5 April {1}, you can add them to the 6 April {0} to 5 April {1} tax year.
 charity.donations-to-previous-tax-year.paragraph.2.individual = You might want to do this if you want tax relief sooner.
-charity.donations-to-previous-tax-year.paragraph.1.agent = If your client made donations after 5 April 2020, you can add them to the 6 April 2019 to 5 April 2020 tax year.
+charity.donations-to-previous-tax-year.paragraph.1.agent = If your client made donations after 5 April {1}, you can add them to the 6 April {0} to 5 April {1} tax year.
 charity.donations-to-previous-tax-year.paragraph.2.agent = You might want to do this if your client wants tax relief sooner.
 
 not-found-template.title = Page not found

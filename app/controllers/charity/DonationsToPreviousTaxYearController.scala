@@ -42,23 +42,28 @@ class DonationsToPreviousTaxYearController @Inject() (
     YesNoForm.yesNoForm(missingInputError, Seq(taxYear.toString))
   }
 
-  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
-
-    Ok(donationsToPreviousTaxYearView(yesNoForm(user, taxYear), taxYear))
-
+  def show(taxYear: Int, otherTaxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
+    if(taxYear != otherTaxYear) {
+      Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear))
+    } else {
+      Ok(donationsToPreviousTaxYearView(yesNoForm(user, taxYear), taxYear))
+    }
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)) { implicit user =>
-    yesNoForm(user, taxYear).bindFromRequest().fold(
-      {
-        formWithErrors =>
-          BadRequest(donationsToPreviousTaxYearView(formWithErrors, taxYear))
-      },
-      {
-        yesNoForm => Ok("next page")
-      }
-    )
-
+  def submit(taxYear: Int, otherTaxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)) { implicit user =>
+    if(taxYear != otherTaxYear) {
+      Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear))
+    } else {
+      yesNoForm(user, taxYear).bindFromRequest().fold(
+        {
+          formWithErrors =>
+            BadRequest(donationsToPreviousTaxYearView(formWithErrors, taxYear))
+        },
+        {
+          yesNoForm => Ok("next page")
+        }
+      )
+    }
   }
 
 }

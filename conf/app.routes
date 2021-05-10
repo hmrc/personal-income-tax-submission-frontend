@@ -107,8 +107,8 @@ POST        /:taxYear/charity/value-of-shares-or-securities                     
 GET         /:taxYear/charity/amount-added-to-last-tax-year                                                  controllers.charity.LastTaxYearAmountController.show(taxYear: Int)
 POST        /:taxYear/charity/amount-added-to-last-tax-year                                                  controllers.charity.LastTaxYearAmountController.submit(taxYear: Int)
 
-GET         /:taxYear/charity/donations-after-5-april-:taxYear                                               controllers.charity.DonationsToPreviousTaxYearController.show(taxYear: Int)
-POST        /:taxYear/charity/donations-after-5-april-:taxYear                                               controllers.charity.DonationsToPreviousTaxYearController.submit(taxYear: Int)
+GET         /:taxYear/charity/donations-after-5-april-:otherTaxYear                                          controllers.charity.DonationsToPreviousTaxYearController.show(taxYear: Int, otherTaxYear: Int)
+POST        /:taxYear/charity/donations-after-5-april-:otherTaxYear                                          controllers.charity.DonationsToPreviousTaxYearController.submit(taxYear: Int, otherTaxYear: Int)
 
 GET         /keep-alive                                                                                      controllers.SessionExpiredController.keepAlive
 GET         /timeout                                                                                         controllers.SessionExpiredController.timeout
