@@ -48,7 +48,7 @@ class GiftAidOneOffViewSpec extends ViewTest {
   val continueText = "Continue"
   val continueLink = s"/income-through-software/return/personal-income/$taxYear/charity/one-off-charity-donations"
 
-  val captionSelector = "#main-content > div > div > form > div > fieldset > legend > header > p"
+  val captionSelector = ".govuk-caption-l"
   val p1Selector = "#main-content > div > div > form > div > fieldset > legend > div > p:nth-child(1)"
   val p2Selector = "#main-content > div > div > form > div > fieldset > legend > div > p:nth-child(2)"
   val continueSelector = "#continue"
@@ -68,7 +68,7 @@ class GiftAidOneOffViewSpec extends ViewTest {
 
         titleCheck(expectedIndividualTitle)
         welshToggleCheck("English")
-        h1Check(expectedIndividualH1)
+        h1Check(expectedIndividualH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
         textOnPageCheck(expectedIndividualPara1, p1Selector)
         textOnPageCheck(expectedIndividualPara2, p2Selector)
@@ -89,7 +89,7 @@ class GiftAidOneOffViewSpec extends ViewTest {
 
         titleCheck(expectedIndividualErrorTitle)
         welshToggleCheck("English")
-        h1Check(expectedIndividualH1)
+        h1Check(expectedIndividualH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
         textOnPageCheck(expectedIndividualPara1, p1Selector)
         textOnPageCheck(expectedIndividualPara2, p2Selector)
@@ -112,7 +112,7 @@ class GiftAidOneOffViewSpec extends ViewTest {
 
         titleCheck(expectedAgentTitle)
         welshToggleCheck("English")
-        h1Check(expectedAgentH1)
+        h1Check(expectedAgentH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
         textOnPageCheck(expectedAgentPara1, p1Selector)
         textOnPageCheck(expectedAgentPara2, p2Selector)
@@ -133,7 +133,7 @@ class GiftAidOneOffViewSpec extends ViewTest {
 
         titleCheck(expectedAgentErrorTitle)
         welshToggleCheck("English")
-        h1Check(expectedAgentH1)
+        h1Check(expectedAgentH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
         textOnPageCheck(expectedAgentPara1, p1Selector)
         textOnPageCheck(expectedAgentPara2, p2Selector)
@@ -159,7 +159,7 @@ class GiftAidOneOffViewSpec extends ViewTest {
 
         titleCheck(expectedIndividualTitle)
         welshToggleCheck("Welsh")
-        h1Check(expectedIndividualH1)
+        h1Check(expectedIndividualH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
         textOnPageCheck(expectedIndividualPara1, p1Selector)
         textOnPageCheck(expectedIndividualPara2, p2Selector)
@@ -180,7 +180,7 @@ class GiftAidOneOffViewSpec extends ViewTest {
 
         titleCheck(expectedIndividualErrorTitle)
         welshToggleCheck("Welsh")
-        h1Check(expectedIndividualH1)
+        h1Check(expectedIndividualH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
         textOnPageCheck(expectedIndividualPara1, p1Selector)
         textOnPageCheck(expectedIndividualPara2, p2Selector)
@@ -203,7 +203,7 @@ class GiftAidOneOffViewSpec extends ViewTest {
 
         titleCheck(expectedAgentTitle)
         welshToggleCheck("Welsh")
-        h1Check(expectedAgentH1)
+        h1Check(expectedAgentH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
         textOnPageCheck(expectedAgentPara1, p1Selector)
         textOnPageCheck(expectedAgentPara2, p2Selector)
@@ -224,7 +224,7 @@ class GiftAidOneOffViewSpec extends ViewTest {
 
         titleCheck(expectedAgentErrorTitle)
         welshToggleCheck("Welsh")
-        h1Check(expectedAgentH1)
+        h1Check(expectedAgentH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
         textOnPageCheck(expectedAgentPara1, p1Selector)
         textOnPageCheck(expectedAgentPara2, p2Selector)

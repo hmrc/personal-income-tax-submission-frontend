@@ -101,7 +101,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
 
           "has the following page elements" which {
             titleCheck(expectedTitle)
-            h1Check(expectedH1)
+            h1Check(expectedH1 + " " + captionTextEN)
             textOnPageCheck(captionTextEN, captionSelector)
             radioButtonCheck(yesTextEN, 1)
             radioButtonCheck(noTextEN, 2)
@@ -152,7 +152,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
 
             s"has the following elements" which {
               titleCheck(expectedErrorTitle)
-              h1Check(expectedH1)
+              h1Check(expectedH1 + " " + captionTextEN)
               textOnPageCheck(captionTextEN, captionSelector)
               errorSummaryCheck(expectedError, errorSummaryHref)
               errorAboveElementCheck(expectedError)
@@ -195,7 +195,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
 
           "has the following page elements" which {
             titleCheck(expectedTitle)
-            h1Check(expectedH1)
+            h1Check(expectedH1 + " " + captionTextEN)
             textOnPageCheck(captionTextEN, captionSelector)
             radioButtonCheck(yesTextEN, 1)
             radioButtonCheck(noTextEN, 2)
@@ -253,7 +253,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
 
             "has the following page elements" which {
               titleCheck(expectedErrorTitle)
-              h1Check(expectedH1)
+              h1Check(expectedH1 + " " + captionTextEN)
               textOnPageCheck(captionTextEN, captionSelector)
               errorSummaryCheck(expectedError, errorSummaryHref)
               errorAboveElementCheck(expectedError)
@@ -294,7 +294,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
 
           "has the following page elements" which {
             titleCheck(expectedTitle)
-            h1Check(expectedH1)
+            h1Check(expectedH1 + " " + captionTextCY)
             textOnPageCheck(captionTextCY, captionSelector)
             radioButtonCheck(yesTextCY, 1)
             radioButtonCheck(noTextCY, 2)
@@ -345,7 +345,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
 
             s"has the following elements" which {
               titleCheck(expectedErrorTitle)
-              h1Check(expectedH1)
+              h1Check(expectedH1 + " " + captionTextCY)
               textOnPageCheck(captionTextCY, captionSelector)
               errorSummaryCheck(expectedError, errorSummaryHref)
               errorAboveElementCheck(expectedError)
@@ -391,7 +391,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
 
           "has the following page elements" which {
             titleCheck(expectedTitle)
-            h1Check(expectedH1)
+            h1Check(expectedH1 + " " + captionTextCY)
             textOnPageCheck(captionTextCY, captionSelector)
             radioButtonCheck(yesTextCY, 1)
             radioButtonCheck(noTextCY, 2)
@@ -457,7 +457,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
 
             "has the following page elements" which {
               titleCheck(expectedErrorTitle)
-              h1Check(expectedH1)
+              h1Check(expectedH1 + " " + captionTextCY)
               textOnPageCheck(captionTextCY, captionSelector)
               errorSummaryCheck(expectedError, errorSummaryHref)
               errorAboveElementCheck(expectedError)

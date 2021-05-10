@@ -63,7 +63,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
 
         titleCheck(expectedIndividualTitle)
         welshToggleCheck("English")
-        h1Check(expectedIndividualH1)
+        h1Check(expectedIndividualH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
         textOnPageCheck(yourDividendsTextIndividual, yourDividendsSelector)
         radioButtonCheck(yesText, 1)
@@ -83,7 +83,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
 
         titleCheck(expectedIndividualErrorTitle)
         welshToggleCheck("English")
-        h1Check(expectedIndividualH1)
+        h1Check(expectedIndividualH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
         errorSummaryCheck(expectedErrorText, errorSummaryHref)
         textOnPageCheck(yourDividendsTextIndividual, yourDividendsSelector)
@@ -105,7 +105,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
 
         titleCheck(expectedAgentTitle)
         welshToggleCheck("English")
-        h1Check(expectedAgentH1)
+        h1Check(expectedAgentH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
         textOnPageCheck(yourDividendsTextAgent, yourDividendsSelector)
         radioButtonCheck(yesText, 1)
@@ -125,7 +125,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
 
         titleCheck(expectedAgentErrorTitle)
         welshToggleCheck("English")
-        h1Check(expectedAgentH1)
+        h1Check(expectedAgentH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
         errorSummaryCheck(expectedErrorText, errorSummaryHref)
         textOnPageCheck(yourDividendsTextAgent, yourDividendsSelector)
@@ -150,7 +150,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
 
         titleCheck(expectedIndividualTitle)
         welshToggleCheck("Welsh")
-        h1Check(expectedIndividualH1)
+        h1Check(expectedIndividualH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
         textOnPageCheck(yourDividendsTextIndividual, yourDividendsSelector)
         radioButtonCheck(yesText, 1)
@@ -170,7 +170,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
 
         titleCheck(expectedIndividualErrorTitle)
         welshToggleCheck("Welsh")
-        h1Check(expectedIndividualH1)
+        h1Check(expectedIndividualH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
         errorSummaryCheck(expectedErrorText, errorSummaryHref)
         textOnPageCheck(yourDividendsTextIndividual, yourDividendsSelector)
@@ -192,7 +192,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
 
         titleCheck(expectedAgentTitle)
         welshToggleCheck("Welsh")
-        h1Check(expectedAgentH1)
+        h1Check(expectedAgentH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
         textOnPageCheck(yourDividendsTextAgent, yourDividendsSelector)
         radioButtonCheck(yesText, 1)
@@ -212,7 +212,7 @@ class ReceiveUkDividendsViewSpec extends ViewTest {
 
         titleCheck(expectedAgentErrorTitle)
         welshToggleCheck("Welsh")
-        h1Check(expectedAgentH1)
+        h1Check(expectedAgentH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
         errorSummaryCheck(expectedErrorText, errorSummaryHref)
         textOnPageCheck(yourDividendsTextAgent, yourDividendsSelector)

@@ -92,7 +92,7 @@ class InterestAccountsViewSpec extends ViewTest {
         titleCheck(untaxedTitleSingle)
         welshToggleCheck("English")
         textOnPageCheck(captionText, captionSelector)
-        h1Check(untaxedH1Singular)
+        h1Check(untaxedH1Singular + " " + captionText)
         textOnPageCheck( "Bank of UK", accountRowName(1))
 
         "has a link for changing the account" which {
@@ -139,7 +139,7 @@ class InterestAccountsViewSpec extends ViewTest {
         titleCheck(untaxedTitleSingle)
         welshToggleCheck("English")
         textOnPageCheck(captionText, captionSelector)
-        h1Check(untaxedH1Singular)
+        h1Check(untaxedH1Singular + " " + captionText)
 
         textOnPageCheck( "Bank of UK", accountRowName(1))
 
@@ -173,7 +173,7 @@ class InterestAccountsViewSpec extends ViewTest {
 
         welshToggleCheck("English")
         textOnPageCheck(captionText, captionSelector)
-        h1Check(untaxedH1Singular)
+        h1Check(untaxedH1Singular + " " + captionText)
         textOnPageCheck( "Bank of UK", accountRowName(1))
 
         val expectedErrorText = "Select yes if you received untaxed interest from the UK"
@@ -227,7 +227,7 @@ class InterestAccountsViewSpec extends ViewTest {
 
         titleCheck(untaxedTitlePlural)
         welshToggleCheck("English")
-        h1Check(untaxedH1Plural)
+        h1Check(untaxedH1Plural + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
 
         "have an area for the first row" which {
@@ -293,7 +293,7 @@ class InterestAccountsViewSpec extends ViewTest {
         titleCheck(taxedTitleSingle)
         welshToggleCheck("English")
         textOnPageCheck(captionText, captionSelector)
-        h1Check(taxedH1Singular)
+        h1Check(taxedH1Singular + " " + captionText)
         textOnPageCheck( "Bank of UK", accountRowName(1))
 
         "has a link for changing the account" which {
@@ -338,7 +338,7 @@ class InterestAccountsViewSpec extends ViewTest {
         titleCheck(taxedTitleSingle)
         welshToggleCheck("English")
         textOnPageCheck(captionText, captionSelector)
-        h1Check(taxedH1Singular)
+        h1Check(taxedH1Singular + " " + captionText)
 
         "has a link for changing the account" which {
           "has the correct text" in {
@@ -372,7 +372,7 @@ class InterestAccountsViewSpec extends ViewTest {
 
         titleCheck(taxedTitlePlural)
         welshToggleCheck("English")
-        h1Check(taxedH1Plural)
+        h1Check(taxedH1Plural + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
 
         "have an area for the first row" which {
@@ -437,7 +437,7 @@ class InterestAccountsViewSpec extends ViewTest {
         titleCheck(untaxedTitleSingle)
         welshToggleCheck("Welsh")
         textOnPageCheck(captionText, captionSelector)
-        h1Check(untaxedH1Singular)
+        h1Check(untaxedH1Singular + " " + captionText)
         textOnPageCheck( "Bank of UK", accountRowName(1))
 
         "has a link for changing the account" which {
@@ -484,7 +484,7 @@ class InterestAccountsViewSpec extends ViewTest {
         titleCheck(untaxedTitleSingle)
         welshToggleCheck("Welsh")
         textOnPageCheck(captionText, captionSelector)
-        h1Check(untaxedH1Singular)
+        h1Check(untaxedH1Singular + " " + captionText)
 
         textOnPageCheck( "Bank of UK", accountRowName(1))
 
@@ -518,7 +518,7 @@ class InterestAccountsViewSpec extends ViewTest {
 
         welshToggleCheck("Welsh")
         textOnPageCheck(captionText, captionSelector)
-        h1Check(untaxedH1Singular)
+        h1Check(untaxedH1Singular + " " + captionText)
         textOnPageCheck( "Bank of UK", accountRowName(1))
 
         val expectedErrorText = "Select yes if you received untaxed interest from the UK"
@@ -572,7 +572,7 @@ class InterestAccountsViewSpec extends ViewTest {
 
         titleCheck(untaxedTitlePlural)
         welshToggleCheck("Welsh")
-        h1Check(untaxedH1Plural)
+        h1Check(untaxedH1Plural + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
 
         "have an area for the first row" which {
@@ -638,7 +638,7 @@ class InterestAccountsViewSpec extends ViewTest {
         titleCheck(taxedTitleSingle)
         welshToggleCheck("Welsh")
         textOnPageCheck(captionText, captionSelector)
-        h1Check(taxedH1Singular)
+        h1Check(taxedH1Singular + " " + captionText)
         textOnPageCheck( "Bank of UK", accountRowName(1))
 
         "has a link for changing the account" which {
@@ -683,7 +683,7 @@ class InterestAccountsViewSpec extends ViewTest {
         titleCheck(taxedTitleSingle)
         welshToggleCheck("Welsh")
         textOnPageCheck(captionText, captionSelector)
-        h1Check(taxedH1Singular)
+        h1Check(taxedH1Singular + " " + captionText)
 
         "has a link for changing the account" which {
           "has the correct text" in {
@@ -717,7 +717,7 @@ class InterestAccountsViewSpec extends ViewTest {
 
         titleCheck(taxedTitlePlural)
         welshToggleCheck("Welsh")
-        h1Check(taxedH1Plural)
+        h1Check(taxedH1Plural + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
 
         "have an area for the first row" which {

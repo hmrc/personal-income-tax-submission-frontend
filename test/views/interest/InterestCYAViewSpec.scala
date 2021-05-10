@@ -106,7 +106,7 @@ class InterestCYAViewSpec extends ViewTest {
 
           titleCheck(titleExpected)
           welshToggleCheck("English")
-          h1Check(h1Expected)
+          h1Check(h1Expected + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
 
           buttonCheck(submitText, submitButton)
@@ -154,7 +154,7 @@ class InterestCYAViewSpec extends ViewTest {
 
           titleCheck(titleExpected)
           welshToggleCheck("English")
-          h1Check(h1Expected)
+          h1Check(h1Expected + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
 
           buttonCheck(submitText, submitButton)
@@ -202,7 +202,7 @@ class InterestCYAViewSpec extends ViewTest {
 
           titleCheck(titleExpected)
           welshToggleCheck("English")
-          h1Check(h1Expected)
+          h1Check(h1Expected + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
 
           buttonCheck(submitText, submitButton)
@@ -254,7 +254,7 @@ class InterestCYAViewSpec extends ViewTest {
 
           titleCheck(titleExpected)
           welshToggleCheck("Welsh")
-          h1Check(h1Expected)
+          h1Check(h1Expected + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
 
           buttonCheck(submitText, submitButton)
@@ -302,7 +302,7 @@ class InterestCYAViewSpec extends ViewTest {
 
           titleCheck(titleExpected)
           welshToggleCheck("Welsh")
-          h1Check(h1Expected)
+          h1Check(h1Expected + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
 
           buttonCheck(submitText, submitButton)
@@ -350,7 +350,7 @@ class InterestCYAViewSpec extends ViewTest {
 
           titleCheck(titleExpected)
           welshToggleCheck("Welsh")
-          h1Check(h1Expected)
+          h1Check(h1Expected + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
 
           buttonCheck(submitText, submitButton)

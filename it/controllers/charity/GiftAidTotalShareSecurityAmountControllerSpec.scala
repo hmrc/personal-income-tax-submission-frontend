@@ -96,7 +96,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck(ExpectedResultsEn.heading)
-          h1Check(ExpectedResultsEn.heading)
+          h1Check(ExpectedResultsEn.heading + " " + ExpectedResultsEn.caption)
           inputFieldCheck(ExpectedResultsEn.inputName, Selectors.inputField)
           textOnPageCheck(ExpectedResultsEn.inputLabel, Selectors.inputLabel)
           hintTextCheck(ExpectedResultsEn.hintText)
@@ -126,7 +126,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck(ExpectedResultsEn.heading)
-          h1Check(ExpectedResultsEn.heading)
+          h1Check(ExpectedResultsEn.heading + " " + ExpectedResultsEn.caption)
           inputFieldCheck(ExpectedResultsEn.inputName, Selectors.inputField)
           textOnPageCheck(ExpectedResultsEn.inputLabel, Selectors.inputLabel)
           hintTextCheck(ExpectedResultsEn.hintText)
@@ -174,7 +174,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
             titleCheck("Error: " + ExpectedResultsEn.heading)
-            h1Check(ExpectedResultsEn.heading)
+            h1Check(ExpectedResultsEn.heading + " " + ExpectedResultsEn.caption)
             inputFieldCheck(ExpectedResultsEn.inputName, Selectors.inputField)
             textOnPageCheck(ExpectedResultsEn.inputLabel, Selectors.inputLabel)
             hintTextCheck(ExpectedResultsEn.hintText)
@@ -198,7 +198,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
             titleCheck("Error: " + ExpectedResultsEn.heading)
-            h1Check(ExpectedResultsEn.heading)
+            h1Check(ExpectedResultsEn.heading + " " + ExpectedResultsEn.caption)
             inputFieldCheck(ExpectedResultsEn.inputName, Selectors.inputField)
             textOnPageCheck(ExpectedResultsEn.inputLabel, Selectors.inputLabel)
             hintTextCheck(ExpectedResultsEn.hintText)
@@ -222,7 +222,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
             titleCheck("Error: " + ExpectedResultsEn.heading)
-            h1Check(ExpectedResultsEn.heading)
+            h1Check(ExpectedResultsEn.heading + " " + ExpectedResultsEn.caption)
             inputFieldCheck(ExpectedResultsEn.inputName, Selectors.inputField)
             textOnPageCheck(ExpectedResultsEn.inputLabel, Selectors.inputLabel)
             hintTextCheck(ExpectedResultsEn.hintText)
@@ -280,7 +280,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
             titleCheck("Error: " + ExpectedResultsEn.heading)
-            h1Check(ExpectedResultsEn.heading)
+            h1Check(ExpectedResultsEn.heading + " " + ExpectedResultsEn.caption)
             inputFieldCheck(ExpectedResultsEn.inputName, Selectors.inputField)
             textOnPageCheck(ExpectedResultsEn.inputLabel, Selectors.inputLabel)
             hintTextCheck(ExpectedResultsEn.hintText)
@@ -310,7 +310,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
             titleCheck("Error: " + ExpectedResultsEn.heading)
-            h1Check(ExpectedResultsEn.heading)
+            h1Check(ExpectedResultsEn.heading + " " + ExpectedResultsEn.caption)
             inputFieldCheck(ExpectedResultsEn.inputName, Selectors.inputField)
             textOnPageCheck(ExpectedResultsEn.inputLabel, Selectors.inputLabel)
             hintTextCheck(ExpectedResultsEn.hintText)
@@ -340,7 +340,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
             titleCheck("Error: " + ExpectedResultsEn.heading)
-            h1Check(ExpectedResultsEn.heading)
+            h1Check(ExpectedResultsEn.heading + " " + ExpectedResultsEn.caption)
             inputFieldCheck(ExpectedResultsEn.inputName, Selectors.inputField)
             textOnPageCheck(ExpectedResultsEn.inputLabel, Selectors.inputLabel)
             hintTextCheck(ExpectedResultsEn.hintText)
@@ -377,7 +377,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck(ExpectedResultsCy.heading)
-          h1Check(ExpectedResultsCy.heading)
+          h1Check(ExpectedResultsCy.heading + " " + ExpectedResultsCy.caption)
           inputFieldCheck(ExpectedResultsCy.inputName, Selectors.inputField)
           textOnPageCheck(ExpectedResultsCy.inputLabel, Selectors.inputLabel)
           hintTextCheck(ExpectedResultsCy.hintText)
@@ -411,7 +411,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck(ExpectedResultsCy.heading)
-          h1Check(ExpectedResultsCy.heading)
+          h1Check(ExpectedResultsCy.heading + " " + ExpectedResultsCy.caption)
           inputFieldCheck(ExpectedResultsCy.inputName, Selectors.inputField)
           textOnPageCheck(ExpectedResultsCy.inputLabel, Selectors.inputLabel)
           hintTextCheck(ExpectedResultsCy.hintText)
@@ -459,7 +459,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
             titleCheck("Error: " + ExpectedResultsCy.heading)
-            h1Check(ExpectedResultsCy.heading)
+            h1Check(ExpectedResultsCy.heading + " " + ExpectedResultsCy.caption)
             inputFieldCheck(ExpectedResultsCy.inputName, Selectors.inputField)
             textOnPageCheck(ExpectedResultsCy.inputLabel, Selectors.inputLabel)
             hintTextCheck(ExpectedResultsCy.hintText)
@@ -483,7 +483,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
             titleCheck("Error: " + ExpectedResultsCy.heading)
-            h1Check(ExpectedResultsCy.heading)
+            h1Check(ExpectedResultsCy.heading + " " + ExpectedResultsCy.caption)
             inputFieldCheck(ExpectedResultsCy.inputName, Selectors.inputField)
             textOnPageCheck(ExpectedResultsCy.inputLabel, Selectors.inputLabel)
             hintTextCheck(ExpectedResultsCy.hintText)
@@ -507,7 +507,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
             titleCheck("Error: " + ExpectedResultsCy.heading)
-            h1Check(ExpectedResultsCy.heading)
+            h1Check(ExpectedResultsCy.heading + " " + ExpectedResultsCy.caption)
             inputFieldCheck(ExpectedResultsCy.inputName, Selectors.inputField)
             textOnPageCheck(ExpectedResultsCy.inputLabel, Selectors.inputLabel)
             hintTextCheck(ExpectedResultsCy.hintText)
@@ -573,7 +573,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
             titleCheck("Error: " + ExpectedResultsCy.heading)
-            h1Check(ExpectedResultsCy.heading)
+            h1Check(ExpectedResultsCy.heading + " " + ExpectedResultsCy.caption)
             inputFieldCheck(ExpectedResultsCy.inputName, Selectors.inputField)
             textOnPageCheck(ExpectedResultsCy.inputLabel, Selectors.inputLabel)
             hintTextCheck(ExpectedResultsCy.hintText)
@@ -607,7 +607,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
             titleCheck("Error: " + ExpectedResultsCy.heading)
-            h1Check(ExpectedResultsCy.heading)
+            h1Check(ExpectedResultsCy.heading + " " + ExpectedResultsCy.caption)
             inputFieldCheck(ExpectedResultsCy.inputName, Selectors.inputField)
             textOnPageCheck(ExpectedResultsCy.inputLabel, Selectors.inputLabel)
             hintTextCheck(ExpectedResultsCy.hintText)
@@ -641,7 +641,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
             titleCheck("Error: " + ExpectedResultsCy.heading)
-            h1Check(ExpectedResultsCy.heading)
+            h1Check(ExpectedResultsCy.heading + " " + ExpectedResultsCy.caption)
             inputFieldCheck(ExpectedResultsCy.inputName, Selectors.inputField)
             textOnPageCheck(ExpectedResultsCy.inputLabel, Selectors.inputLabel)
             hintTextCheck(ExpectedResultsCy.hintText)

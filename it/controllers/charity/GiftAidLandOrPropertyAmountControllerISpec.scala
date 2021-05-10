@@ -96,7 +96,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
           result.status shouldBe OK
         }
         titleCheck(expectedTitle)
-        h1Check(expectedHeading)
+        h1Check(expectedHeading + " " + expectedCaption)
         welshToggleCheck("English")
         textOnPageCheck(expectedCaption, captionSelector)
         textOnPageCheck(expectedContent, contentSelector)
@@ -118,7 +118,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
           result.status shouldBe OK
         }
         titleCheck(expectedTitleCy)
-        h1Check(expectedHeadingCy)
+        h1Check(expectedHeadingCy + " " + expectedCaptionCy)
         welshToggleCheck(WELSH)
         textOnPageCheck(expectedCaptionCy, captionSelector)
         textOnPageCheck(expectedContentCy, contentSelector)
@@ -280,7 +280,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
           result.status shouldBe OK
         }
         titleCheck(expectedTitle)
-        h1Check(expectedHeading)
+        h1Check(expectedHeading + " " + expectedCaption)
         textOnPageCheck(expectedCaption, captionSelector)
         textOnPageCheck(expectedContent, contentSelector)
         textOnPageCheck(expectedHint, inputHintTextSelector)
@@ -308,7 +308,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
           result.status shouldBe OK
         }
         titleCheck(expectedTitleCy)
-        h1Check(expectedHeadingCy)
+        h1Check(expectedHeadingCy + " " + expectedCaptionCy)
         textOnPageCheck(expectedCaptionCy, captionSelector)
         textOnPageCheck(expectedContentCy, contentSelector)
         textOnPageCheck(expectedHintCy, inputHintTextSelector)

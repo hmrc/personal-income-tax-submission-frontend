@@ -79,7 +79,7 @@ class RemoveOverseasCharityControllerISpec extends IntegrationTest {
         "displays the page content" in {
 
           document.title() shouldBe Content.expectedTitle
-          document.select(Selectors.heading).text() shouldBe Content.expectedH1
+          document.select(Selectors.heading).text() shouldBe Content.expectedH1 + " " + Content.expectedCaption
           document.select(Selectors.caption).text() shouldBe Content.expectedCaption
           document.select(Selectors.yesRadioButton).text() shouldBe Content.yesText
           document.select(Selectors.noRadioButton).text() shouldBe Content.noText

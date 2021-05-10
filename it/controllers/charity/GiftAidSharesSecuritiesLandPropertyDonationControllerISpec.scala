@@ -80,7 +80,7 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Integra
         "has the following page elements" which {
           titleCheck(expectedTitle)
           welshToggleCheck("English")
-          h1Check(expectedH1)
+          h1Check(expectedH1 + " " + captionText)
           textOnPageCheck(captionText, captionSelector)
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
@@ -130,7 +130,7 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Integra
             s"has the following elements" which {
               titleCheck(expectedErrorTitle)
               welshToggleCheck("English")
-              h1Check(expectedH1)
+              h1Check(expectedH1 + " " + captionText)
               textOnPageCheck(captionText, captionSelector)
               errorSummaryCheck(expectedError, errorSummaryHref)
               errorAboveElementCheck(expectedError)
@@ -178,7 +178,7 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Integra
         "has the following page elements" which {
           titleCheck(expectedTitle)
           welshToggleCheck("English")
-          h1Check(expectedH1)
+          h1Check(expectedH1 + " " + captionText)
           textOnPageCheck(captionText, captionSelector)
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
@@ -258,7 +258,7 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Integra
           "has the following page elements" which {
             titleCheck(expectedErrorTitle)
             welshToggleCheck("English")
-            h1Check(expectedH1)
+            h1Check(expectedH1 + " " + captionText)
             textOnPageCheck(captionText, captionSelector)
             errorSummaryCheck(expectedError, errorSummaryHref)
             errorAboveElementCheck(expectedError)

@@ -54,7 +54,7 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
     "to z, hyphens, spaces, apostrophes, commas, full stops, round brackets and the special characters, &, /, @, £, *."
   val expectedDuplicateError: String = "You cannot add 2 charities with the same name"
 
-  val captionSelector: String = "#main-content > div > div > form > div > label > header > p"
+  val captionSelector: String = ".govuk-caption-l"
   val inputFieldSelector: String = "#name"
   val buttonSelector: String = ".govuk-button"
   val inputHintTextSelector: String = "#main-content > div > div > form > div > label > p"
@@ -86,7 +86,7 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
         "has an OK(200) status with the correct content" in {
           result.status shouldBe OK
           document.title() shouldBe s"$expectedTitle - $serviceName - $govUkExtension"
-          document.select(".govuk-heading-l").text() shouldBe expectedH1
+          document.select(".govuk-heading-l").text() shouldBe expectedH1 + " " + expectedCaption
           document.select(captionSelector).text() shouldBe expectedCaption
           document.select(inputHintTextSelector).text() shouldBe expectedInputHintText
           document.select(inputFieldSelector).attr("name")
@@ -199,7 +199,7 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
         "has an OK(200) status with the correct content" in {
           result.status shouldBe OK
           document.title() shouldBe s"$expectedTitle - $serviceName - $govUkExtension"
-          document.select(".govuk-heading-l").text() shouldBe expectedH1
+          document.select(".govuk-heading-l").text() shouldBe expectedH1 + " " + expectedCaption
           document.select(captionSelector).text() shouldBe expectedCaption
           document.select(inputHintTextSelector).text() shouldBe expectedInputHintText
           document.select(inputFieldSelector).attr("name")

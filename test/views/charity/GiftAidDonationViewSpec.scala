@@ -58,7 +58,7 @@ class GiftAidDonationViewSpec extends ViewTest {
 
         titleCheck(expectedIndividualTitle)
         welshToggleCheck("English")
-        h1Check(expectedIndividualH1)
+        h1Check(expectedIndividualH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
@@ -77,7 +77,7 @@ class GiftAidDonationViewSpec extends ViewTest {
 
         titleCheck(expectedIndividualErrorTitle)
         welshToggleCheck("English")
-        h1Check(expectedIndividualH1)
+        h1Check(expectedIndividualH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
         errorSummaryCheck(expectedErrorText, errorSummaryHref)
         errorAboveElementCheck(expectedErrorText)
@@ -98,7 +98,7 @@ class GiftAidDonationViewSpec extends ViewTest {
 
         titleCheck(expectedAgentTitle)
         welshToggleCheck("English")
-        h1Check(expectedAgentH1)
+        h1Check(expectedAgentH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
@@ -117,7 +117,7 @@ class GiftAidDonationViewSpec extends ViewTest {
 
         titleCheck(expectedAgentErrorTitle)
         welshToggleCheck("English")
-        h1Check(expectedAgentH1)
+        h1Check(expectedAgentH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
         errorSummaryCheck(expectedErrorText, errorSummaryHref)
         errorAboveElementCheck(expectedErrorText)
@@ -141,7 +141,7 @@ class GiftAidDonationViewSpec extends ViewTest {
 
         titleCheck(expectedIndividualTitle)
         welshToggleCheck("Welsh")
-        h1Check(expectedIndividualH1)
+        h1Check(expectedIndividualH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
@@ -160,7 +160,7 @@ class GiftAidDonationViewSpec extends ViewTest {
 
         titleCheck(expectedIndividualErrorTitle)
         welshToggleCheck("Welsh")
-        h1Check(expectedIndividualH1)
+        h1Check(expectedIndividualH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
         errorSummaryCheck(expectedErrorText, errorSummaryHref)
         errorAboveElementCheck(expectedErrorText)
@@ -181,7 +181,7 @@ class GiftAidDonationViewSpec extends ViewTest {
 
         titleCheck(expectedAgentTitle)
         welshToggleCheck("Welsh")
-        h1Check(expectedAgentH1)
+        h1Check(expectedAgentH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
@@ -200,7 +200,7 @@ class GiftAidDonationViewSpec extends ViewTest {
 
         titleCheck(expectedAgentErrorTitle)
         welshToggleCheck("Welsh")
-        h1Check(expectedAgentH1)
+        h1Check(expectedAgentH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
         errorSummaryCheck(expectedErrorText, errorSummaryHref)
         errorAboveElementCheck(expectedErrorText)

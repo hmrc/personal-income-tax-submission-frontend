@@ -84,7 +84,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           titleCheck(expectedTitle)
           welshToggleCheck("English")
-          h1Check(expectedH1)
+          h1Check( expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
           inputFieldCheck(amountInputName, inputSelector)
@@ -109,7 +109,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("English")
-            h1Check(expectedH1)
+            h1Check( expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -135,7 +135,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("English")
-            h1Check(expectedH1)
+            h1Check( expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -161,7 +161,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("English")
-            h1Check(expectedH1)
+            h1Check( expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -187,7 +187,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("English")
-            h1Check(expectedH1)
+            h1Check( expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -209,7 +209,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           titleCheck(expectedTitleAgent)
           welshToggleCheck("English")
-          h1Check(expectedH1Agent)
+          h1Check( expectedH1Agent + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
           inputFieldCheck(amountInputName, inputSelector)
@@ -234,7 +234,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
-            h1Check(expectedH1Agent)
+            h1Check( expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -260,7 +260,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
-            h1Check(expectedH1Agent)
+            h1Check( expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -286,7 +286,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
-            h1Check(expectedH1Agent)
+            h1Check( expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -312,7 +312,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
-            h1Check(expectedH1Agent)
+            h1Check( expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -342,7 +342,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           titleCheck(expectedTitle)
           welshToggleCheck("English")
-          h1Check(expectedH1)
+          h1Check( expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
           textOnPageCheck(youToldUsPriorTextIndividual(priorAmount.toString), youToldUsSelector)
@@ -366,7 +366,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("English")
-            h1Check(expectedH1)
+            h1Check( expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -389,7 +389,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("English")
-            h1Check(expectedH1)
+            h1Check( expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -412,7 +412,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("English")
-            h1Check(expectedH1)
+            h1Check( expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -435,7 +435,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("English")
-            h1Check(expectedH1)
+            h1Check( expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -464,7 +464,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           titleCheck(expectedTitleAgent)
           welshToggleCheck("English")
-          h1Check(expectedH1Agent)
+          h1Check( expectedH1Agent + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
           textOnPageCheck(youToldUsPriorTextAgent(priorAmount.toString), youToldUsSelector)
@@ -488,7 +488,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
-            h1Check(expectedH1Agent)
+            h1Check( expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -511,7 +511,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
-            h1Check(expectedH1Agent)
+            h1Check( expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -534,7 +534,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
-            h1Check(expectedH1Agent)
+            h1Check( expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -557,7 +557,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
-            h1Check(expectedH1Agent)
+            h1Check( expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -583,7 +583,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           titleCheck(expectedTitle)
           welshToggleCheck("Welsh")
-          h1Check(expectedH1)
+          h1Check( expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
           inputFieldCheck(amountInputName, inputSelector)
@@ -607,7 +607,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1)
+            h1Check( expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -632,7 +632,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1)
+            h1Check( expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -657,7 +657,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1)
+            h1Check( expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -682,7 +682,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1)
+            h1Check( expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -703,7 +703,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           titleCheck(expectedTitleAgent)
           welshToggleCheck("Welsh")
-          h1Check(expectedH1Agent)
+          h1Check( expectedH1Agent + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
           inputFieldCheck(amountInputName, inputSelector)
@@ -727,7 +727,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1Agent)
+            h1Check( expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -752,7 +752,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1Agent)
+            h1Check( expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -777,7 +777,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1Agent)
+            h1Check( expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -802,7 +802,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1Agent)
+            h1Check( expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -831,7 +831,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           titleCheck(expectedTitle)
           welshToggleCheck("Welsh")
-          h1Check(expectedH1)
+          h1Check( expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
           inputFieldCheck(amountInputName, inputSelector)
@@ -853,7 +853,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1)
+            h1Check( expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -875,7 +875,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1)
+            h1Check( expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -897,7 +897,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1)
+            h1Check( expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -919,7 +919,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1)
+            h1Check( expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -947,7 +947,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
           titleCheck(expectedTitleAgent)
           welshToggleCheck("Welsh")
-          h1Check(expectedH1Agent)
+          h1Check( expectedH1Agent + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
           inputFieldCheck(amountInputName, inputSelector)
@@ -969,7 +969,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1Agent)
+            h1Check( expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -991,7 +991,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1Agent)
+            h1Check( expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -1013,7 +1013,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1Agent)
+            h1Check( expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
@@ -1035,7 +1035,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1Agent)
+            h1Check( expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(expectedErrorText, newAmountInput)
             errorAboveElementCheck(expectedErrorText)
