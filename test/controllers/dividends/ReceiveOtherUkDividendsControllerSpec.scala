@@ -18,12 +18,15 @@ package controllers.dividends
 
 import common.SessionValues
 import config.AppConfig
-import controllers.predicates.AuthorisedAction
+import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.YesNoForm
 import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
+import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.Result
+import play.api.test.Helpers
+import play.api.test.Helpers.defaultAwaitTimeout
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.tools.Stubs.stubMessagesControllerComponents
 import utils.UnitTestWithApp
@@ -37,6 +40,7 @@ class ReceiveOtherUkDividendsControllerSpec extends UnitTestWithApp {
     mockMessagesControllerComponents,
     authorisedAction,
     app.injector.instanceOf[ReceiveOtherUkDividendsView],
+    app.injector.instanceOf[QuestionsJourneyValidator],
     mockAppConfig
   )
 
@@ -47,7 +51,11 @@ class ReceiveOtherUkDividendsControllerSpec extends UnitTestWithApp {
     "return a result" which {
 
       s"has an OK($OK) status" in new TestWithAuth {
-        val result: Future[Result] = controller.show(taxYear)(fakeRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString))
+        val result: Future[Result] = controller.show(taxYear)(fakeRequest
+          .withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
+            SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(None, None, Some(true), None).asJsonString)
+          )
 
         status(result) shouldBe OK
       }
@@ -87,6 +95,30 @@ class ReceiveOtherUkDividendsControllerSpec extends UnitTestWithApp {
 
     }
 
+    "Redirect to the overview page" when {
+
+      "there is no prior submission and no cya data in session" in new TestWithAuth {
+        lazy val result: Future[Result] = {
+          controller.show(taxYear)(fakeRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString))
+        }
+
+        status(result) shouldBe SEE_OTHER
+        Helpers.header(HeaderNames.LOCATION, result) shouldBe Some(mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+      }
+
+      "there is a prior submission in session, but otherDividends is set to None" in new TestWithAuth {
+        lazy val result: Future[Result] = {
+          controller.show(taxYear)(fakeRequest.withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
+            SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(None, None)).toString()
+          ))
+        }
+
+        status(result) shouldBe SEE_OTHER
+        Helpers.header(HeaderNames.LOCATION, result) shouldBe Some(mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+      }
+    }
+
     "Redirect to the tax year error " when {
 
       "an invalid tax year has been added to the url" in new TestWithAuth() {
@@ -103,6 +135,7 @@ class ReceiveOtherUkDividendsControllerSpec extends UnitTestWithApp {
           mockMessagesControllerComponents,
           authorisedActionFeatureSwitch,
           app.injector.instanceOf[ReceiveOtherUkDividendsView],
+          app.injector.instanceOf[QuestionsJourneyValidator],
           mockAppConfFeatureSwitch
         )
 

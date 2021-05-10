@@ -18,29 +18,30 @@ package controllers.dividends
 
 import common.SessionValues
 import config.{AppConfig, DIVIDENDS}
-import controllers.predicates.AuthorisedAction
+import controllers.dividends.routes.OtherUkDividendsAmountController
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
-import forms.OtherDividendsAmountForm
+import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
+import forms.OtherDividendsAmountForm.otherDividendsAmountForm
+import models.question.QuestionsJourney
 import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, User}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
-import play.api.libs.json.{Json, Reads}
 import play.api.mvc._
 import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import utils.SessionHelper
 import views.html.dividends.OtherUkDividendsAmountView
 
 import javax.inject.Inject
 
 class OtherUkDividendsAmountController @Inject()(
-                                             implicit val cc: MessagesControllerComponents,
-                                             authAction: AuthorisedAction,
-                                             otherDividendsAmountView: OtherUkDividendsAmountView,
-                                             implicit val appConfig: AppConfig
-                                           ) extends FrontendController(cc) with I18nSupport {
-
-
+                                                  implicit val cc: MessagesControllerComponents,
+                                                  authAction: AuthorisedAction,
+                                                  otherDividendsAmountView: OtherUkDividendsAmountView,
+                                                  questionHelper: QuestionsJourneyValidator,
+                                                  implicit val appConfig: AppConfig
+                                           ) extends FrontendController(cc) with I18nSupport with SessionHelper {
 
   def view(
             formInput: Form[BigDecimal],
@@ -53,47 +54,45 @@ class OtherUkDividendsAmountController @Inject()(
       form = formInput,
       priorSubmission = priorSubmission,
       taxYear = taxYear,
-      postAction = controllers.dividends.routes.OtherUkDividendsAmountController.submit(taxYear),
+      postAction = OtherUkDividendsAmountController.submit(taxYear),
       preAmount = preAmount
     )
 
   }
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).apply { implicit user =>
-    val dividendsPriorSubmissionSession: Option[DividendsPriorSubmission] = getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
-    val checkYourAnswerSession: Option[DividendsCheckYourAnswersModel] = getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
+    implicit val questionsJourney: QuestionsJourney[DividendsCheckYourAnswersModel] = DividendsCheckYourAnswersModel.journey(taxYear)
 
-    val previousAmount: Option[BigDecimal] = checkYourAnswerSession.flatMap(_.otherUkDividendsAmount)
+    val priorSubmission = getModelFromSession[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
+    val cyaModel = getModelFromSession[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
 
-    (dividendsPriorSubmissionSession, checkYourAnswerSession) match {
-      case (Some(submission@DividendsPriorSubmission(_, Some(prior))), _) =>
+    questionHelper.validate(OtherUkDividendsAmountController.show(taxYear), cyaModel, taxYear) {
+      val priorOtherDividendAmount: Option[BigDecimal] = priorSubmission.flatMap(_.otherUkDividends)
+      val cyaOtherDividendAmount: Option[BigDecimal] = cyaModel.flatMap(_.otherUkDividendsAmount)
 
-        if(previousAmount.contains(prior)) {
-          Ok(view(OtherDividendsAmountForm.otherDividendsAmountForm, Some(submission), taxYear, previousAmount))
-        }
-        else {
-          Ok(view(OtherDividendsAmountForm.otherDividendsAmountForm.fill(previousAmount.getOrElse(prior)), Some(submission), taxYear, previousAmount))
-        }
+      val amountForm = (priorOtherDividendAmount, cyaOtherDividendAmount) match {
+        case (priorAmountOpt, Some(cyaAmount)) if !priorAmountOpt.contains(cyaAmount) => otherDividendsAmountForm.fill(cyaAmount)
+        case (None, Some(cyaAmount)) => otherDividendsAmountForm.fill(cyaAmount)
+        case _ => otherDividendsAmountForm
+      }
 
-      case (None, Some(cya)) =>
-        Ok(view(cya.otherUkDividendsAmount.fold(
-          OtherDividendsAmountForm.otherDividendsAmountForm
-        )(amount => OtherDividendsAmountForm.otherDividendsAmountForm.fill(amount)),
-          taxYear = taxYear, preAmount = cya.otherUkDividendsAmount))
-      case _ =>
-        Ok(view(OtherDividendsAmountForm.otherDividendsAmountForm, taxYear = taxYear))
+      (priorSubmission, cyaModel) match {
+        case (Some(submission: DividendsPriorSubmission), _) => Ok(view(amountForm, Some(submission), taxYear, cyaOtherDividendAmount))
+        case (None, Some(cya)) => Ok(view(amountForm, taxYear = taxYear, preAmount = cya.otherUkDividendsAmount))
+        case _ => Ok(view(otherDividendsAmountForm, taxYear = taxYear))
+      }
     }
   }
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, DIVIDENDS)) { implicit user =>
 
     implicit val priorSubmissionSessionData: Option[DividendsPriorSubmission] =
-      getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
+      getModelFromSession[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
 
-    val previousAmount: Option[BigDecimal] = getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
-      .flatMap(_.otherUkDividendsAmount)
+    val previousAmount: Option[BigDecimal] =
+      getModelFromSession[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA).flatMap(_.otherUkDividendsAmount)
 
-    OtherDividendsAmountForm.otherDividendsAmountForm.bindFromRequest().fold(
+    otherDividendsAmountForm.bindFromRequest().fold(
       {
         formWithErrors => BadRequest(view(formWithErrors, taxYear = taxYear,
           priorSubmission = priorSubmissionSessionData, preAmount = previousAmount))
@@ -109,12 +108,6 @@ class OtherUkDividendsAmountController @Inject()(
           }
       }
     )
-  }
-
-  private[dividends] def getSessionData[T](key: String)(implicit user: User[_], reads: Reads[T]): Option[T] = {
-    user.session.get(key).flatMap { stringValue =>
-      Json.parse(stringValue).asOpt[T]
-    }
   }
 
 }

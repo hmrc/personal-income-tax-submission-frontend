@@ -18,7 +18,7 @@ package controllers.dividends
 
 import common.SessionValues
 import config.AppConfig
-import controllers.predicates.AuthorisedAction
+import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.YesNoForm
 import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import play.api.http.Status._
@@ -37,6 +37,7 @@ class ReceiveUkDividendsControllerSpec extends UnitTestWithApp {
     mockMessagesControllerComponents,
     authorisedAction,
     app.injector.instanceOf[ReceiveUkDividendsView],
+    app.injector.instanceOf[QuestionsJourneyValidator],
     mockAppConfig
   )
 
@@ -44,7 +45,7 @@ class ReceiveUkDividendsControllerSpec extends UnitTestWithApp {
 
   ".show" should {
 
-    "return a result" which {
+    "return a result when there is no cya data or prior submission data" which {
 
       s"has an OK($OK) status" in new TestWithAuth {
         val result: Future[Result] = controller.show(taxYear)(fakeRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString))
@@ -103,6 +104,7 @@ class ReceiveUkDividendsControllerSpec extends UnitTestWithApp {
           mockMessagesControllerComponents,
           authorisedActionFeatureSwitch,
           app.injector.instanceOf[ReceiveUkDividendsView],
+          app.injector.instanceOf[QuestionsJourneyValidator],
           mockAppConfFeatureSwitch
         )
 

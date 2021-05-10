@@ -17,7 +17,11 @@
 package models
 
 import common.SessionValues
+import controllers.dividends.routes.{OtherUkDividendsAmountController, ReceiveOtherUkDividendsController, ReceiveUkDividendsController, UkDividendsAmountController}
+import models.question.Question.{WithDependency, WithoutDependency}
+import models.question.{Question, QuestionsJourney}
 import play.api.libs.json.{Json, OFormat}
+import play.api.mvc.Call
 
 case class DividendsCheckYourAnswersModel(
                                            ukDividends: Option[Boolean] = None,
@@ -52,7 +56,16 @@ object DividendsCheckYourAnswersModel {
     user.session.get(SessionValues.DIVIDENDS_CYA).flatMap{ stringValue =>
       Json.parse(stringValue).asOpt[DividendsCheckYourAnswersModel]
     }
-
   }
 
+  def journey(taxYear: Int): QuestionsJourney[DividendsCheckYourAnswersModel] = new QuestionsJourney[DividendsCheckYourAnswersModel] {
+    override def firstPage: Call = ReceiveUkDividendsController.show(taxYear)
+
+    override def questions(model: DividendsCheckYourAnswersModel): Set[Question] = Set(
+      WithoutDependency(model.ukDividends, ReceiveUkDividendsController.show(taxYear)),
+      WithDependency(model.ukDividendsAmount, model.ukDividends, UkDividendsAmountController.show(taxYear), ReceiveUkDividendsController.show(taxYear)),
+      WithoutDependency(model.otherUkDividends, ReceiveOtherUkDividendsController.show(taxYear)),
+      WithDependency(model.otherUkDividendsAmount, model.otherUkDividends, OtherUkDividendsAmountController.show(taxYear), ReceiveOtherUkDividendsController.show(taxYear))
+    )
+  }
 }
