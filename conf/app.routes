@@ -89,6 +89,9 @@ POST        /:taxYear/charity/add-charity-donations-to-last-tax-year            
 GET         /:taxYear/charity/donation-of-shares-securities-land-or-property                                 controllers.charity.GiftAidSharesSecuritiesLandPropertyDonationController.show(taxYear: Int)
 POST        /:taxYear/charity/donation-of-shares-securities-land-or-property                                 controllers.charity.GiftAidSharesSecuritiesLandPropertyDonationController.submit(taxYear: Int)
 
+GET         /:taxYear/charity/value-of-land-or-property                                                      controllers.charity.GiftAidLandOrPropertyAmountController.show(taxYear: Int)
+POST        /:taxYear/charity/value-of-land-or-property                                                      controllers.charity.GiftAidLandOrPropertyAmountController.submit(taxYear: Int)
+
 GET         /:taxYear/charity/amount-after-5-april-:someTaxYear-added-to-this-tax-year                       controllers.charity.GiftAidAppendNextYearTaxAmountController.show(taxYear: Int, someTaxYear: Int)
 POST        /:taxYear/charity/amount-after-5-april-:someTaxYear-added-to-this-tax-year                       controllers.charity.GiftAidAppendNextYearTaxAmountController.submit(taxYear: Int, someTaxYear: Int)
 
