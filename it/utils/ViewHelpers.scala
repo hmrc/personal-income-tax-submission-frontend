@@ -128,7 +128,7 @@ trait ViewHelpers { self: AnyWordSpec with Matchers =>
   }
 
   def inputFieldValueCheck(value: String, selector: String)(implicit document: () => Document): Unit = {
-    s"has a value of '$value'" in {
+    s"'$selector' has a value of '$value'" in {
       document().select(selector).attr("value") shouldBe value
     }
   }
