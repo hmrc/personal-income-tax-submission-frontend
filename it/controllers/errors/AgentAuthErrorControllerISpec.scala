@@ -19,7 +19,6 @@ package controllers.errors
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.libs.ws.{WSClient, WSResponse}
-import play.api.mvc.BodyParsers.utils.when
 import utils.{IntegrationTest, ViewHelpers}
 
 class AgentAuthErrorControllerISpec extends IntegrationTest with ViewHelpers {
