@@ -22,6 +22,7 @@ import play.api.test.{DefaultAwaitTimeout, FakeRequest}
 import utils.UnitTestWithApp
 import views.html.authErrorPages.YouNeedAgentServicesView
 
+
 class YouNeedAgentServicesControllerSpec extends UnitTestWithApp with DefaultAwaitTimeout {
 
   lazy val controller = new YouNeedAgentServicesController(mockMessagesControllerComponents, app.injector.instanceOf[YouNeedAgentServicesView], mockAppConfig)

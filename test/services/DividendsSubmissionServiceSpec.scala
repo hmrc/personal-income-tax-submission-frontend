@@ -38,13 +38,13 @@ class DividendsSubmissionServiceSpec extends UnitTestWithApp {
 
       val cyaData = DividendsCheckYourAnswersModel(
         ukDividends = Some(true),
-        Some(10),
+        Some(10.00),
         otherUkDividends = Some(true),
-        Some(10)
+        Some(10.00)
       )
       val dsmData = DividendsSubmissionModel(
-        Some(10),
-        Some(10)
+        Some(10.00),
+        Some(10.00)
       )
       val nino = "AA123456A"
       val mtdItid = "SomeMtdItid"
