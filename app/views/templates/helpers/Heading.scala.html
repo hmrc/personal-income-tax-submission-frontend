@@ -18,12 +18,8 @@
 
 @(heading: String, subheading: Option[String], extraClasses: String = "", size: String = "l")(implicit messages: Messages)
 
-<header class="hmrc-page-heading govuk-!-margin-0 @extraClasses">
-
-    <h1 class="govuk-heading-@{size} govuk-!-margin-0 @extraClasses">@messages(heading)</h1>
+<h1 class="hmrc-page-heading govuk-heading-@{size} govuk-!-margin-top-0 @extraClasses">@messages(heading)
     @subheading.map{ subheading =>
-        <p class="govuk-caption-@{size} hmrc-caption-xl">@messages(subheading)</p>
+        <span class="govuk-caption-@{size} hmrc-caption-xl">@messages(subheading)</span>
     }
-
-
-</header>
+</h1>

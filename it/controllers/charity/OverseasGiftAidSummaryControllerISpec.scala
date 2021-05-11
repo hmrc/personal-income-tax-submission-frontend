@@ -96,7 +96,7 @@ class OverseasGiftAidSummaryControllerISpec extends IntegrationTest {
         }
 
         "display the page content" in {
-          document.select(Selectors.heading).text() shouldBe Content.heading
+          document.select(Selectors.heading).text() shouldBe Content.heading + " " + Content.caption
           document.select(Selectors.caption).text() shouldBe Content.caption
           document.select(Selectors.charity1).text() shouldBe Content.charity1
           document.select(Selectors.change1).text() shouldBe Content.change
@@ -141,7 +141,7 @@ class OverseasGiftAidSummaryControllerISpec extends IntegrationTest {
         }
 
         "display the page content" in {
-          document.select(Selectors.heading).text() shouldBe Content.headingAgent
+          document.select(Selectors.heading).text() shouldBe Content.headingAgent + " " + Content.caption
           document.select(Selectors.caption).text() shouldBe Content.caption
           document.select(Selectors.charity1).text() shouldBe Content.charity1
           document.select(Selectors.change1).text() should include(Content.change)

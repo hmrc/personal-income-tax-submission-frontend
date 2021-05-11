@@ -124,7 +124,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
         implicit def document: () => Document = () => Jsoup.parse(result.body)
 
         titleCheck(ExpectedResults.headingIndividual)
-        h1Check(ExpectedResults.headingIndividual)
+        h1Check(ExpectedResults.headingIndividual + " " + ExpectedResults.caption)
         inputFieldCheck(ExpectedResults.inputName, Selectors.inputField)
         hintTextCheck(ExpectedResults.hintText)
         captionCheck(ExpectedResults.caption)
@@ -149,7 +149,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
         implicit def document: () => Document = () => Jsoup.parse(result.body)
 
         titleCheck(ExpectedResults.headingAgent)
-        h1Check(ExpectedResults.headingAgent)
+        h1Check(ExpectedResults.headingAgent + " " + ExpectedResults.caption)
         inputFieldCheck(ExpectedResults.inputName, Selectors.inputField)
         hintTextCheck(ExpectedResults.hintText)
         captionCheck(ExpectedResults.caption)
@@ -192,7 +192,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck("Error: " + ExpectedResults.headingIndividual)
-          h1Check(ExpectedResults.headingIndividual)
+          h1Check(ExpectedResults.headingIndividual + " " + ExpectedResults.caption)
           inputFieldCheck(ExpectedResults.inputName, Selectors.inputField)
           hintTextCheck(ExpectedResults.hintText)
           captionCheck(ExpectedResults.caption)
@@ -213,7 +213,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck("Error: " + ExpectedResults.headingIndividual)
-          h1Check(ExpectedResults.headingIndividual)
+          h1Check(ExpectedResults.headingIndividual + " " + ExpectedResults.caption)
           inputFieldCheck(ExpectedResults.inputName, Selectors.inputField)
           hintTextCheck(ExpectedResults.hintText)
           captionCheck(ExpectedResults.caption)
@@ -234,7 +234,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck("Error: " + ExpectedResults.headingIndividual)
-          h1Check(ExpectedResults.headingIndividual)
+          h1Check(ExpectedResults.headingIndividual + " " + ExpectedResults.caption)
           inputFieldCheck(ExpectedResults.inputName, Selectors.inputField)
           hintTextCheck(ExpectedResults.hintText)
           captionCheck(ExpectedResults.caption)
@@ -289,7 +289,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck("Error: " + ExpectedResults.headingAgent)
-          h1Check(ExpectedResults.headingAgent)
+          h1Check(ExpectedResults.headingAgent + " " + ExpectedResults.caption)
           inputFieldCheck(ExpectedResults.inputName, Selectors.inputField)
           hintTextCheck(ExpectedResults.hintText)
           captionCheck(ExpectedResults.caption)
@@ -316,7 +316,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck("Error: " + ExpectedResults.headingAgent)
-          h1Check(ExpectedResults.headingAgent)
+          h1Check(ExpectedResults.headingAgent + " " + ExpectedResults.caption)
           inputFieldCheck(ExpectedResults.inputName, Selectors.inputField)
           hintTextCheck(ExpectedResults.hintText)
           captionCheck(ExpectedResults.caption)
@@ -343,7 +343,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck("Error: " + ExpectedResults.headingAgent)
-          h1Check(ExpectedResults.headingAgent)
+          h1Check(ExpectedResults.headingAgent + " " + ExpectedResults.caption)
           inputFieldCheck(ExpectedResults.inputName, Selectors.inputField)
           hintTextCheck(ExpectedResults.hintText)
           captionCheck(ExpectedResults.caption)

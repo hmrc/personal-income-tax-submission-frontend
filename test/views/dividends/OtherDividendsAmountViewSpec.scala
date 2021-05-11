@@ -89,7 +89,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
           titleCheck(expectedTitle)
           welshToggleCheck("English")
-          h1Check(expectedH1)
+          h1Check(expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(tellUsTheValueIndividual,tellUsTheValueSelector)
           hintTextCheck(expectedHintText)
@@ -116,7 +116,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("English")
-            h1Check(expectedH1)
+            h1Check(expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(tellUsTheValueIndividual,tellUsTheValueSelector)
             hintTextCheck(expectedHintText)
@@ -144,7 +144,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("English")
-            h1Check(expectedH1)
+            h1Check(expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(tellUsTheValueIndividual,tellUsTheValueSelector)
             hintTextCheck(expectedHintText)
@@ -172,7 +172,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("English")
-            h1Check(expectedH1)
+            h1Check(expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(tellUsTheValueIndividual,tellUsTheValueSelector)
             hintTextCheck(expectedHintText)
@@ -200,7 +200,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("English")
-            h1Check(expectedH1)
+            h1Check(expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(tellUsTheValueIndividual,tellUsTheValueSelector)
             hintTextCheck(expectedHintText)
@@ -224,7 +224,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
           titleCheck(expectedTitleAgent)
           welshToggleCheck("English")
-          h1Check(expectedH1Agent)
+          h1Check(expectedH1Agent + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(tellUsTheValueAgent,tellUsTheValueSelector)
           hintTextCheck(expectedHintText)
@@ -251,7 +251,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
-            h1Check(expectedH1Agent)
+            h1Check(expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(tellUsTheValueAgent,tellUsTheValueSelector)
             hintTextCheck(expectedHintText)
@@ -278,7 +278,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
-            h1Check(expectedH1Agent)
+            h1Check(expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(tellUsTheValueAgent,tellUsTheValueSelector)
             hintTextCheck(expectedHintText)
@@ -306,7 +306,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
-            h1Check(expectedH1Agent)
+            h1Check(expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(tellUsTheValueAgent,tellUsTheValueSelector)
             hintTextCheck(expectedHintText)
@@ -334,7 +334,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
-            h1Check(expectedH1Agent)
+            h1Check(expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(tellUsTheValueAgent,tellUsTheValueSelector)
             hintTextCheck(expectedHintText)
@@ -366,7 +366,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
           titleCheck(expectedTitle)
           welshToggleCheck("English")
-          h1Check(expectedH1)
+          h1Check(expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(youToldUsPriorTextIndividual(priorAmount.toString), youToldUsSelector)
           hintTextCheck(expectedHintText)
@@ -391,7 +391,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("English")
-            h1Check(expectedH1)
+            h1Check(expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(youToldUsPriorTextIndividual(priorAmount.toString), youToldUsSelector)
             hintTextCheck(expectedHintText)
@@ -416,7 +416,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("English")
-            h1Check(expectedH1)
+            h1Check(expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(youToldUsPriorTextIndividual(priorAmount.toString), youToldUsSelector)
             hintTextCheck(expectedHintText)
@@ -441,7 +441,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("English")
-            h1Check(expectedH1)
+            h1Check(expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(youToldUsPriorTextIndividual(priorAmount.toString), youToldUsSelector)
             hintTextCheck(expectedHintText)
@@ -466,7 +466,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("English")
-            h1Check(expectedH1)
+            h1Check(expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(youToldUsPriorTextIndividual(priorAmount.toString), youToldUsSelector)
             hintTextCheck(expectedHintText)
@@ -494,7 +494,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
           titleCheck(expectedTitleAgent)
           welshToggleCheck("English")
-          h1Check(expectedH1Agent)
+          h1Check(expectedH1Agent + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(youToldUsPriorTextAgent(priorAmount.toString), youToldUsSelector)
           hintTextCheck(expectedHintText)
@@ -519,7 +519,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
-            h1Check(expectedH1Agent)
+            h1Check(expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(youToldUsPriorTextAgent(priorAmount.toString), youToldUsSelector)
             hintTextCheck(expectedHintText)
@@ -544,7 +544,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
-            h1Check(expectedH1Agent)
+            h1Check(expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(youToldUsPriorTextAgent(priorAmount.toString), youToldUsSelector)
             hintTextCheck(expectedHintText)
@@ -569,7 +569,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
-            h1Check(expectedH1Agent)
+            h1Check(expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(youToldUsPriorTextAgent(priorAmount.toString), youToldUsSelector)
             hintTextCheck(expectedHintText)
@@ -594,7 +594,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("English")
-            h1Check(expectedH1Agent)
+            h1Check(expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(youToldUsPriorTextAgent(priorAmount.toString), youToldUsSelector)
             hintTextCheck(expectedHintText)
@@ -623,7 +623,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
           titleCheck(expectedTitle)
           welshToggleCheck("Welsh")
-          h1Check(expectedH1)
+          h1Check(expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(tellUsTheValueIndividual,tellUsTheValueSelector)
           hintTextCheck(expectedHintText)
@@ -649,7 +649,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1)
+            h1Check(expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(tellUsTheValueIndividual,tellUsTheValueSelector)
             hintTextCheck(expectedHintText)
@@ -676,7 +676,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1)
+            h1Check(expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(tellUsTheValueIndividual,tellUsTheValueSelector)
             hintTextCheck(expectedHintText)
@@ -703,7 +703,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1)
+            h1Check(expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(tellUsTheValueIndividual,tellUsTheValueSelector)
             hintTextCheck(expectedHintText)
@@ -730,7 +730,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1)
+            h1Check(expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(tellUsTheValueIndividual,tellUsTheValueSelector)
             hintTextCheck(expectedHintText)
@@ -753,7 +753,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
           titleCheck(expectedTitleAgent)
           welshToggleCheck("Welsh")
-          h1Check(expectedH1Agent)
+          h1Check(expectedH1Agent + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(tellUsTheValueAgent,tellUsTheValueSelector)
           hintTextCheck(expectedHintText)
@@ -779,7 +779,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1Agent)
+            h1Check(expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(tellUsTheValueAgent,tellUsTheValueSelector)
             hintTextCheck(expectedHintText)
@@ -805,7 +805,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1Agent)
+            h1Check(expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(tellUsTheValueAgent,tellUsTheValueSelector)
             hintTextCheck(expectedHintText)
@@ -832,7 +832,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1Agent)
+            h1Check(expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(tellUsTheValueAgent,tellUsTheValueSelector)
             hintTextCheck(expectedHintText)
@@ -859,7 +859,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1Agent)
+            h1Check(expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(tellUsTheValueAgent,tellUsTheValueSelector)
             hintTextCheck(expectedHintText)
@@ -890,7 +890,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
           titleCheck(expectedTitle)
           welshToggleCheck("Welsh")
-          h1Check(expectedH1)
+          h1Check(expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(youToldUsPriorTextIndividual(priorAmount.toString),youToldUsSelector)
           hintTextCheck(expectedHintText)
@@ -914,7 +914,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1)
+            h1Check(expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(youToldUsPriorTextIndividual(priorAmount.toString),youToldUsSelector)
             hintTextCheck(expectedHintText)
@@ -938,7 +938,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1)
+            h1Check(expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(youToldUsPriorTextIndividual(priorAmount.toString),youToldUsSelector)
             hintTextCheck(expectedHintText)
@@ -962,7 +962,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1)
+            h1Check(expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(youToldUsPriorTextIndividual(priorAmount.toString),youToldUsSelector)
             hintTextCheck(expectedHintText)
@@ -986,7 +986,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitle)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1)
+            h1Check(expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(youToldUsPriorTextIndividual(priorAmount.toString),youToldUsSelector)
             hintTextCheck(expectedHintText)
@@ -1013,7 +1013,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
           titleCheck(expectedTitleAgent)
           welshToggleCheck("Welsh")
-          h1Check(expectedH1Agent)
+          h1Check(expectedH1Agent + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(youToldUsPriorTextAgent(priorAmount.toString),youToldUsSelector)
           hintTextCheck(expectedHintText)
@@ -1037,7 +1037,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1Agent)
+            h1Check(expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(youToldUsPriorTextAgent(priorAmount.toString),youToldUsSelector)
             hintTextCheck(expectedHintText)
@@ -1061,7 +1061,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1Agent)
+            h1Check(expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(youToldUsPriorTextAgent(priorAmount.toString),youToldUsSelector)
             hintTextCheck(expectedHintText)
@@ -1085,7 +1085,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1Agent)
+            h1Check(expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(youToldUsPriorTextAgent(priorAmount.toString),youToldUsSelector)
             hintTextCheck(expectedHintText)
@@ -1109,7 +1109,7 @@ class OtherDividendsAmountViewSpec extends ViewTest {
 
             titleCheck(expectedErrorTitleAgent)
             welshToggleCheck("Welsh")
-            h1Check(expectedH1Agent)
+            h1Check(expectedH1Agent + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(youToldUsPriorTextAgent(priorAmount.toString),youToldUsSelector)
             hintTextCheck(expectedHintText)

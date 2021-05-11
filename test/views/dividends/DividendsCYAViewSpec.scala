@@ -93,7 +93,7 @@ class DividendsCYAViewSpec extends ViewTest {
 
           titleCheck(titleExpectedIndividual)
           welshToggleCheck("English")
-          h1Check(h1ExpectedIndividual)
+          h1Check(h1ExpectedIndividual + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
 
           "has an area for question 1" which {
@@ -147,7 +147,7 @@ class DividendsCYAViewSpec extends ViewTest {
 
           titleCheck(titleExpectedIndividual)
           welshToggleCheck("English")
-          h1Check(h1ExpectedIndividual)
+          h1Check(h1ExpectedIndividual + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
 
           "has an area for question 1" which {
@@ -177,7 +177,7 @@ class DividendsCYAViewSpec extends ViewTest {
 
           titleCheck(titleExpectedIndividual)
           welshToggleCheck("English")
-          h1Check(h1ExpectedIndividual)
+          h1Check(h1ExpectedIndividual + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
 
           "has an area for question 1" which {
@@ -216,7 +216,7 @@ class DividendsCYAViewSpec extends ViewTest {
 
           titleCheck(titleExpectedAgent)
           welshToggleCheck("English")
-          h1Check(h1ExpectedAgent)
+          h1Check(h1ExpectedAgent + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
 
           "has an area for question 1" which {
@@ -269,7 +269,7 @@ class DividendsCYAViewSpec extends ViewTest {
 
           titleCheck(titleExpectedAgent)
           welshToggleCheck("English")
-          h1Check(h1ExpectedAgent)
+          h1Check(h1ExpectedAgent + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
 
           "has an area for question 1" which {
@@ -299,7 +299,7 @@ class DividendsCYAViewSpec extends ViewTest {
 
           titleCheck(titleExpectedAgent)
           welshToggleCheck("English")
-          h1Check(h1ExpectedAgent)
+          h1Check(h1ExpectedAgent + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
 
           "has an area for question 1" which {
@@ -343,7 +343,7 @@ class DividendsCYAViewSpec extends ViewTest {
 
           titleCheck(titleExpectedIndividual)
           welshToggleCheck("Welsh")
-          h1Check(h1ExpectedIndividual)
+          h1Check(h1ExpectedIndividual + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
 
           "has an area for question 1" which {
@@ -403,7 +403,7 @@ class DividendsCYAViewSpec extends ViewTest {
 
           titleCheck(titleExpectedIndividual)
           welshToggleCheck("Welsh")
-          h1Check(h1ExpectedIndividual)
+          h1Check(h1ExpectedIndividual + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
 
           "has an area for question 1" which {
@@ -439,7 +439,7 @@ class DividendsCYAViewSpec extends ViewTest {
 
           titleCheck(titleExpectedIndividual)
           welshToggleCheck("Welsh")
-          h1Check(h1ExpectedIndividual)
+          h1Check(h1ExpectedIndividual + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
 
           "has an area for question 1" which {
@@ -483,7 +483,7 @@ class DividendsCYAViewSpec extends ViewTest {
 
           titleCheck(titleExpectedAgent)
           welshToggleCheck("Welsh")
-          h1Check(h1ExpectedAgent)
+          h1Check(h1ExpectedAgent + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
 
           "has an area for question 1" which {
@@ -542,7 +542,7 @@ class DividendsCYAViewSpec extends ViewTest {
 
           titleCheck(titleExpectedAgent)
           welshToggleCheck("Welsh")
-          h1Check(h1ExpectedAgent)
+          h1Check(h1ExpectedAgent + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
 
           "has an area for question 1" which {
@@ -578,7 +578,7 @@ class DividendsCYAViewSpec extends ViewTest {
 
           titleCheck(titleExpectedAgent)
           welshToggleCheck("Welsh")
-          h1Check(h1ExpectedAgent)
+          h1Check(h1ExpectedAgent + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
 
           "has an area for question 1" which {

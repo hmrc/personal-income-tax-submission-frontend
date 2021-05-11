@@ -70,7 +70,7 @@ class TaxedInterestViewSpec extends ViewTest {
 
         titleCheck(expectedIndividualTitle)
         welshToggleCheck("English")
-        h1Check(expectedIndividualH1)
+        h1Check(expectedIndividualH1 + " " + expectedCaption)
         textOnPageCheck(expectedCaption, captionSelector)
 
         textOnPageCheck(forExampleText, forExampleSelector)
@@ -99,7 +99,7 @@ class TaxedInterestViewSpec extends ViewTest {
 
         titleCheck(expectedIndividualErrorTitle)
         welshToggleCheck("English")
-        h1Check(expectedIndividualH1)
+        h1Check(expectedIndividualH1 + " " + expectedCaption)
         textOnPageCheck(expectedCaption, captionSelector)
         errorSummaryCheck(expectedErrorText, valueHref)
         errorAboveElementCheck(expectedErrorText)
@@ -116,7 +116,7 @@ class TaxedInterestViewSpec extends ViewTest {
 
         titleCheck(expectedAgentTitle)
         welshToggleCheck("English")
-        h1Check(expectedAgentH1)
+        h1Check(expectedAgentH1 + " " + expectedCaption)
         textOnPageCheck(expectedCaption, captionSelector)
 
         textOnPageCheck(forExampleText, forExampleSelector)
@@ -146,7 +146,7 @@ class TaxedInterestViewSpec extends ViewTest {
 
         titleCheck(expectedAgentErrorTitle)
         welshToggleCheck("English")
-        h1Check(expectedAgentH1)
+        h1Check(expectedAgentH1 + " " + expectedCaption)
         textOnPageCheck(expectedCaption, captionSelector)
         errorSummaryCheck(expectedErrorText, valueHref)
         errorAboveElementCheck(expectedErrorText)
@@ -166,7 +166,7 @@ class TaxedInterestViewSpec extends ViewTest {
 
         titleCheck(expectedIndividualTitle)
         welshToggleCheck("Welsh")
-        h1Check(expectedIndividualH1)
+        h1Check(expectedIndividualH1 + " " + expectedCaption)
         textOnPageCheck(expectedCaption, captionSelector)
 
         textOnPageCheck(forExampleText, forExampleSelector)
@@ -195,7 +195,7 @@ class TaxedInterestViewSpec extends ViewTest {
 
         titleCheck(expectedIndividualErrorTitle)
         welshToggleCheck("Welsh")
-        h1Check(expectedIndividualH1)
+        h1Check(expectedIndividualH1 + " " + expectedCaption)
         textOnPageCheck(expectedCaption, captionSelector)
         errorSummaryCheck(expectedErrorText, valueHref)
         errorAboveElementCheck(expectedErrorText)
@@ -212,7 +212,7 @@ class TaxedInterestViewSpec extends ViewTest {
 
         titleCheck(expectedAgentTitle)
         welshToggleCheck("Welsh")
-        h1Check(expectedAgentH1)
+        h1Check(expectedAgentH1 + " " + expectedCaption)
         textOnPageCheck(expectedCaption, captionSelector)
 
         textOnPageCheck(forExampleText, forExampleSelector)
@@ -242,7 +242,7 @@ class TaxedInterestViewSpec extends ViewTest {
 
         titleCheck(expectedAgentErrorTitle)
         welshToggleCheck("Welsh")
-        h1Check(expectedAgentH1)
+        h1Check(expectedAgentH1 + " " + expectedCaption)
         textOnPageCheck(expectedCaption, captionSelector)
         errorSummaryCheck(expectedErrorText, valueHref)
         errorAboveElementCheck(expectedErrorText)

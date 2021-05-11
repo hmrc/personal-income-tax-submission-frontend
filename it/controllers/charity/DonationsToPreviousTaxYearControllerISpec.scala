@@ -141,7 +141,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck(Content.expectedHeading)
-          h1Check(Content.expectedHeading)
+          h1Check(Content.expectedHeading + " " + Content.expectedCaption)
           textOnPageCheck(Content.expectedParagraph1Individual, Selectors.paragraph1HintText)
           textOnPageCheck(Content.expectedParagraph2Individual, Selectors.paragraph2HintText)
           radioButtonCheck(Content.yesText, 1)
@@ -168,7 +168,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck(Content.expectedHeading)
-          h1Check(Content.expectedHeading)
+          h1Check(Content.expectedHeading + " " + Content.expectedCaption)
           textOnPageCheck(Content.expectedParagraph1Agent, Selectors.paragraph1HintText)
           textOnPageCheck(Content.expectedParagraph2Agent, Selectors.paragraph2HintText)
           radioButtonCheck(Content.yesText, 1)
@@ -194,7 +194,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck(WelshContent.expectedHeading)
-          h1Check(WelshContent.expectedHeading)
+          h1Check(WelshContent.expectedHeading + " " + WelshContent.expectedCaption)
           textOnPageCheck(WelshContent.expectedParagraph1Individual, Selectors.paragraph1HintText)
           textOnPageCheck(WelshContent.expectedParagraph2Individual, Selectors.paragraph2HintText)
           radioButtonCheck(WelshContent.yesText, 1)
@@ -227,7 +227,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck(WelshContent.expectedHeading)
-          h1Check(WelshContent.expectedHeading)
+          h1Check(WelshContent.expectedHeading + " " + WelshContent.expectedCaption)
           textOnPageCheck(WelshContent.expectedParagraph1Agent, Selectors.paragraph1HintText)
           textOnPageCheck(WelshContent.expectedParagraph2Agent, Selectors.paragraph2HintText)
           radioButtonCheck(WelshContent.yesText, 1)
@@ -271,7 +271,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck("Error: " + Content.expectedHeading)
-          h1Check(Content.expectedHeading)
+          h1Check(Content.expectedHeading + " " + Content.expectedCaption)
           textOnPageCheck(Content.expectedParagraph1Individual, Selectors.paragraph1HintText)
           textOnPageCheck(Content.expectedParagraph2Individual, Selectors.paragraph2HintText)
           radioButtonCheck(Content.yesText, 1)
@@ -326,7 +326,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck("Error: " + Content.expectedHeading)
-          h1Check(Content.expectedHeading)
+          h1Check(Content.expectedHeading + " " + Content.expectedCaption)
           textOnPageCheck(Content.expectedParagraph1Agent, Selectors.paragraph1HintText)
           textOnPageCheck(Content.expectedParagraph2Agent, Selectors.paragraph2HintText)
           radioButtonCheck(Content.yesText, 1)
@@ -372,7 +372,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck("Error: " + WelshContent.expectedHeading)
-          h1Check(WelshContent.expectedHeading)
+          h1Check(WelshContent.expectedHeading + " " + WelshContent.expectedCaption)
           textOnPageCheck(WelshContent.expectedParagraph1Individual, Selectors.paragraph1HintText)
           textOnPageCheck(WelshContent.expectedParagraph2Individual, Selectors.paragraph2HintText)
           radioButtonCheck(WelshContent.yesText, 1)
@@ -437,7 +437,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck("Error: " + WelshContent.expectedHeading)
-          h1Check(WelshContent.expectedHeading)
+          h1Check(WelshContent.expectedHeading + " " + WelshContent.expectedCaption)
           textOnPageCheck(WelshContent.expectedParagraph1Agent, Selectors.paragraph1HintText)
           textOnPageCheck(WelshContent.expectedParagraph2Agent, Selectors.paragraph2HintText)
           radioButtonCheck(WelshContent.yesText, 1)

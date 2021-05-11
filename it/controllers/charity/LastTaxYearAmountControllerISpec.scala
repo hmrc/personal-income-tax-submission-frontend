@@ -72,7 +72,7 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
         "return the page" which {
           titleCheck(Content.heading)
-          h1Check(Content.heading)
+          h1Check(Content.heading + " " + Content.caption)
           textOnPageCheck(Content.para, Selectors.para)
           inputFieldCheck("amount", ".govuk-input")
           hintTextCheck(Content.hint)
@@ -106,7 +106,7 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
         "return the page" which {
           titleCheck(Content.headingAgent)
-          h1Check(Content.headingAgent)
+          h1Check(Content.headingAgent + " " + Content.caption)
           textOnPageCheck(Content.paraAgent, Selectors.para)
           inputFieldCheck("amount", ".govuk-input")
           hintTextCheck(Content.hint)
@@ -157,7 +157,7 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck("Error: " + Content.heading)
-          h1Check(Content.heading)
+          h1Check(Content.heading + " " + Content.caption)
           textOnPageCheck(Content.para, Selectors.para)
           inputFieldCheck("amount", ".govuk-input")
           hintTextCheck(Content.hint)
@@ -179,7 +179,7 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck("Error: " + Content.heading)
-          h1Check(Content.heading)
+          h1Check(Content.heading + " " + Content.caption)
           textOnPageCheck(Content.para, Selectors.para)
           inputFieldCheck("amount", ".govuk-input")
           hintTextCheck(Content.hint)
@@ -201,7 +201,7 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck("Error: " + Content.heading)
-          h1Check(Content.heading)
+          h1Check(Content.heading + " " + Content.caption)
           textOnPageCheck(Content.para, Selectors.para)
           inputFieldCheck("amount", ".govuk-input")
           hintTextCheck(Content.hint)
@@ -263,7 +263,7 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck("Error: " + Content.headingAgent)
-          h1Check(Content.headingAgent)
+          h1Check(Content.headingAgent + " " + Content.caption)
           textOnPageCheck(Content.paraAgent, Selectors.para)
           inputFieldCheck("amount", ".govuk-input")
           hintTextCheck(Content.hint)
@@ -291,7 +291,7 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck("Error: " + Content.headingAgent)
-          h1Check(Content.headingAgent)
+          h1Check(Content.headingAgent + " " + Content.caption)
           textOnPageCheck(Content.paraAgent, Selectors.para)
           inputFieldCheck("amount", ".govuk-input")
           hintTextCheck(Content.hint)
@@ -319,7 +319,7 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck("Error: " + Content.headingAgent)
-          h1Check(Content.headingAgent)
+          h1Check(Content.headingAgent + " " + Content.caption)
           textOnPageCheck(Content.paraAgent, Selectors.para)
           inputFieldCheck("amount", ".govuk-input")
           hintTextCheck(Content.hint)

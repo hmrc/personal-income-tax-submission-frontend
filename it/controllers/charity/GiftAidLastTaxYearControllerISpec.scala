@@ -59,7 +59,7 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
   val expectedContinue = "Continue"
 
   val continueSelector = "#continue"
-  val captionSelector: String = "#main-content > div > div > form > div > fieldset > legend > header > p"
+  val captionSelector: String = ".govuk-caption-l"
   val contentSelector1: String = "#main-content > div > div > form > div > fieldset > legend > div > p:nth-child(1)"
   val contentSelector2: String = "#main-content > div > div > form > div > fieldset > legend > div > p:nth-child(2)"
   val errorSummaryHref = "#value"
@@ -91,7 +91,7 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
 
           titleCheck(expectedTitle)
           welshToggleCheck("English")
-          h1Check(expectedH1)
+          h1Check(expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(expectedContent1, contentSelector1)
           textOnPageCheck(expectedContent2, contentSelector2)
@@ -190,7 +190,7 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
         }
         titleCheck(expectedTitle)
         welshToggleCheck("English")
-        h1Check(expectedH1)
+        h1Check(expectedH1 + " " + expectedCaption)
         textOnPageCheck(expectedCaption, captionSelector)
         textOnPageCheck(expectedContent1, contentSelector1)
         textOnPageCheck(expectedContent2, contentSelector2)

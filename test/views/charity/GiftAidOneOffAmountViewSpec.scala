@@ -70,7 +70,7 @@ class GiftAidOneOffAmountViewSpec extends ViewTest {
       implicit lazy val document: Document = Jsoup.parse(view(taxYear, form(false), None).body)
 
       titleCheck(expectedTitle)
-      h1Check(expectedH1)
+      h1Check(expectedH1 + " " + expectedCaption)
       textOnPageCheck(expectedCaption, captionSelector)
       textOnPageCheck(expectedParagraph, paragraphSelector)
       textOnPageCheck(expectedInputLabelText, inputLabelSelector)
@@ -86,7 +86,7 @@ class GiftAidOneOffAmountViewSpec extends ViewTest {
       implicit lazy val document: Document = Jsoup.parse(view(taxYear, form(true), None).body)
 
       titleCheck(expectedTitle)
-      h1Check(expectedH1)
+      h1Check(expectedH1 + " " + expectedCaption)
       textOnPageCheck(expectedCaption, captionSelector)
       textOnPageCheck(expectedParagraph, paragraphSelector)
       textOnPageCheck(expectedInputLabelText, inputLabelSelector)
@@ -106,7 +106,7 @@ class GiftAidOneOffAmountViewSpec extends ViewTest {
       implicit lazy val document: Document = Jsoup.parse(view(taxYear, form(false).bind(Map("amount" -> "")), None).body)
 
       titleCheck(expectedErrorTitle)
-      h1Check(expectedH1)
+      h1Check(expectedH1 + " " + expectedCaption)
       textOnPageCheck(expectedCaption, captionSelector)
       textOnPageCheck(expectedParagraph, paragraphSelector)
       textOnPageCheck(expectedInputLabelText, inputLabelSelector)
@@ -125,7 +125,7 @@ class GiftAidOneOffAmountViewSpec extends ViewTest {
       implicit lazy val document: Document = Jsoup.parse(view(taxYear, form(true).bind(Map("amount" -> "")), None).body)
 
       titleCheck(expectedErrorTitle)
-      h1Check(expectedH1)
+      h1Check(expectedH1 + " " + expectedCaption)
       textOnPageCheck(expectedCaption, captionSelector)
       textOnPageCheck(expectedParagraph, paragraphSelector)
       textOnPageCheck(expectedInputLabelText, inputLabelSelector)
