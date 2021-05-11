@@ -21,6 +21,7 @@ import play.api.libs.json.{Json, OWrites}
 
 case class CreateOrAmendDividendsAuditDetail(body: Option[DividendsCheckYourAnswersModel],
                                              prior: Option[DividendsPriorSubmission],
+                                             isUpdate: Boolean,
                                              nino: String,
                                              mtditid: String,
                                              userType: String,

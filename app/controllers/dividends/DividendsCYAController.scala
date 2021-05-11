@@ -96,7 +96,7 @@ class DividendsCYAController @Inject()(
 
     dividendsSubmissionService.submitDividends(cyaData, user.nino, user.mtditid, taxYear).map {
       case Right(DividendsResponseModel(_)) =>
-        auditSubmission(CreateOrAmendDividendsAuditDetail(cyaData, priorData, user.nino, user.mtditid, user.affinityGroup.toLowerCase(), taxYear))
+        auditSubmission(CreateOrAmendDividendsAuditDetail(cyaData, priorData, priorData.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase(), taxYear))
         Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).removingFromSession(SessionValues.DIVIDENDS_CYA, SessionValues.DIVIDENDS_PRIOR_SUB)
       case Left(error) => errorHandler.handleError(error.status)
     }

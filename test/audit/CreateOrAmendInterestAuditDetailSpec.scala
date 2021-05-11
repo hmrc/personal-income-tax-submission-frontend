@@ -82,13 +82,14 @@ class CreateOrAmendInterestAuditDetailSpec extends UnitTest {
              |			"amount": 9001.01
              |		}]
              |	},
+             |  "isUpdate": true,
              |	"nino": "AA123456A",
              |	"mtditid": "1234567890",
              |  "userType": "Individual",
              |	"taxYear": 2020
              |}""".stripMargin)
 
-          val model = CreateOrAmendInterestAuditDetail(Some(body), Some(prior), nino, mtditid, userType, taxYear)
+          val model = CreateOrAmendInterestAuditDetail(Some(body), Some(prior), true, nino, mtditid, userType, taxYear)
         Json.toJson(model) shouldBe json
         }
       }

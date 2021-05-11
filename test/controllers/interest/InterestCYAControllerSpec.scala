@@ -251,7 +251,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
 
         "the submission is successful" in new TestWithAuth {
 
-          lazy val detail: CreateOrAmendInterestAuditDetail = CreateOrAmendInterestAuditDetail(Some(cyaModel), None, "AA123456A", "1234567890", individualAffinityGroup.toLowerCase, taxYear)
+          lazy val detail: CreateOrAmendInterestAuditDetail = CreateOrAmendInterestAuditDetail(Some(cyaModel), None, false, "AA123456A", "1234567890", individualAffinityGroup.toLowerCase, taxYear)
 
           lazy val event: AuditModel[CreateOrAmendInterestAuditDetail] = AuditModel("CreateOrAmendInterestUpdate", "createOrAmendInterestUpdate", detail)
 
@@ -317,7 +317,7 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
             ))
           )
           lazy val detail: CreateOrAmendInterestAuditDetail = CreateOrAmendInterestAuditDetail(Some(cyaModel),
-            Some(previousSubmission), "AA123456A", "1234567890", agentAffinityGroup.toLowerCase(), taxYear)
+            Some(previousSubmission), true, "AA123456A", "1234567890", agentAffinityGroup.toLowerCase(), taxYear)
 
           lazy val event: AuditModel[CreateOrAmendInterestAuditDetail] = AuditModel("CreateOrAmendInterestUpdate", "createOrAmendInterestUpdate", detail)
 

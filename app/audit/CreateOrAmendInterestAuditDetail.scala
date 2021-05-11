@@ -21,6 +21,7 @@ import play.api.libs.json.{Json, OWrites}
 
 case class CreateOrAmendInterestAuditDetail(body: Option[InterestCYAModel],
                                             prior: Option[InterestPriorSubmission],
+                                            isUpdate: Boolean,
                                             nino: String,
                                             mtditid: String,
                                             userType: String,
