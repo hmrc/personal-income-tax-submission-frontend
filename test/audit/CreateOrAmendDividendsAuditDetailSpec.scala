@@ -53,13 +53,14 @@ class CreateOrAmendDividendsAuditDetailSpec extends UnitTest {
             "ukDividends" -> 856.23,
             "otherUkDividends" -> 741.12
           ),
+          "isUpdate" -> true,
           "nino" -> "AA123456A",
           "mtditid" -> "1234567890",
           "userType" -> "Individual",
           "taxYear" -> 2020
         )
 
-          val model = CreateOrAmendDividendsAuditDetail(Some(body), Some(prior), nino, mtditid, userType, taxYear)
+          val model = CreateOrAmendDividendsAuditDetail(Some(body), Some(prior), true, nino, mtditid, userType, taxYear)
         Json.toJson(model) shouldBe json
         }
       }

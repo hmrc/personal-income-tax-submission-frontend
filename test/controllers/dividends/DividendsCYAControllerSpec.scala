@@ -301,7 +301,7 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
 
       "there is session data " in new TestWithAuth {
         lazy val detail: CreateOrAmendDividendsAuditDetail =
-          CreateOrAmendDividendsAuditDetail(Some(cyaSessionData), Some(priorData), "AA123456A", "1234567890", individualAffinityGroup.toLowerCase(), taxYear)
+          CreateOrAmendDividendsAuditDetail(Some(cyaSessionData), Some(priorData), true, "AA123456A", "1234567890", individualAffinityGroup.toLowerCase(), taxYear)
 
         lazy val event: AuditModel[CreateOrAmendDividendsAuditDetail] =
           AuditModel("CreateOrAmendDividendsUpdate", "createOrAmendDividendsUpdate", detail)

@@ -80,7 +80,7 @@ class InterestCYAController @Inject()(
     (cyaDataOptional match {
       case Some(cyaData) => interestSubmissionService.submit(cyaData, user.nino, taxYear, user.mtditid).map {
         case response@Right(_) =>
-          val model = CreateOrAmendInterestAuditDetail(Some(cyaData), priorSubmission, user.nino, user.mtditid, user.affinityGroup.toLowerCase, taxYear)
+          val model = CreateOrAmendInterestAuditDetail(Some(cyaData), priorSubmission, priorSubmission.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase, taxYear)
           auditSubmission(model)
           response
         case response => response
