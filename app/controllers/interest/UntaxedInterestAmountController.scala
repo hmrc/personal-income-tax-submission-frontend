@@ -19,7 +19,8 @@ package controllers.interest
 import common.InterestTaxTypes.UNTAXED
 import common.{InterestTaxTypes, SessionValues}
 import config.{AppConfig, INTEREST}
-import controllers.predicates.{AuthorisedAction, QuestionHelper}
+import controllers.interest.routes.UntaxedInterestAmountController
+import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.UntaxedInterestAmountForm
@@ -41,7 +42,8 @@ class UntaxedInterestAmountController @Inject()(
                                                  implicit val mcc: MessagesControllerComponents,
                                                  authAction: AuthorisedAction,
                                                  untaxedInterestAmountView: UntaxedInterestAmountView,
-                                                 implicit val appConfig: AppConfig
+                                                 implicit val appConfig: AppConfig,
+                                                 questionsJourneyValidator: QuestionsJourneyValidator
                                                ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper {
 
   val untaxedInterestAmountForm: Form[UntaxedInterestModel] = UntaxedInterestAmountForm.untaxedInterestAmountForm()
@@ -54,7 +56,7 @@ class UntaxedInterestAmountController @Inject()(
 
     implicit val journey: QuestionsJourney[InterestCYAModel] = InterestCYAModel.interestJourney(taxYear, Some(id))
 
-    QuestionHelper.validateQuestion(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, id), optionalCyaData, appConfig, taxYear) {
+    questionsJourneyValidator.validate(UntaxedInterestAmountController.show(taxYear, id), optionalCyaData, taxYear) {
       if (idMatchesPreviouslySubmittedAccount) {
         Redirect(controllers.interest.routes.ChangeAccountAmountController.show(taxYear, UNTAXED, id))
 
@@ -75,13 +77,13 @@ class UntaxedInterestAmountController @Inject()(
         Ok(untaxedInterestAmountView(
           form = model.fold(untaxedInterestAmountForm)(untaxedInterestAmountForm.fill),
           taxYear = taxYear,
-          postAction = controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear, id),
+          postAction = UntaxedInterestAmountController.submit(taxYear, id),
           isAgent = user.isAgent
         ))
       }
       else
       {
-        Redirect(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, randomUUID().toString))
+        Redirect(UntaxedInterestAmountController.show(taxYear, randomUUID().toString))
       }
     }
   }
@@ -92,7 +94,7 @@ class UntaxedInterestAmountController @Inject()(
         BadRequest(untaxedInterestAmountView(
           form = formWithErrors,
           taxYear = taxYear,
-          postAction = controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear, id),
+          postAction = UntaxedInterestAmountController.submit(taxYear, id),
           isAgent = user.isAgent
         ))
     }, {

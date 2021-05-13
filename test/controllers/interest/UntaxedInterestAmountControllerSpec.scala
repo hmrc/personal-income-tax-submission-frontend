@@ -20,7 +20,7 @@ import common.InterestTaxTypes.UNTAXED
 import common.SessionValues
 import config.AppConfig
 import controllers.interest.routes.{ChangeAccountAmountController, UntaxedInterestController}
-import controllers.predicates.AuthorisedAction
+import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.http.HeaderNames
 import play.api.http.Status._
@@ -39,7 +39,12 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp with DefaultAw
   implicit def wrapOptional[T](input: T): Option[T] = Some(input)
 
   lazy val view: UntaxedInterestAmountView = app.injector.instanceOf[UntaxedInterestAmountView]
-  lazy val controller = new UntaxedInterestAmountController()(mockMessagesControllerComponents, authorisedAction,view, mockAppConfig)
+  lazy val controller = new UntaxedInterestAmountController()(
+    mockMessagesControllerComponents,
+    authorisedAction,
+    view,
+    mockAppConfig,
+    app.injector.instanceOf[QuestionsJourneyValidator])
 
   val taxYear: Int = mockAppConfig.defaultTaxYear
   val id = "9563b361-6333-449f-8721-eab2572b3437"
@@ -135,7 +140,7 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp with DefaultAw
           agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
 
         lazy val featureSwitchController = new UntaxedInterestAmountController()(mockMessagesControllerComponents,
-          authorisedActionFeatureSwitchOn,view, mockAppConfFeatureSwitch)
+          authorisedActionFeatureSwitchOn,view, mockAppConfFeatureSwitch, app.injector.instanceOf[QuestionsJourneyValidator])
 
         val invalidTaxYear = 2023
         lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear, id)(fakeRequest)

@@ -73,7 +73,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
         implicit val document = () => Jsoup.parse(result.body)
 
         titleCheck("Check your income from dividends")
-        h1Check("Check your income from dividends")
+        h1Check("Check your income from dividends Dividends for 6 April 2021 to 5 April 2022")
       }
 
       "returns an action when data only cyaData is in session" which {
@@ -96,7 +96,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
         implicit val document: () => Document = () => Jsoup.parse(result.body)
 
         titleCheck("Did you get dividends from UK-based trusts or open-ended investment companies?")
-        h1Check("Did you get dividends from UK-based trusts or open-ended investment companies?")
+        h1Check("Did you get dividends from UK-based trusts or open-ended investment companies? Dividends for 6 April 2021 to 5 April 2022")
       }
 
       "returns an action when auth call fails" which {

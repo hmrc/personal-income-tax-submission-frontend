@@ -18,7 +18,7 @@ package controllers.interest
 
 import common.SessionValues
 import config.AppConfig
-import controllers.predicates.AuthorisedAction
+import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.YesNoForm
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.http.Status._
@@ -38,7 +38,7 @@ class TaxedInterestControllerSpec extends UnitTestWithApp with DefaultAwaitTimeo
 
   lazy val controller = new TaxedInterestController(
     app.injector.instanceOf[TaxedInterestView]
-  )(mockAppConfig, authorisedAction, mockMessagesControllerComponents)
+  )(mockAppConfig, authorisedAction, mockMessagesControllerComponents, app.injector.instanceOf[QuestionsJourneyValidator])
 
   val taxYear: Int = mockAppConfig.defaultTaxYear
   val id = "9563b361-6333-449f-8721-eab2572b3437"
@@ -110,7 +110,7 @@ class TaxedInterestControllerSpec extends UnitTestWithApp with DefaultAwaitTimeo
 
       lazy val featureSwitchController = new TaxedInterestController(
         app.injector.instanceOf[TaxedInterestView]
-      )(mockAppConfFeatureSwitch, authorisedActionFeatureSwitch, mockMessagesControllerComponents)
+      )(mockAppConfFeatureSwitch, authorisedActionFeatureSwitch, mockMessagesControllerComponents, app.injector.instanceOf[QuestionsJourneyValidator])
 
       val invalidTaxYear = 2023
       lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(fakeRequest.withSession(SessionValues.TAX_YEAR -> mockAppConfFeatureSwitch.defaultTaxYear.toString))

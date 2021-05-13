@@ -19,7 +19,7 @@ package controllers.interest
 import common.InterestTaxTypes.TAXED
 import common.{InterestTaxTypes, SessionValues}
 import config.{AppConfig, INTEREST}
-import controllers.predicates.{AuthorisedAction, QuestionHelper}
+import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.TaxedInterestAmountForm
@@ -43,7 +43,8 @@ class TaxedInterestAmountController @Inject()(
                                              )(
                                                implicit appConfig: AppConfig,
                                                authorisedAction: AuthorisedAction,
-                                               implicit val mcc: MessagesControllerComponents
+                                               implicit val mcc: MessagesControllerComponents,
+                                               questionsJourneyValidator: QuestionsJourneyValidator
                                              ) extends FrontendController(mcc) with InterestSessionHelper with I18nSupport {
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
@@ -57,7 +58,7 @@ class TaxedInterestAmountController @Inject()(
 
     implicit val journey: QuestionsJourney[InterestCYAModel] = InterestCYAModel.interestJourney(taxYear, Some(id))
 
-    QuestionHelper.validateQuestion(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id), optionalCyaData, appConfig, taxYear) {
+    questionsJourneyValidator.validate(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id), optionalCyaData, taxYear) {
 
       if (idMatchesPreviouslySubmittedAccount) {
         Redirect(controllers.interest.routes.ChangeAccountAmountController.show(taxYear, TAXED, id))

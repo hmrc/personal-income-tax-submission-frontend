@@ -18,7 +18,8 @@ package controllers.interest
 
 import common.SessionValues
 import config.{AppConfig, INTEREST}
-import controllers.predicates.{AuthorisedAction, QuestionHelper}
+import controllers.interest.routes.TaxedInterestController
+import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.YesNoForm
@@ -42,7 +43,8 @@ class TaxedInterestController @Inject()(
                                          taxedInterestView: TaxedInterestView
                                        )(implicit appConfig: AppConfig,
                                          authorisedAction: AuthorisedAction,
-                                         implicit val mcc: MessagesControllerComponents
+                                         implicit val mcc: MessagesControllerComponents,
+                                         questionsJourneyValidator: QuestionsJourneyValidator
                                         ) extends FrontendController(mcc) with InterestSessionHelper with I18nSupport {
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
@@ -55,7 +57,7 @@ class TaxedInterestController @Inject()(
       case Some(prior) if prior.hasTaxed => Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
       case _ =>
         val cyaData: Option[InterestCYAModel] = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
-        QuestionHelper.validateQuestion(controllers.interest.routes.TaxedInterestController.show(taxYear), cyaData, appConfig, taxYear) {
+        questionsJourneyValidator.validate(TaxedInterestController.show(taxYear), cyaData, taxYear) {
           val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(s"interest.taxed-uk-interest.errors.noRadioSelected.${if(user.isAgent) "agent" else "individual"}")
           Ok(taxedInterestView(cyaData.flatMap(_.taxedUkInterest).fold(yesNoForm)(yesNoForm.fill), taxYear))
         }

@@ -55,18 +55,19 @@ object InterestCYAModel {
     override val firstPage: Call = UntaxedInterestController.show(taxYear)
 
     override def questions(model: InterestCYAModel): Set[Question] = {
-      val x = idOpt.map{ id =>
+      val questionsUsingId = idOpt.map { id =>
         Set(
-        WithDependency(model.untaxedUkAccounts, model.untaxedUkInterest,
-          UntaxedInterestAmountController.show(taxYear, id),UntaxedInterestController.show(taxYear)),
-        WithDependency(model.taxedUkAccounts, model.taxedUkInterest,
-          TaxedInterestAmountController.show(taxYear, id), TaxedInterestController.show(taxYear))
-      )}.getOrElse(Seq.empty[Question])
+          WithDependency(model.untaxedUkAccounts, model.untaxedUkInterest,
+            UntaxedInterestAmountController.show(taxYear, id), UntaxedInterestController.show(taxYear)),
+          WithDependency(model.taxedUkAccounts, model.taxedUkInterest,
+            TaxedInterestAmountController.show(taxYear, id), TaxedInterestController.show(taxYear))
+        )
+      }.getOrElse(Seq.empty[Question])
 
       Set(
         WithoutDependency(model.untaxedUkInterest, UntaxedInterestController.show(taxYear)),
-        WithoutDependency(model.taxedUkInterest, TaxedInterestController.show(taxYear)),
-      ) ++ x
+        WithoutDependency(model.taxedUkInterest, TaxedInterestController.show(taxYear))
+      ) ++ questionsUsingId
     }
   }
 

@@ -54,7 +54,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
         implicit val document: () => Document = () => Jsoup.parse(result.body)
 
         titleCheck("Did you get dividends from UK-based companies?")
-        h1Check("Did you get dividends from UK-based companies?")
+        h1Check("Did you get dividends from UK-based companies? Dividends for 6 April 2021 to 5 April 2022")
 
       }
       "returns an action when cyaData is in session" which {
@@ -77,7 +77,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
         implicit val document: () => Document = () => Jsoup.parse(result.body)
 
         titleCheck("Did you get dividends from UK-based companies?")
-        h1Check("Did you get dividends from UK-based companies?")
+        h1Check("Did you get dividends from UK-based companies? Dividends for 6 April 2021 to 5 April 2022")
       }
 
       "returns an action when auth call fails" which {

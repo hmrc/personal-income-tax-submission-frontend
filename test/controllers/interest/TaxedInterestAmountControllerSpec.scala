@@ -20,7 +20,7 @@ import common.InterestTaxTypes._
 import common.SessionValues
 import config.AppConfig
 import controllers.interest.routes.TaxedInterestController
-import controllers.predicates.AuthorisedAction
+import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.http.HeaderNames
 import play.api.http.Status._
@@ -40,7 +40,7 @@ class TaxedInterestAmountControllerSpec extends UnitTestWithApp with DefaultAwai
   implicit def wrapOptional[T](input: T): Option[T] = Some(input)
 
   lazy val controller = new TaxedInterestAmountController(app.injector.instanceOf[TaxedInterestAmountView])(
-    mockAppConfig, authorisedAction, mockMessagesControllerComponents
+    mockAppConfig, authorisedAction, mockMessagesControllerComponents, app.injector.instanceOf[QuestionsJourneyValidator]
   )
 
   val taxYear: Int = mockAppConfig.defaultTaxYear
@@ -141,7 +141,7 @@ class TaxedInterestAmountControllerSpec extends UnitTestWithApp with DefaultAwai
         agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
 
       lazy val featureSwitchController = new TaxedInterestAmountController(app.injector.instanceOf[TaxedInterestAmountView])(
-        mockAppConfFeatureSwitch, authorisedActionFeatureSwitch, mockMessagesControllerComponents
+        mockAppConfFeatureSwitch, authorisedActionFeatureSwitch, mockMessagesControllerComponents, app.injector.instanceOf[QuestionsJourneyValidator]
       )
 
       val invalidTaxYear = 2023
