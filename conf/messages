@@ -377,10 +377,10 @@ charity.donations-to-previous-tax-year.paragraph.2.agent = You might want to do 
 
 charity.shares-securities-land-property-overseas.errors.noChoice.individual = Select yes if you donated shares, securities, land or property to overseas charities
 charity.shares-securities-land-property-overseas.errors.noChoice.agent = Select yes if your client donated shares, securities, land or property to overseas charities
-charity.shares-securities-land-property-overseas.title.individual = Did you donate qualifying shares, securities, land or property to overseas charities?
-charity.shares-securities-land-property-overseas.title.agent = Did you donate qualifying shares, securities, land or property to overseas charities?
-charity.shares-securities-land-property-overseas.heading.individual = Did you donate qualifying shares, securities, land or property to overseas charities?
-charity.shares-securities-land-property-overseas.heading.agent = Did you donate qualifying shares, securities, land or property to overseas charities?
+charity.shares-securities-land-property-overseas.title.individual = Did you donate shares, securities, land or property to overseas charities?
+charity.shares-securities-land-property-overseas.title.agent = Did your client donate shares, securities, land or property to overseas charities?
+charity.shares-securities-land-property-overseas.heading.individual = Did you donate shares, securities, land or property to overseas charities?
+charity.shares-securities-land-property-overseas.heading.agent = Did your client donate shares, securities, land or property to overseas charities?
 
 not-found-template.title = Page not found
 not-found-template.heading = Page not found
