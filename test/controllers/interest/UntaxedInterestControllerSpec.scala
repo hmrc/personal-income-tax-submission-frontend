@@ -41,7 +41,6 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
     view
   )(mockAppConfig, authorisedAction, mockMessagesControllerComponents)
 
-
   val taxYear: Int = mockAppConfig.defaultTaxYear
   val id = "9563b361-6333-449f-8721-eab2572b3437"
 
@@ -51,9 +50,13 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
 
       s"has an OK($OK) status" in new TestWithAuth {
         val result: Future[Result] = controller.show(taxYear)(fakeRequest
-          .withSession(SessionValues.TAX_YEAR -> taxYear.toString)
-          .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes
-          ))
+          .withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
+            SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(
+              InterestCYAModel(Some(false), None, Some(false), None))
+            )
+          )
+        )
 
         status(result) shouldBe OK
       }

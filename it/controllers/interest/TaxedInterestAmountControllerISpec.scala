@@ -139,6 +139,21 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
       }
     }
 
+    "redirect to the overview page" when {
+
+      "there is no cya data in session" in {
+        {
+          authoriseIndividual()
+          await(wsClient.url(url(id)).get())
+        }
+
+        stubGet("/income-through-software/return/2022/view",303,"")
+        verifyGet("/income-through-software/return/2022/view")
+        wireMockServer.resetAll()
+
+      }
+    }
+
   }
 
   ".submit" should {

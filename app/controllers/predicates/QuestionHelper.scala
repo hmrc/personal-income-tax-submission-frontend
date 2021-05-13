@@ -16,6 +16,7 @@
 
 package controllers.predicates
 
+import config.AppConfig
 import models.question.Question.{Redirect, WithDependency}
 import models.question.QuestionsJourney
 import play.api.mvc.{Call, Result}
@@ -24,17 +25,19 @@ import utils.SessionHelper
 
 object QuestionHelper extends SessionHelper {
 
-  def validateQuestion[M : QuestionsJourney](currentPage: Call, cyaOpt: Option[M], taxYear: Int)(block: => Result): Result = {
+  def validateQuestion[M : QuestionsJourney](currentPage: Call, cyaOpt: Option[M], appConfig: AppConfig, taxYear: Int)(block: => Result): Result = {
 
     cyaOpt match {
       case Some(cya) =>
-        QuestionsJourney[M].questions(cya, taxYear).find(_.expectedPage == currentPage)
+        QuestionsJourney[M].questions(cya).find(_.expectedPage == currentPage)
           .collect { case question: WithDependency if !question.isValid => Redirect(question.redirectPage) }
           .getOrElse(block)
       case None =>
-        QuestionsJourney[M].pages(taxYear).headOption
-          .collect{ case first: Call if currentPage != first => Redirect(first) }
-          .getOrElse(block)
+        if(currentPage != QuestionsJourney[M].firstPage) {
+          Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+        } else {
+          block
+        }
     }
   }
 

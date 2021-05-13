@@ -20,7 +20,7 @@ import common.SessionValues
 import controllers.Assets.BAD_REQUEST
 import forms.UntaxedInterestAmountForm
 import helpers.PlaySessionCookieBaker
-import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
+import models.interest.{InterestAccountModel, InterestCYAModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
@@ -132,6 +132,21 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
         implicit val document: () => Document = () => Jsoup.parse(result.body)
 
         titleCheck(changeAmountPageTitle)
+
+      }
+    }
+
+    "redirect to the overview page" when {
+
+      "there is no cya data in session" in {
+        {
+          authoriseIndividual()
+          await(wsClient.url(url(id)).get())
+        }
+
+        stubGet("/income-through-software/return/2022/view",303,"")
+        verifyGet("/income-through-software/return/2022/view")
+        wireMockServer.resetAll()
 
       }
     }

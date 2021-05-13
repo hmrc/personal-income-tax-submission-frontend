@@ -18,12 +18,13 @@ package controllers.interest
 
 import common.SessionValues
 import config.{AppConfig, INTEREST}
-import controllers.predicates.AuthorisedAction
+import controllers.predicates.{AuthorisedAction, QuestionHelper}
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.YesNoForm
 import models.User
 import models.interest.{InterestCYAModel, InterestPriorSubmission}
+import models.question.QuestionsJourney
 import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.I18nSupport
@@ -48,12 +49,16 @@ class TaxedInterestController @Inject()(
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).apply { implicit user: User[AnyContent] =>
 
+    implicit val journey: QuestionsJourney[InterestCYAModel] = InterestCYAModel.interestJourney(taxYear, None)
+
     InterestPriorSubmission.fromSession() match {
       case Some(prior) if prior.hasTaxed => Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
       case _ =>
-        val cyaData: Option[Boolean] = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA).flatMap(_.taxedUkInterest)
-        val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(s"interest.taxed-uk-interest.errors.noRadioSelected.${if(user.isAgent) "agent" else "individual"}")
-        Ok(taxedInterestView(cyaData.fold(yesNoForm)(yesNoForm.fill), taxYear))
+        val cyaData: Option[InterestCYAModel] = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
+        QuestionHelper.validateQuestion(controllers.interest.routes.TaxedInterestController.show(taxYear), cyaData, appConfig, taxYear) {
+          val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(s"interest.taxed-uk-interest.errors.noRadioSelected.${if(user.isAgent) "agent" else "individual"}")
+          Ok(taxedInterestView(cyaData.flatMap(_.taxedUkInterest).fold(yesNoForm)(yesNoForm.fill), taxYear))
+        }
     }
   }
 

@@ -19,12 +19,13 @@ package controllers.interest
 import common.InterestTaxTypes.UNTAXED
 import common.{InterestTaxTypes, SessionValues}
 import config.{AppConfig, INTEREST}
-import controllers.predicates.AuthorisedAction
+import controllers.predicates.{AuthorisedAction, QuestionHelper}
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.UntaxedInterestAmountForm
 import models.UntaxedInterestModel
 import models.interest.{InterestAccountModel, InterestCYAModel}
+import models.question.QuestionsJourney
 import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.I18nSupport
@@ -51,8 +52,11 @@ class UntaxedInterestAmountController @Inject()(
 
     val idMatchesPreviouslySubmittedAccount: Boolean = optionalCyaData.flatMap(_.untaxedUkAccounts.map(_.exists(_.id.contains(id)))).getOrElse(false)
 
-    if (idMatchesPreviouslySubmittedAccount) {
-      Redirect(controllers.interest.routes.ChangeAccountAmountController.show(taxYear, UNTAXED, id))
+    implicit val journey: QuestionsJourney[InterestCYAModel] = InterestCYAModel.interestJourney(taxYear, Some(id))
+
+    QuestionHelper.validateQuestion(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, id), optionalCyaData, appConfig, taxYear) {
+      if (idMatchesPreviouslySubmittedAccount) {
+        Redirect(controllers.interest.routes.ChangeAccountAmountController.show(taxYear, UNTAXED, id))
 
     } else if (sessionIdIsUUID(id)) {
 
@@ -60,23 +64,26 @@ class UntaxedInterestAmountController @Inject()(
         account.uniqueSessionId.getOrElse("") == id
       }))
 
-      val accountName = account.map(_.accountName)
-      val accountAmount = account.map(_.amount)
+        val accountName = account.map(_.accountName)
+        val accountAmount = account.map(_.amount)
 
-      val model: Option[UntaxedInterestModel] = (accountName, accountAmount) match {
-        case (Some(name), Some(amount)) => Some(UntaxedInterestModel(name, amount))
-        case _ => None
-      }
+        val model: Option[UntaxedInterestModel] = (accountName, accountAmount) match {
+          case (Some(name), Some(amount)) => Some(UntaxedInterestModel(name, amount))
+          case _ => None
+        }
 
-      Ok(untaxedInterestAmountView(
-        form = model.fold(untaxedInterestAmountForm)(untaxedInterestAmountForm.fill),
-        taxYear = taxYear,
-        postAction = controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear, id),
-        isAgent = user.isAgent
-      ))
-    } else {
-      Redirect(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, randomUUID().toString))
+        Ok(untaxedInterestAmountView(
+          form = model.fold(untaxedInterestAmountForm)(untaxedInterestAmountForm.fill),
+          taxYear = taxYear,
+          postAction = controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear, id),
+          isAgent = user.isAgent
+        ))
       }
+      else
+      {
+        Redirect(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, randomUUID().toString))
+      }
+    }
   }
 
   def submit(taxYear: Int, id: String): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, INTEREST)) { implicit user =>
@@ -85,7 +92,7 @@ class UntaxedInterestAmountController @Inject()(
         BadRequest(untaxedInterestAmountView(
           form = formWithErrors,
           taxYear = taxYear,
-          postAction = controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear,id),
+          postAction = controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear, id),
           isAgent = user.isAgent
         ))
     }, {
