@@ -376,6 +376,13 @@ charity.donations-to-previous-tax-year.paragraph.2.individual = You might want t
 charity.donations-to-previous-tax-year.paragraph.1.agent = If your client made donations after 5 April {1}, you can add them to the 6 April {0} to 5 April {1} tax year.
 charity.donations-to-previous-tax-year.paragraph.2.agent = You might want to do this if your client wants tax relief sooner.
 
+charity.overseas-shares-donated-name.title.individual = Name of overseas charity you donated shares, securities, land or property to
+charity.overseas-shares-donated-name.title.agent = Name of overseas charity your client donated shares, securities, land or property to
+charity.overseas-shares-donated-name.heading.individual = Name of overseas charity you donated shares, securities, land or property to
+charity.overseas-shares-donated-name.heading.agent = Name of overseas charity your client donated shares, securities, land or property to
+charity.overseas-shares-donated-name.error.empty-field.individual = Enter the name of the overseas charity you donated shares, securities, land or property to
+charity.overseas-shares-donated-name.error.empty-field.agent = Enter the name of the overseas charity your client donated shares, securities, land or property to
+
 not-found-template.title = Page not found
 not-found-template.heading = Page not found
 not-found-template.paragraph.1 = If you typed the web address, check it is correct.
