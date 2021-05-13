@@ -61,3 +61,7 @@
     errorMessage = form(name).error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*)))),
     prefix = if(currency) Some(PrefixOrSuffix(content = Text("£"))) else None
 ))
+
+@{
+// $COVERAGE-OFF$
+}

@@ -25,3 +25,6 @@
 
 <a href="@link" class="govuk-link" @id.map(x => s"id=$x") @if(isExternal) { target="_blank" }>@messages(messageKey)@if(isExternal)(" " + messages("common.opensInNewWindowOrTab"))</a>
 
+@{
+// $COVERAGE-OFF$
+}
