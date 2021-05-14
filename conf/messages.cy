@@ -281,7 +281,7 @@ charity.gift-aid-overseas-name.hint = You can add more than one charity.
 charity.gift-aid-overseas-name.error.empty.individual = Enter the name of the overseas charity you used Gift Aid to donate to
 charity.gift-aid-overseas-name.error.empty.agent = Enter the name of the overseas charity your client used Gift Aid to donate to
 charity.gift-aid-overseas-name.error.limit = The name of the overseas charity must be 75 characters or fewer
-charity.gift-aid-overseas-name.error.invalid = Name of overseas charity must only include numbers 0-9, letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets and the special characters, &, /, @, £, *.
+charity.gift-aid-overseas-name.error.invalid = Name of overseas charity must only include numbers 0-9, letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets and the special characters, &, /, @, £, *
 charity.gift-aid-overseas-name.error.duplicate = You cannot add 2 charities with the same name
 
 charity.overseas-gift-aid-summary.title.individual = Overseas charities you used Gift Aid to donate to
