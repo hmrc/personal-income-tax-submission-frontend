@@ -18,10 +18,12 @@ package controllers.interest
 
 import common.SessionValues
 import config.{AppConfig, INTEREST}
-import controllers.predicates.AuthorisedAction
+import controllers.interest.routes.UntaxedInterestController
 import controllers.predicates.CommonPredicates.commonPredicates
+import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.YesNoForm
 import models.interest.{InterestCYAModel, InterestPriorSubmission}
+import models.question.QuestionsJourney
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -37,6 +39,7 @@ class UntaxedInterestController @Inject()(
                                            untaxedInterestView: UntaxedInterestView)(
                                            implicit val appConfig: AppConfig,
                                            authAction: AuthorisedAction,
+                                           questionHelper: QuestionsJourneyValidator,
                                            implicit val mcc: MessagesControllerComponents)
   extends FrontendController(mcc) with I18nSupport with InterestSessionHelper {
 
@@ -47,9 +50,12 @@ class UntaxedInterestController @Inject()(
     InterestPriorSubmission.fromSession() match {
       case Some(prior) if prior.hasUntaxed => Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
       case _ =>
-        val cyaData: Option[Boolean] = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA).flatMap(_.untaxedUkInterest)
-        val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(s"interest.untaxed-uk-interest.errors.noRadioSelected.${if(user.isAgent) "agent" else "individual"}")
-        Ok(untaxedInterestView(cyaData.fold(yesNoForm)(yesNoForm.fill), taxYear))
+        implicit val questionsJourney: QuestionsJourney[InterestCYAModel] = InterestCYAModel.interestJourney(taxYear, None)
+        val cyaData: Option[InterestCYAModel] = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
+        questionHelper.validate(UntaxedInterestController.show(taxYear), cyaData, taxYear) {
+          val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(s"interest.untaxed-uk-interest.errors.noRadioSelected.${if (user.isAgent) "agent" else "individual"}")
+          Ok(untaxedInterestView(cyaData.flatMap(_.untaxedUkInterest).fold(yesNoForm)(yesNoForm.fill), taxYear))
+        }
     }
   }
 

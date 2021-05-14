@@ -19,11 +19,14 @@ package controllers.interest
 import common.InterestTaxTypes.UNTAXED
 import common.SessionValues
 import config.AppConfig
-import controllers.predicates.AuthorisedAction
+import controllers.interest.routes.{ChangeAccountAmountController, UntaxedInterestController}
+import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import models.interest.{InterestAccountModel, InterestCYAModel}
+import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.Result
+import play.api.test.{DefaultAwaitTimeout, Helpers}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.tools.Stubs.stubMessagesControllerComponents
 import utils.UnitTestWithApp
@@ -31,25 +34,24 @@ import views.html.interest.UntaxedInterestAmountView
 
 import scala.concurrent.Future
 
-class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
+class UntaxedInterestAmountControllerSpec extends UnitTestWithApp with DefaultAwaitTimeout{
 
   implicit def wrapOptional[T](input: T): Option[T] = Some(input)
 
   lazy val view: UntaxedInterestAmountView = app.injector.instanceOf[UntaxedInterestAmountView]
-  lazy val controller = new UntaxedInterestAmountController()(mockMessagesControllerComponents, authorisedAction,view, mockAppConfig)
+  lazy val controller = new UntaxedInterestAmountController()(
+    mockMessagesControllerComponents,
+    authorisedAction,
+    view,
+    mockAppConfig,
+    app.injector.instanceOf[QuestionsJourneyValidator])
 
-  val taxYear = mockAppConfig.defaultTaxYear
+  val taxYear: Int = mockAppConfig.defaultTaxYear
   val id = "9563b361-6333-449f-8721-eab2572b3437"
 
   ".show" should {
 
     "return an OK" when {
-
-      "modify is None" in new TestWithAuth {
-        lazy val result: Future[Result] = controller.show(taxYear, id)(fakeRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString))
-
-        status(result) shouldBe OK
-      }
 
       "matches against a previous submitted amount with CYA data" in new TestWithAuth {
         lazy val result: Future[Result] = controller.show(taxYear, "qwerty")(fakeRequest
@@ -64,8 +66,9 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
           ))
 
         status(result) shouldBe SEE_OTHER
-        redirectUrl(result) shouldBe controllers.interest.routes.ChangeAccountAmountController.show(taxYear, UNTAXED, "qwerty").url
+        redirectUrl(result) shouldBe ChangeAccountAmountController.show(taxYear, UNTAXED, "qwerty").url
       }
+
       "modifying an existing session, with CYA data" in new TestWithAuth {
         lazy val result: Future[Result] = controller.show(taxYear, "9563b361-6333-449f-8721-eab2572b3437")(fakeRequest
           .withSession(
@@ -80,19 +83,47 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
 
         status(result) shouldBe OK
       }
-      "invalid id, with CYA data" in new TestWithAuth {
-        lazy val result: Future[Result] = controller.show(taxYear, "id")(fakeRequest
-          .withSession(
-            SessionValues.TAX_YEAR -> taxYear.toString,
-            SessionValues.INTEREST_CYA -> InterestCYAModel(true, Seq(
-              InterestAccountModel(Some("qwerty-previous-sub"), "TSB 1", 300.00, None),
-              InterestAccountModel(None, "TSB 2", 300.00, Some("9563b361-6333-449f-8721-eab2572b3437")),
-              InterestAccountModel(Some(""), "TSB 3", 300.00, None),
-              InterestAccountModel(None, "TSB 3", 300.00, None)
-            ), false, None).asJsonString
-          ))
+    }
 
+    "Redirect to the untaxed interest page" when {
+
+      val amount = 100
+      val accountName = "HSBC"
+
+      val submission: Seq[InterestAccountModel] = Seq(InterestAccountModel(Some(id), accountName, amount))
+
+      "untaxedInterestAmount in session data but the untaxedInterest boolean is false" in new TestWithAuth {
+        lazy val result: Future[Result] = {
+          controller.show(taxYear, id)(fakeRequest.withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
+            SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(InterestCYAModel(Some(false), Some(submission), Some(false), None)))
+          ))
+        }
         status(result) shouldBe SEE_OTHER
+        Helpers.header(HeaderNames.LOCATION, result) shouldBe Some(UntaxedInterestController.show(taxYear).url)
+      }
+      "untaxedInterestAmount in session data but the untaxedInterest boolean is not defined" in new TestWithAuth {
+        lazy val result: Future[Result] = {
+          controller.show(taxYear, id)(fakeRequest.withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
+            SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(InterestCYAModel(None, Some(submission), Some(false), None)))
+          ))
+        }
+        status(result) shouldBe SEE_OTHER
+        Helpers.header(HeaderNames.LOCATION, result) shouldBe Some(UntaxedInterestController.show(taxYear).url)
+      }
+    }
+
+    "Redirect to the overview page" when {
+
+      "there is no cya data in session" in new TestWithAuth {
+        lazy val result: Future[Result] = {
+          controller.show(taxYear, id)(fakeRequest.withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString
+          ))
+        }
+        status(result) shouldBe SEE_OTHER
+        Helpers.header(HeaderNames.LOCATION, result) shouldBe Some(mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear))
       }
     }
 
@@ -109,7 +140,7 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp {
           agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
 
         lazy val featureSwitchController = new UntaxedInterestAmountController()(mockMessagesControllerComponents,
-          authorisedActionFeatureSwitchOn,view, mockAppConfFeatureSwitch)
+          authorisedActionFeatureSwitchOn,view, mockAppConfFeatureSwitch, app.injector.instanceOf[QuestionsJourneyValidator])
 
         val invalidTaxYear = 2023
         lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear, id)(fakeRequest)

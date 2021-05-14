@@ -16,13 +16,17 @@
 
 package models.interest
 
+import controllers.interest.routes.{TaxedInterestAmountController, TaxedInterestController, UntaxedInterestAmountController, UntaxedInterestController}
+import models.question.Question.{WithDependency, WithoutDependency}
+import models.question.{Question, QuestionsJourney}
 import play.api.libs.json.{Json, OFormat}
+import play.api.mvc.Call
 
 case class InterestCYAModel(
-                             untaxedUkInterest: Option[Boolean],
-                             untaxedUkAccounts: Option[Seq[InterestAccountModel]],
-                             taxedUkInterest: Option[Boolean],
-                             taxedUkAccounts: Option[Seq[InterestAccountModel]]
+                             untaxedUkInterest: Option[Boolean] = None,
+                             untaxedUkAccounts: Option[Seq[InterestAccountModel]] = None,
+                             taxedUkInterest: Option[Boolean] = None,
+                             taxedUkAccounts: Option[Seq[InterestAccountModel]] = None
                            ) {
 
   def asJsonString: String = Json.toJson(this).toString()
@@ -46,4 +50,26 @@ case class InterestCYAModel(
 
 object InterestCYAModel {
   implicit val formats: OFormat[InterestCYAModel] = Json.format[InterestCYAModel]
+
+  def interestJourney(taxYear: Int, idOpt: Option[String]): QuestionsJourney[InterestCYAModel] = new QuestionsJourney[InterestCYAModel] {
+    override val firstPage: Call = UntaxedInterestController.show(taxYear)
+
+    override def questions(model: InterestCYAModel): Set[Question] = {
+      val questionsUsingId = idOpt.map { id =>
+        Set(
+          WithDependency(model.untaxedUkAccounts, model.untaxedUkInterest,
+            UntaxedInterestAmountController.show(taxYear, id), UntaxedInterestController.show(taxYear)),
+          WithDependency(model.taxedUkAccounts, model.taxedUkInterest,
+            TaxedInterestAmountController.show(taxYear, id), TaxedInterestController.show(taxYear))
+        )
+      }.getOrElse(Seq.empty[Question])
+
+      Set(
+        WithoutDependency(model.untaxedUkInterest, UntaxedInterestController.show(taxYear)),
+        WithoutDependency(model.taxedUkInterest, TaxedInterestController.show(taxYear))
+      ) ++ questionsUsingId
+    }
+  }
+
 }
+

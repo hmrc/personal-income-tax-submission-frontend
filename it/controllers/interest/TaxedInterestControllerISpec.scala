@@ -31,7 +31,6 @@ class TaxedInterestControllerISpec extends IntegrationTest {
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
 
-
   "as an individual" when {
 
     ".show" should {

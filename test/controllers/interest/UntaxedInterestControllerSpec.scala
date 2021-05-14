@@ -18,7 +18,7 @@ package controllers.interest
 
 import common.SessionValues
 import config.AppConfig
-import controllers.predicates.AuthorisedAction
+import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.YesNoForm
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.http.Status._
@@ -39,8 +39,7 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
 
   lazy val controller = new UntaxedInterestController(
     view
-  )(mockAppConfig, authorisedAction, mockMessagesControllerComponents)
-
+  )(mockAppConfig, authorisedAction, app.injector.instanceOf[QuestionsJourneyValidator], mockMessagesControllerComponents)
 
   val taxYear: Int = mockAppConfig.defaultTaxYear
   val id = "9563b361-6333-449f-8721-eab2572b3437"
@@ -51,9 +50,13 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
 
       s"has an OK($OK) status" in new TestWithAuth {
         val result: Future[Result] = controller.show(taxYear)(fakeRequest
-          .withSession(SessionValues.TAX_YEAR -> taxYear.toString)
-          .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes
-          ))
+          .withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
+            SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(
+              InterestCYAModel(Some(false), None, Some(false), None))
+            )
+          )
+        )
 
         status(result) shouldBe OK
       }
@@ -96,7 +99,7 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
 
         lazy val featureSwitchController = new UntaxedInterestController(
           view
-        )(mockAppConfFeatureSwitch, authorisedActionFeatureSwitch, mockMessagesControllerComponents)
+        )(mockAppConfFeatureSwitch, authorisedActionFeatureSwitch, app.injector.instanceOf[QuestionsJourneyValidator], mockMessagesControllerComponents)
 
         val invalidTaxYear = 2023
         lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(fakeRequest.withSession(SessionValues.TAX_YEAR -> mockAppConfFeatureSwitch.defaultTaxYear.toString))
