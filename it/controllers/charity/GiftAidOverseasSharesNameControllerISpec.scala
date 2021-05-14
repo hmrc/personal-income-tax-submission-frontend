@@ -502,9 +502,6 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
       }
 
       s"return a BAD_REQUEST($BAD_REQUEST) status with an duplicate name error in welsh" in {
-        val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-          GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString()
-        ))
 
         lazy val result: WSResponse = {
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
