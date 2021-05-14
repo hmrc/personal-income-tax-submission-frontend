@@ -42,7 +42,7 @@ class GiftAidOverseasSharesNameController @Inject()(
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
     //TODO retrieve Overseas Names from session
     val previousNames = getSessionData[GiftAidSubmissionModel](SessionValues.GIFT_AID_PRIOR_SUB).
-      flatMap(_.giftAidPayments).flatMap(_.nonUkCharitiesCharityNames).getOrElse(List(""))
+      flatMap(_.gifts).flatMap(_.investmentsNonUkCharitiesCharityNames).getOrElse(List())
 
     lazy val form: Form[String] = GiftAidOverseasSharesNameForm.giftAidOverseasSharesNameForm(previousNames, user.isAgent)
 
@@ -52,7 +52,7 @@ class GiftAidOverseasSharesNameController @Inject()(
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)) { implicit user =>
 
     val previousNames = getSessionData[GiftAidSubmissionModel](SessionValues.GIFT_AID_PRIOR_SUB).
-      flatMap(_.giftAidPayments).flatMap(_.nonUkCharitiesCharityNames).getOrElse(List(""))
+      flatMap(_.gifts).flatMap(_.investmentsNonUkCharitiesCharityNames).getOrElse(List())
 
     lazy val form: Form[String] = GiftAidOverseasSharesNameForm.giftAidOverseasSharesNameForm(previousNames, user.isAgent)
 
@@ -62,7 +62,7 @@ class GiftAidOverseasSharesNameController @Inject()(
       },
       { submittedAmount =>
         //TODO Add to data model during wireup
-        Ok("Redirect to Did you use Gift Aid to donate to an overseas charity? page") //TODO direct to next page during wireup
+        Ok("Redirect to next page") //TODO direct to next page during wireup
       }
     )
 

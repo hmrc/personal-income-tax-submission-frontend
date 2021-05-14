@@ -19,7 +19,7 @@ package controllers.charity
 import common.SessionValues
 import common.SessionValues.GIFT_AID_PRIOR_SUB
 import helpers.PlaySessionCookieBaker
-import models.charity.{GiftAidPaymentsModel, GiftAidSubmissionModel}
+import models.charity.{GiftAidSubmissionModel, GiftsModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
@@ -64,7 +64,7 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
   val govUkExtension = "GOV.UK"
 
   val charLimit: String = "ukHzoBYHkKGGk2V5iuYgS137gN7EB7LRw3uDjvujYg00ZtHwo3sokyOOCEoAK9vuPiP374QKOelo"
-  val testModel: GiftAidSubmissionModel = GiftAidSubmissionModel(Some(GiftAidPaymentsModel(Some(List("JaneDoe")), None, None, None, None, None)),None)
+  val testModel: GiftAidSubmissionModel = GiftAidSubmissionModel(None, Some(GiftsModel(Some(List("JaneDoe")),None,None,None)))
 
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
@@ -79,7 +79,8 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
         lazy val result: WSResponse = {
           authoriseIndividual()
           await(wsClient.url(
-            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
           )
             .get())
         }
@@ -106,9 +107,10 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
           authoriseIndividual()
           await(
             wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
             )
-              .post(Map("name" -> "juamal"))
+              .post(Map("name" -> "adam"))
           )
         }
 
@@ -119,7 +121,8 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
         lazy val result: WSResponse = {
           authoriseIndividual()
           await(wsClient.url(
-            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
           )
             .post(Map[String, String]()))
         }
@@ -135,9 +138,10 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
           authoriseIndividual()
           await(
             wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
             )
-              .post(Map("name" -> "juamal|"))
+              .post(Map("name" -> "ad|am"))
           )
         }
         lazy val document: Document = Jsoup.parse(result.body)
@@ -152,7 +156,8 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
           authoriseIndividual()
           await(
             wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
             )
               .post(Map("name" -> charLimit))
           )
@@ -172,7 +177,8 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
           authoriseIndividual()
           await(
             wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
             )
               .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
               .post(Map("name" -> "JaneDoe"))
@@ -203,7 +209,8 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
 
           authoriseAgent()
           await(wsClient.url(
-            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
           )
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
             .get())
@@ -236,10 +243,11 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
             authoriseAgent()
             await(
               wsClient.url(
-                s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+                s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+                  s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
               )
                 .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-                .post(Map("name" -> "juamal"))
+                .post(Map("name" -> "adam"))
             )
           }
 
@@ -258,7 +266,8 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
 
             authoriseAgent()
             await(wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
             )
               .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
               .post(Map[String, String]()))
