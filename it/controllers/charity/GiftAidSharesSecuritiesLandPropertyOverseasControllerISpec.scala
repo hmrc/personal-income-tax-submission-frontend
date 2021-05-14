@@ -45,15 +45,15 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Integra
 
   object IndividualExpected {
 
-    val expectedTitle = "Did you donate shares, securities, land or property to overseas charities?"
-    val expectedH1 = "Did you donate shares, securities, land or property to overseas charities?"
+    val expectedTitle = "Did you donate qualifying shares, securities, land or property to overseas charities?"
+    val expectedH1 = "Did you donate qualifying shares, securities, land or property to overseas charities?"
     val expectedError = "Select yes if you donated shares, securities, land or property to overseas charities"
     val expectedErrorTitle = s"Error: $expectedTitle"
   }
 
   object AgentExpected {
-    val expectedTitle = "Did your client donate shares, securities, land or property to overseas charities?"
-    val expectedH1 = "Did your client donate shares, securities, land or property to overseas charities?"
+    val expectedTitle = "Did your client donate qualifying shares, securities, land or property to overseas charities?"
+    val expectedH1 = "Did your client donate qualifying shares, securities, land or property to overseas charities?"
     val expectedError = "Select yes if your client donated shares, securities, land or property to overseas charities"
     val expectedErrorTitle = s"Error: $expectedTitle"
   }
