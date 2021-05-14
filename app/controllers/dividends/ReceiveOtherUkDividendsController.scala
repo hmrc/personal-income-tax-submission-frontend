@@ -18,10 +18,12 @@ package controllers.dividends
 
 import common.SessionValues
 import config.{AppConfig, DIVIDENDS}
-import controllers.predicates.AuthorisedAction
+import controllers.dividends.routes.ReceiveOtherUkDividendsController
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
+import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.YesNoForm
+import models.question.QuestionsJourney
 import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
@@ -36,6 +38,7 @@ class ReceiveOtherUkDividendsController @Inject()(
                                                    implicit val cc: MessagesControllerComponents,
                                                    authAction: AuthorisedAction,
                                                    receiveOtherDividendsView: ReceiveOtherUkDividendsView,
+                                                   questionHelper: QuestionsJourneyValidator,
                                                    implicit val appConfig: AppConfig
                                           ) extends FrontendController(cc) with I18nSupport with SessionHelper {
 
@@ -45,8 +48,12 @@ class ReceiveOtherUkDividendsController @Inject()(
     DividendsPriorSubmission.fromSession() match {
       case Some(prior) if prior.otherUkDividends.nonEmpty => Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))
       case _ =>
-        val cyaData: Option[Boolean] = getModelFromSession[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA).flatMap(_.otherUkDividends)
-        Ok(receiveOtherDividendsView(cyaData.fold(yesNoForm(user.isAgent))(yesNoForm(user.isAgent).fill), taxYear))
+        implicit val questionsJourney: QuestionsJourney[DividendsCheckYourAnswersModel] = DividendsCheckYourAnswersModel.journey(taxYear)
+        val cyaData = getModelFromSession[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
+
+        questionHelper.validate[DividendsCheckYourAnswersModel](ReceiveOtherUkDividendsController.show(taxYear), cyaData, taxYear) {
+          Ok(receiveOtherDividendsView(cyaData.flatMap(_.otherUkDividends).fold(yesNoForm(user.isAgent))(yesNoForm(user.isAgent).fill), taxYear))
+        }
     }
   }
 

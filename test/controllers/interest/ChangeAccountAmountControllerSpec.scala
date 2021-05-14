@@ -98,7 +98,7 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
             )
           }
           status(result) shouldBe OK
-          bodyOf(result) should include("50")
+          bodyOf(result) should include(s"""value="50"""")
         }
 
         "there is prior and cya data in session and amounts are same" in new TestWithAuth {
@@ -112,7 +112,7 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
             )
           }
           status(result) shouldBe OK
-          bodyOf(result) should include("5000")
+          bodyOf(result) shouldNot include(s"""value="5000"""")
         }
 
         "there is prior and cya data in session with a unique session id" in new TestWithAuth {
@@ -129,7 +129,7 @@ class ChangeAccountAmountControllerSpec extends ViewTest {
             )
           }
           status(result) shouldBe OK
-          bodyOf(result) should include("50")
+          bodyOf(result) should include(s"""value="50"""")
         }
 
       }
