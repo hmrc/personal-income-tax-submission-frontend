@@ -94,6 +94,7 @@ class RemoveOverseasCharityControllerGiftAidISpec extends IntegrationTest with V
         radioButtonCheck(Content.noText, 2)
         captionCheck(Content.expectedCaption)
         buttonCheck(Content.button)
+        welshToggleCheck(ENGLISH)
 
       }
       "return an action with welsh content" which {
@@ -117,6 +118,7 @@ class RemoveOverseasCharityControllerGiftAidISpec extends IntegrationTest with V
         radioButtonCheck(Content.noTextCy, 2)
         captionCheck(Content.expectedCaptionCy)
         buttonCheck(Content.buttonCy)
+        welshToggleCheck(WELSH)
 
       }
 
