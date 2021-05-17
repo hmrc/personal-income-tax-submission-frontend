@@ -61,7 +61,5 @@ class RemoveOverseasCharityController @Inject()(
         yesNoForm => Ok("")    // TODO - Direct to next page during wireup
       }
     )
-
-
   }
 }
