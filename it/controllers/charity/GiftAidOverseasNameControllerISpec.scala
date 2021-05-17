@@ -51,7 +51,7 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
   val expectedInputHintText: String = "You can add more than one charity."
   val expectedCharLimitError: String = "The name of the overseas charity must be 75 characters or fewer"
   val expectedInvalidCharError: String = "Name of overseas charity must only include numbers 0-9, letters a " +
-    "to z, hyphens, spaces, apostrophes, commas, full stops, round brackets and the special characters, &, /, @, £, *."
+    "to z, hyphens, spaces, apostrophes, commas, full stops, round brackets and the special characters, &, /, @, £, *"
   val expectedDuplicateError: String = "You cannot add 2 charities with the same name"
 
   val captionSelector: String = ".govuk-caption-l"
