@@ -110,6 +110,9 @@ POST        /:taxYear/charity/amount-added-to-last-tax-year                     
 GET         /:taxYear/charity/donations-after-5-april-:otherTaxYear                                          controllers.charity.DonationsToPreviousTaxYearController.show(taxYear: Int, otherTaxYear: Int)
 POST        /:taxYear/charity/donations-after-5-april-:otherTaxYear                                          controllers.charity.DonationsToPreviousTaxYearController.submit(taxYear: Int, otherTaxYear: Int)
 
+GET         /:taxYear/charity/donation-of-shares-securities-land-or-property-to-overseas-charities           controllers.charity.GiftAidSharesSecuritiesLandPropertyOverseasController.show(taxYear: Int)
+POST        /:taxYear/charity/donation-of-shares-securities-land-or-property-to-overseas-charities           controllers.charity.GiftAidSharesSecuritiesLandPropertyOverseasController.submit(taxYear: Int)
+
 GET         /keep-alive                                                                                      controllers.SessionExpiredController.keepAlive
 GET         /timeout                                                                                         controllers.SessionExpiredController.timeout
 
