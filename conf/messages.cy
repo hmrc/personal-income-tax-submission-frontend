@@ -304,8 +304,9 @@ charity.last-tax-year-donation-amount.error.invalid = Enter the amount you want 
 charity.last-tax-year-donation-amount.error.maximum.individual = The amount of your donation you add to the last tax year must be less than £100,000,000,000
 charity.last-tax-year-donation-amount.error.maximum.agent = The amount of your client’s donation you add to the last tax year must be less than £100,000,000,000
 
-charity.remove-overseas-charity.title = Are you sure you want to remove this overseas charity?
-charity.remove-overseas-charity.heading = Are you sure you want to remove this overseas charity?
+charity.remove-overseas-charity.title = Are you sure you want to remove {0}?
+charity.remove-overseas-charity.heading = Are you sure you want to remove {0}?
+charity.remove-overseas-charity.content = This will remove all overseas charities.
 charity.remove-overseas-charity.noChoice = Select yes to remove this overseas charity
 
 charity.last-tax-year.title.individual = Do you want to add any of your donations to the last tax year?

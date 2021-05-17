@@ -80,8 +80,11 @@ POST        /:taxYear/charity/overseas-charities-donated-to                     
 GET         /:taxYear/charity/name-of-overseas-charity                                                       controllers.charity.GiftAidOverseasNameController.show(taxYear: Int)
 POST        /:taxYear/charity/name-of-overseas-charity                                                       controllers.charity.GiftAidOverseasNameController.submit(taxYear: Int)
 
-GET         /:taxYear/charity/remove-overseas-charity                                                        controllers.charity.RemoveOverseasCharityController.show(taxYear: Int)
-POST        /:taxYear/charity/remove-overseas-charity                                                        controllers.charity.RemoveOverseasCharityController.submit(taxYear: Int)
+GET         /:taxYear/charity/remove-overseas-charity-gift-aid                                               controllers.charity.RemoveOverseasCharityController.show(taxYear: Int, charityType = "GIFT_AID", charityName: String)
+POST        /:taxYear/charity/remove-overseas-charity-gift-aid                                               controllers.charity.RemoveOverseasCharityController.submit(taxYear: Int, charityType = "GIFT_AID", charityName: String)
+
+GET         /:taxYear/charity/remove-overseas-charity-shares-and-property                                    controllers.charity.RemoveOverseasCharityController.show(taxYear: Int, charityType = "SHARES_PROPERTY", charityName: String)
+POST        /:taxYear/charity/remove-overseas-charity-shares-and-property                                    controllers.charity.RemoveOverseasCharityController.submit(taxYear: Int, charityType = "SHARES_PROPERTY", charityName: String)
 
 GET         /:taxYear/charity/add-charity-donations-to-last-tax-year                                         controllers.charity.GiftAidLastTaxYearController.show(taxYear: Int)
 POST        /:taxYear/charity/add-charity-donations-to-last-tax-year                                         controllers.charity.GiftAidLastTaxYearController.submit(taxYear: Int)
