@@ -127,6 +127,12 @@ trait ViewHelpers { self: AnyWordSpec with Matchers =>
     }
   }
 
+  def inputFieldValueCheck(value: String, selector: String)(implicit document: () => Document): Unit = {
+    s"'$selector' has a value of '$value'" in {
+      document().select(selector).attr("value") shouldBe value
+    }
+  }
+
   def errorSummaryCheck(text: String, href: String)(implicit document: () => Document): Unit = {
     "contains an error summary" in {
       elementExist(".govuk-error-summary")

@@ -17,8 +17,9 @@
 package controllers.interest
 
 import common.SessionValues
+import controllers.Assets.NoContent
 import forms.YesNoForm
-import helpers.PlaySessionCookieBaker
+import helpers.{PlaySessionCookieBaker, PlaySessionCookieCrumbler}
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.http.HeaderNames
 import play.api.http.Status._
@@ -26,12 +27,16 @@ import play.api.libs.json.Json
 import play.api.libs.ws.{WSClient, WSResponse}
 import utils.IntegrationTest
 
+import java.util.UUID
+
 class UntaxedInterestControllerISpec extends IntegrationTest {
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
   val taxYear: Int = 2022
   val amount: BigDecimal = 25
+
+  lazy val id: String = UUID.randomUUID().toString
 
   "as an individual" when {
 
@@ -97,12 +102,15 @@ class UntaxedInterestControllerISpec extends IntegrationTest {
         "returns an action when data is not in session" which {
           lazy val result: WSResponse = {
             authoriseIndividual()
-            await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest")
+            await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest/")
+              .withFollowRedirects(false)
               .post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
           }
 
           "has an OK(200) status" in {
-            result.status shouldBe OK
+
+            result.status shouldBe SEE_OTHER
+
           }
 
         }

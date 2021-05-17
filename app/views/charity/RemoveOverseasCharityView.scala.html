@@ -27,11 +27,17 @@
       inputRadio:InputRadio
 )
 
-@(form: Form[Boolean], taxYear: Int, checked: String = "")(implicit user: User[_], messages: Messages, appConfig: AppConfig)
+@(form: Form[Boolean], taxYear: Int, charityType: String, charityName: String, isLast: Boolean)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
-@headingForUse = @{messages("charity.remove-overseas-charity.heading")}
+@headingForUse = @{messages("charity.remove-overseas-charity.heading", charityName)}
 
-@titleForUse = @{messages("charity.remove-overseas-charity.title")}
+@titleForUse = @{messages("charity.remove-overseas-charity.title", charityName)}
+
+@contentHtml = {
+    <p class = "govuk-body">
+        @{messages("charity.remove-overseas-charity.content")}
+    </p>
+}
 
 @hasFormErrors = @{form.hasErrors}
 
@@ -39,15 +45,20 @@
 
     @errorSummary(form.errors.distinct)
 
-    @formWithCsrf(action = controllers.charity.routes.RemoveOverseasCharityController.submit(taxYear)) {
+    @formWithCsrf(action = controllers.charity.routes.RemoveOverseasCharityController.submit(taxYear, charityType, charityName)) {
 
         @inputRadio(
                     form = form,
                     heading = headingForUse,
                     inline = true,
+                    content = if(isLast){Some(contentHtml)}else{None},
                     subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString))
         )
 
         @button()
     }
+}
+
+@{
+// $COVERAGE-OFF$
 }

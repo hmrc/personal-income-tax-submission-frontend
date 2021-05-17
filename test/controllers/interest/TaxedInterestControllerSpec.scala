@@ -18,12 +18,13 @@ package controllers.interest
 
 import common.SessionValues
 import config.AppConfig
-import controllers.predicates.AuthorisedAction
+import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.YesNoForm
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.Result
+import play.api.test.{DefaultAwaitTimeout, Helpers}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.tools.Stubs.stubMessagesControllerComponents
 import utils.UnitTestWithApp
@@ -31,15 +32,15 @@ import views.html.interest.TaxedInterestView
 
 import scala.concurrent.Future
 
-class TaxedInterestControllerSpec extends UnitTestWithApp {
+class TaxedInterestControllerSpec extends UnitTestWithApp with DefaultAwaitTimeout {
 
   implicit def wrapOption[T](input: T): Option[T] = Some(input)
 
   lazy val controller = new TaxedInterestController(
     app.injector.instanceOf[TaxedInterestView]
-  )(mockAppConfig, authorisedAction, mockMessagesControllerComponents)
+  )(mockAppConfig, authorisedAction, mockMessagesControllerComponents, app.injector.instanceOf[QuestionsJourneyValidator])
 
-  val taxYear = mockAppConfig.defaultTaxYear
+  val taxYear: Int = mockAppConfig.defaultTaxYear
   val id = "9563b361-6333-449f-8721-eab2572b3437"
 
   ".show for an individual" should {
@@ -48,9 +49,12 @@ class TaxedInterestControllerSpec extends UnitTestWithApp {
 
       s"has an OK($OK) status" in new TestWithAuth {
         val result: Future[Result] = controller.show(taxYear)(fakeRequest
-          .withSession(SessionValues.TAX_YEAR -> taxYear.toString)
-          .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
-
+          .withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
+            SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(InterestCYAModel(Some(false), None, Some(false), None))
+            )
+          )
+        )
         status(result) shouldBe OK
       }
     }
@@ -78,31 +82,44 @@ class TaxedInterestControllerSpec extends UnitTestWithApp {
 
     }
 
-    "Redirect to the tax year error " when {
+    "Redirect to overview page" when {
 
-      "an invalid tax year has been added to the url" in new TestWithAuth() {
+      "there is no cya data in session" in new TestWithAuth(isAgent = true) {
 
-        val mockAppConfFeatureSwitch: AppConfig = new AppConfig(mock[ServicesConfig]) {
-          override lazy val defaultTaxYear: Int = 2022
-          override lazy val taxYearErrorFeature = true
-        }
-
-        val authorisedActionFeatureSwitch = new AuthorisedAction(mockAppConfFeatureSwitch,
-          agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
-
-        lazy val featureSwitchController = new TaxedInterestController(
-          app.injector.instanceOf[TaxedInterestView]
-        )(mockAppConfFeatureSwitch, authorisedActionFeatureSwitch, mockMessagesControllerComponents)
-
-        val invalidTaxYear = 2023
-        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(fakeRequest.withSession(SessionValues.TAX_YEAR -> mockAppConfFeatureSwitch.defaultTaxYear.toString))
-
-        redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
-
+        val result: Future[Result] = controller.show(taxYear)(fakeRequestWithMtditidAndNino
+          .withSession(SessionValues.TAX_YEAR -> taxYear.toString)
+        )
+        status(result) shouldBe SEE_OTHER
+        Helpers.header("Location", result) shouldBe Some(mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear))
       }
     }
 
   }
+
+  "Redirect to the tax year error " when {
+
+    "an invalid tax year has been added to the url" in new TestWithAuth() {
+
+      val mockAppConfFeatureSwitch: AppConfig = new AppConfig(mock[ServicesConfig]) {
+        override lazy val defaultTaxYear: Int = 2022
+        override lazy val taxYearErrorFeature = true
+      }
+
+      val authorisedActionFeatureSwitch = new AuthorisedAction(mockAppConfFeatureSwitch,
+        agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
+
+      lazy val featureSwitchController = new TaxedInterestController(
+        app.injector.instanceOf[TaxedInterestView]
+      )(mockAppConfFeatureSwitch, authorisedActionFeatureSwitch, mockMessagesControllerComponents, app.injector.instanceOf[QuestionsJourneyValidator])
+
+      val invalidTaxYear = 2023
+      lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(fakeRequest.withSession(SessionValues.TAX_YEAR -> mockAppConfFeatureSwitch.defaultTaxYear.toString))
+
+      redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
+
+    }
+  }
+
 
   ".show for an agent" should {
 
@@ -110,10 +127,25 @@ class TaxedInterestControllerSpec extends UnitTestWithApp {
 
       s"has an OK($OK) status" in new TestWithAuth(isAgent = true) {
         val result: Future[Result] = controller.show(taxYear)(fakeRequestWithMtditidAndNino
-          .withSession(SessionValues.TAX_YEAR -> taxYear.toString)
-          .withFormUrlEncodedBody(YesNoForm.yesNo -> YesNoForm.yes))
-
+          .withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
+            SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(InterestCYAModel(Some(false), None, Some(false), None))
+            )
+          )
+        )
         status(result) shouldBe OK
+      }
+    }
+
+    "Redirect to overview page" when {
+
+      "there is no cya data in session" in new TestWithAuth(isAgent = true) {
+
+        val result: Future[Result] = controller.show(taxYear)(fakeRequestWithMtditidAndNino
+          .withSession(SessionValues.TAX_YEAR -> taxYear.toString)
+        )
+        status(result) shouldBe SEE_OTHER
+        Helpers.header("Location", result) shouldBe Some(mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear))
       }
     }
   }

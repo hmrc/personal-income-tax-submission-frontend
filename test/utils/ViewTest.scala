@@ -19,11 +19,10 @@ package utils
 import org.jsoup.nodes.{Document, Element}
 import org.jsoup.select.Elements
 import org.scalatest.Assertion
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.mvc.Call
 
-trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
+trait ViewTest extends UnitTest {
 
   val testBackUrl = "/test-back-url"
   val testCall: Call = Call("POST", "/test-url")
@@ -144,6 +143,12 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
   def inputFieldCheck(name: String, selector: String)(implicit document: Document): Unit = {
     s"has a name of '$name'" in {
       document.select(selector).attr("name") shouldBe name
+    }
+  }
+
+  def inputFieldValueCheck(value: String, selector: String)(implicit document: () => Document): Unit = {
+    s"has a value of '$value'" in {
+      document().select(selector).attr("value") shouldBe value
     }
   }
 

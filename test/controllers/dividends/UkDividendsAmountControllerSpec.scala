@@ -18,11 +18,15 @@ package controllers.dividends
 
 import common.SessionValues
 import config.AppConfig
-import controllers.predicates.AuthorisedAction
+import controllers.dividends.routes.ReceiveUkDividendsController
+import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
+import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.Result
+import play.api.test.Helpers
+import play.api.test.Helpers.defaultAwaitTimeout
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.tools.Stubs.stubMessagesControllerComponents
 import utils.UnitTestWithApp
@@ -36,6 +40,7 @@ class UkDividendsAmountControllerSpec extends UnitTestWithApp {
     mockMessagesControllerComponents,
     authorisedAction,
     app.injector.instanceOf[UkDividendsAmountView],
+    app.injector.instanceOf[QuestionsJourneyValidator],
     mockAppConfig
   )
 
@@ -47,19 +52,6 @@ class UkDividendsAmountControllerSpec extends UnitTestWithApp {
     val ukDividendSubmitAmount = 50
 
     "return a result with an OK status" when {
-
-      "there is a prior submission in session" in new TestWithAuth {
-        lazy val result: Future[Result] = {
-          controller.show(taxYear)(fakeRequest.withSession(
-            SessionValues.TAX_YEAR -> taxYear.toString,
-            SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(Some(ukDividendSubmitAmount), None)).toString()
-          ))
-        }
-
-        status(result) shouldBe OK
-        bodyOf(result) should include("50")
-        bodyOf(result) shouldNot include("govuk-error-summary")
-      }
 
       "there is a prior submission and check your answer data in session" in new TestWithAuth {
         val amount = 100
@@ -73,12 +65,11 @@ class UkDividendsAmountControllerSpec extends UnitTestWithApp {
         }
 
         status(result) shouldBe OK
-        bodyOf(result) should include("50")
-        bodyOf(result) should include("100")
+        bodyOf(result) should include(s"""value="$amount"""")
         bodyOf(result) shouldNot include("govuk-error-summary")
       }
 
-      "there is a prior submission and check your answer data in session and not fill form when amounts are same" in new TestWithAuth {
+      "the amounts are the same for priorSubmission and cya, the amount input should not be pre-populated" in new TestWithAuth {
         val amount = 50
 
         lazy val result: Future[Result] = {
@@ -90,9 +81,68 @@ class UkDividendsAmountControllerSpec extends UnitTestWithApp {
         }
 
         status(result) shouldBe OK
-        bodyOf(result) should include("50")
+        bodyOf(result) shouldNot include(s"""value="$amount"""")
         bodyOf(result) shouldNot include("govuk-error-summary")
       }
+
+      "there is only cyaData in session then form should be pre-populated with cyaData amount" in new TestWithAuth {
+        val amount = 50
+
+        lazy val result: Future[Result] = {
+          controller.show(taxYear)(fakeRequest.withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
+            SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(Some(true), Some(amount), None, None)).toString()
+          ))
+        }
+
+        status(result) shouldBe OK
+        bodyOf(result) should include(s"""value="$amount"""")
+        bodyOf(result) shouldNot include("govuk-error-summary")
+      }
+
+    }
+
+    "Redirect to the overview page" when {
+
+      val amount = 100
+
+      "there is no prior submission and no cya data in session" in new TestWithAuth {
+        lazy val result: Future[Result] = {
+          controller.show(taxYear)(fakeRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString))
+        }
+
+        status(result) shouldBe SEE_OTHER
+        Helpers.header(HeaderNames.LOCATION, result) shouldBe Some(mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+      }
+
+      "there is a prior submission in session but no cya data" in new TestWithAuth {
+        lazy val result: Future[Result] = {
+          controller.show(taxYear)(fakeRequest.withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
+            SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(Some(amount), None)).toString()
+          ))
+        }
+
+        status(result) shouldBe SEE_OTHER
+        Helpers.header(HeaderNames.LOCATION, result) shouldBe Some(mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+      }
+
+      "there is a prior submission in session, but no Other Dividends value" in new TestWithAuth {
+        lazy val result: Future[Result] = {
+          controller.show(taxYear)(fakeRequest.withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
+            SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(DividendsPriorSubmission(None, None)).toString()
+          ))
+        }
+
+        status(result) shouldBe SEE_OTHER
+        Helpers.header(HeaderNames.LOCATION, result) shouldBe Some(mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+      }
+    }
+
+    "Redirect to the received uk dividends page" when {
+
+      val amount = 100
 
       "there is a prior submission in session, but no UK Dividends value" in new TestWithAuth {
         lazy val result: Future[Result] = {
@@ -102,19 +152,33 @@ class UkDividendsAmountControllerSpec extends UnitTestWithApp {
           ))
         }
 
-        status(result) shouldBe OK
-        bodyOf(result) shouldNot include("govuk-error-summary")
+        status(result) shouldBe SEE_OTHER
+        Helpers.header(HeaderNames.LOCATION, result) shouldBe Some(mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear))
       }
 
-      "there is no prior submission in session" in new TestWithAuth {
+      "ukDividendAmount in session data but the ukDividend boolean is false" in new TestWithAuth {
         lazy val result: Future[Result] = {
-          controller.show(taxYear)(fakeRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString))
+          controller.show(taxYear)(fakeRequest.withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
+            SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(Some(false), Some(amount), None, None)).toString()
+          ))
         }
 
-        status(result) shouldBe OK
-        bodyOf(result) shouldNot include("govuk-error-summary")
+        status(result) shouldBe SEE_OTHER
+        Helpers.header(HeaderNames.LOCATION, result) shouldBe Some(ReceiveUkDividendsController.show(taxYear).url)
       }
 
+      "ukDividendAmount in session data but the ukDividend boolean is not defined" in new TestWithAuth {
+        lazy val result: Future[Result] = {
+          controller.show(taxYear)(fakeRequest.withSession(
+            SessionValues.TAX_YEAR -> taxYear.toString,
+            SessionValues.DIVIDENDS_CYA -> Json.toJson(DividendsCheckYourAnswersModel(None, Some(amount), None, None)).toString()
+          ))
+        }
+
+        status(result) shouldBe SEE_OTHER
+        Helpers.header(HeaderNames.LOCATION, result) shouldBe Some(ReceiveUkDividendsController.show(taxYear).url)
+      }
     }
 
     "Redirect to the tax year error " when {
@@ -133,6 +197,7 @@ class UkDividendsAmountControllerSpec extends UnitTestWithApp {
           mockMessagesControllerComponents,
           authorisedActionFeatureSwitch,
           app.injector.instanceOf[UkDividendsAmountView],
+          app.injector.instanceOf[QuestionsJourneyValidator],
           mockAppConfFeatureSwitch
         )
 

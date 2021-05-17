@@ -39,25 +39,27 @@ class RemoveOverseasCharityController @Inject()(
 
   val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(s"charity.remove-overseas-charity.noChoice")
 
-  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
+  def show(taxYear: Int, charityType: String, charityName: String): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
 
-    Ok(removeOverseasCharityView(yesNoForm, taxYear))     // TODO - overseas charity to be retrieved from session
+    // TODO - use charityID to retrieve charity name
+
+    Ok(removeOverseasCharityView(yesNoForm, taxYear, charityType, charityName, true))     // TODO - overseas charity to be retrieved from session
   }
 
 
-  def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)) { implicit user =>
+  def submit(taxYear: Int, charityType: String, charityName: String): Action[AnyContent] =
+    (authAction andThen journeyFilterAction(taxYear, GIFT_AID)) { implicit user =>
+
     yesNoForm.bindFromRequest().fold(
       {
         formWithErrors =>
           BadRequest(
-            removeOverseasCharityView(formWithErrors, taxYear)
+            removeOverseasCharityView(formWithErrors, taxYear, charityType, charityName, false)
           )
       },
       {
-        yesNoForm => Ok("Next Page")    // TODO - Direct to next page during wireup
+        yesNoForm => Ok("")    // TODO - Direct to next page during wireup
       }
     )
-
-
   }
 }

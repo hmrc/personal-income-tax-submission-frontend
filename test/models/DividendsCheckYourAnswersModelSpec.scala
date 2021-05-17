@@ -16,6 +16,9 @@
 
 package models
 
+import controllers.dividends.routes.{OtherUkDividendsAmountController, ReceiveOtherUkDividendsController, ReceiveUkDividendsController, UkDividendsAmountController}
+import models.question.Question.{WithDependency, WithoutDependency}
+import models.question.QuestionsJourney
 import play.api.libs.json.{JsObject, Json}
 import utils.UnitTest
 
@@ -102,6 +105,47 @@ class DividendsCheckYourAnswersModelSpec extends UnitTest {
           otherUkDividendsAmount = Some(500))
           .isFinished shouldBe(true)
       }
+    }
+  }
+
+  "question" should {
+
+    val taxYear = 2022
+
+    "not contain duplicate elements" in {
+      val setOne = DividendsCheckYourAnswersModel.journey(taxYear).questions(DividendsCheckYourAnswersModel())
+      val setTwo = DividendsCheckYourAnswersModel.journey(taxYear).questions(DividendsCheckYourAnswersModel())
+
+      val questions = setOne ++ setTwo
+
+      questions.size shouldBe setOne.size
+    }
+
+    "firstPage in Journey definition for DividendsCheckYourAnswersModel should be the correct Call" in {
+      val questionsJourney: QuestionsJourney[DividendsCheckYourAnswersModel] = DividendsCheckYourAnswersModel.journey(taxYear)
+
+      questionsJourney.firstPage shouldBe ReceiveUkDividendsController.show(taxYear)
+    }
+
+    "questions in Journey definition for DividendsCheckYourAnswersModel should have the correct values" in {
+      val questions =
+        DividendsCheckYourAnswersModel.journey(taxYear).questions(
+          DividendsCheckYourAnswersModel(Some(true), Some(1), Some(true), Some(2)),
+        )
+
+      val expectedUkDividendsQuestion =
+        WithoutDependency(Some(true), ReceiveUkDividendsController.show(taxYear))
+      val expectedUkDividendsAmountQuestion =
+        WithDependency(Some(1), Some(true), UkDividendsAmountController.show(taxYear), ReceiveUkDividendsController.show(taxYear))
+      val expectedOtherUkDividendsQuestion =
+        WithoutDependency(Some(true), ReceiveOtherUkDividendsController.show(taxYear))
+      val expectedOtherUkDividendAmountQuestion =
+        WithDependency(Some(2), Some(true), OtherUkDividendsAmountController.show(taxYear), ReceiveOtherUkDividendsController.show(taxYear))
+
+      questions.contains(expectedUkDividendsQuestion) shouldBe true
+      questions.contains(expectedUkDividendsAmountQuestion) shouldBe true
+      questions.contains(expectedOtherUkDividendsQuestion) shouldBe true
+      questions.contains(expectedOtherUkDividendAmountQuestion) shouldBe true
     }
   }
 

@@ -19,12 +19,13 @@ package controllers.interest
 import common.InterestTaxTypes.TAXED
 import common.{InterestTaxTypes, SessionValues}
 import config.{AppConfig, INTEREST}
-import controllers.predicates.AuthorisedAction
+import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.TaxedInterestAmountForm
 import models.TaxedInterestModel
 import models.interest.{InterestAccountModel, InterestCYAModel}
+import models.question.QuestionsJourney
 import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.I18nSupport
@@ -42,7 +43,8 @@ class TaxedInterestAmountController @Inject()(
                                              )(
                                                implicit appConfig: AppConfig,
                                                authorisedAction: AuthorisedAction,
-                                               implicit val mcc: MessagesControllerComponents
+                                               implicit val mcc: MessagesControllerComponents,
+                                               questionsJourneyValidator: QuestionsJourneyValidator
                                              ) extends FrontendController(mcc) with InterestSessionHelper with I18nSupport {
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
@@ -54,31 +56,36 @@ class TaxedInterestAmountController @Inject()(
 
     val idMatchesPreviouslySubmittedAccount: Boolean = optionalCyaData.flatMap(_.taxedUkAccounts.map(_.exists(_.id.contains(id)))).getOrElse(false)
 
-    if (idMatchesPreviouslySubmittedAccount) {
-      Redirect(controllers.interest.routes.ChangeAccountAmountController.show(taxYear, TAXED, id))
+    implicit val journey: QuestionsJourney[InterestCYAModel] = InterestCYAModel.interestJourney(taxYear, Some(id))
 
-    } else if (sessionIdIsUUID(id)) {
+    questionsJourneyValidator.validate(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id), optionalCyaData, taxYear) {
 
-      val account: Option[InterestAccountModel] = optionalCyaData.flatMap(_.taxedUkAccounts.flatMap(_.find { account =>
-        account.uniqueSessionId.getOrElse("") == id
-      }))
+      if (idMatchesPreviouslySubmittedAccount) {
+        Redirect(controllers.interest.routes.ChangeAccountAmountController.show(taxYear, TAXED, id))
 
-      val accountName = account.map(_.accountName)
-      val accountAmount = account.map(_.amount)
+      } else if (sessionIdIsUUID(id)) {
 
-      val model: Option[TaxedInterestModel] = (accountName, accountAmount) match {
-        case (Some(name), Some(amount)) => Some(TaxedInterestModel(name, amount))
-        case _ => None
+        val account: Option[InterestAccountModel] = optionalCyaData.flatMap(_.taxedUkAccounts.flatMap(_.find { account =>
+          account.uniqueSessionId.getOrElse("") == id
+        }))
+
+        val accountName = account.map(_.accountName)
+        val accountAmount = account.map(_.amount)
+
+        val model: Option[TaxedInterestModel] = (accountName, accountAmount) match {
+          case (Some(name), Some(amount)) => Some(TaxedInterestModel(name, amount))
+          case _ => None
+        }
+
+        Ok(taxedInterestAmountView(
+          form = model.fold(taxedInterestAmountForm)(taxedInterestAmountForm.fill),
+          taxYear,
+          controllers.interest.routes.TaxedInterestAmountController.submit(taxYear, id),
+          isAgent = user.isAgent
+        ))
+      } else {
+        Redirect(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, randomUUID().toString))
       }
-
-      Ok(taxedInterestAmountView(
-        form = model.fold(taxedInterestAmountForm)(taxedInterestAmountForm.fill),
-        taxYear,
-        controllers.interest.routes.TaxedInterestAmountController.submit(taxYear, id),
-        isAgent = user.isAgent
-      ))
-    } else {
-      Redirect(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, randomUUID().toString))
     }
   }
 

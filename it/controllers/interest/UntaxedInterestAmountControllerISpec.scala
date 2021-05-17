@@ -21,27 +21,45 @@ import controllers.Assets.BAD_REQUEST
 import forms.UntaxedInterestAmountForm
 import helpers.PlaySessionCookieBaker
 import models.interest.{InterestAccountModel, InterestCYAModel}
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status.{OK, UNAUTHORIZED}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
-import utils.IntegrationTest
+import utils.{IntegrationTest, ViewHelpers}
 
-class UntaxedInterestAmountControllerISpec extends IntegrationTest{
+import java.util.UUID
+
+class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelpers {
 
   val taxYear: Int = 2022
+
+  val amountSelector = "#untaxedAmount"
+  val accountNameSelector = "#untaxedAccountName"
+
   val amount: BigDecimal = 25
+  val accountName: String = "HSBC"
+  val untaxedAmountPageTitle = "UK untaxed interest account details"
+  val changeAmountPageTitle = "How much untaxed UK interest did you get?"
+
+  lazy val id: String = UUID.randomUUID().toString
+
+  def url(newId: String): String = s"$startUrl/$taxYear/interest/untaxed-uk-interest-details/$newId"
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
-  ".show" should {
+  "calling /GET" should {
 
-    "return an action" when {
+    "render the untaxed interest amount page" when {
 
-      s"has an OK($OK) status" which {
+      "the id is unique and is also a UUID" which {
 
         lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
+          Some(true), Some(Seq(
+            InterestAccountModel(Some("differentId"), accountName, amount),
+            InterestAccountModel(None, accountName, amount, Some(id))
+          )),
           Some(false), None
         )
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
@@ -50,49 +68,91 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest{
 
         lazy val result = {
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest-details/UntaxedId")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-            .get())
+          await(wsClient.url(url(id)).withHttpHeaders(HeaderNames.COOKIE -> sessionCookie).get())
         }
 
-        s"has an OK($OK) status" in {
-          result.status shouldBe OK
-        }
+        implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+        titleCheck(untaxedAmountPageTitle)
+        inputFieldValueCheck(accountName, accountNameSelector)
+        inputFieldValueCheck(amount.toString(), amountSelector)
 
       }
 
-      "there is no CYA data in session" which {
+      "the id is not a UUID" which {
+
+        lazy val interestCYA = InterestCYAModel(Some(true), None, Some(false), None)
+
+        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
+        ))
+
         lazy val result = {
           authoriseIndividual()
-          stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
-
-
-          await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest-details/UntaxedId")
-            .get())
+          await(wsClient.url(url(id)).withHttpHeaders(HeaderNames.COOKIE -> sessionCookie).get())
         }
 
-        s"has an OK($OK) status" in {
-          result.status shouldBe OK
+        implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+        titleCheck(untaxedAmountPageTitle)
+
+        "id in url is UUID" in {
+          UUID.fromString(result.uri.toString.split("/").last)
         }
 
       }
 
-      "the authorization fails" which {
+    }
+
+    "redirect to the change amount page" when {
+
+      "the id matches a prior submission" which {
+
+        lazy val interestCYA = InterestCYAModel(
+          Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, amount))),
+          Some(false), None
+        )
+
+        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
+          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
+            Json.obj(
+              "accountName" -> accountName,
+              "incomeSourceId" -> id,
+              "untaxedUkInterest" -> amount
+            )
+          ).toString()
+        ))
+
         lazy val result = {
-          authoriseIndividualUnauthorized()
-          stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
-
-
-          await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest-details/UntaxedId")
-            .get())
+          authoriseIndividual()
+          await(wsClient.url(url(id)).withHttpHeaders(HeaderNames.COOKIE -> sessionCookie).get())
         }
 
-        s"has an OK($UNAUTHORIZED) status" in {
-          result.status shouldBe UNAUTHORIZED
-        }
+        implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+        titleCheck(changeAmountPageTitle)
+
       }
     }
+
+    "redirect to the overview page" when {
+
+      "there is no cya data in session" in {
+        {
+          authoriseIndividual()
+          await(wsClient.url(url(id)).get())
+        }
+
+        stubGet("/income-through-software/return/2022/view",303,"")
+        verifyGet("/income-through-software/return/2022/view")
+        wireMockServer.resetAll()
+
+      }
+    }
+
   }
+
 
   ".submit" should {
 
@@ -108,10 +168,10 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest{
             .post(Map(UntaxedInterestAmountForm.untaxedAmount -> "67.66",
               UntaxedInterestAmountForm.untaxedAccountName -> "Santander")))
         }
-          s"has an OK($OK) status" in {
-            result.status shouldBe OK
-          }
+        s"has an OK($OK) status" in {
+          result.status shouldBe OK
         }
+      }
 
       s"there is form data" which {
 

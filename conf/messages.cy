@@ -304,8 +304,9 @@ charity.last-tax-year-donation-amount.error.invalid = Enter the amount you want 
 charity.last-tax-year-donation-amount.error.maximum.individual = The amount of your donation you add to the last tax year must be less than £100,000,000,000
 charity.last-tax-year-donation-amount.error.maximum.agent = The amount of your client’s donation you add to the last tax year must be less than £100,000,000,000
 
-charity.remove-overseas-charity.title = Are you sure you want to remove this overseas charity?
-charity.remove-overseas-charity.heading = Are you sure you want to remove this overseas charity?
+charity.remove-overseas-charity.title = Are you sure you want to remove {0}?
+charity.remove-overseas-charity.heading = Are you sure you want to remove {0}?
+charity.remove-overseas-charity.content = This will remove all overseas charities.
 charity.remove-overseas-charity.noChoice = Select yes to remove this overseas charity
 
 charity.last-tax-year.title.individual = Do you want to add any of your donations to the last tax year?
@@ -382,6 +383,13 @@ charity.overseas-shares-donated-name.heading.individual = Name of overseas chari
 charity.overseas-shares-donated-name.heading.agent = Name of overseas charity your client donated shares, securities, land or property to
 charity.overseas-shares-donated-name.error.empty-field.individual = Enter the name of the overseas charity you donated shares, securities, land or property to
 charity.overseas-shares-donated-name.error.empty-field.agent = Enter the name of the overseas charity your client donated shares, securities, land or property to
+
+charity.shares-securities-land-property-overseas.errors.noChoice.individual = Select yes if you donated shares, securities, land or property to overseas charities
+charity.shares-securities-land-property-overseas.errors.noChoice.agent = Select yes if your client donated shares, securities, land or property to overseas charities
+charity.shares-securities-land-property-overseas.title.individual = Did you donate qualifying shares, securities, land or property to overseas charities?
+charity.shares-securities-land-property-overseas.title.agent = Did your client donate qualifying shares, securities, land or property to overseas charities?
+charity.shares-securities-land-property-overseas.heading.individual = Did you donate qualifying shares, securities, land or property to overseas charities?
+charity.shares-securities-land-property-overseas.heading.agent = Did your client donate qualifying shares, securities, land or property to overseas charities?
 
 not-found-template.title = Page not found
 not-found-template.heading = Page not found
