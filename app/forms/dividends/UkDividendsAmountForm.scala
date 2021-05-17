@@ -27,8 +27,8 @@ object UkDividendsAmountForm {
   def ukDividendsAmountForm(implicit user: User[_]): Form[BigDecimal] = Form(
     ukDividendsAmount -> currency(
       s"dividends.uk-dividends-amount.error.empty.${if(user.isAgent) "agent" else "individual"}",
-      invalidNumeric = s"dividends.uk-dividends-amount.error.invalidFormat.${if(user.isAgent) "agent" else "individual"}",
-      nonNumericKey = s"dividends.uk-dividends-amount.error.invalidFormat.${if(user.isAgent) "agent" else "individual"}",
+      invalidNumeric = s"dividends.common.error.invalidFormat.${if(user.isAgent) "agent" else "individual"}",
+      nonNumericKey = s"dividends.common.error.invalidFormat.${if(user.isAgent) "agent" else "individual"}",
       maxAmountKey = s"dividends.uk-dividends-amount.error.amountMaxLimit")
   )
 }

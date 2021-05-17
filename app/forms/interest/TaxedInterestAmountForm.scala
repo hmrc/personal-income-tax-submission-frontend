@@ -29,7 +29,7 @@ object TaxedInterestAmountForm extends InputFilters{
   val taxedAccountName = "taxedAccountName"
   val taxedAmount = "taxedAmount"
 
-  val nameNotEmpty: Constraint[String] = nonEmpty("interest.taxed-uk-interest-name.error.empty")
+  val nameNotEmpty: Constraint[String] = nonEmpty("interest.common.error.name.empty")
   val amountNotEmpty: Constraint[String] = nonEmpty("interest.taxed-uk-interest-amount.error.empty")
 
   def taxedInterestAmountForm(): Form[TaxedInterestModel] = Form(

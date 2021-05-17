@@ -29,7 +29,7 @@ object UntaxedInterestAmountForm extends InputFilters{
   val untaxedAccountName = "untaxedAccountName"
   val untaxedAmount = "untaxedAmount"
 
-  val nameNotEmpty: Constraint[String] = nonEmpty("interest.untaxed-uk-interest-name.error.empty")
+  val nameNotEmpty: Constraint[String] = nonEmpty("interest.common.error.name.empty")
   val amountNotEmpty: Constraint[String] = nonEmpty("interest.untaxed-uk-interest-amount.error.empty")
 
   def untaxedInterestAmountForm(): Form[UntaxedInterestModel] = Form(

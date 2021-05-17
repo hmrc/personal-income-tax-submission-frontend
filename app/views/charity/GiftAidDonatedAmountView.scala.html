@@ -27,9 +27,7 @@
     messages(s"charity.amount-via-gift-aid.${if(user.isAgent) "agent" else "individual"}.title")
 }
 
-@headingForUse = @{
-    messages(s"charity.amount-via-gift-aid.${if(user.isAgent) "agent" else "individual"}.heading")
-}
+@headingForUse = @{(titleText)}
 
 @paragraphText = @{
     if(user.isAgent) messages("charity.amount-via-gift-aid.agent.p") else messages("charity.amount-via-gift-aid.individual.p")
@@ -52,7 +50,7 @@
             heading = headingForUse,
             subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)),
             content = Some(contentHtml),
-            hint = Some(Html(messages("charity.amount-via-gift-aid.input.hint-text"))),
+            hint = Some(Html(messages("common.currency.hint"))),
             isPageHeading = false,
             currency = true,
             autocomplete = prefill

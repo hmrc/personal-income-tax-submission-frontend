@@ -29,9 +29,8 @@
 
 @(form: Form[Boolean], taxYear: Int, checked: String = "")(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
-@headingForUse = @{messages(s"charity.donated-land-or-property.heading.${if(user.isAgent) "agent" else "individual"}")}
-
 @titleForUse = @{messages(s"charity.donated-land-or-property.title.${if(user.isAgent) "agent" else "individual"}")}
+@headingForUse = @{(titleForUse)}
 
 @hasFormErrors = @{form.hasErrors}
 

@@ -49,7 +49,7 @@ class TaxedInterestAmountFormSpec extends UnitTest{
         val testInput = Map(taxedAccountName -> nameInvalid, taxedAmount -> amountValid.toString)
         val result = form.bind(testInput).errors
 
-        result should contain(FormError(taxedAccountName, "interest.taxed-uk-interest-name.error.empty"))
+        result should contain(FormError(taxedAccountName, "interest.common.error.name.empty"))
       }
     }
     "Correctly validate currency amount" when {

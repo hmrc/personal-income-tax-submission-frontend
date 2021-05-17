@@ -23,17 +23,9 @@
 @this(layout: Layout, formWithCsrf: FormWithCSRF, inputField: InputText, heading: Heading, button: Button, errorSummary: ErrorSummary)
 @(taxYear: Int, form: Form[BigDecimal], prefill: Option[String])(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
-@titleText = @{
-    if(user.isAgent) {
-        messages("charity.amount-overseas-gift-aid.title.agent")
-    } else {
-        messages("charity.amount-overseas-gift-aid.title.individual")
-    }
-}
+@titleText = @{messages(s"charity.amount-overseas-gift-aid.title.${if(user.isAgent) "agent" else "individual"}")}
 
-@headingForUse = @{
-    messages(s"charity.amount-overseas-gift-aid.heading.${if(user.isAgent) "agent" else "individual"}")
-}
+@headingForUse = @{(titleText)}
 
 @layout(pageTitle = titleText, taxYear = Some(taxYear), hasErrors = form.hasErrors) {
 
@@ -49,7 +41,7 @@
             labelClasses = Some("govuk-!-margin-bottom-1"),
             isPageHeading = false,
             currency = true,
-            hint = Some(Html(messages("charity.amount-overseas-gift-aid.input.hint-text"))),
+            hint = Some(Html(messages("common.currency.hint"))),
             subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)),
             headingClasses = "govuk-!-margin-bottom-2"
         )

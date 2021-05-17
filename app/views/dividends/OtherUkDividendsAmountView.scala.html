@@ -53,7 +53,7 @@
         formInput,
         id = "amount",
         name = "amount",
-        heading = s"dividends.other-dividends-amount.heading.${if(user.isAgent) "agent" else "individual"}",
+        heading = s"dividends.other-dividends-amount.title.${if(user.isAgent) "agent" else "individual"}",
         content = Some(contentHtml),
         labelClasses = Some("govuk-!-margin-bottom-4"),
         isPageHeading = false,
@@ -79,14 +79,14 @@
 @contentHtml = {
     @if(priorSubmission.isDefined) {
         <p>
-            @messages(s"dividends.other-dividends-amount.change-amount.prior.common.1")
-            @messages(s"dividends.other-dividends-amount.change-amount.prior.${if(user.isAgent) "agent" else "individual"}")
+            @messages(s"common.youToldUs")
+            @messages(s"common.youGot.${if(user.isAgent) "agent" else "individual"}")
             @bigDecimalCurrency(priorAmount.getOrElse(BigDecimal("0")).toString)
             @messages("dividends.other-dividends-amount.change-amount.prior.common.2")
         </p>
     } else {
         <p>
-            @messages(s"dividends.other-dividends-amount.change-amount.caption.${if(user.isAgent) "agent" else "individual"}")
+            @messages(s"dividends.common.change.amount.caption.${if(user.isAgent) "agent" else "individual"}")
         </p>
     }
 }

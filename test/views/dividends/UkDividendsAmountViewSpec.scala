@@ -66,6 +66,9 @@ class UkDividendsAmountViewSpec extends ViewTest {
   val newAmountInput = "#amount"
   val amountInputName = "amount"
 
+  val tellUsTheValueIndividual = "Tell us the value of the dividends you got, in pounds. You can find this information in your dividend voucher."
+  val tellUsTheValueAgent = "Tell us the value of the dividends your client got, in pounds. You can find this information in their dividend voucher."
+
   def youToldUsPriorTextIndividual(amount: String): String =
     s"You told us you got £$amount in dividends from UK-based companies this year. Tell us if this has changed."
 
@@ -88,6 +91,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           h1Check( expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
+          textOnPageCheck(tellUsTheValueIndividual, youToldUsSelector)
           inputFieldCheck(amountInputName, inputSelector)
           buttonCheck(continueText, continueButtonSelector)
           formPostLinkCheck(continueLink, continueButtonFormSelector)
@@ -213,6 +217,7 @@ class UkDividendsAmountViewSpec extends ViewTest {
           h1Check( expectedH1Agent + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
+          textOnPageCheck(tellUsTheValueAgent, youToldUsSelector)
           inputFieldCheck(amountInputName, inputSelector)
           buttonCheck(continueText, continueButtonSelector)
           formPostLinkCheck(continueLink, continueButtonFormSelector)
