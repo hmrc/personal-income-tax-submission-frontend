@@ -133,6 +133,27 @@ trait ViewHelpers { self: AnyWordSpec with Matchers =>
     }
   }
 
+  def taskListCheck(itemList: Seq[(String, String, String)])(implicit document: () => Document): Unit = {
+    for(i <- 1 to itemList.length){
+      s"display a task list row for entry number $i" which {
+        s"displays the correct name for entry number $i" in {
+          document().select(s"ul.hmrc-add-to-a-list > li:nth-child($i) > .hmrc-add-to-a-list__identifier")
+            .text() shouldBe itemList(i-1)._1
+        }
+        s"displays the change link and has the correct hidden-change-text for entry number $i" in {
+          document().select(s"ul.hmrc-add-to-a-list > li:nth-child($i) > .hmrc-add-to-a-list__change > a > span:nth-child(1)").text() shouldBe "Change"
+          document().select(s"ul.hmrc-add-to-a-list > li:nth-child($i) > .hmrc-add-to-a-list__change > a > .govuk-visually-hidden")
+            .text() shouldBe itemList(i-1)._2
+        }
+        s"displays the remove link and has the correct hidden-remove-text for entry number $i" in {
+          document().select(s"ul.hmrc-add-to-a-list > li:nth-child($i) > .hmrc-add-to-a-list__remove > a > span:nth-child(1)").text() shouldBe "Remove"
+          document().select(s"ul.hmrc-add-to-a-list > li:nth-child($i) > .hmrc-add-to-a-list__remove > a > .govuk-visually-hidden")
+            .text() shouldBe itemList(i-1)._3
+        }
+      }
+    }
+  }
+
   def errorSummaryCheck(text: String, href: String)(implicit document: () => Document): Unit = {
     "contains an error summary" in {
       elementExist(".govuk-error-summary")

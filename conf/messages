@@ -367,6 +367,13 @@ charity.shares-or-securities.error.max-amount.agent = The value of your client�
 charity.shares-or-securities.error.wrong-format.individual = Enter the value of shares or securities you donated to charity in the correct format
 charity.shares-or-securities.error.wrong-format.agent = Enter the value of shares or securities your client donated to charity in the correct format
 
+charity.shares-and-land-summary.title.individual = Overseas {0} you donated shares, securities, land or property to
+charity.shares-and-land-summary.title.agent = Overseas {0} your client donated shares, securities, land or property to
+charity.shares-and-land-summary.addAnother = Do you need to add another overseas charity?
+charity.shares-and-land-summary.hint.individual = You must tell us about all the overseas charities you donated shares, securities, land or property to.
+charity.shares-and-land-summary.hint.agent = You must tell us about all the overseas charities your client donated shares, securities, land or property to.
+charity.shares-and-land-summary.change-hidden = Change the details you’ve entered for {0}.
+
 charity.donations-to-previous-tax-year.errors.noChoice.individual = Select yes to add any of your donations made after 5 April {0} to this tax year
 charity.donations-to-previous-tax-year.errors.noChoice.agent = Select yes to add any of your client’s donations made after 5 April {0} to this tax year
 charity.donations-to-previous-tax-year.title = Do you want to add any donations made after 5 April {0} to this tax year?
