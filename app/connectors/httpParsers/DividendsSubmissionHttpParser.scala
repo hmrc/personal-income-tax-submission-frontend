@@ -16,7 +16,8 @@
 
 package connectors.httpParsers
 
-import models.{APIErrorModel, DividendsResponseModel}
+import models.dividends.DividendsResponseModel
+import models.APIErrorModel
 import play.api.http.Status._
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 import utils.PagerDutyHelper.PagerDutyKeys._

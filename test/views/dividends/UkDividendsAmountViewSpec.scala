@@ -16,8 +16,9 @@
 
 package views.dividends
 
-import forms.UkDividendsAmountForm
-import models.{DividendsPriorSubmission, User}
+import forms.dividends.UkDividendsAmountForm
+import models.dividends.DividendsPriorSubmission
+import models.User
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.data.Form

@@ -19,7 +19,7 @@ package controllers.dividends
 import common.SessionValues
 import connectors.DividendsSubmissionConnector
 import helpers.PlaySessionCookieBaker
-import models._
+import models.dividends.{DividendsCheckYourAnswersModel, DividendsSubmissionModel}
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.json.Json

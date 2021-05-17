@@ -17,11 +17,11 @@
 package controllers.dividends
 
 import common.SessionValues
-import forms.OtherDividendsAmountForm
+import forms.dividends.OtherDividendsAmountForm
 import helpers.PlaySessionCookieBaker
-import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.{WSClient, WSResponse}

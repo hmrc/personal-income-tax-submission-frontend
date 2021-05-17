@@ -18,7 +18,8 @@ package connectors
 
 import com.github.tomakehurst.wiremock.http.HttpHeader
 import connectors.httpParsers.DividendsSubmissionHttpParser.DividendsSubmissionsResponse
-import models.{APIErrorBodyModel, APIErrorModel, DividendsResponseModel, DividendsSubmissionModel}
+import models.dividends.{DividendsResponseModel, DividendsSubmissionModel}
+import models.{APIErrorBodyModel, APIErrorModel}
 import play.api.http.Status._
 import utils.IntegrationTest
 

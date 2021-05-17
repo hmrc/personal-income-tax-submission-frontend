@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package forms
+package forms.dividends
 
-import forms.UkDividendsAmountForm._
+import forms.dividends.UkDividendsAmountForm._
 import models.User
 import play.api.data.{Form, FormError}
 import play.api.mvc.AnyContent
 import utils.UnitTest
-
 
 class UkDividendsAmountFormSpec extends UnitTest {
 

@@ -21,6 +21,7 @@ import common.SessionValues
 import config.{AppConfig, ErrorHandler, MockAuditService}
 import controllers.predicates.AuthorisedAction
 import models._
+import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, DividendsResponseModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalamock.handlers.CallHandler

@@ -20,8 +20,8 @@ import common.SessionValues
 import config.AppConfig
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.YesNoForm
-import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import play.api.http.HeaderNames
+import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.Result

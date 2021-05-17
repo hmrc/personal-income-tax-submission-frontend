@@ -16,8 +16,8 @@
 
 package views.interest
 
-import forms.TaxedInterestAmountForm
-import models.TaxedInterestModel
+import forms.interest.TaxedInterestAmountForm
+import models.interest.TaxedInterestModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.data.Form

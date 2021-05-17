@@ -24,14 +24,13 @@ import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.YesNoForm
 import models.question.QuestionsJourney
-import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
+import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.dividends.ReceiveUkDividendsView
-
 import javax.inject.Inject
 
 class ReceiveUkDividendsController @Inject()(

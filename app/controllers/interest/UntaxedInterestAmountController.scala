@@ -23,10 +23,8 @@ import controllers.interest.routes.UntaxedInterestAmountController
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
-import forms.UntaxedInterestAmountForm
-import models.UntaxedInterestModel
-import models.interest.{InterestAccountModel, InterestCYAModel}
 import models.question.QuestionsJourney
+import models.interest.{InterestAccountModel, InterestCYAModel, UntaxedInterestModel}
 import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.I18nSupport
@@ -34,8 +32,8 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.InterestSessionHelper
 import views.html.interest.UntaxedInterestAmountView
-
 import java.util.UUID.randomUUID
+import forms.interest.UntaxedInterestAmountForm
 import javax.inject.Inject
 
 class UntaxedInterestAmountController @Inject()(

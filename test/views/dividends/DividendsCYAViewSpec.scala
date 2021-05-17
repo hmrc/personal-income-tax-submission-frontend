@@ -16,7 +16,7 @@
 
 package views.dividends
 
-import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
+import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import utils.ViewTest

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package forms
+package forms.interest
 
 import filters.InputFilters
-import forms.validation.StringConstraints._
-import forms.validation.mappings.MappingUtil._
-import models.UntaxedInterestModel
+import forms.validation.StringConstraints.nonEmpty
+import forms.validation.mappings.MappingUtil.{currency, trimmedText}
+import models.interest.UntaxedInterestModel
 import play.api.data.Form
-import play.api.data.Forms._
+import play.api.data.Forms.mapping
 import play.api.data.validation.Constraint
 
 object UntaxedInterestAmountForm extends InputFilters{

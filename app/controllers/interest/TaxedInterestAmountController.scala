@@ -22,10 +22,8 @@ import config.{AppConfig, INTEREST}
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
-import forms.TaxedInterestAmountForm
-import models.TaxedInterestModel
-import models.interest.{InterestAccountModel, InterestCYAModel}
 import models.question.QuestionsJourney
+import models.interest.{InterestAccountModel, InterestCYAModel, TaxedInterestModel}
 import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.I18nSupport
@@ -33,9 +31,10 @@ import play.api.mvc._
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.InterestSessionHelper
 import views.html.interest.TaxedInterestAmountView
-
 import java.util.UUID.randomUUID
+import forms.interest.TaxedInterestAmountForm
 import javax.inject.Inject
+
 import scala.concurrent.ExecutionContext
 
 class TaxedInterestAmountController @Inject()(

@@ -22,7 +22,8 @@ import config.{AppConfig, DIVIDENDS, ErrorHandler}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
-import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, DividendsResponseModel, User}
+import models.User
+import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, DividendsResponseModel}
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.libs.json.{Json, Reads}
@@ -32,8 +33,8 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.DividendsCYAView
-
 import javax.inject.Inject
+
 import scala.concurrent.{ExecutionContext, Future}
 
 class DividendsCYAController @Inject()(

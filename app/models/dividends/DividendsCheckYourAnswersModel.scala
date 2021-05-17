@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package models
+package models.dividends
 
 import common.SessionValues
 import controllers.dividends.routes.{OtherUkDividendsAmountController, ReceiveOtherUkDividendsController, ReceiveUkDividendsController, UkDividendsAmountController}
 import models.question.Question.{WithDependency, WithoutDependency}
 import models.question.{Question, QuestionsJourney}
+import models.User
 import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.Call
 

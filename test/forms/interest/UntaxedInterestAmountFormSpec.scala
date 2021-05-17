@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package forms
+package forms.interest
 
-import forms.UntaxedInterestAmountForm._
-import models.UntaxedInterestModel
+import forms.interest.UntaxedInterestAmountForm._
+import models.interest.UntaxedInterestModel
 import play.api.data.{Form, FormError}
 import utils.UnitTest
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package models
+package models.dividends
 
 import controllers.dividends.routes.{OtherUkDividendsAmountController, ReceiveOtherUkDividendsController, ReceiveUkDividendsController, UkDividendsAmountController}
 import models.question.Question.{WithDependency, WithoutDependency}
