@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package models
+package models.dividends
 
 import play.api.libs.json.{JsObject, Json}
 import utils.UnitTest

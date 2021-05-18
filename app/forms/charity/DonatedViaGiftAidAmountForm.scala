@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package forms
+package forms.charity
 
-import forms.validation.mappings.MappingUtil._
+import forms.validation.mappings.MappingUtil.currency
 import play.api.data.Form
-
 
 object DonatedViaGiftAidAmountForm {
   val donatedViaGiftAidAmount: String = "amount"
@@ -33,4 +32,3 @@ object DonatedViaGiftAidAmountForm {
     )
   )
 }
-

@@ -20,7 +20,6 @@ import forms.charity.GiftAidOverseasNameForm._
 import play.api.data.{Form, FormError}
 import utils.UnitTest
 
-
 class GiftAidOverseasNameFormSpec extends UnitTest {
 
   def form(previousNames: List[String] ,isAgent: Boolean): Form[String] = {

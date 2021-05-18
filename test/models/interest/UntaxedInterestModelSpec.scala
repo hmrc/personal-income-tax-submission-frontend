@@ -16,7 +16,6 @@
 
 package models.interest
 
-import models.UntaxedInterestModel
 import play.api.libs.json.{JsObject, Json}
 import utils.UnitTest
 

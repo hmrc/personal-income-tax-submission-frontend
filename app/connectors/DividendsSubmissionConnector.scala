@@ -16,11 +16,10 @@
 
 package connectors
 
-
 import config.AppConfig
 import connectors.httpParsers.DividendsSubmissionHttpParser._
 import javax.inject.Inject
-import models.DividendsSubmissionModel
+import models.dividends.DividendsSubmissionModel
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
 import scala.concurrent.{ExecutionContext, Future}

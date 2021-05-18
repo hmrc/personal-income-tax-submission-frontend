@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package forms
+package forms.charity
 
-import forms.charity.GiftAidOverseasAmountForm
+import forms.charity.GiftAidOverseasAmountForm._
 import play.api.data.{Form, FormError}
 import utils.UnitTest
-import forms.charity.GiftAidOverseasAmountForm._
 
 class GiftAidOverseasAmountFormSpec extends UnitTest {
 

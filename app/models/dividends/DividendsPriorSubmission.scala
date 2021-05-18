@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package models
+package models.dividends
 
 import common.SessionValues
+import models.User
 import play.api.libs.json.{Json, OFormat}
 
 case class DividendsPriorSubmission(

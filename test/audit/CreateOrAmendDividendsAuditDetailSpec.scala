@@ -16,7 +16,7 @@
 
 package audit
 
-import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
+import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import play.api.libs.json.Json
 import utils.UnitTest
 

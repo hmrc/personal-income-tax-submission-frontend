@@ -18,9 +18,8 @@ package services
 
 import connectors.DividendsSubmissionConnector
 import connectors.httpParsers.DividendsSubmissionHttpParser.DividendsSubmissionsResponse
-
 import javax.inject.Inject
-import models.{DividendsCheckYourAnswersModel, DividendsResponseModel, DividendsSubmissionModel}
+import models.dividends.{DividendsCheckYourAnswersModel, DividendsResponseModel, DividendsSubmissionModel}
 import play.api.Logger
 import uk.gov.hmrc.http.HeaderCarrier
 

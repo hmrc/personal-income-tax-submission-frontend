@@ -20,8 +20,9 @@ import common.SessionValues
 import config.AppConfig
 import controllers.dividends.routes.ReceiveOtherUkDividendsController
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
-import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import play.api.http.HeaderNames
+import controllers.predicates.AuthorisedAction
+import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.Result

@@ -20,7 +20,6 @@ import play.api.data.{Form, FormError}
 import utils.UnitTest
 import forms.charity.GiftAidOneOffAmountForm._
 
-
 class GiftAidOneOffAmountFormSpec extends UnitTest {
 
   def form(isAgent: Boolean): Form[BigDecimal] = {

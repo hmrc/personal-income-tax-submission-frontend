@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package forms
+package forms.dividends
 
-import forms.validation.mappings.MappingUtil._
+import forms.validation.mappings.MappingUtil.currency
 import models.User
 import play.api.data.Form
 

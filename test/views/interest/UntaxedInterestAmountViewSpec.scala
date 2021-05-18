@@ -16,8 +16,8 @@
 
 package views.interest
 
-import forms.UntaxedInterestAmountForm
-import models.UntaxedInterestModel
+import forms.interest.UntaxedInterestAmountForm
+import models.interest.UntaxedInterestModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.data.Form

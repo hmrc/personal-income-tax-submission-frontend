@@ -122,6 +122,9 @@ POST        /:taxYear/charity/name-of-overseas-charities-donated-shares-securiti
 GET         /:taxYear/charity/donation-of-shares-securities-land-or-property-to-overseas-charities           controllers.charity.GiftAidSharesSecuritiesLandPropertyOverseasController.show(taxYear: Int)
 POST        /:taxYear/charity/donation-of-shares-securities-land-or-property-to-overseas-charities           controllers.charity.GiftAidSharesSecuritiesLandPropertyOverseasController.submit(taxYear: Int)
 
+GET         /:taxYear/charity/value-of-shares-securities-land-or-property-to-overseas-charities              controllers.charity.OverseasSharesSecuritiesLandPropertyAmountController.show(taxYear: Int)
+POST        /:taxYear/charity/value-of-shares-securities-land-or-property-to-overseas-charities              controllers.charity.OverseasSharesSecuritiesLandPropertyAmountController.submit(taxYear: Int)
+
 GET         /keep-alive                                                                                      controllers.SessionExpiredController.keepAlive
 GET         /timeout                                                                                         controllers.SessionExpiredController.timeout
 

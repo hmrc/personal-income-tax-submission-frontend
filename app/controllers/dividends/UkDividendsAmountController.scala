@@ -22,9 +22,10 @@ import controllers.dividends.routes.UkDividendsAmountController
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
-import forms.UkDividendsAmountForm.ukDividendsAmountForm
 import models.question.QuestionsJourney
-import models.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, User}
+import forms.dividends.UkDividendsAmountForm.ukDividendsAmountForm
+import models.User
+import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
@@ -32,7 +33,6 @@ import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.dividends.UkDividendsAmountView
-
 import javax.inject.Inject
 
 class UkDividendsAmountController @Inject()(

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package forms
+package forms.charity
 
 import play.api.data.Form
 import utils.UnitTest

@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package models
+package models.dividends
 
 import play.api.libs.json.{Json, OFormat}
 
-case class UntaxedInterestModel(untaxedAccountName: String, untaxedAmount: BigDecimal)
+case class DividendsSubmissionModel(ukDividends: Option[BigDecimal],
+                               otherUkDividends: Option[BigDecimal])
 
-object UntaxedInterestModel{
-  implicit val formats: OFormat[UntaxedInterestModel] = Json.format[UntaxedInterestModel]
+object DividendsSubmissionModel {
+  implicit val formats: OFormat[DividendsSubmissionModel] = Json.format[DividendsSubmissionModel]
 }

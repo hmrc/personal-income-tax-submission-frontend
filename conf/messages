@@ -398,6 +398,15 @@ charity.shares-securities-land-property-overseas.title.agent = Did your client d
 charity.shares-securities-land-property-overseas.heading.individual = Did you donate qualifying shares, securities, land or property to overseas charities?
 charity.shares-securities-land-property-overseas.heading.agent = Did your client donate qualifying shares, securities, land or property to overseas charities?
 
+charity.overseas-shares-securities-land-property-amount.heading = What is the value of shares, securities, land or property donated to overseas charities?
+charity.overseas-shares-securities-land-property-amount.input.label = Total value, in pounds
+charity.overseas-shares-securities-land-property-amount.error.empty-field.individual = Enter the value of shares, securities, land or property you donated to overseas charities
+charity.overseas-shares-securities-land-property-amount.error.empty-field.agent = Enter the value of shares, securities, land or property your client donated to overseas charities
+charity.overseas-shares-securities-land-property-amount.error.max-amount.individual = The value of your shares, securities, land or property must be less than £100,000,000,000
+charity.overseas-shares-securities-land-property-amount.error.max-amount.agent = The value of your client’s shares, securities, land or property must be less than £100,000,000,000
+charity.overseas-shares-securities-land-property-amount.error.wrong-format.individual = Enter the value of shares, securities, land or property you donated to overseas charities in the correct format
+charity.overseas-shares-securities-land-property-amount.error.wrong-format.agent = Enter the value of shares, securities, land or property your client donated to overseas charities in the correct format
+
 not-found-template.title = Page not found
 not-found-template.heading = Page not found
 not-found-template.paragraph.1 = If you typed the web address, check it is correct.
