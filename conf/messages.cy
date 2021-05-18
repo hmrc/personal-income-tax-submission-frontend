@@ -239,8 +239,8 @@ charity.gift-aid-overseas-name.error.limit = The name of the overseas charity mu
 charity.gift-aid-overseas-name.error.invalid = Name of overseas charity must only include numbers 0-9, letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets and the special characters, &, /, @, £, *
 charity.gift-aid-overseas-name.error.duplicate = You cannot add 2 charities with the same name
 
-charity.overseas-gift-aid-summary.title.individual = Overseas charities you used Gift Aid to donate to
-charity.overseas-gift-aid-summary.title.agent = Overseas charities your client used Gift Aid to donate to
+charity.overseas-gift-aid-summary.title.individual = Overseas {0} you used Gift Aid to donate to
+charity.overseas-gift-aid-summary.title.agent = Overseas {0} your client used Gift Aid to donate to
 charity.overseas-gift-aid-summary.hint.individual = You must tell us about all the overseas charities you donated to.
 charity.overseas-gift-aid-summary.hint.agent = You must tell us about all the overseas charities your client donated to.
 charity.overseas-gift-aid-summary.noChoice = Select yes if you need to add another overseas charity
