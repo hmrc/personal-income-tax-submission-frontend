@@ -37,7 +37,7 @@ class OverseasGiftAidSummaryController @Inject()(overseasGiftAidSummaryView: Ove
 
   val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("charity.overseas-gift-aid-summary.noChoice")
 
-  //TODO - retrieve list of overseas charities when available
+  //TODO - retrieve list of overseas charities when available, Add test for plural or singular title
   def getOverseasCharities: List[String] = List("overseasCharity1", "overseasCharity2")
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
