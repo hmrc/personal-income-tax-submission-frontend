@@ -71,7 +71,7 @@ class UkDividendsAmountFormSpec extends UnitTest {
       val testInput = Map(ukDividendsAmount -> testCurrencyInvalidInt)
 
       val invalidCharTest = individualForm.bind(testInput)
-      invalidCharTest.errors should contain(FormError(ukDividendsAmount, "dividends.uk-dividends-amount.error.invalidFormat.individual"))
+      invalidCharTest.errors should contain(FormError(ukDividendsAmount, "dividends.common.error.invalidFormat.individual"))
     }
 
     "invalidate a currency that includes invalid characters for an agent" in {
@@ -79,21 +79,21 @@ class UkDividendsAmountFormSpec extends UnitTest {
       val testInput = Map(ukDividendsAmount -> testCurrencyInvalidInt)
 
       val invalidCharTest = agentForm.bind(testInput)
-      invalidCharTest.errors should contain(FormError(ukDividendsAmount, "dividends.uk-dividends-amount.error.invalidFormat.agent"))
+      invalidCharTest.errors should contain(FormError(ukDividendsAmount, "dividends.common.error.invalidFormat.agent"))
     }
 
     "invalidate a currency that has incorrect formatting for an individual" in {
       val testInput = Map(ukDividendsAmount -> testCurrencyInvalidFormat.toString)
 
       val invalidFormatTest = individualForm.bind(testInput)
-      invalidFormatTest.errors should contain(FormError(ukDividendsAmount, "dividends.uk-dividends-amount.error.invalidFormat.individual"))
+      invalidFormatTest.errors should contain(FormError(ukDividendsAmount, "dividends.common.error.invalidFormat.individual"))
     }
 
     "invalidate a currency that has incorrect formatting for an agent" in {
       val testInput = Map(ukDividendsAmount -> testCurrencyInvalidFormat.toString)
 
       val invalidFormatTest = agentForm.bind(testInput)
-      invalidFormatTest.errors should contain(FormError(ukDividendsAmount, "dividends.uk-dividends-amount.error.invalidFormat.agent"))
+      invalidFormatTest.errors should contain(FormError(ukDividendsAmount, "dividends.common.error.invalidFormat.agent"))
     }
 
     "invalidate a currency that is too big" in {

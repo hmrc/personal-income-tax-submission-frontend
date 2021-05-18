@@ -50,7 +50,7 @@
 
 @layout(messages("interest.cya.title"), taxYear = Some(taxYear), isAgent = user.isAgent) {
 
-    @heading("interest.cya.h1", Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
+    @heading("interest.cya.title", Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 
     @{
         govukSummaryList(SummaryList(Seq(

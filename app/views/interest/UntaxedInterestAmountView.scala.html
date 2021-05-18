@@ -42,13 +42,13 @@
 
         @errorSummary(form.errors.distinct)
 
-        @heading("interest.untaxed-uk-interest-details.heading", Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
+        @heading("interest.untaxed-uk-interest-details.title", Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 
         @inputText(
             form,
             id = "untaxedAccountName",
             name = "untaxedAccountName",
-            heading = "interest.untaxed-uk-interest-details.sub-heading1",
+            heading = "interest.common.sub-heading1",
             isPageHeading = false,
             classes = Some("govuk-input--width-20")
         )
@@ -57,7 +57,7 @@
             form,
             id = "untaxedAmount",
             name = "untaxedAmount",
-            heading = "interest.untaxed-uk-interest-details.sub-heading2",
+            heading = "interest.common.amount.interest.earned",
             isPageHeading = false,
             currency = true,
             hint = Some(hint)

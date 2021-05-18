@@ -40,7 +40,7 @@ class UnauthorisedUserErrorPageViewSpec extends AnyWordSpec with Matchers with G
   val forMoreInformationText = "for more information"
   val useText = "use"
   val selfAssessmentText = "Self Assessment: general enquiries (opens in new tab)"
-  val toSpeakText = "to speak to someone about your income tax"
+  val toSpeakText = "to speak to someone about your income tax."
   val incomeTaxHomePageLink = "https://www.gov.uk/income-tax"
   val selfAssessmentLink = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
 

@@ -29,9 +29,9 @@ heading: Heading
 
 @(taxYear: Int, form: Form[String])(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
-@headingForUse = @{messages(s"charity.overseas-shares-donated-name.heading.${if(user.isAgent) "agent" else "individual"}")}
-
 @titleForUse = @{messages(s"charity.overseas-shares-donated-name.title.${if(user.isAgent) "agent" else "individual"}")}
+
+@headingForUse = @{(titleForUse)}
 
 @content = {
     <p>

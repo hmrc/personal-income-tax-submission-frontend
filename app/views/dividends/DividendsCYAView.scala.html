@@ -40,9 +40,9 @@
     s"${bigDecimalCurrency(amount.toString)}"
 }
 
-@headingForUse = @{messages(s"dividends.cya.heading.${if(user.isAgent) "agent" else "individual"}")}
-
 @titleForUse = @{messages(s"dividends.cya.title.${if(user.isAgent) "agent" else "individual"}")}
+
+@headingForUse = @{(titleForUse)}
 
 @layout(pageTitle = titleForUse, taxYear = Some(taxYear), isAgent = user.isAgent) {
 

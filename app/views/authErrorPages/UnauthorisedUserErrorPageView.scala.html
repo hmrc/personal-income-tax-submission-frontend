@@ -22,7 +22,7 @@
 @()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 @layout(pageTitle = messages("error.unauthorised-user.title"), backLink = false) {
 
-@heading(messages("error.unauthorised-user.heading"), None, extraClasses = "govuk-!-margin-bottom-5", size = "xl")
+@heading(messages("error.unauthorised-user.title"), None, extraClasses = "govuk-!-margin-bottom-5", size = "xl")
 
 <div class="govuk-body">
  <p>@messages("error.unauthorised-user.paragraph.1.1")</p>

@@ -29,9 +29,9 @@
 
 @(form: Form[Boolean], taxYear: Int, charityType: String, charityName: String, isLast: Boolean)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
-@headingForUse = @{messages("charity.remove-overseas-charity.heading", charityName)}
+@titleForUse = @{messages("common.remove.account", charityName)}
 
-@titleForUse = @{messages("charity.remove-overseas-charity.title", charityName)}
+@headingForUse = @{(titleForUse)}
 
 @contentHtml = {
     <p class = "govuk-body">

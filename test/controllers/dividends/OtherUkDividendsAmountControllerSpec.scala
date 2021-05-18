@@ -222,7 +222,7 @@ class OtherUkDividendsAmountControllerSpec extends UnitTestWithApp {
           .withFormUrlEncodedBody("amount" -> "ASDFGHJ"))
 
         status(result) shouldBe BAD_REQUEST
-        bodyOf(result) should include("dividends.other-dividends-amount.error.invalidFormat.individual")
+        bodyOf(result) should include("dividends.common.error.invalidFormat.individual")
       }
 
       "the amount input does not pass validation with prior data" in new TestWithAuth {
@@ -237,7 +237,7 @@ class OtherUkDividendsAmountControllerSpec extends UnitTestWithApp {
           ))
 
         status(result) shouldBe BAD_REQUEST
-        bodyOf(result) should include("dividends.other-dividends-amount.error.invalidFormat.individual")
+        bodyOf(result) should include("dividends.common.error.invalidFormat.individual")
       }
 
 

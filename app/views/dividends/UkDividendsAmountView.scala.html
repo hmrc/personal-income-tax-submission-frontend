@@ -46,9 +46,7 @@
     messages(s"dividends.uk-dividends-amount.title.${if(user.isAgent) "agent" else "individual"}")
 }
 
-@headingForUse = @{
-    messages(s"dividends.uk-dividends-amount.heading.${if(user.isAgent) "agent" else "individual"}")
-}
+@headingForUse = @{(titleForUse)}
 
 @currencyFormHtml(formInput: Form[BigDecimal]) = {
     @errorSummary(formInput.errors.distinct)
@@ -83,14 +81,14 @@
 @contentHtml = {
     @if(priorAmount.isDefined) {
         <p>
-            @messages(s"dividends.uk-dividends-amount.change-amount.prior.common.1")
-            @messages(s"dividends.uk-dividends-amount.change-amount.prior.${if(user.isAgent) "agent" else "individual"}")
+            @messages(s"common.youToldUs")
+            @messages(s"common.youGot.${if(user.isAgent) "agent" else "individual"}")
             @bigDecimalCurrency(priorAmount.get.toString)
             @messages("dividends.uk-dividends-amount.change-amount.prior.common.2")
         </p>
     } else {
         <p>
-            @messages(s"dividends.uk-dividends-amount.change-amount.caption.${if(user.isAgent) "agent" else "individual"}")
+            @messages(s"dividends.common.change.amount.caption.${if(user.isAgent) "agent" else "individual"}")
         </p>
     }
 }

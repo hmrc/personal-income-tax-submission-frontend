@@ -37,10 +37,10 @@ errorSummary: ErrorSummary,
 
 @h1Text = @{
     (taxType, accounts.length)  match {
-        case(`TAXED`, 1) => messages("interest.taxed-uk-interest-accounts.h1.single")
-        case(`UNTAXED`,1) => messages("interest.untaxed-uk-interest-accounts.h1.single")
-        case(`TAXED`, _ ) => messages("interest.taxed-uk-interest-accounts.h1.multiple")
-        case(`UNTAXED`, _ ) => messages("interest.untaxed-uk-interest-accounts.h1.multiple")
+        case(`TAXED`, 1) => messages("interest.taxed-uk-interest-accounts.title.single")
+        case(`UNTAXED`,1) => messages("interest.untaxed-uk-interest-accounts.title.single")
+        case(`TAXED`, _ ) => messages("interest.taxed-uk-interest-accounts.title.multiple")
+        case(`UNTAXED`, _ ) => messages("interest.untaxed-uk-interest-accounts.title.multiple")
     }
 }
 

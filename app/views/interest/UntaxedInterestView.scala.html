@@ -29,16 +29,15 @@
 
 @(form: Form[Boolean], taxYear: Int)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
-@headingForUse = @{
-    if(user.isAgent) messages("interest.untaxed-uk-interest.heading.agent") else messages("interest.untaxed-uk-interest.heading.individual")
-}
 @titleForUse = @{messages(s"interest.untaxed-uk-interest.title.${if(user.isAgent) "agent" else "individual"}")}
+
+@headingForUse = @{(titleForUse)}
 
 @hasFormErrors = @{form.hasErrors}
 
 @hint = {
     <p>
-        @messages("interest.untaxed-uk-interest.paragraph.1")
+        @messages("interest.common.paragraph.1")
     </p>
         <ul>
             <li>@messages("interest.untaxed-uk-interest.list.1")</li>

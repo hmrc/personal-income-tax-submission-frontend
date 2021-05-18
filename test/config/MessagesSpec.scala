@@ -47,4 +47,45 @@ class MessagesSpec extends ViewTest with GuiceOneAppPerSuite {
       )
     }
   }
+
+  "the messages file" should {
+
+    "not have duplicate values" in {
+
+      // These messages keys are from hmrc libraries, so we cannot avoid the duplicates that occur in there.
+      val exclusionKeys = List(
+        "betaBar.banner.message.1",
+        "betaBar.banner.message.2",
+        "betaBar.banner.message.3",
+        "phase.banner.link",
+        "phase.banner.before",
+        "phase.banner.after",
+        "global.error.badRequest400.message",
+        "global.error.pageNotFound404.message"
+      )
+
+      val defaults = allLanguages("default").filter(entry => !exclusionKeys.contains(entry._1))
+
+      def go(keysToExplore: List[(String, String)], result: List[(String, String)]): List[(String, String)] = {
+        keysToExplore match {
+          case Nil => result
+          case h :: t =>
+            val (currentMessageKey, currentMessage) = (h._1, h._2)
+            val x = defaults.collect {
+              case (messageKey, message) if currentMessageKey != messageKey && currentMessage == message => currentMessageKey -> messageKey
+            }
+
+            go(t, x.toList ++ result)
+        }
+
+      }
+
+      val result = go(defaults.toList, List())
+
+      result.foreach(println)
+
+      result shouldBe List()
+    }
+
+  }
 }
