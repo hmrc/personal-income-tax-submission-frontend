@@ -78,13 +78,5 @@ class AmountFormSpec extends UnitTest {
       val bigCurrencyTest = theForm().bind(testInput)
       bigCurrencyTest.errors should contain(FormError(amount, "too big"))
     }
-
-    "remove a leading space from a currency" in {
-      val testInput = Map(amount -> (" " + testCurrencyValid))
-      val expected = testCurrencyValid
-      val leadingSpaceTest = theForm().bind(testInput).value
-      leadingSpaceTest shouldBe Some(expected)
-    }
   }
-
 }
