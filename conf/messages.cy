@@ -320,7 +320,6 @@ charity.donations-to-previous-tax-year.paragraph.2.individual = You might want t
 charity.donations-to-previous-tax-year.paragraph.1.agent = If your client made donations after 5 April {1}, you can add them to the 6 April {0} to 5 April {1} tax year.
 charity.donations-to-previous-tax-year.paragraph.2.agent = You might want to do this if your client wants tax relief sooner.
 
-
 charity.overseas-shares-donated-name.title.individual = Name of overseas charity you donated shares, securities, land or property to
 charity.overseas-shares-donated-name.title.agent = Name of overseas charity your client donated shares, securities, land or property to
 charity.overseas-shares-donated-name.error.empty-field.individual = Enter the name of the overseas charity you donated shares, securities, land or property to
@@ -338,6 +337,30 @@ charity.overseas-shares-securities-land-property-amount.error.max-amount.individ
 charity.overseas-shares-securities-land-property-amount.error.max-amount.agent = The value of your client’s shares, securities, land or property must be less than £100,000,000,000
 charity.overseas-shares-securities-land-property-amount.error.wrong-format.individual = Enter the value of shares, securities, land or property you donated to overseas charities in the correct format
 charity.overseas-shares-securities-land-property-amount.error.wrong-format.agent = Enter the value of shares, securities, land or property your client donated to overseas charities in the correct format
+
+charity.cya.title-heading.individual = Check your donations to charity
+charity.cya.title-heading.agent = Check your client’s donations to charity
+charity.cya.questions.donatedViaGiftAid = Donation to charity using Gift Aid
+charity.cya.questions.donatedViaGiftAid.amount = Amount donated to charity using Gift Aid
+charity.cya.questions.oneOffDonationsViaGiftAid = One-off donations to charity using Gift Aid
+charity.cya.questions.oneOffDonationsViaGiftAid.amount = Amount of one-off donations to charity using Gift Aid
+charity.cya.questions.overseasDonationsViaGiftAid = Donations to overseas charities using Gift Aid
+charity.cya.questions.overseasDonationsViaGiftAid.amount = Amount donated to overseas charities using Gift Aid
+charity.cya.questions.overseasDonationsViaGiftAid.names.individual = Overseas charities you donated to
+charity.cya.questions.overseasDonationsViaGiftAid.names.agent = Overseas charities your client donated to
+charity.cya.questions.addDonationToLastYear = Adding donations to last tax year
+charity.cya.questions.addDonationToLastYear.amount = Amount added to last tax year
+charity.cya.questions.addDonationsToThisYear = Donation after 5 April {0} added to this tax year
+charity.cya.questions.addDonationsToThisYear.amount = Amount of donation after 5 April {0} added to this tax year
+charity.cya.questions.donateSharesSecuritiesLandOrProperties = Donation of shares, securities, land or property
+charity.cya.questions.donateSharesOrSecurities = Donation of shares or securities
+charity.cya.questions.donateSharesOrSecurities.amount = Value of shares or securities
+charity.cya.questions.donateLandOrProperties = Donation of land or property
+charity.cya.questions.donateLandOrProperties.amount = Value of land or property
+charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties = Donation of shares, securities, land or property to overseas charities
+charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.amount = Value of shares, securities, land or property to overseas charities
+charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.names.individual = Overseas charities you donated shares, securities, land or property to
+charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.names.agent = Overseas charities your client donated shares, securities, land or property to
 
 not-found-template.title = Page not found
 not-found-template.paragraph.1 = If you typed the web address, check it is correct.

@@ -28,4 +28,5 @@ object SessionValues {
   val TAX_YEAR = "TAX_YEAR"
 
   val GIFT_AID_PRIOR_SUB = "GIFT_AID_PRIOR_SUB"
+  val GIFT_AID_CYA = "GIFT_AID_CYA"
 }

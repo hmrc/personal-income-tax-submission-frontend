@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package models.charity
+package models.charity.prior
 
 import play.api.libs.json.{JsObject, Json}
 import utils.UnitTest
