@@ -52,7 +52,7 @@ class InterestAccountsViewSpec extends ViewTest {
   val continueSelector = "#continue"
   val continueFormSelector = "#main-content > div > div > form"
   val doYouNeedSelector = "#main-content > div > div > form > div > fieldset > legend"
-  val youMustTellSelector = "#interest-account-view-radio-hint"
+  val youMustTellSelector = "#value-hint"
 
   val changeUntaxedHref = "/income-through-software/return/personal-income/2020/interest/untaxed-uk-interest-details/qwerty"
   val changePriorUntaxedHref = "/income-through-software/return/personal-income/2020/interest/change-untaxed-interest-account?accountId=azerty"
