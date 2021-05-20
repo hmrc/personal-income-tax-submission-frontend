@@ -15,8 +15,9 @@
  *@
 
 @import views.html.headerFooterTemplate.Layout
-@import views.html.templates.helpers.{Button, ErrorSummary, Heading, InputRadio, BigDecimalCurrency, InputText}
+@import views.html.templates.helpers.{Button, ErrorSummary, Heading, InputRadio, InputText}
 @import models.interest.InterestAccountModel
+@import utils.ViewUtils.bigDecimalCurrency
 
 @this(
    layout: Layout,
@@ -25,8 +26,7 @@
    button: Button,
    heading: Heading,
    inputRadio: InputRadio,
-   inputText: InputText,
-   bigDecimalCurrency: BigDecimalCurrency
+   inputText: InputText
 )
 @(form: Form[BigDecimal], postAction: Call, taxYear: Int, taxType: String, account: InterestAccountModel, preAmount:Option[BigDecimal] = None)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
