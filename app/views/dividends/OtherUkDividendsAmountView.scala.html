@@ -76,7 +76,7 @@
 }
 
 @contentHtml = {
-    @if(priorSubmission.isDefined) {
+    @if(priorAmount.isDefined) {
         <p>
             @messages(s"common.youToldUs")
             @messages(s"common.youGot.${if(user.isAgent) "agent" else "individual"}")

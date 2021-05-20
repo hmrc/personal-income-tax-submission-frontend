@@ -56,7 +56,7 @@
                 cya.ukDividendsAmount.map { amount =>
                     summaryListRow(
                         HtmlContent(messages("dividends.cya.questions.2")),
-                        HtmlContent(bigDecimalCurrency(amount.toString).getOrElse("")),
+                        HtmlContent(bigDecimalCurrency(amount.toString)),
                         actions = Seq((controllers.dividends.routes.UkDividendsAmountController.show(taxYear), messages("common.change"), Some(messages(s"dividends.cya.changeUkDividendsAmount.${if(user.isAgent) "agent" else "individual"}"))))
                     )
                 }
@@ -72,7 +72,7 @@
                 cya.otherUkDividendsAmount.map { amount =>
                     summaryListRow(
                         HtmlContent(messages("dividends.cya.questions.4")),
-                        HtmlContent(bigDecimalCurrency(amount.toString).getOrElse("")),
+                        HtmlContent(bigDecimalCurrency(amount.toString)),
                         actions = Seq((controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear), messages("common.change"), Some(messages(s"dividends.cya.changeOtherDividendsAmount.${if(user.isAgent) "agent" else "individual"}"))))
                     )
                 }

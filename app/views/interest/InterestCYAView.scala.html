@@ -39,7 +39,7 @@
 
 @accountsInfo(questionNumber: Int, accounts: Seq[InterestAccountModel]) = {
     @accounts.zipWithIndex.map { case (account, id) =>
-        <div id="question-@{questionNumber}-account-@{id+1}">@messages("interest.cya.accountDisplay", account.accountName, bigDecimalCurrency(account.amount.toString).getOrElse(""))</div>
+        <div id="question-@{questionNumber}-account-@{id+1}">@messages("interest.cya.accountDisplay", account.accountName, bigDecimalCurrency(account.amount.toString))</div>
     }
 }
 
