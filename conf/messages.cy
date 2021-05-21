@@ -198,8 +198,8 @@ charity.amount-via-gift-aid.error.agent.too-high = The amount your client donate
 
 charity.one-off.title.individual = Did you make one-off donations?
 charity.one-off.title.agent = Did your client make one-off donations?
-charity.one-off.caption.individual_1 = You told us you used Gift Aid to donate £{0} to charity. Tell us if any of this was made as one-off payments.
-charity.one-off.caption.agent_1 = You told us your client used Gift Aid to donate £{0} to charity. Tell us if any of this was made as one-off payments.
+charity.one-off.caption.individual_1 = You told us you used Gift Aid to donate {0} to charity. Tell us if any of this was made as one-off payments.
+charity.one-off.caption.agent_1 = You told us your client used Gift Aid to donate {0} to charity. Tell us if any of this was made as one-off payments.
 charity.one-off.caption.individual_2 = One-off donations are payments you did not repeat.
 charity.one-off.caption.agent_2 = One-off donations are payments your client did not repeat.
 charity.one-off.errors.noChoice.individual = Select yes if you made a one-off donation to charity
@@ -260,8 +260,8 @@ charity.remove-overseas-charity.noChoice = Select yes to remove this overseas ch
 
 charity.last-tax-year.title.individual = Do you want to add any of your donations to the last tax year?
 charity.last-tax-year.title.agent = Do you want to add any of your client’s donations to the last tax year?
-charity.last-tax-year.content_1.individual = You told us you donated £{0} to charity by using Gift Aid. You can add some of this donation to the 6 April {1} to 5 April {2} tax year.
-charity.last-tax-year.content_1.agent = You told us your client donated £{0} to charity by using Gift Aid. You can add some of this donation to the 6 April {1} to 5 April {2} tax year.
+charity.last-tax-year.content_1.individual = You told us you donated {0} to charity by using Gift Aid. You can add some of this donation to the 6 April {1} to 5 April {2} tax year.
+charity.last-tax-year.content_1.agent = You told us your client donated {0} to charity by using Gift Aid. You can add some of this donation to the 6 April {1} to 5 April {2} tax year.
 charity.last-tax-year.content_2.individual = You might want to do this if you paid higher rate tax last year but will not this year.
 charity.last-tax-year.content_2.agent = You might want to do this if your client paid higher rate tax last year but will not this year.
 charity.last-tax-year.errors.noChoice.individual = Select yes to add any of your donations to the last tax year

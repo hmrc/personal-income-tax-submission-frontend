@@ -14,6 +14,8 @@
  * limitations under the License.
  *@
 
+@import utils.ViewUtils.bigDecimalCurrency
+
 @this(govukInput: GovukInput, headingHelper: Heading)
 
 @(
@@ -55,7 +57,7 @@
     hint = hint.map(hintHtml => Hint(
         content = HtmlContent(hintHtml)
     )),
-    value = form(name).value,
+    value = if(currency) form(name).value.map(bigDecimalCurrency(_, "")) else form(name).value,
     autocomplete = autocomplete.map(value => value),
     inputType = inputType,
     errorMessage = form(name).error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*)))),

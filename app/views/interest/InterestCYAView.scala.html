@@ -17,16 +17,15 @@
 @import views.html.headerFooterTemplate.Layout
 @import models.interest.InterestCYAModel
 @import models.interest.InterestAccountModel
-@import views.html.templates.helpers.BigDecimalCurrency
 @import views.html.templates.helpers.Button
 @import views.html.templates.helpers.Heading
 @import common.InterestTaxTypes._
 @import models.interest.InterestPriorSubmission
 @import utils.ViewUtils.summaryListRow
+@import utils.ViewUtils.bigDecimalCurrency
 
 @this(
     layout: Layout,
-    bigDecimalCurrency: BigDecimalCurrency,
     formWithCSRF: FormWithCSRF,
     button: Button,
     heading: Heading,
@@ -38,13 +37,9 @@
     if(input) messages("common.yes") else messages("common.no")
 }
 
-@bigDecimalToCurrency(amount: BigDecimal) = @{
-    s"${bigDecimalCurrency(amount.toString)}"
-}
-
 @accountsInfo(questionNumber: Int, accounts: Seq[InterestAccountModel]) = {
     @accounts.zipWithIndex.map { case (account, id) =>
-        <div id="question-@{questionNumber}-account-@{id+1}">@messages("interest.cya.accountDisplay", account.accountName, bigDecimalToCurrency(account.amount))</div>
+        <div id="question-@{questionNumber}-account-@{id+1}">@messages("interest.cya.accountDisplay", account.accountName, bigDecimalCurrency(account.amount.toString))</div>
     }
 }
 

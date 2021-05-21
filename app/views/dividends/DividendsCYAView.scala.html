@@ -18,13 +18,12 @@
 @import views.html.headerFooterTemplate.Layout
 @import views.html.templates.helpers.Button
 @import views.html.templates.helpers.Heading
-@import views.html.templates.helpers.BigDecimalCurrency
 @import utils.ViewUtils.summaryListRow
+@import utils.ViewUtils.bigDecimalCurrency
 
 @this(
     layout: Layout,
     formWithCSRF: FormWithCSRF,
-    bigDecimalCurrency: BigDecimalCurrency,
     button: Button,
     heading: Heading,
     govukSummaryList: GovukSummaryList
@@ -34,10 +33,6 @@
 
 @trueFalseToYesNo(input: Boolean) = @{
     if(input) messages("common.yes") else messages("common.no")
-}
-
-@bigDecimalToCurrency(amount: BigDecimal) = @{
-    s"${bigDecimalCurrency(amount.toString)}"
 }
 
 @titleForUse = @{messages(s"dividends.cya.title.${if(user.isAgent) "agent" else "individual"}")}
@@ -61,7 +56,7 @@
                 cya.ukDividendsAmount.map { amount =>
                     summaryListRow(
                         HtmlContent(messages("dividends.cya.questions.2")),
-                        HtmlContent(bigDecimalToCurrency(amount)),
+                        HtmlContent(bigDecimalCurrency(amount.toString)),
                         actions = Seq((controllers.dividends.routes.UkDividendsAmountController.show(taxYear), messages("common.change"), Some(messages(s"dividends.cya.changeUkDividendsAmount.${if(user.isAgent) "agent" else "individual"}"))))
                     )
                 }
@@ -77,7 +72,7 @@
                 cya.otherUkDividendsAmount.map { amount =>
                     summaryListRow(
                         HtmlContent(messages("dividends.cya.questions.4")),
-                        HtmlContent(bigDecimalToCurrency(amount)),
+                        HtmlContent(bigDecimalCurrency(amount.toString)),
                         actions = Seq((controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear), messages("common.change"), Some(messages(s"dividends.cya.changeOtherDividendsAmount.${if(user.isAgent) "agent" else "individual"}"))))
                     )
                 }

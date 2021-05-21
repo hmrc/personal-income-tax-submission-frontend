@@ -20,6 +20,8 @@ import play.api.mvc.Call
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
+import scala.util.Try
+
 object ViewUtils {
 
   def summaryListRow(key: HtmlContent,
@@ -46,5 +48,11 @@ object ViewUtils {
         classes = actionClasses
       ))
     )
+  }
+
+  def bigDecimalCurrency(value: String, currencySymbol: String = "£"): String = {
+    Try(BigDecimal(value))
+      .map(amount => currencySymbol + f"$amount%1.2f".replace(".00", ""))
+      .getOrElse("")
   }
 }

@@ -23,7 +23,7 @@
 @import views.html.templates.helpers.InputRadio
 @import views.html.templates.helpers.InputText
 @import views.html.templates.helpers.Heading
-@import views.html.templates.helpers.BigDecimalCurrency
+@import utils.ViewUtils.bigDecimalCurrency
 
 @this(
      layout: Layout,
@@ -32,8 +32,7 @@
      inputRadio: InputRadio,
      inputText: InputText,
      button: Button,
-     heading: Heading,
-     bigDecimalCurrency: BigDecimalCurrency
+     heading: Heading
 )
 
 @(form: Form[BigDecimal], priorSubmission: Option[DividendsPriorSubmission], taxYear: Int, postAction: Call, preAmount: Option[BigDecimal] = None)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
