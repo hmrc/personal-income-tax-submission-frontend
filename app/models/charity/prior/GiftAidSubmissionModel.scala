@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package models.charity
+package models.charity.prior
 
 import play.api.libs.json.{Json, OFormat}
 
-case class GiftsModel(investmentsNonUkCharitiesCharityNames: Option[List[String]] = None,
-                      landAndBuildings: Option[BigDecimal] = None,
-                      sharesOrSecurities: Option[BigDecimal] = None,
-                      investmentsNonUkCharities: Option[BigDecimal] = None)
+case class GiftAidSubmissionModel(
+                                   giftAidPayments: Option[GiftAidPaymentsModel] = None,
+                                   gifts: Option[GiftsModel] = None
+                                 )
 
-object GiftsModel {
-  implicit val format: OFormat[GiftsModel] = Json.format[GiftsModel]
+object GiftAidSubmissionModel {
+  implicit val format: OFormat[GiftAidSubmissionModel] = Json.format[GiftAidSubmissionModel]
 }

@@ -20,7 +20,7 @@ import common.SessionValues
 import common.SessionValues.GIFT_AID_PRIOR_SUB
 import forms.YesNoForm
 import helpers.PlaySessionCookieBaker
-import models.charity.{GiftAidPaymentsModel, GiftAidSubmissionModel}
+import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
@@ -65,7 +65,7 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
   val errorSummaryHref = "#value"
 
   val testModel: GiftAidSubmissionModel =
-    GiftAidSubmissionModel(Some(GiftAidPaymentsModel(Some(List("JaneDoe")), None, None, Some(150.00), None, None)),None)
+    GiftAidSubmissionModel(Some(GiftAidPaymentsModel(None, Some(List("JaneDoe")), None, Some(150.00), None, None)),None)
 
 
     "as an individual" when {

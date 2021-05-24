@@ -18,7 +18,7 @@ package controllers.dividends
 
 import audit.{AuditModel, AuditService, CreateOrAmendDividendsAuditDetail}
 import common.SessionValues
-import config.{AppConfig, DIVIDENDS, ErrorHandler}
+import config.{AppConfig, DIVIDENDS, ErrorHandler, GIFT_AID}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction

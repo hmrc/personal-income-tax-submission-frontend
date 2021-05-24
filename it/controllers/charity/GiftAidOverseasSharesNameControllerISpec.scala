@@ -19,7 +19,7 @@ package controllers.charity
 import common.SessionValues
 import common.SessionValues.GIFT_AID_PRIOR_SUB
 import helpers.PlaySessionCookieBaker
-import models.charity.{GiftAidSubmissionModel, GiftsModel}
+import models.charity.prior.{GiftAidSubmissionModel, GiftsModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
@@ -82,7 +82,7 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
   val govUkExtension = "GOV.UK"
 
   val charLimit: String = "ukHzoBYHkKGGk2V5iuYgS137gN7EB7LRw3uDjvujYg00ZtHwo3sokyOOCEoAK9vuPiP374QKOelo"
-  val testModel: GiftAidSubmissionModel = GiftAidSubmissionModel(None, Some(GiftsModel(Some(List("JaneDoe")),None,None,None)))
+  val testModel: GiftAidSubmissionModel = GiftAidSubmissionModel(None, Some(GiftsModel(None, Some(List("JaneDoe")), None,None)))
 
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]

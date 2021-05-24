@@ -18,9 +18,9 @@ package connectors
 
 import com.github.tomakehurst.wiremock.http.HttpHeader
 import connectors.httpParsers.GiftAidSubmissionHttpParser.GiftAidSubmissionsResponse
+import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
 import models.{APIErrorBodyModel, APIErrorModel}
 import play.api.http.Status._
-import models.charity.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
 import play.api.libs.json.Json
 import utils.IntegrationTest
 

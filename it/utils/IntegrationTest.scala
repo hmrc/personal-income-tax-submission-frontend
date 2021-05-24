@@ -41,7 +41,7 @@ import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
 
 trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneServerPerSuite with WireMockHelper with BeforeAndAfterAll {
 
-  val nino = "A123456A"
+  val nino = "AA123456A"
   val mtditid = "1234567890"
   val affinityGroup = "Individual"
 
