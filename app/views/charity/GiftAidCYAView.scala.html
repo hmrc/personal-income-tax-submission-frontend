@@ -21,6 +21,7 @@
 @import views.html.templates.helpers.Button
 @import models.charity.prior.GiftAidSubmissionModel
 @import utils.ViewUtils.bigDecimalCurrency
+@import utils.ViewUtils.summaryListRow
 
 @this(layout: Layout, summaryList: SummaryList, heading: Heading, button: Button, csrfForm: FormWithCSRF)
 @(taxYear: Int, cya: GiftAidCYAModel, priorData: Option[GiftAidSubmissionModel])(implicit messages: Messages, appConfig: AppConfig, user: User[_])
@@ -29,7 +30,7 @@
     if(user.isAgent) "agent" else "individual"
 }
 
-@rowWithContent(key: String, value: Any, condition: Boolean = true, changeLink: String = "#", args: Seq[String] = Seq()) = @{
+@rowWithContent(textKey: String, value: Any, condition: Boolean = true, changeLink: Call = Call("GET", "#"), args: Seq[String] = Seq(), hiddenIsAgent: Option[Boolean] = None) = @{
     if(condition) {
         val realValue: String = value match {
             case bool: Boolean => if(bool) messages("common.yes") else messages("common.no")
@@ -37,46 +38,48 @@
             case other => s"$other"
         }
 
-        Some(SummaryListRow(
-            Key(HtmlContent(messages(key, args: _*))),
-            Value(HtmlContent(realValue)),
-            actions = Some(Actions(items = Seq(ActionItem(changeLink, HtmlContent("Change")))))
+        val constructedHiddenKey = textKey.replace(".agent", "").replace(".individual", "") + hiddenIsAgent.map(value => if(value) ".agent" else ".individual").getOrElse("") + ".hidden"
+
+        Some(summaryListRow(
+            HtmlContent(messages(textKey, args: _*)),
+            HtmlContent(realValue),
+            actions = Seq((changeLink, messages("common.change"), Some(messages(constructedHiddenKey))))
         ))
     } else {
         None
     }
 }
 
-@amountRow(key: String, field: Option[BigDecimal], condition: Boolean, args: Seq[String] = Seq()) = @{
-    if(condition) field.flatMap(amount => rowWithContent(key, amount, args = args)) else None
+@amountRow(key: String, field: Option[BigDecimal], condition: Boolean, args: Seq[String] = Seq(), hiddenIsAgent: Option[Boolean] = None) = @{
+    if(condition) field.flatMap(amount => rowWithContent(key, amount, args = args, hiddenIsAgent = hiddenIsAgent)) else None
 }
 
-@seqRow(key: String, field: Seq[String], condition: Boolean) = @{
+@seqRow(key: String, field: Seq[String], condition: Boolean, hiddenIsAgent: Option[Boolean] = None) = @{
     if(condition) {
-        rowWithContent(key, field.mkString("<br>"))
+        rowWithContent(key, field.mkString("<br>"), hiddenIsAgent = hiddenIsAgent)
     } else None
 }
 
 @summaryRows = @{
-    (Nil :+ rowWithContent("charity.cya.questions.donatedViaGiftAid", cya.donationsViaGiftAid.getOrElse(false), priorData.flatMap(_.giftAidPayments).forall(_.currentYear.isEmpty))) :+
+    (Nil :+ rowWithContent("charity.cya.questions.donatedViaGiftAid", cya.donationsViaGiftAid.getOrElse(false), priorData.flatMap(_.giftAidPayments).forall(_.currentYear.isEmpty), hiddenIsAgent = Some(user.isAgent))) :+
             amountRow("charity.cya.questions.donatedViaGiftAid.amount", cya.donationsViaGiftAidAmount, cya.donationsViaGiftAid.contains(true)) :+
-            rowWithContent("charity.cya.questions.oneOffDonationsViaGiftAid", cya.oneOffDonationsViaGiftAid.getOrElse(false), priorData.flatMap(_.giftAidPayments).forall(_.oneOffCurrentYear.isEmpty)) :+
+            rowWithContent("charity.cya.questions.oneOffDonationsViaGiftAid", cya.oneOffDonationsViaGiftAid.getOrElse(false), priorData.flatMap(_.giftAidPayments).forall(_.oneOffCurrentYear.isEmpty), hiddenIsAgent = Some(user.isAgent)) :+
             amountRow("charity.cya.questions.oneOffDonationsViaGiftAid.amount", cya.oneOffDonationsViaGiftAidAmount, cya.oneOffDonationsViaGiftAid.contains(true)) :+
-            rowWithContent("charity.cya.questions.overseasDonationsViaGiftAid", cya.overseasDonationsViaGiftAid.getOrElse(false), priorData.flatMap(_.giftAidPayments).forall(_.nonUkCharities.isEmpty)) :+
+            rowWithContent("charity.cya.questions.overseasDonationsViaGiftAid", cya.overseasDonationsViaGiftAid.getOrElse(false), priorData.flatMap(_.giftAidPayments).forall(_.nonUkCharities.isEmpty), hiddenIsAgent = Some(user.isAgent)) :+
             amountRow("charity.cya.questions.overseasDonationsViaGiftAid.amount", cya.overseasDonationsViaGiftAidAmount, cya.oneOffDonationsViaGiftAid.contains(true)) :+
             seqRow("charity.cya.questions.overseasDonationsViaGiftAid.names." + (if(user.isAgent) "agent" else "individual"), cya.overseasCharityNames.getOrElse(Seq.empty[String]), cya.oneOffDonationsViaGiftAid.contains(true)) :+
-            rowWithContent("charity.cya.questions.addDonationToLastYear", cya.addDonationToLastYear.getOrElse(false), priorData.flatMap(_.giftAidPayments).forall(_.currentYearTreatedAsPreviousYear.isEmpty)) :+
-            amountRow("charity.cya.questions.addDonationToLastYear.amount", cya.addDonationToLastYearAmount, cya.addDonationToLastYear.contains(true)) :+
+            rowWithContent("charity.cya.questions.addDonationToLastYear", cya.addDonationToLastYear.getOrElse(false), priorData.flatMap(_.giftAidPayments).forall(_.currentYearTreatedAsPreviousYear.isEmpty), hiddenIsAgent = Some(user.isAgent)) :+
+            amountRow("charity.cya.questions.addDonationToLastYear.amount", cya.addDonationToLastYearAmount, cya.addDonationToLastYear.contains(true), hiddenIsAgent = Some(user.isAgent)) :+
             rowWithContent("charity.cya.questions.addDonationsToThisYear", cya.addDonationToThisYear.getOrElse(false), priorData.flatMap(_.giftAidPayments).forall(_.nextYearTreatedAsCurrentYear.isEmpty), args = Seq(taxYear.toString)) :+
             amountRow("charity.cya.questions.addDonationsToThisYear.amount", cya.addDonationToThisYearAmount, cya.addDonationToThisYear.contains(true), args = Seq(taxYear.toString)) :+
-            rowWithContent("charity.cya.questions.donateSharesSecuritiesLandOrProperties", cya.donatedSharesSecuritiesLandOrProperty.getOrElse(false), priorData.flatMap(_.gifts).forall(_.sharesOrSecurities.isEmpty) && priorData.flatMap(_.gifts).forall(_.landAndBuildings.isEmpty)) :+
-            rowWithContent("charity.cya.questions.donateSharesOrSecurities", cya.donatedSharesOrSecurities.getOrElse(false), cya.donatedSharesSecuritiesLandOrProperty.contains(true) && priorData.flatMap(_.gifts).forall(_.sharesOrSecurities.isEmpty)) :+
+            rowWithContent("charity.cya.questions.donateSharesSecuritiesLandOrProperties", cya.donatedSharesSecuritiesLandOrProperty.getOrElse(false), priorData.flatMap(_.gifts).forall(_.sharesOrSecurities.isEmpty) && priorData.flatMap(_.gifts).forall(_.landAndBuildings.isEmpty), hiddenIsAgent = Some(user.isAgent)) :+
+            rowWithContent("charity.cya.questions.donateSharesOrSecurities", cya.donatedSharesOrSecurities.getOrElse(false), cya.donatedSharesSecuritiesLandOrProperty.contains(true) && priorData.flatMap(_.gifts).forall(_.sharesOrSecurities.isEmpty), hiddenIsAgent = Some(user.isAgent)) :+
             amountRow("charity.cya.questions.donateSharesOrSecurities.amount", cya.donatedSharesOrSecuritiesAmount, cya.donatedSharesOrSecurities.contains(true)) :+
-            rowWithContent("charity.cya.questions.donateLandOrProperties", cya.donatedLandOrProperty.getOrElse(false), cya.donatedSharesSecuritiesLandOrProperty.contains(true) && priorData.flatMap(_.gifts).forall(_.landAndBuildings.isEmpty)) :+
-            amountRow("charity.cya.questions.donateLandOrProperties.amount", cya.donatedLandOrPropertyAmount, cya.donatedLandOrProperty.contains(true)) :+
-            rowWithContent("charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties", cya.overseasDonatedSharesSecuritiesLandOrProperty.getOrElse(false), priorData.flatMap(_.gifts).forall(_.investmentsNonUkCharities.isEmpty)) :+
+            rowWithContent("charity.cya.questions.donateLandOrProperties", cya.donatedLandOrProperty.getOrElse(false), cya.donatedSharesSecuritiesLandOrProperty.contains(true) && priorData.flatMap(_.gifts).forall(_.landAndBuildings.isEmpty), hiddenIsAgent = Some(user.isAgent)) :+
+            amountRow("charity.cya.questions.donateLandOrProperties.amount", cya.donatedLandOrPropertyAmount, cya.donatedLandOrProperty.contains(true), hiddenIsAgent = Some(user.isAgent)) :+
+            rowWithContent("charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties", cya.overseasDonatedSharesSecuritiesLandOrProperty.getOrElse(false), priorData.flatMap(_.gifts).forall(_.investmentsNonUkCharities.isEmpty), hiddenIsAgent = Some(user.isAgent)) :+
             amountRow("charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.amount", cya.overseasDonatedSharesSecuritiesLandOrPropertyAmount, cya.overseasDonatedSharesSecuritiesLandOrProperty.contains(true)) :+
-            seqRow("charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.names." + (if(user.isAgent) "agent" else "individual"), cya.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.getOrElse(Seq.empty[String]), cya.overseasDonatedSharesSecuritiesLandOrProperty.contains(true))
+            seqRow("charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.names." + (if(user.isAgent) "agent" else "individual"), cya.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.getOrElse(Seq.empty[String]), cya.overseasDonatedSharesSecuritiesLandOrProperty.contains(true), hiddenIsAgent = Some(user.isAgent))
 }
 
 @layout(
