@@ -20,12 +20,13 @@ import config.{AppConfig, GIFT_AID}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
-import forms.charity.DonatedViaGiftAidAmountForm
+import forms.AmountForm
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.charity.GiftAidDonatedAmountView
+
 import javax.inject.Inject
 
 class GiftAidDonatedAmountController @Inject()(
@@ -35,16 +36,24 @@ class GiftAidDonatedAmountController @Inject()(
                                                 view: GiftAidDonatedAmountView
                                               ) extends FrontendController(cc) with I18nSupport {
 
-  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
-    lazy val form: Form[BigDecimal] = DonatedViaGiftAidAmountForm.donatedViaGiftAidForm(user.isAgent)
+  def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
 
-    Ok(view(taxYear, form, None))
+  def form(implicit isAgent: Boolean, taxYear: Int): Form[BigDecimal] = AmountForm.amountForm(
+    emptyFieldKey = "charity.amount-via-gift-aid.error.no-input." + agentOrIndividual,
+    wrongFormatKey = "charity.amount-via-gift-aid.error.incorrect-format." + agentOrIndividual,
+    exceedsMaxAmountKey = "charity.amount-via-gift-aid.error.too-high." + agentOrIndividual,
+    emptyFieldArguments = Seq(taxYear.toString)
+  )
+
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
+
+    Ok(view(taxYear, form(user.isAgent,taxYear), None))
   }
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)) { implicit user =>
-    lazy val form: Form[BigDecimal] = DonatedViaGiftAidAmountForm.donatedViaGiftAidForm(user.isAgent)
 
-    form.bindFromRequest().fold(
+
+    form(user.isAgent,taxYear).bindFromRequest().fold(
       { formWithErrors =>
         BadRequest(view(taxYear, formWithErrors, None))
       },

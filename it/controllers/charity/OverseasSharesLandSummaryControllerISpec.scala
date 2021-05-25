@@ -245,7 +245,6 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
           .withHttpHeaders("Csrf-Token" -> "nocheck")
           .post(Map(YesNoForm.yesNo -> "")))
       }
-      lazy val document: Document = Jsoup.parse(result.body)
 
       "return an error" when {
 
@@ -357,7 +356,6 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
             .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
             .post(Map(YesNoForm.yesNo -> "")))
         }
-        lazy val document: Document = Jsoup.parse(result.body)
 
         "return an error" when {
 

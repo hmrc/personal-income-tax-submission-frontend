@@ -30,11 +30,11 @@ object AmountForm {
                   emptyFieldArguments: Seq[String] = Seq.empty[String]
                 ): Form[BigDecimal] = Form(
     amount -> currency(
-      emptyFieldKey,
-      wrongFormatKey,
-      wrongFormatKey,
-      exceedsMaxAmountKey,
-      emptyFieldArguments
+      requiredKey = emptyFieldKey,
+      invalidNumeric = wrongFormatKey,
+      nonNumericKey = wrongFormatKey,
+      maxAmountKey = exceedsMaxAmountKey,
+      args = emptyFieldArguments
     )
   )
 

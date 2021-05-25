@@ -35,7 +35,7 @@
         heading: Heading
 )
 
-@(form: Form[BigDecimal], priorSubmission: Option[DividendsPriorSubmission], taxYear: Int, postAction: Call, preAmount: Option[BigDecimal] = None, firstTime: Boolean = false)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
+@(form: Form[BigDecimal], priorSubmission: Option[DividendsPriorSubmission], taxYear: Int, postAction: Call, preAmount: Option[BigDecimal] = None)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @titleForUse = @{
     messages(s"dividends.other-dividends-amount.title.${if(user.isAgent) "agent" else "individual"}")

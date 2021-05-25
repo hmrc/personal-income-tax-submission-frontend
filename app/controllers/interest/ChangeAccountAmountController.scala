@@ -16,11 +16,12 @@
 
 package controllers.interest
 
+import common.InterestTaxTypes.TAXED
 import common.{InterestTaxTypes, SessionValues}
 import config.{AppConfig, INTEREST}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
-import forms.ChangeAccountAmountForm
+import forms.AmountForm
 import models.User
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
 import play.api.data.Form
@@ -39,6 +40,16 @@ class ChangeAccountAmountController @Inject()(
                                              changeAccountAmountView: ChangeAccountAmountView,
                                              implicit val appConfig: AppConfig
                                            ) extends FrontendController(cc) with I18nSupport {
+
+  def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
+
+  def changeAmountForm(implicit isAgent: Boolean, taxType: String): Form[BigDecimal] = AmountForm.amountForm(
+    emptyFieldKey = "changeAccountAmount.required." + agentOrIndividual,
+    wrongFormatKey = "changeAccountAmount.format",
+    exceedsMaxAmountKey = "changeAccountAmount.amountMaxLimit",
+    emptyFieldArguments = Seq(if(taxType.equals(TAXED)) "taxed" else "untaxed")
+  )
+
 
   def view(
             formInput: Form[BigDecimal],
@@ -72,10 +83,10 @@ class ChangeAccountAmountController @Inject()(
 
         val form: Form[BigDecimal] = {
           if(previousAmount.contains(accountModel.amount)) {
-            ChangeAccountAmountForm.changeAccountAmountForm(taxType)
+            changeAmountForm(user.isAgent,taxType)
           }
             else{
-            ChangeAccountAmountForm.changeAccountAmountForm(taxType).
+            changeAmountForm(user.isAgent,taxType).
               fill(previousAmount.getOrElse(accountModel.amount))
           }
         }
@@ -97,8 +108,9 @@ class ChangeAccountAmountController @Inject()(
           case Some(account) =>
             val previousAmount = extractPreAmount(taxType,Some(cyaData),accountId)
 
-            ChangeAccountAmountForm.changeAccountAmountForm(taxType).bindFromRequest().fold(
-              formWithErrors => BadRequest(view(formWithErrors, account, taxYear, taxType, accountId, previousAmount)),
+            changeAmountForm(user.isAgent,taxType).bindFromRequest().fold(
+              formWithErrors => {
+                BadRequest(view(formWithErrors, account, taxYear, taxType, accountId, previousAmount))},
               formModel => {
                 val updatedAccounts = updateAccounts(taxType, cyaData, accountId, formModel)
                 val updatedCYA = replaceAccounts(taxType, cyaData, updatedAccounts)
