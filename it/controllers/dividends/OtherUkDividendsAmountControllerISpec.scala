@@ -17,7 +17,6 @@
 package controllers.dividends
 
 import common.SessionValues
-import forms.dividends.OtherDividendsAmountForm
 import helpers.PlaySessionCookieBaker
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -30,14 +29,79 @@ import utils.{IntegrationTest, ViewHelpers}
 class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers {
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
-  lazy val controller: OtherUkDividendsAmountController = app.injector.instanceOf[OtherUkDividendsAmountController]
 
   val taxYear: Int = 2022
+  val taxYearMinusOne: Int = taxYear - 1
   val amount: BigDecimal = 500
   val otherUkDividendsAmountUrl = s"$startUrl/$taxYear/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
 
-  "as an individual" when {
+  object IndividualExpected {
+    val expectedH1 = "How much did you get in dividends from trusts and open-ended investment companies based in the UK?"
+    val expectedTitle = "How much did you get in dividends from trusts and open-ended investment companies based in the UK?"
+    val expectedErrorTitle = s"Error: $expectedTitle"
+    val tellUsTheValue = "Tell us the value of the dividends you got, in pounds. You can find this information in your dividend voucher."
+    val youToldUsPriorText = s"You told us you got £$amount in dividends from UK-based trusts and open-ended investment companies this year. Tell us if this has changed."
+    val expectedErrorEmpty = "Enter how much you got in dividends from trusts and open-ended investment companies"
+    val expectedErrorInvalid = "Enter how much you got in dividends in the correct format"
+    val expectedErrorOverMax = "The amount of dividends from trusts and open-ended investment companies based in the UK must be less than £100,000,000,000"
 
+    val expectedH1Cy = "How much did you get in dividends from trusts and open-ended investment companies based in the UK?"
+    val expectedTitleCy = "How much did you get in dividends from trusts and open-ended investment companies based in the UK?"
+    val expectedErrorTitleCy = s"Error: $expectedTitle"
+    val tellUsTheValueCy = "Tell us the value of the dividends you got, in pounds. You can find this information in your dividend voucher."
+    val youToldUsPriorTextCy = s"You told us you got £$amount in dividends from UK-based trusts and open-ended investment companies this year. Tell us if this has changed."
+    val expectedErrorEmptyCy = "Enter how much you got in dividends from trusts and open-ended investment companies"
+    val expectedErrorInvalidCy = "Enter how much you got in dividends in the correct format"
+    val expectedErrorOverMaxCy = "The amount of dividends from trusts and open-ended investment companies based in the UK must be less than £100,000,000,000"
+  }
+
+  object AgentExpected {
+    val expectedH1 = "How much did your client get in dividends from trusts and open-ended investment companies based in the UK?"
+    val expectedTitle = "How much did your client get in dividends from trusts and open-ended investment companies based in the UK?"
+    val expectedErrorTitleAgent = s"Error: $expectedTitle"
+    val tellUsTheValue = "Tell us the value of the dividends your client got, in pounds. You can find this information in their dividend voucher."
+    val youToldUsPriorText = s"You told us your client got £$amount in dividends from UK-based trusts and open-ended investment companies this year. Tell us if this has changed."
+    val expectedErrorEmpty = "Enter how much your client got in dividends from trusts and open-ended investment companies"
+    val expectedErrorInvalid = "Enter how much your client got in dividends in the correct format"
+    val expectedErrorOverMax = "The amount of dividends from trusts and open-ended investment companies based in the UK must be less than £100,000,000,000"
+
+    val expectedH1Cy = "How much did your client get in dividends from trusts and open-ended investment companies based in the UK?"
+    val expectedTitleCy = "How much did your client get in dividends from trusts and open-ended investment companies based in the UK?"
+    val expectedErrorTitleAgentCy = s"Error: $expectedTitle"
+    val tellUsTheValueCy = "Tell us the value of the dividends your client got, in pounds. You can find this information in their dividend voucher."
+    val youToldUsPriorTextCy = s"You told us your client got £$amount in dividends from UK-based trusts and open-ended investment companies this year. Tell us if this has changed."
+    val expectedErrorEmptyCy = "Enter how much your client got in dividends from trusts and open-ended investment companies"
+    val expectedErrorInvalidCy = "Enter how much your client got in dividends in the correct format"
+    val expectedErrorOverMaxCy = "The amount of dividends from trusts and open-ended investment companies based in the UK must be less than £100,000,000,000"
+  }
+
+  val poundPrefixSelector = ".govuk-input__prefix"
+  val captionSelector = ".govuk-caption-l"
+  val inputSelector = ".govuk-input"
+  val continueButtonSelector = "#continue"
+  val continueButtonFormSelector = "#main-content > div > div > form"
+  val enterAmountSelector = "#amount"
+  val youToldUsSelector = "#main-content > div > div > form > div > label > p"
+  val tellUsTheValueSelector = "#main-content > div > div > form > div > label > p"
+  val expectedErrorLink = "#amount"
+
+  val expectedCaption = s"Dividends for 6 April $taxYearMinusOne to 5 April $taxYear"
+  val expectedHintText = "For example, £600 or £193.54"
+  val poundPrefixText = "£"
+  val differentAmountText = "A different amount"
+  val continueText = "Continue"
+
+  val expectedCaptionCy = s"Dividends for 6 April $taxYearMinusOne to 5 April $taxYear"
+  val expectedHintTextCy = "For example, £600 or £193.54"
+  val continueTextCy = "Continue"
+
+  val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
+  val newAmountInput = "#amount"
+  val amountInputName = "amount"
+
+
+  "as an individual" when {
+  import IndividualExpected._
     ".show" should {
 
       "redirects user to overview page when there is no data in session" which {
@@ -53,10 +117,10 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
         }
       }
 
-      "returns an action when there is cya data in session" which {
+      "returns an action when there is cya data in session with correct content" which {
 
         val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-          SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(otherUkDividends = Some(true), otherUkDividendsAmount = Some(amount)).asJsonString
+          SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(otherUkDividends = Some(true), otherUkDividendsAmount = None).asJsonString
         ))
 
         lazy val result: WSResponse = {
@@ -71,6 +135,106 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
 
         implicit val document: () => Document = () => Jsoup.parse(result.body)
 
+        titleCheck(expectedTitle)
+        welshToggleCheck("English")
+        h1Check(expectedH1 + " " + expectedCaption)
+        textOnPageCheck(expectedCaption, captionSelector)
+        textOnPageCheck(tellUsTheValue,tellUsTheValueSelector)
+        hintTextCheck(expectedHintText)
+        textOnPageCheck(poundPrefixText, poundPrefixSelector)
+        inputFieldCheck(amountInputName, inputSelector)
+        buttonCheck(continueText, continueButtonSelector)
+        formPostLinkCheck(continueLink, continueButtonFormSelector)
+      }
+
+      "returns an action when there is cya data in session with correct prior data content" which {
+
+        val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+          SessionValues.DIVIDENDS_CYA-> DividendsCheckYourAnswersModel(otherUkDividends = Some(true), otherUkDividendsAmount = Some(amount)).asJsonString
+        ))
+
+        lazy val result: WSResponse = {
+          authoriseIndividual()
+          await(wsClient.url(otherUkDividendsAmountUrl)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").get())
+        }
+
+        "has an OK(200) status" in {
+          result.status shouldBe OK
+        }
+
+        implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+        titleCheck(expectedTitle)
+        welshToggleCheck("English")
+        h1Check(expectedH1 + " " + expectedCaption)
+        textOnPageCheck(expectedCaption, captionSelector)
+        textOnPageCheck(youToldUsPriorText,youToldUsSelector)
+        hintTextCheck(expectedHintText)
+        textOnPageCheck(poundPrefixText, poundPrefixSelector)
+        inputFieldCheck(amountInputName, inputSelector)
+        buttonCheck(continueText, continueButtonSelector)
+        formPostLinkCheck(continueLink, continueButtonFormSelector)
+        inputFieldValueCheck(amount.toString(), "#amount")
+      }
+      "returns an action when there is cya data in session with correct content - Welsh" which {
+
+        val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+          SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(otherUkDividends = Some(true), otherUkDividendsAmount = None).asJsonString
+        ))
+
+        lazy val result: WSResponse = {
+          authoriseIndividual()
+          await(wsClient.url(otherUkDividendsAmountUrl)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck").get())
+        }
+
+        "has an OK(200) status" in {
+          result.status shouldBe OK
+        }
+
+        implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+        titleCheck(expectedTitleCy)
+        welshToggleCheck("Welsh")
+        h1Check(expectedH1Cy + " " + expectedCaptionCy)
+        textOnPageCheck(expectedCaptionCy, captionSelector)
+        textOnPageCheck(tellUsTheValueCy,tellUsTheValueSelector)
+        hintTextCheck(expectedHintTextCy)
+        textOnPageCheck(poundPrefixText, poundPrefixSelector)
+        inputFieldCheck(amountInputName, inputSelector)
+        buttonCheck(continueTextCy, continueButtonSelector)
+        formPostLinkCheck(continueLink, continueButtonFormSelector)
+      }
+
+      "returns an action when there is cya data in session with correct prior data content - Welsh" which {
+
+        val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+          SessionValues.DIVIDENDS_CYA-> DividendsCheckYourAnswersModel(otherUkDividends = Some(true), otherUkDividendsAmount = Some(amount)).asJsonString
+        ))
+
+        lazy val result: WSResponse = {
+          authoriseIndividual()
+          await(wsClient.url(otherUkDividendsAmountUrl)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck").get())
+        }
+
+        "has an OK(200) status" in {
+          result.status shouldBe OK
+        }
+
+        implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+        titleCheck(expectedTitleCy)
+        welshToggleCheck("Welsh")
+        h1Check(expectedH1Cy + " " + expectedCaptionCy)
+        textOnPageCheck(expectedCaptionCy, captionSelector)
+        textOnPageCheck(youToldUsPriorTextCy,youToldUsSelector)
+        hintTextCheck(expectedHintTextCy)
+        textOnPageCheck(poundPrefixText, poundPrefixSelector)
+        inputFieldCheck(amountInputName, inputSelector)
+        buttonCheck(continueTextCy, continueButtonSelector)
+        formPostLinkCheck(continueLink, continueButtonFormSelector)
         inputFieldValueCheck(amount.toString(), "#amount")
       }
 
@@ -166,20 +330,99 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
           await(
             wsClient.url(otherUkDividendsAmountUrl)
               .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-              .post(Map(OtherDividendsAmountForm.otherDividendsAmount -> "123"))
+              .post(Map("amount" -> "123"))
           )
         }
 
         result.status shouldBe OK
       }
 
-      s"return a BAD_REQUEST($BAD_REQUEST) status" in {
+      s"return a BAD_REQUEST($BAD_REQUEST) status with an Empty Error" which {
         lazy val result: WSResponse = {
           authoriseIndividual()
           await(wsClient.url(otherUkDividendsAmountUrl).post(Map[String, String]()))
         }
 
-        result.status shouldBe BAD_REQUEST
+        "has the correct status" in {
+          result.status shouldBe BAD_REQUEST
+        }
+        implicit val document: () => Document = () => Jsoup.parse(result.body)
+        errorSummaryCheck(expectedErrorEmpty, expectedErrorLink)
+        errorAboveElementCheck(expectedErrorEmpty)
+      }
+      s"return a BAD_REQUEST($BAD_REQUEST) status with an Invalid Error" which {
+        lazy val result: WSResponse = {
+          authoriseIndividual()
+          await(wsClient.url(otherUkDividendsAmountUrl).post(Map("amount" -> "|")))
+        }
+
+        "has the correct status" in {
+          result.status shouldBe BAD_REQUEST
+        }
+        implicit val document: () => Document = () => Jsoup.parse(result.body)
+        errorSummaryCheck(expectedErrorInvalid, expectedErrorLink)
+        errorAboveElementCheck(expectedErrorInvalid)
+      }
+      s"return a BAD_REQUEST($BAD_REQUEST) status with an OverMax Error" which {
+        lazy val result: WSResponse = {
+          authoriseIndividual()
+          await(wsClient.url(otherUkDividendsAmountUrl).post(Map("amount" -> "9999999999999999999999999999")))
+        }
+
+        "has the correct status" in {
+          result.status shouldBe BAD_REQUEST
+        }
+        implicit val document: () => Document = () => Jsoup.parse(result.body)
+        errorSummaryCheck(expectedErrorOverMax, expectedErrorLink)
+        errorAboveElementCheck(expectedErrorOverMax)
+      }
+      s"return a BAD_REQUEST($BAD_REQUEST) status with an Empty Error - Welsh" which {
+        lazy val result: WSResponse = {
+          authoriseIndividual()
+          await(wsClient.url(otherUkDividendsAmountUrl)
+            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
+            .post(Map[String, String]()))
+        }
+
+        "has the correct status" in {
+          result.status shouldBe BAD_REQUEST
+        }
+        implicit val document: () => Document = () => Jsoup.parse(result.body)
+        welshToggleCheck("Welsh")
+        errorSummaryCheck(expectedErrorEmptyCy, expectedErrorLink)
+        errorAboveElementCheck(expectedErrorEmptyCy)
+      }
+      s"return a BAD_REQUEST($BAD_REQUEST) status with an Invalid Error - Welsh" which {
+        lazy val result: WSResponse = {
+          authoriseIndividual()
+          await(wsClient.url(otherUkDividendsAmountUrl)
+            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
+            .post(Map("amount" -> "|")))
+        }
+
+        "has the correct status" in {
+          result.status shouldBe BAD_REQUEST
+        }
+        implicit val document: () => Document = () => Jsoup.parse(result.body)
+        welshToggleCheck("Welsh")
+        errorSummaryCheck(expectedErrorInvalidCy, expectedErrorLink)
+        errorAboveElementCheck(expectedErrorInvalidCy)
+      }
+      s"return a BAD_REQUEST($BAD_REQUEST) status with an OverMax Error - Welsh" which {
+        lazy val result: WSResponse = {
+          authoriseIndividual()
+          await(wsClient.url(otherUkDividendsAmountUrl)
+            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
+            .post(Map("amount" -> "9999999999999999999999999999")))
+        }
+
+        "has the correct status" in {
+          result.status shouldBe BAD_REQUEST
+        }
+        implicit val document: () => Document = () => Jsoup.parse(result.body)
+        welshToggleCheck("Welsh")
+        errorSummaryCheck(expectedErrorOverMaxCy, expectedErrorLink)
+        errorAboveElementCheck(expectedErrorOverMaxCy)
       }
 
       "return unauthorized when the authorization fails" which {
@@ -199,7 +442,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
   }
 
   "as an agent" when {
-
+  import AgentExpected._
     ".show" should {
 
       "returns an action" which {
@@ -218,6 +461,127 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
         "has an OK(200) status" in {
           result.status shouldBe OK
         }
+      }
+
+      "returns an action when there is data in session with correct content" which {
+        lazy val result: WSResponse = {
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A",
+            SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(otherUkDividends = Some(true), otherUkDividendsAmount = None).asJsonString
+          ))
+
+          authoriseAgent()
+          await(wsClient.url(otherUkDividendsAmountUrl)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
+            .get())
+        }
+
+        "has an OK(200) status" in {
+          result.status shouldBe OK
+        }
+        implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+        titleCheck(expectedTitle)
+        welshToggleCheck("English")
+        h1Check(expectedH1 + " " + expectedCaption)
+        textOnPageCheck(expectedCaption, captionSelector)
+        textOnPageCheck(tellUsTheValue,tellUsTheValueSelector)
+        hintTextCheck(expectedHintText)
+        textOnPageCheck(poundPrefixText, poundPrefixSelector)
+        inputFieldCheck(amountInputName, inputSelector)
+        buttonCheck(continueText, continueButtonSelector)
+        formPostLinkCheck(continueLink, continueButtonFormSelector)
+      }
+      "returns an action when there is data in session with correct prior data content" which {
+        lazy val result: WSResponse = {
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A",
+            SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(otherUkDividends = Some(true), otherUkDividendsAmount = Some(amount)).asJsonString
+          ))
+
+          authoriseAgent()
+          await(wsClient.url(otherUkDividendsAmountUrl)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
+            .get())
+        }
+
+        "has an OK(200) status" in {
+          result.status shouldBe OK
+        }
+        implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+        titleCheck(expectedTitle)
+        welshToggleCheck("English")
+        h1Check(expectedH1 + " " + expectedCaption)
+        textOnPageCheck(expectedCaption, captionSelector)
+        textOnPageCheck(youToldUsPriorText,youToldUsSelector)
+        hintTextCheck(expectedHintText)
+        textOnPageCheck(poundPrefixText, poundPrefixSelector)
+        inputFieldCheck(amountInputName, inputSelector)
+        buttonCheck(continueText, continueButtonSelector)
+        formPostLinkCheck(continueLink, continueButtonFormSelector)
+      }
+      "returns an action when there is data in session with correct content - Welsh" which {
+        lazy val result: WSResponse = {
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A",
+            SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(otherUkDividends = Some(true), otherUkDividendsAmount = None).asJsonString
+          ))
+
+          authoriseAgent()
+          await(wsClient.url(otherUkDividendsAmountUrl)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy")
+            .get())
+        }
+
+        "has an OK(200) status" in {
+          result.status shouldBe OK
+        }
+        implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+        titleCheck(expectedTitleCy)
+        welshToggleCheck("Welsh")
+        h1Check(expectedH1Cy + " " + expectedCaptionCy)
+        textOnPageCheck(expectedCaptionCy, captionSelector)
+        textOnPageCheck(tellUsTheValueCy,tellUsTheValueSelector)
+        hintTextCheck(expectedHintTextCy)
+        textOnPageCheck(poundPrefixText, poundPrefixSelector)
+        inputFieldCheck(amountInputName, inputSelector)
+        buttonCheck(continueTextCy, continueButtonSelector)
+        formPostLinkCheck(continueLink, continueButtonFormSelector)
+      }
+      "returns an action when there is data in session with correct prior data content - Welsh" which {
+        lazy val result: WSResponse = {
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A",
+            SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(otherUkDividends = Some(true), otherUkDividendsAmount = Some(amount)).asJsonString
+          ))
+
+          authoriseAgent()
+          await(wsClient.url(otherUkDividendsAmountUrl)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy")
+            .get())
+        }
+
+        "has an OK(200) status" in {
+          result.status shouldBe OK
+        }
+        implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+        titleCheck(expectedTitleCy)
+        welshToggleCheck("Welsh")
+        h1Check(expectedH1Cy + " " + expectedCaptionCy)
+        textOnPageCheck(expectedCaptionCy, captionSelector)
+        textOnPageCheck(youToldUsPriorTextCy,youToldUsSelector)
+        hintTextCheck(expectedHintTextCy)
+        textOnPageCheck(poundPrefixText, poundPrefixSelector)
+        inputFieldCheck(amountInputName, inputSelector)
+        buttonCheck(continueTextCy, continueButtonSelector)
+        formPostLinkCheck(continueLink, continueButtonFormSelector)
       }
 
       "return unauthorized when the authorization fails" which {
@@ -253,7 +617,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
             await(
               wsClient.url(otherUkDividendsAmountUrl)
                 .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-                .post(Map(OtherDividendsAmountForm.otherDividendsAmount -> "123"))
+                .post(Map("amount" -> "123"))
             )
           }
 
@@ -261,9 +625,8 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
         }
       }
 
-      s"return a BAD_REQUEST($BAD_REQUEST) status" when {
+      s"return a BAD_REQUEST($BAD_REQUEST) status with an Empty Error" which {
 
-        "there is no form data" in {
           lazy val result: WSResponse = {
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
               SessionValues.CLIENT_MTDITID -> "1234567890",
@@ -276,8 +639,126 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
               .post(Map[String, String]()))
           }
 
+        "have the correct status" in {
           result.status shouldBe BAD_REQUEST
         }
+        implicit val document: () => Document = () => Jsoup.parse(result.body)
+        errorSummaryCheck(expectedErrorEmpty, expectedErrorLink)
+        errorAboveElementCheck(expectedErrorEmpty)
+
+      }
+      s"return a BAD_REQUEST($BAD_REQUEST) status with an Inavlid Error" which {
+
+          lazy val result: WSResponse = {
+            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+              SessionValues.CLIENT_MTDITID -> "1234567890",
+              SessionValues.CLIENT_NINO -> "AA123456A"
+            ))
+
+            authoriseAgent()
+            await(wsClient.url(otherUkDividendsAmountUrl)
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+              .post(Map("amount" -> "|")))
+          }
+
+        "have the correct status" in {
+          result.status shouldBe BAD_REQUEST
+        }
+        implicit val document: () => Document = () => Jsoup.parse(result.body)
+        errorSummaryCheck(expectedErrorInvalid, expectedErrorLink)
+        errorAboveElementCheck(expectedErrorInvalid)
+
+      }
+      s"return a BAD_REQUEST($BAD_REQUEST) status with an OverMax Error" which {
+
+          lazy val result: WSResponse = {
+            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+              SessionValues.CLIENT_MTDITID -> "1234567890",
+              SessionValues.CLIENT_NINO -> "AA123456A"
+            ))
+
+            authoriseAgent()
+            await(wsClient.url(otherUkDividendsAmountUrl)
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+              .post(Map("amount" -> "999999999999999999999999999999999")))
+          }
+
+        "have the correct status" in {
+          result.status shouldBe BAD_REQUEST
+        }
+        implicit val document: () => Document = () => Jsoup.parse(result.body)
+        errorSummaryCheck(expectedErrorOverMax, expectedErrorLink)
+        errorAboveElementCheck(expectedErrorOverMax)
+
+      }
+      s"return a BAD_REQUEST($BAD_REQUEST) status with an Empty Error - Welsh" which {
+
+          lazy val result: WSResponse = {
+            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+              SessionValues.CLIENT_MTDITID -> "1234567890",
+              SessionValues.CLIENT_NINO -> "AA123456A"
+            ))
+
+            authoriseAgent()
+            await(wsClient.url(otherUkDividendsAmountUrl)
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
+              .post(Map[String, String]()))
+          }
+
+        "have the correct status" in {
+          result.status shouldBe BAD_REQUEST
+        }
+        implicit val document: () => Document = () => Jsoup.parse(result.body)
+        welshToggleCheck("Welsh")
+        errorSummaryCheck(expectedErrorEmptyCy, expectedErrorLink)
+        errorAboveElementCheck(expectedErrorEmptyCy)
+
+      }
+      s"return a BAD_REQUEST($BAD_REQUEST) status with an Inavlid Error - Welsh" which {
+
+          lazy val result: WSResponse = {
+            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+              SessionValues.CLIENT_MTDITID -> "1234567890",
+              SessionValues.CLIENT_NINO -> "AA123456A"
+            ))
+
+            authoriseAgent()
+            await(wsClient.url(otherUkDividendsAmountUrl)
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
+              .post(Map("amount" -> "|")))
+          }
+
+        "have the correct status" in {
+          result.status shouldBe BAD_REQUEST
+        }
+        implicit val document: () => Document = () => Jsoup.parse(result.body)
+        welshToggleCheck("Welsh")
+        errorSummaryCheck(expectedErrorInvalidCy, expectedErrorLink)
+        errorAboveElementCheck(expectedErrorInvalidCy)
+
+      }
+      s"return a BAD_REQUEST($BAD_REQUEST) status with an OverMax Error - Welsh" which {
+
+          lazy val result: WSResponse = {
+            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+              SessionValues.CLIENT_MTDITID -> "1234567890",
+              SessionValues.CLIENT_NINO -> "AA123456A"
+            ))
+
+            authoriseAgent()
+            await(wsClient.url(otherUkDividendsAmountUrl)
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
+              .post(Map("amount" -> "999999999999999999999999999999999")))
+          }
+
+        "have the correct status" in {
+          result.status shouldBe BAD_REQUEST
+        }
+        implicit val document: () => Document = () => Jsoup.parse(result.body)
+        welshToggleCheck("Welsh")
+        errorSummaryCheck(expectedErrorOverMaxCy, expectedErrorLink)
+        errorAboveElementCheck(expectedErrorOverMaxCy)
+
       }
 
       "return unauthorized when the authorization fails" which {

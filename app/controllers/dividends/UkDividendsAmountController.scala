@@ -22,8 +22,8 @@ import controllers.dividends.routes.UkDividendsAmountController
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
+import forms.AmountForm
 import models.question.QuestionsJourney
-import forms.dividends.UkDividendsAmountForm.ukDividendsAmountForm
 import models.User
 import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import play.api.data.Form
@@ -33,6 +33,7 @@ import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.dividends.UkDividendsAmountView
+
 import javax.inject.Inject
 
 class UkDividendsAmountController @Inject()(
@@ -42,6 +43,15 @@ class UkDividendsAmountController @Inject()(
                                              questionHelper: QuestionsJourneyValidator,
                                              implicit val appConfig: AppConfig
                                            ) extends FrontendController(cc) with I18nSupport with SessionHelper {
+
+  def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
+
+  def form(implicit isAgent: Boolean, taxYear: Int): Form[BigDecimal] = AmountForm.amountForm(
+    emptyFieldKey = "dividends.uk-dividends-amount.error.empty." + agentOrIndividual,
+    wrongFormatKey = "dividends.common.error.invalidFormat." + agentOrIndividual,
+    exceedsMaxAmountKey = "dividends.uk-dividends-amount.error.amountMaxLimit",
+    emptyFieldArguments = Seq(taxYear.toString)
+  )
 
   def view(
             formInput: Form[BigDecimal],
@@ -70,15 +80,15 @@ class UkDividendsAmountController @Inject()(
       val cyaUkDividendAmount: Option[BigDecimal] = cyaModel.flatMap(_.ukDividendsAmount)
 
       val amountForm = (priorUkDividendAmount, cyaUkDividendAmount) match {
-        case (priorAmountOpt, Some(cyaAmount)) if !priorAmountOpt.contains(cyaAmount) => ukDividendsAmountForm.fill(cyaAmount)
-        case (None, Some(cyaAmount)) => ukDividendsAmountForm.fill(cyaAmount)
-        case _ => ukDividendsAmountForm
+        case (priorAmountOpt, Some(cyaAmount)) if !priorAmountOpt.contains(cyaAmount) => form(user.isAgent, taxYear).fill(cyaAmount)
+        case (None, Some(cyaAmount)) => form(user.isAgent, taxYear).fill(cyaAmount)
+        case _ => form(user.isAgent, taxYear)
       }
 
       (priorSubmission, cyaModel) match {
         case (Some(submission: DividendsPriorSubmission), _) => Ok(view(amountForm, Some(submission), taxYear, cyaUkDividendAmount))
         case (None, Some(cya)) => Ok(view(amountForm, taxYear = taxYear, preAmount = cya.ukDividendsAmount))
-        case _ => Ok(view(ukDividendsAmountForm, taxYear = taxYear))
+        case _ => Ok(view(form(user.isAgent, taxYear), taxYear = taxYear))
       }
     }
   }
@@ -91,7 +101,7 @@ class UkDividendsAmountController @Inject()(
     val previousAmount: Option[BigDecimal] =
       getModelFromSession[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA).flatMap(_.ukDividendsAmount)
 
-    ukDividendsAmountForm.bindFromRequest().fold(
+    form(user.isAgent, taxYear).bindFromRequest().fold(
           {
             formWithErrors => BadRequest(view(formWithErrors, priorSubmission = priorSubmissionSessionData, taxYear = taxYear, preAmount = previousAmount))
           },

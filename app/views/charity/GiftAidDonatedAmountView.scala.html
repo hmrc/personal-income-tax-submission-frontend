@@ -34,7 +34,7 @@
 }
 
 @contentHtml = {
-    <p class="govuk-body govuk-!-padding-top-3">@paragraphText</p>
+    <p class="govuk-body">@paragraphText</p>
     <div>@messages("charity.amount-via-gift-aid.input.label")</div>
 }
 
@@ -48,6 +48,7 @@
             id = "amount",
             name = "amount",
             heading = headingForUse,
+            headingClasses = "govuk-!-margin-bottom-2",
             subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)),
             content = Some(contentHtml),
             hint = Some(Html(messages("common.currency.hint"))),
