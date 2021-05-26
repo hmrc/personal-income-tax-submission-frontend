@@ -101,31 +101,40 @@ dividends.cya.changeOtherDividendsAmount.agent = how much your client got in div
 interest.cya.accountDisplay = {0} : {1}
 
 interest.account.add-another = Do you need to add another account?
-interest.account.tell-us-about-all = You must tell us about all your accounts.
+interest.account.tell-us-about-all = You must tell us about all your accounts with untaxed UK interest.
 
-interest.common.paragraph.1 = For example, interest from:
+interest.common.paragraph.1 = This could be interest from:
 
 interest.common.amount.interest.earned = Amount of interest earned
-interest.common.sub-heading1 = What would you like to call this account?
+interest.common.sub-heading.1 = Give each account a different name.
+interest.common.sub-heading.2 = What do you want to name this account?
 
 interest.common.error.name.empty = Enter an account name
 
-interest.untaxed-uk-interest.title.individual = Did you receive any untaxed interest from the UK?
-interest.untaxed-uk-interest.title.agent = Did your client receive any untaxed interest from the UK?
+interest.common.account.hint = For example, ‘HSBC savings account’.
+
+interest.untaxed-uk-interest.title.individual = Did you get untaxed interest from the UK?
+interest.untaxed-uk-interest.title.agent = Did your client get untaxed interest from the UK?
 interest.untaxed-uk-interest.errors.noRadioSelected.individual = Select yes if you received untaxed interest from the UK
 interest.untaxed-uk-interest.errors.noRadioSelected.agent = Select yes if your client received untaxed interest from the UK
 interest.untaxed-uk-interest.list.1 = banks and building societies
 interest.untaxed-uk-interest.list.2 = savings and credit union accounts
 interest.untaxed-uk-interest.list.3 = peer-to-peer lending
-interest.untaxed-uk-interest.paragraph.2 = This does not include any interest earned from an Individual Savings Account (ISA) or gilts. You’ll be able to add interest earned from gilts at a later date.
+interest.untaxed-uk-interest.paragraph.individual = Do not include interest you got from an Individual Savings Account (ISA) or gilts.
+interest.untaxed-uk-interest.paragraph.agent = Do not include interest your client got from an Individual Savings Account (ISA) or gilts.
+interest.untaxed-uk-interest.amount.interest.earned = Amount of untaxed UK interest
 
 interest.untaxed-uk-interest.accounts.summary = Untaxed account summary
-interest.untaxed-uk-interest-details.title = UK untaxed interest account details
+interest.untaxed-uk-interest-details.title = Add an account with untaxed UK interest
 interest.untaxed-uk-interest-amount.error.empty = Enter the amount of untaxed interest earned
 
 interest.taxed-uk-interest.accounts.summary = Taxed account summary
 interest.untaxed-uk-interest-accounts.title.single = UK untaxed interest account
 interest.untaxed-uk-interest-accounts.title.multiple = UK untaxed interest accounts
+interest.untaxed-uk-interest-accounts.title = Accounts with untaxed UK interest
+interest.untaxed-uk-interest-accounts.account.tell-us-about-all.individual = You must tell us about all your accounts with untaxed UK interest.
+interest.untaxed-uk-interest-accounts.account.tell-us-about-all.agent = You must tell us about all your client’s accounts with untaxed UK interest.
+
 
 interest.taxed-uk-interest.title.individual = Did you receive any taxed interest from the UK?
 interest.taxed-uk-interest.title.agent = Did your client receive any taxed interest from the UK?
@@ -139,8 +148,7 @@ interest.taxed-uk-interest.errors.noRadioSelected.agent = Select yes if your cli
 interest.taxed-uk-interest-details.title = UK taxed interest account details
 interest.taxed-uk-interest-amount.error.empty = Enter the amount of taxed interest earned
 
-interest.taxed-uk-interest-accounts.title.single = UK taxed interest account
-interest.taxed-uk-interest-accounts.title.multiple = UK taxed interest accounts
+interest.taxed-uk-interest-accounts.title = Accounts with taxed UK interest
 
 interest.accounts.addAnotherAccount = Add another account
 
