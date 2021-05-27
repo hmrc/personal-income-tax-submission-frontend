@@ -44,7 +44,7 @@
              <li>@messages("interest.taxed-uk-interest.list.3")</li>
          </ul>
     <p>
-        @messages("interest.taxed-uk-interest.paragraph.2")
+        @messages(s"interest.taxed-uk-interest.paragraph.${if(user.isAgent) "agent" else "individual"}")
     </p>
 }
 
