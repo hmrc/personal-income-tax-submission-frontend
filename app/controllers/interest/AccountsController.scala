@@ -51,10 +51,7 @@ class AccountsController @Inject()(
   implicit def resultToFutureResult: Result => Future[Result] = baseResult => Future.successful(baseResult)
 
   private def yesNoForm(taxType: String): Form[Boolean] = {
-    taxType match {
-      case `TAXED` => YesNoForm.yesNoForm("interest.taxed-uk-interest.errors.noRadioSelected.individual")
-      case `UNTAXED` => YesNoForm.yesNoForm("interest.untaxed-uk-interest.errors.noRadioSelected.individual")
-    }
+      YesNoForm.yesNoForm("interest.common.accounts.no-selection")
   }
 
   private def getOptionalCyaData()(implicit user: User[AnyContent]): Option[InterestCYAModel] =

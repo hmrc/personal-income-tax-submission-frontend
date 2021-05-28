@@ -33,22 +33,28 @@ class UntaxedInterestAmountViewSpec extends ViewTest{
   val captionSelector = ".govuk-caption-l"
   val continueButtonSelector = "#continue"
   val continueButtonFormSelector = "#main-content > div > div > form"
-  val whatWouldYouCallSelector = "#main-content > div > div > form > div:nth-child(2) > label"
+  val whatWouldYouCallSelector = "#main-content > div > div > form > div:nth-child(3) > label > div"
+  val eachAccountNameSelector = "#main-content > div > div > form > div:nth-child(3) > label > p"
   val accountNameInputSelector = "input#untaxedAccountName"
   val amountInterestSelector = "#main-content > div > div > form > div:nth-child(3) > label"
   val poundPrefixSelector = ".govuk-input__prefix"
   val interestEarnedInputSelector = "input#untaxedAmount"
+  val accountNameHintTextSelector = "#untaxedAccountName-hint"
+  val amountHintTextSelector = "#untaxedAmount-hint"
 
   val taxYear = 2020
   val taxYearMinusOne: Int = taxYear -1
   val id = "id"
 
-  val titleText = "UK untaxed interest account details"
+  val titleText = "Add an account with untaxed UK interest"
   val errorTitleText = s"Error: $titleText"
-  val h1Text = "UK untaxed interest account details"
+  val h1Text = "Add an account with untaxed UK interest"
   val captionText = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
-  val whatWouldYouCallText = "What would you like to call this account?"
-  val amountInterestText = "Amount of interest earned"
+  val accountNameHintText = "For example, ‘HSBC savings account’."
+  val amountHintText = "For example, £600 or £193.54"
+  val whatWouldYouCallText = "What do you want to name this account?"
+  val eachAccountNameText = "Give each account a different name."
+  val amountInterestText = "Amount of untaxed UK interest"
   val poundPrefixText = "£"
   val continueButtonText = "Continue"
   val untaxedAccountNameInput = "untaxedAccountName"
@@ -73,9 +79,12 @@ class UntaxedInterestAmountViewSpec extends ViewTest{
         textOnPageCheck(captionText, captionSelector)
         h1Check(h1Text + " " + captionText)
         textOnPageCheck(whatWouldYouCallText, whatWouldYouCallSelector)
+        textOnPageCheck(eachAccountNameText, eachAccountNameSelector)
         inputFieldCheck(untaxedAccountNameInput, accountNameInputSelector)
         textOnPageCheck(amountInterestText, amountInterestSelector)
         textOnPageCheck(poundPrefixText, poundPrefixSelector)
+        textOnPageCheck(accountNameHintText, accountNameHintTextSelector)
+        textOnPageCheck(amountHintText, amountHintTextSelector)
         inputFieldCheck(untaxedAmountInput, interestEarnedInputSelector)
         buttonCheck(continueButtonText, continueButtonSelector)
         formPostLinkCheck(controllers.interest.routes.UntaxedInterestAmountController.submit(taxYear,id).url, continueButtonFormSelector)

@@ -111,6 +111,8 @@ interest.common.error.name.empty = Enter an account name
 
 interest.common.account.hint = For example, ‘HSBC savings account’.
 
+interest.common.accounts.no-selection = Select yes to add another account
+
 interest.untaxed-uk-interest.title.individual = Did you get untaxed interest from the UK?
 interest.untaxed-uk-interest.title.agent = Did your client get untaxed interest from the UK?
 interest.untaxed-uk-interest.errors.noRadioSelected.individual = Select yes if you got untaxed UK interest
@@ -124,7 +126,8 @@ interest.untaxed-uk-interest.amount.interest.earned = Amount of untaxed UK inter
 
 interest.untaxed-uk-interest.accounts.summary = Untaxed account summary
 interest.untaxed-uk-interest-details.title = Add an account with untaxed UK interest
-interest.untaxed-uk-interest-amount.error.empty = Enter the amount of untaxed interest earned
+interest.untaxed-uk-interest-amount.error.empty.individual = Enter the amount of untaxed UK interest you got
+interest.untaxed-uk-interest-amount.error.empty.agent = Enter the amount of untaxed UK interest your client got
 
 interest.taxed-uk-interest.accounts.summary = Taxed account summary
 interest.untaxed-uk-interest-accounts.title.single = UK untaxed interest account
