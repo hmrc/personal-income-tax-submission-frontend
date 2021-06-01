@@ -17,11 +17,15 @@
 package connectors
 
 import com.github.tomakehurst.wiremock.http.HttpHeader
+import config.AppConfig
 import connectors.httpParsers.GiftAidSubmissionHttpParser.GiftAidSubmissionsResponse
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
 import models.{APIErrorBodyModel, APIErrorModel}
 import play.api.http.Status._
 import play.api.libs.json.Json
+import play.api.test.Helpers.NO_CONTENT
+import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, SessionId}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.IntegrationTest
 
 import scala.concurrent.Await
@@ -30,6 +34,13 @@ import scala.concurrent.duration.Duration
 class GiftAidSubmissionConnectorSpec extends IntegrationTest {
 
   lazy val connector: GiftAidSubmissionConnector = app.injector.instanceOf[GiftAidSubmissionConnector]
+
+  lazy val httpClient: HttpClient = app.injector.instanceOf[HttpClient]
+
+  def appConfig(host: String): AppConfig = new AppConfig(app.injector.instanceOf[ServicesConfig]) {
+    override lazy val dividendsBaseUrl: String = s"http://$host:$wiremockPort/income-tax-gift-aid"
+  }
+
 
   val currentTaxYear: Option[BigDecimal] = Some(1000.89)
   val oneOffCurrentTaxYear: Option[BigDecimal] = Some(605.99)
@@ -66,6 +77,37 @@ class GiftAidSubmissionConnectorSpec extends IntegrationTest {
   val expectedHeaders = Seq(new HttpHeader("mtditid", mtditid))
 
   "GiftAidSubmissionConnectorSpec" should {
+
+    "include internal headers" when {
+      val headersSentToDividends = Seq(new HttpHeader(HeaderNames.xSessionId, "sessionIdValue"), new HttpHeader("mtditid", mtditid))
+
+      val internalHost = "localhost"
+      val externalHost = "127.0.0.1"
+
+      "the host for Gift Aid is 'Internal'" in {
+        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("sessionIdValue"))).withExtraHeaders("mtditid"->mtditid)
+        val connector = new GiftAidSubmissionConnector(httpClient, appConfig(internalHost))
+
+        stubPut(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}",
+          headersSentToDividends)
+
+        val result: GiftAidSubmissionsResponse = Await.result(connector.submitGiftAid(validGiftAidModel, nino, taxYear)(hc), Duration.Inf)
+
+        result shouldBe Right(NO_CONTENT)
+      }
+      "the host for Gift Aid is 'External'" in {
+        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("sessionIdValue"))).withExtraHeaders("mtditid"->mtditid)
+
+        val connector = new GiftAidSubmissionConnector(httpClient, appConfig(externalHost))
+
+        stubPut(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}",
+          headersSentToDividends)
+
+        val result: GiftAidSubmissionsResponse = Await.result(connector.submitGiftAid(validGiftAidModel, nino, taxYear)(hc), Duration.Inf)
+
+        result shouldBe Right(NO_CONTENT)
+      }
+    }
     "Return a success result" when {
       "Gift Aid returns a 204" in {
         stubPut(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}", expectedHeaders)
