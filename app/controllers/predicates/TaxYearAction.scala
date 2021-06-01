@@ -18,10 +18,10 @@ package controllers.predicates
 
 import common.SessionValues._
 import config.AppConfig
-import controllers.Assets.Redirect
 import models.User
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionRefiner, MessagesControllerComponents, Result}
 
 import javax.inject.Inject
@@ -56,7 +56,7 @@ class TaxYearAction @Inject()(taxYear: Int)(
         }
       } else {
         logger.info(s"Invalid tax year, adding default tax year to session")
-        Left(Redirect(controllers.routes.TaxYearErrorController.show())
+        Left(Redirect(controllers.routes.TaxYearErrorController.show)
           .addingToSession(TAX_YEAR -> config.defaultTaxYear.toString))
       }
     )

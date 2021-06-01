@@ -19,21 +19,20 @@ package controllers.interest
 import common.SessionValues
 import config.{AppConfig, INTEREST}
 import controllers.interest.routes.TaxedInterestController
-import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
+import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.YesNoForm
 import models.User
 import models.interest.{InterestCYAModel, InterestPriorSubmission}
 import models.question.QuestionsJourney
-import play.api.Logger
+import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.InterestSessionHelper
 import views.html.interest.TaxedInterestView
-
 import java.util.UUID.randomUUID
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -45,7 +44,7 @@ class TaxedInterestController @Inject()(
                                          authorisedAction: AuthorisedAction,
                                          implicit val mcc: MessagesControllerComponents,
                                          questionsJourneyValidator: QuestionsJourneyValidator
-                                        ) extends FrontendController(mcc) with InterestSessionHelper with I18nSupport {
+                                        ) extends FrontendController(mcc) with InterestSessionHelper with I18nSupport with Logging {
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
 
@@ -94,7 +93,7 @@ class TaxedInterestController @Inject()(
                   .addingToSession(SessionValues.INTEREST_CYA -> updatedCya.asJsonString)
               }
             case _ =>
-              Logger.logger.info("[TaxedInterestController][submit] No CYA data in session. Redirecting to overview page.")
+              logger.info("[TaxedInterestController][submit] No CYA data in session. Redirecting to overview page.")
               Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
           }
       }

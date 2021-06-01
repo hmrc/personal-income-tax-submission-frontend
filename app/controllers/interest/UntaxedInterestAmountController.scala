@@ -20,20 +20,21 @@ import common.InterestTaxTypes.UNTAXED
 import common.{InterestTaxTypes, SessionValues}
 import config.{AppConfig, INTEREST}
 import controllers.interest.routes.UntaxedInterestAmountController
-import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
-import models.question.QuestionsJourney
+import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
+import forms.interest.UntaxedInterestAmountForm
 import models.interest.{InterestAccountModel, InterestCYAModel, UntaxedInterestModel}
-import play.api.Logger
+import models.question.QuestionsJourney
+import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.InterestSessionHelper
 import views.html.interest.UntaxedInterestAmountView
+
 import java.util.UUID.randomUUID
-import forms.interest.UntaxedInterestAmountForm
 import javax.inject.Inject
 
 class UntaxedInterestAmountController @Inject()(
@@ -42,7 +43,7 @@ class UntaxedInterestAmountController @Inject()(
                                                  untaxedInterestAmountView: UntaxedInterestAmountView,
                                                  implicit val appConfig: AppConfig,
                                                  questionsJourneyValidator: QuestionsJourneyValidator
-                                               ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper {
+                                               ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper with Logging {
 
   val untaxedInterestAmountForm: Form[UntaxedInterestModel] = UntaxedInterestAmountForm.untaxedInterestAmountForm()
 
@@ -122,7 +123,7 @@ class UntaxedInterestAmountController @Inject()(
             Redirect(controllers.interest.routes.AccountsController.show(taxYear, InterestTaxTypes.UNTAXED))
               .addingToSession(SessionValues.INTEREST_CYA -> updatedCyaModel.asJsonString)
           case _ =>
-            Logger.logger.info("[UntaxedInterestController][submit] No CYA data in session. Redirecting to overview page.")
+            logger.info("[UntaxedInterestController][submit] No CYA data in session. Redirecting to overview page.")
             Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
         }
     })

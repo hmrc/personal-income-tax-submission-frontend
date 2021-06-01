@@ -17,14 +17,13 @@
 package controllers.interest
 
 import common.SessionValues
-import controllers.Assets.BAD_REQUEST
 import forms.interest.TaxedInterestAmountForm
 import helpers.PlaySessionCookieBaker
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
-import play.api.http.Status.{OK, UNAUTHORIZED}
+import play.api.http.Status.{BAD_REQUEST, OK, UNAUTHORIZED}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import utils.{IntegrationTest, ViewHelpers}

@@ -17,9 +17,8 @@
 package controllers.interest
 
 import common.SessionValues
-import controllers.Assets.NoContent
 import forms.YesNoForm
-import helpers.{PlaySessionCookieBaker, PlaySessionCookieCrumbler}
+import helpers.PlaySessionCookieBaker
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.http.HeaderNames
 import play.api.http.Status._

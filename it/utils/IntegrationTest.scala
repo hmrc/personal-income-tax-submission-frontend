@@ -24,7 +24,6 @@ import helpers.WireMockHelper
 import models.User
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.{AnyWordSpec}
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -52,7 +51,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   implicit val headerCarrier: HeaderCarrier = HeaderCarrier().withExtraHeaders("mtditid" -> mtditid)
 
   implicit val actorSystem: ActorSystem = ActorSystem()
-  implicit val materializer: Materializer = ActorMaterializer()
+
 
   val startUrl = s"http://localhost:$port/income-through-software/return/personal-income"
 
@@ -108,7 +107,6 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   val defaultAcceptedConfidenceLevels = Seq(
     ConfidenceLevel.L200,
-    ConfidenceLevel.L250,
     ConfidenceLevel.L500
   )
 

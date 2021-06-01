@@ -17,7 +17,6 @@
 package controllers.interest
 
 import common.SessionValues
-import controllers.Assets.{NOT_FOUND, UNAUTHORIZED}
 import helpers.PlaySessionCookieBaker
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import org.jsoup.Jsoup

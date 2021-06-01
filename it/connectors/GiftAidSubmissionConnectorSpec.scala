@@ -38,7 +38,7 @@ class GiftAidSubmissionConnectorSpec extends IntegrationTest {
   lazy val httpClient: HttpClient = app.injector.instanceOf[HttpClient]
 
   def appConfig(host: String): AppConfig = new AppConfig(app.injector.instanceOf[ServicesConfig]) {
-    override lazy val dividendsBaseUrl: String = s"http://$host:$wiremockPort/income-tax-gift-aid"
+    override lazy val giftAidBaseUrl: String = s"http://$host:$wiremockPort/income-tax-gift-aid"
   }
 
 
@@ -79,7 +79,7 @@ class GiftAidSubmissionConnectorSpec extends IntegrationTest {
   "GiftAidSubmissionConnectorSpec" should {
 
     "include internal headers" when {
-      val headersSentToDividends = Seq(new HttpHeader(HeaderNames.xSessionId, "sessionIdValue"), new HttpHeader("mtditid", mtditid))
+      val headersSentToGiftAid = Seq(new HttpHeader(HeaderNames.xSessionId, "sessionIdValue"), new HttpHeader("mtditid", mtditid))
 
       val internalHost = "localhost"
       val externalHost = "127.0.0.1"
@@ -89,7 +89,7 @@ class GiftAidSubmissionConnectorSpec extends IntegrationTest {
         val connector = new GiftAidSubmissionConnector(httpClient, appConfig(internalHost))
 
         stubPut(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}",
-          headersSentToDividends)
+          headersSentToGiftAid)
 
         val result: GiftAidSubmissionsResponse = Await.result(connector.submitGiftAid(validGiftAidModel, nino, taxYear)(hc), Duration.Inf)
 
@@ -101,7 +101,7 @@ class GiftAidSubmissionConnectorSpec extends IntegrationTest {
         val connector = new GiftAidSubmissionConnector(httpClient, appConfig(externalHost))
 
         stubPut(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}",
-          headersSentToDividends)
+          headersSentToGiftAid)
 
         val result: GiftAidSubmissionsResponse = Await.result(connector.submitGiftAid(validGiftAidModel, nino, taxYear)(hc), Duration.Inf)
 

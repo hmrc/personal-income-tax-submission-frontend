@@ -33,7 +33,7 @@ class InterestSubmissionConnectorISpec extends IntegrationTest {
   lazy val httpClient: HttpClient = app.injector.instanceOf[HttpClient]
 
   def appConfig(host: String): AppConfig = new AppConfig(app.injector.instanceOf[ServicesConfig]) {
-    override lazy val dividendsBaseUrl: String = s"http://$host:$wiremockPort/income-tax-interest"
+    override lazy val interestBaseUrl: String = s"http://$host:$wiremockPort/income-tax-interest"
   }
 
   lazy val body: Seq[InterestSubmissionModel] = Seq(

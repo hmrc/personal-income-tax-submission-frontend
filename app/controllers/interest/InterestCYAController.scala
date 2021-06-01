@@ -24,7 +24,7 @@ import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import models.interest.{InterestCYAModel, InterestPriorSubmission}
 import models.{APIErrorBodyModel, APIErrorModel, User}
-import play.api.Logger
+import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import services.InterestSubmissionService
@@ -48,9 +48,9 @@ class InterestCYAController @Inject()(
                                        implicit appConfig: AppConfig,
                                        authorisedAction: AuthorisedAction,
                                        implicit val mcc: MessagesControllerComponents
-                                     ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper {
+                                     ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper with Logging {
 
-  private val logger = Logger.logger
+
   implicit val executionContext: ExecutionContext = mcc.executionContext
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>

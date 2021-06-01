@@ -17,11 +17,11 @@
 package utils
 
 import org.jsoup.nodes.Document
-import org.scalatest.matchers.should.Matchers._
+import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 
 
-trait ViewHelpers { self: AnyWordSpecLike =>
+trait ViewHelpers { self: AnyWordSpecLike with Matchers =>
 
   val serviceName = "Update and submit an Income Tax Return"
   val govUkExtension = "GOV.UK"

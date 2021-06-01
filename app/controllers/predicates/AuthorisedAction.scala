@@ -64,7 +64,7 @@ class AuthorisedAction @Inject()(
         Redirect(appConfig.signInUrl)
       case _: AuthorisationException =>
         logger.info(s"[AuthorisedAction][invokeBlock] - User failed to authenticate")
-        Redirect(controllers.errors.routes.UnauthorisedUserErrorController.show())
+        Redirect(controllers.errors.routes.UnauthorisedUserErrorController.show)
     }
   }
 
@@ -83,7 +83,7 @@ class AuthorisedAction @Inject()(
             Future.successful(Redirect(appConfig.signInUrl))
           case (None, _) =>
             logger.info(s"[AuthorisedAction][individualAuthentication] - User has no MTD IT enrolment. Redirecting user to sign up for MTD.")
-            Future.successful(Redirect(controllers.errors.routes.IndividualAuthErrorController.show()))
+            Future.successful(Redirect(controllers.errors.routes.IndividualAuthErrorController.show))
         }
 
       case _ =>
@@ -115,7 +115,7 @@ class AuthorisedAction @Inject()(
                 block(User(mtdItId, Some(arn), nino, agentUser.toString))
               case None =>
                 logger.info("[AuthorisedAction][agentAuthentication] Agent with no HMRC-AS-AGENT enrolment. Rendering unauthorised view.")
-                Future.successful(Redirect(controllers.errors.routes.YouNeedAgentServicesController.show()))
+                Future.successful(Redirect(controllers.errors.routes.YouNeedAgentServicesController.show))
             }
           } recover {
           case _: NoActiveSession =>
@@ -123,7 +123,7 @@ class AuthorisedAction @Inject()(
             Redirect(appConfig.signInUrl)
           case ex: AuthorisationException =>
             logger.info(s"[AuthorisedAction][agentAuthentication] - Agent does not have delegated authority for Client.")
-            Redirect(controllers.errors.routes.AgentAuthErrorController.show())
+            Redirect(controllers.errors.routes.AgentAuthErrorController.show)
         }
       case (mtditid, nino) =>
         logger.info(s"[AuthorisedAction][agentAuthentication] - Agent does not session key values. " +

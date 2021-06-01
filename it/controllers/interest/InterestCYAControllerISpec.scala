@@ -18,11 +18,10 @@ package controllers.interest
 
 import com.github.tomakehurst.wiremock.http.HttpHeader
 import common.SessionValues
-import controllers.Assets.NOT_FOUND
 import helpers.PlaySessionCookieBaker
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.http.HeaderNames
-import play.api.http.Status.{NO_CONTENT, OK, UNAUTHORIZED}
+import play.api.http.Status.{NOT_FOUND, NO_CONTENT, OK, UNAUTHORIZED}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import utils.IntegrationTest
