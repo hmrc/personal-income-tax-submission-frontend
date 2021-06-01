@@ -40,7 +40,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
   }
 
   object ExpectedResultsEn {
-    val heading: String = "What is the value of shares, securities, land or property donated to overseas charities?"
+    val heading: String = "What is the value of qualifying shares, securities, land or property donated to overseas charities?"
     val hintText: String = "For example, £600 or £193.54"
     val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
     val button = "Continue"
@@ -61,7 +61,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
   }
 
   object ExpectedResultsCy {
-    val heading: String = "What is the value of shares, securities, land or property donated to overseas charities?"
+    val heading: String = "What is the value of qualifying shares, securities, land or property donated to overseas charities?"
     val hintText: String = "For example, £600 or £193.54"
     val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
     val button = "Continue"
