@@ -27,12 +27,54 @@ import play.api.http.Status.{OK, UNAUTHORIZED}
 import play.api.libs.json.Json
 import play.api.libs.ws.{WSClient, WSResponse}
 import utils.{IntegrationTest, ViewHelpers}
-
 import java.util.UUID
+
+import forms.interest.UntaxedInterestAmountForm
 
 class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelpers {
 
+  object Selectors {
+    val accountName = "#main-content > div > div > form > div:nth-child(3) > label > div"
+    val interestEarned = "#main-content > div > div > form > div:nth-child(4) > label > div"
+    val accountNameInput = "#untaxedAccountName"
+    val amountInput = "#untaxedAmount"
+
+    val errorSummary = "#error-summary-title"
+    val firstError = ".govuk-error-summary__body > ul > li:nth-child(1) > a"
+    val secondError = ".govuk-error-summary__body > ul > li:nth-child(2) > a"
+    val errorMessage = "#value-error"
+
+
+
+    val buttonSelector = ".govuk-button"
+    val inputHintTextSelector = ".govuk-hint"
+    val captionSelector = ".govuk-caption-l"
+
+    val whatWouldYouCallSelector = "#main-content > div > div > form > div:nth-child(3) > label"
+    val amountInterestSelector = "#main-content > div > div > form > div:nth-child(4) > label"
+  }
+
+  object Content {
+    val heading = "UK untaxed interest account details"
+    val caption = "Interest for 6 April 2021 to 5 April 2022"
+    val accountName = "What would you like to call this account?"
+    val interestEarned = "Amount of interest earned"
+    val hint = "For example, £600 or £193.54"
+    val button = "Continue"
+
+    val noNameEntryError = "Enter an account name"
+    val invalidCharEntry: String = "Name of account with untaxed UK interest must only include numbers 0-9, " +
+      "letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets, and the special characters &, /, @, £, *"
+    val nameTooLongError = "The name of the account must be 32 characters or fewer"
+
+    val noAmountEntryError = "Enter the amount of untaxed interest earned"
+    val invalidNumericError = "Enter an amount using numbers 0 to 9"
+    val tooMuchMoneyError = "Enter an amount less than £100,000,000,000"
+    val incorrectFormatError = "Enter the amount in the correct format"
+  }
+
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
+
   val taxYear: Int = 2022
   val taxYearMinusOne: Int = taxYear - 1
 
@@ -122,12 +164,172 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
   val expectedInputLabelTextCy = "Total amount for the year"
   val expectedInputHintTextCy = "For example, £600 or £193.54"
 
-  val buttonSelector = ".govuk-button"
-  val inputHintTextSelector = ".govuk-hint"
-  val captionSelector = ".govuk-caption-l"
 
-  val whatWouldYouCallSelector = "#main-content > div > div > form > div:nth-child(3) > label"
-  val amountInterestSelector = "#main-content > div > div > form > div:nth-child(4) > label"
+
+
+
+
+  lazy val id: String = UUID.randomUUID().toString
+
+  def untaxedInterestAmountUrl(newId: String): String = s"$startUrl/$taxYear/interest/untaxed-uk-interest-details/$newId"
+
+  s"Calling GET /interest/untaxed-uk-interest-details/$id" when {
+
+    "the user is authorised" when {
+
+      "the user is a non-agent" should {
+
+        lazy val interestCYA = InterestCYAModel(
+          Some(true), Some(Seq(
+            InterestAccountModel(Some("differentId"), accountName, amount),
+            InterestAccountModel(None, accountName, amount, Some(id))
+          )),
+          Some(false), None
+        )
+        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
+        ))
+
+        lazy val result = {
+          authoriseIndividual()
+          await(wsClient.url(untaxedInterestAmountUrl(id)).withHttpHeaders(HeaderNames.COOKIE -> sessionCookie).get())
+        }
+        implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+        "return the page" which {
+          titleCheck(Content.heading)
+          h1Check(s"${Content.heading} ${Content.caption}")
+          captionCheck(Content.caption)
+          textOnPageCheck(Content.accountName, Selectors.accountName)
+          inputFieldCheck("untaxedAccountName", Selectors.accountNameInput)
+          textOnPageCheck(Content.interestEarned, Selectors.interestEarned)
+          hintTextCheck(Content.hint)
+          inputFieldCheck("untaxedAmount", Selectors.amountInput)
+          buttonCheck(Content.button)
+
+          elementExtinct(Selectors.errorSummary)
+          elementExtinct(Selectors.firstError)
+          elementExtinct(Selectors.errorMessage)
+        }
+
+        s"have an OK($OK) status" in {
+          result.status shouldBe OK
+        }
+      }
+    }
+
+    "the user is unauthorized" should {
+
+      lazy val result = {
+        authoriseIndividualUnauthorized()
+        await(wsClient.url(untaxedInterestAmountUrl(id)).get())
+      }
+
+      s"return an Unauthorised($UNAUTHORIZED) status" in {
+        result.status shouldBe UNAUTHORIZED
+      }
+    }
+  }
+
+  s"Calling POST /interest/untaxed-uk-interest-details/$id" when {
+
+    "the user is authorised" when {
+
+      lazy val interestCYA = InterestCYAModel(
+        Some(true), Some(Seq(
+          InterestAccountModel(Some("differentId"), accountName, amount),
+          InterestAccountModel(None, accountName, amount, Some(id))
+        )),
+        Some(false), None
+      )
+      lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+        SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
+      ))
+
+      def response(formMap: Map[String, String]): WSResponse = {
+        authoriseIndividual()
+        await(wsClient.url(untaxedInterestAmountUrl(id))
+          .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+          .post(formMap))
+      }
+
+      "an account name and amount are entered correctly" should {
+
+        lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "67.66",
+          UntaxedInterestAmountForm.untaxedAccountName -> "Santander"))
+
+        "return a 200(Ok) status" in {
+          result.status shouldBe OK
+        }
+      }
+
+      "the fields are empty" should {
+
+        lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "",
+          UntaxedInterestAmountForm.untaxedAccountName -> ""))
+        lazy val document: Document = Jsoup.parse(result.body)
+
+        s"return a 400(BadRequest) status" in {
+          result.status shouldBe BAD_REQUEST
+        }
+
+        "display no entry error messages" in {
+          document.select(Selectors.firstError).text() shouldBe Content.noNameEntryError
+          document.select(Selectors.secondError).text() shouldBe Content.noAmountEntryError
+        }
+      }
+
+      "invalid characters are entered into the fields" should {
+        lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "money",
+          UntaxedInterestAmountForm.untaxedAccountName -> "$uper"))
+        lazy val document: Document = Jsoup.parse(result.body)
+
+        s"return a 400(BadRequest) status" in {
+          result.status shouldBe BAD_REQUEST
+        }
+
+        "display no entry error messages" in {
+          document.select(Selectors.firstError).text() shouldBe Content.invalidCharEntry
+          document.select(Selectors.secondError).text() shouldBe Content.invalidNumericError
+        }
+      }
+
+      "the account name is too long and the amount is too great" should {
+        lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "100000000000",
+          UntaxedInterestAmountForm.untaxedAccountName -> "SuperAwesomeBigBusinessMoneyStash"))
+        lazy val document: Document = Jsoup.parse(result.body)
+
+        s"return a 400(BadRequest) status" in {
+          result.status shouldBe BAD_REQUEST
+        }
+
+        "display no entry error messages" in {
+          document.select(Selectors.firstError).text() shouldBe Content.nameTooLongError
+          document.select(Selectors.secondError).text() shouldBe Content.tooMuchMoneyError
+        }
+      }
+
+      "an amount is entered with incorrect format" should {
+        lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "500.8.75",
+          UntaxedInterestAmountForm.untaxedAccountName -> "Sensible account"))
+        lazy val document: Document = Jsoup.parse(result.body)
+
+        s"return a 400(BadRequest) status" in {
+          result.status shouldBe BAD_REQUEST
+        }
+
+        "display no entry error messages" in {
+          document.select(Selectors.firstError).text() shouldBe Content.incorrectFormatError
+        }
+      }
+    }
+  }
+
+
+
+
+
+
 
   val accountNameSelector = "#untaxedAccountName"
   val amountSelector = "#untaxedAmount"
