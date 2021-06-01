@@ -17,12 +17,13 @@
 package forms.interest
 
 import filters.InputFilters
-import forms.validation.StringConstraints.nonEmpty
+import forms.validation.StringConstraints.{nonEmpty, validateNotDuplicate}
 import forms.validation.mappings.MappingUtil.{currency, trimmedText}
 import models.interest.TaxedInterestModel
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import play.api.data.validation.Constraint
+import forms.validation.utils.ConstraintUtil.ConstraintUtil
 
 object TaxedInterestAmountForm extends InputFilters{
 
@@ -32,9 +33,11 @@ object TaxedInterestAmountForm extends InputFilters{
   val nameNotEmpty: Constraint[String] = nonEmpty("interest.common.error.name.empty")
   val amountNotEmpty: Constraint[String] = nonEmpty("interest.taxed-uk-interest-amount.error.empty")
 
-  def taxedInterestAmountForm(): Form[TaxedInterestModel] = Form(
+  def notDuplicate(previousNames: Seq[String]): Constraint[String] = validateNotDuplicate(previousNames)("interest.common.error.name.duplicate")
+
+  def taxedInterestAmountForm(previousNames: Seq[String]): Form[TaxedInterestModel] = Form(
     mapping(
-      taxedAccountName -> trimmedText.verifying(nameNotEmpty),
+      taxedAccountName -> trimmedText.verifying(nameNotEmpty andThen notDuplicate(previousNames)),
       taxedAmount -> currency("interest.taxed-uk-interest-amount.error.empty")
     )(TaxedInterestModel.apply)(TaxedInterestModel.unapply).transform[TaxedInterestModel](
       details => details.copy(
