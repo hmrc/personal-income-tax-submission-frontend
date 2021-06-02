@@ -109,6 +109,7 @@ interest.common.amount.interest.earned = Amount of interest earned
 interest.common.sub-heading1 = What would you like to call this account?
 
 interest.common.error.name.empty = Enter an account name
+interest.common.error.name.duplicate = You cannot add 2 accounts with the same name
 
 interest.untaxed-uk-interest.title.individual = Did you receive any untaxed interest from the UK?
 interest.untaxed-uk-interest.title.agent = Did your client receive any untaxed interest from the UK?
