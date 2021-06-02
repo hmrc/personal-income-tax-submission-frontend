@@ -157,12 +157,6 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Integra
               radioButtonCheck(yesText, 1)
               radioButtonCheck(noText, 2)
               buttonCheck(continueText, continueSelector)
-              textOnPageCheck(disclosureContentTitle, disclosureSelectorTitle)
-              textOnPageCheck(disclosureContentParagraph, disclosureSelectorParagraph)
-              textOnPageCheck(disclosureContentBullet1, disclosureSelectorBullet1)
-              textOnPageCheck(disclosureContentBullet2, disclosureSelectorBullet2)
-              textOnPageCheck(disclosureContentBullet3, disclosureSelectorBullet3)
-              textOnPageCheck(disclosureContentBullet4, disclosureSelectorBullet4)
             }
 
           }
@@ -297,12 +291,6 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Integra
             radioButtonCheck(yesText, 1)
             radioButtonCheck(noText, 2)
             buttonCheck(continueText, continueSelector)
-            textOnPageCheck(disclosureContentTitle, disclosureSelectorTitle)
-            textOnPageCheck(disclosureContentParagraph, disclosureSelectorParagraph)
-            textOnPageCheck(disclosureContentBullet1, disclosureSelectorBullet1)
-            textOnPageCheck(disclosureContentBullet2, disclosureSelectorBullet2)
-            textOnPageCheck(disclosureContentBullet3, disclosureSelectorBullet3)
-            textOnPageCheck(disclosureContentBullet4, disclosureSelectorBullet4)
           }
 
         }
