@@ -239,13 +239,6 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
 
     "the user is an individual" when {
 
-      lazy val result = {
-        authoriseIndividual()
-        await(wsClient.url(overseasSharesLandSummaryUrl)
-          .withHttpHeaders("Csrf-Token" -> "nocheck")
-          .post(Map(YesNoForm.yesNo -> "")))
-      }
-
       "return an error" when {
 
         "the submitted data is empty" which {
@@ -349,13 +342,6 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
     "welsh is selected" when {
 
       "the user is an individual" when {
-
-        lazy val result = {
-          authoriseIndividual()
-          await(wsClient.url(overseasSharesLandSummaryUrl)
-            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
-            .post(Map(YesNoForm.yesNo -> "")))
-        }
 
         "return an error" when {
 

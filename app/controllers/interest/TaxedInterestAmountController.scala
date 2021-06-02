@@ -47,7 +47,6 @@ class TaxedInterestAmountController @Inject()(
                                              ) extends FrontendController(mcc) with InterestSessionHelper with I18nSupport with Logging {
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
-  val taxedInterestAmountForm: Form[TaxedInterestModel] = TaxedInterestAmountForm.taxedInterestAmountForm()
 
   def show(taxYear: Int, id: String): Action[AnyContent] = commonPredicates(taxYear, INTEREST).apply { implicit user =>
 
@@ -55,7 +54,11 @@ class TaxedInterestAmountController @Inject()(
 
     val idMatchesPreviouslySubmittedAccount: Boolean = optionalCyaData.flatMap(_.taxedUkAccounts.map(_.exists(_.id.contains(id)))).getOrElse(false)
 
+    val previousNames: Seq[String] = optionalCyaData.flatMap(_.taxedUkAccounts.map(_.map(_.accountName))).getOrElse(Seq.empty[String])
+
     implicit val journey: QuestionsJourney[InterestCYAModel] = InterestCYAModel.interestJourney(taxYear, Some(id))
+
+    lazy val taxedInterestAmountForm: Form[TaxedInterestModel] = TaxedInterestAmountForm.taxedInterestAmountForm(previousNames)
 
     questionsJourneyValidator.validate(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id), optionalCyaData, taxYear) {
 
@@ -89,6 +92,13 @@ class TaxedInterestAmountController @Inject()(
   }
 
   def submit(taxYear: Int, id: String): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, INTEREST)) { implicit user =>
+
+    val optionalCyaData = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
+
+    val previousNames: Seq[String] = optionalCyaData.flatMap(_.taxedUkAccounts.map(_.map(_.accountName))).getOrElse(Seq.empty[String])
+
+    lazy val taxedInterestAmountForm: Form[TaxedInterestModel] = TaxedInterestAmountForm.taxedInterestAmountForm(previousNames)
+
     taxedInterestAmountForm.bindFromRequest().fold({
       formWithErrors =>
         BadRequest(taxedInterestAmountView(
