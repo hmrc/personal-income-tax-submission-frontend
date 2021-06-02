@@ -107,7 +107,7 @@ interest.common.paragraph.1 = This could be interest from:
 interest.common.sub-heading.1 = Give each account a different name.
 interest.common.sub-heading.2 = What do you want to name this account?
 
-interest.common.error.name.empty = Enter an account name
+interest.common.error.name.empty = Enter a name for this account
 
 interest.common.account.hint = For example, ‘HSBC savings account’.
 
@@ -129,12 +129,11 @@ interest.untaxed-uk-interest-details.title = Add an account with untaxed UK inte
 interest.untaxed-uk-interest-amount.error.empty.individual = Enter the amount of untaxed UK interest you got
 interest.untaxed-uk-interest-amount.error.empty.agent = Enter the amount of untaxed UK interest your client got
 
-interest.taxed-uk-interest.accounts.summary = Taxed account summary
-interest.untaxed-uk-interest-accounts.title.single = UK untaxed interest account
-interest.untaxed-uk-interest-accounts.title.multiple = UK untaxed interest accounts
 interest.untaxed-uk-interest-accounts.title = Accounts with untaxed UK interest
 interest.untaxed-uk-interest-accounts.account.tell-us-about-all.individual = You must tell us about all your accounts with untaxed UK interest.
 interest.untaxed-uk-interest-accounts.account.tell-us-about-all.agent = You must tell us about all your client’s accounts with untaxed UK interest.
+
+interest.taxed-uk-interest.accounts.summary = Taxed account summary
 
 interest.taxed-uk-interest.title.individual = Did you get taxed interest from the UK?
 interest.taxed-uk-interest.title.agent = Did your client get taxed interest from the UK?
@@ -156,7 +155,8 @@ interest.taxed-uk-interest-accounts.title = Accounts with taxed UK interest
 
 interest.accounts.addAnotherAccount = Add another account
 
-interest.cya.title = Check your answers
+interest.cya.title.individual = Check your taxed and untaxed UK interest
+interest.cya.title.agent = Check your client’s taxed and untaxed UK interest
 interest.cya.questions.1 = Untaxed UK Interest
 interest.cya.questions.2 = Untaxed UK interest accounts
 interest.cya.questions.3 = Taxed UK Interest
@@ -174,7 +174,7 @@ interest.cya.taxed-uk-interest-accounts.hiddenChange.agent = if your client got 
 interest.cya.change-untaxed-details.hiddenChange.individual = the details of your account with untaxed UK interest
 interest.cya.change-untaxed-details.hiddenChange.agent = the details of your client’s account with untaxed UK interest
 interest.cya.change-taxed-details.hiddenChange.individual = the details of your account with taxed UK interest
-interest.cya.change-taxed-details.hiddenChange.agent = the details of your client’s account with taxed UK interes
+interest.cya.change-taxed-details.hiddenChange.agent = the details of your client’s account with taxed UK interest
 
 interest.change-account.untaxed-title.individual = How much untaxed UK interest did you get?
 interest.change-account.untaxed-title.agent = How much untaxed UK interest did your client get?

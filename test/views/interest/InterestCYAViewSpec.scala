@@ -69,7 +69,7 @@ class InterestCYAViewSpec extends ViewTest {
   val changeUntaxedInterestAgentHiddenText = "if your client got untaxed UK interest"
   val changeUntaxedDetailsIndividualHiddenText = "the details of your account with untaxed UK interest"
   val changeUntaxedDetailsAgentHiddenText = "the details of your client’s account with untaxed UK interest"
-  val changeTaxedInterestIndividualHiddenText = "if you  got taxed UK interest"
+  val changeTaxedInterestIndividualHiddenText = "if you got taxed UK interest"
   val changeTaxedInterestAgentHiddenText = "if your client got taxed UK interest"
   val changeTaxedDetailsIndividualHiddenText = "the details of your account with taxed UK interest"
   val changeTaxedDetailsAgentHiddenText = "the details of your client’s account with taxed UK interest"

@@ -43,9 +43,9 @@
     }
 }
 
-@layout(messages("interest.cya.title"), taxYear = Some(taxYear), isAgent = user.isAgent) {
+@layout(messages(s"interest.cya.title.${if(user.isAgent) "agent" else "individual"}"), taxYear = Some(taxYear), isAgent = user.isAgent) {
 
-    @heading("interest.cya.title", Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
+    @heading(s"interest.cya.title.${if(user.isAgent) "agent" else "individual"}", Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 
     @{
         govukSummaryList(SummaryList(Seq(

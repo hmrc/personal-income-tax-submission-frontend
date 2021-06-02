@@ -69,7 +69,7 @@ class UntaxedInterestAmountFormSpec extends UnitTest {
         val testInput = Map(untaxedAccountName -> nameValid, untaxedAmount -> amountInvalid)
         val result = form.bind(testInput).errors
 
-        result should contain(FormError(untaxedAmount, "interest.untaxed-uk-interest-amount.error.empty"))
+        result should contain(FormError(untaxedAmount, "interest.untaxed-uk-interest-amount.error.empty.individual"))
       }
 
       "an invalid amount entry has been inputted" in {

@@ -36,7 +36,7 @@ class TaxedInterestAmountViewSpec extends ViewTest{
   val whatWouldYouCallSelector = "#main-content > div > div > form > div:nth-child(3) > label > div"
   val eachAccountNameSelector = "#main-content > div > div > form > div:nth-child(3) > label > p"
   val accountNameInputSelector = "input#taxedAccountName"
-  val amountInterestSelector = "#main-content > div > div > form > div:nth-child(3) > label"
+  val amountInterestSelector = "#main-content > div > div > form > div:nth-child(4) > label > div"
   val poundPrefixSelector = ".govuk-input__prefix"
   val interestEarnedInputSelector = "input#taxedAmount"
   val accountNameHintTextSelector = "#untaxedAccountName-hint"
