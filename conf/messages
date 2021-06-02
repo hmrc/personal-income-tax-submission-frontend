@@ -174,6 +174,13 @@ interest.change-account.taxed-heading.agent = {0}: how much taxed UK interest di
 interest.change-account.taxed-label.prior.common2 = taxed UK interest. Tell us if this has changed.
 interest.change-account.untaxed-label.prior.common2 = untaxed UK interest. Tell us if this has changed.
 
+charity.qualifying-shares.disclosure.title = What are qualifying shares and securities?
+charity.qualifying-shares.disclosure.p = Qualifying shares and securities are:
+charity.qualifying-shares.disclosure.bullet.1 = listed on a recognised stock exchange or dealt in on a designated market in the UK
+charity.qualifying-shares.disclosure.bullet.2 = units in an authorised unit trust
+charity.qualifying-shares.disclosure.bullet.3 = shares in an open-ended investment company
+charity.qualifying-shares.disclosure.bullet.4 = an interest in an offshore fund
+
 charity.uk-charity.title.individual = Did you use Gift Aid to donate to charity?
 charity.uk-charity.title.agent = Did your client use Gift Aid to donate to charity?
 charity.uk-charity.errors.noChoice.individual = Select yes if you used Gift Aid to donate to charity
@@ -268,8 +275,8 @@ charity.last-tax-year.content_2.agent = You might want to do this if your client
 charity.last-tax-year.errors.noChoice.individual = Select yes to add any of your donations to the last tax year
 charity.last-tax-year.errors.noChoice.agent = Select yes to add any of your client’s donations to the last tax year
 
-charity.shares-securities-land-property.title.individual = Did you donate shares, securities, land or property to charity?
-charity.shares-securities-land-property.title.agent = Did your client donate shares, securities, land or property to charity?
+charity.shares-securities-land-property.title.individual = Did you donate qualifying shares, securities, land or property to charity?
+charity.shares-securities-land-property.title.agent = Did your client donate qualifying shares, securities, land or property to charity?
 charity.shares-securities-land-property.noChoice.individual = Select yes if you donated shares, securities, land or property to charity
 charity.shares-securities-land-property.noChoice.agent = Select yes if your client donated shares, securities, land or property to charity
 
@@ -299,7 +306,7 @@ charity.donated-land-or-property.title.agent = Did your client donate land or pr
 charity.donated-land-or-property.errors.noChoice.individual = Select yes if you donated land or property to charity
 charity.donated-land-or-property.errors.noChoice.agent = Select yes if your client donated land or property to charity
 
-charity.shares-or-securities.heading = What is the total value of shares or securities donated to charity?
+charity.shares-or-securities.heading = What is the total value of qualifying shares or securities donated to charity?
 charity.shares-or-securities.error.empty-field.individual = Enter the value of shares or securities you donated to charity
 charity.shares-or-securities.error.empty-field.agent = Enter the value of shares or securities your client donated to charity
 charity.shares-or-securities.error.max-amount.individual = The value of your shares or securities must be less than £100,000,000,000
@@ -331,7 +338,7 @@ charity.shares-securities-land-property-overseas.errors.noChoice.agent = Select 
 charity.shares-securities-land-property-overseas.title.individual = Did you donate qualifying shares, securities, land or property to overseas charities?
 charity.shares-securities-land-property-overseas.title.agent = Did your client donate qualifying shares, securities, land or property to overseas charities?
 
-charity.overseas-shares-securities-land-property-amount.heading = What is the value of shares, securities, land or property donated to overseas charities?
+charity.overseas-shares-securities-land-property-amount.heading = What is the value of qualifying shares, securities, land or property donated to overseas charities?
 charity.overseas-shares-securities-land-property-amount.error.empty-field.individual = Enter the value of shares, securities, land or property you donated to overseas charities
 charity.overseas-shares-securities-land-property-amount.error.empty-field.agent = Enter the value of shares, securities, land or property your client donated to overseas charities
 charity.overseas-shares-securities-land-property-amount.error.max-amount.individual = The value of your shares, securities, land or property must be less than £100,000,000,000

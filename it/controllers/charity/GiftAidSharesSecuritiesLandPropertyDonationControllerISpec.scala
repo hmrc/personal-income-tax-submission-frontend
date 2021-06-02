@@ -42,17 +42,31 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Integra
   val continueButtonFormSelector = "#main-content > div > div > form"
   val errorSummaryHref = "#value"
 
+  val disclosureContentTitle = "What are qualifying shares and securities?"
+  val disclosureContentParagraph = "Qualifying shares and securities are:"
+  val disclosureContentBullet1 = "listed on a recognised stock exchange or dealt in on a designated market in the UK"
+  val disclosureContentBullet2 = "units in an authorised unit trust"
+  val disclosureContentBullet3 = "shares in an open-ended investment company"
+  val disclosureContentBullet4 = "an interest in an offshore fund"
+
+  val disclosureSelectorTitle = "#main-content > div > div > form > details > summary > span"
+  val disclosureSelectorParagraph = "#main-content > div > div > form > details > div > p"
+  val disclosureSelectorBullet1 = "#main-content > div > div > form > details > div > ul > li:nth-child(1)"
+  val disclosureSelectorBullet2 = "#main-content > div > div > form > details > div > ul > li:nth-child(2)"
+  val disclosureSelectorBullet3 = "#main-content > div > div > form > details > div > ul > li:nth-child(3)"
+  val disclosureSelectorBullet4 = "#main-content > div > div > form > details > div > ul > li:nth-child(4)"
+
   object IndividualExpected {
 
-    val expectedTitle = "Did you donate shares, securities, land or property to charity?"
-    val expectedH1 = "Did you donate shares, securities, land or property to charity?"
+    val expectedTitle = "Did you donate qualifying shares, securities, land or property to charity?"
+    val expectedH1 = "Did you donate qualifying shares, securities, land or property to charity?"
     val expectedError = "Select yes if you donated shares, securities, land or property to charity"
     val expectedErrorTitle = s"Error: $expectedTitle"
   }
 
   object AgentExpected {
-    val expectedTitle = "Did your client donate shares, securities, land or property to charity?"
-    val expectedH1 = "Did your client donate shares, securities, land or property to charity?"
+    val expectedTitle = "Did your client donate qualifying shares, securities, land or property to charity?"
+    val expectedH1 = "Did your client donate qualifying shares, securities, land or property to charity?"
     val expectedError = "Select yes if your client donated shares, securities, land or property to charity"
     val expectedErrorTitle = s"Error: $expectedTitle"
   }
@@ -85,6 +99,12 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Integra
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
           buttonCheck(continueText, continueSelector)
+          textOnPageCheck(disclosureContentTitle, disclosureSelectorTitle)
+          textOnPageCheck(disclosureContentParagraph, disclosureSelectorParagraph)
+          textOnPageCheck(disclosureContentBullet1, disclosureSelectorBullet1)
+          textOnPageCheck(disclosureContentBullet2, disclosureSelectorBullet2)
+          textOnPageCheck(disclosureContentBullet3, disclosureSelectorBullet3)
+          textOnPageCheck(disclosureContentBullet4, disclosureSelectorBullet4)
         }
 
       }
@@ -183,6 +203,12 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Integra
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
           buttonCheck(continueText, continueSelector)
+          textOnPageCheck(disclosureContentTitle, disclosureSelectorTitle)
+          textOnPageCheck(disclosureContentParagraph, disclosureSelectorParagraph)
+          textOnPageCheck(disclosureContentBullet1, disclosureSelectorBullet1)
+          textOnPageCheck(disclosureContentBullet2, disclosureSelectorBullet2)
+          textOnPageCheck(disclosureContentBullet3, disclosureSelectorBullet3)
+          textOnPageCheck(disclosureContentBullet4, disclosureSelectorBullet4)
         }
 
       }

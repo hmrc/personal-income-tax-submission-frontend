@@ -40,7 +40,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
   }
 
   object ExpectedResultsEn {
-    val heading: String = "What is the total value of shares or securities donated to charity?"
+    val heading: String = "What is the total value of qualifying shares or securities donated to charity?"
     val hintText: String = "For example, £600 or £193.54"
     val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
     val button = "Continue"
@@ -61,7 +61,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
   }
 
   object ExpectedResultsCy {
-    val heading: String = "What is the total value of shares or securities donated to charity?"
+    val heading: String = "What is the total value of qualifying shares or securities donated to charity?"
     val hintText: String = "For example, £600 or £193.54"
     val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
     val button = "Continue"

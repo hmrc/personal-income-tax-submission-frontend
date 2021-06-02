@@ -18,13 +18,15 @@
 @import views.html.templates.helpers.ErrorSummary
 @import views.html.templates.helpers.Button
 @import views.html.templates.helpers.InputRadio
+@import views.html.templates.helpers.Details
 
 @this(
     layout: Layout,
     formWithCsrf: FormWithCSRF,
     errorSummary: ErrorSummary,
     button: Button,
-    inputRadio:InputRadio
+    inputRadio: InputRadio,
+    details: Details
 )
 
 @(form: Form[Boolean], taxYear: Int, checked: String = "")(implicit user: User[_], messages: Messages, appConfig: AppConfig)
@@ -47,9 +49,21 @@
             inline = true,
             subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString))
         )
-
+        @details("charity.qualifying-shares.disclosure.title", detailsHtml)
         @button()
     }
+}
+
+@detailsHtml = {
+<p class="govuk-body">
+    @messages("charity.qualifying-shares.disclosure.p")
+</p>
+<ul class="govuk-list govuk-list--bullet govuk-list--spaced">
+    <li>@messages("charity.qualifying-shares.disclosure.bullet.1")</li>
+    <li>@messages("charity.qualifying-shares.disclosure.bullet.2")</li>
+    <li>@messages("charity.qualifying-shares.disclosure.bullet.3")</li>
+    <li>@messages("charity.qualifying-shares.disclosure.bullet.4")</li>
+</ul>
 }
 
 @{
