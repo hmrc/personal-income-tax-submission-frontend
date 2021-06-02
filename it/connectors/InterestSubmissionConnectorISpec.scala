@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.http.HttpHeader
 import config.AppConfig
 import models.interest.InterestSubmissionModel
 import models.{APIErrorBodyModel, APIErrorModel, APIErrorsBodyModel}
+import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, SessionId}
@@ -74,7 +75,7 @@ class InterestSubmissionConnectorISpec extends IntegrationTest {
 
         val result = await(connector.submit(body, nino, taxYear)(hc, ec))
 
-        result shouldBe Right(NO_CONTENT)
+        result shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("PARSING_ERROR", "Error parsing response from API")))
       }
     }
 

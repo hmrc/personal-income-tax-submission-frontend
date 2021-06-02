@@ -105,7 +105,7 @@ class GiftAidSubmissionConnectorSpec extends IntegrationTest {
 
         val result: GiftAidSubmissionsResponse = Await.result(connector.submitGiftAid(validGiftAidModel, nino, taxYear)(hc), Duration.Inf)
 
-        result shouldBe Right(NO_CONTENT)
+        result shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("PARSING_ERROR", "Error parsing response from API")))
       }
     }
     "Return a success result" when {

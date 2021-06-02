@@ -78,7 +78,7 @@ class DividendsSubmissionConnectorSpec extends IntegrationTest{
 
           val result: DividendsSubmissionsResponse = Await.result(connector.submitDividends(body, nino, taxYear)(hc), Duration.Inf)
 
-          result shouldBe Right(DividendsResponseModel(NO_CONTENT))
+          result shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("PARSING_ERROR", "Error parsing response from API")))
         }
       }
     "Return a success result" when {
