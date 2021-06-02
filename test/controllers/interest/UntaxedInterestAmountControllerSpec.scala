@@ -327,18 +327,6 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp with DefaultAw
 
     }
 
-    s"return a BAD_REQUEST($BAD_REQUEST)" when {
-
-      "the form data is invalid" in new TestWithAuth{
-        val result: Future[Result] = controller.submit(taxYear, id)(fakeRequest.withFormUrlEncodedBody(
-          "invalidField" -> "someValue"
-        ))
-
-        status(result) shouldBe BAD_REQUEST
-      }
-
-    }
-
   }
 
 }

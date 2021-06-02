@@ -17,12 +17,14 @@
 package forms.interest
 
 import filters.InputFilters
-import forms.validation.StringConstraints.nonEmpty
+import forms.validation.StringConstraints.{nonEmpty, validateNotDuplicate}
 import forms.validation.mappings.MappingUtil.{currency, trimmedText}
 import models.interest.UntaxedInterestModel
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import play.api.data.validation.Constraint
+
+import forms.validation.utils.ConstraintUtil.ConstraintUtil
 
 object UntaxedInterestAmountForm extends InputFilters{
 
@@ -32,9 +34,13 @@ object UntaxedInterestAmountForm extends InputFilters{
   val nameNotEmpty: Constraint[String] = nonEmpty("interest.common.error.name.empty")
   val amountNotEmpty: Constraint[String] = nonEmpty("interest.untaxed-uk-interest-amount.error.empty")
 
-  def untaxedInterestAmountForm(): Form[UntaxedInterestModel] = Form(
+  def notDuplicate(previousNames: Seq[String]): Constraint[String] = validateNotDuplicate(previousNames)("interest.common.error.name.duplicate")
+
+  def untaxedInterestAmountForm(previousNames: Seq[String]): Form[UntaxedInterestModel] = Form(
     mapping(
-      untaxedAccountName -> trimmedText.verifying(nameNotEmpty),
+      untaxedAccountName -> trimmedText.verifying(
+        nameNotEmpty andThen notDuplicate(previousNames)
+      ),
       untaxedAmount -> currency("interest.untaxed-uk-interest-amount.error.empty")
     )(UntaxedInterestModel.apply)(UntaxedInterestModel.unapply).transform[UntaxedInterestModel](
       details => details.copy(
