@@ -18,7 +18,6 @@ package controllers.interest
 
 import common.SessionValues
 import forms.interest.TaxedInterestAmountForm
-import controllers.Assets.BAD_REQUEST
 import helpers.PlaySessionCookieBaker
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import org.jsoup.Jsoup
