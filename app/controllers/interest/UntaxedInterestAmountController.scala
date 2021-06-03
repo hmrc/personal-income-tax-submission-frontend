@@ -44,7 +44,11 @@ class UntaxedInterestAmountController @Inject()(
                                                  questionsJourneyValidator: QuestionsJourneyValidator
                                                ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper {
 
-  val untaxedInterestAmountForm: Form[UntaxedInterestModel] = UntaxedInterestAmountForm.untaxedInterestAmountForm()
+  def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
+
+  def untaxedInterestAmountForm(implicit isAgent: Boolean): Form[UntaxedInterestModel] = UntaxedInterestAmountForm.untaxedInterestAmountForm(
+    emptyAmountKey = "interest.untaxed-uk-interest-amount.error.empty." + agentOrIndividual
+  )
 
   def show(taxYear: Int, id: String): Action[AnyContent] = commonPredicates(taxYear, INTEREST).apply { implicit user =>
 
@@ -73,7 +77,7 @@ class UntaxedInterestAmountController @Inject()(
         }
 
         Ok(untaxedInterestAmountView(
-          form = model.fold(untaxedInterestAmountForm)(untaxedInterestAmountForm.fill),
+          form = model.fold(untaxedInterestAmountForm(user.isAgent))(untaxedInterestAmountForm(user.isAgent).fill),
           taxYear = taxYear,
           postAction = UntaxedInterestAmountController.submit(taxYear, id),
           isAgent = user.isAgent
@@ -87,7 +91,7 @@ class UntaxedInterestAmountController @Inject()(
   }
 
   def submit(taxYear: Int, id: String): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, INTEREST)) { implicit user =>
-    untaxedInterestAmountForm.bindFromRequest().fold({
+    untaxedInterestAmountForm(user.isAgent).bindFromRequest().fold({
       formWithErrors =>
         BadRequest(untaxedInterestAmountView(
           form = formWithErrors,

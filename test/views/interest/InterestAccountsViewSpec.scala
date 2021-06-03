@@ -54,9 +54,9 @@ class InterestAccountsViewSpec extends ViewTest {
   val doYouNeedSelector = "#main-content > div > div > form > div > fieldset > legend"
   val youMustTellSelector = "#value-hint"
 
-  val changeUntaxedHref = "/income-through-software/return/personal-income/2020/interest/untaxed-uk-interest-details/qwerty"
+  val changeUntaxedHref = "/income-through-software/return/personal-income/2020/interest/add-untaxed-uk-interest-account/qwerty"
   val changePriorUntaxedHref = "/income-through-software/return/personal-income/2020/interest/change-untaxed-interest-account?accountId=azerty"
-  val changeTaxedHref = "/income-through-software/return/personal-income/2020/interest/taxed-uk-interest-details/qwerty"
+  val changeTaxedHref = "/income-through-software/return/personal-income/2020/interest/add-taxed-uk-interest-account/qwerty"
   val changePriorTaxedHref = "/income-through-software/return/personal-income/2020/interest/change-taxed-interest-account?accountId=azerty"
   val removeUntaxedHref = "/income-through-software/return/personal-income/2020/interest/remove-untaxed-interest-account?accountId=qwerty"
   val removeTaxedHref = "/income-through-software/return/personal-income/2020/interest/remove-taxed-interest-account?accountId=qwerty"

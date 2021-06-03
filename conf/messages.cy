@@ -107,11 +107,14 @@ interest.common.paragraph.1 = This could be interest from:
 interest.common.sub-heading.1 = Give each account a different name.
 interest.common.sub-heading.2 = What do you want to name this account?
 
-interest.common.error.name.empty = Enter an account name
+interest.common.error.name.empty = Enter a name for this account
 
 interest.common.account.hint = For example, ‘HSBC savings account’.
 
 interest.common.accounts.no-selection = Select yes to add another account
+
+interest.uk-interest.paragraph.individual = Do not include interest you got from an Individual Savings Account (ISA) or gilts.
+interest.uk-interest.paragraph.agent = Do not include interest your client got from an Individual Savings Account (ISA) or gilts.
 
 interest.untaxed-uk-interest.title.individual = Did you get untaxed interest from the UK?
 interest.untaxed-uk-interest.title.agent = Did your client get untaxed interest from the UK?
@@ -120,8 +123,6 @@ interest.untaxed-uk-interest.errors.noRadioSelected.agent = Select yes if your c
 interest.untaxed-uk-interest.list.1 = banks and building societies
 interest.untaxed-uk-interest.list.2 = savings and credit union accounts
 interest.untaxed-uk-interest.list.3 = peer-to-peer lending
-interest.untaxed-uk-interest.paragraph.individual = Do not include interest you got from an Individual Savings Account (ISA) or gilts.
-interest.untaxed-uk-interest.paragraph.agent = Do not include interest your client got from an Individual Savings Account (ISA) or gilts.
 interest.untaxed-uk-interest.amount.interest.earned = Amount of untaxed UK interest
 
 interest.untaxed-uk-interest.accounts.summary = Untaxed account summary
@@ -140,8 +141,6 @@ interest.taxed-uk-interest.title.agent = Did your client get taxed interest from
 interest.taxed-uk-interest.list.1 = trust funds
 interest.taxed-uk-interest.list.2 = company bonds
 interest.taxed-uk-interest.list.3 = life annuity payments
-interest.taxed-uk-interest.paragraph.individual = Do not include interest you got from an Individual Savings Account (ISA) or gilts.
-interest.taxed-uk-interest.paragraph.agent = Do not include interest your client got from an Individual Savings Account (ISA) or gilts.
 interest.taxed-uk-interest.errors.noRadioSelected.individual = Select yes if you got taxed UK interest
 interest.taxed-uk-interest.errors.noRadioSelected.agent = Select yes if your client got taxed UK interest
 interest.taxed-uk-interest.amount.interest.earned = Amount of taxed UK interest
@@ -149,8 +148,10 @@ interest.taxed-uk-interest-accounts.account.tell-us-about-all.individual = You m
 interest.taxed-uk-interest-accounts.account.tell-us-about-all.agent = You must tell us about all your client’s accounts with taxed UK interest.
 
 interest.taxed-uk-interest-details.title = Add an account with taxed UK interest
-interest.taxed-uk-interest-details.title = UK taxed interest account details
 interest.taxed-uk-interest-amount.error.empty = Enter the amount of taxed interest earned
+
+interest.taxed-uk-interest-amount.error.empty.individual = Enter the amount of taxed UK interest you got
+interest.taxed-uk-interest-amount.error.empty.agent = Enter the amount of taxed UK interest your client got
 
 interest.taxed-uk-interest-accounts.title = Accounts with taxed UK interest
 
@@ -163,6 +164,11 @@ interest.cya.questions.2 = Untaxed UK interest accounts
 interest.cya.questions.3 = Taxed UK Interest
 interest.cya.questions.4 = Taxed UK interest accounts
 
+interest.remove-account.title = Are you sure you want to remove this account?
+interest.remove-account.untaxed-hint = This will remove all untaxed UK interest.
+interest.remove-account.taxed-hint = This will remove all taxed UK interest.
+interest.remove-account.errors.noRadioSelected = Select yes to remove this account
+
 interest.cya.untaxed-uk-interest-accounts.hiddenChange.individual = if you got untaxed UK interest
 interest.cya.untaxed-uk-interest-accounts.hiddenChange.agent = if your client got untaxed UK interest
 interest.cya.taxed-uk-interest-accounts.hiddenChange.individual = if you got taxed UK interest
@@ -171,11 +177,6 @@ interest.cya.change-untaxed-details.hiddenChange.individual = the details of you
 interest.cya.change-untaxed-details.hiddenChange.agent = the details of your client’s account with untaxed UK interest
 interest.cya.change-taxed-details.hiddenChange.individual = the details of your account with taxed UK interest
 interest.cya.change-taxed-details.hiddenChange.agent = the details of your client’s account with taxed UK interest
-
-interest.remove-account.title = Are you sure you want to remove this account?
-interest.remove-account.untaxed-hint = This will remove all untaxed UK interest.
-interest.remove-account.taxed-hint = This will remove all taxed UK interest.
-interest.remove-account.errors.noRadioSelected = Select yes to remove this account
 
 interest.change-account.untaxed-title.individual = How much untaxed UK interest did you get?
 interest.change-account.untaxed-title.agent = How much untaxed UK interest did your client get?
@@ -387,7 +388,7 @@ charity.cya.questions.oneOffDonationsViaGiftAid.amount.hidden = Change the amoun
 charity.cya.questions.overseasDonationsViaGiftAid.individual.hidden = Change  if you made a donation to an overseas charity by using Gift Aid
 charity.cya.questions.overseasDonationsViaGiftAid.agent.hidden = Change  if your client made a donation to an overseas charity by using Gift Aid
 charity.cya.questions.overseasDonationsViaGiftAid.amount.hidden = Change the amount donated to overseas charities
-charity.cya.questions.overseasDonationsViaGiftAid.names.hidden = Change the names of overseas charities you used Gift Aid to donated to
+charity.cya.questions.overseasDonationsViaGiftAid.names.hidden = Change the names of overseas charities you used Gift Aid to donate to
 charity.cya.questions.addDonationToLastYear.individual.hidden = Change if you want to add some of your donations to the last tax year
 charity.cya.questions.addDonationToLastYear.agent.hidden = Change if you want to add some of your client’s donations to the last tax year
 charity.cya.questions.addDonationToLastYear.amount.individual.hidden = Change the amount of your donations you want to add to the last tax year

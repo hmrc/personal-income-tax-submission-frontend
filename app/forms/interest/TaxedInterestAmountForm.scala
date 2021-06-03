@@ -30,12 +30,11 @@ object TaxedInterestAmountForm extends InputFilters{
   val taxedAmount = "taxedAmount"
 
   val nameNotEmpty: Constraint[String] = nonEmpty("interest.common.error.name.empty")
-  val amountNotEmpty: Constraint[String] = nonEmpty("interest.taxed-uk-interest-amount.error.empty")
 
-  def taxedInterestAmountForm(): Form[TaxedInterestModel] = Form(
+  def taxedInterestAmountForm(emptyAmountKey: String): Form[TaxedInterestModel] = Form(
     mapping(
       taxedAccountName -> trimmedText.verifying(nameNotEmpty),
-      taxedAmount -> currency("interest.taxed-uk-interest-amount.error.empty")
+      taxedAmount -> currency(requiredKey = emptyAmountKey)
     )(TaxedInterestModel.apply)(TaxedInterestModel.unapply).transform[TaxedInterestModel](
       details => details.copy(
         taxedAccountName = filter(details.taxedAccountName)

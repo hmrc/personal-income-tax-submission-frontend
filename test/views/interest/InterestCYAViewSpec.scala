@@ -79,12 +79,12 @@ class InterestCYAViewSpec extends ViewTest {
   val taxedInterestAccount2ExpectedTest = "TaxedBank2 : £400"
 
   val changeUntaxedInterestHref = s"/income-through-software/return/personal-income/$taxYear/interest/untaxed-uk-interest"
-  val changeUntaxedInterestAmountHref = s"/income-through-software/return/personal-income/$taxYear/interest/untaxed-uk-interest-account-summary"
+  val changeUntaxedInterestAmountHref = s"/income-through-software/return/personal-income/$taxYear/interest/accounts-with-untaxed-uk-interest"
   val changeTaxedInterestHref = s"/income-through-software/return/personal-income/$taxYear/interest/taxed-uk-interest"
-  val changeTaxedInterestAmountHref = s"/income-through-software/return/personal-income/$taxYear/interest/taxed-uk-interest-account-summary"
+  val changeTaxedInterestAmountHref = s"/income-through-software/return/personal-income/$taxYear/interest/accounts-with-taxed-uk-interest"
 
   val submitText = "Save and continue"
-  val submitLink = s"/income-through-software/return/personal-income/$taxYear/interest/check-your-answers"
+  val submitLink = s"/income-through-software/return/personal-income/$taxYear/interest/check-interest"
 
   val Yes = "Yes"
   val No = "No"
