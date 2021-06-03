@@ -33,7 +33,8 @@
     currency: Boolean = false,
     subheading: Option[String] = None,
     headingClasses: String = "",
-    content: Option[Html] = None
+    content: Option[Html] = None,
+    maxLength: String = "50"
 )(implicit messages: Messages)
 
 @contentHtml = {
@@ -62,5 +63,5 @@
     inputType = inputType,
     errorMessage = form(name).error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*)))),
     prefix = if(currency) Some(PrefixOrSuffix(content = Text("£"))) else None,
-    attributes = Map("maxlength" -> "50")
+    attributes = Map("maxlength" -> maxLength)
 ))

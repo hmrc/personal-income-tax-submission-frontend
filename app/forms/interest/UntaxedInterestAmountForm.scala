@@ -17,30 +17,31 @@
 package forms.interest
 
 import filters.InputFilters
-import forms.validation.StringConstraints.{nonEmpty, validateNotDuplicate}
+import forms.validation.StringConstraints.{nonEmpty, validateChar, validateSize, validateNotDuplicate}
 import forms.validation.mappings.MappingUtil.{currency, trimmedText}
 import models.interest.UntaxedInterestModel
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import play.api.data.validation.Constraint
 
-import forms.validation.utils.ConstraintUtil.ConstraintUtil
-
 object UntaxedInterestAmountForm extends InputFilters{
 
   val untaxedAccountName = "untaxedAccountName"
   val untaxedAmount = "untaxedAmount"
+  val charLimit: Int = 32
 
   val nameNotEmpty: Constraint[String] = nonEmpty("interest.common.error.name.empty")
   val amountNotEmpty: Constraint[String] = nonEmpty("interest.untaxed-uk-interest-amount.error.empty")
 
   def notDuplicate(previousNames: Seq[String]): Constraint[String] = validateNotDuplicate(previousNames)("interest.common.error.name.duplicate")
 
+  val noInvalidChar: Constraint[String] = validateChar("interest.untaxed-uk-interest-details.error.invalidChars")
+
+  val exceedCharLimit: Constraint[String] = validateSize(charLimit)("interest.accounts.error.tooLong")
+
   def untaxedInterestAmountForm(previousNames: Seq[String]): Form[UntaxedInterestModel] = Form(
     mapping(
-      untaxedAccountName -> trimmedText.verifying(
-        nameNotEmpty andThen notDuplicate(previousNames)
-      ),
+      untaxedAccountName -> trimmedText.verifying(nameNotEmpty, noInvalidChar, exceedCharLimit, notDuplicate(previousNames)),
       untaxedAmount -> currency("interest.untaxed-uk-interest-amount.error.empty")
     )(UntaxedInterestModel.apply)(UntaxedInterestModel.unapply).transform[UntaxedInterestModel](
       details => details.copy(

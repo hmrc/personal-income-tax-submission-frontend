@@ -42,5 +42,4 @@ object StringConstraints {
     x => if (x.isEmpty) Invalid(msgKey) else Valid
   )
 
-
 }
