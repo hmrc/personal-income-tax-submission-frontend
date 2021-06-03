@@ -370,46 +370,52 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
 
         lazy val result = response(Map(TaxedInterestAmountForm.taxedAmount -> "",
           TaxedInterestAmountForm.taxedAccountName -> ""))
-        lazy val document: Document = Jsoup.parse(result.body)
+        implicit def document: () => Document = () => Jsoup.parse(result.body)
 
         s"return a 400(BadRequest) status" in {
           result.status shouldBe BAD_REQUEST
         }
 
-        "display no entry error messages" in {
-          document.select(Selectors.firstError).text() shouldBe Content.noNameEntryError
-          document.select(Selectors.secondError).text() shouldBe Content.noAmountEntryError
-        }
+        multipleErrorCheck(
+          List(
+            (Content.noNameEntryError, Selectors.accountNameInput),
+            (Content.noAmountEntryError, Selectors.amountInput)
+          )
+        )
       }
 
       "invalid characters are entered into the fields" should {
         lazy val result = response(Map(TaxedInterestAmountForm.taxedAmount -> "money",
           TaxedInterestAmountForm.taxedAccountName -> "$uper"))
-        lazy val document: Document = Jsoup.parse(result.body)
+        implicit def document: () => Document = () => Jsoup.parse(result.body)
 
         s"return a 400(BadRequest) status" in {
           result.status shouldBe BAD_REQUEST
         }
 
-        "display the invalid characters error messages" in {
-          document.select(Selectors.firstError).text() shouldBe Content.invalidCharEntry
-          document.select(Selectors.secondError).text() shouldBe Content.invalidNumericError
-        }
+        multipleErrorCheck(
+          List(
+            (Content.invalidCharEntry, Selectors.accountNameInput),
+            (Content.invalidNumericError, Selectors.amountInput)
+          )
+        )
       }
 
       "the account name is too long and the amount is too great" should {
         lazy val result = response(Map(TaxedInterestAmountForm.taxedAmount -> "100000000000",
           TaxedInterestAmountForm.taxedAccountName -> "SuperAwesomeBigBusinessMoneyStash"))
-        lazy val document: Document = Jsoup.parse(result.body)
+        implicit def document: () => Document = () => Jsoup.parse(result.body)
 
         s"return a 400(BadRequest) status" in {
           result.status shouldBe BAD_REQUEST
         }
 
-        "display the name length and amount too great error messages" in {
-          document.select(Selectors.firstError).text() shouldBe Content.nameTooLongError
-          document.select(Selectors.secondError).text() shouldBe Content.tooMuchMoneyError
-        }
+        multipleErrorCheck(
+          List(
+            (Content.nameTooLongError, Selectors.accountNameInput),
+            (Content.tooMuchMoneyError, Selectors.amountInput)
+          )
+        )
       }
 
       "an amount is entered with incorrect format" should {
@@ -486,46 +492,52 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
 
         lazy val result = response(Map(TaxedInterestAmountForm.taxedAmount -> "",
           TaxedInterestAmountForm.taxedAccountName -> ""))
-        lazy val document: Document = Jsoup.parse(result.body)
+        implicit def document: () => Document = () => Jsoup.parse(result.body)
 
         s"return a 400(BadRequest) status" in {
           result.status shouldBe BAD_REQUEST
         }
 
-        "display no entry error messages" in {
-          document.select(Selectors.firstError).text() shouldBe WelshContent.noNameEntryError
-          document.select(Selectors.secondError).text() shouldBe WelshContent.noAmountEntryError
-        }
+        multipleErrorCheck(
+          List(
+            (WelshContent.noNameEntryError, Selectors.accountNameInput),
+            (WelshContent.noAmountEntryError, Selectors.amountInput)
+          )
+        )
       }
 
       "invalid characters are entered into the fields" should {
         lazy val result = response(Map(TaxedInterestAmountForm.taxedAmount -> "money",
           TaxedInterestAmountForm.taxedAccountName -> "$uper"))
-        lazy val document: Document = Jsoup.parse(result.body)
+        implicit def document: () => Document = () => Jsoup.parse(result.body)
 
         s"return a 400(BadRequest) status" in {
           result.status shouldBe BAD_REQUEST
         }
 
-        "display the invalid characters error messages" in {
-          document.select(Selectors.firstError).text() shouldBe WelshContent.invalidCharEntry
-          document.select(Selectors.secondError).text() shouldBe WelshContent.invalidNumericError
-        }
+        multipleErrorCheck(
+          List(
+            (WelshContent.invalidCharEntry, Selectors.accountNameInput),
+            (WelshContent.invalidNumericError, Selectors.amountInput)
+          )
+        )
       }
 
       "the account name is too long and the amount is too great" should {
         lazy val result = response(Map(TaxedInterestAmountForm.taxedAmount -> "100000000000",
           TaxedInterestAmountForm.taxedAccountName -> "SuperAwesomeBigBusinessMoneyStash"))
-        lazy val document: Document = Jsoup.parse(result.body)
+        implicit def document: () => Document = () => Jsoup.parse(result.body)
 
         s"return a 400(BadRequest) status" in {
           result.status shouldBe BAD_REQUEST
         }
 
-        "display the name length and amount too great error messages" in {
-          document.select(Selectors.firstError).text() shouldBe WelshContent.nameTooLongError
-          document.select(Selectors.secondError).text() shouldBe WelshContent.tooMuchMoneyError
-        }
+        multipleErrorCheck(
+          List(
+            (WelshContent.nameTooLongError, Selectors.accountNameInput),
+            (WelshContent.tooMuchMoneyError, Selectors.amountInput)
+          )
+        )
       }
 
       "an amount is entered with incorrect format" should {

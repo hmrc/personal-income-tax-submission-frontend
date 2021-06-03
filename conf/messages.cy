@@ -147,6 +147,7 @@ interest.taxed-uk-interest-accounts.title.single = UK taxed interest account
 interest.taxed-uk-interest-accounts.title.multiple = UK taxed interest accounts
 
 interest.accounts.addAnotherAccount = Add another account
+interest.accounts.error.tooLong = The name of the account must be 32 characters or fewer
 
 interest.cya.title = Check your answers
 interest.cya.questions.1 = Untaxed UK Interest

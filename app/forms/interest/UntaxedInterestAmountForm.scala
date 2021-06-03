@@ -37,7 +37,7 @@ object UntaxedInterestAmountForm extends InputFilters{
 
   val noInvalidChar: Constraint[String] = validateChar("interest.untaxed-uk-interest-details.error.invalidChars")
 
-  val exceedCharLimit: Constraint[String] = validateSize(charLimit)("interest.taxed-uk-interest-amount.error.tooLong")
+  val exceedCharLimit: Constraint[String] = validateSize(charLimit)("interest.accounts.error.tooLong")
 
   def untaxedInterestAmountForm(previousNames: Seq[String]): Form[UntaxedInterestModel] = Form(
     mapping(

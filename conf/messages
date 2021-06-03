@@ -140,13 +140,13 @@ interest.taxed-uk-interest.errors.noRadioSelected.agent = Select yes if your cli
 
 interest.taxed-uk-interest-details.title = UK taxed interest account details
 interest.taxed-uk-interest-amount.error.invalidChars = Name of account with taxed UK interest must only include numbers 0-9, letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets, and the special characters &, /, @, £, *
-interest.taxed-uk-interest-amount.error.tooLong = The name of the account must be 32 characters or fewer
 interest.taxed-uk-interest-amount.error.empty = Enter the amount of taxed interest earned
 
 interest.taxed-uk-interest-accounts.title.single = UK taxed interest account
 interest.taxed-uk-interest-accounts.title.multiple = UK taxed interest accounts
 
 interest.accounts.addAnotherAccount = Add another account
+interest.accounts.error.tooLong = The name of the account must be 32 characters or fewer
 
 interest.cya.title = Check your answers
 interest.cya.questions.1 = Untaxed UK Interest

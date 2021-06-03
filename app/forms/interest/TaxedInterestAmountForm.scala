@@ -35,7 +35,7 @@ object TaxedInterestAmountForm extends InputFilters{
 
   val noInvalidChar: Constraint[String] = validateChar("interest.taxed-uk-interest-amount.error.invalidChars")
 
-  val exceedCharLimit: Constraint[String] = validateSize(charLimit)("interest.taxed-uk-interest-amount.error.tooLong")
+  val exceedCharLimit: Constraint[String] = validateSize(charLimit)("interest.accounts.error.tooLong")
 
   def notDuplicate(previousNames: Seq[String]): Constraint[String] = validateNotDuplicate(previousNames)("interest.common.error.name.duplicate")
 
