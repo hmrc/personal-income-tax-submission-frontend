@@ -17,15 +17,25 @@
 package connectors
 
 import com.github.tomakehurst.wiremock.http.HttpHeader
+import config.AppConfig
 import models.interest.InterestSubmissionModel
 import models.{APIErrorBodyModel, APIErrorModel, APIErrorsBodyModel}
+import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.libs.json.Json
 import play.api.test.Helpers._
+import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, SessionId}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.IntegrationTest
 
 class InterestSubmissionConnectorISpec extends IntegrationTest {
 
   lazy val connector: InterestSubmissionConnector = app.injector.instanceOf[InterestSubmissionConnector]
+
+  lazy val httpClient: HttpClient = app.injector.instanceOf[HttpClient]
+
+  def appConfig(host: String): AppConfig = new AppConfig(app.injector.instanceOf[ServicesConfig]) {
+    override lazy val interestBaseUrl: String = s"http://$host:$wiremockPort/income-tax-interest"
+  }
 
   lazy val body: Seq[InterestSubmissionModel] = Seq(
     InterestSubmissionModel(Some("id"), "name", Some(999.99), None),
@@ -37,6 +47,37 @@ class InterestSubmissionConnectorISpec extends IntegrationTest {
   val expectedHeaders = Seq(new HttpHeader("mtditid", mtditid))
 
   ".submit" should {
+
+    "include internal headers" when {
+      val headersSentToDividends = Seq(new HttpHeader(HeaderNames.xSessionId, "sessionIdValue"), new HttpHeader("mtditid", mtditid))
+
+      val internalHost = "localhost"
+      val externalHost = "127.0.0.1"
+
+      "the host for Interest is 'Internal'" in {
+        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("sessionIdValue"))).withExtraHeaders("mtditid"->mtditid)
+        val connector = new InterestSubmissionConnector(httpClient, appConfig(internalHost))
+
+        stubPost(s"/income-tax-interest/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}",
+          headersSentToDividends)
+
+        val result = await(connector.submit(body, nino, taxYear)(hc, ec))
+
+        result shouldBe Right(NO_CONTENT)
+      }
+      "the host for Interest is 'External'" in {
+        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("sessionIdValue"))).withExtraHeaders("mtditid"->mtditid)
+
+        val connector = new InterestSubmissionConnector(httpClient, appConfig(externalHost))
+
+        stubPost(s"/income-tax-interest/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}",
+          headersSentToDividends)
+
+        val result = await(connector.submit(body, nino, taxYear)(hc, ec))
+
+        result shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("PARSING_ERROR", "Error parsing response from API")))
+      }
+    }
 
     "return a successful response" when {
 

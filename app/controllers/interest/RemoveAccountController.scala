@@ -25,7 +25,7 @@ import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.YesNoForm
 import models.User
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
-import play.api.Logger
+import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
@@ -42,9 +42,9 @@ class RemoveAccountController @Inject()(
                                          implicit appConfig: AppConfig,
                                          implicit val mcc: MessagesControllerComponents,
                                          authorisedAction: AuthorisedAction
-                                       ) extends FrontendController(mcc) with I18nSupport {
+                                       ) extends FrontendController(mcc) with I18nSupport with Logging{
 
-  private val logger = Logger.logger
+
   val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("interest.remove-account.errors.noRadioSelected")
 
   implicit def resultToFutureResult: Result => Future[Result] = baseResult => Future.successful(baseResult)

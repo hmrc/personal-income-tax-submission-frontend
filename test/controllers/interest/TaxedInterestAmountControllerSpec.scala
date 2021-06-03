@@ -147,7 +147,7 @@ class TaxedInterestAmountControllerSpec extends UnitTestWithApp with DefaultAwai
       val invalidTaxYear = 2023
       lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear, id)(fakeRequest.withSession(SessionValues.TAX_YEAR -> mockAppConfFeatureSwitch.defaultTaxYear.toString))
 
-      redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
+      redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show.url
 
     }
   }

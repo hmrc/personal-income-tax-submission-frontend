@@ -16,12 +16,13 @@
 
 package controllers.predicates
 
-import controllers.Assets.{Ok, Redirect}
+
 import controllers.dividends.routes.{OtherUkDividendsAmountController, ReceiveOtherUkDividendsController, ReceiveUkDividendsController, UkDividendsAmountController}
 import models.dividends.DividendsCheckYourAnswersModel
 import models.question.Question.{WithDependency, WithoutDependency}
 import models.question.{Question, QuestionsJourney}
 import play.api.mvc.{Call, Result}
+import play.api.mvc.Results.{Ok, Redirect}
 import play.api.test.DefaultAwaitTimeout
 import utils.UnitTest
 
