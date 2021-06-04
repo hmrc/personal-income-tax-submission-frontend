@@ -26,7 +26,11 @@ class UntaxedInterestAmountFormSpec extends UnitTest {
   def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
 
   def form(implicit isAgent: Boolean): Form[UntaxedInterestModel] = {
-    UntaxedInterestAmountForm.untaxedInterestAmountForm(emptyAmountKey = "interest.untaxed-uk-interest-amount.error.empty." + agentOrIndividual)
+    UntaxedInterestAmountForm.untaxedInterestAmountForm(
+      emptyAmountKey = "interest.untaxed-uk-interest-amount.error.empty." + agentOrIndividual,
+      invalidNumericKey = "interest.untaxed-uk-interest-amount.error.invalid-numeric",
+      maxAmountInvalidKey = "interest.untaxed-uk-interest-amount.error.max-amount"
+    )
   }
 
   lazy val nameValid = "someName"
@@ -85,21 +89,21 @@ class UntaxedInterestAmountFormSpec extends UnitTest {
         val testInput = Map(untaxedAccountName -> nameValid, untaxedAmount -> amountInvalidEntry)
         val result = form(isAgent = false).bind(testInput).errors
 
-        result should contain(FormError(untaxedAmount, "common.error.invalid_number"))
+        result should contain(FormError(untaxedAmount, "interest.untaxed-uk-interest-amount.error.invalid-numeric"))
       }
 
       "currency is invalid format" in {
         val testInput = Map(untaxedAccountName -> nameValid, untaxedAmount -> amountInvalidFormat)
         val result = form(isAgent = false).bind(testInput).errors
 
-        result should contain(FormError(untaxedAmount, "common.error.invalid_currency_format"))
+        result should contain(FormError(untaxedAmount, "interest.untaxed-uk-interest-amount.error.invalid-numeric"))
       }
 
       "currency is too big" in {
         val testInput = Map(untaxedAccountName -> nameValid, untaxedAmount -> amountTooBig)
         val result = form(isAgent = false).bind(testInput).errors
 
-        result should contain(FormError(untaxedAmount, "common.error.amountMaxLimit"))
+        result should contain(FormError(untaxedAmount, "interest.untaxed-uk-interest-amount.error.max-amount"))
       }
     }
   }

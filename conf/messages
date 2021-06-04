@@ -130,6 +130,9 @@ interest.untaxed-uk-interest-details.title = Add an account with untaxed UK inte
 interest.untaxed-uk-interest-amount.error.empty.individual = Enter the amount of untaxed UK interest you got
 interest.untaxed-uk-interest-amount.error.empty.agent = Enter the amount of untaxed UK interest your client got
 
+interest.untaxed-uk-interest-amount.error.invalid-numeric = Enter the amount of untaxed UK interest in the correct format
+interest.untaxed-uk-interest-amount.error.max-amount = The amount of untaxed UK interest must be less than £100,000,000,000
+
 interest.untaxed-uk-interest-accounts.title = Accounts with untaxed UK interest
 interest.untaxed-uk-interest-accounts.account.tell-us-about-all.individual = You must tell us about all your accounts with untaxed UK interest.
 interest.untaxed-uk-interest-accounts.account.tell-us-about-all.agent = You must tell us about all your client’s accounts with untaxed UK interest.
@@ -147,11 +150,13 @@ interest.taxed-uk-interest.amount.interest.earned = Amount of taxed UK interest
 interest.taxed-uk-interest-accounts.account.tell-us-about-all.individual = You must tell us about all your accounts with taxed UK interest.
 interest.taxed-uk-interest-accounts.account.tell-us-about-all.agent = You must tell us about all your client’s accounts with taxed UK interest.
 
-interest.taxed-uk-interest-details.title = Add an account with taxed UK interest
-interest.taxed-uk-interest-amount.error.empty = Enter the amount of taxed interest earned
-
 interest.taxed-uk-interest-amount.error.empty.individual = Enter the amount of taxed UK interest you got
 interest.taxed-uk-interest-amount.error.empty.agent = Enter the amount of taxed UK interest your client got
+interest.taxed-uk-interest-amount.error.invalid-numeric = Enter the amount of taxed UK interest in the correct format
+interest.taxed-uk-interest-amount.error.max-amount = The amount of taxed UK interest must be less than £100,000,000,000
+
+interest.taxed-uk-interest-details.title = Add an account with taxed UK interest
+interest.taxed-uk-interest-amount.error.empty = Enter the amount of taxed interest earned
 
 interest.taxed-uk-interest-accounts.title = Accounts with taxed UK interest
 

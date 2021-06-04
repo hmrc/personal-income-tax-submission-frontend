@@ -47,7 +47,9 @@ class UntaxedInterestAmountController @Inject()(
   def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
 
   def untaxedInterestAmountForm(implicit isAgent: Boolean): Form[UntaxedInterestModel] = UntaxedInterestAmountForm.untaxedInterestAmountForm(
-    emptyAmountKey = "interest.untaxed-uk-interest-amount.error.empty." + agentOrIndividual
+    emptyAmountKey = "interest.untaxed-uk-interest-amount.error.empty." + agentOrIndividual,
+    invalidNumericKey = "interest.untaxed-uk-interest-amount.error.invalid-numeric",
+    maxAmountInvalidKey = "interest.untaxed-uk-interest-amount.error.max-amount"
   )
 
   def show(taxYear: Int, id: String): Action[AnyContent] = commonPredicates(taxYear, INTEREST).apply { implicit user =>

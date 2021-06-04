@@ -31,10 +31,16 @@ object UntaxedInterestAmountForm extends InputFilters{
 
   val nameNotEmpty: Constraint[String] = nonEmpty("interest.common.error.name.empty")
 
-  def untaxedInterestAmountForm(emptyAmountKey: String): Form[UntaxedInterestModel] = Form(
+  def untaxedInterestAmountForm(
+                                 emptyAmountKey: String,
+                                 invalidNumericKey: String,
+                                 maxAmountInvalidKey: String): Form[UntaxedInterestModel] = Form(
     mapping(
       untaxedAccountName -> trimmedText.verifying(nameNotEmpty),
-      untaxedAmount -> currency(requiredKey = emptyAmountKey)
+      untaxedAmount -> currency(requiredKey = emptyAmountKey,
+                                invalidNumeric = invalidNumericKey,
+                                nonNumericKey = invalidNumericKey,
+                                maxAmountKey = maxAmountInvalidKey)
     )(UntaxedInterestModel.apply)(UntaxedInterestModel.unapply).transform[UntaxedInterestModel](
       details => details.copy(
         untaxedAccountName = filter(details.untaxedAccountName)

@@ -26,7 +26,11 @@ class TaxedInterestAmountFormSpec extends UnitTest{
   def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
 
   def form(implicit isAgent: Boolean): Form[TaxedInterestModel] = {
-    TaxedInterestAmountForm.taxedInterestAmountForm(emptyAmountKey = "interest.taxed-uk-interest-amount.error.empty." + agentOrIndividual)
+    TaxedInterestAmountForm.taxedInterestAmountForm(
+      emptyAmountKey = "interest.taxed-uk-interest-amount.error.empty." + agentOrIndividual,
+      invalidNumericKey = "interest.taxed-uk-interest-amount.error.invalid-numeric",
+      maxAmountInvalidKey = "interest.taxed-uk-interest-amount.error.max-amount"
+    )
   }
 
   lazy val nameValid = "someName"
@@ -83,21 +87,21 @@ class TaxedInterestAmountFormSpec extends UnitTest{
         val testInput = Map(taxedAccountName -> nameValid, taxedAmount -> amountInvalidInt)
         val result = form(isAgent = false).bind(testInput).errors
 
-        result should contain(FormError(taxedAmount, "common.error.invalid_number"))
+        result should contain(FormError(taxedAmount, "interest.taxed-uk-interest-amount.error.invalid-numeric"))
       }
 
       "currency is invalid format" in {
         val testInput = Map(taxedAccountName -> nameValid, taxedAmount -> amountInvalidFormat)
         val result = form(isAgent = false).bind(testInput).errors
 
-        result should contain(FormError(taxedAmount, "common.error.invalid_currency_format"))
+        result should contain(FormError(taxedAmount, "interest.taxed-uk-interest-amount.error.invalid-numeric"))
       }
 
       "currency is too big" in {
         val testInput = Map(taxedAccountName -> nameValid, taxedAmount -> amountTooBig)
         val result = form(isAgent = false).bind(testInput).errors
 
-        result should contain(FormError(taxedAmount, "common.error.amountMaxLimit"))
+        result should contain(FormError(taxedAmount, "interest.taxed-uk-interest-amount.error.max-amount"))
       }
     }
   }

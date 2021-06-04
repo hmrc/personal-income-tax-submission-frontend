@@ -50,7 +50,9 @@ class TaxedInterestAmountController @Inject()(
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
   def taxedInterestAmountForm(implicit isAgent: Boolean): Form[TaxedInterestModel] = TaxedInterestAmountForm.taxedInterestAmountForm(
-    emptyAmountKey = "interest.taxed-uk-interest-amount.error.empty." + agentOrIndividual
+    emptyAmountKey = "interest.taxed-uk-interest-amount.error.empty." + agentOrIndividual,
+    invalidNumericKey = "interest.taxed-uk-interest-amount.error.invalid-numeric",
+    maxAmountInvalidKey = "interest.taxed-uk-interest-amount.error.max-amount"
   )
 
   def show(taxYear: Int, id: String): Action[AnyContent] = commonPredicates(taxYear, INTEREST).apply { implicit user =>

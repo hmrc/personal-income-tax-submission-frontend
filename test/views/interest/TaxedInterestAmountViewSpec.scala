@@ -30,17 +30,19 @@ class TaxedInterestAmountViewSpec extends ViewTest{
   def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
 
   def taxedInterestForm(implicit isAgent: Boolean): Form[TaxedInterestModel] = TaxedInterestAmountForm.taxedInterestAmountForm(
-    emptyAmountKey = "interest.taxed-uk-interest-amount.error.empty." + agentOrIndividual
+    emptyAmountKey = "interest.taxed-uk-interest-amount.error.empty." + agentOrIndividual,
+    invalidNumericKey = "interest.taxed-uk-interest-amount.error.invalid-numeric",
+    maxAmountInvalidKey = "interest.taxed-uk-interest-amount.error.max-amount"
   )
   lazy val taxedInterestView: TaxedInterestAmountView = app.injector.instanceOf[TaxedInterestAmountView]
 
   val captionSelector = ".govuk-caption-l"
   val continueButtonSelector = "#continue"
   val continueButtonFormSelector = "#main-content > div > div > form"
-  val whatWouldYouCallSelector = "#main-content > div > div > form > div:nth-child(3) > label > div"
-  val eachAccountNameSelector = "#main-content > div > div > form > div:nth-child(3) > label > p"
+  val whatWouldYouCallSelector = "#main-content > div > div > form > div:nth-child(2) > label > div"
+  val eachAccountNameSelector = "#main-content > div > div > form > div > label > p"
   val accountNameInputSelector = "input#taxedAccountName"
-  val amountInterestSelector = "#main-content > div > div > form > div:nth-child(4) > label > div"
+  val amountInterestSelector = "#main-content > div > div > form > div:nth-child(3) > label > div"
   val poundPrefixSelector = ".govuk-input__prefix"
   val interestEarnedInputSelector = "input#taxedAmount"
   val accountNameHintTextSelector = "#taxedAccountName-hint"
@@ -116,7 +118,7 @@ class TaxedInterestAmountViewSpec extends ViewTest{
         "when passed a form without an empty taxedAccountName value" which {
           lazy val errorForm = taxedInterestForm(user.isAgent).bind(Map("taxedAmount" -> "100.00", "taxedAccountName" -> ""))
           implicit lazy val document: Document = Jsoup.parse(newView(errorForm).body)
-          val expectedErrorText = "Enter an account name"
+          val expectedErrorText = "Enter a name for this account"
           val errorSummaryHref = "#taxedAccountName"
 
           titleCheck(errorTitleText)
@@ -132,7 +134,7 @@ class TaxedInterestAmountViewSpec extends ViewTest{
         "when passed a form with a non monetary taxedAmount value" which {
           lazy val errorForm = taxedInterestForm(user.isAgent).bind(Map("taxedAmount" -> "abc", "taxedAccountName" -> "Account Name"))
           implicit lazy val document: Document = Jsoup.parse(newView(errorForm).body)
-          val expectedErrorText = "Enter an amount using numbers 0 to 9"
+          val expectedErrorText = "Enter the amount of taxed UK interest in the correct format"
           val errorSummaryHref = "#taxedAmount"
 
           titleCheck(errorTitleText)
@@ -214,7 +216,7 @@ class TaxedInterestAmountViewSpec extends ViewTest{
 
           lazy val errorForm = taxedInterestForm(user.isAgent).bind(Map("taxedAmount" -> "", "taxedAccountName" -> "Account Name"))
           implicit lazy val document: Document = Jsoup.parse(newViewWelsh(errorForm).body)
-          val expectedErrorText = "Enter the amount of untaxed UK interest you got"
+          val expectedErrorText = "Enter the amount of taxed UK interest you got"
           val errorSummaryHref = "#taxedAmount"
 
           titleCheck(errorTitleText)
@@ -230,7 +232,7 @@ class TaxedInterestAmountViewSpec extends ViewTest{
         "when passed a form without an empty taxedAccountName value as an individual" which {
           lazy val errorForm = taxedInterestForm(user.isAgent).bind(Map("taxedAmount" -> "100.00", "taxedAccountName" -> ""))
           implicit lazy val document: Document = Jsoup.parse(newViewWelsh(errorForm).body)
-          val expectedErrorText = "Enter an account name"
+          val expectedErrorText = "Enter a name for this account"
           val errorSummaryHref = "#taxedAccountName"
 
           titleCheck(errorTitleText)
@@ -246,7 +248,7 @@ class TaxedInterestAmountViewSpec extends ViewTest{
         "when passed a form with a non monetary taxedAmount value" which {
           lazy val errorForm = taxedInterestForm(user.isAgent).bind(Map("taxedAmount" -> "abc", "taxedAccountName" -> "Account Name"))
           implicit lazy val document: Document = Jsoup.parse(newViewWelsh(errorForm).body)
-          val expectedErrorText = "Enter an amount using numbers 0 to 9"
+          val expectedErrorText = "Enter the amount of taxed UK interest in the correct format"
           val errorSummaryHref = "#taxedAmount"
 
           titleCheck(errorTitleText)
@@ -279,7 +281,7 @@ class TaxedInterestAmountViewSpec extends ViewTest{
 
           lazy val errorForm = taxedInterestForm(user.isAgent).bind(Map("taxedAmount" -> "100.00.00.00", "taxedAccountName" -> "Account Name"))
           implicit lazy val document: Document = Jsoup.parse(newViewWelsh(errorForm).body)
-          val expectedErrorText = "Enter the amount in the correct format"
+          val expectedErrorText = "Enter the amount of taxed UK interest in the correct format"
           val errorSummaryHref = "#taxedAmount"
 
           titleCheck(errorTitleText)

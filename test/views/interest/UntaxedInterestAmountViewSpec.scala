@@ -30,17 +30,19 @@ class UntaxedInterestAmountViewSpec extends ViewTest{
   def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
 
   def untaxedInterestForm(implicit isAgent: Boolean): Form[UntaxedInterestModel] = UntaxedInterestAmountForm.untaxedInterestAmountForm(
-    emptyAmountKey = "interest.taxed-uk-interest-amount.error.empty." + agentOrIndividual
+    emptyAmountKey = "interest.untaxed-uk-interest-amount.error.empty." + agentOrIndividual,
+    invalidNumericKey = "interest.untaxed-uk-interest-amount.error.invalid-numeric",
+    maxAmountInvalidKey = "interest.untaxed-uk-interest-amount.error.max-amount"
   )
   lazy val untaxedInterestView: UntaxedInterestAmountView = app.injector.instanceOf[UntaxedInterestAmountView]
 
   val captionSelector = ".govuk-caption-l"
   val continueButtonSelector = "#continue"
   val continueButtonFormSelector = "#main-content > div > div > form"
-  val whatWouldYouCallSelector = "#main-content > div > div > form > div:nth-child(3) > label > div"
-  val eachAccountNameSelector = "#main-content > div > div > form > div:nth-child(3) > label > p"
+  val whatWouldYouCallSelector = "#main-content > div > div > form > div:nth-child(2) > label > div"
+  val eachAccountNameSelector = "#main-content > div > div > form > div > label > p"
   val accountNameInputSelector = "input#untaxedAccountName"
-  val amountInterestSelector = "#main-content > div > div > form > div:nth-child(3) > label"
+  val amountInterestSelector = "#main-content > div > div > form > div:nth-child(3) > label > div"
   val poundPrefixSelector = ".govuk-input__prefix"
   val interestEarnedInputSelector = "input#untaxedAmount"
   val accountNameHintTextSelector = "#untaxedAccountName-hint"
@@ -100,13 +102,13 @@ class UntaxedInterestAmountViewSpec extends ViewTest{
 
           lazy val errorForm = untaxedInterestForm(user.isAgent).bind(Map("untaxedAmount" -> "", "untaxedAccountName" -> "Account Name"))
           implicit lazy val document: Document = Jsoup.parse(newView(errorForm).body)
-          val expectedErrorText = "Enter the amount of untaxed interest earned"
+          val expectedErrorText = "Enter the amount of untaxed UK interest you got"
           val errorSummaryHref = "#untaxedAmount"
 
           titleCheck(errorTitleText)
           welshToggleCheck("English")
           h1Check(h1Text + " " + captionText)
-          errorSummaryCheck(expectedErrorText, errorSummaryHref)
+          println(errorSummaryCheck(expectedErrorText, errorSummaryHref))
           textOnPageCheck(captionText, captionSelector)
           errorAboveElementCheck(expectedErrorText)
           buttonCheck(continueButtonText, continueButtonSelector)
@@ -116,7 +118,7 @@ class UntaxedInterestAmountViewSpec extends ViewTest{
         "when passed a form without an empty untaxedAccountName value" which {
           lazy val errorForm = untaxedInterestForm(user.isAgent).bind(Map("untaxedAmount" -> "100.00", "untaxedAccountName" -> ""))
           implicit lazy val document: Document = Jsoup.parse(newView(errorForm).body)
-          val expectedErrorText = "Enter an account name"
+          val expectedErrorText = "Enter a name for this account"
           val errorSummaryHref = "#untaxedAccountName"
 
           titleCheck(errorTitleText)
@@ -132,7 +134,7 @@ class UntaxedInterestAmountViewSpec extends ViewTest{
         "when passed a form with a non monetary untaxedAmount value" which {
           lazy val errorForm = untaxedInterestForm(user.isAgent).bind(Map("untaxedAmount" -> "abc", "untaxedAccountName" -> "Account Name"))
           implicit lazy val document: Document = Jsoup.parse(newView(errorForm).body)
-          val expectedErrorText = "Enter an amount using numbers 0 to 9"
+          val expectedErrorText = "Enter the amount of untaxed UK interest in the correct format"
           val errorSummaryHref = "#untaxedAmount"
 
           titleCheck(errorTitleText)
@@ -148,7 +150,7 @@ class UntaxedInterestAmountViewSpec extends ViewTest{
         "when passed a form with a untaxedAmount value over £100,000,000,000" which {
           lazy val errorForm = untaxedInterestForm(user.isAgent).bind(Map("untaxedAmount" -> "£200,000,000,000", "untaxedAccountName" -> "Account Name"))
           implicit lazy val document: Document = Jsoup.parse(newView(errorForm).body)
-          val expectedErrorText = "Enter an amount less than £100,000,000,000"
+          val expectedErrorText = "The amount of untaxed UK interest must be less than £100,000,000,000"
           val errorSummaryHref = "#untaxedAmount"
 
           titleCheck(errorTitleText)
@@ -165,7 +167,7 @@ class UntaxedInterestAmountViewSpec extends ViewTest{
 
           lazy val errorForm = untaxedInterestForm(user.isAgent).bind(Map("untaxedAmount" -> "100.00.00.00", "untaxedAccountName" -> "Account Name"))
           implicit lazy val document: Document = Jsoup.parse(newView(errorForm).body)
-          val expectedErrorText = "Enter the amount in the correct format"
+          val expectedErrorText = "Enter the amount of untaxed UK interest in the correct format"
           val errorSummaryHref = "#untaxedAmount"
 
           titleCheck(errorTitleText)
@@ -214,7 +216,7 @@ class UntaxedInterestAmountViewSpec extends ViewTest{
 
           lazy val errorForm = untaxedInterestForm(user.isAgent).bind(Map("untaxedAmount" -> "", "untaxedAccountName" -> "Account Name"))
           implicit lazy val document: Document = Jsoup.parse(newViewWelsh(errorForm).body)
-          val expectedErrorText = "Enter the amount of untaxed interest earned"
+          val expectedErrorText = "Enter the amount of untaxed UK interest you got"
           val errorSummaryHref = "#untaxedAmount"
 
           titleCheck(errorTitleText)
@@ -230,7 +232,7 @@ class UntaxedInterestAmountViewSpec extends ViewTest{
         "when passed a form without an empty untaxedAccountName value" which {
           lazy val errorForm = untaxedInterestForm(user.isAgent).bind(Map("untaxedAmount" -> "100.00", "untaxedAccountName" -> ""))
           implicit lazy val document: Document = Jsoup.parse(newViewWelsh(errorForm).body)
-          val expectedErrorText = "Enter an account name"
+          val expectedErrorText = "Enter a name for this account"
           val errorSummaryHref = "#untaxedAccountName"
 
           titleCheck(errorTitleText)
@@ -246,7 +248,7 @@ class UntaxedInterestAmountViewSpec extends ViewTest{
         "when passed a form with a non monetary untaxedAmount value" which {
           lazy val errorForm = untaxedInterestForm(user.isAgent).bind(Map("untaxedAmount" -> "abc", "untaxedAccountName" -> "Account Name"))
           implicit lazy val document: Document = Jsoup.parse(newViewWelsh(errorForm).body)
-          val expectedErrorText = "Enter an amount using numbers 0 to 9"
+          val expectedErrorText = "Enter the amount of untaxed UK interest in the correct format"
           val errorSummaryHref = "#untaxedAmount"
 
           titleCheck(errorTitleText)
@@ -262,7 +264,7 @@ class UntaxedInterestAmountViewSpec extends ViewTest{
         "when passed a form with a untaxedAmount value over £100,000,000,000" which {
           lazy val errorForm = untaxedInterestForm(user.isAgent).bind(Map("untaxedAmount" -> "£200,000,000,000", "untaxedAccountName" -> "Account Name"))
           implicit lazy val document: Document = Jsoup.parse(newViewWelsh(errorForm).body)
-          val expectedErrorText = "Enter an amount less than £100,000,000,000"
+          val expectedErrorText = "The amount of untaxed UK interest must be less than £100,000,000,000"
           val errorSummaryHref = "#untaxedAmount"
 
           titleCheck(errorTitleText)
@@ -279,7 +281,7 @@ class UntaxedInterestAmountViewSpec extends ViewTest{
 
           lazy val errorForm = untaxedInterestForm(user.isAgent).bind(Map("untaxedAmount" -> "100.00.00.00", "untaxedAccountName" -> "Account Name"))
           implicit lazy val document: Document = Jsoup.parse(newViewWelsh(errorForm).body)
-          val expectedErrorText = "Enter the amount in the correct format"
+          val expectedErrorText = "Enter the amount of untaxed UK interest in the correct format"
           val errorSummaryHref = "#untaxedAmount"
 
           titleCheck(errorTitleText)
