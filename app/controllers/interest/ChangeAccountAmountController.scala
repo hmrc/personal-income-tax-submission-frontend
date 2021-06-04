@@ -44,9 +44,9 @@ class ChangeAccountAmountController @Inject()(
   def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
 
   def changeAmountForm(implicit isAgent: Boolean, taxType: String): Form[BigDecimal] = AmountForm.amountForm(
-    emptyFieldKey = "changeAccountAmount.required." + agentOrIndividual,
-    wrongFormatKey = "changeAccountAmount.format",
-    exceedsMaxAmountKey = "changeAccountAmount.amountMaxLimit",
+    emptyFieldKey = "interest.changeAccountAmount.required." + agentOrIndividual,
+    wrongFormatKey = "interest.changeAccountAmount.format",
+    exceedsMaxAmountKey = "interest.changeAccountAmount.amountMaxLimit",
     emptyFieldArguments = Seq(if(taxType.equals(TAXED)) "taxed" else "untaxed")
   )
 

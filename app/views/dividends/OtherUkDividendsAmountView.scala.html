@@ -81,11 +81,11 @@
             @messages(s"common.youToldUs")
             @messages(s"common.youGot.${if(user.isAgent) "agent" else "individual"}")
             @bigDecimalCurrency(priorAmount.getOrElse(BigDecimal("0")).toString)
-            @messages("dividends.other-dividends-amount.change-amount.prior.common.2")
+            @messages("dividends.other-dividends-amount.change-amount.details")
         </p>
     } else {
         <p>
-            @messages(s"dividends.common.change.amount.caption.${if(user.isAgent) "agent" else "individual"}")
+            @messages(s"dividends.common.change-amount.caption.${if(user.isAgent) "agent" else "individual"}")
         </p>
     }
 }

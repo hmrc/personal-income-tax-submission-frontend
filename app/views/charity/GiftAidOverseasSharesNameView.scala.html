@@ -19,12 +19,12 @@
 @import views.html.templates.helpers.{Button, ErrorSummary, InputText, Heading}
 
 @this(
-layout: Layout,
-errorSummary: ErrorSummary,
-formWithCsrf: FormWithCSRF,
-inputText: InputText,
-button: Button,
-heading: Heading
+    layout: Layout,
+    errorSummary: ErrorSummary,
+    formWithCsrf: FormWithCSRF,
+    inputText: InputText,
+    button: Button,
+    heading: Heading
 )
 
 @(taxYear: Int, form: Form[String])(implicit user: User[_], messages: Messages, appConfig: AppConfig)
@@ -35,7 +35,7 @@ heading: Heading
 
 @content = {
     <p>
-        @messages("charity.gift-aid-overseas-name.hint")
+        @messages("charity.gift-aid-account.hint")
     </p>
 }
 
@@ -54,7 +54,8 @@ heading: Heading
             subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)),
             classes = Some("govuk-input--width-20"),
             headingClasses = "govuk-!-margin-bottom-2",
-            content = Some(content)
+            content = Some(content),
+            maxLength = "76"
         )
 
         @button()
