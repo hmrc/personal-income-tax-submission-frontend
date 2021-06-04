@@ -60,14 +60,14 @@ class GiftAidOverseasNameFormSpec extends UnitTest {
         val testInput = Map(giftAidOverseasName -> testNameInvalidChar)
 
         val invalidCharTest = form(emptyPreviousNames, isAgent = true).bind(testInput)
-        invalidCharTest.errors should contain(FormError(giftAidOverseasName, "charity.gift-aid-overseas-name.error.invalid"))
+        invalidCharTest.errors should contain(FormError(giftAidOverseasName, "charity.common.name.error.invalid"))
       }
 
       "invalidate a name that is to long" in {
         val testInput = Map(giftAidOverseasName -> testNameTooBig)
 
         val invalidLengthTest = form(emptyPreviousNames, isAgent = true).bind(testInput)
-        invalidLengthTest.errors should contain(FormError(giftAidOverseasName, "charity.gift-aid-overseas-name.error.limit"))
+        invalidLengthTest.errors should contain(FormError(giftAidOverseasName, "charity.common.name.error.limit"))
       }
 
 
@@ -75,7 +75,7 @@ class GiftAidOverseasNameFormSpec extends UnitTest {
         val testInput = Map(giftAidOverseasName -> testNameValid)
 
         val bigCurrencyTest = form(previousNames, isAgent = true).bind(testInput)
-        bigCurrencyTest.errors should contain(FormError(giftAidOverseasName, "charity.gift-aid-overseas-name.error.duplicate"))
+        bigCurrencyTest.errors should contain(FormError(giftAidOverseasName, "charity.common.name.error.duplicate"))
       }
 
     }
@@ -104,14 +104,14 @@ class GiftAidOverseasNameFormSpec extends UnitTest {
         val testInput = Map(giftAidOverseasName -> testNameInvalidChar)
 
         val invalidCharTest = form(emptyPreviousNames, isAgent = false).bind(testInput)
-        invalidCharTest.errors should contain(FormError(giftAidOverseasName, "charity.gift-aid-overseas-name.error.invalid"))
+        invalidCharTest.errors should contain(FormError(giftAidOverseasName, "charity.common.name.error.invalid"))
       }
 
       "invalidate a name that is to long" in {
         val testInput = Map(giftAidOverseasName -> testNameTooBig)
 
         val invalidLengthTest = form(emptyPreviousNames, isAgent = false).bind(testInput)
-        invalidLengthTest.errors should contain(FormError(giftAidOverseasName, "charity.gift-aid-overseas-name.error.limit"))
+        invalidLengthTest.errors should contain(FormError(giftAidOverseasName, "charity.common.name.error.limit"))
       }
 
 
@@ -119,7 +119,7 @@ class GiftAidOverseasNameFormSpec extends UnitTest {
         val testInput = Map(giftAidOverseasName -> testNameValid)
 
         val bigCurrencyTest = form(previousNames, isAgent = false).bind(testInput)
-        bigCurrencyTest.errors should contain(FormError(giftAidOverseasName, "charity.gift-aid-overseas-name.error.duplicate"))
+        bigCurrencyTest.errors should contain(FormError(giftAidOverseasName, "charity.common.name.error.duplicate"))
       }
 
     }

@@ -30,10 +30,10 @@ object GiftAidOverseasNameForm {
   def notEmpty(isAgent: Boolean): Constraint[String] =
     nonEmpty(if(isAgent) "charity.gift-aid-overseas-name.error.empty.agent" else "charity.gift-aid-overseas-name.error.empty.individual")
 
-  val NotCharLimit: Constraint[String] = validateSize(charLimit)("charity.gift-aid-overseas-name.error.limit")
-  val NotInvalidChar: Constraint[String] = validateChar("charity.gift-aid-overseas-name.error.invalid")
+  val NotCharLimit: Constraint[String] = validateSize(charLimit)("charity.common.name.error.limit")
+  val NotInvalidChar: Constraint[String] = validateChar("charity.common.name.error.invalid")
 
-  def notDuplicate(previousNames: List[String]): Constraint[String] = validateNotDuplicate(previousNames)("charity.gift-aid-overseas-name.error.duplicate")
+  def notDuplicate(previousNames: List[String]): Constraint[String] = validateNotDuplicate(previousNames)("charity.common.name.error.duplicate")
 
   def giftAidOverseasNameForm(previousNames: List[String], isAgent: Boolean): Form[String] = Form(
       giftAidOverseasName -> trimmedText.verifying(

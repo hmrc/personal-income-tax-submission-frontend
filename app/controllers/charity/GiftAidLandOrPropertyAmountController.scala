@@ -39,7 +39,7 @@ class GiftAidLandOrPropertyAmountController @Inject()(
   def form(implicit isAgent: Boolean): Form[BigDecimal] = AmountForm.amountForm(
     emptyFieldKey = "charity.land-or-property.errors.no-entry." + agentOrIndividual,
     wrongFormatKey = "charity.land-or-property.errors.wrong-format." + agentOrIndividual,
-    exceedsMaxAmountKey = "charity.Land-or-property.errors.max-amount." + agentOrIndividual
+    exceedsMaxAmountKey = "charity.land-or-property.errors.max-amount." + agentOrIndividual
   )
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
