@@ -88,7 +88,7 @@ class GiftAidSubmissionConnectorSpec extends IntegrationTest {
         implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("sessionIdValue"))).withExtraHeaders("mtditid"->mtditid)
         val connector = new GiftAidSubmissionConnector(httpClient, appConfig(internalHost))
 
-        stubPut(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}",
+        stubPost(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}",
           headersSentToGiftAid)
 
         val result: GiftAidSubmissionsResponse = Await.result(connector.submitGiftAid(validGiftAidModel, nino, taxYear)(hc), Duration.Inf)
@@ -100,7 +100,7 @@ class GiftAidSubmissionConnectorSpec extends IntegrationTest {
 
         val connector = new GiftAidSubmissionConnector(httpClient, appConfig(externalHost))
 
-        stubPut(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}",
+        stubPost(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}",
           headersSentToGiftAid)
 
         val result: GiftAidSubmissionsResponse = Await.result(connector.submitGiftAid(validGiftAidModel, nino, taxYear)(hc), Duration.Inf)
