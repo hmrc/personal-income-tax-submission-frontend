@@ -72,7 +72,7 @@ error.agent.title = There’s a problem
 error.agent.paragraph1 = You cannot view this client’s information. Your client needs to
 error.agent.paragraph2 = authorise you as their agent (opens in new tab)
 error.agent.paragraph3 = before you can sign in to this service.
-error.agent.paragraph4 = Try another client’s details.
+error.agent.paragraph4 = Try another client’s details
 
 error.common.title = You cannot view this page
 error.common.p.1 = You need to
