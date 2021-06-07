@@ -18,18 +18,16 @@ package controllers.charity
 
 import common.SessionValues
 import config.{AppConfig, ErrorHandler, GIFT_AID}
-import connectors.GiftAidSubmissionConnector
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import models.charity.GiftAidCYAModel
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
-import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.GiftAidSubmissionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.charity.GiftAidCYAView
-import views.html.templates.InternalServerErrorTemplate
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -39,7 +37,7 @@ class GiftAidCYAController @Inject()(
                                       authorisedAction: AuthorisedAction,
                                       appConfig: AppConfig,
                                       view: GiftAidCYAView,
-                                      giftAidSubmissionConnector: GiftAidSubmissionConnector,
+                                      giftAidSubmissionService: GiftAidSubmissionService,
                                       errorHandler: ErrorHandler,
                                       ec: ExecutionContext
                                     ) extends FrontendController(mcc) with I18nSupport with SessionHelper {
@@ -148,7 +146,7 @@ class GiftAidCYAController @Inject()(
         ))
       )
 
-      giftAidSubmissionConnector.submitGiftAid(submissionModel, user.nino, taxYear).map {
+      giftAidSubmissionService.submitGiftAid(Some(submissionModel), user.nino, user.mtditid, taxYear).map {
         case Right(_) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
         case Left(_) => errorHandler.handleError(INTERNAL_SERVER_ERROR)
       }

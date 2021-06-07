@@ -1205,7 +1205,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
         lazy val result = {
           wireMockServer.resetAll()
           authoriseIndividual()
-          stubPut(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
+          stubPost(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
           stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
           await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookie, "Csrf-Token" -> "nocheck").post(Map[String, String]()))
         }

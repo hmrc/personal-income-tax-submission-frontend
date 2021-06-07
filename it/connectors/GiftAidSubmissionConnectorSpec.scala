@@ -88,7 +88,7 @@ class GiftAidSubmissionConnectorSpec extends IntegrationTest {
         implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("sessionIdValue"))).withExtraHeaders("mtditid"->mtditid)
         val connector = new GiftAidSubmissionConnector(httpClient, appConfig(internalHost))
 
-        stubPut(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}",
+        stubPost(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}",
           headersSentToGiftAid)
 
         val result: GiftAidSubmissionsResponse = Await.result(connector.submitGiftAid(validGiftAidModel, nino, taxYear)(hc), Duration.Inf)
@@ -100,7 +100,7 @@ class GiftAidSubmissionConnectorSpec extends IntegrationTest {
 
         val connector = new GiftAidSubmissionConnector(httpClient, appConfig(externalHost))
 
-        stubPut(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}",
+        stubPost(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}",
           headersSentToGiftAid)
 
         val result: GiftAidSubmissionsResponse = Await.result(connector.submitGiftAid(validGiftAidModel, nino, taxYear)(hc), Duration.Inf)
@@ -110,19 +110,19 @@ class GiftAidSubmissionConnectorSpec extends IntegrationTest {
     }
     "Return a success result" when {
       "Gift Aid returns a 204" in {
-        stubPut(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}", expectedHeaders)
+        stubPost(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}", expectedHeaders)
         val result: GiftAidSubmissionsResponse = Await.result(connector.submitGiftAid(validGiftAidModel, nino, taxYear), Duration.Inf)
         result shouldBe Right(NO_CONTENT)
       }
 
       "Gift Aid returns a 400" in {
-        stubPut(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", BAD_REQUEST, "{}", expectedHeaders)
+        stubPost(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", BAD_REQUEST, "{}", expectedHeaders)
         val result = Await.result(connector.submitGiftAid(validGiftAidModel, nino, taxYear), Duration.Inf)
         result shouldBe Left(APIErrorModel(BAD_REQUEST, APIErrorBodyModel("PARSING_ERROR", "Error parsing response from API")))
       }
 
       "Gift Aid returns an error parsing from API 500 response" in {
-        stubPut(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", INTERNAL_SERVER_ERROR, "{}", expectedHeaders)
+        stubPost(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", INTERNAL_SERVER_ERROR, "{}", expectedHeaders)
         val result = Await.result(connector.submitGiftAid(validGiftAidModel, nino, taxYear), Duration.Inf)
         result shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("PARSING_ERROR", "Error parsing response from API")))
       }
@@ -134,7 +134,7 @@ class GiftAidSubmissionConnectorSpec extends IntegrationTest {
           "reason" -> "Unexpected status returned from DES"
         )
 
-        stubPut(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", CREATED, responseBody.toString(), expectedHeaders)
+        stubPost(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", CREATED, responseBody.toString(), expectedHeaders)
         val result = await(connector.submitGiftAid(validGiftAidModel, nino, taxYear))
         result shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("INTERNAL_SERVER_ERROR", "Unexpected status returned from DES")))
       }
@@ -146,7 +146,7 @@ class GiftAidSubmissionConnectorSpec extends IntegrationTest {
           "reason" -> "the service is currently unavailable"
         )
 
-        stubPut(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", SERVICE_UNAVAILABLE, responseBody.toString(), expectedHeaders)
+        stubPost(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", SERVICE_UNAVAILABLE, responseBody.toString(), expectedHeaders)
         val result = Await.result(connector.submitGiftAid(validGiftAidModel, nino, taxYear), Duration.Inf)
         result shouldBe Left(APIErrorModel(SERVICE_UNAVAILABLE, APIErrorBodyModel("SERVICE_UNAVAILABLE", "the service is currently unavailable")))
       }

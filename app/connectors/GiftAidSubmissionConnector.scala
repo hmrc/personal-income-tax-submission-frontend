@@ -31,6 +31,6 @@ class GiftAidSubmissionConnector @Inject()(val http: HttpClient, appConfig: AppC
   def submitGiftAid(body: GiftAidSubmissionModel, nino: String, taxYear: Int)
                    (implicit hc: HeaderCarrier): Future[GiftAidSubmissionsResponse] = {
     val giftAidSubmissionUrl: String = appConfig.giftAidBaseUrl + s"/income-tax/nino/$nino/sources?taxYear=$taxYear"
-    http.PUT[GiftAidSubmissionModel, GiftAidSubmissionsResponse](giftAidSubmissionUrl, body)
+    http.POST[GiftAidSubmissionModel, GiftAidSubmissionsResponse](giftAidSubmissionUrl, body)
   }
 }
