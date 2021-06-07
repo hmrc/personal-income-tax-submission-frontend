@@ -58,5 +58,8 @@ class MockAppConfig extends MockFactory {
     override def isJourneyAvailable(journeyKey: JourneyKey): Boolean = true
 
     override def taxYearSwitchResetsSession: Boolean = true
+
+    //noinspection ScalaStyle
+    override def mongoTTL: Long = 15
   }
 }

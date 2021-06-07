@@ -16,21 +16,4 @@
 
 package utils
 
-import common.SessionValues
-import models.User
-import play.api.mvc.Result
-
-trait InterestSessionHelper extends SessionHelper {
-
-  implicit class BetterResult(result: Result) {
-
-    def clearSessionData()(implicit user: User[_]): Result = {
-      result.removingFromSession(
-        SessionValues.INTEREST_CYA,
-        SessionValues.INTEREST_PRIOR_SUB
-      )
-    }
-
-  }
-
-}
+trait InterestSessionHelper extends SessionHelper

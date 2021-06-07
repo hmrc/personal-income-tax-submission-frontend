@@ -86,7 +86,7 @@ class OverseasGiftAidSummaryControllerISpec extends IntegrationTest {
         lazy val result = {
           authoriseIndividual()
           await(wsClient.url(overseasGiftAidSummaryUrl)
-            .withHttpHeaders("Csrf-Token" -> "nocheck")
+            .withHttpHeaders(xSessionId, csrfContent)
             .get())
         }
         lazy val document: Document = Jsoup.parse(result.body)
@@ -131,7 +131,7 @@ class OverseasGiftAidSummaryControllerISpec extends IntegrationTest {
 
           authoriseAgent()
           await(wsClient.url(overseasGiftAidSummaryUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .get())
         }
         lazy val document: Document = Jsoup.parse(result.body)
@@ -172,7 +172,7 @@ class OverseasGiftAidSummaryControllerISpec extends IntegrationTest {
       lazy val result = {
         authoriseIndividualUnauthorized()
         await(wsClient.url(overseasGiftAidSummaryUrl)
-          .withHttpHeaders("Csrf-Token" -> "nocheck")
+          .withHttpHeaders(xSessionId, csrfContent)
           .get())
       }
 
@@ -189,7 +189,7 @@ class OverseasGiftAidSummaryControllerISpec extends IntegrationTest {
       lazy val result = {
         authoriseIndividual()
         await(wsClient.url(overseasGiftAidSummaryUrl)
-          .withHttpHeaders("Csrf-Token" -> "nocheck")
+          .withHttpHeaders(xSessionId, csrfContent)
           .post(Map(YesNoForm.yesNo -> "")))
       }
       lazy val document: Document = Jsoup.parse(result.body)
@@ -210,7 +210,7 @@ class OverseasGiftAidSummaryControllerISpec extends IntegrationTest {
         lazy val result = {
           authoriseIndividual()
           await(wsClient.url(overseasGiftAidSummaryUrl)
-            .withHttpHeaders("Csrf-Token" -> "nocheck")
+            .withHttpHeaders(xSessionId, csrfContent)
             .post(Map(YesNoForm.yesNo -> YesNoForm.no)))
         }
 

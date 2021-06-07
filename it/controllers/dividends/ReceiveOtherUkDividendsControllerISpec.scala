@@ -17,18 +17,18 @@
 package controllers.dividends
 
 import common.SessionValues
-import controllers.dividends.routes.{DividendsCYAController, OtherUkDividendsAmountController}
 import forms.YesNoForm
 import helpers.PlaySessionCookieBaker
+import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
+import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.{WSClient, WSResponse}
-import utils.{IntegrationTest, ViewHelpers}
+import utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 
-class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHelpers {
+class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHelpers with DividendsDatabaseHelper {
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
@@ -42,27 +42,34 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
       "redirects user to overview page when there is no cyaData in session" which {
         lazy val result: WSResponse = {
+          dropDividendsDB()
+
+          emptyUserDataStub()
+          insertCyaData(None)
+
           authoriseIndividual()
-          stubGet(s"/income-through-software/return/$taxYear/view", 200, "overview page content")
-          await(wsClient.url(receivedOtherDividendsUrl).get())
+          stubGet(s"/income-through-software/return/$taxYear/view", SEE_OTHER, "overview page content")
+          await(wsClient.url(receivedOtherDividendsUrl).withHttpHeaders(xSessionId, csrfContent).withFollowRedirects(false).get())
         }
 
-        "has an OK(200) status" in {
-          result.status shouldBe OK
-          result.body shouldBe "overview page content"
+        "has an SEE_OTHER(303) status" in {
+          result.status shouldBe SEE_OTHER
         }
       }
 
       "redirects user dividendCya page when there is prior submission data but no cyaData in session" which {
-        val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-          SessionValues.DIVIDENDS_PRIOR_SUB -> DividendsPriorSubmission(ukDividends = None, Some(100)).asJsonString
-        ))
-
         lazy val result: WSResponse = {
+          dropDividendsDB()
+
+          userDataStub(IncomeSourcesModel(Some(
+            DividendsPriorSubmission(Some(300.43), Some(983.43))
+          )), nino, taxYear)
+
+
           authoriseIndividual()
-          stubGet(s"/income-through-software/return/$taxYear/view", 200, "overview page content")
+
           await(wsClient.url(receivedOtherDividendsUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").get()
+            .withHttpHeaders(xSessionId, csrfContent).get()
           )
         }
 
@@ -70,22 +77,25 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
           result.status shouldBe OK
         }
 
-        implicit val document = () => Jsoup.parse(result.body)
+        implicit val document: () => Document = () => Jsoup.parse(result.body)
 
         titleCheck("Check your income from dividends")
         h1Check("Check your income from dividends Dividends for 6 April 2021 to 5 April 2022")
       }
 
-      "returns an action when data only cyaData is in session" which {
-        val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-          SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(true), ukDividendsAmount = Some(amount),
-            otherUkDividends = Some(true), otherUkDividendsAmount = None).asJsonString
-        ))
-
+      "returns an action when only cyaData is in session" which {
         lazy val result: WSResponse = {
+          dropDividendsDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(DividendsCheckYourAnswersModel(
+            ukDividends = Some(true), ukDividendsAmount = Some(amount),
+            otherUkDividends = Some(true), otherUkDividendsAmount = None
+          )))
+
           authoriseIndividual()
           await(wsClient.url(receivedOtherDividendsUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").get()
+            .withHttpHeaders(xSessionId, csrfContent).get()
           )
         }
 
@@ -115,41 +125,76 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
       "called with the 'YES' on form" should {
         lazy val result: WSResponse = {
+          dropDividendsDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(DividendsCheckYourAnswersModel(
+            ukDividends = Some(true), ukDividendsAmount = Some(amount)
+          )))
+
           authoriseIndividual()
           await(
             wsClient.url(receivedOtherDividendsUrl)
               .withFollowRedirects(false)
+              .withHttpHeaders(xSessionId, csrfContent)
               .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
           )
         }
 
         s"return a Redirect($SEE_OTHER) to the other uk dividend amount page" in {
           result.status shouldBe SEE_OTHER
-          result.header(HeaderNames.LOCATION) shouldBe Some(OtherUkDividendsAmountController.show(taxYear).url)
+          result.header(HeaderNames.LOCATION) shouldBe Some(routes.OtherUkDividendsAmountController.show(taxYear).url)
         }
       }
 
-      s"return a Redirect($SEE_OTHER) to dividend cya page" in {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(
-            wsClient.url(receivedOtherDividendsUrl)
-              .withFollowRedirects(false)
-              .post(Map(YesNoForm.yesNo -> YesNoForm.no))
-          )
+      "called with a no" should {
+
+        s"return a Redirect($SEE_OTHER) to dividend cya page" in {
+          lazy val result: WSResponse = {
+            dropDividendsDB()
+
+            emptyUserDataStub()
+            insertCyaData(Some(DividendsCheckYourAnswersModel(
+              ukDividends = Some(true), ukDividendsAmount = Some(amount)
+            )))
+
+            authoriseIndividual()
+            await(
+              wsClient.url(receivedOtherDividendsUrl)
+                .withFollowRedirects(false)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .post(Map(YesNoForm.yesNo -> YesNoForm.no))
+            )
+          }
+
+          result.status shouldBe SEE_OTHER
+          result.header(HeaderNames.LOCATION) shouldBe Some(routes.DividendsCYAController.show(taxYear).url)
         }
 
-        result.status shouldBe SEE_OTHER
-        result.header(HeaderNames.LOCATION) shouldBe Some(DividendsCYAController.show(taxYear).url)
       }
 
-      s"return a BAD_REQUEST($BAD_REQUEST) status" in {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(wsClient.url(receivedOtherDividendsUrl).post(Map[String, String]()))
-        }
+      s"return a BAD_REQUEST($BAD_REQUEST) status" when {
 
-        result.status shouldBe BAD_REQUEST
+        "the user submits the form with no data" in {
+          lazy val result: WSResponse = {
+            dropDividendsDB()
+
+            emptyUserDataStub()
+            insertCyaData(Some(DividendsCheckYourAnswersModel(
+              ukDividends = Some(true), ukDividendsAmount = Some(amount)
+            )))
+
+            authoriseIndividual()
+            await(
+              wsClient
+                .url(receivedOtherDividendsUrl)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .post(Map[String, String]())
+            )
+          }
+
+          result.status shouldBe BAD_REQUEST
+        }
       }
 
       "returns an action when auth call fails" which {
@@ -171,21 +216,31 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
       "returns an action" which {
         lazy val result: WSResponse = {
+          dropDividendsDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(DividendsCheckYourAnswersModel(
+            ukDividends = Some(true), ukDividendsAmount = Some(amount)
+          )))
+
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
           ))
 
           authoriseAgent()
-          await(wsClient.url(receivedOtherDividendsUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
-            .get())
+          await(
+            wsClient.url(receivedOtherDividendsUrl)
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
+              .get()
+          )
         }
 
         "has an OK(200) status" in {
           result.status shouldBe OK
         }
       }
+
       "returns an action when auth call fails" which {
         lazy val result: WSResponse = {
           authoriseAgentUnauthorized()
@@ -203,6 +258,13 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
         "there is form data" in {
           lazy val result: WSResponse = {
+            dropDividendsDB()
+
+            emptyUserDataStub()
+            insertCyaData(Some(DividendsCheckYourAnswersModel(
+              ukDividends = Some(true), ukDividendsAmount = Some(amount)
+            )))
+
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
               SessionValues.CLIENT_MTDITID -> "1234567890",
               SessionValues.CLIENT_NINO -> "AA123456A"
@@ -211,7 +273,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
             authoriseAgent()
             await(
               wsClient.url(receivedOtherDividendsUrl)
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
             )
           }
@@ -224,6 +286,13 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
         "there is no form data" in {
           lazy val result: WSResponse = {
+            dropDividendsDB()
+
+            emptyUserDataStub()
+            insertCyaData(Some(DividendsCheckYourAnswersModel(
+              ukDividends = Some(true), ukDividendsAmount = Some(amount)
+            )))
+
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
               SessionValues.CLIENT_MTDITID -> "1234567890",
               SessionValues.CLIENT_NINO -> "AA123456A"
@@ -231,7 +300,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
             authoriseAgent()
             await(wsClient.url(receivedOtherDividendsUrl)
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
               .post(Map[String, String]()))
           }
 
@@ -249,7 +318,8 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
           authoriseAgentUnauthorized()
           await(wsClient.url(receivedOtherDividendsUrl)
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-            .post(Map[String, String]()))        }
+            .post(Map[String, String]()))
+        }
         "has an UNAUTHORIZED(401) status" in {
           result.status shouldBe UNAUTHORIZED
         }

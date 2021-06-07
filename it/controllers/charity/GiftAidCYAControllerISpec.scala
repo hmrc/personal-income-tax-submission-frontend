@@ -21,15 +21,16 @@ import helpers.PlaySessionCookieBaker
 import models.APIErrorBodyModel
 import models.charity.GiftAidCYAModel
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
+import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
-import play.api.libs.ws.WSClient
-import utils.{IntegrationTest, ViewHelpers}
-import play.api.http.Status.{BAD_REQUEST, NO_CONTENT, OK}
+import play.api.http.Status.{BAD_REQUEST, NO_CONTENT, OK, SEE_OTHER}
 import play.api.libs.json.Json
+import play.api.libs.ws.{WSClient, WSResponse}
+import utils.{GiftAidDatabaseHelper, IntegrationTest, ViewHelpers}
 
-class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
+class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with GiftAidDatabaseHelper {
 
   val taxYear = 2022
 
@@ -176,6 +177,82 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
     }
   }
 
+  def response(
+                cya: Option[GiftAidCYAModel] = None,
+                prior: Option[GiftAidSubmissionModel] = None
+              ): WSResponse = {
+    val priorModel = IncomeSourcesModel(giftAid = prior)
+
+    dropGiftAidDB()
+
+    userDataStub(priorModel, nino, taxYear)
+    insertCyaData(cya)
+    authoriseIndividual()
+    await(wsClient.url(url).withFollowRedirects(false).withHttpHeaders(xSessionId, csrfContent).get())
+  }
+
+  def responseWelsh(
+                cya: Option[GiftAidCYAModel] = None,
+                prior: Option[GiftAidSubmissionModel] = None
+              ): WSResponse = {
+    val priorModel = IncomeSourcesModel(giftAid = prior)
+
+    dropGiftAidDB()
+
+    userDataStub(priorModel, nino, taxYear)
+    insertCyaData(cya)
+    authoriseIndividual()
+    await(wsClient.url(url).withFollowRedirects(false).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent).get())
+  }
+
+  def responseAgent(
+                     cya: Option[GiftAidCYAModel] = None,
+                     prior: Option[GiftAidSubmissionModel] = None,
+                     sessionMtditid: String = mtditid,
+                     sessionNino: String = nino
+                   ): WSResponse = {
+
+    val playSessionCookie = PlaySessionCookieBaker.bakeSessionCookie(Map(
+      SessionValues.CLIENT_NINO -> sessionNino,
+      SessionValues.CLIENT_MTDITID -> sessionMtditid
+    ))
+
+    val priorModel = IncomeSourcesModel(giftAid = prior)
+
+    dropGiftAidDB()
+
+    userDataStub(priorModel, nino, taxYear)
+    insertCyaData(cya)
+    authoriseAgent()
+    await(wsClient.url(url)
+      .withFollowRedirects(false)
+      .withHttpHeaders(HeaderNames.COOKIE -> playSessionCookie, xSessionId, csrfContent).get())
+  }
+
+  def responseAgentWelsh(
+                     cya: Option[GiftAidCYAModel] = None,
+                     prior: Option[GiftAidSubmissionModel] = None,
+                     sessionMtditid: String = mtditid,
+                     sessionNino: String = nino
+                   ): WSResponse = {
+
+    val playSessionCookie = PlaySessionCookieBaker.bakeSessionCookie(Map(
+      SessionValues.CLIENT_NINO -> sessionNino,
+      SessionValues.CLIENT_MTDITID -> sessionMtditid
+    ))
+
+    val priorModel = IncomeSourcesModel(giftAid = prior)
+
+    dropGiftAidDB()
+
+    userDataStub(priorModel, nino, taxYear)
+    insertCyaData(cya)
+    authoriseAgent()
+    await(wsClient.url(url)
+      .withFollowRedirects(false)
+      .withHttpHeaders(HeaderNames.COOKIE -> playSessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent).get())
+  }
+
   "GET in English" should {
 
     "as an individual" should {
@@ -183,14 +260,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
       "return a full CYA view" when {
 
         "the CYA model is full" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString
-          ))
-
-          lazy val result = {
-            authoriseIndividual()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies).get())
-          }
+          lazy val result = response(Some(cyaDataMax))
 
           implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
 
@@ -244,89 +314,75 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
         "has only the donated land, shares, securities and properties yes/no hidden" when {
 
           "land or properties is the only value" which {
-              lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-                SessionValues.GIFT_AID_PRIOR_SUB -> Json.toJson(GiftAidSubmissionModel(None,
-                  Some(GiftsModel(
-                    landAndBuildings = Some(1000.74)
-                  ))
-                )).toString()
+            lazy val result = response(prior = Some(GiftAidSubmissionModel(None,
+              Some(GiftsModel(
+                landAndBuildings = Some(1000.74)
               ))
+            )))
 
-              lazy val result = {
-                authoriseIndividual()
-                await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies).get())
-              }
+            implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
 
-              implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
+            "has an OK (200) status" in {
+              result.status shouldBe OK
+            }
 
-              "has an OK (200) status" in {
-                result.status shouldBe OK
-              }
+            titleCheck(ExpectedValuesEnglish.Individual.title)
+            h1Check(ExpectedValuesEnglish.Individual.title + " " + ExpectedValuesEnglish.Common.caption)
+            captionCheck(ExpectedValuesEnglish.Common.caption)
 
-              titleCheck(ExpectedValuesEnglish.Individual.title)
-              h1Check(ExpectedValuesEnglish.Individual.title + " " + ExpectedValuesEnglish.Common.caption)
-              captionCheck(ExpectedValuesEnglish.Common.caption)
+            //noinspection ScalaStyle
+            {
+              cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, no, "#", 1)
+              cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, no, "#", 2)
+              cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, no, "#", 3)
+              cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, no, "#", 4)
+              cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, no, "#", 5)
 
-              //noinspection ScalaStyle
-              {
-                cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, no, "#", 1)
-                cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, no, "#", 2)
-                cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, no, "#", 3)
-                cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, no, "#", 4)
-                cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, no, "#", 5)
+              cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecurities, no, "#", 6)
+              cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, "£1000.74", "#", 7)
 
-                cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecurities, no, "#", 6)
-                cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, "£1000.74", "#", 7)
+              cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, no, "#", 8)
+            }
 
-                cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, no, "#", 8)
-              }
+            buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
 
-              buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
-
-              welshToggleCheck(ENGLISH)
+            welshToggleCheck(ENGLISH)
           }
 
           "shares or securities is the only value" which {
-              lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-                SessionValues.GIFT_AID_PRIOR_SUB -> Json.toJson(GiftAidSubmissionModel(None,
-                  Some(GiftsModel(
-                    sharesOrSecurities = Some(1000.74)
-                  ))
-                )).toString()
+            lazy val result = response(prior = Some(GiftAidSubmissionModel(None,
+              Some(GiftsModel(
+                sharesOrSecurities = Some(1000.74)
               ))
+            )))
 
-              lazy val result = {
-                authoriseIndividual()
-                await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies).get())
-              }
+            implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
 
-              implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
+            "has an OK (200) status" in {
+              result.status shouldBe OK
+            }
 
-              "has an OK (200) status" in {
-                result.status shouldBe OK
-              }
+            titleCheck(ExpectedValuesEnglish.Individual.title)
+            h1Check(ExpectedValuesEnglish.Individual.title + " " + ExpectedValuesEnglish.Common.caption)
+            captionCheck(ExpectedValuesEnglish.Common.caption)
 
-              titleCheck(ExpectedValuesEnglish.Individual.title)
-              h1Check(ExpectedValuesEnglish.Individual.title + " " + ExpectedValuesEnglish.Common.caption)
-              captionCheck(ExpectedValuesEnglish.Common.caption)
+            //noinspection ScalaStyle
+            {
+              cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, no, "#", 1)
+              cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, no, "#", 2)
+              cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, no, "#", 3)
+              cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, no, "#", 4)
+              cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, no, "#", 5)
 
-              //noinspection ScalaStyle
-              {
-                cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, no, "#", 1)
-                cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, no, "#", 2)
-                cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, no, "#", 3)
-                cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, no, "#", 4)
-                cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, no, "#", 5)
+              cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, "£1000.74", "#", 6)
+              cyaRowCheck(ExpectedValuesEnglish.Common.landProperty, no, "#", 7)
 
-                cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, "£1000.74", "#", 6)
-                cyaRowCheck(ExpectedValuesEnglish.Common.landProperty, no, "#", 7)
+              cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, no, "#", 8)
+            }
 
-                cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, no, "#", 8)
-              }
+            buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
 
-              buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
-
-              welshToggleCheck(ENGLISH)
+            welshToggleCheck(ENGLISH)
           }
 
         }
@@ -336,14 +392,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
       "return a cya page with all the yes/no questions hidden" when {
 
         "there is no CYA model, but there is a full prior data model" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_PRIOR_SUB -> Json.prettyPrint(Json.toJson(priorDataMax))
-          ))
-
-          lazy val result = {
-            authoriseIndividual()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies).get())
-          }
+          lazy val result = response(prior = Some(priorDataMax))
 
           implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
 
@@ -375,15 +424,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
         }
 
         "there is a full CYA model, and there is a full prior data model" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString,
-            SessionValues.GIFT_AID_PRIOR_SUB -> Json.prettyPrint(Json.toJson(priorDataMax))
-          ))
-
-          lazy val result = {
-            authoriseIndividual()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies).get())
-          }
+          lazy val result = response(Some(cyaDataMax), Some(priorDataMax))
 
           implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
 
@@ -419,14 +460,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
       "return a minimal CYA view" when {
 
         "the CYA model contains all false values" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataMin.asJsonString
-          ))
-
-          lazy val result = {
-            authoriseIndividual()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies).get())
-          }
+          lazy val result = response(Some(cyaDataMin))
 
           implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
 
@@ -460,30 +494,26 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
       "redirect to the overview page" when {
 
         "there is incomplete CYA data" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataIncomplete.asJsonString
-          ))
+          lazy val result = response(Some(cyaDataIncomplete))
 
-          lazy val result = {
-            authoriseIndividual()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies).get())
+          "has a status of SEE_OTHER(303)" in {
+            result.status shouldBe SEE_OTHER
           }
 
-          "redirects to the correct url" in {
-            result
-            verifyGet("/income-through-software/return/2022/view")
+          "redirects to the overview page" in {
+            result.headers("Location").head shouldBe "http://localhost:11111/income-through-software/return/2022/view"
           }
         }
 
         "there is no CYA and no PRIOR data" which {
-          lazy val result = {
-            authoriseIndividual()
-            await(wsClient.url(url).get())
+          lazy val result = response()
+
+          "has a status of SEE_OTHER(303)" in {
+            result.status shouldBe SEE_OTHER
           }
 
-          "redirects to the correct url" in {
-            result
-            verifyGet("/income-through-software/return/2022/view")
+          "redirects to the overview page" in {
+            result.headers("Location").head shouldBe "http://localhost:11111/income-through-software/return/2022/view"
           }
         }
 
@@ -495,16 +525,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
       "return a full CYA view" when {
 
         "the CYA model is full" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString,
-            SessionValues.CLIENT_NINO -> nino,
-            SessionValues.CLIENT_MTDITID -> mtditid
-          ))
-
-          lazy val result = {
-            authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies).get())
-          }
+          lazy val result = responseAgent(Some(cyaDataMax))
 
           implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
 
@@ -556,16 +577,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
       "return a cya page with all the yes/no questions hidden" when {
 
         "there is no CYA model, but there is a full prior data model" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_PRIOR_SUB -> Json.prettyPrint(Json.toJson(priorDataMax)),
-            SessionValues.CLIENT_NINO -> nino,
-            SessionValues.CLIENT_MTDITID -> mtditid
-          ))
-
-          lazy val result = {
-            authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies).get())
-          }
+          lazy val result = responseAgent(prior = Some(priorDataMax))
 
           implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
 
@@ -597,17 +609,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
         }
 
         "there is a full CYA model, and there is a full prior data model" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString,
-            SessionValues.GIFT_AID_PRIOR_SUB -> Json.prettyPrint(Json.toJson(priorDataMax)),
-            SessionValues.CLIENT_NINO -> nino,
-            SessionValues.CLIENT_MTDITID -> mtditid
-          ))
-
-          lazy val result = {
-            authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies).get())
-          }
+          lazy val result = responseAgent(Some(cyaDataMax), Some(priorDataMax))
 
           implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
 
@@ -643,16 +645,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
       "return a minimal CYA view" when {
 
         "the CYA model contains all false values" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataMin.asJsonString,
-            SessionValues.CLIENT_NINO -> nino,
-            SessionValues.CLIENT_MTDITID -> mtditid
-          ))
-
-          lazy val result = {
-            authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies).get())
-          }
+          lazy val result = responseAgent(Some(cyaDataMin))
 
           implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
 
@@ -686,37 +679,26 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
       "redirect to the overview page" when {
 
         "there is incomplete CYA data" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataIncomplete.asJsonString,
-            SessionValues.CLIENT_NINO -> nino,
-            SessionValues.CLIENT_MTDITID -> mtditid
-          ))
+          lazy val result = responseAgent(Some(cyaDataIncomplete))
 
-          lazy val result = {
-            authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies).get())
+          "has a status of SEE_OTHER(303)" in {
+            result.status shouldBe SEE_OTHER
           }
 
-          "redirects to the correct url" in {
-            result
-            verifyGet("/income-through-software/return/2022/view")
+          "redirects to the overview page" in {
+            result.headers("Location").head shouldBe "http://localhost:11111/income-through-software/return/2022/view"
           }
         }
 
         "there is no CYA and no PRIOR data" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.CLIENT_NINO -> nino,
-            SessionValues.CLIENT_MTDITID -> mtditid
-          ))
+          lazy val result = responseAgent()
 
-          lazy val result = {
-            authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies).get())
+          "has a status of SEE_OTHER(303)" in {
+            result.status shouldBe SEE_OTHER
           }
 
-          "redirects to the correct url" in {
-            result
-            verifyGet("/income-through-software/return/2022/view")
+          "redirects to the overview page" in {
+            result.headers("Location").head shouldBe "http://localhost:11111/income-through-software/return/2022/view"
           }
         }
 
@@ -732,14 +714,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
       "return a full CYA view" when {
 
         "the CYA model is full" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString
-          ))
-
-          lazy val result = {
-            authoriseIndividual()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
-          }
+          lazy val result = responseWelsh(Some(cyaDataMax))
 
           implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
 
@@ -791,14 +766,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
       "return a cya page with all the yes/no questions hidden" when {
 
         "there is no CYA model, but there is a full prior data model" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_PRIOR_SUB -> Json.prettyPrint(Json.toJson(priorDataMax))
-          ))
-
-          lazy val result = {
-            authoriseIndividual()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
-          }
+          lazy val result = responseWelsh(prior = Some(priorDataMax))
 
           implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
 
@@ -830,15 +798,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
         }
 
         "there is a full CYA model, and there is a full prior data model" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString,
-            SessionValues.GIFT_AID_PRIOR_SUB -> Json.prettyPrint(Json.toJson(priorDataMax))
-          ))
-
-          lazy val result = {
-            authoriseIndividual()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
-          }
+          lazy val result = responseWelsh(Some(cyaDataMax), Some(priorDataMax))
 
           implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
 
@@ -878,10 +838,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
             SessionValues.GIFT_AID_CYA -> cyaDataMin.asJsonString
           ))
 
-          lazy val result = {
-            authoriseIndividual()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
-          }
+          lazy val result = responseWelsh(Some(cyaDataMin))
 
           implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
 
@@ -915,30 +872,26 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
       "redirect to the overview page" when {
 
         "there is incomplete CYA data" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataIncomplete.asJsonString
-          ))
+          lazy val result = responseWelsh(Some(cyaDataIncomplete))
 
-          lazy val result = {
-            authoriseIndividual()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
+          "has a status of SEE_OTHER(303)" in {
+            result.status shouldBe SEE_OTHER
           }
 
-          "redirects to the correct url" in {
-            result
-            verifyGet("/income-through-software/return/2022/view")
+          "redirects to the overview page" in {
+            result.headers("Location").head shouldBe "http://localhost:11111/income-through-software/return/2022/view"
           }
         }
 
         "there is no CYA and no PRIOR data" which {
-          lazy val result = {
-            authoriseIndividual()
-            await(wsClient.url(url).get())
+          lazy val result = responseWelsh()
+
+          "has a status of SEE_OTHER(303)" in {
+            result.status shouldBe SEE_OTHER
           }
 
-          "redirects to the correct url" in {
-            result
-            verifyGet("/income-through-software/return/2022/view")
+          "redirects to the overview page" in {
+            result.headers("Location").head shouldBe "http://localhost:11111/income-through-software/return/2022/view"
           }
         }
 
@@ -950,16 +903,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
       "return a full CYA view" when {
 
         "the CYA model is full" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString,
-            SessionValues.CLIENT_NINO -> nino,
-            SessionValues.CLIENT_MTDITID -> mtditid
-          ))
-
-          lazy val result = {
-            authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
-          }
+          lazy val result = responseAgentWelsh(Some(cyaDataMax))
 
           implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
 
@@ -1011,16 +955,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
       "return a cya page with all the yes/no questions hidden" when {
 
         "there is no CYA model, but there is a full prior data model" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_PRIOR_SUB -> Json.prettyPrint(Json.toJson(priorDataMax)),
-            SessionValues.CLIENT_NINO -> nino,
-            SessionValues.CLIENT_MTDITID -> mtditid
-          ))
-
-          lazy val result = {
-            authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
-          }
+          lazy val result = responseAgentWelsh(prior = Some(priorDataMax))
 
           implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
 
@@ -1059,10 +994,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
             SessionValues.CLIENT_MTDITID -> mtditid
           ))
 
-          lazy val result = {
-            authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
-          }
+          lazy val result = responseAgentWelsh(Some(cyaDataMax), Some(priorDataMax))
 
           implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
 
@@ -1098,16 +1030,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
       "return a minimal CYA view" when {
 
         "the CYA model contains all false values" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataMin.asJsonString,
-            SessionValues.CLIENT_NINO -> nino,
-            SessionValues.CLIENT_MTDITID -> mtditid
-          ))
-
-          lazy val result = {
-            authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
-          }
+          lazy val result = responseAgentWelsh(Some(cyaDataMin))
 
           implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
 
@@ -1141,37 +1064,26 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
       "redirect to the overview page" when {
 
         "there is incomplete CYA data" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataIncomplete.asJsonString,
-            SessionValues.CLIENT_NINO -> nino,
-            SessionValues.CLIENT_MTDITID -> mtditid
-          ))
+          lazy val result = responseAgentWelsh(Some(cyaDataIncomplete))
 
-          lazy val result = {
-            authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
+          "has a status of SEE_OTHER(303)" in {
+            result.status shouldBe SEE_OTHER
           }
 
-          "redirects to the correct url" in {
-            result
-            verifyGet("/income-through-software/return/2022/view")
+          "redirects to the overview page" in {
+            result.headers("Location").head shouldBe "http://localhost:11111/income-through-software/return/2022/view"
           }
         }
 
         "there is no CYA and no PRIOR data" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.CLIENT_NINO -> nino,
-            SessionValues.CLIENT_MTDITID -> mtditid
-          ))
+          lazy val result = responseAgentWelsh()
 
-          lazy val result = {
-            authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
+          "has a status of SEE_OTHER(303)" in {
+            result.status shouldBe SEE_OTHER
           }
 
-          "redirects to the correct url" in {
-            result
-            verifyGet("/income-through-software/return/2022/view")
+          "redirects to the overview page" in {
+            result.headers("Location").head shouldBe "http://localhost:11111/income-through-software/return/2022/view"
           }
         }
 
@@ -1186,32 +1098,43 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
 
       "there is no CYA data available" which {
         lazy val result = {
+          dropGiftAidDB()
+
           wireMockServer.resetAll()
           authoriseIndividual()
           stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
-          await(wsClient.url(url).withHttpHeaders("Csrf-Token" -> "nocheck").post(Map[String, String]()))
+          await(wsClient.url(url).withHttpHeaders(xSessionId, csrfContent).withFollowRedirects(false).post(Map[String, String]()))
         }
 
-        "page contains expected content" in {
-          result.body shouldBe "<title>Overview Page</title>"
+        "has a status of SEE_OTHER(303)" in {
+          result.status shouldBe SEE_OTHER
+        }
+
+        "redirects to the overview page" in {
+          result.headers("Location").head shouldBe "http://localhost:11111/income-through-software/return/2022/view"
         }
       }
 
       "the request goes through successfully" which {
-        lazy val playSessionCookie = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString
-        ))
-
         lazy val result = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(cyaDataMax))
+
           wireMockServer.resetAll()
           authoriseIndividual()
           stubPost(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
           stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
-          await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookie, "Csrf-Token" -> "nocheck").post(Map[String, String]()))
+          await(wsClient.url(url).withFollowRedirects(false).withHttpHeaders(xSessionId, csrfContent).post(Map[String, String]()))
         }
 
-        "redirects to the correct url" in {
-          result.body shouldBe "<title>Overview Page</title>"
+        "has a status of SEE_OTHER(303)" in {
+          result.status shouldBe SEE_OTHER
+        }
+
+        "redirects to the overview page" in {
+          result.headers("Location").head shouldBe "http://localhost:11111/income-through-software/return/2022/view"
         }
 
       }
@@ -1221,19 +1144,21 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
     "redirect to an error page" when {
 
       "an error is returned from DES" which {
-        lazy val playSessionCookie = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-          SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString
-        ))
-
         lazy val result = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(cyaDataMax))
+
           wireMockServer.resetAll()
           authoriseIndividual()
+
           stubPut(
             s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear",
             BAD_REQUEST,
             Json.toJson(APIErrorBodyModel("BAD_REQUEST", "Oh hey look, literally any error.")).toString()
           )
-          await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookie, "Csrf-Token" -> "nocheck").post(Map[String, String]()))
+          await(wsClient.url(url).withHttpHeaders(xSessionId, csrfContent).post(Map[String, String]()))
         }
 
         implicit val document: () => Document = () => Jsoup.parse(result.body)

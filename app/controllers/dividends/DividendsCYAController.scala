@@ -18,28 +18,31 @@ package controllers.dividends
 
 import audit.{AuditModel, AuditService, CreateOrAmendDividendsAuditDetail}
 import common.SessionValues
-import config.{AppConfig, DIVIDENDS, ErrorHandler, GIFT_AID}
+import config.{AppConfig, DIVIDENDS, ErrorHandler}
+import connectors.httpParsers.IncomeTaxUserDataHttpParser.IncomeTaxUserDataResponse
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import models.User
-import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, DividendsResponseModel}
+import models.dividends.{DividendsCheckYourAnswersModel, DividendsResponseModel}
+import models.mongo.DividendsUserDataModel
 import play.api.Logger
 import play.api.i18n.I18nSupport
-import play.api.libs.json.{Json, Reads}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.DividendsSubmissionService
+import services.{DividendsSessionService, DividendsSubmissionService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import utils.SessionHelper
 import views.html.dividends.DividendsCYAView
-import javax.inject.Inject
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DividendsCYAController @Inject()(
                                         dividendsCyaView: DividendsCYAView,
                                         dividendsSubmissionService: DividendsSubmissionService,
+                                        session: DividendsSessionService,
                                         auditService: AuditService,
                                         errorHandler: ErrorHandler
                                       )
@@ -47,60 +50,83 @@ class DividendsCYAController @Inject()(
                                         implicit appConfig: AppConfig,
                                         authorisedAction: AuthorisedAction,
                                         implicit val mcc: MessagesControllerComponents
-                                      ) extends FrontendController(mcc) with I18nSupport {
+                                      ) extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
   lazy val logger: Logger = Logger(this.getClass.getName)
   implicit val executionContext: ExecutionContext = mcc.executionContext
 
-  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).apply { implicit user =>
-    val priorSubmissionData: Option[DividendsPriorSubmission] = getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
-    val cyaSessionData: Option[DividendsCheckYourAnswersModel] = getCya()
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
+    lazy val futurePriorSubmissionData: Future[IncomeTaxUserDataResponse] = session.getPriorData(taxYear)
+    lazy val futureCyaSessionData: Future[Option[DividendsUserDataModel]] = session.getSessionData(taxYear)
 
-    (cyaSessionData, priorSubmissionData) match {
-      case (Some(cyaData), Some(priorData)) =>
-        val ukDividendsExist = cyaData.ukDividends.getOrElse(priorData.ukDividends.nonEmpty)
-        val otherDividendsExist = cyaData.otherUkDividends.getOrElse(priorData.otherUkDividends.nonEmpty)
+    (for {
+      priorSubmissionData <- futurePriorSubmissionData
+      cyaSessionData <- futureCyaSessionData
+    } yield {
+      (cyaSessionData.flatMap(_.dividends), priorSubmissionData.map(_.dividends)) match {
+        case (Some(cyaData), Right(Some(priorData))) =>
+          val ukDividendsExist = cyaData.ukDividends.getOrElse(priorData.ukDividends.nonEmpty)
+          val otherDividendsExist = cyaData.otherUkDividends.getOrElse(priorData.otherUkDividends.nonEmpty)
 
-        val ukDividendsValue: Option[BigDecimal] = priorityOrderOrNone(cyaData.ukDividendsAmount, priorData.ukDividends, ukDividendsExist)
-        val otherDividendsValue: Option[BigDecimal] = priorityOrderOrNone(cyaData.otherUkDividendsAmount, priorData.otherUkDividends, otherDividendsExist)
+          val ukDividendsValue: Option[BigDecimal] = priorityOrderOrNone(cyaData.ukDividendsAmount, priorData.ukDividends, ukDividendsExist)
+          val otherDividendsValue: Option[BigDecimal] = priorityOrderOrNone(cyaData.otherUkDividendsAmount, priorData.otherUkDividends, otherDividendsExist)
 
-        val cyaModel = DividendsCheckYourAnswersModel(
-          Some(ukDividendsExist),
-          ukDividendsValue,
-          Some(otherDividendsExist),
-          otherDividendsValue
-        )
+          val cyaModel = DividendsCheckYourAnswersModel(
+            Some(ukDividendsExist),
+            ukDividendsValue,
+            Some(otherDividendsExist),
+            otherDividendsValue
+          )
 
-        Ok(dividendsCyaView(cyaModel, priorData, taxYear))
-      case (Some(cyaData), None) if !cyaData.isFinished => handleUnfinishedRedirect(cyaData, taxYear)
-      case (Some(cyaData), None) => Ok(dividendsCyaView(cyaData, taxYear = taxYear))
-      case (None, Some(priorData)) =>
-        val cyaModel = DividendsCheckYourAnswersModel(
-          Some(priorData.ukDividends.nonEmpty),
-          priorData.ukDividends,
-          Some(priorData.otherUkDividends.nonEmpty),
-          priorData.otherUkDividends
-        )
-        Ok(dividendsCyaView(cyaModel, priorData, taxYear))
-          .addingToSession(SessionValues.DIVIDENDS_CYA -> Json.toJson(cyaModel).toString())
+          Future.successful(Ok(dividendsCyaView(cyaModel, priorData, taxYear)))
+        case (Some(cyaData), Right(None)) if !cyaData.isFinished => Future.successful(handleUnfinishedRedirect(cyaData, taxYear))
+        case (Some(cyaData), Right(None)) => Future.successful(Ok(dividendsCyaView(cyaData, taxYear = taxYear)))
+        case (None, Right(Some(priorData))) =>
+          val cyaModel = DividendsCheckYourAnswersModel(
+            Some(priorData.ukDividends.nonEmpty),
+            priorData.ukDividends,
+            Some(priorData.otherUkDividends.nonEmpty),
+            priorData.otherUkDividends
+          )
 
-      case _ =>
-        logger.info("[DividendsCYAController][show] No Check Your Answers data or Prior Submission data. Redirecting to overview.")
-        Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-    }
+          session.createSessionData(cyaModel, taxYear)(
+            InternalServerError(errorHandler.internalServerErrorTemplate)
+          )(
+            Ok(dividendsCyaView(cyaModel, priorData, taxYear))
+          )
+        case _ =>
+          logger.info("[DividendsCYAController][show] No Check Your Answers data or Prior Submission data. Redirecting to overview.")
+          Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+      }
+    }).flatten
 
   }
 
   def submit(taxYear: Int): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, DIVIDENDS)).async { implicit user =>
-    val cyaData: Option[DividendsCheckYourAnswersModel] = getCya()
-    val priorData: Option[DividendsPriorSubmission] = getSessionData[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
+    val futureCyaData: Future[Option[DividendsUserDataModel]] = session.getSessionData(taxYear)
+    val futurePriorData: Future[IncomeTaxUserDataResponse] = session.getPriorData(taxYear)
 
-    dividendsSubmissionService.submitDividends(cyaData, user.nino, user.mtditid, taxYear).map {
-      case Right(DividendsResponseModel(_)) =>
-        auditSubmission(CreateOrAmendDividendsAuditDetail(cyaData, priorData, priorData.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase(), taxYear))
-        Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).removingFromSession(SessionValues.DIVIDENDS_CYA, SessionValues.DIVIDENDS_PRIOR_SUB)
-      case Left(error) => errorHandler.handleError(error.status)
-    }
+    (for {
+      optionalCyaData <- futureCyaData
+      priorDataLeftRight <- futurePriorData
+    } yield {
+      val cyaData: Option[DividendsCheckYourAnswersModel] = optionalCyaData.flatMap(_.dividends)
+      val priorData = priorDataLeftRight match {
+        case Right(incomeModel) => incomeModel.dividends
+        case _ => None
+      }
+
+      dividendsSubmissionService.submitDividends(cyaData, user.nino, user.mtditid, taxYear).flatMap {
+        case Right(DividendsResponseModel(_)) =>
+          auditSubmission(
+            CreateOrAmendDividendsAuditDetail(cyaData, priorData, priorData.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase(), taxYear)
+          )
+          session.clear(taxYear)(errorHandler.internalServerError())(
+            Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+          )
+        case Left(error) => Future.successful(errorHandler.handleError(error.status))
+      }
+    }).flatten
   }
 
   private[dividends] def priorityOrderOrNone(priority: Option[BigDecimal], other: Option[BigDecimal], yesNoResult: Boolean): Option[BigDecimal] = {
@@ -115,21 +141,11 @@ class DividendsCYAController @Inject()(
     }
   }
 
-  private[controllers] def getSessionData[T](key: String)(implicit user: User[_], reads: Reads[T]): Option[T] = {
-    user.session.get(key).flatMap { stringValue =>
-      Json.parse(stringValue).asOpt[T]
-    }
-  }
-
   private def auditSubmission(details: CreateOrAmendDividendsAuditDetail)
                              (implicit hc: HeaderCarrier,
                               executionContext: ExecutionContext): Future[AuditResult] = {
     val event = AuditModel("CreateOrAmendDividendsUpdate", "createOrAmendDividendsUpdate", details)
     auditService.auditModel(event)
-  }
-
-  private def getCya()(implicit user: User[_]): Option[DividendsCheckYourAnswersModel] = {
-    getSessionData[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
   }
 
   private[dividends] def handleUnfinishedRedirect(cya: DividendsCheckYourAnswersModel, taxYear: Int): Result = {

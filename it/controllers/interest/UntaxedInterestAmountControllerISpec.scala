@@ -23,79 +23,78 @@ import models.interest.{InterestAccountModel, InterestCYAModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
-import play.api.http.Status.{BAD_REQUEST, OK, UNAUTHORIZED}
-import play.api.libs.json.Json
+import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER, UNAUTHORIZED}
 import play.api.libs.ws.{WSClient, WSResponse}
-import utils.{IntegrationTest, ViewHelpers}
+import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
 import java.util.UUID
+import models.priorDataModels.{IncomeSourcesModel, InterestModel}
 
-import forms.interest.UntaxedInterestAmountForm
-
-class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelpers {
+class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelpers with InterestDatabaseHelper {
 
   val amount: BigDecimal = 25
-  val accountName: String = "HSBC"
+  val firstAccountName: String = "HSBC"
+  val secondAccountName: String = "Santander"
   val taxYear: Int = 2022
   lazy val id: String = UUID.randomUUID().toString
 
   object Selectors {
-    val accountName = "#main-content > div > div > form > div:nth-child(3) > label > div"
-    val interestEarned = "#main-content > div > div > form > div:nth-child(4) > label > div"
-    val accountNameInput = "#untaxedAccountName"
+    val accountName: String = "#main-content > div > div > form > div:nth-child(3) > label > div"
+    val interestEarned: String = "#main-content > div > div > form > div:nth-child(4) > label > div"
+    val accountNameInput: String = "#untaxedAccountName"
     val eachAccount = "#main-content > div > div > form > div:nth-child(3) > label > p"
-    val amountInput = "#untaxedAmount"
+    val amountInput: String = "#untaxedAmount"
 
-    val errorSummary = "#error-summary-title"
-    val firstError = ".govuk-error-summary__body > ul > li:nth-child(1) > a"
-    val secondError = ".govuk-error-summary__body > ul > li:nth-child(2) > a"
-    val errorMessage = "#value-error"
+    val errorSummary: String = "#error-summary-title"
+    val firstError: String = ".govuk-error-summary__body > ul > li:nth-child(1) > a"
+    val secondError: String = ".govuk-error-summary__body > ul > li:nth-child(2) > a"
+    val errorMessage: String = "#value-error"
   }
 
   object Content {
-    val heading = "Add an account with untaxed UK interest"
-    val caption = "Interest for 6 April 2021 to 5 April 2022"
-    val accountName = "What do you want to name this account?"
+    val heading: String = "Add an account with untaxed UK interest"
+    val caption: String = "Interest for 6 April 2021 to 5 April 2022"
+    val accountName: String = "What do you want to name this account?"
     val eachAccount = "Give each account a different name."
-    val interestEarned = "Amount of untaxed UK interest"
-    val hint = "For example, ‘HSBC savings account’. " + "For example, £600 or £193.54"
-    val button = "Continue"
+    val interestEarned: String = "Amount of untaxed UK interest"
+    val hint: String = "For example, ‘HSBC savings account’. " + "For example, £600 or £193.54"
+    val button: String = "Continue"
 
-    val noNameEntryError = "Enter a name for this account"
+    val noNameEntryError: String = "Enter a name for this account"
     val invalidCharEntry: String = "Name of account with untaxed UK interest must only include numbers 0-9, " +
       "letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets, and the special characters &, /, @, £, *"
-    val nameTooLongError = "The name of the account must be 32 characters or fewer"
-    val duplicateNameError = "You cannot add 2 accounts with the same name"
+    val nameTooLongError: String = "The name of the account must be 32 characters or fewer"
+    val duplicateNameError: String = "You cannot add 2 accounts with the same name"
 
     val noAmountEntryErrorIndividual = "Enter the amount of untaxed UK interest you got"
     val noAmountEntryErrorAgent = "Enter the amount of untaxed UK interest your client got"
     val tooMuchMoneyError = "The amount of untaxed UK interest must be less than £100,000,000,000"
     val incorrectFormatError = "Enter the amount of untaxed UK interest in the correct format"
 
-    val errorTitle = s"Error: $heading"
+    val errorTitle: String = s"Error: $heading"
 
-    val changeAmountPageTitle = "How much untaxed UK interest did you get?"
+    val changeAmountPageTitle: String = "How much untaxed UK interest did you get?"
   }
 
   object WelshContent {
-    val heading = "Add an account with untaxed UK interest"
-    val caption = "Interest for 6 April 2021 to 5 April 2022"
-    val accountName = "What do you want to name this account?"
-    val interestEarned = "Amount of untaxed UK interest"
-    val hint = "For example, ‘HSBC savings account’. " + "For example, £600 or £193.54"
-    val button = "Continue"
+    val heading: String = "Add an account with untaxed UK interest"
+    val caption: String = "Interest for 6 April 2021 to 5 April 2022"
+    val accountName: String = "What do you want to name this account?"
+    val interestEarned: String = "Amount of untaxed UK interest"
+    val hint: String = "For example, ‘HSBC savings account’. " + "For example, £600 or £193.54"
+    val button: String = "Continue"
 
-    val noNameEntryError = "Enter a name for this account"
+    val noNameEntryError: String = "Enter a name for this account"
     val invalidCharEntry: String = "Name of account with untaxed UK interest must only include numbers 0-9, " +
       "letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets, and the special characters &, /, @, £, *"
-    val nameTooLongError = "The name of the account must be 32 characters or fewer"
-    val duplicateNameError = "You cannot add 2 accounts with the same name"
+    val nameTooLongError: String = "The name of the account must be 32 characters or fewer"
+    val duplicateNameError: String = "You cannot add 2 accounts with the same name"
 
     val noAmountEntryErrorIndividual = "Enter the amount of untaxed UK interest you got"
     val noAmountEntryErrorAgent = "Enter the amount of untaxed UK interest your client got"
     val tooMuchMoneyError = "The amount of untaxed UK interest must be less than £100,000,000,000"
     val incorrectFormatError = "Enter the amount of untaxed UK interest in the correct format"
 
-    val errorTitle = s"Error: $heading"
+    val errorTitle: String = s"Error: $heading"
   }
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
@@ -109,21 +108,20 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
       "the user is a non-agent" should {
 
-        lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(
-            InterestAccountModel(Some("differentId"), accountName, amount),
-            InterestAccountModel(None, accountName, amount, Some(id))
-          )),
-          Some(false), None
-        )
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
-        ))
-
         lazy val result = {
+          dropInterestDB()
+          emptyUserDataStub()
+          insertCyaData(Some(InterestCYAModel(
+            Some(true), Some(Seq(
+              InterestAccountModel(Some("differentId"), firstAccountName, amount),
+              InterestAccountModel(None, secondAccountName, amount, Some(id))
+            )),
+            Some(false), None
+          )))
           authoriseIndividual()
           await(wsClient.url(untaxedInterestAmountUrl(id)).withHttpHeaders(
-            HeaderNames.COOKIE -> sessionCookie
+            xSessionId,
+            csrfContent
           ).get())
         }
 
@@ -154,24 +152,28 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
       "the user is an agent" should {
 
-        lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(
-            InterestAccountModel(Some("differentId"), accountName, amount),
-            InterestAccountModel(None, accountName, amount, Some(id))
-          )),
-          Some(false), None
-        )
-
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
           SessionValues.CLIENT_MTDITID -> "1234567890",
           SessionValues.CLIENT_NINO -> "AA123456A")
         )
 
         lazy val result: WSResponse = {
+          dropInterestDB()
+          emptyUserDataStub()
+          insertCyaData(Some(InterestCYAModel(
+            Some(true), Some(Seq(
+              InterestAccountModel(Some("differentId"), firstAccountName, amount),
+              InterestAccountModel(None, secondAccountName, amount, Some(id))
+            )),
+            Some(false), None
+          )))
           authoriseAgent()
           await(wsClient.url(untaxedInterestAmountUrl(id))
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
+            .withHttpHeaders(
+              HeaderNames.COOKIE -> sessionCookie,
+              xSessionId,
+              csrfContent
+            )
             .get())
         }
 
@@ -201,21 +203,21 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
       }
 
       "the user has welsh selected" should {
-        lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(
-            InterestAccountModel(Some("differentId"), accountName, amount),
-            InterestAccountModel(None, accountName, amount, Some(id))
-          )),
-          Some(false), None
-        )
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
-        ))
-
         lazy val result = {
+          dropInterestDB()
+          emptyUserDataStub()
+          insertCyaData(Some(InterestCYAModel(
+            Some(true), Some(Seq(
+              InterestAccountModel(Some("differentId"), firstAccountName, amount),
+              InterestAccountModel(None, secondAccountName, amount, Some(id))
+            )),
+            Some(false), None
+          )))
           authoriseIndividual()
           await(wsClient.url(untaxedInterestAmountUrl(id)).withHttpHeaders(
-            HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy"
+            HeaderNames.ACCEPT_LANGUAGE -> "cy",
+            xSessionId,
+            csrfContent
           ).get())
         }
 
@@ -245,16 +247,12 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
       }
 
       "the id is not a UUID" which {
-
-        lazy val interestCYA = InterestCYAModel(Some(true), None, Some(false), None)
-
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
-        ))
-
         lazy val result = {
+          dropInterestDB()
+          emptyUserDataStub()
+          insertCyaData(Some(InterestCYAModel(Some(true), None, Some(false), None)))
           authoriseIndividual()
-          await(wsClient.url(untaxedInterestAmountUrl(id)).withHttpHeaders(HeaderNames.COOKIE -> sessionCookie).get())
+          await(wsClient.url(untaxedInterestAmountUrl(id)).withHttpHeaders(xSessionId, csrfContent).get())
         }
 
         implicit val document: () => Document = () => Jsoup.parse(result.body)
@@ -269,29 +267,21 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
       "redirect to the change amount page" when {
 
         "the id matches a prior submission" which {
-
-          lazy val interestCYA = InterestCYAModel(
-            Some(true),
-            Some(Seq(
-              InterestAccountModel(Some(id), accountName, amount))),
-            Some(false),
-            None
-          )
-
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-            SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-              Json.obj(
-                "accountName" -> accountName,
-                "incomeSourceId" -> id,
-                "untaxedUkInterest" -> amount
-              )
-            ).toString()
-          ))
-
           lazy val result = {
+            dropInterestDB()
+            userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel(firstAccountName, id, None, Some(amount)))), None), nino, taxYear)
+            insertCyaData(Some(InterestCYAModel(
+              Some(true),
+              Some(Seq(
+                InterestAccountModel(Some(id), firstAccountName, amount, Some(id)))),
+              Some(false),
+              None
+            )), taxYear, None, Some(nino))
+
             authoriseIndividual()
-            await(wsClient.url(untaxedInterestAmountUrl(id)).withHttpHeaders(HeaderNames.COOKIE -> sessionCookie).get())
+            await(wsClient.url(untaxedInterestAmountUrl(id))
+              .withHttpHeaders(xSessionId, csrfContent)
+              .get())
           }
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
@@ -303,15 +293,28 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
       "redirect to the overview page" when {
 
-        "there is no cya data in session" in {
-          {
+        "there is no cya data in session" which {
+          lazy val result = {
+            dropInterestDB()
+            emptyUserDataStub()
+            insertCyaData(None)
             authoriseIndividual()
-            await(wsClient.url(untaxedInterestAmountUrl(id)).get())
+            stubGet("/income-through-software/return/2022/view", OK, "")
+            await(
+              wsClient.url(untaxedInterestAmountUrl(id))
+                .withHttpHeaders(xSessionId, csrfContent)
+                .withFollowRedirects(false)
+                .get()
+            )
           }
 
-          stubGet("/income-through-software/return/2022/view", 303, "")
-          verifyGet("/income-through-software/return/2022/view")
-          wireMockServer.resetAll()
+          s"has a SEE_OTHER($SEE_OTHER) status" in {
+            result.status shouldBe SEE_OTHER
+          }
+
+          "redirects to the correct URL" in {
+            result.headers("Location").head shouldBe "http://localhost:11111/income-through-software/return/2022/view"
+          }
 
         }
       }
@@ -321,7 +324,9 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
       lazy val result = {
         authoriseIndividualUnauthorized()
-        await(wsClient.url(untaxedInterestAmountUrl(id)).get())
+        await(wsClient.url(untaxedInterestAmountUrl(id))
+          .withHttpHeaders(xSessionId, csrfContent)
+          .get())
       }
 
       s"return an Unauthorised($UNAUTHORIZED) status" in {
@@ -334,28 +339,26 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
     "the user is authorised" when {
 
-      lazy val interestCYA = InterestCYAModel(
-        Some(true), Some(Seq(
-          InterestAccountModel(Some("differentId"), accountName, amount),
-          InterestAccountModel(None, accountName, amount, Some(id))
-        )),
-        Some(false), None
-      )
-      lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-        SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
-      ))
-
       def response(formMap: Map[String, String]): WSResponse = {
+        dropInterestDB()
+        emptyUserDataStub()
+        insertCyaData(Some(InterestCYAModel(
+          Some(true), Some(Seq(
+            InterestAccountModel(Some("differentId"), firstAccountName, amount),
+            InterestAccountModel(None, secondAccountName, amount, Some(id))
+          )),
+          Some(false), None
+        )))
         authoriseIndividual()
         await(wsClient.url(untaxedInterestAmountUrl(id))
-          .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+          .withHttpHeaders(xSessionId, csrfContent)
           .post(formMap))
       }
 
       "an account name and amount are entered correctly" should {
 
         lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "67.66",
-          UntaxedInterestAmountForm.untaxedAccountName -> "Santander"))
+          UntaxedInterestAmountForm.untaxedAccountName -> "Halifax"))
 
         "return a 200(Ok) status" in {
           result.status shouldBe OK
@@ -366,6 +369,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
         lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "",
           UntaxedInterestAmountForm.untaxedAccountName -> ""))
+
         implicit def document: () => Document = () => Jsoup.parse(result.body)
 
         s"return a 400(BadRequest) status" in {
@@ -383,6 +387,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
       "invalid characters are entered into the fields" should {
         lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "money",
           UntaxedInterestAmountForm.untaxedAccountName -> "$uper"))
+
         implicit def document: () => Document = () => Jsoup.parse(result.body)
 
         s"return a 400(BadRequest) status" in {
@@ -400,6 +405,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
       "the account name is too long and the amount is too great" should {
         lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "100000000000",
           UntaxedInterestAmountForm.untaxedAccountName -> "SuperAwesomeBigBusinessMoneyStash"))
+
         implicit def document: () => Document = () => Jsoup.parse(result.body)
 
         s"return a 400(BadRequest) status" in {
@@ -437,7 +443,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
       "a duplicate account name is entered" should {
         lazy val result = response(Map(
           UntaxedInterestAmountForm.untaxedAmount -> "12344.98",
-          UntaxedInterestAmountForm.untaxedAccountName -> accountName
+          UntaxedInterestAmountForm.untaxedAccountName -> firstAccountName
         ))
 
         implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -446,7 +452,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
           result.status shouldBe BAD_REQUEST
         }
 
-        inputFieldValueCheck(accountName, Selectors.accountNameInput)
+        inputFieldValueCheck(firstAccountName, Selectors.accountNameInput)
         inputFieldValueCheck("12344.98", Selectors.amountInput)
         titleCheck(Content.errorTitle)
 
@@ -497,29 +503,26 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
     }
 
     "the user has Welsh toggled" when {
-
-      lazy val interestCYA = InterestCYAModel(
-        Some(true), Some(Seq(
-          InterestAccountModel(Some("differentId"), accountName, amount),
-          InterestAccountModel(None, accountName, amount, Some(id))
-        )),
-        Some(false), None
-      )
-      lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-        SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
-      ))
-
       def response(formMap: Map[String, String]): WSResponse = {
+        dropInterestDB()
+        emptyUserDataStub()
+        insertCyaData(Some(InterestCYAModel(
+          Some(true), Some(Seq(
+            InterestAccountModel(Some("differentId"), firstAccountName, amount),
+            InterestAccountModel(None, secondAccountName, amount, Some(id))
+          )),
+          Some(false), None
+        )))
         authoriseIndividual()
         await(wsClient.url(untaxedInterestAmountUrl(id))
-          .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck", HeaderNames.ACCEPT_LANGUAGE -> "cy")
+          .withHttpHeaders(xSessionId, csrfContent, HeaderNames.ACCEPT_LANGUAGE -> "cy")
           .post(formMap))
       }
 
       "an account name and amount are entered correctly" should {
 
         lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "67.66",
-          UntaxedInterestAmountForm.untaxedAccountName -> "Santander"))
+          UntaxedInterestAmountForm.untaxedAccountName -> "Halifax"))
 
         "return a 200(Ok) status" in {
           result.status shouldBe OK
@@ -530,6 +533,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
         lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "",
           UntaxedInterestAmountForm.untaxedAccountName -> ""))
+
         implicit def document: () => Document = () => Jsoup.parse(result.body)
 
         s"return a 400(BadRequest) status" in {
@@ -547,6 +551,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
       "invalid characters are entered into the fields" should {
         lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "money",
           UntaxedInterestAmountForm.untaxedAccountName -> "$uper"))
+
         implicit def document: () => Document = () => Jsoup.parse(result.body)
 
         s"return a 400(BadRequest) status" in {
@@ -564,6 +569,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
       "the account name is too long and the amount is too great" should {
         lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "100000000000",
           UntaxedInterestAmountForm.untaxedAccountName -> "SuperAwesomeBigBusinessMoneyStash"))
+
         implicit def document: () => Document = () => Jsoup.parse(result.body)
 
         s"return a 400(BadRequest) status" in {
@@ -601,7 +607,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
       "a duplicate account name is entered" should {
         lazy val result = response(Map(
           UntaxedInterestAmountForm.untaxedAmount -> "12344.98",
-          UntaxedInterestAmountForm.untaxedAccountName -> accountName
+          UntaxedInterestAmountForm.untaxedAccountName -> secondAccountName
         ))
 
         implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -610,7 +616,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
           result.status shouldBe BAD_REQUEST
         }
 
-        inputFieldValueCheck(accountName, Selectors.accountNameInput)
+        inputFieldValueCheck(secondAccountName, Selectors.accountNameInput)
         inputFieldValueCheck("12344.98", Selectors.amountInput)
         titleCheck(WelshContent.errorTitle)
 

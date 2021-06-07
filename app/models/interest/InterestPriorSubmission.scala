@@ -20,9 +20,7 @@ import common.{InterestTaxTypes, SessionValues}
 import models.User
 import play.api.libs.json._
 
-case class InterestPriorSubmission(hasUntaxed: Boolean, hasTaxed: Boolean, submissions: Option[Seq[InterestAccountModel]]) {
-  def asJsonString: String = Json.toJson(this).toString()
-}
+case class InterestPriorSubmission(hasUntaxed: Boolean, hasTaxed: Boolean, submissions: Option[Seq[InterestAccountModel]])
 
 object InterestPriorSubmission {
 
@@ -46,10 +44,6 @@ object InterestPriorSubmission {
     } else {
       Json.obj()
     }
-  }
-
-  def fromSession()(implicit user: User[_]): Option[InterestPriorSubmission] = {
-    user.session.get(SessionValues.INTEREST_PRIOR_SUB).flatMap(Json.parse(_).asOpt[InterestPriorSubmission])
   }
 
 }

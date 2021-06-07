@@ -19,14 +19,8 @@ package common
 object SessionValues {
   val CLIENT_MTDITID = "ClientMTDID"
   val CLIENT_NINO = "ClientNino"
-
-  val DIVIDENDS_CYA = "DIVIDENDS_CYA"
-  val DIVIDENDS_PRIOR_SUB = "DIVIDENDS_PRIOR_SUB"
-  val INTEREST_PRIOR_SUB = "INTEREST_PRIOR_SUB"
-
-  val INTEREST_CYA = "INTEREST_CYA"
   val TAX_YEAR = "TAX_YEAR"
 
-  val GIFT_AID_PRIOR_SUB = "GIFT_AID_PRIOR_SUB"
-  val GIFT_AID_CYA = "GIFT_AID_CYA"
+  val GIFT_AID_PRIOR_SUB = "GIFT_AID_PRIOR_SUB" //TODO To be removed
+  val GIFT_AID_CYA = "GIFT_AID_CYA" //TODO To be removed
 }

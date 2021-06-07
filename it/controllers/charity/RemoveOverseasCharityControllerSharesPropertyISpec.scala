@@ -77,7 +77,12 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
       "return an action with english content" which {
         lazy val result: WSResponse = {
           authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity").get())
+          await(
+            wsClient
+              .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
+              .withHttpHeaders(xSessionId, csrfContent)
+              .get()
+          )
         }
 
         implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -98,9 +103,12 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
       "return an action with welsh content" which {
         lazy val result: WSResponse = {
           authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
-            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
-            .get())
+          await(
+            wsClient
+              .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
+              .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
+              .get()
+          )
         }
 
         implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -125,7 +133,9 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
           lazy val result: WSResponse = {
             authoriseIndividual()
             await(
-              wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
+              wsClient
+                .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
+                .withHttpHeaders(xSessionId, csrfContent)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
             )
           }
@@ -135,8 +145,12 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
         "when there is no input" should {
           lazy val result: WSResponse = {
             authoriseIndividual()
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
-              .post(Map[String, String]()))
+            await(
+              wsClient
+                .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
+                .withHttpHeaders(xSessionId, csrfContent)
+                .post(Map[String, String]())
+            )
           }
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -148,11 +162,16 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
           errorSummaryCheck(Content.expectedErrorTitle, Content.errorHref)
           errorAboveElementCheck(Content.expectedErrorTitle)
         }
+
         "when there is no input welsh content" should {
           lazy val result: WSResponse = {
             authoriseIndividual()
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
-              .post(Map[String, String]()))
+            await(
+              wsClient
+                .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
+                .withHttpHeaders(xSessionId, csrfContent)
+                .post(Map[String, String]())
+            )
           }
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -180,9 +199,12 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
           ))
 
           authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
-            .get())
+          await(
+            wsClient
+              .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
+              .get()
+          )
         }
 
         "has an OK(200) status" in {
@@ -203,8 +225,9 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
 
             authoriseAgent()
             await(
-              wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+              wsClient
+                .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
+                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
             )
           }
@@ -223,9 +246,12 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
             ))
 
             authoriseAgent()
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-              .post(Map[String, String]()))
+            await(
+              wsClient
+                .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
+                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
+                .post(Map[String, String]())
+            )
           }
 
           result.status shouldBe BAD_REQUEST

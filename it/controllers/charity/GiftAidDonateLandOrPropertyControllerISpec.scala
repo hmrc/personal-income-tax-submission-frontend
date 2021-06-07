@@ -68,7 +68,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
   val yesTextCY = "Yes"
   val noTextCY = "No"
   val continueTextCY = "Continue"
-  
+
   val captionSelector = ".govuk-caption-l"
   val continueSelector = "#continue"
   val continueButtonFormSelector = "#main-content > div > div > form"
@@ -87,9 +87,9 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
         "return a page" which {
           lazy val result: WSResponse = {
             authoriseIndividual()
-            await(wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property"
-            )
+            await(wsClient
+              .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
+              .withHttpHeaders(xSessionId, csrfContent)
               .get())
           }
 
@@ -124,6 +124,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
               authoriseIndividual()
               await(
                 wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
+                  .withHttpHeaders(xSessionId, csrfContent)
                   .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
               )
             }
@@ -138,9 +139,9 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
 
             lazy val result: WSResponse = {
               authoriseIndividual()
-              await(wsClient.url(
-                s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property"
-              )
+              await(wsClient
+                .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
+                .withHttpHeaders(xSessionId, csrfContent)
                 .post(Map[String, String]()))
             }
 
@@ -183,7 +184,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
 
             authoriseAgent()
             await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
               .get())
           }
 
@@ -221,7 +222,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
               authoriseAgent()
               await(
                 wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
-                  .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+                  .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
                   .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
               )
             }
@@ -241,7 +242,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
 
               authoriseAgent()
               await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
                 .post(Map[String, String]()))
             }
 
@@ -282,7 +283,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
           lazy val result: WSResponse = {
             authoriseIndividual()
             await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
-              .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
+              .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
               .get())
           }
 
@@ -317,7 +318,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
               authoriseIndividual()
               await(
                 wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
-                  .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
+                  .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
                   .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
               )
             }
@@ -333,7 +334,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
             lazy val result: WSResponse = {
               authoriseIndividual()
               await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
-                .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
+                .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
                 .post(Map[String, String]()))
             }
 
@@ -378,7 +379,8 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
             await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
               .withHttpHeaders(
                 HeaderNames.COOKIE -> sessionCookie,
-                HeaderNames.ACCEPT_LANGUAGE -> "cy"
+                HeaderNames.ACCEPT_LANGUAGE -> "cy",
+                xSessionId, csrfContent
               )
               .get())
           }
@@ -419,7 +421,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
                 wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
                   .withHttpHeaders(
                     HeaderNames.COOKIE -> sessionCookie,
-                    "Csrf-Token" -> "nocheck",
+                    xSessionId, csrfContent,
                     HeaderNames.ACCEPT_LANGUAGE -> "cy"
                   )
                   .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
@@ -443,9 +445,9 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
               await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
                 .withHttpHeaders(
                   HeaderNames.COOKIE -> sessionCookie,
-                  "Csrf-Token" -> "nocheck",
+                  xSessionId, csrfContent,
                   HeaderNames.ACCEPT_LANGUAGE -> "cy"
-              )
+                )
                 .post(Map[String, String]()))
             }
 

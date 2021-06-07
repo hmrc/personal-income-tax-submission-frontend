@@ -90,7 +90,11 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
         "return a page" which {
           lazy val result: WSResponse = {
             authoriseIndividual()
-            await(wsClient.url(url).get())
+            await(
+              wsClient.url(url)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .get()
+            )
           }
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -120,7 +124,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
 
           lazy val result: WSResponse = {
             authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, "Csrf-Token" -> "nocheck").get())
+            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).get())
           }
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -151,9 +155,11 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
           "return an OK" in {
             lazy val result: WSResponse = {
               authoriseIndividual()
-              await(wsClient.url(url).post(Map[String, String](
-                "amount" -> "1234"
-              )))
+              await(wsClient.url(url)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .post(Map[String, String](
+                  "amount" -> "1234"
+                )))
             }
 
             result.status shouldBe OK
@@ -166,9 +172,11 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
           "the submitted data is empty" which {
             lazy val result: WSResponse = {
               authoriseIndividual()
-              await(wsClient.url(url).post(Map[String, String](
-                "amount" -> ""
-              )))
+              await(wsClient.url(url)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .post(Map[String, String](
+                  "amount" -> ""
+                )))
             }
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -190,9 +198,11 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
           "the submitted data is too long" which {
             lazy val result: WSResponse = {
               authoriseIndividual()
-              await(wsClient.url(url).post(Map(
-                "amount" -> "999999999999999999999999999999999999999999999999"
-              )))
+              await(wsClient.url(url)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .post(Map(
+                  "amount" -> "999999999999999999999999999999999999999999999999"
+                )))
             }
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -214,9 +224,11 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
           "the submitted data is in the incorrect format" which {
             lazy val result: WSResponse = {
               authoriseIndividual()
-              await(wsClient.url(url).post(Map(
-                "amount" -> ":@~{}<>?"
-              )))
+              await(wsClient.url(url)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .post(Map(
+                  "amount" -> ":@~{}<>?"
+                )))
             }
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -251,7 +263,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
 
             lazy val result: WSResponse = {
               authoriseAgent()
-              await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, "Csrf-Token" -> "nocheck").post(Map[String, String](
+              await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).post(Map[String, String](
                 "amount" -> "1234"
               )))
             }
@@ -272,7 +284,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
 
             lazy val result: WSResponse = {
               authoriseAgent()
-              await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, "Csrf-Token" -> "nocheck").post(Map[String, String](
+              await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).post(Map[String, String](
                 "amount" -> ""
               )))
             }
@@ -302,7 +314,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
 
             lazy val result: WSResponse = {
               authoriseAgent()
-              await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, "Csrf-Token" -> "nocheck").post(Map(
+              await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).post(Map(
                 "amount" -> "999999999999999999999999999999999999999999999999"
               )))
             }
@@ -332,7 +344,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
 
             lazy val result: WSResponse = {
               authoriseAgent()
-              await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, "Csrf-Token" -> "nocheck").post(Map(
+              await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).post(Map(
                 "amount" -> ":@~{}<>?"
               )))
             }
@@ -370,7 +382,8 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
           lazy val result: WSResponse = {
             authoriseIndividual()
             await(wsClient.url(url).withHttpHeaders(
-              HeaderNames.ACCEPT_LANGUAGE -> "cy"
+              HeaderNames.ACCEPT_LANGUAGE -> "cy",
+              xSessionId, csrfContent
             ).get())
           }
 
@@ -403,7 +416,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
             authoriseAgent()
             await(wsClient.url(url).withHttpHeaders(
               HeaderNames.COOKIE -> playSessionCookies,
-              "Csrf-Token" -> "nocheck",
+              xSessionId, csrfContent,
               HeaderNames.ACCEPT_LANGUAGE -> "cy"
             ).get())
           }
@@ -436,7 +449,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
           "return an OK" in {
             lazy val result: WSResponse = {
               authoriseIndividual()
-              await(wsClient.url(url).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy").post(Map[String, String](
+              await(wsClient.url(url).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent).post(Map[String, String](
                 "amount" -> "1234"
               )))
             }
@@ -451,7 +464,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
           "the submitted data is empty" which {
             lazy val result: WSResponse = {
               authoriseIndividual()
-              await(wsClient.url(url).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy").post(Map[String, String](
+              await(wsClient.url(url).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent).post(Map[String, String](
                 "amount" -> ""
               )))
             }
@@ -475,7 +488,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
           "the submitted data is too long" which {
             lazy val result: WSResponse = {
               authoriseIndividual()
-              await(wsClient.url(url).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy").post(Map(
+              await(wsClient.url(url).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent).post(Map(
                 "amount" -> "999999999999999999999999999999999999999999999999"
               )))
             }
@@ -499,7 +512,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
           "the submitted data is in the incorrect format" which {
             lazy val result: WSResponse = {
               authoriseIndividual()
-              await(wsClient.url(url).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy").post(Map(
+              await(wsClient.url(url).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent).post(Map(
                 "amount" -> ":@~{}<>?"
               )))
             }
@@ -538,7 +551,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
               authoriseAgent()
               await(wsClient.url(url).withHttpHeaders(
                 HeaderNames.COOKIE -> playSessionCookies,
-                "Csrf-Token" -> "nocheck",
+                xSessionId, csrfContent,
                 HeaderNames.ACCEPT_LANGUAGE -> "cy"
               ).post(Map[String, String](
                 "amount" -> "1234"
@@ -563,7 +576,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
               authoriseAgent()
               await(wsClient.url(url).withHttpHeaders(
                 HeaderNames.COOKIE -> playSessionCookies,
-                "Csrf-Token" -> "nocheck",
+                xSessionId, csrfContent,
                 HeaderNames.ACCEPT_LANGUAGE -> "cy"
               ).post(Map[String, String](
                 "amount" -> ""
@@ -597,7 +610,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
               authoriseAgent()
               await(wsClient.url(url).withHttpHeaders(
                 HeaderNames.COOKIE -> playSessionCookies,
-                "Csrf-Token" -> "nocheck",
+                xSessionId, csrfContent,
                 HeaderNames.ACCEPT_LANGUAGE -> "cy"
               ).post(Map(
                 "amount" -> "999999999999999999999999999999999999999999999999"
@@ -631,7 +644,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
               authoriseAgent()
               await(wsClient.url(url).withHttpHeaders(
                 HeaderNames.COOKIE -> playSessionCookies,
-                "Csrf-Token" -> "nocheck",
+                xSessionId, csrfContent,
                 HeaderNames.ACCEPT_LANGUAGE -> "cy"
               ).post(Map(
                 "amount" -> ":@~{}<>?"

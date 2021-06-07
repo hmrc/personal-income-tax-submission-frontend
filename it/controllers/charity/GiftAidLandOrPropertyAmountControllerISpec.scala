@@ -87,6 +87,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
         lazy val result: WSResponse = {
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
+            .withHttpHeaders(xSessionId, csrfContent)
             .get())
         }
 
@@ -108,7 +109,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
         lazy val result: WSResponse = {
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
-            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
+            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
             .get())
         }
 
@@ -135,6 +136,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
           authoriseIndividual()
           await(
             wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
+              .withHttpHeaders(xSessionId, csrfContent)
               .post(Map("amount" -> "123000.42"))
           )
         }
@@ -148,6 +150,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
 
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
+            .withHttpHeaders(xSessionId, csrfContent)
             .post(Map[String, String]()))
         }
         implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -166,6 +169,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
 
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
+            .withHttpHeaders(xSessionId, csrfContent)
             .post(Map("amount" -> invalidAmount)))
         }
         implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -184,6 +188,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
 
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
+            .withHttpHeaders(xSessionId, csrfContent)
             .post(Map("amount" -> "12344.98...")))
         }
         implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -202,7 +207,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
 
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
-            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
+            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
             .post(Map[String, String]()))
         }
         implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -221,7 +226,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
 
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
-            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
+            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
             .post(Map("amount" -> invalidAmount)))
         }
         implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -240,7 +245,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
 
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
-            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
+            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
             .post(Map("amount" -> "12344.98...")))
         }
         implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -271,7 +276,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
 
           authoriseAgent()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .get())
         }
         implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -298,7 +303,8 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
             .withHttpHeaders(
               HeaderNames.COOKIE -> sessionCookie,
-              HeaderNames.ACCEPT_LANGUAGE -> "cy"
+              HeaderNames.ACCEPT_LANGUAGE -> "cy",
+              xSessionId, csrfContent
             )
             .get())
         }
@@ -330,7 +336,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
             authoriseAgent()
             await(
               wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
                 .post(Map("amount" -> "12344.98"))
             )
           }
@@ -349,7 +355,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
 
           authoriseAgent()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .post(Map[String, String]()))
         }
         implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -371,7 +377,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
 
           authoriseAgent()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .post(Map("amount" -> invalidAmount)))
         }
         implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -393,7 +399,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
 
           authoriseAgent()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .post(Map("amount" -> "12344.98...")))
         }
         implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -415,7 +421,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
 
           authoriseAgent()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck", HeaderNames.ACCEPT_LANGUAGE -> "cy")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent, HeaderNames.ACCEPT_LANGUAGE -> "cy")
             .post(Map[String, String]()))
         }
         implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -437,7 +443,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
 
           authoriseAgent()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck", HeaderNames.ACCEPT_LANGUAGE -> "cy")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent, HeaderNames.ACCEPT_LANGUAGE -> "cy")
             .post(Map("amount" -> invalidAmount)))
         }
         implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -459,7 +465,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
 
           authoriseAgent()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck", HeaderNames.ACCEPT_LANGUAGE -> "cy")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent, HeaderNames.ACCEPT_LANGUAGE -> "cy")
             .post(Map("amount" -> "12344.98...")))
         }
         implicit def document: () => Document = () => Jsoup.parse(result.body)

@@ -24,8 +24,9 @@ import controllers.predicates.CommonPredicates.commonPredicates
 import models.charity.GiftAidCYAModel
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.GiftAidSubmissionService
+import services.GiftAidSessionService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -42,7 +43,8 @@ class GiftAidCYAController @Inject()(
                                       appConfig: AppConfig,
                                       view: GiftAidCYAView,
                                       giftAidSubmissionService: GiftAidSubmissionService,
-                                      errorHandler: ErrorHandler
+                                      errorHandler: ErrorHandler,
+                                      giftAidSessionService: GiftAidSessionService
                                     ) extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
@@ -94,51 +96,46 @@ class GiftAidCYAController @Inject()(
     ))
   ))
 
-  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
-    val cyaDataOptional = getModelFromSession[GiftAidCYAModel](SessionValues.GIFT_AID_CYA)
-    val priorDataOptional = getModelFromSession[GiftAidSubmissionModel](SessionValues.GIFT_AID_PRIOR_SUB)
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
+    giftAidSessionService.getAndHandle[Result](taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
+      (cya, prior) match {
+        case (Some(cyaData), potentialPriorData) =>
+          if (cyaData.isFinished) {
+            Ok(view(taxYear, cyaData, potentialPriorData))
+          } else {
+            Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)) //TODO This should redirect to the last logical position. Sort out during navigation.
+          }
+        case (None, Some(priorData)) =>
+          val cyaModel = GiftAidCYAModel(
+            Some(priorData.giftAidPayments.exists(_.currentYear.nonEmpty)),
+            priorData.giftAidPayments.flatMap(_.currentYear),
+            Some(priorData.giftAidPayments.exists(_.oneOffCurrentYear.nonEmpty)),
+            priorData.giftAidPayments.flatMap(_.oneOffCurrentYear),
+            Some(priorData.giftAidPayments.exists(_.nonUkCharities.nonEmpty)),
+            priorData.giftAidPayments.flatMap(_.nonUkCharities),
+            priorData.giftAidPayments.flatMap(_.nonUkCharitiesCharityNames.map(_.toSeq)),
+            Some(priorData.giftAidPayments.exists(_.currentYearTreatedAsPreviousYear.nonEmpty)),
+            priorData.giftAidPayments.flatMap(_.currentYearTreatedAsPreviousYear),
+            Some(priorData.giftAidPayments.exists(_.nextYearTreatedAsCurrentYear.nonEmpty)),
+            priorData.giftAidPayments.flatMap(_.nextYearTreatedAsCurrentYear),
+            Some(priorData.gifts.exists(_.sharesOrSecurities.nonEmpty) || priorData.gifts.exists(_.landAndBuildings.nonEmpty)),
+            Some(priorData.gifts.exists(_.sharesOrSecurities.nonEmpty)),
+            priorData.gifts.flatMap(_.sharesOrSecurities),
+            Some(priorData.gifts.exists(_.landAndBuildings.nonEmpty)),
+            priorData.gifts.flatMap(_.landAndBuildings),
+            Some(priorData.gifts.exists(_.investmentsNonUkCharities.nonEmpty)),
+            priorData.gifts.flatMap(_.investmentsNonUkCharities),
+            priorData.gifts.flatMap(_.investmentsNonUkCharitiesCharityNames.map(_.toSeq))
+          )
 
-    (cyaDataOptional, priorDataOptional) match {
-      case (Some(cyaData), potentialPriorData) =>
-        if(cyaData.isFinished) {
-          Ok(view(taxYear, cyaData, potentialPriorData))
-        } else {
-          Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)) //TODO This should redirect to the last logical position. Sort out during navigation.
-        }
-      case (None, Some(priorData)) =>
-        val cyaModel = GiftAidCYAModel(
-          Some(priorData.giftAidPayments.exists(_.currentYear.nonEmpty)),
-          priorData.giftAidPayments.flatMap(_.currentYear),
-          Some(priorData.giftAidPayments.exists(_.oneOffCurrentYear.nonEmpty)),
-          priorData.giftAidPayments.flatMap(_.oneOffCurrentYear),
-          Some(priorData.giftAidPayments.exists(_.nonUkCharities.nonEmpty)),
-          priorData.giftAidPayments.flatMap(_.nonUkCharities),
-          priorData.giftAidPayments.flatMap(_.nonUkCharitiesCharityNames.map(_.toSeq)),
-          Some(priorData.giftAidPayments.exists(_.currentYearTreatedAsPreviousYear.nonEmpty)),
-          priorData.giftAidPayments.flatMap(_.currentYearTreatedAsPreviousYear),
-          Some(priorData.giftAidPayments.exists(_.nextYearTreatedAsCurrentYear.nonEmpty)),
-          priorData.giftAidPayments.flatMap(_.nextYearTreatedAsCurrentYear),
-          Some(priorData.gifts.exists(_.sharesOrSecurities.nonEmpty) || priorData.gifts.exists(_.landAndBuildings.nonEmpty)),
-          Some(priorData.gifts.exists(_.sharesOrSecurities.nonEmpty)),
-          priorData.gifts.flatMap(_.sharesOrSecurities),
-          Some(priorData.gifts.exists(_.landAndBuildings.nonEmpty)),
-          priorData.gifts.flatMap(_.landAndBuildings),
-          Some(priorData.gifts.exists(_.investmentsNonUkCharities.nonEmpty)),
-          priorData.gifts.flatMap(_.investmentsNonUkCharities),
-          priorData.gifts.flatMap(_.investmentsNonUkCharitiesCharityNames.map(_.toSeq))
-        )
-
-        Ok(view(taxYear, cyaModel, Some(priorData))).addingToSession(SessionValues.GIFT_AID_CYA -> cyaModel.asJsonString)
-      case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+          Ok(view(taxYear, cyaModel, Some(priorData))).addingToSession(SessionValues.GIFT_AID_CYA -> cyaModel.asJsonString)
+        case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+      }
     }
   }
 
   def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
-
-    val cyaData: Option[GiftAidCYAModel] = getModelFromSession[GiftAidCYAModel](SessionValues.GIFT_AID_CYA)
-    val priorData: Option[GiftAidSubmissionModel] = getModelFromSession[GiftAidSubmissionModel](SessionValues.GIFT_AID_PRIOR_SUB)
-
-    cyaData.fold(
+    giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid).fold(
       Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
     ) { model =>
       val submissionModel = GiftAidSubmissionModel(
@@ -163,8 +160,7 @@ class GiftAidCYAController @Inject()(
           Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
         case Left(_) => errorHandler.handleError(INTERNAL_SERVER_ERROR)
       }
-    }
-
+    }).flatten
   }
 
   private def auditSubmission(details: CreateOrAmendGiftAidAuditDetail)

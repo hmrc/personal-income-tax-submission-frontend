@@ -21,6 +21,7 @@ import models.User
 import play.api.http.Status._
 import play.api.mvc.Results._
 import play.api.mvc.{AnyContent, Result}
+import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
@@ -140,6 +141,29 @@ class AuthorisedActionSpec extends UnitTest {
         }
       }
 
+      "there is no session id" which {
+        val block: User[AnyContent] => Future[Result] = user => Future.successful(Ok(user.mtditid))
+        val mtditid = "AAAAAA"
+        val enrolments = Enrolments(Set(
+          Enrolment(EnrolmentKeys.Individual, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.individualId, mtditid)), "Activated"),
+          Enrolment(EnrolmentKeys.nino, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.nino, nino)), "Activated")
+        ))
+
+        lazy val result: Future[Result] = {
+          (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
+            .expects(*, allEnrolments and confidenceLevel, *, *)
+            .returning(Future.successful(enrolments and ConfidenceLevel.L200))
+          auth.individualAuthentication[AnyContent](block, AffinityGroup.Individual)(FakeRequest(), emptyHeaderCarrier)
+        }
+
+        "returns an OK status" in {
+          status(result) shouldBe SEE_OTHER
+        }
+
+        "returns a body of the mtditid" in {
+          redirectUrl(result) shouldBe "/signIn"
+        }
+      }
     }
 
     "return the user to IV Uplift" when {
@@ -188,7 +212,7 @@ class AuthorisedActionSpec extends UnitTest {
             .expects(*, *, *, *)
             .returning(Future.successful(enrolments))
 
-          auth.agentAuthentication(block, AffinityGroup.Agent)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
+          auth.agentAuthentication(block)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
         }
 
         "has a status of OK" in {
@@ -208,9 +232,32 @@ class AuthorisedActionSpec extends UnitTest {
 
         lazy val result = {
           mockAuthReturnException(AuthException)
-          auth.agentAuthentication(block, AffinityGroup.Agent)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
+          auth.agentAuthentication(block)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
         }
         status(result) shouldBe SEE_OTHER
+      }
+
+      "there is no session id" which {
+        val enrolments = Enrolments(Set(
+          Enrolment(EnrolmentKeys.Individual, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.individualId, "1234567890")), "Activated"),
+          Enrolment(EnrolmentKeys.Agent, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.agentReference, "0987654321")), "Activated")
+        ))
+
+        lazy val result = {
+          (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
+            .expects(*, *, *, *)
+            .returning(Future.successful(enrolments))
+
+          auth.agentAuthentication(block)(FakeRequest().withSession(fakeRequestWithMtditidAndNino.session.-("sessionId").data.toList: _*), emptyHeaderCarrier)
+        }
+
+        "has a status of OK" in {
+          status(result) shouldBe SEE_OTHER
+        }
+
+        "has the correct body" in {
+          redirectUrl(result) shouldBe "/signIn"
+        }
       }
 
     }
@@ -222,7 +269,7 @@ class AuthorisedActionSpec extends UnitTest {
 
         lazy val result = {
           mockAuthReturnException(NoActiveSession)
-          auth.agentAuthentication(block, AffinityGroup.Agent)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
+          auth.agentAuthentication(block)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
         }
 
         status(result) shouldBe SEE_OTHER
@@ -240,7 +287,7 @@ class AuthorisedActionSpec extends UnitTest {
           (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
             .expects(*, *, *, *)
             .returning(Future.successful(enrolments))
-          auth.agentAuthentication(block, AffinityGroup.Agent)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
+          auth.agentAuthentication(block)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
         }
         status(result) shouldBe SEE_OTHER
       }

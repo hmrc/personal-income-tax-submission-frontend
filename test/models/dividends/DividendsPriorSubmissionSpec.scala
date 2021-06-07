@@ -43,15 +43,4 @@ class DividendsPriorSubmissionSpec extends UnitTest {
 
   }
 
-  ".asJsonString" should {
-
-    "return a string of Json" in {
-      DividendsPriorSubmission(Some(100.00), Some(100.00)).asJsonString shouldBe Json.stringify(Json.obj(
-        "ukDividends" -> 100.00,
-        "otherUkDividends" -> 100.00
-      ))
-    }
-
-  }
-
 }

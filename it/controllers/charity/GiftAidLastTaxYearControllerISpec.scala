@@ -80,7 +80,7 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
           lazy val result: WSResponse = {
             authoriseIndividual()
             await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/add-charity-donations-to-last-tax-year")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
               .get())
           }
           implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -104,7 +104,7 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
           lazy val result: WSResponse = {
             authoriseIndividual()
             await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/add-charity-donations-to-last-tax-year")
-              .withHttpHeaders("Csrf-Token" -> "nocheck")
+              .withHttpHeaders(xSessionId, csrfContent)
               .get())
           }
           "has an Bad_request status" in {
@@ -122,7 +122,7 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
             authoriseIndividual()
             await(
               wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/add-charity-donations-to-last-tax-year")
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
             )
           }
@@ -135,7 +135,7 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
           lazy val result: WSResponse = {
             authoriseIndividual()
             await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/add-charity-donations-to-last-tax-year")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
               .post(Map[String, String]()))
           }
           implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -151,7 +151,7 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
           lazy val result: WSResponse = {
             authoriseIndividual()
             await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/add-charity-donations-to-last-tax-year")
-              .withHttpHeaders("Csrf-Token" -> "nocheck")
+              .withHttpHeaders(xSessionId, csrfContent)
               .post(Map[String, String]()))
           }
 
@@ -180,7 +180,7 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
 
           authoriseAgent()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/add-charity-donations-to-last-tax-year")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .get())
         }
         implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -207,7 +207,7 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
 
           authoriseAgent()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/add-charity-donations-to-last-tax-year")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .get())
         }
         "has an NOT_FOUND status" in {
@@ -232,7 +232,7 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
             authoriseAgent()
             await(
               wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/add-charity-donations-to-last-tax-year")
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
             )
           }
@@ -253,7 +253,7 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
 
             authoriseAgent()
             await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/add-charity-donations-to-last-tax-year")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
               .post(Map[String, String]()))
           }
           implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -275,7 +275,7 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
 
           authoriseAgent()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/add-charity-donations-to-last-tax-year")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .post(Map[String, String]()))
         }
 

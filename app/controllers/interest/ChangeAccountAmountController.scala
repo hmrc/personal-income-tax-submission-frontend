@@ -16,9 +16,9 @@
 
 package controllers.interest
 
+import common.InterestTaxTypes
 import common.InterestTaxTypes.TAXED
-import common.{InterestTaxTypes, SessionValues}
-import config.{AppConfig, INTEREST}
+import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import forms.AmountForm
@@ -29,17 +29,22 @@ import play.api.i18n.I18nSupport
 import play.api.libs.json.{Json, Reads}
 import play.api.mvc._
 import play.twirl.api.Html
+import services.InterestSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.interest.ChangeAccountAmountView
 
 import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
 class ChangeAccountAmountController @Inject()(
-                                             implicit val cc: MessagesControllerComponents,
-                                             authAction: AuthorisedAction,
-                                             changeAccountAmountView: ChangeAccountAmountView,
-                                             implicit val appConfig: AppConfig
-                                           ) extends FrontendController(cc) with I18nSupport {
+                                               implicit val cc: MessagesControllerComponents,
+                                               authAction: AuthorisedAction,
+                                               changeAccountAmountView: ChangeAccountAmountView,
+                                               interestSessionService: InterestSessionService,
+                                               errorHandler: ErrorHandler,
+                                               implicit val appConfig: AppConfig,
+                                               ec: ExecutionContext
+                                             ) extends FrontendController(cc) with I18nSupport {
 
   def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
 
@@ -47,7 +52,7 @@ class ChangeAccountAmountController @Inject()(
     emptyFieldKey = "interest.changeAccountAmount.required." + agentOrIndividual,
     wrongFormatKey = "interest.changeAccountAmount.format",
     exceedsMaxAmountKey = "interest.changeAccountAmount.amountMaxLimit",
-    emptyFieldArguments = Seq(if(taxType.equals(TAXED)) "taxed" else "untaxed")
+    emptyFieldArguments = Seq(if (taxType.equals(TAXED)) "taxed" else "untaxed")
   )
 
 
@@ -57,7 +62,7 @@ class ChangeAccountAmountController @Inject()(
             taxYear: Int,
             taxType: String,
             accountId: String,
-            preAmount:Option[BigDecimal] = None
+            preAmount: Option[BigDecimal] = None
           )(implicit user: User[AnyContent]): Html = {
 
     changeAccountAmountView(
@@ -69,60 +74,60 @@ class ChangeAccountAmountController @Inject()(
       preAmount = preAmount)
   }
 
-  def show(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = commonPredicates(taxYear, INTEREST).apply { implicit user =>
-    val interestPriorSubmissionSession = getSessionData[InterestPriorSubmission](SessionValues.INTEREST_PRIOR_SUB)
-    val checkYourAnswerSession: Option[InterestCYAModel] = getSessionData[InterestCYAModel](SessionValues.INTEREST_CYA)
+  def show(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
+    interestSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
+      val singleAccount: Option[InterestAccountModel] = getSingleAccount(accountId, prior)
 
-    val singleAccount: Option[InterestAccountModel] = getSingleAccount(accountId, interestPriorSubmissionSession)
+      (singleAccount, cya) match {
+        case (None, Some(_)) => Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType))
+        case (Some(accountModel), Some(cya)) =>
 
-    (singleAccount, checkYourAnswerSession) match {
-      case (None, Some(_)) => Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType))
-      case (Some(accountModel), Some(cya)) =>
+          val previousAmount: Option[BigDecimal] = extractPreAmount(taxType, Some(cya), accountId)
 
-        val previousAmount: Option[BigDecimal] = extractPreAmount(taxType,Some(cya),accountId)
-
-        val form: Form[BigDecimal] = {
-          if(previousAmount.contains(accountModel.amount)) {
-            changeAmountForm(user.isAgent,taxType)
+          val form: Form[BigDecimal] = {
+            if (previousAmount.contains(accountModel.amount)) {
+              changeAmountForm(user.isAgent, taxType)
+            }
+            else {
+              changeAmountForm(user.isAgent, taxType).
+                fill(previousAmount.getOrElse(accountModel.amount))
+            }
           }
-            else{
-            changeAmountForm(user.isAgent,taxType).
-              fill(previousAmount.getOrElse(accountModel.amount))
-          }
-        }
 
-        Ok(view(form, accountModel, taxYear, taxType, accountId, Some(previousAmount.getOrElse(accountModel.amount))))
-      case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+          Ok(view(form, accountModel, taxYear, taxType, accountId, Some(previousAmount.getOrElse(accountModel.amount))))
+        case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+      }
     }
   }
 
-  def submit(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = authAction { implicit user =>
-    val interestPriorSubmissionSession = getSessionData[InterestPriorSubmission](SessionValues.INTEREST_PRIOR_SUB)
-    val checkYourAnswerSession = getSessionData[InterestCYAModel](SessionValues.INTEREST_CYA)
+  def submit(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = authAction.async { implicit user =>
+    interestSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
+      val singleAccount: Option[InterestAccountModel] = getSingleAccount(accountId, prior)
 
-    val singleAccount: Option[InterestAccountModel] = getSingleAccount(accountId, interestPriorSubmissionSession)
+      cya match {
+        case Some(cyaData) =>
+          singleAccount match {
+            case Some(account) =>
+              val previousAmount = extractPreAmount(taxType, Some(cyaData), accountId)
 
-    checkYourAnswerSession match {
-      case Some(cyaData) =>
-        singleAccount match {
-          case Some(account) =>
-            val previousAmount = extractPreAmount(taxType,Some(cyaData),accountId)
+              changeAmountForm(user.isAgent, taxType).bindFromRequest().fold(
+                formWithErrors => {
+                  Future.successful(BadRequest(view(formWithErrors, account, taxYear, taxType, accountId, previousAmount)))
+                },
+                formModel => {
+                  val updatedAccounts = updateAccounts(taxType, cyaData, accountId, formModel)
+                  val updatedCYA = replaceAccounts(taxType, cyaData, updatedAccounts)
 
-            changeAmountForm(user.isAgent,taxType).bindFromRequest().fold(
-              formWithErrors => {
-                BadRequest(view(formWithErrors, account, taxYear, taxType, accountId, previousAmount))},
-              formModel => {
-                val updatedAccounts = updateAccounts(taxType, cyaData, accountId, formModel)
-                val updatedCYA = replaceAccounts(taxType, cyaData, updatedAccounts)
-                Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)).addingToSession(
-                  SessionValues.INTEREST_CYA -> updatedCYA.asJsonString
-                )
-              }
-            )
-          case _ => Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType))
-        }
-      case _ => Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType))
-    }
+                  interestSessionService.updateSessionData(updatedCYA, taxYear)(errorHandler.internalServerError())(
+                    Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType))
+                  )
+                }
+              )
+            case _ => Future.successful(Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)))
+          }
+        case _ => Future.successful(Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)))
+      }
+    }.flatten
   }
 
   private def getSingleAccount(accountId: String, interestPriorSubmissionSession: Option[InterestPriorSubmission]): Option[InterestAccountModel] = {
@@ -160,7 +165,7 @@ class ChangeAccountAmountController @Inject()(
   }
 
   private[interest] def updateAccounts(taxType: String, cya: InterestCYAModel, accountId: String,
-                                       newAmount: BigDecimal):Option[Seq[InterestAccountModel]] = taxType match {
+                                       newAmount: BigDecimal): Option[Seq[InterestAccountModel]] = taxType match {
     case InterestTaxTypes.UNTAXED =>
       cya.untaxedUkAccounts.map { unwrappedAccounts =>
         unwrappedAccounts.map { account =>
@@ -175,7 +180,7 @@ class ChangeAccountAmountController @Inject()(
     case InterestTaxTypes.TAXED =>
       cya.taxedUkAccounts.map { unwrappedAccounts =>
         unwrappedAccounts.map { account =>
-          if(account.id.contains(accountId) || account.uniqueSessionId.contains(accountId)){
+          if (account.id.contains(accountId) || account.uniqueSessionId.contains(accountId)) {
             account.copy(amount = newAmount)
           } else {
             account

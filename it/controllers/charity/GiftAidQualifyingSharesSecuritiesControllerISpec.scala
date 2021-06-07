@@ -67,6 +67,7 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends IntegrationTest w
           await(wsClient.url(
             s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-shares-or-securities"
           )
+            .withHttpHeaders(xSessionId, csrfContent)
             .get())
         }
 
@@ -100,6 +101,7 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends IntegrationTest w
               wsClient.url(
                 s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-shares-or-securities"
               )
+                .withHttpHeaders(xSessionId, csrfContent)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
             )
           }
@@ -117,6 +119,7 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends IntegrationTest w
             await(wsClient.url(
               s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-shares-or-securities"
             )
+              .withHttpHeaders(xSessionId, csrfContent)
               .post(Map[String, String]()))
           }
 
@@ -160,7 +163,7 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends IntegrationTest w
           await(wsClient.url(
             s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-shares-or-securities"
           )
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .get())
         }
 
@@ -197,7 +200,7 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends IntegrationTest w
               wsClient.url(
                 s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-shares-or-securities"
               )
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
             )
           }
@@ -219,7 +222,7 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends IntegrationTest w
             await(wsClient.url(
               s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-shares-or-securities"
             )
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
               .post(Map[String, String]()))
           }
 

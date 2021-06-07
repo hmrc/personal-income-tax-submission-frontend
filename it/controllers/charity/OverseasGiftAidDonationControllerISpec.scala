@@ -36,8 +36,12 @@ class OverseasGiftAidDonationControllerISpec extends IntegrationTest {
         "returns an action" which {
           lazy val result: WSResponse = {
             authoriseIndividual()
-            await(wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/overseas-charity-donations-using-gift-aid").get())
+            await(
+              wsClient
+                .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/overseas-charity-donations-using-gift-aid")
+                .withHttpHeaders(xSessionId, csrfContent)
+                .get()
+            )
           }
 
           "has an OK(200) status" in {
@@ -54,8 +58,9 @@ class OverseasGiftAidDonationControllerISpec extends IntegrationTest {
           lazy val result: WSResponse = {
             authoriseIndividual()
             await(
-              wsClient.url(
-                s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/overseas-charity-donations-using-gift-aid")
+              wsClient
+                .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/overseas-charity-donations-using-gift-aid")
+                .withHttpHeaders(xSessionId, csrfContent)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
             )
           }
@@ -66,8 +71,12 @@ class OverseasGiftAidDonationControllerISpec extends IntegrationTest {
         s"return a BAD_REQUEST($BAD_REQUEST) status" in {
           lazy val result: WSResponse = {
             authoriseIndividual()
-            await(wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/overseas-charity-donations-using-gift-aid").post(Map[String, String]()))
+            await(
+              wsClient
+                .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/overseas-charity-donations-using-gift-aid")
+                .withHttpHeaders(xSessionId, csrfContent)
+                .post(Map[String, String]())
+            )
           }
 
           result.status shouldBe BAD_REQUEST
@@ -91,7 +100,7 @@ class OverseasGiftAidDonationControllerISpec extends IntegrationTest {
           authoriseAgent()
           await(wsClient.url(
             s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/overseas-charity-donations-using-gift-aid")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .get())
         }
 
@@ -115,7 +124,7 @@ class OverseasGiftAidDonationControllerISpec extends IntegrationTest {
             await(
               wsClient.url(
                 s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/overseas-charity-donations-using-gift-aid")
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
             )
           }
@@ -136,7 +145,7 @@ class OverseasGiftAidDonationControllerISpec extends IntegrationTest {
             authoriseAgent()
             await(wsClient.url(
               s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/overseas-charity-donations-using-gift-aid")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
               .post(Map[String, String]()))
           }
 
