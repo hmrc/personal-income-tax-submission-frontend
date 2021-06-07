@@ -39,7 +39,7 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
 
   lazy val controller = new UntaxedInterestController(
     view
-  )(mockAppConfig, authorisedAction, app.injector.instanceOf[QuestionsJourneyValidator], mockMessagesControllerComponents)
+  )(mockAppConfig, authorisedAction, app.injector.instanceOf[QuestionsJourneyValidator], mockInterestSessionService, mockErrorHandler, mockMessagesControllerComponents)
 
   val taxYear: Int = mockAppConfig.defaultTaxYear
   val id = "9563b361-6333-449f-8721-eab2572b3437"
@@ -99,10 +99,12 @@ class UntaxedInterestControllerSpec extends UnitTestWithApp {
 
         lazy val featureSwitchController = new UntaxedInterestController(
           view
-        )(mockAppConfFeatureSwitch, authorisedActionFeatureSwitch, app.injector.instanceOf[QuestionsJourneyValidator], mockMessagesControllerComponents)
+        )(mockAppConfFeatureSwitch, authorisedActionFeatureSwitch, app.injector.instanceOf[QuestionsJourneyValidator], mockInterestSessionService, mockErrorHandler, mockMessagesControllerComponents)
 
         val invalidTaxYear = 2023
-        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(fakeRequest.withSession(SessionValues.TAX_YEAR -> mockAppConfFeatureSwitch.defaultTaxYear.toString))
+        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(
+          fakeRequest.withSession(SessionValues.TAX_YEAR -> mockAppConfFeatureSwitch.defaultTaxYear.toString)
+        )
 
         redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show.url
 

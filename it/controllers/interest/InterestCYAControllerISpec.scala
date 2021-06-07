@@ -125,7 +125,7 @@ class InterestCYAControllerISpec extends IntegrationTest{
 
       s"handle no nino is in the enrolments" in {
         lazy val result = {
-          authoriseIndividual(false)
+          authoriseIndividual(None)
           stubGet(s"/income-through-software/return/$taxYear/view", OK, "")
           lazy val interestCYA = InterestCYAModel(
             Some(false), None,

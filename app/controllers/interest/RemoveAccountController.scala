@@ -18,7 +18,7 @@ package controllers.interest
 
 import common.InterestTaxTypes._
 import common.SessionValues
-import config.{AppConfig, INTEREST}
+import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
@@ -30,18 +30,22 @@ import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
 import play.api.mvc._
+import services.InterestSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.interest.RemoveAccountView
 
 import javax.inject.Inject
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class RemoveAccountController @Inject()(
-                                         view: RemoveAccountView
+                                         view: RemoveAccountView,
+                                         interestSessionService: InterestSessionService,
+                                         errorHandler: ErrorHandler
                                        )(
                                          implicit appConfig: AppConfig,
-                                         implicit val mcc: MessagesControllerComponents,
-                                         authorisedAction: AuthorisedAction
+                                         val mcc: MessagesControllerComponents,
+                                         authorisedAction: AuthorisedAction,
+                                         ec: ExecutionContext
                                        ) extends FrontendController(mcc) with I18nSupport with Logging{
 
 
@@ -50,75 +54,83 @@ class RemoveAccountController @Inject()(
   implicit def resultToFutureResult: Result => Future[Result] = baseResult => Future.successful(baseResult)
 
   def show(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
-    def overviewRedirect = Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+    def overviewRedirect: Result = Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
 
-    val optionalCyaData: Option[InterestCYAModel] = user.session.get(SessionValues.INTEREST_CYA).flatMap(Json.parse(_).asOpt[InterestCYAModel])
-    val priorSubmissionData = user.session.get(SessionValues.INTEREST_PRIOR_SUB).flatMap(Json.parse(_).asOpt[InterestPriorSubmission])
+    interestSessionService.getSessionData(taxYear).map { cya =>
+      val optionalCyaData: Option[InterestCYAModel] = cya.flatMap(_.interest)
+      val priorSubmissionData = user.session.get(SessionValues.INTEREST_PRIOR_SUB).flatMap(Json.parse(_).asOpt[InterestPriorSubmission])
 
-    val isPriorSubmission: Boolean =
-      priorSubmissionData.exists(_.submissions.getOrElse(Seq.empty[InterestAccountModel]).map(_.id.contains(accountId)).foldRight(false)(_ || _))
+      val isPriorSubmission: Boolean =
+        priorSubmissionData.exists(_.submissions.getOrElse(Seq.empty[InterestAccountModel]).map(_.id.contains(accountId)).foldRight(false)(_ || _))
 
-    if (isPriorSubmission) {
-      priorAccountExistsRedirect(taxType, taxYear)
-    } else {
-      optionalCyaData match {
-        case Some(cyaData) =>
-          getTaxAccounts(taxType, cyaData) match {
-            case Some(taxAccounts) if taxAccounts.nonEmpty =>
-              useAccount(taxAccounts, accountId, taxType, taxYear) { account =>
-                Ok(view(yesNoForm, taxYear, taxType, account, isLastAccount(taxType, priorSubmissionData, taxAccounts)))
-              }
-            case _ => missingAccountsRedirect(taxType, taxYear)
-          }
-        case _ =>
-          logger.info("[RemoveAccountController][show] No CYA data in session. Redirecting to the overview page.")
-          overviewRedirect
+      if (isPriorSubmission) {
+        priorAccountExistsRedirect(taxType, taxYear)
+      } else {
+        optionalCyaData match {
+          case Some(cyaData) =>
+            getTaxAccounts(taxType, cyaData) match {
+              case Some(taxAccounts) if taxAccounts.nonEmpty =>
+                useAccount(taxAccounts, accountId, taxType, taxYear) { account =>
+                  Ok(view(yesNoForm, taxYear, taxType, account, isLastAccount(taxType, priorSubmissionData, taxAccounts)))
+                }
+              case _ => missingAccountsRedirect(taxType, taxYear)
+            }
+          case _ =>
+            logger.info("[RemoveAccountController][show] No CYA data in session. Redirecting to the overview page.")
+            overviewRedirect
 
+        }
       }
     }
   }
 
   def submit(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] =
     (authorisedAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
-      val optionalCyaData: Option[InterestCYAModel] = user.session.get(SessionValues.INTEREST_CYA).flatMap(Json.parse(_).asOpt[InterestCYAModel])
-      val priorSubmissionData = user.session.get(SessionValues.INTEREST_PRIOR_SUB).flatMap(Json.parse(_).asOpt[InterestPriorSubmission])
-
-      yesNoForm.bindFromRequest().fold(
-        formWithErrors =>
-          optionalCyaData match {
-            case Some(cyaData) =>
-              getTaxAccounts(taxType, cyaData) match {
-                case Some(taxAccounts) if taxAccounts.nonEmpty =>
-                  useAccount(taxAccounts, accountId, taxType, taxYear)(account =>
-                    BadRequest(view(formWithErrors, taxYear, taxType, account, isLastAccount(taxType, priorSubmissionData, taxAccounts))))
-                case _ => missingAccountsRedirect(taxType, taxYear)
-              }
-            case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-          },
-        yesNoModel =>
-          optionalCyaData match {
-            case Some(cyaData) => removeAccount(taxYear, taxType, accountId, yesNoModel, cyaData)
-            case _ =>
-              logger.info("[RemoveAccountController][submit] No CYA data in session. Redirecting to the overview page.")
-              Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-          }
-      )
+      interestSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
+        yesNoForm.bindFromRequest().fold(
+          formWithErrors =>
+            Future.successful(cya match {
+              case Some(cyaData) =>
+                getTaxAccounts(taxType, cyaData) match {
+                  case Some(taxAccounts) if taxAccounts.nonEmpty =>
+                    useAccount(taxAccounts, accountId, taxType, taxYear)(account =>
+                      BadRequest(view(formWithErrors, taxYear, taxType, account, isLastAccount(taxType, prior, taxAccounts))))
+                  case _ => missingAccountsRedirect(taxType, taxYear)
+                }
+              case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+            }),
+          yesNoModel =>
+            cya match {
+              case Some(cyaData) => removeAccount(taxYear, taxType, accountId, yesNoModel, cyaData, prior)
+              case _ =>
+                logger.info("[RemoveAccountController][submit] No CYA data in session. Redirecting to the overview page.")
+                Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+            }
+        )
+      }.flatten
     }
+
+  def updateAndRedirect(cyaData: InterestCYAModel, taxYear: Int)(redirect: Result)(implicit user: User[_]): Future[Result] = {
+    interestSessionService.updateSessionData(cyaData, taxYear)(errorHandler.internalServerError())(
+      redirect
+    )
+  }
 
   private[interest] def removeAccount(
                                        taxYear: Int,
                                        taxType: String,
                                        accountId: String,
                                        yesNoModel: Boolean,
-                                       cyaData: InterestCYAModel
-                                     )(implicit user: User[_]): Result = {
+                                       cyaData: InterestCYAModel,
+                                       prior: Option[InterestPriorSubmission]
+                                     )(implicit user: User[_]): Future[Result] = {
 
     getTaxAccounts(taxType, cyaData) match {
       case Some(taxAccounts) if taxAccounts.nonEmpty =>
         if (yesNoModel) {
           val updatedAccounts = taxAccounts.filterNot(account => account.id.getOrElse(account.uniqueSessionId.getOrElse("")) == accountId)
           if (taxType == UNTAXED) {
-            handleUntaxedUpdate(taxYear, taxType, cyaData, updatedAccounts)
+            handleUntaxedUpdate(taxYear, taxType, cyaData, prior, updatedAccounts)
           } else {
             handleTaxedUpdate(taxYear, taxType, cyaData, updatedAccounts)
           }
@@ -130,39 +142,48 @@ class RemoveAccountController @Inject()(
   }
 
   private[interest] def handleTaxedUpdate(taxYear: Int, taxType: String, cyaData: InterestCYAModel, updatedAccounts: Seq[InterestAccountModel])
-                                         (implicit user: User[_]): Result = {
+                                         (implicit user: User[_]): Future[Result] = {
     val updatedCyaData = cyaData.copy(
       taxedUkInterest = Some(updatedAccounts.nonEmpty),
-      taxedUkAccounts = Some(updatedAccounts))
+      taxedUkAccounts = Some(updatedAccounts)
+    )
+
     if (updatedAccounts.nonEmpty) {
-      Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)).addingToSession(SessionValues.INTEREST_CYA -> updatedCyaData.asJsonString)
+      updateAndRedirect(updatedCyaData, taxYear)(Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)))
     } else {
-      Redirect(controllers.interest.routes.InterestCYAController.show(taxYear)).addingToSession(SessionValues.INTEREST_CYA -> updatedCyaData.asJsonString)
+      updateAndRedirect(updatedCyaData, taxYear)(Redirect(controllers.interest.routes.InterestCYAController.show(taxYear)))
     }
   }
 
-  private[interest] def handleUntaxedUpdate(taxYear: Int, taxType: String, cyaData: InterestCYAModel, updatedAccounts: Seq[InterestAccountModel])
-                                           (implicit user: User[_]): Result = {
+  private[interest] def handleUntaxedUpdate(
+                                             taxYear: Int,
+                                             taxType: String,
+                                             cyaData: InterestCYAModel,
+                                             priorData: Option[InterestPriorSubmission],
+                                             updatedAccounts: Seq[InterestAccountModel]
+                                           )
+                                           (implicit user: User[_]): Future[Result] = {
+
     val updatedCyaData = cyaData.copy(
       untaxedUkInterest = Some(updatedAccounts.nonEmpty),
       untaxedUkAccounts = Some(updatedAccounts)
     )
 
-    val priorTaxedExist: Boolean = user.session.get(SessionValues.INTEREST_PRIOR_SUB).flatMap(Json.parse(_).asOpt[InterestPriorSubmission]).exists(_.hasTaxed)
+    val priorTaxedExist: Boolean = priorData.exists(_.hasTaxed)
 
     if (updatedAccounts.nonEmpty) {
-      Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)).addingToSession(SessionValues.INTEREST_CYA -> updatedCyaData.asJsonString)
+      updateAndRedirect(updatedCyaData, taxYear)(Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)))
     } else if (priorTaxedExist) {
-      Redirect(controllers.interest.routes.InterestCYAController.show(taxYear)).addingToSession(SessionValues.INTEREST_CYA -> updatedCyaData.asJsonString)
+      updateAndRedirect(updatedCyaData, taxYear)(Redirect(controllers.interest.routes.InterestCYAController.show(taxYear)))
     } else {
-      Redirect(controllers.interest.routes.TaxedInterestController.show(taxYear)).addingToSession(SessionValues.INTEREST_CYA -> updatedCyaData.asJsonString)
+      updateAndRedirect(updatedCyaData, taxYear)(Redirect(controllers.interest.routes.TaxedInterestController.show(taxYear)))
     }
   }
 
   private[interest] def getTaxAccounts(taxType: String, cyaData: InterestCYAModel): Option[Seq[InterestAccountModel]] = {
     taxType match {
       case `TAXED` => cyaData.taxedUkAccounts
-      case `UNTAXED` => cyaData.untaxedUkAccounts
+      case _ => cyaData.untaxedUkAccounts
     }
   }
 
@@ -171,7 +192,7 @@ class RemoveAccountController @Inject()(
 
     taxType match {
       case `TAXED` => Redirect(controllers.interest.routes.TaxedInterestController.show(taxYear))
-      case `UNTAXED` => Redirect(controllers.interest.routes.UntaxedInterestController.show(taxYear))
+      case _ => Redirect(controllers.interest.routes.UntaxedInterestController.show(taxYear))
     }
   }
 
@@ -197,7 +218,7 @@ class RemoveAccountController @Inject()(
         } else {
           taxAccounts.length == 1
         }
-      case UNTAXED =>
+      case _ =>
         if (priorSubmission.getOrElse(blankPriorSub).hasUntaxed) {
           false
         } else {

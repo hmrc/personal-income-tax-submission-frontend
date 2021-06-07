@@ -41,10 +41,13 @@ class ReceiveOtherUkDividendsControllerSpec extends UnitTestWithApp {
     authorisedAction,
     app.injector.instanceOf[ReceiveOtherUkDividendsView],
     app.injector.instanceOf[QuestionsJourneyValidator],
-    mockAppConfig
+    mockDividendsSessionService,
+    mockErrorHandler,
+    mockAppConfig,
+    mockExecutionContext
   )
 
-  val taxYear = mockAppConfig.defaultTaxYear
+  val taxYear: Int = mockAppConfig.defaultTaxYear
 
   ".show" should {
 
@@ -55,7 +58,7 @@ class ReceiveOtherUkDividendsControllerSpec extends UnitTestWithApp {
           .withSession(
             SessionValues.TAX_YEAR -> taxYear.toString,
             SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(None, None, Some(true), None).asJsonString)
-          )
+        )
 
         status(result) shouldBe OK
       }
@@ -123,7 +126,7 @@ class ReceiveOtherUkDividendsControllerSpec extends UnitTestWithApp {
 
       "an invalid tax year has been added to the url" in new TestWithAuth() {
 
-        val mockAppConfFeatureSwitch: AppConfig = new AppConfig(mock[ServicesConfig]){
+        val mockAppConfFeatureSwitch: AppConfig = new AppConfig(mock[ServicesConfig]) {
           override lazy val defaultTaxYear: Int = 2022
           override lazy val taxYearErrorFeature = true
         }
@@ -136,11 +139,16 @@ class ReceiveOtherUkDividendsControllerSpec extends UnitTestWithApp {
           authorisedActionFeatureSwitch,
           app.injector.instanceOf[ReceiveOtherUkDividendsView],
           app.injector.instanceOf[QuestionsJourneyValidator],
-          mockAppConfFeatureSwitch
+          mockDividendsSessionService,
+          mockErrorHandler,
+          mockAppConfFeatureSwitch,
+          mockExecutionContext
         )
 
         val invalidTaxYear = 2023
-        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(fakeRequest.withSession(SessionValues.TAX_YEAR -> mockAppConfFeatureSwitch.defaultTaxYear.toString))
+        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(
+          fakeRequest.withSession(SessionValues.TAX_YEAR -> mockAppConfFeatureSwitch.defaultTaxYear.toString)
+        )
 
         redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show.url
 
@@ -230,7 +238,7 @@ class ReceiveOtherUkDividendsControllerSpec extends UnitTestWithApp {
       }
 
       "cya data does not exist" in new TestWithAuth {
-        val expectedModel = DividendsCheckYourAnswersModel(
+        val expectedModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(
           otherUkDividends = Some(true)
         )
 
@@ -245,7 +253,7 @@ class ReceiveOtherUkDividendsControllerSpec extends UnitTestWithApp {
 
     "throw a bad request" when {
 
-      "the form is not filled" in new TestWithAuth{
+      "the form is not filled" in new TestWithAuth {
         val result: Future[Result] = controller.submit(taxYear)(fakeRequest)
 
         status(result) shouldBe BAD_REQUEST

@@ -17,12 +17,11 @@
 package controllers.dividends
 
 import common.SessionValues
-import controllers.dividends.routes.{DividendsCYAController, OtherUkDividendsAmountController}
 import forms.YesNoForm
 import helpers.PlaySessionCookieBaker
+import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.{WSClient, WSResponse}
@@ -125,7 +124,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
         s"return a Redirect($SEE_OTHER) to the other uk dividend amount page" in {
           result.status shouldBe SEE_OTHER
-          result.header(HeaderNames.LOCATION) shouldBe Some(OtherUkDividendsAmountController.show(taxYear).url)
+          result.header(HeaderNames.LOCATION) shouldBe Some(routes.OtherUkDividendsAmountController.show(taxYear).url)
         }
       }
 
@@ -140,7 +139,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
         }
 
         result.status shouldBe SEE_OTHER
-        result.header(HeaderNames.LOCATION) shouldBe Some(DividendsCYAController.show(taxYear).url)
+        result.header(HeaderNames.LOCATION) shouldBe Some(routes.DividendsCYAController.show(taxYear).url)
       }
 
       s"return a BAD_REQUEST($BAD_REQUEST) status" in {

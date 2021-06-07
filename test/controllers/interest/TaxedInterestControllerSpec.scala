@@ -38,7 +38,15 @@ class TaxedInterestControllerSpec extends UnitTestWithApp with DefaultAwaitTimeo
 
   lazy val controller = new TaxedInterestController(
     app.injector.instanceOf[TaxedInterestView]
-  )(mockAppConfig, authorisedAction, mockMessagesControllerComponents, app.injector.instanceOf[QuestionsJourneyValidator])
+  )(
+    mockAppConfig,
+    authorisedAction,
+    mockInterestSessionService,
+    mockErrorHandler,
+    mockMessagesControllerComponents,
+    app.injector.instanceOf[QuestionsJourneyValidator],
+    mockExecutionContext
+  )
 
   val taxYear: Int = mockAppConfig.defaultTaxYear
   val id = "9563b361-6333-449f-8721-eab2572b3437"
@@ -110,10 +118,20 @@ class TaxedInterestControllerSpec extends UnitTestWithApp with DefaultAwaitTimeo
 
       lazy val featureSwitchController = new TaxedInterestController(
         app.injector.instanceOf[TaxedInterestView]
-      )(mockAppConfFeatureSwitch, authorisedActionFeatureSwitch, mockMessagesControllerComponents, app.injector.instanceOf[QuestionsJourneyValidator])
+      )(
+        mockAppConfFeatureSwitch,
+        authorisedActionFeatureSwitch,
+        mockInterestSessionService,
+        mockErrorHandler,
+        mockMessagesControllerComponents,
+        app.injector.instanceOf[QuestionsJourneyValidator],
+        mockExecutionContext
+      )
 
       val invalidTaxYear = 2023
-      lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(fakeRequest.withSession(SessionValues.TAX_YEAR -> mockAppConfFeatureSwitch.defaultTaxYear.toString))
+      lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(
+        fakeRequest.withSession(SessionValues.TAX_YEAR -> mockAppConfFeatureSwitch.defaultTaxYear.toString)
+      )
 
       redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show.url
 

@@ -188,7 +188,7 @@ class AuthorisedActionSpec extends UnitTest {
             .expects(*, *, *, *)
             .returning(Future.successful(enrolments))
 
-          auth.agentAuthentication(block, AffinityGroup.Agent)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
+          auth.agentAuthentication(block)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
         }
 
         "has a status of OK" in {
@@ -208,7 +208,7 @@ class AuthorisedActionSpec extends UnitTest {
 
         lazy val result = {
           mockAuthReturnException(AuthException)
-          auth.agentAuthentication(block, AffinityGroup.Agent)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
+          auth.agentAuthentication(block)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
         }
         status(result) shouldBe SEE_OTHER
       }
@@ -222,7 +222,7 @@ class AuthorisedActionSpec extends UnitTest {
 
         lazy val result = {
           mockAuthReturnException(NoActiveSession)
-          auth.agentAuthentication(block, AffinityGroup.Agent)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
+          auth.agentAuthentication(block)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
         }
 
         status(result) shouldBe SEE_OTHER
@@ -240,7 +240,7 @@ class AuthorisedActionSpec extends UnitTest {
           (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
             .expects(*, *, *, *)
             .returning(Future.successful(enrolments))
-          auth.agentAuthentication(block, AffinityGroup.Agent)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
+          auth.agentAuthentication(block)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
         }
         status(result) shouldBe SEE_OTHER
       }

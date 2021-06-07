@@ -19,7 +19,6 @@ package controllers.interest
 import common.InterestTaxTypes._
 import common.SessionValues
 import config.AppConfig
-import controllers.interest.routes.TaxedInterestController
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.http.HeaderNames
@@ -40,7 +39,12 @@ class TaxedInterestAmountControllerSpec extends UnitTestWithApp with DefaultAwai
   implicit def wrapOptional[T](input: T): Option[T] = Some(input)
 
   lazy val controller = new TaxedInterestAmountController(app.injector.instanceOf[TaxedInterestAmountView])(
-    mockAppConfig, authorisedAction, mockMessagesControllerComponents, app.injector.instanceOf[QuestionsJourneyValidator]
+    mockAppConfig,
+    authorisedAction,
+    mockInterestSessionService,
+    mockErrorHandler,
+    mockMessagesControllerComponents,
+    app.injector.instanceOf[QuestionsJourneyValidator]
   )
 
   val taxYear: Int = mockAppConfig.defaultTaxYear
@@ -99,7 +103,7 @@ class TaxedInterestAmountControllerSpec extends UnitTestWithApp with DefaultAwai
           ))
         }
         status(result) shouldBe SEE_OTHER
-        Helpers.header(HeaderNames.LOCATION, result) shouldBe Some(TaxedInterestController.show(taxYear).url)
+        Helpers.header(HeaderNames.LOCATION, result) shouldBe Some(routes.TaxedInterestController.show(taxYear).url)
       }
 
       "taxedInterestAmount in session data but the taxedInterest boolean is not defined" in new TestWithAuth {
@@ -110,7 +114,7 @@ class TaxedInterestAmountControllerSpec extends UnitTestWithApp with DefaultAwai
           ))
         }
         status(result) shouldBe SEE_OTHER
-        Helpers.header(HeaderNames.LOCATION, result) shouldBe Some(TaxedInterestController.show(taxYear).url)
+        Helpers.header(HeaderNames.LOCATION, result) shouldBe Some(routes.TaxedInterestController.show(taxYear).url)
       }
     }
 
@@ -141,11 +145,18 @@ class TaxedInterestAmountControllerSpec extends UnitTestWithApp with DefaultAwai
         agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
 
       lazy val featureSwitchController = new TaxedInterestAmountController(app.injector.instanceOf[TaxedInterestAmountView])(
-        mockAppConfFeatureSwitch, authorisedActionFeatureSwitch, mockMessagesControllerComponents, app.injector.instanceOf[QuestionsJourneyValidator]
+        mockAppConfFeatureSwitch,
+        authorisedActionFeatureSwitch,
+        mockInterestSessionService,
+        mockErrorHandler,
+        mockMessagesControllerComponents,
+        app.injector.instanceOf[QuestionsJourneyValidator]
       )
 
       val invalidTaxYear = 2023
-      lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear, id)(fakeRequest.withSession(SessionValues.TAX_YEAR -> mockAppConfFeatureSwitch.defaultTaxYear.toString))
+      lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear, id)(
+        fakeRequest.withSession(SessionValues.TAX_YEAR -> mockAppConfFeatureSwitch.defaultTaxYear.toString)
+      )
 
       redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show.url
 

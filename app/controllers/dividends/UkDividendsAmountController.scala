@@ -16,32 +16,35 @@
 
 package controllers.dividends
 
-import common.SessionValues
-import config.{AppConfig, DIVIDENDS}
-import controllers.dividends.routes.UkDividendsAmountController
+import config.{AppConfig, DIVIDENDS, ErrorHandler}
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.AmountForm
-import models.question.QuestionsJourney
 import models.User
 import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
+import models.question.QuestionsJourney
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import play.twirl.api.Html
+import services.DividendsSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.dividends.UkDividendsAmountView
 
 import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
 class UkDividendsAmountController @Inject()(
                                              implicit val cc: MessagesControllerComponents,
                                              authAction: AuthorisedAction,
                                              ukDividendsAmountView: UkDividendsAmountView,
                                              questionHelper: QuestionsJourneyValidator,
-                                             implicit val appConfig: AppConfig
+                                             dividendsSessionService: DividendsSessionService,
+                                             errorHandler: ErrorHandler,
+                                             implicit val appConfig: AppConfig,
+                                             ec: ExecutionContext
                                            ) extends FrontendController(cc) with I18nSupport with SessionHelper {
 
   def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
@@ -64,62 +67,66 @@ class UkDividendsAmountController @Inject()(
       form = formInput,
       priorSubmission = priorSubmission,
       taxYear = taxYear,
-      postAction = UkDividendsAmountController.submit(taxYear),
+      postAction = controllers.dividends.routes.UkDividendsAmountController.submit(taxYear),
       preAmount = preAmount
     )
 
   }
 
-  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).apply { implicit user =>
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
     implicit val questionsJourney: QuestionsJourney[DividendsCheckYourAnswersModel] = DividendsCheckYourAnswersModel.journey(taxYear)
-    val priorSubmission: Option[DividendsPriorSubmission] = getModelFromSession[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
-    val cyaModel: Option[DividendsCheckYourAnswersModel] = getModelFromSession[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA)
 
-    questionHelper.validate(UkDividendsAmountController.show(taxYear), cyaModel, taxYear) {
-      val priorUkDividendAmount: Option[BigDecimal] = priorSubmission.flatMap(_.ukDividends)
-      val cyaUkDividendAmount: Option[BigDecimal] = cyaModel.flatMap(_.ukDividendsAmount)
+    dividendsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (optionalCya, optionalPrior) =>
 
-      val amountForm = (priorUkDividendAmount, cyaUkDividendAmount) match {
-        case (priorAmountOpt, Some(cyaAmount)) if !priorAmountOpt.contains(cyaAmount) => form(user.isAgent, taxYear).fill(cyaAmount)
-        case (None, Some(cyaAmount)) => form(user.isAgent, taxYear).fill(cyaAmount)
-        case _ => form(user.isAgent, taxYear)
+      questionHelper.validate(controllers.dividends.routes.UkDividendsAmountController.show(taxYear), optionalCya, taxYear) {
+        val priorUkDividendAmount: Option[BigDecimal] = optionalPrior.flatMap(_.ukDividends)
+        val cyaUkDividendAmount: Option[BigDecimal] = optionalCya.flatMap(_.ukDividendsAmount)
+
+        val amountForm = (priorUkDividendAmount, cyaUkDividendAmount) match {
+          case (priorAmountOpt, Some(cyaAmount)) if !priorAmountOpt.contains(cyaAmount) => form(user.isAgent, taxYear).fill(cyaAmount)
+          case (None, Some(cyaAmount)) => form(user.isAgent, taxYear).fill(cyaAmount)
+          case _ => form(user.isAgent, taxYear)
+        }
+
+        (optionalPrior, optionalCya) match {
+          case (Some(submission: DividendsPriorSubmission), _) => Ok(view(amountForm, Some(submission), taxYear, cyaUkDividendAmount))
+          case (None, Some(cya)) => Ok(view(amountForm, taxYear = taxYear, preAmount = cya.ukDividendsAmount))
+          case _ => Ok(view(form(user.isAgent, taxYear), taxYear = taxYear))
+        }
       }
 
-      (priorSubmission, cyaModel) match {
-        case (Some(submission: DividendsPriorSubmission), _) => Ok(view(amountForm, Some(submission), taxYear, cyaUkDividendAmount))
-        case (None, Some(cya)) => Ok(view(amountForm, taxYear = taxYear, preAmount = cya.ukDividendsAmount))
-        case _ => Ok(view(form(user.isAgent, taxYear), taxYear = taxYear))
-      }
     }
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, DIVIDENDS)) { implicit user =>
-
-    implicit val priorSubmissionSessionData: Option[DividendsPriorSubmission] = {
-      getModelFromSession[DividendsPriorSubmission](SessionValues.DIVIDENDS_PRIOR_SUB)
-    }
-    val previousAmount: Option[BigDecimal] =
-      getModelFromSession[DividendsCheckYourAnswersModel](SessionValues.DIVIDENDS_CYA).flatMap(_.ukDividendsAmount)
-
-    form(user.isAgent, taxYear).bindFromRequest().fold(
-          {
-            formWithErrors => BadRequest(view(formWithErrors, priorSubmission = priorSubmissionSessionData, taxYear = taxYear, preAmount = previousAmount))
-          },
-          {
-            bigDecimal =>
-              DividendsCheckYourAnswersModel.fromSession().fold {
-                Redirect(redirectLocation(taxYear, None))
-                  .addingToSession(SessionValues.DIVIDENDS_CYA ->
-                    DividendsCheckYourAnswersModel().copy(ukDividends = Some(true), ukDividendsAmount = Some(bigDecimal)).asJsonString)
-              } {
-                cyaModel =>
-                  Redirect(redirectLocation(taxYear, Some(cyaModel.copy(ukDividends = Some(true), ukDividendsAmount = Some(bigDecimal)))))
-                    .addingToSession(SessionValues.DIVIDENDS_CYA ->
-                      cyaModel.copy(ukDividends = Some(true), ukDividendsAmount = Some(bigDecimal)).asJsonString)
-              }
-          }
-        )
-
+  def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, DIVIDENDS)).async { implicit user =>
+    dividendsSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (optionalCya, optionalPrior) =>
+      form(user.isAgent, taxYear).bindFromRequest().fold(
+        {
+          formWithErrors => Future.successful(BadRequest(view(
+            formWithErrors, priorSubmission = optionalPrior, taxYear = taxYear, preAmount = optionalCya.flatMap(_.ukDividendsAmount)
+          )))
+        },
+        {
+          bigDecimal =>
+            optionalCya.fold {
+              dividendsSessionService.createSessionData(
+                DividendsCheckYourAnswersModel().copy(ukDividends = Some(true), ukDividendsAmount = Some(bigDecimal)), taxYear
+              )(
+                InternalServerError(errorHandler.internalServerErrorTemplate)
+              )(
+                Redirect(redirectLocation(taxYear, None)(optionalPrior))
+              )
+            } {
+              cyaModel =>
+                dividendsSessionService.updateSessionData(cyaModel.copy(ukDividends = Some(true), ukDividendsAmount = Some(bigDecimal)), taxYear)(
+                  InternalServerError(errorHandler.internalServerErrorTemplate)
+                )(
+                  Redirect(redirectLocation(taxYear, Some(cyaModel.copy(ukDividends = Some(true), ukDividendsAmount = Some(bigDecimal))))(optionalPrior))
+                )
+            }
+        }
+      )
+    }.flatten
   }
 
   private[dividends] def redirectLocation(taxYear: Int, cyaData: Option[DividendsCheckYourAnswersModel])(

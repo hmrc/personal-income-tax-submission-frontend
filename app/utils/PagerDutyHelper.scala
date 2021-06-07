@@ -26,6 +26,7 @@ object PagerDutyHelper extends Logging {
     val INTERNAL_SERVER_ERROR_FROM_API: PagerDutyKeys.Value = Value
     val UNEXPECTED_RESPONSE_FROM_API: PagerDutyKeys.Value = Value
     val FOURXX_RESPONSE_FROM_API: PagerDutyKeys.Value = Value
+    val NOT_FOUND_FROM_API: PagerDutyKeys.Value = Value
   }
 
   def pagerDutyLog(pagerDutyKey: PagerDutyKeys.Value, otherDetail: Option[String] = None): Unit = {

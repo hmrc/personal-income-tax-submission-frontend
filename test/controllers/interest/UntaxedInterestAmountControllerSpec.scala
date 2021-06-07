@@ -19,7 +19,6 @@ package controllers.interest
 import common.InterestTaxTypes.UNTAXED
 import common.SessionValues
 import config.AppConfig
-import controllers.interest.routes.{ChangeAccountAmountController, UntaxedInterestController}
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.http.HeaderNames
@@ -43,8 +42,12 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp with DefaultAw
     mockMessagesControllerComponents,
     authorisedAction,
     view,
+    mockInterestSessionService,
+    mockErrorHandler,
     mockAppConfig,
-    app.injector.instanceOf[QuestionsJourneyValidator])
+    app.injector.instanceOf[QuestionsJourneyValidator],
+    mockExecutionContext
+  )
 
   val taxYear: Int = mockAppConfig.defaultTaxYear
   val id = "9563b361-6333-449f-8721-eab2572b3437"
@@ -66,7 +69,7 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp with DefaultAw
           ))
 
         status(result) shouldBe SEE_OTHER
-        redirectUrl(result) shouldBe ChangeAccountAmountController.show(taxYear, UNTAXED, "qwerty").url
+        redirectUrl(result) shouldBe routes.ChangeAccountAmountController.show(taxYear, UNTAXED, "qwerty").url
       }
 
       "modifying an existing session, with CYA data" in new TestWithAuth {
@@ -100,7 +103,7 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp with DefaultAw
           ))
         }
         status(result) shouldBe SEE_OTHER
-        Helpers.header(HeaderNames.LOCATION, result) shouldBe Some(UntaxedInterestController.show(taxYear).url)
+        Helpers.header(HeaderNames.LOCATION, result) shouldBe Some(routes.UntaxedInterestController.show(taxYear).url)
       }
       "untaxedInterestAmount in session data but the untaxedInterest boolean is not defined" in new TestWithAuth {
         lazy val result: Future[Result] = {
@@ -110,7 +113,7 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp with DefaultAw
           ))
         }
         status(result) shouldBe SEE_OTHER
-        Helpers.header(HeaderNames.LOCATION, result) shouldBe Some(UntaxedInterestController.show(taxYear).url)
+        Helpers.header(HeaderNames.LOCATION, result) shouldBe Some(routes.UntaxedInterestController.show(taxYear).url)
       }
     }
 
@@ -136,17 +139,26 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp with DefaultAw
           override lazy val taxYearErrorFeature = true
         }
 
-        val authorisedActionFeatureSwitchOn = new AuthorisedAction(mockAppConfFeatureSwitch,
-          agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
+        val authorisedActionFeatureSwitchOn = new AuthorisedAction(
+          mockAppConfFeatureSwitch,
+          agentAuthErrorPageView
+        )(mockAuthService, stubMessagesControllerComponents())
 
-        lazy val featureSwitchController = new UntaxedInterestAmountController()(mockMessagesControllerComponents,
-          authorisedActionFeatureSwitchOn,view, mockAppConfFeatureSwitch, app.injector.instanceOf[QuestionsJourneyValidator])
+        lazy val featureSwitchController = new UntaxedInterestAmountController()(
+          mockMessagesControllerComponents,
+          authorisedActionFeatureSwitchOn,
+          view,
+          mockInterestSessionService,
+          mockErrorHandler,
+          mockAppConfFeatureSwitch,
+          app.injector.instanceOf[QuestionsJourneyValidator],
+          mockExecutionContext
+        )
 
         val invalidTaxYear = 2023
         lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear, id)(fakeRequest)
 
         redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show.url
-
       }
     }
   }

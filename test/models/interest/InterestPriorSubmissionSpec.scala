@@ -169,7 +169,7 @@ class InterestPriorSubmissionSpec extends UnitTest {
     "return an InterestPriorSubmission" when {
 
       "there is prior data in session" in {
-        val user = User[AnyContent]("1234567890", None, "AA123456A", "Individual")(fakeRequest.withSession(
+        val user = User[AnyContent]("1234567890", None, "AA123456A", "Individual", sessionId)(fakeRequest.withSession(
           SessionValues.INTEREST_PRIOR_SUB -> Json.stringify(Json.arr(
             Json.obj(
               "accountName" -> "Account1",
@@ -192,7 +192,7 @@ class InterestPriorSubmissionSpec extends UnitTest {
     "return a None" when {
 
       "there is no prior data in session" in {
-        val user: User[AnyContent] = User[AnyContent]("1234567890", None, "AA123456A", "Individual")(fakeRequest)
+        val user: User[AnyContent] = User[AnyContent]("1234567890", None, "AA123456A", "Individual", sessionId)(fakeRequest)
 
         InterestPriorSubmission.fromSession()(user) shouldBe None
       }

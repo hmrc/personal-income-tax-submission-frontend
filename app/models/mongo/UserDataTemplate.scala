@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package models
+package models.mongo
 
-import play.api.mvc.{Request, WrappedRequest}
-
-case class User[T](mtditid: String, arn: Option[String], nino: String, affinityGroup: String, sessionId: String)
-                  (implicit request: Request[T]) extends WrappedRequest[T](request) {
-
-  def isAgent: Boolean = arn.nonEmpty
-
+trait UserDataTemplate {
+  val sessionId: String
+  val mtditid: String
+  val nino: String
+  val taxYear: Int
 }

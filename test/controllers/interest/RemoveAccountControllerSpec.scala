@@ -37,8 +37,10 @@ class RemoveAccountControllerSpec extends UnitTestWithApp {
   implicit def wrapOption[T](input: T): Option[T] = Some(input)
 
   lazy val controller = new RemoveAccountController(
-    app.injector.instanceOf[RemoveAccountView]
-  )(mockAppConfig, mockMessagesControllerComponents, authorisedAction)
+    app.injector.instanceOf[RemoveAccountView],
+    mockInterestSessionService,
+    mockErrorHandler
+  )(mockAppConfig, mockMessagesControllerComponents, authorisedAction, mockExecutionContext)
 
   val taxYear: Int = mockAppConfig.defaultTaxYear
   val untaxedId1 = "UntaxedId1"
@@ -237,8 +239,10 @@ class RemoveAccountControllerSpec extends UnitTestWithApp {
           agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
 
         lazy val featureSwitchController = new RemoveAccountController(
-          app.injector.instanceOf[RemoveAccountView]
-        )(mockAppConfFeatureSwitch, mockMessagesControllerComponents, authorisedActionFeatureSwitch)
+          app.injector.instanceOf[RemoveAccountView],
+          mockInterestSessionService,
+          mockErrorHandler
+        )(mockAppConfFeatureSwitch, mockMessagesControllerComponents, authorisedActionFeatureSwitch, mockExecutionContext)
 
         val invalidTaxYear = 2023
         lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear, TAXED, untaxedId1)(fakeRequest)

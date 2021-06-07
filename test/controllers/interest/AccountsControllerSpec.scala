@@ -47,11 +47,13 @@ class AccountsControllerSpec extends UnitTestWithApp {
 
   lazy val controller = new AccountsController(
     app.injector.instanceOf[InterestAccountsView],
-    uuidGenerator
+    uuidGenerator,
+    mockInterestSessionService
   )(
     mockAppConfig,
     mockMessagesControllerComponents,
-    authorisedAction
+    authorisedAction,
+    mockExecutionContext
   )
 
   lazy val interestCyaModel: InterestCYAModel = InterestCYAModel(
@@ -178,7 +180,10 @@ class AccountsControllerSpec extends UnitTestWithApp {
           agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
 
         lazy val featureSwitchController = new AccountsController(
-          app.injector.instanceOf[InterestAccountsView], uuidGenerator)(mockAppConfFeatureSwitch, mockMessagesControllerComponents, authorisedActionFeatureSwitch)
+          app.injector.instanceOf[InterestAccountsView],
+          uuidGenerator,
+          mockInterestSessionService
+        )(mockAppConfFeatureSwitch, mockMessagesControllerComponents, authorisedActionFeatureSwitch, mockExecutionContext)
 
 
         val invalidTaxYear = 2023

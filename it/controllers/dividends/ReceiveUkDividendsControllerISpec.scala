@@ -17,12 +17,11 @@
 package controllers.dividends
 
 import common.SessionValues
-import controllers.dividends.routes.{DividendsCYAController, ReceiveOtherUkDividendsController, UkDividendsAmountController}
 import forms.YesNoForm
 import helpers.PlaySessionCookieBaker
+import models.dividends.DividendsCheckYourAnswersModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import models.dividends.DividendsCheckYourAnswersModel
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.{WSClient, WSResponse}
@@ -112,7 +111,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           }
 
           result.status shouldBe SEE_OTHER
-          result.header(HeaderNames.LOCATION) shouldBe Some(UkDividendsAmountController.show(taxYear).url)
+          result.header(HeaderNames.LOCATION) shouldBe Some(routes.UkDividendsAmountController.show(taxYear).url)
         }
 
         "there is form data and answer to question is 'No'" in {
@@ -128,7 +127,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           }
 
           result.status shouldBe SEE_OTHER
-          result.header(HeaderNames.LOCATION) shouldBe Some(ReceiveOtherUkDividendsController.show(taxYear).url)
+          result.header(HeaderNames.LOCATION) shouldBe Some(routes.ReceiveOtherUkDividendsController.show(taxYear).url)
         }
 
         "there is form data and answer to question is 'No' and the cyaModel is completed" in {
@@ -148,7 +147,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           }
 
           result.status shouldBe SEE_OTHER
-          result.header(HeaderNames.LOCATION) shouldBe Some(DividendsCYAController.show(taxYear).url)
+          result.header(HeaderNames.LOCATION) shouldBe Some(routes.DividendsCYAController.show(taxYear).url)
         }
 
       }
@@ -237,7 +236,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           }
 
           result.status shouldBe SEE_OTHER
-          result.header(HeaderNames.LOCATION) shouldBe Some(UkDividendsAmountController.show(taxYear).url)
+          result.header(HeaderNames.LOCATION) shouldBe Some(routes.UkDividendsAmountController.show(taxYear).url)
         }
       }
 

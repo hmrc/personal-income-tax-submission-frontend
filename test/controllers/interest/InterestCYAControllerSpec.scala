@@ -54,7 +54,8 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
     view,
     submissionService,
     mockAuditService,
-    errorHandler
+    errorHandler,
+    mockInterestSessionService
   )(mockAppConfig, authorisedAction, mockMessagesControllerComponents)
 
   val taxYear: Int = mockAppConfig.defaultTaxYear
@@ -215,7 +216,8 @@ class InterestCYAControllerSpec extends UnitTestWithApp with GivenWhenThen with 
           view,
           submissionService,
           mockAuditService,
-          errorHandler
+          errorHandler,
+          mockInterestSessionService
         )(mockAppConfFeatureSwitch, authorisedActionFeatureSwitch, mockMessagesControllerComponents)
 
         val invalidTaxYear = 2023

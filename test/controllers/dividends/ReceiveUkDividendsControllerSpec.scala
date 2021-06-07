@@ -38,10 +38,13 @@ class ReceiveUkDividendsControllerSpec extends UnitTestWithApp {
     authorisedAction,
     app.injector.instanceOf[ReceiveUkDividendsView],
     app.injector.instanceOf[QuestionsJourneyValidator],
-    mockAppConfig
+    mockErrorHandler,
+    mockAppConfig,
+    mockDividendsSessionService,
+    mockExecutionContext
   )
 
-  val taxYear = mockAppConfig.defaultTaxYear
+  val taxYear: Int = mockAppConfig.defaultTaxYear
 
   ".show" should {
 
@@ -105,7 +108,10 @@ class ReceiveUkDividendsControllerSpec extends UnitTestWithApp {
           authorisedActionFeatureSwitch,
           app.injector.instanceOf[ReceiveUkDividendsView],
           app.injector.instanceOf[QuestionsJourneyValidator],
-          mockAppConfFeatureSwitch
+          mockErrorHandler,
+          mockAppConfFeatureSwitch,
+          mockDividendsSessionService,
+          mockExecutionContext
         )
 
 
