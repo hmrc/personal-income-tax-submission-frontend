@@ -19,22 +19,22 @@ package controllers.interest
 import common.InterestTaxTypes.TAXED
 import common.{InterestTaxTypes, SessionValues}
 import config.{AppConfig, INTEREST}
+import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
-import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
-import forms.interest.TaxedInterestAmountForm
-import models.interest.{InterestAccountModel, InterestCYAModel, TaxedInterestModel}
 import models.question.QuestionsJourney
-import play.api.Logging
+import models.interest.{InterestAccountModel, InterestCYAModel, TaxedInterestModel}
+import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.InterestSessionHelper
 import views.html.interest.TaxedInterestAmountView
-
 import java.util.UUID.randomUUID
+import forms.interest.TaxedInterestAmountForm
 import javax.inject.Inject
+
 import scala.concurrent.ExecutionContext
 
 class TaxedInterestAmountController @Inject()(
@@ -44,9 +44,16 @@ class TaxedInterestAmountController @Inject()(
                                                authorisedAction: AuthorisedAction,
                                                implicit val mcc: MessagesControllerComponents,
                                                questionsJourneyValidator: QuestionsJourneyValidator
-                                             ) extends FrontendController(mcc) with InterestSessionHelper with I18nSupport with Logging {
+                                             ) extends FrontendController(mcc) with InterestSessionHelper with I18nSupport {
+
+  def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
+  def taxedInterestAmountForm(implicit isAgent: Boolean): Form[TaxedInterestModel] = TaxedInterestAmountForm.taxedInterestAmountForm(
+    emptyAmountKey = "interest.taxed-uk-interest-amount.error.empty." + agentOrIndividual,
+    invalidNumericKey = "interest.taxed-uk-interest-amount.error.invalid-numeric",
+    maxAmountInvalidKey = "interest.taxed-uk-interest-amount.error.max-amount"
+  )
 
   def show(taxYear: Int, id: String): Action[AnyContent] = commonPredicates(taxYear, INTEREST).apply { implicit user =>
 
@@ -54,11 +61,7 @@ class TaxedInterestAmountController @Inject()(
 
     val idMatchesPreviouslySubmittedAccount: Boolean = optionalCyaData.flatMap(_.taxedUkAccounts.map(_.exists(_.id.contains(id)))).getOrElse(false)
 
-    val previousNames: Seq[String] = optionalCyaData.flatMap(_.taxedUkAccounts.map(_.map(_.accountName))).getOrElse(Seq.empty[String])
-
     implicit val journey: QuestionsJourney[InterestCYAModel] = InterestCYAModel.interestJourney(taxYear, Some(id))
-
-    lazy val taxedInterestAmountForm: Form[TaxedInterestModel] = TaxedInterestAmountForm.taxedInterestAmountForm(previousNames)
 
     questionsJourneyValidator.validate(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id), optionalCyaData, taxYear) {
 
@@ -80,7 +83,7 @@ class TaxedInterestAmountController @Inject()(
         }
 
         Ok(taxedInterestAmountView(
-          form = model.fold(taxedInterestAmountForm)(taxedInterestAmountForm.fill),
+          form = model.fold(taxedInterestAmountForm(user.isAgent))(taxedInterestAmountForm(user.isAgent).fill),
           taxYear,
           controllers.interest.routes.TaxedInterestAmountController.submit(taxYear, id),
           isAgent = user.isAgent
@@ -92,14 +95,7 @@ class TaxedInterestAmountController @Inject()(
   }
 
   def submit(taxYear: Int, id: String): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, INTEREST)) { implicit user =>
-
-    val optionalCyaData = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
-
-    val previousNames: Seq[String] = optionalCyaData.flatMap(_.taxedUkAccounts.map(_.map(_.accountName))).getOrElse(Seq.empty[String])
-
-    lazy val taxedInterestAmountForm: Form[TaxedInterestModel] = TaxedInterestAmountForm.taxedInterestAmountForm(previousNames)
-
-    taxedInterestAmountForm.bindFromRequest().fold({
+    taxedInterestAmountForm(user.isAgent).bindFromRequest().fold({
       formWithErrors =>
         BadRequest(taxedInterestAmountView(
           form = formWithErrors,
@@ -134,7 +130,7 @@ class TaxedInterestAmountController @Inject()(
             Redirect(controllers.interest.routes.AccountsController.show(taxYear, InterestTaxTypes.TAXED))
               .addingToSession(SessionValues.INTEREST_CYA -> updatedCyaModel.asJsonString)
           case _ =>
-            logger.info("[TaxedInterestController][submit] No CYA data in session. Redirecting to overview page.")
+            Logger.logger.info("[TaxedInterestController][submit] No CYA data in session. Redirecting to overview page.")
             Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
         }
     })

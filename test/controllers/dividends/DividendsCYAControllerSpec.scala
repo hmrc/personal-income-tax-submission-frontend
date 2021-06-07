@@ -236,7 +236,7 @@ class DividendsCYAControllerSpec extends UnitTestWithApp with MockAuditService {
           fakeRequest.withSession(SessionValues.TAX_YEAR -> mockAppConfFeatureSwitch.defaultTaxYear.toString)
         )
 
-        redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show.url
+        redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
 
       }
     }

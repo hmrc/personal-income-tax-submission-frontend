@@ -235,83 +235,83 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
       }
 
     }
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an empty error in welsh" in {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(wsClient.url(
+    s"return a BAD_REQUEST($BAD_REQUEST) status with an empty error in welsh" in {
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        await(wsClient.url(
+          s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+            s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+        )
+          .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
+          .post(Map[String, String]()))
+      }
+      lazy val document: Document = Jsoup.parse(result.body)
+
+      result.status shouldBe BAD_REQUEST
+      document.select(errorSelector).text() shouldBe expectedErrorCy
+      document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
+    }
+
+    s"return a BAD_REQUEST($BAD_REQUEST) status with an invalid Character error in welsh" in {
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        await(
+          wsClient.url(
             s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
               s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
           )
             .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
-            .post(Map[String, String]()))
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        result.status shouldBe BAD_REQUEST
-        document.select(errorSelector).text() shouldBe expectedErrorCy
-        document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
+            .post(Map("name" -> "ad|am"))
+        )
       }
+      lazy val document: Document = Jsoup.parse(result.body)
 
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an invalid Character error in welsh" in {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(
-            wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
-              .post(Map("name" -> "ad|am"))
+      result.status shouldBe BAD_REQUEST
+      document.select(errorSelector).text() shouldBe expectedInvalidCharErrorCy
+      document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
+    }
+
+    s"return a BAD_REQUEST($BAD_REQUEST) status with a character limit error in welsh" in {
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        await(
+          wsClient.url(
+            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
           )
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        result.status shouldBe BAD_REQUEST
-        document.select(errorSelector).text() shouldBe expectedInvalidCharErrorCy
-        document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
+            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
+            .post(Map("name" -> charLimit))
+        )
       }
+      lazy val document: Document = Jsoup.parse(result.body)
 
-      s"return a BAD_REQUEST($BAD_REQUEST) status with a character limit error in welsh" in {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(
-            wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
-              .post(Map("name" -> charLimit))
+      result.status shouldBe BAD_REQUEST
+      document.select(errorSelector).text() shouldBe expectedCharLimitErrorCy
+      document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
+    }
+
+    s"return a BAD_REQUEST($BAD_REQUEST) status with an duplicate name error in welsh" in {
+      val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+        GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString()
+      ))
+
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        await(
+          wsClient.url(
+            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
           )
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        result.status shouldBe BAD_REQUEST
-        document.select(errorSelector).text() shouldBe expectedCharLimitErrorCy
-        document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie,HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
+            .post(Map("name" -> "JaneDoe"))
+        )
       }
+      lazy val document: Document = Jsoup.parse(result.body)
 
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an duplicate name error in welsh" in {
-        val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-          GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString()
-        ))
-
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(
-            wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie,HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
-              .post(Map("name" -> "JaneDoe"))
-          )
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        result.status shouldBe BAD_REQUEST
-        document.select(errorSelector).text() shouldBe expectedDuplicateErrorCy
-        document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
-      }
+      result.status shouldBe BAD_REQUEST
+      document.select(errorSelector).text() shouldBe expectedDuplicateErrorCy
+      document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
+    }
   }
 
   "as an agent" when {

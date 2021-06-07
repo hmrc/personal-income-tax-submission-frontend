@@ -43,9 +43,9 @@
     }
 }
 
-@layout(messages("interest.cya.title"), taxYear = Some(taxYear), isAgent = user.isAgent) {
+@layout(messages(s"interest.cya.title.${if(user.isAgent) "agent" else "individual"}"), taxYear = Some(taxYear), isAgent = user.isAgent) {
 
-    @heading("interest.cya.title", Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
+    @heading(s"interest.cya.title.${if(user.isAgent) "agent" else "individual"}", Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 
     @{
         govukSummaryList(SummaryList(Seq(
@@ -53,7 +53,7 @@
                 Some(summaryListRow(
                     HtmlContent(messages("interest.cya.questions.1")),
                     HtmlContent(trueFalseToYesNo(cyaModel.untaxedUkInterest.getOrElse(false))),
-                    actions = Seq((controllers.interest.routes.UntaxedInterestController.show(taxYear), messages("common.change"), Some(messages(s"interest.cya.changeUntaxedInterest.${if(user.isAgent) "agent" else "individual"}"))))
+                    actions = Seq((controllers.interest.routes.UntaxedInterestController.show(taxYear), messages("common.change"), Some(messages(s"interest.cya.untaxed-uk-interest-accounts.hiddenChange.${if(user.isAgent) "agent" else "individual"}"))))
                 ))
             } else { None },
             if(cyaModel.untaxedUkInterest.getOrElse(false)) {
@@ -61,7 +61,7 @@
                     summaryListRow(
                         HtmlContent(messages("interest.cya.questions.2")),
                         HtmlContent(accountsInfo(2, accounts)),
-                        actions = Seq((controllers.interest.routes.AccountsController.show(taxYear, UNTAXED), messages("common.change"), Some(messages(s"interest.cya.changeUntaxedDetails"))))
+                        actions = Seq((controllers.interest.routes.AccountsController.show(taxYear, UNTAXED), messages("common.change"), Some(messages(s"interest.cya.change-untaxed-details.hiddenChange.${if(user.isAgent) "agent" else "individual"}"))))
                     )
                 }
             } else { None },
@@ -69,7 +69,7 @@
                 Some(summaryListRow(
                     HtmlContent(messages("interest.cya.questions.3")),
                     HtmlContent(trueFalseToYesNo(cyaModel.taxedUkInterest.getOrElse(false))),
-                    actions = Seq((controllers.interest.routes.TaxedInterestController.show(taxYear), messages("common.change"), Some(messages(s"interest.cya.changeTaxedInterest.${if(user.isAgent) "agent" else "individual"}"))))
+                    actions = Seq((controllers.interest.routes.TaxedInterestController.show(taxYear), messages("common.change"), Some(messages(s"interest.cya.taxed-uk-interest-accounts.hiddenChange.${if(user.isAgent) "agent" else "individual"}"))))
                 ))
             } else { None },
             if(cyaModel.taxedUkInterest.getOrElse(false)) {
@@ -77,7 +77,7 @@
                     summaryListRow(
                         HtmlContent(messages("interest.cya.questions.4")),
                         HtmlContent(accountsInfo(4, accounts)),
-                        actions = Seq((controllers.interest.routes.AccountsController.show(taxYear, TAXED), messages("common.change"), Some(messages(s"interest.cya.changeTaxedDetails"))))
+                        actions = Seq((controllers.interest.routes.AccountsController.show(taxYear, TAXED), messages("common.change"), Some(messages(s"interest.cya.change-taxed-details.hiddenChange.${if(user.isAgent) "agent" else "individual"}"))))
                     )
                 }
             } else { None }

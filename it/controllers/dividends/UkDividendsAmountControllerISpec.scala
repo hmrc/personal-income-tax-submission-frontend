@@ -94,7 +94,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
   val amountInputName = "amount"
 
   "as an individual" when {
-  import IndividualExpected._
+    import IndividualExpected._
     ".show" should {
 
       "redirects user to overview page when there is no data in session" which {
@@ -442,7 +442,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
   }
 
   "as an agent" when {
-  import AgentExpected._
+    import AgentExpected._
     ".show" should {
 
       "returns an action" which {
@@ -628,18 +628,18 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
       s"return a BAD_REQUEST($BAD_REQUEST) status with an empty error" when {
 
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A",
-              SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(true)).asJsonString
-            ))
+        lazy val result: WSResponse = {
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A",
+            SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(true)).asJsonString
+          ))
 
-            authoriseAgent()
-            await(wsClient.url(ukDividendsAmountUrl)
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-              .post(Map[String, String]()))
-          }
+          authoriseAgent()
+          await(wsClient.url(ukDividendsAmountUrl)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+            .post(Map[String, String]()))
+        }
 
         "return the correct status" in {
           result.status shouldBe BAD_REQUEST
@@ -650,18 +650,18 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
       }
       s"return a BAD_REQUEST($BAD_REQUEST) status with an invalid error" when {
 
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A",
-              SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(true)).asJsonString
-            ))
+        lazy val result: WSResponse = {
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A",
+            SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(true)).asJsonString
+          ))
 
-            authoriseAgent()
-            await(wsClient.url(ukDividendsAmountUrl)
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-              .post(Map("amount" -> "|")))
-          }
+          authoriseAgent()
+          await(wsClient.url(ukDividendsAmountUrl)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+            .post(Map("amount" -> "|")))
+        }
 
         "return the correct status" in {
           result.status shouldBe BAD_REQUEST
@@ -672,18 +672,18 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
       }
       s"return a BAD_REQUEST($BAD_REQUEST) status with an overmax error" when {
 
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A",
-              SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(true)).asJsonString
-            ))
+        lazy val result: WSResponse = {
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A",
+            SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(true)).asJsonString
+          ))
 
-            authoriseAgent()
-            await(wsClient.url(ukDividendsAmountUrl)
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-              .post(Map("amount" -> "999999999999999999999999999999999999")))
-          }
+          authoriseAgent()
+          await(wsClient.url(ukDividendsAmountUrl)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+            .post(Map("amount" -> "999999999999999999999999999999999999")))
+        }
 
         "return the correct status" in {
           result.status shouldBe BAD_REQUEST
@@ -694,18 +694,18 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
       }
       s"return a BAD_REQUEST($BAD_REQUEST) status with an empty error - Welsh" when {
 
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A",
-              SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(true)).asJsonString
-            ))
+        lazy val result: WSResponse = {
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A",
+            SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(true)).asJsonString
+          ))
 
-            authoriseAgent()
-            await(wsClient.url(ukDividendsAmountUrl)
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
-              .post(Map[String, String]()))
-          }
+          authoriseAgent()
+          await(wsClient.url(ukDividendsAmountUrl)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
+            .post(Map[String, String]()))
+        }
 
         "return the correct status" in {
           result.status shouldBe BAD_REQUEST
@@ -717,18 +717,18 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
       }
       s"return a BAD_REQUEST($BAD_REQUEST) status with an invalid error - Welsh" when {
 
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A",
-              SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(true)).asJsonString
-            ))
+        lazy val result: WSResponse = {
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A",
+            SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(true)).asJsonString
+          ))
 
-            authoriseAgent()
-            await(wsClient.url(ukDividendsAmountUrl)
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
-              .post(Map("amount" -> "|")))
-          }
+          authoriseAgent()
+          await(wsClient.url(ukDividendsAmountUrl)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
+            .post(Map("amount" -> "|")))
+        }
 
         "return the correct status" in {
           result.status shouldBe BAD_REQUEST
@@ -740,18 +740,18 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
       }
       s"return a BAD_REQUEST($BAD_REQUEST) status with an overMax error - Welsh" when {
 
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A",
-              SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(true)).asJsonString
-            ))
+        lazy val result: WSResponse = {
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A",
+            SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(true)).asJsonString
+          ))
 
-            authoriseAgent()
-            await(wsClient.url(ukDividendsAmountUrl)
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
-              .post(Map("amount" -> "999999999999999999999999999999999999")))
-          }
+          authoriseAgent()
+          await(wsClient.url(ukDividendsAmountUrl)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
+            .post(Map("amount" -> "999999999999999999999999999999999999")))
+        }
 
         "return the correct status" in {
           result.status shouldBe BAD_REQUEST
@@ -783,4 +783,3 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
   }
 
 }
-

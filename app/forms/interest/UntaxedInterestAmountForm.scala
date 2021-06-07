@@ -17,7 +17,7 @@
 package forms.interest
 
 import filters.InputFilters
-import forms.validation.StringConstraints.{nonEmpty, validateChar, validateSize, validateNotDuplicate}
+import forms.validation.StringConstraints.nonEmpty
 import forms.validation.mappings.MappingUtil.{currency, trimmedText}
 import models.interest.UntaxedInterestModel
 import play.api.data.Form
@@ -28,21 +28,19 @@ object UntaxedInterestAmountForm extends InputFilters{
 
   val untaxedAccountName = "untaxedAccountName"
   val untaxedAmount = "untaxedAmount"
-  val charLimit: Int = 32
 
   val nameNotEmpty: Constraint[String] = nonEmpty("interest.common.error.name.empty")
-  val amountNotEmpty: Constraint[String] = nonEmpty("interest.untaxed-uk-interest-amount.error.empty")
 
-  def notDuplicate(previousNames: Seq[String]): Constraint[String] = validateNotDuplicate(previousNames)("interest.common.error.name.duplicate")
-
-  val noInvalidChar: Constraint[String] = validateChar("interest.untaxed-uk-interest-details.error.invalidChars")
-
-  val exceedCharLimit: Constraint[String] = validateSize(charLimit)("interest.accounts.error.tooLong")
-
-  def untaxedInterestAmountForm(previousNames: Seq[String]): Form[UntaxedInterestModel] = Form(
+  def untaxedInterestAmountForm(
+                                 emptyAmountKey: String,
+                                 invalidNumericKey: String,
+                                 maxAmountInvalidKey: String): Form[UntaxedInterestModel] = Form(
     mapping(
-      untaxedAccountName -> trimmedText.verifying(nameNotEmpty, noInvalidChar, exceedCharLimit, notDuplicate(previousNames)),
-      untaxedAmount -> currency("interest.untaxed-uk-interest-amount.error.empty")
+      untaxedAccountName -> trimmedText.verifying(nameNotEmpty),
+      untaxedAmount -> currency(requiredKey = emptyAmountKey,
+                                invalidNumeric = invalidNumericKey,
+                                nonNumericKey = invalidNumericKey,
+                                maxAmountKey = maxAmountInvalidKey)
     )(UntaxedInterestModel.apply)(UntaxedInterestModel.unapply).transform[UntaxedInterestModel](
       details => details.copy(
         untaxedAccountName = filter(details.untaxedAccountName)

@@ -142,7 +142,7 @@ class ReceiveOtherUkDividendsControllerSpec extends UnitTestWithApp {
         val invalidTaxYear = 2023
         lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(fakeRequest.withSession(SessionValues.TAX_YEAR -> mockAppConfFeatureSwitch.defaultTaxYear.toString))
 
-        redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show.url
+        redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
 
       }
     }

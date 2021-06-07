@@ -25,7 +25,7 @@ import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.YesNoForm
 import models.User
 import models.interest.{InterestAccountModel, InterestCYAModel}
-import play.api.Logging
+import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
@@ -44,17 +44,14 @@ class AccountsController @Inject()(
                                     implicit appConfig: AppConfig,
                                     implicit val mcc: MessagesControllerComponents,
                                     implicit val authorisedAction: AuthorisedAction
-                                  ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper with Logging {
+                                  ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper {
 
-
+  private val logger = Logger.logger
 
   implicit def resultToFutureResult: Result => Future[Result] = baseResult => Future.successful(baseResult)
 
   private def yesNoForm(taxType: String): Form[Boolean] = {
-    taxType match {
-      case `TAXED` => YesNoForm.yesNoForm("interest.taxed-uk-interest.errors.noRadioSelected.individual")
-      case `UNTAXED` => YesNoForm.yesNoForm("interest.untaxed-uk-interest.errors.noRadioSelected.individual")
-    }
+      YesNoForm.yesNoForm("interest.common.accounts.no-selection")
   }
 
   private def getOptionalCyaData()(implicit user: User[AnyContent]): Option[InterestCYAModel] =

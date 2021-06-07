@@ -145,7 +145,7 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp with DefaultAw
         val invalidTaxYear = 2023
         lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear, id)(fakeRequest)
 
-        redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show.url
+        redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
 
       }
     }
@@ -323,6 +323,18 @@ class UntaxedInterestAmountControllerSpec extends UnitTestWithApp with DefaultAw
           redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)
         }
 
+      }
+
+    }
+
+    s"return a BAD_REQUEST($BAD_REQUEST)" when {
+
+      "the form data is invalid" in new TestWithAuth{
+        val result: Future[Result] = controller.submit(taxYear, id)(fakeRequest.withFormUrlEncodedBody(
+          "invalidField" -> "someValue"
+        ))
+
+        status(result) shouldBe BAD_REQUEST
       }
 
     }

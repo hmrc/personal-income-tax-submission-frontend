@@ -18,10 +18,9 @@ package utils
 
 import org.jsoup.nodes.Document
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.wordspec.AnyWordSpec
 
-
-trait ViewHelpers { self: AnyWordSpecLike with Matchers =>
+trait ViewHelpers { self: AnyWordSpec with Matchers =>
 
   val serviceName = "Update and submit an Income Tax Return"
   val govUkExtension = "GOV.UK"
@@ -168,30 +167,6 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers =>
       }
       s"has a href to '$href'" in {
         document().select(".govuk-error-summary__body > ul > li > a").attr("href") shouldBe href
-      }
-    }
-  }
-
-  def multipleErrorCheck(errors: List[(String, String)])(implicit document: () => Document): Unit = {
-
-    "contains an error summary" in {
-      elementExist(".govuk-error-summary")
-    }
-    "contains the text 'There is a problem'" in {
-      document().select(".govuk-error-summary__title").text() shouldBe "There is a problem"
-    }
-
-    for(error <- errors) {
-      val index = errors.indexOf(error) + 1
-      val selector = s".govuk-error-summary__body > ul > li:nth-child($index) > a"
-
-      s"has a ${error._1} error in the error summary" which {
-        s"has the text '${error._1}'" in {
-          document().select(selector).text() shouldBe error._1
-        }
-        s"has a href to '${error._2}'" in {
-          document().select(selector).attr("href") shouldBe error._2
-        }
       }
     }
   }

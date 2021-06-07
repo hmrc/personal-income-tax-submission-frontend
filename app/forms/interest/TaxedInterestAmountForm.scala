@@ -17,7 +17,7 @@
 package forms.interest
 
 import filters.InputFilters
-import forms.validation.StringConstraints.{nonEmpty, validateChar, validateSize, validateNotDuplicate}
+import forms.validation.StringConstraints.nonEmpty
 import forms.validation.mappings.MappingUtil.{currency, trimmedText}
 import models.interest.TaxedInterestModel
 import play.api.data.Form
@@ -28,21 +28,19 @@ object TaxedInterestAmountForm extends InputFilters{
 
   val taxedAccountName = "taxedAccountName"
   val taxedAmount = "taxedAmount"
-  val charLimit: Int = 32
 
   val nameNotEmpty: Constraint[String] = nonEmpty("interest.common.error.name.empty")
-  val amountNotEmpty: Constraint[String] = nonEmpty("interest.taxed-uk-interest-amount.error.empty")
 
-  val noInvalidChar: Constraint[String] = validateChar("interest.taxed-uk-interest-amount.error.invalidChars")
-
-  val exceedCharLimit: Constraint[String] = validateSize(charLimit)("interest.accounts.error.tooLong")
-
-  def notDuplicate(previousNames: Seq[String]): Constraint[String] = validateNotDuplicate(previousNames)("interest.common.error.name.duplicate")
-
-  def taxedInterestAmountForm(previousNames: Seq[String]): Form[TaxedInterestModel] = Form(
+  def taxedInterestAmountForm(emptyAmountKey: String,
+                              invalidNumericKey: String,
+                              maxAmountInvalidKey: String
+                             ): Form[TaxedInterestModel] = Form(
     mapping(
-      taxedAccountName -> trimmedText.verifying(nameNotEmpty, noInvalidChar, exceedCharLimit, notDuplicate(previousNames)),
-      taxedAmount -> currency("interest.taxed-uk-interest-amount.error.empty")
+      taxedAccountName -> trimmedText.verifying(nameNotEmpty),
+      taxedAmount -> currency(requiredKey = emptyAmountKey,
+                              invalidNumeric = invalidNumericKey,
+                              nonNumericKey = invalidNumericKey,
+                              maxAmountKey = maxAmountInvalidKey)
     )(TaxedInterestModel.apply)(TaxedInterestModel.unapply).transform[TaxedInterestModel](
       details => details.copy(
         taxedAccountName = filter(details.taxedAccountName)

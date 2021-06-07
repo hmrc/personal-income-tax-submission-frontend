@@ -17,8 +17,8 @@
 package controllers.predicates
 
 import config.{AppConfig, JourneyKey}
+import controllers.Assets.Redirect
 import models.User
-import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionRefiner, Result}
 
 import javax.inject.Inject

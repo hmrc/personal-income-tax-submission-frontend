@@ -51,35 +51,40 @@ class InterestCYAViewSpec extends ViewTest {
 
   val yesNoQuestionAnswer: Int => String = questionNumber => s"#main-content > div > div > dl > div:nth-child($questionNumber) > dd.govuk-summary-list__value"
 
-  val h1Expected = "Check your answers"
-  val titleExpected = "Check your answers"
+  val h1ExpectedIndividual = "Check your taxed and untaxed UK interest"
+  val h1ExpectedAgent = "Check your client’s taxed and untaxed UK interest"
+  val titleExpectedIndividual = "Check your taxed and untaxed UK interest"
+  val titleExpectedAgent = "Check your client’s taxed and untaxed UK interest"
+
   val captionExpected = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
 
   val changeLinkExpected = "Change"
 
   val questionUntaxedInterestExpected = "Untaxed UK Interest"
-  val questionUntaxedInterestDetailsExpected = "Details for the untaxed UK interest"
+  val questionUntaxedInterestDetailsExpected = "Untaxed UK interest accounts"
   val questionTaxedInterestExpected = "Taxed UK Interest"
-  val question4TaxedInterestDetailExpected = "Details for the taxed UK interest"
+  val question4TaxedInterestDetailExpected = "Taxed UK interest accounts"
 
-  val changeUntaxedInterestIndividualHiddenText = "whether you got untaxed interest from UK accounts."
-  val changeUntaxedInterestAgentHiddenText = "whether your client got untaxed interest from UK accounts."
-  val changeUntaxedDetailsHiddenText = "or add a new UK account with untaxed interest."
-  val changeTaxedInterestIndividualHiddenText = "whether you got taxed interest from UK accounts."
-  val changeTaxedInterestAgentHiddenText = "whether your client got taxed interest from UK accounts."
-  val changeTaxedDetailsHiddenText = "or add a new UK account with taxed interest."
+  val changeUntaxedInterestIndividualHiddenText = "if you got untaxed UK interest"
+  val changeUntaxedInterestAgentHiddenText = "if your client got untaxed UK interest"
+  val changeUntaxedDetailsIndividualHiddenText = "the details of your account with untaxed UK interest"
+  val changeUntaxedDetailsAgentHiddenText = "the details of your client’s account with untaxed UK interest"
+  val changeTaxedInterestIndividualHiddenText = "if you got taxed UK interest"
+  val changeTaxedInterestAgentHiddenText = "if your client got taxed UK interest"
+  val changeTaxedDetailsIndividualHiddenText = "the details of your account with taxed UK interest"
+  val changeTaxedDetailsAgentHiddenText = "the details of your client’s account with taxed UK interest"
 
   val untaxedInterestAccount1ExpectedTest = "UntaxedBank1 : £100"
   val taxedInterestAccount1ExpectedTest = "TaxedBank1 : £200"
   val taxedInterestAccount2ExpectedTest = "TaxedBank2 : £400"
 
   val changeUntaxedInterestHref = s"/income-through-software/return/personal-income/$taxYear/interest/untaxed-uk-interest"
-  val changeUntaxedInterestAmountHref = s"/income-through-software/return/personal-income/$taxYear/interest/untaxed-uk-interest-account-summary"
+  val changeUntaxedInterestAmountHref = s"/income-through-software/return/personal-income/$taxYear/interest/accounts-with-untaxed-uk-interest"
   val changeTaxedInterestHref = s"/income-through-software/return/personal-income/$taxYear/interest/taxed-uk-interest"
-  val changeTaxedInterestAmountHref = s"/income-through-software/return/personal-income/$taxYear/interest/taxed-uk-interest-account-summary"
+  val changeTaxedInterestAmountHref = s"/income-through-software/return/personal-income/$taxYear/interest/accounts-with-taxed-uk-interest"
 
   val submitText = "Save and continue"
-  val submitLink = s"/income-through-software/return/personal-income/$taxYear/interest/check-your-answers"
+  val submitLink = s"/income-through-software/return/personal-income/$taxYear/interest/check-interest"
 
   val Yes = "Yes"
   val No = "No"
@@ -104,9 +109,9 @@ class InterestCYAViewSpec extends ViewTest {
           val render = view(cyaModel, taxYear)(user, messages, mockAppConfig).body
           implicit val document: Document = Jsoup.parse(render)
 
-          titleCheck(titleExpected)
+          titleCheck(titleExpectedIndividual)
           welshToggleCheck("English")
-          h1Check(h1Expected + " " + captionExpected)
+          h1Check(h1ExpectedIndividual + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
 
           buttonCheck(submitText, submitButton)
@@ -121,7 +126,7 @@ class InterestCYAViewSpec extends ViewTest {
           "has an area for question 2" which {
             textOnPageCheck(questionUntaxedInterestDetailsExpected, questionSelector(2))
             textOnPageCheck(untaxedInterestAccount1ExpectedTest, questionAccountSelector(question2, account1, 1))
-            linkCheck(s"$changeLinkExpected $changeUntaxedDetailsHiddenText", questionChangeLinkSelector(2), changeUntaxedInterestAmountHref)
+            linkCheck(s"$changeLinkExpected $changeUntaxedDetailsIndividualHiddenText", questionChangeLinkSelector(2), changeUntaxedInterestAmountHref)
           }
 
           "has an area for question 3" which {
@@ -134,7 +139,7 @@ class InterestCYAViewSpec extends ViewTest {
             textOnPageCheck(question4TaxedInterestDetailExpected, questionSelector(question4))
             textOnPageCheck(taxedInterestAccount1ExpectedTest, questionAccountSelector(question4, account1, 1))
             textOnPageCheck(taxedInterestAccount2ExpectedTest, questionAccountSelector(question4, account2, 2))
-            linkCheck(s"$changeLinkExpected $changeTaxedDetailsHiddenText", questionChangeLinkSelector(question4), changeTaxedInterestAmountHref)
+            linkCheck(s"$changeLinkExpected $changeTaxedDetailsIndividualHiddenText", questionChangeLinkSelector(question4), changeTaxedInterestAmountHref)
           }
         }
       }
@@ -152,9 +157,9 @@ class InterestCYAViewSpec extends ViewTest {
           val render = view(cyaModel, taxYear)(user, messages, mockAppConfig).body
           implicit val document: Document = Jsoup.parse(render)
 
-          titleCheck(titleExpected)
+          titleCheck(titleExpectedIndividual)
           welshToggleCheck("English")
-          h1Check(h1Expected + " " + captionExpected)
+          h1Check(h1ExpectedIndividual + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
 
           buttonCheck(submitText, submitButton)
@@ -200,9 +205,9 @@ class InterestCYAViewSpec extends ViewTest {
           val render = view(cyaModel, taxYear, Some(priorSubmission))(user, messages, mockAppConfig).body
           implicit val document: Document = Jsoup.parse(render)
 
-          titleCheck(titleExpected)
+          titleCheck(titleExpectedIndividual)
           welshToggleCheck("English")
-          h1Check(h1Expected + " " + captionExpected)
+          h1Check(h1ExpectedIndividual + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
 
           buttonCheck(submitText, submitButton)
@@ -211,13 +216,13 @@ class InterestCYAViewSpec extends ViewTest {
           "has an area for question 1" which {
             textOnPageCheck(questionUntaxedInterestDetailsExpected, questionTextSelector(1))
             textOnPageCheck("TSB : £100", yesNoQuestionAnswer(1))
-            linkCheck(s"$changeLinkExpected $changeUntaxedDetailsHiddenText", questionChangeLinkSelector(1), changeUntaxedInterestAmountHref)
+            linkCheck(s"$changeLinkExpected $changeUntaxedDetailsIndividualHiddenText", questionChangeLinkSelector(1), changeUntaxedInterestAmountHref)
           }
 
           "has an area for question 2" which {
             textOnPageCheck(question4TaxedInterestDetailExpected, questionTextSelector(2))
             textOnPageCheck("TSB Account : £100", yesNoQuestionAnswer(2))
-            linkCheck(s"$changeLinkExpected $changeTaxedDetailsHiddenText", questionChangeLinkSelector(2), changeTaxedInterestAmountHref)
+            linkCheck(s"$changeLinkExpected $changeTaxedDetailsIndividualHiddenText", questionChangeLinkSelector(2), changeTaxedInterestAmountHref)
           }
 
           "there is no question 3" in {
@@ -252,9 +257,9 @@ class InterestCYAViewSpec extends ViewTest {
           val render = view(cyaModel, taxYear)(user, welshMessages, mockAppConfig).body
           implicit val document: Document = Jsoup.parse(render)
 
-          titleCheck(titleExpected)
+          titleCheck(titleExpectedIndividual)
           welshToggleCheck("Welsh")
-          h1Check(h1Expected + " " + captionExpected)
+          h1Check(h1ExpectedIndividual + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
 
           buttonCheck(submitText, submitButton)
@@ -269,7 +274,7 @@ class InterestCYAViewSpec extends ViewTest {
           "has an area for question 2" which {
             textOnPageCheck(questionUntaxedInterestDetailsExpected, questionSelector(2))
             textOnPageCheck(untaxedInterestAccount1ExpectedTest, questionAccountSelector(question2, account1, 1))
-            linkCheck(s"$changeLinkExpected $changeUntaxedDetailsHiddenText", questionChangeLinkSelector(2), changeUntaxedInterestAmountHref)
+            linkCheck(s"$changeLinkExpected $changeUntaxedDetailsIndividualHiddenText", questionChangeLinkSelector(2), changeUntaxedInterestAmountHref)
           }
 
           "has an area for question 3" which {
@@ -282,7 +287,7 @@ class InterestCYAViewSpec extends ViewTest {
             textOnPageCheck(question4TaxedInterestDetailExpected, questionSelector(question4))
             textOnPageCheck(taxedInterestAccount1ExpectedTest, questionAccountSelector(question4, account1, 1))
             textOnPageCheck(taxedInterestAccount2ExpectedTest, questionAccountSelector(question4, account2, 2))
-            linkCheck(s"$changeLinkExpected $changeTaxedDetailsHiddenText", questionChangeLinkSelector(question4), changeTaxedInterestAmountHref)
+            linkCheck(s"$changeLinkExpected $changeTaxedDetailsIndividualHiddenText", questionChangeLinkSelector(question4), changeTaxedInterestAmountHref)
           }
         }
       }
@@ -300,9 +305,9 @@ class InterestCYAViewSpec extends ViewTest {
           val render = view(cyaModel, taxYear)(user, welshMessages, mockAppConfig).body
           implicit val document: Document = Jsoup.parse(render)
 
-          titleCheck(titleExpected)
+          titleCheck(titleExpectedIndividual)
           welshToggleCheck("Welsh")
-          h1Check(h1Expected + " " + captionExpected)
+          h1Check(h1ExpectedIndividual + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
 
           buttonCheck(submitText, submitButton)
@@ -348,9 +353,9 @@ class InterestCYAViewSpec extends ViewTest {
           val render = view(cyaModel, taxYear, Some(priorSubmission))(user, welshMessages, mockAppConfig).body
           implicit val document: Document = Jsoup.parse(render)
 
-          titleCheck(titleExpected)
+          titleCheck(titleExpectedIndividual)
           welshToggleCheck("Welsh")
-          h1Check(h1Expected + " " + captionExpected)
+          h1Check(h1ExpectedIndividual + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
 
           buttonCheck(submitText, submitButton)
@@ -359,13 +364,13 @@ class InterestCYAViewSpec extends ViewTest {
           "has an area for question 1" which {
             textOnPageCheck(questionUntaxedInterestDetailsExpected, questionTextSelector(1))
             textOnPageCheck("TSB : £100", yesNoQuestionAnswer(1))
-            linkCheck(s"$changeLinkExpected $changeUntaxedDetailsHiddenText", questionChangeLinkSelector(1), changeUntaxedInterestAmountHref)
+            linkCheck(s"$changeLinkExpected $changeUntaxedDetailsIndividualHiddenText", questionChangeLinkSelector(1), changeUntaxedInterestAmountHref)
           }
 
           "has an area for question 2" which {
             textOnPageCheck(question4TaxedInterestDetailExpected, questionTextSelector(2))
             textOnPageCheck("TSB Account : £100", yesNoQuestionAnswer(2))
-            linkCheck(s"$changeLinkExpected $changeTaxedDetailsHiddenText", questionChangeLinkSelector(2), changeTaxedInterestAmountHref)
+            linkCheck(s"$changeLinkExpected $changeTaxedDetailsIndividualHiddenText", questionChangeLinkSelector(2), changeTaxedInterestAmountHref)
           }
 
           "there is no question 3" in {

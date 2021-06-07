@@ -20,17 +20,17 @@ POST        /:taxYear/dividends/how-much-dividends-from-uk-trusts-and-open-ended
 GET         /:taxYear/dividends/check-income-from-dividends                                                  controllers.dividends.DividendsCYAController.show(taxYear: Int)
 POST        /:taxYear/dividends/check-income-from-dividends                                                  controllers.dividends.DividendsCYAController.submit(taxYear: Int)
 
-GET         /:taxYear/interest/untaxed-uk-interest-account-summary                                           controllers.interest.AccountsController.show(taxYear: Int, taxType = "untaxed")
-GET         /:taxYear/interest/taxed-uk-interest-account-summary                                             controllers.interest.AccountsController.show(taxYear: Int, taxType = "taxed")
+GET         /:taxYear/interest/accounts-with-untaxed-uk-interest                                             controllers.interest.AccountsController.show(taxYear: Int, taxType = "untaxed")
+GET         /:taxYear/interest/accounts-with-taxed-uk-interest                                               controllers.interest.AccountsController.show(taxYear: Int, taxType = "taxed")
 
-GET         /:taxYear/interest/taxed-uk-interest-details/:id                                                 controllers.interest.TaxedInterestAmountController.show(taxYear: Int, id: String)
-POST        /:taxYear/interest/taxed-uk-interest-details/:id                                                 controllers.interest.TaxedInterestAmountController.submit(taxYear: Int, id: String)
+GET         /:taxYear/interest/add-taxed-uk-interest-account/:id                                             controllers.interest.TaxedInterestAmountController.show(taxYear: Int, id: String)
+POST        /:taxYear/interest/add-taxed-uk-interest-account/:id                                             controllers.interest.TaxedInterestAmountController.submit(taxYear: Int, id: String)
 
-GET         /:taxYear/interest/untaxed-uk-interest-details/:id                                               controllers.interest.UntaxedInterestAmountController.show(taxYear: Int, id: String)
-POST        /:taxYear/interest/untaxed-uk-interest-details/:id                                               controllers.interest.UntaxedInterestAmountController.submit(taxYear: Int, id: String)
+GET         /:taxYear/interest/add-untaxed-uk-interest-account/:id                                           controllers.interest.UntaxedInterestAmountController.show(taxYear: Int, id: String)
+POST        /:taxYear/interest/add-untaxed-uk-interest-account/:id                                           controllers.interest.UntaxedInterestAmountController.submit(taxYear: Int, id: String)
 
-POST        /:taxYear/interest/untaxed-uk-interest-account-summary                                           controllers.interest.AccountsController.submit(taxYear: Int, taxType = "untaxed")
-POST        /:taxYear/interest/taxed-uk-interest-account-summary                                             controllers.interest.AccountsController.submit(taxYear: Int, taxType = "taxed")
+POST        /:taxYear/interest/accounts-with-untaxed-uk-interest                                             controllers.interest.AccountsController.submit(taxYear: Int, taxType = "untaxed")
+POST        /:taxYear/interest/accounts-with-taxed-uk-interest                                               controllers.interest.AccountsController.submit(taxYear: Int, taxType = "taxed")
 
 GET         /:taxYear/interest/taxed-uk-interest                                                             controllers.interest.TaxedInterestController.show(taxYear: Int)
 POST        /:taxYear/interest/taxed-uk-interest                                                             controllers.interest.TaxedInterestController.submit(taxYear: Int)
@@ -38,8 +38,8 @@ POST        /:taxYear/interest/taxed-uk-interest                                
 GET         /:taxYear/interest/untaxed-uk-interest                                                           controllers.interest.UntaxedInterestController.show(taxYear: Int)
 POST        /:taxYear/interest/untaxed-uk-interest                                                           controllers.interest.UntaxedInterestController.submit(taxYear: Int)
 
-GET         /:taxYear/interest/check-your-answers                                                            controllers.interest.InterestCYAController.show(taxYear: Int)
-POST        /:taxYear/interest/check-your-answers                                                            controllers.interest.InterestCYAController.submit(taxYear: Int)
+GET         /:taxYear/interest/check-interest                                                                controllers.interest.InterestCYAController.show(taxYear: Int)
+POST        /:taxYear/interest/check-interest                                                                controllers.interest.InterestCYAController.submit(taxYear: Int)
 
 GET         /:taxYear/interest/taxed-uk-interests                                                            controllers.interest.TaxedInterestController.show(taxYear: Int)
 POST        /:taxYear/interest/taxed-uk-interests                                                            controllers.interest.TaxedInterestController.submit(taxYear: Int)

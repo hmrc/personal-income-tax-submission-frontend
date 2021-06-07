@@ -255,7 +255,7 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Integra
               .post(Map[String, String]()))
           }
 
-            result.status shouldBe BAD_REQUEST
+          result.status shouldBe BAD_REQUEST
 
         }
 

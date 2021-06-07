@@ -21,12 +21,12 @@
 @import views.html.templates.helpers.Details
 
 @this(
-    layout: Layout,
-    formWithCsrf: FormWithCSRF,
-    errorSummary: ErrorSummary,
-    button: Button,
-    inputRadio: InputRadio,
-    details: Details
+layout: Layout,
+formWithCsrf: FormWithCSRF,
+errorSummary: ErrorSummary,
+button: Button,
+inputRadio: InputRadio,
+details: Details
 )
 
 @(form: Form[Boolean], taxYear: Int, checked: String = "")(implicit user: User[_], messages: Messages, appConfig: AppConfig)
@@ -38,31 +38,31 @@
 
 @layout(pageTitle = titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors) {
 
-    @errorSummary(form.errors.distinct)
+@errorSummary(form.errors.distinct)
 
-    @formWithCsrf(action = controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.submit(taxYear)) {
+@formWithCsrf(action = controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.submit(taxYear)) {
 
-        @inputRadio(
-            form = form,
-            heading = headingForUse,
-            inline = true,
-            subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString))
-        )
-        @details("charity.qualifying-shares.disclosure.title", detailsHtml)
-        @button()
-    }
+@inputRadio(
+form = form,
+heading = headingForUse,
+inline = true,
+subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString))
+)
+@details("charity.qualifying-shares.disclosure.title", detailsHtml)
+@button()
+}
 }
 
 @detailsHtml = {
-    <p class="govuk-body">
-        @messages("charity.qualifying-shares.disclosure.p")
-    </p>
-    <ul class="govuk-list govuk-list--bullet">
-        <li>@messages("charity.qualifying-shares.disclosure.bullet.1")</li>
-        <li>@messages("charity.qualifying-shares.disclosure.bullet.2")</li>
-        <li>@messages("charity.qualifying-shares.disclosure.bullet.3")</li>
-        <li>@messages("charity.qualifying-shares.disclosure.bullet.4")</li>
-    </ul>
+<p class="govuk-body">
+    @messages("charity.qualifying-shares.disclosure.p")
+</p>
+<ul class="govuk-list govuk-list--bullet">
+    <li>@messages("charity.qualifying-shares.disclosure.bullet.1")</li>
+    <li>@messages("charity.qualifying-shares.disclosure.bullet.2")</li>
+    <li>@messages("charity.qualifying-shares.disclosure.bullet.3")</li>
+    <li>@messages("charity.qualifying-shares.disclosure.bullet.4")</li>
+</ul>
 }
 
 @{

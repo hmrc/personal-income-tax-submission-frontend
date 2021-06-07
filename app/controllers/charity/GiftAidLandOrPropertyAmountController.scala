@@ -34,6 +34,7 @@ class GiftAidLandOrPropertyAmountController @Inject()(
                                                           authorisedAction: AuthorisedAction,
                                                           appConfig: AppConfig
                                                         ) extends FrontendController(cc) with I18nSupport {
+
   def agentOrIndividual(implicit isAgent: Boolean): String = (if (isAgent) "agent" else "individual")
 
   def form(implicit isAgent: Boolean): Form[BigDecimal] = AmountForm.amountForm(

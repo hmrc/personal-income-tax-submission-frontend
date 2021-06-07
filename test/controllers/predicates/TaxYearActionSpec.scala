@@ -18,8 +18,8 @@ package controllers.predicates
 
 import common.SessionValues
 import config.AppConfig
+import controllers.Assets.SEE_OTHER
 import models.User
-import play.api.http.Status.SEE_OTHER
 import utils.UnitTest
 
 class TaxYearActionSpec extends UnitTest {
@@ -110,7 +110,7 @@ class TaxYearActionSpec extends UnitTest {
         }
 
         "has the overview redirect url" in {
-          redirectUrl(result.map(_.left.get)) shouldBe controllers.routes.TaxYearErrorController.show.url
+          redirectUrl(result.map(_.left.get)) shouldBe controllers.routes.TaxYearErrorController.show().url
         }
       }
     }

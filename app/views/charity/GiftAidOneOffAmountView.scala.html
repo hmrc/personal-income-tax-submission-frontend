@@ -33,11 +33,6 @@
     messages(s"charity.common.gift-aid.doNotInclude.${if(user.isAgent) "agent" else "individual"}")
 }
 
-@contentHtml = {
-    <p class="govuk-body">@paragraphText</p>
-    <div>@messages("charity.gift-aid-one-off-amount.input.label")</div>
-}
-
 @layout(pageTitle = titleText, taxYear = Some(taxYear), hasErrors = form.hasErrors) {
 
     @errorSummary(form.errors)
@@ -58,6 +53,11 @@
         )
         @button()
     }
+}
+
+@contentHtml = {
+<p class="govuk-body">@paragraphText</p>
+<div>@messages("charity.gift-aid-one-off-amount.input.label")</div>
 }
 
 @{

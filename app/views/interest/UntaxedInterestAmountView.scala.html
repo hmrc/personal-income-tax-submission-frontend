@@ -31,7 +31,15 @@
 
 @(form: Form[UntaxedInterestModel], taxYear: Int, postAction: Call, isAgent: Boolean)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@hint = {
+@contentHtml = {
+    <p class = "govuk-!-margin-top-1 govuk-!-margin-bottom-4">@messages("interest.common.sub-heading.1") </p>
+}
+
+@hint1 = {
+    @messages("interest.common.account.hint")
+}
+
+@hint2 = {
     @messages("common.currency.hint")
 }
 
@@ -48,20 +56,21 @@
             form,
             id = "untaxedAccountName",
             name = "untaxedAccountName",
-            heading = "interest.common.sub-heading1",
+            heading = "interest.common.sub-heading.2",
             isPageHeading = false,
             classes = Some("govuk-input--width-20"),
-            maxLength = "33"
-        )
+            content = Some(contentHtml),
+            hint = Some(hint1)
+)
 
         @inputText(
             form,
             id = "untaxedAmount",
             name = "untaxedAmount",
-            heading = "interest.common.amount.interest.earned",
+            heading = "interest.untaxed-uk-interest.amount.interest.earned",
             isPageHeading = false,
             currency = true,
-            hint = Some(hint)
+            hint = Some(hint2)
         )
 
         @button()

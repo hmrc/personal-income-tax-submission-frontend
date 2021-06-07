@@ -184,7 +184,7 @@ class AccountsControllerSpec extends UnitTestWithApp {
         val invalidTaxYear = 2023
         lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear, TAXED)(fakeRequest)
 
-        redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show.url
+        redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
 
       }
     }

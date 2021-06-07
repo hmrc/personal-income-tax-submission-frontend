@@ -101,7 +101,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
 
 
   "as an individual" when {
-  import IndividualExpected._
+    import IndividualExpected._
     ".show" should {
 
       "redirects user to overview page when there is no data in session" which {
@@ -442,7 +442,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
   }
 
   "as an agent" when {
-  import AgentExpected._
+    import AgentExpected._
     ".show" should {
 
       "returns an action" which {
@@ -627,17 +627,17 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
 
       s"return a BAD_REQUEST($BAD_REQUEST) status with an Empty Error" which {
 
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"
-            ))
+        lazy val result: WSResponse = {
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A"
+          ))
 
-            authoriseAgent()
-            await(wsClient.url(otherUkDividendsAmountUrl)
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-              .post(Map[String, String]()))
-          }
+          authoriseAgent()
+          await(wsClient.url(otherUkDividendsAmountUrl)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+            .post(Map[String, String]()))
+        }
 
         "have the correct status" in {
           result.status shouldBe BAD_REQUEST
@@ -649,17 +649,17 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
       }
       s"return a BAD_REQUEST($BAD_REQUEST) status with an Inavlid Error" which {
 
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"
-            ))
+        lazy val result: WSResponse = {
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A"
+          ))
 
-            authoriseAgent()
-            await(wsClient.url(otherUkDividendsAmountUrl)
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-              .post(Map("amount" -> "|")))
-          }
+          authoriseAgent()
+          await(wsClient.url(otherUkDividendsAmountUrl)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+            .post(Map("amount" -> "|")))
+        }
 
         "have the correct status" in {
           result.status shouldBe BAD_REQUEST
@@ -671,17 +671,17 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
       }
       s"return a BAD_REQUEST($BAD_REQUEST) status with an OverMax Error" which {
 
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"
-            ))
+        lazy val result: WSResponse = {
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A"
+          ))
 
-            authoriseAgent()
-            await(wsClient.url(otherUkDividendsAmountUrl)
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-              .post(Map("amount" -> "999999999999999999999999999999999")))
-          }
+          authoriseAgent()
+          await(wsClient.url(otherUkDividendsAmountUrl)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+            .post(Map("amount" -> "999999999999999999999999999999999")))
+        }
 
         "have the correct status" in {
           result.status shouldBe BAD_REQUEST
@@ -693,17 +693,17 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
       }
       s"return a BAD_REQUEST($BAD_REQUEST) status with an Empty Error - Welsh" which {
 
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"
-            ))
+        lazy val result: WSResponse = {
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A"
+          ))
 
-            authoriseAgent()
-            await(wsClient.url(otherUkDividendsAmountUrl)
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
-              .post(Map[String, String]()))
-          }
+          authoriseAgent()
+          await(wsClient.url(otherUkDividendsAmountUrl)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
+            .post(Map[String, String]()))
+        }
 
         "have the correct status" in {
           result.status shouldBe BAD_REQUEST
@@ -716,17 +716,17 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
       }
       s"return a BAD_REQUEST($BAD_REQUEST) status with an Inavlid Error - Welsh" which {
 
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"
-            ))
+        lazy val result: WSResponse = {
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A"
+          ))
 
-            authoriseAgent()
-            await(wsClient.url(otherUkDividendsAmountUrl)
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
-              .post(Map("amount" -> "|")))
-          }
+          authoriseAgent()
+          await(wsClient.url(otherUkDividendsAmountUrl)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
+            .post(Map("amount" -> "|")))
+        }
 
         "have the correct status" in {
           result.status shouldBe BAD_REQUEST
@@ -739,17 +739,17 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
       }
       s"return a BAD_REQUEST($BAD_REQUEST) status with an OverMax Error - Welsh" which {
 
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"
-            ))
+        lazy val result: WSResponse = {
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A"
+          ))
 
-            authoriseAgent()
-            await(wsClient.url(otherUkDividendsAmountUrl)
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
-              .post(Map("amount" -> "999999999999999999999999999999999")))
-          }
+          authoriseAgent()
+          await(wsClient.url(otherUkDividendsAmountUrl)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
+            .post(Map("amount" -> "999999999999999999999999999999999")))
+        }
 
         "have the correct status" in {
           result.status shouldBe BAD_REQUEST
@@ -783,4 +783,3 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
   }
 
 }
-
