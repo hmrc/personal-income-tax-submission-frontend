@@ -33,7 +33,7 @@ class GiftAidSubmissionServiceSpec extends UnitTestWithApp {
   val auth: AuthConnector = mock[AuthConnector]
   val service = new GiftAidSubmissionService(connector)
 
-  ".submitDividends" should {
+  ".submitGiftAid" should {
 
     "return the connector response" when {
 
