@@ -27,6 +27,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.ws.WSClient
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Result}
 import play.api.{Application, Environment, Mode}
 import services.AuthService
@@ -52,8 +53,9 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   implicit val actorSystem: ActorSystem = ActorSystem()
 
+  implicit def wsClient: WSClient = app.injector.instanceOf[WSClient]
 
-  val startUrl = s"http://localhost:$port/income-through-software/return/personal-income"
+  def appUrl(port: Int) = s"http://localhost:$port/income-through-software/return/employment-income"
 
   def await[T](awaitable: Awaitable[T]): T = Await.result(awaitable, Duration.Inf)
 

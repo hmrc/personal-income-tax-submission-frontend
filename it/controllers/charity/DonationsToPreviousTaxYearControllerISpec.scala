@@ -30,18 +30,15 @@ import utils.{IntegrationTest, ViewHelpers}
 
 class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with ViewHelpers {
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
   lazy val controller: DonationsToPreviousTaxYearController = app.injector.instanceOf[DonationsToPreviousTaxYearController]
 
   val taxYear: Int = 2022
 
-  val url: String = s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donations-after-5-april-$taxYear"
+  val url: String = s"${appUrl(port)}/$taxYear/charity/donations-after-5-april-$taxYear"
 
   object Selectors {
-
     val paragraph1HintText = "#main-content > div > div > form > div > fieldset > legend > div > p:nth-child(1)"
     val paragraph2HintText = "#main-content > div > div > form > div > fieldset > legend > div > p:nth-child(2)"
-
   }
 
   object Content {

@@ -16,9 +16,13 @@
 
 package utils
 
+import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
+import play.api.http.HeaderNames
+import play.api.libs.ws.{WSClient, WSResponse}
+import play.api.test.Helpers.{await, defaultAwaitTimeout}
 
 
 trait ViewHelpers { self: AnyWordSpecLike with Matchers =>
@@ -28,6 +32,17 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers =>
 
   val ENGLISH = "English"
   val WELSH = "Welsh"
+
+  def urlGet(url: String, welsh: Boolean = false, follow: Boolean = true, headers: Seq[(String, String)] = Seq())(implicit wsClient: WSClient): WSResponse = {
+    if(welsh){
+      val newHeaders = Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") ++ headers
+      await(wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(newHeaders: _*).get())
+    } else {
+      await(wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(headers: _*).get())
+    }
+  }
+
+
 
   def elementText(selector: String)(implicit document: () => Document): String = {
     document().select(selector).text()

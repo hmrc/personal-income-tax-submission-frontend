@@ -96,7 +96,7 @@ class DividendsCYAViewSpec extends ViewTest {
           h1Check(h1ExpectedIndividual + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
 
-          "has an area for question 1" which {
+            "has an area for question 1" which {
             textOnPageCheck(ukDividendsHeader, questionTextSelector(1))
             textOnPageCheck(yesNoExpectedAnswer(true), questionAnswerSelector(1))
             linkCheck(s"$changeLinkExpected $changeUkDividendsIndividualHiddenText", questionChangeLinkSelector(1), changeUkDividendsHref)
