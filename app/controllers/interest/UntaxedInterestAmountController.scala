@@ -45,6 +45,19 @@ class UntaxedInterestAmountController @Inject()(
                                                  questionsJourneyValidator: QuestionsJourneyValidator
                                                ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper with Logging {
 
+  def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
+
+  val optionalCyaData = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
+
+  val previousNames: Seq[String] = optionalCyaData.flatMap(_.untaxedUkAccounts.map(_.map(_.accountName))).getOrElse(Seq.empty[String])
+
+  def untaxedInterestAmountForm(implicit isAgent: Boolean): Form[UntaxedInterestModel] = UntaxedInterestAmountForm.untaxedInterestAmountForm(
+    previousNames,
+    emptyAmountKey = "interest.untaxed-uk-interest-amount.error.empty." + agentOrIndividual,
+    invalidNumericKey = "interest.untaxed-uk-interest-amount.error.invalid-numeric",
+    maxAmountInvalidKey = "interest.untaxed-uk-interest-amount.error.max-amount"
+  )
+
   def show(taxYear: Int, id: String): Action[AnyContent] = commonPredicates(taxYear, INTEREST).apply { implicit user =>
 
     val optionalCyaData = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
@@ -76,7 +89,7 @@ class UntaxedInterestAmountController @Inject()(
         }
 
         Ok(untaxedInterestAmountView(
-          form = model.fold(untaxedInterestAmountForm)(untaxedInterestAmountForm.fill),
+          form = model.fold(untaxedInterestAmountForm(,user.isAgent))(untaxedInterestAmountForm(user.isAgent).fill),
           taxYear = taxYear,
           postAction = UntaxedInterestAmountController.submit(taxYear, id),
           isAgent = user.isAgent
@@ -97,7 +110,7 @@ class UntaxedInterestAmountController @Inject()(
 
     lazy val untaxedInterestAmountForm: Form[UntaxedInterestModel] = UntaxedInterestAmountForm.untaxedInterestAmountForm(previousNames)
 
-    untaxedInterestAmountForm.bindFromRequest().fold({
+    untaxedInterestAmountForm(user.isAgent).bindFromRequest().fold({
       formWithErrors =>
         BadRequest(untaxedInterestAmountView(
           form = formWithErrors,

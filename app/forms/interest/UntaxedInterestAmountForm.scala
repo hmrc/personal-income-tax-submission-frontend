@@ -39,10 +39,16 @@ object UntaxedInterestAmountForm extends InputFilters{
 
   val exceedCharLimit: Constraint[String] = validateSize(charLimit)("interest.accounts.error.tooLong")
 
-  def untaxedInterestAmountForm(previousNames: Seq[String]): Form[UntaxedInterestModel] = Form(
+  def untaxedInterestAmountForm(previousNames: Seq[String],
+                                emptyAmountKey: String,
+                                invalidNumericKey: String,
+                                maxAmountInvalidKey: String): Form[UntaxedInterestModel] = Form(
     mapping(
       untaxedAccountName -> trimmedText.verifying(nameNotEmpty, noInvalidChar, exceedCharLimit, notDuplicate(previousNames)),
-      untaxedAmount -> currency("interest.untaxed-uk-interest-amount.error.empty")
+      untaxedAmount -> currency(requiredKey = emptyAmountKey,
+                                invalidNumeric = invalidNumericKey,
+                                nonNumericKey = invalidNumericKey,
+                                maxAmountKey = maxAmountInvalidKey)
     )(UntaxedInterestModel.apply)(UntaxedInterestModel.unapply).transform[UntaxedInterestModel](
       details => details.copy(
         untaxedAccountName = filter(details.untaxedAccountName)
