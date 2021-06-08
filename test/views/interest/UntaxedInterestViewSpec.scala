@@ -26,35 +26,35 @@ import views.html.interest.UntaxedInterestView
 
 class UntaxedInterestViewSpec extends ViewTest {
 
-  lazy val yesNoFormIndividual: Form[Boolean] = YesNoForm.yesNoForm("Select yes if you received untaxed interest from the UK")
-  lazy val yesNoFormAgent: Form[Boolean] = YesNoForm.yesNoForm("Select yes if your client received untaxed interest from the UK")
+  lazy val yesNoFormIndividual: Form[Boolean] = YesNoForm.yesNoForm("Select yes if you got untaxed UK interest")
+  lazy val yesNoFormAgent: Form[Boolean] = YesNoForm.yesNoForm("Select yes if your client got untaxed UK interest")
 
   lazy val untaxedInterestView: UntaxedInterestView = app.injector.instanceOf[UntaxedInterestView]
   val taxYear = 2020
   val taxYearMinusOne: Int = taxYear -1
 
   val captionSelector = ".govuk-caption-l"
-  val forExampleSelector = "#value-hint > p:nth-child(1)"
-  val bulletPointSelector1 = "#value-hint > ul > li:nth-child(1)"
-  val bulletPointSelector2 = "#value-hint > ul > li:nth-child(2)"
-  val bulletPointSelector3 = "#value-hint > ul > li:nth-child(3)"
-  val doNotIncludeSelector = "#value-hint > p:nth-child(3)"
+  val forExampleSelector = "#main-content > div > div > form > div > fieldset > legend > p:nth-child(2)"
+  val bulletPointSelector1 = "#main-content > div > div > form > div > fieldset > legend > ul > li:nth-child(1)"
+  val bulletPointSelector2 = "#main-content > div > div > form > div > fieldset > legend > ul > li:nth-child(2)"
+  val bulletPointSelector3 = "#main-content > div > div > form > div > fieldset > legend > ul > li:nth-child(3)"
+  val doNotIncludeSelector = "#main-content > div > div > form > div > fieldset > legend > p:nth-child(4)"
   val continueSelector = "#continue"
   val continueFormSelector = "#main-content > div > div > form"
 
-  val expectedIndividualTitle = "Did you receive any untaxed interest from the UK?"
+  val expectedIndividualTitle = "Did you get untaxed interest from the UK?"
   val expectedIndividualErrorTitle = s"Error: $expectedIndividualTitle"
-  val expectedIndividualH1 = "Did you receive any untaxed interest from the UK?"
-  val expectedAgentTitle = "Did your client receive any untaxed interest from the UK?"
+  val expectedIndividualH1 = "Did you get untaxed interest from the UK?"
+  val expectedAgentTitle = "Did your client get untaxed interest from the UK?"
   val expectedAgentErrorTitle = s"Error: $expectedAgentTitle"
-  val expectedAgentH1 = "Did your client receive any untaxed interest from the UK?"
+  val expectedAgentH1 = "Did your client get untaxed interest from the UK?"
   val expectedCaption = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
-  val forExampleText = "For example, interest from:"
+  val forExampleText = "This could be interest from:"
   val banksAndBuildingsText = "banks and building societies"
   val savingsAndCreditText = "savings and credit union accounts"
   val peerToPeerText = "peer-to-peer lending"
-  val doNotIncludeText: String = "This does not include any interest earned from an Individual Savings Account (ISA) or gilts. " +
-    "You’ll be able to add interest earned from gilts at a later date."
+  val doNotIncludeTextIndividual: String = "Do not include interest you got from an Individual Savings Account (ISA) or gilts."
+  val doNotIncludeTextAgent: String = "Do not include interest your client got from an Individual Savings Account (ISA) or gilts."
   val yesText = "Yes"
   val noText = "No"
   val continueText = "Continue"
@@ -79,7 +79,7 @@ class UntaxedInterestViewSpec extends ViewTest {
         textOnPageCheck(savingsAndCreditText, bulletPointSelector2)
         textOnPageCheck(peerToPeerText, bulletPointSelector3)
 
-        textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
+        textOnPageCheck(doNotIncludeTextIndividual, doNotIncludeSelector)
 
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
@@ -95,7 +95,7 @@ class UntaxedInterestViewSpec extends ViewTest {
         )(user, messages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedErrorText = "Select yes if you received untaxed interest from the UK"
+        val expectedErrorText = "Select yes if you got untaxed UK interest"
 
         titleCheck(expectedIndividualErrorTitle)
         welshToggleCheck("English")
@@ -124,7 +124,7 @@ class UntaxedInterestViewSpec extends ViewTest {
         textOnPageCheck(savingsAndCreditText, bulletPointSelector2)
         textOnPageCheck(peerToPeerText, bulletPointSelector3)
 
-        textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
+        textOnPageCheck(doNotIncludeTextAgent, doNotIncludeSelector)
 
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
@@ -142,7 +142,7 @@ class UntaxedInterestViewSpec extends ViewTest {
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedErrorText = "Select yes if your client received untaxed interest from the UK"
+        val expectedErrorText = "Select yes if your client got untaxed UK interest"
 
         titleCheck(expectedAgentErrorTitle)
         welshToggleCheck("English")
@@ -174,7 +174,7 @@ class UntaxedInterestViewSpec extends ViewTest {
         textOnPageCheck(savingsAndCreditText, bulletPointSelector2)
         textOnPageCheck(peerToPeerText, bulletPointSelector3)
 
-        textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
+        textOnPageCheck(doNotIncludeTextIndividual, doNotIncludeSelector)
 
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
@@ -190,7 +190,7 @@ class UntaxedInterestViewSpec extends ViewTest {
         )(user, welshMessages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedErrorText = "Select yes if you received untaxed interest from the UK"
+        val expectedErrorText = "Select yes if you got untaxed UK interest"
 
         titleCheck(expectedIndividualErrorTitle)
         welshToggleCheck("Welsh")
@@ -219,7 +219,7 @@ class UntaxedInterestViewSpec extends ViewTest {
         textOnPageCheck(savingsAndCreditText, bulletPointSelector2)
         textOnPageCheck(peerToPeerText, bulletPointSelector3)
 
-        textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
+        textOnPageCheck(doNotIncludeTextAgent, doNotIncludeSelector)
 
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
@@ -237,7 +237,7 @@ class UntaxedInterestViewSpec extends ViewTest {
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedErrorText = "Select yes if your client received untaxed interest from the UK"
+        val expectedErrorText = "Select yes if your client got untaxed UK interest"
 
         titleCheck(expectedAgentErrorTitle)
         welshToggleCheck("Welsh")

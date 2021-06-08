@@ -31,21 +31,23 @@ object UntaxedInterestAmountForm extends InputFilters{
   val charLimit: Int = 32
 
   val nameNotEmpty: Constraint[String] = nonEmpty("interest.common.error.name.empty")
-  val amountNotEmpty: Constraint[String] = nonEmpty("interest.untaxed-uk-interest-amount.error.empty")
-
-  def notDuplicate(previousNames: Seq[String]): Constraint[String] = validateNotDuplicate(previousNames)("interest.common.error.name.duplicate")
 
   val noInvalidChar: Constraint[String] = validateChar("interest.untaxed-uk-interest-details.error.invalidChars")
 
   val exceedCharLimit: Constraint[String] = validateSize(charLimit)("interest.accounts.error.tooLong")
 
-  def untaxedInterestAmountForm(previousNames: Seq[String],
-                                emptyAmountKey: String,
-                                invalidNumericKey: String,
-                                maxAmountInvalidKey: String): Form[UntaxedInterestModel] = Form(
+  def emptyAmountKey(isAgent: Boolean): String = s"interest.untaxed-uk-interest-amount.error.empty.${if(isAgent) "agent" else "individual"}"
+
+  val invalidNumericKey: String =  "interest.untaxed-uk-interest-amount.error.invalid-numeric"
+
+  val maxAmountInvalidKey: String = "interest.untaxed-uk-interest-amount.error.max-amount"
+
+  def notDuplicate(previousNames: Seq[String]): Constraint[String] = validateNotDuplicate(previousNames)("interest.common.error.name.duplicate")
+
+  def untaxedInterestAmountForm(isAgent: Boolean, previousNames: Seq[String]): Form[UntaxedInterestModel] = Form(
     mapping(
       untaxedAccountName -> trimmedText.verifying(nameNotEmpty, noInvalidChar, exceedCharLimit, notDuplicate(previousNames)),
-      untaxedAmount -> currency(requiredKey = emptyAmountKey,
+      untaxedAmount -> currency(requiredKey = emptyAmountKey(isAgent: Boolean),
                                 invalidNumeric = invalidNumericKey,
                                 nonNumericKey = invalidNumericKey,
                                 maxAmountKey = maxAmountInvalidKey)

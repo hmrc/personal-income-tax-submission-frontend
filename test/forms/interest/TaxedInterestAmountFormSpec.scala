@@ -23,8 +23,13 @@ import utils.UnitTest
 
 class TaxedInterestAmountFormSpec extends UnitTest{
 
-  def form(previousNames: Seq[String]): Form[TaxedInterestModel] = {
-    TaxedInterestAmountForm.taxedInterestAmountForm(previousNames)
+  def form(isAgent: Boolean,
+           previousNames: Seq[String]
+          ): Form[TaxedInterestModel] = {
+    TaxedInterestAmountForm.taxedInterestAmountForm(
+      isAgent,
+      previousNames
+    )
   }
 
   lazy val nameValid = "someName"
@@ -43,21 +48,21 @@ class TaxedInterestAmountFormSpec extends UnitTest{
       "valid name is supplied" in {
         val testInput = Map(taxedAccountName -> nameValid, taxedAmount -> amountValid.toString)
         val expected = TaxedInterestModel(nameValid, amountValid)
-        val actual = form(emptyPreviousNames).bind(testInput).value
+        val actual = form(isAgent = true, emptyPreviousNames).bind(testInput).value
 
         actual shouldBe Some(expected)
       }
 
       "Invalid name is supplied" in {
         val testInput = Map(taxedAccountName -> nameInvalid, taxedAmount -> amountValid.toString)
-        val result = form(emptyPreviousNames).bind(testInput).errors
+        val result = form(isAgent = true, emptyPreviousNames).bind(testInput).errors
 
         result should contain(FormError(taxedAccountName, "interest.common.error.name.empty"))
       }
 
       "Name is a duplicate of an existing account name" in {
         val testInput = Map(taxedAccountName -> nameValid, taxedAmount -> amountValid.toString)
-        val result = form(previousNames).bind(testInput).errors
+        val result = form(isAgent = true, previousNames).bind(testInput).errors
 
         result should contain(FormError(taxedAccountName, "interest.common.error.name.duplicate"))
       }
@@ -67,37 +72,44 @@ class TaxedInterestAmountFormSpec extends UnitTest{
       "valid currency is supplied" in {
         val testInput = Map(taxedAccountName -> nameValid, taxedAmount -> amountValid.toString)
         val expected = TaxedInterestModel(nameValid, amountValid)
-        val actual = form(emptyPreviousNames).bind(testInput).value
+        val actual = form(isAgent = true, emptyPreviousNames).bind(testInput).value
 
         actual shouldBe Some(expected)
       }
 
-      "currency is empty" in {
+      "currency is empty as an individual" in {
         val testInput = Map(taxedAccountName -> nameValid, taxedAmount -> amountInvalidEmpty)
-        val result = form(emptyPreviousNames).bind(testInput).errors
+        val result = form(isAgent = false, emptyPreviousNames).bind(testInput).errors
 
-        result should contain(FormError(taxedAmount, "interest.taxed-uk-interest-amount.error.empty"))
+        result should contain(FormError(taxedAmount, "interest.taxed-uk-interest-amount.error.empty.individual"))
+      }
+
+      "currency is empty as an agent" in {
+        val testInput = Map(taxedAccountName -> nameValid, taxedAmount -> amountInvalidEmpty)
+        val result = form(isAgent = true, emptyPreviousNames).bind(testInput).errors
+
+        result should contain(FormError(taxedAmount, "interest.taxed-uk-interest-amount.error.empty.agent"))
       }
 
       "currency is invalid number" in {
         val testInput = Map(taxedAccountName -> nameValid, taxedAmount -> amountInvalidInt)
-        val result = form(emptyPreviousNames).bind(testInput).errors
+        val result = form(isAgent = true, emptyPreviousNames).bind(testInput).errors
 
-        result should contain(FormError(taxedAmount, "common.error.invalid_number"))
+        result should contain(FormError(taxedAmount, "interest.taxed-uk-interest-amount.error.invalid-numeric"))
       }
 
       "currency is invalid format" in {
         val testInput = Map(taxedAccountName -> nameValid, taxedAmount -> amountInvalidFormat)
-        val result = form(emptyPreviousNames).bind(testInput).errors
+        val result = form(isAgent = true, emptyPreviousNames).bind(testInput).errors
 
-        result should contain(FormError(taxedAmount, "common.error.invalid_currency_format"))
+        result should contain(FormError(taxedAmount, "interest.taxed-uk-interest-amount.error.invalid-numeric"))
       }
 
       "currency is too big" in {
         val testInput = Map(taxedAccountName -> nameValid, taxedAmount -> amountTooBig)
-        val result = form(emptyPreviousNames).bind(testInput).errors
+        val result = form(isAgent = true, emptyPreviousNames).bind(testInput).errors
 
-        result should contain(FormError(taxedAmount, "common.error.amountMaxLimit"))
+        result should contain(FormError(taxedAmount, "interest.taxed-uk-interest-amount.error.max-amount"))
       }
     }
   }

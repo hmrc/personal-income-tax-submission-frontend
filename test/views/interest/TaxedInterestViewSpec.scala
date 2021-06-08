@@ -26,8 +26,8 @@ import views.html.interest.TaxedInterestView
 
 class TaxedInterestViewSpec extends ViewTest {
 
-  lazy val yesNoFormIndividual: Form[Boolean] = YesNoForm.yesNoForm("Select yes if you received taxed interest from the UK")
-  lazy val yesNoFormAgent: Form[Boolean] = YesNoForm.yesNoForm("Select yes if your client received taxed interest from the UK")
+  lazy val yesNoFormIndividual: Form[Boolean] = YesNoForm.yesNoForm("Select yes if you got taxed UK interest")
+  lazy val yesNoFormAgent: Form[Boolean] = YesNoForm.yesNoForm("Select yes if your client got taxed UK interest")
 
   lazy val taxedInterestView: TaxedInterestView = app.injector.instanceOf[TaxedInterestView]
   val taxYear = 2020
@@ -35,26 +35,27 @@ class TaxedInterestViewSpec extends ViewTest {
 
   val captionSelector = ".govuk-caption-l"
   val valueHref = "#value"
-  val forExampleSelector = "#value-hint > p:nth-child(1)"
-  val bulletPointSelector1 = "#value-hint > ul > li:nth-child(1)"
-  val bulletPointSelector2 = "#value-hint > ul > li:nth-child(2)"
-  val bulletPointSelector3 = "#value-hint > ul > li:nth-child(3)"
-  val doNotIncludeSelector = "#value-hint > p:nth-child(3)"
+  val forExampleSelector = "#main-content > div > div > form > div > fieldset > legend > p:nth-child(2)"
+  val bulletPointSelector1 = "#main-content > div > div > form > div > fieldset > legend > ul > li:nth-child(1)"
+  val bulletPointSelector2 = "#main-content > div > div > form > div > fieldset > legend > ul > li:nth-child(2)"
+  val bulletPointSelector3 = "#main-content > div > div > form > div > fieldset > legend > ul > li:nth-child(3)"
+  val doNotIncludeSelector = "#main-content > div > div > form > div > fieldset > legend > p:nth-child(4)"
   val continueSelector = "#continue"
   val continueFormSelector = "#main-content > div > div > form"
 
-  val expectedIndividualTitle = "Did you receive any taxed interest from the UK?"
+  val expectedIndividualTitle = "Did you get taxed interest from the UK?"
   val expectedIndividualErrorTitle = s"Error: $expectedIndividualTitle"
-  val expectedIndividualH1 = "Did you receive any taxed interest from the UK?"
-  val expectedAgentTitle = "Did your client receive any taxed interest from the UK?"
+  val expectedIndividualH1 = "Did you get taxed interest from the UK?"
+  val expectedAgentTitle = "Did your client get taxed interest from the UK?"
   val expectedAgentErrorTitle = s"Error: $expectedAgentTitle"
-  val expectedAgentH1 = "Did your client receive any taxed interest from the UK?"
+  val expectedAgentH1 = "Did your client get taxed interest from the UK?"
   val expectedCaption = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
-  val forExampleText = "For example, interest from:"
+  val forExampleText = "This could be interest from:"
   val trustFundsText = "trust funds"
   val companyBondsText = "company bonds"
   val lifeAnnuityText = "life annuity payments"
-  val doNotIncludeText = "Do not include interest received from gilts. You’ll be able to add interest earned from gilts at a later date."
+  val doNotIncludeTextIndividual = "Do not include interest you got from an Individual Savings Account (ISA) or gilts."
+  val doNotIncludeTextAgent = "Do not include interest your client got from an Individual Savings Account (ISA) or gilts."
   val yesText = "Yes"
   val noText = "No"
   val continueText = "Continue"
@@ -78,7 +79,7 @@ class TaxedInterestViewSpec extends ViewTest {
         textOnPageCheck(companyBondsText, bulletPointSelector2)
         textOnPageCheck(lifeAnnuityText, bulletPointSelector3)
 
-        textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
+        textOnPageCheck(doNotIncludeTextIndividual, doNotIncludeSelector)
 
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
@@ -95,7 +96,7 @@ class TaxedInterestViewSpec extends ViewTest {
         )(user, messages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedErrorText = "Select yes if you received taxed interest from the UK"
+        val expectedErrorText = "Select yes if you got taxed UK interest"
 
         titleCheck(expectedIndividualErrorTitle)
         welshToggleCheck("English")
@@ -124,7 +125,7 @@ class TaxedInterestViewSpec extends ViewTest {
         textOnPageCheck(companyBondsText, bulletPointSelector2)
         textOnPageCheck(lifeAnnuityText, bulletPointSelector3)
 
-        textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
+        textOnPageCheck(doNotIncludeTextAgent, doNotIncludeSelector)
 
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
@@ -142,7 +143,7 @@ class TaxedInterestViewSpec extends ViewTest {
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedErrorText = "Select yes if your client received taxed interest from the UK"
+        val expectedErrorText = "Select yes if your client got taxed UK interest"
 
         titleCheck(expectedAgentErrorTitle)
         welshToggleCheck("English")
@@ -174,7 +175,7 @@ class TaxedInterestViewSpec extends ViewTest {
         textOnPageCheck(companyBondsText, bulletPointSelector2)
         textOnPageCheck(lifeAnnuityText, bulletPointSelector3)
 
-        textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
+        textOnPageCheck(doNotIncludeTextIndividual, doNotIncludeSelector)
 
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
@@ -191,7 +192,7 @@ class TaxedInterestViewSpec extends ViewTest {
         )(user, welshMessages, mockAppConfig)
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedErrorText = "Select yes if you received taxed interest from the UK"
+        val expectedErrorText = "Select yes if you got taxed UK interest"
 
         titleCheck(expectedIndividualErrorTitle)
         welshToggleCheck("Welsh")
@@ -220,7 +221,7 @@ class TaxedInterestViewSpec extends ViewTest {
         textOnPageCheck(companyBondsText, bulletPointSelector2)
         textOnPageCheck(lifeAnnuityText, bulletPointSelector3)
 
-        textOnPageCheck(doNotIncludeText, doNotIncludeSelector)
+        textOnPageCheck(doNotIncludeTextAgent, doNotIncludeSelector)
 
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
@@ -238,7 +239,7 @@ class TaxedInterestViewSpec extends ViewTest {
 
         implicit lazy val document: Document = Jsoup.parse(view.body)
 
-        val expectedErrorText = "Select yes if your client received taxed interest from the UK"
+        val expectedErrorText = "Select yes if your client got taxed UK interest"
 
         titleCheck(expectedAgentErrorTitle)
         welshToggleCheck("Welsh")

@@ -58,7 +58,11 @@ class TaxedInterestAmountController @Inject()(
 
     implicit val journey: QuestionsJourney[InterestCYAModel] = InterestCYAModel.interestJourney(taxYear, Some(id))
 
-    lazy val taxedInterestAmountForm: Form[TaxedInterestModel] = TaxedInterestAmountForm.taxedInterestAmountForm(previousNames)
+    def taxedInterestAmountForm(implicit isAgent: Boolean, previousNames: Seq[String]): Form[TaxedInterestModel] =
+    TaxedInterestAmountForm.taxedInterestAmountForm(
+      isAgent,
+      previousNames
+    )
 
     questionsJourneyValidator.validate(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id), optionalCyaData, taxYear) {
 
@@ -80,7 +84,7 @@ class TaxedInterestAmountController @Inject()(
         }
 
         Ok(taxedInterestAmountView(
-          form = model.fold(taxedInterestAmountForm)(taxedInterestAmountForm.fill),
+          form = model.fold(taxedInterestAmountForm(user.isAgent, previousNames))(taxedInterestAmountForm(user.isAgent, previousNames).fill),
           taxYear,
           controllers.interest.routes.TaxedInterestAmountController.submit(taxYear, id),
           isAgent = user.isAgent
@@ -97,9 +101,12 @@ class TaxedInterestAmountController @Inject()(
 
     val previousNames: Seq[String] = optionalCyaData.flatMap(_.taxedUkAccounts.map(_.map(_.accountName))).getOrElse(Seq.empty[String])
 
-    lazy val taxedInterestAmountForm: Form[TaxedInterestModel] = TaxedInterestAmountForm.taxedInterestAmountForm(previousNames)
+    def taxedInterestAmountForm(implicit isAgent: Boolean): Form[TaxedInterestModel] = TaxedInterestAmountForm.taxedInterestAmountForm(
+      isAgent,
+      previousNames
+    )
 
-    taxedInterestAmountForm.bindFromRequest().fold({
+    taxedInterestAmountForm(user.isAgent).bindFromRequest().fold({
       formWithErrors =>
         BadRequest(taxedInterestAmountView(
           form = formWithErrors,
@@ -114,23 +121,18 @@ class TaxedInterestAmountController @Inject()(
         def createNewAccount: InterestAccountModel = InterestAccountModel(None, completeForm.taxedAccountName, newAmount, Some(id))
 
         val optionalCyaData = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
-
         optionalCyaData match {
           case Some(cyaData) =>
             val accounts = cyaData.taxedUkAccounts.getOrElse(Seq.empty[InterestAccountModel])
-
             val newAccount = accounts.find(_.getPrimaryId().exists(_ == id)).map(_.copy(
               accountName = completeForm.taxedAccountName, amount = newAmount
             )).getOrElse(createNewAccount)
-
             val newAccountList = if (newAccount.getPrimaryId().nonEmpty && accounts.exists(_.getPrimaryId() == newAccount.getPrimaryId())) {
               accounts.map(account => if (account.getPrimaryId() == newAccount.getPrimaryId()) newAccount else account)
             } else {
               accounts :+ newAccount
             }
-
             val updatedCyaModel = cyaData.copy(taxedUkAccounts = Some(newAccountList))
-
             Redirect(controllers.interest.routes.AccountsController.show(taxYear, InterestTaxTypes.TAXED))
               .addingToSession(SessionValues.INTEREST_CYA -> updatedCyaModel.asJsonString)
           case _ =>

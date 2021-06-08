@@ -178,7 +178,7 @@ interest.common.account.hint = For example, ‘HSBC savings account’.
 interest.uk-interest.paragraph.individual = Do not include interest you got from an Individual Savings Account (ISA) or gilts.
 interest.uk-interest.paragraph.agent = Do not include interest your client got from an Individual Savings Account (ISA) or gilts.
 
-nterest.untaxed-uk-interest.title.individual = Did you get untaxed interest from the UK?
+interest.untaxed-uk-interest.title.individual = Did you get untaxed interest from the UK?
 interest.untaxed-uk-interest.title.agent = Did your client get untaxed interest from the UK?
 interest.untaxed-uk-interest.errors.noRadioSelected.individual = Select yes if you got untaxed UK interest
 interest.untaxed-uk-interest.errors.noRadioSelected.agent = Select yes if your client got untaxed UK interest
@@ -219,6 +219,8 @@ interest.taxed-uk-interest-amount.error.invalid-numeric = Enter the amount of ta
 interest.taxed-uk-interest-amount.error.max-amount = The amount of taxed UK interest must be less than £100,000,000,000
 
 interest.taxed-uk-interest-accounts.title = Accounts with taxed UK interest
+interest.taxed-uk-interest-accounts.account.tell-us-about-all.individual = You must tell us about all your accounts with taxed UK interest.
+interest.taxed-uk-interest-accounts.account.tell-us-about-all.agent = You must tell us about all your client’s accounts with taxed UK interest.
 
 interest.uk-interest.paragraph.individual = Do not include interest you got from an Individual Savings Account (ISA) or gilts.
 interest.uk-interest.paragraph.agent = Do not include interest your client got from an Individual Savings Account (ISA) or gilts.
@@ -233,7 +235,7 @@ interest.cya.questions.2 = Untaxed UK interest accounts
 interest.cya.questions.3 = Taxed UK Interest
 interest.cya.questions.4 = Taxed UK interest accounts
 
-nterest.cya.untaxed-uk-interest-accounts.hiddenChange.individual = if you got untaxed UK interest
+interest.cya.untaxed-uk-interest-accounts.hiddenChange.individual = if you got untaxed UK interest
 interest.cya.untaxed-uk-interest-accounts.hiddenChange.agent = if your client got untaxed UK interest
 interest.cya.taxed-uk-interest-accounts.hiddenChange.individual = if you got taxed UK interest
 interest.cya.taxed-uk-interest-accounts.hiddenChange.agent = if your client got taxed UK interest

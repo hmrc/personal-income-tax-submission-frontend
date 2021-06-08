@@ -34,7 +34,7 @@
 
 @hasFormErrors = @{form.hasErrors}
 
-@hint = {
+@detailsHtml = {
     <p>
         @messages("interest.common.paragraph.1")
     </p>
@@ -44,7 +44,7 @@
              <li>@messages("interest.taxed-uk-interest.list.3")</li>
          </ul>
     <p>
-        @messages("interest.taxed-uk-interest.paragraph.2")
+        @messages(s"interest.uk-interest.paragraph.${if(user.isAgent) "agent" else "individual"}")
     </p>
 }
 
@@ -57,7 +57,9 @@
         @inputRadio(
             form = form,
             heading = headingForUse,
-            hint = Some(hint),
+            hint = None,
+            classes = "govuk-!-margin-bottom-4",
+            content = Some(detailsHtml),
             inline = true,
             subheading = Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString))
         )
