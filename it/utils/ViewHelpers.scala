@@ -42,6 +42,16 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers =>
     }
   }
 
+  def urlPost(url: String, welsh: Boolean = false, follow: Boolean = true,
+              headers: Seq[(String, String)] = Seq(), postRequest:Map[String,String])(implicit wsClient: WSClient): WSResponse = {
+    if(welsh){
+      val newHeaders = Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") ++ headers
+      await(wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(newHeaders: _*).post(postRequest))
+    } else {
+      await(wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(headers: _*).post(postRequest))
+    }
+  }
+
 
 
   def elementText(selector: String)(implicit document: () => Document): String = {

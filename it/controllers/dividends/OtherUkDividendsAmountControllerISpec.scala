@@ -32,46 +32,49 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
   val taxYear: Int = 2022
   val taxYearMinusOne: Int = taxYear - 1
   val amount: BigDecimal = 500
-  val otherUkDividendsAmountUrl = s"$startUrl/$taxYear/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
+  val otherUkDividendsAmountUrl = s"${appUrl(port)}/$taxYear/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
 
-  object IndividualExpected {
-    val expectedH1 = "How much did you get in dividends from trusts and open-ended investment companies based in the UK?"
-    val expectedTitle = "How much did you get in dividends from trusts and open-ended investment companies based in the UK?"
-    val expectedErrorTitle = s"Error: $expectedTitle"
-    val tellUsTheValue = "Tell us the value of the dividends you got, in pounds. You can find this information in your dividend voucher."
-    val youToldUsPriorText = s"You told us you got £$amount in dividends from UK-based trusts and open-ended investment companies this year. Tell us if this has changed."
-    val expectedErrorEmpty = "Enter how much you got in dividends from trusts and open-ended investment companies"
-    val expectedErrorInvalid = "Enter how much you got in dividends in the correct format"
-    val expectedErrorOverMax = "The amount of dividends from trusts and open-ended investment companies based in the UK must be less than £100,000,000,000"
+  object ExpectedResult {
 
-    val expectedH1Cy = "How much did you get in dividends from trusts and open-ended investment companies based in the UK?"
-    val expectedTitleCy = "How much did you get in dividends from trusts and open-ended investment companies based in the UK?"
-    val expectedErrorTitleCy = s"Error: $expectedTitle"
-    val tellUsTheValueCy = "Tell us the value of the dividends you got, in pounds. You can find this information in your dividend voucher."
-    val youToldUsPriorTextCy = s"You told us you got £$amount in dividends from UK-based trusts and open-ended investment companies this year. Tell us if this has changed."
-    val expectedErrorEmptyCy = "Enter how much you got in dividends from trusts and open-ended investment companies"
-    val expectedErrorInvalidCy = "Enter how much you got in dividends in the correct format"
-    val expectedErrorOverMaxCy = "The amount of dividends from trusts and open-ended investment companies based in the UK must be less than £100,000,000,000"
-  }
+    object IndividualExpected {
+      val expectedH1 = "How much did you get in dividends from trusts and open-ended investment companies based in the UK?"
+      val expectedTitle = "How much did you get in dividends from trusts and open-ended investment companies based in the UK?"
+      val expectedErrorTitle = s"Error: $expectedTitle"
+      val tellUsTheValue = "Tell us the value of the dividends you got, in pounds. You can find this information in your dividend voucher."
+      val youToldUsPriorText = s"You told us you got £$amount in dividends from UK-based trusts and open-ended investment companies this year. Tell us if this has changed."
+      val expectedErrorEmpty = "Enter how much you got in dividends from trusts and open-ended investment companies"
+      val expectedErrorInvalid = "Enter how much you got in dividends in the correct format"
+      val expectedErrorOverMax = "The amount of dividends from trusts and open-ended investment companies based in the UK must be less than £100,000,000,000"
 
-  object AgentExpected {
-    val expectedH1 = "How much did your client get in dividends from trusts and open-ended investment companies based in the UK?"
-    val expectedTitle = "How much did your client get in dividends from trusts and open-ended investment companies based in the UK?"
-    val expectedErrorTitleAgent = s"Error: $expectedTitle"
-    val tellUsTheValue = "Tell us the value of the dividends your client got, in pounds. You can find this information in their dividend voucher."
-    val youToldUsPriorText = s"You told us your client got £$amount in dividends from UK-based trusts and open-ended investment companies this year. Tell us if this has changed."
-    val expectedErrorEmpty = "Enter how much your client got in dividends from trusts and open-ended investment companies"
-    val expectedErrorInvalid = "Enter how much your client got in dividends in the correct format"
-    val expectedErrorOverMax = "The amount of dividends from trusts and open-ended investment companies based in the UK must be less than £100,000,000,000"
+      val expectedH1Cy = "How much did you get in dividends from trusts and open-ended investment companies based in the UK?"
+      val expectedTitleCy = "How much did you get in dividends from trusts and open-ended investment companies based in the UK?"
+      val expectedErrorTitleCy = s"Error: $expectedTitle"
+      val tellUsTheValueCy = "Tell us the value of the dividends you got, in pounds. You can find this information in your dividend voucher."
+      val youToldUsPriorTextCy = s"You told us you got £$amount in dividends from UK-based trusts and open-ended investment companies this year. Tell us if this has changed."
+      val expectedErrorEmptyCy = "Enter how much you got in dividends from trusts and open-ended investment companies"
+      val expectedErrorInvalidCy = "Enter how much you got in dividends in the correct format"
+      val expectedErrorOverMaxCy = "The amount of dividends from trusts and open-ended investment companies based in the UK must be less than £100,000,000,000"
+    }
 
-    val expectedH1Cy = "How much did your client get in dividends from trusts and open-ended investment companies based in the UK?"
-    val expectedTitleCy = "How much did your client get in dividends from trusts and open-ended investment companies based in the UK?"
-    val expectedErrorTitleAgentCy = s"Error: $expectedTitle"
-    val tellUsTheValueCy = "Tell us the value of the dividends your client got, in pounds. You can find this information in their dividend voucher."
-    val youToldUsPriorTextCy = s"You told us your client got £$amount in dividends from UK-based trusts and open-ended investment companies this year. Tell us if this has changed."
-    val expectedErrorEmptyCy = "Enter how much your client got in dividends from trusts and open-ended investment companies"
-    val expectedErrorInvalidCy = "Enter how much your client got in dividends in the correct format"
-    val expectedErrorOverMaxCy = "The amount of dividends from trusts and open-ended investment companies based in the UK must be less than £100,000,000,000"
+    object AgentExpected {
+      val expectedH1 = "How much did your client get in dividends from trusts and open-ended investment companies based in the UK?"
+      val expectedTitle = "How much did your client get in dividends from trusts and open-ended investment companies based in the UK?"
+      val expectedErrorTitleAgent = s"Error: $expectedTitle"
+      val tellUsTheValue = "Tell us the value of the dividends your client got, in pounds. You can find this information in their dividend voucher."
+      val youToldUsPriorText = s"You told us your client got £$amount in dividends from UK-based trusts and open-ended investment companies this year. Tell us if this has changed."
+      val expectedErrorEmpty = "Enter how much your client got in dividends from trusts and open-ended investment companies"
+      val expectedErrorInvalid = "Enter how much your client got in dividends in the correct format"
+      val expectedErrorOverMax = "The amount of dividends from trusts and open-ended investment companies based in the UK must be less than £100,000,000,000"
+
+      val expectedH1Cy = "How much did your client get in dividends from trusts and open-ended investment companies based in the UK?"
+      val expectedTitleCy = "How much did your client get in dividends from trusts and open-ended investment companies based in the UK?"
+      val expectedErrorTitleAgentCy = s"Error: $expectedTitle"
+      val tellUsTheValueCy = "Tell us the value of the dividends your client got, in pounds. You can find this information in their dividend voucher."
+      val youToldUsPriorTextCy = s"You told us your client got £$amount in dividends from UK-based trusts and open-ended investment companies this year. Tell us if this has changed."
+      val expectedErrorEmptyCy = "Enter how much your client got in dividends from trusts and open-ended investment companies"
+      val expectedErrorInvalidCy = "Enter how much your client got in dividends in the correct format"
+      val expectedErrorOverMaxCy = "The amount of dividends from trusts and open-ended investment companies based in the UK must be less than £100,000,000,000"
+    }
   }
 
   val poundPrefixSelector = ".govuk-input__prefix"
@@ -100,7 +103,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
 
 
   "as an individual" when {
-  import IndividualExpected._
+  import ExpectedResult.IndividualExpected._
     ".show" should {
 
       "redirects user to overview page when there is no data in session" which {
@@ -124,8 +127,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
 
         lazy val result: WSResponse = {
           authoriseIndividual()
-          await(wsClient.url(otherUkDividendsAmountUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").get())
+          urlGet(otherUkDividendsAmountUrl, )
         }
 
         "has an OK(200) status" in {
@@ -441,7 +443,8 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
   }
 
   "as an agent" when {
-  import AgentExpected._
+
+    import ExpectedResult.AgentExpected._
     ".show" should {
 
       "returns an action" which {
