@@ -29,7 +29,6 @@ import play.api.http.Status._
 
 class RemoveOverseasCharityControllerGiftAidISpec extends IntegrationTest with ViewHelpers {
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
   object Selectors {
 

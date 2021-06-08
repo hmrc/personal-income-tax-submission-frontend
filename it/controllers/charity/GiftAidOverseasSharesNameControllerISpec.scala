@@ -85,7 +85,6 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
   val testModel: GiftAidSubmissionModel = GiftAidSubmissionModel(None, Some(GiftsModel(None, Some(List("JaneDoe")), None,None)))
 
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
   val taxYear: Int = 2022
 
   "as an individual" when {

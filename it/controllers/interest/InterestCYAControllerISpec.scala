@@ -28,7 +28,6 @@ import utils.IntegrationTest
 
 class InterestCYAControllerISpec extends IntegrationTest{
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
   val taxYear: Int = 2022
   val amount: BigDecimal = 25

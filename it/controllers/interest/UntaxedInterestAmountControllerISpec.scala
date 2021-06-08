@@ -96,7 +96,6 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
     val errorTitle = s"Error: $heading"
   }
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
 
   def untaxedInterestAmountUrl(newId: String): String = s"$startUrl/$taxYear/interest/untaxed-uk-interest-details/$newId"

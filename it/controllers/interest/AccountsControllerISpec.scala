@@ -28,7 +28,6 @@ import utils.IntegrationTest
 
 class AccountsControllerISpec extends IntegrationTest{
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
   val yesNoForm = Map(YesNoForm.yesNo -> YesNoForm.no)
 

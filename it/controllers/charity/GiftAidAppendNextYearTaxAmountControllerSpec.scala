@@ -31,7 +31,6 @@ import play.api.test.FakeRequest
 class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with ViewHelpers {
 
   val defaultTaxYear = 2022
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
   def url(taxYear: Int, someTaxYear: Int): String =
     s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-after-5-april-$someTaxYear-added-to-this-tax-year"

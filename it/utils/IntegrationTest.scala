@@ -17,7 +17,6 @@
 package utils
 
 import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, Materializer}
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import helpers.WireMockHelper
@@ -33,7 +32,7 @@ import play.api.{Application, Environment, Mode}
 import services.AuthService
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
-import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Enrolment, EnrolmentIdentifier, Enrolments}
+import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.authErrorPages.AgentAuthErrorPageView
 
@@ -56,6 +55,9 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   implicit def wsClient: WSClient = app.injector.instanceOf[WSClient]
 
   def appUrl(port: Int) = s"http://localhost:$port/income-through-software/return/employment-income"
+
+
+  val startUrl = s"http://localhost:$port/income-through-software/return/personal-income"
 
   def await[T](awaitable: Awaitable[T]): T = Await.result(awaitable, Duration.Inf)
 
@@ -151,5 +153,6 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
       Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
     )) and Some(AffinityGroup.Individual) and ConfidenceLevel.L200
   )
+
 
 }

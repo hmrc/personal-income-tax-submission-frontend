@@ -31,7 +31,7 @@ import utils.{IntegrationTest, ViewHelpers}
 
 class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers {
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
+
   lazy val controller: GiftAidLastTaxYearController = app.injector.instanceOf[GiftAidLastTaxYearController]
   val taxYear: Int = 2022
 

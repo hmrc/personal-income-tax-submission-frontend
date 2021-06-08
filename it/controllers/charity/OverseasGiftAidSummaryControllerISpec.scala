@@ -71,8 +71,6 @@ class OverseasGiftAidSummaryControllerISpec extends IntegrationTest {
     val noSelectionError = "Select yes if you need to add another overseas charity"
   }
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
-
   val taxYear: Int = 2022
 
   val overseasGiftAidSummaryUrl = s"$startUrl/$taxYear/charity/overseas-charities-donated-to"

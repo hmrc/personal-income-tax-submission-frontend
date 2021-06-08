@@ -83,7 +83,6 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
     val button = "Continue"
   }
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
   val taxYear: Int = 2022
 

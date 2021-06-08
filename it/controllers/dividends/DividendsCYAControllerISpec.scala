@@ -25,11 +25,12 @@ import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.json.Json
-import play.api.libs.ws.{WSClient, WSResponse}
+import play.api.libs.ws.WSResponse
 import utils.{IntegrationTest, ViewHelpers}
 
 
 class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers{
+
 
   val connector: DividendsSubmissionConnector = app.injector.instanceOf[DividendsSubmissionConnector]
 
@@ -37,7 +38,13 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers{
 
   val ukDividends: BigDecimal = 10
   val otherDividends: BigDecimal = 10.50
-  val dividendsCheckYourAnswersUrl = s"${appUrl(port)}/$taxYear/dividends/check-income-from-dividends"
+  val dividendsCheckYourAnswersUrl = s"$startUrl/$taxYear/dividends/check-income-from-dividends"
+
+  val changeUkDividendsHref = "/income-through-software/return/personal-income/2022/dividends/dividends-from-uk-companies"
+  val changeUkDividendsAmountHref = "/income-through-software/return/personal-income/2022/dividends/how-much-dividends-from-uk-companies"
+  val changeOtherDividendsHref = "/income-through-software/return/personal-income/2022/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
+  val changeOtherDividendsAmountHref = "/income-through-software/return/personal-income/2022/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
+
 
   lazy val dividendsBody: DividendsSubmissionModel = DividendsSubmissionModel(
     Some(ukDividends),
@@ -91,8 +98,8 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers{
 
   ".show" should {
 
-    import ExpectedResults.IndividualExpected._
     import ExpectedResults.AllExpected._
+    import ExpectedResults.IndividualExpected._
     import Selectors._
 
     s"as an Individual" when {
@@ -104,7 +111,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers{
 
         lazy val result = {
           authoriseIndividual()
-          urlGet(dividendsCheckYourAnswersUrl)
+          urlGet(dividendsCheckYourAnswersUrl, headers = Seq(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck"))
         }
 
         s"has an OK($OK) status" in {
@@ -113,10 +120,6 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers{
 
         implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-        val changeUkDividendsHref = "/income-through-software/return/personal-income/2022/dividends/dividends-from-uk-companies"
-        val changeUkDividendsAmountHref = "/income-through-software/return/personal-income/2022/dividends/how-much-dividends-from-uk-companies"
-        val changeOtherDividendsHref = "/income-through-software/return/personal-income/2022/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
-        val changeOtherDividendsAmountHref = "/income-through-software/return/personal-income/2022/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
 
         titleCheck(expectedTitle)
         h1Check(expectedH1 + " " + expectedCaption)
@@ -145,18 +148,92 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers{
         buttonCheck(continueButtonText, continueButtonSelector)
         formPostLinkCheck(continueButtonLink, continueButtonFormSelector)
 
-        //welshToggleCheck("english")
+        welshToggleCheck(ENGLISH)
 
       }
 
-      "redirects user to overview page there is no CYA data in session" which {
+      "renders CYA page without yesNo Content when there is a prior submission" which {
+
+      lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+        SessionValues.DIVIDENDS_PRIOR_SUB -> Json.prettyPrint(Json.toJson(dividendsBody))))
+
+      lazy val result = {
+        authoriseIndividual()
+        urlGet(dividendsCheckYourAnswersUrl, headers = Seq(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck"))
+      }
+
+      s"has an OK($OK) status" in {
+        result.status shouldBe OK
+      }
+
+      implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+      titleCheck(expectedTitle)
+      h1Check(expectedH1 + " " + expectedCaption)
+      textOnPageCheck(expectedCaption, Selectors.captionSelector)
+      "has an area for section 1" which {
+        textOnPageCheck(ukDividendsAmountTitle, cyaTitle(1))
+        textOnPageCheck(ukDividendsAmount, cyaValue(1))
+        linkCheck(s"$changeLinkExpected $changeUkDividendsAmountIndividualHiddenText", cyaChangeLink(1), changeUkDividendsAmountHref)
+      }
+      "has an area for section 2" which {
+        textOnPageCheck(otherDividendsAmountTitle, cyaTitle(2))
+        textOnPageCheck(otherDividendsAmount, cyaValue(2))
+        linkCheck(s"$changeLinkExpected $changeOtherDividendsAmountIndividualHiddenText", cyaChangeLink(2), changeOtherDividendsAmountHref)
+      }
+
+      buttonCheck(continueButtonText, continueButtonSelector)
+      formPostLinkCheck(continueButtonLink, continueButtonFormSelector)
+
+      welshToggleCheck(ENGLISH)
+
+    }
+
+
+      "renders CYA page without amount when boolean answers are false" which {
+
+        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+          SessionValues.DIVIDENDS_CYA -> Json.prettyPrint(Json.toJson(DividendsCheckYourAnswersModel(
+            Some(false),None, Some(false), Some(otherDividends))))))
+
+        lazy val result = {
+          authoriseIndividual()
+          urlGet(dividendsCheckYourAnswersUrl, headers = Seq(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck"))
+        }
+
+        s"has an OK($OK) status" in {
+          result.status shouldBe OK
+        }
+
+        implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+        titleCheck(expectedTitle)
+        h1Check(expectedH1 + " " + expectedCaption)
+        textOnPageCheck(expectedCaption, Selectors.captionSelector)
+        "has an area for section 1" which {
+          textOnPageCheck(UkDividendsTitle, cyaTitle(1))
+          textOnPageCheck(yesNoExpectedAnswer(false), cyaValue(1))
+          linkCheck(s"$changeLinkExpected $changeUkDividendsIndividualHiddenText", cyaChangeLink(1), changeUkDividendsHref)
+        }
+        "has an area for section 2" which {
+          textOnPageCheck(otherDividendsTitle, cyaTitle(2))
+          textOnPageCheck(yesNoExpectedAnswer(false), cyaValue(2))
+          linkCheck(s"$changeLinkExpected $changeOtherDividendsIndividualHiddenText", cyaChangeLink(2), changeOtherDividendsHref)
+        }
+
+        buttonCheck(continueButtonText, continueButtonSelector)
+        formPostLinkCheck(continueButtonLink, continueButtonFormSelector)
+
+        welshToggleCheck(ENGLISH)
+
+      }
+
+
+    "redirects user to overview page there is no CYA data in session" which {
         lazy val result = {
           authoriseIndividual()
           stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
-
-
-          await(wsClient.url(dividendsCheckYourAnswersUrl)
-            .get())
+          urlGet(dividendsCheckYourAnswersUrl)
         }
 
         s"has an OK($OK) status" in {

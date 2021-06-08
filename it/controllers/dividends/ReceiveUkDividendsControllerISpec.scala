@@ -30,7 +30,6 @@ import utils.{IntegrationTest, ViewHelpers}
 
 class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers {
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
   lazy val controller: ReceiveUkDividendsController = app.injector.instanceOf[ReceiveUkDividendsController]
 
   val taxYear: Int = 2022

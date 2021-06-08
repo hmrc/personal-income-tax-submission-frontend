@@ -53,7 +53,6 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends IntegrationTest w
   val continueButtonFormSelector = "#main-content > div > div > form"
   val errorSummaryHref = "#value"
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
   lazy val controller: GiftAidQualifyingSharesSecuritiesController = app.injector.instanceOf[GiftAidQualifyingSharesSecuritiesController]
 
   "as an individual" when {

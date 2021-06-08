@@ -28,7 +28,6 @@ import utils.{IntegrationTest, ViewHelpers}
 class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with ViewHelpers {
 
   val defaultTaxYear = 2022
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
   def url: String =
     s"http://localhost:$port/income-through-software/return/personal-income/$defaultTaxYear/charity/value-of-shares-or-securities"

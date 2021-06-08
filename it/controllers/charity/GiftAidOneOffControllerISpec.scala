@@ -26,7 +26,7 @@ import utils.IntegrationTest
 
 class GiftAidOneOffControllerISpec extends IntegrationTest {
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
+
   lazy val controller: GiftAidOneOffController = app.injector.instanceOf[GiftAidOneOffController]
   val taxYear: Int = 2022
     "as an individual" when {

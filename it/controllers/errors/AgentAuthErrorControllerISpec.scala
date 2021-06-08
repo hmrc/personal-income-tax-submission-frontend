@@ -23,7 +23,7 @@ import utils.{IntegrationTest, ViewHelpers}
 
 class AgentAuthErrorControllerISpec extends IntegrationTest with ViewHelpers {
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
+
   object ExpectedResults {
     val heading: String = "There’s a problem"
     val title = "There’s a problem"
