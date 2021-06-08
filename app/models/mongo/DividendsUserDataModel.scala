@@ -18,9 +18,8 @@ package models.mongo
 
 import models.dividends.DividendsCheckYourAnswersModel
 import org.joda.time.{DateTime, DateTimeZone}
-import play.api.libs.json._
 import play.api.libs.json.Reads._
-import play.api.mvc.BodyParsers.parse.json
+import play.api.libs.json._
 import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
 
 case class DividendsUserDataModel(

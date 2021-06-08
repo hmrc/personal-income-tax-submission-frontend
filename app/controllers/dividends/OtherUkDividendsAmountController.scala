@@ -76,10 +76,15 @@ class OtherUkDividendsAmountController @Inject()(
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
     implicit val questionsJourney: QuestionsJourney[DividendsCheckYourAnswersModel] = DividendsCheckYourAnswersModel.journey(taxYear)
 
+
+
     dividendsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
       questionHelper.validate(controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear), cya, taxYear) {
         val priorOtherDividendAmount: Option[BigDecimal] = prior.flatMap(_.otherUkDividends)
         val cyaOtherDividendAmount: Option[BigDecimal] = cya.flatMap(_.otherUkDividendsAmount)
+
+        println(Console.GREEN + "Prior: " + priorOtherDividendAmount + Console.RESET)
+        println(Console.GREEN + "CYA: " + cyaOtherDividendAmount + Console.RESET)
 
         val amountForm = (priorOtherDividendAmount, cyaOtherDividendAmount) match {
           case (priorAmountOpt, Some(cyaAmount)) if !priorAmountOpt.contains(cyaAmount) => form(user.isAgent, taxYear).fill(cyaAmount)

@@ -63,9 +63,6 @@ class DividendsCYAController @Inject()(
       priorSubmissionData <- futurePriorSubmissionData
       cyaSessionData <- futureCyaSessionData
     } yield {
-      println(Console.YELLOW + "Prior:" + priorSubmissionData.map(_.dividends) + Console.RESET)
-      println(Console.YELLOW + "CYA:" + cyaSessionData.flatMap(_.dividends) + Console.RESET)
-
       (cyaSessionData.flatMap(_.dividends), priorSubmissionData.map(_.dividends)) match {
         case (Some(cyaData), Right(Some(priorData))) =>
           val ukDividendsExist = cyaData.ukDividends.getOrElse(priorData.ukDividends.nonEmpty)

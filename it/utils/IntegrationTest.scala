@@ -31,8 +31,10 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Result}
+import play.api.test.FakeRequest
 import play.api.test.Helpers.OK
 import play.api.{Application, Environment, Mode}
+import repositories.DividendsUserDataRepository
 import services.AuthService
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
@@ -50,13 +52,12 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   val affinityGroup = "Individual"
   val sessionId = "eb3158c2-0aff-4ce8-8d1b-f2208ace52fe"
 
-  implicit lazy val user: User[AnyContent] = new User[AnyContent](mtditid, None, nino, affinityGroup, sessionId)
+  implicit lazy val user: User[AnyContent] = new User[AnyContent](mtditid, None, nino, affinityGroup, sessionId)(FakeRequest())
 
   implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
   implicit val headerCarrier: HeaderCarrier = HeaderCarrier().withExtraHeaders("mtditid" -> mtditid)
 
   implicit val actorSystem: ActorSystem = ActorSystem()
-
 
   val startUrl = s"http://localhost:$port/income-through-software/return/personal-income"
 
@@ -161,6 +162,15 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     stubGetWithHeadersCheck(
       s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", OK,
       Json.toJson(userData).toString(),("X-Session-ID" -> sessionId), ("mtditid" -> mtditid))
+  }
+
+  def emptyUserDataStub(nino: String, taxYear: Int): StubMapping = {
+    userDataStub(IncomeSourcesModel(), nino, taxYear)
+  }
+
+  def emptyUserDataStub(): StubMapping = {
+    //noinspection ScalaStyle
+    userDataStub(IncomeSourcesModel(), nino, 2022)
   }
 
 }

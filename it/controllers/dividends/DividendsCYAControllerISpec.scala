@@ -20,13 +20,14 @@ import common.SessionValues
 import connectors.DividendsSubmissionConnector
 import helpers.PlaySessionCookieBaker
 import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, DividendsSubmissionModel}
+import models.mongo.DividendsUserDataModel
 import models.priorDataModels.IncomeSourcesModel
 import play.api.http.Status._
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.mvc.Http.HeaderNames
-import utils.IntegrationTest
+import utils.{DividendsDatabaseHelper, IntegrationTest}
 
-class DividendsCYAControllerISpec extends IntegrationTest {
+class DividendsCYAControllerISpec extends IntegrationTest with DividendsDatabaseHelper {
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
   val connector: DividendsSubmissionConnector = app.injector.instanceOf[DividendsSubmissionConnector]
@@ -50,18 +51,30 @@ class DividendsCYAControllerISpec extends IntegrationTest {
 
   val fullDividendsNino = "AA000003A"
 
+  val priorData: IncomeSourcesModel = IncomeSourcesModel(
+    dividends = Some(DividendsPriorSubmission(
+      Some(firstAmount),
+      Some(firstAmount)
+    ))
+  )
+
+  val priorDataEmpty: IncomeSourcesModel = IncomeSourcesModel()
+
   ".show" should {
 
     s"return an OK($OK)" when {
 
-      val priorData = IncomeSourcesModel(
-        dividends = Some(DividendsPriorSubmission(
-          Some(firstAmount),
-          Some(firstAmount)
-        ))
-      )
-
       "there is CYA session data and prior submission data" in {
+        dropDividendsDB()
+
+        await(dividendsDatabase.create(DividendsUserDataModel(
+          sessionId, mtditid, fullDividendsNino, taxYear,
+          Some(DividendsCheckYourAnswersModel(
+            Some(true), Some(1000.09),
+            Some(true), Some(1234.31)
+          ))
+        )))
+
         val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.TAX_YEAR -> taxYear.toString
         ))
@@ -83,6 +96,16 @@ class DividendsCYAControllerISpec extends IntegrationTest {
       }
 
       "there is CYA session data and no prior submission data" in {
+        dropDividendsDB()
+
+        await(dividendsDatabase.create(DividendsUserDataModel(
+          sessionId, mtditid, fullDividendsNino, taxYear,
+          Some(DividendsCheckYourAnswersModel(
+            Some(true), Some(1000.09),
+            Some(true), Some(1234.31)
+          ))
+        )))
+
         val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.TAX_YEAR -> taxYear.toString
         ))
@@ -104,6 +127,8 @@ class DividendsCYAControllerISpec extends IntegrationTest {
       }
 
       "there is prior submission data and no CYA session data" in {
+        dropDividendsDB()
+
         val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.TAX_YEAR -> taxYear.toString
         ))
@@ -129,6 +154,8 @@ class DividendsCYAControllerISpec extends IntegrationTest {
     "redirect to the overview page" when {
 
       "there is no session data" in {
+        dropDividendsDB()
+
         val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.TAX_YEAR -> taxYear.toString
         ))
@@ -153,125 +180,205 @@ class DividendsCYAControllerISpec extends IntegrationTest {
 
     }
 
-        "redirect the user to the most relevant page if journey has not been completed" when {
+    "redirect the user to the most relevant page if journey has not been completed" when {
 
-          "up to receive UK Dividends is filled in" when {
+      "up to receive UK Dividends is filled in" when {
 
-//            "the answer is Yes" which {
-//              lazy val result = {
-//                mockDividendsGetPrior(None)
-//                mockDividendGetCya(Some(
-//                  DividendsCheckYourAnswersModel(Some(true))
-//                ))
-//                controller.show(taxYear)(fakeRequest.withSession(
-//                  SessionValues.TAX_YEAR -> taxYear.toString
-//                ))
-//              }
-//
-//              s"has the SEE_OTHER($SEE_OTHER) status" in {
-//                status(result) shouldBe SEE_OTHER
-//              }
-//
-//              "redirects to the UK Dividends Amount page" in {
-//                redirectUrl(result) shouldBe controllers.dividends.routes.UkDividendsAmountController.show(taxYear).url
-//              }
-//            }
-    //
-    //        "the answer is No" which {
-    //          lazy val result = {
-    //            mockDividendsGetPrior(None)
-    //            mockDividendGetCya(Some(
-    //              DividendsCheckYourAnswersModel(Some(false))
-    //            ))
-    //            controller.show(taxYear)(fakeRequest.withSession(
-    //              SessionValues.TAX_YEAR -> taxYear.toString
-    //            ))
-    //          }
-    //
-    //          s"has the SEE_OTHER($SEE_OTHER) status" in new TestWithAuth {
-    //            status(result) shouldBe SEE_OTHER
-    //          }
-    //
-    //          "redirects to the Receive Other UK Dividends page" in {
-    //            redirectUrl(result) shouldBe controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear).url
-    //          }
-    //        }
-    //      }
-    //
-    //      "up to UK Dividends Amount is filled in" which {
-    //        lazy val result = {
-    //          mockDividendsGetPrior(None)
-    //          mockDividendGetCya(Some(
-    //            DividendsCheckYourAnswersModel(Some(true), Some(100.00), None, None)
-    //          ))
-    //          controller.show(taxYear)(fakeRequest.withSession(
-    //            SessionValues.TAX_YEAR -> taxYear.toString
-    //          ))
-    //        }
-    //
-    //        s"has the SEE_OTHER($SEE_OTHER) status" in new TestWithAuth {
-    //          status(result) shouldBe SEE_OTHER
-    //        }
-    //
-    //        "redirects to the Receive Other UK Dividends page" in {
-    //          redirectUrl(result) shouldBe controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear).url
-    //        }
-    //      }
-    //
-    //      "up to Receive Other UK Dividends is filled in" which {
-    //        lazy val result = {
-    //          mockDividendsGetPrior(None)
-    //          mockDividendGetCya(Some(
-    //            DividendsCheckYourAnswersModel(Some(true), Some(100.00), Some(true), None)
-    //          ))
-    //          controller.show(taxYear)(fakeRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString))
-    //        }
-    //
-    //        s"has the SEE_OTHER($SEE_OTHER) status" in new TestWithAuth {
-    //          status(result) shouldBe SEE_OTHER
-    //        }
-    //
-    //        "redirects to the Other UK Dividends Amount page" in {
-    //          redirectUrl(result) shouldBe controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear).url
-    //        }
-    //      }
-    //
-    //    }
+        "the answer is Yes" which {
+          lazy val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+            SessionValues.TAX_YEAR -> taxYear.toString
+          ))
 
-    //    "Redirect to the tax year error " when {
-    //
-    //      "an invalid tax year has been added to the url" in new TestWithAuth() {
-    //
-    //        val mockAppConfFeatureSwitch: AppConfig = new AppConfig(mock[ServicesConfig]){
-    //          override lazy val defaultTaxYear: Int = 2022
-    //          override lazy val taxYearErrorFeature = true
-    //        }
-    //
-    //        val authorisedActionFeatureSwitch = new AuthorisedAction(mockAppConfFeatureSwitch,
-    //          agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
-    //
-    //        val featureSwitchController = new DividendsCYAController(
-    //          app.injector.instanceOf[DividendsCYAView],
-    //          service,
-    //          mockDividendsSessionService,
-    //          mockAuditService,
-    //          errorHandler
-    //        )(
-    //          mockAppConfFeatureSwitch,
-    //          authorisedActionFeatureSwitch,
-    //          mockMessagesControllerComponents
-    //        )
-    //
-    //        val invalidTaxYear = 2023
-    //
-    //        lazy val result: Future[Result] = featureSwitchController.show(invalidTaxYear)(
-    //          fakeRequest.withSession(SessionValues.TAX_YEAR -> mockAppConfFeatureSwitch.defaultTaxYear.toString)
-    //        )
-    //
-    //        redirectUrl(result) shouldBe controllers.routes.TaxYearErrorController.show().url
-    //
+          lazy val result: WSResponse = {
+            dropDividendsDB()
+
+            await(dividendsDatabase.create(DividendsUserDataModel(
+              sessionId, mtditid, fullDividendsNino, taxYear,
+              Some(DividendsCheckYourAnswersModel(
+                Some(true)
+              ))
+            )))
+
+            authoriseIndividual(Some(fullDividendsNino))
+            userDataStub(priorDataEmpty, fullDividendsNino, taxYear)
+            await(wsClient.url(dividendsCheckYourAnswersUrl)
+              .withHttpHeaders(
+                "X-Session-ID" -> sessionId,
+                "mtditid" -> mtditid,
+                "Csrf-Token" -> "nocheck",
+                HeaderNames.COOKIE -> playSessionCookie
+              )
+              .withFollowRedirects(false)
+              .get())
+          }
+
+          s"has a status of 303" in {
+            result.status shouldBe SEE_OTHER
+          }
+
+          "has the correct title" in {
+            result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/dividends/how-much-dividends-from-uk-companies"
           }
         }
+
+        "the answer is No" which {
+          lazy val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+            SessionValues.TAX_YEAR -> taxYear.toString
+          ))
+
+          lazy val result: WSResponse = {
+            dropDividendsDB()
+
+            await(dividendsDatabase.create(DividendsUserDataModel(
+              sessionId, mtditid, fullDividendsNino, taxYear,
+              Some(DividendsCheckYourAnswersModel(
+                Some(false)
+              ))
+            )))
+
+            authoriseIndividual(Some(fullDividendsNino))
+            userDataStub(priorDataEmpty, fullDividendsNino, taxYear)
+            await(wsClient.url(dividendsCheckYourAnswersUrl)
+              .withHttpHeaders(
+                "X-Session-ID" -> sessionId,
+                "mtditid" -> mtditid,
+                "Csrf-Token" -> "nocheck",
+                HeaderNames.COOKIE -> playSessionCookie
+              )
+              .withFollowRedirects(false)
+              .get())
+          }
+
+          s"has a status of 303" in {
+            result.status shouldBe SEE_OTHER
+          }
+
+          "has the correct title" in {
+            result.headers("Location").head shouldBe
+              "/income-through-software/return/personal-income/2022/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
+          }
+        }
+      }
+
+      "up to UK Dividends Amount is filled in" which {
+        lazy val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+          SessionValues.TAX_YEAR -> taxYear.toString
+        ))
+
+        lazy val result: WSResponse = {
+          dropDividendsDB()
+
+          await(dividendsDatabase.create(DividendsUserDataModel(
+            sessionId, mtditid, fullDividendsNino, taxYear,
+            Some(DividendsCheckYourAnswersModel(
+              Some(true), Some(1000.43)
+            ))
+          )))
+
+          authoriseIndividual(Some(fullDividendsNino))
+          userDataStub(priorDataEmpty, fullDividendsNino, taxYear)
+          await(wsClient.url(dividendsCheckYourAnswersUrl)
+            .withHttpHeaders(
+              "X-Session-ID" -> sessionId,
+              "mtditid" -> mtditid,
+              "Csrf-Token" -> "nocheck",
+              HeaderNames.COOKIE -> playSessionCookie
+            )
+            .withFollowRedirects(false)
+            .get())
+        }
+
+        s"has a status of 303" in {
+          result.status shouldBe SEE_OTHER
+        }
+
+        "has the correct title" in {
+          result.headers("Location").head shouldBe
+            "/income-through-software/return/personal-income/2022/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
+        }
+      }
+
+      "up to Receive Other UK Dividends is filled in" which {
+        lazy val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+          SessionValues.TAX_YEAR -> taxYear.toString
+        ))
+
+        lazy val result: WSResponse = {
+          dropDividendsDB()
+
+          await(dividendsDatabase.create(DividendsUserDataModel(
+            sessionId, mtditid, fullDividendsNino, taxYear,
+            Some(DividendsCheckYourAnswersModel(
+              Some(true), Some(1000.43), Some(true)
+            ))
+          )))
+
+          authoriseIndividual(Some(fullDividendsNino))
+          userDataStub(priorDataEmpty, fullDividendsNino, taxYear)
+          await(wsClient.url(dividendsCheckYourAnswersUrl)
+            .withHttpHeaders(
+              "X-Session-ID" -> sessionId,
+              "mtditid" -> mtditid,
+              "Csrf-Token" -> "nocheck",
+              HeaderNames.COOKIE -> playSessionCookie
+            )
+            .withFollowRedirects(false)
+            .get())
+        }
+
+        s"has a status of 303" in {
+          result.status shouldBe SEE_OTHER
+        }
+
+        "has the correct title" in {
+          result.headers("Location").head shouldBe
+            "/income-through-software/return/personal-income/2022/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
+        }
+
+      }
+
+    }
+
+    "Redirect to the tax year error " when {
+
+      "an invalid tax year has been added to the url" which {
+        lazy val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+          SessionValues.TAX_YEAR -> taxYear.toString
+        ))
+
+        lazy val result: WSResponse = {
+          dropDividendsDB()
+
+          await(dividendsDatabase.create(DividendsUserDataModel(
+            sessionId, mtditid, fullDividendsNino, taxYear,
+            Some(DividendsCheckYourAnswersModel(
+              Some(true), Some(1000.43), Some(true), Some(9983.21)
+            ))
+          )))
+
+          authoriseIndividual(Some(fullDividendsNino))
+          userDataStub(priorDataEmpty, fullDividendsNino, taxYear)
+          await(wsClient.url(s"$startUrl/2004/dividends/check-income-from-dividends")
+            .withHttpHeaders(
+              "X-Session-ID" -> sessionId,
+              "mtditid" -> mtditid,
+              "Csrf-Token" -> "nocheck",
+              HeaderNames.COOKIE -> playSessionCookie
+            )
+            .withFollowRedirects(false)
+            .get())
+        }
+
+        s"has a status of 303" in {
+          result.status shouldBe SEE_OTHER
+        }
+
+        "has the correct title" in {
+          result.headers("Location").head shouldBe
+            "/income-through-software/return/personal-income/error/wrong-tax-year"
+        }
+      }
+    }
 
   }
 
@@ -289,97 +396,118 @@ class DividendsCYAControllerISpec extends IntegrationTest {
       Some(firstAmount)
     )
 
-    //    "redirect to the overview page" when {
-    //
-    //      "there is session data " in new TestWithAuth {
-    //        lazy val detail: CreateOrAmendDividendsAuditDetail =
-    //          CreateOrAmendDividendsAuditDetail(
-    //            Some(cyaSessionData),
-    //            Some(priorData),
-    //            isUpdate = true,
-    //            "AA123456A",
-    //            "1234567890",
-    //            individualAffinityGroup.toLowerCase(),
-    //            taxYear
-    //          )
-    //
-    //        lazy val event: AuditModel[CreateOrAmendDividendsAuditDetail] =
-    //          AuditModel("CreateOrAmendDividendsUpdate", "createOrAmendDividendsUpdate", detail)
-    //
-    //        def verifyDividendsAudit: CallHandler[Future[AuditResult]] = verifyAuditEvent(event)
-    //
-    //        val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
-    //          SessionValues.CLIENT_MTDITID -> Json.toJson("someMtdItid").toString(),
-    //          SessionValues.DIVIDENDS_CYA -> Json.toJson(cyaSessionData).toString(),
-    //          SessionValues.DIVIDENDS_PRIOR_SUB -> Json.toJson(priorData).toString()
-    //        )
-    //
-    //        (service.submitDividends(_: Option[DividendsCheckYourAnswersModel], _: String, _: String, _: Int)(_: HeaderCarrier))
-    //          .expects(Some(cyaSessionData), "AA123456A", "1234567890", taxYear, *)
-    //          .returning(Future.successful(Right(DividendsResponseModel(successResponseCode))))
-    //        verifyDividendsAudit
-    //
-    //        lazy val result: Future[Result] = controller.submit(taxYear)(request)
-    //        status(result) shouldBe SEE_OTHER
-    //        redirectUrl(result) shouldBe mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)
-    //        getSession(result).get(SessionValues.DIVIDENDS_CYA) shouldBe None
-    //        getSession(result).get(SessionValues.DIVIDENDS_PRIOR_SUB) shouldBe None
-    //
-    //      }
-    //    }
+    "redirect to the overview page" when {
 
-    //    "there is an error posting downstream" should {
-    //
-    //      "redirect to the 500 unauthorised error template page when there is a problem posting data" in new TestWithAuth {
-    //        val httpErrorCode = 500
-    //
-    //        val errorResponseFromDes: Either[APIErrorModel, DividendsResponseModel] =
-    //          Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("error", "error")))
-    //
-    //        val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
-    //          SessionValues.CLIENT_MTDITID -> Json.toJson("someMtdItid").toString(),
-    //          SessionValues.DIVIDENDS_CYA -> Json.toJson(cyaSessionData).toString()
-    //        )
-    //
-    //        (service.submitDividends(_: Option[DividendsCheckYourAnswersModel], _: String, _: String, _: Int)(_: HeaderCarrier))
-    //          .expects(Some(cyaSessionData), "AA123456A", "1234567890", taxYear2020, *)
-    //          .returning(Future.successful(errorResponseFromDes))
-    //
-    //
-    //        (errorHandler.handleError(_: Int)(_: Request[_]))
-    //          .expects(httpErrorCode, *)
-    //          .returning(InternalServerError(unauthorisedTemplate()))
-    //
-    //        val result: Future[Result] = controller.submit(taxYear2020)(request)
-    //
-    //        val document: Document = Jsoup.parse(bodyOf(result))
-    //        document.select("h1").first().text() shouldBe "Sorry, there is a problem with the service"
-    //      }
-    //
-    //      "redirect to the 503 service unavailable page when the service is unavailable" in new TestWithAuth() {
-    //        val errorResponseFromDes: Either[APIErrorModel, DividendsResponseModel] = Left(APIErrorModel(SERVICE_UNAVAILABLE, APIErrorBodyModel("error", "error")))
-    //
-    //        val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
-    //          SessionValues.CLIENT_MTDITID -> Json.toJson("someMtdItid").toString(),
-    //          SessionValues.DIVIDENDS_CYA -> Json.toJson(cyaSessionData).toString()
-    //        )
-    //
-    //        (service.submitDividends(_: Option[DividendsCheckYourAnswersModel], _: String, _: String, _: Int)(_: HeaderCarrier))
-    //          .expects(Some(cyaSessionData), "AA123456A", "1234567890", taxYear2020, *)
-    //          .returning(Future.successful(errorResponseFromDes))
-    //
-    //
-    //        (errorHandler.handleError(_: Int)(_: Request[_]))
-    //          .expects(*, *)
-    //          .returning(ServiceUnavailable(serviceUnavailableTemplate()))
-    //
-    //        val result: Future[Result] = controller.submit(taxYear2020)(request)
-    //
-    //        val document: Document = Jsoup.parse(bodyOf(result))
-    //        document.select("h1").first().text() shouldBe "Sorry, the service is unavailable"
-    //
-    //      }
-    //    }
+      "there is session data " which {
+        lazy val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+          SessionValues.TAX_YEAR -> taxYear.toString
+        ))
+
+        lazy val result: WSResponse = {
+          dropDividendsDB()
+
+          await(dividendsDatabase.create(DividendsUserDataModel(
+            sessionId, mtditid, fullDividendsNino, taxYear,
+            Some(DividendsCheckYourAnswersModel(
+              Some(true), Some(1000.43), Some(true), Some(9983.21)
+            ))
+          )))
+
+          authoriseIndividual(Some(fullDividendsNino))
+          userDataStub(priorDataEmpty, fullDividendsNino, taxYear)
+          stubPut("/income-tax-dividends/income-tax/nino/AA000003A/sources\\?taxYear=2022", NO_CONTENT, "")
+          await(wsClient.url(dividendsCheckYourAnswersUrl)
+            .withHttpHeaders(
+              "X-Session-ID" -> sessionId,
+              "mtditid" -> mtditid,
+              "Csrf-Token" -> "nocheck",
+              HeaderNames.COOKIE -> playSessionCookie
+            )
+            .withFollowRedirects(false)
+            .post(""))
+        }
+
+        s"has a status of 303" in {
+          result.status shouldBe SEE_OTHER
+        }
+
+        "has the correct title" in {
+          result.headers("Location").head shouldBe
+            "http://localhost:11111/income-through-software/return/2022/view"
+        }
+      }
+    }
+
+    "there is an error posting downstream" should {
+
+      "redirect to the 500 unauthorised error template page when there is a problem posting data" which {
+        lazy val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+          SessionValues.TAX_YEAR -> taxYear.toString
+        ))
+
+        lazy val result: WSResponse = {
+          dropDividendsDB()
+
+          await(dividendsDatabase.create(DividendsUserDataModel(
+            sessionId, mtditid, fullDividendsNino, taxYear,
+            Some(DividendsCheckYourAnswersModel(
+              Some(true), Some(1000.43), Some(true), Some(9983.21)
+            ))
+          )))
+
+          authoriseIndividual(Some(fullDividendsNino))
+          userDataStub(priorDataEmpty, fullDividendsNino, taxYear)
+          stubPut("/income-tax-dividends/income-tax/nino/AA000003A/sources\\?taxYear=2022", INTERNAL_SERVER_ERROR, "")
+          await(wsClient.url(dividendsCheckYourAnswersUrl)
+            .withHttpHeaders(
+              "X-Session-ID" -> sessionId,
+              "mtditid" -> mtditid,
+              "Csrf-Token" -> "nocheck",
+              HeaderNames.COOKIE -> playSessionCookie
+            )
+            .withFollowRedirects(false)
+            .post(""))
+        }
+
+        s"has a status of 303" in {
+          result.status shouldBe INTERNAL_SERVER_ERROR
+        }
+      }
+
+      "redirect to the 503 service unavailable page when the service is unavailable" which {
+        lazy val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+          SessionValues.TAX_YEAR -> taxYear.toString
+        ))
+
+        lazy val result: WSResponse = {
+          dropDividendsDB()
+
+          await(dividendsDatabase.create(DividendsUserDataModel(
+            sessionId, mtditid, fullDividendsNino, taxYear,
+            Some(DividendsCheckYourAnswersModel(
+              Some(true), Some(1000.43), Some(true), Some(9983.21)
+            ))
+          )))
+
+          authoriseIndividual(Some(fullDividendsNino))
+          userDataStub(priorDataEmpty, fullDividendsNino, taxYear)
+          stubPut("/income-tax-dividends/income-tax/nino/AA000003A/sources\\?taxYear=2022", SERVICE_UNAVAILABLE, "")
+          await(wsClient.url(dividendsCheckYourAnswersUrl)
+            .withHttpHeaders(
+              "X-Session-ID" -> sessionId,
+              "mtditid" -> mtditid,
+              "Csrf-Token" -> "nocheck",
+              HeaderNames.COOKIE -> playSessionCookie
+            )
+            .withFollowRedirects(false)
+            .post(""))
+        }
+
+        s"has a status of 303" in {
+          result.status shouldBe SERVICE_UNAVAILABLE
+        }
+      }
+    }
 
   }
 

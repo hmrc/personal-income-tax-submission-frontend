@@ -16,14 +16,14 @@
 
 package repositories
 
-import com.mongodb.client.model.{DeleteOptions, ReturnDocument}
+import com.mongodb.client.model.ReturnDocument
 import models.User
 import models.mongo.UserDataTemplate
 import org.joda.time.{DateTime, DateTimeZone}
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.Filters.{and, equal}
-import org.mongodb.scala.model.{DeleteOptions, FindOneAndReplaceOptions, FindOneAndUpdateOptions}
 import org.mongodb.scala.model.Updates.set
+import org.mongodb.scala.model.{FindOneAndReplaceOptions, FindOneAndUpdateOptions}
 import uk.gov.hmrc.mongo.play.json.Codecs.toBson
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
