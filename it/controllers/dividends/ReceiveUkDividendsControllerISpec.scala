@@ -466,7 +466,6 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           welshToggleCheck(ENGLISH)
         }
 
-
       }
 
     }
