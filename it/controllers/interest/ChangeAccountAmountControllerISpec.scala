@@ -42,8 +42,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
   val accountName: String = "HSBC"
 
   val overviewPageTitle = "Your Income Tax Return"
-  val untaxedAccountPageTitle = "UK untaxed interest account"
-  val taxedAccountPageTitle = "UK taxed interest account"
+  val untaxedAccountPageTitle = "Accounts with untaxed UK interest"
+  val taxedAccountPageTitle = "Accounts with taxed UK interest"
   val untaxedChangeAmountPageTitle = "How much untaxed UK interest did you get?"
   val taxedChangeAmountPageTitle = "How much taxed UK interest did you get?"
 
