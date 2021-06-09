@@ -167,8 +167,8 @@ interest.account.add-another = Do you need to add another account?
 
 interest.common.paragraph.1 = This could be interest from:
 
-interest.common.sub-heading.1 = Give each account a different name.
-interest.common.sub-heading.2 = What do you want to name this account?
+interest.common.sub-heading.1 = What do you want to name this account?
+interest.common.sub-heading.2 = Give each account a different name.
 
 interest.common.error.name.empty = Enter a name for this account
 interest.common.error.name.duplicate = You cannot add 2 accounts with the same name

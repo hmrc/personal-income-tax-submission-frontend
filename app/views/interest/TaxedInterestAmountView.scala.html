@@ -36,7 +36,7 @@
 @(form: Form[TaxedInterestModel], taxYear: Int, postAction: Call, isAgent: Boolean)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @contentHtml = {
-<p class = "govuk-!-margin-top-1 govuk-!-margin-bottom-4">@messages("interest.common.sub-heading.1") </p>
+<p class = "govuk-!-margin-top-1 govuk-!-margin-bottom-4">@messages("interest.common.sub-heading.2") </p>
 }
 
 @hint1 = {
@@ -60,7 +60,7 @@
             form,
             id = "taxedAccountName",
             name = "taxedAccountName",
-            heading = "interest.common.sub-heading.2",
+            heading = "interest.common.sub-heading.1",
             isPageHeading = false,
             classes = Some("govuk-input--width-20"),
             maxLength = "33",
