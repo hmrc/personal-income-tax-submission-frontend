@@ -55,9 +55,9 @@ class InterestAccountsViewSpec extends ViewTest {
   val youMustTellSelector = "#value-hint"
 
   val changeUntaxedHref = "/income-through-software/return/personal-income/2020/interest/add-untaxed-uk-interest-account/qwerty"
-  val changePriorUntaxedHref = "/income-through-software/return/personal-income/2020/interest/change-untaxed-interest-account?accountId=azerty"
+  val changePriorUntaxedHref = "/income-through-software/return/personal-income/2020/interest/change-untaxed-uk-interest?accountId=azerty"
   val changeTaxedHref = "/income-through-software/return/personal-income/2020/interest/add-taxed-uk-interest-account/qwerty"
-  val changePriorTaxedHref = "/income-through-software/return/personal-income/2020/interest/change-taxed-interest-account?accountId=azerty"
+  val changePriorTaxedHref = "/income-through-software/return/personal-income/2020/interest/change-taxed-uk-interest?accountId=azerty"
   val removeUntaxedHref = "/income-through-software/return/personal-income/2020/interest/remove-untaxed-interest-account?accountId=qwerty"
   val removeTaxedHref = "/income-through-software/return/personal-income/2020/interest/remove-taxed-interest-account?accountId=qwerty"
 
@@ -164,7 +164,7 @@ class InterestAccountsViewSpec extends ViewTest {
 
       "the radio button form is not selected as an individual" which {
         val yesNoForm =
-          YesNoForm.yesNoForm("Select yes if you received untaxed interest from the UK").bind(Map("value" -> ""))
+          YesNoForm.yesNoForm("Select yes to add another account").bind(Map("value" -> ""))
         lazy val result = view(yesNoForm, taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9001.00, Some("qwerty"))
         ), UNTAXED, isAgent = false)(fakeRequest, messages, mockAppConfig)
@@ -175,7 +175,7 @@ class InterestAccountsViewSpec extends ViewTest {
         h1Check(untaxedH1 + " " + captionText)
         textOnPageCheck( "Bank of UK", accountRowName(1))
 
-        val expectedErrorText = "Select yes if you received untaxed interest from the UK"
+        val expectedErrorText = "Select yes to add another account"
 
         titleCheck(errorTitleText(untaxedTitle))
         errorSummaryCheck(expectedErrorText, "#value")
@@ -190,6 +190,38 @@ class InterestAccountsViewSpec extends ViewTest {
           }
           "has the correct link" in {
             element(accountRowChange(1)).attr("href") shouldBe changeUntaxedHref
+          }
+        }
+
+        "the radio button form is not selected as an agent" which {
+          val yesNoForm =
+            YesNoForm.yesNoForm("Select yes to add another account").bind(Map("value" -> ""))
+          lazy val result = view(yesNoForm, taxYear, Seq(
+            InterestAccountModel(None, "Bank of UK", 9001.00, Some("qwerty"))
+          ), UNTAXED, isAgent = true)(fakeRequest, messages, mockAppConfig)
+          implicit val document: Document = Jsoup.parse(result.body)
+
+          welshToggleCheck("English")
+          textOnPageCheck(captionText, captionSelector)
+          h1Check(untaxedH1 + " " + captionText)
+          textOnPageCheck("Bank of UK", accountRowName(1))
+
+          val expectedErrorText = "Select yes to add another account"
+
+          titleCheck(errorTitleText(untaxedTitle))
+          errorSummaryCheck(expectedErrorText, "#value")
+          errorAboveElementCheck(expectedErrorText)
+
+          "has a link for changing the account" which {
+            "has the correct text" in {
+              element(accountRowChange(1)).child(0).text shouldBe changeText
+            }
+            "has the correct hidden text" in {
+              element(accountRowChangeHidden(1)).text shouldBe s"$changeText Bank of UK account details"
+            }
+            "has the correct link" in {
+              element(accountRowChange(1)).attr("href") shouldBe changeUntaxedHref
+            }
           }
         }
 
@@ -509,7 +541,7 @@ class InterestAccountsViewSpec extends ViewTest {
 
       "the radio button form is not selected" which {
         val yesNoForm =
-          YesNoForm.yesNoForm("Select yes if you received untaxed interest from the UK").bind(Map("value" -> ""))
+          YesNoForm.yesNoForm("Select yes to add another account").bind(Map("value" -> ""))
         lazy val result = view(yesNoForm, taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9001.00, Some("qwerty"))
         ), UNTAXED, isAgent = false)(fakeRequest, welshMessages, mockAppConfig)
@@ -520,7 +552,7 @@ class InterestAccountsViewSpec extends ViewTest {
         h1Check(untaxedH1 + " " + captionText)
         textOnPageCheck( "Bank of UK", accountRowName(1))
 
-        val expectedErrorText = "Select yes if you received untaxed interest from the UK"
+        val expectedErrorText = "Select yes to add another account"
 
         titleCheck(errorTitleText(untaxedTitle))
         errorSummaryCheck(expectedErrorText, "#value")

@@ -227,6 +227,7 @@ interest.uk-interest.paragraph.agent = Do not include interest your client got f
 
 interest.accounts.addAnotherAccount = Add another account
 interest.accounts.error.tooLong = The name of the account must be 32 characters or fewer
+interest.accounts.error.noRadioSelected = Select yes to add another account
 
 interest.cya.title.individual = Check your taxed and untaxed UK interest
 interest.cya.title.agent = Check your client’s taxed and untaxed UK interest
@@ -264,7 +265,7 @@ interest.change-account.untaxed-label.prior.common2 = untaxed UK interest. Tell 
 interest.changeAccountAmount.required.individual = Enter the amount of {0} UK interest you got
 interest.changeAccountAmount.required.agent = Enter the amount of {0} UK interest your client got
 interest.changeAccountAmount.format = Enter the amount of {0} UK interest in the correct format
-interest.changeAccountAmount.amountMaxLimit = The amount of {0} UK interest must be less than £99,999,999,999.99
+interest.changeAccountAmount.amountMaxLimit = The amount of {0} UK interest must be less than £100,000,000,000
 
 # Gift Aid
 # ----------------------------------------------------------

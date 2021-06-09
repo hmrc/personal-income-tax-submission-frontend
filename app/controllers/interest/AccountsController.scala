@@ -50,12 +50,7 @@ class AccountsController @Inject()(
 
   implicit def resultToFutureResult: Result => Future[Result] = baseResult => Future.successful(baseResult)
 
-  private def yesNoForm(taxType: String): Form[Boolean] = {
-    taxType match {
-      case `TAXED` => YesNoForm.yesNoForm("interest.taxed-uk-interest.errors.noRadioSelected.individual")
-      case `UNTAXED` => YesNoForm.yesNoForm("interest.untaxed-uk-interest.errors.noRadioSelected.individual")
-    }
-  }
+  val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("interest.accounts.error.noRadioSelected")
 
   private def getOptionalCyaData()(implicit user: User[AnyContent]): Option[InterestCYAModel] =
     user.session.get(SessionValues.INTEREST_CYA).flatMap(Json.parse(_).asOpt[InterestCYAModel])
@@ -66,7 +61,7 @@ class AccountsController @Inject()(
     getOptionalCyaData() match {
       case Some(cyaData) =>
         getTaxAccounts(taxType, cyaData) match {
-          case Some(taxAccounts) if taxAccounts.nonEmpty => Ok(view(yesNoForm(taxType), taxYear, taxAccounts, taxType, isAgent = user.isAgent))
+          case Some(taxAccounts) if taxAccounts.nonEmpty => Ok(view(yesNoForm, taxYear, taxAccounts, taxType, isAgent = user.isAgent))
           case _ => missingAccountsRedirect(taxType, taxYear)
         }
       case _ =>
@@ -89,7 +84,7 @@ class AccountsController @Inject()(
     }
 
     def checkForm(taxAccounts: Seq[InterestAccountModel]) = {
-      yesNoForm(taxType).bindFromRequest().fold(
+      yesNoForm.bindFromRequest().fold(
         { formWithErrors => Left(BadRequest(view(formWithErrors, taxYear, taxAccounts, taxType, isAgent = user.isAgent))) },
         { yesNoModel => Right(yesNoModel) }
       )

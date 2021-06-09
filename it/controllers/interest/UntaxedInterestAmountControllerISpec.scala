@@ -455,6 +455,47 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
       }
     }
 
+    "the user is authorised as an agent" when {
+
+      lazy val interestCYA = InterestCYAModel(
+        Some(false), None, Some(true), Some(Seq(
+          InterestAccountModel(Some("differentId"), accountName, amount),
+          InterestAccountModel(None, accountName, amount, Some(id))
+        ))
+      )
+      lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+        SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
+        SessionValues.CLIENT_MTDITID -> "1234567890",
+        SessionValues.CLIENT_NINO -> "AA123456A"
+      ))
+
+      def response(formMap: Map[String, String]): WSResponse = {
+        authoriseAgent()
+        await(wsClient.url(untaxedInterestAmountUrl(id))
+          .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+          .post(formMap))
+      }
+
+      "the fields are empty as an agent" should {
+
+        lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "",
+          UntaxedInterestAmountForm.untaxedAccountName -> ""))
+
+        implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+        s"return a 400(BadRequest) status" in {
+          result.status shouldBe BAD_REQUEST
+        }
+
+        multipleErrorCheck(
+          List(
+            (Content.noNameEntryError, Selectors.accountNameInput),
+            (Content.noAmountEntryErrorAgent, Selectors.amountInput)
+          )
+        )
+      }
+    }
+
     "the user has Welsh toggled" when {
 
       lazy val interestCYA = InterestCYAModel(
