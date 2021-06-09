@@ -332,7 +332,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
     }
   }
 
-  s"Calling POST /interest/taxed-uk-interest-details/$id" when {
+  s"Calling POST /interest/add-taxed-uk-interest-account/$id" when {
 
     "the user is authorised" when {
 
@@ -366,7 +366,8 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
       "the fields are empty as an individual" should {
 
         lazy val result = response(Map(TaxedInterestAmountForm.taxedAmount -> "",
-          TaxedInterestAmountForm.taxedAccountName -> ""))
+            TaxedInterestAmountForm.taxedAccountName -> ""))
+
         implicit def document: () => Document = () => Jsoup.parse(result.body)
 
         s"return a 400(BadRequest) status" in {
@@ -453,6 +454,47 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
 
         errorSummaryCheck(Content.duplicateNameError, Selectors.accountNameInput)
         errorAboveElementCheck(Content.duplicateNameError)
+      }
+    }
+
+    "the user is authorised as an agent" when {
+
+      lazy val interestCYA = InterestCYAModel(
+        Some(false), None, Some(true), Some(Seq(
+          InterestAccountModel(Some("differentId"), accountName, amount),
+          InterestAccountModel(None, accountName, amount, Some(id))
+        ))
+      )
+      lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+        SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
+        SessionValues.CLIENT_MTDITID -> "1234567890",
+        SessionValues.CLIENT_NINO -> "AA123456A"
+      ))
+
+      def response(formMap: Map[String, String]): WSResponse = {
+        authoriseAgent()
+        await(wsClient.url(taxedInterestAmountUrl(id))
+          .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+          .post(formMap))
+      }
+
+      "the fields are empty as an agent" should {
+
+        lazy val result = response(Map(TaxedInterestAmountForm.taxedAmount -> "",
+          TaxedInterestAmountForm.taxedAccountName -> ""))
+
+        implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+        s"return a 400(BadRequest) status" in {
+          result.status shouldBe BAD_REQUEST
+        }
+
+        multipleErrorCheck(
+          List(
+            (Content.noNameEntryError, Selectors.accountNameInput),
+            (Content.noAmountEntryErrorAgent, Selectors.amountInput)
+          )
+        )
       }
     }
 
