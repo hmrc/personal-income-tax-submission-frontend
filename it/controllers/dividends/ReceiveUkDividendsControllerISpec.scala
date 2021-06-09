@@ -627,6 +627,4 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
     }
   }
 
-
-
 }

@@ -700,7 +700,6 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers {
 
     "return an action" which {
 
-
       s"has an OK(200) status" in {
         authoriseIndividual()
         stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
@@ -715,9 +714,11 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers {
           ))),
         ))
 
-        val result: WSResponse = await(wsClient.url(dividendsCheckYourAnswersUrl)
-          .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-          .post("{}"))
+        val result: WSResponse = {
+          urlPost(dividendsCheckYourAnswersUrl,
+            headers = playSessionCookies(taxYear, SessionValues.DIVIDENDS_CYA, Json.toJson(dividendsFullModel))
+            ,postRequest = "{}")
+        }
         result.status shouldBe OK
 
       }
