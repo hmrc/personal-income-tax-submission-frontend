@@ -34,7 +34,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
   val taxYear: Int = 2022
   val amount: BigDecimal = 500
-  val receivedOtherDividendsUrl = s"${appUrl(port)}/$taxYear/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
+  val receivedOtherDividendsUrl = s"$startUrl/$taxYear/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
 
   val cyaModel = DividendsCheckYourAnswersModel(ukDividends = Some(true), ukDividendsAmount = Some(amount),
     otherUkDividends = Some(true), otherUkDividendsAmount = None)
@@ -427,7 +427,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
           lazy val result: WSResponse = {
             authoriseIndividual()
-            urlPost(receivedOtherDividendsUrl, postRequest = Map())
+            urlPost(receivedOtherDividendsUrl, postRequest = Map[String, String]())
           }
 
           "has an BAD_REQUEST(400) status" in {
@@ -464,7 +464,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
           lazy val result: WSResponse = {
             authoriseIndividual()
-            urlPost(receivedOtherDividendsUrl, welsh=true, postRequest = Map())
+            urlPost(receivedOtherDividendsUrl, welsh=true, postRequest = Map[String, String]())
           }
 
           "has an BAD_REQUEST(400) status" in {

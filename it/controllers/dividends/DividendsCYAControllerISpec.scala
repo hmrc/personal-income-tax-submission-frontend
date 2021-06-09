@@ -17,7 +17,6 @@
 package controllers.dividends
 
 import common.SessionValues
-import connectors.DividendsSubmissionConnector
 import helpers.PlaySessionCookieBaker
 import models.dividends.{DividendsCheckYourAnswersModel, DividendsSubmissionModel}
 import org.jsoup.Jsoup
@@ -35,7 +34,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers {
 
   val ukDividends: BigDecimal = 10
   val otherDividends: BigDecimal = 10.50
-  val dividendsCheckYourAnswersUrl = s"${appUrl(port)}/$taxYear/dividends/check-income-from-dividends"
+  val dividendsCheckYourAnswersUrl = s"$startUrl/$taxYear/dividends/check-income-from-dividends"
 
   val changeUkDividendsHref = "/income-through-software/return/personal-income/2022/dividends/dividends-from-uk-companies"
   val changeUkDividendsAmountHref = "/income-through-software/return/personal-income/2022/dividends/how-much-dividends-from-uk-companies"
@@ -51,7 +50,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers {
 
   lazy val dividendsFullModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(Some(true),
     Some(ukDividends), Some(true), Some(otherDividends))
-  
+
   lazy val dividendsNoModel = DividendsCheckYourAnswersModel(
     Some(false), None, Some(false), Some(otherDividends))
 
@@ -108,7 +107,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers {
       }
     }
 
-    object WelshLang{
+    object WelshLang {
 
       object IndividualExpected {
         val titleExpected = "Check your income from dividends"
@@ -281,6 +280,18 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers {
           welshToggleCheck(ENGLISH)
 
         }
+
+        "the authorization fails" which {
+          lazy val result = {
+            authoriseIndividualUnauthorized()
+            stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
+            urlGet(dividendsCheckYourAnswersUrl)
+          }
+
+          s"has an OK($UNAUTHORIZED) status" in {
+            result.status shouldBe UNAUTHORIZED
+          }
+        }
       }
 
       s"as an Agent" when {
@@ -400,6 +411,20 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers {
 
           welshToggleCheck(ENGLISH)
 
+        }
+
+        "the authorization fails" which {
+          lazy val result = {
+            authoriseAgentUnauthorized()
+            stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
+
+
+            urlGet(dividendsCheckYourAnswersUrl, headers = playSessionCookies(taxYear))
+          }
+
+          s"has an OK($UNAUTHORIZED) status" in {
+            result.status shouldBe UNAUTHORIZED
+          }
         }
       }
     }
@@ -649,9 +674,10 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers {
           welshToggleCheck(WELSH)
 
         }
+
+
       }
     }
-
 
 
     "redirects user to overview page there is no CYA data in session" which {
@@ -667,28 +693,13 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers {
 
     }
 
-
-    "the authorization fails" which {
-      lazy val result = {
-        authoriseIndividualUnauthorized()
-        stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
-
-
-        await(wsClient.url(dividendsCheckYourAnswersUrl)
-          .get())
-      }
-
-      s"has an OK($UNAUTHORIZED) status" in {
-        result.status shouldBe UNAUTHORIZED
-      }
-    }
-
   }
 
 
   ".submit" should {
 
     "return an action" which {
+
 
       s"has an OK(200) status" in {
         authoriseIndividual()
@@ -707,8 +718,8 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers {
         val result: WSResponse = await(wsClient.url(dividendsCheckYourAnswersUrl)
           .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
           .post("{}"))
-
         result.status shouldBe OK
+
       }
 
       s"handle no nino is in the enrolments" in {

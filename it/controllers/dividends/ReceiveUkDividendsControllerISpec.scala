@@ -33,7 +33,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
 
   val taxYear: Int = 2022
   val amount: BigDecimal = 500
-  val receiveUkDividendsUrl = s"${appUrl(port)}/$taxYear/dividends/dividends-from-uk-companies"
+  val receiveUkDividendsUrl = s"$startUrl/$taxYear/dividends/dividends-from-uk-companies"
 
   val cyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(ukDividends = Some(true), ukDividendsAmount = Some(amount),
     otherUkDividends = Some(true), otherUkDividendsAmount = Some(amount))
@@ -53,6 +53,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
         val expectedTitle = "Did you get dividends from UK-based companies?"
         val expectedErrorTitle = s"Error: $expectedTitle"
         val yourDividendsText = "Your dividend voucher will tell you the shares you have in the company and the amount of the dividend you got."
+        val expectedErrorText = "Select yes if you got dividends from UK-based companies"
       }
 
       object AgentExpected {
@@ -60,6 +61,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
         val expectedTitle = "Did your client get dividends from UK-based companies?"
         val expectedErrorTitle = s"Error: $expectedTitle"
         val yourDividendsText = "Your client’s dividend voucher will tell you the shares they have in the company and the amount of the dividend they got."
+        val expectedErrorText = "Select yes if your client got dividends from UK-based companies"
       }
 
       object AllExpected {
@@ -67,6 +69,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
         val yesNo: Boolean => String = isYes => if (isYes) "Yes" else "No"
         val continueText = "Continue"
         val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/dividends-from-uk-companies"
+        val errorSummaryHref = "#value"
       }
     }
 
@@ -76,6 +79,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
         val expectedTitle = "Did you get dividends from UK-based companies?"
         val expectedErrorTitle = s"Error: $expectedTitle"
         val yourDividendsText = "Your dividend voucher will tell you the shares you have in the company and the amount of the dividend you got."
+        val expectedErrorText = "Select yes if you got dividends from UK-based companies"
       }
 
       object AgentExpected {
@@ -83,6 +87,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
         val expectedTitle = "Did your client get dividends from UK-based companies?"
         val expectedErrorTitle = s"Error: $expectedTitle"
         val yourDividendsText = "Your client’s dividend voucher will tell you the shares they have in the company and the amount of the dividend they got."
+        val expectedErrorText = "Select yes if your client got dividends from UK-based companies"
       }
 
       object AllExpected {
@@ -90,6 +95,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
         val yesNo: Boolean => String = isYes => if (isYes) "Yes" else "No"
         val continueText = "Continue"
         val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/dividends-from-uk-companies"
+        val errorSummaryHref = "#value"
       }
     }
   }
@@ -100,8 +106,8 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
 
     "in English" should {
 
-      import ExpectedResults.EnglishLang._
       import ExpectedResults.EnglishLang.AllExpected._
+      import ExpectedResults.EnglishLang._
 
       "as an Individual" should {
 
@@ -239,8 +245,8 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
 
     "in Welsh" should {
 
-      import ExpectedResults.WelshLang._
       import ExpectedResults.WelshLang.AllExpected._
+      import ExpectedResults.WelshLang._
 
       "as an Individual" should {
 
@@ -410,7 +416,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           import ExpectedResults.EnglishLang._
 
           lazy val result: WSResponse = {
-            urlPost(receiveUkDividendsUrl, postRequest = Map())
+            urlPost(receiveUkDividendsUrl, postRequest = Map[String, String]())
           }
 
           "has an OK(400) status" in {
@@ -420,12 +426,10 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          val expectedErrorText = "Select yes if you got dividends from UK-based companies"
-          val errorSummaryHref = "#value"
 
           titleCheck(IndividualExpected.expectedErrorTitle)
           h1Check(s"${IndividualExpected.expectedH1} $captionExpected")
-          errorSummaryCheck(expectedErrorText, errorSummaryHref)
+          errorSummaryCheck(IndividualExpected.expectedErrorText, errorSummaryHref)
           textOnPageCheck(IndividualExpected.yourDividendsText, yourDividendsSelector)
           radioButtonCheck(yesNo(true), 1)
           radioButtonCheck(yesNo(false), 2)
@@ -440,7 +444,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           import ExpectedResults.WelshLang._
 
           lazy val result: WSResponse = {
-            urlPost(receiveUkDividendsUrl, postRequest = Map())
+            urlPost(receiveUkDividendsUrl, postRequest = Map[String, String]())
           }
 
           "has an OK(400) status" in {
@@ -450,12 +454,9 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          val expectedErrorText = "Select yes if you got dividends from UK-based companies"
-          val errorSummaryHref = "#value"
-
           titleCheck(IndividualExpected.expectedErrorTitle)
           h1Check(s"${IndividualExpected.expectedH1} $captionExpected")
-          errorSummaryCheck(expectedErrorText, errorSummaryHref)
+          errorSummaryCheck(IndividualExpected.expectedErrorText, errorSummaryHref)
           textOnPageCheck(IndividualExpected.yourDividendsText, yourDividendsSelector)
           radioButtonCheck(yesNo(true), 1)
           radioButtonCheck(yesNo(false), 2)
@@ -516,8 +517,15 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           import ExpectedResults.EnglishLang._
 
           lazy val result: WSResponse = {
+            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+              SessionValues.CLIENT_MTDITID -> "1234567890",
+              SessionValues.CLIENT_NINO -> "AA123456A"
+            ))
+
             authoriseAgent()
-            urlPost(receiveUkDividendsUrl, headers = playSessionCookies(taxYear), postRequest = Map())
+            await(wsClient.url(receiveUkDividendsUrl)
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+              .post(Map[String, String]()))
           }
 
           "has an OK(400) status" in {
@@ -527,12 +535,10 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          val expectedErrorText = "Select yes if you got dividends from UK-based companies"
-          val errorSummaryHref = "#value"
 
           titleCheck(AgentExpected.expectedErrorTitle)
           h1Check(s"${AgentExpected.expectedH1} $captionExpected")
-          errorSummaryCheck(expectedErrorText, errorSummaryHref)
+          errorSummaryCheck(AgentExpected.expectedErrorText, errorSummaryHref)
           textOnPageCheck(AgentExpected.yourDividendsText, yourDividendsSelector)
           radioButtonCheck(yesNo(true), 1)
           radioButtonCheck(yesNo(false), 2)
@@ -547,8 +553,15 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           import ExpectedResults.WelshLang._
 
           lazy val result: WSResponse = {
+            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+              SessionValues.CLIENT_MTDITID -> "1234567890",
+              SessionValues.CLIENT_NINO -> "AA123456A"
+            ))
+
             authoriseAgent()
-            urlPost(receiveUkDividendsUrl, welsh = true, headers = playSessionCookies(taxYear), postRequest = Map())
+            await(wsClient.url(receiveUkDividendsUrl)
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
+              .post(Map[String, String]()))
           }
 
           "has an OK(400) status" in {
@@ -558,12 +571,11 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          val expectedErrorText = "Select yes if you got dividends from UK-based companies"
-          val errorSummaryHref = "#value"
+
 
           titleCheck(AgentExpected.expectedErrorTitle)
           h1Check(s"${AgentExpected.expectedH1} $captionExpected")
-          errorSummaryCheck(expectedErrorText, errorSummaryHref)
+          errorSummaryCheck(AgentExpected.expectedErrorText, errorSummaryHref)
           textOnPageCheck(AgentExpected.yourDividendsText, yourDividendsSelector)
           radioButtonCheck(yesNo(true), 1)
           radioButtonCheck(yesNo(false), 2)
@@ -575,6 +587,26 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
 
 
       }
+
+      s"return a BAD_REQUEST($BAD_REQUEST) status" when {
+
+        "there is no form data" in {
+          lazy val result: WSResponse = {
+            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+              SessionValues.CLIENT_MTDITID -> "1234567890",
+              SessionValues.CLIENT_NINO -> "AA123456A"
+            ))
+
+            authoriseAgent()
+            await(wsClient.url(receiveUkDividendsUrl)
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+              .post(Map[String, String]()))
+          }
+
+          result.status shouldBe BAD_REQUEST
+        }
+      }
+
       "returns an action when auth call fails" when {
         lazy val result: WSResponse = {
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
@@ -595,6 +627,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
 
     }
   }
+
 
 
 }

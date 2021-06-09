@@ -23,6 +23,7 @@ import org.jsoup.nodes.Document
 import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import play.api.http.HeaderNames
 import play.api.http.Status._
+import play.api.libs.json.Json
 import play.api.libs.ws.{WSClient, WSResponse}
 import utils.{IntegrationTest, ViewHelpers}
 
@@ -32,7 +33,10 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
   val taxYear: Int = 2022
   val taxYearMinusOne: Int = taxYear - 1
   val amount: BigDecimal = 500
-  val otherUkDividendsAmountUrl = s"${appUrl(port)}/$taxYear/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
+  val otherUkDividendsAmountUrl = s"$startUrl/$taxYear/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
+
+  val validCyaModel = DividendsCheckYourAnswersModel(otherUkDividends = Some(true), otherUkDividendsAmount = None)
+  val validCyaModelWithAmount = DividendsCheckYourAnswersModel(otherUkDividends = Some(true), otherUkDividendsAmount = Some(amount))
 
   object ExpectedResult {
 
@@ -77,15 +81,18 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
     }
   }
 
-  val poundPrefixSelector = ".govuk-input__prefix"
-  val captionSelector = ".govuk-caption-l"
-  val inputSelector = ".govuk-input"
-  val continueButtonSelector = "#continue"
-  val continueButtonFormSelector = "#main-content > div > div > form"
-  val enterAmountSelector = "#amount"
-  val youToldUsSelector = "#main-content > div > div > form > div > label > p"
-  val tellUsTheValueSelector = "#main-content > div > div > form > div > label > p"
-  val expectedErrorLink = "#amount"
+  object Selectors {
+
+    val poundPrefixSelector = ".govuk-input__prefix"
+    val captionSelector = ".govuk-caption-l"
+    val inputSelector = ".govuk-input"
+    val continueButtonSelector = "#continue"
+    val continueButtonFormSelector = "#main-content > div > div > form"
+    val enterAmountSelector = "#amount"
+    val youToldUsSelector = "#main-content > div > div > form > div > label > p"
+    val tellUsTheValueSelector = "#main-content > div > div > form > div > label > p"
+    val expectedErrorLink = "#amount"
+  }
 
   val expectedCaption = s"Dividends for 6 April $taxYearMinusOne to 5 April $taxYear"
   val expectedHintText = "For example, £600 or £193.54"
@@ -110,7 +117,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
         lazy val result: WSResponse = {
           authoriseIndividual()
           stubGet(s"/income-through-software/return/$taxYear/view", 200, "overview page content")
-          await(wsClient.url(otherUkDividendsAmountUrl).get())
+          urlGet(otherUkDividendsAmountUrl)
         }
 
         "has an OK(200) status" in {
@@ -121,13 +128,10 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
 
       "returns an action when there is cya data in session with correct content" which {
 
-        val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-          SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(otherUkDividends = Some(true), otherUkDividendsAmount = None).asJsonString
-        ))
 
         lazy val result: WSResponse = {
           authoriseIndividual()
-          urlGet(otherUkDividendsAmountUrl, )
+          urlGet(otherUkDividendsAmountUrl, headers = playSessionCookies(taxYear, SessionValues.DIVIDENDS_CYA, Json.toJson(validCyaModel)))
         }
 
         "has an OK(200) status" in {
@@ -150,14 +154,9 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
 
       "returns an action when there is cya data in session with correct prior data content" which {
 
-        val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-          SessionValues.DIVIDENDS_CYA-> DividendsCheckYourAnswersModel(otherUkDividends = Some(true), otherUkDividendsAmount = Some(amount)).asJsonString
-        ))
-
         lazy val result: WSResponse = {
           authoriseIndividual()
-          await(wsClient.url(otherUkDividendsAmountUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").get())
+          urlGet(otherUkDividendsAmountUrl, headers = playSessionCookies(taxYear, SessionValues.DIVIDENDS_CYA, Json.toJson(validCyaModelWithAmount)))
         }
 
         "has an OK(200) status" in {
@@ -176,18 +175,15 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
         inputFieldCheck(amountInputName, inputSelector)
         buttonCheck(continueText, continueButtonSelector)
         formPostLinkCheck(continueLink, continueButtonFormSelector)
-        inputFieldValueCheck(amount.toString(), "#amount")
+
       }
       "returns an action when there is cya data in session with correct content - Welsh" which {
 
-        val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-          SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(otherUkDividends = Some(true), otherUkDividendsAmount = None).asJsonString
-        ))
+
 
         lazy val result: WSResponse = {
           authoriseIndividual()
-          await(wsClient.url(otherUkDividendsAmountUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck").get())
+          urlGet(otherUkDividendsAmountUrl, welsh=true, headers = playSessionCookies(taxYear, SessionValues.DIVIDENDS_CYA, Json.toJson(validCyaModel)))
         }
 
         "has an OK(200) status" in {
@@ -209,15 +205,9 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
       }
 
       "returns an action when there is cya data in session with correct prior data content - Welsh" which {
-
-        val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-          SessionValues.DIVIDENDS_CYA-> DividendsCheckYourAnswersModel(otherUkDividends = Some(true), otherUkDividendsAmount = Some(amount)).asJsonString
-        ))
-
         lazy val result: WSResponse = {
           authoriseIndividual()
-          await(wsClient.url(otherUkDividendsAmountUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck").get())
+          urlGet(otherUkDividendsAmountUrl, welsh=true, headers = playSessionCookies(taxYear, SessionValues.DIVIDENDS_CYA, Json.toJson(validCyaModelWithAmount)))
         }
 
         "has an OK(200) status" in {
@@ -283,14 +273,10 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
       }
 
       "returns an action when there is cyaData but no priorSubmission data in session" which {
-        val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-          SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(otherUkDividends = Some(true), otherUkDividendsAmount = Some(amount)).asJsonString,
-        ))
 
         lazy val result: WSResponse = {
           authoriseIndividual()
-          await(wsClient.url(otherUkDividendsAmountUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").get())
+          urlGet(otherUkDividendsAmountUrl, headers = playSessionCookies(taxYear, SessionValues.DIVIDENDS_CYA, Json.toJson(validCyaModel)))
         }
 
         "has an OK(200) status" in {
@@ -303,13 +289,10 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
       }
 
       "return unauthorized when the authorization fails" which {
-        val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-          SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(otherUkDividends = Some(true), otherUkDividendsAmount = Some(amount)).asJsonString
-        ))
+
         lazy val result: WSResponse = {
           authoriseIndividualUnauthorized()
-          await(wsClient.url(otherUkDividendsAmountUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").get())
+         urlGet(otherUkDividendsAmountUrl, headers = playSessionCookies(taxYear, SessionValues.DIVIDENDS_CYA, Json.toJson(validCyaModelWithAmount)))
         }
 
         s"has an UNAUTHORIZED($UNAUTHORIZED) status" in {
@@ -443,8 +426,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
   }
 
   "as an agent" when {
-
-    import ExpectedResult.AgentExpected._
+  import ExpectedResult.AgentExpected._
     ".show" should {
 
       "returns an action" which {

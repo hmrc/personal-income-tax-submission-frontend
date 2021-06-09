@@ -29,20 +29,21 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.http.HeaderNames
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
-import play.api.libs.ws.WSClient
+import play.api.libs.ws.{BodyWritable, WSClient, WSResponse}
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Result}
 import play.api.{Application, Environment, Mode}
 import services.AuthService
+import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
-import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
+import uk.gov.hmrc.http.HeaderCarrier
 import views.html.authErrorPages.AgentAuthErrorPageView
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
 
-trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerPerSuite with WireMockHelper with BeforeAndAfterAll {
+trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerPerSuite with WireMockHelper
+  with BeforeAndAfterAll {
 
   val nino = "AA123456A"
   val mtditid = "1234567890"
@@ -57,9 +58,6 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   implicit val actorSystem: ActorSystem = ActorSystem()
 
   implicit def wsClient: WSClient = app.injector.instanceOf[WSClient]
-
-  def appUrl(port: Int):String = s"http://localhost:$port/income-through-software/return/personal-income"
-
 
   val startUrl = s"http://localhost:$port/income-through-software/return/personal-income"
 
@@ -160,20 +158,39 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   def playSessionCookies(taxYear: Int): Seq[(String, String)] =
     Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(Map(
-    SessionValues.TAX_YEAR -> taxYear.toString,
-    SessionValues.CLIENT_NINO -> "AA123456A",
-    SessionValues.CLIENT_MTDITID -> "1234567890",
-    "Csrf-Token" -> "nocheck"
-  )))
+      SessionValues.TAX_YEAR -> taxYear.toString,
+      SessionValues.CLIENT_NINO -> "AA123456A",
+      SessionValues.CLIENT_MTDITID -> "1234567890",
+      "Csrf-Token" -> "nocheck"
+    )))
 
-  def playSessionCookies(taxYear: Int, sessionValues:String, sessionData:JsValue): Seq[(String, String)] =
+  def playSessionCookies(taxYear: Int, sessionValues: String, sessionData: JsValue): Seq[(String, String)] =
     Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(Map(
-    SessionValues.TAX_YEAR -> taxYear.toString,
-    SessionValues.CLIENT_NINO -> "AA123456A",
-    SessionValues.CLIENT_MTDITID -> "1234567890",
-    sessionValues -> Json.prettyPrint(sessionData),
-    "Csrf-Token" -> "nocheck"
-  )))
+      SessionValues.TAX_YEAR -> taxYear.toString,
+      SessionValues.CLIENT_NINO -> "AA123456A",
+      SessionValues.CLIENT_MTDITID -> "1234567890",
+      sessionValues -> Json.prettyPrint(sessionData),
+      "Csrf-Token" -> "nocheck"
+    )))
+
+  def urlGet(url: String, welsh: Boolean = false, follow: Boolean = true, headers: Seq[(String, String)] = Seq())(implicit wsClient: WSClient): WSResponse = {
+    if (welsh) {
+      val newHeaders = Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") ++ headers
+      await(wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(newHeaders: _*).get())
+    } else {
+      await(wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(headers: _*).get())
+    }
+  }
+
+  def urlPost[T: BodyWritable](url: String, welsh: Boolean = false, follow: Boolean = true,
+                               headers: Seq[(String, String)] = Seq(), postRequest: T)(implicit wsClient: WSClient): WSResponse = {
+    if (welsh) {
+      val newHeaders = Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") ++ headers
+      await(wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(newHeaders: _*).post(postRequest))
+    } else {
+      await(wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(headers: _*).post(postRequest))
+    }
+  }
 
 
 }
