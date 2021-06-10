@@ -22,9 +22,9 @@ import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import helpers.{PlaySessionCookieBaker, WireMockHelper}
 import models.User
-import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.http.HeaderNames
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -43,7 +43,7 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
 
 trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerPerSuite with WireMockHelper
-  with BeforeAndAfterAll {
+  with BeforeAndAfterAll with BeforeAndAfterEach {
 
   val nino = "AA123456A"
   val mtditid = "1234567890"
@@ -157,23 +157,27 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   )
 
   def playSessionCookies(taxYear: Int): Seq[(String, String)] =
-    Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(Map(
-      SessionValues.TAX_YEAR -> taxYear.toString,
-      SessionValues.CLIENT_NINO -> "AA123456A",
-      SessionValues.CLIENT_MTDITID -> "1234567890",
+    Seq(
+      HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(Map(
+        SessionValues.TAX_YEAR -> taxYear.toString,
+        SessionValues.CLIENT_NINO -> "AA123456A",
+        SessionValues.CLIENT_MTDITID -> "1234567890"
+      )),
       "Csrf-Token" -> "nocheck"
-    )))
+    )
 
   def playSessionCookies(taxYear: Int, sessionValues: String, sessionData: JsValue): Seq[(String, String)] =
-    Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(Map(
-      SessionValues.TAX_YEAR -> taxYear.toString,
-      SessionValues.CLIENT_NINO -> "AA123456A",
-      SessionValues.CLIENT_MTDITID -> "1234567890",
-      sessionValues -> Json.prettyPrint(sessionData),
+    Seq(
+      HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(Map(
+        SessionValues.TAX_YEAR -> taxYear.toString,
+        SessionValues.CLIENT_NINO -> "AA123456A",
+        SessionValues.CLIENT_MTDITID -> "1234567890",
+        sessionValues -> Json.prettyPrint(sessionData),
+      )),
       "Csrf-Token" -> "nocheck"
-    )))
+    )
 
-  def urlGet(url: String, welsh: Boolean = false, follow: Boolean = true, headers: Seq[(String, String)] = Seq())(implicit wsClient: WSClient): WSResponse = {
+  def urlGet(url: String, welsh: Boolean = false, follow: Boolean = true, headers: Seq[(String, String)] = Seq()): WSResponse = {
     if (welsh) {
       val newHeaders = Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") ++ headers
       await(wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(newHeaders: _*).get())
@@ -183,7 +187,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   }
 
   def urlPost[T: BodyWritable](url: String, welsh: Boolean = false, follow: Boolean = true,
-                               headers: Seq[(String, String)] = Seq(), postRequest: T)(implicit wsClient: WSClient): WSResponse = {
+                               headers: Seq[(String, String)] = Seq(), postRequest: T): WSResponse = {
     if (welsh) {
       val newHeaders = Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") ++ headers
       await(wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(newHeaders: _*).post(postRequest))

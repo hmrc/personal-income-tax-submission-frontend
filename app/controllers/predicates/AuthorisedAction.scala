@@ -52,9 +52,7 @@ class AuthorisedAction @Inject()(
   val minimumConfidenceLevel: Int = ConfidenceLevel.L200.level
 
   override def invokeBlock[A](request: Request[A], block: User[A] => Future[Result]): Future[Result] = {
-
     implicit lazy val headerCarrier: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-
     authService.authorised.retrieve(affinityGroup) {
       case Some(agentUser@AffinityGroup.Agent) => agentAuthentication(block, agentUser)(request, headerCarrier)
       case Some(individualUser) => individualAuthentication(block, individualUser)(request, headerCarrier)
