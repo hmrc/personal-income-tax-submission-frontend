@@ -110,29 +110,30 @@ class TestReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHel
     val errorSummaryHref = "#value"
   }
 
-
   def printLang(isWelsh: Boolean): String = if (isWelsh) "Welsh" else "English"
 
   def printAgent(isAgent: Boolean): String = if (isAgent) "Agent" else "Individual"
 
   def welshToggle(isWelsh: Boolean)(implicit document: () => Document): Unit = if (isWelsh) welshToggleCheck(WELSH) else welshToggleCheck(ENGLISH)
 
-  def authoriseAgentOrIndividual(isAgent:Boolean, nino:Boolean = true): StubMapping = if(isAgent) authoriseAgent() else authoriseIndividual(nino)
+  def authoriseAgentOrIndividual(isAgent: Boolean, nino: Boolean = true): StubMapping = if (isAgent) authoriseAgent() else authoriseIndividual(nino)
 
-  //noinspection ScalaStyle
-  def show(isWelsh: Boolean, isAgent: Boolean, resultsExpectedLang: ExpectedResultsLang, resultsExpectedAll:
-  ExpectedResultsAll): Unit = {
+  case class UserScenario(isWelsh: Boolean, isAgent: Boolean, expectedResultsLang: ExpectedResultsLang, expectedResultsAll: ExpectedResultsAll)
 
-    ".show" should {
+  val userScenarios =
+    Seq(UserScenario(isWelsh = false, isAgent = false, IndividualExpectedEnglish, AllExpectedEnglish),
+      UserScenario(isWelsh = false, isAgent = true, AgentExpectedEnglish, AllExpectedEnglish),
+      UserScenario(isWelsh = true, isAgent = false, IndividualExpectedWelsh, AllExpectedWelsh),
+      UserScenario(isWelsh = true, isAgent = true, AgentExpectedWelsh, AllExpectedWelsh))
 
-      s"in ${printLang(isWelsh)}" should {
+  ".show" when {
+    userScenarios.foreach { us =>
+      s"language is ${printLang(us.isWelsh)} and request is from an ${printAgent(us.isAgent)}" should {
 
-        s"as an ${printAgent(isAgent)}" should {
-
-          "returns the uk dividends page when there is no priorSubmission data and no cyaData in session" which {
+          "return the uk dividends page when there is no priorSubmission data and no cyaData in session" which {
             lazy val result: WSResponse = {
-              authoriseAgentOrIndividual(isAgent)
-              urlGet(receiveUkDividendsUrl, isWelsh, headers = playSessionCookies(taxYear))
+              authoriseAgentOrIndividual(us.isAgent)
+              urlGet(receiveUkDividendsUrl, us.isWelsh, headers = playSessionCookies(taxYear))
             }
 
             "has an OK(200) status" in {
@@ -141,27 +142,21 @@ class TestReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHel
 
             implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(resultsExpectedLang.expectedTitle)
-            h1Check(s"${resultsExpectedLang.expectedH1} ${resultsExpectedAll.captionExpected}")
-            textOnPageCheck(resultsExpectedLang.yourDividendsText, Selectors.yourDividendsSelector)
-            radioButtonCheck(resultsExpectedAll.yesNo(true), 1)
-            radioButtonCheck(resultsExpectedAll.yesNo(false), 2)
-            buttonCheck(resultsExpectedAll.continueText, Selectors.continueSelector)
-            formPostLinkCheck(resultsExpectedAll.continueLink, Selectors.continueButtonFormSelector)
+            titleCheck(us.expectedResultsLang.expectedTitle)
+            h1Check(s"${us.expectedResultsLang.expectedH1} ${us.expectedResultsAll.captionExpected}")
+            textOnPageCheck(us.expectedResultsLang.yourDividendsText, Selectors.yourDividendsSelector)
+            radioButtonCheck(us.expectedResultsAll.yesNo(true), 1)
+            radioButtonCheck(us.expectedResultsAll.yesNo(false), 2)
+            buttonCheck(us.expectedResultsAll.continueText, Selectors.continueSelector)
+            formPostLinkCheck(us.expectedResultsAll.continueLink, Selectors.continueButtonFormSelector)
 
-            if (isWelsh) {
-              welshToggleCheck(WELSH)
-            } else {
-              welshToggleCheck(ENGLISH)
-            }
-
+            welshToggle(us.isWelsh)
           }
 
-          "returns the uk dividends page when there is cyaData in session" which {
-
+          "return the uk dividends page when there is cyaData in session" which {
             lazy val result: WSResponse = {
-              authoriseAgentOrIndividual(isAgent)
-              urlGet(receiveUkDividendsUrl, isWelsh, headers = playSessionCookies(taxYear, SessionValues.DIVIDENDS_CYA, Json.toJson(cyaModel)))
+              authoriseAgentOrIndividual(us.isAgent)
+              urlGet(receiveUkDividendsUrl, us.isWelsh, headers = playSessionCookies(taxYear, SessionValues.DIVIDENDS_CYA, Json.toJson(cyaModel)))
             }
 
             "has an OK(200) status" in {
@@ -170,151 +165,118 @@ class TestReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHel
 
             implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(resultsExpectedLang.expectedTitle)
-            h1Check(s"${resultsExpectedLang.expectedH1} ${resultsExpectedAll.captionExpected}")
-            textOnPageCheck(resultsExpectedLang.yourDividendsText, Selectors.yourDividendsSelector)
-            radioButtonCheck(resultsExpectedAll.yesNo(true), 1)
-            radioButtonCheck(resultsExpectedAll.yesNo(false), 2)
-            buttonCheck(resultsExpectedAll.continueText, Selectors.continueSelector)
-            formPostLinkCheck(resultsExpectedAll.continueLink, Selectors.continueButtonFormSelector)
+            titleCheck(us.expectedResultsLang.expectedTitle)
+            h1Check(s"${us.expectedResultsLang.expectedH1} ${us.expectedResultsAll.captionExpected}")
+            textOnPageCheck(us.expectedResultsLang.yourDividendsText, Selectors.yourDividendsSelector)
+            radioButtonCheck(us.expectedResultsAll.yesNo(true), 1)
+            radioButtonCheck(us.expectedResultsAll.yesNo(false), 2)
+            buttonCheck(us.expectedResultsAll.continueText, Selectors.continueSelector)
+            formPostLinkCheck(us.expectedResultsAll.continueLink, Selectors.continueButtonFormSelector)
 
-            if (isWelsh) {
-              welshToggleCheck(WELSH)
-            } else {
-              welshToggleCheck(ENGLISH)
-            }
+            welshToggle(us.isWelsh)
           }
 
-          "returns an action when auth call fails" which {
+          "return an action when auth call fails" which {
             lazy val result: WSResponse = {
-              if (isAgent) {
+              if (us.isAgent) {
                 authoriseAgentUnauthorized()
               }
               else {
                 authoriseIndividualUnauthorized()
               }
-              urlGet(receiveUkDividendsUrl, isWelsh, headers = playSessionCookies(taxYear, SessionValues.DIVIDENDS_CYA, Json.toJson(cyaModel)))
+              urlGet(receiveUkDividendsUrl, us.isWelsh, headers = playSessionCookies(taxYear, SessionValues.DIVIDENDS_CYA, Json.toJson(cyaModel)))
             }
             "has an UNAUTHORIZED(401) status" in {
               result.status shouldBe UNAUTHORIZED
             }
           }
         }
+    }
+  }
 
+  ".submit" when {
+    userScenarios.foreach { us =>
+      s"language is ${printLang(us.isWelsh)} and request is from an ${printAgent(us.isAgent)}" should {
+
+        lazy val result: WSResponse = {
+          authoriseAgentOrIndividual(us.isAgent)
+          urlPost(receiveUkDividendsUrl, us.isWelsh, follow = false, headers = playSessionCookies(taxYear), postRequest = Map[String, String]())
+        }
+
+        "return a BadRequest(400) status" in {
+          result.status shouldBe BAD_REQUEST
+        }
+
+        implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+        titleCheck(us.expectedResultsLang.expectedErrorTitle)
+        h1Check(s"${us.expectedResultsLang.expectedH1} ${us.expectedResultsAll.captionExpected}")
+        errorSummaryCheck(us.expectedResultsLang.expectedErrorText, us.expectedResultsAll.errorSummaryHref)
+        textOnPageCheck(us.expectedResultsLang.yourDividendsText, Selectors.yourDividendsSelector)
+        radioButtonCheck(us.expectedResultsAll.yesNo(true), 1)
+        radioButtonCheck(us.expectedResultsAll.yesNo(false), 2)
+        buttonCheck(us.expectedResultsAll.continueText, Selectors.continueSelector)
+        formPostLinkCheck(us.expectedResultsAll.continueLink, Selectors.continueButtonFormSelector)
+
+        welshToggle(us.isWelsh)
       }
     }
   }
 
-  def submitView(isWelsh: Boolean, isAgent: Boolean, resultsExpectedLang: ExpectedResultsLang, resultsExpectedAll:
-  ExpectedResultsAll): Unit = {
+  ".submit" should  {
 
-    ".submit" should {
+    s"return an Redirect($SEE_OTHER) status" when {
 
-      s"in ${printLang(isWelsh)}" should {
-
-        s"as an ${printAgent(isAgent)}" should {
-
-          lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(isAgent)
-            urlPost(receiveUkDividendsUrl, isWelsh, postRequest = Map[String, String]())
-          }
-
-          "has an OK(400) status" in {
-            result.status shouldBe BAD_REQUEST
-          }
-
-
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-
-          titleCheck(resultsExpectedLang.expectedErrorTitle)
-          h1Check(s"${resultsExpectedLang.expectedH1} ${resultsExpectedAll.captionExpected}")
-          errorSummaryCheck(resultsExpectedLang.expectedErrorText, resultsExpectedAll.errorSummaryHref)
-          textOnPageCheck(resultsExpectedLang.yourDividendsText, Selectors.yourDividendsSelector)
-          radioButtonCheck(resultsExpectedAll.yesNo(true), 1)
-          radioButtonCheck(resultsExpectedAll.yesNo(false), 2)
-          buttonCheck(resultsExpectedAll.continueText, Selectors.continueSelector)
-          formPostLinkCheck(resultsExpectedAll.continueLink, Selectors.continueButtonFormSelector)
-
-          welshToggle(isWelsh)(document)
+      "there is no CYA data in session" in {
+        lazy val result: WSResponse = {
+          authoriseIndividual()
+          await(
+            wsClient.url(receiveUkDividendsUrl)
+              .withFollowRedirects(false)
+              .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
+          )
         }
+
+        result.status shouldBe SEE_OTHER
+        result.header(HeaderNames.LOCATION) shouldBe Some(UkDividendsAmountController.show(taxYear).url)
+      }
+
+      "there is form data and answer to question is 'No'" in {
+        lazy val result: WSResponse = {
+
+          authoriseIndividual()
+          await(
+            wsClient.url(receiveUkDividendsUrl)
+              .withFollowRedirects(false)
+              .withHttpHeaders("Csrf-Token" -> "nocheck")
+              .post(Map(YesNoForm.yesNo -> YesNoForm.no))
+          )
+        }
+
+        result.status shouldBe SEE_OTHER
+        result.header(HeaderNames.LOCATION) shouldBe Some(ReceiveOtherUkDividendsController.show(taxYear).url)
+      }
+
+      "there is form data and answer to question is 'No' and the cyaModel is completed" in {
+        lazy val result: WSResponse = {
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.DIVIDENDS_CYA ->
+              DividendsCheckYourAnswersModel(ukDividends = Some(false), ukDividendsAmount = None, Some(false), None).asJsonString
+          ))
+
+          authoriseIndividual()
+          await(
+            wsClient.url(receiveUkDividendsUrl)
+              .withFollowRedirects(false)
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+              .post(Map(YesNoForm.yesNo -> YesNoForm.no))
+          )
+        }
+
+        result.status shouldBe SEE_OTHER
+        result.header(HeaderNames.LOCATION) shouldBe Some(DividendsCYAController.show(taxYear).url)
       }
     }
   }
-
-  //noinspection ScalaStyle
-  def submitController() {
-    ".submit" should {
-
-      s"return an Redirect($SEE_OTHER) status" when {
-
-        "there is no CYA data in session" in {
-          lazy val result: WSResponse = {
-            authoriseIndividual()
-            await(
-              wsClient.url(receiveUkDividendsUrl)
-                .withFollowRedirects(false)
-                .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
-            )
-          }
-
-          result.status shouldBe SEE_OTHER
-          result.header(HeaderNames.LOCATION) shouldBe Some(UkDividendsAmountController.show(taxYear).url)
-        }
-
-        "there is form data and answer to question is 'No'" in {
-          lazy val result: WSResponse = {
-
-            authoriseIndividual()
-            await(
-              wsClient.url(receiveUkDividendsUrl)
-                .withFollowRedirects(false)
-                .withHttpHeaders("Csrf-Token" -> "nocheck")
-                .post(Map(YesNoForm.yesNo -> YesNoForm.no))
-            )
-          }
-
-          result.status shouldBe SEE_OTHER
-          result.header(HeaderNames.LOCATION) shouldBe Some(ReceiveOtherUkDividendsController.show(taxYear).url)
-        }
-
-        "there is form data and answer to question is 'No' and the cyaModel is completed" in {
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.DIVIDENDS_CYA ->
-                DividendsCheckYourAnswersModel(ukDividends = Some(false), ukDividendsAmount = None, Some(false), None).asJsonString
-            ))
-
-            authoriseIndividual()
-            await(
-              wsClient.url(receiveUkDividendsUrl)
-                .withFollowRedirects(false)
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-                .post(Map(YesNoForm.yesNo -> YesNoForm.no))
-            )
-          }
-
-          result.status shouldBe SEE_OTHER
-          result.header(HeaderNames.LOCATION) shouldBe Some(DividendsCYAController.show(taxYear).url)
-        }
-
-
-      }
-    }
-  }
-
-  case class UserScenario(isWelsh:Boolean, isAgent:Boolean, expectedResultsLang: ExpectedResultsLang, expectedResultsAll: ExpectedResultsAll)
-
-  val userScenarios =
-    Seq(UserScenario(false, false,IndividualExpectedEnglish, AllExpectedEnglish),
-      UserScenario(false, true, AgentExpectedEnglish, AllExpectedEnglish),
-      UserScenario(true, false, IndividualExpectedWelsh, AllExpectedWelsh),
-      UserScenario(true, true, AgentExpectedWelsh, AllExpectedWelsh))
-
-  userScenarios.foreach(us => show(us.isWelsh, us.isAgent, us.expectedResultsLang, us.expectedResultsAll))
-  userScenarios.foreach(us => submitView(us.isWelsh, us.isAgent, us.expectedResultsLang, us.expectedResultsAll))
-
-  submitController()
-
 
 }
