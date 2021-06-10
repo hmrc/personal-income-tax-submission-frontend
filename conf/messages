@@ -229,8 +229,8 @@ interest.accounts.addAnotherAccount = Add another account
 interest.accounts.error.tooLong = The name of the account must be 32 characters or fewer
 interest.accounts.error.noRadioSelected = Select yes to add another account
 
-interest.cya.title.individual = Check your taxed and untaxed UK interest
-interest.cya.title.agent = Check your client’s taxed and untaxed UK interest
+interest.cya.title.individual = Check your UK interest
+interest.cya.title.agent = Check your client’s UK interest
 interest.cya.questions.1 = Untaxed UK Interest
 interest.cya.questions.2 = Untaxed UK interest accounts
 interest.cya.questions.3 = Taxed UK Interest
