@@ -17,6 +17,7 @@
 package utils
 
 import akka.actor.ActorSystem
+import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import common.SessionValues
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
@@ -26,11 +27,13 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.http.HeaderNames
+import play.api.http.{HeaderNames, Writeable}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
-import play.api.libs.ws.{BodyWritable, WSClient, WSResponse}
-import play.api.mvc.{AnyContent, MessagesControllerComponents, Result}
+import play.api.libs.ws.{BodyWritable, WSClient, WSRequest, WSResponse}
+import play.api.mvc.{AnyContent, MessagesControllerComponents, Request, Result}
+import play.api.test.Helpers
+import play.api.test.Helpers.await
 import play.api.{Application, Environment, Mode}
 import services.AuthService
 import uk.gov.hmrc.auth.core._
@@ -62,6 +65,18 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   val startUrl = s"http://localhost:$port/income-through-software/return/personal-income"
 
   def await[T](awaitable: Awaitable[T]): T = Await.result(awaitable, Duration.Inf)
+
+  def printLang(isWelsh: Boolean): String = if (isWelsh) "Welsh" else "English"
+
+  def printAgent(isAgent: Boolean): String = if (isAgent) "Agent" else "Individual"
+
+  def authoriseAgentOrIndividual(isAgent: Boolean, nino: Boolean = true): StubMapping = if (isAgent) authoriseAgent() else authoriseIndividual(nino)
+
+  case class UserScenario[ExpectedResultsUserType, ExpectedResultsAllUsers](isWelsh: Boolean,
+                          isAgent: Boolean,
+                          expectedResultsUserType: Option[ExpectedResultsUserType] = None,
+                          expectedResultsAllUsers: ExpectedResultsAllUsers)
+
 
   def config: Map[String, Any] = Map(
     "auditing.enabled" -> false,
@@ -177,23 +192,30 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
       "Csrf-Token" -> "nocheck"
     )
 
+  def playSessionCookies(taxYear: Int, sessionValues: String, sessionData: JsValue, sessionValues1: String, sessionData1: JsValue): Seq[(String, String)] =
+    Seq(
+      HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(Map(
+        SessionValues.TAX_YEAR -> taxYear.toString,
+        SessionValues.CLIENT_NINO -> "AA123456A",
+        SessionValues.CLIENT_MTDITID -> "1234567890",
+        sessionValues -> Json.prettyPrint(sessionData),
+        sessionValues1 -> Json.prettyPrint(sessionData1)
+      )),
+      "Csrf-Token" -> "nocheck"
+    )
+
+  def buildRouteUrl(url: String, welsh: Boolean = false, follow: Boolean = true, headers: Seq[(String, String)]): WSRequest ={
+    val newHeaders = if(welsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") ++ headers else headers
+    wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(newHeaders: _*)
+  }
+
   def urlGet(url: String, welsh: Boolean = false, follow: Boolean = true, headers: Seq[(String, String)] = Seq()): WSResponse = {
-    if (welsh) {
-      val newHeaders = Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") ++ headers
-      await(wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(newHeaders: _*).get())
-    } else {
-      await(wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(headers: _*).get())
-    }
+    await(buildRouteUrl(url, welsh, follow, headers).get())
   }
 
   def urlPost[T: BodyWritable](url: String, welsh: Boolean = false, follow: Boolean = true,
                                headers: Seq[(String, String)] = Seq(), postRequest: T): WSResponse = {
-    if (welsh) {
-      val newHeaders = Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") ++ headers
-      await(wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(newHeaders: _*).post(postRequest))
-    } else {
-      await(wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(headers: _*).post(postRequest))
-    }
+    await(buildRouteUrl(url, welsh, follow, headers).post(postRequest))
   }
 
 

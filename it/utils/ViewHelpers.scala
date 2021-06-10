@@ -214,6 +214,8 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers =>
     }
   }
 
+  def welshToggleCheck(isWelsh: Boolean)(implicit document: () => Document): Unit = if (isWelsh) welshToggleCheck(WELSH) else welshToggleCheck(ENGLISH)
+
   def welshToggleCheck(activeLanguage: String)(implicit document: () => Document): Unit = {
     val otherLanguage = if (activeLanguage == "English") "Welsh" else "English"
 

@@ -42,318 +42,177 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
     val yourDividendsSelector = "#main-content > div > div > form > div > fieldset > legend > p"
     val continueSelector = "#continue"
     val continueButtonFormSelector = "#main-content > div > div > form"
-
   }
 
-  object ExpectedResults {
-
-    object EnglishLang {
-      object IndividualExpected {
-        val expectedH1 = "Did you get dividends from UK-based companies?"
-        val expectedTitle = "Did you get dividends from UK-based companies?"
-        val expectedErrorTitle = s"Error: $expectedTitle"
-        val yourDividendsText = "Your dividend voucher will tell you the shares you have in the company and the amount of the dividend you got."
-        val expectedErrorText = "Select yes if you got dividends from UK-based companies"
-      }
-
-      object AgentExpected {
-        val expectedH1 = "Did your client get dividends from UK-based companies?"
-        val expectedTitle = "Did your client get dividends from UK-based companies?"
-        val expectedErrorTitle = s"Error: $expectedTitle"
-        val yourDividendsText = "Your client’s dividend voucher will tell you the shares they have in the company and the amount of the dividend they got."
-        val expectedErrorText = "Select yes if your client got dividends from UK-based companies"
-      }
-
-      object AllExpected {
-        val captionExpected = s"Dividends for 6 April ${taxYear - 1} to 5 April $taxYear"
-        val yesNo: Boolean => String = isYes => if (isYes) "Yes" else "No"
-        val continueText = "Continue"
-        val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/dividends-from-uk-companies"
-        val errorSummaryHref = "#value"
-      }
-    }
-
-    object WelshLang {
-      object IndividualExpected {
-        val expectedH1 = "Did you get dividends from UK-based companies?"
-        val expectedTitle = "Did you get dividends from UK-based companies?"
-        val expectedErrorTitle = s"Error: $expectedTitle"
-        val yourDividendsText = "Your dividend voucher will tell you the shares you have in the company and the amount of the dividend you got."
-        val expectedErrorText = "Select yes if you got dividends from UK-based companies"
-      }
-
-      object AgentExpected {
-        val expectedH1 = "Did your client get dividends from UK-based companies?"
-        val expectedTitle = "Did your client get dividends from UK-based companies?"
-        val expectedErrorTitle = s"Error: $expectedTitle"
-        val yourDividendsText = "Your client’s dividend voucher will tell you the shares they have in the company and the amount of the dividend they got."
-        val expectedErrorText = "Select yes if your client got dividends from UK-based companies"
-      }
-
-      object AllExpected {
-        val captionExpected = s"Dividends for 6 April ${taxYear - 1} to 5 April $taxYear"
-        val yesNo: Boolean => String = isYes => if (isYes) "Yes" else "No"
-        val continueText = "Continue"
-        val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/dividends-from-uk-companies"
-        val errorSummaryHref = "#value"
-      }
-    }
+  trait ExpectedResultsUserType {
+    val expectedH1: String
+    val expectedTitle: String
+    val expectedErrorTitle: String
+    val yourDividendsText: String
+    val expectedErrorText: String
   }
+
+  trait ExpectedResultsAllUsers {
+    val captionExpected: String
+    val yesNo: Boolean => String
+    val continueText: String
+    val continueLink: String
+    val errorSummaryHref: String
+  }
+
+
+  object IndividualExpectedEnglish extends ExpectedResultsUserType {
+    val expectedH1 = "Did you get dividends from UK-based companies?"
+    val expectedTitle = "Did you get dividends from UK-based companies?"
+    val expectedErrorTitle = s"Error: $expectedTitle"
+    val yourDividendsText = "Your dividend voucher will tell you the shares you have in the company and the amount of the dividend you got."
+    val expectedErrorText = "Select yes if you got dividends from UK-based companies"
+  }
+
+  object AgentExpectedEnglish extends ExpectedResultsUserType {
+    val expectedH1 = "Did your client get dividends from UK-based companies?"
+    val expectedTitle = "Did your client get dividends from UK-based companies?"
+    val expectedErrorTitle = s"Error: $expectedTitle"
+    val yourDividendsText = "Your client’s dividend voucher will tell you the shares they have in the company and the amount of the dividend they got."
+    val expectedErrorText = "Select yes if your client got dividends from UK-based companies"
+  }
+
+  object AllExpectedEnglish extends ExpectedResultsAllUsers {
+    val captionExpected = s"Dividends for 6 April ${taxYear - 1} to 5 April $taxYear"
+    val yesNo: Boolean => String = isYes => if (isYes) "Yes" else "No"
+    val continueText = "Continue"
+    val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/dividends-from-uk-companies"
+    val errorSummaryHref = "#value"
+  }
+
+  object IndividualExpectedWelsh extends ExpectedResultsUserType {
+    val expectedH1 = "Did you get dividends from UK-based companies?"
+    val expectedTitle = "Did you get dividends from UK-based companies?"
+    val expectedErrorTitle = s"Error: $expectedTitle"
+    val yourDividendsText = "Your dividend voucher will tell you the shares you have in the company and the amount of the dividend you got."
+    val expectedErrorText = "Select yes if you got dividends from UK-based companies"
+  }
+
+  object AgentExpectedWelsh extends ExpectedResultsUserType {
+    val expectedH1 = "Did your client get dividends from UK-based companies?"
+    val expectedTitle = "Did your client get dividends from UK-based companies?"
+    val expectedErrorTitle = s"Error: $expectedTitle"
+    val yourDividendsText = "Your client’s dividend voucher will tell you the shares they have in the company and the amount of the dividend they got."
+    val expectedErrorText = "Select yes if your client got dividends from UK-based companies"
+  }
+
+  object AllExpectedWelsh extends ExpectedResultsAllUsers {
+    val captionExpected = s"Dividends for 6 April ${taxYear - 1} to 5 April $taxYear"
+    val yesNo: Boolean => String = isYes => if (isYes) "Yes" else "No"
+    val continueText = "Continue"
+    val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/dividends-from-uk-companies"
+    val errorSummaryHref = "#value"
+  }
+
+  val userScenarios =
+    Seq(UserScenario(isWelsh = false, isAgent = false, Some(IndividualExpectedEnglish), AllExpectedEnglish),
+      UserScenario(isWelsh = false, isAgent = true, Some(AgentExpectedEnglish), AllExpectedEnglish),
+      UserScenario(isWelsh = true, isAgent = false, Some(IndividualExpectedWelsh), AllExpectedWelsh),
+      UserScenario(isWelsh = true, isAgent = true, Some(AgentExpectedWelsh), AllExpectedWelsh))
 
   ".show" when {
+    userScenarios.foreach { us =>
+      s"language is ${printLang(us.isWelsh)} and request is from an ${printAgent(us.isAgent)}" should {
 
-    import Selectors._
+          "return the uk dividends page when there is no priorSubmission data and no cyaData in session" which {
+            lazy val result: WSResponse = {
+              authoriseAgentOrIndividual(us.isAgent)
+              urlGet(receiveUkDividendsUrl, us.isWelsh, headers = playSessionCookies(taxYear))
+            }
 
-    "in English" should {
+            "has an OK(200) status" in {
+              result.status shouldBe OK
+            }
 
-      import ExpectedResults.EnglishLang.AllExpected._
-      import ExpectedResults.EnglishLang._
+            implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-      "as an Individual" should {
+            titleCheck(us.expectedResultsUserType.get.expectedTitle)
+            h1Check(s"${us.expectedResultsUserType.get.expectedH1} ${us.expectedResultsAllUsers.captionExpected}")
+            textOnPageCheck(us.expectedResultsUserType.get.yourDividendsText, Selectors.yourDividendsSelector)
+            radioButtonCheck(us.expectedResultsAllUsers.yesNo(true), 1)
+            radioButtonCheck(us.expectedResultsAllUsers.yesNo(false), 2)
+            buttonCheck(us.expectedResultsAllUsers.continueText, Selectors.continueSelector)
+            formPostLinkCheck(us.expectedResultsAllUsers.continueLink, Selectors.continueButtonFormSelector)
 
-        "returns the uk dividends page when there is no priorSubmission data and no cyaData in session" which {
-          lazy val result: WSResponse = {
-            authoriseIndividual()
-            urlGet(receiveUkDividendsUrl)
+            welshToggleCheck(us.isWelsh)
           }
 
-          "has an OK(200) status" in {
-            result.status shouldBe OK
+          "return the uk dividends page when there is cyaData in session" which {
+            lazy val result: WSResponse = {
+              authoriseAgentOrIndividual(us.isAgent)
+              urlGet(receiveUkDividendsUrl, us.isWelsh, headers = playSessionCookies(taxYear, SessionValues.DIVIDENDS_CYA, Json.toJson(cyaModel)))
+            }
+
+            "has an OK(200) status" in {
+              result.status shouldBe OK
+            }
+
+            implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+            titleCheck(us.expectedResultsUserType.get.expectedTitle)
+            h1Check(s"${us.expectedResultsUserType.get.expectedH1} ${us.expectedResultsAllUsers.captionExpected}")
+            textOnPageCheck(us.expectedResultsUserType.get.yourDividendsText, Selectors.yourDividendsSelector)
+            radioButtonCheck(us.expectedResultsAllUsers.yesNo(true), 1)
+            radioButtonCheck(us.expectedResultsAllUsers.yesNo(false), 2)
+            buttonCheck(us.expectedResultsAllUsers.continueText, Selectors.continueSelector)
+            formPostLinkCheck(us.expectedResultsAllUsers.continueLink, Selectors.continueButtonFormSelector)
+
+            welshToggleCheck(us.isWelsh)
           }
 
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-          titleCheck(IndividualExpected.expectedTitle)
-          h1Check(s"${IndividualExpected.expectedH1} $captionExpected")
-          textOnPageCheck(IndividualExpected.yourDividendsText, yourDividendsSelector)
-          radioButtonCheck(yesNo(true), 1)
-          radioButtonCheck(yesNo(false), 2)
-          buttonCheck(continueText, continueSelector)
-          formPostLinkCheck(continueLink, continueButtonFormSelector)
-
-          welshToggleCheck(ENGLISH)
-
-        }
-
-        "returns the uk dividends page when there is cyaData in session" which {
-
-          lazy val result: WSResponse = {
-            authoriseIndividual()
-            urlGet(receiveUkDividendsUrl, headers = playSessionCookies(taxYear, SessionValues.DIVIDENDS_CYA, Json.toJson(cyaModel)))
-          }
-
-          "has an OK(200) status" in {
-            result.status shouldBe OK
-          }
-
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-          titleCheck(IndividualExpected.expectedTitle)
-          h1Check(s"${IndividualExpected.expectedH1} $captionExpected")
-          textOnPageCheck(IndividualExpected.yourDividendsText, yourDividendsSelector)
-          radioButtonCheck(yesNo(true), 1)
-          radioButtonCheck(yesNo(false), 2)
-          buttonCheck(continueText, continueSelector)
-          formPostLinkCheck(continueLink, continueButtonFormSelector)
-
-          welshToggleCheck(ENGLISH)
-        }
-
-        "returns an action when auth call fails" which {
-          val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(true), ukDividendsAmount = Some(amount),
-              otherUkDividends = Some(true), otherUkDividendsAmount = Some(amount)).asJsonString
-          ))
-          lazy val result: WSResponse = {
-            authoriseIndividualUnauthorized()
-            await(wsClient.url(receiveUkDividendsUrl)
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").get())
-          }
-          "has an UNAUTHORIZED(401) status" in {
-            result.status shouldBe UNAUTHORIZED
+          "return an action when auth call fails" which {
+            lazy val result: WSResponse = {
+              if (us.isAgent) {
+                authoriseAgentUnauthorized()
+              }
+              else {
+                authoriseIndividualUnauthorized()
+              }
+              urlGet(receiveUkDividendsUrl, us.isWelsh, headers = playSessionCookies(taxYear, SessionValues.DIVIDENDS_CYA, Json.toJson(cyaModel)))
+            }
+            "has an UNAUTHORIZED(401) status" in {
+              result.status shouldBe UNAUTHORIZED
+            }
           }
         }
-      }
-
-      "as an Agent" should {
-
-        "returns the uk dividends page when there is no priorSubmission data and no cyaData in session" which {
-          lazy val result: WSResponse = {
-            authoriseAgent()
-            urlGet(receiveUkDividendsUrl, headers = playSessionCookies(taxYear))
-          }
-
-          "has an OK(200) status" in {
-            result.status shouldBe OK
-          }
-
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-          titleCheck(AgentExpected.expectedTitle)
-          h1Check(s"${AgentExpected.expectedH1} $captionExpected")
-          textOnPageCheck(AgentExpected.yourDividendsText, yourDividendsSelector)
-          radioButtonCheck(yesNo(true), 1)
-          radioButtonCheck(yesNo(false), 2)
-          buttonCheck(continueText, continueSelector)
-          formPostLinkCheck(continueLink, continueButtonFormSelector)
-
-          welshToggleCheck(ENGLISH)
-
-        }
-
-        "returns the uk dividends page when there is cyaData in session" which {
-
-          lazy val result: WSResponse = {
-            authoriseAgent()
-            urlGet(receiveUkDividendsUrl, headers = playSessionCookies(taxYear, SessionValues.DIVIDENDS_CYA, Json.toJson(cyaModel)))
-          }
-
-          "has an OK(200) status" in {
-            result.status shouldBe OK
-          }
-
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-          titleCheck(AgentExpected.expectedTitle)
-          h1Check(s"${AgentExpected.expectedH1} $captionExpected")
-          textOnPageCheck(AgentExpected.yourDividendsText, yourDividendsSelector)
-          radioButtonCheck(yesNo(true), 1)
-          radioButtonCheck(yesNo(false), 2)
-          buttonCheck(continueText, continueSelector)
-          formPostLinkCheck(continueLink, continueButtonFormSelector)
-
-          welshToggleCheck(ENGLISH)
-        }
-
-        "returns an action when auth call fails" which {
-          val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(true), ukDividendsAmount = Some(amount),
-              otherUkDividends = Some(true), otherUkDividendsAmount = Some(amount)).asJsonString
-          ))
-          lazy val result: WSResponse = {
-            authoriseIndividualUnauthorized()
-            await(wsClient.url(receiveUkDividendsUrl)
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").get())
-          }
-          "has an UNAUTHORIZED(401) status" in {
-            result.status shouldBe UNAUTHORIZED
-          }
-        }
-      }
-
-    }
-
-    "in Welsh" should {
-
-      import ExpectedResults.WelshLang.AllExpected._
-      import ExpectedResults.WelshLang._
-
-      "as an Individual" should {
-
-        "returns the uk dividends page when there is no priorSubmission data and no cyaData in session" which {
-          lazy val result: WSResponse = {
-            authoriseIndividual()
-            urlGet(receiveUkDividendsUrl, welsh = true)
-          }
-
-          "has an OK(200) status" in {
-            result.status shouldBe OK
-          }
-
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-          titleCheck(IndividualExpected.expectedTitle)
-          h1Check(s"${IndividualExpected.expectedH1} $captionExpected")
-          textOnPageCheck(IndividualExpected.yourDividendsText, yourDividendsSelector)
-          radioButtonCheck(yesNo(true), 1)
-          radioButtonCheck(yesNo(false), 2)
-          buttonCheck(continueText, continueSelector)
-          formPostLinkCheck(continueLink, continueButtonFormSelector)
-
-          welshToggleCheck(WELSH)
-
-        }
-
-        "returns the uk dividends page when there is cyaData in session" which {
-
-          lazy val result: WSResponse = {
-            authoriseIndividual()
-            urlGet(receiveUkDividendsUrl, welsh = true, headers = playSessionCookies(taxYear, SessionValues.DIVIDENDS_CYA, Json.toJson(cyaModel)))
-          }
-
-          "has an OK(200) status" in {
-            result.status shouldBe OK
-          }
-
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-          titleCheck(IndividualExpected.expectedTitle)
-          h1Check(s"${IndividualExpected.expectedH1} $captionExpected")
-          textOnPageCheck(IndividualExpected.yourDividendsText, yourDividendsSelector)
-          radioButtonCheck(yesNo(true), 1)
-          radioButtonCheck(yesNo(false), 2)
-          buttonCheck(continueText, continueSelector)
-          formPostLinkCheck(continueLink, continueButtonFormSelector)
-
-          welshToggleCheck(WELSH)
-        }
-      }
-
-      "as an Agent" should {
-
-        "returns the uk dividends page when there is no priorSubmission data and no cyaData in session" which {
-          lazy val result: WSResponse = {
-            authoriseAgent()
-            urlGet(receiveUkDividendsUrl, welsh = true, headers = playSessionCookies(taxYear))
-          }
-
-          "has an OK(200) status" in {
-            result.status shouldBe OK
-          }
-
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-          titleCheck(AgentExpected.expectedTitle)
-          h1Check(s"${AgentExpected.expectedH1} $captionExpected")
-          textOnPageCheck(AgentExpected.yourDividendsText, yourDividendsSelector)
-          radioButtonCheck(yesNo(true), 1)
-          radioButtonCheck(yesNo(false), 2)
-          buttonCheck(continueText, continueSelector)
-          formPostLinkCheck(continueLink, continueButtonFormSelector)
-
-          welshToggleCheck(WELSH)
-
-        }
-
-        "returns the uk dividends page when there is cyaData in session" which {
-
-          lazy val result: WSResponse = {
-            authoriseAgent()
-            urlGet(receiveUkDividendsUrl, welsh = true, headers = playSessionCookies(taxYear, SessionValues.DIVIDENDS_CYA, Json.toJson(cyaModel)))
-          }
-
-          "has an OK(200) status" in {
-            result.status shouldBe OK
-          }
-
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-          titleCheck(AgentExpected.expectedTitle)
-          h1Check(s"${AgentExpected.expectedH1} $captionExpected")
-          textOnPageCheck(AgentExpected.yourDividendsText, yourDividendsSelector)
-          radioButtonCheck(yesNo(true), 1)
-          radioButtonCheck(yesNo(false), 2)
-          buttonCheck(continueText, continueSelector)
-          formPostLinkCheck(continueLink, continueButtonFormSelector)
-
-          welshToggleCheck(WELSH)
-        }
-      }
-
     }
   }
 
-  ".submit" should {
+  ".submit" when {
+    userScenarios.foreach { us =>
+      s"language is ${printLang(us.isWelsh)} and request is from an ${printAgent(us.isAgent)}" should {
+
+        lazy val result: WSResponse = {
+          authoriseAgentOrIndividual(us.isAgent)
+          urlPost(receiveUkDividendsUrl, us.isWelsh, follow = false, headers = playSessionCookies(taxYear), postRequest = Map[String, String]())
+        }
+
+        "return a BadRequest(400) status" in {
+          result.status shouldBe BAD_REQUEST
+        }
+
+        implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+        titleCheck(us.expectedResultsUserType.get.expectedErrorTitle)
+        h1Check(s"${us.expectedResultsUserType.get.expectedH1} ${us.expectedResultsAllUsers.captionExpected}")
+        errorSummaryCheck(us.expectedResultsUserType.get.expectedErrorText, us.expectedResultsAllUsers.errorSummaryHref)
+        textOnPageCheck(us.expectedResultsUserType.get.yourDividendsText, Selectors.yourDividendsSelector)
+        radioButtonCheck(us.expectedResultsAllUsers.yesNo(true), 1)
+        radioButtonCheck(us.expectedResultsAllUsers.yesNo(false), 2)
+        buttonCheck(us.expectedResultsAllUsers.continueText, Selectors.continueSelector)
+        formPostLinkCheck(us.expectedResultsAllUsers.continueLink, Selectors.continueButtonFormSelector)
+
+        welshToggleCheck(us.isWelsh)
+      }
+    }
+  }
+
+  ".submit" should  {
 
     s"return an Redirect($SEE_OTHER) status" when {
 
@@ -406,224 +265,6 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
         result.status shouldBe SEE_OTHER
         result.header(HeaderNames.LOCATION) shouldBe Some(DividendsCYAController.show(taxYear).url)
       }
-
-      "there is an invalid with no radio button clicked. Show page with errors" when {
-
-        import Selectors._
-
-        "in English" when {
-          import ExpectedResults.EnglishLang.AllExpected._
-          import ExpectedResults.EnglishLang._
-
-          lazy val result: WSResponse = {
-            urlPost(receiveUkDividendsUrl, postRequest = Map[String, String]())
-          }
-
-          "has an OK(400) status" in {
-            result.status shouldBe BAD_REQUEST
-          }
-
-
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-
-          titleCheck(IndividualExpected.expectedErrorTitle)
-          h1Check(s"${IndividualExpected.expectedH1} $captionExpected")
-          errorSummaryCheck(IndividualExpected.expectedErrorText, errorSummaryHref)
-          textOnPageCheck(IndividualExpected.yourDividendsText, yourDividendsSelector)
-          radioButtonCheck(yesNo(true), 1)
-          radioButtonCheck(yesNo(false), 2)
-          buttonCheck(continueText, continueSelector)
-          formPostLinkCheck(continueLink, continueButtonFormSelector)
-
-          welshToggleCheck(ENGLISH)
-        }
-
-        "in Welsh" when {
-          import ExpectedResults.WelshLang.AllExpected._
-          import ExpectedResults.WelshLang._
-
-          lazy val result: WSResponse = {
-            urlPost(receiveUkDividendsUrl, postRequest = Map[String, String]())
-          }
-
-          "has an OK(400) status" in {
-            result.status shouldBe BAD_REQUEST
-          }
-
-
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-          titleCheck(IndividualExpected.expectedErrorTitle)
-          h1Check(s"${IndividualExpected.expectedH1} $captionExpected")
-          errorSummaryCheck(IndividualExpected.expectedErrorText, errorSummaryHref)
-          textOnPageCheck(IndividualExpected.yourDividendsText, yourDividendsSelector)
-          radioButtonCheck(yesNo(true), 1)
-          radioButtonCheck(yesNo(false), 2)
-          buttonCheck(continueText, continueSelector)
-          formPostLinkCheck(continueLink, continueButtonFormSelector)
-
-          welshToggleCheck(ENGLISH)
-        }
-
-      }
-
-    }
-
-
-    "returns an action when auth call fails" which {
-      lazy val result: WSResponse = {
-        authoriseIndividualUnauthorized()
-        await(wsClient.url(receiveUkDividendsUrl)
-          .post(Map[String, String]()))
-      }
-      "has an UNAUTHORIZED(401) status" in {
-        result.status shouldBe UNAUTHORIZED
-      }
-    }
-
-    "as an Agent" should {
-
-      s"return Redirect($SEE_OTHER) status" when {
-
-        "there is form data and answer to question is 'YES'" in {
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"
-            ))
-
-            authoriseAgent()
-            await(
-              wsClient.url(receiveUkDividendsUrl)
-                .withFollowRedirects(false)
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-                .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
-            )
-          }
-
-          result.status shouldBe SEE_OTHER
-          result.header(HeaderNames.LOCATION) shouldBe Some(UkDividendsAmountController.show(taxYear).url)
-        }
-      }
-
-      "there is an invalid with no radio button clicked. Show page with errors" when {
-
-        import Selectors._
-
-        "in English" when {
-          import ExpectedResults.EnglishLang.AllExpected._
-          import ExpectedResults.EnglishLang._
-
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"
-            ))
-
-            authoriseAgent()
-            await(wsClient.url(receiveUkDividendsUrl)
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-              .post(Map[String, String]()))
-          }
-
-          "has an OK(400) status" in {
-            result.status shouldBe BAD_REQUEST
-          }
-
-
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-
-          titleCheck(AgentExpected.expectedErrorTitle)
-          h1Check(s"${AgentExpected.expectedH1} $captionExpected")
-          errorSummaryCheck(AgentExpected.expectedErrorText, errorSummaryHref)
-          textOnPageCheck(AgentExpected.yourDividendsText, yourDividendsSelector)
-          radioButtonCheck(yesNo(true), 1)
-          radioButtonCheck(yesNo(false), 2)
-          buttonCheck(continueText, continueSelector)
-          formPostLinkCheck(continueLink, continueButtonFormSelector)
-
-          welshToggleCheck(ENGLISH)
-        }
-
-        "in Welsh" when {
-          import ExpectedResults.WelshLang.AllExpected._
-          import ExpectedResults.WelshLang._
-
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"
-            ))
-
-            authoriseAgent()
-            await(wsClient.url(receiveUkDividendsUrl)
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
-              .post(Map[String, String]()))
-          }
-
-          "has an OK(400) status" in {
-            result.status shouldBe BAD_REQUEST
-          }
-
-
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-
-
-          titleCheck(AgentExpected.expectedErrorTitle)
-          h1Check(s"${AgentExpected.expectedH1} $captionExpected")
-          errorSummaryCheck(AgentExpected.expectedErrorText, errorSummaryHref)
-          textOnPageCheck(AgentExpected.yourDividendsText, yourDividendsSelector)
-          radioButtonCheck(yesNo(true), 1)
-          radioButtonCheck(yesNo(false), 2)
-          buttonCheck(continueText, continueSelector)
-          formPostLinkCheck(continueLink, continueButtonFormSelector)
-
-          welshToggleCheck(WELSH)
-        }
-
-
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status" when {
-
-        "there is no form data" in {
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"
-            ))
-
-            authoriseAgent()
-            await(wsClient.url(receiveUkDividendsUrl)
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-              .post(Map[String, String]()))
-          }
-
-          result.status shouldBe BAD_REQUEST
-        }
-      }
-
-      "returns an action when auth call fails" when {
-        lazy val result: WSResponse = {
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
-
-          authoriseAgentUnauthorized()
-          await(wsClient.url(receiveUkDividendsUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-            .post(Map[String, String]()))
-        }
-
-        "has an UNAUTHORIZED(401) status" in {
-          result.status shouldBe UNAUTHORIZED
-        }
-      }
-
     }
   }
 
