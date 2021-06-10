@@ -42,8 +42,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
   val accountName: String = "HSBC"
 
   val overviewPageTitle = "Your Income Tax Return"
-  val untaxedAccountPageTitle = "UK untaxed interest account"
-  val taxedAccountPageTitle = "UK taxed interest account"
+  val untaxedAccountPageTitle = "Accounts with untaxed UK interest"
+  val taxedAccountPageTitle = "Accounts with taxed UK interest"
   val untaxedChangeAmountPageTitle = "How much untaxed UK interest did you get?"
   val taxedChangeAmountPageTitle = "How much taxed UK interest did you get?"
 
@@ -65,7 +65,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
     val expectedTaxedTitle = "How much taxed UK interest did you get?"
     val expectedTaxedErrorTitle = s"Error: $expectedTaxedTitle"
     def expectedErrorEmpty(taxType: String) = s"Enter the amount of $taxType UK interest you got"
-    def expectedErrorOverMax(taxType: String) = s"The amount of $taxType UK interest must be less than £99,999,999,999.99"
+    def expectedErrorOverMax(taxType: String) = s"The amount of $taxType UK interest must be less than £100,000,000,000"
     def expectedErrorInvalid(taxType: String) = s"Enter the amount of $taxType UK interest in the correct format"
     val expectedUntaxedH1 = "HSBC: how much untaxed UK interest did you get?"
     val expectedTaxedH1 = "HSBC: how much taxed UK interest did you get?"
@@ -77,7 +77,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
     val expectedTaxedTitleCy = "How much taxed UK interest did you get?"
     val expectedTaxedErrorTitleCy = s"Error: $expectedTaxedTitle"
     def expectedErrorEmptyCy(taxType: String) = s"Enter the amount of $taxType UK interest you got"
-    def expectedErrorOverMaxCy(taxType: String) = s"The amount of $taxType UK interest must be less than £99,999,999,999.99"
+    def expectedErrorOverMaxCy(taxType: String) = s"The amount of $taxType UK interest must be less than £100,000,000,000"
     def expectedErrorInvalidCy(taxType: String) = s"Enter the amount of $taxType UK interest in the correct format"
     val expectedUntaxedH1Cy = "HSBC: how much untaxed UK interest did you get?"
     val expectedTaxedH1Cy = "HSBC: how much taxed UK interest did you get?"
@@ -92,7 +92,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
     val expectedTaxedTitle = "How much taxed UK interest did your client get?"
     val expectedTaxedErrorTitle = s"Error: $expectedTaxedTitle"
     def expectedErrorEmpty(taxType: String) = s"Enter the amount of $taxType UK interest your client got"
-    def expectedErrorOverMax(taxType: String) = s"The amount of $taxType UK interest must be less than £99,999,999,999.99"
+    def expectedErrorOverMax(taxType: String) = s"The amount of $taxType UK interest must be less than £100,000,000,000"
     def expectedErrorInvalid(taxType: String) = s"Enter the amount of $taxType UK interest in the correct format"
     val expectedUntaxedH1 = "HSBC: how much untaxed UK interest did your client get?"
     val expectedTaxedH1 = "HSBC: how much taxed UK interest did your client get?"
@@ -104,7 +104,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
     val expectedTaxedTitleCy = "How much taxed UK interest did your client get?"
     val expectedTaxedErrorTitleCy = s"Error: $expectedTaxedTitle"
     def expectedErrorEmptyCy(taxType: String) = s"Enter the amount of $taxType UK interest your client got"
-    def expectedErrorOverMaxCy(taxType: String) = s"The amount of $taxType UK interest must be less than £99,999,999,999.99"
+    def expectedErrorOverMaxCy(taxType: String) = s"The amount of $taxType UK interest must be less than £100,000,000,000"
     def expectedErrorInvalidCy(taxType: String) = s"Enter the amount of $taxType UK interest in the correct format"
     val expectedUntaxedH1Cy = "HSBC: how much untaxed UK interest did your client get?"
     val expectedTaxedH1Cy = "HSBC: how much taxed UK interest did your client get?"
@@ -120,9 +120,10 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
   val expectedHintTextCy = "For example, £600 or £193.54"
   val continueTextCy = "Continue"
 
-  def url(newId: String, accountType: String): String = s"$startUrl/$taxYear/interest/change-$accountType-interest-account?accountId=$newId"
+  def url(newId: String, accountType: String): String = s"$startUrl/$taxYear/interest/change-$accountType-uk-interest?accountId=$newId"
 
-  def urlNoPreFix(newId: String, accountType: String): String = s"/income-through-software/return/personal-income/$taxYear/interest/change-$accountType-interest-account?accountId=$newId"
+  def urlNoPreFix(newId: String, accountType: String): String =
+    s"/income-through-software/return/personal-income/$taxYear/interest/change-$accountType-uk-interest?accountId=$newId"
 
   lazy val id: String = UUID.randomUUID().toString
 
@@ -606,7 +607,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               "taxedUkInterest" -> amount
             )).toString()
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-interest-account?accountId=TaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
           authoriseIndividual()
@@ -639,7 +640,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               "taxedUkInterest" -> amount
             )).toString()
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-interest-account?accountId=TaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
           authoriseAgent()
@@ -670,7 +671,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               "taxedUkInterest" -> amount
             )).toString()
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-interest-account?accountId=TaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
           authoriseIndividual()
@@ -703,7 +704,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               "taxedUkInterest" -> amount
             )).toString()
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-interest-account?accountId=TaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
           authoriseAgent()
@@ -734,7 +735,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               "taxedUkInterest" -> amount
             )).toString()
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-interest-account?accountId=TaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
           authoriseIndividual()
@@ -767,7 +768,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               "taxedUkInterest" -> amount
             )).toString()
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-interest-account?accountId=TaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
           authoriseAgent()
@@ -798,7 +799,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               "taxedUkInterest" -> amount
             )).toString()
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-interest-account?accountId=TaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
           authoriseIndividual()
@@ -831,7 +832,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               "taxedUkInterest" -> amount
             )).toString()
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-interest-account?accountId=TaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
           authoriseAgent()
@@ -863,7 +864,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               "taxedUkInterest" -> amount
             )).toString()
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-interest-account?accountId=TaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
           authoriseIndividual()
@@ -897,7 +898,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               "taxedUkInterest" -> amount
             )).toString()
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-interest-account?accountId=TaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
           authoriseAgent()
@@ -929,7 +930,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               "taxedUkInterest" -> amount
             )).toString()
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-interest-account?accountId=TaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
           authoriseIndividual()
@@ -963,7 +964,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               "taxedUkInterest" -> amount
             )).toString()
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-interest-account?accountId=TaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
           authoriseAgent()
@@ -990,7 +991,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-interest-account?accountId=TaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
           authoriseIndividual()
@@ -1005,7 +1006,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
       "there is no CYA data in session" which {
 
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-interest-account?accountId=TaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
           authoriseIndividual()
@@ -1027,7 +1028,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-interest-account?accountId=TaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
           authoriseIndividualUnauthorized()
@@ -1056,7 +1057,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-interest-account?accountId=UntaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
 
         lazy val result = {
           authoriseIndividual()
@@ -1084,7 +1085,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               "taxedUkInterest" -> amount
             )).toString()
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-interest-account?accountId=UntaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
 
         lazy val result = {
           authoriseIndividual()
@@ -1117,7 +1118,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               "taxedUkInterest" -> amount
             )).toString()
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-interest-account?accountId=UntaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
 
         lazy val result = {
           authoriseAgent()
@@ -1148,7 +1149,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               "taxedUkInterest" -> amount
             )).toString()
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-interest-account?accountId=UntaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
 
         lazy val result = {
           authoriseIndividual()
@@ -1181,7 +1182,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               "taxedUkInterest" -> amount
             )).toString()
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-interest-account?accountId=UntaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
 
         lazy val result = {
           authoriseAgent()
@@ -1212,7 +1213,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               "taxedUkInterest" -> amount
             )).toString()
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-interest-account?accountId=UntaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
 
         lazy val result = {
           authoriseIndividual()
@@ -1245,7 +1246,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               "taxedUkInterest" -> amount
             )).toString()
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-interest-account?accountId=UntaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
 
         lazy val result = {
           authoriseAgent()
@@ -1276,7 +1277,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               "taxedUkInterest" -> amount
             )).toString()
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-interest-account?accountId=UntaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
 
         lazy val result = {
           authoriseIndividual()
@@ -1310,7 +1311,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               "taxedUkInterest" -> amount
             )).toString()
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-interest-account?accountId=UntaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
 
         lazy val result = {
           authoriseAgent()
@@ -1342,7 +1343,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               "taxedUkInterest" -> amount
             )).toString()
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-interest-account?accountId=UntaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
 
         lazy val result = {
           authoriseIndividual()
@@ -1376,7 +1377,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               "taxedUkInterest" -> amount
             )).toString()
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-interest-account?accountId=UntaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
 
         lazy val result = {
           authoriseAgent()
@@ -1408,7 +1409,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               "taxedUkInterest" -> amount
             )).toString()
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-interest-account?accountId=UntaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
 
         lazy val result = {
           authoriseIndividual()
@@ -1442,7 +1443,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               "taxedUkInterest" -> amount
             )).toString()
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-interest-account?accountId=UntaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
 
         lazy val result = {
           authoriseAgent()
@@ -1462,7 +1463,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
       "there is no CYA data in session" which {
 
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-interest-account?accountId=UntaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
 
         lazy val result = {
           authoriseIndividual()
@@ -1484,7 +1485,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
         ))
-        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-interest-account?accountId=UntaxedId"
+        lazy val url: String = s"$startUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
 
         lazy val result = {
           authoriseIndividualUnauthorized()

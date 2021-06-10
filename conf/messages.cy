@@ -164,66 +164,86 @@ dividends.cya.changeOtherDividendsAmount.agent = how much your client got in div
 interest.cya.accountDisplay = {0} : {1}
 
 interest.account.add-another = Do you need to add another account?
-interest.account.tell-us-about-all = You must tell us about all your accounts.
 
-interest.common.paragraph.1 = For example, interest from:
+interest.common.paragraph.1 = This could be interest from:
 
-interest.common.amount.interest.earned = Amount of interest earned
-interest.common.sub-heading1 = What would you like to call this account?
+interest.common.sub-heading.1 = What do you want to name this account?
+interest.common.sub-heading.2 = Give each account a different name.
 
-interest.common.error.name.empty = Enter an account name
+interest.common.error.name.empty = Enter a name for this account
 interest.common.error.name.duplicate = You cannot add 2 accounts with the same name
 
-interest.accounts.addAnotherAccount = Add another account
+interest.common.account.hint = For example, ‘HSBC savings account’.
 
-interest.untaxed-uk-interest.title.individual = Did you receive any untaxed interest from the UK?
-interest.untaxed-uk-interest.title.agent = Did your client receive any untaxed interest from the UK?
-interest.untaxed-uk-interest.errors.noRadioSelected.individual = Select yes if you received untaxed interest from the UK
-interest.untaxed-uk-interest.errors.noRadioSelected.agent = Select yes if your client received untaxed interest from the UK
+interest.uk-interest.paragraph.individual = Do not include interest you got from an Individual Savings Account (ISA) or gilts.
+interest.uk-interest.paragraph.agent = Do not include interest your client got from an Individual Savings Account (ISA) or gilts.
+
+interest.untaxed-uk-interest.title.individual = Did you get untaxed interest from the UK?
+interest.untaxed-uk-interest.title.agent = Did your client get untaxed interest from the UK?
+interest.untaxed-uk-interest.errors.noRadioSelected.individual = Select yes if you got untaxed UK interest
+interest.untaxed-uk-interest.errors.noRadioSelected.agent = Select yes if your client got untaxed UK interest
 interest.untaxed-uk-interest.list.1 = banks and building societies
 interest.untaxed-uk-interest.list.2 = savings and credit union accounts
 interest.untaxed-uk-interest.list.3 = peer-to-peer lending
-interest.untaxed-uk-interest.paragraph.2 = This does not include any interest earned from an Individual Savings Account (ISA) or gilts. You’ll be able to add interest earned from gilts at a later date.
 
+interest.untaxed-uk-interest.amount.interest.earned = Amount of untaxed UK interest
 interest.untaxed-uk-interest.accounts.summary = Untaxed account summary
-interest.untaxed-uk-interest-details.title = UK untaxed interest account details
+interest.untaxed-uk-interest-details.title = Add an account with untaxed UK interest
+interest.untaxed-uk-interest-amount.error.empty.individual = Enter the amount of untaxed UK interest you got
+interest.untaxed-uk-interest-amount.error.empty.agent = Enter the amount of untaxed UK interest your client got
+interest.untaxed-uk-interest-amount.error.invalid-numeric = Enter the amount of untaxed UK interest in the correct format
+interest.untaxed-uk-interest-amount.error.max-amount = The amount of untaxed UK interest must be less than £100,000,000,000
+
 interest.untaxed-uk-interest-details.error.invalidChars = Name of account with untaxed UK interest must only include numbers 0-9, letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets, and the special characters &, /, @, £, *
-interest.untaxed-uk-interest-amount.error.empty = Enter the amount of untaxed interest earned
+
+interest.untaxed-uk-interest-accounts.title = Accounts with untaxed UK interest
+interest.untaxed-uk-interest-accounts.account.tell-us-about-all.individual = You must tell us about all your accounts with untaxed UK interest.
+interest.untaxed-uk-interest-accounts.account.tell-us-about-all.agent = You must tell us about all your client’s accounts with untaxed UK interest.
 
 interest.taxed-uk-interest.accounts.summary = Taxed account summary
-interest.untaxed-uk-interest-accounts.title.single = UK untaxed interest account
-interest.untaxed-uk-interest-accounts.title.multiple = UK untaxed interest accounts
 
-interest.taxed-uk-interest.title.individual = Did you receive any taxed interest from the UK?
-interest.taxed-uk-interest.title.agent = Did your client receive any taxed interest from the UK?
+interest.taxed-uk-interest.title.individual = Did you get taxed interest from the UK?
+interest.taxed-uk-interest.title.agent = Did your client get taxed interest from the UK?
 interest.taxed-uk-interest.list.1 = trust funds
 interest.taxed-uk-interest.list.2 = company bonds
 interest.taxed-uk-interest.list.3 = life annuity payments
-interest.taxed-uk-interest.paragraph.2 = Do not include interest received from gilts. You’ll be able to add interest earned from gilts at a later date.
-interest.taxed-uk-interest.errors.noRadioSelected.individual = Select yes if you received taxed interest from the UK
-interest.taxed-uk-interest.errors.noRadioSelected.agent = Select yes if your client received taxed interest from the UK
+interest.taxed-uk-interest.errors.noRadioSelected.individual = Select yes if you got taxed UK interest
+interest.taxed-uk-interest.errors.noRadioSelected.agent = Select yes if your client got taxed UK interest
 
-interest.taxed-uk-interest-details.title = UK taxed interest account details
+interest.taxed-uk-interest-details.title = Add an account with taxed UK interest
 interest.taxed-uk-interest-amount.error.invalidChars = Name of account with taxed UK interest must only include numbers 0-9, letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets, and the special characters &, /, @, £, *
-interest.taxed-uk-interest-amount.error.empty = Enter the amount of taxed interest earned
+interest.taxed-uk-interest.amount.interest.earned = Amount of taxed UK interest
+interest.taxed-uk-interest-amount.error.empty.individual = Enter the amount of taxed UK interest you got
+interest.taxed-uk-interest-amount.error.empty.agent = Enter the amount of taxed UK interest your client got
+interest.taxed-uk-interest-amount.error.invalid-numeric = Enter the amount of taxed UK interest in the correct format
+interest.taxed-uk-interest-amount.error.max-amount = The amount of taxed UK interest must be less than £100,000,000,000
 
-interest.taxed-uk-interest-accounts.title.single = UK taxed interest account
-interest.taxed-uk-interest-accounts.title.multiple = UK taxed interest accounts
+interest.taxed-uk-interest-accounts.title = Accounts with taxed UK interest
+interest.taxed-uk-interest-accounts.account.tell-us-about-all.individual = You must tell us about all your accounts with taxed UK interest.
+interest.taxed-uk-interest-accounts.account.tell-us-about-all.agent = You must tell us about all your client’s accounts with taxed UK interest.
+
+interest.uk-interest.paragraph.individual = Do not include interest you got from an Individual Savings Account (ISA) or gilts.
+interest.uk-interest.paragraph.agent = Do not include interest your client got from an Individual Savings Account (ISA) or gilts.
 
 interest.accounts.addAnotherAccount = Add another account
 interest.accounts.error.tooLong = The name of the account must be 32 characters or fewer
+interest.accounts.error.noRadioSelected = Select yes to add another account
 
-interest.cya.title = Check your answers
+interest.cya.title.individual = Check your taxed and untaxed UK interest
+interest.cya.title.agent = Check your client’s taxed and untaxed UK interest
 interest.cya.questions.1 = Untaxed UK Interest
-interest.cya.questions.2 = Details for the untaxed UK interest
+interest.cya.questions.2 = Untaxed UK interest accounts
 interest.cya.questions.3 = Taxed UK Interest
-interest.cya.questions.4 = Details for the taxed UK interest
-interest.cya.changeUntaxedInterest.individual = whether you got untaxed interest from UK accounts.
-interest.cya.changeUntaxedInterest.agent = whether your client got untaxed interest from UK accounts.
-interest.cya.changeUntaxedDetails = or add a new UK account with untaxed interest.
-interest.cya.changeTaxedInterest.individual = whether you got taxed interest from UK accounts.
-interest.cya.changeTaxedInterest.agent = whether your client got taxed interest from UK accounts.
-interest.cya.changeTaxedDetails = or add a new UK account with taxed interest.
+interest.cya.questions.4 = Taxed UK interest accounts
+
+interest.cya.untaxed-uk-interest-accounts.hiddenChange.individual = if you got untaxed UK interest
+interest.cya.untaxed-uk-interest-accounts.hiddenChange.agent = if your client got untaxed UK interest
+interest.cya.taxed-uk-interest-accounts.hiddenChange.individual = if you got taxed UK interest
+interest.cya.taxed-uk-interest-accounts.hiddenChange.agent = if your client got taxed UK interest
+interest.cya.change-untaxed-details.hiddenChange.individual = the details of your account with untaxed UK interest
+interest.cya.change-untaxed-details.hiddenChange.agent = the details of your client’s account with untaxed UK interest
+interest.cya.change-taxed-details.hiddenChange.individual = the details of your account with taxed UK interest
+interest.cya.change-taxed-details.hiddenChange.agent = the details of your client’s account with taxed UK interest
 
 interest.remove-account.title = Are you sure you want to remove this account?
 interest.remove-account.untaxed-hint = This will remove all untaxed UK interest.
@@ -245,7 +265,7 @@ interest.change-account.untaxed-label.prior.common2 = untaxed UK interest. Tell 
 interest.changeAccountAmount.required.individual = Enter the amount of {0} UK interest you got
 interest.changeAccountAmount.required.agent = Enter the amount of {0} UK interest your client got
 interest.changeAccountAmount.format = Enter the amount of {0} UK interest in the correct format
-interest.changeAccountAmount.amountMaxLimit = The amount of {0} UK interest must be less than £99,999,999,999.99
+interest.changeAccountAmount.amountMaxLimit = The amount of {0} UK interest must be less than £100,000,000,000
 
 # Gift Aid
 # ----------------------------------------------------------
@@ -258,6 +278,12 @@ charity.common.gift-aid.doNotInclude.agent = Do not include the Gift Aid added t
 
 charity.common.total.valueInPounds = Total value, in pounds
 charity.common.add.overseas.question = Do you need to add another overseas charity?
+
+charity.gift-aid-account.hint = You can add more than one charity.
+
+charity.common.name.error.limit = The name of the overseas charity must be 75 characters or fewer
+charity.common.name.error.invalid = Name of overseas charity must only include numbers 0-9, letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets and the special characters, &, /, @, £, *
+charity.common.name.error.duplicate = You cannot add 2 charities with the same name
 
 charity.qualifying-shares.disclosure.title = What are qualifying shares and securities?
 charity.qualifying-shares.disclosure.p = Qualifying shares and securities are:
@@ -319,12 +345,8 @@ charity.amount-overseas-gift-aid.input.label = Total amount, in pounds
 
 charity.gift-aid-overseas-name.title.individual = Name of overseas charity you used Gift Aid to donate to
 charity.gift-aid-overseas-name.title.agent = Name of overseas charity your client used Gift Aid to donate to
-charity.gift-aid-account.hint = You can add more than one charity.
 charity.gift-aid-overseas-name.error.empty.individual = Enter the name of the overseas charity you used Gift Aid to donate to
 charity.gift-aid-overseas-name.error.empty.agent = Enter the name of the overseas charity your client used Gift Aid to donate to
-charity.common.name.error.limit = The name of the overseas charity must be 75 characters or fewer
-charity.common.name.error.invalid = Name of overseas charity must only include numbers 0-9, letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets and the special characters, &, /, @, £, *
-charity.common.name.error.duplicate = You cannot add 2 charities with the same name
 
 charity.overseas-gift-aid-summary.title.individual = Overseas {0} you used Gift Aid to donate to
 charity.overseas-gift-aid-summary.title.agent = Overseas {0} your client used Gift Aid to donate to

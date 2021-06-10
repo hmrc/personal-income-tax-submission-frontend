@@ -31,18 +31,26 @@ object TaxedInterestAmountForm extends InputFilters{
   val charLimit: Int = 32
 
   val nameNotEmpty: Constraint[String] = nonEmpty("interest.common.error.name.empty")
-  val amountNotEmpty: Constraint[String] = nonEmpty("interest.taxed-uk-interest-amount.error.empty")
 
   val noInvalidChar: Constraint[String] = validateChar("interest.taxed-uk-interest-amount.error.invalidChars")
 
   val exceedCharLimit: Constraint[String] = validateSize(charLimit)("interest.accounts.error.tooLong")
 
+  def emptyAmountKey(isAgent: Boolean): String = s"interest.taxed-uk-interest-amount.error.empty.${if(isAgent) "agent" else "individual"}"
+
+  val invalidNumericKey: String =  "interest.taxed-uk-interest-amount.error.invalid-numeric"
+
+  val maxAmountInvalidKey: String = "interest.taxed-uk-interest-amount.error.max-amount"
+
   def notDuplicate(previousNames: Seq[String]): Constraint[String] = validateNotDuplicate(previousNames)("interest.common.error.name.duplicate")
 
-  def taxedInterestAmountForm(previousNames: Seq[String]): Form[TaxedInterestModel] = Form(
+  def taxedInterestAmountForm(isAgent: Boolean, previousNames: Seq[String]): Form[TaxedInterestModel] = Form(
     mapping(
       taxedAccountName -> trimmedText.verifying(nameNotEmpty, noInvalidChar, exceedCharLimit, notDuplicate(previousNames)),
-      taxedAmount -> currency("interest.taxed-uk-interest-amount.error.empty")
+      taxedAmount -> currency(requiredKey = emptyAmountKey(isAgent: Boolean),
+                              invalidNumeric = invalidNumericKey,
+                              nonNumericKey = invalidNumericKey,
+                              maxAmountKey = maxAmountInvalidKey)
     )(TaxedInterestModel.apply)(TaxedInterestModel.unapply).transform[TaxedInterestModel](
       details => details.copy(
         taxedAccountName = filter(details.taxedAccountName)

@@ -54,21 +54,17 @@ class InterestAccountsViewSpec extends ViewTest {
   val doYouNeedSelector = "#main-content > div > div > form > div > fieldset > legend"
   val youMustTellSelector = "#value-hint"
 
-  val changeUntaxedHref = "/income-through-software/return/personal-income/2020/interest/untaxed-uk-interest-details/qwerty"
-  val changePriorUntaxedHref = "/income-through-software/return/personal-income/2020/interest/change-untaxed-interest-account?accountId=azerty"
-  val changeTaxedHref = "/income-through-software/return/personal-income/2020/interest/taxed-uk-interest-details/qwerty"
-  val changePriorTaxedHref = "/income-through-software/return/personal-income/2020/interest/change-taxed-interest-account?accountId=azerty"
+  val changeUntaxedHref = "/income-through-software/return/personal-income/2020/interest/add-untaxed-uk-interest-account/qwerty"
+  val changePriorUntaxedHref = "/income-through-software/return/personal-income/2020/interest/change-untaxed-uk-interest?accountId=azerty"
+  val changeTaxedHref = "/income-through-software/return/personal-income/2020/interest/add-taxed-uk-interest-account/qwerty"
+  val changePriorTaxedHref = "/income-through-software/return/personal-income/2020/interest/change-taxed-uk-interest?accountId=azerty"
   val removeUntaxedHref = "/income-through-software/return/personal-income/2020/interest/remove-untaxed-interest-account?accountId=qwerty"
   val removeTaxedHref = "/income-through-software/return/personal-income/2020/interest/remove-taxed-interest-account?accountId=qwerty"
 
-  val untaxedH1Singular = "UK untaxed interest account"
-  val untaxedH1Plural = "UK untaxed interest accounts"
-  val taxedH1Singular = "UK taxed interest account"
-  val taxedH1Plural = "UK taxed interest accounts"
-  val untaxedTitleSingle = "UK untaxed interest account"
-  val untaxedTitlePlural = "UK untaxed interest accounts"
-  val taxedTitleSingle = "UK taxed interest account"
-  val taxedTitlePlural = "UK taxed interest accounts"
+  val untaxedH1 = "Accounts with untaxed UK interest"
+  val taxedH1 = "Accounts with taxed UK interest"
+  val untaxedTitle = "Accounts with untaxed UK interest"
+  val taxedTitle = "Accounts with taxed UK interest"
   val captionText = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
   val changeText = "Change"
   val removeText = "Remove"
@@ -76,23 +72,26 @@ class InterestAccountsViewSpec extends ViewTest {
   val continueText = "Continue"
   val errorTitleText: String => String = (titleText: String) => s"Error: $titleText"
   val doYouNeedText = "Do you need to add another account?"
-  val youMustTellText = "You must tell us about all your accounts."
+  val youMustTellTextUntaxedIndividual = "You must tell us about all your accounts with untaxed UK interest."
+  val youMustTellTextUntaxedAgent = "You must tell us about all your client’s accounts with untaxed UK interest."
+  val youMustTellTextTaxedIndividual = "You must tell us about all your accounts with taxed UK interest."
+  val youMustTellTextTaxedAgent = "You must tell us about all your client’s accounts with taxed UK interest."
   val yesText = "Yes"
   val noText = "No"
 
   "InterestAccountsView when untaxed in English" should {
     "render with 1 row" when {
 
-      "there is a single untaxed account passed in that is not a prior submission" which {
+      "there is a single untaxed account passed in that is not a prior submission as an individual" which {
         lazy val result = view(untaxedYesNoForm, taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9001.00, Some("qwerty"))
         ), UNTAXED, isAgent = false)(fakeRequest, messages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
-        titleCheck(untaxedTitleSingle)
+        titleCheck(untaxedTitle)
         welshToggleCheck("English")
         textOnPageCheck(captionText, captionSelector)
-        h1Check(untaxedH1Singular + " " + captionText)
+        h1Check(untaxedH1 + " " + captionText)
         textOnPageCheck( "Bank of UK", accountRowName(1))
 
         "has a link for changing the account" which {
@@ -122,24 +121,24 @@ class InterestAccountsViewSpec extends ViewTest {
         }
 
         textOnPageCheck(doYouNeedText, doYouNeedSelector)
-        textOnPageCheck(youMustTellText, youMustTellSelector)
+        textOnPageCheck(youMustTellTextUntaxedIndividual, youMustTellSelector)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
         formPostLinkCheck(controllers.interest.routes.AccountsController.submit(taxYear, UNTAXED).url, continueFormSelector)
       }
 
-      "there is a single untaxed account passed in that is a prior submission" which {
+      "there is a single untaxed account passed in that is a prior submission as an agent" which {
 
         lazy val result = view(untaxedYesNoForm, taxYear, Seq(
           InterestAccountModel(Some("azerty"), "Bank of UK", 9001.00)
-        ), UNTAXED, isAgent = false)(fakeRequest, messages, mockAppConfig)
+        ), UNTAXED, isAgent = true)(fakeRequest, messages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
-        titleCheck(untaxedTitleSingle)
+        titleCheck(untaxedTitle)
         welshToggleCheck("English")
         textOnPageCheck(captionText, captionSelector)
-        h1Check(untaxedH1Singular + " " + captionText)
+        h1Check(untaxedH1 + " " + captionText)
 
         textOnPageCheck( "Bank of UK", accountRowName(1))
 
@@ -156,16 +155,16 @@ class InterestAccountsViewSpec extends ViewTest {
         }
 
         textOnPageCheck(doYouNeedText, doYouNeedSelector)
-        textOnPageCheck(youMustTellText, youMustTellSelector)
+        textOnPageCheck(youMustTellTextUntaxedAgent, youMustTellSelector)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
         formPostLinkCheck(controllers.interest.routes.AccountsController.submit(taxYear, UNTAXED).url, continueFormSelector)
       }
 
-      "the radio button form is not selected" which {
+      "the radio button form is not selected as an individual" which {
         val yesNoForm =
-          YesNoForm.yesNoForm("Select yes if you received untaxed interest from the UK").bind(Map("value" -> ""))
+          YesNoForm.yesNoForm("Select yes to add another account").bind(Map("value" -> ""))
         lazy val result = view(yesNoForm, taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9001.00, Some("qwerty"))
         ), UNTAXED, isAgent = false)(fakeRequest, messages, mockAppConfig)
@@ -173,12 +172,12 @@ class InterestAccountsViewSpec extends ViewTest {
 
         welshToggleCheck("English")
         textOnPageCheck(captionText, captionSelector)
-        h1Check(untaxedH1Singular + " " + captionText)
+        h1Check(untaxedH1 + " " + captionText)
         textOnPageCheck( "Bank of UK", accountRowName(1))
 
-        val expectedErrorText = "Select yes if you received untaxed interest from the UK"
+        val expectedErrorText = "Select yes to add another account"
 
-        titleCheck(errorTitleText(untaxedTitleSingle))
+        titleCheck(errorTitleText(untaxedTitle))
         errorSummaryCheck(expectedErrorText, "#value")
         errorAboveElementCheck(expectedErrorText)
 
@@ -191,6 +190,38 @@ class InterestAccountsViewSpec extends ViewTest {
           }
           "has the correct link" in {
             element(accountRowChange(1)).attr("href") shouldBe changeUntaxedHref
+          }
+        }
+
+        "the radio button form is not selected as an agent" which {
+          val yesNoForm =
+            YesNoForm.yesNoForm("Select yes to add another account").bind(Map("value" -> ""))
+          lazy val result = view(yesNoForm, taxYear, Seq(
+            InterestAccountModel(None, "Bank of UK", 9001.00, Some("qwerty"))
+          ), UNTAXED, isAgent = true)(fakeRequest, messages, mockAppConfig)
+          implicit val document: Document = Jsoup.parse(result.body)
+
+          welshToggleCheck("English")
+          textOnPageCheck(captionText, captionSelector)
+          h1Check(untaxedH1 + " " + captionText)
+          textOnPageCheck("Bank of UK", accountRowName(1))
+
+          val expectedErrorText = "Select yes to add another account"
+
+          titleCheck(errorTitleText(untaxedTitle))
+          errorSummaryCheck(expectedErrorText, "#value")
+          errorAboveElementCheck(expectedErrorText)
+
+          "has a link for changing the account" which {
+            "has the correct text" in {
+              element(accountRowChange(1)).child(0).text shouldBe changeText
+            }
+            "has the correct hidden text" in {
+              element(accountRowChangeHidden(1)).text shouldBe s"$changeText Bank of UK account details"
+            }
+            "has the correct link" in {
+              element(accountRowChange(1)).attr("href") shouldBe changeUntaxedHref
+            }
           }
         }
 
@@ -207,7 +238,7 @@ class InterestAccountsViewSpec extends ViewTest {
         }
 
         textOnPageCheck(doYouNeedText, doYouNeedSelector)
-        textOnPageCheck(youMustTellText, youMustTellSelector)
+        textOnPageCheck(youMustTellTextUntaxedIndividual, youMustTellSelector)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
@@ -217,7 +248,7 @@ class InterestAccountsViewSpec extends ViewTest {
 
     "render with 2 rows" when {
 
-      "there are two accounts passed in, one new account and one prior" which {
+      "there are two accounts passed in, one new account and one prior as an individual" which {
 
         lazy val result = view(untaxedYesNoForm, taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9000.01, Some("qwerty")),
@@ -225,9 +256,9 @@ class InterestAccountsViewSpec extends ViewTest {
         ), UNTAXED, isAgent = false)(fakeRequest, messages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
-        titleCheck(untaxedTitlePlural)
+        titleCheck(untaxedTitle)
         welshToggleCheck("English")
-        h1Check(untaxedH1Plural + " " + captionText)
+        h1Check(untaxedH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
 
         "have an area for the first row" which {
@@ -270,7 +301,7 @@ class InterestAccountsViewSpec extends ViewTest {
           }
         }
         textOnPageCheck(doYouNeedText, doYouNeedSelector)
-        textOnPageCheck(youMustTellText, youMustTellSelector)
+        textOnPageCheck(youMustTellTextUntaxedIndividual, youMustTellSelector)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
@@ -283,17 +314,17 @@ class InterestAccountsViewSpec extends ViewTest {
 
     "render with 1 row" when {
 
-      "there is a single taxed account passed in that is not a prior submission" which {
+      "there is a single taxed account passed in that is not a prior submission as an individual" which {
 
         lazy val result = view(taxedYesNoForm, taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9001.00, Some("qwerty"))
         ), TAXED, isAgent = false)(fakeRequest, messages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
-        titleCheck(taxedTitleSingle)
+        titleCheck(taxedTitle)
         welshToggleCheck("English")
         textOnPageCheck(captionText, captionSelector)
-        h1Check(taxedH1Singular + " " + captionText)
+        h1Check(taxedH1 + " " + captionText)
         textOnPageCheck( "Bank of UK", accountRowName(1))
 
         "has a link for changing the account" which {
@@ -321,24 +352,24 @@ class InterestAccountsViewSpec extends ViewTest {
         }
 
         textOnPageCheck(doYouNeedText, doYouNeedSelector)
-        textOnPageCheck(youMustTellText, youMustTellSelector)
+        textOnPageCheck(youMustTellTextTaxedIndividual, youMustTellSelector)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
         formPostLinkCheck(controllers.interest.routes.AccountsController.submit(taxYear, TAXED).url, continueFormSelector)
       }
 
-      "there is a single taxed account passed in that is a prior submission" which {
+      "there is a single taxed account passed in that is a prior submission as an individual" which {
 
         lazy val result = view(taxedYesNoForm, taxYear, Seq(
           InterestAccountModel(Some("azerty"), "Bank of UK", 9001.00)
         ), TAXED, isAgent = false)(fakeRequest, messages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
-        titleCheck(taxedTitleSingle)
+        titleCheck(taxedTitle)
         welshToggleCheck("English")
         textOnPageCheck(captionText, captionSelector)
-        h1Check(taxedH1Singular + " " + captionText)
+        h1Check(taxedH1 + " " + captionText)
 
         "has a link for changing the account" which {
           "has the correct text" in {
@@ -353,7 +384,7 @@ class InterestAccountsViewSpec extends ViewTest {
         }
 
         textOnPageCheck(doYouNeedText, doYouNeedSelector)
-        textOnPageCheck(youMustTellText, youMustTellSelector)
+        textOnPageCheck(youMustTellTextTaxedIndividual, youMustTellSelector)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
@@ -363,16 +394,16 @@ class InterestAccountsViewSpec extends ViewTest {
 
     "render with 2 rows" when {
 
-      "there are two accounts passed in, one new account and one prior" which {
+      "there are two accounts passed in, one new account and one prior as an individual" which {
         lazy val result = view(taxedYesNoForm, taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9000.01, Some("qwerty")),
           InterestAccountModel(Some("azerty"), "Bank of EU", 1234.56)
-        ), TAXED, isAgent = false)(fakeRequest, messages, mockAppConfig)
+        ), TAXED, isAgent = true)(fakeRequest, messages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
-        titleCheck(taxedTitlePlural)
+        titleCheck(taxedTitle)
         welshToggleCheck("English")
-        h1Check(taxedH1Plural + " " + captionText)
+        h1Check(taxedH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
 
         "have an area for the first row" which {
@@ -416,7 +447,7 @@ class InterestAccountsViewSpec extends ViewTest {
           }
         }
         textOnPageCheck(doYouNeedText, doYouNeedSelector)
-        textOnPageCheck(youMustTellText, youMustTellSelector)
+        textOnPageCheck(youMustTellTextTaxedAgent, youMustTellSelector)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
@@ -428,16 +459,16 @@ class InterestAccountsViewSpec extends ViewTest {
   "InterestAccountsView when untaxed in Welsh" should {
     "render with 1 row" when {
 
-      "there is a single untaxed account passed in that is not a prior submission" which {
+      "there is a single untaxed account passed in that is not a prior submission as an individual" which {
         lazy val result = view(untaxedYesNoForm, taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9001.00, Some("qwerty"))
         ), UNTAXED, isAgent = false)(fakeRequest, welshMessages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
-        titleCheck(untaxedTitleSingle)
+        titleCheck(untaxedTitle)
         welshToggleCheck("Welsh")
         textOnPageCheck(captionText, captionSelector)
-        h1Check(untaxedH1Singular + " " + captionText)
+        h1Check(untaxedH1 + " " + captionText)
         textOnPageCheck( "Bank of UK", accountRowName(1))
 
         "has a link for changing the account" which {
@@ -467,24 +498,24 @@ class InterestAccountsViewSpec extends ViewTest {
         }
 
         textOnPageCheck(doYouNeedText, doYouNeedSelector)
-        textOnPageCheck(youMustTellText, youMustTellSelector)
+        textOnPageCheck(youMustTellTextUntaxedIndividual, youMustTellSelector)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
         formPostLinkCheck(controllers.interest.routes.AccountsController.submit(taxYear, UNTAXED).url, continueFormSelector)
       }
 
-      "there is a single untaxed account passed in that is a prior submission" which {
+      "there is a single untaxed account passed in that is a prior submission as an individual" which {
 
         lazy val result = view(untaxedYesNoForm, taxYear, Seq(
           InterestAccountModel(Some("azerty"), "Bank of UK", 9001.00)
         ), UNTAXED, isAgent = false)(fakeRequest, welshMessages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
-        titleCheck(untaxedTitleSingle)
+        titleCheck(untaxedTitle)
         welshToggleCheck("Welsh")
         textOnPageCheck(captionText, captionSelector)
-        h1Check(untaxedH1Singular + " " + captionText)
+        h1Check(untaxedH1 + " " + captionText)
 
         textOnPageCheck( "Bank of UK", accountRowName(1))
 
@@ -501,7 +532,7 @@ class InterestAccountsViewSpec extends ViewTest {
         }
 
         textOnPageCheck(doYouNeedText, doYouNeedSelector)
-        textOnPageCheck(youMustTellText, youMustTellSelector)
+        textOnPageCheck(youMustTellTextUntaxedIndividual, youMustTellSelector)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
@@ -510,20 +541,20 @@ class InterestAccountsViewSpec extends ViewTest {
 
       "the radio button form is not selected" which {
         val yesNoForm =
-          YesNoForm.yesNoForm("Select yes if you received untaxed interest from the UK").bind(Map("value" -> ""))
+          YesNoForm.yesNoForm("Select yes to add another account").bind(Map("value" -> ""))
         lazy val result = view(yesNoForm, taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9001.00, Some("qwerty"))
-        ), UNTAXED, false)(fakeRequest, welshMessages, mockAppConfig)
+        ), UNTAXED, isAgent = false)(fakeRequest, welshMessages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
         welshToggleCheck("Welsh")
         textOnPageCheck(captionText, captionSelector)
-        h1Check(untaxedH1Singular + " " + captionText)
+        h1Check(untaxedH1 + " " + captionText)
         textOnPageCheck( "Bank of UK", accountRowName(1))
 
-        val expectedErrorText = "Select yes if you received untaxed interest from the UK"
+        val expectedErrorText = "Select yes to add another account"
 
-        titleCheck(errorTitleText(untaxedTitleSingle))
+        titleCheck(errorTitleText(untaxedTitle))
         errorSummaryCheck(expectedErrorText, "#value")
         errorAboveElementCheck(expectedErrorText)
 
@@ -552,7 +583,7 @@ class InterestAccountsViewSpec extends ViewTest {
         }
 
         textOnPageCheck(doYouNeedText, doYouNeedSelector)
-        textOnPageCheck(youMustTellText, youMustTellSelector)
+        textOnPageCheck(youMustTellTextUntaxedIndividual, youMustTellSelector)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
@@ -562,7 +593,7 @@ class InterestAccountsViewSpec extends ViewTest {
 
     "render with 2 rows" when {
 
-      "there are two accounts passed in, one new account and one prior" which {
+      "there are two accounts passed in, one new account and one prior as an individual" which {
 
         lazy val result = view(untaxedYesNoForm, taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9000.01, Some("qwerty")),
@@ -570,9 +601,9 @@ class InterestAccountsViewSpec extends ViewTest {
         ), UNTAXED, isAgent = false)(fakeRequest, welshMessages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
-        titleCheck(untaxedTitlePlural)
+        titleCheck(untaxedTitle)
         welshToggleCheck("Welsh")
-        h1Check(untaxedH1Plural + " " + captionText)
+        h1Check(untaxedH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
 
         "have an area for the first row" which {
@@ -615,7 +646,7 @@ class InterestAccountsViewSpec extends ViewTest {
           }
         }
         textOnPageCheck(doYouNeedText, doYouNeedSelector)
-        textOnPageCheck(youMustTellText, youMustTellSelector)
+        textOnPageCheck(youMustTellTextUntaxedIndividual, youMustTellSelector)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
@@ -628,17 +659,17 @@ class InterestAccountsViewSpec extends ViewTest {
 
     "render with 1 row" when {
 
-      "there is a single taxed account passed in that is not a prior submission" which {
+      "there is a single taxed account passed in that is not a prior submission as an individual" which {
 
         lazy val result = view(taxedYesNoForm, taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9001.00, Some("qwerty"))
         ), TAXED, isAgent = false)(fakeRequest, welshMessages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
-        titleCheck(taxedTitleSingle)
+        titleCheck(taxedTitle)
         welshToggleCheck("Welsh")
         textOnPageCheck(captionText, captionSelector)
-        h1Check(taxedH1Singular + " " + captionText)
+        h1Check(taxedH1 + " " + captionText)
         textOnPageCheck( "Bank of UK", accountRowName(1))
 
         "has a link for changing the account" which {
@@ -666,24 +697,24 @@ class InterestAccountsViewSpec extends ViewTest {
         }
 
         textOnPageCheck(doYouNeedText, doYouNeedSelector)
-        textOnPageCheck(youMustTellText, youMustTellSelector)
+        textOnPageCheck(youMustTellTextTaxedIndividual, youMustTellSelector)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
         formPostLinkCheck(controllers.interest.routes.AccountsController.submit(taxYear, TAXED).url, continueFormSelector)
       }
 
-      "there is a single taxed account passed in that is a prior submission" which {
+      "there is a single taxed account passed in that is a prior submission as an individual" which {
 
         lazy val result = view(taxedYesNoForm, taxYear, Seq(
           InterestAccountModel(Some("azerty"), "Bank of UK", 9001.00)
         ), TAXED, isAgent = false)(fakeRequest, welshMessages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
-        titleCheck(taxedTitleSingle)
+        titleCheck(taxedTitle)
         welshToggleCheck("Welsh")
         textOnPageCheck(captionText, captionSelector)
-        h1Check(taxedH1Singular + " " + captionText)
+        h1Check(taxedH1 + " " + captionText)
 
         "has a link for changing the account" which {
           "has the correct text" in {
@@ -698,7 +729,7 @@ class InterestAccountsViewSpec extends ViewTest {
         }
 
         textOnPageCheck(doYouNeedText, doYouNeedSelector)
-        textOnPageCheck(youMustTellText, youMustTellSelector)
+        textOnPageCheck(youMustTellTextTaxedIndividual, youMustTellSelector)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)
@@ -708,16 +739,16 @@ class InterestAccountsViewSpec extends ViewTest {
 
     "render with 2 rows" when {
 
-      "there are two accounts passed in, one new account and one prior" which {
+      "there are two accounts passed in, one new account and one prior as an individual" which {
         lazy val result = view(taxedYesNoForm, taxYear, Seq(
           InterestAccountModel(None, "Bank of UK", 9000.01, Some("qwerty")),
           InterestAccountModel(Some("azerty"), "Bank of EU", 1234.56)
         ), TAXED, isAgent = false)(fakeRequest, welshMessages, mockAppConfig)
         implicit val document: Document = Jsoup.parse(result.body)
 
-        titleCheck(taxedTitlePlural)
+        titleCheck(taxedTitle)
         welshToggleCheck("Welsh")
-        h1Check(taxedH1Plural + " " + captionText)
+        h1Check(taxedH1 + " " + captionText)
         textOnPageCheck(captionText, captionSelector)
 
         "have an area for the first row" which {
@@ -761,7 +792,7 @@ class InterestAccountsViewSpec extends ViewTest {
           }
         }
         textOnPageCheck(doYouNeedText, doYouNeedSelector)
-        textOnPageCheck(youMustTellText, youMustTellSelector)
+        textOnPageCheck(youMustTellTextTaxedIndividual, youMustTellSelector)
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(continueText, continueSelector)

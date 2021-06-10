@@ -39,9 +39,10 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
   lazy val id: String = UUID.randomUUID().toString
 
   object Selectors {
-    val accountName = "#main-content > div > div > form > div:nth-child(3) > label"
-    val interestEarned = "#main-content > div > div > form > div:nth-child(4) > label"
+    val accountName = "#main-content > div > div > form > div:nth-child(3) > label > div"
+    val interestEarned = "#main-content > div > div > form > div:nth-child(4) > label > div"
     val accountNameInput = "#untaxedAccountName"
+    val eachAccount = "#main-content > div > div > form > div:nth-child(3) > label > p"
     val amountInput = "#untaxedAmount"
 
     val errorSummary = "#error-summary-title"
@@ -51,23 +52,24 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
   }
 
   object Content {
-    val heading = "UK untaxed interest account details"
+    val heading = "Add an account with untaxed UK interest"
     val caption = "Interest for 6 April 2021 to 5 April 2022"
-    val accountName = "What would you like to call this account?"
-    val interestEarned = "Amount of interest earned"
-    val hint = "For example, £600 or £193.54"
+    val accountName = "What do you want to name this account?"
+    val eachAccount = "Give each account a different name."
+    val interestEarned = "Amount of untaxed UK interest"
+    val hint = "For example, ‘HSBC savings account’. " + "For example, £600 or £193.54"
     val button = "Continue"
 
-    val noNameEntryError = "Enter an account name"
+    val noNameEntryError = "Enter a name for this account"
     val invalidCharEntry: String = "Name of account with untaxed UK interest must only include numbers 0-9, " +
       "letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets, and the special characters &, /, @, £, *"
     val nameTooLongError = "The name of the account must be 32 characters or fewer"
     val duplicateNameError = "You cannot add 2 accounts with the same name"
 
-    val noAmountEntryError = "Enter the amount of untaxed interest earned"
-    val invalidNumericError = "Enter an amount using numbers 0 to 9"
-    val tooMuchMoneyError = "Enter an amount less than £100,000,000,000"
-    val incorrectFormatError = "Enter the amount in the correct format"
+    val noAmountEntryErrorIndividual = "Enter the amount of untaxed UK interest you got"
+    val noAmountEntryErrorAgent = "Enter the amount of untaxed UK interest your client got"
+    val tooMuchMoneyError = "The amount of untaxed UK interest must be less than £100,000,000,000"
+    val incorrectFormatError = "Enter the amount of untaxed UK interest in the correct format"
 
     val errorTitle = s"Error: $heading"
 
@@ -75,23 +77,23 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
   }
 
   object WelshContent {
-    val heading = "UK untaxed interest account details"
+    val heading = "Add an account with untaxed UK interest"
     val caption = "Interest for 6 April 2021 to 5 April 2022"
-    val accountName = "What would you like to call this account?"
-    val interestEarned = "Amount of interest earned"
-    val hint = "For example, £600 or £193.54"
+    val accountName = "What do you want to name this account?"
+    val interestEarned = "Amount of untaxed UK interest"
+    val hint = "For example, ‘HSBC savings account’. " + "For example, £600 or £193.54"
     val button = "Continue"
 
-    val noNameEntryError = "Enter an account name"
+    val noNameEntryError = "Enter a name for this account"
     val invalidCharEntry: String = "Name of account with untaxed UK interest must only include numbers 0-9, " +
       "letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets, and the special characters &, /, @, £, *"
     val nameTooLongError = "The name of the account must be 32 characters or fewer"
     val duplicateNameError = "You cannot add 2 accounts with the same name"
 
-    val noAmountEntryError = "Enter the amount of untaxed interest earned"
-    val invalidNumericError = "Enter an amount using numbers 0 to 9"
-    val tooMuchMoneyError = "Enter an amount less than £100,000,000,000"
-    val incorrectFormatError = "Enter the amount in the correct format"
+    val noAmountEntryErrorIndividual = "Enter the amount of untaxed UK interest you got"
+    val noAmountEntryErrorAgent = "Enter the amount of untaxed UK interest your client got"
+    val tooMuchMoneyError = "The amount of untaxed UK interest must be less than £100,000,000,000"
+    val incorrectFormatError = "Enter the amount of untaxed UK interest in the correct format"
 
     val errorTitle = s"Error: $heading"
   }
@@ -99,9 +101,9 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
 
-  def untaxedInterestAmountUrl(newId: String): String = s"$startUrl/$taxYear/interest/untaxed-uk-interest-details/$newId"
+  def untaxedInterestAmountUrl(newId: String): String = s"$startUrl/$taxYear/interest/add-untaxed-uk-interest-account/$newId"
 
-  s"Calling GET /interest/untaxed-uk-interest-details/$id" when {
+  s"Calling GET /interest/add-untaxed-uk-interest-account/$id" when {
 
     "the user is authorised" when {
 
@@ -133,6 +135,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
           h1Check(s"${Content.heading} ${Content.caption}")
           captionCheck(Content.caption)
           textOnPageCheck(Content.accountName, Selectors.accountName)
+          textOnPageCheck(Content.eachAccount, Selectors.eachAccount)
           inputFieldCheck(UntaxedInterestAmountForm.untaxedAccountName, Selectors.accountNameInput)
           textOnPageCheck(Content.interestEarned, Selectors.interestEarned)
           hintTextCheck(Content.hint)
@@ -180,6 +183,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
           h1Check(s"${Content.heading} ${Content.caption}")
           captionCheck(Content.caption)
           textOnPageCheck(Content.accountName, Selectors.accountName)
+          textOnPageCheck(Content.eachAccount, Selectors.eachAccount)
           inputFieldCheck(UntaxedInterestAmountForm.untaxedAccountName, Selectors.accountNameInput)
           textOnPageCheck(Content.interestEarned, Selectors.interestEarned)
           hintTextCheck(Content.hint)
@@ -223,6 +227,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
           h1Check(s"${WelshContent.heading} ${WelshContent.caption}")
           captionCheck(WelshContent.caption)
           textOnPageCheck(WelshContent.accountName, Selectors.accountName)
+          textOnPageCheck(Content.eachAccount, Selectors.eachAccount)
           inputFieldCheck(UntaxedInterestAmountForm.untaxedAccountName, Selectors.accountNameInput)
           textOnPageCheck(WelshContent.interestEarned, Selectors.interestEarned)
           hintTextCheck(WelshContent.hint)
@@ -325,7 +330,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
     }
   }
 
-  s"Calling POST /interest/untaxed-uk-interest-details/$id" when {
+  s"Calling POST /interest/add-untaxed-uk-interest-account/$id" when {
 
     "the user is authorised" when {
 
@@ -370,7 +375,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
         multipleErrorCheck(
           List(
             (Content.noNameEntryError, Selectors.accountNameInput),
-            (Content.noAmountEntryError, Selectors.amountInput)
+            (Content.noAmountEntryErrorIndividual, Selectors.amountInput)
           )
         )
       }
@@ -387,7 +392,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
         multipleErrorCheck(
           List(
             (Content.invalidCharEntry, Selectors.accountNameInput),
-            (Content.invalidNumericError, Selectors.amountInput)
+            (Content.incorrectFormatError, Selectors.amountInput)
           )
         )
       }
@@ -450,6 +455,47 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
       }
     }
 
+    "the user is authorised as an agent" when {
+
+      lazy val interestCYA = InterestCYAModel(
+        Some(false), None, Some(true), Some(Seq(
+          InterestAccountModel(Some("differentId"), accountName, amount),
+          InterestAccountModel(None, accountName, amount, Some(id))
+        ))
+      )
+      lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+        SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
+        SessionValues.CLIENT_MTDITID -> "1234567890",
+        SessionValues.CLIENT_NINO -> "AA123456A"
+      ))
+
+      def response(formMap: Map[String, String]): WSResponse = {
+        authoriseAgent()
+        await(wsClient.url(untaxedInterestAmountUrl(id))
+          .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+          .post(formMap))
+      }
+
+      "the fields are empty as an agent" should {
+
+        lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "",
+          UntaxedInterestAmountForm.untaxedAccountName -> ""))
+
+        implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+        s"return a 400(BadRequest) status" in {
+          result.status shouldBe BAD_REQUEST
+        }
+
+        multipleErrorCheck(
+          List(
+            (Content.noNameEntryError, Selectors.accountNameInput),
+            (Content.noAmountEntryErrorAgent, Selectors.amountInput)
+          )
+        )
+      }
+    }
+
     "the user has Welsh toggled" when {
 
       lazy val interestCYA = InterestCYAModel(
@@ -493,7 +539,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
         multipleErrorCheck(
           List(
             (WelshContent.noNameEntryError, Selectors.accountNameInput),
-            (WelshContent.noAmountEntryError, Selectors.amountInput)
+            (WelshContent.noAmountEntryErrorIndividual, Selectors.amountInput)
           )
         )
       }
@@ -510,7 +556,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
         multipleErrorCheck(
           List(
             (WelshContent.invalidCharEntry, Selectors.accountNameInput),
-            (WelshContent.invalidNumericError, Selectors.amountInput)
+            (WelshContent.incorrectFormatError, Selectors.amountInput)
           )
         )
       }

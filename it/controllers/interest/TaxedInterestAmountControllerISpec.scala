@@ -34,9 +34,10 @@ import forms.interest.TaxedInterestAmountForm
 class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelpers {
 
   object Selectors {
-    val accountName = "#main-content > div > div > form > div:nth-child(3) > label"
-    val interestEarned = "#main-content > div > div > form > div:nth-child(4) > label"
+    val accountName = "#main-content > div > div > form > div:nth-child(3) > label > div"
+    val interestEarned = "#main-content > div > div > form > div:nth-child(4) > label > div"
     val accountNameInput = "#taxedAccountName"
+    val eachAccount = "#main-content > div > div > form > div:nth-child(3) > label > p"
     val amountInput = "#taxedAmount"
 
     val errorSummary = "#error-summary-title"
@@ -46,23 +47,24 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
   }
 
   object Content {
-    val heading = "UK taxed interest account details"
+    val heading = "Add an account with taxed UK interest"
     val caption = "Interest for 6 April 2021 to 5 April 2022"
-    val accountName = "What would you like to call this account?"
-    val interestEarned = "Amount of interest earned"
-    val hint = "For example, £600 or £193.54"
+    val accountName = "What do you want to name this account?"
+    val eachAccount = "Give each account a different name."
+    val interestEarned = "Amount of taxed UK interest"
+    val hint = "For example, ‘HSBC savings account’. " + "For example, £600 or £193.54"
     val button = "Continue"
 
-    val noNameEntryError = "Enter an account name"
+    val noNameEntryError = "Enter a name for this account"
     val invalidCharEntry: String = "Name of account with taxed UK interest must only include numbers 0-9, " +
       "letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets, and the special characters &, /, @, £, *"
     val nameTooLongError = "The name of the account must be 32 characters or fewer"
     val duplicateNameError = "You cannot add 2 accounts with the same name"
 
-    val noAmountEntryError = "Enter the amount of taxed interest earned"
-    val invalidNumericError = "Enter an amount using numbers 0 to 9"
-    val tooMuchMoneyError = "Enter an amount less than £100,000,000,000"
-    val incorrectFormatError = "Enter the amount in the correct format"
+    val noAmountEntryErrorIndividual = "Enter the amount of taxed UK interest you got"
+    val noAmountEntryErrorAgent = "Enter the amount of taxed UK interest your client got"
+    val tooMuchMoneyError = "The amount of taxed UK interest must be less than £100,000,000,000"
+    val incorrectFormatError = "Enter the amount of taxed UK interest in the correct format"
 
     val errorTitle = s"Error: $heading"
 
@@ -70,23 +72,23 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
   }
 
   object WelshContent {
-    val heading = "UK taxed interest account details"
+    val heading = "Add an account with taxed UK interest"
     val caption = "Interest for 6 April 2021 to 5 April 2022"
-    val accountName = "What would you like to call this account?"
-    val interestEarned = "Amount of interest earned"
-    val hint = "For example, £600 or £193.54"
+    val accountName = "What do you want to name this account?"
+    val interestEarned = "Amount of taxed UK interest"
+    val hint = "For example, ‘HSBC savings account’. " + "For example, £600 or £193.54"
     val button = "Continue"
 
-    val noNameEntryError = "Enter an account name"
+    val noNameEntryError = "Enter a name for this account"
     val invalidCharEntry: String = "Name of account with taxed UK interest must only include numbers 0-9, " +
       "letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets, and the special characters &, /, @, £, *"
     val nameTooLongError = "The name of the account must be 32 characters or fewer"
     val duplicateNameError = "You cannot add 2 accounts with the same name"
 
-    val noAmountEntryError = "Enter the amount of taxed interest earned"
-    val invalidNumericError = "Enter an amount using numbers 0 to 9"
-    val tooMuchMoneyError = "Enter an amount less than £100,000,000,000"
-    val incorrectFormatError = "Enter the amount in the correct format"
+    val noAmountEntryErrorIndividual = "Enter the amount of taxed UK interest you got"
+    val noAmountEntryErrorAgent = "Enter the amount of taxed UK interest your client got"
+    val tooMuchMoneyError = "The amount of taxed UK interest must be less than £100,000,000,000"
+    val incorrectFormatError = "Enter the amount of taxed UK interest in the correct format"
 
     val errorTitle = s"Error: $heading"
   }
@@ -100,19 +102,11 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
 
   lazy val id: String = UUID.randomUUID().toString
 
-  def url(newId: String): String = s"$startUrl/$taxYear/interest/taxed-uk-interest-details/$newId"
+  def url(newId: String): String = s"$startUrl/$taxYear/interest/add-taxed-uk-interest-account/$newId"
 
   val charLimit: String = "ukHzoBYHkKGGk2V5iuYgS137gN7EB7LRw3uDjvujYg00ZtHwo3sokyOOCEoAK9vuPiP374QKOelo"
 
-  def taxedInterestAmountUrl(newId: String): String = s"$startUrl/$taxYear/interest/taxed-uk-interest-details/$newId"
-
-
-
-
-
-
-
-
+  def taxedInterestAmountUrl(newId: String): String = s"$startUrl/$taxYear/interest/add-taxed-uk-interest-account/$newId"
 
   s"Calling GET /interest/taxed-uk-interest-details/$id" when {
 
@@ -145,6 +139,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           h1Check(s"${Content.heading} ${Content.caption}")
           captionCheck(Content.caption)
           textOnPageCheck(Content.accountName, Selectors.accountName)
+          textOnPageCheck(Content.eachAccount, Selectors.eachAccount)
           inputFieldCheck(TaxedInterestAmountForm.taxedAccountName, Selectors.accountNameInput)
           textOnPageCheck(Content.interestEarned, Selectors.interestEarned)
           hintTextCheck(Content.hint)
@@ -191,6 +186,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           h1Check(s"${Content.heading} ${Content.caption}")
           captionCheck(Content.caption)
           textOnPageCheck(Content.accountName, Selectors.accountName)
+          textOnPageCheck(Content.eachAccount, Selectors.eachAccount)
           inputFieldCheck(TaxedInterestAmountForm.taxedAccountName, Selectors.accountNameInput)
           textOnPageCheck(Content.interestEarned, Selectors.interestEarned)
           hintTextCheck(Content.hint)
@@ -233,6 +229,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           h1Check(s"${WelshContent.heading} ${WelshContent.caption}")
           captionCheck(WelshContent.caption)
           textOnPageCheck(WelshContent.accountName, Selectors.accountName)
+          textOnPageCheck(Content.eachAccount, Selectors.eachAccount)
           inputFieldCheck(TaxedInterestAmountForm.taxedAccountName, Selectors.accountNameInput)
           textOnPageCheck(WelshContent.interestEarned, Selectors.interestEarned)
           hintTextCheck(WelshContent.hint)
@@ -335,7 +332,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
     }
   }
 
-  s"Calling POST /interest/taxed-uk-interest-details/$id" when {
+  s"Calling POST /interest/add-taxed-uk-interest-account/$id" when {
 
     "the user is authorised" when {
 
@@ -366,10 +363,11 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
         }
       }
 
-      "the fields are empty" should {
+      "the fields are empty as an individual" should {
 
         lazy val result = response(Map(TaxedInterestAmountForm.taxedAmount -> "",
-          TaxedInterestAmountForm.taxedAccountName -> ""))
+            TaxedInterestAmountForm.taxedAccountName -> ""))
+
         implicit def document: () => Document = () => Jsoup.parse(result.body)
 
         s"return a 400(BadRequest) status" in {
@@ -379,7 +377,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
         multipleErrorCheck(
           List(
             (Content.noNameEntryError, Selectors.accountNameInput),
-            (Content.noAmountEntryError, Selectors.amountInput)
+            (Content.noAmountEntryErrorIndividual, Selectors.amountInput)
           )
         )
       }
@@ -396,7 +394,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
         multipleErrorCheck(
           List(
             (Content.invalidCharEntry, Selectors.accountNameInput),
-            (Content.invalidNumericError, Selectors.amountInput)
+            (Content.incorrectFormatError, Selectors.amountInput)
           )
         )
       }
@@ -459,6 +457,47 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
       }
     }
 
+    "the user is authorised as an agent" when {
+
+      lazy val interestCYA = InterestCYAModel(
+        Some(false), None, Some(true), Some(Seq(
+          InterestAccountModel(Some("differentId"), accountName, amount),
+          InterestAccountModel(None, accountName, amount, Some(id))
+        ))
+      )
+      lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+        SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
+        SessionValues.CLIENT_MTDITID -> "1234567890",
+        SessionValues.CLIENT_NINO -> "AA123456A"
+      ))
+
+      def response(formMap: Map[String, String]): WSResponse = {
+        authoriseAgent()
+        await(wsClient.url(taxedInterestAmountUrl(id))
+          .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+          .post(formMap))
+      }
+
+      "the fields are empty as an agent" should {
+
+        lazy val result = response(Map(TaxedInterestAmountForm.taxedAmount -> "",
+          TaxedInterestAmountForm.taxedAccountName -> ""))
+
+        implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+        s"return a 400(BadRequest) status" in {
+          result.status shouldBe BAD_REQUEST
+        }
+
+        multipleErrorCheck(
+          List(
+            (Content.noNameEntryError, Selectors.accountNameInput),
+            (Content.noAmountEntryErrorAgent, Selectors.amountInput)
+          )
+        )
+      }
+    }
+
     "the user has Welsh toggled" when {
 
       lazy val interestCYA = InterestCYAModel(
@@ -501,7 +540,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
         multipleErrorCheck(
           List(
             (WelshContent.noNameEntryError, Selectors.accountNameInput),
-            (WelshContent.noAmountEntryError, Selectors.amountInput)
+            (WelshContent.noAmountEntryErrorIndividual, Selectors.amountInput)
           )
         )
       }
@@ -518,7 +557,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
         multipleErrorCheck(
           List(
             (WelshContent.invalidCharEntry, Selectors.accountNameInput),
-            (WelshContent.invalidNumericError, Selectors.amountInput)
+            (WelshContent.incorrectFormatError, Selectors.amountInput)
           )
         )
       }

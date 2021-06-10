@@ -36,20 +36,16 @@ errorSummary: ErrorSummary,
 @hasFormErrors = @{form.hasErrors}
 
 @h1Text = @{
-    (taxType, accounts.length)  match {
-        case(`TAXED`, 1) => messages("interest.taxed-uk-interest-accounts.title.single")
-        case(`UNTAXED`,1) => messages("interest.untaxed-uk-interest-accounts.title.single")
-        case(`TAXED`, _ ) => messages("interest.taxed-uk-interest-accounts.title.multiple")
-        case(`UNTAXED`, _ ) => messages("interest.untaxed-uk-interest-accounts.title.multiple")
+    (taxType)  match {
+        case(`TAXED`) => messages("interest.taxed-uk-interest-accounts.title")
+        case(`UNTAXED`) => messages("interest.untaxed-uk-interest-accounts.title")
     }
 }
 
 @titleText = @{
-    (taxType, accounts.length)  match {
-        case(`TAXED`, 1) => messages("interest.taxed-uk-interest-accounts.title.single")
-        case(`UNTAXED`,1) => messages("interest.untaxed-uk-interest-accounts.title.single")
-        case(`TAXED`, _ ) => messages("interest.taxed-uk-interest-accounts.title.multiple")
-        case(`UNTAXED`, _ ) => messages("interest.untaxed-uk-interest-accounts.title.multiple")
+    (taxType)  match {
+        case(`TAXED`) => messages("interest.taxed-uk-interest-accounts.title")
+        case(`UNTAXED`) => messages("interest.untaxed-uk-interest-accounts.title")
     }
 }
 
@@ -107,8 +103,12 @@ val identifier = account.id.getOrElse(account.uniqueSessionId.getOrElse(""))
 }
 
 @hint = {
-            @messages("interest.account.tell-us-about-all")
-}
+    @messages(s"interest.${(taxType)  match {
+        case(`TAXED`) => "taxed"
+        case(`UNTAXED`) => "untaxed"
+    }
+}-uk-interest-accounts.account.tell-us-about-all.${if(isAgent) "agent" else "individual"}")}
+
 
 @secondHeader = @{
     messages("interest.account.add-another")
