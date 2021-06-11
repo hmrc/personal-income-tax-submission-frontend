@@ -51,10 +51,10 @@ class InterestCYAViewSpec extends ViewTest {
 
   val yesNoQuestionAnswer: Int => String = questionNumber => s"#main-content > div > div > dl > div:nth-child($questionNumber) > dd.govuk-summary-list__value"
 
-  val h1ExpectedIndividual = "Check your taxed and untaxed UK interest"
-  val h1ExpectedAgent = "Check your client’s taxed and untaxed UK interest"
-  val titleExpectedIndividual = "Check your taxed and untaxed UK interest"
-  val titleExpectedAgent = "Check your client’s taxed and untaxed UK interest"
+  val h1ExpectedIndividual = "Check your UK interest"
+  val h1ExpectedAgent = "Check your client’s UK interest"
+  val titleExpectedIndividual = "Check your UK interest"
+  val titleExpectedAgent = "Check your client’s UK interest"
   val captionExpected = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
 
   val changeLinkExpected = "Change"
