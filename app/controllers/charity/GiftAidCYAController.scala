@@ -42,7 +42,7 @@ class GiftAidCYAController @Inject()(
                                       appConfig: AppConfig,
                                       view: GiftAidCYAView,
                                       giftAidSubmissionService: GiftAidSubmissionService,
-                                      errorHandler: ErrorHandler,
+                                      errorHandler: ErrorHandler
                                     ) extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
@@ -170,7 +170,7 @@ class GiftAidCYAController @Inject()(
   private def auditSubmission(details: CreateOrAmendGiftAidAuditDetail)
                              (implicit hc: HeaderCarrier,
                               executionContext: ExecutionContext): Future[AuditResult] = {
-    val event = AuditModel("CreateOrAmendGiftAidUpdate", "createOrAmendGiftAidUpdate", details)
+    val event = AuditModel("CreateOrAmendGiftAidUpdate", "CreateOrAmendGiftAidUpdate", details)
     auditService.auditModel(event)
   }
 
