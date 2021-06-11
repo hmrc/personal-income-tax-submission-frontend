@@ -16,6 +16,7 @@
 
 package controllers.charity
 
+import audit.{AuditModel, AuditService, CreateOrAmendGiftAidAuditDetail}
 import common.SessionValues
 import config.{AppConfig, ErrorHandler, GIFT_AID}
 import controllers.predicates.AuthorisedAction
@@ -25,6 +26,8 @@ import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, Gifts
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.GiftAidSubmissionService
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.charity.GiftAidCYAView
@@ -35,12 +38,14 @@ import scala.concurrent.{ExecutionContext, Future}
 class GiftAidCYAController @Inject()(
                                       implicit mcc: MessagesControllerComponents,
                                       authorisedAction: AuthorisedAction,
+                                      auditService: AuditService,
                                       appConfig: AppConfig,
                                       view: GiftAidCYAView,
                                       giftAidSubmissionService: GiftAidSubmissionService,
-                                      errorHandler: ErrorHandler,
-                                      ec: ExecutionContext
+                                      errorHandler: ErrorHandler
                                     ) extends FrontendController(mcc) with I18nSupport with SessionHelper {
+
+  implicit val executionContext: ExecutionContext = mcc.executionContext
 
   val fakeCyaDataMax: Option[GiftAidCYAModel] = Some(GiftAidCYAModel(
     Some(true), Some(100.00),
@@ -129,7 +134,11 @@ class GiftAidCYAController @Inject()(
   }
 
   def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
-    getModelFromSession[GiftAidCYAModel](SessionValues.GIFT_AID_CYA).fold(
+
+    val cyaData: Option[GiftAidCYAModel] = getModelFromSession[GiftAidCYAModel](SessionValues.GIFT_AID_CYA)
+    val priorData: Option[GiftAidSubmissionModel] = getModelFromSession[GiftAidSubmissionModel](SessionValues.GIFT_AID_PRIOR_SUB)
+
+    cyaData.fold(
       Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
     ) { model =>
       val submissionModel = GiftAidSubmissionModel(
@@ -147,11 +156,22 @@ class GiftAidCYAController @Inject()(
       )
 
       giftAidSubmissionService.submitGiftAid(Some(submissionModel), user.nino, user.mtditid, taxYear).map {
-        case Right(_) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+        case Right(_) =>
+          auditSubmission(CreateOrAmendGiftAidAuditDetail(
+            priorData, Some(submissionModel), priorData.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase(), taxYear)
+          )
+          Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
         case Left(_) => errorHandler.handleError(INTERNAL_SERVER_ERROR)
       }
     }
 
+  }
+
+  private def auditSubmission(details: CreateOrAmendGiftAidAuditDetail)
+                             (implicit hc: HeaderCarrier,
+                              executionContext: ExecutionContext): Future[AuditResult] = {
+    val event = AuditModel("CreateOrAmendGiftAidUpdate", "CreateOrAmendGiftAidUpdate", details)
+    auditService.auditModel(event)
   }
 
 }
