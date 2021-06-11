@@ -171,7 +171,6 @@ class GiftAidCYAController @Inject()(
                              (implicit hc: HeaderCarrier,
                               executionContext: ExecutionContext): Future[AuditResult] = {
     val event = AuditModel("CreateOrAmendGiftAidUpdate", "createOrAmendGiftAidUpdate", details)
-    println(event.detail)
     auditService.auditModel(event)
   }
 
