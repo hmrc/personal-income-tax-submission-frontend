@@ -99,8 +99,6 @@ class UntaxedInterestAmountController @Inject()(
 
     val previousNames: Seq[String] = optionalCyaData.flatMap(_.untaxedUkAccounts.map(_.map(_.accountName))).getOrElse(Seq.empty[String])
 
-    def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
-
     def untaxedInterestAmountForm(implicit isAgent: Boolean): Form[UntaxedInterestModel] = UntaxedInterestAmountForm.untaxedInterestAmountForm(
       isAgent,
       previousNames
