@@ -133,7 +133,13 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
         document().select(selector).text() shouldBe text
       }
       s"has a class of govuk-button" in {
-        document().select(selector).attr("class") should include ("govuk-button")
+        document().select(selector).attr("class") should include("govuk-button")
+      }
+
+      if(href.isDefined) {
+        s"has a href to '${href.get}'" in {
+          document().select(selector).attr("href") shouldBe href.get
+        }
       }
 
       if(href.isDefined) {

@@ -14,42 +14,42 @@
  * limitations under the License.
  */
 
-package controllers.errors
-
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import play.api.http.Status.UNAUTHORIZED
+import play.api.http.Status.OK
 import play.api.libs.ws.WSResponse
 import utils.{IntegrationTest, ViewHelpers}
 
-class IndividualAuthErrorControllerISpec extends IntegrationTest with ViewHelpers {
+class SessionExpiredControllerISpec extends IntegrationTest with ViewHelpers {
 
   object Selectors {
-    val paragraphSelector: String = ".govuk-body"
-    val linkSelector: String = paragraphSelector + " > a"
+    val h1Selector = "#main-content > div > div > header > h1"
+    val p1Selector = "#main-content > div > div > div.govuk-body > p"
+    val buttonSelector = "#continue"
+    val formSelector = "#main-content > div > div > form"
   }
 
-  val url = s"$startUrl/error/you-need-to-sign-up"
+  val url = s"$startUrl/timeout"
 
   trait ExpectedResultsAllUsers {
-    val validTitle: String
-    val pageContent: String
-    val linkContent: String
-    val linkHref: String
+    val h1Expected: String
+    val p1Expected: String
+    val buttonExpectedText: String
+    val buttonExpectedUrl: String
   }
 
   object CommonExpectedEN extends ExpectedResultsAllUsers {
-    val validTitle: String = "You cannot view this page"
-    val pageContent: String = "You need to sign up for Making Tax Digital for Income Tax before you can view this page."
-    val linkContent: String = "sign up for Making Tax Digital for Income Tax"
-    val linkHref: String = "https://www.gov.uk/guidance/sign-up-your-business-for-making-tax-digital-for-income-tax"
+    val h1Expected = "For your security, we signed you out"
+    val p1Expected = "We did not save your answers."
+    val buttonExpectedText = "Sign in"
+    val buttonExpectedUrl: String = "http://localhost:11111/income-through-software/return/2022/start"
   }
 
   object CommonExpectedCY extends ExpectedResultsAllUsers {
-    val validTitle: String = "You cannot view this page"
-    val pageContent: String = "You need to sign up for Making Tax Digital for Income Tax before you can view this page."
-    val linkContent: String = "sign up for Making Tax Digital for Income Tax"
-    val linkHref: String = "https://www.gov.uk/guidance/sign-up-your-business-for-making-tax-digital-for-income-tax"
+    val h1Expected = "For your security, we signed you out"
+    val p1Expected = "We did not save your answers."
+    val buttonExpectedText = "Sign in"
+    val buttonExpectedUrl: String = "http://localhost:11111/income-through-software/return/2022/start"
   }
 
   val userScenarios: Seq[UserScenario[ExpectedResultsAllUsers, ExpectedResultsAllUsers]] = {
@@ -63,7 +63,7 @@ class IndividualAuthErrorControllerISpec extends IntegrationTest with ViewHelper
     userScenarios.foreach { user =>
       s"language is ${printLang(user.isWelsh)} and request is from an ${printAgent(user.isAgent)}" should {
 
-        "return the AgentAuthErrorPageView with the right content" which {
+        "render the page with the right content" which {
 
           implicit lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
@@ -72,17 +72,19 @@ class IndividualAuthErrorControllerISpec extends IntegrationTest with ViewHelper
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-          "has an UNAUTHORIZED(401) status" in {
-            result.status shouldBe UNAUTHORIZED
+          "has an OK status" in {
+            result.status shouldBe OK
           }
 
           import user.expectedResultsAllUsers._
 
-          titleCheck(validTitle)
+          titleCheck(h1Expected)
           welshToggleCheck(user.isWelsh)
-          h1Check(validTitle, "xl")
-          textOnPageCheck(pageContent, paragraphSelector)
-          linkCheck(linkContent, linkSelector, linkHref)
+          h1Check(h1Expected, "xl")
+
+          textOnPageCheck(p1Expected,p1Selector)
+          buttonCheck(buttonExpectedText, buttonSelector)
+          formGetLinkCheck(buttonExpectedUrl, formSelector)
         }
       }
     }
