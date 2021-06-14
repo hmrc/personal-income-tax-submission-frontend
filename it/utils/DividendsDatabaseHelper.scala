@@ -16,8 +16,10 @@
 
 package utils
 
-import models.dividends.DividendsCheckYourAnswersModel
+import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import models.mongo.DividendsUserDataModel
+import models.priorDataModels.IncomeSourcesModel
+import play.api.libs.ws.WSResponse
 import repositories.DividendsUserDataRepository
 
 trait DividendsDatabaseHelper { self: IntegrationTest =>

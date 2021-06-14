@@ -17,7 +17,6 @@
 package controllers.dividends
 
 import config.{AppConfig, DIVIDENDS, ErrorHandler}
-import controllers.dividends.routes._
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
@@ -56,7 +55,7 @@ class ReceiveUkDividendsController @Inject()(
       prior match {
         case Some(prior) if prior.ukDividends.nonEmpty => Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))
         case _ =>
-          questionHelper.validate(ReceiveUkDividendsController.show(taxYear), cya, taxYear) {
+          questionHelper.validate(routes.ReceiveUkDividendsController.show(taxYear), cya, taxYear) {
             Ok(receiveUkDividendsView(cya.flatMap(_.ukDividends).fold(yesNoForm(user.isAgent))(yesNoForm(user.isAgent).fill), taxYear))
           }
       }
@@ -76,17 +75,16 @@ class ReceiveUkDividendsController @Inject()(
           dividendsSessionService.getSessionData(taxYear).map { cya =>
             if (yesNoModel) {
               val cyaModel = {
-                cya.flatMap(_.dividends)
-                  .map(_.copy(ukDividends = Some(true)))
+                cya.flatMap(_.dividends).getOrElse(DividendsCheckYourAnswersModel()).copy(ukDividends = Some(true))
               }
 
-              newAndRedirect(cyaModel, taxYear, routes.UkDividendsAmountController.show(taxYear))
+              newAndRedirect(Some(cyaModel), taxYear, routes.UkDividendsAmountController.show(taxYear))
             } else {
               cya.flatMap(_.dividends) match {
                 case Some(model) if model.isFinished =>
                   updateAndRedirect(model.copy(ukDividends = Some(false), ukDividendsAmount = None), taxYear, routes.DividendsCYAController.show(taxYear))
                 case _ =>
-                  newAndRedirect(None, taxYear, routes.ReceiveOtherUkDividendsController.show(taxYear))
+                  newAndRedirect(Some(DividendsCheckYourAnswersModel(Some(false))), taxYear, routes.ReceiveOtherUkDividendsController.show(taxYear))
               }
             }
           }.flatten
@@ -107,9 +105,6 @@ class ReceiveUkDividendsController @Inject()(
   }
 
   private def updateAndRedirect(cyaModel: DividendsCheckYourAnswersModel, taxYear: Int, redirectCall: Call)(implicit user: User[_]): Future[Result] = {
-
-    println(Console.GREEN + "Updating?" + Console.RESET)
-
     dividendsSessionService.updateSessionData(cyaModel, taxYear)({
       InternalServerError(errorHandler.internalServerErrorTemplate)
     })(

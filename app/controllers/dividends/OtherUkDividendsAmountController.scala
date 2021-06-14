@@ -83,9 +83,6 @@ class OtherUkDividendsAmountController @Inject()(
         val priorOtherDividendAmount: Option[BigDecimal] = prior.flatMap(_.otherUkDividends)
         val cyaOtherDividendAmount: Option[BigDecimal] = cya.flatMap(_.otherUkDividendsAmount)
 
-        println(Console.GREEN + "Prior: " + priorOtherDividendAmount + Console.RESET)
-        println(Console.GREEN + "CYA: " + cyaOtherDividendAmount + Console.RESET)
-
         val amountForm = (priorOtherDividendAmount, cyaOtherDividendAmount) match {
           case (priorAmountOpt, Some(cyaAmount)) if !priorAmountOpt.contains(cyaAmount) => form(user.isAgent, taxYear).fill(cyaAmount)
           case (None, Some(cyaAmount)) => form(user.isAgent, taxYear).fill(cyaAmount)

@@ -384,18 +384,6 @@ class DividendsCYAControllerISpec extends IntegrationTest with DividendsDatabase
 
   ".submit" should {
 
-    val cyaSessionData = DividendsCheckYourAnswersModel(
-      ukDividends = Some(true),
-      Some(firstAmount),
-      otherUkDividends = Some(true),
-      Some(firstAmount)
-    )
-
-    val priorData = DividendsPriorSubmission(
-      Some(firstAmount),
-      Some(firstAmount)
-    )
-
     "redirect to the overview page" when {
 
       "there is session data " which {

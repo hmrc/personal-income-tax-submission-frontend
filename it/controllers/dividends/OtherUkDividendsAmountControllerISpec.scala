@@ -100,9 +100,6 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
   val newAmountInput = "#amount"
   val amountInputName = "amount"
 
-  val xSessionId: (String, String) = "X-Session-ID" -> sessionId
-  val csrfContent: (String, String) = "Csrf-Token" -> "nocheck"
-
   "as an individual" when {
     import IndividualExpected._
     ".show" should {
@@ -653,6 +650,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
         buttonCheck(continueText, continueButtonSelector)
         formPostLinkCheck(continueLink, continueButtonFormSelector)
       }
+
       "returns an action when there is data in session with correct prior data content" which {
         lazy val result: WSResponse = {
           dropDividendsDB()
@@ -693,15 +691,21 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
 
       "returns an action when there is data in session with correct content - Welsh" which {
         lazy val result: WSResponse = {
+          dropDividendsDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(
+            DividendsCheckYourAnswersModel(otherUkDividends = Some(true))
+          ))
+
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A",
-            SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(otherUkDividends = Some(true), otherUkDividendsAmount = None).asJsonString
+            SessionValues.CLIENT_NINO -> "AA123456A"
           ))
 
           authoriseAgent()
           await(wsClient.url(otherUkDividendsAmountUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
             .get())
         }
 
@@ -724,15 +728,24 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
 
       "returns an action when there is data in session with correct prior data content - Welsh" which {
         lazy val result: WSResponse = {
+          dropDividendsDB()
+
+          userDataStub(
+            IncomeSourcesModel(Some(DividendsPriorSubmission(
+              Some(amount)
+            ))),
+            nino, taxYear
+          )
+          insertCyaData(Some(DividendsCheckYourAnswersModel(otherUkDividends = Some(true), otherUkDividendsAmount = Some(amount))))
+
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A",
-            SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(otherUkDividends = Some(true), otherUkDividendsAmount = Some(amount)).asJsonString
+            SessionValues.CLIENT_NINO -> "AA123456A"
           ))
 
           authoriseAgent()
           await(wsClient.url(otherUkDividendsAmountUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
             .get())
         }
 
@@ -772,31 +785,45 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
 
     ".submit" should {
 
-      s"return an OK($OK) status" when {
+      s"return a SEE_OTHER($SEE_OTHER) status" when {
 
         "there is form data" in {
           lazy val result: WSResponse = {
+            dropDividendsDB()
+
+            emptyUserDataStub()
+            insertCyaData(Some(
+              DividendsCheckYourAnswersModel(ukDividends = Some(true))
+            ))
+
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
               SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A",
-              SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(ukDividends = Some(true)).asJsonString
+              SessionValues.CLIENT_NINO -> "AA123456A"
             ))
 
             authoriseAgent()
             await(
               wsClient.url(otherUkDividendsAmountUrl)
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, csrfContent, xSessionId)
+                .withFollowRedirects(false)
                 .post(Map("amount" -> "123"))
             )
           }
 
-          result.status shouldBe OK
+          result.status shouldBe SEE_OTHER
         }
       }
 
       s"return a BAD_REQUEST($BAD_REQUEST) status with an Empty Error" which {
 
         lazy val result: WSResponse = {
+          dropDividendsDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(
+            DividendsCheckYourAnswersModel(Some(true))
+          ))
+
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -804,7 +831,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
 
           authoriseAgent()
           await(wsClient.url(otherUkDividendsAmountUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .post(Map[String, String]()))
         }
 
@@ -816,9 +843,16 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
         errorAboveElementCheck(expectedErrorEmpty)
 
       }
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an Inavlid Error" which {
+      s"return a BAD_REQUEST($BAD_REQUEST) status with an Invalid Error" which {
 
         lazy val result: WSResponse = {
+          dropDividendsDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(
+            DividendsCheckYourAnswersModel(Some(true))
+          ))
+
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -826,7 +860,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
 
           authoriseAgent()
           await(wsClient.url(otherUkDividendsAmountUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .post(Map("amount" -> "|")))
         }
 
@@ -841,6 +875,13 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
       s"return a BAD_REQUEST($BAD_REQUEST) status with an OverMax Error" which {
 
         lazy val result: WSResponse = {
+          dropDividendsDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(
+            DividendsCheckYourAnswersModel(Some(true))
+          ))
+
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -848,7 +889,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
 
           authoriseAgent()
           await(wsClient.url(otherUkDividendsAmountUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .post(Map("amount" -> "999999999999999999999999999999999")))
         }
 
@@ -863,6 +904,13 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
       s"return a BAD_REQUEST($BAD_REQUEST) status with an Empty Error - Welsh" which {
 
         lazy val result: WSResponse = {
+          dropDividendsDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(
+            DividendsCheckYourAnswersModel(Some(true))
+          ))
+
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -870,7 +918,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
 
           authoriseAgent()
           await(wsClient.url(otherUkDividendsAmountUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
             .post(Map[String, String]()))
         }
 
@@ -883,9 +931,16 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
         errorAboveElementCheck(expectedErrorEmptyCy)
 
       }
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an Inavlid Error - Welsh" which {
+      s"return a BAD_REQUEST($BAD_REQUEST) status with an Invalid Error - Welsh" which {
 
         lazy val result: WSResponse = {
+          dropDividendsDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(
+            DividendsCheckYourAnswersModel(Some(true))
+          ))
+
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -893,7 +948,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
 
           authoriseAgent()
           await(wsClient.url(otherUkDividendsAmountUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
             .post(Map("amount" -> "|")))
         }
 
@@ -909,6 +964,13 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
       s"return a BAD_REQUEST($BAD_REQUEST) status with an OverMax Error - Welsh" which {
 
         lazy val result: WSResponse = {
+          dropDividendsDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(
+            DividendsCheckYourAnswersModel(Some(true))
+          ))
+
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -916,7 +978,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
 
           authoriseAgent()
           await(wsClient.url(otherUkDividendsAmountUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
             .post(Map("amount" -> "999999999999999999999999999999999")))
         }
 
@@ -935,6 +997,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
           SessionValues.DIVIDENDS_CYA -> DividendsCheckYourAnswersModel(otherUkDividends = Some(true), otherUkDividendsAmount = Some(amount)).asJsonString,
           SessionValues.CLIENT_NINO -> "AA123456A"
         ))
+
         lazy val result: WSResponse = {
           authoriseAgentUnauthorized()
           await(wsClient.url(otherUkDividendsAmountUrl)

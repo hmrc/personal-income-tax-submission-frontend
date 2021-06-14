@@ -17,7 +17,6 @@
 package utils
 
 import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, Materializer}
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
@@ -34,11 +33,10 @@ import play.api.mvc.{AnyContent, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.OK
 import play.api.{Application, Environment, Mode}
-import repositories.DividendsUserDataRepository
 import services.AuthService
+import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
-import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.authErrorPages.AgentAuthErrorPageView
 
@@ -51,6 +49,9 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   val mtditid = "1234567890"
   val affinityGroup = "Individual"
   val sessionId = "eb3158c2-0aff-4ce8-8d1b-f2208ace52fe"
+
+  val xSessionId: (String, String) = "X-Session-ID" -> sessionId
+  val csrfContent: (String, String) = "Csrf-Token" -> "nocheck"
 
   implicit lazy val user: User[AnyContent] = new User[AnyContent](mtditid, None, nino, affinityGroup, sessionId)(FakeRequest())
 
