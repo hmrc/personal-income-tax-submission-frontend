@@ -28,8 +28,6 @@ import utils.IntegrationTest
 
 class RemoveAccountControllerISpec extends IntegrationTest{
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
-
   val taxYear: Int = 2022
   val amount: BigDecimal = 25
 
@@ -49,7 +47,7 @@ class RemoveAccountControllerISpec extends IntegrationTest{
 
         lazy val result = {
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
+          await(wsClient.url(s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .get())
         }
@@ -66,7 +64,7 @@ class RemoveAccountControllerISpec extends IntegrationTest{
           stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
 
 
-          await(wsClient.url(s"$startUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
+          await(wsClient.url(s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
             .get())
         }
 
@@ -82,7 +80,7 @@ class RemoveAccountControllerISpec extends IntegrationTest{
           stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
 
 
-          await(wsClient.url(s"$startUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
+          await(wsClient.url(s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
             .get())
         }
 
@@ -111,7 +109,7 @@ class RemoveAccountControllerISpec extends IntegrationTest{
 
         lazy val result = {
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
+          await(wsClient.url(s"$appUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
             .get())
         }
@@ -128,7 +126,7 @@ class RemoveAccountControllerISpec extends IntegrationTest{
           stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
 
 
-          await(wsClient.url(s"$startUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
+          await(wsClient.url(s"$appUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
             .get())
         }
 
@@ -142,7 +140,7 @@ class RemoveAccountControllerISpec extends IntegrationTest{
         lazy val result = {
           authoriseIndividualUnauthorized()
           stubGet("/income-through-software/return/2020/view", OK, "<title>Overview Page</title>")
-          await(wsClient.url(s"$startUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
+          await(wsClient.url(s"$appUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
             .get())
         }
 
@@ -163,7 +161,7 @@ class RemoveAccountControllerISpec extends IntegrationTest{
         lazy val result: WSResponse = {
           authoriseIndividual()
           await(
-            wsClient.url(s"$startUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
+            wsClient.url(s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
               .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
           )
         }
@@ -185,7 +183,7 @@ class RemoveAccountControllerISpec extends IntegrationTest{
 
       lazy val result: WSResponse = {
         authoriseIndividual()
-        await(wsClient.url(s"$startUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
+        await(wsClient.url(s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
           .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
           .post(Map[String,String]()))
       }
@@ -196,7 +194,7 @@ class RemoveAccountControllerISpec extends IntegrationTest{
     "returns an action when auth call fails" which {
       lazy val result: WSResponse = {
         authoriseIndividualUnauthorized()
-        await(wsClient.url(s"$startUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
+        await(wsClient.url(s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
           .post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
       }
       "has an UNAUTHORIZED(401) status" in {
@@ -214,7 +212,7 @@ class RemoveAccountControllerISpec extends IntegrationTest{
         lazy val result: WSResponse = {
           authoriseIndividual()
           await(
-            wsClient.url(s"$startUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
+            wsClient.url(s"$appUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
               .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
           )
         }
@@ -236,7 +234,7 @@ class RemoveAccountControllerISpec extends IntegrationTest{
 
       lazy val result: WSResponse = {
         authoriseIndividual()
-        await(wsClient.url(s"$startUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
+        await(wsClient.url(s"$appUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
           .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
           .post(Map[String, String]()))
       }
@@ -247,7 +245,7 @@ class RemoveAccountControllerISpec extends IntegrationTest{
     "returns an action when auth call fails" which {
       lazy val result: WSResponse = {
         authoriseIndividualUnauthorized()
-        await(wsClient.url(s"$startUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
+        await(wsClient.url(s"$appUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
           .post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
       }
       "has an UNAUTHORIZED(401) status" in {

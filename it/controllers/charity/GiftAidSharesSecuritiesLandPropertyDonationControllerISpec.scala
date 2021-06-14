@@ -28,7 +28,7 @@ import utils.{IntegrationTest,ViewHelpers}
 
 class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends IntegrationTest with ViewHelpers {
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
+
   lazy val controller: GiftAidSharesSecuritiesLandPropertyDonationController = app.injector.instanceOf[GiftAidSharesSecuritiesLandPropertyDonationController]
 
   val taxYear: Int = 2022

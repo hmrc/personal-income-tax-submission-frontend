@@ -28,7 +28,7 @@ import play.api.http.Status._
 
 class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends IntegrationTest with ViewHelpers {
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
+
   lazy val controller: GiftAidSharesSecuritiesLandPropertyOverseasController = app.injector.instanceOf[GiftAidSharesSecuritiesLandPropertyOverseasController]
 
 

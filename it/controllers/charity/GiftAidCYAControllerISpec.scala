@@ -39,8 +39,6 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
 
   val url: String = s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/check-donations-to-charity"
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
-
   val cyaDataMax: GiftAidCYAModel = GiftAidCYAModel(
     Some(true), Some(100.00),
     Some(true), Some(100.00),

@@ -16,18 +16,42 @@
 
 package utils
 
+import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import helpers.WireMockHelper
 import org.jsoup.nodes.Document
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
+import play.api.http.HeaderNames
+import play.api.libs.ws.{WSClient, WSResponse}
+import play.api.test.Helpers.{await, defaultAwaitTimeout}
 
 
-trait ViewHelpers { self: AnyWordSpecLike with Matchers =>
+trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
 
   val serviceName = "Update and submit an Income Tax Return"
   val govUkExtension = "GOV.UK"
 
   val ENGLISH = "English"
   val WELSH = "Welsh"
+
+  def welshTest(isWelsh: Boolean): String = if (isWelsh) "Welsh" else "English"
+  def agentTest(isAgent: Boolean): String = if (isAgent) "Agent" else "Individual"
+
+  def authoriseAgentOrIndividual(isAgent: Boolean, nino: Boolean = true): StubMapping = if (isAgent) authoriseAgent() else authoriseIndividual(nino)
+  def unauthorisedAgentOrIndividual(isAgent: Boolean): StubMapping = if (isAgent) authoriseAgentUnauthorized() else authoriseIndividualUnauthorized()
+
+  case class UserScenario[CommonExpectedResults,SpecificExpectedResults](isWelsh: Boolean,
+                                                                         isAgent: Boolean,
+                                                                         commonExpectedResults: CommonExpectedResults,
+                                                                         specificExpectedResults: Option[SpecificExpectedResults] = None)
+
+//  val userScenarios: Seq[UserScenario[_, _]]
+
+  def urlGet(url: String, welsh: Boolean = false, follow: Boolean = true, headers: Seq[(String, String)] = Seq())(implicit wsClient: WSClient): WSResponse = {
+
+    val newHeaders = if(welsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") ++ headers else headers
+    await(wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(newHeaders: _*).get())
+  }
 
   def elementText(selector: String)(implicit document: () => Document): String = {
     document().select(selector).text()

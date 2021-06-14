@@ -28,9 +28,6 @@ import utils.IntegrationTest
 
 class TaxedInterestControllerISpec extends IntegrationTest {
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
-
-
   "as an individual" when {
 
     ".show" should {
@@ -38,7 +35,7 @@ class TaxedInterestControllerISpec extends IntegrationTest {
       "returns an action when data is not in session" which {
         lazy val result: WSResponse = {
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest").get())
+          await(wsClient.url(s"$appUrl/2020/interest/taxed-uk-interest").get())
         }
 
         "has an OK(200) status" in {
@@ -58,7 +55,7 @@ class TaxedInterestControllerISpec extends IntegrationTest {
 
         lazy val result: WSResponse = {
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest")
+          await(wsClient.url(s"$appUrl/2020/interest/taxed-uk-interest")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").get())
         }
 
@@ -78,7 +75,7 @@ class TaxedInterestControllerISpec extends IntegrationTest {
         ))
         lazy val result: WSResponse = {
           authoriseIndividualUnauthorized()
-          await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest")
+          await(wsClient.url(s"$appUrl/2020/interest/taxed-uk-interest")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").get())
         }
         "has an UNAUTHORIZED(401) status" in {
@@ -95,7 +92,7 @@ class TaxedInterestControllerISpec extends IntegrationTest {
         "returns an action when data is not in session" which {
           lazy val result: WSResponse = {
             authoriseIndividual()
-            await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest").post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
+            await(wsClient.url(s"$appUrl/2020/interest/taxed-uk-interest").post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
           }
 
           s"has an NOT_FOUND($NOT_FOUND) status" in {
@@ -115,7 +112,7 @@ class TaxedInterestControllerISpec extends IntegrationTest {
           lazy val result: WSResponse = {
             authoriseIndividual()
             await(
-              wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest")
+              wsClient.url(s"$appUrl/2020/interest/taxed-uk-interest")
                 .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
             )
@@ -129,7 +126,7 @@ class TaxedInterestControllerISpec extends IntegrationTest {
       s"return a BAD_REQUEST($BAD_REQUEST) status" in {
         lazy val result: WSResponse = {
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest").post(Map[String, String]()))
+          await(wsClient.url(s"$appUrl/2020/interest/taxed-uk-interest").post(Map[String, String]()))
         }
 
         result.status shouldBe BAD_REQUEST
@@ -146,7 +143,7 @@ class TaxedInterestControllerISpec extends IntegrationTest {
         lazy val result: WSResponse = {
           authoriseIndividualUnauthorized()
           await(
-            wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest")
+            wsClient.url(s"$appUrl/2020/interest/taxed-uk-interest")
               .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
               .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
           )        }
@@ -177,7 +174,7 @@ class TaxedInterestControllerISpec extends IntegrationTest {
 
         lazy val result: WSResponse = {
           authoriseAgent()
-          await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest")
+          await(wsClient.url(s"$appUrl/2020/interest/taxed-uk-interest")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").get())
         }
 
@@ -199,7 +196,7 @@ class TaxedInterestControllerISpec extends IntegrationTest {
         )
         lazy val result: WSResponse = {
           authoriseAgentUnauthorized()
-          await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest")
+          await(wsClient.url(s"$appUrl/2020/interest/taxed-uk-interest")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").get())
         }
         "has an UNAUTHORIZED(401) status" in {
@@ -216,7 +213,7 @@ class TaxedInterestControllerISpec extends IntegrationTest {
         "returns an action when data is not in session" which {
           lazy val result: WSResponse = {
             authoriseIndividual()
-            await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest").post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
+            await(wsClient.url(s"$appUrl/2020/interest/taxed-uk-interest").post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
           }
 
           s"has an NOT_FOUND($NOT_FOUND) status" in {
@@ -238,7 +235,7 @@ class TaxedInterestControllerISpec extends IntegrationTest {
           lazy val result: WSResponse = {
             authoriseAgent()
             await(
-              wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest")
+              wsClient.url(s"$appUrl/2020/interest/taxed-uk-interest")
                 .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
             )
@@ -257,7 +254,7 @@ class TaxedInterestControllerISpec extends IntegrationTest {
         lazy val result: WSResponse = {
           authoriseAgent()
           await(
-            wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest")
+            wsClient.url(s"$appUrl/2020/interest/taxed-uk-interest")
               .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
               .post(Map[String, String]())
           )
@@ -279,7 +276,7 @@ class TaxedInterestControllerISpec extends IntegrationTest {
         lazy val result: WSResponse = {
           authoriseAgentUnauthorized()
           await(
-            wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest")
+            wsClient.url(s"$appUrl/2020/interest/taxed-uk-interest")
               .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
               .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
           )        }

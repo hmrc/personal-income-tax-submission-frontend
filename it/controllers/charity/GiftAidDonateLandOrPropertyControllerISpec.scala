@@ -74,7 +74,6 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
   val continueButtonFormSelector = "#main-content > div > div > form"
   val errorSummaryHref = "#value"
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
   lazy val controller: GiftAidDonateLandOrPropertyController = app.injector.instanceOf[GiftAidDonateLandOrPropertyController]
 
   "in english" when {

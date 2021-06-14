@@ -18,22 +18,24 @@ package utils
 
 import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
+import common.SessionValues
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
-import helpers.WireMockHelper
+import helpers.{PlaySessionCookieBaker, WireMockHelper}
 import models.User
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.ws.WSClient
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Result}
 import play.api.{Application, Environment, Mode}
 import services.AuthService
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
 import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Enrolment, EnrolmentIdentifier, Enrolments}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import views.html.authErrorPages.AgentAuthErrorPageView
 
 import scala.concurrent.duration.Duration
@@ -43,6 +45,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   val nino = "AA123456A"
   val mtditid = "1234567890"
+  val sessionId = "sessionId-eb3158c2-0aff-4ce8-8d1b-f2208ace52fe"
   val affinityGroup = "Individual"
 
   implicit lazy val user: User[AnyContent] = new User[AnyContent](mtditid, None, nino, affinityGroup)
@@ -52,8 +55,9 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   implicit val actorSystem: ActorSystem = ActorSystem()
 
+  implicit def wsClient: WSClient = app.injector.instanceOf[WSClient]
 
-  val startUrl = s"http://localhost:$port/income-through-software/return/personal-income"
+  val appUrl = s"http://localhost:$port/income-through-software/return/personal-income"
 
   def await[T](awaitable: Awaitable[T]): T = Await.result(awaitable, Duration.Inf)
 
@@ -149,5 +153,12 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
       Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
     )) and Some(AffinityGroup.Individual) and ConfidenceLevel.L200
   )
+
+  def playSessionCookies(taxYear: Int): String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+    SessionValues.TAX_YEAR -> taxYear.toString,
+    SessionKeys.sessionId -> sessionId,
+    SessionValues.CLIENT_NINO -> "AA123456A",
+    SessionValues.CLIENT_MTDITID -> "1234567890"
+  ))
 
 }

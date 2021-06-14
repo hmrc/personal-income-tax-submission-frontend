@@ -50,11 +50,9 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
     val invalidFormatError = "Enter the amount you want to add to the last tax year in the correct format"
   }
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
-
   val taxYear: Int = 2022
 
-  val lastTaxYearAmountUrl = s"$startUrl/$taxYear/charity/amount-added-to-last-tax-year"
+  val lastTaxYearAmountUrl = s"$appUrl/$taxYear/charity/amount-added-to-last-tax-year"
 
   "Calling GET /charity/amount-added-to-last-tax-year" should {
 

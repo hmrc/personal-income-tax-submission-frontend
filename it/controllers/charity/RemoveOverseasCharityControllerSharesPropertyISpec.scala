@@ -28,7 +28,7 @@ import utils.{IntegrationTest, ViewHelpers}
 
 class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest with ViewHelpers {
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
+
 
   object Selectors {
 

@@ -28,13 +28,12 @@ import utils.IntegrationTest
 
 class DividendsCYAControllerISpec extends IntegrationTest {
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
   val connector: DividendsSubmissionConnector = app.injector.instanceOf[DividendsSubmissionConnector]
 
   val taxYear = 2022
 
   val dividends: BigDecimal = 10
-  val dividendsCheckYourAnswersUrl = s"$startUrl/$taxYear/dividends/check-income-from-dividends"
+  val dividendsCheckYourAnswersUrl = s"$appUrl/$taxYear/dividends/check-income-from-dividends"
 
   lazy val dividendsBody: DividendsSubmissionModel = DividendsSubmissionModel(
     Some(dividends),

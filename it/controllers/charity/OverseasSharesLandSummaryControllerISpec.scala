@@ -83,11 +83,9 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
     val button = "Continue"
   }
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
-
   val taxYear: Int = 2022
 
-  val overseasSharesLandSummaryUrl = s"$startUrl/$taxYear/charity/overseas-charities-donated-shares-securities-land-or-property-to"
+  val overseasSharesLandSummaryUrl = s"$appUrl/$taxYear/charity/overseas-charities-donated-shares-securities-land-or-property-to"
 
   "Calling GET /charity/overseas-charities-donated-shares-securities-land-or-property-to" when {
 
