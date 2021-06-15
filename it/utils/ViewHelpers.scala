@@ -22,7 +22,7 @@ import org.jsoup.nodes.Document
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.http.HeaderNames
-import play.api.libs.ws.{WSClient, WSResponse}
+import play.api.libs.ws.{BodyWritable, WSClient, WSResponse}
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
 
 
@@ -33,6 +33,8 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
 
   val ENGLISH = "English"
   val WELSH = "Welsh"
+
+  val errorPrefix = "Error: "
 
   def welshTest(isWelsh: Boolean): String = if (isWelsh) "Welsh" else "English"
   def agentTest(isAgent: Boolean): String = if (isAgent) "Agent" else "Individual"
@@ -51,6 +53,18 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
 
     val newHeaders = if(welsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") ++ headers else headers
     await(wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(newHeaders: _*).get())
+  }
+
+  def urlPost[T](url: String,
+                 body: T,
+                 welsh: Boolean = false,
+                 follow: Boolean = true,
+                 headers: Seq[(String, String)] = Seq())
+                (implicit wsClient: WSClient, bodyWritable: BodyWritable[T]): WSResponse = {
+
+    val headersWithNoCheck = headers ++ Seq("Csrf-Token" -> "nocheck")
+    val newHeaders = if(welsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") ++ headersWithNoCheck else headersWithNoCheck
+    await(wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(newHeaders: _*).post(body))
   }
 
   def elementText(selector: String)(implicit document: () => Document): String = {
@@ -241,6 +255,10 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
     "there is no error above the form" in {
       elementExist(".govuk-error-message") shouldBe false
     }
+  }
+
+  def welshToggleCheck(isWelsh: Boolean)(implicit document: () => Document): Unit ={
+    welshToggleCheck(if(isWelsh) WELSH else ENGLISH)
   }
 
   def welshToggleCheck(activeLanguage: String)(implicit document: () => Document): Unit = {
