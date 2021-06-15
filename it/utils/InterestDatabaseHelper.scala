@@ -15,31 +15,29 @@
  */
 
 package utils
+import models.interest.InterestCYAModel
+import models.mongo.InterestUserDataModel
+import repositories.InterestUserDataRepository
 
-import models.dividends.DividendsCheckYourAnswersModel
-import models.mongo.DividendsUserDataModel
-import repositories.DividendsUserDataRepository
+trait InterestDatabaseHelper { self: IntegrationTest =>
 
-trait DividendsDatabaseHelper { self: IntegrationTest =>
-
-  lazy val dividendsDatabase: DividendsUserDataRepository = app.injector.instanceOf[DividendsUserDataRepository]
+  lazy val interestDatabase: InterestUserDataRepository = app.injector.instanceOf[InterestUserDataRepository]
 
   //noinspection ScalaStyle
-  def dropDividendsDB() = {
-    await(dividendsDatabase.collection.drop().toFutureOption())
-    await(dividendsDatabase.ensureIndexes)
+  def dropInterestDB() = {
+    await(interestDatabase.collection.drop().toFutureOption())
+    await(interestDatabase.ensureIndexes)
   }
 
   //noinspection ScalaStyle
   def insertCyaData(
-                     cya: Option[DividendsCheckYourAnswersModel],
+                     cya: Option[InterestCYAModel],
                      taxYear: Int = 2022,
                      overrideMtditid: Option[String] = None,
                      overrideNino: Option[String] = None
                    ): Boolean = {
-
-    await(dividendsDatabase.create(
-      DividendsUserDataModel(sessionId, overrideMtditid.fold(mtditid)(value => value), overrideNino.fold(nino)(value => value), taxYear, cya)
+    await(interestDatabase.create(
+      InterestUserDataModel(sessionId, overrideMtditid.fold(mtditid)(value => value), overrideNino.fold(nino)(value => value), taxYear, cya)
     ))
   }
 

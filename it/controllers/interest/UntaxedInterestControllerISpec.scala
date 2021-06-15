@@ -20,15 +20,16 @@ import common.SessionValues
 import forms.YesNoForm
 import helpers.PlaySessionCookieBaker
 import models.interest.{InterestAccountModel, InterestCYAModel}
+import models.priorDataModels.IncomeSourcesModel
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.libs.ws.{WSClient, WSResponse}
-import utils.IntegrationTest
+import utils.{IntegrationTest, InterestDatabaseHelper}
 
 import java.util.UUID
 
-class UntaxedInterestControllerISpec extends IntegrationTest {
+class UntaxedInterestControllerISpec extends IntegrationTest with InterestDatabaseHelper {
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
@@ -43,8 +44,17 @@ class UntaxedInterestControllerISpec extends IntegrationTest {
 
       "returns an action when data is not in session" which {
         lazy val result: WSResponse = {
+          dropInterestDB()
+
+          emptyUserDataStub()
+          insertCyaData(None)
+
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest").get())
+          await(
+            wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest")
+              .withHttpHeaders(xSessionId, csrfContent)
+              .get()
+          )
         }
 
         "has an OK(200) status" in {
@@ -58,14 +68,16 @@ class UntaxedInterestControllerISpec extends IntegrationTest {
           Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
           Some(false), None
         )
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
-        ))
 
         lazy val result: WSResponse = {
+          dropInterestDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(interestCYA))
+
           authoriseIndividual()
           await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").get())
+            .withHttpHeaders(xSessionId, csrfContent).get())
         }
 
         "has an OK(200) status" in {
@@ -75,17 +87,15 @@ class UntaxedInterestControllerISpec extends IntegrationTest {
       }
 
       "returns an action when auth call fails" which {
-        lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-          Some(false), None
-        )
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
-        ))
         lazy val result: WSResponse = {
+          dropInterestDB()
+
+          emptyUserDataStub()
+          insertCyaData(None)
+
           authoriseIndividualUnauthorized()
           await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").get())
+            .withHttpHeaders(xSessionId, csrfContent).get())
         }
         "has an UNAUTHORIZED(401) status" in {
           result.status shouldBe UNAUTHORIZED
@@ -98,18 +108,21 @@ class UntaxedInterestControllerISpec extends IntegrationTest {
 
       s"return an OK($OK) status" when {
 
-        "returns an action when data is not in session" which {
+        "data is not in session" which {
           lazy val result: WSResponse = {
+            dropInterestDB()
+
+            emptyUserDataStub()
+
             authoriseIndividual()
             await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest/")
+              .withHttpHeaders(xSessionId, csrfContent)
               .withFollowRedirects(false)
               .post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
           }
 
-          "has an OK(200) status" in {
-
+          "has a SEE_OTHER(303) status" in {
             result.status shouldBe SEE_OTHER
-
           }
 
         }
@@ -119,14 +132,17 @@ class UntaxedInterestControllerISpec extends IntegrationTest {
             Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
             Some(false), None
           )
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
-          ))
+
           lazy val result: WSResponse = {
+            dropInterestDB()
+
+            emptyUserDataStub()
+            insertCyaData(Some(interestCYA))
+
             authoriseIndividual()
             await(
               wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest")
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+                .withHttpHeaders(xSessionId, csrfContent)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
             )
           }
@@ -138,6 +154,11 @@ class UntaxedInterestControllerISpec extends IntegrationTest {
 
       s"return a BAD_REQUEST($BAD_REQUEST) status" in {
         lazy val result: WSResponse = {
+          dropInterestDB()
+
+          emptyUserDataStub()
+          insertCyaData(None)
+
           authoriseIndividual()
           await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest").post(Map[String, String]()))
         }
@@ -146,18 +167,16 @@ class UntaxedInterestControllerISpec extends IntegrationTest {
       }
 
       "returns an action when auth call fails" which {
-        lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-          Some(false), None
-        )
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
-        ))
         lazy val result: WSResponse = {
+          dropInterestDB()
+
+          emptyUserDataStub()
+          insertCyaData(None)
+
           authoriseIndividualUnauthorized()
           await(
             wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+              .withHttpHeaders(xSessionId, csrfContent)
               .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
           )        }
         "has an UNAUTHORIZED(401) status" in {
@@ -180,15 +199,19 @@ class UntaxedInterestControllerISpec extends IntegrationTest {
           Some(false), None
         )
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
           SessionValues.CLIENT_MTDITID -> "1234567890",
           SessionValues.CLIENT_NINO -> "AA123456A")
         )
 
         lazy val result: WSResponse = {
+          dropInterestDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(interestCYA))
+
           authoriseAgent()
           await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").get())
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent).get())
         }
 
         "has an OK(200) status" in {
@@ -198,19 +221,20 @@ class UntaxedInterestControllerISpec extends IntegrationTest {
       }
 
       "returns an action when auth call fails" which {
-        lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-          Some(false), None
-        )
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
           SessionValues.CLIENT_MTDITID -> "1234567890",
           SessionValues.CLIENT_NINO -> "AA123456A")
         )
+
         lazy val result: WSResponse = {
+          dropInterestDB()
+
+          emptyUserDataStub()
+          insertCyaData(None)
+
           authoriseAgentUnauthorized()
           await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").get())
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent).get())
         }
         "has an UNAUTHORIZED(401) status" in {
           result.status shouldBe UNAUTHORIZED
@@ -223,13 +247,16 @@ class UntaxedInterestControllerISpec extends IntegrationTest {
 
       s"return an OK($OK) status" when {
 
-        "returns an action when CYA data is not in session" which {
+        "CYA data is not in session" which {
 
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A")
           )
+
           lazy val result: WSResponse = {
+            dropInterestDB()
+
             authoriseAgent()
             await(wsClient.url(s"$startUrl/2020/interest/untaxed-uk-interest")
               .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
