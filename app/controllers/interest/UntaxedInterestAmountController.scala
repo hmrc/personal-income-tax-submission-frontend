@@ -60,7 +60,7 @@ class UntaxedInterestAmountController @Inject()(
 
       lazy val untaxedInterestAmountForm: Form[UntaxedInterestModel] = UntaxedInterestAmountForm.untaxedInterestAmountForm(previousNames)
 
-    questionsJourneyValidator.validate(routes.UntaxedInterestAmountController.show(taxYear, id), optionalCyaData, taxYear) {
+      questionsJourneyValidator.validate(routes.UntaxedInterestAmountController.show(taxYear, id), optionalCyaData, taxYear) {
         val idMatchesPreviouslySubmittedAccount: Boolean = optionalCyaData.flatMap(_.untaxedUkAccounts.map(_.exists(_.id.contains(id)))).getOrElse(false)
 
         if (idMatchesPreviouslySubmittedAccount) {
@@ -96,26 +96,26 @@ class UntaxedInterestAmountController @Inject()(
 
   def submit(taxYear: Int, id: String): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
 
-    val optionalCyaData = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
+    interestSessionService.getSessionData(taxYear).map { cya =>
+      val optionalCyaData = cya.flatMap(_.interest)
 
-    val previousNames: Seq[String] = optionalCyaData.flatMap(_.untaxedUkAccounts.map(_.map(_.accountName))).getOrElse(Seq.empty[String])
+      val previousNames: Seq[String] = optionalCyaData.flatMap(_.untaxedUkAccounts.map(_.map(_.accountName))).getOrElse(Seq.empty[String])
 
-    lazy val untaxedInterestAmountForm: Form[UntaxedInterestModel] = UntaxedInterestAmountForm.untaxedInterestAmountForm(previousNames)
-    untaxedInterestAmountForm.bindFromRequest().fold({
-      formWithErrors =>
-        Future.successful(BadRequest(untaxedInterestAmountView(
-          form = formWithErrors,
-          taxYear = taxYear,
-          postAction = routes.UntaxedInterestAmountController.submit(taxYear, id),
-          isAgent = user.isAgent
-        )))
-    }, {
-      completeForm =>
-        val newAmount: BigDecimal = completeForm.untaxedAmount
+      lazy val untaxedInterestAmountForm: Form[UntaxedInterestModel] = UntaxedInterestAmountForm.untaxedInterestAmountForm(previousNames)
+      untaxedInterestAmountForm.bindFromRequest().fold({
+        formWithErrors =>
+          Future.successful(BadRequest(untaxedInterestAmountView(
+            form = formWithErrors,
+            taxYear = taxYear,
+            postAction = routes.UntaxedInterestAmountController.submit(taxYear, id),
+            isAgent = user.isAgent
+          )))
+      }, {
+        completeForm =>
+          val newAmount: BigDecimal = completeForm.untaxedAmount
 
-        def createNewAccount: InterestAccountModel = InterestAccountModel(None, completeForm.untaxedAccountName, newAmount, Some(id))
+          def createNewAccount: InterestAccountModel = InterestAccountModel(None, completeForm.untaxedAccountName, newAmount, Some(id))
 
-        interestSessionService.getSessionData(taxYear).map { cya =>
           cya.flatMap(_.interest) match {
             case Some(cyaData) =>
               val accounts = cyaData.untaxedUkAccounts.getOrElse(Seq.empty[InterestAccountModel])
@@ -139,7 +139,7 @@ class UntaxedInterestAmountController @Inject()(
               logger.info("[UntaxedInterestController][submit] No CYA data in session. Redirecting to overview page.")
               Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
           }
-        }.flatten
-    })
+      })
+    }.flatten
   }
 }
