@@ -16,13 +16,11 @@
 
 package controllers.charity
 
-import common.SessionValues
-import helpers.PlaySessionCookieBaker
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status.OK
-import play.api.libs.ws.{WSClient, WSResponse}
+import play.api.libs.ws.WSResponse
 import utils.{IntegrationTest, ViewHelpers}
 
 class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers {

@@ -16,530 +16,196 @@
 
 package controllers.charity
 
-import common.SessionValues
 import forms.YesNoForm
-import helpers.PlaySessionCookieBaker
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
-import play.api.libs.ws.{WSClient, WSResponse}
-import utils.{IntegrationTest, ViewHelpers}
 import play.api.http.Status._
+import play.api.libs.ws.WSResponse
+import utils.{IntegrationTest, ViewHelpers}
 
 class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends IntegrationTest with ViewHelpers {
 
-
-  lazy val controller: GiftAidSharesSecuritiesLandPropertyOverseasController = app.injector.instanceOf[GiftAidSharesSecuritiesLandPropertyOverseasController]
-
-
   val taxYear: Int = 2022
   val taxYearMinusOne: Int = taxYear - 1
-  val captionText = s"Donations to charity for 6 April $taxYearMinusOne to 5 April $taxYear"
-  val yesText = "Yes"
-  val noText = "No"
-  val continueText = "Continue"
-  val captionSelector = ".govuk-caption-l"
-  val continueSelector = "#continue"
-  val continueButtonFormSelector = "#main-content > div > div > form"
-  val errorSummaryHref = "#value"
 
-  val disclosureContentTitle = "What are qualifying shares and securities?"
-  val disclosureContentParagraph = "Qualifying shares and securities are:"
-  val disclosureContentBullet1 = "listed on a recognised stock exchange or dealt in on a designated market in the UK"
-  val disclosureContentBullet2 = "units in an authorised unit trust"
-  val disclosureContentBullet3 = "shares in an open-ended investment company"
-  val disclosureContentBullet4 = "an interest in an offshore fund"
+  def url: String = s"$appUrl/$taxYear/charity/donation-of-shares-securities-land-or-property-to-overseas-charities"
 
-  val disclosureSelectorTitle = "#main-content > div > div > form > details > summary > span"
-  val disclosureSelectorParagraph = "#main-content > div > div > form > details > div > p"
-  val disclosureSelectorBullet1 = "#main-content > div > div > form > details > div > ul > li:nth-child(1)"
-  val disclosureSelectorBullet2 = "#main-content > div > div > form > details > div > ul > li:nth-child(2)"
-  val disclosureSelectorBullet3 = "#main-content > div > div > form > details > div > ul > li:nth-child(3)"
-  val disclosureSelectorBullet4 = "#main-content > div > div > form > details > div > ul > li:nth-child(4)"
+  object Selectors {
+    val captionSelector = ".govuk-caption-l"
+    val continueSelector = "#continue"
+    val continueButtonFormSelector = "#main-content > div > div > form"
+    val errorSummaryHref = "#value"
+    val disclosureSelectorTitle = "#main-content > div > div > form > details > summary > span"
+    val disclosureSelectorParagraph = "#main-content > div > div > form > details > div > p"
+    val disclosureSelectorBullet1 = "#main-content > div > div > form > details > div > ul > li:nth-child(1)"
+    val disclosureSelectorBullet2 = "#main-content > div > div > form > details > div > ul > li:nth-child(2)"
+    val disclosureSelectorBullet3 = "#main-content > div > div > form > details > div > ul > li:nth-child(3)"
+    val disclosureSelectorBullet4 = "#main-content > div > div > form > details > div > ul > li:nth-child(4)"
+  }
 
-  object IndividualExpected {
+  trait SpecificExpectedResults {
+    val expectedH1: String
+    val expectedTitle: String
+    val expectedError: String
+  }
 
+  trait CommonExpectedResults {
+    val captionText: String
+    val yesText: String
+    val noText: String
+    val continueText: String
+    val disclosureContentTitle: String
+    val disclosureContentParagraph: String
+    val disclosureContentBullet1: String
+    val disclosureContentBullet2: String
+    val disclosureContentBullet3: String
+    val disclosureContentBullet4: String
+  }
+
+  object CommonExpectedEN extends CommonExpectedResults {
+    val captionText = s"Donations to charity for 6 April $taxYearMinusOne to 5 April $taxYear"
+    val yesText = "Yes"
+    val noText = "No"
+    val continueText = "Continue"
+    val disclosureContentTitle = "What are qualifying shares and securities?"
+    val disclosureContentParagraph = "Qualifying shares and securities are:"
+    val disclosureContentBullet1 = "listed on a recognised stock exchange or dealt in on a designated market in the UK"
+    val disclosureContentBullet2 = "units in an authorised unit trust"
+    val disclosureContentBullet3 = "shares in an open-ended investment company"
+    val disclosureContentBullet4 = "an interest in an offshore fund"
+  }
+
+  object CommonExpectedCY extends CommonExpectedResults {
+    val captionText = s"Donations to charity for 6 April $taxYearMinusOne to 5 April $taxYear"
+    val yesText = "Yes"
+    val noText = "No"
+    val continueText = "Continue"
+    val disclosureContentTitle = "What are qualifying shares and securities?"
+    val disclosureContentParagraph = "Qualifying shares and securities are:"
+    val disclosureContentBullet1 = "listed on a recognised stock exchange or dealt in on a designated market in the UK"
+    val disclosureContentBullet2 = "units in an authorised unit trust"
+    val disclosureContentBullet3 = "shares in an open-ended investment company"
+    val disclosureContentBullet4 = "an interest in an offshore fund"
+  }
+
+  object ExpectedIndividualEN extends SpecificExpectedResults {
     val expectedTitle = "Did you donate qualifying shares, securities, land or property to overseas charities?"
     val expectedH1 = "Did you donate qualifying shares, securities, land or property to overseas charities?"
     val expectedError = "Select yes if you donated shares, securities, land or property to overseas charities"
-    val expectedErrorTitle = s"Error: $expectedTitle"
   }
 
-  object AgentExpected {
+  object ExpectedAgentEN extends SpecificExpectedResults {
     val expectedTitle = "Did your client donate qualifying shares, securities, land or property to overseas charities?"
     val expectedH1 = "Did your client donate qualifying shares, securities, land or property to overseas charities?"
     val expectedError = "Select yes if your client donated shares, securities, land or property to overseas charities"
-    val expectedErrorTitle = s"Error: $expectedTitle"
   }
 
-  object IndividualExpectedCy {
-
+  object ExpectedIndividualCY extends SpecificExpectedResults {
     val expectedTitle = "Did you donate qualifying shares, securities, land or property to overseas charities?"
     val expectedH1 = "Did you donate qualifying shares, securities, land or property to overseas charities?"
     val expectedError = "Select yes if you donated shares, securities, land or property to overseas charities"
-    val expectedErrorTitle = s"Error: $expectedTitle"
   }
 
-  object AgentExpectedCy {
-
+  object ExpectedAgentCY extends SpecificExpectedResults {
     val expectedTitle = "Did your client donate qualifying shares, securities, land or property to overseas charities?"
     val expectedH1 = "Did your client donate qualifying shares, securities, land or property to overseas charities?"
     val expectedError = "Select yes if your client donated shares, securities, land or property to overseas charities"
-    val expectedErrorTitle = s"Error: $expectedTitle"
   }
 
-  "In english" when {
+  val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
+    Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
+      UserScenario(isWelsh = false, isAgent = true,  CommonExpectedEN, Some(ExpectedAgentEN)),
+      UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, Some(ExpectedIndividualCY)),
+      UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
+  }
 
-    "As an individual" when {
+  ".show" when {
 
-      import IndividualExpected._
+    userScenarios.foreach { user =>
+      s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
-      ".show" should {
-
-        "return a page" which {
-
+        "render the page with correct content" which {
           lazy val result: WSResponse = {
-            authoriseIndividual()
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
-              s"donation-of-shares-securities-land-or-property-to-overseas-charities")
-              .get()
-            )
+            authoriseAgentOrIndividual(user.isAgent)
+            urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
           }
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-          "has an OK(200) status" in {
-            result.status shouldBe OK
+          import Selectors._
+          import user.commonExpectedResults._
 
-          }
-
-          "has the page elements" which {
-
-            titleCheck(expectedTitle)
-            welshToggleCheck(ENGLISH)
-            h1Check(expectedH1 + " " + captionText)
-            textOnPageCheck(captionText, captionSelector)
-            radioButtonCheck(yesText, 1)
-            radioButtonCheck(noText, 2)
-            buttonCheck(continueText, continueSelector)
-            textOnPageCheck(disclosureContentTitle, disclosureSelectorTitle)
-            textOnPageCheck(disclosureContentParagraph, disclosureSelectorParagraph)
-            textOnPageCheck(disclosureContentBullet1, disclosureSelectorBullet1)
-            textOnPageCheck(disclosureContentBullet2, disclosureSelectorBullet2)
-            textOnPageCheck(disclosureContentBullet3, disclosureSelectorBullet3)
-            textOnPageCheck(disclosureContentBullet4, disclosureSelectorBullet4)
-          }
+          titleCheck(user.specificExpectedResults.get.expectedTitle)
+          welshToggleCheck(user.isWelsh)
+          h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)
+          textOnPageCheck(captionText, captionSelector)
+          radioButtonCheck(yesText, 1)
+          radioButtonCheck(noText, 2)
+          buttonCheck(continueText, continueSelector)
+          textOnPageCheck(disclosureContentTitle, disclosureSelectorTitle)
+          textOnPageCheck(disclosureContentParagraph, disclosureSelectorParagraph)
+          textOnPageCheck(disclosureContentBullet1, disclosureSelectorBullet1)
+          textOnPageCheck(disclosureContentBullet2, disclosureSelectorBullet2)
+          textOnPageCheck(disclosureContentBullet3, disclosureSelectorBullet3)
+          textOnPageCheck(disclosureContentBullet4, disclosureSelectorBullet4)
+          noErrorsCheck()
         }
       }
-
-      ".submit" should {
-
-        "return an OK(200) status" when {
-
-          "there is form data" in {
-
-            lazy val result: WSResponse = {
-              authoriseIndividual()
-              await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
-                s"donation-of-shares-securities-land-or-property-to-overseas-charities")
-                .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
-              )
-            }
-
-            result.status shouldBe OK
-          }
-
-          "return an error page" when {
-
-            "there is no form data" which {
-
-              lazy val result: WSResponse = {
-                authoriseIndividual()
-                await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
-                  s"donation-of-shares-securities-land-or-property-to-overseas-charities")
-                  .post(Map[String, String]())
-                )
-              }
-
-              implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-              "has a BadRequest(400) status" in {
-
-                result.status shouldBe BAD_REQUEST
-              }
-
-              "has the page elements" which {
-
-                titleCheck(expectedErrorTitle)
-                welshToggleCheck(ENGLISH)
-                h1Check(expectedH1 + " " + captionText)
-                textOnPageCheck(captionText, captionSelector)
-                errorSummaryCheck(expectedError, errorSummaryHref)
-                errorAboveElementCheck(expectedError)
-                radioButtonCheck(yesText, 1)
-                radioButtonCheck(noText, 2)
-                buttonCheck(continueText, continueSelector)
-              }
-
-            }
-
-          }
-
-        }
-
-      }
-
-    }
-
-    "as an agent" when {
-
-      import AgentExpected._
-
-      ".show" should {
-
-        "return a page" which {
-
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"
-            ))
-
-            authoriseAgent()
-
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
-              s"donation-of-shares-securities-land-or-property-to-overseas-charities")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
-              .get()
-            )
-
-          }
-
-          implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-          "has an Ok (200) status" in {
-
-            result.status shouldBe OK
-          }
-
-          "has the page elements" which {
-
-            titleCheck(expectedTitle)
-            welshToggleCheck(ENGLISH)
-            h1Check(expectedH1 + " " + captionText)
-            textOnPageCheck(captionText, captionSelector)
-            radioButtonCheck(yesText, 1)
-            radioButtonCheck(noText, 2)
-            buttonCheck(continueText, continueSelector)
-            textOnPageCheck(disclosureContentTitle, disclosureSelectorTitle)
-            textOnPageCheck(disclosureContentParagraph, disclosureSelectorParagraph)
-            textOnPageCheck(disclosureContentBullet1, disclosureSelectorBullet1)
-            textOnPageCheck(disclosureContentBullet2, disclosureSelectorBullet2)
-            textOnPageCheck(disclosureContentBullet3, disclosureSelectorBullet3)
-            textOnPageCheck(disclosureContentBullet4, disclosureSelectorBullet4)
-          }
-
-        }
-
-      }
-
-      ".submit" should {
-
-        "return an OK (200) status" when {
-
-          "there is form data" in {
-
-            lazy val result: WSResponse = {
-              lazy val sessionCookie = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-                SessionValues.CLIENT_MTDITID -> "1234567890",
-                SessionValues.CLIENT_NINO -> "AA123456A"
-              ))
-
-              authoriseAgent()
-
-              await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
-                s"donation-of-shares-securities-land-or-property-to-overseas-charities")
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-                .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
-              )
-            }
-
-            result.status shouldBe OK
-          }
-
-        }
-
-        "return an error page with a BadRequest (400) status" when {
-
-          "there is no form data" which {
-
-            lazy val result: WSResponse = {
-              lazy val sessionCookie = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-                SessionValues.CLIENT_MTDITID -> "1234567890",
-                SessionValues.CLIENT_NINO -> "AA123456A"
-              ))
-
-              authoriseAgent()
-
-              await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
-                s"donation-of-shares-securities-land-or-property-to-overseas-charities")
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-                .post(Map[String, String]())
-              )
-            }
-
-            implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-            "returns a BadRequest (400) status" in {
-
-              result.status shouldBe BAD_REQUEST
-            }
-
-            "has the page elements" which {
-              titleCheck(expectedErrorTitle)
-              welshToggleCheck(ENGLISH)
-              h1Check(expectedH1 + " " + captionText)
-              textOnPageCheck(captionText, captionSelector)
-              errorSummaryCheck(expectedError, errorSummaryHref)
-              errorAboveElementCheck(expectedError)
-              radioButtonCheck(yesText, 1)
-              radioButtonCheck(noText, 2)
-              buttonCheck(continueText, continueSelector)
-            }
-
-          }
-
-        }
-
-      }
-
     }
   }
 
-  "In welsh" when {
+  ".submit" when {
 
-    "As an individual" when {
+    userScenarios.foreach { user =>
+      s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
-      import IndividualExpectedCy._
-
-      ".show" should {
-
-        "return a page" which {
+        "return an OK" in {
+          lazy val form: Map[String, Seq[String]] = Map(YesNoForm.yesNo -> Seq(YesNoForm.yes))
 
           lazy val result: WSResponse = {
-            authoriseIndividual()
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
-              s"donation-of-shares-securities-land-or-property-to-overseas-charities")
-              .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
-              .get()
-            )
+            authoriseAgentOrIndividual(user.isAgent)
+            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+          }
+
+          result.status shouldBe OK
+        }
+
+        "no radio button has been selected" should {
+
+          lazy val form: Map[String, Seq[String]] = Map(YesNoForm.yesNo -> Seq(""))
+
+          lazy val result: WSResponse = {
+            authoriseAgentOrIndividual(user.isAgent)
+            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
           }
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-          "has an OK(200) status" in {
-            result.status shouldBe OK
+          import Selectors._
+          import user.commonExpectedResults._
 
-          }
+          titleCheck(errorPrefix + user.specificExpectedResults.get.expectedTitle)
+          welshToggleCheck(user.isWelsh)
+          h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)
+          textOnPageCheck(captionText, captionSelector)
+          radioButtonCheck(yesText, 1)
+          radioButtonCheck(noText, 2)
+          buttonCheck(continueText, continueSelector)
+          textOnPageCheck(disclosureContentTitle, disclosureSelectorTitle)
+          textOnPageCheck(disclosureContentParagraph, disclosureSelectorParagraph)
+          textOnPageCheck(disclosureContentBullet1, disclosureSelectorBullet1)
+          textOnPageCheck(disclosureContentBullet2, disclosureSelectorBullet2)
+          textOnPageCheck(disclosureContentBullet3, disclosureSelectorBullet3)
+          textOnPageCheck(disclosureContentBullet4, disclosureSelectorBullet4)
+          errorSummaryCheck(user.specificExpectedResults.get.expectedError, errorSummaryHref)
+          errorAboveElementCheck(user.specificExpectedResults.get.expectedError)
 
-          "has the page elements" which {
-
-            titleCheck(expectedTitle)
-            welshToggleCheck(WELSH)
-            h1Check(expectedH1 + " " + captionText)
-            textOnPageCheck(captionText, captionSelector)
-            radioButtonCheck(yesText, 1)
-            radioButtonCheck(noText, 2)
-            buttonCheck(continueText, continueSelector)
-
+          "return a BAD_REQUEST" in {
+            result.status shouldBe BAD_REQUEST
           }
         }
       }
-
-      ".submit" should {
-
-        "return an OK(200) status" when {
-
-          "there is form data" in {
-
-            lazy val result: WSResponse = {
-              authoriseIndividual()
-              await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
-                s"donation-of-shares-securities-land-or-property-to-overseas-charities")
-                .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
-                .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
-              )
-            }
-
-            result.status shouldBe OK
-          }
-
-          "return an error page" when {
-
-            "there is no form data" which {
-
-              lazy val result: WSResponse = {
-                authoriseIndividual()
-                await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
-                  s"donation-of-shares-securities-land-or-property-to-overseas-charities")
-                  .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
-                  .post(Map[String, String]())
-                )
-              }
-
-              implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-              "has a BadRequest(400) status" in {
-
-                result.status shouldBe BAD_REQUEST
-              }
-
-              "has the page elements" which {
-
-                titleCheck(expectedErrorTitle)
-                welshToggleCheck(WELSH)
-                h1Check(expectedH1 + " " + captionText)
-                textOnPageCheck(captionText, captionSelector)
-                errorSummaryCheck(expectedError, errorSummaryHref)
-                errorAboveElementCheck(expectedError)
-                radioButtonCheck(yesText, 1)
-                radioButtonCheck(noText, 2)
-                buttonCheck(continueText, continueSelector)
-
-              }
-
-            }
-
-          }
-
-        }
-
-      }
-
-    }
-
-    "as an agent" when {
-
-      import AgentExpectedCy._
-
-      ".show" should {
-
-        "return a page" which {
-
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"
-            ))
-
-            authoriseAgent()
-
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
-              s"donation-of-shares-securities-land-or-property-to-overseas-charities")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy")
-              .get()
-            )
-
-          }
-
-          implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-          "has an Ok (200) status" in {
-
-            result.status shouldBe OK
-          }
-
-          "has the page elements" which {
-
-            titleCheck(expectedTitle)
-            welshToggleCheck(WELSH)
-            h1Check(expectedH1 + " " + captionText)
-            textOnPageCheck(captionText, captionSelector)
-            radioButtonCheck(yesText, 1)
-            radioButtonCheck(noText, 2)
-            buttonCheck(continueText, continueSelector)
-            textOnPageCheck(disclosureContentTitle, disclosureSelectorTitle)
-            textOnPageCheck(disclosureContentParagraph, disclosureSelectorParagraph)
-            textOnPageCheck(disclosureContentBullet1, disclosureSelectorBullet1)
-            textOnPageCheck(disclosureContentBullet2, disclosureSelectorBullet2)
-            textOnPageCheck(disclosureContentBullet3, disclosureSelectorBullet3)
-            textOnPageCheck(disclosureContentBullet4, disclosureSelectorBullet4)
-          }
-
-        }
-
-      }
-
-      ".submit" should {
-
-        "return an OK (200) status" when {
-
-          "there is form data" in {
-
-            lazy val result: WSResponse = {
-              lazy val sessionCookie = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-                SessionValues.CLIENT_MTDITID -> "1234567890",
-                SessionValues.CLIENT_NINO -> "AA123456A"
-              ))
-
-              authoriseAgent()
-
-              await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
-                s"donation-of-shares-securities-land-or-property-to-overseas-charities")
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck", HeaderNames.ACCEPT_LANGUAGE -> "cy")
-                .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
-              )
-            }
-
-            result.status shouldBe OK
-          }
-
-        }
-
-        "return an error page with a BadRequest (400) status" when {
-
-          "there is no form data" which {
-
-            lazy val result: WSResponse = {
-              lazy val sessionCookie = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-                SessionValues.CLIENT_MTDITID -> "1234567890",
-                SessionValues.CLIENT_NINO -> "AA123456A"
-              ))
-
-              authoriseAgent()
-
-              await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
-                s"donation-of-shares-securities-land-or-property-to-overseas-charities")
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck", HeaderNames.ACCEPT_LANGUAGE -> "cy")
-                .post(Map[String, String]())
-              )
-            }
-
-            implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-            "returns a BadRequest (400) status" in {
-
-              result.status shouldBe BAD_REQUEST
-            }
-
-            "has the page elements" which {
-              titleCheck(expectedErrorTitle)
-              welshToggleCheck(WELSH)
-              h1Check(expectedH1 + " " + captionText)
-              textOnPageCheck(captionText, captionSelector)
-              errorSummaryCheck(expectedError, errorSummaryHref)
-              errorAboveElementCheck(expectedError)
-              radioButtonCheck(yesText, 1)
-              radioButtonCheck(noText, 2)
-              buttonCheck(continueText, continueSelector)
-            }
-
-          }
-
-        }
-
-      }
-
     }
   }
 }

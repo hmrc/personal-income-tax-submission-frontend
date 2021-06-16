@@ -16,245 +16,257 @@
 
 package controllers.charity
 
-import common.SessionValues
 import common.SessionValues.GIFT_AID_PRIOR_SUB
-import helpers.PlaySessionCookieBaker
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.json.Json
-import play.api.libs.ws.{WSClient, WSResponse}
-import utils.IntegrationTest
+import play.api.libs.ws.WSResponse
+import utils.{IntegrationTest, ViewHelpers}
 
-class GiftAidOverseasNameControllerISpec extends IntegrationTest {
-
-
-  object IndividualExpected {
-    val expectedTitle: String = "Name of overseas charity you used Gift Aid to donate to"
-    val expectedH1: String = "Name of overseas charity you used Gift Aid to donate to"
-    val expectedError: String = "Enter the name of the overseas charity you used Gift Aid to donate to"
-    val expectedErrorTitle = s"Error: $expectedTitle"
-  }
-
-  object AgentExpected {
-    val expectedTitle: String = "Name of overseas charity your client used Gift Aid to donate to"
-    val expectedH1: String = "Name of overseas charity your client used Gift Aid to donate to"
-    val expectedError: String = "Enter the name of the overseas charity your client used Gift Aid to donate to"
-    val expectedErrorTitle = s"Error: $expectedTitle"
-  }
-
-  val expectedCaption: String = "Donations to charity for 6 April 2021 to 5 April 2022"
-  val expectedInputName: String = "name"
-  val expectedButtonText: String = "Continue"
-  val expectedInputHintText: String = "You can add more than one charity."
-  val expectedCharLimitError: String = "The name of the overseas charity must be 75 characters or fewer"
-  val expectedInvalidCharError: String = "Name of overseas charity must only include numbers 0-9, letters a " +
-    "to z, hyphens, spaces, apostrophes, commas, full stops, round brackets and the special characters, &, /, @, £, *"
-  val expectedDuplicateError: String = "You cannot add 2 charities with the same name"
-
-  val captionSelector: String = ".govuk-caption-l"
-  val inputFieldSelector: String = "#name"
-  val buttonSelector: String = ".govuk-button"
-  val inputHintTextSelector: String = "#main-content > div > div > form > div > label > p"
-  val errorSelector: String = "#main-content > div > div > div.govuk-error-summary > div > ul > li > a"
-
-  val serviceName = "Update and submit an Income Tax Return"
-  val govUkExtension = "GOV.UK"
+class GiftAidOverseasNameControllerISpec extends IntegrationTest with ViewHelpers {
 
   val charLimit: String = "ukHzoBYHkKGGk2V5iuYgS137gN7EB7LRw3uDjvujYg00ZtHwo3sokyOOCEoAK9vuPiP374QKOelo"
-  val testModel: GiftAidSubmissionModel = GiftAidSubmissionModel(Some(GiftAidPaymentsModel(None, Some(List("JaneDoe")), None, None, None, None)),None)
-
-
+  val testModel: GiftAidSubmissionModel = GiftAidSubmissionModel(Some(GiftAidPaymentsModel(None, Some(List("dupe")), None, None, None, None)),None)
 
   val taxYear: Int = 2022
 
-  "as an individual" when {
-    import IndividualExpected._
+  def url: String = s"$appUrl/$taxYear/charity/name-of-overseas-charity"
 
-    ".show" should {
-
-      "returns an action" which {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charity")
-            .get())
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        "has an OK(200) status with the correct content" in {
-          result.status shouldBe OK
-          document.title() shouldBe s"$expectedTitle - $serviceName - $govUkExtension"
-          document.select(".govuk-heading-l").text() shouldBe expectedH1 + " " + expectedCaption
-          document.select(captionSelector).text() shouldBe expectedCaption
-          document.select(inputHintTextSelector).text() shouldBe expectedInputHintText
-          document.select(inputFieldSelector).attr("name")
-          document.select(buttonSelector).text() shouldBe expectedButtonText
-          document.select(buttonSelector).attr("class") should include ("govuk-button")
-        }
-
-      }
-    }
-
-    ".submit" should {
-
-      s"return an OK($OK) status" in {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(
-            wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charity")
-              .post(Map("name" -> "juamal"))
-          )
-        }
-
-        result.status shouldBe OK
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an empty error" in {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charity")
-            .post(Map[String, String]()))
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        result.status shouldBe BAD_REQUEST
-        document.select(errorSelector).text() shouldBe expectedError
-        document.title() shouldBe s"$expectedErrorTitle - $serviceName - $govUkExtension"
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an invalid Character error" in {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(
-            wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charity")
-              .post(Map("name" -> "juamal|"))
-          )
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        result.status shouldBe BAD_REQUEST
-        document.select(errorSelector).text() shouldBe expectedInvalidCharError
-        document.title() shouldBe s"$expectedErrorTitle - $serviceName - $govUkExtension"
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an character limit error" in {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(
-            wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charity")
-              .post(Map("name" -> charLimit))
-          )
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        result.status shouldBe BAD_REQUEST
-        document.select(errorSelector).text() shouldBe expectedCharLimitError
-        document.title() shouldBe s"$expectedErrorTitle - $serviceName - $govUkExtension"
-      }
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an duplicate name error" in {
-        val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-          GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString()
-        ))
-
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(
-            wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charity")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-              .post(Map("name" -> "JaneDoe"))
-          )
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        result.status shouldBe BAD_REQUEST
-        document.select(errorSelector).text() shouldBe expectedDuplicateError
-        document.title() shouldBe s"$expectedErrorTitle - $serviceName - $govUkExtension"
-      }
-
-    }
-
+  object Selectors {
+    val captionSelector: String = ".govuk-caption-l"
+    val inputFieldSelector: String = "#name"
+    val buttonSelector: String = ".govuk-button"
+    val inputHintTextSelector: String = "#main-content > div > div > form > div > label > p"
+    val errorSelector: String = "#main-content > div > div > div.govuk-error-summary > div > ul > li > a"
   }
 
-  "as an agent" when {
-    import AgentExpected._
-
-    ".show" should {
-
-      "returns an action" which {
-        lazy val result: WSResponse = {
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
-
-          authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charity")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
-            .get())
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        "has an OK(200) status with the correct content" in {
-          result.status shouldBe OK
-          document.title() shouldBe s"$expectedTitle - $serviceName - $govUkExtension"
-          document.select(".govuk-heading-l").text() shouldBe expectedH1 + " " + expectedCaption
-          document.select(captionSelector).text() shouldBe expectedCaption
-          document.select(inputHintTextSelector).text() shouldBe expectedInputHintText
-          document.select(inputFieldSelector).attr("name")
-          document.select(buttonSelector).text() shouldBe expectedButtonText
-          document.select(buttonSelector).attr("class") should include ("govuk-button")
-        }
-      }
-    }
-
-    ".submit" should {
-
-      s"return an OK($OK) status" when {
-
-        "there is form data" in {
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"))
-
-            authoriseAgent()
-            await(
-              wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charity")
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-                .post(Map("name" -> "juamal"))
-            )
-          }
-
-          result.status shouldBe OK
-        }
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an empty error" when {
-
-        "there is no form data" in {
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"
-            ))
-
-            authoriseAgent()
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charity")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-              .post(Map[String, String]()))
-          }
-          lazy val document: Document = Jsoup.parse(result.body)
-
-          result.status shouldBe BAD_REQUEST
-          document.select(errorSelector).text() shouldBe expectedError
-          document.title() shouldBe s"$expectedErrorTitle - $serviceName - $govUkExtension"
-        }
-      }
-
-    }
-
+  trait SpecificExpectedResults {
+    val expectedTitle: String
+    val expectedH1: String
+    val expectedError: String
   }
 
+  trait CommonExpectedResults {
+    val expectedCaption: String
+    val expectedInputName: String
+    val expectedButtonText: String
+    val expectedInputHintText: String
+    val expectedInvalidError: String
+    val expectedLengthError: String
+    val expectedDuplicateError: String
+    val serviceName: String
+    val govUkExtension: String
+  }
+
+  object CommonExpectedEN extends CommonExpectedResults {
+    val expectedCaption: String = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val expectedInputName: String = "name"
+    val expectedButtonText: String = "Continue"
+    val expectedInputHintText: String = "You can add more than one charity."
+    val serviceName = "Update and submit an Income Tax Return"
+    val govUkExtension = "GOV.UK"
+    val expectedInvalidError: String = "Name of overseas charity must only include numbers 0-9, letters a to z," +
+      " hyphens, spaces, apostrophes, commas, full stops, round brackets and the special characters, &, /, @, £, *"
+    val expectedLengthError: String = "The name of the overseas charity must be 75 characters or fewer"
+    val expectedDuplicateError: String = "You cannot add 2 charities with the same name"
+  }
+
+  object CommonExpectedCY extends CommonExpectedResults {
+    val expectedCaption: String = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val expectedInputName: String = "name"
+    val expectedButtonText: String = "Continue"
+    val expectedInputHintText: String = "You can add more than one charity."
+    val serviceName = "Update and submit an Income Tax Return"
+    val govUkExtension = "GOV.UK"
+    val expectedInvalidError: String = "Name of overseas charity must only include numbers 0-9, letters a to z," +
+      " hyphens, spaces, apostrophes, commas, full stops, round brackets and the special characters, &, /, @, £, *"
+    val expectedLengthError: String = "The name of the overseas charity must be 75 characters or fewer"
+    val expectedDuplicateError: String = "You cannot add 2 charities with the same name"
+  }
+
+  object ExpectedIndividualEN extends SpecificExpectedResults {
+    val expectedTitle: String = "Name of overseas charity you used Gift Aid to donate to"
+    val expectedH1: String = "Name of overseas charity you used Gift Aid to donate to"
+    val expectedError: String = "Enter the name of the overseas charity you used Gift Aid to donate to"
+  }
+
+  object ExpectedAgentEN extends SpecificExpectedResults {
+    val expectedTitle: String = "Name of overseas charity your client used Gift Aid to donate to"
+    val expectedH1: String = "Name of overseas charity your client used Gift Aid to donate to"
+    val expectedError: String = "Enter the name of the overseas charity your client used Gift Aid to donate to"
+  }
+
+  object ExpectedIndividualCY extends SpecificExpectedResults {
+    val expectedTitle: String = "Name of overseas charity you used Gift Aid to donate to"
+    val expectedH1: String = "Name of overseas charity you used Gift Aid to donate to"
+    val expectedError: String = "Enter the name of the overseas charity you used Gift Aid to donate to"
+  }
+
+  object ExpectedAgentCY extends SpecificExpectedResults {
+    val expectedTitle: String = "Name of overseas charity your client used Gift Aid to donate to"
+    val expectedH1: String = "Name of overseas charity your client used Gift Aid to donate to"
+    val expectedError: String = "Enter the name of the overseas charity your client used Gift Aid to donate to"
+  }
+
+  val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
+    Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
+      UserScenario(isWelsh = false, isAgent = true,  CommonExpectedEN, Some(ExpectedAgentEN)),
+      UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, Some(ExpectedIndividualCY)),
+      UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
+  }
+
+  ".show" when {
+
+    userScenarios.foreach { user =>
+      s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
+
+        "render the page with correct content" which {
+          lazy val result: WSResponse = {
+            authoriseAgentOrIndividual(user.isAgent)
+            urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+          }
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import Selectors._
+          import user.commonExpectedResults._
+
+          titleCheck(user.specificExpectedResults.get.expectedTitle)
+          h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+          textOnPageCheck(expectedCaption, captionSelector)
+          textOnPageCheck(expectedInputHintText, inputHintTextSelector)
+          inputFieldCheck(expectedInputName, inputFieldSelector)
+          buttonCheck(expectedButtonText, buttonSelector)
+          welshToggleCheck(user.isWelsh)
+        }
+      }
+    }
+  }
+
+  ".submit" when {
+
+    userScenarios.foreach { user =>
+      s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
+
+        "return an OK" in {
+          lazy val form: Map[String, Seq[String]] = Map("name" -> Seq("juamal"))
+
+          lazy val result: WSResponse = {
+            authoriseAgentOrIndividual(user.isAgent)
+            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+          }
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          result.status shouldBe OK
+        }
+
+        "return an error" when {
+
+          "the submitted data is empty" which {
+            lazy val form: Map[String, Seq[String]] = Map("name" -> Seq(""))
+
+            lazy val result: WSResponse = {
+              authoriseAgentOrIndividual(user.isAgent)
+              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+            }
+
+            implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+            import Selectors._
+            import user.commonExpectedResults._
+
+            titleCheck(errorPrefix + user.specificExpectedResults.get.expectedTitle)
+            h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+            textOnPageCheck(expectedCaption, captionSelector)
+            textOnPageCheck(expectedInputHintText, inputHintTextSelector)
+            inputFieldCheck(expectedInputName, inputFieldSelector)
+            buttonCheck(expectedButtonText, buttonSelector)
+            welshToggleCheck(user.isWelsh)
+
+            errorSummaryCheck(user.specificExpectedResults.get.expectedError, Selectors.inputFieldSelector)
+            errorAboveElementCheck(user.specificExpectedResults.get.expectedError)
+          }
+
+          "the submitted data is too long" which {
+            lazy val form: Map[String, Seq[String]] = Map("name" -> Seq(charLimit))
+
+            lazy val result: WSResponse = {
+              authoriseAgentOrIndividual(user.isAgent)
+              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+            }
+
+            implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+            import Selectors._
+            import user.commonExpectedResults._
+
+            titleCheck(errorPrefix + user.specificExpectedResults.get.expectedTitle)
+            h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+            textOnPageCheck(expectedCaption, captionSelector)
+            textOnPageCheck(expectedInputHintText, inputHintTextSelector)
+            inputFieldCheck(expectedInputName, inputFieldSelector)
+            buttonCheck(expectedButtonText, buttonSelector)
+            welshToggleCheck(user.isWelsh)
+
+            errorSummaryCheck(expectedLengthError, Selectors.inputFieldSelector)
+            errorAboveElementCheck(expectedLengthError)
+          }
+
+          "the submitted data is in the incorrect format" which {
+            lazy val form: Map[String, Seq[String]] = Map("name" -> Seq(":@~{}<>?"))
+
+            lazy val result: WSResponse = {
+              authoriseAgentOrIndividual(user.isAgent)
+              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+            }
+
+            implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+            import Selectors._
+            import user.commonExpectedResults._
+
+            titleCheck(errorPrefix + user.specificExpectedResults.get.expectedTitle)
+            h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+            textOnPageCheck(expectedCaption, captionSelector)
+            textOnPageCheck(expectedInputHintText, inputHintTextSelector)
+            inputFieldCheck(expectedInputName, inputFieldSelector)
+            buttonCheck(expectedButtonText, buttonSelector)
+            welshToggleCheck(user.isWelsh)
+
+            errorSummaryCheck(expectedInvalidError, Selectors.inputFieldSelector)
+            errorAboveElementCheck(expectedInvalidError)
+          }
+
+          "the submitted data is a duplicate name" which {
+            lazy val form: Map[String, Seq[String]] = Map("name" -> Seq("dupe"))
+
+            lazy val result: WSResponse = {
+              authoriseAgentOrIndividual(user.isAgent)
+              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear, Map(GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString()))))
+            }
+
+            implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+            import Selectors._
+            import user.commonExpectedResults._
+
+            titleCheck(errorPrefix + user.specificExpectedResults.get.expectedTitle)
+            h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+            textOnPageCheck(expectedCaption, captionSelector)
+            textOnPageCheck(expectedInputHintText, inputHintTextSelector)
+            inputFieldCheck(expectedInputName, inputFieldSelector)
+            buttonCheck(expectedButtonText, buttonSelector)
+            welshToggleCheck(user.isWelsh)
+
+            errorSummaryCheck(expectedDuplicateError, Selectors.inputFieldSelector)
+            errorAboveElementCheck(expectedDuplicateError)
+          }
+        }
+      }
+    }
+  }
 }
