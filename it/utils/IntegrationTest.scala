@@ -19,6 +19,7 @@ package utils
 import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
 import common.SessionValues
+import common.SessionValues.GIFT_AID_PRIOR_SUB
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import helpers.{PlaySessionCookieBaker, WireMockHelper}
@@ -28,6 +29,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Result}
 import play.api.{Application, Environment, Mode}
@@ -154,11 +156,10 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     )) and Some(AffinityGroup.Individual) and ConfidenceLevel.L200
   )
 
-  def playSessionCookies(taxYear: Int): String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+  def playSessionCookies(taxYear: Int, extraData: Map[String, String] = Map()): String = PlaySessionCookieBaker.bakeSessionCookie(Map(
     SessionValues.TAX_YEAR -> taxYear.toString,
     SessionKeys.sessionId -> sessionId,
     SessionValues.CLIENT_NINO -> "AA123456A",
     SessionValues.CLIENT_MTDITID -> "1234567890"
-  ))
-
+  ) ++ extraData)
 }

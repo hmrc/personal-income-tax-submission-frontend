@@ -16,25 +16,64 @@
 
 package controllers.charity
 
-import common.SessionValues
 import common.SessionValues.GIFT_AID_PRIOR_SUB
 import forms.YesNoForm
-import helpers.PlaySessionCookieBaker
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.json.Json
-import play.api.libs.ws.{WSClient, WSResponse}
+import play.api.libs.ws.WSResponse
 import utils.{IntegrationTest, ViewHelpers}
 
 class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers {
 
-  lazy val controller: GiftAidLastTaxYearController = app.injector.instanceOf[GiftAidLastTaxYearController]
   val taxYear: Int = 2022
 
-  object IndividualExpected {
+  val testModel: GiftAidSubmissionModel =
+    GiftAidSubmissionModel(Some(GiftAidPaymentsModel(None, Some(List("JaneDoe")), None, Some(150.00), None, None)),None)
+
+  def url: String = s"$appUrl/$taxYear/charity/add-charity-donations-to-last-tax-year"
+
+  object Selectors {
+    val continueSelector = "#continue"
+    val captionSelector: String = ".govuk-caption-l"
+    val contentSelector1: String = "#main-content > div > div > form > div > fieldset > legend > div > p:nth-child(1)"
+    val contentSelector2: String = "#main-content > div > div > form > div > fieldset > legend > div > p:nth-child(2)"
+    val errorSummaryHref = "#value"
+  }
+
+  trait SpecificExpectedResults {
+    val expectedTitle: String
+    val expectedH1: String
+    val expectedError: String
+    val expectedContent1: String
+    val expectedContent2: String
+  }
+
+  trait CommonExpectedResults {
+    val expectedCaption: String
+    val yesText: String
+    val noText: String
+    val expectedContinue: String
+  }
+
+  object CommonExpectedEN extends CommonExpectedResults {
+    val expectedCaption: String = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val yesText = "Yes"
+    val noText = "No"
+    val expectedContinue = "Continue"
+  }
+
+  object CommonExpectedCY extends CommonExpectedResults {
+    val expectedCaption: String = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val yesText = "Yes"
+    val noText = "No"
+    val expectedContinue = "Continue"
+  }
+
+  object ExpectedIndividualEN extends SpecificExpectedResults {
     val expectedTitle: String = "Do you want to add any of your donations to the last tax year?"
     val expectedH1: String = "Do you want to add any of your donations to the last tax year?"
     val expectedError: String = "Select yes to add any of your donations to the last tax year"
@@ -43,7 +82,7 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
     val expectedContent2: String = "You might want to do this if you paid higher rate tax last year but will not this year."
   }
 
-  object AgentExpected {
+  object ExpectedAgentEN extends SpecificExpectedResults {
     val expectedTitle: String = "Do you want to add any of your client’s donations to the last tax year?"
     val expectedH1: String = "Do you want to add any of your client’s donations to the last tax year?"
     val expectedError: String = "Select yes to add any of your client’s donations to the last tax year"
@@ -52,241 +91,130 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
     val expectedContent2: String = "You might want to do this if your client paid higher rate tax last year but will not this year."
   }
 
-  val expectedCaption: String = "Donations to charity for 6 April 2021 to 5 April 2022"
-  val yesText = "Yes"
-  val noText = "No"
-  val expectedContinue = "Continue"
+  object ExpectedIndividualCY extends SpecificExpectedResults {
+    val expectedTitle: String = "Do you want to add any of your donations to the last tax year?"
+    val expectedH1: String = "Do you want to add any of your donations to the last tax year?"
+    val expectedError: String = "Select yes to add any of your donations to the last tax year"
+    val expectedContent1: String = "You told us you donated £150 to charity by using Gift Aid. You can add some of this donation" +
+      " to the 6 April 2020 to 5 April 2021 tax year."
+    val expectedContent2: String = "You might want to do this if you paid higher rate tax last year but will not this year."
+  }
 
-  val continueSelector = "#continue"
-  val captionSelector: String = ".govuk-caption-l"
-  val contentSelector1: String = "#main-content > div > div > form > div > fieldset > legend > div > p:nth-child(1)"
-  val contentSelector2: String = "#main-content > div > div > form > div > fieldset > legend > div > p:nth-child(2)"
-  val errorSummaryHref = "#value"
+  object ExpectedAgentCY extends SpecificExpectedResults {
+    val expectedTitle: String = "Do you want to add any of your client’s donations to the last tax year?"
+    val expectedH1: String = "Do you want to add any of your client’s donations to the last tax year?"
+    val expectedError: String = "Select yes to add any of your client’s donations to the last tax year"
+    val expectedContent1: String = "You told us your client donated £150 to charity by using Gift Aid. You can add some of this donation" +
+      " to the 6 April 2020 to 5 April 2021 tax year."
+    val expectedContent2: String = "You might want to do this if your client paid higher rate tax last year but will not this year."
+  }
 
-  val testModel: GiftAidSubmissionModel =
-    GiftAidSubmissionModel(Some(GiftAidPaymentsModel(None, Some(List("JaneDoe")), None, Some(150.00), None, None)),None)
+  val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
+    Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
+      UserScenario(isWelsh = false, isAgent = true,  CommonExpectedEN, Some(ExpectedAgentEN)),
+      UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, Some(ExpectedIndividualCY)),
+      UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
+  }
 
+  ".show" when {
 
-    "as an individual" when {
-    import IndividualExpected._
+    userScenarios.foreach { user =>
+      s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
-      val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-        GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString()
-      ))
-      ".show" should {
+        "return a redirect when no data" in {
 
-        "returns an action" which {
           lazy val result: WSResponse = {
-            authoriseIndividual()
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/add-charity-donations-to-last-tax-year")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-              .get())
+            authoriseAgentOrIndividual(user.isAgent)
+            urlGet(url, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
           }
+
+          result.status shouldBe SEE_OTHER
+        }
+
+        "render the page with correct content" which {
+          lazy val result: WSResponse = {
+            authoriseAgentOrIndividual(user.isAgent)
+            urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear, Map(GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString()))))
+          }
+
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-          "has an OK(200) status" in {
-            result.status shouldBe OK
-          }
+          import Selectors._
+          import user.commonExpectedResults._
 
-          titleCheck(expectedTitle)
-          welshToggleCheck("English")
-          h1Check(expectedH1 + " " + expectedCaption)
+          titleCheck(user.specificExpectedResults.get.expectedTitle)
+          h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
-          textOnPageCheck(expectedContent1, contentSelector1)
-          textOnPageCheck(expectedContent2, contentSelector2)
+          textOnPageCheck(user.specificExpectedResults.get.expectedContent1, contentSelector1)
+          textOnPageCheck(user.specificExpectedResults.get.expectedContent2, contentSelector2)
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
           buttonCheck(expectedContinue, continueSelector)
-
-        }
-        "returns an redirect" which {
-          lazy val result: WSResponse = {
-            authoriseIndividual()
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/add-charity-donations-to-last-tax-year")
-              .withHttpHeaders("Csrf-Token" -> "nocheck")
-              .get())
-          }
-          "has an Bad_request status" in {
-            result.status shouldBe NOT_FOUND
-            result.uri.toString shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
-          }
-        }
-
-      }
-
-      ".submit" should {
-
-        s"return an OK($OK) status" which {
-          lazy val result: WSResponse = {
-            authoriseIndividual()
-            await(
-              wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/add-charity-donations-to-last-tax-year")
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-                .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
-            )
-          }
-          "has an OK(200) status" in {
-            result.status shouldBe OK
-          }
-        }
-
-        s"return a BAD_REQUEST($BAD_REQUEST) status" which {
-          lazy val result: WSResponse = {
-            authoriseIndividual()
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/add-charity-donations-to-last-tax-year")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-              .post(Map[String, String]()))
-          }
-          implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-          "has an BAD_REQUEST status" in {
-            result.status shouldBe BAD_REQUEST
-          }
-
-          errorSummaryCheck(expectedError,errorSummaryHref)
-          errorAboveElementCheck(expectedError)
-        }
-        s"return a redirect when without session data" which {
-          lazy val result: WSResponse = {
-            authoriseIndividual()
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/add-charity-donations-to-last-tax-year")
-              .withHttpHeaders("Csrf-Token" -> "nocheck")
-              .post(Map[String, String]()))
-          }
-
-          "has an NOT_FOUND status and redirect to overview page" in {
-            result.status shouldBe NOT_FOUND
-            result.uri.toString shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
-          }
-
-        }
-
-      }
-
-    }
-
-  "as an agent" when {
-  import AgentExpected._
-    ".show" should {
-
-      "returns an action" which {
-        lazy val result: WSResponse = {
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A",
-            GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString()
-          ))
-
-          authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/add-charity-donations-to-last-tax-year")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
-            .get())
-        }
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-        "has an OK(200) status" in {
-          result.status shouldBe OK
-        }
-        titleCheck(expectedTitle)
-        welshToggleCheck("English")
-        h1Check(expectedH1 + " " + expectedCaption)
-        textOnPageCheck(expectedCaption, captionSelector)
-        textOnPageCheck(expectedContent1, contentSelector1)
-        textOnPageCheck(expectedContent2, contentSelector2)
-        radioButtonCheck(yesText, 1)
-        radioButtonCheck(noText, 2)
-        buttonCheck(expectedContinue, continueSelector)
-      }
-      "returns an redirect" which {
-        lazy val result: WSResponse = {
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A",
-          ))
-
-          authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/add-charity-donations-to-last-tax-year")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
-            .get())
-        }
-        "has an NOT_FOUND status" in {
-          result.status shouldBe NOT_FOUND
-          result.uri.toString shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+          noErrorsCheck()
+          welshToggleCheck(user.isWelsh)
         }
       }
     }
-
-    ".submit" should {
-
-      s"return an OK($OK) status" when {
-
-        "there is form data" in {
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A",
-              GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString()
-            ))
-
-            authoriseAgent()
-            await(
-              wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/add-charity-donations-to-last-tax-year")
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-                .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
-            )
-          }
-
-          result.status shouldBe OK
-        }
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status" when {
-
-        "there is no form data" which {
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A",
-              GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString()
-            ))
-
-            authoriseAgent()
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/add-charity-donations-to-last-tax-year")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-              .post(Map[String, String]()))
-          }
-          implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-          "has an BAD_REQUEST status" in {
-            result.status shouldBe BAD_REQUEST
-          }
-
-          errorSummaryCheck(expectedError,errorSummaryHref)
-          errorAboveElementCheck(expectedError)
-        }
-      }
-      s"return a redirect when without session data" which {
-        lazy val result: WSResponse = {
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A",
-          ))
-
-          authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/add-charity-donations-to-last-tax-year")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-            .post(Map[String, String]()))
-        }
-
-        "has an NOT_FOUND status and redirect to overview page" in {
-          result.status shouldBe NOT_FOUND
-          result.uri.toString shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
-        }
-
-      }
-
-    }
-
   }
 
+  ".submit" when {
+
+    userScenarios.foreach { user =>
+      s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
+
+        "return an OK" in {
+          lazy val form: Map[String, Seq[String]] = Map(YesNoForm.yesNo -> Seq(YesNoForm.yes))
+
+          lazy val result: WSResponse = {
+            authoriseAgentOrIndividual(user.isAgent)
+            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear, Map(GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString()))))
+          }
+
+          result.status shouldBe OK
+        }
+
+        "return a redirect when no data with an invalid form" in {
+          lazy val form: Map[String, Seq[String]] = Map(YesNoForm.yesNo -> Seq(""))
+
+          lazy val result: WSResponse = {
+            authoriseAgentOrIndividual(user.isAgent)
+            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+          }
+
+          result.status shouldBe SEE_OTHER
+        }
+
+        "no radio button has been selected" should {
+
+          lazy val form: Map[String, Seq[String]] = Map(YesNoForm.yesNo -> Seq(""))
+
+          lazy val result: WSResponse = {
+            authoriseAgentOrIndividual(user.isAgent)
+            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear, Map(GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString()))))
+          }
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import Selectors._
+          import user.commonExpectedResults._
+
+          titleCheck(errorPrefix + user.specificExpectedResults.get.expectedTitle)
+          h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+          textOnPageCheck(expectedCaption, captionSelector)
+          textOnPageCheck(user.specificExpectedResults.get.expectedContent1, contentSelector1)
+          textOnPageCheck(user.specificExpectedResults.get.expectedContent2, contentSelector2)
+          radioButtonCheck(yesText, 1)
+          radioButtonCheck(noText, 2)
+          buttonCheck(expectedContinue, continueSelector)
+          errorSummaryCheck(user.specificExpectedResults.get.expectedError, errorSummaryHref)
+          errorAboveElementCheck(user.specificExpectedResults.get.expectedError)
+          welshToggleCheck(user.isWelsh)
+
+          "return a BAD_REQUEST" in {
+            result.status shouldBe BAD_REQUEST
+          }
+        }
+      }
+    }
+  }
 }

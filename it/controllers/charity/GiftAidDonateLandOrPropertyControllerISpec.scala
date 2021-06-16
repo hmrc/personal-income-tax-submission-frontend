@@ -28,449 +28,155 @@ import utils.{IntegrationTest, ViewHelpers}
 
 class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with ViewHelpers {
 
-  object IndividualExpectedEN {
-    val expectedH1 = "Did you donate land or property to charity?"
-    val expectedTitle = "Did you donate land or property to charity?"
-    val expectedError: String = "Select yes if you donated land or property to charity"
-    val expectedErrorTitle = s"Error: $expectedTitle"
-  }
-
-  object AgentExpectedEN {
-    val expectedTitle: String = "Did your client donate land or property to charity?"
-    val expectedH1: String = "Did your client donate land or property to charity?"
-    val expectedError: String = "Select yes if your client donated land or property to charity"
-    val expectedErrorTitle = s"Error: $expectedTitle"
-  }
-
-  object IndividualExpectedCY {
-    val expectedH1 = "Did you donate land or property to charity?"
-    val expectedTitle = "Did you donate land or property to charity?"
-    val expectedError: String = "Select yes if you donated land or property to charity"
-    val expectedErrorTitle = s"Error: $expectedTitle"
-  }
-
-  object AgentExpectedCY {
-    val expectedTitle: String = "Did your client donate land or property to charity?"
-    val expectedH1: String = "Did your client donate land or property to charity?"
-    val expectedError: String = "Select yes if your client donated land or property to charity"
-    val expectedErrorTitle = s"Error: $expectedTitle"
-  }
-
   val taxYear: Int = 2022
   val taxYearMinusOne: Int = taxYear - 1
 
-  val captionTextEN = s"Donations to charity for 6 April $taxYearMinusOne to 5 April $taxYear"
-  val yesTextEN = "Yes"
-  val noTextEN = "No"
-  val continueTextEN = "Continue"
+  def url: String = s"$appUrl/$taxYear/charity/donation-of-land-or-property"
 
-  val captionTextCY = s"Donations to charity for 6 April $taxYearMinusOne to 5 April $taxYear"
-  val yesTextCY = "Yes"
-  val noTextCY = "No"
-  val continueTextCY = "Continue"
-  
-  val captionSelector = ".govuk-caption-l"
-  val continueSelector = "#continue"
-  val continueButtonFormSelector = "#main-content > div > div > form"
-  val errorSummaryHref = "#value"
+  object Selectors {
+    val captionSelector = ".govuk-caption-l"
+    val continueSelector = "#continue"
+    val continueButtonFormSelector = "#main-content > div > div > form"
+    val errorSummaryHref = "#value"
+  }
 
-  lazy val controller: GiftAidDonateLandOrPropertyController = app.injector.instanceOf[GiftAidDonateLandOrPropertyController]
+  trait SpecificExpectedResults {
+    val expectedH1: String
+    val expectedTitle: String
+    val expectedError: String
+    val expectedErrorTitle: String
+  }
 
-  "in english" when {
+  trait CommonExpectedResults {
+    val captionText: String
+    val yesText: String
+    val noText: String
+    val continueText: String
+  }
 
-    "as an individual" when {
-      import IndividualExpectedEN._
+  object CommonExpectedEN extends CommonExpectedResults {
+    val captionText = s"Donations to charity for 6 April $taxYearMinusOne to 5 April $taxYear"
+    val yesText = "Yes"
+    val noText = "No"
+    val continueText = "Continue"
+  }
 
-      ".show is called" should {
+  object CommonExpectedCY extends CommonExpectedResults {
+    val captionText = s"Donations to charity for 6 April $taxYearMinusOne to 5 April $taxYear"
+    val yesText = "Yes"
+    val noText = "No"
+    val continueText = "Continue"
+  }
 
-        "return a page" which {
+  object ExpectedIndividualEN extends SpecificExpectedResults {
+    val expectedH1 = "Did you donate land or property to charity?"
+    val expectedTitle = "Did you donate land or property to charity?"
+    val expectedError: String = "Select yes if you donated land or property to charity"
+    val expectedErrorTitle = s"Error: $expectedTitle"
+  }
+
+  object ExpectedAgentEN extends SpecificExpectedResults {
+    val expectedTitle: String = "Did your client donate land or property to charity?"
+    val expectedH1: String = "Did your client donate land or property to charity?"
+    val expectedError: String = "Select yes if your client donated land or property to charity"
+    val expectedErrorTitle = s"Error: $expectedTitle"
+  }
+
+  object ExpectedIndividualCY extends SpecificExpectedResults {
+    val expectedH1 = "Did you donate land or property to charity?"
+    val expectedTitle = "Did you donate land or property to charity?"
+    val expectedError: String = "Select yes if you donated land or property to charity"
+    val expectedErrorTitle = s"Error: $expectedTitle"
+  }
+
+  object ExpectedAgentCY extends SpecificExpectedResults {
+    val expectedTitle: String = "Did your client donate land or property to charity?"
+    val expectedH1: String = "Did your client donate land or property to charity?"
+    val expectedError: String = "Select yes if your client donated land or property to charity"
+    val expectedErrorTitle = s"Error: $expectedTitle"
+  }
+
+  val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
+    Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
+      UserScenario(isWelsh = false, isAgent = true,  CommonExpectedEN, Some(ExpectedAgentEN)),
+      UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, Some(ExpectedIndividualCY)),
+      UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
+  }
+
+  ".show" when {
+
+    userScenarios.foreach { user =>
+      s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
+
+        "render the page with correct content" which {
           lazy val result: WSResponse = {
-            authoriseIndividual()
-            await(wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property"
-            )
-              .get())
+            authoriseAgentOrIndividual(user.isAgent)
+            urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
           }
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-          "has an OK(200) status" in {
-            result.status shouldBe OK
-          }
+          import Selectors._
+          import user.commonExpectedResults._
 
-          "has the following page elements" which {
-            titleCheck(expectedTitle)
-            h1Check(expectedH1 + " " + captionTextEN)
-            textOnPageCheck(captionTextEN, captionSelector)
-            radioButtonCheck(yesTextEN, 1)
-            radioButtonCheck(noTextEN, 2)
-            buttonCheck(continueTextEN, continueSelector)
-
-            noErrorsCheck()
-
-            welshToggleCheck(ENGLISH)
-          }
+          titleCheck(user.specificExpectedResults.get.expectedTitle)
+          h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)
+          textOnPageCheck(captionText, captionSelector)
+          radioButtonCheck(yesText, 1)
+          radioButtonCheck(noText, 2)
+          buttonCheck(continueText, continueSelector)
+          noErrorsCheck()
+          welshToggleCheck(user.isWelsh)
         }
       }
-
-      ".submit is called" should {
-
-        s"return an OK($OK) status" when {
-
-          "there is form data" in {
-
-            lazy val result: WSResponse = {
-              authoriseIndividual()
-              await(
-                wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
-                  .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
-              )
-            }
-
-            result.status shouldBe OK
-          }
-        }
-
-        s"return an error page" when {
-
-          "there is no form data" which {
-
-            lazy val result: WSResponse = {
-              authoriseIndividual()
-              await(wsClient.url(
-                s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property"
-              )
-                .post(Map[String, String]()))
-            }
-
-            implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-            s"has a BAD_REQUEST($BAD_REQUEST) status" in {
-              result.status shouldBe BAD_REQUEST
-            }
-
-            s"has the following elements" which {
-              titleCheck(expectedErrorTitle)
-              h1Check(expectedH1 + " " + captionTextEN)
-              textOnPageCheck(captionTextEN, captionSelector)
-              errorSummaryCheck(expectedError, errorSummaryHref)
-              errorAboveElementCheck(expectedError)
-              radioButtonCheck(yesTextEN, 1)
-              radioButtonCheck(noTextEN, 2)
-              buttonCheck(continueTextEN, continueSelector)
-
-              welshToggleCheck(ENGLISH)
-            }
-          }
-        }
-
-      }
-
-    }
-
-    "as an agent" when {
-      import AgentExpectedEN._
-
-      ".show is called" should {
-
-        "return a page" which {
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"
-            ))
-
-            authoriseAgent()
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
-              .get())
-          }
-
-          implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-          "has an OK(200) status" in {
-            result.status shouldBe OK
-          }
-
-          "has the following page elements" which {
-            titleCheck(expectedTitle)
-            h1Check(expectedH1 + " " + captionTextEN)
-            textOnPageCheck(captionTextEN, captionSelector)
-            radioButtonCheck(yesTextEN, 1)
-            radioButtonCheck(noTextEN, 2)
-            buttonCheck(continueTextEN, continueSelector)
-
-            noErrorsCheck()
-
-            welshToggleCheck(ENGLISH)
-          }
-        }
-      }
-
-      ".submit is called" should {
-
-        s"return an OK($OK) status" when {
-
-          "there is form data" in {
-            lazy val result: WSResponse = {
-              lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-                SessionValues.CLIENT_MTDITID -> "1234567890",
-                SessionValues.CLIENT_NINO -> "AA123456A"))
-
-              authoriseAgent()
-              await(
-                wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
-                  .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-                  .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
-              )
-            }
-
-            result.status shouldBe OK
-          }
-        }
-
-        s"return an error page" when {
-
-          "there is no form data" which {
-            lazy val result: WSResponse = {
-              lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-                SessionValues.CLIENT_MTDITID -> "1234567890",
-                SessionValues.CLIENT_NINO -> "AA123456A"
-              ))
-
-              authoriseAgent()
-              await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-                .post(Map[String, String]()))
-            }
-
-            implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-            s"has a BAD_REQUEST($BAD_REQUEST) status" in {
-              result.status shouldBe BAD_REQUEST
-            }
-
-            "has the following page elements" which {
-              titleCheck(expectedErrorTitle)
-              h1Check(expectedH1 + " " + captionTextEN)
-              textOnPageCheck(captionTextEN, captionSelector)
-              errorSummaryCheck(expectedError, errorSummaryHref)
-              errorAboveElementCheck(expectedError)
-              radioButtonCheck(yesTextEN, 1)
-              radioButtonCheck(noTextEN, 2)
-              buttonCheck(continueTextEN, continueSelector)
-
-              welshToggleCheck(ENGLISH)
-            }
-          }
-        }
-
-      }
-
     }
   }
 
-  "in welsh" when {
+  ".submit" when {
 
-    "as an individual" when {
-      import IndividualExpectedCY._
+    userScenarios.foreach { user =>
+      s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
-      ".show is called" should {
+        "return an OK" in {
+          lazy val form: Map[String, Seq[String]] = Map(YesNoForm.yesNo -> Seq(YesNoForm.yes))
 
-        "return a page" which {
           lazy val result: WSResponse = {
-            authoriseIndividual()
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
-              .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
-              .get())
+            authoriseAgentOrIndividual(user.isAgent)
+            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+          }
+
+          result.status shouldBe OK
+        }
+
+        "no radio button has been selected" should {
+
+          lazy val form: Map[String, Seq[String]] = Map(YesNoForm.yesNo -> Seq(""))
+
+          lazy val result: WSResponse = {
+            authoriseAgentOrIndividual(user.isAgent)
+            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
           }
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-          "has an OK(200) status" in {
-            result.status shouldBe OK
-          }
+          import Selectors._
+          import user.commonExpectedResults._
 
-          "has the following page elements" which {
-            titleCheck(expectedTitle)
-            h1Check(expectedH1 + " " + captionTextCY)
-            textOnPageCheck(captionTextCY, captionSelector)
-            radioButtonCheck(yesTextCY, 1)
-            radioButtonCheck(noTextCY, 2)
-            buttonCheck(continueTextCY, continueSelector)
+          titleCheck(user.specificExpectedResults.get.expectedErrorTitle)
+          h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)
+          textOnPageCheck(captionText, captionSelector)
+          radioButtonCheck(yesText, 1)
+          radioButtonCheck(noText, 2)
+          buttonCheck(continueText, continueSelector)
+          welshToggleCheck(user.isWelsh)
+          errorSummaryCheck(user.specificExpectedResults.get.expectedError, Selectors.errorSummaryHref)
+          errorAboveElementCheck(user.specificExpectedResults.get.expectedError)
 
-            noErrorsCheck()
-
-            welshToggleCheck(WELSH)
-          }
-        }
-      }
-
-      ".submit is called" should {
-
-        s"return an OK($OK) status" when {
-
-          "there is form data" in {
-
-            lazy val result: WSResponse = {
-              authoriseIndividual()
-              await(
-                wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
-                  .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
-                  .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
-              )
-            }
-
-            result.status shouldBe OK
-          }
-        }
-
-        s"return an error page" when {
-
-          "there is no form data" which {
-
-            lazy val result: WSResponse = {
-              authoriseIndividual()
-              await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
-                .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
-                .post(Map[String, String]()))
-            }
-
-            implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-            s"has a BAD_REQUEST($BAD_REQUEST) status" in {
-              result.status shouldBe BAD_REQUEST
-            }
-
-            s"has the following elements" which {
-              titleCheck(expectedErrorTitle)
-              h1Check(expectedH1 + " " + captionTextCY)
-              textOnPageCheck(captionTextCY, captionSelector)
-              errorSummaryCheck(expectedError, errorSummaryHref)
-              errorAboveElementCheck(expectedError)
-              radioButtonCheck(yesTextCY, 1)
-              radioButtonCheck(noTextCY, 2)
-              buttonCheck(continueTextCY, continueSelector)
-
-              welshToggleCheck(WELSH)
-            }
-          }
-        }
-
-      }
-
-    }
-
-    "as an agent" when {
-      import AgentExpectedCY._
-
-      ".show is called" should {
-
-        "return a page" which {
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"
-            ))
-
-            authoriseAgent()
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
-              .withHttpHeaders(
-                HeaderNames.COOKIE -> sessionCookie,
-                HeaderNames.ACCEPT_LANGUAGE -> "cy"
-              )
-              .get())
-          }
-
-          implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-          "has an OK(200) status" in {
-            result.status shouldBe OK
-          }
-
-          "has the following page elements" which {
-            titleCheck(expectedTitle)
-            h1Check(expectedH1 + " " + captionTextCY)
-            textOnPageCheck(captionTextCY, captionSelector)
-            radioButtonCheck(yesTextCY, 1)
-            radioButtonCheck(noTextCY, 2)
-            buttonCheck(continueTextCY, continueSelector)
-
-            noErrorsCheck()
-
-            welshToggleCheck(WELSH)
+          "return a BAD_REQUEST" in {
+            result.status shouldBe BAD_REQUEST
           }
         }
       }
-
-      ".submit is called" should {
-
-        s"return an OK($OK) status" when {
-
-          "there is form data" in {
-            lazy val result: WSResponse = {
-              lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-                SessionValues.CLIENT_MTDITID -> "1234567890",
-                SessionValues.CLIENT_NINO -> "AA123456A"))
-
-              authoriseAgent()
-              await(
-                wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
-                  .withHttpHeaders(
-                    HeaderNames.COOKIE -> sessionCookie,
-                    "Csrf-Token" -> "nocheck",
-                    HeaderNames.ACCEPT_LANGUAGE -> "cy"
-                  )
-                  .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
-              )
-            }
-
-            result.status shouldBe OK
-          }
-        }
-
-        s"return an error page" when {
-
-          "there is no form data" which {
-            lazy val result: WSResponse = {
-              lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-                SessionValues.CLIENT_MTDITID -> "1234567890",
-                SessionValues.CLIENT_NINO -> "AA123456A"
-              ))
-
-              authoriseAgent()
-              await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
-                .withHttpHeaders(
-                  HeaderNames.COOKIE -> sessionCookie,
-                  "Csrf-Token" -> "nocheck",
-                  HeaderNames.ACCEPT_LANGUAGE -> "cy"
-              )
-                .post(Map[String, String]()))
-            }
-
-            implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-            s"has a BAD_REQUEST($BAD_REQUEST) status" in {
-              result.status shouldBe BAD_REQUEST
-            }
-
-            "has the following page elements" which {
-              titleCheck(expectedErrorTitle)
-              h1Check(expectedH1 + " " + captionTextCY)
-              textOnPageCheck(captionTextCY, captionSelector)
-              errorSummaryCheck(expectedError, errorSummaryHref)
-              errorAboveElementCheck(expectedError)
-              radioButtonCheck(yesTextCY, 1)
-              radioButtonCheck(noTextCY, 2)
-              buttonCheck(continueTextCY, continueSelector)
-
-              welshToggleCheck(WELSH)
-            }
-          }
-        }
-
-      }
-
     }
   }
 }
