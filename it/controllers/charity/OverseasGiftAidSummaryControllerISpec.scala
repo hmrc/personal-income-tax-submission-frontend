@@ -16,209 +16,185 @@
 
 package controllers.charity
 
-import common.SessionValues
 import forms.YesNoForm
-import helpers.PlaySessionCookieBaker
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
-import play.api.http.Status.{BAD_REQUEST, OK, UNAUTHORIZED}
-import play.api.libs.ws.WSClient
-import utils.IntegrationTest
+import play.api.http.Status.SEE_OTHER
+import play.api.libs.ws.WSResponse
+import utils.{IntegrationTest, ViewHelpers}
 
-class OverseasGiftAidSummaryControllerISpec extends IntegrationTest {
+class OverseasGiftAidSummaryControllerISpec extends IntegrationTest with ViewHelpers {
 
   object Selectors {
-    val heading = "h1"
-    val caption = ".govuk-caption-l"
-    val charity1 = ".hmrc-add-to-a-list__contents:nth-child(1) > .hmrc-add-to-a-list__identifier"
-    val charity2 = ".hmrc-add-to-a-list__contents:nth-child(2) > .hmrc-add-to-a-list__identifier"
-    val change1 = ".hmrc-add-to-a-list__contents:nth-child(1) > .hmrc-add-to-a-list__change > a > span:nth-child(1)"
-    val change1hidden = ".hmrc-add-to-a-list__contents:nth-child(1) > .hmrc-add-to-a-list__change > a > span:nth-child(2)"
-    val change2 = ".hmrc-add-to-a-list__contents:nth-child(2) > .hmrc-add-to-a-list__change > a > span:nth-child(1)"
-    val change2hidden = ".hmrc-add-to-a-list__contents:nth-child(2) > .hmrc-add-to-a-list__change > a > span:nth-child(2)"
-    val remove1 = ".hmrc-add-to-a-list__contents:nth-child(1) > .hmrc-add-to-a-list__remove > a > span:nth-child(1)"
-    val remove1hidden = ".hmrc-add-to-a-list__contents:nth-child(1) > .hmrc-add-to-a-list__remove > a > span:nth-child(2)"
-    val remove2 = ".hmrc-add-to-a-list__contents:nth-child(2) > .hmrc-add-to-a-list__remove > a > span:nth-child(1)"
-    val remove2hidden = ".hmrc-add-to-a-list__contents:nth-child(2) > .hmrc-add-to-a-list__remove > a > span:nth-child(2)"
     val question = ".govuk-fieldset__legend"
-    val hint = "#value-hint"
-    val yesRadio = ".govuk-radios__item:nth-child(1) > label"
-    val noRadio = ".govuk-radios__item:nth-child(2) > label"
-    val errorSummary = "#error-summary-title"
-    val noSelectionError = ".govuk-error-summary__body > ul > li > a"
-    val errorMessage = "#value-error"
   }
 
-  object Content {
-    val heading = "Overseas charities you used Gift Aid to donate to"
-    val headingAgent = "Overseas charities your client used Gift Aid to donate to"
-    val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
-    val charity1 = "overseasCharity1"
-    val charity2 = "overseasCharity2"
-    val question = "Do you need to add another overseas charity?"
-    val hint = "You must tell us about all the overseas charities you donated to."
-    val hintAgent = "You must tell us about all the overseas charities your client donated to."
-    val change = "Change"
-    val remove = "Remove"
-    val hiddenChange1 = "Change details you’ve entered for overseasCharity1"
-    val hiddenRemove1 = "Remove overseasCharity1"
-    val hiddenChange2 = "Change details you’ve entered for overseasCharity2"
-    val hiddenRemove2 = "Remove overseasCharity2"
-    val yes = "Yes"
-    val no = "No"
-    val errorSummary = "There is a problem"
-    val noSelectionError = "Select yes if you need to add another overseas charity"
-  }
+  val charity1 = "overseasCharity1"
+  val charity2 = "overseasCharity2"
 
   val taxYear: Int = 2022
 
-  val overseasGiftAidSummaryUrl = s"$appUrl/$taxYear/charity/overseas-charities-donated-to"
+  def url: String = s"$appUrl/$taxYear/charity/overseas-charities-donated-to"
 
-  "Calling GET /charity/overseas-charities-donated-to" when {
+  trait SpecificExpectedResults {
+    val headingSingle: String
+    val headingMultiple: String
+    val hint: String
+  }
 
-    "the user is authorised" when {
+  trait CommonExpectedResults {
+    val caption: String
+    val question: String
+    val yes: String
+    val no: String
+    val errorSummary: String
+    val change: String
+    val remove: String
+    val hiddenChange1: String
+    val hiddenRemove1: String
+    val hiddenChange2: String
+    val hiddenRemove2: String
+    val noSelectionError: String
+    val button: String
+  }
 
-      "the user is a non-agent" should {
+  object CommonExpectedEN extends CommonExpectedResults {
+    val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val question = "Do you need to add another overseas charity?"
+    val yes = "Yes"
+    val no = "No"
+    val errorSummary = "There is a problem"
+    val change = "Change"
+    val remove = "Remove"
+    val hiddenChange1 = s"Change the details you’ve entered for $charity1."
+    val hiddenRemove1 = s"Remove $charity1."
+    val hiddenChange2 = s"Change the details you’ve entered for $charity2."
+    val hiddenRemove2 = s"Remove $charity2."
+    val noSelectionError = "Select yes if you need to add another overseas charity"
+    val button = "Continue"
+  }
 
-        lazy val result = {
-          authoriseIndividual()
-          await(wsClient.url(overseasGiftAidSummaryUrl)
-            .withHttpHeaders("Csrf-Token" -> "nocheck")
-            .get())
+  object CommonExpectedCY extends CommonExpectedResults {
+    val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val question = "Do you need to add another overseas charity?"
+    val yes = "Yes"
+    val no = "No"
+    val errorSummary = "There is a problem"
+    val change = "Change"
+    val remove = "Remove"
+    val hiddenChange1 = s"Change the details you’ve entered for $charity1."
+    val hiddenRemove1 = s"Remove $charity1."
+    val hiddenChange2 = s"Change the details you’ve entered for $charity2."
+    val hiddenRemove2 = s"Remove $charity2."
+    val noSelectionError = "Select yes if you need to add another overseas charity"
+    val button = "Continue"
+  }
+
+  object ExpectedIndividualEN extends SpecificExpectedResults {
+    val headingSingle = "Overseas charities you used Gift Aid to donate to"
+    val headingMultiple = "Overseas charities you used Gift Aid to donate to"
+    val hint = "You must tell us about all the overseas charities you donated to."
+  }
+
+  object ExpectedAgentEN extends SpecificExpectedResults {
+    val headingSingle = "Overseas charities your client used Gift Aid to donate to"
+    val headingMultiple = "Overseas charities your client used Gift Aid to donate to"
+    val hint = "You must tell us about all the overseas charities your client donated to."
+  }
+
+  object ExpectedIndividualCY extends SpecificExpectedResults {
+    val headingSingle = "Overseas charities you used Gift Aid to donate to"
+    val headingMultiple = "Overseas charities you used Gift Aid to donate to"
+    val hint = "You must tell us about all the overseas charities you donated to."
+  }
+
+  object ExpectedAgentCY extends SpecificExpectedResults {
+    val headingSingle = "Overseas charities your client used Gift Aid to donate to"
+    val headingMultiple = "Overseas charities your client used Gift Aid to donate to"
+    val hint = "You must tell us about all the overseas charities your client donated to."
+  }
+
+  val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
+    Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
+      UserScenario(isWelsh = false, isAgent = true,  CommonExpectedEN, Some(ExpectedAgentEN)),
+      UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, Some(ExpectedIndividualCY)),
+      UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
+  }
+
+  ".show" when {
+
+    userScenarios.foreach { user =>
+      s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
+
+        "render the page with correct content with multiple charities" which {
+          lazy val result: WSResponse = {
+            authoriseAgentOrIndividual(user.isAgent)
+            urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+          }
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import user.commonExpectedResults._
+
+          titleCheck(user.specificExpectedResults.get.headingMultiple)
+          h1Check(s"${user.specificExpectedResults.get.headingMultiple} $caption")
+          captionCheck(caption)
+          taskListCheck(Seq((charity1, hiddenChange1, hiddenRemove1)))
+          textOnPageCheck(question, Selectors.question)
+          radioButtonCheck(user.commonExpectedResults.yes, 1)
+          radioButtonCheck(user.commonExpectedResults.no, 2)
+          hintTextCheck(user.specificExpectedResults.get.hint)
+          buttonCheck(button)
+          noErrorsCheck()
         }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        s"have an OK($OK) status" in {
-          result.status shouldBe OK
-        }
-
-        "display the page content" in {
-          document.select(Selectors.heading).text() shouldBe Content.heading + " " + Content.caption
-          document.select(Selectors.caption).text() shouldBe Content.caption
-          document.select(Selectors.charity1).text() shouldBe Content.charity1
-          document.select(Selectors.change1).text() shouldBe Content.change
-          document.select(Selectors.change1hidden).text() shouldBe Content.hiddenChange1
-          document.select(Selectors.remove1).text() shouldBe Content.remove
-          document.select(Selectors.remove1hidden).text() shouldBe Content.hiddenRemove1
-          document.select(Selectors.charity2).text() shouldBe Content.charity2
-          document.select(Selectors.change2).text() shouldBe Content.change
-          document.select(Selectors.change2hidden).text() shouldBe Content.hiddenChange2
-          document.select(Selectors.remove2).text() shouldBe Content.remove
-          document.select(Selectors.remove2hidden).text() shouldBe Content.hiddenRemove2
-          document.select(Selectors.question).text() shouldBe Content.question
-          document.select(Selectors.hint).text() shouldBe Content.hint
-          document.select(Selectors.yesRadio).text() shouldBe Content.yes
-          document.select(Selectors.noRadio).text() shouldBe Content.no
-        }
-
-        "not display an error" in {
-          document.select(Selectors.errorSummary).isEmpty shouldBe true
-          document.select(Selectors.noSelectionError).isEmpty shouldBe true
-          document.select(Selectors.errorMessage).isEmpty shouldBe true
-        }
-      }
-
-      "the user is an agent" should {
-
-        lazy val result = {
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
-
-          authoriseAgent()
-          await(wsClient.url(overseasGiftAidSummaryUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
-            .get())
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        s"have an OK($OK) status" in {
-          result.status shouldBe OK
-        }
-
-        "display the page content" in {
-          document.select(Selectors.heading).text() shouldBe Content.headingAgent + " " + Content.caption
-          document.select(Selectors.caption).text() shouldBe Content.caption
-          document.select(Selectors.charity1).text() shouldBe Content.charity1
-          document.select(Selectors.change1).text() should include(Content.change)
-          document.select(Selectors.change1hidden).text() shouldBe Content.hiddenChange1
-          document.select(Selectors.remove1).text() shouldBe Content.remove
-          document.select(Selectors.remove1hidden).text() shouldBe Content.hiddenRemove1
-          document.select(Selectors.charity2).text() shouldBe Content.charity2
-          document.select(Selectors.change2).text() shouldBe Content.change
-          document.select(Selectors.change2hidden).text() shouldBe Content.hiddenChange2
-          document.select(Selectors.remove2).text() shouldBe Content.remove
-          document.select(Selectors.remove2hidden).text() shouldBe Content.hiddenRemove2
-          document.select(Selectors.question).text() shouldBe Content.question
-          document.select(Selectors.hint).text() shouldBe Content.hintAgent
-          document.select(Selectors.yesRadio).text() shouldBe Content.yes
-          document.select(Selectors.noRadio).text() shouldBe Content.no
-        }
-
-        "not display an error" in {
-          document.select(Selectors.errorSummary).isEmpty shouldBe true
-          document.select(Selectors.noSelectionError).isEmpty shouldBe true
-          document.select(Selectors.errorMessage).isEmpty shouldBe true
-        }
-      }
-    }
-
-    "the user is unauthorized" should {
-
-      lazy val result = {
-        authoriseIndividualUnauthorized()
-        await(wsClient.url(overseasGiftAidSummaryUrl)
-          .withHttpHeaders("Csrf-Token" -> "nocheck")
-          .get())
-      }
-
-      s"return an Unauthorised($UNAUTHORIZED) status" in {
-        result.status shouldBe UNAUTHORIZED
       }
     }
   }
 
-  "Calling POST /charity/overseas-charities-donated-to" when {
+  ".submit" when {
 
-    "the user is authorised" when {
+    userScenarios.foreach { user =>
+      s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
-      lazy val result = {
-        authoriseIndividual()
-        await(wsClient.url(overseasGiftAidSummaryUrl)
-          .withHttpHeaders("Csrf-Token" -> "nocheck")
-          .post(Map(YesNoForm.yesNo -> "")))
+        "return SEE_OTHER" in {
+          lazy val form: Map[String, Seq[String]] = Map(YesNoForm.yesNo -> Seq(YesNoForm.yes))
+
+          lazy val result: WSResponse = {
+            authoriseAgentOrIndividual(user.isAgent)
+            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+          }
+
+          result.status shouldBe SEE_OTHER
+        }
+
+        "return an error" when {
+
+          "the submitted data is empty" which {
+            lazy val form: Map[String, Seq[String]] = Map(YesNoForm.yesNo -> Seq(""))
+
+            lazy val result: WSResponse = {
+              authoriseAgentOrIndividual(user.isAgent)
+              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+            }
+
+            implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+            import user.commonExpectedResults._
+
+            titleCheck(errorPrefix + user.specificExpectedResults.get.headingMultiple)
+            h1Check(s"${user.specificExpectedResults.get.headingMultiple} $caption")
+            radioButtonCheck(user.commonExpectedResults.yes, 1)
+            radioButtonCheck(user.commonExpectedResults.no, 2)
+            hintTextCheck(user.specificExpectedResults.get.hint)
+            captionCheck(caption)
+            buttonCheck(button)
+            errorSummaryCheck(noSelectionError, "#value")
+            errorAboveElementCheck(noSelectionError)
+            welshToggleCheck(user.isWelsh)
+          }
+        }
       }
-      lazy val document: Document = Jsoup.parse(result.body)
-
-      "no radio button in selected" should {
-
-        s"return a 400(BadRequest) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-
-        "display an error message" in {
-          document.select(Selectors.noSelectionError).text() shouldBe Content.noSelectionError
-        }
-      }
-
-      "an option is selected" should {
-
-        lazy val result = {
-          authoriseIndividual()
-          await(wsClient.url(overseasGiftAidSummaryUrl)
-            .withHttpHeaders("Csrf-Token" -> "nocheck")
-            .post(Map(YesNoForm.yesNo -> YesNoForm.no)))
-        }
-
-        "return a 200(Ok) status" in {
-          result.status shouldBe OK
-        }
-      }
-
     }
-
   }
-
 }

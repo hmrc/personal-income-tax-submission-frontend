@@ -17,6 +17,7 @@
 package controllers.charity
 
 import common.SessionValues
+import forms.YesNoForm
 import helpers.PlaySessionCookieBaker
 import models.APIErrorBodyModel
 import models.charity.GiftAidCYAModel
@@ -24,9 +25,9 @@ import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, Gifts
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
-import play.api.libs.ws.WSClient
+import play.api.libs.ws.{WSClient, WSResponse}
 import utils.{IntegrationTest, ViewHelpers}
-import play.api.http.Status.{BAD_REQUEST, NO_CONTENT, OK}
+import play.api.http.Status.{BAD_REQUEST, NO_CONTENT, OK, SEE_OTHER}
 import play.api.libs.json.Json
 
 class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
@@ -34,10 +35,8 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
   val taxYear = 2022
 
   val amount: String = "£100"
-  val yes: String = "Yes"
-  val no: String = "No"
 
-  val url: String = s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/check-donations-to-charity"
+  val url: String = s"$appUrl/$taxYear/charity/check-donations-to-charity"
 
   val cyaDataMax: GiftAidCYAModel = GiftAidCYAModel(
     Some(true), Some(100.00),
@@ -97,59 +96,128 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
     ))
   )
 
-  object ExpectedValuesEnglish {
+  trait SpecificExpectedResults {
+    val title: String
+    val overseasDonationNames: String
+    val overseasSharesSecurityLandPropertyNames: String
+  }
 
-    object Individual {
-      val title = "Check your donations to charity"
+  trait CommonExpectedResults {
+    val yes: String
+    val no: String
+    val caption: String
+    val donationViaGiftAid: String
+    val donationViaGiftAidAmount: String
+    val oneOffDonation: String
+    val oneOffDonationAmount: String
+    val overseasDonation: String
+    val overseasDonationAmount: String
+    val overseasDonationNamesValue: String
+    val lastYear: String
+    val lastYearAmount: String
+    val thisYear: String
+    val thisYearAmount: String
+    val sharesSecuritiesLandProperty: String
+    val sharesSecurities: String
+    val sharesSecuritiesAmount: String
+    val landProperty: String
+    val landPropertyAmount: String
+    val overseasSharesSecuritiesLandProperty: String
+    val overseasSharesSecuritiesLandPropertyAmount: String
+    val overseasSharesSecuritiesLandPropertyNamesValue: String
+    val priorDonationNames: String
+    val priorSharesSecuritiesLandPropertyNames: String
+    val saveAndContinue: String
+    val error: String
+  }
 
-      val overseasDonationNames = "Overseas charities you donated to"
+  object CommonExpectedEN extends CommonExpectedResults {
+    val yes: String = "Yes"
+    val no: String = "No"
+    val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val donationViaGiftAid = "Donation to charity using Gift Aid"
+    val donationViaGiftAidAmount = "Amount donated to charity using Gift Aid"
+    val oneOffDonation = "One-off donations to charity using Gift Aid"
+    val oneOffDonationAmount = "Amount of one-off donations to charity using Gift Aid"
+    val overseasDonation = "Donations to overseas charities using Gift Aid"
+    val overseasDonationAmount = "Amount donated to overseas charities using Gift Aid"
+    val overseasDonationNamesValue = "Belgium Trust American Trust"
+    val lastYear = "Adding donations to last tax year"
+    val lastYearAmount = "Amount added to last tax year"
+    val thisYear = "Donation after 5 April 2022 added to this tax year"
+    val thisYearAmount = "Amount of donation after 5 April 2022 added to this tax year"
+    val sharesSecuritiesLandProperty = "Donation of shares, securities, land or property"
+    val sharesSecurities = "Donation of shares or securities"
+    val sharesSecuritiesAmount = "Value of shares or securities"
+    val landProperty = "Donation of land or property"
+    val landPropertyAmount = "Value of land or property"
+    val overseasSharesSecuritiesLandProperty = "Donation of shares, securities, land or property to overseas charities"
+    val overseasSharesSecuritiesLandPropertyAmount = "Value of shares, securities, land or property to overseas charities"
+    val overseasSharesSecuritiesLandPropertyNamesValue = "Belgium Trust American Trust"
+    val priorDonationNames = "Jello Corporation"
+    val priorSharesSecuritiesLandPropertyNames = "Simbas College Fund"
+    val saveAndContinue = "Save and continue"
+    val error = "Sorry, there is a problem with the service"
+  }
 
-      val overseasSharesSecurityLandPropertyNames = "Overseas charities you donated shares, securities, land or property to"
-    }
+  object CommonExpectedCY extends CommonExpectedResults {
+    val yes: String = "Yes"
+    val no: String = "No"
+    val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val donationViaGiftAid = "Donation to charity using Gift Aid"
+    val donationViaGiftAidAmount = "Amount donated to charity using Gift Aid"
+    val oneOffDonation = "One-off donations to charity using Gift Aid"
+    val oneOffDonationAmount = "Amount of one-off donations to charity using Gift Aid"
+    val overseasDonation = "Donations to overseas charities using Gift Aid"
+    val overseasDonationAmount = "Amount donated to overseas charities using Gift Aid"
+    val overseasDonationNamesValue = "Belgium Trust American Trust"
+    val lastYear = "Adding donations to last tax year"
+    val lastYearAmount = "Amount added to last tax year"
+    val thisYear = "Donation after 5 April 2022 added to this tax year"
+    val thisYearAmount = "Amount of donation after 5 April 2022 added to this tax year"
+    val sharesSecuritiesLandProperty = "Donation of shares, securities, land or property"
+    val sharesSecurities = "Donation of shares or securities"
+    val sharesSecuritiesAmount = "Value of shares or securities"
+    val landProperty = "Donation of land or property"
+    val landPropertyAmount = "Value of land or property"
+    val overseasSharesSecuritiesLandProperty = "Donation of shares, securities, land or property to overseas charities"
+    val overseasSharesSecuritiesLandPropertyAmount = "Value of shares, securities, land or property to overseas charities"
+    val overseasSharesSecuritiesLandPropertyNamesValue = "Belgium Trust American Trust"
+    val priorDonationNames = "Jello Corporation"
+    val priorSharesSecuritiesLandPropertyNames = "Simbas College Fund"
+    val saveAndContinue = "Save and continue"
+    val error = "Sorry, there is a problem with the service"
+  }
 
-    object Agent {
-      val title = "Check your client’s donations to charity"
+  object ExpectedIndividualEN extends SpecificExpectedResults {
+    val title = "Check your donations to charity"
+    val overseasDonationNames = "Overseas charities you donated to"
+    val overseasSharesSecurityLandPropertyNames = "Overseas charities you donated shares, securities, land or property to"
+  }
 
-      val overseasDonationNames = "Overseas charities your client donated to"
+  object ExpectedAgentEN extends SpecificExpectedResults {
+    val title = "Check your client’s donations to charity"
+    val overseasDonationNames = "Overseas charities your client donated to"
+    val overseasSharesSecurityLandPropertyNames = "Overseas charities your client donated shares, securities, land or property to"
+  }
 
-      val overseasSharesSecurityLandPropertyNames = "Overseas charities your client donated shares, securities, land or property to"
-    }
+  object ExpectedIndividualCY extends SpecificExpectedResults {
+    val title = "Check your donations to charity"
+    val overseasDonationNames = "Overseas charities you donated to"
+    val overseasSharesSecurityLandPropertyNames = "Overseas charities you donated shares, securities, land or property to"
+  }
 
-    object Common {
-      val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
+  object ExpectedAgentCY extends SpecificExpectedResults {
+    val title = "Check your client’s donations to charity"
+    val overseasDonationNames = "Overseas charities your client donated to"
+    val overseasSharesSecurityLandPropertyNames = "Overseas charities your client donated shares, securities, land or property to"
+  }
 
-      val donationViaGiftAid = "Donation to charity using Gift Aid"
-      val donationViaGiftAidAmount = "Amount donated to charity using Gift Aid"
-
-      val oneOffDonation = "One-off donations to charity using Gift Aid"
-      val oneOffDonationAmount = "Amount of one-off donations to charity using Gift Aid"
-
-      val overseasDonation = "Donations to overseas charities using Gift Aid"
-      val overseasDonationAmount = "Amount donated to overseas charities using Gift Aid"
-      val overseasDonationNamesValue = "Belgium Trust American Trust"
-
-      val lastYear = "Adding donations to last tax year"
-      val lastYearAmount = "Amount added to last tax year"
-
-      val thisYear = "Donation after 5 April 2022 added to this tax year"
-      val thisYearAmount = "Amount of donation after 5 April 2022 added to this tax year"
-
-      val sharesSecuritiesLandProperty = "Donation of shares, securities, land or property"
-      val sharesSecurities = "Donation of shares or securities"
-      val sharesSecuritiesAmount = "Value of shares or securities"
-      val landProperty = "Donation of land or property"
-      val landPropertyAmount = "Value of land or property"
-
-      val overseasSharesSecuritiesLandProperty = "Donation of shares, securities, land or property to overseas charities"
-      val overseasSharesSecuritiesLandPropertyAmount = "Value of shares, securities, land or property to overseas charities"
-      val overseasSharesSecuritiesLandPropertyNamesValue = "Belgium Trust American Trust"
-
-      val priorDonationNames = "Jello Corporation"
-      val priorSharesSecuritiesLandPropertyNames = "Simbas College Fund"
-
-      val saveAndContinue = "Save and continue"
-    }
-
+  val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
+    Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
+      UserScenario(isWelsh = false, isAgent = true, CommonExpectedEN, Some(ExpectedAgentEN)),
+      UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, Some(ExpectedIndividualCY)),
+      UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
   def cyaRowCheck(expectedText: String, expectedValue: String, changeLinkHref: String, rowNumber: Int)(implicit document: () => Document): Unit = {
@@ -174,1073 +242,374 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
     }
   }
 
-  "GET in English" should {
+  ".show" when {
 
-    "as an individual" should {
+    userScenarios.foreach { user =>
+      s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
-      "return a full CYA view" when {
+        "render the page with full CYA model" which {
 
-        "the CYA model is full" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString
-          ))
-
-          lazy val result = {
-            authoriseIndividual()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies).get())
+          lazy val result: WSResponse = {
+            authoriseAgentOrIndividual(user.isAgent)
+            urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear, Map(
+              SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString))))
           }
 
-          implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import user.commonExpectedResults._
 
           "has an OK (200) status" in {
             result.status shouldBe OK
           }
 
-          titleCheck(ExpectedValuesEnglish.Individual.title)
-          h1Check(ExpectedValuesEnglish.Individual.title + " " + ExpectedValuesEnglish.Common.caption)
-          captionCheck(ExpectedValuesEnglish.Common.caption)
+          titleCheck(user.specificExpectedResults.get.title)
+          h1Check(user.specificExpectedResults.get.title + " " + caption)
+          captionCheck(caption)
 
           //noinspection ScalaStyle
           {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, yes, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, "#", 2)
+            cyaRowCheck(donationViaGiftAid, yes, "#", 1)
+            cyaRowCheck(donationViaGiftAidAmount, amount, "#", 2)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, yes, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, "#", 4)
+            cyaRowCheck(oneOffDonation, yes, "#", 3)
+            cyaRowCheck(oneOffDonationAmount, amount, "#", 4)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, yes, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValue, "#", 7)
+            cyaRowCheck(overseasDonation, yes, "#", 5)
+            cyaRowCheck(overseasDonationAmount, amount, "#", 6)
+            cyaRowCheck(user.specificExpectedResults.get.overseasDonationNames, overseasDonationNamesValue, "#", 7)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, yes, "#", 8)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, "#", 9)
+            cyaRowCheck(lastYear, yes, "#", 8)
+            cyaRowCheck(lastYearAmount, amount, "#", 9)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, yes, "#", 10)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, "#", 11)
+            cyaRowCheck(thisYear, yes, "#", 10)
+            cyaRowCheck(thisYearAmount, amount, "#", 11)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesLandProperty, yes, "#", 12)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecurities, yes, "#", 13)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, "#", 14)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landProperty, yes, "#", 15)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, "#", 16)
+            cyaRowCheck(sharesSecuritiesLandProperty, yes, "#", 12)
+            cyaRowCheck(sharesSecurities, yes, "#", 13)
+            cyaRowCheck(sharesSecuritiesAmount, amount, "#", 14)
+            cyaRowCheck(landProperty, yes, "#", 15)
+            cyaRowCheck(landPropertyAmount, amount, "#", 16)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, yes, "#", 17)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, "#", 18)
-            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValue, "#", 19)
+            cyaRowCheck(overseasSharesSecuritiesLandProperty, yes, "#", 17)
+            cyaRowCheck(overseasSharesSecuritiesLandPropertyAmount, amount, "#", 18)
+            cyaRowCheck(user.specificExpectedResults.get.overseasSharesSecurityLandPropertyNames, overseasSharesSecuritiesLandPropertyNamesValue, "#", 19)
           }
 
-          buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
-
-          welshToggleCheck(ENGLISH)
-
+          buttonCheck(saveAndContinue)
+          welshToggleCheck(user.isWelsh)
         }
 
-      }
+        "return an almost empty CYA view" which {
 
-      "return an almost empty CYA view" which {
+          "has only the donated land, shares, securities and properties yes/no hidden" when {
 
-        "has only the donated land, shares, securities and properties yes/no hidden" when {
+            "land or properties is the only value" which {
 
-          "land or properties is the only value" which {
-              lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-                SessionValues.GIFT_AID_PRIOR_SUB -> Json.toJson(GiftAidSubmissionModel(None,
-                  Some(GiftsModel(
-                    landAndBuildings = Some(1000.74)
-                  ))
-                )).toString()
-              ))
-
-              lazy val result = {
-                authoriseIndividual()
-                await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies).get())
+              lazy val result: WSResponse = {
+                authoriseAgentOrIndividual(user.isAgent)
+                urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear, Map(
+                  SessionValues.GIFT_AID_PRIOR_SUB -> Json.toJson(GiftAidSubmissionModel(None,
+                    Some(GiftsModel(
+                      landAndBuildings = Some(1000.74)
+                    ))
+                  )).toString()))))
               }
 
-              implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
+              implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+              import user.commonExpectedResults._
 
               "has an OK (200) status" in {
                 result.status shouldBe OK
               }
 
-              titleCheck(ExpectedValuesEnglish.Individual.title)
-              h1Check(ExpectedValuesEnglish.Individual.title + " " + ExpectedValuesEnglish.Common.caption)
-              captionCheck(ExpectedValuesEnglish.Common.caption)
+              titleCheck(user.specificExpectedResults.get.title)
+              h1Check(user.specificExpectedResults.get.title + " " + caption)
+              captionCheck(caption)
 
               //noinspection ScalaStyle
               {
-                cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, no, "#", 1)
-                cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, no, "#", 2)
-                cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, no, "#", 3)
-                cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, no, "#", 4)
-                cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, no, "#", 5)
+                cyaRowCheck(donationViaGiftAid, user.commonExpectedResults.no, "#", 1)
+                cyaRowCheck(oneOffDonation, user.commonExpectedResults.no, "#", 2)
+                cyaRowCheck(overseasDonation, user.commonExpectedResults.no, "#", 3)
+                cyaRowCheck(lastYear, user.commonExpectedResults.no, "#", 4)
+                cyaRowCheck(thisYear, user.commonExpectedResults.no, "#", 5)
 
-                cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecurities, no, "#", 6)
-                cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, "£1000.74", "#", 7)
+                cyaRowCheck(sharesSecurities, user.commonExpectedResults.no, "#", 6)
+                cyaRowCheck(landPropertyAmount, "£1000.74", "#", 7)
 
-                cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, no, "#", 8)
+                cyaRowCheck(overseasSharesSecuritiesLandProperty, user.commonExpectedResults.no, "#", 8)
               }
 
-              buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
+              buttonCheck(saveAndContinue)
+              welshToggleCheck(user.isWelsh)
+            }
 
-              welshToggleCheck(ENGLISH)
-          }
+            "shares or securities is the only value" which {
 
-          "shares or securities is the only value" which {
-              lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-                SessionValues.GIFT_AID_PRIOR_SUB -> Json.toJson(GiftAidSubmissionModel(None,
-                  Some(GiftsModel(
-                    sharesOrSecurities = Some(1000.74)
-                  ))
-                )).toString()
-              ))
-
-              lazy val result = {
-                authoriseIndividual()
-                await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies).get())
+              lazy val result: WSResponse = {
+                authoriseAgentOrIndividual(user.isAgent)
+                urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear, Map(
+                  SessionValues.GIFT_AID_PRIOR_SUB -> Json.toJson(GiftAidSubmissionModel(None,
+                    Some(GiftsModel(
+                      sharesOrSecurities = Some(1000.74)
+                    ))
+                  )).toString()))))
               }
 
-              implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
+              implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+              import user.commonExpectedResults._
 
               "has an OK (200) status" in {
                 result.status shouldBe OK
               }
 
-              titleCheck(ExpectedValuesEnglish.Individual.title)
-              h1Check(ExpectedValuesEnglish.Individual.title + " " + ExpectedValuesEnglish.Common.caption)
-              captionCheck(ExpectedValuesEnglish.Common.caption)
+              titleCheck(user.specificExpectedResults.get.title)
+              h1Check(user.specificExpectedResults.get.title + " " + caption)
+              captionCheck(caption)
 
               //noinspection ScalaStyle
               {
-                cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, no, "#", 1)
-                cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, no, "#", 2)
-                cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, no, "#", 3)
-                cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, no, "#", 4)
-                cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, no, "#", 5)
+                cyaRowCheck(donationViaGiftAid, user.commonExpectedResults.no, "#", 1)
+                cyaRowCheck(oneOffDonation, user.commonExpectedResults.no, "#", 2)
+                cyaRowCheck(overseasDonation, user.commonExpectedResults.no, "#", 3)
+                cyaRowCheck(lastYear, user.commonExpectedResults.no, "#", 4)
+                cyaRowCheck(thisYear, user.commonExpectedResults.no, "#", 5)
 
-                cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, "£1000.74", "#", 6)
-                cyaRowCheck(ExpectedValuesEnglish.Common.landProperty, no, "#", 7)
+                cyaRowCheck(sharesSecuritiesAmount, "£1000.74", "#", 6)
+                cyaRowCheck(landProperty, user.commonExpectedResults.no, "#", 7)
 
-                cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, no, "#", 8)
+                cyaRowCheck(overseasSharesSecuritiesLandProperty, user.commonExpectedResults.no, "#", 8)
               }
 
-              buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
+              buttonCheck(saveAndContinue)
+              welshToggleCheck(user.isWelsh)
+            }
 
-              welshToggleCheck(ENGLISH)
           }
 
         }
 
-      }
+        "return a cya page with all the yes/no questions hidden" when {
 
-      "return a cya page with all the yes/no questions hidden" when {
+          "there is no CYA model, but there is a full prior data model" which {
 
-        "there is no CYA model, but there is a full prior data model" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_PRIOR_SUB -> Json.prettyPrint(Json.toJson(priorDataMax))
-          ))
+            lazy val result: WSResponse = {
+              authoriseAgentOrIndividual(user.isAgent)
+              urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear, Map(
+                SessionValues.GIFT_AID_PRIOR_SUB -> Json.prettyPrint(Json.toJson(priorDataMax))))))
+            }
 
-          lazy val result = {
-            authoriseIndividual()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies).get())
+            implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+            import user.commonExpectedResults._
+
+            "has an OK (200) status" in {
+              result.status shouldBe OK
+            }
+
+            titleCheck(user.specificExpectedResults.get.title)
+            h1Check(user.specificExpectedResults.get.title + " " + caption)
+            captionCheck(caption)
+
+            //noinspection ScalaStyle
+            {
+              cyaRowCheck(donationViaGiftAidAmount, amount, "#", 1)
+              cyaRowCheck(oneOffDonationAmount, amount, "#", 2)
+              cyaRowCheck(overseasDonationAmount, amount, "#", 3)
+              cyaRowCheck(user.specificExpectedResults.get.overseasDonationNames, priorDonationNames, "#", 4)
+              cyaRowCheck(lastYearAmount, amount, "#", 5)
+              cyaRowCheck(thisYearAmount, amount, "#", 6)
+              cyaRowCheck(sharesSecuritiesAmount, amount, "#", 7)
+              cyaRowCheck(landPropertyAmount, amount, "#", 8)
+              cyaRowCheck(overseasSharesSecuritiesLandPropertyAmount, amount, "#", 9)
+              cyaRowCheck(user.specificExpectedResults.get.overseasSharesSecurityLandPropertyNames, priorSharesSecuritiesLandPropertyNames, "#", 10)
+            }
+
+            buttonCheck(saveAndContinue)
+            welshToggleCheck(user.isWelsh)
           }
 
-          implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
+          "there is a full CYA model, and there is a full prior data model" which {
 
-          "has an OK (200) status" in {
-            result.status shouldBe OK
+            lazy val result: WSResponse = {
+              authoriseAgentOrIndividual(user.isAgent)
+              urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear, Map(
+                SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString,
+                SessionValues.GIFT_AID_PRIOR_SUB -> Json.prettyPrint(Json.toJson(priorDataMax))))))
+            }
+
+            implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+            import user.commonExpectedResults._
+
+            "has an OK (200) status" in {
+              result.status shouldBe OK
+            }
+
+            titleCheck(user.specificExpectedResults.get.title)
+            h1Check(user.specificExpectedResults.get.title + " " + caption)
+            captionCheck(caption)
+
+            //noinspection ScalaStyle
+            {
+              cyaRowCheck(donationViaGiftAidAmount, amount, "#", 1)
+              cyaRowCheck(oneOffDonationAmount, amount, "#", 2)
+              cyaRowCheck(overseasDonationAmount, amount, "#", 3)
+              cyaRowCheck(user.specificExpectedResults.get.overseasDonationNames, overseasDonationNamesValue, "#", 4)
+              cyaRowCheck(lastYearAmount, amount, "#", 5)
+              cyaRowCheck(thisYearAmount, amount, "#", 6)
+              cyaRowCheck(sharesSecuritiesAmount, amount, "#", 7)
+              cyaRowCheck(landPropertyAmount, amount, "#", 8)
+              cyaRowCheck(overseasSharesSecuritiesLandPropertyAmount, amount, "#", 9)
+              cyaRowCheck(user.specificExpectedResults.get.overseasSharesSecurityLandPropertyNames, overseasSharesSecuritiesLandPropertyNamesValue, "#", 10)
+            }
+
+            buttonCheck(saveAndContinue)
+            welshToggleCheck(user.isWelsh)
           }
-
-          titleCheck(ExpectedValuesEnglish.Individual.title)
-          h1Check(ExpectedValuesEnglish.Individual.title + " " + ExpectedValuesEnglish.Common.caption)
-          captionCheck(ExpectedValuesEnglish.Common.caption)
-
-          //noinspection ScalaStyle
-          {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, "#", 2)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasDonationNames, ExpectedValuesEnglish.Common.priorDonationNames, "#", 4)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, "#", 7)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, "#", 8)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, "#", 9)
-            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.priorSharesSecuritiesLandPropertyNames, "#", 10)
-          }
-
-          buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
-
-          welshToggleCheck(ENGLISH)
-        }
-
-        "there is a full CYA model, and there is a full prior data model" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString,
-            SessionValues.GIFT_AID_PRIOR_SUB -> Json.prettyPrint(Json.toJson(priorDataMax))
-          ))
-
-          lazy val result = {
-            authoriseIndividual()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies).get())
-          }
-
-          implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
-
-          "has an OK (200) status" in {
-            result.status shouldBe OK
-          }
-
-          titleCheck(ExpectedValuesEnglish.Individual.title)
-          h1Check(ExpectedValuesEnglish.Individual.title + " " + ExpectedValuesEnglish.Common.caption)
-          captionCheck(ExpectedValuesEnglish.Common.caption)
-
-          //noinspection ScalaStyle
-          {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, "#", 2)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValue, "#", 4)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, "#", 7)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, "#", 8)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, "#", 9)
-            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValue, "#", 10)
-          }
-
-          buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
-
-          welshToggleCheck(ENGLISH)
-        }
-
-      }
-
-      "return a minimal CYA view" when {
-
-        "the CYA model contains all false values" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataMin.asJsonString
-          ))
-
-          lazy val result = {
-            authoriseIndividual()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies).get())
-          }
-
-          implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
-
-          "has an OK (200) status" in {
-            result.status shouldBe OK
-          }
-
-          titleCheck(ExpectedValuesEnglish.Individual.title)
-          h1Check(ExpectedValuesEnglish.Individual.title + " " + ExpectedValuesEnglish.Common.caption)
-          captionCheck(ExpectedValuesEnglish.Common.caption)
-
-          //noinspection ScalaStyle
-          {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, no, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, no, "#", 2)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, no, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, no, "#", 4)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, no, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesLandProperty, no, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, no, "#", 7)
-          }
-
-          buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
-
-          welshToggleCheck(ENGLISH)
 
         }
 
-      }
+        "return a minimal CYA view" when {
 
-      "redirect to the overview page" when {
+          "the CYA model contains all false values" which {
 
-        "there is incomplete CYA data" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataIncomplete.asJsonString
-          ))
+            lazy val result: WSResponse = {
+              authoriseAgentOrIndividual(user.isAgent)
+              urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear, Map(
+                SessionValues.GIFT_AID_CYA -> cyaDataMin.asJsonString))))
+            }
 
-          lazy val result = {
-            authoriseIndividual()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies).get())
+            implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+            import user.commonExpectedResults._
+
+            "has an OK (200) status" in {
+              result.status shouldBe OK
+            }
+
+            titleCheck(user.specificExpectedResults.get.title)
+            h1Check(user.specificExpectedResults.get.title + " " + caption)
+            captionCheck(caption)
+
+            //noinspection ScalaStyle
+            {
+              cyaRowCheck(donationViaGiftAid, user.commonExpectedResults.no, "#", 1)
+              cyaRowCheck(oneOffDonation, user.commonExpectedResults.no, "#", 2)
+              cyaRowCheck(overseasDonation, user.commonExpectedResults.no, "#", 3)
+              cyaRowCheck(lastYear, user.commonExpectedResults.no, "#", 4)
+              cyaRowCheck(thisYear, user.commonExpectedResults.no, "#", 5)
+              cyaRowCheck(sharesSecuritiesLandProperty, user.commonExpectedResults.no, "#", 6)
+              cyaRowCheck(overseasSharesSecuritiesLandProperty, user.commonExpectedResults.no, "#", 7)
+            }
+
+            buttonCheck(saveAndContinue)
+            welshToggleCheck(user.isWelsh)
+
           }
 
-          "redirects to the correct url" in {
-            result
-            verifyGet("/income-through-software/return/2022/view")
-          }
         }
 
-        "there is no CYA and no PRIOR data" which {
-          lazy val result = {
-            authoriseIndividual()
-            await(wsClient.url(url).get())
+        "redirect to the overview page" when {
+
+          "there is incomplete CYA data" which {
+
+            lazy val result: WSResponse = {
+              authoriseAgentOrIndividual(user.isAgent)
+              urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear, Map(
+                SessionValues.GIFT_AID_CYA -> cyaDataIncomplete.asJsonString))))
+            }
+
+            "redirects to the correct url" in {
+              result
+              verifyGet("/income-through-software/return/2022/view")
+            }
           }
 
-          "redirects to the correct url" in {
-            result
-            verifyGet("/income-through-software/return/2022/view")
+          "there is no CYA and no PRIOR data" which {
+            lazy val result = {
+              authoriseAgentOrIndividual(user.isAgent)
+              urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+            }
+
+            "redirects to the correct url" in {
+              result
+              verifyGet("/income-through-software/return/2022/view")
+            }
           }
         }
-
       }
     }
-
-    "as an agent" should {
-
-      "return a full CYA view" when {
-
-        "the CYA model is full" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString,
-            SessionValues.CLIENT_NINO -> nino,
-            SessionValues.CLIENT_MTDITID -> mtditid
-          ))
-
-          lazy val result = {
-            authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies).get())
-          }
-
-          implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
-
-          "has an OK (200) status" in {
-            result.status shouldBe OK
-          }
-
-          titleCheck(ExpectedValuesEnglish.Agent.title)
-          h1Check(ExpectedValuesEnglish.Agent.title + " " + ExpectedValuesEnglish.Common.caption)
-          captionCheck(ExpectedValuesEnglish.Common.caption)
-
-          //noinspection ScalaStyle
-          {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, yes, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, "#", 2)
-
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, yes, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, "#", 4)
-
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, yes, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValue, "#", 7)
-
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, yes, "#", 8)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, "#", 9)
-
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, yes, "#", 10)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, "#", 11)
-
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesLandProperty, yes, "#", 12)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecurities, yes, "#", 13)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, "#", 14)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landProperty, yes, "#", 15)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, "#", 16)
-
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, yes, "#", 17)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, "#", 18)
-            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValue, "#", 19)
-          }
-
-          buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
-
-          welshToggleCheck(ENGLISH)
-
-        }
-
-      }
-
-      "return a cya page with all the yes/no questions hidden" when {
-
-        "there is no CYA model, but there is a full prior data model" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_PRIOR_SUB -> Json.prettyPrint(Json.toJson(priorDataMax)),
-            SessionValues.CLIENT_NINO -> nino,
-            SessionValues.CLIENT_MTDITID -> mtditid
-          ))
-
-          lazy val result = {
-            authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies).get())
-          }
-
-          implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
-
-          "has an OK (200) status" in {
-            result.status shouldBe OK
-          }
-
-          titleCheck(ExpectedValuesEnglish.Agent.title)
-          h1Check(ExpectedValuesEnglish.Agent.title + " " + ExpectedValuesEnglish.Common.caption)
-          captionCheck(ExpectedValuesEnglish.Common.caption)
-
-          //noinspection ScalaStyle
-          {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, "#", 2)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasDonationNames, ExpectedValuesEnglish.Common.priorDonationNames, "#", 4)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, "#", 7)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, "#", 8)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, "#", 9)
-            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.priorSharesSecuritiesLandPropertyNames, "#", 10)
-          }
-
-          buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
-
-          welshToggleCheck(ENGLISH)
-        }
-
-        "there is a full CYA model, and there is a full prior data model" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString,
-            SessionValues.GIFT_AID_PRIOR_SUB -> Json.prettyPrint(Json.toJson(priorDataMax)),
-            SessionValues.CLIENT_NINO -> nino,
-            SessionValues.CLIENT_MTDITID -> mtditid
-          ))
-
-          lazy val result = {
-            authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies).get())
-          }
-
-          implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
-
-          "has an OK (200) status" in {
-            result.status shouldBe OK
-          }
-
-          titleCheck(ExpectedValuesEnglish.Agent.title)
-          h1Check(ExpectedValuesEnglish.Agent.title + " " + ExpectedValuesEnglish.Common.caption)
-          captionCheck(ExpectedValuesEnglish.Common.caption)
-
-          //noinspection ScalaStyle
-          {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, "#", 2)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValue, "#", 4)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, "#", 7)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, "#", 8)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, "#", 9)
-            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValue, "#", 10)
-          }
-
-          buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
-
-          welshToggleCheck(ENGLISH)
-        }
-
-      }
-
-      "return a minimal CYA view" when {
-
-        "the CYA model contains all false values" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataMin.asJsonString,
-            SessionValues.CLIENT_NINO -> nino,
-            SessionValues.CLIENT_MTDITID -> mtditid
-          ))
-
-          lazy val result = {
-            authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies).get())
-          }
-
-          implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
-
-          "has an OK (200) status" in {
-            result.status shouldBe OK
-          }
-
-          titleCheck(ExpectedValuesEnglish.Agent.title)
-          h1Check(ExpectedValuesEnglish.Agent.title + " " + ExpectedValuesEnglish.Common.caption)
-          captionCheck(ExpectedValuesEnglish.Common.caption)
-
-          //noinspection ScalaStyle
-          {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, no, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, no, "#", 2)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, no, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, no, "#", 4)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, no, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesLandProperty, no, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, no, "#", 7)
-          }
-
-          buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
-
-          welshToggleCheck(ENGLISH)
-
-        }
-
-      }
-
-      "redirect to the overview page" when {
-
-        "there is incomplete CYA data" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataIncomplete.asJsonString,
-            SessionValues.CLIENT_NINO -> nino,
-            SessionValues.CLIENT_MTDITID -> mtditid
-          ))
-
-          lazy val result = {
-            authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies).get())
-          }
-
-          "redirects to the correct url" in {
-            result
-            verifyGet("/income-through-software/return/2022/view")
-          }
-        }
-
-        "there is no CYA and no PRIOR data" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.CLIENT_NINO -> nino,
-            SessionValues.CLIENT_MTDITID -> mtditid
-          ))
-
-          lazy val result = {
-            authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies).get())
-          }
-
-          "redirects to the correct url" in {
-            result
-            verifyGet("/income-through-software/return/2022/view")
-          }
-        }
-
-      }
-    }
-
   }
 
-  "GET in Welsh" should {
+  ".submit" when {
 
-    "as an individual" should {
+    userScenarios.foreach { user =>
+      s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
-      "return a full CYA view" when {
+        "redirect to the overview page" when {
 
-        "the CYA model is full" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString
-          ))
+          "there is no CYA data available" which {
 
-          lazy val result = {
-            authoriseIndividual()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
+            val form = Map[String, String]()
+
+            lazy val result: WSResponse = {
+              wireMockServer.resetAll()
+              authoriseAgentOrIndividual(user.isAgent)
+              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+            }
+
+            "the status is SEE OTHER" in {
+              result.status shouldBe SEE_OTHER
+            }
           }
 
-          implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
+          "the request goes through successfully" which {
 
-          "has an OK (200) status" in {
-            result.status shouldBe OK
-          }
+            val form = Map[String, String]()
 
-          titleCheck(ExpectedValuesEnglish.Individual.title)
-          h1Check(ExpectedValuesEnglish.Individual.title + " " + ExpectedValuesEnglish.Common.caption)
-          captionCheck(ExpectedValuesEnglish.Common.caption)
+            lazy val result: WSResponse = {
+              wireMockServer.resetAll()
+              authoriseAgentOrIndividual(user.isAgent)
+              stubPost(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
+              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear,
+                Map(SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString)
+              )))
+            }
 
-          //noinspection ScalaStyle
-          {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, yes, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, "#", 2)
-
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, yes, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, "#", 4)
-
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, yes, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValue, "#", 7)
-
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, yes, "#", 8)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, "#", 9)
-
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, yes, "#", 10)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, "#", 11)
-
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesLandProperty, yes, "#", 12)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecurities, yes, "#", 13)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, "#", 14)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landProperty, yes, "#", 15)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, "#", 16)
-
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, yes, "#", 17)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, "#", 18)
-            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValue, "#", 19)
-          }
-
-          buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
-
-          welshToggleCheck(WELSH)
-
-        }
-
-      }
-
-      "return a cya page with all the yes/no questions hidden" when {
-
-        "there is no CYA model, but there is a full prior data model" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_PRIOR_SUB -> Json.prettyPrint(Json.toJson(priorDataMax))
-          ))
-
-          lazy val result = {
-            authoriseIndividual()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
-          }
-
-          implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
-
-          "has an OK (200) status" in {
-            result.status shouldBe OK
-          }
-
-          titleCheck(ExpectedValuesEnglish.Individual.title)
-          h1Check(ExpectedValuesEnglish.Individual.title + " " + ExpectedValuesEnglish.Common.caption)
-          captionCheck(ExpectedValuesEnglish.Common.caption)
-
-          //noinspection ScalaStyle
-          {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, "#", 2)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasDonationNames, ExpectedValuesEnglish.Common.priorDonationNames, "#", 4)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, "#", 7)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, "#", 8)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, "#", 9)
-            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.priorSharesSecuritiesLandPropertyNames, "#", 10)
-          }
-
-          buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
-
-          welshToggleCheck(WELSH)
-        }
-
-        "there is a full CYA model, and there is a full prior data model" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString,
-            SessionValues.GIFT_AID_PRIOR_SUB -> Json.prettyPrint(Json.toJson(priorDataMax))
-          ))
-
-          lazy val result = {
-            authoriseIndividual()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
-          }
-
-          implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
-
-          "has an OK (200) status" in {
-            result.status shouldBe OK
-          }
-
-          titleCheck(ExpectedValuesEnglish.Individual.title)
-          h1Check(ExpectedValuesEnglish.Individual.title + " " + ExpectedValuesEnglish.Common.caption)
-          captionCheck(ExpectedValuesEnglish.Common.caption)
-
-          //noinspection ScalaStyle
-          {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, "#", 2)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValue, "#", 4)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, "#", 7)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, "#", 8)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, "#", 9)
-            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValue, "#", 10)
-          }
-
-          buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
-
-          welshToggleCheck(WELSH)
-        }
-
-      }
-
-      "return a minimal CYA view" when {
-
-        "the CYA model contains all false values" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataMin.asJsonString
-          ))
-
-          lazy val result = {
-            authoriseIndividual()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
-          }
-
-          implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
-
-          "has an OK (200) status" in {
-            result.status shouldBe OK
-          }
-
-          titleCheck(ExpectedValuesEnglish.Individual.title)
-          h1Check(ExpectedValuesEnglish.Individual.title + " " + ExpectedValuesEnglish.Common.caption)
-          captionCheck(ExpectedValuesEnglish.Common.caption)
-
-          //noinspection ScalaStyle
-          {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, no, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, no, "#", 2)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, no, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, no, "#", 4)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, no, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesLandProperty, no, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, no, "#", 7)
-          }
-
-          buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
-
-          welshToggleCheck(WELSH)
-
-        }
-
-      }
-
-      "redirect to the overview page" when {
-
-        "there is incomplete CYA data" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataIncomplete.asJsonString
-          ))
-
-          lazy val result = {
-            authoriseIndividual()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
-          }
-
-          "redirects to the correct url" in {
-            result
-            verifyGet("/income-through-software/return/2022/view")
+            "the status is SEE OTHER" in {
+              result.status shouldBe SEE_OTHER
+            }
           }
         }
 
-        "there is no CYA and no PRIOR data" which {
-          lazy val result = {
-            authoriseIndividual()
-            await(wsClient.url(url).get())
-          }
+        "redirect to an error page" when {
+          "an error is returned from DES" which {
 
-          "redirects to the correct url" in {
-            result
-            verifyGet("/income-through-software/return/2022/view")
+            val form = Map[String, String]()
+
+            lazy val result: WSResponse = {
+              wireMockServer.resetAll()
+              authoriseAgentOrIndividual(user.isAgent)
+              stubPut(
+                s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear",
+                BAD_REQUEST,
+                Json.toJson(APIErrorBodyModel("BAD_REQUEST", "Oh hey look, literally any error.")).toString()
+              )
+              urlPost(url, body = form, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear,
+                Map(SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString)
+              )))
+            }
+
+            implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+            titleCheck(user.commonExpectedResults.error)
           }
         }
-
       }
     }
-
-    "as an agent" should {
-
-      "return a full CYA view" when {
-
-        "the CYA model is full" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString,
-            SessionValues.CLIENT_NINO -> nino,
-            SessionValues.CLIENT_MTDITID -> mtditid
-          ))
-
-          lazy val result = {
-            authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
-          }
-
-          implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
-
-          "has an OK (200) status" in {
-            result.status shouldBe OK
-          }
-
-          titleCheck(ExpectedValuesEnglish.Agent.title)
-          h1Check(ExpectedValuesEnglish.Agent.title + " " + ExpectedValuesEnglish.Common.caption)
-          captionCheck(ExpectedValuesEnglish.Common.caption)
-
-          //noinspection ScalaStyle
-          {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, yes, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, "#", 2)
-
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, yes, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, "#", 4)
-
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, yes, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValue, "#", 7)
-
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, yes, "#", 8)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, "#", 9)
-
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, yes, "#", 10)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, "#", 11)
-
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesLandProperty, yes, "#", 12)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecurities, yes, "#", 13)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, "#", 14)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landProperty, yes, "#", 15)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, "#", 16)
-
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, yes, "#", 17)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, "#", 18)
-            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValue, "#", 19)
-          }
-
-          buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
-
-          welshToggleCheck(WELSH)
-
-        }
-
-      }
-
-      "return a cya page with all the yes/no questions hidden" when {
-
-        "there is no CYA model, but there is a full prior data model" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_PRIOR_SUB -> Json.prettyPrint(Json.toJson(priorDataMax)),
-            SessionValues.CLIENT_NINO -> nino,
-            SessionValues.CLIENT_MTDITID -> mtditid
-          ))
-
-          lazy val result = {
-            authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
-          }
-
-          implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
-
-          "has an OK (200) status" in {
-            result.status shouldBe OK
-          }
-
-          titleCheck(ExpectedValuesEnglish.Agent.title)
-          h1Check(ExpectedValuesEnglish.Agent.title + " " + ExpectedValuesEnglish.Common.caption)
-          captionCheck(ExpectedValuesEnglish.Common.caption)
-
-          //noinspection ScalaStyle
-          {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, "#", 2)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasDonationNames, ExpectedValuesEnglish.Common.priorDonationNames, "#", 4)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, "#", 7)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, "#", 8)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, "#", 9)
-            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.priorSharesSecuritiesLandPropertyNames, "#", 10)
-          }
-
-          buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
-
-          welshToggleCheck(WELSH)
-        }
-
-        "there is a full CYA model, and there is a full prior data model" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString,
-            SessionValues.GIFT_AID_PRIOR_SUB -> Json.prettyPrint(Json.toJson(priorDataMax)),
-            SessionValues.CLIENT_NINO -> nino,
-            SessionValues.CLIENT_MTDITID -> mtditid
-          ))
-
-          lazy val result = {
-            authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
-          }
-
-          implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
-
-          "has an OK (200) status" in {
-            result.status shouldBe OK
-          }
-
-          titleCheck(ExpectedValuesEnglish.Agent.title)
-          h1Check(ExpectedValuesEnglish.Agent.title + " " + ExpectedValuesEnglish.Common.caption)
-          captionCheck(ExpectedValuesEnglish.Common.caption)
-
-          //noinspection ScalaStyle
-          {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, "#", 2)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValue, "#", 4)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, "#", 7)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, "#", 8)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, "#", 9)
-            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValue, "#", 10)
-          }
-
-          buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
-
-          welshToggleCheck(WELSH)
-        }
-
-      }
-
-      "return a minimal CYA view" when {
-
-        "the CYA model contains all false values" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataMin.asJsonString,
-            SessionValues.CLIENT_NINO -> nino,
-            SessionValues.CLIENT_MTDITID -> mtditid
-          ))
-
-          lazy val result = {
-            authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
-          }
-
-          implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
-
-          "has an OK (200) status" in {
-            result.status shouldBe OK
-          }
-
-          titleCheck(ExpectedValuesEnglish.Agent.title)
-          h1Check(ExpectedValuesEnglish.Agent.title + " " + ExpectedValuesEnglish.Common.caption)
-          captionCheck(ExpectedValuesEnglish.Common.caption)
-
-          //noinspection ScalaStyle
-          {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, no, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, no, "#", 2)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, no, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, no, "#", 4)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, no, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesLandProperty, no, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, no, "#", 7)
-          }
-
-          buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
-
-          welshToggleCheck(WELSH)
-
-        }
-
-      }
-
-      "redirect to the overview page" when {
-
-        "there is incomplete CYA data" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataIncomplete.asJsonString,
-            SessionValues.CLIENT_NINO -> nino,
-            SessionValues.CLIENT_MTDITID -> mtditid
-          ))
-
-          lazy val result = {
-            authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
-          }
-
-          "redirects to the correct url" in {
-            result
-            verifyGet("/income-through-software/return/2022/view")
-          }
-        }
-
-        "there is no CYA and no PRIOR data" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.CLIENT_NINO -> nino,
-            SessionValues.CLIENT_MTDITID -> mtditid
-          ))
-
-          lazy val result = {
-            authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
-          }
-
-          "redirects to the correct url" in {
-            result
-            verifyGet("/income-through-software/return/2022/view")
-          }
-        }
-
-      }
-    }
-
   }
-
-  "POST" should {
-
-    "redirect to the overview page" when {
-
-      "there is no CYA data available" which {
-        lazy val result = {
-          wireMockServer.resetAll()
-          authoriseIndividual()
-          stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
-          await(wsClient.url(url).withHttpHeaders("Csrf-Token" -> "nocheck").post(Map[String, String]()))
-        }
-
-        "page contains expected content" in {
-          result.body shouldBe "<title>Overview Page</title>"
-        }
-      }
-
-      "the request goes through successfully" which {
-        lazy val playSessionCookie = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString
-        ))
-
-        lazy val result = {
-          wireMockServer.resetAll()
-          authoriseIndividual()
-          stubPost(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
-          stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
-          await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookie, "Csrf-Token" -> "nocheck").post(Map[String, String]()))
-        }
-
-        "redirects to the correct url" in {
-          result.body shouldBe "<title>Overview Page</title>"
-        }
-
-      }
-
-    }
-
-    "redirect to an error page" when {
-
-      "an error is returned from DES" which {
-        lazy val playSessionCookie = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-          SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString
-        ))
-
-        lazy val result = {
-          wireMockServer.resetAll()
-          authoriseIndividual()
-          stubPut(
-            s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear",
-            BAD_REQUEST,
-            Json.toJson(APIErrorBodyModel("BAD_REQUEST", "Oh hey look, literally any error.")).toString()
-          )
-          await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookie, "Csrf-Token" -> "nocheck").post(Map[String, String]()))
-        }
-
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        titleCheck("Sorry, there is a problem with the service")
-      }
-
-    }
-
-  }
-
 }

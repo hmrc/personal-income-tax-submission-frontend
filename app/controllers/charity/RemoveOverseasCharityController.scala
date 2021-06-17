@@ -39,6 +39,7 @@ class RemoveOverseasCharityController @Inject()(
 
   val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(s"charity.remove-overseas-charity.noChoice")
 
+  //Remove charity name from URL
   def show(taxYear: Int, charityType: String, charityName: String): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
 
     // TODO - use charityID to retrieve charity name
@@ -46,7 +47,7 @@ class RemoveOverseasCharityController @Inject()(
     Ok(removeOverseasCharityView(yesNoForm, taxYear, charityType, charityName, true))     // TODO - overseas charity to be retrieved from session
   }
 
-
+  //Remove charity name from URL
   def submit(taxYear: Int, charityType: String, charityName: String): Action[AnyContent] =
     (authAction andThen journeyFilterAction(taxYear, GIFT_AID)) { implicit user =>
 

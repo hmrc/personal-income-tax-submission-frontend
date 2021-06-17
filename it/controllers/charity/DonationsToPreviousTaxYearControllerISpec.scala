@@ -113,8 +113,6 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
             urlGet(url(taxYear + 1), follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
           }
 
-          implicit def document: () => Document = () => Jsoup.parse(result.body)
-
           "has an SEE_OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.headers("Location").headOption shouldBe Some(urlWithSameYears)
@@ -157,8 +155,6 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
             authoriseAgentOrIndividual(user.isAgent)
             urlPost(url(taxYear + 1), body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
           }
-
-          implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           "has an SEE_OTHER status" in {
             result.status shouldBe SEE_OTHER

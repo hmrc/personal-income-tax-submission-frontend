@@ -80,10 +80,14 @@ POST        /:taxYear/charity/overseas-charities-donated-to                     
 GET         /:taxYear/charity/name-of-overseas-charity                                                       controllers.charity.GiftAidOverseasNameController.show(taxYear: Int)
 POST        /:taxYear/charity/name-of-overseas-charity                                                       controllers.charity.GiftAidOverseasNameController.submit(taxYear: Int)
 
+# Remove charity name from URL
 GET         /:taxYear/charity/remove-overseas-charity-gift-aid                                               controllers.charity.RemoveOverseasCharityController.show(taxYear: Int, charityType = "GIFT_AID", charityName: String)
+# Remove charity name from URL
 POST        /:taxYear/charity/remove-overseas-charity-gift-aid                                               controllers.charity.RemoveOverseasCharityController.submit(taxYear: Int, charityType = "GIFT_AID", charityName: String)
 
+# Remove charity name from URL
 GET         /:taxYear/charity/remove-overseas-charity-shares-and-property                                    controllers.charity.RemoveOverseasCharityController.show(taxYear: Int, charityType = "SHARES_PROPERTY", charityName: String)
+# Remove charity name from URL
 POST        /:taxYear/charity/remove-overseas-charity-shares-and-property                                    controllers.charity.RemoveOverseasCharityController.submit(taxYear: Int, charityType = "SHARES_PROPERTY", charityName: String)
 
 GET         /:taxYear/charity/add-charity-donations-to-last-tax-year                                         controllers.charity.GiftAidLastTaxYearController.show(taxYear: Int)
