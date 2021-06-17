@@ -47,6 +47,7 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
                                                                          commonExpectedResults: CommonExpectedResults,
                                                                          specificExpectedResults: Option[SpecificExpectedResults] = None)
 
+  //TODO UNCOMMENT WHEN DIVIDENDS & INTEREST MOVED TO USE UserScenarios
 //  val userScenarios: Seq[UserScenario[_, _]]
 
   def urlGet(url: String, welsh: Boolean = false, follow: Boolean = true, headers: Seq[(String, String)] = Seq())(implicit wsClient: WSClient): WSResponse = {
