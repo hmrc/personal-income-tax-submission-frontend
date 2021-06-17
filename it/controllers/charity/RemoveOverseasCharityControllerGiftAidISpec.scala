@@ -132,8 +132,6 @@ class RemoveOverseasCharityControllerGiftAidISpec extends IntegrationTest with V
             urlPost(url, body = form, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
           }
 
-          implicit def document: () => Document = () => Jsoup.parse(result.body)
-
           result.status shouldBe OK
         }
 

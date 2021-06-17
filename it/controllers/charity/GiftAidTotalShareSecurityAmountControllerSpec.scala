@@ -146,8 +146,6 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
             urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
           }
 
-          implicit def document: () => Document = () => Jsoup.parse(result.body)
-
           result.status shouldBe OK
         }
 

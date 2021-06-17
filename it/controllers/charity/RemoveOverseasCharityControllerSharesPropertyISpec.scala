@@ -131,8 +131,6 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
             urlPost(url, body = form, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
           }
 
-          implicit def document: () => Document = () => Jsoup.parse(result.body)
-
           result.status shouldBe OK
         }
 

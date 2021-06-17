@@ -116,8 +116,6 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
               headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
           }
 
-          implicit def document: () => Document = () => Jsoup.parse(result.body)
-
           "has an SEE_OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.headers("Location").headOption shouldBe Some(urlWithSameYears)
@@ -164,8 +162,6 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
               headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
           }
 
-          implicit def document: () => Document = () => Jsoup.parse(result.body)
-
           "has an SEE_OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.headers("Location").headOption shouldBe Some(urlWithSameYears)
@@ -179,8 +175,6 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
             authoriseAgentOrIndividual(user.isAgent)
             urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
           }
-
-          implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           result.status shouldBe OK
         }

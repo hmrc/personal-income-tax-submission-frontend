@@ -166,8 +166,6 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpe
             urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
           }
 
-          implicit def document: () => Document = () => Jsoup.parse(result.body)
-
           result.status shouldBe OK
         }
 
