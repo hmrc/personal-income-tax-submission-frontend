@@ -100,6 +100,10 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
 
           import user.commonExpectedResults._
 
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
           titleCheck(expectedTitle)
           h1Check(expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedContent, Selectors.content)

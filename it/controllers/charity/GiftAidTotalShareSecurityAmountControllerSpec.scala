@@ -115,6 +115,10 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
 
           import user.commonExpectedResults._
 
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
           titleCheck(heading)
           h1Check(heading + " " + caption)
           inputFieldCheck(inputName, Selectors.inputField)

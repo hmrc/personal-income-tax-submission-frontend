@@ -111,6 +111,10 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends IntegrationTest w
           import Selectors._
           import user.commonExpectedResults._
 
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
           titleCheck(user.specificExpectedResults.get.expectedTitle)
           welshToggleCheck(user.isWelsh)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)

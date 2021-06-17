@@ -117,6 +117,10 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
           import Selectors._
           import user.commonExpectedResults._
 
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
           titleCheck(user.specificExpectedResults.get.expectedTitle)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)
           textOnPageCheck(captionText, captionSelector)

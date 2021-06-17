@@ -134,6 +134,10 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
 
           import user.commonExpectedResults._
 
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
           titleCheck(user.specificExpectedResults.get.heading)
           h1Check(user.specificExpectedResults.get.heading + " " + expectedCaption)
           inputFieldCheck(inputName, Selectors.inputField)

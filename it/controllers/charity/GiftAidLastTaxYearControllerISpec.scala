@@ -142,6 +142,10 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
           import Selectors._
           import user.commonExpectedResults._
 
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
           titleCheck(user.specificExpectedResults.get.expectedTitle)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)

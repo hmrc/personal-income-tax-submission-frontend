@@ -118,6 +118,10 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
           import Selectors._
           import user.commonExpectedResults._
 
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
           titleCheck(user.specificExpectedResults.get.heading)
           h1Check(user.specificExpectedResults.get.heading + " " + caption)
           textOnPageCheck(user.specificExpectedResults.get.para, para)

@@ -129,6 +129,10 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
 
           import user.commonExpectedResults._
 
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
           titleCheck(expectedHeading)
           h1Check(expectedHeading + " " + expectedCaption)
           textOnPageCheck(user.specificExpectedResults.get.expectedParagraph1, Selectors.paragraph1HintText)

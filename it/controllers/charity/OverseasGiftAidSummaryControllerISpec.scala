@@ -20,7 +20,7 @@ import forms.YesNoForm
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
-import play.api.http.Status.SEE_OTHER
+import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.libs.ws.WSResponse
 import utils.{IntegrationTest, ViewHelpers}
 
@@ -136,6 +136,10 @@ class OverseasGiftAidSummaryControllerISpec extends IntegrationTest with ViewHel
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
 
           titleCheck(user.specificExpectedResults.get.headingMultiple)
           h1Check(s"${user.specificExpectedResults.get.headingMultiple} $caption")
