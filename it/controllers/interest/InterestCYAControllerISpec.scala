@@ -36,11 +36,13 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
       "there is CYA data in session" which {
         lazy val result = {
           dropInterestDB()
+
           emptyUserDataStub()
           insertCyaData(Some(InterestCYAModel(
             Some(false), None,
             Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
           )))
+
           authoriseIndividual()
           await(wsClient.url(s"$startUrl/$taxYear/interest/check-interest")
             .withHttpHeaders(xSessionId, csrfContent)

@@ -128,7 +128,7 @@ class GiftAidCYAController @Inject()(
             priorData.gifts.flatMap(_.investmentsNonUkCharitiesCharityNames.map(_.toSeq))
           )
 
-          Ok(view(taxYear, cyaModel, Some(priorData))).addingToSession(SessionValues.GIFT_AID_CYA -> cyaModel.asJsonString)
+          Ok(view(taxYear, cyaModel, Some(priorData)))
         case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
       }
     }

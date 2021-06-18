@@ -28,7 +28,7 @@ case class InterestUserDataModel(
                                   taxYear: Int,
                                   interest: Option[InterestCYAModel] = None,
                                   lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC)
-                                 ) extends UserDataTemplate
+                                ) extends UserDataTemplate
 
 object InterestUserDataModel {
   implicit lazy val formats: OFormat[InterestUserDataModel] = OFormat(reads, writes)

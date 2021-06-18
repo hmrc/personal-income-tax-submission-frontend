@@ -28,7 +28,7 @@ case class GiftAidUserDataModel(
                                  taxYear: Int,
                                  giftAid: Option[GiftAidCYAModel] = None,
                                  lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC)
-                                 ) extends UserDataTemplate
+                               ) extends UserDataTemplate
 
 object GiftAidUserDataModel {
   implicit lazy val formats: OFormat[GiftAidUserDataModel] = OFormat(reads, writes)
