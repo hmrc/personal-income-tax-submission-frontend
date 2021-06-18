@@ -128,7 +128,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
             }
 
             "redirects to the untaxed interest amount page" in {
-              result.headers("Location").head should include("/income-through-software/return/personal-income/2022/interest/untaxed-uk-interest-details/")
+              result.headers("Location").head should include("/income-through-software/return/personal-income/2022/interest/add-untaxed-uk-interest-account/")
             }
 
           }
@@ -152,7 +152,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
             }
 
             "redirects to the untaxed interest amount page" in {
-              result.headers("Location").head should include("/income-through-software/return/personal-income/2022/interest/untaxed-uk-interest-details/")
+              result.headers("Location").head should include("/income-through-software/return/personal-income/2022/interest/add-untaxed-uk-interest-account/")
             }
 
           }
@@ -183,7 +183,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
             }
 
             "redirects to cya" in {
-              result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/check-your-answers"
+              result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/check-interest"
             }
           }
 
@@ -264,7 +264,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
             }
 
             "redirects to cya" in {
-              result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/check-your-answers"
+              result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/check-interest"
             }
           }
 
@@ -397,7 +397,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
           }
 
           "redirects to the untaxed amount page" in {
-            result.headers("Location").head should include("/income-through-software/return/personal-income/2020/interest/untaxed-uk-interest-details/")
+            result.headers("Location").head should include("/income-through-software/return/personal-income/2020/interest/add-untaxed-uk-interest-account/")
           }
 
         }

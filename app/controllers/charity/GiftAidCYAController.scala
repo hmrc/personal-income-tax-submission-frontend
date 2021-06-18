@@ -135,32 +135,34 @@ class GiftAidCYAController @Inject()(
   }
 
   def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
-    giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid).fold(
-      Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
-    ) { model =>
-      val submissionModel = GiftAidSubmissionModel(
-        Some(GiftAidPaymentsModel(
-          model.overseasDonationsViaGiftAidAmount, model.overseasCharityNames.map(_.toList),
-          model.donationsViaGiftAidAmount,
-          model.addDonationToLastYearAmount,
-          model.addDonationToThisYearAmount,
-          model.oneOffDonationsViaGiftAidAmount
-        )),
-        Some(GiftsModel(
-          model.overseasDonatedSharesSecuritiesLandOrPropertyAmount, model.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.map(_.toList),
-          model.donatedSharesOrSecuritiesAmount, model.donatedLandOrPropertyAmount
-        ))
-      )
+    giftAidSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
+      cya.fold(
+        Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+      ) { model =>
+        val submissionModel = GiftAidSubmissionModel(
+          Some(GiftAidPaymentsModel(
+            model.overseasDonationsViaGiftAidAmount, model.overseasCharityNames.map(_.toList),
+            model.donationsViaGiftAidAmount,
+            model.addDonationToLastYearAmount,
+            model.addDonationToThisYearAmount,
+            model.oneOffDonationsViaGiftAidAmount
+          )),
+          Some(GiftsModel(
+            model.overseasDonatedSharesSecuritiesLandOrPropertyAmount, model.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.map(_.toList),
+            model.donatedSharesOrSecuritiesAmount, model.donatedLandOrPropertyAmount
+          ))
+        )
 
-      giftAidSubmissionService.submitGiftAid(Some(submissionModel), user.nino, user.mtditid, taxYear).map {
-        case Right(_) =>
-          auditSubmission(CreateOrAmendGiftAidAuditDetail(
-            priorData, Some(submissionModel), priorData.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase(), taxYear)
-          )
-          Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-        case Left(_) => errorHandler.handleError(INTERNAL_SERVER_ERROR)
+        giftAidSubmissionService.submitGiftAid(Some(submissionModel), user.nino, user.mtditid, taxYear).map {
+          case Right(_) =>
+            auditSubmission(CreateOrAmendGiftAidAuditDetail(
+              prior, Some(submissionModel), prior.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase(), taxYear)
+            )
+            Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+          case Left(_) => errorHandler.handleError(INTERNAL_SERVER_ERROR)
+        }
       }
-    }).flatten
+    }.flatten
   }
 
   private def auditSubmission(details: CreateOrAmendGiftAidAuditDetail)

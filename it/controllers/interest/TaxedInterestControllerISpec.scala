@@ -312,7 +312,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
           }
 
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head should include("/income-through-software/return/personal-income/2022/interest/taxed-uk-interest-details/")
+          result.headers("Location").head should include("/income-through-software/return/personal-income/2022/interest/add-taxed-uk-interest-account/")
         }
 
       }

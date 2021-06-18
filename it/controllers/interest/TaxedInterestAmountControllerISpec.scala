@@ -493,15 +493,19 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
         ))
       )
       lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-        SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
         SessionValues.CLIENT_MTDITID -> "1234567890",
         SessionValues.CLIENT_NINO -> "AA123456A"
       ))
 
       def response(formMap: Map[String, String]): WSResponse = {
+        dropInterestDB()
+
+        insertCyaData(Some(interestCYA))
+        emptyUserDataStub()
+
         authoriseAgent()
         await(wsClient.url(taxedInterestAmountUrl(id))
-          .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+          .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
           .post(formMap))
       }
 

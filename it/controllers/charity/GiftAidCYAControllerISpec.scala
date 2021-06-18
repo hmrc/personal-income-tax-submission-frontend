@@ -187,6 +187,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
     userDataStub(priorModel, nino, taxYear)
     insertCyaData(cya)
+
     authoriseIndividual()
     await(wsClient.url(url).withFollowRedirects(false).withHttpHeaders(xSessionId, csrfContent).get())
   }
@@ -201,6 +202,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
     userDataStub(priorModel, nino, taxYear)
     insertCyaData(cya)
+
     authoriseIndividual()
     await(wsClient.url(url).withFollowRedirects(false).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent).get())
   }
@@ -223,6 +225,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
     userDataStub(priorModel, nino, taxYear)
     insertCyaData(cya)
+
     authoriseAgent()
     await(wsClient.url(url)
       .withFollowRedirects(false)
@@ -247,6 +250,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
     userDataStub(priorModel, nino, taxYear)
     insertCyaData(cya)
+
     authoriseAgent()
     await(wsClient.url(url)
       .withFollowRedirects(false)
@@ -1099,8 +1103,11 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
       "there is no CYA data available" which {
         lazy val result = {
           dropGiftAidDB()
-
           wireMockServer.resetAll()
+
+          emptyUserDataStub()
+          insertCyaData(None)
+
           authoriseIndividual()
           stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
           await(wsClient.url(url).withHttpHeaders(xSessionId, csrfContent).withFollowRedirects(false).post(Map[String, String]()))
@@ -1118,11 +1125,11 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
       "the request goes through successfully" which {
         lazy val result = {
           dropGiftAidDB()
+          wireMockServer.resetAll()
 
           emptyUserDataStub()
           insertCyaData(Some(cyaDataMax))
 
-          wireMockServer.resetAll()
           authoriseIndividual()
           stubPost(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
           stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")

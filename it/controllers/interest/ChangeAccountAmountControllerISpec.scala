@@ -993,6 +993,10 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
         lazy val result = {
           dropInterestDB()
+
+          emptyUserDataStub()
+          insertCyaData(None)
+
           authoriseIndividual()
           await(wsClient.url(url("TaxedId", "taxed"))
             .withHttpHeaders(
@@ -1004,7 +1008,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
         "redirects to the taxed accounts summary page" in {
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head.contains("/interest/taxed-uk-interest-account-summary") shouldBe true
+          result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/accounts-with-taxed-uk-interest"
         }
       }
 
@@ -1403,6 +1407,10 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
       "there is no CYA data in session" which {
         lazy val result = {
           dropInterestDB()
+
+          emptyUserDataStub()
+          insertCyaData(None)
+
           authoriseIndividual()
           await(wsClient.url(url("UntaxedId", "untaxed"))
             .withHttpHeaders(
@@ -1413,7 +1421,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         }
         s"redirects to the untaxed accounts summary page" in {
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head.contains("/interest/untaxed-uk-interest-account-summary") shouldBe true
+          result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/accounts-with-untaxed-uk-interest"
         }
       }
 

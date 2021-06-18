@@ -465,20 +465,24 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
       lazy val interestCYA = InterestCYAModel(
         Some(false), None, Some(true), Some(Seq(
-          InterestAccountModel(Some("differentId"), accountName, amount),
-          InterestAccountModel(None, accountName, amount, Some(id))
+          InterestAccountModel(Some("differentId"), firstAccountName, amount),
+          InterestAccountModel(None, secondAccountName, amount, Some(id))
         ))
       )
       lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-        SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
         SessionValues.CLIENT_MTDITID -> "1234567890",
         SessionValues.CLIENT_NINO -> "AA123456A"
       ))
 
       def response(formMap: Map[String, String]): WSResponse = {
+        dropInterestDB()
+
+        insertCyaData(Some(interestCYA))
+        emptyUserDataStub()
+
         authoriseAgent()
         await(wsClient.url(untaxedInterestAmountUrl(id))
-          .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+          .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, "Csrf-Token" -> "nocheck")
           .post(formMap))
       }
 
@@ -505,6 +509,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
     "the user has Welsh toggled" when {
       def response(formMap: Map[String, String]): WSResponse = {
         dropInterestDB()
+
         emptyUserDataStub()
         insertCyaData(Some(InterestCYAModel(
           Some(true), Some(Seq(
@@ -513,6 +518,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
           )),
           Some(false), None
         )))
+
         authoriseIndividual()
         await(wsClient.url(untaxedInterestAmountUrl(id))
           .withHttpHeaders(xSessionId, csrfContent, HeaderNames.ACCEPT_LANGUAGE -> "cy")

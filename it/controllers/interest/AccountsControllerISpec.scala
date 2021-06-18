@@ -282,7 +282,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           }
 
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head.contains("/income-through-software/return/personal-income/2022/interest/check-your-answers") shouldBe true
+          result.headers("Location").head.contains("/income-through-software/return/personal-income/2022/interest/check-interest") shouldBe true
         }
       }
 
@@ -298,6 +298,8 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
               None, None
             ))
           )))
+
+          emptyUserDataStub()
 
           val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
             SessionValues.TAX_YEAR -> taxYear.toString
@@ -325,27 +327,25 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
     "the user has selected to add an extra account" should {
 
       "redirect to the untaxed interest amount page" in {
-        dropInterestDB()
-
-        await(interestDatabase.create(InterestUserDataModel(
-          sessionId, mtditid, someNino, taxYear,
-          Some(InterestCYAModel(
-            Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-            Some(false), None
-          ))
-        )))
-
         val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.TAX_YEAR -> taxYear.toString
         ))
 
         val result: WSResponse = {
+          dropInterestDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(InterestCYAModel(
+            Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
+            Some(false), None
+          )), overrideNino = Some(someNino))
+
           authoriseIndividual(Some(someNino))
           await(wsClient.url(untaxedUrl)
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
+              xSessionId,
               "mtditid" -> mtditid,
-              "Csrf-Token" -> "nocheck",
+              csrfContent,
               HeaderNames.COOKIE -> playSessionCookie
             )
             .withFollowRedirects(false)
@@ -353,7 +353,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
         }
 
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head.contains("/income-through-software/return/personal-income/2022/interest/untaxed-uk-interest-details") shouldBe true
+        result.headers("Location").head should include("/income-through-software/return/personal-income/2022/interest/add-untaxed-uk-interest-account")
       }
     }
 
@@ -400,21 +400,22 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
       "cya data is complete" should {
 
         "redirect to the interest cya page" in {
-          dropInterestDB()
-
-          await(interestDatabase.create(InterestUserDataModel(
-            sessionId, mtditid, someNino, taxYear,
-            Some(InterestCYAModel(
-              Some(false), None,
-              Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
-            ))
-          )))
-
           val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
             SessionValues.TAX_YEAR -> taxYear.toString
           ))
 
           val result: WSResponse = {
+            dropInterestDB()
+
+            await(interestDatabase.create(InterestUserDataModel(
+              sessionId, mtditid, someNino, taxYear,
+              Some(InterestCYAModel(
+                Some(false), None,
+                Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
+              ))
+            )))
+            emptyUserDataStub()
+
             authoriseIndividual(Some(someNino))
             await(wsClient.url(taxedUrl)
               .withHttpHeaders(
@@ -428,7 +429,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           }
 
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head.contains("/income-through-software/return/personal-income/2022/interest/check-your-answers") shouldBe true
+          result.headers("Location").head.contains("/income-through-software/return/personal-income/2022/interest/check-interest") shouldBe true
         }
       }
     }
@@ -436,27 +437,25 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
     "the user has selected to add an extra account" should {
 
       "redirect to the untaxed interest amount page" in {
-        dropInterestDB()
-
-        await(interestDatabase.create(InterestUserDataModel(
-          sessionId, mtditid, someNino, taxYear,
-          Some(InterestCYAModel(
-            Some(false), None,
-            Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
-          ))
-        )))
-
         val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.TAX_YEAR -> taxYear.toString
         ))
 
         val result: WSResponse = {
+          dropInterestDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(InterestCYAModel(
+            Some(false), None,
+            Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
+          )), overrideNino = Some(someNino))
+
           authoriseIndividual(Some(someNino))
           await(wsClient.url(taxedUrl)
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
+              xSessionId,
               "mtditid" -> mtditid,
-              "Csrf-Token" -> "nocheck",
+              csrfContent,
               HeaderNames.COOKIE -> playSessionCookie
             )
             .withFollowRedirects(false)
@@ -464,7 +463,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
         }
 
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head.contains("/income-through-software/return/personal-income/2022/interest/taxed-uk-interest-details") shouldBe true
+        result.headers("Location").head should include("/income-through-software/return/personal-income/2022/interest/add-taxed-uk-interest-account")
       }
     }
 
