@@ -22,5 +22,4 @@ object SessionValues {
   val TAX_YEAR = "TAX_YEAR"
 
   val GIFT_AID_PRIOR_SUB = "GIFT_AID_PRIOR_SUB" //TODO To be removed
-  val GIFT_AID_CYA = "GIFT_AID_CYA" //TODO To be removed
 }

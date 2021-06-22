@@ -115,10 +115,4 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
   lazy val giftAidReleased: Boolean = servicesConfig.getBoolean("feature-switch.giftAidReleased")
   lazy val employmentEnabled: Boolean = servicesConfig.getBoolean("feature-switch.employmentEnabled")
   lazy val employmentReleased: Boolean = servicesConfig.getBoolean("feature-switch.employmentReleased")
-
-  lazy val excludedIncomeSources: Seq[String] = Seq(
-    (DIVIDENDS, dividendsEnabled),
-    (INTEREST, interestEnabled),
-    (GIFT_AID, giftAidEnabled)
-  ).filterNot(_._2).map(_._1.stringify)
 }
