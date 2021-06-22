@@ -16,20 +16,19 @@
 
 package controllers.interest
 
-import common.SessionValues
 import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.YesNoForm
 import models.User
-import models.interest.{InterestCYAModel, InterestPriorSubmission}
+import models.interest.InterestCYAModel
 import models.question.QuestionsJourney
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.InterestSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.InterestSessionHelper
+import utils.SessionHelper
 import views.html.interest.UntaxedInterestView
 
 import java.util.UUID.randomUUID
@@ -45,7 +44,7 @@ class UntaxedInterestController @Inject()(
                                            errorHandler: ErrorHandler,
                                            implicit val mcc: MessagesControllerComponents
                                          )
-  extends FrontendController(mcc) with I18nSupport with InterestSessionHelper {
+  extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
   val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("interest.untaxed-uk-interest.errors.noRadioSelected")

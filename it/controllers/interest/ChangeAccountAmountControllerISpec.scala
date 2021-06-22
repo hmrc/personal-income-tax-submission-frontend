@@ -166,8 +166,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, None, Some(amount))))), nino, taxYear)
           await(wsClient.url(url(id, "untaxed"))
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck",
+              xSessionId,
+              csrfContent,
               HeaderNames.COOKIE -> sessionCookie
             ).get()
           )
@@ -203,8 +203,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, None, Some(amount))))), nino, taxYear)
           await(wsClient.url(url(id, "untaxed"))
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck",
+              xSessionId,
+              csrfContent,
               HeaderNames.COOKIE -> sessionCookie
             ).get()
           )
@@ -235,8 +235,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, None, Some(amount))))), nino, taxYear)
           await(wsClient.url(url(id, "untaxed"))
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck",
+              xSessionId,
+              csrfContent,
               HeaderNames.ACCEPT_LANGUAGE -> "cy"
             ).get()
           )
@@ -272,8 +272,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, None, Some(amount))))), nino, taxYear)
           await(wsClient.url(url(id, "untaxed"))
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck",
+              xSessionId,
+              csrfContent,
               HeaderNames.COOKIE -> sessionCookie,
               HeaderNames.ACCEPT_LANGUAGE -> "cy"
             ).get()
@@ -309,8 +309,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, None, Some(amount))))), nino, taxYear)
           await(wsClient.url(url(id, "untaxed"))
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).get()
           )
         }
@@ -338,8 +338,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
             stubGet("/income-through-software/return/2022/view", SEE_OTHER, "overview")
             await(wsClient.url(url(id, "untaxed"))
               .withHttpHeaders(
-                "X-Session-ID" -> sessionId,
-                "Csrf-Token" -> "nocheck",
+                xSessionId,
+                csrfContent,
                 HeaderNames.COOKIE -> playSessionCookie
               )
               .withFollowRedirects(false)
@@ -367,8 +367,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
             userDataStub(IncomeSourcesModel(interest = Some(Seq())), nino, taxYear)
             await(wsClient.url(url(id, "untaxed"))
               .withHttpHeaders(
-                "X-Session-ID" -> sessionId,
-                "Csrf-Token" -> "nocheck",
+                xSessionId,
+                csrfContent,
               ).get()
             )
           }
@@ -397,8 +397,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, Some(amount), None)))), nino, taxYear)
           await(wsClient.url(url(id, "taxed"))
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck",
+              xSessionId,
+              csrfContent,
               HeaderNames.COOKIE -> sessionCookie
             ).get()
           )
@@ -435,8 +435,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, Some(amount), None)))), nino, taxYear)
           await(wsClient.url(url(id, "taxed"))
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck",
+              xSessionId,
+              csrfContent,
               HeaderNames.COOKIE -> sessionCookie
             ).get()
           )
@@ -468,8 +468,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, Some(amount), None)))), nino, taxYear)
           await(wsClient.url(url(id, "taxed"))
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck",
+              xSessionId,
+              csrfContent,
               HeaderNames.ACCEPT_LANGUAGE -> "cy"
             ).get()
           )
@@ -506,8 +506,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, None, Some(amount))))), nino, taxYear)
           await(wsClient.url(url(id, "taxed"))
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck",
+              xSessionId,
+              csrfContent,
               HeaderNames.COOKIE -> sessionCookie,
               HeaderNames.ACCEPT_LANGUAGE -> "cy"
             ).get()
@@ -544,8 +544,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, Some(amount), None)))), nino, taxYear)
           await(wsClient.url(url(id, "taxed"))
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).get()
           )
         }
@@ -574,8 +574,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
             stubGet("/income-through-software/return/2022/view", SEE_OTHER, "overview")
             await(wsClient.url(url(id, "taxed"))
               .withHttpHeaders(
-                "X-Session-ID" -> sessionId,
-                "Csrf-Token" -> "nocheck",
+                xSessionId,
+                csrfContent,
                 HeaderNames.COOKIE -> playSessionCookie
               )
               .withFollowRedirects(false)
@@ -603,8 +603,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
             userDataStub(IncomeSourcesModel(interest = Some(Seq())), nino, taxYear)
             await(wsClient.url(url(id, "taxed"))
               .withHttpHeaders(
-                "X-Session-ID" -> sessionId,
-                "Csrf-Token" -> "nocheck",
+                xSessionId,
+                csrfContent,
               ).get()
             )
           }
@@ -636,8 +636,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
           await(wsClient.url(url("TaxedId", "taxed"))
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).post(Map("amount" -> ""))
           )
         }
@@ -666,8 +666,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
           await(wsClient.url(url("TaxedId", "taxed"))
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck",
+              xSessionId,
+              csrfContent,
               HeaderNames.COOKIE -> sessionCookie
             ).post(Map("amount" -> ""))
           )
@@ -692,8 +692,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
           await(wsClient.url(url("TaxedId", "taxed"))
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck")
+              xSessionId,
+              csrfContent)
             .post(Map("amount" -> "|")))
         }
         s"has an BAD_REQUEST($BAD_REQUEST) status" in {
@@ -721,8 +721,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
           await(wsClient.url(url("TaxedId", "taxed"))
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck",
+              xSessionId,
+              csrfContent,
               HeaderNames.COOKIE -> sessionCookie
             ).post(Map("amount" -> "|"))
           )
@@ -746,8 +746,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
           await(wsClient.url(url("TaxedId", "taxed"))
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).post(Map("amount" -> "99999999999999999999999999999999999999999"))
           )
         }
@@ -776,8 +776,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           await(wsClient.url(url("TaxedId", "taxed"))
             .withHttpHeaders(
               HeaderNames.COOKIE -> sessionCookie,
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).post(Map("amount" -> "999999999999999999999999999999999999"))
           )
         }
@@ -801,8 +801,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           await(wsClient.url(url("TaxedId", "taxed"))
             .withHttpHeaders(
               HeaderNames.ACCEPT_LANGUAGE -> "cy",
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).post(Map("amount" -> ""))
           )
         }
@@ -833,8 +833,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
             .withHttpHeaders(
               HeaderNames.COOKIE -> sessionCookie,
               HeaderNames.ACCEPT_LANGUAGE -> "cy",
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).post(Map("amount" -> ""))
           )
         }
@@ -860,8 +860,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           await(wsClient.url(url("TaxedId", "taxed"))
             .withHttpHeaders(
               HeaderNames.ACCEPT_LANGUAGE -> "cy",
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).post(Map("amount" -> "|"))
           )
         }
@@ -893,8 +893,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
             .withHttpHeaders(
               HeaderNames.COOKIE -> sessionCookie,
               HeaderNames.ACCEPT_LANGUAGE -> "cy",
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).post(Map("amount" -> "|"))
           )
         }
@@ -920,8 +920,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           await(wsClient.url(url("TaxedId", "taxed"))
             .withHttpHeaders(
               HeaderNames.ACCEPT_LANGUAGE -> "cy",
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).post(Map("amount" -> "99999999999999999999999999999999999999999"))
           )
         }
@@ -953,8 +953,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
             .withHttpHeaders(
               HeaderNames.COOKIE -> sessionCookie,
               HeaderNames.ACCEPT_LANGUAGE -> "cy",
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).post(Map("amount" -> "99999999999999999999999999999999999999999"))
           )
         }
@@ -978,8 +978,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           userDataStub(IncomeSourcesModel(interest = None), nino, taxYear)
           await(wsClient.url(url("TaxedId", "taxed"))
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).post("{}")
           )
         }
@@ -1000,8 +1000,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           authoriseIndividual()
           await(wsClient.url(url("TaxedId", "taxed"))
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).withFollowRedirects(false).post("{}")
           )
         }
@@ -1019,8 +1019,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           authoriseIndividualUnauthorized()
           await(wsClient.url(url("TaxedId", "taxed"))
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).post("{}")
           )
         }
@@ -1044,8 +1044,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
           await(wsClient.url(url("UntaxedId", "untaxed"))
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).post(Map("amount" -> "250"))
           )
         }
@@ -1066,8 +1066,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
           await(wsClient.url(url("UntaxedId", "untaxed"))
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).post(Map("amount" -> ""))
           )
         }
@@ -1097,8 +1097,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           await(wsClient.url(url("UntaxedId", "untaxed"))
             .withHttpHeaders(
               HeaderNames.COOKIE -> sessionCookie,
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).post(Map("amount" -> ""))
           )
         }
@@ -1123,8 +1123,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
           await(wsClient.url(url("UntaxedId", "untaxed"))
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).post(Map("amount" -> "|"))
           )
         }
@@ -1154,8 +1154,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           await(wsClient.url(url("UntaxedId", "untaxed"))
             .withHttpHeaders(
               HeaderNames.COOKIE -> sessionCookie,
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).post(Map("amount" -> "|"))
           )
         }
@@ -1179,8 +1179,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
           await(wsClient.url(url("UntaxedId", "untaxed"))
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).post(Map("amount" -> "9999999999999999999999999999"))
           )
         }
@@ -1210,8 +1210,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           await(wsClient.url(url("UntaxedId", "untaxed"))
             .withHttpHeaders(
               HeaderNames.COOKIE -> sessionCookie,
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).post(Map("amount" -> "99999999999999999999999999999999"))
           )
         }
@@ -1237,8 +1237,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           await(wsClient.url(url("UntaxedId", "untaxed"))
             .withHttpHeaders(
               HeaderNames.ACCEPT_LANGUAGE -> "cy",
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).post(Map("amount" -> ""))
           )
         }
@@ -1269,8 +1269,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
             .withHttpHeaders(
               HeaderNames.ACCEPT_LANGUAGE -> "cy",
               HeaderNames.COOKIE -> sessionCookie,
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).post(Map("amount" -> ""))
           )
         }
@@ -1296,8 +1296,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           await(wsClient.url(url("UntaxedId", "untaxed"))
             .withHttpHeaders(
               HeaderNames.ACCEPT_LANGUAGE -> "cy",
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).post(Map("amount" -> "|"))
           )
         }
@@ -1329,8 +1329,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
             .withHttpHeaders(
               HeaderNames.ACCEPT_LANGUAGE -> "cy",
               HeaderNames.COOKIE -> sessionCookie,
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).post(Map("amount" -> "|"))
           )
         }
@@ -1356,8 +1356,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           await(wsClient.url(url("UntaxedId", "untaxed"))
             .withHttpHeaders(
               HeaderNames.ACCEPT_LANGUAGE -> "cy",
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).post(Map("amount" -> "9999999999999999999999999999"))
           )
         }
@@ -1389,8 +1389,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
             .withHttpHeaders(
               HeaderNames.ACCEPT_LANGUAGE -> "cy",
               HeaderNames.COOKIE -> sessionCookie,
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).post(Map("amount" -> "99999999999999999999999999999999"))
           )
         }
@@ -1414,8 +1414,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           authoriseIndividual()
           await(wsClient.url(url("UntaxedId", "untaxed"))
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).withFollowRedirects(false).post("{}")
           )
         }
@@ -1432,8 +1432,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           authoriseIndividualUnauthorized()
           await(wsClient.url(url("UntaxedId", "untaxed"))
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).post("{}")
           )
         }

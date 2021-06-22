@@ -31,7 +31,7 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.InterestSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.InterestSessionHelper
+import utils.SessionHelper
 import views.html.interest.UntaxedInterestAmountView
 
 import java.util.UUID.randomUUID
@@ -47,7 +47,7 @@ class UntaxedInterestAmountController @Inject()(
                                                  implicit val appConfig: AppConfig,
                                                  questionsJourneyValidator: QuestionsJourneyValidator,
                                                  ec: ExecutionContext
-                                               ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper with Logging {
+                                               ) extends FrontendController(mcc) with I18nSupport with SessionHelper with Logging {
 
   def show(taxYear: Int, id: String): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
 

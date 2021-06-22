@@ -84,9 +84,9 @@ class DividendsCYAControllerISpec extends IntegrationTest with DividendsDatabase
           userDataStub(priorData, fullDividendsNino, taxYear)
           await(wsClient.url(dividendsCheckYourAnswersUrl)
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
+              xSessionId,
               "mtditid" -> mtditid,
-              "Csrf-Token" -> "nocheck",
+              csrfContent,
               HeaderNames.COOKIE -> playSessionCookie
             )
             .get())
@@ -115,9 +115,9 @@ class DividendsCYAControllerISpec extends IntegrationTest with DividendsDatabase
           userDataStub(IncomeSourcesModel(), fullDividendsNino, taxYear)
           await(wsClient.url(dividendsCheckYourAnswersUrl)
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
+              xSessionId,
               "mtditid" -> mtditid,
-              "Csrf-Token" -> "nocheck",
+              csrfContent,
               HeaderNames.COOKIE -> playSessionCookie
             )
             .get())
@@ -138,9 +138,9 @@ class DividendsCYAControllerISpec extends IntegrationTest with DividendsDatabase
           userDataStub(priorData, "AA112233B", taxYear)
           await(wsClient.url(dividendsCheckYourAnswersUrl)
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
+              xSessionId,
               "mtditid" -> mtditid,
-              "Csrf-Token" -> "nocheck",
+              csrfContent,
               HeaderNames.COOKIE -> playSessionCookie
             )
             .get())
@@ -166,9 +166,9 @@ class DividendsCYAControllerISpec extends IntegrationTest with DividendsDatabase
           stubGet("/income-through-software/return/2022/view", SEE_OTHER, "overview")
           await(wsClient.url(dividendsCheckYourAnswersUrl)
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
+              xSessionId,
               "mtditid" -> mtditid,
-              "Csrf-Token" -> "nocheck",
+              csrfContent,
               HeaderNames.COOKIE -> playSessionCookie
             )
             .withFollowRedirects(false)
@@ -203,9 +203,9 @@ class DividendsCYAControllerISpec extends IntegrationTest with DividendsDatabase
             userDataStub(priorDataEmpty, fullDividendsNino, taxYear)
             await(wsClient.url(dividendsCheckYourAnswersUrl)
               .withHttpHeaders(
-                "X-Session-ID" -> sessionId,
+                xSessionId,
                 "mtditid" -> mtditid,
-                "Csrf-Token" -> "nocheck",
+                csrfContent,
                 HeaderNames.COOKIE -> playSessionCookie
               )
               .withFollowRedirects(false)
@@ -240,9 +240,9 @@ class DividendsCYAControllerISpec extends IntegrationTest with DividendsDatabase
             userDataStub(priorDataEmpty, fullDividendsNino, taxYear)
             await(wsClient.url(dividendsCheckYourAnswersUrl)
               .withHttpHeaders(
-                "X-Session-ID" -> sessionId,
+                xSessionId,
                 "mtditid" -> mtditid,
-                "Csrf-Token" -> "nocheck",
+                csrfContent,
                 HeaderNames.COOKIE -> playSessionCookie
               )
               .withFollowRedirects(false)
@@ -279,9 +279,9 @@ class DividendsCYAControllerISpec extends IntegrationTest with DividendsDatabase
           userDataStub(priorDataEmpty, fullDividendsNino, taxYear)
           await(wsClient.url(dividendsCheckYourAnswersUrl)
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
+              xSessionId,
               "mtditid" -> mtditid,
-              "Csrf-Token" -> "nocheck",
+              csrfContent,
               HeaderNames.COOKIE -> playSessionCookie
             )
             .withFollowRedirects(false)
@@ -317,9 +317,9 @@ class DividendsCYAControllerISpec extends IntegrationTest with DividendsDatabase
           userDataStub(priorDataEmpty, fullDividendsNino, taxYear)
           await(wsClient.url(dividendsCheckYourAnswersUrl)
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
+              xSessionId,
               "mtditid" -> mtditid,
-              "Csrf-Token" -> "nocheck",
+              csrfContent,
               HeaderNames.COOKIE -> playSessionCookie
             )
             .withFollowRedirects(false)
@@ -360,9 +360,9 @@ class DividendsCYAControllerISpec extends IntegrationTest with DividendsDatabase
           userDataStub(priorDataEmpty, fullDividendsNino, taxYear)
           await(wsClient.url(s"$startUrl/2004/dividends/check-income-from-dividends")
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
+              xSessionId,
               "mtditid" -> mtditid,
-              "Csrf-Token" -> "nocheck",
+              csrfContent,
               HeaderNames.COOKIE -> playSessionCookie
             )
             .withFollowRedirects(false)
@@ -406,9 +406,9 @@ class DividendsCYAControllerISpec extends IntegrationTest with DividendsDatabase
           stubPut("/income-tax-dividends/income-tax/nino/AA000003A/sources\\?taxYear=2022", NO_CONTENT, "")
           await(wsClient.url(dividendsCheckYourAnswersUrl)
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
+              xSessionId,
               "mtditid" -> mtditid,
-              "Csrf-Token" -> "nocheck",
+              csrfContent,
               HeaderNames.COOKIE -> playSessionCookie
             )
             .withFollowRedirects(false)
@@ -448,9 +448,9 @@ class DividendsCYAControllerISpec extends IntegrationTest with DividendsDatabase
           stubPut("/income-tax-dividends/income-tax/nino/AA000003A/sources\\?taxYear=2022", INTERNAL_SERVER_ERROR, "")
           await(wsClient.url(dividendsCheckYourAnswersUrl)
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
+              xSessionId,
               "mtditid" -> mtditid,
-              "Csrf-Token" -> "nocheck",
+              csrfContent,
               HeaderNames.COOKIE -> playSessionCookie
             )
             .withFollowRedirects(false)
@@ -482,9 +482,9 @@ class DividendsCYAControllerISpec extends IntegrationTest with DividendsDatabase
           stubPut("/income-tax-dividends/income-tax/nino/AA000003A/sources\\?taxYear=2022", SERVICE_UNAVAILABLE, "")
           await(wsClient.url(dividendsCheckYourAnswersUrl)
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
+              xSessionId,
               "mtditid" -> mtditid,
-              "Csrf-Token" -> "nocheck",
+              csrfContent,
               HeaderNames.COOKIE -> playSessionCookie
             )
             .withFollowRedirects(false)

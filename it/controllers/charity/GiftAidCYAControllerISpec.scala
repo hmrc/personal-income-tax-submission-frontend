@@ -838,10 +838,6 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
       "return a minimal CYA view" when {
 
         "the CYA model contains all false values" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataMin.asJsonString
-          ))
-
           lazy val result = responseWelsh(Some(cyaDataMin))
 
           implicit lazy val document: () => Document = () => Jsoup.parse(result.body)
@@ -991,13 +987,6 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
         }
 
         "there is a full CYA model, and there is a full prior data model" which {
-          lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString,
-            SessionValues.GIFT_AID_PRIOR_SUB -> Json.prettyPrint(Json.toJson(priorDataMax)),
-            SessionValues.CLIENT_NINO -> nino,
-            SessionValues.CLIENT_MTDITID -> mtditid
-          ))
-
           lazy val result = responseAgentWelsh(Some(cyaDataMax), Some(priorDataMax))
 
           implicit lazy val document: () => Document = () => Jsoup.parse(result.body)

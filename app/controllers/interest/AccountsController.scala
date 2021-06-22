@@ -17,22 +17,20 @@
 package controllers.interest
 
 import common.InterestTaxTypes._
-import common.{SessionValues, UUID}
-import config.{AppConfig, ErrorHandler, INTEREST}
+import common.UUID
+import config.{AppConfig, INTEREST}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.YesNoForm
-import models.User
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.I18nSupport
-import play.api.libs.json.Json
 import play.api.mvc._
 import services.InterestSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.InterestSessionHelper
+import utils.SessionHelper
 import views.html.interest.InterestAccountsView
 
 import javax.inject.Inject
@@ -47,9 +45,7 @@ class AccountsController @Inject()(
                                     val mcc: MessagesControllerComponents,
                                     val authorisedAction: AuthorisedAction,
                                     ec: ExecutionContext
-                                  ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper with Logging {
-
-
+                                  ) extends FrontendController(mcc) with I18nSupport with SessionHelper with Logging {
 
   implicit def resultToFutureResult: Result => Future[Result] = baseResult => Future.successful(baseResult)
 

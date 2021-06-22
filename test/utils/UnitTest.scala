@@ -157,25 +157,4 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
       .expects(*, *, *, *)
       .returning(Future.failed(exception))
   }
-
-  def mockJourneyFeatureSwitchOn: CallHandler1[JourneyKey, Boolean] = mockAppConfig.isJourneyAvailable _ expects * returning true
-  def mockJourneyFeatureSwitchOff: CallHandler1[JourneyKey, Boolean] = mockAppConfig.isJourneyAvailable _ expects * returning false
-
-  //noinspection ScalaStyle
-  def mockDividendGetCya(cya: Option[DividendsCheckYourAnswersModel]) = (mockDividendsSessionService.getSessionData(_: Int)(_: User[_]))
-    .expects(*, *)
-    .returning(Future.successful(Some(DividendsUserDataModel(
-      sessionId,
-      "1234567890",
-      "AA123456A",
-      2020,
-      cya
-    ))))
-
-  //noinspection ScalaStyle
-  def mockDividendsGetPrior(prior: Option[DividendsPriorSubmission]) = (mockDividendsSessionService.getPriorData(_: Int)(_: User[_], _: HeaderCarrier))
-    .expects(*, *, *)
-    .returning(Future.successful(Right(IncomeSourcesModel(
-      dividends = prior
-    ))))
 }

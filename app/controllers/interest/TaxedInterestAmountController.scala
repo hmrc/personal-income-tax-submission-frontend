@@ -16,8 +16,8 @@
 
 package controllers.interest
 
+import common.InterestTaxTypes
 import common.InterestTaxTypes.TAXED
-import common.{InterestTaxTypes, SessionValues}
 import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
@@ -29,14 +29,12 @@ import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
+import services.InterestSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.InterestSessionHelper
+import utils.SessionHelper
 import views.html.interest.TaxedInterestAmountView
 
 import java.util.UUID.randomUUID
-import forms.interest.TaxedInterestAmountForm
-import services.InterestSessionService
-
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -49,7 +47,7 @@ class TaxedInterestAmountController @Inject()(
                                                errorHandler: ErrorHandler,
                                                implicit val mcc: MessagesControllerComponents,
                                                questionsJourneyValidator: QuestionsJourneyValidator
-                                             ) extends FrontendController(mcc) with InterestSessionHelper with I18nSupport with Logging {
+                                             ) extends FrontendController(mcc) with SessionHelper with I18nSupport with Logging {
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
 

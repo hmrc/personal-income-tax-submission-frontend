@@ -64,9 +64,9 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           authoriseIndividual(Some(someNino))
           await(wsClient.url(untaxedUrl)
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
+              xSessionId,
               "mtditid" -> mtditid,
-              "Csrf-Token" -> "nocheck",
+              csrfContent,
               HeaderNames.COOKIE -> playSessionCookie
             )
             .get())
@@ -94,9 +94,9 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           stubGet("/income-through-software/return/2022/view", SEE_OTHER, "overview")
           await(wsClient.url(untaxedUrl)
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
+              xSessionId,
               "mtditid" -> mtditid,
-              "Csrf-Token" -> "nocheck",
+              csrfContent,
               HeaderNames.COOKIE -> playSessionCookie
             )
             .withFollowRedirects(false)
@@ -129,9 +129,9 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           authoriseIndividual(Some(someNino))
           await(wsClient.url(untaxedUrl)
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
+              xSessionId,
               "mtditid" -> mtditid,
-              "Csrf-Token" -> "nocheck",
+              csrfContent,
               HeaderNames.COOKIE -> playSessionCookie
             )
             .withFollowRedirects(false)
@@ -167,9 +167,9 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           authoriseIndividual(Some(someNino))
           await(wsClient.url(taxedUrl)
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
+              xSessionId,
               "mtditid" -> mtditid,
-              "Csrf-Token" -> "nocheck",
+              csrfContent,
               HeaderNames.COOKIE -> playSessionCookie
             )
             .get())
@@ -197,9 +197,9 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           stubGet("/income-through-software/return/2022/view", SEE_OTHER, "overview")
           await(wsClient.url(taxedUrl)
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
+              xSessionId,
               "mtditid" -> mtditid,
-              "Csrf-Token" -> "nocheck",
+              csrfContent,
               HeaderNames.COOKIE -> playSessionCookie
             )
             .withFollowRedirects(false)
@@ -232,9 +232,9 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           authoriseIndividual(Some(someNino))
           await(wsClient.url(taxedUrl)
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
+              xSessionId,
               "mtditid" -> mtditid,
-              "Csrf-Token" -> "nocheck",
+              csrfContent,
               HeaderNames.COOKIE -> playSessionCookie
             )
             .withFollowRedirects(false)
@@ -272,9 +272,9 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
             authoriseIndividual(Some(someNino))
             await(wsClient.url(untaxedUrl)
               .withHttpHeaders(
-                "X-Session-ID" -> sessionId,
+                xSessionId,
                 "mtditid" -> mtditid,
-                "Csrf-Token" -> "nocheck",
+                csrfContent,
                 HeaderNames.COOKIE -> playSessionCookie
               )
               .withFollowRedirects(false)
@@ -309,9 +309,9 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
             authoriseIndividual(Some(someNino))
             await(wsClient.url(untaxedUrl)
               .withHttpHeaders(
-                "X-Session-ID" -> sessionId,
+                xSessionId,
                 "mtditid" -> mtditid,
-                "Csrf-Token" -> "nocheck",
+                csrfContent,
                 HeaderNames.COOKIE -> playSessionCookie
               )
               .withFollowRedirects(false)
@@ -379,9 +379,9 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           authoriseIndividual(Some(someNino))
           await(wsClient.url(untaxedUrl)
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
+              xSessionId,
               "mtditid" -> mtditid,
-              "Csrf-Token" -> "nocheck",
+              csrfContent,
               HeaderNames.COOKIE -> playSessionCookie
             )
             .withFollowRedirects(false)
@@ -419,9 +419,9 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
             authoriseIndividual(Some(someNino))
             await(wsClient.url(taxedUrl)
               .withHttpHeaders(
-                "X-Session-ID" -> sessionId,
+                xSessionId,
                 "mtditid" -> mtditid,
-                "Csrf-Token" -> "nocheck",
+                csrfContent,
                 HeaderNames.COOKIE -> playSessionCookie
               )
               .withFollowRedirects(false)
@@ -489,9 +489,9 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           authoriseIndividual(Some(someNino))
           await(wsClient.url(taxedUrl)
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
+              xSessionId,
               "mtditid" -> mtditid,
-              "Csrf-Token" -> "nocheck",
+              csrfContent,
               HeaderNames.COOKIE -> playSessionCookie
             )
             .withFollowRedirects(false)

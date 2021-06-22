@@ -17,13 +17,12 @@
 package controllers.interest
 
 import audit.{AuditModel, AuditService, CreateOrAmendInterestAuditDetail}
-import common.{InterestTaxTypes, SessionValues}
+import common.InterestTaxTypes
 import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import models.interest.{InterestCYAModel, InterestPriorSubmission}
-import models.priorDataModels.InterestModel
 import models.{APIErrorBodyModel, APIErrorModel, User}
 import play.api.Logging
 import play.api.i18n.I18nSupport
@@ -32,7 +31,7 @@ import services.{InterestSessionService, InterestSubmissionService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.InterestSessionHelper
+import utils.SessionHelper
 import views.html.interest.InterestCYAView
 
 import java.util.UUID.randomUUID
@@ -50,7 +49,7 @@ class InterestCYAController @Inject()(
                                        implicit appConfig: AppConfig,
                                        authorisedAction: AuthorisedAction,
                                        val mcc: MessagesControllerComponents
-                                     ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper with Logging {
+                                     ) extends FrontendController(mcc) with I18nSupport with SessionHelper with Logging {
 
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
@@ -101,8 +100,7 @@ class InterestCYAController @Inject()(
     }.flatten
   }
 
-  private[interest] def getCyaModel(cya: Option[InterestCYAModel], prior: Option[InterestPriorSubmission])
-                                   (implicit user: User[_]): Option[InterestCYAModel] = {
+  private[interest] def getCyaModel(cya: Option[InterestCYAModel], prior: Option[InterestPriorSubmission]): Option[InterestCYAModel] = {
     (cya, prior) match {
       case (None, Some(priorData)) =>
         Some(InterestCYAModel(

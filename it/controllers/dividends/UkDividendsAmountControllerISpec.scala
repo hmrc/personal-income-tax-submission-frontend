@@ -99,10 +99,6 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
     ".show" should {
 
       "redirects user to overview page when there is no data in session" which {
-        val cookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.TAX_YEAR -> taxYear.toString
-        ))
-
         lazy val result: WSResponse = {
           dropDividendsDB()
 
@@ -382,7 +378,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
           authoriseIndividual()
           await(
             wsClient.url(ukDividendsAmountUrl)
-              .withHttpHeaders(xSessionId, "Csrf-Token" -> "nocheck")
+              .withHttpHeaders(xSessionId, csrfContent)
               .post(Map("amount" -> "123"))
           )
         }
@@ -743,7 +739,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
             await(
               wsClient.url(ukDividendsAmountUrl)
                 .withFollowRedirects(false)
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck", xSessionId)
+                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, csrfContent, xSessionId)
                 .post(Map("amount" -> "123"))
             )
           }
@@ -769,7 +765,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
           authoriseAgent()
           await(wsClient.url(ukDividendsAmountUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck", xSessionId)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, csrfContent, xSessionId)
             .post(Map[String, String]()))
         }
 
@@ -798,7 +794,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
           authoriseAgent()
           await(wsClient.url(ukDividendsAmountUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck", xSessionId)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, csrfContent, xSessionId)
             .post(Map("amount" -> "|")))
         }
 
@@ -827,7 +823,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
           authoriseAgent()
           await(wsClient.url(ukDividendsAmountUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck", xSessionId)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, csrfContent, xSessionId)
             .post(Map("amount" -> "999999999999999999999999999999999999")))
         }
 
@@ -856,7 +852,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
           authoriseAgent()
           await(wsClient.url(ukDividendsAmountUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck", xSessionId)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", csrfContent, xSessionId)
             .post(Map[String, String]()))
         }
 
@@ -886,7 +882,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
           authoriseAgent()
           await(wsClient.url(ukDividendsAmountUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck", xSessionId)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", csrfContent, xSessionId)
             .post(Map("amount" -> "|")))
         }
 
@@ -916,7 +912,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
           authoriseAgent()
           await(wsClient.url(ukDividendsAmountUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck", xSessionId)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", csrfContent, xSessionId)
             .post(Map("amount" -> "999999999999999999999999999999999999")))
         }
 
@@ -940,7 +936,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
           authoriseAgentUnauthorized()
           await(wsClient.url(ukDividendsAmountUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, csrfContent)
             .post(Map[String, String]()))
         }
 

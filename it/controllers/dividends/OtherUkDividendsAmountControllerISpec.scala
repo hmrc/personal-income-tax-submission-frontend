@@ -114,8 +114,8 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
           await(
             wsClient.url(otherUkDividendsAmountUrl)
               .withHttpHeaders(
-                "X-Session-ID" -> sessionId,
-                "Csrf-Token" -> "nocheck"
+                xSessionId,
+                csrfContent
               )
               .withFollowRedirects(false).get()
           )
@@ -143,9 +143,9 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
           await(
             wsClient.url(otherUkDividendsAmountUrl)
               .withHttpHeaders(
-                "X-Session-ID" -> sessionId,
+                xSessionId,
                 HeaderNames.COOKIE -> sessionCookie,
-                "Csrf-Token" -> "nocheck"
+                csrfContent
               ).get()
           )
         }
@@ -186,9 +186,9 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
           await(
             wsClient.url(otherUkDividendsAmountUrl)
               .withHttpHeaders(
-                "X-Session-ID" -> sessionId,
+                xSessionId,
                 HeaderNames.COOKIE -> sessionCookie,
-                "Csrf-Token" -> "nocheck"
+                csrfContent
               )
               .get()
           )
@@ -229,10 +229,10 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
 
           await(wsClient.url(otherUkDividendsAmountUrl)
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
+              xSessionId,
               HeaderNames.COOKIE -> sessionCookie,
               HeaderNames.ACCEPT_LANGUAGE -> "cy",
-              "Csrf-Token" -> "nocheck"
+              csrfContent
             )
             .get())
         }
@@ -271,7 +271,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
           ))), nino, taxYear)
 
           await(wsClient.url(otherUkDividendsAmountUrl)
-            .withHttpHeaders(xSessionId, HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck").get())
+            .withHttpHeaders(xSessionId, HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", csrfContent).get())
         }
 
         "has an OK(200) status" in {
@@ -312,7 +312,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
             .withHttpHeaders(
               xSessionId,
               HeaderNames.COOKIE -> sessionCookie,
-              "Csrf-Token" -> "nocheck"
+              csrfContent
             ).get())
         }
 
@@ -338,8 +338,8 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
           authoriseIndividual()
           await(wsClient.url(otherUkDividendsAmountUrl)
             .withHttpHeaders(
-              "X-Session-ID" -> sessionId,
-              "Csrf-Token" -> "nocheck"
+              xSessionId,
+              csrfContent
             ).get())
         }
 
@@ -377,7 +377,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
         lazy val result: WSResponse = {
           authoriseIndividualUnauthorized()
           await(wsClient.url(otherUkDividendsAmountUrl)
-            .withHttpHeaders(xSessionId, "Csrf-Token" -> "nocheck").get())
+            .withHttpHeaders(xSessionId, csrfContent).get())
         }
 
         s"has an UNAUTHORIZED($UNAUTHORIZED) status" in {
@@ -984,7 +984,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
         lazy val result: WSResponse = {
           authoriseAgentUnauthorized()
           await(wsClient.url(otherUkDividendsAmountUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck", xSessionId)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, csrfContent, xSessionId)
             .post(Map[String, String]()))
         }
 

@@ -16,24 +16,23 @@
 
 package controllers.interest
 
-import common.SessionValues
 import config.{AppConfig, ErrorHandler, INTEREST}
-import controllers.interest.routes.TaxedInterestController
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.YesNoForm
 import models.User
-import models.interest.{InterestCYAModel, InterestPriorSubmission}
+import models.interest.InterestCYAModel
 import models.question.QuestionsJourney
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.InterestSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.InterestSessionHelper
+import utils.SessionHelper
 import views.html.interest.TaxedInterestView
+
 import java.util.UUID.randomUUID
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -47,7 +46,7 @@ class TaxedInterestController @Inject()(
                                          implicit val mcc: MessagesControllerComponents,
                                          questionsJourneyValidator: QuestionsJourneyValidator,
                                          ec: ExecutionContext
-                                       ) extends FrontendController(mcc) with InterestSessionHelper with I18nSupport with Logging {
+                                       ) extends FrontendController(mcc) with SessionHelper with I18nSupport with Logging {
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user: User[AnyContent] =>
 
