@@ -16,7 +16,6 @@
 
 package models.interest
 
-import controllers.interest.routes.{TaxedInterestAmountController, TaxedInterestController, UntaxedInterestAmountController, UntaxedInterestController}
 import models.question.Question.{WithDependency, WithoutDependency}
 import models.question.{Question, QuestionsJourney}
 import play.api.libs.json.{Json, OFormat}
@@ -52,21 +51,21 @@ object InterestCYAModel {
   implicit val formats: OFormat[InterestCYAModel] = Json.format[InterestCYAModel]
 
   def interestJourney(taxYear: Int, idOpt: Option[String]): QuestionsJourney[InterestCYAModel] = new QuestionsJourney[InterestCYAModel] {
-    override val firstPage: Call = UntaxedInterestController.show(taxYear)
+    override val firstPage: Call = controllers.interest.routes.UntaxedInterestController.show(taxYear)
 
     override def questions(model: InterestCYAModel): Set[Question] = {
       val questionsUsingId = idOpt.map { id =>
         Set(
           WithDependency(model.untaxedUkAccounts, model.untaxedUkInterest,
-            UntaxedInterestAmountController.show(taxYear, id), UntaxedInterestController.show(taxYear)),
+            controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, id), controllers.interest.routes.UntaxedInterestController.show(taxYear)),
           WithDependency(model.taxedUkAccounts, model.taxedUkInterest,
-            TaxedInterestAmountController.show(taxYear, id), TaxedInterestController.show(taxYear))
+            controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id), controllers.interest.routes.TaxedInterestController.show(taxYear))
         )
       }.getOrElse(Seq.empty[Question])
 
       Set(
-        WithoutDependency(model.untaxedUkInterest, UntaxedInterestController.show(taxYear)),
-        WithoutDependency(model.taxedUkInterest, TaxedInterestController.show(taxYear))
+        WithoutDependency(model.untaxedUkInterest, controllers.interest.routes.UntaxedInterestController.show(taxYear)),
+        WithoutDependency(model.taxedUkInterest, controllers.interest.routes.TaxedInterestController.show(taxYear))
       ) ++ questionsUsingId
     }
   }

@@ -16,88 +16,93 @@
 
 package controllers.interest
 
-import common.SessionValues
-import config.{AppConfig, INTEREST}
-import controllers.interest.routes.TaxedInterestController
+import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.YesNoForm
 import models.User
-import models.interest.{InterestCYAModel, InterestPriorSubmission}
+import models.interest.InterestCYAModel
 import models.question.QuestionsJourney
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.InterestSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.InterestSessionHelper
+import utils.SessionHelper
 import views.html.interest.TaxedInterestView
+
 import java.util.UUID.randomUUID
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
-
+import scala.concurrent.{ExecutionContext, Future}
 
 class TaxedInterestController @Inject()(
                                          taxedInterestView: TaxedInterestView
                                        )(implicit appConfig: AppConfig,
                                          authorisedAction: AuthorisedAction,
+                                         interestSessionService: InterestSessionService,
+                                         errorHandler: ErrorHandler,
                                          implicit val mcc: MessagesControllerComponents,
-                                         questionsJourneyValidator: QuestionsJourneyValidator
-                                        ) extends FrontendController(mcc) with InterestSessionHelper with I18nSupport with Logging {
+                                         questionsJourneyValidator: QuestionsJourneyValidator,
+                                         ec: ExecutionContext
+                                       ) extends FrontendController(mcc) with SessionHelper with I18nSupport with Logging {
 
-  implicit val executionContext: ExecutionContext = mcc.executionContext
-
-  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).apply { implicit user: User[AnyContent] =>
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user: User[AnyContent] =>
 
     implicit val journey: QuestionsJourney[InterestCYAModel] = InterestCYAModel.interestJourney(taxYear, None)
 
-    InterestPriorSubmission.fromSession() match {
-      case Some(prior) if prior.hasTaxed => Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
-      case _ =>
-        val cyaData: Option[InterestCYAModel] = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
-        questionsJourneyValidator.validate(TaxedInterestController.show(taxYear), cyaData, taxYear) {
-          val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(s"interest.taxed-uk-interest.errors.noRadioSelected.${if(user.isAgent) "agent" else "individual"}")
-          Ok(taxedInterestView(cyaData.flatMap(_.taxedUkInterest).fold(yesNoForm)(yesNoForm.fill), taxYear))
-        }
+    interestSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
+      prior match {
+        case Some(prior) if prior.hasTaxed => Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
+        case _ =>
+          questionsJourneyValidator.validate(routes.TaxedInterestController.show(taxYear), cya, taxYear) {
+            val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(
+              missingInputError = s"interest.taxed-uk-interest.errors.noRadioSelected.${if (user.isAgent) "agent" else "individual"}"
+            )
+            Ok(taxedInterestView(cya.flatMap(_.taxedUkInterest).fold(yesNoForm)(yesNoForm.fill), taxYear))
+          }
+      }
     }
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, INTEREST)) { implicit user =>
-    val optionalCyaData: Option[InterestCYAModel] = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
-    val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(s"interest.taxed-uk-interest.errors.noRadioSelected.${if(user.isAgent) "agent" else "individual"}")
+  def submit(taxYear: Int): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
+    interestSessionService.getSessionData(taxYear).map(_.flatMap(_.interest)).map { cya =>
+      val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(s"interest.taxed-uk-interest.errors.noRadioSelected.${if (user.isAgent) "agent" else "individual"}")
 
-    yesNoForm.bindFromRequest().fold(
-      {
-        formWithErrors =>
-          BadRequest(taxedInterestView(
-            form = formWithErrors,
-            taxYear = taxYear
-          ))
-      },
-      {
-        yesNoModel =>
-          optionalCyaData match {
-            case Some(cyaData) =>
-              val updatedCya = cyaData.copy(taxedUkInterest = Some(yesNoModel), taxedUkAccounts = if (yesNoModel) {
-                cyaData.taxedUkAccounts
-              } else {
-                None
-              })
+      cya match {
+        case Some(cyaData) =>
+          yesNoForm.bindFromRequest().fold(
+            {
+              formWithErrors =>
+                Future.successful(BadRequest(taxedInterestView(
+                  form = formWithErrors,
+                  taxYear = taxYear
+                )))
+            },
+            {
+              yesNoModel =>
+                val updatedCya = cyaData.copy(taxedUkInterest = Some(yesNoModel), taxedUkAccounts = if (yesNoModel) {
+                  cyaData.taxedUkAccounts
+                } else {
+                  None
+                })
 
-              if (yesNoModel) {
-                Redirect(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id = randomUUID().toString))
-                  .addingToSession(SessionValues.INTEREST_CYA -> updatedCya.asJsonString)
-              } else {
-                Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
-                  .addingToSession(SessionValues.INTEREST_CYA -> updatedCya.asJsonString)
-              }
-            case _ =>
-              logger.info("[TaxedInterestController][submit] No CYA data in session. Redirecting to overview page.")
-              Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-          }
+                if (yesNoModel) {
+                  interestSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(
+                    Redirect(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id = randomUUID().toString))
+                  )
+                } else {
+                  interestSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(
+                    Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
+                  )
+                }
+            })
+        case _ =>
+          logger.info("[TaxedInterestController][submit] No CYA data in session. Redirecting to overview page.")
+          Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
       }
-    )
+    }.flatten
   }
 
 }

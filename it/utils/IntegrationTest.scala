@@ -17,22 +17,26 @@
 package utils
 
 import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, Materializer}
+import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import helpers.WireMockHelper
 import models.User
+import models.priorDataModels.IncomeSourcesModel
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.Json
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Result}
+import play.api.test.FakeRequest
+import play.api.test.Helpers.OK
 import play.api.{Application, Environment, Mode}
 import services.AuthService
+import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
-import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Enrolment, EnrolmentIdentifier, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.authErrorPages.AgentAuthErrorPageView
 
@@ -44,14 +48,17 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   val nino = "AA123456A"
   val mtditid = "1234567890"
   val affinityGroup = "Individual"
+  val sessionId = "eb3158c2-0aff-4ce8-8d1b-f2208ace52fe"
 
-  implicit lazy val user: User[AnyContent] = new User[AnyContent](mtditid, None, nino, affinityGroup)
+  val xSessionId: (String, String) = "X-Session-ID" -> sessionId
+  val csrfContent: (String, String) = "Csrf-Token" -> "nocheck"
+
+  implicit lazy val user: User[AnyContent] = new User[AnyContent](mtditid, None, nino, affinityGroup, sessionId)(FakeRequest())
 
   implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
   implicit val headerCarrier: HeaderCarrier = HeaderCarrier().withExtraHeaders("mtditid" -> mtditid)
 
   implicit val actorSystem: ActorSystem = ActorSystem()
-
 
   val startUrl = s"http://localhost:$port/income-through-software/return/personal-income"
 
@@ -63,6 +70,8 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck",
     "microservice.services.income-tax-submission-frontend.host" -> wiremockHost,
     "microservice.services.income-tax-submission-frontend.port" -> wiremockPort,
+    "microservice.services.income-tax-submission.host" -> wiremockHost,
+    "microservice.services.income-tax-submission.port" -> wiremockPort,
     "income-tax-submission-frontend.url" -> s"http://$wiremockHost:$wiremockPort",
     "microservice.services.auth.host" -> wiremockHost,
     "microservice.services.auth.port" -> wiremockPort,
@@ -149,5 +158,20 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
       Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
     )) and Some(AffinityGroup.Individual) and ConfidenceLevel.L200
   )
+
+  def userDataStub(userData: IncomeSourcesModel, nino: String, taxYear: Int): StubMapping ={
+    stubGetWithHeadersCheck(
+      s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", OK,
+      Json.toJson(userData).toString(),("X-Session-ID" -> sessionId), ("mtditid" -> mtditid))
+  }
+
+  def emptyUserDataStub(nino: String, taxYear: Int): StubMapping = {
+    userDataStub(IncomeSourcesModel(), nino, taxYear)
+  }
+
+  def emptyUserDataStub(): StubMapping = {
+    //noinspection ScalaStyle
+    userDataStub(IncomeSourcesModel(), nino, 2022)
+  }
 
 }

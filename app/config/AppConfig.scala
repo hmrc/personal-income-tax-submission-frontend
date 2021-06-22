@@ -22,6 +22,7 @@ import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.duration.Duration
 
 @Singleton
 class AppConfig @Inject()(servicesConfig: ServicesConfig) {
@@ -42,12 +43,17 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
 
   def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.overview")
+
   def incomeTaxSubmissionStartUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear +
     "/start"
+
+  def incomeTaxSubmissionBEBaseUrl: String = servicesConfig.baseUrl("income-tax-submission") + "/income-tax-submission-service"
+
   def incomeTaxSubmissionIvRedirect: String = incomeTaxSubmissionBaseUrl +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.iv-redirect")
 
   private lazy val vcBaseUrl: String = servicesConfig.getString(ConfigKeys.viewAndChangeBaseUrl)
+
   def viewAndChangeEnterUtrUrl: String = s"$vcBaseUrl/report-quarterly/income-and-expenses/view/agents/client-utr"
 
   lazy private val appUrl: String = servicesConfig.getString("microservice.url")
@@ -58,7 +64,8 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
 
   lazy private val contactFormServiceIndividual = "update-and-submit-income-tax-return"
   lazy private val contactFormServiceAgent = "update-and-submit-income-tax-return-agent"
-  def contactFormServiceIdentifier(implicit isAgent: Boolean): String= if(isAgent) contactFormServiceAgent else contactFormServiceIndividual
+
+  def contactFormServiceIdentifier(implicit isAgent: Boolean): String = if (isAgent) contactFormServiceAgent else contactFormServiceIndividual
 
   private def requestUri(implicit request: RequestHeader): String = SafeRedirectUrl(appUrl + request.uri).encodedUrl
 
@@ -99,4 +106,13 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
   def isJourneyAvailable(journeyKey: JourneyKey): Boolean = servicesConfig.getBoolean("feature-switch.journeys." + journeyKey.stringify)
 
   def taxYearSwitchResetsSession: Boolean = servicesConfig.getBoolean("taxYearChangeResetsSession")
+
+  def mongoTTL: Long = Duration(servicesConfig.getString("mongodb.timeToLive")).toMinutes.toInt
+
+  lazy val dividendsEnabled: Boolean = servicesConfig.getBoolean("feature-switch.dividendsEnabled")
+  lazy val interestEnabled: Boolean = servicesConfig.getBoolean("feature-switch.interestEnabled")
+  lazy val giftAidEnabled: Boolean = servicesConfig.getBoolean("feature-switch.giftAidEnabled")
+  lazy val giftAidReleased: Boolean = servicesConfig.getBoolean("feature-switch.giftAidReleased")
+  lazy val employmentEnabled: Boolean = servicesConfig.getBoolean("feature-switch.employmentEnabled")
+  lazy val employmentReleased: Boolean = servicesConfig.getBoolean("feature-switch.employmentReleased")
 }

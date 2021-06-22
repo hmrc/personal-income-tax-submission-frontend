@@ -20,9 +20,12 @@ import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
 import com.codahale.metrics.SharedMetricRegistries
 import common.{EnrolmentIdentifiers, EnrolmentKeys, SessionValues}
-import config.{AppConfig, JourneyKey, MockAppConfig}
+import config.{AppConfig, ErrorHandler, JourneyKey, MockAppConfig}
 import controllers.predicates.AuthorisedAction
 import models.User
+import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
+import models.mongo.DividendsUserDataModel
+import models.priorDataModels.IncomeSourcesModel
 import org.scalamock.handlers.CallHandler1
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.BeforeAndAfterEach
@@ -34,7 +37,7 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc._
 import play.api.test.{FakeRequest, Helpers}
-import services.AuthService
+import services.{AuthService, DividendsSessionService, GiftAidSessionService, InterestSessionService}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
@@ -62,26 +65,32 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
 
   def await[T](awaitable: Awaitable[T]): T = Await.result(awaitable, Duration.Inf)
 
-  val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  val fakeRequestWithMtditidAndNino: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
+  lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders("sessionId" -> sessionId)
+  lazy val fakeRequestWithMtditidAndNino: FakeRequest[AnyContentAsEmpty.type] = fakeRequest.withSession(
     SessionValues.TAX_YEAR -> "2022",
     SessionValues.CLIENT_MTDITID -> "1234567890",
     SessionValues.CLIENT_NINO -> "A123456A"
   )
-  val fakeRequestWithNino: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(
+  val fakeRequestWithNino: FakeRequest[AnyContentAsEmpty.type] = fakeRequest.withSession(
     SessionValues.CLIENT_NINO -> "AA123456A"
   )
   implicit val emptyHeaderCarrier: HeaderCarrier = HeaderCarrier()
+
+  val sessionId = "eb3158c2-0aff-4ce8-8d1b-f2208ace52fe"
 
   implicit val mockAppConfig: AppConfig = new MockAppConfig().config
   implicit val mockControllerComponents: ControllerComponents = Helpers.stubControllerComponents()
   implicit val mockExecutionContext: ExecutionContext = ExecutionContext.Implicits.global
   implicit val mockAuthConnector: AuthConnector = mock[AuthConnector]
   implicit val mockAuthService: AuthService = new AuthService(mockAuthConnector)
+  implicit val mockDividendsSessionService: DividendsSessionService = mock[DividendsSessionService]
+  implicit val mockInterestSessionService: InterestSessionService = mock[InterestSessionService]
+  implicit val mockGiftAidSessionService: GiftAidSessionService = mock[GiftAidSessionService]
+  implicit val mockErrorHandler: ErrorHandler = mock[ErrorHandler]
   val agentAuthErrorPageView: AgentAuthErrorPageView = app.injector.instanceOf[AgentAuthErrorPageView]
 
   implicit lazy val mockMessagesControllerComponents: MessagesControllerComponents = Helpers.stubMessagesControllerComponents()
-  implicit lazy val user: User[AnyContent] = new User[AnyContent]("1234567890", None, "AA123456A", "Individual")(fakeRequest)
+  implicit lazy val user: User[AnyContent] = new User[AnyContent]("1234567890", None, "AA123456A", "Individual", sessionId)(fakeRequest)
 
   val authorisedAction = new AuthorisedAction(mockAppConfig, agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
 
@@ -148,8 +157,4 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
       .expects(*, *, *, *)
       .returning(Future.failed(exception))
   }
-
-  def mockJourneyFeatureSwitchOn: CallHandler1[JourneyKey, Boolean] = mockAppConfig.isJourneyAvailable _ expects * returning true
-  def mockJourneyFeatureSwitchOff: CallHandler1[JourneyKey, Boolean] = mockAppConfig.isJourneyAvailable _ expects * returning false
-
 }

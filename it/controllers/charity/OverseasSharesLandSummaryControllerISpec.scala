@@ -98,6 +98,7 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
         lazy val result = {
           authoriseIndividual()
           await(wsClient.url(overseasSharesLandSummaryUrl)
+            .withHttpHeaders(xSessionId, csrfContent)
             .get())
         }
         implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -131,7 +132,7 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
 
           authoriseAgent()
           await(wsClient.url(overseasSharesLandSummaryUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .get())
         }
         implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -163,7 +164,8 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
         lazy val result = {
           authoriseIndividual()
           await(wsClient.url(overseasSharesLandSummaryUrl).withHttpHeaders(
-            HeaderNames.ACCEPT_LANGUAGE -> "cy"
+            HeaderNames.ACCEPT_LANGUAGE -> "cy",
+            xSessionId, csrfContent
           ).get())
         }
         implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -197,7 +199,7 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
 
           authoriseAgent()
           await(wsClient.url(overseasSharesLandSummaryUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
             .get())
         }
         implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -226,7 +228,11 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
 
       lazy val result = {
         authoriseIndividualUnauthorized()
-        await(wsClient.url(overseasSharesLandSummaryUrl).get())
+        await(
+          wsClient.url(overseasSharesLandSummaryUrl)
+            .withHttpHeaders(xSessionId, csrfContent)
+            .get()
+        )
       }
 
       s"return an Unauthorised($UNAUTHORIZED) status" in {
@@ -245,6 +251,7 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
           lazy val result = {
             authoriseIndividual()
             await(wsClient.url(overseasSharesLandSummaryUrl)
+              .withHttpHeaders(xSessionId, csrfContent)
               .post(Map[String, String](YesNoForm.yesNo -> ""
             )))
           }
@@ -269,7 +276,7 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
         lazy val result = {
           authoriseIndividual()
           await(wsClient.url(overseasSharesLandSummaryUrl)
-            .withHttpHeaders("Csrf-Token" -> "nocheck")
+            .withHttpHeaders(xSessionId, csrfContent)
             .post(Map(YesNoForm.yesNo -> YesNoForm.no)))
         }
 
@@ -294,7 +301,7 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
             authoriseAgent()
             await(wsClient.url(overseasSharesLandSummaryUrl).withHttpHeaders(
               HeaderNames.COOKIE -> playSessionCookies,
-              "Csrf-Token" -> "nocheck"
+              xSessionId, csrfContent
             ).post(Map[String, String](
               YesNoForm.yesNo -> ""
             )))
@@ -327,7 +334,7 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
           authoriseAgent()
           await(wsClient.url(overseasSharesLandSummaryUrl).withHttpHeaders(
             HeaderNames.COOKIE -> playSessionCookies,
-            "Csrf-Token" -> "nocheck"
+            xSessionId, csrfContent
           ).post(Map[String, String](
             YesNoForm.yesNo -> YesNoForm.yes
           )))
@@ -349,6 +356,7 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
             lazy val result = {
               authoriseIndividual()
               await(wsClient.url(overseasSharesLandSummaryUrl)
+                .withHttpHeaders(xSessionId, csrfContent)
                 .post(Map[String, String](YesNoForm.yesNo -> ""
                 )))
             }
@@ -373,7 +381,7 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
           lazy val result = {
             authoriseIndividual()
             await(wsClient.url(overseasSharesLandSummaryUrl)
-              .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
+              .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
               .post(Map(YesNoForm.yesNo -> YesNoForm.no)))
           }
 
@@ -399,7 +407,7 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
               await(wsClient.url(overseasSharesLandSummaryUrl).withHttpHeaders(
                 HeaderNames.COOKIE -> playSessionCookies,
                 HeaderNames.ACCEPT_LANGUAGE -> "cy",
-                "Csrf-Token" -> "nocheck"
+                xSessionId, csrfContent
               ).post(Map[String, String](
                 YesNoForm.yesNo -> ""
               )))
@@ -433,7 +441,7 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
             await(wsClient.url(overseasSharesLandSummaryUrl).withHttpHeaders(
               HeaderNames.COOKIE -> playSessionCookies,
               HeaderNames.ACCEPT_LANGUAGE -> "cy",
-              "Csrf-Token" -> "nocheck"
+              xSessionId, csrfContent
             ).post(Map[String, String](
               YesNoForm.yesNo -> YesNoForm.yes
             )))

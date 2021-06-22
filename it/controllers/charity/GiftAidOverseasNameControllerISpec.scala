@@ -79,6 +79,7 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
         lazy val result: WSResponse = {
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charity")
+            .withHttpHeaders(xSessionId, csrfContent)
             .get())
         }
         lazy val document: Document = Jsoup.parse(result.body)
@@ -104,6 +105,7 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
           authoriseIndividual()
           await(
             wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charity")
+              .withHttpHeaders(xSessionId, csrfContent)
               .post(Map("name" -> "juamal"))
           )
         }
@@ -115,6 +117,7 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
         lazy val result: WSResponse = {
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charity")
+            .withHttpHeaders(xSessionId, csrfContent)
             .post(Map[String, String]()))
         }
         lazy val document: Document = Jsoup.parse(result.body)
@@ -129,6 +132,7 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
           authoriseIndividual()
           await(
             wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charity")
+              .withHttpHeaders(xSessionId, csrfContent)
               .post(Map("name" -> "juamal|"))
           )
         }
@@ -144,6 +148,7 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
           authoriseIndividual()
           await(
             wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charity")
+              .withHttpHeaders(xSessionId, csrfContent)
               .post(Map("name" -> charLimit))
           )
         }
@@ -153,6 +158,7 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
         document.select(errorSelector).text() shouldBe expectedCharLimitError
         document.title() shouldBe s"$expectedErrorTitle - $serviceName - $govUkExtension"
       }
+
       s"return a BAD_REQUEST($BAD_REQUEST) status with an duplicate name error" in {
         val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
           GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString()
@@ -162,7 +168,7 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
           authoriseIndividual()
           await(
             wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charity")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
               .post(Map("name" -> "JaneDoe"))
           )
         }
@@ -191,7 +197,7 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
 
           authoriseAgent()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charity")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .get())
         }
         lazy val document: Document = Jsoup.parse(result.body)
@@ -222,7 +228,7 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
             authoriseAgent()
             await(
               wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charity")
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
                 .post(Map("name" -> "juamal"))
             )
           }
@@ -242,7 +248,7 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
 
             authoriseAgent()
             await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charity")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
               .post(Map[String, String]()))
           }
           lazy val document: Document = Jsoup.parse(result.body)

@@ -72,7 +72,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
       "redirect to a correct URL" in {
         val result: Result = {
           authoriseIndividual()
-          await(controller.show(defaultTaxYear, defaultTaxYear + 1)(FakeRequest().withSession(
+          await(controller.show(defaultTaxYear, defaultTaxYear + 1)(FakeRequest().withHeaders(xSessionId, csrfContent).withSession(
             SessionValues.TAX_YEAR -> defaultTaxYear.toString
           )))
         }
@@ -94,7 +94,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
       "redirect to a correct URL" in {
         val result: Result = {
           authoriseIndividual()
-          await(controller.submit(defaultTaxYear, defaultTaxYear + 1)(FakeRequest()
+          await(controller.submit(defaultTaxYear, defaultTaxYear + 1)(FakeRequest().withHeaders(xSessionId, csrfContent)
             .withFormUrlEncodedBody("amount" -> "123")
             .withSession(
               SessionValues.TAX_YEAR -> defaultTaxYear.toString
@@ -118,7 +118,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
       "return a page" which {
         lazy val result: WSResponse = {
           authoriseIndividual()
-          await(wsClient.url(url).get())
+          await(wsClient.url(url).withHttpHeaders(xSessionId, csrfContent).get())
         }
 
         implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -143,7 +143,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
 
         lazy val result: WSResponse = {
           authoriseAgent()
-          await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, "Csrf-Token" -> "nocheck").get())
+          await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).get())
         }
 
         implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -169,7 +169,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
         "return an OK" in {
           lazy val result: WSResponse = {
             authoriseIndividual()
-            await(wsClient.url(url).post(Map[String, String](
+            await(wsClient.url(url).withHttpHeaders(xSessionId, csrfContent).post(Map[String, String](
               "amount" -> "1234"
             )))
           }
@@ -184,7 +184,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
         "the submitted data is empty" which {
           lazy val result: WSResponse = {
             authoriseIndividual()
-            await(wsClient.url(url).post(Map[String, String](
+            await(wsClient.url(url).withHttpHeaders(xSessionId, csrfContent).post(Map[String, String](
               "amount" -> ""
             )))
           }
@@ -205,7 +205,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
         "the submitted data is too long" which {
           lazy val result: WSResponse = {
             authoriseIndividual()
-            await(wsClient.url(url).post(Map(
+            await(wsClient.url(url).withHttpHeaders(xSessionId, csrfContent).post(Map(
               "amount" -> "999999999999999999999999999999999999999999999999"
             )))
           }
@@ -226,7 +226,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
         "the submitted data is in the incorrect format" which {
           lazy val result: WSResponse = {
             authoriseIndividual()
-            await(wsClient.url(url).post(Map(
+            await(wsClient.url(url).withHttpHeaders(xSessionId, csrfContent).post(Map(
               "amount" -> ":@~{}<>?"
             )))
           }
@@ -260,7 +260,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
 
           lazy val result: WSResponse = {
             authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, "Csrf-Token" -> "nocheck").post(Map[String, String](
+            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).post(Map[String, String](
               "amount" -> "1234"
             )))
           }
@@ -281,7 +281,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
 
           lazy val result: WSResponse = {
             authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, "Csrf-Token" -> "nocheck").post(Map[String, String](
+            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).post(Map[String, String](
               "amount" -> ""
             )))
           }
@@ -308,7 +308,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
 
           lazy val result: WSResponse = {
             authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, "Csrf-Token" -> "nocheck").post(Map(
+            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).post(Map(
               "amount" -> "999999999999999999999999999999999999999999999999"
             )))
           }
@@ -335,7 +335,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
 
           lazy val result: WSResponse = {
             authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, "Csrf-Token" -> "nocheck").post(Map(
+            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).post(Map(
               "amount" -> ":@~{}<>?"
             )))
           }

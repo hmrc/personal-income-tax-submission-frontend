@@ -16,21 +16,10 @@
 
 package models.dividends
 
-import common.SessionValues
-import models.User
 import play.api.libs.json.{Json, OFormat}
 
-case class DividendsPriorSubmission(
-                                     ukDividends: Option[BigDecimal] = None,
-                                     otherUkDividends: Option[BigDecimal] = None
-                                   ) {
-  def asJsonString: String = Json.toJson(this).toString()
-}
+case class DividendsPriorSubmission(ukDividends: Option[BigDecimal] = None, otherUkDividends: Option[BigDecimal] = None)
 
 object DividendsPriorSubmission {
   implicit val formats: OFormat[DividendsPriorSubmission] = Json.format[DividendsPriorSubmission]
-
-  def fromSession()(implicit user: User[_]): Option[DividendsPriorSubmission] = {
-    user.session.get(SessionValues.DIVIDENDS_PRIOR_SUB).flatMap(Json.parse(_).asOpt[DividendsPriorSubmission])
-  }
 }

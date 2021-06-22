@@ -32,7 +32,10 @@ class MessagesSpec extends ViewTest with GuiceOneAppPerSuite {
     "global.error.pageNotFound404.message",
     "global.error.InternalServerError500.title",
     "global.error.InternalServerError500.heading",
-    "global.error.InternalServerError500.message"
+    "global.error.InternalServerError500.message",
+    "global.error.fallbackClientError4xx.title",
+    "global.error.fallbackClientError4xx.message",
+    "global.error.fallbackClientError4xx.heading"
   )
 
   "the messages file must have welsh translations" should {
@@ -61,7 +64,10 @@ class MessagesSpec extends ViewTest with GuiceOneAppPerSuite {
         "phase.banner.before",
         "phase.banner.after",
         "global.error.badRequest400.message",
-        "global.error.pageNotFound404.message"
+        "global.error.pageNotFound404.message",
+        "global.error.fallbackClientError4xx.title",
+        "global.error.fallbackClientError4xx.message",
+        "global.error.fallbackClientError4xx.heading"
       )
 
       val defaults = allLanguages("default").filter(entry => !exclusionKeys.contains(entry._1))

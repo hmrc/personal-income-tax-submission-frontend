@@ -94,6 +94,7 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
         lazy val result: WSResponse = {
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
+            .withHttpHeaders(xSessionId, csrfContent)
             .get())
         }
 
@@ -117,7 +118,7 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
         lazy val result: WSResponse = {
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
+            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
             .get())
         }
 
@@ -146,6 +147,7 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
           authoriseIndividual()
           await(
             wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
+              .withHttpHeaders(xSessionId, csrfContent)
               .post(Map("amount" -> "123000.42"))
           )
         }
@@ -157,6 +159,7 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
         lazy val result: WSResponse = {
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
+            .withHttpHeaders(xSessionId, csrfContent)
             .post(Map[String, String]()))
         }
 
@@ -172,6 +175,7 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
         lazy val result: WSResponse = {
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
+            .withHttpHeaders(xSessionId, csrfContent)
             .post(Map("amount" -> "|")))
         }
 
@@ -187,6 +191,7 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
         lazy val result: WSResponse = {
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
+            .withHttpHeaders(xSessionId, csrfContent)
             .post(Map("amount" -> "9999999999999999999999999")))
         }
 
@@ -201,7 +206,7 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
         lazy val result: WSResponse = {
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
+            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
             .post(Map[String, String]()))
         }
 
@@ -218,7 +223,7 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
         lazy val result: WSResponse = {
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
+            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
             .post(Map("amount" -> "|")))
         }
 
@@ -235,7 +240,7 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
         lazy val result: WSResponse = {
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
+            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
             .post(Map("amount" -> "9999999999999999999999999")))
         }
 
@@ -265,7 +270,7 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
 
           authoriseAgent()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .get())
         }
 
@@ -284,6 +289,7 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
         inputFieldCheck(expectedInputName, inputFieldSelector)
         buttonCheck(expectedButtonText, buttonSelector)
       }
+
       "returns an action with the correct welsh content" which {
         lazy val result: WSResponse = {
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
@@ -295,7 +301,8 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
             .withHttpHeaders(
               HeaderNames.COOKIE -> sessionCookie,
-              HeaderNames.ACCEPT_LANGUAGE -> "cy"
+              HeaderNames.ACCEPT_LANGUAGE -> "cy",
+              xSessionId, csrfContent
             )
             .get())
         }
@@ -330,7 +337,7 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
             authoriseAgent()
             await(
               wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
                 .post(Map("amount" -> "12344.98"))
             )
           }
@@ -349,7 +356,7 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
 
           authoriseAgent()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .post(Map[String, String]()))
         }
 
@@ -372,7 +379,7 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
 
           authoriseAgent()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .post(Map("amount" -> "|")))
         }
 
@@ -395,7 +402,7 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
 
           authoriseAgent()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .post(Map("amount" -> "9999999999999999999999999999999")))
         }
 
@@ -418,7 +425,7 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
 
           authoriseAgent()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
             .post(Map[String, String]()))
         }
 
@@ -442,7 +449,7 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
 
           authoriseAgent()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
             .post(Map("amount" -> "|")))
         }
 
@@ -466,7 +473,7 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
 
           authoriseAgent()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
             .post(Map("amount" -> "9999999999999999999999999999999")))
         }
 

@@ -23,7 +23,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
-import play.api.libs.ws.{WSClient, WSResponse}
+import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import utils.{IntegrationTest, ViewHelpers}
@@ -87,7 +87,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
       "redirect to a correct URL" in {
         val result: Result = {
           authoriseIndividual()
-          await(controller.show(taxYear, taxYear + 1)(FakeRequest().withSession(
+          await(controller.show(taxYear, taxYear + 1)(FakeRequest().withHeaders(xSessionId, csrfContent).withSession(
             SessionValues.TAX_YEAR -> taxYear.toString
           )))
         }
@@ -109,7 +109,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
       "redirect to a correct URL" in {
         val result: Result = {
           authoriseIndividual()
-          await(controller.submit(taxYear, taxYear + 1)(FakeRequest()
+          await(controller.submit(taxYear, taxYear + 1)(FakeRequest().withHeaders(xSessionId, csrfContent)
             .withFormUrlEncodedBody("amount" -> "123")
             .withSession(
               SessionValues.TAX_YEAR -> taxYear.toString
@@ -135,7 +135,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
         "return a page" which {
           lazy val result: WSResponse = {
             authoriseIndividual()
-            await(wsClient.url(url).get())
+            await(wsClient.url(url).withHttpHeaders(xSessionId, csrfContent).get())
           }
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -162,7 +162,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
 
           lazy val result: WSResponse = {
             authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, "Csrf-Token" -> "nocheck").get())
+            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).get())
           }
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -188,7 +188,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
         "return a page" which {
           lazy val result: WSResponse = {
             authoriseIndividual()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
+            await(wsClient.url(url).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent).get())
           }
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -219,7 +219,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
             authoriseAgent()
             await(wsClient.url(url).withHttpHeaders(
               HeaderNames.COOKIE -> playSessionCookies,
-              "Csrf-Token" -> "nocheck",
+              xSessionId, csrfContent,
               HeaderNames.ACCEPT_LANGUAGE -> "cy"
             ).get())
           }
@@ -253,6 +253,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
             lazy val result: WSResponse = {
               authoriseIndividual()
               await(wsClient.url(url)
+                .withHttpHeaders(xSessionId, csrfContent)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
             }
 
@@ -265,6 +266,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
           lazy val result: WSResponse = {
             authoriseIndividual()
             await(wsClient.url(url)
+              .withHttpHeaders(xSessionId, csrfContent)
               .post(Map(YesNoForm.yesNo -> "")))
           }
 
@@ -301,7 +303,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
 
             lazy val result: WSResponse = {
               authoriseAgent()
-              await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, "Csrf-Token" -> "nocheck")
+              await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent)
                 .post(Map[String, String](YesNoForm.yesNo -> YesNoForm.yes)))
             }
 
@@ -319,7 +321,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
 
           lazy val result: WSResponse = {
             authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, "Csrf-Token" -> "nocheck")
+            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent)
               .post(Map[String, String](YesNoForm.yesNo -> "")))
           }
 
@@ -353,7 +355,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
           "return an OK" in {
             lazy val result: WSResponse = {
               authoriseIndividual()
-              await(wsClient.url(url).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
+              await(wsClient.url(url).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
             }
 
@@ -365,7 +367,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
 
           lazy val result: WSResponse = {
             authoriseIndividual()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
+            await(wsClient.url(url).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
               .post(Map(YesNoForm.yesNo -> "")))
           }
 
@@ -406,7 +408,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
               authoriseAgent()
               await(wsClient.url(url).withHttpHeaders(
                 HeaderNames.COOKIE -> playSessionCookies,
-                "Csrf-Token" -> "nocheck",
+                xSessionId, csrfContent,
                 HeaderNames.ACCEPT_LANGUAGE -> "cy"
               )
                 .post(Map[String, String](YesNoForm.yesNo -> YesNoForm.yes)))
@@ -428,7 +430,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
             authoriseAgent()
             await(wsClient.url(url).withHttpHeaders(
               HeaderNames.COOKIE -> playSessionCookies,
-              "Csrf-Token" -> "nocheck",
+              xSessionId, csrfContent,
               HeaderNames.ACCEPT_LANGUAGE -> "cy"
             )
               .post(Map[String, String](YesNoForm.yesNo -> "")))

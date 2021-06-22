@@ -65,9 +65,10 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
         lazy val result = {
           authoriseIndividual()
           await(wsClient.url(lastTaxYearAmountUrl)
-            .withHttpHeaders("Csrf-Token" -> "nocheck")
+            .withHttpHeaders(xSessionId, csrfContent)
             .get())
         }
+
         implicit def document: () => Document = () => Jsoup.parse(result.body)
 
         "return the page" which {
@@ -98,7 +99,7 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
           ))
           authoriseAgent()
           await(wsClient.url(lastTaxYearAmountUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .get())
         }
 
@@ -134,9 +135,11 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
         "return an OK" in {
           lazy val result = {
             authoriseIndividual()
-            await(wsClient.url(lastTaxYearAmountUrl).post(Map[String, String](
-              "amount" -> "1234"
-            )))
+            await(wsClient.url(lastTaxYearAmountUrl)
+              .withHttpHeaders(xSessionId, csrfContent)
+              .post(Map[String, String](
+                "amount" -> "1234"
+              )))
           }
 
           result.status shouldBe OK
@@ -149,9 +152,11 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
         "the submitted data is empty" which {
           lazy val result = {
             authoriseIndividual()
-            await(wsClient.url(lastTaxYearAmountUrl).post(Map[String, String](
-              "amount" -> ""
-            )))
+            await(wsClient.url(lastTaxYearAmountUrl)
+              .withHttpHeaders(xSessionId, csrfContent)
+              .post(Map[String, String](
+                "amount" -> ""
+              )))
           }
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -171,9 +176,11 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
         "the submitted data is too long" which {
           lazy val result = {
             authoriseIndividual()
-            await(wsClient.url(lastTaxYearAmountUrl).post(Map(
-              "amount" -> "999999999999999999999999999999999999999999999999"
-            )))
+            await(wsClient.url(lastTaxYearAmountUrl)
+              .withHttpHeaders(xSessionId, csrfContent)
+              .post(Map(
+                "amount" -> "999999999999999999999999999999999999999999999999"
+              )))
           }
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -193,9 +200,11 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
         "the submitted data is in the incorrect format" which {
           lazy val result = {
             authoriseIndividual()
-            await(wsClient.url(lastTaxYearAmountUrl).post(Map(
-              "amount" -> ".."
-            )))
+            await(wsClient.url(lastTaxYearAmountUrl)
+              .withHttpHeaders(xSessionId, csrfContent)
+              .post(Map(
+                "amount" -> ".."
+              )))
           }
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -230,7 +239,7 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
             authoriseAgent()
             await(wsClient.url(lastTaxYearAmountUrl).withHttpHeaders(
               HeaderNames.COOKIE -> playSessionCookies,
-              "Csrf-Token" -> "nocheck"
+              xSessionId, csrfContent
             ).post(Map[String, String](
               "amount" -> "1234"
             )))
@@ -254,7 +263,7 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
             authoriseAgent()
             await(wsClient.url(lastTaxYearAmountUrl).withHttpHeaders(
               HeaderNames.COOKIE -> playSessionCookies,
-              "Csrf-Token" -> "nocheck"
+              xSessionId, csrfContent
             ).post(Map[String, String](
               "amount" -> ""
             )))
@@ -283,7 +292,7 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
           lazy val result = {
             authoriseAgent()
-            await(wsClient.url(lastTaxYearAmountUrl).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, "Csrf-Token" -> "nocheck").post(Map(
+            await(wsClient.url(lastTaxYearAmountUrl).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).post(Map(
               "amount" -> "999999999999999999999999999999999999999999999999"
             )))
           }
@@ -311,7 +320,7 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
           lazy val result = {
             authoriseAgent()
-            await(wsClient.url(lastTaxYearAmountUrl).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, "Csrf-Token" -> "nocheck").post(Map(
+            await(wsClient.url(lastTaxYearAmountUrl).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).post(Map(
               "amount" -> ".."
             )))
           }

@@ -82,6 +82,7 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Integra
           await(wsClient.url(
             s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-shares-securities-land-or-property"
           )
+            .withHttpHeaders(xSessionId, csrfContent)
             .get())
         }
 
@@ -122,6 +123,7 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Integra
             await(wsClient.url(
               s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-shares-securities-land-or-property"
             )
+              .withHttpHeaders(xSessionId, csrfContent)
               .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
             )
           }
@@ -138,6 +140,7 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Integra
               await(wsClient.url(
                 s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-shares-securities-land-or-property"
               )
+                .withHttpHeaders(xSessionId, csrfContent)
                 .post(Map[String, String]()))
             }
 
@@ -185,7 +188,7 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Integra
           await(wsClient.url(
             s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-shares-securities-land-or-property"
           )
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .get())
         }
 
@@ -229,7 +232,7 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Integra
             await(wsClient.url(
               s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-shares-securities-land-or-property"
             )
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
               .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
             )
           }
@@ -251,7 +254,7 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Integra
             await(wsClient.url(
               s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-shares-securities-land-or-property"
             )
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
               .post(Map[String, String]()))
           }
 
@@ -274,7 +277,7 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Integra
             await(wsClient.url(
               s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-shares-securities-land-or-property"
             )
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
               .post(Map[String, String]())
             )
           }

@@ -82,7 +82,7 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
   val govUkExtension = "GOV.UK"
 
   val charLimit: String = "ukHzoBYHkKGGk2V5iuYgS137gN7EB7LRw3uDjvujYg00ZtHwo3sokyOOCEoAK9vuPiP374QKOelo"
-  val testModel: GiftAidSubmissionModel = GiftAidSubmissionModel(None, Some(GiftsModel(None, Some(List("JaneDoe")), None,None)))
+  val testModel: GiftAidSubmissionModel = GiftAidSubmissionModel(None, Some(GiftsModel(None, Some(List("JaneDoe")), None, None)))
 
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
@@ -100,6 +100,7 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
             s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
               s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
           )
+            .withHttpHeaders(xSessionId, csrfContent)
             .get())
         }
         lazy val document: Document = Jsoup.parse(result.body)
@@ -124,7 +125,7 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
             s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
               s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
           )
-            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
+            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
             .get())
         }
         lazy val document: Document = Jsoup.parse(result.body)
@@ -152,6 +153,7 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
               s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
                 s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
             )
+              .withHttpHeaders(xSessionId, csrfContent)
               .post(Map("name" -> "adam"))
           )
         }
@@ -166,6 +168,7 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
             s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
               s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
           )
+            .withHttpHeaders(xSessionId, csrfContent)
             .post(Map[String, String]()))
         }
         lazy val document: Document = Jsoup.parse(result.body)
@@ -183,6 +186,7 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
               s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
                 s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
             )
+              .withHttpHeaders(xSessionId, csrfContent)
               .post(Map("name" -> "ad|am"))
           )
         }
@@ -201,6 +205,7 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
               s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
                 s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
             )
+              .withHttpHeaders(xSessionId, csrfContent)
               .post(Map("name" -> charLimit))
           )
         }
@@ -223,7 +228,7 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
               s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
                 s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
             )
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
               .post(Map("name" -> "JaneDoe"))
           )
         }
@@ -235,83 +240,84 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
       }
 
     }
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an empty error in welsh" in {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(wsClient.url(
+
+    s"return a BAD_REQUEST($BAD_REQUEST) status with an empty error in welsh" in {
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        await(wsClient.url(
+          s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+            s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+        )
+          .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
+          .post(Map[String, String]()))
+      }
+      lazy val document: Document = Jsoup.parse(result.body)
+
+      result.status shouldBe BAD_REQUEST
+      document.select(errorSelector).text() shouldBe expectedErrorCy
+      document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
+    }
+
+    s"return a BAD_REQUEST($BAD_REQUEST) status with an invalid Character error in welsh" in {
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        await(
+          wsClient.url(
             s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
               s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
           )
-            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
-            .post(Map[String, String]()))
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        result.status shouldBe BAD_REQUEST
-        document.select(errorSelector).text() shouldBe expectedErrorCy
-        document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
+            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
+            .post(Map("name" -> "ad|am"))
+        )
       }
+      lazy val document: Document = Jsoup.parse(result.body)
 
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an invalid Character error in welsh" in {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(
-            wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
-              .post(Map("name" -> "ad|am"))
+      result.status shouldBe BAD_REQUEST
+      document.select(errorSelector).text() shouldBe expectedInvalidCharErrorCy
+      document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
+    }
+
+    s"return a BAD_REQUEST($BAD_REQUEST) status with a character limit error in welsh" in {
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        await(
+          wsClient.url(
+            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
           )
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        result.status shouldBe BAD_REQUEST
-        document.select(errorSelector).text() shouldBe expectedInvalidCharErrorCy
-        document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
+            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
+            .post(Map("name" -> charLimit))
+        )
       }
+      lazy val document: Document = Jsoup.parse(result.body)
 
-      s"return a BAD_REQUEST($BAD_REQUEST) status with a character limit error in welsh" in {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(
-            wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy")
-              .post(Map("name" -> charLimit))
+      result.status shouldBe BAD_REQUEST
+      document.select(errorSelector).text() shouldBe expectedCharLimitErrorCy
+      document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
+    }
+
+    s"return a BAD_REQUEST($BAD_REQUEST) status with an duplicate name error in welsh" in {
+      val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+        GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString()
+      ))
+
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        await(
+          wsClient.url(
+            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
           )
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        result.status shouldBe BAD_REQUEST
-        document.select(errorSelector).text() shouldBe expectedCharLimitErrorCy
-        document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
+            .post(Map("name" -> "JaneDoe"))
+        )
       }
+      lazy val document: Document = Jsoup.parse(result.body)
 
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an duplicate name error in welsh" in {
-        val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-          GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString()
-        ))
-
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(
-            wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie,HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
-              .post(Map("name" -> "JaneDoe"))
-          )
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        result.status shouldBe BAD_REQUEST
-        document.select(errorSelector).text() shouldBe expectedDuplicateErrorCy
-        document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
-      }
+      result.status shouldBe BAD_REQUEST
+      document.select(errorSelector).text() shouldBe expectedDuplicateErrorCy
+      document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
+    }
   }
 
   "as an agent" when {
@@ -331,7 +337,7 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
             s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
               s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
           )
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .get())
         }
         lazy val document: Document = Jsoup.parse(result.body)
@@ -344,7 +350,7 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
           document.select(inputHintTextSelector).text() shouldBe expectedInputHintText
           document.select(inputFieldSelector).attr("name")
           document.select(buttonSelector).text() shouldBe expectedButtonText
-          document.select(buttonSelector).attr("class") should include ("govuk-button")
+          document.select(buttonSelector).attr("class") should include("govuk-button")
         }
       }
 
@@ -360,7 +366,7 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
             s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
               s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
           )
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie,HeaderNames.ACCEPT_LANGUAGE -> "cy")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
             .get())
         }
         lazy val document: Document = Jsoup.parse(result.body)
@@ -373,7 +379,7 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
           document.select(inputHintTextSelector).text() shouldBe expectedInputHintTextCy
           document.select(inputFieldSelector).attr("name")
           document.select(buttonSelector).text() shouldBe expectedButtonTextCy
-          document.select(buttonSelector).attr("class") should include ("govuk-button")
+          document.select(buttonSelector).attr("class") should include("govuk-button")
         }
       }
     }
@@ -394,7 +400,7 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
                 s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
                   s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
               )
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
                 .post(Map("name" -> "adam"))
             )
           }
@@ -417,7 +423,7 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
               s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
                 s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
             )
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
               .post(Map[String, String]()))
           }
           lazy val document: Document = Jsoup.parse(result.body)
@@ -442,7 +448,7 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
               s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
                 s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
             )
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie,HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
               .post(Map[String, String]()))
           }
           lazy val document: Document = Jsoup.parse(result.body)
@@ -466,7 +472,7 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
               s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
                 s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
             )
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie,HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
               .post(Map("name" -> "ad|am"))
           )
         }
@@ -490,7 +496,7 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
               s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
                 s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
             )
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie,HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
               .post(Map("name" -> charLimit))
           )
         }
@@ -516,7 +522,7 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
               s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
                 s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
             )
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie,HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
               .post(Map("name" -> "JaneDoe"))
           )
         }
