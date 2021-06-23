@@ -28,9 +28,10 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.http.HeaderNames
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import play.api.libs.ws.WSClient
+import play.api.libs.ws.{BodyWritable, WSClient, WSRequest, WSResponse}
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.OK
@@ -42,6 +43,7 @@ import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Enrolment, Enrolme
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.authErrorPages.AgentAuthErrorPageView
+
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
 
@@ -182,5 +184,32 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   def emptyUserDataStub(): StubMapping = {
     //noinspection ScalaStyle
     userDataStub(IncomeSourcesModel(), nino, 2022)
+  }
+
+
+  def playSessionCookies(agent: Boolean, newNino: String = "AA123456A"): Seq[(String, String)] = {
+    {
+      if (agent) {
+        Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(Map(
+          SessionValues.CLIENT_NINO -> newNino,
+          SessionValues.CLIENT_MTDITID -> mtditid)
+        ))
+      } else {
+        Seq("mtditid" -> mtditid)
+      }
+    } ++
+      Seq(xSessionId,
+        csrfContent)
+  }
+
+
+  def buildRouteUrl(url: String, welsh: Boolean = false, follow: Boolean = true, headers: Seq[(String, String)]): WSRequest = {
+    val newHeaders = if (welsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") ++ headers else headers
+    wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(newHeaders: _*)
+  }
+
+  def urlPost[T: BodyWritable](url: String, welsh: Boolean = false, follow: Boolean = true,
+                               headers: Seq[(String, String)] = Seq(), postRequest: T): WSResponse = {
+    await(buildRouteUrl(url, welsh, follow, headers).post(postRequest))
   }
 }
