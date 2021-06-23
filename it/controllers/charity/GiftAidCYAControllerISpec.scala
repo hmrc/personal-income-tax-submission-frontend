@@ -22,15 +22,16 @@ import helpers.PlaySessionCookieBaker
 import models.APIErrorBodyModel
 import models.charity.GiftAidCYAModel
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
+import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.libs.ws.{WSClient, WSResponse}
-import utils.{IntegrationTest, ViewHelpers}
+import utils.{GiftAidDatabaseHelper, IntegrationTest, ViewHelpers}
 import play.api.http.Status.{BAD_REQUEST, NO_CONTENT, OK, SEE_OTHER}
 import play.api.libs.json.Json
 
-class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
+class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with GiftAidDatabaseHelper {
 
   val taxYear = 2022
 
@@ -242,6 +243,21 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
     }
   }
 
+  def response(
+                cya: Option[GiftAidCYAModel] = None,
+                prior: Option[GiftAidSubmissionModel] = None
+              ): WSResponse = {
+    val priorModel = IncomeSourcesModel(giftAid = prior)
+
+    dropGiftAidDB()
+
+    userDataStub(priorModel, nino, taxYear)
+    insertCyaData(cya)
+
+    authoriseIndividual()
+    await(wsClient.url(url).withFollowRedirects(false).withHttpHeaders(xSessionId, csrfContent).get())
+  }
+
   ".show" when {
 
     userScenarios.foreach { user =>
@@ -250,9 +266,13 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
         "render the page with full CYA model" which {
 
           lazy val result: WSResponse = {
+
+            dropGiftAidDB()
+            insertCyaData(Some(cyaDataMax))
+            userDataStub(IncomeSourcesModel(), nino, taxYear)
+
             authoriseAgentOrIndividual(user.isAgent)
-            urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear, Map(
-              SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString))))
+            urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
           }
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -307,13 +327,15 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
             "land or properties is the only value" which {
 
               lazy val result: WSResponse = {
+                dropGiftAidDB()
+                insertCyaData(None)
+                userDataStub(IncomeSourcesModel(giftAid = Some(GiftAidSubmissionModel(None,
+                  Some(GiftsModel(
+                    landAndBuildings = Some(1000.74)
+                  ))
+                ))), nino, taxYear)
                 authoriseAgentOrIndividual(user.isAgent)
-                urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear, Map(
-                  SessionValues.GIFT_AID_PRIOR_SUB -> Json.toJson(GiftAidSubmissionModel(None,
-                    Some(GiftsModel(
-                      landAndBuildings = Some(1000.74)
-                    ))
-                  )).toString()))))
+                urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
               }
 
               implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -349,13 +371,15 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
             "shares or securities is the only value" which {
 
               lazy val result: WSResponse = {
+                dropGiftAidDB()
+                insertCyaData(None)
+                userDataStub(IncomeSourcesModel(giftAid = Some(GiftAidSubmissionModel(None,
+                  Some(GiftsModel(
+                    sharesOrSecurities = Some(1000.74)
+                  ))
+                ))), nino, taxYear)
                 authoriseAgentOrIndividual(user.isAgent)
-                urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear, Map(
-                  SessionValues.GIFT_AID_PRIOR_SUB -> Json.toJson(GiftAidSubmissionModel(None,
-                    Some(GiftsModel(
-                      sharesOrSecurities = Some(1000.74)
-                    ))
-                  )).toString()))))
+                urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
               }
 
               implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -397,9 +421,11 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
           "there is no CYA model, but there is a full prior data model" which {
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              insertCyaData(None)
+              userDataStub(IncomeSourcesModel(giftAid = Some(priorDataMax)), nino, taxYear)
               authoriseAgentOrIndividual(user.isAgent)
-              urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear, Map(
-                SessionValues.GIFT_AID_PRIOR_SUB -> Json.prettyPrint(Json.toJson(priorDataMax))))))
+              urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
             }
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -435,10 +461,13 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
           "there is a full CYA model, and there is a full prior data model" which {
 
             lazy val result: WSResponse = {
+
+              dropGiftAidDB()
+              userDataStub(IncomeSourcesModel(giftAid = Some(priorDataMax)), nino, taxYear)
+              insertCyaData(Some(cyaDataMax))
+
               authoriseAgentOrIndividual(user.isAgent)
-              urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear, Map(
-                SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString,
-                SessionValues.GIFT_AID_PRIOR_SUB -> Json.prettyPrint(Json.toJson(priorDataMax))))))
+              urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
             }
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -478,9 +507,13 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
           "the CYA model contains all false values" which {
 
             lazy val result: WSResponse = {
+
+              dropGiftAidDB()
+              insertCyaData(Some(cyaDataMin))
+              userDataStub(IncomeSourcesModel(), nino, taxYear)
+
               authoriseAgentOrIndividual(user.isAgent)
-              urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear, Map(
-                SessionValues.GIFT_AID_CYA -> cyaDataMin.asJsonString))))
+              urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
             }
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -518,9 +551,13 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
           "there is incomplete CYA data" which {
 
             lazy val result: WSResponse = {
+
+              dropGiftAidDB()
+              insertCyaData(Some(cyaDataIncomplete))
+              userDataStub(IncomeSourcesModel(), nino, taxYear)
+
               authoriseAgentOrIndividual(user.isAgent)
-              urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear, Map(
-                SessionValues.GIFT_AID_CYA -> cyaDataIncomplete.asJsonString))))
+              urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
             }
 
             "redirects to the correct url" in {
@@ -531,6 +568,11 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
 
           "there is no CYA and no PRIOR data" which {
             lazy val result = {
+
+              dropGiftAidDB()
+              insertCyaData(None)
+              userDataStub(IncomeSourcesModel(), nino, taxYear)
+
               authoriseAgentOrIndividual(user.isAgent)
               urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
             }
@@ -558,6 +600,11 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
 
             lazy val result: WSResponse = {
               wireMockServer.resetAll()
+
+              dropGiftAidDB()
+              insertCyaData(None)
+              userDataStub(IncomeSourcesModel(), nino, taxYear)
+
               authoriseAgentOrIndividual(user.isAgent)
               urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
             }
@@ -572,12 +619,14 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
             val form = Map[String, String]()
 
             lazy val result: WSResponse = {
+
               wireMockServer.resetAll()
+              dropGiftAidDB()
+              insertCyaData(Some(cyaDataMax))
+              userDataStub(IncomeSourcesModel(), nino, taxYear)
               authoriseAgentOrIndividual(user.isAgent)
               stubPost(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear,
-                Map(SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString)
-              )))
+              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
             }
 
             "the status is SEE OTHER" in {
@@ -593,15 +642,18 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers {
 
             lazy val result: WSResponse = {
               wireMockServer.resetAll()
+
+              dropGiftAidDB()
+              insertCyaData(Some(cyaDataMax))
+              userDataStub(IncomeSourcesModel(), nino, taxYear)
+
               authoriseAgentOrIndividual(user.isAgent)
               stubPut(
                 s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear",
                 BAD_REQUEST,
                 Json.toJson(APIErrorBodyModel("BAD_REQUEST", "Oh hey look, literally any error.")).toString()
               )
-              urlPost(url, body = form, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear,
-                Map(SessionValues.GIFT_AID_CYA -> cyaDataMax.asJsonString)
-              )))
+              urlPost(url, body = form, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
             }
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)

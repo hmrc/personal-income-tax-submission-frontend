@@ -30,9 +30,6 @@ case class DividendsCheckYourAnswersModel(
                                            otherUkDividends: Option[Boolean] = None,
                                            otherUkDividendsAmount: Option[BigDecimal] = None
                                     ) {
-
-  def asJsonString: String = Json.toJson(this).toString()
-
   def isFinished: Boolean = {
 
     val ukDividendsFinished: Boolean = ukDividends.exists{
@@ -52,12 +49,6 @@ case class DividendsCheckYourAnswersModel(
 
 object DividendsCheckYourAnswersModel {
   implicit val formats: OFormat[DividendsCheckYourAnswersModel] = Json.format[DividendsCheckYourAnswersModel]
-
-  def fromSession()(implicit user: User[_]): Option[DividendsCheckYourAnswersModel] = {
-    user.session.get(SessionValues.DIVIDENDS_CYA).flatMap{ stringValue =>
-      Json.parse(stringValue).asOpt[DividendsCheckYourAnswersModel]
-    }
-  }
 
   def journey(taxYear: Int): QuestionsJourney[DividendsCheckYourAnswersModel] = new QuestionsJourney[DividendsCheckYourAnswersModel] {
     override def firstPage: Call = ReceiveUkDividendsController.show(taxYear)

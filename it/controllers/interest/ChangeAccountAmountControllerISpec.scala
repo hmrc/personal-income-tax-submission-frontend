@@ -19,17 +19,17 @@ package controllers.interest
 import common.SessionValues
 import helpers.PlaySessionCookieBaker
 import models.interest.{InterestAccountModel, InterestCYAModel}
+import models.priorDataModels.{IncomeSourcesModel, InterestModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status._
-import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
-import utils.{IntegrationTest, ViewHelpers}
+import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
 
 import java.util.UUID
 
-class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelpers {
+class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelpers with InterestDatabaseHelper{
 
   val taxYear: Int = 2022
 
@@ -62,9 +62,9 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
     val expectedUntaxedErrorTitle = s"Error: $expectedUntaxedTitle"
     val expectedTaxedTitle = "How much taxed UK interest did you get?"
     val expectedTaxedErrorTitle = s"Error: $expectedTaxedTitle"
-    def expectedErrorEmpty(taxType: String) = s"Enter the amount of $taxType UK interest you got"
-    def expectedErrorOverMax(taxType: String) = s"The amount of $taxType UK interest must be less than £100,000,000,000"
-    def expectedErrorInvalid(taxType: String) = s"Enter the amount of $taxType UK interest in the correct format"
+    def expectedErrorEmpty(taxType: String): String = s"Enter the amount of $taxType UK interest you got"
+    def expectedErrorOverMax(taxType: String): String = s"The amount of $taxType UK interest must be less than £100,000,000,000"
+    def expectedErrorInvalid(taxType: String): String = s"Enter the amount of $taxType UK interest in the correct format"
     val expectedUntaxedH1 = "HSBC: how much untaxed UK interest did you get?"
     val expectedTaxedH1 = "HSBC: how much taxed UK interest did you get?"
     val youToldUsUntaxed = s"You told us you got £$amount untaxed UK interest. Tell us if this has changed."
@@ -74,9 +74,9 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
     val expectedUntaxedErrorTitleCy = s"Error: $expectedUntaxedTitle"
     val expectedTaxedTitleCy = "How much taxed UK interest did you get?"
     val expectedTaxedErrorTitleCy = s"Error: $expectedTaxedTitle"
-    def expectedErrorEmptyCy(taxType: String) = s"Enter the amount of $taxType UK interest you got"
-    def expectedErrorOverMaxCy(taxType: String) = s"The amount of $taxType UK interest must be less than £100,000,000,000"
-    def expectedErrorInvalidCy(taxType: String) = s"Enter the amount of $taxType UK interest in the correct format"
+    def expectedErrorEmptyCy(taxType: String): String = s"Enter the amount of $taxType UK interest you got"
+    def expectedErrorOverMaxCy(taxType: String): String = s"The amount of $taxType UK interest must be less than £100,000,000,000"
+    def expectedErrorInvalidCy(taxType: String): String = s"Enter the amount of $taxType UK interest in the correct format"
     val expectedUntaxedH1Cy = "HSBC: how much untaxed UK interest did you get?"
     val expectedTaxedH1Cy = "HSBC: how much taxed UK interest did you get?"
     val youToldUsUntaxedCy = s"You told us you got £$amount untaxed UK interest. Tell us if this has changed."
@@ -89,9 +89,9 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
     val expectedUntaxedErrorTitle = s"Error: $expectedUntaxedTitle"
     val expectedTaxedTitle = "How much taxed UK interest did your client get?"
     val expectedTaxedErrorTitle = s"Error: $expectedTaxedTitle"
-    def expectedErrorEmpty(taxType: String) = s"Enter the amount of $taxType UK interest your client got"
-    def expectedErrorOverMax(taxType: String) = s"The amount of $taxType UK interest must be less than £100,000,000,000"
-    def expectedErrorInvalid(taxType: String) = s"Enter the amount of $taxType UK interest in the correct format"
+    def expectedErrorEmpty(taxType: String): String = s"Enter the amount of $taxType UK interest your client got"
+    def expectedErrorOverMax(taxType: String): String = s"The amount of $taxType UK interest must be less than £100,000,000,000"
+    def expectedErrorInvalid(taxType: String): String = s"Enter the amount of $taxType UK interest in the correct format"
     val expectedUntaxedH1 = "HSBC: how much untaxed UK interest did your client get?"
     val expectedTaxedH1 = "HSBC: how much taxed UK interest did your client get?"
     val youToldUsUntaxed = s"You told us your client got £$amount untaxed UK interest. Tell us if this has changed."
@@ -101,9 +101,9 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
     val expectedUntaxedErrorTitleCy = s"Error: $expectedUntaxedTitle"
     val expectedTaxedTitleCy = "How much taxed UK interest did your client get?"
     val expectedTaxedErrorTitleCy = s"Error: $expectedTaxedTitle"
-    def expectedErrorEmptyCy(taxType: String) = s"Enter the amount of $taxType UK interest your client got"
-    def expectedErrorOverMaxCy(taxType: String) = s"The amount of $taxType UK interest must be less than £100,000,000,000"
-    def expectedErrorInvalidCy(taxType: String) = s"Enter the amount of $taxType UK interest in the correct format"
+    def expectedErrorEmptyCy(taxType: String): String = s"Enter the amount of $taxType UK interest your client got"
+    def expectedErrorOverMaxCy(taxType: String): String = s"The amount of $taxType UK interest must be less than £100,000,000,000"
+    def expectedErrorInvalidCy(taxType: String): String = s"Enter the amount of $taxType UK interest in the correct format"
     val expectedUntaxedH1Cy = "HSBC: how much untaxed UK interest did your client get?"
     val expectedTaxedH1Cy = "HSBC: how much taxed UK interest did your client get?"
     val youToldUsUntaxedCy = s"You told us your client got £$amount untaxed UK interest. Tell us if this has changed."
@@ -125,31 +125,50 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
   lazy val id: String = UUID.randomUUID().toString
 
+  val untaxedInterestCyaModel: InterestCYAModel = InterestCYAModel(
+    Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, amount))),
+    Some(false), None
+  )
+
+  val taxedInterestCyaModel: InterestCYAModel = InterestCYAModel(
+    Some(false), None,
+    Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, amount)))
+  )
+
+  val taxedCyaSubmitModel: InterestCYAModel = InterestCYAModel(
+    Some(false), None,
+    Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
+  )
+
+  val untaxedCyaSubmitModel: InterestCYAModel = InterestCYAModel(
+    Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
+    Some(false), None
+  )
+
   "calling /GET" when {
 
     "untaxed" should {
 
       "render the untaxed change amount page without pre-populated amount box and Individual content" which {
         import IndividualExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, amount))),
-          Some(false), None
-        )
 
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> id,
-              "untaxedUkInterest" -> amount
-            )
-          ).toString()
+        val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+          SessionValues.TAX_YEAR -> taxYear.toString
         ))
 
         lazy val result = {
+          dropInterestDB()
+
           authoriseIndividual()
-          await(wsClient.url(url(id, "untaxed")).withHttpHeaders(HeaderNames.COOKIE -> sessionCookie).get())
+          insertCyaData(Some(untaxedInterestCyaModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, None, Some(amount))))), nino, taxYear)
+          await(wsClient.url(url(id, "untaxed"))
+            .withHttpHeaders(
+              xSessionId,
+              csrfContent,
+              HeaderNames.COOKIE -> sessionCookie
+            ).get()
+          )
         }
 
         implicit val document: () => Document = () => Jsoup.parse(result.body)
@@ -165,29 +184,28 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         formPostLinkCheck(urlNoPreFix(id, "untaxed"), continueFormSelector)
         inputFieldValueCheck("", amountSelector)
       }
+
       "render the untaxed change amount page without pre-populated amount box and agent content" which {
         import AgentExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, amount))),
-          Some(false), None
-        )
 
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A",
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> id,
-              "untaxedUkInterest" -> amount
-            )
-          ).toString()
+          SessionValues.CLIENT_NINO -> "AA123456A"
         ))
 
         lazy val result = {
+          dropInterestDB()
+
           authoriseAgent()
-          await(wsClient.url(url(id, "untaxed")).withHttpHeaders(HeaderNames.COOKIE -> sessionCookie).get())
+          insertCyaData(Some(untaxedInterestCyaModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, None, Some(amount))))), nino, taxYear)
+          await(wsClient.url(url(id, "untaxed"))
+            .withHttpHeaders(
+              xSessionId,
+              csrfContent,
+              HeaderNames.COOKIE -> sessionCookie
+            ).get()
+          )
         }
 
         implicit val document: () => Document = () => Jsoup.parse(result.body)
@@ -203,27 +221,23 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         formPostLinkCheck(urlNoPreFix(id, "untaxed"), continueFormSelector)
         inputFieldValueCheck("", amountSelector)
       }
+
       "render the untaxed change amount page without pre-populated amount box and Individual content- Welsh" which {
         import IndividualExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, amount))),
-          Some(false), None
-        )
-
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> id,
-              "untaxedUkInterest" -> amount
-            )
-          ).toString()
-        ))
 
         lazy val result = {
+          dropInterestDB()
+
           authoriseIndividual()
-          await(wsClient.url(url(id, "untaxed")).withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
+          insertCyaData(Some(untaxedInterestCyaModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, None, Some(amount))))), nino, taxYear)
+          await(wsClient.url(url(id, "untaxed"))
+            .withHttpHeaders(
+              xSessionId,
+              csrfContent,
+              HeaderNames.ACCEPT_LANGUAGE -> "cy"
+            ).get()
+          )
         }
 
         implicit val document: () => Document = () => Jsoup.parse(result.body)
@@ -239,29 +253,29 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         formPostLinkCheck(urlNoPreFix(id, "untaxed"), continueFormSelector)
         inputFieldValueCheck("", amountSelector)
       }
+
       "render the untaxed change amount page without pre-populated amount box and agent content - Welsh" which {
         import AgentExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, amount))),
-          Some(false), None
-        )
 
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.CLIENT_MTDITID -> "1234567890",
           SessionValues.CLIENT_NINO -> "AA123456A",
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> id,
-              "untaxedUkInterest" -> amount
-            )
-          ).toString()
         ))
 
         lazy val result = {
+          dropInterestDB()
+
           authoriseAgent()
-          await(wsClient.url(url(id, "untaxed")).withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
+          insertCyaData(Some(untaxedInterestCyaModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, None, Some(amount))))), nino, taxYear)
+          await(wsClient.url(url(id, "untaxed"))
+            .withHttpHeaders(
+              xSessionId,
+              csrfContent,
+              HeaderNames.COOKIE -> sessionCookie,
+              HeaderNames.ACCEPT_LANGUAGE -> "cy"
+            ).get()
+          )
         }
 
         implicit val document: () => Document = () => Jsoup.parse(result.body)
@@ -280,25 +294,23 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
       "render the untaxed change amount page with pre-populated amount box" which {
 
-        lazy val interestCYA = InterestCYAModel(
+        val interestCYA = InterestCYAModel(
           Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, differentAmount))),
           Some(false), None
         )
 
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> id,
-              "untaxedUkInterest" -> amount
-            )
-          ).toString()
-        ))
-
         lazy val result = {
+          dropInterestDB()
+
           authoriseIndividual()
-          await(wsClient.url(url(id, "untaxed")).withHttpHeaders(HeaderNames.COOKIE -> sessionCookie).get())
+          insertCyaData(Some(interestCYA))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, None, Some(amount))))), nino, taxYear)
+          await(wsClient.url(url(id, "untaxed"))
+            .withHttpHeaders(
+              xSessionId,
+              csrfContent
+            ).get()
+          )
         }
 
         implicit val document: () => Document = () => Jsoup.parse(result.body)
@@ -311,14 +323,32 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
         "there is no prior or cya data" in {
 
-          {
+          val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+            SessionValues.TAX_YEAR -> taxYear.toString
+          ))
+
+          lazy val result = {
+            dropInterestDB()
+
             authoriseIndividual()
-            await(wsClient.url(url(id, "untaxed")).get())
+            insertCyaData(None)
+            userDataStub(IncomeSourcesModel(interest = Some(Seq())), nino, taxYear)
+            stubGet("/income-through-software/return/2022/view", SEE_OTHER, "overview")
+            await(wsClient.url(url(id, "untaxed"))
+              .withHttpHeaders(
+                xSessionId,
+                csrfContent,
+                HeaderNames.COOKIE -> playSessionCookie
+              )
+              .withFollowRedirects(false)
+              .get()
+            )
           }
 
-          stubGet("/income-through-software/return/2022/view",303,"")
-          verifyGet("/income-through-software/return/2022/view")
           wireMockServer.resetAll()
+
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head.contains("/income-through-software/return/2022/view") shouldBe true
         }
 
       }
@@ -327,28 +357,25 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
         "there is cya data but no prior data" which {
 
-          lazy val interestCYA = InterestCYAModel(
-            Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, amount))),
-            Some(false), None
-          )
-
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
-          ))
-
           lazy val result = {
+            dropInterestDB()
+
             authoriseIndividual()
-            await(wsClient.url(url(id, "untaxed")).withHttpHeaders(HeaderNames.COOKIE -> sessionCookie).get())
+            insertCyaData(Some(untaxedInterestCyaModel))
+            userDataStub(IncomeSourcesModel(interest = Some(Seq())), nino, taxYear)
+            await(wsClient.url(url(id, "untaxed"))
+              .withHttpHeaders(
+                xSessionId,
+                csrfContent,
+              ).get()
+            )
           }
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck(untaxedAccountPageTitle)
-
         }
-
       }
-
     }
 
     "taxed" should {
@@ -356,25 +383,23 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
       "render the taxed change amount page without pre-populated amount box and Individual content" which {
         import IndividualExpected._
 
-        lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, amount)))
-        )
-
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> id,
-              "untaxedUkInterest" -> amount
-            )
-          ).toString()
+        val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+          SessionValues.TAX_YEAR -> taxYear.toString
         ))
 
         lazy val result = {
+          dropInterestDB()
+
           authoriseIndividual()
-          await(wsClient.url(url(id, "taxed")).withHttpHeaders(HeaderNames.COOKIE -> sessionCookie).get())
+          insertCyaData(Some(taxedInterestCyaModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, Some(amount), None)))), nino, taxYear)
+          await(wsClient.url(url(id, "taxed"))
+            .withHttpHeaders(
+              xSessionId,
+              csrfContent,
+              HeaderNames.COOKIE -> sessionCookie
+            ).get()
+          )
         }
 
         implicit val document: () => Document = () => Jsoup.parse(result.body)
@@ -391,30 +416,28 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         inputFieldValueCheck("", amountSelector)
 
       }
+
       "render the taxed change amount page without pre-populated amount box and agent content" which {
         import AgentExpected._
 
-        lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, amount)))
-        )
-
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A",
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> id,
-              "untaxedUkInterest" -> amount
-            )
-          ).toString()
+          SessionValues.CLIENT_NINO -> "AA123456A"
         ))
 
         lazy val result = {
+          dropInterestDB()
+
           authoriseAgent()
-          await(wsClient.url(url(id, "taxed")).withHttpHeaders(HeaderNames.COOKIE -> sessionCookie).get())
+          insertCyaData(Some(taxedInterestCyaModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, Some(amount), None)))), nino, taxYear)
+          await(wsClient.url(url(id, "taxed"))
+            .withHttpHeaders(
+              xSessionId,
+              csrfContent,
+              HeaderNames.COOKIE -> sessionCookie
+            ).get()
+          )
         }
 
         implicit val document: () => Document = () => Jsoup.parse(result.body)
@@ -431,28 +454,23 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         inputFieldValueCheck("", amountSelector)
 
       }
+
       "render the taxed change amount page without pre-populated amount box and Individual content - Welsh" which {
         import IndividualExpected._
 
-        lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, amount)))
-        )
-
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> id,
-              "untaxedUkInterest" -> amount
-            )
-          ).toString()
-        ))
-
         lazy val result = {
+          dropInterestDB()
+
           authoriseIndividual()
-          await(wsClient.url(url(id, "taxed")).withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
+          insertCyaData(Some(taxedInterestCyaModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, Some(amount), None)))), nino, taxYear)
+          await(wsClient.url(url(id, "taxed"))
+            .withHttpHeaders(
+              xSessionId,
+              csrfContent,
+              HeaderNames.ACCEPT_LANGUAGE -> "cy"
+            ).get()
+          )
         }
 
         implicit val document: () => Document = () => Jsoup.parse(result.body)
@@ -469,30 +487,29 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         inputFieldValueCheck("", amountSelector)
 
       }
+
       "render the taxed change amount page without pre-populated amount box and agent content - Welsh" which {
         import AgentExpected._
 
-        lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, amount)))
-        )
-
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A",
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> id,
-              "untaxedUkInterest" -> amount
-            )
-          ).toString()
+          SessionValues.CLIENT_NINO -> "AA123456A"
         ))
 
         lazy val result = {
+          dropInterestDB()
+
           authoriseAgent()
-          await(wsClient.url(url(id, "taxed")).withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
+          insertCyaData(Some(taxedInterestCyaModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, None, Some(amount))))), nino, taxYear)
+          await(wsClient.url(url(id, "taxed"))
+            .withHttpHeaders(
+              xSessionId,
+              csrfContent,
+              HeaderNames.COOKIE -> sessionCookie,
+              HeaderNames.ACCEPT_LANGUAGE -> "cy"
+            ).get()
+          )
         }
 
         implicit val document: () => Document = () => Jsoup.parse(result.body)
@@ -517,20 +534,18 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
           Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, differentAmount)))
         )
 
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> id,
-              "untaxedUkInterest" -> amount
-            )
-          ).toString()
-        ))
-
         lazy val result = {
+          dropInterestDB()
+
           authoriseIndividual()
-          await(wsClient.url(url(id, "taxed")).withHttpHeaders(HeaderNames.COOKIE -> sessionCookie).get())
+          insertCyaData(Some(interestCYA))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, Some(amount), None)))), nino, taxYear)
+          await(wsClient.url(url(id, "taxed"))
+            .withHttpHeaders(
+              xSessionId,
+              csrfContent
+            ).get()
+          )
         }
 
         implicit val document: () => Document = () => Jsoup.parse(result.body)
@@ -544,14 +559,32 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
         "there is no prior or cya data" in {
 
-          {
+          val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+            SessionValues.TAX_YEAR -> taxYear.toString
+          ))
+
+          lazy val result = {
+            dropInterestDB()
+
             authoriseIndividual()
-            await(wsClient.url(url(id, "taxed")).get())
+            insertCyaData(None)
+            userDataStub(IncomeSourcesModel(interest = Some(Seq())), nino, taxYear)
+            stubGet("/income-through-software/return/2022/view", SEE_OTHER, "overview")
+            await(wsClient.url(url(id, "taxed"))
+              .withHttpHeaders(
+                xSessionId,
+                csrfContent,
+                HeaderNames.COOKIE -> playSessionCookie
+              )
+              .withFollowRedirects(false)
+              .get()
+            )
           }
 
-          stubGet("/income-through-software/return/2022/view",303,"")
-          verifyGet("/income-through-software/return/2022/view")
           wireMockServer.resetAll()
+
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head.contains("/income-through-software/return/2022/view") shouldBe true
         }
 
       }
@@ -560,18 +593,18 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
         "there is cya data but no prior data" which {
 
-          lazy val interestCYA = InterestCYAModel(
-            Some(false), None,
-            Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, amount)))
-          )
-
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
-          ))
-
           lazy val result = {
+            dropInterestDB()
+
             authoriseIndividual()
-            await(wsClient.url(url(id, "taxed")).withHttpHeaders(HeaderNames.COOKIE -> sessionCookie).get())
+            insertCyaData(Some(taxedInterestCyaModel))
+            userDataStub(IncomeSourcesModel(interest = Some(Seq())), nino, taxYear)
+            await(wsClient.url(url(id, "taxed"))
+              .withHttpHeaders(
+                xSessionId,
+                csrfContent,
+              ).get()
+            )
           }
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
@@ -592,26 +625,19 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
       "there is both CYA data and prior in session and input is empty as an Individual" which {
         import IndividualExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
-        )
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> "TaxedId",
-              "taxedUkInterest" -> amount
-            )).toString()
-        ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
+          dropInterestDB()
+
           authoriseIndividual()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-            .post(Map("amount" -> "")))
+          insertCyaData(Some(taxedCyaSubmitModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
+          await(wsClient.url(url("TaxedId", "taxed"))
+            .withHttpHeaders(
+              xSessionId,
+              csrfContent
+            ).post(Map("amount" -> ""))
+          )
         }
         s"has an BAD_REQUEST($BAD_REQUEST) status" in {
           result.status shouldBe BAD_REQUEST
@@ -621,30 +647,28 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         errorSummaryCheck(expectedErrorEmpty("taxed"), newAmountInputSelector)
         errorAboveElementCheck(expectedErrorEmpty("taxed"))
       }
+
       "there is both CYA data and prior in session and input is empty as an agent" which {
         import AgentExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
-        )
+
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
           SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A",
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> "TaxedId",
-              "taxedUkInterest" -> amount
-            )).toString()
+          SessionValues.CLIENT_NINO -> "AA123456A"
         ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
+          dropInterestDB()
+
           authoriseAgent()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-            .post(Map("amount" -> "")))
+          insertCyaData(Some(taxedCyaSubmitModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
+          await(wsClient.url(url("TaxedId", "taxed"))
+            .withHttpHeaders(
+              xSessionId,
+              csrfContent,
+              HeaderNames.COOKIE -> sessionCookie
+            ).post(Map("amount" -> ""))
+          )
         }
         s"has an BAD_REQUEST($BAD_REQUEST) status" in {
           result.status shouldBe BAD_REQUEST
@@ -654,27 +678,20 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         errorSummaryCheck(expectedErrorEmpty("taxed"), newAmountInputSelector)
         errorAboveElementCheck(expectedErrorEmpty("taxed"))
       }
+
       "there is both CYA data and prior in session and input is invalid as an Individual" which {
         import IndividualExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
-        )
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> "TaxedId",
-              "taxedUkInterest" -> amount
-            )).toString()
-        ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
+          dropInterestDB()
+
           authoriseIndividual()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+          insertCyaData(Some(taxedCyaSubmitModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
+          await(wsClient.url(url("TaxedId", "taxed"))
+            .withHttpHeaders(
+              xSessionId,
+              csrfContent)
             .post(Map("amount" -> "|")))
         }
         s"has an BAD_REQUEST($BAD_REQUEST) status" in {
@@ -685,30 +702,28 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         errorSummaryCheck(expectedErrorInvalid("taxed"), newAmountInputSelector)
         errorAboveElementCheck(expectedErrorInvalid("taxed"))
       }
+
       "there is both CYA data and prior in session and input is invalid as an agent" which {
         import AgentExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
-        )
+
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
           SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A",
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> "TaxedId",
-              "taxedUkInterest" -> amount
-            )).toString()
+          SessionValues.CLIENT_NINO -> "AA123456A"
         ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
+          dropInterestDB()
+
           authoriseAgent()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-            .post(Map("amount" -> "|")))
+          insertCyaData(Some(taxedCyaSubmitModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
+          await(wsClient.url(url("TaxedId", "taxed"))
+            .withHttpHeaders(
+              xSessionId,
+              csrfContent,
+              HeaderNames.COOKIE -> sessionCookie
+            ).post(Map("amount" -> "|"))
+          )
         }
         s"has an BAD_REQUEST($BAD_REQUEST) status" in {
           result.status shouldBe BAD_REQUEST
@@ -718,28 +733,21 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         errorSummaryCheck(expectedErrorInvalid("taxed"), newAmountInputSelector)
         errorAboveElementCheck(expectedErrorInvalid("taxed"))
       }
+
       "there is both CYA data and prior in session and input is OverMax as an Individual" which {
         import IndividualExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
-        )
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> "TaxedId",
-              "taxedUkInterest" -> amount
-            )).toString()
-        ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
+          dropInterestDB()
           authoriseIndividual()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-            .post(Map("amount" -> "99999999999999999999999999999999999999999")))
+          insertCyaData(Some(taxedCyaSubmitModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
+          await(wsClient.url(url("TaxedId", "taxed"))
+            .withHttpHeaders(
+              xSessionId,
+              csrfContent
+            ).post(Map("amount" -> "99999999999999999999999999999999999999999"))
+          )
         }
         s"has an BAD_REQUEST($BAD_REQUEST) status" in {
           result.status shouldBe BAD_REQUEST
@@ -749,30 +757,27 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         errorSummaryCheck(expectedErrorOverMax("taxed"), newAmountInputSelector)
         errorAboveElementCheck(expectedErrorOverMax("taxed"))
       }
+
       "there is both CYA data and prior in session and input is OverMax as an agent" which {
         import AgentExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
-        )
+
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
           SessionValues.CLIENT_MTDITID -> "1234567890",
           SessionValues.CLIENT_NINO -> "AA123456A",
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> "TaxedId",
-              "taxedUkInterest" -> amount
-            )).toString()
         ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
+          dropInterestDB()
           authoriseAgent()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-            .post(Map("amount" -> "999999999999999999999999999999999999")))
+          insertCyaData(Some(taxedCyaSubmitModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
+          await(wsClient.url(url("TaxedId", "taxed"))
+            .withHttpHeaders(
+              HeaderNames.COOKIE -> sessionCookie,
+              xSessionId,
+              csrfContent
+            ).post(Map("amount" -> "999999999999999999999999999999999999"))
+          )
         }
         s"has an BAD_REQUEST($BAD_REQUEST) status" in {
           result.status shouldBe BAD_REQUEST
@@ -782,29 +787,24 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         errorSummaryCheck(expectedErrorOverMax("taxed"), newAmountInputSelector)
         errorAboveElementCheck(expectedErrorOverMax("taxed"))
       }
+
       "there is both CYA data and prior in session and input is empty as an Individual - Welsh" which {
         import IndividualExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
-        )
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> "TaxedId",
-              "taxedUkInterest" -> amount
-            )).toString()
-        ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
+          dropInterestDB()
           authoriseIndividual()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
-            .post(Map("amount" -> "")))
+          insertCyaData(Some(taxedCyaSubmitModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
+          await(wsClient.url(url("TaxedId", "taxed"))
+            .withHttpHeaders(
+              HeaderNames.ACCEPT_LANGUAGE -> "cy",
+              xSessionId,
+              csrfContent
+            ).post(Map("amount" -> ""))
+          )
         }
+
         s"has an BAD_REQUEST($BAD_REQUEST) status" in {
           result.status shouldBe BAD_REQUEST
         }
@@ -813,31 +813,30 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         errorSummaryCheck(expectedErrorEmptyCy("taxed"), newAmountInputSelector)
         errorAboveElementCheck(expectedErrorEmptyCy("taxed"))
       }
+
       "there is both CYA data and prior in session and input is empty as an agent - Welsh" which {
         import AgentExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
-        )
+
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
           SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A",
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> "TaxedId",
-              "taxedUkInterest" -> amount
-            )).toString()
+          SessionValues.CLIENT_NINO -> "AA123456A"
         ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
+          dropInterestDB()
           authoriseAgent()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
-            .post(Map("amount" -> "")))
+          insertCyaData(Some(taxedCyaSubmitModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
+          await(wsClient.url(url("TaxedId", "taxed"))
+            .withHttpHeaders(
+              HeaderNames.COOKIE -> sessionCookie,
+              HeaderNames.ACCEPT_LANGUAGE -> "cy",
+              xSessionId,
+              csrfContent
+            ).post(Map("amount" -> ""))
+          )
         }
+
         s"has an BAD_REQUEST($BAD_REQUEST) status" in {
           result.status shouldBe BAD_REQUEST
         }
@@ -847,29 +846,24 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         errorSummaryCheck(expectedErrorEmptyCy("taxed"), newAmountInputSelector)
         errorAboveElementCheck(expectedErrorEmptyCy("taxed"))
       }
+
       "there is both CYA data and prior in session and input is invalid as an Individual - Welsh" which {
         import IndividualExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
-        )
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> "TaxedId",
-              "taxedUkInterest" -> amount
-            )).toString()
-        ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
+          dropInterestDB()
           authoriseIndividual()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
-            .post(Map("amount" -> "|")))
+          insertCyaData(Some(taxedCyaSubmitModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
+          await(wsClient.url(url("TaxedId", "taxed"))
+            .withHttpHeaders(
+              HeaderNames.ACCEPT_LANGUAGE -> "cy",
+              xSessionId,
+              csrfContent
+            ).post(Map("amount" -> "|"))
+          )
         }
+
         s"has an BAD_REQUEST($BAD_REQUEST) status" in {
           result.status shouldBe BAD_REQUEST
         }
@@ -879,31 +873,30 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         errorSummaryCheck(expectedErrorInvalidCy("taxed"), newAmountInputSelector)
         errorAboveElementCheck(expectedErrorInvalidCy("taxed"))
       }
+
       "there is both CYA data and prior in session and input is invalid as an agent - Welsh" which {
         import AgentExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
-        )
+
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
           SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A",
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> "TaxedId",
-              "taxedUkInterest" -> amount
-            )).toString()
+          SessionValues.CLIENT_NINO -> "AA123456A"
         ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
+          dropInterestDB()
           authoriseAgent()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
-            .post(Map("amount" -> "|")))
+          insertCyaData(Some(taxedCyaSubmitModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
+          await(wsClient.url(url("TaxedId", "taxed"))
+            .withHttpHeaders(
+              HeaderNames.COOKIE -> sessionCookie,
+              HeaderNames.ACCEPT_LANGUAGE -> "cy",
+              xSessionId,
+              csrfContent
+            ).post(Map("amount" -> "|"))
+          )
         }
+
         s"has an BAD_REQUEST($BAD_REQUEST) status" in {
           result.status shouldBe BAD_REQUEST
         }
@@ -913,29 +906,24 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         errorSummaryCheck(expectedErrorInvalidCy("taxed"), newAmountInputSelector)
         errorAboveElementCheck(expectedErrorInvalidCy("taxed"))
       }
+
       "there is both CYA data and prior in session and input is OverMax as an Individual - Welsh" which {
         import IndividualExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
-        )
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> "TaxedId",
-              "taxedUkInterest" -> amount
-            )).toString()
-        ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
+          dropInterestDB()
           authoriseIndividual()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
-            .post(Map("amount" -> "99999999999999999999999999999999999999999")))
+          insertCyaData(Some(taxedCyaSubmitModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
+          await(wsClient.url(url("TaxedId", "taxed"))
+            .withHttpHeaders(
+              HeaderNames.ACCEPT_LANGUAGE -> "cy",
+              xSessionId,
+              csrfContent
+            ).post(Map("amount" -> "99999999999999999999999999999999999999999"))
+          )
         }
+
         s"has an BAD_REQUEST($BAD_REQUEST) status" in {
           result.status shouldBe BAD_REQUEST
         }
@@ -945,31 +933,30 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         errorSummaryCheck(expectedErrorOverMaxCy("taxed"), newAmountInputSelector)
         errorAboveElementCheck(expectedErrorOverMaxCy("taxed"))
       }
+
       "there is both CYA data and prior in session and input is OverMax as an agent - Welsh" which {
         import AgentExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
-        )
+
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
           SessionValues.CLIENT_MTDITID -> "1234567890",
           SessionValues.CLIENT_NINO -> "AA123456A",
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> "TaxedId",
-              "taxedUkInterest" -> amount
-            )).toString()
         ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
 
         lazy val result = {
+          dropInterestDB()
           authoriseAgent()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
-            .post(Map("amount" -> "999999999999999999999999999999999999")))
+          insertCyaData(Some(taxedCyaSubmitModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
+          await(wsClient.url(url("TaxedId", "taxed"))
+            .withHttpHeaders(
+              HeaderNames.COOKIE -> sessionCookie,
+              HeaderNames.ACCEPT_LANGUAGE -> "cy",
+              xSessionId,
+              csrfContent
+            ).post(Map("amount" -> "99999999999999999999999999999999999999999"))
+          )
         }
+
         s"has an BAD_REQUEST($BAD_REQUEST) status" in {
           result.status shouldBe BAD_REQUEST
         }
@@ -982,21 +969,19 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
       "there is CYA data in session" which {
 
-        lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
-        )
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
-        ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
-
         lazy val result = {
+          dropInterestDB()
           authoriseIndividual()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-            .post("{}"))
+          insertCyaData(Some(taxedCyaSubmitModel))
+          userDataStub(IncomeSourcesModel(interest = None), nino, taxYear)
+          await(wsClient.url(url("TaxedId", "taxed"))
+            .withHttpHeaders(
+              xSessionId,
+              csrfContent
+            ).post("{}")
+          )
         }
+
         s"has an OK($OK) status" in {
           result.status shouldBe OK
         }
@@ -1004,42 +989,44 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
       "there is no CYA data in session" which {
 
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
-
         lazy val result = {
+          dropInterestDB()
+
+          emptyUserDataStub()
+          insertCyaData(None)
+
           authoriseIndividual()
-          await(wsClient.url(url)
-            .withHttpHeaders("Csrf-Token" -> "nocheck")
-            .post("{}"))
+          await(wsClient.url(url("TaxedId", "taxed"))
+            .withHttpHeaders(
+              xSessionId,
+              csrfContent
+            ).withFollowRedirects(false).post("{}")
+          )
         }
-        s"has an NOT_FOUND($NOT_FOUND) status" in {
-          result.status shouldBe NOT_FOUND
+
+        "redirects to the taxed accounts summary page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/accounts-with-taxed-uk-interest"
         }
       }
 
       "the authorization fails" which {
 
-        lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
-        )
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
-        ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-taxed-uk-interest?accountId=TaxedId"
-
         lazy val result = {
+          dropInterestDB()
           authoriseIndividualUnauthorized()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-            .post("{}"))
+          await(wsClient.url(url("TaxedId", "taxed"))
+            .withHttpHeaders(
+              xSessionId,
+              csrfContent
+            ).post("{}")
+          )
         }
         s"has an UNAUTHORIZED($UNAUTHORIZED) status" in {
           result.status shouldBe UNAUTHORIZED
         }
       }
     }
-
   }
 
   ".submit untaxed" should {
@@ -1048,21 +1035,19 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
       "there is CYA data in session" which {
 
-        lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-          Some(false), None
-        )
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
-        ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
-
         lazy val result = {
+          dropInterestDB()
           authoriseIndividual()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-            .post("{}"))
+          insertCyaData(Some(untaxedCyaSubmitModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
+          await(wsClient.url(url("UntaxedId", "untaxed"))
+            .withHttpHeaders(
+              xSessionId,
+              csrfContent
+            ).post(Map("amount" -> "250"))
+          )
         }
+
         s"has an OK($OK) status" in {
           result.status shouldBe OK
         }
@@ -1070,27 +1055,21 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
       "there is CYA and Prior data in session and input is empty as an Individual" which {
         import IndividualExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-          Some(false), None
-        )
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> "UntaxedId",
-              "taxedUkInterest" -> amount
-            )).toString()
-        ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
 
         lazy val result = {
+          dropInterestDB()
+
           authoriseIndividual()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-            .post(Map("amount" -> "")))
+          insertCyaData(Some(untaxedCyaSubmitModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
+          await(wsClient.url(url("UntaxedId", "untaxed"))
+            .withHttpHeaders(
+              xSessionId,
+              csrfContent
+            ).post(Map("amount" -> ""))
+          )
         }
+
         s"has an BAD_REQUEST($BAD_REQUEST) status" in {
           result.status shouldBe BAD_REQUEST
         }
@@ -1099,31 +1078,29 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         errorSummaryCheck(expectedErrorEmpty("untaxed"), newAmountInputSelector)
         errorAboveElementCheck(expectedErrorEmpty("untaxed"))
       }
+
       "there is CYA and Prior data in session and input is empty as an agent" which {
         import AgentExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-          Some(false), None
-        )
+
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A",
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> "UntaxedId",
-              "taxedUkInterest" -> amount
-            )).toString()
+          SessionValues.CLIENT_NINO -> "AA123456A"
         ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
-
         lazy val result = {
+          dropInterestDB()
+
           authoriseAgent()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-            .post(Map("amount" -> "")))
+          insertCyaData(Some(untaxedCyaSubmitModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
+          await(wsClient.url(url("UntaxedId", "untaxed"))
+            .withHttpHeaders(
+              HeaderNames.COOKIE -> sessionCookie,
+              xSessionId,
+              csrfContent
+            ).post(Map("amount" -> ""))
+          )
         }
+
         s"has an BAD_REQUEST($BAD_REQUEST) status" in {
           result.status shouldBe BAD_REQUEST
         }
@@ -1132,28 +1109,22 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         errorSummaryCheck(expectedErrorEmpty("untaxed"), newAmountInputSelector)
         errorAboveElementCheck(expectedErrorEmpty("untaxed"))
       }
+
       "there is CYA and Prior data in session and input is invalid as an Individual" which {
         import IndividualExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-          Some(false), None
-        )
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> "UntaxedId",
-              "taxedUkInterest" -> amount
-            )).toString()
-        ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
 
         lazy val result = {
+          dropInterestDB()
+
           authoriseIndividual()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-            .post(Map("amount" -> "|")))
+          insertCyaData(Some(untaxedCyaSubmitModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
+          await(wsClient.url(url("UntaxedId", "untaxed"))
+            .withHttpHeaders(
+              xSessionId,
+              csrfContent
+            ).post(Map("amount" -> "|"))
+          )
         }
         s"has an BAD_REQUEST($BAD_REQUEST) status" in {
           result.status shouldBe BAD_REQUEST
@@ -1163,30 +1134,28 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         errorSummaryCheck(expectedErrorInvalid("untaxed"), newAmountInputSelector)
         errorAboveElementCheck(expectedErrorInvalid("untaxed"))
       }
+
       "there is CYA and Prior data in session and input is invalid as an agent" which {
         import AgentExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-          Some(false), None
-        )
+
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A",
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> "UntaxedId",
-              "taxedUkInterest" -> amount
-            )).toString()
+          SessionValues.CLIENT_NINO -> "AA123456A"
         ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
 
         lazy val result = {
+          dropInterestDB()
+
           authoriseAgent()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-            .post(Map("amount" -> "|")))
+          insertCyaData(Some(untaxedCyaSubmitModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
+          await(wsClient.url(url("UntaxedId", "untaxed"))
+            .withHttpHeaders(
+              HeaderNames.COOKIE -> sessionCookie,
+              xSessionId,
+              csrfContent
+            ).post(Map("amount" -> "|"))
+          )
         }
         s"has an BAD_REQUEST($BAD_REQUEST) status" in {
           result.status shouldBe BAD_REQUEST
@@ -1196,28 +1165,22 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         errorSummaryCheck(expectedErrorInvalid("untaxed"), newAmountInputSelector)
         errorAboveElementCheck(expectedErrorInvalid("untaxed"))
       }
+
       "there is CYA and Prior data in session and input is OverMax as an Individual" which {
         import IndividualExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-          Some(false), None
-        )
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> "UntaxedId",
-              "taxedUkInterest" -> amount
-            )).toString()
-        ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
 
         lazy val result = {
+          dropInterestDB()
+
           authoriseIndividual()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-            .post(Map("amount" -> "9999999999999999999999999999")))
+          insertCyaData(Some(untaxedCyaSubmitModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
+          await(wsClient.url(url("UntaxedId", "untaxed"))
+            .withHttpHeaders(
+              xSessionId,
+              csrfContent
+            ).post(Map("amount" -> "9999999999999999999999999999"))
+          )
         }
         s"has an BAD_REQUEST($BAD_REQUEST) status" in {
           result.status shouldBe BAD_REQUEST
@@ -1227,31 +1190,30 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         errorSummaryCheck(expectedErrorOverMax("untaxed"), newAmountInputSelector)
         errorAboveElementCheck(expectedErrorOverMax("untaxed"))
       }
+
       "there is CYA and Prior data in session and input is OverMax as an agent" which {
         import AgentExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-          Some(false), None
-        )
+
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A",
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> "UntaxedId",
-              "taxedUkInterest" -> amount
-            )).toString()
+          SessionValues.CLIENT_NINO -> "AA123456A"
         ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
 
         lazy val result = {
+          dropInterestDB()
+
           authoriseAgent()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-            .post(Map("amount" -> "99999999999999999999999999999999")))
+          insertCyaData(Some(untaxedCyaSubmitModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
+          await(wsClient.url(url("UntaxedId", "untaxed"))
+            .withHttpHeaders(
+              HeaderNames.COOKIE -> sessionCookie,
+              xSessionId,
+              csrfContent
+            ).post(Map("amount" -> "99999999999999999999999999999999"))
+          )
         }
+
         s"has an BAD_REQUEST($BAD_REQUEST) status" in {
           result.status shouldBe BAD_REQUEST
         }
@@ -1260,28 +1222,23 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         errorSummaryCheck(expectedErrorOverMax("untaxed"), newAmountInputSelector)
         errorAboveElementCheck(expectedErrorOverMax("untaxed"))
       }
+
       "there is CYA and Prior data in session and input is empty as an Individual - Welsh" which {
         import IndividualExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-          Some(false), None
-        )
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> "UntaxedId",
-              "taxedUkInterest" -> amount
-            )).toString()
-        ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
 
         lazy val result = {
+          dropInterestDB()
+
           authoriseIndividual()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
-            .post(Map("amount" -> "")))
+          insertCyaData(Some(untaxedCyaSubmitModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
+          await(wsClient.url(url("UntaxedId", "untaxed"))
+            .withHttpHeaders(
+              HeaderNames.ACCEPT_LANGUAGE -> "cy",
+              xSessionId,
+              csrfContent
+            ).post(Map("amount" -> ""))
+          )
         }
         s"has an BAD_REQUEST($BAD_REQUEST) status" in {
           result.status shouldBe BAD_REQUEST
@@ -1292,30 +1249,28 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         errorSummaryCheck(expectedErrorEmptyCy("untaxed"), newAmountInputSelector)
         errorAboveElementCheck(expectedErrorEmptyCy("untaxed"))
       }
+
       "there is CYA and Prior data in session and input is empty as an agent - Welsh" which {
         import AgentExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-          Some(false), None
-        )
+
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A",
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> "UntaxedId",
-              "taxedUkInterest" -> amount
-            )).toString()
+          SessionValues.CLIENT_NINO -> "AA123456A"
         ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
-
         lazy val result = {
+          dropInterestDB()
+
           authoriseAgent()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
-            .post(Map("amount" -> "")))
+          insertCyaData(Some(untaxedCyaSubmitModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
+          await(wsClient.url(url("UntaxedId", "untaxed"))
+            .withHttpHeaders(
+              HeaderNames.ACCEPT_LANGUAGE -> "cy",
+              HeaderNames.COOKIE -> sessionCookie,
+              xSessionId,
+              csrfContent
+            ).post(Map("amount" -> ""))
+          )
         }
         s"has an BAD_REQUEST($BAD_REQUEST) status" in {
           result.status shouldBe BAD_REQUEST
@@ -1326,28 +1281,23 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         errorSummaryCheck(expectedErrorEmptyCy("untaxed"), newAmountInputSelector)
         errorAboveElementCheck(expectedErrorEmptyCy("untaxed"))
       }
+
       "there is CYA and Prior data in session and input is invalid as an Individual - Welsh" which {
         import IndividualExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-          Some(false), None
-        )
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> "UntaxedId",
-              "taxedUkInterest" -> amount
-            )).toString()
-        ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
 
         lazy val result = {
+          dropInterestDB()
+
           authoriseIndividual()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
-            .post(Map("amount" -> "|")))
+          insertCyaData(Some(untaxedCyaSubmitModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
+          await(wsClient.url(url("UntaxedId", "untaxed"))
+            .withHttpHeaders(
+              HeaderNames.ACCEPT_LANGUAGE -> "cy",
+              xSessionId,
+              csrfContent
+            ).post(Map("amount" -> "|"))
+          )
         }
         s"has an BAD_REQUEST($BAD_REQUEST) status" in {
           result.status shouldBe BAD_REQUEST
@@ -1358,30 +1308,29 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         errorSummaryCheck(expectedErrorInvalidCy("untaxed"), newAmountInputSelector)
         errorAboveElementCheck(expectedErrorInvalidCy("untaxed"))
       }
+
       "there is CYA and Prior data in session and input is invalid as an agent - Welsh" which {
         import AgentExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-          Some(false), None
-        )
+
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A",
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> "UntaxedId",
-              "taxedUkInterest" -> amount
-            )).toString()
+          SessionValues.CLIENT_NINO -> "AA123456A"
         ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
 
         lazy val result = {
+          dropInterestDB()
+
           authoriseAgent()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
-            .post(Map("amount" -> "|")))
+          insertCyaData(Some(untaxedCyaSubmitModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
+          await(wsClient.url(url("UntaxedId", "untaxed"))
+            .withHttpHeaders(
+              HeaderNames.ACCEPT_LANGUAGE -> "cy",
+              HeaderNames.COOKIE -> sessionCookie,
+              xSessionId,
+              csrfContent
+            ).post(Map("amount" -> "|"))
+          )
         }
         s"has an BAD_REQUEST($BAD_REQUEST) status" in {
           result.status shouldBe BAD_REQUEST
@@ -1392,28 +1341,23 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         errorSummaryCheck(expectedErrorInvalidCy("untaxed"), newAmountInputSelector)
         errorAboveElementCheck(expectedErrorInvalidCy("untaxed"))
       }
+
       "there is CYA and Prior data in session and input is OverMax as an Individual - Welsh" which {
         import IndividualExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-          Some(false), None
-        )
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> "UntaxedId",
-              "taxedUkInterest" -> amount
-            )).toString()
-        ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
 
         lazy val result = {
+          dropInterestDB()
+
           authoriseIndividual()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
-            .post(Map("amount" -> "9999999999999999999999999999")))
+          insertCyaData(Some(untaxedCyaSubmitModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
+          await(wsClient.url(url("UntaxedId", "untaxed"))
+            .withHttpHeaders(
+              HeaderNames.ACCEPT_LANGUAGE -> "cy",
+              xSessionId,
+              csrfContent
+            ).post(Map("amount" -> "9999999999999999999999999999"))
+          )
         }
         s"has an BAD_REQUEST($BAD_REQUEST) status" in {
           result.status shouldBe BAD_REQUEST
@@ -1424,30 +1368,29 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         errorSummaryCheck(expectedErrorOverMaxCy("untaxed"), newAmountInputSelector)
         errorAboveElementCheck(expectedErrorOverMaxCy("untaxed"))
       }
+
       "there is CYA and Prior data in session and input is OverMax as an agent - Welsh" which {
         import AgentExpected._
-        lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-          Some(false), None
-        )
+
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A",
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-          SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-            Json.obj(
-              "accountName" -> accountName,
-              "incomeSourceId" -> "UntaxedId",
-              "taxedUkInterest" -> amount
-            )).toString()
+          SessionValues.CLIENT_NINO -> "AA123456A"
         ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
 
         lazy val result = {
+          dropInterestDB()
+
           authoriseAgent()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", "Csrf-Token" -> "nocheck")
-            .post(Map("amount" -> "99999999999999999999999999999999")))
+          insertCyaData(Some(untaxedCyaSubmitModel))
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
+          await(wsClient.url(url("UntaxedId", "untaxed"))
+            .withHttpHeaders(
+              HeaderNames.ACCEPT_LANGUAGE -> "cy",
+              HeaderNames.COOKIE -> sessionCookie,
+              xSessionId,
+              csrfContent
+            ).post(Map("amount" -> "99999999999999999999999999999999"))
+          )
         }
         s"has an BAD_REQUEST($BAD_REQUEST) status" in {
           result.status shouldBe BAD_REQUEST
@@ -1460,36 +1403,37 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
       }
 
       "there is no CYA data in session" which {
-
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
-
         lazy val result = {
+          dropInterestDB()
+
+          emptyUserDataStub()
+          insertCyaData(None)
+
           authoriseIndividual()
-          await(wsClient.url(url)
-            .withHttpHeaders("Csrf-Token" -> "nocheck")
-            .post("{}"))
+          await(wsClient.url(url("UntaxedId", "untaxed"))
+            .withHttpHeaders(
+              xSessionId,
+              csrfContent
+            ).withFollowRedirects(false).post("{}")
+          )
         }
-        s"has an NOT_FOUND($NOT_FOUND) status" in {
-          result.status shouldBe NOT_FOUND
+        s"redirects to the untaxed accounts summary page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/accounts-with-untaxed-uk-interest"
         }
       }
 
       "the authorization fails" which {
 
-        lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-          Some(false), None
-        )
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
-        ))
-        lazy val url: String = s"$appUrl/$taxYear/interest/change-untaxed-uk-interest?accountId=UntaxedId"
-
         lazy val result = {
+          dropInterestDB()
           authoriseIndividualUnauthorized()
-          await(wsClient.url(url)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-            .post("{}"))
+          await(wsClient.url(url("UntaxedId", "untaxed"))
+            .withHttpHeaders(
+              xSessionId,
+              csrfContent
+            ).post("{}")
+          )
         }
         s"has an UNAUTHORIZED($UNAUTHORIZED) status" in {
           result.status shouldBe UNAUTHORIZED

@@ -16,6 +16,7 @@
 
 package config
 
+import models.User
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Request, RequestHeader, Result}
 import play.twirl.api.Html
@@ -38,6 +39,14 @@ class ErrorHandler @Inject()(internalServerErrorTemplate: InternalServerErrorTem
     internalServerErrorTemplate()
 
   override def notFoundTemplate(implicit request: Request[_]): Html = notFoundTemplate()
+
+  def internalServerError()(implicit user: User[_]): Result = {
+    InternalServerError(internalServerErrorTemplate())
+  }
+
+  def futureInternalServerError()(implicit user: User[_]): Future[Result] = {
+    Future.successful(InternalServerError(internalServerErrorTemplate()))
+  }
 
   def handleError(status: Int)(implicit request: Request[_]): Result = {
     status match {

@@ -32,7 +32,7 @@ class MockAppConfig extends MockFactory {
 
     override def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = "/overview"
 
-    override def incomeTaxSubmissionStartUrl(taxYear: Int): String = "/start"
+    override def incomeTaxSubmissionappUrl(taxYear: Int): String = "/start"
 
     override def feedbackSurveyUrl(implicit isAgent: Boolean): String = "/feedbackUrl"
 
@@ -58,5 +58,8 @@ class MockAppConfig extends MockFactory {
     override def isJourneyAvailable(journeyKey: JourneyKey): Boolean = true
 
     override def taxYearSwitchResetsSession: Boolean = true
+
+    //noinspection ScalaStyle
+    override def mongoTTL: Long = 15
   }
 }

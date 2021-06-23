@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-package utils
+package models.priorDataModels
 
-import common.SessionValues
-import models.User
-import play.api.mvc.Result
+import models.charity.prior.GiftAidSubmissionModel
+import models.dividends.DividendsPriorSubmission
+import play.api.libs.json.{Json, OFormat}
 
-trait InterestSessionHelper extends SessionHelper {
+case class IncomeSourcesModel(
+                               dividends: Option[DividendsPriorSubmission] = None,
+                               interest: Option[Seq[InterestModel]] = None,
+                               giftAid: Option[GiftAidSubmissionModel] = None
+                             )
 
-  implicit class BetterResult(result: Result) {
-
-    def clearSessionData()(implicit user: User[_]): Result = {
-      result.removingFromSession(
-        SessionValues.INTEREST_CYA,
-        SessionValues.INTEREST_PRIOR_SUB
-      )
-    }
-
-  }
-
+object IncomeSourcesModel {
+  implicit val formats: OFormat[IncomeSourcesModel] = Json.format[IncomeSourcesModel]
 }

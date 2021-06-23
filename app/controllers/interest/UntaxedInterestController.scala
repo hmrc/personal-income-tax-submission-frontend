@@ -16,85 +16,117 @@
 
 package controllers.interest
 
-import common.SessionValues
-import config.{AppConfig, INTEREST}
-import controllers.interest.routes.UntaxedInterestController
+import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.YesNoForm
-import models.interest.{InterestCYAModel, InterestPriorSubmission}
+import models.User
+import models.interest.InterestCYAModel
 import models.question.QuestionsJourney
 import play.api.data.Form
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import services.InterestSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.InterestSessionHelper
+import utils.SessionHelper
 import views.html.interest.UntaxedInterestView
 
 import java.util.UUID.randomUUID
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class UntaxedInterestController @Inject()(
                                            untaxedInterestView: UntaxedInterestView)(
                                            implicit val appConfig: AppConfig,
                                            authAction: AuthorisedAction,
                                            questionHelper: QuestionsJourneyValidator,
-                                           implicit val mcc: MessagesControllerComponents)
-  extends FrontendController(mcc) with I18nSupport with InterestSessionHelper {
+                                           interestSessionService: InterestSessionService,
+                                           errorHandler: ErrorHandler,
+                                           implicit val mcc: MessagesControllerComponents
+                                         )
+  extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
   val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("interest.untaxed-uk-interest.errors.noRadioSelected")
 
-  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).apply { implicit user =>
-    InterestPriorSubmission.fromSession() match {
-      case Some(prior) if prior.hasUntaxed => Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
-      case _ =>
-        implicit val questionsJourney: QuestionsJourney[InterestCYAModel] = InterestCYAModel.interestJourney(taxYear, None)
-        val cyaData: Option[InterestCYAModel] = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
-        questionHelper.validate(UntaxedInterestController.show(taxYear), cyaData, taxYear) {
-          val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(s"interest.untaxed-uk-interest.errors.noRadioSelected.${if (user.isAgent) "agent" else "individual"}")
-          Ok(untaxedInterestView(cyaData.flatMap(_.untaxedUkInterest).fold(yesNoForm)(yesNoForm.fill), taxYear))
-        }
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
+    interestSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
+      prior match {
+        case Some(prior) if prior.hasUntaxed => Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
+        case _ =>
+          implicit val questionsJourney: QuestionsJourney[InterestCYAModel] = InterestCYAModel.interestJourney(taxYear, None)
+
+          questionHelper.validate(routes.UntaxedInterestController.show(taxYear), cya, taxYear) {
+            val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(
+              missingInputError = s"interest.untaxed-uk-interest.errors.noRadioSelected.${if (user.isAgent) "agent" else "individual"}"
+            )
+            Ok(untaxedInterestView(cya.flatMap(_.untaxedUkInterest).fold(yesNoForm)(yesNoForm.fill), taxYear))
+          }
+      }
+
     }
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = authAction { implicit user =>
-    val cyaData: InterestCYAModel = getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA)
-      .getOrElse(InterestCYAModel(None, None, None, None))
-    val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(s"interest.untaxed-uk-interest.errors.noRadioSelected.${if(user.isAgent) "agent" else "individual"}")
+  private[interest] def createOrUpdateSessionData(cyaModel: InterestCYAModel, taxYear: Int, newData: Boolean)
+                                                 (block: Result)
+                                                 (implicit user: User[_]): Future[Result] = {
 
-    yesNoForm.bindFromRequest().fold(
-      {
-        formWithErrors =>
-          BadRequest(
-            untaxedInterestView(
-              formWithErrors,
-              taxYear
-            )
-          )
-      },
-      {
-        yesNoModel =>
-          val updatedCya = cyaData.copy(untaxedUkInterest = Some(yesNoModel), untaxedUkAccounts = if (yesNoModel) {
-            cyaData.untaxedUkAccounts
-          } else {
-            None
-          })
+    if(newData) {
+      interestSessionService.createSessionData(cyaModel, taxYear)(
+        errorHandler.internalServerError()
+      )(
+        block
+      )
+    } else {
+      interestSessionService.updateSessionData(cyaModel, taxYear)(
+        errorHandler.internalServerError()
+      )(
+        block
+      )
+    }
 
-          (yesNoModel, updatedCya.isFinished) match {
-            case (true, false) =>
-              Redirect(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, id = randomUUID().toString))
-                .addingToSession(SessionValues.INTEREST_CYA -> updatedCya.asJsonString)
-            case (false, false) =>
-              Redirect(controllers.interest.routes.TaxedInterestController.show(taxYear))
-                .addingToSession(SessionValues.INTEREST_CYA -> updatedCya.asJsonString)
-            case (_, true) =>
-              Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
-                .addingToSession(SessionValues.INTEREST_CYA -> updatedCya.asJsonString)
-          }
-      }
-    )
+  }
+
+  def submit(taxYear: Int): Action[AnyContent] = authAction.async { implicit user =>
+    interestSessionService.getSessionData(taxYear).map(_.flatMap(_.interest)).map { cya =>
+      val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(s"interest.untaxed-uk-interest.errors.noRadioSelected.${if (user.isAgent) "agent" else "individual"}")
+
+      yesNoForm.bindFromRequest().fold(
+        {
+          formWithErrors =>
+            Future.successful(BadRequest(
+              untaxedInterestView(
+                formWithErrors,
+                taxYear
+              )
+            ))
+        },
+        {
+          yesNoModel =>
+            val baseCya = cya.getOrElse(InterestCYAModel(None, None, None, None))
+            val updatedCya = baseCya.copy(untaxedUkInterest = Some(yesNoModel), untaxedUkAccounts = if (yesNoModel) {
+              baseCya.untaxedUkAccounts
+            } else {
+              None
+            })
+
+            (yesNoModel, updatedCya.isFinished) match {
+              case (true, false) =>
+                createOrUpdateSessionData(updatedCya, taxYear, cya.isEmpty)(
+                  Redirect(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, id = randomUUID().toString))
+                )
+              case (false, false) =>
+                createOrUpdateSessionData(updatedCya, taxYear, cya.isEmpty)(
+                  Redirect(controllers.interest.routes.TaxedInterestController.show(taxYear))
+                )
+              case (_, true) =>
+                interestSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(
+                  Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
+                )
+            }
+        }
+      )
+    }.flatten
   }
 
 

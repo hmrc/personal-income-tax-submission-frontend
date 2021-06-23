@@ -20,18 +20,18 @@ import common.SessionValues
 import forms.interest.TaxedInterestAmountForm
 import helpers.PlaySessionCookieBaker
 import models.interest.{InterestAccountModel, InterestCYAModel}
+import models.priorDataModels.{IncomeSourcesModel, InterestModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
-import play.api.http.Status.{BAD_REQUEST, OK, UNAUTHORIZED}
+import play.api.http.Status.{BAD_REQUEST, OK, UNAUTHORIZED, SEE_OTHER}
 import play.api.libs.json.Json
 import play.api.libs.ws.{WSClient, WSResponse}
-import utils.{IntegrationTest, ViewHelpers}
+import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
+
 import java.util.UUID
 
-import forms.interest.TaxedInterestAmountForm
-
-class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelpers {
+class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelpers with InterestDatabaseHelper {
 
   object Selectors {
     val accountName = "#main-content > div > div > form > div:nth-child(3) > label > div"
@@ -105,28 +105,30 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
   val charLimit: String = "ukHzoBYHkKGGk2V5iuYgS137gN7EB7LRw3uDjvujYg00ZtHwo3sokyOOCEoAK9vuPiP374QKOelo"
 
   def taxedInterestAmountUrl(newId: String): String = s"$appUrl/$taxYear/interest/add-taxed-uk-interest-account/$newId"
-
   s"Calling GET /interest/taxed-uk-interest-details/$id" when {
 
     "the user is authorised" when {
 
       "the user is a non-agent" should {
-
         lazy val interestCYA = InterestCYAModel(
           Some(false), None, Some(true), Some(Seq(
             InterestAccountModel(Some("differentId"), accountName, amount),
             InterestAccountModel(None, accountName, amount, Some(id))
           ))
         )
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
-        ))
 
         lazy val result = {
+          dropInterestDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(interestCYA))
+
           authoriseIndividual()
-          await(wsClient.url(taxedInterestAmountUrl(id)).withHttpHeaders(
-            HeaderNames.COOKIE -> sessionCookie
-          ).get())
+          await(
+            wsClient.url(taxedInterestAmountUrl(id))
+              .withHttpHeaders(xSessionId, csrfContent)
+              .get()
+          )
         }
 
         implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -164,15 +166,19 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
         )
 
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
           SessionValues.CLIENT_MTDITID -> "1234567890",
           SessionValues.CLIENT_NINO -> "AA123456A")
         )
 
         lazy val result: WSResponse = {
+          dropInterestDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(interestCYA))
+
           authoriseAgent()
           await(wsClient.url(taxedInterestAmountUrl(id))
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .get())
         }
 
@@ -208,14 +214,16 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
             InterestAccountModel(None, accountName, amount, Some(id))
           ))
         )
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
-        ))
 
         lazy val result = {
+          dropInterestDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(interestCYA))
+
           authoriseIndividual()
           await(wsClient.url(taxedInterestAmountUrl(id)).withHttpHeaders(
-            HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy"
+            xSessionId, csrfContent, HeaderNames.ACCEPT_LANGUAGE -> "cy"
           ).get())
         }
 
@@ -245,16 +253,16 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
       }
 
       "the id is not a UUID" which {
-
         lazy val interestCYA = InterestCYAModel(Some(false), None, Some(true), None)
 
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
-        ))
-
         lazy val result = {
+          dropInterestDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(interestCYA))
+
           authoriseIndividual()
-          await(wsClient.url(taxedInterestAmountUrl(id)).withHttpHeaders(HeaderNames.COOKIE -> sessionCookie).get())
+          await(wsClient.url(taxedInterestAmountUrl(id)).withHttpHeaders(xSessionId, csrfContent).get())
         }
 
         implicit val document: () => Document = () => Jsoup.parse(result.body)
@@ -278,41 +286,51 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
               InterestAccountModel(Some(id), accountName, amount)))
           )
 
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
-            SessionValues.INTEREST_PRIOR_SUB -> Json.arr(
-              Json.obj(
-                "accountName" -> accountName,
-                "incomeSourceId" -> id,
-                "taxedUkInterest" -> amount
-              )
-            ).toString()
+          lazy val priorData = Some(Seq(
+            InterestModel(accountName, id, Some(amount), None)
           ))
 
           lazy val result = {
+            dropInterestDB()
+
+            userDataStub(IncomeSourcesModel(interest = priorData), nino, taxYear)
+            insertCyaData(Some(interestCYA))
+
             authoriseIndividual()
-            await(wsClient.url(taxedInterestAmountUrl(id)).withHttpHeaders(HeaderNames.COOKIE -> sessionCookie).get())
+            await(wsClient.url(taxedInterestAmountUrl(id)).withHttpHeaders(xSessionId, csrfContent).get())
           }
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck(Content.changeAmountPageTitle)
-
         }
       }
 
       "redirect to the overview page" when {
 
-        "there is no cya data in session" in {
-          {
+        "there is no cya data in session" which {
+          lazy val result = {
+            dropInterestDB()
+
+            emptyUserDataStub()
+            insertCyaData(None)
+
             authoriseIndividual()
-            await(wsClient.url(taxedInterestAmountUrl(id)).get())
+            await(
+              wsClient.url(taxedInterestAmountUrl(id))
+                .withFollowRedirects(false)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .get()
+            )
           }
 
-          stubGet("/income-through-software/return/2022/view", 303, "")
-          verifyGet("/income-through-software/return/2022/view")
-          wireMockServer.resetAll()
+          "has a SEE_OTHER(303) status" in {
+            result.status shouldBe SEE_OTHER
+          }
 
+          "redirects to the overview page" in {
+            result.headers("Location").head shouldBe "http://localhost:11111/income-through-software/return/2022/view"
+          }
         }
       }
     }
@@ -320,6 +338,8 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
     "the user is unauthorized" should {
 
       lazy val result = {
+        dropInterestDB()
+
         authoriseIndividualUnauthorized()
         await(wsClient.url(taxedInterestAmountUrl(id)).get())
       }
@@ -340,21 +360,27 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           InterestAccountModel(None, accountName, amount, Some(id))
         ))
       )
-      lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-        SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
-      ))
 
       def response(formMap: Map[String, String]): WSResponse = {
+        dropInterestDB()
+
+        emptyUserDataStub()
+        insertCyaData(Some(interestCYA))
+
         authoriseIndividual()
         await(wsClient.url(taxedInterestAmountUrl(id))
-          .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+          .withHttpHeaders(xSessionId, csrfContent)
           .post(formMap))
       }
 
       "an account name and amount are entered correctly" should {
 
-        lazy val result = response(Map(TaxedInterestAmountForm.taxedAmount -> "67.66",
-          TaxedInterestAmountForm.taxedAccountName -> "Santander"))
+        lazy val result = {
+          response(Map(
+            TaxedInterestAmountForm.taxedAmount -> "67.66",
+            TaxedInterestAmountForm.taxedAccountName -> "Santander"
+          ))
+        }
 
         "return a 200(Ok) status" in {
           result.status shouldBe OK
@@ -364,8 +390,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
       "the fields are empty as an individual" should {
 
         lazy val result = response(Map(TaxedInterestAmountForm.taxedAmount -> "",
-            TaxedInterestAmountForm.taxedAccountName -> ""))
-
+          TaxedInterestAmountForm.taxedAccountName -> ""))
         implicit def document: () => Document = () => Jsoup.parse(result.body)
 
         s"return a 400(BadRequest) status" in {
@@ -383,6 +408,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
       "invalid characters are entered into the fields" should {
         lazy val result = response(Map(TaxedInterestAmountForm.taxedAmount -> "money",
           TaxedInterestAmountForm.taxedAccountName -> "$uper"))
+
         implicit def document: () => Document = () => Jsoup.parse(result.body)
 
         s"return a 400(BadRequest) status" in {
@@ -400,6 +426,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
       "the account name is too long and the amount is too great" should {
         lazy val result = response(Map(TaxedInterestAmountForm.taxedAmount -> "100000000000",
           TaxedInterestAmountForm.taxedAccountName -> "SuperAwesomeBigBusinessMoneyStash"))
+
         implicit def document: () => Document = () => Jsoup.parse(result.body)
 
         s"return a 400(BadRequest) status" in {
@@ -464,15 +491,19 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
         ))
       )
       lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-        SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA)),
         SessionValues.CLIENT_MTDITID -> "1234567890",
         SessionValues.CLIENT_NINO -> "AA123456A"
       ))
 
       def response(formMap: Map[String, String]): WSResponse = {
+        dropInterestDB()
+
+        insertCyaData(Some(interestCYA))
+        emptyUserDataStub()
+
         authoriseAgent()
         await(wsClient.url(taxedInterestAmountUrl(id))
-          .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+          .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
           .post(formMap))
       }
 
@@ -504,14 +535,16 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           InterestAccountModel(None, accountName, amount, Some(id))
         ))
       )
-      lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-        SessionValues.INTEREST_CYA -> Json.prettyPrint(Json.toJson(interestCYA))
-      ))
 
       def response(formMap: Map[String, String]): WSResponse = {
+        dropInterestDB()
+
+        emptyUserDataStub()
+        insertCyaData(Some(interestCYA))
+
         authoriseIndividual()
         await(wsClient.url(taxedInterestAmountUrl(id))
-          .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck", HeaderNames.ACCEPT_LANGUAGE -> "cy")
+          .withHttpHeaders(xSessionId, csrfContent, HeaderNames.ACCEPT_LANGUAGE -> "cy")
           .post(formMap))
       }
 
@@ -527,8 +560,11 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
 
       "the fields are empty" should {
 
-        lazy val result = response(Map(TaxedInterestAmountForm.taxedAmount -> "",
-          TaxedInterestAmountForm.taxedAccountName -> ""))
+        lazy val result = response(Map(
+          TaxedInterestAmountForm.taxedAmount -> "",
+          TaxedInterestAmountForm.taxedAccountName -> ""
+        ))
+
         implicit def document: () => Document = () => Jsoup.parse(result.body)
 
         s"return a 400(BadRequest) status" in {
@@ -546,6 +582,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
       "invalid characters are entered into the fields" should {
         lazy val result = response(Map(TaxedInterestAmountForm.taxedAmount -> "money",
           TaxedInterestAmountForm.taxedAccountName -> "$uper"))
+
         implicit def document: () => Document = () => Jsoup.parse(result.body)
 
         s"return a 400(BadRequest) status" in {
@@ -563,6 +600,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
       "the account name is too long and the amount is too great" should {
         lazy val result = response(Map(TaxedInterestAmountForm.taxedAmount -> "100000000000",
           TaxedInterestAmountForm.taxedAccountName -> "SuperAwesomeBigBusinessMoneyStash"))
+
         implicit def document: () => Document = () => Jsoup.parse(result.body)
 
         s"return a 400(BadRequest) status" in {

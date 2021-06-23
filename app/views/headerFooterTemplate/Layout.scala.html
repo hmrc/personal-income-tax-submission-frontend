@@ -43,7 +43,7 @@
 @headerBlock = {
     @hmrcHeader(
         serviceName = Some(messages("service.name")),
-        serviceUrl = Some(appConfig.incomeTaxSubmissionStartUrl(taxYear.getOrElse(appConfig.defaultTaxYear))),
+        serviceUrl = Some(appConfig.incomeTaxSubmissionappUrl(taxYear.getOrElse(appConfig.defaultTaxYear))),
         signOutUrl = if(showSignOut) Some(controllers.routes.SignOutController.signOut(isAgent).url) else None
     )
 }

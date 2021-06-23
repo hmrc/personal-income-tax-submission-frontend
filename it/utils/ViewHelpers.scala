@@ -39,7 +39,8 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
   def welshTest(isWelsh: Boolean): String = if (isWelsh) "Welsh" else "English"
   def agentTest(isAgent: Boolean): String = if (isAgent) "Agent" else "Individual"
 
-  def authoriseAgentOrIndividual(isAgent: Boolean, nino: Boolean = true): StubMapping = if (isAgent) authoriseAgent() else authoriseIndividual(nino)
+  def authIndividual(nino: Boolean): StubMapping = if(nino) authoriseIndividual() else authoriseIndividual(None)
+  def authoriseAgentOrIndividual(isAgent: Boolean, nino: Boolean = true): StubMapping = if (isAgent) authoriseAgent() else authIndividual(nino)
   def unauthorisedAgentOrIndividual(isAgent: Boolean): StubMapping = if (isAgent) authoriseAgentUnauthorized() else authoriseIndividualUnauthorized()
 
   case class UserScenario[CommonExpectedResults,SpecificExpectedResults](isWelsh: Boolean,

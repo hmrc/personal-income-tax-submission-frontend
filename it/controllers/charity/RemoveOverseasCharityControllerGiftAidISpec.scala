@@ -164,4 +164,3 @@ class RemoveOverseasCharityControllerGiftAidISpec extends IntegrationTest with V
     }
   }
 }
-

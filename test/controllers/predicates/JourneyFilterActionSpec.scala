@@ -38,7 +38,7 @@ class JourneyFilterActionSpec extends UnitTest {
 
       "the provided journey key is set to true" in {
         mockAppConf.isJourneyAvailable _ expects INTEREST returning true
-        val result = await(filter.refine(new User[AnyContent]("asdfasfasdf", None, "AA123456A", AffinityGroup.Individual.toString)(fakeRequest)))
+        val result = await(filter.refine(new User[AnyContent]("asdfasfasdf", None, "AA123456A", AffinityGroup.Individual.toString, sessionId)(fakeRequest)))
 
         result.isRight shouldBe true
       }
@@ -51,7 +51,7 @@ class JourneyFilterActionSpec extends UnitTest {
         lazy val result = {
           mockAppConf.isJourneyAvailable _ expects INTEREST returning false
           mockAppConf.incomeTaxSubmissionOverviewUrl _ expects taxYear returning "/overview"
-          await(filter.refine(new User[AnyContent]("asdfasfasdf", None, "AA123456A", AffinityGroup.Individual.toString)(fakeRequest)))
+          await(filter.refine(new User[AnyContent]("asdfasfasdf", None, "AA123456A", AffinityGroup.Individual.toString, sessionId)(fakeRequest)))
         }
 
         "has a status of 303" in {

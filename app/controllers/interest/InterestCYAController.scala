@@ -17,7 +17,7 @@
 package controllers.interest
 
 import audit.{AuditModel, AuditService, CreateOrAmendInterestAuditDetail}
-import common.{InterestTaxTypes, SessionValues}
+import common.InterestTaxTypes
 import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
@@ -27,11 +27,11 @@ import models.{APIErrorBodyModel, APIErrorModel, User}
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import services.InterestSubmissionService
+import services.{InterestSessionService, InterestSubmissionService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.InterestSessionHelper
+import utils.SessionHelper
 import views.html.interest.InterestCYAView
 
 import java.util.UUID.randomUUID
@@ -42,60 +42,66 @@ class InterestCYAController @Inject()(
                                        interestCyaView: InterestCYAView,
                                        interestSubmissionService: InterestSubmissionService,
                                        auditService: AuditService,
-                                       errorHandler: ErrorHandler
+                                       errorHandler: ErrorHandler,
+                                       interestSessionService: InterestSessionService
                                      )
                                      (
                                        implicit appConfig: AppConfig,
                                        authorisedAction: AuthorisedAction,
-                                       implicit val mcc: MessagesControllerComponents
-                                     ) extends FrontendController(mcc) with I18nSupport with InterestSessionHelper with Logging {
+                                       val mcc: MessagesControllerComponents
+                                     ) extends FrontendController(mcc) with I18nSupport with SessionHelper with Logging {
 
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
-    val priorSubmission = getModelFromSession[InterestPriorSubmission](SessionValues.INTEREST_PRIOR_SUB)
-    val cyaModel = getCyaModel()
-
-    cyaModel match {
-      case Some(cyaData) if !cyaData.isFinished => handleUnfinishedRedirect(cyaData, taxYear)
-      case Some(cyaData) =>
-        Future.successful(
-          Ok(interestCyaView(cyaData, taxYear, priorSubmission))
-            .addingToSession(
-              SessionValues.INTEREST_CYA -> cyaData.asJsonString
-            )
-        )
-      case _ =>
-        logger.info("[InterestCYAController][show] No CYA data in session. Redirecting to the overview page.")
-        Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
-    }
-
+    interestSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
+      getCyaModel(cya, prior) match {
+        case Some(cyaData) if !cyaData.isFinished => handleUnfinishedRedirect(cyaData, taxYear)
+        case Some(cyaData) =>
+            if(cya.isDefined) {
+              interestSessionService.updateSessionData(cyaData, taxYear)(errorHandler.internalServerError())(
+                Ok(interestCyaView(cyaData, taxYear, prior))
+              )
+            } else {
+              interestSessionService.createSessionData(cyaData, taxYear)(errorHandler.internalServerError())(
+                Ok(interestCyaView(cyaData, taxYear, prior))
+              )
+            }
+        case _ =>
+          logger.info("[InterestCYAController][show] No CYA data in session. Redirecting to the overview page.")
+          Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+      }
+    }.flatten
   }
 
   def submit(taxYear: Int): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
-    val cyaDataOptional = getCyaModel()
-    val priorSubmission: Option[InterestPriorSubmission] = getModelFromSession[InterestPriorSubmission](SessionValues.INTEREST_PRIOR_SUB)
-
-    (cyaDataOptional match {
-      case Some(cyaData) => interestSubmissionService.submit(cyaData, user.nino, taxYear, user.mtditid).map {
-        case response@Right(_) =>
-          val model = CreateOrAmendInterestAuditDetail(Some(cyaData), priorSubmission, priorSubmission.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase, taxYear)
-          auditSubmission(model)
-          response
-        case response => response
+    interestSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
+      (cya match {
+        case Some(cyaData) => interestSubmissionService.submit(cyaData, user.nino, taxYear, user.mtditid).map {
+          case response@Right(_) =>
+            val model = CreateOrAmendInterestAuditDetail(
+              Some(cyaData), prior, prior.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase, taxYear
+            )
+            auditSubmission(model)
+            response
+          case response => response
+        }
+        case _ =>
+          logger.info("[InterestCYAController][submit] CYA data or NINO missing from session.")
+          Future.successful(Left(APIErrorModel(BAD_REQUEST, APIErrorBodyModel("MISSING_DATA", "CYA data or NINO missing from session."))))
+      }).flatMap {
+        case Right(_) =>
+          interestSessionService.clear(taxYear)(errorHandler.internalServerError())(
+            Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+          )
+        case Left(error) => Future.successful(errorHandler.handleError(error.status))
       }
-      case _ =>
-        logger.info("[InterestCYAController][submit] CYA data or NINO missing from session.")
-        Future.successful(Left(APIErrorModel(BAD_REQUEST, APIErrorBodyModel("MISSING_DATA", "CYA data or NINO missing from session."))))
-    }).map {
-      case Right(_) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).clearSessionData()
-      case Left(error) => errorHandler.handleError(error.status)
-    }
+    }.flatten
   }
 
-  private[interest] def getCyaModel()(implicit user: User[_]): Option[InterestCYAModel] = {
-    (getModelFromSession[InterestCYAModel](SessionValues.INTEREST_CYA), getModelFromSession[InterestPriorSubmission](SessionValues.INTEREST_PRIOR_SUB)) match {
+  private[interest] def getCyaModel(cya: Option[InterestCYAModel], prior: Option[InterestPriorSubmission]): Option[InterestCYAModel] = {
+    (cya, prior) match {
       case (None, Some(priorData)) =>
         Some(InterestCYAModel(
           Some(priorData.hasUntaxed),

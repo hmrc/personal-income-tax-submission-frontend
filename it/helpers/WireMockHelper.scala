@@ -36,8 +36,6 @@ trait WireMockHelper {
   lazy val wmConfig: WireMockConfiguration = wireMockConfig().port(wiremockPort)
   lazy val wireMockServer = new WireMockServer(wmConfig)
 
-
-
   def startWiremock(): Unit = {
     wireMockServer.start()
     WireMock.configureFor(wiremockHost, wiremockPort)
@@ -126,12 +124,12 @@ trait WireMockHelper {
     )
   )
 
-  private val ninoEnrolment = Json.obj(
+  private def ninoEnrolment(nino: String = "AA123456A"): JsObject = Json.obj(
     "key" -> "HMRC-NI",
     "identifiers" -> Json.arr(
       Json.obj(
         "key" -> "NINO",
-        "value" -> "AA123456A"
+        "value" -> nino
       )
     )
   )
@@ -160,14 +158,16 @@ trait WireMockHelper {
     }
   }
 
-  def authoriseIndividual(withNino: Boolean = true): StubMapping = {
+  def authoriseIndividual(nino: Option[String] = Some("AA123456A")): StubMapping = {
+    val ninoSeq: Seq[JsObject] = nino.fold(Seq.empty[JsObject])(unwrappedNino => Seq(ninoEnrolment(unwrappedNino)))
+
     stubPost(authoriseUri, OK, Json.prettyPrint(successfulAuthResponse(Some(AffinityGroup.Individual), ConfidenceLevel.L200,
-      enrolments = Seq(mtditEnrolment) ++ (if (withNino) Seq(ninoEnrolment) else Seq.empty[JsObject]): _*)))
+      enrolments = Seq(mtditEnrolment) ++ ninoSeq: _*)))
   }
 
   def authoriseIndividualUnauthorized(): StubMapping = {
     stubPost(authoriseUri, UNAUTHORIZED, Json.prettyPrint(
-      successfulAuthResponse(Some(AffinityGroup.Individual), ConfidenceLevel.L200, Seq(mtditEnrolment, ninoEnrolment): _*)
+      successfulAuthResponse(Some(AffinityGroup.Individual), ConfidenceLevel.L200, Seq(mtditEnrolment, ninoEnrolment()): _*)
     ))
   }
 
@@ -182,6 +182,17 @@ trait WireMockHelper {
       successfulAuthResponse(Some(AffinityGroup.Agent), ConfidenceLevel.L200, Seq(asAgentEnrolment, mtditEnrolment): _*)
     ))
   }
+
+  def stubGetWithHeadersCheck(url: String, status: Integer, body: String, sessionHeader: (String, String), mtdidHeader: (String, String)): StubMapping =
+    stubFor(get(urlMatching(url))
+      .withHeader(sessionHeader._1, equalTo(sessionHeader._2))
+      .withHeader(mtdidHeader._1, equalTo(mtdidHeader._2))
+      .willReturn(
+        aResponse().
+          withStatus(status).
+          withBody(body)
+      )
+    )
 
 }
 
