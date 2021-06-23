@@ -44,7 +44,7 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
   def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.overview")
 
-  def incomeTaxSubmissionappUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear +
+  def incomeTaxSubmissionStartUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear +
     "/start"
 
   def incomeTaxSubmissionBEBaseUrl: String = servicesConfig.baseUrl("income-tax-submission") + "/income-tax-submission-service"

@@ -32,7 +32,7 @@ class MockAppConfig extends MockFactory {
 
     override def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = "/overview"
 
-    override def incomeTaxSubmissionappUrl(taxYear: Int): String = "/start"
+    override def incomeTaxSubmissionStartUrl(taxYear: Int): String = "/start"
 
     override def feedbackSurveyUrl(implicit isAgent: Boolean): String = "/feedbackUrl"
 

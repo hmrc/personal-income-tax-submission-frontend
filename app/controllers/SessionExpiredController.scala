@@ -36,8 +36,8 @@ class SessionExpiredController @Inject()(val mcc: MessagesControllerComponents,
   def timeout: Action[AnyContent] = Action { implicit request =>
 
     getModelFromSession[Int](SessionValues.TAX_YEAR) match {
-      case Some(taxYear) => Ok(timeoutPage(Call("GET", appConfig.incomeTaxSubmissionappUrl(taxYear)))).withNewSession
-      case None => Ok(timeoutPage(Call("GET", appConfig.incomeTaxSubmissionappUrl(appConfig.defaultTaxYear)))).withNewSession
+      case Some(taxYear) => Ok(timeoutPage(Call("GET", appConfig.incomeTaxSubmissionStartUrl(taxYear)))).withNewSession
+      case None => Ok(timeoutPage(Call("GET", appConfig.incomeTaxSubmissionStartUrl(appConfig.defaultTaxYear)))).withNewSession
     }
   }
 }

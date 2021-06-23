@@ -30,8 +30,8 @@ class LanguageSwitchController @Inject()(appConfig: AppConfig,
                                         ) extends FrontendBaseController with I18nSupport with SessionHelper {
 
   private def fallbackURL(implicit request: Request[_]): String = getFromSession(SessionValues.TAX_YEAR) match {
-    case Some(taxYear) => appConfig.incomeTaxSubmissionappUrl(taxYear.toInt)
-    case None => appConfig.incomeTaxSubmissionappUrl(appConfig.defaultTaxYear)
+    case Some(taxYear) => appConfig.incomeTaxSubmissionStartUrl(taxYear.toInt)
+    case None => appConfig.incomeTaxSubmissionStartUrl(appConfig.defaultTaxYear)
   }
 
   private def languageMap: Map[String, Lang] = appConfig.languageMap
