@@ -190,7 +190,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
             emptyUserDataStub()
             insertCyaData(Some(dividendsCyaModel))
             urlGet(dividendsCheckYourAnswersUrl, us.isWelsh, false, headers =
-              playSessionCookies(us.isAgent))
+              playSessionCookie(us.isAgent))
           }
 
           s"has an OK($OK) status" in {
@@ -245,7 +245,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
             emptyUserDataStub()
             userDataStub(priorData, nino, taxYear)
             urlGet(dividendsCheckYourAnswersUrl, us.isWelsh, headers =
-              playSessionCookies(us.isAgent))
+              playSessionCookie(us.isAgent))
           }
 
           s"has an OK($OK) status" in {
@@ -284,7 +284,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
             emptyUserDataStub()
             insertCyaData(Some(dividendsNoModel))
             urlGet(dividendsCheckYourAnswersUrl, us.isWelsh, headers =
-              playSessionCookies(us.isAgent))
+              playSessionCookie(us.isAgent))
           }
 
 
@@ -331,7 +331,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
               Some(true), Some(otherDividends1)
             )))
             urlGet(dividendsCheckYourAnswersUrl, us.isWelsh, headers =
-              playSessionCookies(us.isAgent, nino))
+              playSessionCookie(us.isAgent, nino))
           }
 
           s"has an OK($OK) status" in {
@@ -375,7 +375,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           dropDividendsDB()
           emptyUserDataStub()
           stubGet("/income-through-software/return/2022/view", SEE_OTHER, "overview")
-          urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookies(false))
+          urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie())
         }
 
         result.status shouldBe SEE_OTHER
@@ -397,7 +397,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
               Some(true)
             )))
 
-            urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookies(false))
+            urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie())
           }
 
           s"has a status of 303" in {
@@ -418,7 +418,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
             insertCyaData(Some(DividendsCheckYourAnswersModel(
               Some(false)
             )))
-            urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookies(false))
+            urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie())
           }
 
           s"has a status of 303" in {
@@ -440,7 +440,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           insertCyaData(Some(DividendsCheckYourAnswersModel(
             Some(true), Some(1000.43)
           )))
-          urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookies(false))
+          urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie())
         }
 
         s"has a status of 303" in {
@@ -462,7 +462,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
             Some(true), Some(1000.43), Some(true)
           )))
 
-          urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookies(false))
+          urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie())
         }
 
         s"has a status of 303" in {
@@ -501,7 +501,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
             Some(true), Some(1000.43), Some(true), Some(9983.21)
           )))
         stubPut("/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=2022", NO_CONTENT, "")
-        urlPost(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookies(false), postRequest = "")
+        urlPosts(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie(), postRequest = "")
       }
       s"has a status of 303" in {
         result.status shouldBe SEE_OTHER
@@ -525,7 +525,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
             Some(true), Some(1000.43), Some(true), Some(9983.21)
           )))
         stubPut("/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=2022", INTERNAL_SERVER_ERROR, "")
-        urlPost(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookies(false), postRequest = "")
+        urlPosts(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie(), postRequest = "")
       }
 
       "has a status of 500" in {
@@ -544,7 +544,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
             Some(true), Some(1000.43), Some(true), Some(9983.21)
           )))
         stubPut("/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=2022", SERVICE_UNAVAILABLE, "")
-        urlPost(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookies(false), postRequest = "")
+        urlPosts(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie(), postRequest = "")
       }
 
       "has a status of 503" in {

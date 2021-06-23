@@ -187,7 +187,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   }
 
 
-  def playSessionCookies(agent: Boolean, newNino: String = "AA123456A"): Seq[(String, String)] = {
+  def playSessionCookie(agent: Boolean =false, newNino: String = "AA123456A"): Seq[(String, String)] = {
     {
       if (agent) {
         Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(Map(
@@ -208,8 +208,8 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(newHeaders: _*)
   }
 
-  def urlPost[T: BodyWritable](url: String, welsh: Boolean = false, follow: Boolean = true,
-                               headers: Seq[(String, String)] = Seq(), postRequest: T): WSResponse = {
+  def urlPosts[T:BodyWritable](url: String, welsh: Boolean = false, follow: Boolean = true,
+                                headers: Seq[(String, String)] = Seq(), postRequest: T): WSResponse = {
     await(buildRouteUrl(url, welsh, follow, headers).post(postRequest))
   }
 }

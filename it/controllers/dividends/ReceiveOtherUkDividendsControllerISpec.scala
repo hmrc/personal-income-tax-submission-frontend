@@ -195,7 +195,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
             dropDividendsDB()
             emptyUserDataStub()
             insertCyaData(Some(cyaModel))
-            urlGet(receivedOtherDividendsUrl, us.isWelsh, headers = playSessionCookies(us.isAgent))
+            urlGet(receivedOtherDividendsUrl, us.isWelsh, headers = playSessionCookie(us.isAgent))
           }
 
           "has an OK(200) status" in {
@@ -238,7 +238,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
         emptyUserDataStub()
         userDataStub(priorData, nino, taxYear)
         stubGet(s"/income-through-software/return/$taxYear/view", OK, "overview page content")
-        urlGet(receivedOtherDividendsUrl, follow = false, headers = playSessionCookies(false))
+        urlGet(receivedOtherDividendsUrl, follow = false, headers = playSessionCookie(false))
       }
 
       s"has an $SEE_OTHER(303) status" in {
@@ -255,7 +255,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
         dropDividendsDB()
         emptyUserDataStub()
         stubGet(s"/income-through-software/return/$taxYear/view", SEE_OTHER, "overview page content")
-        urlGet(receivedOtherDividendsUrl, follow = false, headers = playSessionCookies(false))
+        urlGet(receivedOtherDividendsUrl, follow = false, headers = playSessionCookie(false))
       }
 
       "has an OK(200) status" in {
@@ -268,7 +268,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
         authoriseIndividualUnauthorized()
         dropDividendsDB()
         emptyUserDataStub()
-        urlGet(receivedOtherDividendsUrl, headers = playSessionCookies(false))
+        urlGet(receivedOtherDividendsUrl, headers = playSessionCookie(false))
       }
       "has an UNAUTHORIZED(401) status" in {
         result.status shouldBe UNAUTHORIZED
@@ -283,7 +283,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
       import us.specificExpectedResults._
       import us.commonExpectedResults._
 
-      s"language is ${agentTest(us.isWelsh)} and request is from an ${welshTest(us.isAgent)}" should {
+      s"language is ${welshTest(us.isWelsh)} and request is from an ${agentTest(us.isAgent)}" should {
 
         "when form is invalid - no radio button clicked. Show page with Error text" should {
 
@@ -293,7 +293,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
             lazy val result: WSResponse = {
               authoriseAgentOrIndividual(us.isAgent)
-              urlPost(receivedOtherDividendsUrl, us.isWelsh, headers = playSessionCookies(us.isAgent), postRequest = Map[String, String]())
+              urlPosts(receivedOtherDividendsUrl, us.isWelsh, headers = playSessionCookie(us.isAgent), postRequest = Map[String, String]())
             }
 
             "has an BAD_REQUEST(400) status" in {
@@ -338,7 +338,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
         insertCyaData(Some(DividendsCheckYourAnswersModel(
           ukDividends = Some(true), ukDividendsAmount = Some(amount)
         )))
-        urlPost(receivedOtherDividendsUrl, follow = false, headers = playSessionCookies(false), postRequest = Map(YesNoForm.yesNo -> YesNoForm.yes)
+        urlPosts(receivedOtherDividendsUrl, follow = false, headers = playSessionCookie(false), postRequest = Map(YesNoForm.yesNo -> YesNoForm.yes)
         )
       }
 
@@ -356,7 +356,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
         insertCyaData(Some(DividendsCheckYourAnswersModel(
           ukDividends = Some(true), ukDividendsAmount = Some(amount)
         )))
-        urlPost(receivedOtherDividendsUrl, follow = false, headers = playSessionCookies(false), postRequest = Map(YesNoForm.yesNo -> YesNoForm.no))
+        urlPosts(receivedOtherDividendsUrl, follow = false, headers = playSessionCookie(false), postRequest = Map(YesNoForm.yesNo -> YesNoForm.no))
       }
 
       s"return a Redirect($SEE_OTHER) to the other uk dividend amount page" in {
@@ -370,7 +370,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
         authoriseIndividualUnauthorized()
         dropDividendsDB()
         emptyUserDataStub()
-        urlPost(receivedOtherDividendsUrl, headers = playSessionCookies(false), postRequest = Map(YesNoForm.yesNo -> YesNoForm.no))
+        urlPosts(receivedOtherDividendsUrl, headers = playSessionCookie(false), postRequest = Map(YesNoForm.yesNo -> YesNoForm.no))
       }
       "has an UNAUTHORIZED(401) status" in {
         result.status shouldBe UNAUTHORIZED

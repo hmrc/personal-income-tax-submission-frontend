@@ -31,7 +31,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
   val taxYear: Int = 2022
   val taxYearMinusOne: Int = taxYear - 1
   val amount: BigDecimal = 500
-  val otherUkDividendsAmountUrl = s"$startUrl/$taxYear/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
+  val otherUkDividendsAmountUrl = s"$appUrl/$taxYear/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
 
   val validCyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(otherUkDividends = Some(true), otherUkDividendsAmount = None)
   val validCyaModelWithAmount: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(otherUkDividends = Some(true),
@@ -161,7 +161,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
             dropDividendsDB()
             emptyUserDataStub()
             insertCyaData(Some(validCyaModel))
-            urlGet(otherUkDividendsAmountUrl, us.isWelsh, headers = playSessionCookies(us.isAgent))
+            urlGet(otherUkDividendsAmountUrl, us.isWelsh, headers = playSessionCookie(us.isAgent))
           }
 
           "has an OK(200) status" in {
@@ -191,7 +191,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
             emptyUserDataStub()
             insertCyaData(Some(validCyaModelWithAmount))
             urlGet(otherUkDividendsAmountUrl, us.isWelsh,
-              headers = playSessionCookies(us.isAgent))
+              headers = playSessionCookie(us.isAgent))
           }
 
           "has an OK(200) status" in {
@@ -225,7 +225,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
         dropDividendsDB()
         emptyUserDataStub()
         stubGet(s"/income-through-software/return/$taxYear/view", OK, "overview page content")
-        urlGet(otherUkDividendsAmountUrl, headers = playSessionCookies(false))
+        urlGet(otherUkDividendsAmountUrl, headers = playSessionCookie(false))
       }
 
       "has an OK(200) status" in {
@@ -246,7 +246,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
             None,
             Some(1)))),
           nino, taxYear)
-        urlGet(otherUkDividendsAmountUrl, headers = playSessionCookies(false))
+        urlGet(otherUkDividendsAmountUrl, headers = playSessionCookie(false))
       }
 
       "has an OK(200) status" in {
@@ -271,7 +271,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
             None,
             Some(amount)))),
           nino, taxYear)
-        urlGet(otherUkDividendsAmountUrl, headers = playSessionCookies(false))
+        urlGet(otherUkDividendsAmountUrl, headers = playSessionCookie(false))
       }
 
       "has an OK(200) status" in {
@@ -295,7 +295,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
         s"return a BAD_REQUEST($BAD_REQUEST) status with an Empty Error" which {
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(us.isAgent)
-            urlPost(otherUkDividendsAmountUrl, us.isWelsh, headers = playSessionCookies(us.isAgent), postRequest = Map[String, String]())
+            urlPosts(otherUkDividendsAmountUrl, us.isWelsh, headers = playSessionCookie(us.isAgent), postRequest = Map[String, String]())
           }
 
           "has the correct status" in {
@@ -308,7 +308,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
         s"return a BAD_REQUEST($BAD_REQUEST) status with an Invalid Error" which {
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(us.isAgent)
-            urlPost(otherUkDividendsAmountUrl, us.isWelsh, headers = playSessionCookies(us.isAgent), postRequest = Map("amount" -> "|"))
+            urlPosts(otherUkDividendsAmountUrl, us.isWelsh, headers = playSessionCookie(us.isAgent), postRequest = Map("amount" -> "|"))
           }
 
           "has the correct status" in {
@@ -321,7 +321,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
         s"return a BAD_REQUEST($BAD_REQUEST) status with an OverMax Error" which {
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(us.isAgent)
-            urlPost(otherUkDividendsAmountUrl, us.isWelsh, headers = playSessionCookies(us.isAgent),
+            urlPosts(otherUkDividendsAmountUrl, us.isWelsh, headers = playSessionCookie(us.isAgent),
               postRequest = Map("amount" -> "9999999999999999999999999999"))
           }
 
@@ -346,7 +346,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
         dropDividendsDB()
         emptyUserDataStub()
         insertCyaData(Some(DividendsCheckYourAnswersModel(Some(true), Some(amount),Some(true))))
-        urlPost(otherUkDividendsAmountUrl, follow=false, headers = playSessionCookies(false), postRequest = Map("amount" -> "123"))
+        urlPosts(otherUkDividendsAmountUrl, follow=false, headers = playSessionCookie(false), postRequest = Map("amount" -> "123"))
       }
 
       result.status shouldBe SEE_OTHER
