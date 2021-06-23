@@ -339,7 +339,24 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
 
   ".submit" should {
 
-    "redirect to Dividends CYA page if answer to Did you get other uk dividends is yes" in {
+    "redirects User to overview page if no CYA data is in session" when {
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        dropDividendsDB()
+        emptyUserDataStub()
+        urlGet(otherUkDividendsAmountUrl, follow = false, headers = playSessionCookie(false))
+        urlPosts(otherUkDividendsAmountUrl, follow = false, headers = playSessionCookie(false), postRequest = Map("amount" -> "123"))
+      }
+      "has a SEE_OTHER(303) status" in {
+        result.status shouldBe SEE_OTHER
+      }
+
+      "have the correct redirect URL" in {
+        result.headers(HeaderNames.LOCATION).head shouldBe "http://localhost:11111/income-through-software/return/2022/view"
+      }
+    }
+
+    "redirect to Dividends CYA page if answer to Did you get other uk dividends is yes" should {
 
       lazy val result: WSResponse = {
         authoriseIndividual()
@@ -349,8 +366,13 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
         urlPosts(otherUkDividendsAmountUrl, follow=false, headers = playSessionCookie(false), postRequest = Map("amount" -> "123"))
       }
 
-      result.status shouldBe SEE_OTHER
-      result.header(HeaderNames.LOCATION) shouldBe Some(routes.DividendsCYAController.show(taxYear).url)
+      "has a SEE_OTHER(303) status" in {
+        result.status shouldBe SEE_OTHER
+      }
+
+      "have the correct redirect URL" in {
+        result.header(HeaderNames.LOCATION) shouldBe Some(routes.DividendsCYAController.show(taxYear).url)
+      }
     }
   }
 

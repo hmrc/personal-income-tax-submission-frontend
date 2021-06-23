@@ -330,6 +330,23 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
   ".submit" should {
 
+    "redirects User to overview page if no CYA data is in session" when {
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        dropDividendsDB()
+        emptyUserDataStub()
+        urlGet(receivedOtherDividendsUrl, follow = false, headers = playSessionCookie(false))
+        urlPosts(receivedOtherDividendsUrl, follow = false, headers = playSessionCookie(false), postRequest = Map(YesNoForm.yesNo -> YesNoForm.yes))
+      }
+      "has a SEE_OTHER(303) status" in {
+        result.status shouldBe SEE_OTHER
+      }
+
+      "have the correct redirect URL" in {
+        result.headers(HeaderNames.LOCATION).head shouldBe "http://localhost:11111/income-through-software/return/2022/view"
+      }
+    }
+
     "return a Redirect to other uk dividends amount page when form is valid and answer is yes and cya model already has data. Update Mongo" should {
       lazy val result: WSResponse = {
         authoriseIndividual()

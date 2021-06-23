@@ -136,17 +136,17 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
   val userScenarios =
     Seq(UserScenario(isWelsh = false, isAgent = false, AllExpectedEnglish, Some(IndividualExpectedEnglish)),
       UserScenario(isWelsh = false, isAgent = true, AllExpectedEnglish, Some(AgentExpectedEnglish)),
-      UserScenario(isWelsh = true, isAgent = false, AllExpectedWelsh,  Some(IndividualExpectedWelsh)),
+      UserScenario(isWelsh = true, isAgent = false, AllExpectedWelsh, Some(IndividualExpectedWelsh)),
       UserScenario(isWelsh = true, isAgent = true, AllExpectedWelsh, Some(AgentExpectedWelsh)))
 
   ".show" should {
-    
+
     userScenarios.foreach { us =>
-      
+
       import Selectors._
       import us.commonExpectedResults._
       import us.specificExpectedResults._
-      
+
       s"language is ${welshTest(us.isWelsh)} and request is from an ${agentTest(us.isAgent)}" should {
 
         "returns uk dividends amount page with empty amount field" which {
@@ -354,27 +354,31 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
   ".submit" should {
 
-    "redirect to Did you receive other dividends page if form is valid and answer to Did you receive uk dividends is yes" when  {
+    "redirects User to overview page if no CYA data is in session" when {
       lazy val result: WSResponse = {
         authoriseIndividual()
         dropDividendsDB()
         emptyUserDataStub()
-        urlPosts(ukDividendsAmountUrl, follow=false, headers = playSessionCookie(false), postRequest=Map("amount" -> "123"))
+        urlGet(ukDividendsAmountUrl, follow = false, headers = playSessionCookie(false))
+        urlPosts(ukDividendsAmountUrl, follow = false, headers = playSessionCookie(false), postRequest = Map("amount" -> "123"))
+      }
+      "has a SEE_OTHER(303) status" in {
+        result.status shouldBe SEE_OTHER
       }
 
-      s"has a $SEE_OTHER(303) status" in {
-        result.status shouldBe SEE_OTHER
-        result.header(HeaderNames.LOCATION) shouldBe Some(routes.ReceiveOtherUkDividendsController.show(taxYear).url)
+      "have the correct redirect URL" in {
+        result.headers(HeaderNames.LOCATION).head shouldBe "http://localhost:11111/income-through-software/return/2022/view"
       }
     }
 
-    "redirect to Did you receive other dividends page if form is valid and there is incomplete cya data" when  {
+
+    "redirect to Did you receive other dividends page if form is valid and there is incomplete cya data and Did you receive uk dividends is yes" when {
       lazy val result: WSResponse = {
         authoriseIndividual()
         dropDividendsDB()
         emptyUserDataStub()
         insertCyaData(Some(cyaModel))
-        urlPosts(ukDividendsAmountUrl, follow=false, headers = playSessionCookie(false), postRequest=Map("amount" -> "123"))
+        urlPosts(ukDividendsAmountUrl, follow = false, headers = playSessionCookie(false), postRequest = Map("amount" -> "123"))
       }
 
       s"has a $SEE_OTHER(303) status" in {
@@ -383,14 +387,14 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
       }
     }
 
-    "redirect to Dividends CYA page if form is valid and there is complete cya data" when  {
+    "redirect to Dividends CYA page if form is valid and there is complete cya data" when {
       lazy val result: WSResponse = {
         authoriseIndividual()
         dropDividendsDB()
         emptyUserDataStub()
         userDataStub(priorData, nino, taxYear)
         insertCyaData(Some(DividendsCheckYourAnswersModel(Some(true), Some(amount), Some(true), Some(amount))))
-        urlPosts(ukDividendsAmountUrl, follow=false, headers = playSessionCookie(false), postRequest=Map("amount" -> "123"))
+        urlPosts(ukDividendsAmountUrl, follow = false, headers = playSessionCookie(false), postRequest = Map("amount" -> "123"))
       }
 
       s"has a $SEE_OTHER(303) status" in {
