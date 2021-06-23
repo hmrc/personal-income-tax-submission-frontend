@@ -28,8 +28,6 @@ import utils.{IntegrationTest, InterestDatabaseHelper}
 
 class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelper {
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
-
   val yesNoFormNo: Map[String, String] = Map(YesNoForm.yesNo -> YesNoForm.no)
   val yesNoFormYes: Map[String, String] = Map(YesNoForm.yesNo -> YesNoForm.yes)
   val yesNoFormEmpty: Map[String, String] = Map(YesNoForm.yesNo -> "")
@@ -38,8 +36,8 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
   val amount: BigDecimal = 25
   val someNino = "AB654321C"
 
-  val untaxedUrl = s"$startUrl/$taxYear/interest/accounts-with-untaxed-uk-interest"
-  val taxedUrl = s"$startUrl/$taxYear/interest/accounts-with-taxed-uk-interest"
+  val untaxedUrl = s"$appUrl/$taxYear/interest/accounts-with-untaxed-uk-interest"
+  val taxedUrl = s"$appUrl/$taxYear/interest/accounts-with-taxed-uk-interest"
 
   s"Calling GET $untaxedUrl" should {
 

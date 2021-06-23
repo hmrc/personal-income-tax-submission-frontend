@@ -29,13 +29,12 @@ import utils.{DividendsDatabaseHelper, IntegrationTest}
 
 class DividendsCYAControllerISpec extends IntegrationTest with DividendsDatabaseHelper {
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
   val connector: DividendsSubmissionConnector = app.injector.instanceOf[DividendsSubmissionConnector]
 
   val taxYear = 2022
 
   val dividends: BigDecimal = 10
-  val dividendsCheckYourAnswersUrl = s"$startUrl/$taxYear/dividends/check-income-from-dividends"
+  val dividendsCheckYourAnswersUrl = s"$appUrl/$taxYear/dividends/check-income-from-dividends"
 
   lazy val dividendsBody: DividendsSubmissionModel = DividendsSubmissionModel(
     Some(dividends),
@@ -358,7 +357,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with DividendsDatabase
 
           authoriseIndividual(Some(fullDividendsNino))
           userDataStub(priorDataEmpty, fullDividendsNino, taxYear)
-          await(wsClient.url(s"$startUrl/2004/dividends/check-income-from-dividends")
+          await(wsClient.url(s"$appUrl/2004/dividends/check-income-from-dividends")
             .withHttpHeaders(
               xSessionId,
               "mtditid" -> mtditid,

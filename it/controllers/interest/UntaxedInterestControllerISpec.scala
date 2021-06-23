@@ -31,8 +31,6 @@ import java.util.UUID
 
 class UntaxedInterestControllerISpec extends IntegrationTest with InterestDatabaseHelper {
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
-
   val taxYear: Int = 2022
   val amount: BigDecimal = 25
 
@@ -51,7 +49,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
           authoriseIndividual()
           await(
-            wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest")
+            wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest")
               .withHttpHeaders(xSessionId, csrfContent)
               .get()
           )
@@ -76,7 +74,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
           insertCyaData(Some(interestCYA))
 
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest")
+          await(wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest")
             .withHttpHeaders(xSessionId, csrfContent).get())
         }
 
@@ -94,7 +92,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
           insertCyaData(None)
 
           authoriseIndividualUnauthorized()
-          await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest")
+          await(wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest")
             .withHttpHeaders(xSessionId, csrfContent).get())
         }
         "has an UNAUTHORIZED(401) status" in {
@@ -117,7 +115,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
               emptyUserDataStub()
 
               authoriseIndividual()
-              await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest/")
+              await(wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest/")
                 .withHttpHeaders(xSessionId, csrfContent)
                 .withFollowRedirects(false)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
@@ -141,7 +139,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
               insertCyaData(Some(InterestCYAModel(Some(true))))
 
               authoriseIndividual()
-              await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest/")
+              await(wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest/")
                 .withHttpHeaders(xSessionId, csrfContent)
                 .withFollowRedirects(false)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
@@ -171,7 +169,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
               authoriseIndividual()
               await(
-                wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest")
+                wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest")
                   .withHttpHeaders(xSessionId, csrfContent)
                   .withFollowRedirects(false)
                   .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
@@ -198,7 +196,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
               emptyUserDataStub()
 
               authoriseIndividual()
-              await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest/")
+              await(wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest/")
                 .withHttpHeaders(xSessionId, csrfContent)
                 .withFollowRedirects(false)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.no)))
@@ -222,7 +220,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
               insertCyaData(Some(InterestCYAModel(Some(true))))
 
               authoriseIndividual()
-              await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest/")
+              await(wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest/")
                 .withHttpHeaders(xSessionId, csrfContent)
                 .withFollowRedirects(false)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.no)))
@@ -252,7 +250,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
               authoriseIndividual()
               await(
-                wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest")
+                wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest")
                   .withHttpHeaders(xSessionId, csrfContent)
                   .withFollowRedirects(false)
                   .post(Map(YesNoForm.yesNo -> YesNoForm.no))
@@ -281,7 +279,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
           authoriseIndividual()
           await(
-            wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest")
+            wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest")
               .withHttpHeaders(xSessionId, csrfContent)
               .post(Map[String, String]())
           )
@@ -299,7 +297,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
           authoriseIndividualUnauthorized()
           await(
-            wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest")
+            wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest")
               .withHttpHeaders(xSessionId, csrfContent)
               .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
           )
@@ -335,7 +333,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
           insertCyaData(Some(interestCYA))
 
           authoriseAgent()
-          await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest")
+          await(wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent).get())
         }
 
@@ -358,7 +356,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
           insertCyaData(None)
 
           authoriseAgentUnauthorized()
-          await(wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest")
+          await(wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent).get())
         }
         "has an UNAUTHORIZED(401) status" in {
@@ -386,7 +384,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
             insertCyaData(None)
 
             authoriseAgent()
-            await(wsClient.url(s"$startUrl/2020/interest/untaxed-uk-interest")
+            await(wsClient.url(s"$appUrl/2020/interest/untaxed-uk-interest")
               .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
               .withFollowRedirects(false)
               .post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
@@ -420,7 +418,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
             authoriseAgent()
             await(
-              wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest")
+              wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest")
                 .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
             )
@@ -445,7 +443,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
           authoriseAgent()
           await(
-            wsClient.url(s"$startUrl/2020/interest/untaxed-uk-interest")
+            wsClient.url(s"$appUrl/2020/interest/untaxed-uk-interest")
               .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck", xSessionId)
               .post(Map[String, String]())
           )
@@ -464,7 +462,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
           authoriseAgentUnauthorized()
           await(
-            wsClient.url(s"$startUrl/$taxYear/interest/untaxed-uk-interest")
+            wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest")
               .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
               .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
           )
@@ -479,4 +477,3 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
   }
 }
-

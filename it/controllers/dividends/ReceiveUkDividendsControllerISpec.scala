@@ -29,12 +29,11 @@ import utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 
 class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers with DividendsDatabaseHelper {
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
   lazy val controller: ReceiveUkDividendsController = app.injector.instanceOf[ReceiveUkDividendsController]
 
   val taxYear: Int = 2022
   val amount: BigDecimal = 500
-  val receiveUkDividendsUrl = s"$startUrl/$taxYear/dividends/dividends-from-uk-companies"
+  val receiveUkDividendsUrl = s"$appUrl/$taxYear/dividends/dividends-from-uk-companies"
 
   "as an individual" when {
 

@@ -24,8 +24,6 @@ import utils.{IntegrationTest, InterestDatabaseHelper}
 
 class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHelper {
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
-
   val taxYear: Int = 2022
   val amount: BigDecimal = 25
 
@@ -44,7 +42,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           )))
 
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/$taxYear/interest/check-interest")
+          await(wsClient.url(s"$appUrl/$taxYear/interest/check-interest")
             .withHttpHeaders(xSessionId, csrfContent)
             .get())
         }
@@ -61,7 +59,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           emptyUserDataStub()
           insertCyaData(None, taxYear, Some("AA123456A"), None)
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/$taxYear/interest/check-interest")
+          await(wsClient.url(s"$appUrl/$taxYear/interest/check-interest")
             .withHttpHeaders(xSessionId, csrfContent)
             .get())
         }
@@ -75,7 +73,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
       "the authorization fails" which {
         lazy val result = {
           authoriseIndividualUnauthorized()
-          await(wsClient.url(s"$startUrl/$taxYear/interest/check-interest")
+          await(wsClient.url(s"$appUrl/$taxYear/interest/check-interest")
             .withHttpHeaders(xSessionId, csrfContent)
             .get())
         }
@@ -108,7 +106,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           stubGet(s"/income-through-software/return/$taxYear/view", OK, "")
           stubPost(s"/income-tax-interest/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "", expectedHeaders)
 
-          await(wsClient.url(s"$startUrl/$taxYear/interest/check-interest")
+          await(wsClient.url(s"$appUrl/$taxYear/interest/check-interest")
             .withHttpHeaders(xSessionId, csrfContent)
             .post("{}"))
         }
@@ -125,7 +123,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
             Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
           )))
           authoriseIndividual(None)
-          await(wsClient.url(s"$startUrl/$taxYear/interest/check-interest")
+          await(wsClient.url(s"$appUrl/$taxYear/interest/check-interest")
             .withHttpHeaders(xSessionId, csrfContent)
             .post("{}"))
         }
@@ -142,7 +140,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
             Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
           )))
           authoriseIndividualUnauthorized()
-          await(wsClient.url(s"$startUrl/$taxYear/interest/check-interest")
+          await(wsClient.url(s"$appUrl/$taxYear/interest/check-interest")
             .withHttpHeaders(xSessionId, csrfContent)
             .post("{}"))
         }

@@ -93,8 +93,6 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
     val errorTitle = s"Error: $heading"
   }
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
-
   val taxYear: Int = 2022
 
   val amount: BigDecimal = 25
@@ -102,11 +100,11 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
 
   lazy val id: String = UUID.randomUUID().toString
 
-  def url(newId: String): String = s"$startUrl/$taxYear/interest/add-taxed-uk-interest-account/$newId"
+  def url(newId: String): String = s"$appUrl/$taxYear/interest/add-taxed-uk-interest-account/$newId"
 
   val charLimit: String = "ukHzoBYHkKGGk2V5iuYgS137gN7EB7LRw3uDjvujYg00ZtHwo3sokyOOCEoAK9vuPiP374QKOelo"
 
-  def taxedInterestAmountUrl(newId: String): String = s"$startUrl/$taxYear/interest/add-taxed-uk-interest-account/$newId"
+  def taxedInterestAmountUrl(newId: String): String = s"$appUrl/$taxYear/interest/add-taxed-uk-interest-account/$newId"
   s"Calling GET /interest/taxed-uk-interest-details/$id" when {
 
     "the user is authorised" when {
@@ -392,7 +390,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
       "the fields are empty as an individual" should {
 
         lazy val result = response(Map(TaxedInterestAmountForm.taxedAmount -> "",
-            TaxedInterestAmountForm.taxedAccountName -> ""))
+          TaxedInterestAmountForm.taxedAccountName -> ""))
         implicit def document: () => Document = () => Jsoup.parse(result.body)
 
         s"return a 400(BadRequest) status" in {

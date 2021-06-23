@@ -31,8 +31,6 @@ import java.util.UUID
 
 class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelpers with InterestDatabaseHelper{
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
-
   val taxYear: Int = 2022
 
   val amountSelector = "#amount"
@@ -120,7 +118,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
   val expectedHintTextCy = "For example, £600 or £193.54"
   val continueTextCy = "Continue"
 
-  def url(newId: String, accountType: String): String = s"$startUrl/$taxYear/interest/change-$accountType-uk-interest?accountId=$newId"
+  def url(newId: String, accountType: String): String = s"$appUrl/$taxYear/interest/change-$accountType-uk-interest?accountId=$newId"
 
   def urlNoPreFix(newId: String, accountType: String): String =
     s"/income-through-software/return/personal-income/$taxYear/interest/change-$accountType-uk-interest?accountId=$newId"

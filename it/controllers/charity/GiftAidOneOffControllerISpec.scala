@@ -16,141 +16,191 @@
 
 package controllers.charity
 
-import common.SessionValues
 import forms.YesNoForm
-import helpers.PlaySessionCookieBaker
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status._
-import play.api.libs.ws.{WSClient, WSResponse}
-import utils.IntegrationTest
+import play.api.libs.ws.WSResponse
+import utils.{IntegrationTest, ViewHelpers}
 
-class GiftAidOneOffControllerISpec extends IntegrationTest {
+class GiftAidOneOffControllerISpec extends IntegrationTest with ViewHelpers {
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
-  lazy val controller: GiftAidOneOffController = app.injector.instanceOf[GiftAidOneOffController]
-  val taxYear: Int = 2022
-    "as an individual" when {
+  val taxYear = 2022
+  val giftAidDonations = 100
 
-      ".show" should {
+  val taxYearMinusOne: Int = taxYear -1
 
-        "returns an action" which {
+  def url: String = s"$appUrl/$taxYear/charity/one-off-charity-donations"
+
+  object Selectors {
+    val captionSelector = ".govuk-caption-l"
+    val p1Selector = "#main-content > div > div > form > div > fieldset > legend > div > p:nth-child(1)"
+    val p2Selector = "#main-content > div > div > form > div > fieldset > legend > div > p:nth-child(2)"
+    val continueSelector = "#continue"
+    val continueButtonFormSelector = "#main-content > div > div > form"
+    val errorSummaryHref = "#value"
+  }
+
+  trait SpecificExpectedResults {
+    val expectedH1: String
+    val expectedTitle: String
+    val expectedPara1: String
+    val expectedPara2: String
+    val expectedErrorTitle: String
+    val expectedErrorText: String
+  }
+
+  trait CommonExpectedResults {
+    val captionText: String
+    val yesText: String
+    val noText: String
+    val continueText: String
+    val continueLink: String
+  }
+
+  object CommonExpectedEN extends CommonExpectedResults {
+    val captionText = s"Donations to charity for 6 April $taxYearMinusOne to 5 April $taxYear"
+    val yesText = "Yes"
+    val noText = "No"
+    val continueText = "Continue"
+    val continueLink = s"/income-through-software/return/personal-income/$taxYear/charity/one-off-charity-donations"
+  }
+
+  object CommonExpectedCY extends CommonExpectedResults {
+    val captionText = s"Donations to charity for 6 April $taxYearMinusOne to 5 April $taxYear"
+    val yesText = "Yes"
+    val noText = "No"
+    val continueText = "Continue"
+    val continueLink = s"/income-through-software/return/personal-income/$taxYear/charity/one-off-charity-donations"
+  }
+
+  object ExpectedIndividualEN extends SpecificExpectedResults {
+    val expectedH1 = "Did you make one-off donations?"
+    val expectedTitle = "Did you make one-off donations?"
+    val expectedPara1= s"You told us you used Gift Aid to donate £$giftAidDonations to charity. Tell us if any of this was made as one-off payments."
+    val expectedPara2 = "One-off donations are payments you did not repeat."
+    val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedErrorText = "Select yes if you made a one-off donation to charity"
+  }
+
+  object ExpectedAgentEN extends SpecificExpectedResults {
+    val expectedH1 = "Did your client make one-off donations?"
+    val expectedTitle = "Did your client make one-off donations?"
+    val expectedPara1 = s"You told us your client used Gift Aid to donate £$giftAidDonations to charity. Tell us if any of this was made as one-off payments."
+    val expectedPara2 = "One-off donations are payments your client did not repeat."
+    val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedErrorText = "Select yes if your client made a one-off donation to charity"
+  }
+
+  object ExpectedIndividualCY extends SpecificExpectedResults {
+    val expectedH1 = "Did you make one-off donations?"
+    val expectedTitle = "Did you make one-off donations?"
+    val expectedPara1= s"You told us you used Gift Aid to donate £$giftAidDonations to charity. Tell us if any of this was made as one-off payments."
+    val expectedPara2 = "One-off donations are payments you did not repeat."
+    val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedErrorText = "Select yes if you made a one-off donation to charity"
+  }
+
+  object ExpectedAgentCY extends SpecificExpectedResults {
+    val expectedH1 = "Did your client make one-off donations?"
+    val expectedTitle = "Did your client make one-off donations?"
+    val expectedPara1 = s"You told us your client used Gift Aid to donate £$giftAidDonations to charity. Tell us if any of this was made as one-off payments."
+    val expectedPara2 = "One-off donations are payments your client did not repeat."
+    val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedErrorText = "Select yes if your client made a one-off donation to charity"
+  }
+
+  val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
+    Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
+      UserScenario(isWelsh = false, isAgent = true,  CommonExpectedEN, Some(ExpectedAgentEN)),
+      UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, Some(ExpectedIndividualCY)),
+      UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
+  }
+
+  ".show" when {
+
+    userScenarios.foreach { user =>
+      s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
+
+        "render the page with correct content" which {
           lazy val result: WSResponse = {
-            authoriseIndividual()
-            await(
-              wsClient
-                .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/one-off-charity-donations")
-                .withHttpHeaders(xSessionId, csrfContent)
-                .get()
-            )
+            authoriseAgentOrIndividual(user.isAgent)
+            urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
           }
 
-          "has an OK(200) status" in {
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import Selectors._
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
             result.status shouldBe OK
           }
 
-        }
-
-      }
-
-      ".submit" should {
-
-        s"return an OK($OK) status" in {
-          lazy val result: WSResponse = {
-            authoriseIndividual()
-            await(
-              wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/one-off-charity-donations")
-                .withHttpHeaders(xSessionId, csrfContent)
-                .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
-            )
-          }
-
-          result.status shouldBe OK
-        }
-
-        s"return a BAD_REQUEST($BAD_REQUEST) status" in {
-          lazy val result: WSResponse = {
-            authoriseIndividual()
-            await(
-              wsClient
-                .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/one-off-charity-donations")
-                .withHttpHeaders(xSessionId, csrfContent)
-                .post(Map[String, String]())
-            )
-          }
-
-          result.status shouldBe BAD_REQUEST
-        }
-
-      }
-
-    }
-
-  "as an agent" when {
-
-    ".show" should {
-
-      "returns an action" which {
-        lazy val result: WSResponse = {
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
-
-          authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/one-off-charity-donations")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-            .get())
-        }
-
-        "has an OK(200) status" in {
-          result.status shouldBe OK
+          titleCheck(user.specificExpectedResults.get.expectedTitle)
+          welshToggleCheck(user.isWelsh)
+          h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)
+          textOnPageCheck(captionText, captionSelector)
+          textOnPageCheck(user.specificExpectedResults.get.expectedPara1, p1Selector)
+          textOnPageCheck(user.specificExpectedResults.get.expectedPara2, p2Selector)
+          radioButtonCheck(yesText, 1)
+          radioButtonCheck(noText, 2)
+          buttonCheck(continueText, continueSelector)
+          formPostLinkCheck(continueLink, continueButtonFormSelector)
         }
       }
     }
-
-    ".submit" should {
-
-      s"return an OK($OK) status" when {
-
-        "there is form data" in {
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"))
-
-            authoriseAgent()
-            await(
-              wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/one-off-charity-donations")
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-                .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
-            )
-          }
-
-          result.status shouldBe OK
-        }
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status" when {
-
-        "there is no form data" in {
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"
-            ))
-
-            authoriseAgent()
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/one-off-charity-donations")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-              .post(Map[String, String]()))
-          }
-
-          result.status shouldBe BAD_REQUEST
-        }
-      }
-
-    }
-
   }
 
+  ".submit" when {
+
+    userScenarios.foreach { user =>
+      s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
+
+        "return an OK" in {
+          lazy val form: Map[String, Seq[String]] = Map(YesNoForm.yesNo -> Seq(YesNoForm.yes))
+
+          lazy val result: WSResponse = {
+            authoriseAgentOrIndividual(user.isAgent)
+            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+          }
+
+          result.status shouldBe OK
+        }
+
+        "no radio button has been selected" should {
+
+          lazy val form: Map[String, Seq[String]] = Map(YesNoForm.yesNo -> Seq(""))
+
+          lazy val result: WSResponse = {
+            authoriseAgentOrIndividual(user.isAgent)
+            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+          }
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import Selectors._
+          import user.commonExpectedResults._
+
+          titleCheck(errorPrefix + user.specificExpectedResults.get.expectedTitle)
+          welshToggleCheck(user.isWelsh)
+          h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)
+          textOnPageCheck(captionText, captionSelector)
+          textOnPageCheck(user.specificExpectedResults.get.expectedPara1, p1Selector)
+          textOnPageCheck(user.specificExpectedResults.get.expectedPara2, p2Selector)
+          radioButtonCheck(yesText, 1)
+          radioButtonCheck(noText, 2)
+          buttonCheck(continueText, continueSelector)
+          formPostLinkCheck(continueLink, continueButtonFormSelector)
+          errorSummaryCheck(user.specificExpectedResults.get.expectedErrorText, errorSummaryHref)
+          errorAboveElementCheck(user.specificExpectedResults.get.expectedErrorText)
+
+          "return a BAD_REQUEST" in {
+            result.status shouldBe BAD_REQUEST
+          }
+        }
+      }
+    }
+  }
 }

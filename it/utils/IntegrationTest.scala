@@ -17,10 +17,11 @@
 package utils
 
 import akka.actor.ActorSystem
+import common.SessionValues
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
-import helpers.WireMockHelper
+import helpers.{PlaySessionCookieBaker, WireMockHelper}
 import models.User
 import models.priorDataModels.IncomeSourcesModel
 import org.scalatest.BeforeAndAfterAll
@@ -29,17 +30,18 @@ import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
+import play.api.libs.ws.WSClient
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.OK
 import play.api.{Application, Environment, Mode}
 import services.AuthService
-import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
+import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Enrolment, EnrolmentIdentifier, Enrolments}
+import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.authErrorPages.AgentAuthErrorPageView
-
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
 
@@ -47,8 +49,8 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   val nino = "AA123456A"
   val mtditid = "1234567890"
+  val sessionId = "sessionId-eb3158c2-0aff-4ce8-8d1b-f2208ace52fe"
   val affinityGroup = "Individual"
-  val sessionId = "eb3158c2-0aff-4ce8-8d1b-f2208ace52fe"
 
   val xSessionId: (String, String) = "X-Session-ID" -> sessionId
   val csrfContent: (String, String) = "Csrf-Token" -> "nocheck"
@@ -60,7 +62,9 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   implicit val actorSystem: ActorSystem = ActorSystem()
 
-  val startUrl = s"http://localhost:$port/income-through-software/return/personal-income"
+  implicit def wsClient: WSClient = app.injector.instanceOf[WSClient]
+
+  val appUrl = s"http://localhost:$port/income-through-software/return/personal-income"
 
   def await[T](awaitable: Awaitable[T]): T = Await.result(awaitable, Duration.Inf)
 
@@ -113,7 +117,6 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   lazy val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
 
-
   val defaultAcceptedConfidenceLevels = Seq(
     ConfidenceLevel.L200,
     ConfidenceLevel.L500
@@ -159,6 +162,13 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     )) and Some(AffinityGroup.Individual) and ConfidenceLevel.L200
   )
 
+  def playSessionCookies(taxYear: Int, extraData: Map[String, String] = Map()): String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+    SessionValues.TAX_YEAR -> taxYear.toString,
+    SessionKeys.sessionId -> sessionId,
+    SessionValues.CLIENT_NINO -> "AA123456A",
+    SessionValues.CLIENT_MTDITID -> "1234567890"
+  ) ++ extraData)
+
   def userDataStub(userData: IncomeSourcesModel, nino: String, taxYear: Int): StubMapping ={
     stubGetWithHeadersCheck(
       s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", OK,
@@ -173,5 +183,4 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     //noinspection ScalaStyle
     userDataStub(IncomeSourcesModel(), nino, 2022)
   }
-
 }
