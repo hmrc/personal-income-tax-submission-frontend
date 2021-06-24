@@ -16,18 +16,19 @@
 
 package controllers.interest
 
+import java.util.UUID
+
 import common.SessionValues
 import forms.interest.UntaxedInterestAmountForm
 import helpers.PlaySessionCookieBaker
 import models.interest.{InterestAccountModel, InterestCYAModel}
+import models.priorDataModels.{IncomeSourcesModel, InterestModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER, UNAUTHORIZED}
-import play.api.libs.ws.{WSClient, WSResponse}
+import play.api.libs.ws.WSResponse
 import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
-import java.util.UUID
-import models.priorDataModels.{IncomeSourcesModel, InterestModel}
 
 class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelpers with InterestDatabaseHelper {
 
@@ -362,6 +363,17 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
         }
       }
 
+      "an existing account is updated" should {
+        lazy val result = response(Map(
+          UntaxedInterestAmountForm.untaxedAmount -> "50",
+          UntaxedInterestAmountForm.untaxedAccountName -> secondAccountName
+        ))
+
+        "return a 200(Ok) status" in {
+          result.status shouldBe OK
+        }
+      }
+
       "the fields are empty" should {
 
         lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "",
@@ -438,10 +450,25 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
       }
 
       "a duplicate account name is entered" should {
-        lazy val result = response(Map(
-          UntaxedInterestAmountForm.untaxedAmount -> "12344.98",
-          UntaxedInterestAmountForm.untaxedAccountName -> firstAccountName
-        ))
+
+        lazy val result: WSResponse = {
+          dropInterestDB()
+          emptyUserDataStub()
+          insertCyaData(Some(InterestCYAModel(
+            Some(true), Some(Seq(
+              InterestAccountModel(Some("differentId"), firstAccountName, amount),
+              InterestAccountModel(None, secondAccountName, amount, Some(id))
+            )),
+            Some(false), None
+          )))
+          authoriseIndividual()
+          await(wsClient.url(untaxedInterestAmountUrl("1234567890-09876543210"))
+            .withHttpHeaders(xSessionId, csrfContent)
+            .post(Map(
+              UntaxedInterestAmountForm.untaxedAmount -> "12344.98",
+              UntaxedInterestAmountForm.untaxedAccountName -> secondAccountName
+            )))
+        }
 
         implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -449,7 +476,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
           result.status shouldBe BAD_REQUEST
         }
 
-        inputFieldValueCheck(firstAccountName, Selectors.accountNameInput)
+        inputFieldValueCheck(secondAccountName, Selectors.accountNameInput)
         inputFieldValueCheck("12344.98", Selectors.amountInput)
         titleCheck(Content.errorTitle)
 
@@ -532,6 +559,17 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
         }
       }
 
+      "an existing account is updated" should {
+        lazy val result = response(Map(
+          UntaxedInterestAmountForm.untaxedAmount -> "50",
+          UntaxedInterestAmountForm.untaxedAccountName -> secondAccountName
+        ))
+
+        "return a 200(Ok) status" in {
+          result.status shouldBe OK
+        }
+      }
+
       "the fields are empty" should {
 
         lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "",
@@ -608,10 +646,27 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
       }
 
       "a duplicate account name is entered" should {
-        lazy val result = response(Map(
-          UntaxedInterestAmountForm.untaxedAmount -> "12344.98",
-          UntaxedInterestAmountForm.untaxedAccountName -> secondAccountName
-        ))
+
+        lazy val result: WSResponse = {
+          dropInterestDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(InterestCYAModel(
+            Some(true), Some(Seq(
+              InterestAccountModel(Some("differentId"), firstAccountName, amount),
+              InterestAccountModel(None, secondAccountName, amount, Some(id))
+            )),
+            Some(false), None
+          )))
+
+          authoriseIndividual()
+          await(wsClient.url(untaxedInterestAmountUrl("1234567890-0987654321"))
+            .withHttpHeaders(xSessionId, csrfContent, HeaderNames.ACCEPT_LANGUAGE -> "cy")
+            .post(Map(
+              UntaxedInterestAmountForm.untaxedAmount -> "12344.98",
+              UntaxedInterestAmountForm.untaxedAccountName -> secondAccountName
+            )))
+        }
 
         implicit def document: () => Document = () => Jsoup.parse(result.body)
 

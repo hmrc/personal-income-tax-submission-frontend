@@ -16,6 +16,8 @@
 
 package controllers.interest
 
+import java.util.UUID.randomUUID
+
 import common.InterestTaxTypes
 import common.InterestTaxTypes.TAXED
 import config.{AppConfig, ErrorHandler, INTEREST}
@@ -23,6 +25,7 @@ import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.interest.TaxedInterestAmountForm
+import javax.inject.Inject
 import models.interest.{InterestAccountModel, InterestCYAModel, TaxedInterestModel}
 import models.question.QuestionsJourney
 import play.api.Logging
@@ -34,8 +37,6 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.interest.TaxedInterestAmountView
 
-import java.util.UUID.randomUUID
-import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class TaxedInterestAmountController @Inject()(
@@ -53,19 +54,20 @@ class TaxedInterestAmountController @Inject()(
 
   def show(taxYear: Int, id: String): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
     interestSessionService.getSessionData(taxYear).map { cya =>
-      val optionalCyaData = cya.flatMap(_.interest)
-
-      val idMatchesPreviouslySubmittedAccount: Boolean = optionalCyaData.flatMap(_.taxedUkAccounts.map(_.exists(_.id.contains(id)))).getOrElse(false)
-
-      val previousNames: Seq[String] = getPreviousNames(optionalCyaData)
 
       implicit val journey: QuestionsJourney[InterestCYAModel] = InterestCYAModel.interestJourney(taxYear, Some(id))
 
+      val optionalCyaData = cya.flatMap(_.interest)
+      val previousNames: Seq[String] = getPreviousNames(optionalCyaData)
+      val idMatchesPreviouslySubmittedAccount: Boolean = optionalCyaData.flatMap(_.taxedUkAccounts.map(_.exists(_.id.contains(id)))).getOrElse(false)
+      val sessionIDMatchesPreviouslySubmittedAccount: Boolean = optionalCyaData.flatMap(_.untaxedUkAccounts.map(_.exists(_.uniqueSessionId.contains(id)))).getOrElse(false)
+
       def taxedInterestAmountForm(implicit isAgent: Boolean, previousNames: Seq[String]): Form[TaxedInterestModel] =
-    TaxedInterestAmountForm.taxedInterestAmountForm(
-      isAgent,
-      previousNames
-    )
+        TaxedInterestAmountForm.taxedInterestAmountForm(
+          isAgent,
+          previousNames,
+          sessionIDMatchesPreviouslySubmittedAccount
+        )
 
       questionsJourneyValidator.validate(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id), optionalCyaData, taxYear) {
 
@@ -105,15 +107,16 @@ class TaxedInterestAmountController @Inject()(
     interestSessionService.getSessionData(taxYear).map { cya =>
 
       val optionalCyaData = cya.flatMap(_.interest)
-
       val previousNames: Seq[String] = getPreviousNames(optionalCyaData)
+      val sessionIDMatchesPreviouslySubmittedAccount: Boolean = optionalCyaData.flatMap(_.taxedUkAccounts.map(_.exists(_.uniqueSessionId.contains(id)))).getOrElse(false)
 
       def taxedInterestAmountForm(implicit isAgent: Boolean): Form[TaxedInterestModel] = TaxedInterestAmountForm.taxedInterestAmountForm(
-      isAgent,
-      previousNames
-  )
+        isAgent,
+        previousNames,
+        sessionIDMatchesPreviouslySubmittedAccount
+      )
 
-    taxedInterestAmountForm(user.isAgent).bindFromRequest().fold({
+      taxedInterestAmountForm(user.isAgent).bindFromRequest().fold({
         formWithErrors =>
           Future.successful(BadRequest(taxedInterestAmountView(
             form = formWithErrors,
