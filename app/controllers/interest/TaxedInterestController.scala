@@ -72,7 +72,6 @@ class TaxedInterestController @Inject()(
       prior match {
         case Some(prior) if prior.hasTaxed => Future(Redirect(controllers.interest.routes.InterestCYAController.show(taxYear)))
         case _ =>
-          interestSessionService.getSessionData(taxYear).map(_.flatMap(_.interest)).map { cya =>
             val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(
               s"interest.taxed-uk-interest.errors.noRadioSelected.${if (user.isAgent) "agent" else "individual"}")
 
@@ -84,28 +83,24 @@ class TaxedInterestController @Inject()(
                   },
                   {
                       yesNoModel =>
-                        val baseCya = cya.getOrElse(InterestCYAModel(None, None, None))
-                        val updatedCya = baseCya.copy(untaxedUkInterest = Some(yesNoModel), accounts = if (yesNoModel) {
-                          baseCya.accounts
+                        val updatedCya = cyaData.copy(taxedUkInterest = Some(yesNoModel), accounts = if (yesNoModel) {
+                          cyaData.accounts
                         } else {
-                          baseCya.accounts.map(accounts => accounts.map(interestAccountModel => interestAccountModel.copy(taxedAmount = None)))
+                          cyaData.accounts.map(accounts => accounts.map(interestAccountModel => interestAccountModel.copy(taxedAmount = None)))
                         })
 
                       if (yesNoModel) {
                         interestSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(
-                          Redirect(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id = randomUUID().toString))
-                        )
+                          Redirect(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id = randomUUID().toString)))
                       } else {
                         interestSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(
-                          Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
-                        )
+                          Redirect(controllers.interest.routes.InterestCYAController.show(taxYear)))
                       }
                   })
               case _ =>
                 logger.info("[TaxedInterestController][submit] No CYA data in session. Redirecting to overview page.")
                 Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
             }
-          }.flatten
       }
     }
   }

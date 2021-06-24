@@ -24,21 +24,21 @@ case class InterestPriorSubmission(hasUntaxed: Boolean, hasTaxed: Boolean, submi
 
 object InterestPriorSubmission {
 
-  val reads: Reads[InterestPriorSubmission] = for {
-//  implicit val reads: Reads[InterestPriorSubmission] = for {
-    interestAccounts <- __.readNullable[JsArray]
-  } yield {
-    interestAccounts.map(_.value.flatMap(_.asOpt[InterestAccountModel](InterestAccountModel.priorSubmissionReads))) match {
-      case Some(accounts) if accounts.nonEmpty =>
-        InterestPriorSubmission(
-          hasUntaxed = accounts.exists(_.priorType.contains(InterestTaxTypes.UNTAXED)),
-          hasTaxed = accounts.exists(_.priorType.contains(InterestTaxTypes.TAXED)),
-          Some(accounts)
-        )
-      case _ => InterestPriorSubmission(hasUntaxed = false, hasTaxed = false, None)
-    }
-  }
-
+//  val reads: Reads[InterestPriorSubmission] = for {
+////  implicit val reads: Reads[InterestPriorSubmission] = for {
+//    interestAccounts <- __.readNullable[JsArray]
+//  } yield {
+//    interestAccounts.map(_.value.flatMap(_.asOpt[InterestAccountModel](InterestAccountModel.priorSubmissionReads))) match {
+//      case Some(accounts) if accounts.nonEmpty =>
+//        InterestPriorSubmission(
+//          hasUntaxed = accounts.exists(_.priorType.contains(InterestTaxTypes.UNTAXED)),
+//          hasTaxed = accounts.exists(_.priorType.contains(InterestTaxTypes.TAXED)),
+//          Some(accounts)
+//        )
+//      case _ => InterestPriorSubmission(hasUntaxed = false, hasTaxed = false, None)
+//    }
+//  }
+//
 //  implicit val writes: OWrites[InterestPriorSubmission] = OWrites[InterestPriorSubmission] { model =>
   val writes: OWrites[InterestPriorSubmission] = OWrites[InterestPriorSubmission] { model =>
     if(model.submissions.nonEmpty) {
