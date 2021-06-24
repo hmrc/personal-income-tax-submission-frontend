@@ -37,8 +37,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
 
           emptyUserDataStub()
           insertCyaData(Some(InterestCYAModel(
-            Some(false), None,
-            Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
+            Some(false), Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))))
           )))
 
           authoriseIndividual()
@@ -99,8 +98,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           dropInterestDB()
           emptyUserDataStub()
           insertCyaData(Some(InterestCYAModel(
-            Some(false), None,
-            Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
+            Some(false), Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))))
           )), taxYear, Some(mtditid), None)
           authoriseIndividual()
           stubGet(s"/income-through-software/return/$taxYear/view", OK, "")
@@ -119,8 +117,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           dropInterestDB()
           emptyUserDataStub()
           insertCyaData(Some(InterestCYAModel(
-            Some(false), None,
-            Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
+            Some(false), Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))))
           )))
           authoriseIndividual(None)
           await(wsClient.url(s"$appUrl/$taxYear/interest/check-interest")
@@ -136,8 +133,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           dropInterestDB()
           emptyUserDataStub()
           insertCyaData(Some(InterestCYAModel(
-            Some(false), None,
-            Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
+            Some(false), Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))))
           )))
           authoriseIndividualUnauthorized()
           await(wsClient.url(s"$appUrl/$taxYear/interest/check-interest")

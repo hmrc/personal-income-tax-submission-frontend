@@ -49,8 +49,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
         await(interestDatabase.create(InterestUserDataModel(
           sessionId, mtditid, someNino, taxYear,
           Some(InterestCYAModel(
-            Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-            Some(false), None
+            Some(true), Some(false), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount), None)))
           ))
         )))
 
@@ -114,8 +113,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
         await(interestDatabase.create(InterestUserDataModel(
           sessionId, mtditid, someNino, taxYear,
           Some(InterestCYAModel(
-            Some(true), None,
-            Some(false), None
+            Some(true), Some(false), None
           ))
         )))
 
@@ -152,8 +150,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
         await(interestDatabase.create(InterestUserDataModel(
           sessionId, mtditid, someNino, taxYear,
           Some(InterestCYAModel(
-            Some(false), None,
-            Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
+            Some(false), Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))))
           ))
         )))
 
@@ -217,8 +214,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
         await(interestDatabase.create(InterestUserDataModel(
           sessionId, mtditid, someNino, taxYear,
           Some(InterestCYAModel(
-            Some(false), None,
-            Some(true), None
+            Some(false), Some(true)
           ))
         )))
 
@@ -257,8 +253,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           await(interestDatabase.create(InterestUserDataModel(
             sessionId, mtditid, someNino, taxYear,
             Some(InterestCYAModel(
-              Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-              Some(false), None
+              Some(true), Some(false), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount), None)))
             ))
           )))
 
@@ -292,8 +287,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           await(interestDatabase.create(InterestUserDataModel(
             sessionId, mtditid, someNino, taxYear,
             Some(InterestCYAModel(
-              Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-              None, None
+              Some(true), None, Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount), None)))
             ))
           )))
 
@@ -334,8 +328,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
 
           emptyUserDataStub()
           insertCyaData(Some(InterestCYAModel(
-            Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-            Some(false), None
+            Some(true), Some(false),Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount), None))),
           )), overrideNino = Some(someNino))
 
           authoriseIndividual(Some(someNino))
@@ -364,8 +357,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
         await(interestDatabase.create(InterestUserDataModel(
           sessionId, mtditid, someNino, taxYear,
           Some(InterestCYAModel(
-            Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-            Some(false), None
+            Some(true), Some(false), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount), None))),
           ))
         )))
 
@@ -408,8 +400,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
             await(interestDatabase.create(InterestUserDataModel(
               sessionId, mtditid, someNino, taxYear,
               Some(InterestCYAModel(
-                Some(false), None,
-                Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
+                Some(false), Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))))
               ))
             )))
             emptyUserDataStub()
@@ -444,8 +435,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
 
           emptyUserDataStub()
           insertCyaData(Some(InterestCYAModel(
-            Some(false), None,
-            Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
+            Some(false), Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))))
           )), overrideNino = Some(someNino))
 
           authoriseIndividual(Some(someNino))
@@ -474,8 +464,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
         await(interestDatabase.create(InterestUserDataModel(
           sessionId, mtditid, someNino, taxYear,
           Some(InterestCYAModel(
-            Some(false), None,
-            Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
+            Some(false), Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))))
           ))
         )))
 

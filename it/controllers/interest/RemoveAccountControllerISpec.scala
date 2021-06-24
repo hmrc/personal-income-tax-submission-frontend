@@ -36,9 +36,12 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
           dropInterestDB()
           emptyUserDataStub()
           insertCyaData(Some(InterestCYAModel(
-            Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-            Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
+            Some(true), Some(true), Some(Seq(
+              InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount)),
+              InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))
+            ))
           )))
+
           authoriseIndividual()
           await(wsClient.url(s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
             .withHttpHeaders(xSessionId, csrfContent)
@@ -100,8 +103,10 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
           dropInterestDB()
           emptyUserDataStub()
           insertCyaData(Some(InterestCYAModel(
-            Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-            Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
+            Some(true), Some(true), Some(Seq(
+              InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount)),
+              InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))
+            ))
           )))
           authoriseIndividual()
           await(wsClient.url(s"$appUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
@@ -183,8 +188,10 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             dropInterestDB()
             emptyUserDataStub()
             insertCyaData(Some(InterestCYAModel(
-              Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-              Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
+              Some(true), Some(true), Some(Seq(
+              InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount)),
+              InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))
+            ))
             )))
             authoriseIndividual()
             await(wsClient.url(s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
@@ -201,8 +208,10 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
           dropInterestDB()
           emptyUserDataStub()
           insertCyaData(Some(InterestCYAModel(
-            Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-            Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
+            Some(true), Some(true), Some(Seq(
+              InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount)),
+              InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))
+            ))
           )))
           authoriseIndividualUnauthorized()
           await(wsClient.url(s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
@@ -243,8 +252,10 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             dropInterestDB()
             emptyUserDataStub()
             insertCyaData(Some(InterestCYAModel(
-              Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-              Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
+              Some(true), Some(true), Some(Seq(
+              InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount)),
+              InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))
+            ))
             )))
             authoriseIndividual()
             await(wsClient.url(s"$appUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
@@ -261,8 +272,10 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
           dropInterestDB()
           emptyUserDataStub()
           insertCyaData(Some(InterestCYAModel(
-            Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-            Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
+            Some(true), Some(true), Some(Seq(
+              InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount)),
+              InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))
+            ))
           )))
           authoriseIndividualUnauthorized()
           await(wsClient.url(s"$appUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")

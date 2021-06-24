@@ -24,26 +24,28 @@ class InterestAccountModelSpec extends UnitTest {
   val validJsonStandardReadsMax: JsObject = Json.obj(
     "id" -> "qwerty",
     "accountName" -> "TSB",
-    "amount" -> 500,
+    "untaxedAmount" -> 500,
+    "taxedAmount" -> 500,
     "uniqueSessionId" -> "ytrewq"
   )
 
   val validModelStandardReadsMax: InterestAccountModel = InterestAccountModel(
     Some("qwerty"),
     "TSB",
-    500.00,
+    Some(500.00),
+    Some(500.00),
     Some("ytrewq")
   )
 
   val validJsonStandardReadsMin: JsObject = Json.obj(
-    "accountName" -> "TSB",
-    "amount" -> 500
+    "accountName" -> "TSB"
   )
 
   val validModelStandardReadsMin: InterestAccountModel = InterestAccountModel(
     None,
     "TSB",
-    500.00,
+    None,
+    None,
     None
   )
 
@@ -90,13 +92,13 @@ class InterestAccountModelSpec extends UnitTest {
   val validUntaxedModel: InterestAccountModel = InterestAccountModel(
     Some("qwerty"),
     "TSB",
-    500.00
+    Some(500.00)
   )
 
   val validTaxedModel: InterestAccountModel = InterestAccountModel(
     Some("azerty"),
     "Lloyds",
-    300.00
+    taxedAmount = Some(300.00)
   )
 
   "using alternative json reads" should {

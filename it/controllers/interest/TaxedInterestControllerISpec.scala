@@ -51,8 +51,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
       "returns an action when data is in session" which {
 
         lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25.00)))
+          Some(false), Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00))))
         )
 
         lazy val result: WSResponse = {
@@ -127,8 +126,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
         "there is CYA data in session" which {
           lazy val result: WSResponse = {
             val interestCYA = InterestCYAModel(
-              Some(false), None,
-              Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25.00)))
+              Some(false), Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00))))
             )
 
             dropInterestDB()
@@ -152,8 +150,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
       s"return a BAD_REQUEST($BAD_REQUEST) status" in {
         lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25.00)))
+          Some(false), Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00))))
         )
 
         lazy val result: WSResponse = {
@@ -171,8 +168,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
       "returns an action when auth call fails" which {
         lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25)))
+          Some(false), Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00))))
         )
 
         lazy val result: WSResponse = {
@@ -205,8 +201,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
       "returns an action when data is in session" which {
 
         lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25.00)))
+          Some(false), Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00))))
         )
 
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
@@ -233,8 +228,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
       "returns an action when auth call fails" which {
         lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25.00)))
+          Some(false), Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00))))
         )
 
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
@@ -284,8 +278,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
         "there is CYA data in session" in {
           lazy val interestCYA = InterestCYAModel(
-            Some(false), None,
-            Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25.00)))
+            Some(false), Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00))))
           )
 
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
@@ -316,8 +309,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
       s"return a BAD_REQUEST($BAD_REQUEST) status" in {
         lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25.00)))
+          Some(false), Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00))))
         )
 
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
@@ -344,8 +336,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
       "returns an action when auth call fails" which {
         lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25.00)))
+          Some(false), Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00))))
         )
 
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(

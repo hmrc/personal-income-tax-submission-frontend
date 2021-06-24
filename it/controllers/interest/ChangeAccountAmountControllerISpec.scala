@@ -126,23 +126,19 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
   lazy val id: String = UUID.randomUUID().toString
 
   val untaxedInterestCyaModel: InterestCYAModel = InterestCYAModel(
-    Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, amount))),
-    Some(false), None
+    Some(true), Some(false), Some(Seq(InterestAccountModel(Some(id), accountName, Some(amount), None)))
   )
 
   val taxedInterestCyaModel: InterestCYAModel = InterestCYAModel(
-    Some(false), None,
-    Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, amount)))
+    Some(false), Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, None, Some(amount))))
   )
 
   val taxedCyaSubmitModel: InterestCYAModel = InterestCYAModel(
-    Some(false), None,
-    Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
+    Some(false), Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))))
   )
 
   val untaxedCyaSubmitModel: InterestCYAModel = InterestCYAModel(
-    Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-    Some(false), None
+    Some(true), Some(false), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount)))),
   )
 
   "calling /GET" when {
@@ -295,8 +291,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
       "render the untaxed change amount page with pre-populated amount box" which {
 
         val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, differentAmount))),
-          Some(false), None
+          Some(true), Some(false), Some(Seq(InterestAccountModel(Some(id), accountName, Some(differentAmount))))
         )
 
         lazy val result = {
@@ -530,8 +525,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
       "render the taxed change amount page with pre-populated amount box" which {
 
         lazy val interestCYA = InterestCYAModel(
-          Some(false), None,
-          Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, differentAmount)))
+          Some(false), Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, None, Some(differentAmount))))
         )
 
         lazy val result = {

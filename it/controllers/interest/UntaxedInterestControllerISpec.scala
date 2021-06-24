@@ -63,8 +63,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
       "returns an action when data is in session" which {
 
         lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-          Some(false), None
+          Some(true), Some(false), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount), None)))
         )
 
         lazy val result: WSResponse = {
@@ -157,8 +156,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
           "there is CYA model indicates it is finished" which {
             lazy val interestCYA = InterestCYAModel(
-              Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-              Some(false), None
+              Some(true), Some(false), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount), None)))
             )
 
             lazy val result: WSResponse = {
@@ -238,8 +236,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
           "there is CYA model indicates it is finished" which {
             lazy val interestCYA = InterestCYAModel(
-              Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-              Some(false), None
+              Some(true), Some(false), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount), None)))
             )
 
             lazy val result: WSResponse = {
@@ -318,8 +315,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
       "returns an action when data is in session" which {
 
         lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-          Some(false), None
+          Some(true), Some(false), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount), None)))
         )
         lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
           SessionValues.CLIENT_MTDITID -> "1234567890",
@@ -402,8 +398,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
         "there is CYA data in session" in {
           lazy val interestCYA = InterestCYAModel(
-            Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-            Some(false), None
+            Some(true), Some(false), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount), None)))
           )
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
             SessionValues.CLIENT_MTDITID -> "1234567890",

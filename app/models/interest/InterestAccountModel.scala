@@ -20,8 +20,8 @@ import play.api.libs.json._
 
 case class InterestAccountModel(id: Option[String],
                                 accountName: String,
-                                untaxedAmount: Option[BigDecimal],
-                                taxedAmount: Option[BigDecimal],
+                                untaxedAmount: Option[BigDecimal] = None,
+                                taxedAmount: Option[BigDecimal] = None,
                                 uniqueSessionId: Option[String] = None) {
 
   def getPrimaryId(): Option[String] = {

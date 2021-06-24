@@ -110,11 +110,10 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
           dropInterestDB()
           emptyUserDataStub()
           insertCyaData(Some(InterestCYAModel(
-            Some(true), Some(Seq(
-              InterestAccountModel(Some("differentId"), firstAccountName, amount),
-              InterestAccountModel(None, secondAccountName, amount, Some(id))
-            )),
-            Some(false), None
+            Some(true), Some(false), Some(Seq(
+              InterestAccountModel(Some("differentId"), firstAccountName, Some(amount)),
+              InterestAccountModel(None, secondAccountName, Some(amount), uniqueSessionId = Some(id))
+            ))
           )))
           authoriseIndividual()
           await(wsClient.url(untaxedInterestAmountUrl(id)).withHttpHeaders(
@@ -159,11 +158,10 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
           dropInterestDB()
           emptyUserDataStub()
           insertCyaData(Some(InterestCYAModel(
-            Some(true), Some(Seq(
-              InterestAccountModel(Some("differentId"), firstAccountName, amount),
-              InterestAccountModel(None, secondAccountName, amount, Some(id))
-            )),
-            Some(false), None
+            Some(true), Some(false), Some(Seq(
+            InterestAccountModel(Some("differentId"), firstAccountName, Some(amount)),
+            InterestAccountModel(None, secondAccountName, Some(amount), uniqueSessionId = Some(id))
+          ))
           )))
           authoriseAgent()
           await(wsClient.url(untaxedInterestAmountUrl(id))
@@ -205,11 +203,10 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
           dropInterestDB()
           emptyUserDataStub()
           insertCyaData(Some(InterestCYAModel(
-            Some(true), Some(Seq(
-              InterestAccountModel(Some("differentId"), firstAccountName, amount),
-              InterestAccountModel(None, secondAccountName, amount, Some(id))
-            )),
-            Some(false), None
+            Some(true), Some(false), Some(Seq(
+            InterestAccountModel(Some("differentId"), firstAccountName, Some(amount)),
+            InterestAccountModel(None, secondAccountName, Some(amount), uniqueSessionId = Some(id))
+          ))
           )))
           authoriseIndividual()
           await(wsClient.url(untaxedInterestAmountUrl(id)).withHttpHeaders(
@@ -248,7 +245,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
         lazy val result = {
           dropInterestDB()
           emptyUserDataStub()
-          insertCyaData(Some(InterestCYAModel(Some(true), None, Some(false), None)))
+          insertCyaData(Some(InterestCYAModel(Some(true), Some(false), None)))
           authoriseIndividual()
           await(wsClient.url(untaxedInterestAmountUrl(id)).withHttpHeaders(xSessionId, csrfContent).get())
         }
@@ -269,11 +266,8 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
             dropInterestDB()
             userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel(firstAccountName, id, None, Some(amount)))), None), nino, taxYear)
             insertCyaData(Some(InterestCYAModel(
-              Some(true),
-              Some(Seq(
-                InterestAccountModel(Some(id), firstAccountName, amount, Some(id)))),
-              Some(false),
-              None
+              Some(true), Some(false),
+              Some(Seq(InterestAccountModel(Some(id), firstAccountName, Some(amount), None, Some(id))))
             )), taxYear, None, Some(nino))
 
             authoriseIndividual()
@@ -341,11 +335,10 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
         dropInterestDB()
         emptyUserDataStub()
         insertCyaData(Some(InterestCYAModel(
-          Some(true), Some(Seq(
-            InterestAccountModel(Some("differentId"), firstAccountName, amount),
-            InterestAccountModel(None, secondAccountName, amount, Some(id))
-          )),
-          Some(false), None
+          Some(true), Some(false), Some(Seq(
+            InterestAccountModel(Some("differentId"), firstAccountName, Some(amount)),
+            InterestAccountModel(None, secondAccountName, Some(amount), uniqueSessionId = Some(id))
+          ))
         )))
         authoriseIndividual()
         await(wsClient.url(untaxedInterestAmountUrl(id))
@@ -455,11 +448,10 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
           dropInterestDB()
           emptyUserDataStub()
           insertCyaData(Some(InterestCYAModel(
-            Some(true), Some(Seq(
-              InterestAccountModel(Some("differentId"), firstAccountName, amount),
-              InterestAccountModel(None, secondAccountName, amount, Some(id))
-            )),
-            Some(false), None
+            Some(true), Some(false), Some(Seq(
+            InterestAccountModel(Some("differentId"), firstAccountName, Some(amount)),
+            InterestAccountModel(None, secondAccountName, Some(amount), uniqueSessionId = Some(id))
+          ))
           )))
           authoriseIndividual()
           await(wsClient.url(untaxedInterestAmountUrl("1234567890-09876543210"))
@@ -488,9 +480,9 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
     "the user is authorised as an agent" when {
 
       lazy val interestCYA = InterestCYAModel(
-        Some(false), None, Some(true), Some(Seq(
-          InterestAccountModel(Some("differentId"), firstAccountName, amount),
-          InterestAccountModel(None, secondAccountName, amount, Some(id))
+        Some(false), Some(true), Some(Seq(
+          InterestAccountModel(Some("differentId"), firstAccountName, None, Some(amount)),
+          InterestAccountModel(None, secondAccountName, None, Some(amount), Some(id))
         ))
       )
       lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
@@ -536,11 +528,10 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
         emptyUserDataStub()
         insertCyaData(Some(InterestCYAModel(
-          Some(true), Some(Seq(
-            InterestAccountModel(Some("differentId"), firstAccountName, amount),
-            InterestAccountModel(None, secondAccountName, amount, Some(id))
-          )),
-          Some(false), None
+          Some(true), Some(false), Some(Seq(
+            InterestAccountModel(Some("differentId"), firstAccountName, Some(amount)),
+            InterestAccountModel(None, secondAccountName, Some(amount), uniqueSessionId = Some(id))
+          ))
         )))
 
         authoriseIndividual()
@@ -652,11 +643,10 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
           emptyUserDataStub()
           insertCyaData(Some(InterestCYAModel(
-            Some(true), Some(Seq(
-              InterestAccountModel(Some("differentId"), firstAccountName, amount),
-              InterestAccountModel(None, secondAccountName, amount, Some(id))
-            )),
-            Some(false), None
+            Some(true), Some(false), Some(Seq(
+            InterestAccountModel(Some("differentId"), firstAccountName, Some(amount)),
+            InterestAccountModel(None, secondAccountName, Some(amount), uniqueSessionId = Some(id))
+          ))
           )))
 
           authoriseIndividual()
