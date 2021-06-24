@@ -24,7 +24,8 @@ case class InterestPriorSubmission(hasUntaxed: Boolean, hasTaxed: Boolean, submi
 
 object InterestPriorSubmission {
 
-  implicit val reads: Reads[InterestPriorSubmission] = for {
+  val reads: Reads[InterestPriorSubmission] = for {
+//  implicit val reads: Reads[InterestPriorSubmission] = for {
     interestAccounts <- __.readNullable[JsArray]
   } yield {
     interestAccounts.map(_.value.flatMap(_.asOpt[InterestAccountModel](InterestAccountModel.priorSubmissionReads))) match {
@@ -38,7 +39,8 @@ object InterestPriorSubmission {
     }
   }
 
-  implicit val writes: OWrites[InterestPriorSubmission] = OWrites[InterestPriorSubmission] { model =>
+//  implicit val writes: OWrites[InterestPriorSubmission] = OWrites[InterestPriorSubmission] { model =>
+  val writes: OWrites[InterestPriorSubmission] = OWrites[InterestPriorSubmission] { model =>
     if(model.submissions.nonEmpty) {
       Json.obj("submissions" -> Json.toJson(model.submissions))
     } else {

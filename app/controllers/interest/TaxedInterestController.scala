@@ -54,55 +54,59 @@ class TaxedInterestController @Inject()(
 
     interestSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
       prior match {
-        case Some(prior) if prior.hasTaxed => Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
+        case Some(prior) if prior.hasTaxed => Future(Redirect(controllers.interest.routes.InterestCYAController.show(taxYear)))
         case _ =>
-          questionsJourneyValidator.validate(routes.TaxedInterestController.show(taxYear), cya, taxYear) {
+          Future(questionsJourneyValidator.validate(routes.TaxedInterestController.show(taxYear), cya, taxYear) {
             val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(
               missingInputError = s"interest.taxed-uk-interest.errors.noRadioSelected.${if (user.isAgent) "agent" else "individual"}"
             )
             Ok(taxedInterestView(cya.flatMap(_.taxedUkInterest).fold(yesNoForm)(yesNoForm.fill), taxYear))
-          }
+          })
       }
     }
   }
 
   def submit(taxYear: Int): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
-    interestSessionService.getSessionData(taxYear).map(_.flatMap(_.interest)).map { cya =>
-      val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(s"interest.taxed-uk-interest.errors.noRadioSelected.${if (user.isAgent) "agent" else "individual"}")
 
-      cya match {
-        case Some(cyaData) =>
-          yesNoForm.bindFromRequest().fold(
-            {
-              formWithErrors =>
-                Future.successful(BadRequest(taxedInterestView(
-                  form = formWithErrors,
-                  taxYear = taxYear
-                )))
-            },
-            {
-              yesNoModel =>
-                val updatedCya = cyaData.copy(taxedUkInterest = Some(yesNoModel), taxedUkAccounts = if (yesNoModel) {
-                  cyaData.taxedUkAccounts
-                } else {
-                  None
-                })
-
-                if (yesNoModel) {
-                  interestSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(
-                    Redirect(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id = randomUUID().toString))
-                  )
-                } else {
-                  interestSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(
-                    Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
-                  )
-                }
-            })
+    interestSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
+      prior match {
+        case Some(prior) if prior.hasTaxed => Future(Redirect(controllers.interest.routes.InterestCYAController.show(taxYear)))
         case _ =>
-          logger.info("[TaxedInterestController][submit] No CYA data in session. Redirecting to overview page.")
-          Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
-      }
-    }.flatten
-  }
+          interestSessionService.getSessionData(taxYear).map(_.flatMap(_.interest)).map { cya =>
+            val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(
+              s"interest.taxed-uk-interest.errors.noRadioSelected.${if (user.isAgent) "agent" else "individual"}")
 
+            cya match {
+              case Some(cyaData) =>
+                yesNoForm.bindFromRequest().fold(
+                  {
+                    formWithErrors => Future.successful(BadRequest(taxedInterestView(form = formWithErrors, taxYear = taxYear)))
+                  },
+                  {
+                      yesNoModel =>
+                        val baseCya = cya.getOrElse(InterestCYAModel(None, None, None))
+                        val updatedCya = baseCya.copy(untaxedUkInterest = Some(yesNoModel), accounts = if (yesNoModel) {
+                          baseCya.accounts
+                        } else {
+                          baseCya.accounts.map(accounts => accounts.map(interestAccountModel => interestAccountModel.copy(taxedAmount = None)))
+                        })
+
+                      if (yesNoModel) {
+                        interestSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(
+                          Redirect(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id = randomUUID().toString))
+                        )
+                      } else {
+                        interestSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(
+                          Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
+                        )
+                      }
+                  })
+              case _ =>
+                logger.info("[TaxedInterestController][submit] No CYA data in session. Redirecting to overview page.")
+                Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+            }
+          }.flatten
+      }
+    }
+  }
 }
