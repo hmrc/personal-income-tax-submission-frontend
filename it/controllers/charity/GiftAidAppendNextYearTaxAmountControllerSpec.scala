@@ -18,7 +18,6 @@ package controllers.charity
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.WSResponse
 import utils.{IntegrationTest, ViewHelpers}
@@ -113,7 +112,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
             urlGet(url(taxYear, taxYear + 1), follow = false, welsh = user.isWelsh,
-              headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+              headers =  playSessionCookie(user.isAgent))
           }
 
           "has an SEE_OTHER status" in {
@@ -125,7 +124,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
         "render the page with correct content" which {
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
-            urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+            urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
           }
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -159,7 +158,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
             urlPost(url(taxYear, taxYear + 1), body = form, follow = false, welsh = user.isWelsh,
-              headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+              headers =  playSessionCookie(user.isAgent))
           }
 
           "has an SEE_OTHER status" in {
@@ -173,7 +172,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
 
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
-            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
           }
 
           result.status shouldBe OK
@@ -187,7 +186,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
 
             lazy val result: WSResponse = {
               authoriseAgentOrIndividual(user.isAgent)
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
             }
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -210,7 +209,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
 
             lazy val result: WSResponse = {
               authoriseAgentOrIndividual(user.isAgent)
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
             }
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -233,7 +232,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
 
             lazy val result: WSResponse = {
               authoriseAgentOrIndividual(user.isAgent)
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
             }
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)

@@ -99,7 +99,7 @@ class OtherUkDividendsAmountController @Inject()(
   }
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, DIVIDENDS)).async { implicit user =>
-    dividendsSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
+      dividendsSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
       val previousAmount: Option[BigDecimal] = cya.flatMap(_.otherUkDividendsAmount)
 
       form(user.isAgent, taxYear).bindFromRequest().fold(

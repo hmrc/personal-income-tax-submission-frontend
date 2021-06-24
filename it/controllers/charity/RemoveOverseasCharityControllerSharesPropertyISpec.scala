@@ -19,7 +19,6 @@ package controllers.charity
 import forms.YesNoForm
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.WSResponse
 import utils.{IntegrationTest, ViewHelpers}
@@ -93,7 +92,7 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
         "render the page with correct content" which {
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
-            urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+            urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
           }
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -128,7 +127,7 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
 
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
-            urlPost(url, body = form, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+            urlPost(url, body = form, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
           }
 
           result.status shouldBe OK
@@ -141,7 +140,7 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
 
             lazy val result: WSResponse = {
               authoriseAgentOrIndividual(user.isAgent)
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
             }
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)

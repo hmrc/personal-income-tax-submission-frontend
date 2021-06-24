@@ -19,7 +19,6 @@ package controllers.charity
 import forms.YesNoForm
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import play.api.http.HeaderNames
 import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.libs.ws.WSResponse
 import utils.{IntegrationTest, ViewHelpers}
@@ -130,7 +129,7 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
         "render the page with correct content with single charity" which {
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
-            urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+            urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
           }
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -166,7 +165,7 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
 
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
-            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
           }
 
           result.status shouldBe SEE_OTHER
@@ -179,7 +178,7 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
 
             lazy val result: WSResponse = {
               authoriseAgentOrIndividual(user.isAgent)
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
             }
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)

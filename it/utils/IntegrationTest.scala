@@ -28,9 +28,10 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.http.HeaderNames
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import play.api.libs.ws.WSClient
+import play.api.libs.ws.{BodyWritable, WSClient, WSRequest, WSResponse}
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.OK
@@ -43,6 +44,7 @@ import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.authErrorPages.AgentAuthErrorPageView
+
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
 
@@ -157,13 +159,6 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     )) and Some(AffinityGroup.Individual) and ConfidenceLevel.L200
   )
 
-  def playSessionCookies(taxYear: Int, extraData: Map[String, String] = Map()): String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-    SessionValues.TAX_YEAR -> taxYear.toString,
-    SessionKeys.sessionId -> sessionId,
-    SessionValues.CLIENT_NINO -> "AA123456A",
-    SessionValues.CLIENT_MTDITID -> "1234567890"
-  ) ++ extraData)
-
   def userDataStub(userData: IncomeSourcesModel, nino: String, taxYear: Int): StubMapping ={
     stubGetWithHeadersCheck(
       s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", OK,
@@ -177,5 +172,21 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   def emptyUserDataStub(): StubMapping = {
     //noinspection ScalaStyle
     userDataStub(IncomeSourcesModel(), nino, 2022)
+  }
+
+
+  def playSessionCookie(agent: Boolean=false, extraData: Map[String, String]=Map.empty): Seq[(String, String)] = {
+
+    {
+      if (agent) {
+        Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(extraData ++ Map(
+          SessionValues.CLIENT_NINO -> "AA123456A",
+          SessionValues.CLIENT_MTDITID -> mtditid))
+        )
+      } else {
+        Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(extraData), "mtditid" -> mtditid)
+      }
+    } ++
+      Seq(xSessionId)
   }
 }

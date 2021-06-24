@@ -16,162 +16,366 @@
 
 package controllers.dividends
 
-import common.SessionValues
-import connectors.DividendsSubmissionConnector
-import helpers.PlaySessionCookieBaker
-import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, DividendsSubmissionModel}
-import models.mongo.DividendsUserDataModel
+import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import models.priorDataModels.IncomeSourcesModel
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import play.api.http.Status._
-import play.api.libs.ws.{WSClient, WSResponse}
-import play.mvc.Http.HeaderNames
-import utils.{DividendsDatabaseHelper, IntegrationTest}
+import play.api.libs.ws.WSResponse
+import utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 
-class DividendsCYAControllerISpec extends IntegrationTest with DividendsDatabaseHelper {
 
-  val connector: DividendsSubmissionConnector = app.injector.instanceOf[DividendsSubmissionConnector]
+class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with DividendsDatabaseHelper {
 
   val taxYear = 2022
-
-  val dividends: BigDecimal = 10
+  val ukDividends: BigDecimal = 10
+  val otherDividends: BigDecimal = 10.50
   val dividendsCheckYourAnswersUrl = s"$appUrl/$taxYear/dividends/check-income-from-dividends"
 
-  lazy val dividendsBody: DividendsSubmissionModel = DividendsSubmissionModel(
-    Some(dividends),
-    Some(dividends)
+  val changeUkDividendsHref = "/income-through-software/return/personal-income/2022/dividends/dividends-from-uk-companies"
+  val changeUkDividendsAmountHref = "/income-through-software/return/personal-income/2022/dividends/how-much-dividends-from-uk-companies"
+  val changeOtherDividendsHref = "/income-through-software/return/personal-income/2022/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
+  val changeOtherDividendsAmountHref: String = "/income-through-software/return/personal-income/2022/dividends" +
+    "/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
+
+
+  lazy val dividendsCyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(
+    Some(true), Some(ukDividends),
+    Some(true), Some(otherDividends)
   )
+  lazy val dividendsNoModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(Some(false), None, Some(false))
 
-  val firstAmount = 10
-  val secondAmount = 20
-  val successResponseCode = 204
-  val internalServerErrorResponse = 500
-  val serviceUnavailableResponse = 503
-  val individualAffinityGroup: String = "Individual"
-
-  val fullDividendsNino = "AA000003A"
-
-  val priorData: IncomeSourcesModel = IncomeSourcesModel(
+  lazy val priorData: IncomeSourcesModel = IncomeSourcesModel(
     dividends = Some(DividendsPriorSubmission(
-      Some(firstAmount),
-      Some(firstAmount)
+      Some(ukDividends),
+      Some(otherDividends)
     ))
   )
 
-  val priorDataEmpty: IncomeSourcesModel = IncomeSourcesModel()
+
+  object Selectors {
+    def cyaTitle(i: Int): String = s"#main-content > div > div > dl > div:nth-child($i) > dt"
+
+    def cyaValue(i: Int): String = s"#main-content > div > div > dl > div:nth-child($i) > dd.govuk-summary-list__value"
+
+    def cyaChangeLink(i: Int): String = s"#main-content > div > div > dl > div:nth-child($i) > dd.govuk-summary-list__actions > a"
+
+    val captionSelector = "#main-content > div > div > h1 > span"
+    val continueButtonSelector = "#continue"
+    val continueButtonFormSelector = "#main-content > div > div > form"
+  }
+
+  trait SpecificExpectedResults {
+    val titleExpected: String
+    val h1Expected: String
+    val expectedErrorTitle: String
+
+    val changeUkDividendsHiddenText: String
+    val changeUkDividendsAmountHiddenText: String
+    val changeOtherDividendsHiddenText: String
+    val changeOtherDividendsAmountHiddenText: String
+  }
+
+  trait CommonExpectedResults {
+    val captionExpected: String
+    val yesNoExpectedAnswer: Boolean => String
+    val ukDividendsAmount: String
+    val otherDividendsAmount: String
+    val continueButtonText: String
+    val continueButtonLink: String
+    val changeLinkExpected: String
+    val UkDividendsText: String
+    val ukDividendsAmountText: String
+    val otherDividendsText: String
+    val otherDividendsAmountText: String
+  }
+
+
+  object IndividualExpectedEnglish extends SpecificExpectedResults {
+    val titleExpected = "Check your income from dividends"
+    val h1Expected = "Check your income from dividends"
+    val expectedErrorTitle = s"Error: $titleExpected"
+
+    val changeUkDividendsHiddenText = "if you got dividends from UK-based companies."
+    val changeUkDividendsAmountHiddenText = "how much you got from UK-based companies."
+    val changeOtherDividendsHiddenText = "if you got dividends from trusts or open-ended investment companies based in the UK."
+    val changeOtherDividendsAmountHiddenText = "how much you got in dividends from trusts or open-ended investment companies based in the UK."
+  }
+
+  object AgentExpectedEnglish extends SpecificExpectedResults {
+    val titleExpected = "Check your client’s income from dividends"
+    val h1Expected = "Check your client’s income from dividends"
+    val expectedErrorTitle = s"Error: $titleExpected"
+
+    val changeUkDividendsHiddenText = "if your client got dividends from UK-based companies."
+    val changeUkDividendsAmountHiddenText = "how much your client got from UK-based companies."
+    val changeOtherDividendsHiddenText = "if your client got dividends from trusts or open-ended investment companies based in the UK."
+    val changeOtherDividendsAmountHiddenText = "how much your client got in dividends from trusts or open-ended investment companies based in the UK."
+  }
+
+  object AllExpectedEnglish extends CommonExpectedResults {
+    val captionExpected = s"Dividends for 6 April ${taxYear - 1} to 5 April $taxYear"
+    val yesNoExpectedAnswer: Boolean => String = isYes => if (isYes) "Yes" else "No"
+    val ukDividendsAmount = "£10"
+    val otherDividendsAmount = "£10.50"
+    val continueButtonText = "Save and continue"
+    val continueButtonLink = "/income-through-software/return/personal-income/2022/dividends/check-income-from-dividends"
+    val changeLinkExpected = "Change"
+    val UkDividendsText = "Dividends from UK-based companies"
+    val ukDividendsAmountText = "Value of dividends from UK-based companies"
+    val otherDividendsText = "Dividends from UK-based unit trusts or open-ended investment companies"
+    val otherDividendsAmountText = "Value of dividends from UK-based unit trusts or open-ended investment companies"
+  }
+
+  object IndividualExpectedWelsh extends SpecificExpectedResults {
+    val titleExpected = "Check your income from dividends"
+    val h1Expected = "Check your income from dividends"
+    val expectedErrorTitle = s"Error: $titleExpected"
+
+    val changeUkDividendsHiddenText = "if you got dividends from UK-based companies."
+    val changeUkDividendsAmountHiddenText = "how much you got from UK-based companies."
+    val changeOtherDividendsHiddenText = "if you got dividends from trusts or open-ended investment companies based in the UK."
+    val changeOtherDividendsAmountHiddenText = "how much you got in dividends from trusts or open-ended investment companies based in the UK."
+  }
+
+  object AgentExpectedWelsh extends SpecificExpectedResults {
+    val titleExpected = "Check your client’s income from dividends"
+    val h1Expected = "Check your client’s income from dividends"
+    val expectedErrorTitle = s"Error: $titleExpected"
+
+    val changeUkDividendsHiddenText = "if your client got dividends from UK-based companies."
+    val changeUkDividendsAmountHiddenText = "how much your client got from UK-based companies."
+    val changeOtherDividendsHiddenText = "if your client got dividends from trusts or open-ended investment companies based in the UK."
+    val changeOtherDividendsAmountHiddenText = "how much your client got in dividends from trusts or open-ended investment companies based in the UK."
+  }
+
+  object AllExpectedWelsh extends CommonExpectedResults {
+    val captionExpected = s"Dividends for 6 April ${taxYear - 1} to 5 April $taxYear"
+    val yesNoExpectedAnswer: Boolean => String = isYes => if (isYes) "Yes" else "No"
+    val ukDividendsAmount = "£10"
+    val otherDividendsAmount = "£10.50"
+    val continueButtonText = "Save and continue"
+    val continueButtonLink = "/income-through-software/return/personal-income/2022/dividends/check-income-from-dividends"
+    val changeLinkExpected = "Change"
+    val UkDividendsText = "Dividends from UK-based companies"
+    val ukDividendsAmountText = "Value of dividends from UK-based companies"
+    val otherDividendsText = "Dividends from UK-based unit trusts or open-ended investment companies"
+    val otherDividendsAmountText = "Value of dividends from UK-based unit trusts or open-ended investment companies"
+  }
+
+
+  val userScenarios =
+    Seq(UserScenario(isWelsh = false, isAgent = false, AllExpectedEnglish, Some(IndividualExpectedEnglish)),
+      UserScenario(isWelsh = false, isAgent = true,AllExpectedEnglish, Some(AgentExpectedEnglish)),
+      UserScenario(isWelsh = true, isAgent = false, AllExpectedWelsh, Some(IndividualExpectedWelsh)),
+      UserScenario(isWelsh = true, isAgent = true,  AllExpectedWelsh, Some(AgentExpectedWelsh)))
+
+  ".show" when {
+
+
+    userScenarios.foreach { us =>
+
+      import Selectors._
+      import us.commonExpectedResults._
+      import us.specificExpectedResults._
+
+      s"language is ${welshTest(us.isWelsh)} and request is from an ${agentTest(us.isAgent)}" should {
+
+
+        " renders CYA page with correct content when there is data in session" which {
+
+          lazy val result = {
+            authoriseAgentOrIndividual(us.isAgent)
+            dropDividendsDB()
+            emptyUserDataStub()
+            insertCyaData(Some(dividendsCyaModel))
+            urlGet(dividendsCheckYourAnswersUrl, us.isWelsh, false, headers =
+              playSessionCookie(us.isAgent))
+          }
+
+          s"has an OK($OK) status" in {
+            result.status shouldBe OK
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+
+          titleCheck(get.titleExpected)
+          h1Check(get.h1Expected + " " + captionExpected)
+          textOnPageCheck(captionExpected, Selectors.captionSelector)
+          "has an area for section 1" which {
+            textOnPageCheck(UkDividendsText, Selectors.cyaTitle(1))
+            textOnPageCheck(yesNoExpectedAnswer(true), Selectors.cyaValue(1))
+            linkCheck(s"${changeLinkExpected} ${get.changeUkDividendsHiddenText}"
+              , cyaChangeLink(1), changeUkDividendsHref)
+          }
+          "has an area for section 2" which {
+            textOnPageCheck(ukDividendsAmountText, cyaTitle(2))
+            textOnPageCheck(ukDividendsAmount, cyaValue(2))
+            linkCheck(s"${changeLinkExpected} ${get.changeUkDividendsAmountHiddenText}",
+              cyaChangeLink(2), changeUkDividendsAmountHref)
+          }
+          "has an area for section 3" which {
+            textOnPageCheck(otherDividendsText, cyaTitle(3))
+            textOnPageCheck(yesNoExpectedAnswer(true), cyaValue(3))
+            linkCheck(s"${changeLinkExpected} ${get.changeOtherDividendsHiddenText}",
+              cyaChangeLink(3), changeOtherDividendsHref)
+          }
+          //noinspection ScalaStyle
+          "has an area for section 4" which {
+            textOnPageCheck(otherDividendsAmountText, cyaTitle(4))
+            textOnPageCheck(otherDividendsAmount, cyaValue(4))
+            linkCheck(s"${changeLinkExpected} ${get.changeOtherDividendsAmountHiddenText}",
+              cyaChangeLink(4), changeOtherDividendsAmountHref)
+          }
+
+          buttonCheck(continueButtonText, continueButtonSelector)
+          formPostLinkCheck(continueButtonLink, continueButtonFormSelector)
+
+          welshToggleCheck(us.isWelsh)
+
+        }
+
+
+        "renders CYA page without yesNo Content when there is a prior submission" which {
+
+          lazy val result = {
+            authoriseAgentOrIndividual(us.isAgent)
+            dropDividendsDB()
+            emptyUserDataStub()
+            userDataStub(priorData, nino, taxYear)
+            urlGet(dividendsCheckYourAnswersUrl, us.isWelsh, headers =
+              playSessionCookie(us.isAgent))
+          }
+
+          s"has an OK($OK) status" in {
+            result.status shouldBe OK
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+          titleCheck(get.titleExpected)
+          h1Check(get.h1Expected + " " + captionExpected)
+          textOnPageCheck(captionExpected, Selectors.captionSelector)
+          "has an area for section 1" which {
+            textOnPageCheck(ukDividendsAmountText, cyaTitle(1))
+            textOnPageCheck(ukDividendsAmount, cyaValue(1))
+            linkCheck(s"${changeLinkExpected} ${get.changeUkDividendsAmountHiddenText}",
+              cyaChangeLink(1), changeUkDividendsAmountHref)
+          }
+          "has an area for section 2" which {
+            textOnPageCheck(otherDividendsAmountText, cyaTitle(2))
+            textOnPageCheck(otherDividendsAmount, cyaValue(2))
+            linkCheck(s"${changeLinkExpected} ${get.changeOtherDividendsAmountHiddenText}",
+              cyaChangeLink(2), changeOtherDividendsAmountHref)
+          }
+
+          buttonCheck(continueButtonText, continueButtonSelector)
+          formPostLinkCheck(continueButtonLink, continueButtonFormSelector)
+
+          welshToggleCheck(us.isWelsh)
+        }
+
+        "renders CYA page without amount when cyaModels boolean answers are false" which {
+
+          lazy val result = {
+            authoriseAgentOrIndividual(us.isAgent)
+            dropDividendsDB()
+            emptyUserDataStub()
+            insertCyaData(Some(dividendsNoModel))
+            urlGet(dividendsCheckYourAnswersUrl, us.isWelsh, headers =
+              playSessionCookie(us.isAgent))
+          }
+
+
+          s"has an OK($OK) status" in {
+            result.status shouldBe OK
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+          titleCheck(get.titleExpected)
+          h1Check(get.h1Expected + " " + captionExpected)
+          textOnPageCheck(captionExpected, Selectors.captionSelector)
+          "has an area for section 1" which {
+            textOnPageCheck(UkDividendsText, cyaTitle(1))
+            textOnPageCheck(yesNoExpectedAnswer(false), cyaValue(1))
+            linkCheck(s"${changeLinkExpected} ${get.changeUkDividendsHiddenText}",
+              cyaChangeLink(1), changeUkDividendsHref)
+          }
+          "has an area for section 2" which {
+            textOnPageCheck(otherDividendsText, cyaTitle(2))
+            textOnPageCheck(yesNoExpectedAnswer(false), cyaValue(2))
+            linkCheck(s"${changeLinkExpected} ${get.changeOtherDividendsHiddenText}",
+              cyaChangeLink(2), changeOtherDividendsHref)
+          }
+
+          buttonCheck(continueButtonText, continueButtonSelector)
+          formPostLinkCheck(continueButtonLink, continueButtonFormSelector)
+
+          welshToggleCheck(us.isWelsh)
+        }
+
+        "renders CYA with new amounts if they have been updated in session compared to prior submission" which {
+
+          val ukDividends1 = 100
+          val otherDividends1 = 200
+
+          lazy val result: WSResponse = {
+            authoriseAgentOrIndividual(us.isAgent)
+            dropDividendsDB()
+            emptyUserDataStub()
+            userDataStub(priorData, nino, taxYear)
+            insertCyaData(Some(DividendsCheckYourAnswersModel(
+              Some(true), Some(ukDividends1),
+              Some(true), Some(otherDividends1)
+            )))
+            urlGet(dividendsCheckYourAnswersUrl, us.isWelsh, headers =
+              playSessionCookie(us.isAgent))
+          }
+
+          s"has an OK($OK) status" in {
+            result.status shouldBe OK
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+          titleCheck(get.titleExpected)
+          h1Check(get.h1Expected + " " + captionExpected)
+          textOnPageCheck(captionExpected, Selectors.captionSelector)
+          "has an area for section 1" which {
+            textOnPageCheck(ukDividendsAmountText, cyaTitle(1))
+            textOnPageCheck("£100", cyaValue(1))
+            linkCheck(s"${changeLinkExpected} ${get.changeUkDividendsAmountHiddenText}",
+              cyaChangeLink(1), changeUkDividendsAmountHref)
+          }
+          "has an area for section 2" which {
+            textOnPageCheck(otherDividendsAmountText, cyaTitle(2))
+            textOnPageCheck("£200", cyaValue(2))
+            linkCheck(s"${changeLinkExpected} ${get.changeOtherDividendsAmountHiddenText}",
+              cyaChangeLink(2), changeOtherDividendsAmountHref)
+          }
+
+          buttonCheck(continueButtonText, continueButtonSelector)
+          formPostLinkCheck(continueButtonLink, continueButtonFormSelector)
+
+          welshToggleCheck(us.isWelsh)
+        }
+      }
+    }
+  }
 
   ".show" should {
 
-    s"return an OK($OK)" when {
-
-      "there is CYA session data and prior submission data" in {
-        dropDividendsDB()
-
-        await(dividendsDatabase.create(DividendsUserDataModel(
-          sessionId, mtditid, fullDividendsNino, taxYear,
-          Some(DividendsCheckYourAnswersModel(
-            Some(true), Some(1000.09),
-            Some(true), Some(1234.31)
-          ))
-        )))
-
-        val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.TAX_YEAR -> taxYear.toString
-        ))
-
-        val result: WSResponse = {
-          authoriseIndividual(Some(fullDividendsNino))
-          userDataStub(priorData, fullDividendsNino, taxYear)
-          await(wsClient.url(dividendsCheckYourAnswersUrl)
-            .withHttpHeaders(
-              xSessionId,
-              "mtditid" -> mtditid,
-              csrfContent,
-              HeaderNames.COOKIE -> playSessionCookie
-            )
-            .get())
-        }
-
-        result.status shouldBe OK
-      }
-
-      "there is CYA session data and no prior submission data" in {
-        dropDividendsDB()
-
-        await(dividendsDatabase.create(DividendsUserDataModel(
-          sessionId, mtditid, fullDividendsNino, taxYear,
-          Some(DividendsCheckYourAnswersModel(
-            Some(true), Some(1000.09),
-            Some(true), Some(1234.31)
-          ))
-        )))
-
-        val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.TAX_YEAR -> taxYear.toString
-        ))
-
-        val result: WSResponse = {
-          authoriseIndividual(Some(fullDividendsNino))
-          userDataStub(IncomeSourcesModel(), fullDividendsNino, taxYear)
-          await(wsClient.url(dividendsCheckYourAnswersUrl)
-            .withHttpHeaders(
-              xSessionId,
-              "mtditid" -> mtditid,
-              csrfContent,
-              HeaderNames.COOKIE -> playSessionCookie
-            )
-            .get())
-        }
-
-        result.status shouldBe OK
-      }
-
-      "there is prior submission data and no CYA session data" in {
-        dropDividendsDB()
-
-        val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.TAX_YEAR -> taxYear.toString
-        ))
-
-        val result: WSResponse = {
-          authoriseIndividual(Some("AA112233B"))
-          userDataStub(priorData, "AA112233B", taxYear)
-          await(wsClient.url(dividendsCheckYourAnswersUrl)
-            .withHttpHeaders(
-              xSessionId,
-              "mtditid" -> mtditid,
-              csrfContent,
-              HeaderNames.COOKIE -> playSessionCookie
-            )
-            .get())
-        }
-
-        result.status shouldBe OK
-      }
-
-    }
-
     "redirect to the overview page" when {
-
       "there is no session data" in {
-        dropDividendsDB()
-
-        val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.TAX_YEAR -> taxYear.toString
-        ))
 
         val result: WSResponse = {
-          authoriseIndividual(Some("AA119293B"))
-          userDataStub(IncomeSourcesModel(), "AA119293B", taxYear)
+          authoriseIndividual()
+          dropDividendsDB()
+          emptyUserDataStub()
           stubGet("/income-through-software/return/2022/view", SEE_OTHER, "overview")
-          await(wsClient.url(dividendsCheckYourAnswersUrl)
-            .withHttpHeaders(
-              xSessionId,
-              "mtditid" -> mtditid,
-              csrfContent,
-              HeaderNames.COOKIE -> playSessionCookie
-            )
-            .withFollowRedirects(false)
-            .get())
+          urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie())
         }
 
         result.status shouldBe SEE_OTHER
@@ -179,36 +383,21 @@ class DividendsCYAControllerISpec extends IntegrationTest with DividendsDatabase
 
     }
 
-    "redirect the user to the most relevant page if journey has not been completed" when {
+    "redirect the user to the most relevant page in the user journey if CYA is part completed" should {
 
-      "up to receive UK Dividends is filled in" when {
+      "Uk dividends yesNo question has been answered" when {
 
-        "the answer is Yes" which {
-          lazy val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.TAX_YEAR -> taxYear.toString
-          ))
+        "redirect to How much Uk dividends page if the answer is Yes" which {
 
           lazy val result: WSResponse = {
+            authoriseIndividual()
             dropDividendsDB()
-
-            await(dividendsDatabase.create(DividendsUserDataModel(
-              sessionId, mtditid, fullDividendsNino, taxYear,
-              Some(DividendsCheckYourAnswersModel(
-                Some(true)
-              ))
+            emptyUserDataStub()
+            insertCyaData(Some(DividendsCheckYourAnswersModel(
+              Some(true)
             )))
 
-            authoriseIndividual(Some(fullDividendsNino))
-            userDataStub(priorDataEmpty, fullDividendsNino, taxYear)
-            await(wsClient.url(dividendsCheckYourAnswersUrl)
-              .withHttpHeaders(
-                xSessionId,
-                "mtditid" -> mtditid,
-                csrfContent,
-                HeaderNames.COOKIE -> playSessionCookie
-              )
-              .withFollowRedirects(false)
-              .get())
+            urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie())
           }
 
           s"has a status of 303" in {
@@ -220,32 +409,16 @@ class DividendsCYAControllerISpec extends IntegrationTest with DividendsDatabase
           }
         }
 
-        "the answer is No" which {
-          lazy val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.TAX_YEAR -> taxYear.toString
-          ))
+        "redirect the user to Did you receive other dividends page if the the answer is No" which {
 
           lazy val result: WSResponse = {
+            authoriseIndividual()
             dropDividendsDB()
-
-            await(dividendsDatabase.create(DividendsUserDataModel(
-              sessionId, mtditid, fullDividendsNino, taxYear,
-              Some(DividendsCheckYourAnswersModel(
-                Some(false)
-              ))
+            emptyUserDataStub()
+            insertCyaData(Some(DividendsCheckYourAnswersModel(
+              Some(false)
             )))
-
-            authoriseIndividual(Some(fullDividendsNino))
-            userDataStub(priorDataEmpty, fullDividendsNino, taxYear)
-            await(wsClient.url(dividendsCheckYourAnswersUrl)
-              .withHttpHeaders(
-                xSessionId,
-                "mtditid" -> mtditid,
-                csrfContent,
-                HeaderNames.COOKIE -> playSessionCookie
-              )
-              .withFollowRedirects(false)
-              .get())
+            urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie())
           }
 
           s"has a status of 303" in {
@@ -259,32 +432,15 @@ class DividendsCYAControllerISpec extends IntegrationTest with DividendsDatabase
         }
       }
 
-      "up to UK Dividends Amount is filled in" which {
-        lazy val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.TAX_YEAR -> taxYear.toString
-        ))
-
+      "redirect the user to Did you receive other dividends page if Uk dividends amount has cya data" which {
         lazy val result: WSResponse = {
+          authoriseIndividual()
           dropDividendsDB()
-
-          await(dividendsDatabase.create(DividendsUserDataModel(
-            sessionId, mtditid, fullDividendsNino, taxYear,
-            Some(DividendsCheckYourAnswersModel(
-              Some(true), Some(1000.43)
-            ))
+          emptyUserDataStub()
+          insertCyaData(Some(DividendsCheckYourAnswersModel(
+            Some(true), Some(1000.43)
           )))
-
-          authoriseIndividual(Some(fullDividendsNino))
-          userDataStub(priorDataEmpty, fullDividendsNino, taxYear)
-          await(wsClient.url(dividendsCheckYourAnswersUrl)
-            .withHttpHeaders(
-              xSessionId,
-              "mtditid" -> mtditid,
-              csrfContent,
-              HeaderNames.COOKIE -> playSessionCookie
-            )
-            .withFollowRedirects(false)
-            .get())
+          urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie())
         }
 
         s"has a status of 303" in {
@@ -297,32 +453,16 @@ class DividendsCYAControllerISpec extends IntegrationTest with DividendsDatabase
         }
       }
 
-      "up to Receive Other UK Dividends is filled in" which {
-        lazy val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.TAX_YEAR -> taxYear.toString
-        ))
-
+      "redirect to How much did you receive in other dividends if Did you receive other dividends has been answered yes" which {
         lazy val result: WSResponse = {
+          authoriseIndividual()
           dropDividendsDB()
-
-          await(dividendsDatabase.create(DividendsUserDataModel(
-            sessionId, mtditid, fullDividendsNino, taxYear,
-            Some(DividendsCheckYourAnswersModel(
-              Some(true), Some(1000.43), Some(true)
-            ))
+          emptyUserDataStub()
+          insertCyaData(Some(DividendsCheckYourAnswersModel(
+            Some(true), Some(1000.43), Some(true)
           )))
 
-          authoriseIndividual(Some(fullDividendsNino))
-          userDataStub(priorDataEmpty, fullDividendsNino, taxYear)
-          await(wsClient.url(dividendsCheckYourAnswersUrl)
-            .withHttpHeaders(
-              xSessionId,
-              "mtditid" -> mtditid,
-              csrfContent,
-              HeaderNames.COOKIE -> playSessionCookie
-            )
-            .withFollowRedirects(false)
-            .get())
+          urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie())
         }
 
         s"has a status of 303" in {
@@ -333,169 +473,83 @@ class DividendsCYAControllerISpec extends IntegrationTest with DividendsDatabase
           result.headers("Location").head shouldBe
             "/income-through-software/return/personal-income/2022/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
         }
-
-      }
-
-    }
-
-    "Redirect to the tax year error " when {
-
-      "an invalid tax year has been added to the url" which {
-        lazy val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.TAX_YEAR -> taxYear.toString
-        ))
-
-        lazy val result: WSResponse = {
-          dropDividendsDB()
-
-          await(dividendsDatabase.create(DividendsUserDataModel(
-            sessionId, mtditid, fullDividendsNino, taxYear,
-            Some(DividendsCheckYourAnswersModel(
-              Some(true), Some(1000.43), Some(true), Some(9983.21)
-            ))
-          )))
-
-          authoriseIndividual(Some(fullDividendsNino))
-          userDataStub(priorDataEmpty, fullDividendsNino, taxYear)
-          await(wsClient.url(s"$appUrl/2004/dividends/check-income-from-dividends")
-            .withHttpHeaders(
-              xSessionId,
-              "mtditid" -> mtditid,
-              csrfContent,
-              HeaderNames.COOKIE -> playSessionCookie
-            )
-            .withFollowRedirects(false)
-            .get())
-        }
-
-        s"has a status of 303" in {
-          result.status shouldBe SEE_OTHER
-        }
-
-        "has the correct title" in {
-          result.headers("Location").head shouldBe
-            "/income-through-software/return/personal-income/error/wrong-tax-year"
-        }
       }
     }
+    "the authorization fails" which {
+      lazy val result = {
+        authoriseAgentUnauthorized()
+        stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
+        urlGet(dividendsCheckYourAnswersUrl)
+      }
 
+      s"has an Unauthorised($UNAUTHORIZED) status" in {
+        result.status shouldBe UNAUTHORIZED
+      }
+    }
   }
 
   ".submit" should {
 
-    "redirect to the overview page" when {
+    "redirect to the overview page when there is valid session data" when {
 
-      "there is session data " which {
-        lazy val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.TAX_YEAR -> taxYear.toString
-        ))
-
-        lazy val result: WSResponse = {
-          dropDividendsDB()
-
-          await(dividendsDatabase.create(DividendsUserDataModel(
-            sessionId, mtditid, fullDividendsNino, taxYear,
-            Some(DividendsCheckYourAnswersModel(
-              Some(true), Some(1000.43), Some(true), Some(9983.21)
-            ))
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        dropDividendsDB()
+        emptyUserDataStub()
+        insertCyaData(
+          Some(DividendsCheckYourAnswersModel(
+            Some(true), Some(1000.43), Some(true), Some(9983.21)
           )))
+        stubPut("/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=2022", NO_CONTENT, "")
+        urlPost(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie(), body = "")
+      }
+      s"has a status of 303" in {
+        result.status shouldBe SEE_OTHER
+      }
 
-          authoriseIndividual(Some(fullDividendsNino))
-          userDataStub(priorDataEmpty, fullDividendsNino, taxYear)
-          stubPut("/income-tax-dividends/income-tax/nino/AA000003A/sources\\?taxYear=2022", NO_CONTENT, "")
-          await(wsClient.url(dividendsCheckYourAnswersUrl)
-            .withHttpHeaders(
-              xSessionId,
-              "mtditid" -> mtditid,
-              csrfContent,
-              HeaderNames.COOKIE -> playSessionCookie
-            )
-            .withFollowRedirects(false)
-            .post(""))
-        }
-
-        s"has a status of 303" in {
-          result.status shouldBe SEE_OTHER
-        }
-
-        "has the correct title" in {
-          result.headers("Location").head shouldBe
-            "http://localhost:11111/income-through-software/return/2022/view"
-        }
+      "has the correct title" in {
+        result.headers("Location").head shouldBe
+          "http://localhost:11111/income-through-software/return/2022/view"
       }
     }
 
-    "there is an error posting downstream" should {
+    "redirect to the 500 unauthorised error template page when there is a problem posting data" should {
 
-      "redirect to the 500 unauthorised error template page when there is a problem posting data" which {
-        lazy val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.TAX_YEAR -> taxYear.toString
-        ))
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        dropDividendsDB()
+        emptyUserDataStub()
 
-        lazy val result: WSResponse = {
-          dropDividendsDB()
-
-          await(dividendsDatabase.create(DividendsUserDataModel(
-            sessionId, mtditid, fullDividendsNino, taxYear,
-            Some(DividendsCheckYourAnswersModel(
-              Some(true), Some(1000.43), Some(true), Some(9983.21)
-            ))
+        insertCyaData(
+          Some(DividendsCheckYourAnswersModel(
+            Some(true), Some(1000.43), Some(true), Some(9983.21)
           )))
-
-          authoriseIndividual(Some(fullDividendsNino))
-          userDataStub(priorDataEmpty, fullDividendsNino, taxYear)
-          stubPut("/income-tax-dividends/income-tax/nino/AA000003A/sources\\?taxYear=2022", INTERNAL_SERVER_ERROR, "")
-          await(wsClient.url(dividendsCheckYourAnswersUrl)
-            .withHttpHeaders(
-              xSessionId,
-              "mtditid" -> mtditid,
-              csrfContent,
-              HeaderNames.COOKIE -> playSessionCookie
-            )
-            .withFollowRedirects(false)
-            .post(""))
-        }
-
-        s"has a status of 303" in {
-          result.status shouldBe INTERNAL_SERVER_ERROR
-        }
+        stubPut("/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=2022", INTERNAL_SERVER_ERROR, "")
+        urlPost(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie(), body = "")
       }
 
-      "redirect to the 503 service unavailable page when the service is unavailable" which {
-        lazy val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.TAX_YEAR -> taxYear.toString
-        ))
-
-        lazy val result: WSResponse = {
-          dropDividendsDB()
-
-          await(dividendsDatabase.create(DividendsUserDataModel(
-            sessionId, mtditid, fullDividendsNino, taxYear,
-            Some(DividendsCheckYourAnswersModel(
-              Some(true), Some(1000.43), Some(true), Some(9983.21)
-            ))
-          )))
-
-          authoriseIndividual(Some(fullDividendsNino))
-          userDataStub(priorDataEmpty, fullDividendsNino, taxYear)
-          stubPut("/income-tax-dividends/income-tax/nino/AA000003A/sources\\?taxYear=2022", SERVICE_UNAVAILABLE, "")
-          await(wsClient.url(dividendsCheckYourAnswersUrl)
-            .withHttpHeaders(
-              xSessionId,
-              "mtditid" -> mtditid,
-              csrfContent,
-              HeaderNames.COOKIE -> playSessionCookie
-            )
-            .withFollowRedirects(false)
-            .post(""))
-        }
-
-        s"has a status of 303" in {
-          result.status shouldBe SERVICE_UNAVAILABLE
-        }
+      "has a status of 500" in {
+        result.status shouldBe INTERNAL_SERVER_ERROR
       }
     }
 
+    "redirect to the 503 service unavailable page when the service is unavailable" which {
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        dropDividendsDB()
+        emptyUserDataStub()
+
+        insertCyaData(
+          Some(DividendsCheckYourAnswersModel(
+            Some(true), Some(1000.43), Some(true), Some(9983.21)
+          )))
+        stubPut("/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=2022", SERVICE_UNAVAILABLE, "")
+        urlPost(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie(), body = "")
+      }
+
+      "has a status of 503" in {
+        result.status shouldBe SERVICE_UNAVAILABLE
+      }
+    }
   }
-
 }

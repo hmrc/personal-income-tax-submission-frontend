@@ -73,6 +73,8 @@ class UkDividendsAmountController @Inject()(
 
   }
 
+
+
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
     implicit val questionsJourney: QuestionsJourney[DividendsCheckYourAnswersModel] = DividendsCheckYourAnswersModel.journey(taxYear)
 
@@ -98,6 +100,7 @@ class UkDividendsAmountController @Inject()(
   }
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, DIVIDENDS)).async { implicit user =>
+
     dividendsSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (optionalCya, optionalPrior) =>
       form(user.isAgent, taxYear).bindFromRequest().fold(
         {
@@ -108,13 +111,7 @@ class UkDividendsAmountController @Inject()(
         {
           bigDecimal =>
             optionalCya.fold {
-              dividendsSessionService.createSessionData(
-                DividendsCheckYourAnswersModel().copy(ukDividends = Some(true), ukDividendsAmount = Some(bigDecimal)), taxYear
-              )(
-                InternalServerError(errorHandler.internalServerErrorTemplate)
-              )(
-                Redirect(redirectLocation(taxYear, None)(optionalPrior))
-              )
+             Future(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
             } {
               cyaModel =>
                 dividendsSessionService.updateSessionData(cyaModel.copy(ukDividends = Some(true), ukDividendsAmount = Some(bigDecimal)), taxYear)(

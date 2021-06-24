@@ -19,7 +19,6 @@ package controllers.charity
 import forms.YesNoForm
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import play.api.http.HeaderNames
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.libs.ws.WSResponse
 import utils.{IntegrationTest, ViewHelpers}
@@ -110,7 +109,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
         "redirect to a correct URL when years don't match up" which {
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
-            urlGet(url(taxYear + 1), follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+            urlGet(url(taxYear + 1), follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
           }
 
           "has an SEE_OTHER status" in {
@@ -122,7 +121,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
         "render the page with correct content" which {
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
-            urlGet(url(taxYear), welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+            urlGet(url(taxYear), welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
           }
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -157,7 +156,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
 
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
-            urlPost(url(taxYear + 1), body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+            urlPost(url(taxYear + 1), body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
           }
 
           "has an SEE_OTHER status" in {
@@ -171,7 +170,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
 
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
-            urlPost(url(taxYear), body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+            urlPost(url(taxYear), body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
           }
 
           result.status shouldBe OK
@@ -183,7 +182,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
 
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
-            urlPost(url(taxYear), body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+            urlPost(url(taxYear), body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
           }
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)

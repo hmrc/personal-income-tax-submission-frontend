@@ -16,20 +16,16 @@
 
 package controllers.charity
 
-import common.SessionValues
-import forms.YesNoForm
-import helpers.PlaySessionCookieBaker
 import models.APIErrorBodyModel
 import models.charity.GiftAidCYAModel
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
 import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import play.api.http.HeaderNames
-import play.api.libs.ws.{WSClient, WSResponse}
-import utils.{GiftAidDatabaseHelper, IntegrationTest, ViewHelpers}
 import play.api.http.Status.{BAD_REQUEST, NO_CONTENT, OK, SEE_OTHER}
 import play.api.libs.json.Json
+import play.api.libs.ws.WSResponse
+import utils.{GiftAidDatabaseHelper, IntegrationTest, ViewHelpers}
 
 class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with GiftAidDatabaseHelper {
 
@@ -272,7 +268,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
             userDataStub(IncomeSourcesModel(), nino, taxYear)
 
             authoriseAgentOrIndividual(user.isAgent)
-            urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+            urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
           }
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -335,7 +331,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
                   ))
                 ))), nino, taxYear)
                 authoriseAgentOrIndividual(user.isAgent)
-                urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+                urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
               }
 
               implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -379,7 +375,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
                   ))
                 ))), nino, taxYear)
                 authoriseAgentOrIndividual(user.isAgent)
-                urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+                urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
               }
 
               implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -425,7 +421,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
               insertCyaData(None)
               userDataStub(IncomeSourcesModel(giftAid = Some(priorDataMax)), nino, taxYear)
               authoriseAgentOrIndividual(user.isAgent)
-              urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+              urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
             }
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -467,7 +463,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
               insertCyaData(Some(cyaDataMax))
 
               authoriseAgentOrIndividual(user.isAgent)
-              urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+              urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
             }
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -513,7 +509,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
               userDataStub(IncomeSourcesModel(), nino, taxYear)
 
               authoriseAgentOrIndividual(user.isAgent)
-              urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+              urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
             }
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -557,7 +553,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
               userDataStub(IncomeSourcesModel(), nino, taxYear)
 
               authoriseAgentOrIndividual(user.isAgent)
-              urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+              urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
             }
 
             "redirects to the correct url" in {
@@ -574,7 +570,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
               userDataStub(IncomeSourcesModel(), nino, taxYear)
 
               authoriseAgentOrIndividual(user.isAgent)
-              urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+              urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
             }
 
             "redirects to the correct url" in {
@@ -606,7 +602,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
               userDataStub(IncomeSourcesModel(), nino, taxYear)
 
               authoriseAgentOrIndividual(user.isAgent)
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
             }
 
             "the status is SEE OTHER" in {
@@ -626,7 +622,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
               userDataStub(IncomeSourcesModel(), nino, taxYear)
               authoriseAgentOrIndividual(user.isAgent)
               stubPost(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
             }
 
             "the status is SEE OTHER" in {
@@ -653,7 +649,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
                 BAD_REQUEST,
                 Json.toJson(APIErrorBodyModel("BAD_REQUEST", "Oh hey look, literally any error.")).toString()
               )
-              urlPost(url, body = form, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+              urlPost(url, body = form, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
             }
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
