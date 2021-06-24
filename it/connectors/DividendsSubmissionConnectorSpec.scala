@@ -39,7 +39,6 @@ class DividendsSubmissionConnectorSpec extends IntegrationTest{
     override lazy val dividendsBaseUrl: String = s"http://$host:$wiremockPort/income-tax-dividends"
   }
 
-
   val body =  DividendsSubmissionModel(
     Some(10),
     Some(10)
@@ -51,36 +50,37 @@ class DividendsSubmissionConnectorSpec extends IntegrationTest{
 
   "DividendsSubmissionConnectorSpec" should {
 
-      "include internal headers" when {
-        val headersSentToDividends = Seq(new HttpHeader(HeaderNames.xSessionId, "sessionIdValue"), new HttpHeader("mtditid", mtditid))
+    "include internal headers" when {
+      val headersSentToDividends = Seq(new HttpHeader(HeaderNames.xSessionId, "sessionIdValue"), new HttpHeader("mtditid", mtditid))
 
-        val internalHost = "localhost"
-        val externalHost = "127.0.0.1"
+      val internalHost = "localhost"
+      val externalHost = "127.0.0.1"
 
-        "the host for Dividends is 'Internal'" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("sessionIdValue"))).withExtraHeaders("mtditid"->mtditid)
-          val connector = new DividendsSubmissionConnector(httpClient, appConfig(internalHost))
+      "the host for Dividends is 'Internal'" in {
+        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("sessionIdValue"))).withExtraHeaders("mtditid"->mtditid)
+        val connector = new DividendsSubmissionConnector(httpClient, appConfig(internalHost))
 
-          stubPut(s"/income-tax-dividends/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}",
-            headersSentToDividends)
+        stubPut(s"/income-tax-dividends/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}",
+          headersSentToDividends)
 
-          val result: DividendsSubmissionsResponse = Await.result(connector.submitDividends(body, nino, taxYear)(hc), Duration.Inf)
+        val result: DividendsSubmissionsResponse = Await.result(connector.submitDividends(body, nino, taxYear)(hc), Duration.Inf)
 
-          result shouldBe Right(DividendsResponseModel(NO_CONTENT))
-        }
-        "the host for Dividends is 'External'" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("sessionIdValue"))).withExtraHeaders("mtditid"->mtditid)
-
-          val connector = new DividendsSubmissionConnector(httpClient, appConfig(externalHost))
-
-          stubPut(s"/income-tax-dividends/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}",
-            headersSentToDividends)
-
-          val result: DividendsSubmissionsResponse = Await.result(connector.submitDividends(body, nino, taxYear)(hc), Duration.Inf)
-
-          result shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("PARSING_ERROR", "Error parsing response from API")))
-        }
+        result shouldBe Right(DividendsResponseModel(NO_CONTENT))
       }
+      "the host for Dividends is 'External'" in {
+        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("sessionIdValue"))).withExtraHeaders("mtditid"->mtditid)
+
+        val connector = new DividendsSubmissionConnector(httpClient, appConfig(externalHost))
+
+        stubPut(s"/income-tax-dividends/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}",
+          headersSentToDividends)
+
+        val result: DividendsSubmissionsResponse = Await.result(connector.submitDividends(body, nino, taxYear)(hc), Duration.Inf)
+
+        result shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("PARSING_ERROR", "Error parsing response from API")))
+      }
+    }
+
     "Return a success result" when {
       "Dividends returns a 204" in {
         stubPut(s"/income-tax-dividends/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}", expectedHeaders)

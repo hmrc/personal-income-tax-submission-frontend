@@ -28,39 +28,32 @@ import scala.concurrent.duration.Duration
 class AppConfig @Inject()(servicesConfig: ServicesConfig) {
   private lazy val signInBaseUrl: String = servicesConfig.getString(ConfigKeys.signInUrl)
 
-  private lazy val signInContinueBaseUrl: String = servicesConfig.getString(ConfigKeys.signInContinueBaseUrl)
+  private lazy val signInContinueBaseUrl: String = servicesConfig.getString(ConfigKeys.signInContinueUrl)
   lazy val signInContinueUrl: String = SafeRedirectUrl(signInContinueBaseUrl).encodedUrl //TODO add redirect to overview page
   private lazy val signInOrigin = servicesConfig.getString("appName")
   lazy val signInUrl: String = s"$signInBaseUrl?continue=$signInContinueUrl&origin=$signInOrigin"
-  lazy val dividendsBaseUrl: String = servicesConfig.baseUrl("income-tax-dividends") + "/income-tax-dividends"
-  lazy val interestBaseUrl: String = servicesConfig.baseUrl("income-tax-interest") + "/income-tax-interest"
-  lazy val giftAidBaseUrl: String = servicesConfig.baseUrl("income-tax-gift-aid") + "/income-tax-gift-aid"
+  lazy val dividendsBaseUrl: String = s"${servicesConfig.getString(ConfigKeys.incomeTaxDividendsUrl)}/income-tax-dividends"
+  lazy val interestBaseUrl: String = s"${servicesConfig.getString(ConfigKeys.incomeTaxInterestUrl)}/income-tax-interest"
+  lazy val giftAidBaseUrl: String = s"${servicesConfig.getString(ConfigKeys.incomeTaxGiftAidUrl)}/income-tax-gift-aid"
+  lazy val incomeTaxSubmissionBEBaseUrl: String = s"${servicesConfig.getString(ConfigKeys.incomeTaxSubmissionUrl)}/income-tax-submission-service"
 
   def defaultTaxYear: Int = servicesConfig.getInt(ConfigKeys.defaultTaxYear)
 
-  def incomeTaxSubmissionBaseUrl: String = servicesConfig.getString(ConfigKeys.incomeTaxSubmissionFrontend) +
+  def incomeTaxSubmissionBaseUrl: String = servicesConfig.getString(ConfigKeys.incomeTaxSubmissionFrontendUrl) +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.context")
 
   def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.overview")
+  def incomeTaxSubmissionStartUrl(taxYear: Int): String = s"$incomeTaxSubmissionBaseUrl/$taxYear/start"
+  def incomeTaxSubmissionIvRedirect: String = incomeTaxSubmissionBaseUrl + servicesConfig.getString("microservice.services.income-tax-submission-frontend.iv-redirect")
 
-  def incomeTaxSubmissionStartUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear +
-    "/start"
 
-  def incomeTaxSubmissionBEBaseUrl: String = servicesConfig.baseUrl("income-tax-submission") + "/income-tax-submission-service"
-
-  def incomeTaxSubmissionIvRedirect: String = incomeTaxSubmissionBaseUrl +
-    servicesConfig.getString("microservice.services.income-tax-submission-frontend.iv-redirect")
-
-  private lazy val vcBaseUrl: String = servicesConfig.getString(ConfigKeys.viewAndChangeBaseUrl)
-
+  private lazy val vcBaseUrl: String = servicesConfig.getString(ConfigKeys.viewAndChangeUrl)
   def viewAndChangeEnterUtrUrl: String = s"$vcBaseUrl/report-quarterly/income-and-expenses/view/agents/client-utr"
 
   lazy private val appUrl: String = servicesConfig.getString("microservice.url")
-  lazy private val contactFrontEndUrl = {
-    val contactUrl = servicesConfig.baseUrl("contact-frontend")
-    servicesConfig.getConfString("contact-frontend.baseUrl", contactUrl)
-  }
+
+  lazy private val contactFrontEndUrl = servicesConfig.getString(ConfigKeys.contactFrontendUrl)
 
   lazy private val contactFormServiceIndividual = "update-and-submit-income-tax-return"
   lazy private val contactFormServiceAgent = "update-and-submit-income-tax-return-agent"
@@ -69,10 +62,7 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
 
   private def requestUri(implicit request: RequestHeader): String = SafeRedirectUrl(appUrl + request.uri).encodedUrl
 
-  private lazy val feedbackFrontendUrl = {
-    val feedbackSurveyUrl = servicesConfig.baseUrl("feedback-frontend")
-    servicesConfig.getConfString("feedback-frontend.relativeUrl", feedbackSurveyUrl)
-  }
+  private lazy val feedbackFrontendUrl = servicesConfig.getString(ConfigKeys.feedbackFrontendUrl)
 
   def feedbackSurveyUrl(implicit isAgent: Boolean): String = s"$feedbackFrontendUrl/feedback/$contactFormServiceIdentifier"
 
@@ -81,10 +71,7 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
 
   def contactUrl(implicit isAgent: Boolean): String = s"$contactFrontEndUrl/contact/contact-hmrc?service=$contactFormServiceIdentifier"
 
-  private lazy val basGatewayUrl = {
-    val basGatewayUrl = servicesConfig.baseUrl("bas-gateway-frontend")
-    servicesConfig.getConfString("bas-gateway-frontend.relativeUrl", basGatewayUrl)
-  }
+  private lazy val basGatewayUrl = servicesConfig.getString(ConfigKeys.basGatewayFrontendUrl)
 
   lazy val signOutUrl: String = s"$basGatewayUrl/bas-gateway/sign-out-without-state"
 

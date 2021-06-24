@@ -40,6 +40,7 @@ import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
 import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Enrolment, EnrolmentIdentifier, Enrolments}
 import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.authErrorPages.AgentAuthErrorPageView
 import scala.concurrent.duration.Duration
@@ -72,20 +73,14 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "auditing.enabled" -> false,
     "metrics.enabled" -> false,
     "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck",
-    "microservice.services.income-tax-submission-frontend.host" -> wiremockHost,
-    "microservice.services.income-tax-submission-frontend.port" -> wiremockPort,
-    "microservice.services.income-tax-submission.host" -> wiremockHost,
-    "microservice.services.income-tax-submission.port" -> wiremockPort,
-    "income-tax-submission-frontend.url" -> s"http://$wiremockHost:$wiremockPort",
+    "microservice.services.income-tax-submission-frontend.url" -> s"http://$wiremockHost:$wiremockPort",
+    "microservice.services.income-tax-submission.url" -> s"http://$wiremockHost:$wiremockPort",
     "microservice.services.auth.host" -> wiremockHost,
     "microservice.services.auth.port" -> wiremockPort,
-    "microservice.services.income-tax-dividends.host" -> wiremockHost,
-    "microservice.services.income-tax-dividends.port" -> wiremockPort,
-    "microservice.services.income-tax-interest.host" -> wiremockHost,
-    "microservice.services.income-tax-interest.port" -> wiremockPort,
-    "microservice.services.income-tax-gift-aid.host" -> wiremockHost,
-    "microservice.services.income-tax-gift-aid.port" -> wiremockPort,
-    "signIn.url" -> s"/auth-login-stub/gg-sign-in",
+    "microservice.services.income-tax-dividends.url" -> s"http://$wiremockHost:$wiremockPort",
+    "microservice.services.income-tax-interest.url" -> s"http://$wiremockHost:$wiremockPort",
+    "microservice.services.income-tax-gift-aid.url" -> s"http://$wiremockHost:$wiremockPort",
+    "microservice.services.sign-in.url" -> s"/auth-login-stub/gg-sign-in",
     "taxYearChangeResetsSession" -> false
   )
 
