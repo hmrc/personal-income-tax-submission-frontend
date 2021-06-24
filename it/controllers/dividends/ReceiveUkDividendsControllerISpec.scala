@@ -16,294 +16,343 @@
 
 package controllers.dividends
 
-import common.SessionValues
 import forms.YesNoForm
-import helpers.PlaySessionCookieBaker
-import models.dividends.DividendsCheckYourAnswersModel
+import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
+import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status._
-import play.api.libs.ws.{WSClient, WSResponse}
+import play.api.libs.ws.WSResponse
 import utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 
 class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers with DividendsDatabaseHelper {
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
-  lazy val controller: ReceiveUkDividendsController = app.injector.instanceOf[ReceiveUkDividendsController]
-
   val taxYear: Int = 2022
   val amount: BigDecimal = 500
-  val receiveUkDividendsUrl = s"$startUrl/$taxYear/dividends/dividends-from-uk-companies"
+  val receiveUkDividendsUrl = s"$appUrl/$taxYear/dividends/dividends-from-uk-companies"
+  val expectedErrorLink = "#value"
 
-  "as an individual" when {
+  val cyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(ukDividends = Some(true), ukDividendsAmount = Some(amount),
+    otherUkDividends = Some(true), otherUkDividendsAmount = Some(amount))
 
-    ".show" should {
+  object Selectors {
+    val yourDividendsSelector = "#main-content > div > div > form > div > fieldset > legend > p"
+    val continueSelector = "#continue"
+    val continueButtonFormSelector = "#main-content > div > div > form"
+  }
 
-      "returns the uk dividends page when there is no priorSubmission data and no cyaData in session" which {
-        lazy val result: WSResponse = {
-          dropDividendsDB()
+  trait SpecificExpectedReults {
+    val expectedH1: String
+    val expectedTitle: String
+    val expectedErrorTitle: String
+    val yourDividendsText: String
+    val expectedErrorText: String
+  }
 
-          emptyUserDataStub()
-          insertCyaData(None)
+  trait CommonExpectedResults {
+    val captionExpected: String
+    val yesNo: Boolean => String
+    val continueText: String
+    val continueLink: String
+    val errorSummaryHref: String
+  }
 
-          authoriseIndividual()
-          await(wsClient.url(receiveUkDividendsUrl).withHttpHeaders(xSessionId, csrfContent).get())
-        }
 
-        "has an OK(200) status" in {
-          result.status shouldBe OK
-        }
+  object IndividualExpectedEnglish extends SpecificExpectedReults {
+    val expectedH1 = "Did you get dividends from UK-based companies?"
+    val expectedTitle = "Did you get dividends from UK-based companies?"
+    val expectedErrorTitle = s"Error: $expectedTitle"
+    val yourDividendsText = "Your dividend voucher will tell you the shares you have in the company and the amount of the dividend you got."
+    val expectedErrorText = "Select yes if you got dividends from UK-based companies"
+  }
 
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
+  object AgentExpectedEnglish extends SpecificExpectedReults {
+    val expectedH1 = "Did your client get dividends from UK-based companies?"
+    val expectedTitle = "Did your client get dividends from UK-based companies?"
+    val expectedErrorTitle = s"Error: $expectedTitle"
+    val yourDividendsText = "Your client’s dividend voucher will tell you the shares they have in the company and the amount of the dividend they got."
+    val expectedErrorText = "Select yes if your client got dividends from UK-based companies"
+  }
 
-        titleCheck("Did you get dividends from UK-based companies?")
-        h1Check("Did you get dividends from UK-based companies? Dividends for 6 April 2021 to 5 April 2022")
+  object AllExpectedEnglish extends CommonExpectedResults {
+    val captionExpected = s"Dividends for 6 April ${taxYear - 1} to 5 April $taxYear"
+    val yesNo: Boolean => String = isYes => if (isYes) "Yes" else "No"
+    val continueText = "Continue"
+    val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/dividends-from-uk-companies"
+    val errorSummaryHref = "#value"
+  }
 
-      }
-      "returns an action when cyaData is in session" which {
-        lazy val result: WSResponse = {
-          dropDividendsDB()
+  object IndividualExpectedWelsh extends SpecificExpectedReults {
+    val expectedH1 = "Did you get dividends from UK-based companies?"
+    val expectedTitle = "Did you get dividends from UK-based companies?"
+    val expectedErrorTitle = s"Error: $expectedTitle"
+    val yourDividendsText = "Your dividend voucher will tell you the shares you have in the company and the amount of the dividend you got."
+    val expectedErrorText = "Select yes if you got dividends from UK-based companies"
+  }
 
-          emptyUserDataStub()
-          insertCyaData(Some(
-            DividendsCheckYourAnswersModel()
-          ))
+  object AgentExpectedWelsh extends SpecificExpectedReults {
+    val expectedH1 = "Did your client get dividends from UK-based companies?"
+    val expectedTitle = "Did your client get dividends from UK-based companies?"
+    val expectedErrorTitle = s"Error: $expectedTitle"
+    val yourDividendsText = "Your client’s dividend voucher will tell you the shares they have in the company and the amount of the dividend they got."
+    val expectedErrorText = "Select yes if your client got dividends from UK-based companies"
+  }
 
-          authoriseIndividual()
-          await(wsClient.url(receiveUkDividendsUrl)
-            .withHttpHeaders(xSessionId, csrfContent).get())
-        }
+  object AllExpectedWelsh extends CommonExpectedResults {
+    val captionExpected = s"Dividends for 6 April ${taxYear - 1} to 5 April $taxYear"
+    val yesNo: Boolean => String = isYes => if (isYes) "Yes" else "No"
+    val continueText = "Continue"
+    val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/dividends-from-uk-companies"
+    val errorSummaryHref = "#value"
+  }
 
-        "has an OK(200) status" in {
-          result.status shouldBe OK
-        }
+  val userScenarios =
+    Seq(UserScenario(isWelsh = false, isAgent = false, AllExpectedEnglish, Some(IndividualExpectedEnglish)),
+      UserScenario(isWelsh = false, isAgent = true, AllExpectedEnglish,  Some(AgentExpectedEnglish)),
+      UserScenario(isWelsh = true, isAgent = false, AllExpectedWelsh, Some(IndividualExpectedWelsh) ),
+      UserScenario(isWelsh = true, isAgent = true, AllExpectedWelsh, Some(AgentExpectedWelsh)))
 
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
+  ".show" when {
+    userScenarios.foreach { us =>
+      
+      import Selectors._
+      import us.commonExpectedResults._
+      import us.specificExpectedResults._
+      
+      s"language is ${welshTest(us.isWelsh)} and request is from an ${agentTest(us.isAgent)}" should {
 
-        titleCheck("Did you get dividends from UK-based companies?")
-        h1Check("Did you get dividends from UK-based companies? Dividends for 6 April 2021 to 5 April 2022")
-      }
-
-      "returns an action when auth call fails" which {
-        lazy val result: WSResponse = {
-          authoriseIndividualUnauthorized()
-          await(wsClient.url(receiveUkDividendsUrl)
-            .withHttpHeaders(xSessionId, "Csrf-Token" -> "nocheck").get())
-        }
-        "has an UNAUTHORIZED(401) status" in {
-          result.status shouldBe UNAUTHORIZED
-        }
-      }
-
-    }
-
-    ".submit" should {
-
-      s"return a SEE_OTHER(303) status" when {
-
-        "there is no CYA data in session" in {
+        "return the uk dividends page when there is no priorSubmission data and no cyaData in session" which {
           lazy val result: WSResponse = {
+            authoriseAgentOrIndividual(us.isAgent)
             dropDividendsDB()
-
-            insertCyaData(None)
-
-            authoriseIndividual()
-            await(
-              wsClient.url(receiveUkDividendsUrl)
-                .withFollowRedirects(false)
-                .withHttpHeaders(xSessionId, csrfContent)
-                .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
-            )
+            emptyUserDataStub()
+            urlGet(receiveUkDividendsUrl, us.isWelsh, headers = playSessionCookie(us.isAgent))
           }
 
+          "has an OK(200) status" in {
+            result.status shouldBe OK
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+          titleCheck(get.expectedTitle)
+          h1Check(s"${get.expectedH1} ${captionExpected}")
+          textOnPageCheck(get.yourDividendsText, yourDividendsSelector)
+          radioButtonCheck(yesNo(true), 1)
+          radioButtonCheck(yesNo(false), 2)
+          buttonCheck(continueText, continueSelector)
+          formPostLinkCheck(continueLink, continueButtonFormSelector)
+
+          welshToggleCheck(us.isWelsh)
+        }
+
+        "return the uk dividends page when there is cyaData in session" which {
+          lazy val result: WSResponse = {
+            authoriseAgentOrIndividual(us.isAgent)
+            dropDividendsDB()
+            emptyUserDataStub()
+            insertCyaData(Some(cyaModel))
+            urlGet(receiveUkDividendsUrl, us.isWelsh, headers = playSessionCookie(us.isAgent))
+          }
+
+          "has an OK(200) status" in {
+            result.status shouldBe OK
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+          titleCheck(get.expectedTitle)
+          h1Check(s"${get.expectedH1} ${captionExpected}")
+          textOnPageCheck(get.yourDividendsText, yourDividendsSelector)
+          radioButtonCheck(yesNo(true), 1)
+          radioButtonCheck(yesNo(false), 2)
+          buttonCheck(continueText, continueSelector)
+          formPostLinkCheck(continueLink, continueButtonFormSelector)
+
+          welshToggleCheck(us.isWelsh)
+        }
+      }
+    }
+  }
+
+  ".show" should {
+
+
+
+    "redirect to Dividends CYA page when there is prior data in otherUkDividends" when {
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        dropDividendsDB()
+        emptyUserDataStub()
+        userDataStub(IncomeSourcesModel(
+          dividends = Some(DividendsPriorSubmission(
+            Some(amount),
+            Some(amount)
+          ))), nino, taxYear)
+        urlGet(receiveUkDividendsUrl, follow = false, headers = playSessionCookie())
+      }
+      "has an SEE_OTHER(303) status" in {
+        result.status shouldBe SEE_OTHER
+        result.header(HeaderNames.LOCATION) shouldBe Some(routes.DividendsCYAController.show(taxYear).url)
+      }
+    }
+
+    "returns an action when auth call fails" which {
+      lazy val result: WSResponse = {
+        authoriseIndividualUnauthorized()
+        dropDividendsDB()
+        emptyUserDataStub()
+        urlGet(receiveUkDividendsUrl, headers = playSessionCookie())
+      }
+      "has an UNAUTHORIZED(401) status" in {
+        result.status shouldBe UNAUTHORIZED
+      }
+    }
+  }
+
+  ".submit" when {
+    userScenarios.foreach { us =>
+
+      import Selectors._
+      import us.commonExpectedResults._
+      import us.specificExpectedResults._
+
+      s"language is ${welshTest(us.isWelsh)} and request is from an ${agentTest(us.isAgent)}" should {
+
+        s"if form has errors" should {
+          lazy val result: WSResponse = {
+            authoriseAgentOrIndividual(us.isAgent)
+            dropDividendsDB()
+            emptyUserDataStub()
+            urlPost(receiveUkDividendsUrl, follow = false, headers = playSessionCookie(us.isAgent), body = Map[String, String]())
+          }
+
+          s"has a $BAD_REQUEST(400) status" in {
+            result.status shouldBe BAD_REQUEST
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(result.body)
+          errorSummaryCheck(get.expectedErrorText, expectedErrorLink)
+          errorAboveElementCheck(get.expectedErrorText)
+        }
+
+
+        "return same page with error text when form is invalid" which {
+
+          lazy val result: WSResponse = {
+            authoriseAgentOrIndividual(us.isAgent)
+            dropDividendsDB()
+            emptyUserDataStub()
+            urlPost(receiveUkDividendsUrl, welsh=us.isWelsh, follow = false, headers = playSessionCookie(us.isAgent), body = Map[String, String]())
+          }
+
+          "return a BadRequest status" in {
+            result.status shouldBe BAD_REQUEST
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+          titleCheck(get.expectedErrorTitle)
+          h1Check(s"${get.expectedH1} ${captionExpected}")
+          errorSummaryCheck(get.expectedErrorText, errorSummaryHref)
+          textOnPageCheck(get.yourDividendsText, yourDividendsSelector)
+          radioButtonCheck(yesNo(true), 1)
+          radioButtonCheck(yesNo(false), 2)
+          buttonCheck(continueText, continueSelector)
+          formPostLinkCheck(continueLink, continueButtonFormSelector)
+
+          welshToggleCheck(us.isWelsh)
+        }
+      }
+      }
+    }
+
+  ".submit" should {
+      s"redirect to uk dividends amount page when 'yes' is submitted and there is no cya data. Creates new cya data model in mongo. " when {
+        lazy val result: WSResponse = {
+          authoriseIndividual()
+          dropDividendsDB()
+          emptyUserDataStub()
+          urlPost(receiveUkDividendsUrl, follow = false, headers = playSessionCookie(), body = Map(YesNoForm.yesNo -> YesNoForm.yes))
+        }
+
+        s"has a $SEE_OTHER(303) status" in {
           result.status shouldBe SEE_OTHER
           result.header(HeaderNames.LOCATION) shouldBe Some(routes.UkDividendsAmountController.show(taxYear).url)
         }
+      }
 
-        "there is form data and answer to question is 'No'" in {
-          lazy val result: WSResponse = {
-            dropDividendsDB()
+      s"redirect to uk dividends amount page when 'yes' is submitted and there is already cya data. Updates cya data model in mongo. " when {
+        lazy val result: WSResponse = {
+          authoriseIndividual()
+          dropDividendsDB()
+          emptyUserDataStub()
+          insertCyaData(Some(cyaModel))
+          urlPost(receiveUkDividendsUrl, follow = false, headers = playSessionCookie(), body = Map(YesNoForm.yesNo -> YesNoForm.yes))
+        }
 
-            emptyUserDataStub()
+        s"has a $SEE_OTHER(303) status" in {
+          result.status shouldBe SEE_OTHER
+          result.header(HeaderNames.LOCATION) shouldBe Some(routes.UkDividendsAmountController.show(taxYear).url)
+        }
+      }
 
-            authoriseIndividual()
-            await(
-              wsClient.url(receiveUkDividendsUrl)
-                .withFollowRedirects(false)
-                .withHttpHeaders(xSessionId, csrfContent)
-                .post(Map(YesNoForm.yesNo -> YesNoForm.no))
-            )
-          }
+      "redirect to Did you receive other Dividends page when 'no' is submitted and there is no cya data. Creates new record in Mongo." when {
 
+        lazy val result: WSResponse = {
+          authoriseIndividual()
+          dropDividendsDB()
+          emptyUserDataStub()
+          urlPost(receiveUkDividendsUrl, follow = false, headers = playSessionCookie(), body = Map(YesNoForm.yesNo -> YesNoForm.no))
+        }
+
+        s"has a $SEE_OTHER(303) status" in {
           result.status shouldBe SEE_OTHER
           result.header(HeaderNames.LOCATION) shouldBe Some(routes.ReceiveOtherUkDividendsController.show(taxYear).url)
         }
+      }
 
-        "there is form data and answer to question is 'No' and the cyaModel is completed" in {
-          lazy val result: WSResponse = {
-            dropDividendsDB()
+      "redirect to Did you receive other Dividends page when 'no' is submitted and cya model isn't complete. Updates Mongo." when {
+        lazy val result: WSResponse = {
+          authoriseIndividual()
+          dropDividendsDB()
+          emptyUserDataStub()
+          insertCyaData(Some(DividendsCheckYourAnswersModel(ukDividends = Some(true), ukDividendsAmount = Some(amount))))
+          urlPost(receiveUkDividendsUrl, follow = false, headers = playSessionCookie(), body = Map(YesNoForm.yesNo -> YesNoForm.no))
+        }
 
-            emptyUserDataStub()
-            insertCyaData(Some(
-              DividendsCheckYourAnswersModel(ukDividends = Some(false), ukDividendsAmount = None, Some(false), None)
-            ))
+        s"has a $SEE_OTHER(303) status" in {
+          result.status shouldBe SEE_OTHER
+          result.header(HeaderNames.LOCATION) shouldBe Some(routes.ReceiveOtherUkDividendsController.show(taxYear).url)
+        }
+      }
 
-            authoriseIndividual()
-            await(
-              wsClient.url(receiveUkDividendsUrl)
-                .withFollowRedirects(false)
-                .withHttpHeaders(xSessionId, csrfContent)
-                .post(Map(YesNoForm.yesNo -> YesNoForm.no))
-            )
-          }
+      "redirect to DividendsCYA page when 'no' is submitted and cya model is complete. Updates Mongo." when {
+        lazy val result: WSResponse = {
+          authoriseIndividual()
+          dropDividendsDB()
+          emptyUserDataStub()
+          insertCyaData(Some(cyaModel))
+          urlPost(receiveUkDividendsUrl, follow = false, headers = playSessionCookie(), body = Map(YesNoForm.yesNo -> YesNoForm.no))
+        }
 
+        s"has a $SEE_OTHER(303) status" in {
           result.status shouldBe SEE_OTHER
           result.header(HeaderNames.LOCATION) shouldBe Some(routes.DividendsCYAController.show(taxYear).url)
         }
-
       }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status" in {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(wsClient.url(receiveUkDividendsUrl)
-            .withHttpHeaders(xSessionId, csrfContent)
-            .post(Map[String, String]()))
-        }
-
-        result.status shouldBe BAD_REQUEST
-      }
-
-      "returns an action when auth call fails" which {
+      "return an action when auth call fails" which {
         lazy val result: WSResponse = {
           authoriseIndividualUnauthorized()
-          await(wsClient.url(receiveUkDividendsUrl)
-            .withHttpHeaders(xSessionId, csrfContent)
-            .post(Map[String, String]()))
-        }
-        "has an UNAUTHORIZED(401) status" in {
-          result.status shouldBe UNAUTHORIZED
-        }
-      }
-
-    }
-
-  }
-
-  "as an agent" when {
-
-    ".show" should {
-
-      "returns an action" which {
-        lazy val result: WSResponse = {
           dropDividendsDB()
-
           emptyUserDataStub()
-          insertCyaData(None)
-
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
-
-          authoriseAgent()
-          await(wsClient.url(receiveUkDividendsUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-            .get())
-        }
-
-        "has an OK(200) status" in {
-          result.status shouldBe OK
-        }
-      }
-
-      "returns an action when auth call fails" which {
-        lazy val result: WSResponse = {
-          authoriseAgentUnauthorized()
-          await(wsClient.url(receiveUkDividendsUrl)
-            .withHttpHeaders(xSessionId, csrfContent).get())
+          urlPost(receiveUkDividendsUrl, headers = playSessionCookie(), body = Map(YesNoForm.yesNo -> YesNoForm.no))
         }
         "has an UNAUTHORIZED(401) status" in {
           result.status shouldBe UNAUTHORIZED
         }
       }
     }
-
-    ".submit" should {
-
-      s"return Redirect($SEE_OTHER) status" when {
-
-        "there is form data and answer to question is 'YES'" in {
-          lazy val result: WSResponse = {
-            dropDividendsDB()
-
-            emptyUserDataStub()
-            insertCyaData(None)
-
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"
-            ))
-
-            authoriseAgent()
-            await(
-              wsClient.url(receiveUkDividendsUrl)
-                .withFollowRedirects(false)
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-                .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
-            )
-          }
-
-          result.status shouldBe SEE_OTHER
-          result.header(HeaderNames.LOCATION) shouldBe Some(routes.UkDividendsAmountController.show(taxYear).url)
-        }
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status" when {
-
-        "there is no form data" in {
-          lazy val result: WSResponse = {
-            dropDividendsDB()
-
-            emptyUserDataStub()
-            insertCyaData(None)
-
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"
-            ))
-
-            authoriseAgent()
-            await(wsClient.url(receiveUkDividendsUrl)
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-              .post(Map[String, String]()))
-          }
-
-          result.status shouldBe BAD_REQUEST
-        }
-      }
-
-      "returns an action when auth call fails" when {
-        lazy val result: WSResponse = {
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
-
-          authoriseAgentUnauthorized()
-          await(wsClient.url(receiveUkDividendsUrl)
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-            .post(Map[String, String]()))
-        }
-
-        "has an UNAUTHORIZED(401) status" in {
-          result.status shouldBe UNAUTHORIZED
-        }
-      }
-
-    }
-
-  }
 
 }

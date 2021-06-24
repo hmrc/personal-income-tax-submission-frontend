@@ -24,8 +24,6 @@ import utils.{IntegrationTest, InterestDatabaseHelper}
 
 class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabaseHelper {
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
-
   val taxYear: Int = 2022
   val amount: BigDecimal = 25
 
@@ -42,7 +40,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
           )))
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
+          await(wsClient.url(s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
             .withHttpHeaders(xSessionId, csrfContent)
             .get())
         }
@@ -60,7 +58,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
           insertCyaData(None)
           authoriseIndividual()
           stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
-          await(wsClient.url(s"$startUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
+          await(wsClient.url(s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
             .withHttpHeaders(xSessionId, csrfContent)
             .withFollowRedirects(false)
             .get())
@@ -78,7 +76,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
         "the authorization fails" which {
           lazy val result = {
             authoriseIndividualUnauthorized()
-            await(wsClient.url(s"$startUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
+            await(wsClient.url(s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
               .withHttpHeaders(xSessionId, csrfContent)
               .get())
           }
@@ -106,7 +104,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
           )))
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
+          await(wsClient.url(s"$appUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
             .withHttpHeaders(xSessionId, csrfContent)
             .get())
         }
@@ -124,7 +122,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
           insertCyaData(None)
           authoriseIndividual()
           stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
-          await(wsClient.url(s"$startUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
+          await(wsClient.url(s"$appUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
             .withHttpHeaders(xSessionId, csrfContent)
             .withFollowRedirects(false)
             .get())
@@ -142,7 +140,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
         "the authorization fails" which {
           lazy val result = {
             authoriseIndividualUnauthorized()
-            await(wsClient.url(s"$startUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
+            await(wsClient.url(s"$appUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
               .withHttpHeaders(xSessionId, csrfContent)
               .get())
           }
@@ -167,7 +165,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             insertCyaData(None)
             authoriseIndividual()
             await(
-              wsClient.url(s"$startUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
+              wsClient.url(s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
                 .withHttpHeaders(xSessionId, csrfContent)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
             )
@@ -189,7 +187,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
               Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
             )))
             authoriseIndividual()
-            await(wsClient.url(s"$startUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
+            await(wsClient.url(s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
               .withHttpHeaders(xSessionId, csrfContent)
               .post(Map[String, String]()))
           }
@@ -207,7 +205,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
           )))
           authoriseIndividualUnauthorized()
-          await(wsClient.url(s"$startUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
+          await(wsClient.url(s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId")
             .withHttpHeaders(xSessionId, csrfContent)
             .post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
         }
@@ -227,7 +225,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
           lazy val result: WSResponse = {
             authoriseIndividual()
             await(
-              wsClient.url(s"$startUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
+              wsClient.url(s"$appUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
                 .withHttpHeaders(xSessionId, csrfContent)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
             )
@@ -249,7 +247,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
               Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
             )))
             authoriseIndividual()
-            await(wsClient.url(s"$startUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
+            await(wsClient.url(s"$appUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
               .withHttpHeaders(xSessionId, csrfContent)
               .post(Map[String, String]()))
           }
@@ -267,7 +265,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
           )))
           authoriseIndividualUnauthorized()
-          await(wsClient.url(s"$startUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
+          await(wsClient.url(s"$appUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId")
             .withHttpHeaders(xSessionId, csrfContent)
             .post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
         }

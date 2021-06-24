@@ -16,525 +16,254 @@
 
 package controllers.charity
 
-import common.SessionValues
 import common.SessionValues.GIFT_AID_PRIOR_SUB
-import helpers.PlaySessionCookieBaker
 import models.charity.prior.{GiftAidSubmissionModel, GiftsModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.json.Json
-import play.api.libs.ws.{WSClient, WSResponse}
-import utils.IntegrationTest
+import play.api.libs.ws.WSResponse
+import utils.{IntegrationTest, ViewHelpers}
 
-class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest {
+class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest with ViewHelpers {
 
+  val charLimit: String = "ukHzoBYHkKGGk2V5iuYgS137gN7EB7LRw3uDjvujYg00ZtHwo3sokyOOCEoAK9vuPiP374QKOelo"
+  val testModel: GiftAidSubmissionModel = GiftAidSubmissionModel(None, Some(GiftsModel(None, Some(List("dupe")), None,None)))
 
-  object IndividualExpected {
+  val taxYear: Int = 2022
+
+  def url: String = s"$appUrl/$taxYear/charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+
+  object Selectors {
+    val captionSelector: String = ".govuk-caption-l"
+    val inputFieldSelector: String = "#name"
+    val buttonSelector: String = ".govuk-button"
+    val inputHintTextSelector: String = "#main-content > div > div > form > div > label > p"
+    val errorSelector: String = "#main-content > div > div > div.govuk-error-summary > div > ul > li > a"
+  }
+
+  trait SpecificExpectedResults {
+    val expectedTitle: String
+    val expectedH1: String
+    val expectedError: String
+  }
+
+  trait CommonExpectedResults {
+    val expectedCaption: String
+    val expectedInputName: String
+    val expectedButtonText: String
+    val expectedInputHintText: String
+    val expectedCharLimitError: String
+    val expectedInvalidCharError: String
+    val expectedDuplicateError: String
+  }
+
+  object CommonExpectedEN extends CommonExpectedResults {
+    val expectedCaption: String = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val expectedInputName: String = "name"
+    val expectedButtonText: String = "Continue"
+    val expectedInputHintText: String = "You can add more than one charity."
+    val expectedCharLimitError: String = "The name of the overseas charity must be 75 characters or fewer"
+    val expectedInvalidCharError: String = "Name of overseas charity must only include numbers 0-9, letters a " +
+      "to z, hyphens, spaces, apostrophes, commas, full stops, round brackets and the special characters, &, /, @, £, *"
+    val expectedDuplicateError: String = "You cannot add 2 charities with the same name"
+  }
+
+  object CommonExpectedCY extends CommonExpectedResults {
+    val expectedCaption: String = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val expectedInputName: String = "name"
+    val expectedButtonText: String = "Continue"
+    val expectedInputHintText: String = "You can add more than one charity."
+    val expectedCharLimitError: String = "The name of the overseas charity must be 75 characters or fewer"
+    val expectedInvalidCharError: String = "Name of overseas charity must only include numbers 0-9, letters a " +
+      "to z, hyphens, spaces, apostrophes, commas, full stops, round brackets and the special characters, &, /, @, £, *"
+    val expectedDuplicateError: String = "You cannot add 2 charities with the same name"
+  }
+
+  object ExpectedIndividualEN extends SpecificExpectedResults {
     val expectedTitle: String = "Name of overseas charity you donated shares, securities, land or property to"
     val expectedH1: String = "Name of overseas charity you donated shares, securities, land or property to"
     val expectedError: String = "Enter the name of the overseas charity you donated shares, securities, land or property to"
-    val expectedErrorTitle = s"Error: $expectedTitle"
-
-    val expectedTitleCy: String = "Name of overseas charity you donated shares, securities, land or property to"
-    val expectedH1Cy: String = "Name of overseas charity you donated shares, securities, land or property to"
-    val expectedErrorCy: String = "Enter the name of the overseas charity you donated shares, securities, land or property to"
-    val expectedErrorTitleCy = s"Error: $expectedTitleCy"
   }
 
-  object AgentExpected {
+  object ExpectedAgentEN extends SpecificExpectedResults {
     val expectedTitle: String = "Name of overseas charity your client donated shares, securities, land or property to"
     val expectedH1: String = "Name of overseas charity your client donated shares, securities, land or property to"
     val expectedError: String = "Enter the name of the overseas charity your client donated shares, securities, land or property to"
-    val expectedErrorTitle = s"Error: $expectedTitle"
-
-    val expectedTitleCy: String = "Name of overseas charity your client donated shares, securities, land or property to"
-    val expectedH1Cy: String = "Name of overseas charity your client donated shares, securities, land or property to"
-    val expectedErrorCy: String = "Enter the name of the overseas charity your client donated shares, securities, land or property to"
-    val expectedErrorTitleCy = s"Error: $expectedTitleCy"
   }
 
-  val expectedCaption: String = "Donations to charity for 6 April 2021 to 5 April 2022"
-  val expectedCaptionCy: String = "Donations to charity for 6 April 2021 to 5 April 2022"
-  val expectedInputName: String = "name"
-  val expectedButtonText: String = "Continue"
-  val expectedButtonTextCy: String = "Continue"
-  val expectedInputHintText: String = "You can add more than one charity."
-  val expectedInputHintTextCy: String = "You can add more than one charity."
-  val expectedCharLimitError: String = "The name of the overseas charity must be 75 characters or fewer"
-  val expectedCharLimitErrorCy: String = "The name of the overseas charity must be 75 characters or fewer"
-  val expectedInvalidCharError: String = "Name of overseas charity must only include numbers 0-9, letters a " +
-    "to z, hyphens, spaces, apostrophes, commas, full stops, round brackets and the special characters, &, /, @, £, *"
-  val expectedInvalidCharErrorCy: String = "Name of overseas charity must only include numbers 0-9, letters a " +
-    "to z, hyphens, spaces, apostrophes, commas, full stops, round brackets and the special characters, &, /, @, £, *"
-  val expectedDuplicateError: String = "You cannot add 2 charities with the same name"
-  val expectedDuplicateErrorCy: String = "You cannot add 2 charities with the same name"
-
-  val captionSelector: String = ".govuk-caption-l"
-  val inputFieldSelector: String = "#name"
-  val buttonSelector: String = ".govuk-button"
-  val inputHintTextSelector: String = "#main-content > div > div > form > div > label > p"
-  val errorSelector: String = "#main-content > div > div > div.govuk-error-summary > div > ul > li > a"
-
-  val serviceName = "Update and submit an Income Tax Return"
-  val serviceNameCy = "Update and submit an Income Tax Return"
-  val govUkExtension = "GOV.UK"
-
-  val charLimit: String = "ukHzoBYHkKGGk2V5iuYgS137gN7EB7LRw3uDjvujYg00ZtHwo3sokyOOCEoAK9vuPiP374QKOelo"
-  val testModel: GiftAidSubmissionModel = GiftAidSubmissionModel(None, Some(GiftsModel(None, Some(List("JaneDoe")), None, None)))
-
-
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
-  val taxYear: Int = 2022
-
-  "as an individual" when {
-    import IndividualExpected._
-
-    ".show" should {
-
-      "returns an action with english content" which {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(wsClient.url(
-            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-          )
-            .withHttpHeaders(xSessionId, csrfContent)
-            .get())
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        "has an OK(200) status with the correct content" in {
-          result.status shouldBe OK
-          document.title() shouldBe s"$expectedTitle - $serviceName - $govUkExtension"
-          document.select(".govuk-heading-l").text() shouldBe expectedH1 + " " + expectedCaption
-          document.select(captionSelector).text() shouldBe expectedCaption
-          document.select(inputHintTextSelector).text() shouldBe expectedInputHintText
-          document.select(inputFieldSelector).attr("name")
-          document.select(buttonSelector).text() shouldBe expectedButtonText
-          document.select(buttonSelector).attr("class") should include("govuk-button")
-        }
-
-      }
-
-      "returns an action with welsh content" which {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(wsClient.url(
-            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-          )
-            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-            .get())
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        "has an OK(200) status with the correct content" in {
-          result.status shouldBe OK
-          document.title() shouldBe s"$expectedTitleCy - $serviceNameCy - $govUkExtension"
-          document.select(".govuk-heading-l").text() shouldBe expectedH1Cy + " " + expectedCaptionCy
-          document.select(captionSelector).text() shouldBe expectedCaptionCy
-          document.select(inputHintTextSelector).text() shouldBe expectedInputHintTextCy
-          document.select(inputFieldSelector).attr("name")
-          document.select(buttonSelector).text() shouldBe expectedButtonTextCy
-          document.select(buttonSelector).attr("class") should include("govuk-button")
-        }
-      }
-    }
-
-    ".submit" should {
-
-      s"return an OK($OK) status" in {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(
-            wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(xSessionId, csrfContent)
-              .post(Map("name" -> "adam"))
-          )
-        }
-
-        result.status shouldBe OK
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an empty error in english" in {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(wsClient.url(
-            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-          )
-            .withHttpHeaders(xSessionId, csrfContent)
-            .post(Map[String, String]()))
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        result.status shouldBe BAD_REQUEST
-        document.select(errorSelector).text() shouldBe expectedError
-        document.title() shouldBe s"$expectedErrorTitle - $serviceName - $govUkExtension"
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an invalid Character error in english" in {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(
-            wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(xSessionId, csrfContent)
-              .post(Map("name" -> "ad|am"))
-          )
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        result.status shouldBe BAD_REQUEST
-        document.select(errorSelector).text() shouldBe expectedInvalidCharError
-        document.title() shouldBe s"$expectedErrorTitle - $serviceName - $govUkExtension"
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status with a character limit error in english" in {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(
-            wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(xSessionId, csrfContent)
-              .post(Map("name" -> charLimit))
-          )
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        result.status shouldBe BAD_REQUEST
-        document.select(errorSelector).text() shouldBe expectedCharLimitError
-        document.title() shouldBe s"$expectedErrorTitle - $serviceName - $govUkExtension"
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an duplicate name error in english" in {
-        val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-          GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString()
-        ))
-
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(
-            wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-              .post(Map("name" -> "JaneDoe"))
-          )
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        result.status shouldBe BAD_REQUEST
-        document.select(errorSelector).text() shouldBe expectedDuplicateError
-        document.title() shouldBe s"$expectedErrorTitle - $serviceName - $govUkExtension"
-      }
-
-    }
-
-    s"return a BAD_REQUEST($BAD_REQUEST) status with an empty error in welsh" in {
-      lazy val result: WSResponse = {
-        authoriseIndividual()
-        await(wsClient.url(
-          s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-            s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-        )
-          .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-          .post(Map[String, String]()))
-      }
-      lazy val document: Document = Jsoup.parse(result.body)
-
-      result.status shouldBe BAD_REQUEST
-      document.select(errorSelector).text() shouldBe expectedErrorCy
-      document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
-    }
-
-    s"return a BAD_REQUEST($BAD_REQUEST) status with an invalid Character error in welsh" in {
-      lazy val result: WSResponse = {
-        authoriseIndividual()
-        await(
-          wsClient.url(
-            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-          )
-            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-            .post(Map("name" -> "ad|am"))
-        )
-      }
-      lazy val document: Document = Jsoup.parse(result.body)
-
-      result.status shouldBe BAD_REQUEST
-      document.select(errorSelector).text() shouldBe expectedInvalidCharErrorCy
-      document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
-    }
-
-    s"return a BAD_REQUEST($BAD_REQUEST) status with a character limit error in welsh" in {
-      lazy val result: WSResponse = {
-        authoriseIndividual()
-        await(
-          wsClient.url(
-            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-          )
-            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-            .post(Map("name" -> charLimit))
-        )
-      }
-      lazy val document: Document = Jsoup.parse(result.body)
-
-      result.status shouldBe BAD_REQUEST
-      document.select(errorSelector).text() shouldBe expectedCharLimitErrorCy
-      document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
-    }
-
-    s"return a BAD_REQUEST($BAD_REQUEST) status with an duplicate name error in welsh" in {
-      val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-        GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString()
-      ))
-
-      lazy val result: WSResponse = {
-        authoriseIndividual()
-        await(
-          wsClient.url(
-            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-          )
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-            .post(Map("name" -> "JaneDoe"))
-        )
-      }
-      lazy val document: Document = Jsoup.parse(result.body)
-
-      result.status shouldBe BAD_REQUEST
-      document.select(errorSelector).text() shouldBe expectedDuplicateErrorCy
-      document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
-    }
+  object ExpectedIndividualCY extends SpecificExpectedResults {
+    val expectedTitle: String = "Name of overseas charity you donated shares, securities, land or property to"
+    val expectedH1: String = "Name of overseas charity you donated shares, securities, land or property to"
+    val expectedError: String = "Enter the name of the overseas charity you donated shares, securities, land or property to"
   }
 
-  "as an agent" when {
-    import AgentExpected._
+  object ExpectedAgentCY extends SpecificExpectedResults {
+    val expectedTitle: String = "Name of overseas charity your client donated shares, securities, land or property to"
+    val expectedH1: String = "Name of overseas charity your client donated shares, securities, land or property to"
+    val expectedError: String = "Enter the name of the overseas charity your client donated shares, securities, land or property to"
+  }
 
-    ".show" should {
+  val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
+    Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
+      UserScenario(isWelsh = false, isAgent = true,  CommonExpectedEN, Some(ExpectedAgentEN)),
+      UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, Some(ExpectedIndividualCY)),
+      UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
+  }
 
-      "returns an action with english content" which {
-        lazy val result: WSResponse = {
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
+  ".show" when {
 
-          authoriseAgent()
-          await(wsClient.url(
-            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-          )
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-            .get())
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
+    userScenarios.foreach { user =>
+      s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
-        "has an OK(200) status with the correct content" in {
-          result.status shouldBe OK
-          document.title() shouldBe s"$expectedTitle - $serviceName - $govUkExtension"
-          document.select(".govuk-heading-l").text() shouldBe expectedH1 + " " + expectedCaption
-          document.select(captionSelector).text() shouldBe expectedCaption
-          document.select(inputHintTextSelector).text() shouldBe expectedInputHintText
-          document.select(inputFieldSelector).attr("name")
-          document.select(buttonSelector).text() shouldBe expectedButtonText
-          document.select(buttonSelector).attr("class") should include("govuk-button")
-        }
-      }
-
-      "returns an action with welsh content" which {
-        lazy val result: WSResponse = {
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
-
-          authoriseAgent()
-          await(wsClient.url(
-            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-          )
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-            .get())
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        "has an OK(200) status with the correct content" in {
-          result.status shouldBe OK
-          document.title() shouldBe s"$expectedTitleCy - $serviceNameCy - $govUkExtension"
-          document.select(".govuk-heading-l").text() shouldBe expectedH1Cy + " " + expectedCaptionCy
-          document.select(captionSelector).text() shouldBe expectedCaptionCy
-          document.select(inputHintTextSelector).text() shouldBe expectedInputHintTextCy
-          document.select(inputFieldSelector).attr("name")
-          document.select(buttonSelector).text() shouldBe expectedButtonTextCy
-          document.select(buttonSelector).attr("class") should include("govuk-button")
-        }
-      }
-    }
-
-    ".submit" should {
-
-      s"return an OK($OK) status" when {
-
-        "there is form data" in {
+        "render the page with correct content" which {
           lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"))
+            authoriseAgentOrIndividual(user.isAgent)
+            urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
+          }
 
-            authoriseAgent()
-            await(
-              wsClient.url(
-                s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                  s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-              )
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-                .post(Map("name" -> "adam"))
-            )
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import Selectors._
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          titleCheck(user.specificExpectedResults.get.expectedTitle)
+          h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+          textOnPageCheck(expectedCaption, captionSelector)
+          textOnPageCheck(expectedInputHintText, inputHintTextSelector)
+          inputFieldCheck(expectedInputName, inputFieldSelector)
+          buttonCheck(expectedButtonText, buttonSelector)
+          welshToggleCheck(user.isWelsh)
+        }
+      }
+    }
+  }
+
+  ".submit" when {
+
+    userScenarios.foreach { user =>
+      s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
+
+        "return an OK" in {
+          lazy val form: Map[String, Seq[String]] = Map("name" -> Seq("juamal"))
+
+          lazy val result: WSResponse = {
+            authoriseAgentOrIndividual(user.isAgent)
+            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
           }
 
           result.status shouldBe OK
         }
-      }
 
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an empty error in english" when {
+        "return an error" when {
 
-        "there is no form data" in {
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"
-            ))
+          "the submitted data is empty" which {
+            lazy val form: Map[String, Seq[String]] = Map("name" -> Seq(""))
 
-            authoriseAgent()
-            await(wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-              .post(Map[String, String]()))
+            lazy val result: WSResponse = {
+              authoriseAgentOrIndividual(user.isAgent)
+              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
+            }
+
+            implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+            import Selectors._
+            import user.commonExpectedResults._
+
+            titleCheck(errorPrefix + user.specificExpectedResults.get.expectedTitle)
+            h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+            textOnPageCheck(expectedCaption, captionSelector)
+            textOnPageCheck(expectedInputHintText, inputHintTextSelector)
+            inputFieldCheck(expectedInputName, inputFieldSelector)
+            buttonCheck(expectedButtonText, buttonSelector)
+            welshToggleCheck(user.isWelsh)
+
+            errorSummaryCheck(user.specificExpectedResults.get.expectedError, Selectors.inputFieldSelector)
+            errorAboveElementCheck(user.specificExpectedResults.get.expectedError)
           }
-          lazy val document: Document = Jsoup.parse(result.body)
 
-          result.status shouldBe BAD_REQUEST
-          document.select(errorSelector).text() shouldBe expectedError
-          document.title() shouldBe s"$expectedErrorTitle - $serviceName - $govUkExtension"
-        }
-      }
+          "the submitted data is too long" which {
+            lazy val form: Map[String, Seq[String]] = Map("name" -> Seq(charLimit))
 
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an empty error in welsh" when {
+            lazy val result: WSResponse = {
+              authoriseAgentOrIndividual(user.isAgent)
+              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
+            }
 
-        "there is no form data" in {
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"
-            ))
+            implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            authoriseAgent()
-            await(wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-              .post(Map[String, String]()))
+            import Selectors._
+            import user.commonExpectedResults._
+
+            titleCheck(errorPrefix + user.specificExpectedResults.get.expectedTitle)
+            h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+            textOnPageCheck(expectedCaption, captionSelector)
+            textOnPageCheck(expectedInputHintText, inputHintTextSelector)
+            inputFieldCheck(expectedInputName, inputFieldSelector)
+            buttonCheck(expectedButtonText, buttonSelector)
+            welshToggleCheck(user.isWelsh)
+
+            errorSummaryCheck(expectedCharLimitError, Selectors.inputFieldSelector)
+            errorAboveElementCheck(expectedCharLimitError)
           }
-          lazy val document: Document = Jsoup.parse(result.body)
 
-          result.status shouldBe BAD_REQUEST
-          document.select(errorSelector).text() shouldBe expectedErrorCy
-          document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
+          "the submitted data is in the incorrect format" which {
+            lazy val form: Map[String, Seq[String]] = Map("name" -> Seq(":@~{}<>?"))
+
+            lazy val result: WSResponse = {
+              authoriseAgentOrIndividual(user.isAgent)
+              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
+            }
+
+            implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+            import Selectors._
+            import user.commonExpectedResults._
+
+            titleCheck(errorPrefix + user.specificExpectedResults.get.expectedTitle)
+            h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+            textOnPageCheck(expectedCaption, captionSelector)
+            textOnPageCheck(expectedInputHintText, inputHintTextSelector)
+            inputFieldCheck(expectedInputName, inputFieldSelector)
+            buttonCheck(expectedButtonText, buttonSelector)
+            welshToggleCheck(user.isWelsh)
+
+            errorSummaryCheck(expectedInvalidCharError, Selectors.inputFieldSelector)
+            errorAboveElementCheck(expectedInvalidCharError)
+          }
+
+          "the submitted data is a duplicate name" which {
+            lazy val form: Map[String, Seq[String]] = Map("name" -> Seq("dupe"))
+
+            lazy val result: WSResponse = {
+              authoriseAgentOrIndividual(user.isAgent)
+              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =
+                playSessionCookie(user.isAgent, Map(GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString())))
+            }
+
+
+            implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+            import Selectors._
+            import user.commonExpectedResults._
+
+            titleCheck(errorPrefix + user.specificExpectedResults.get.expectedTitle)
+            h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+            textOnPageCheck(expectedCaption, captionSelector)
+            textOnPageCheck(expectedInputHintText, inputHintTextSelector)
+            inputFieldCheck(expectedInputName, inputFieldSelector)
+            buttonCheck(expectedButtonText, buttonSelector)
+            welshToggleCheck(user.isWelsh)
+
+            errorSummaryCheck(expectedDuplicateError, Selectors.inputFieldSelector)
+            errorAboveElementCheck(expectedDuplicateError)
+          }
         }
       }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an invalid Character error in welsh" in {
-        lazy val result: WSResponse = {
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
-
-          authoriseAgent()
-          await(
-            wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-              .post(Map("name" -> "ad|am"))
-          )
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        result.status shouldBe BAD_REQUEST
-        document.select(errorSelector).text() shouldBe expectedInvalidCharErrorCy
-        document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status with a character limit error in welsh" in {
-        lazy val result: WSResponse = {
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
-
-          authoriseAgent()
-          await(
-            wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-              .post(Map("name" -> charLimit))
-          )
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        result.status shouldBe BAD_REQUEST
-        document.select(errorSelector).text() shouldBe expectedCharLimitErrorCy
-        document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an duplicate name error in welsh" in {
-
-        lazy val result: WSResponse = {
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString(),
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
-
-          authoriseAgent()
-          await(
-            wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-              .post(Map("name" -> "JaneDoe"))
-          )
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        result.status shouldBe BAD_REQUEST
-        document.select(errorSelector).text() shouldBe expectedDuplicateErrorCy
-        document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
-      }
-
     }
-
   }
-
 }

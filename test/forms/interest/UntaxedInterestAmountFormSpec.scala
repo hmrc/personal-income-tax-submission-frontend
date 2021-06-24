@@ -24,11 +24,13 @@ import utils.UnitTest
 class UntaxedInterestAmountFormSpec extends UnitTest {
 
   def form(isAgent: Boolean,
-           previousNames: Seq[String]
+           previousNames: Seq[String],
+           idMatch: Boolean
            ): Form[UntaxedInterestModel] = {
     UntaxedInterestAmountForm.untaxedInterestAmountForm(
       isAgent,
-      previousNames
+      previousNames,
+      idMatch
       )
   }
 
@@ -49,7 +51,15 @@ class UntaxedInterestAmountFormSpec extends UnitTest {
 
         val testInput = Map(untaxedAccountName -> nameValid, untaxedAmount -> amountValid.toString)
         val expected = UntaxedInterestModel(nameValid, amountValid)
-        val actual = form(isAgent = true, emptyPreviousNames).bind(testInput).value
+        val actual = form(isAgent = true, emptyPreviousNames, idMatch = false).bind(testInput).value
+
+        actual shouldBe Some(expected)
+      }
+
+      "existing account name is changed" in {
+        val testInput = Map(untaxedAccountName -> nameValid, untaxedAmount -> amountValid.toString)
+        val expected = UntaxedInterestModel(nameValid, amountValid)
+        val actual = form(isAgent = true, previousNames, idMatch = true).bind(testInput).value
 
         actual shouldBe Some(expected)
       }
@@ -57,14 +67,14 @@ class UntaxedInterestAmountFormSpec extends UnitTest {
       "an invalid name has been added" in {
 
         val testInput = Map(untaxedAccountName -> nameInvalid, untaxedAmount -> amountValid.toString)
-        val result = form(isAgent = true, emptyPreviousNames).bind(testInput).errors
+        val result = form(isAgent = true, emptyPreviousNames, idMatch = false).bind(testInput).errors
 
         result should contain(FormError(untaxedAccountName, "interest.common.error.name.empty"))
       }
 
       "Name is a duplicate of an existing account name" in {
         val testInput = Map(untaxedAccountName -> nameValid, untaxedAmount -> amountValid.toString)
-        val result = form(isAgent = true, previousNames).bind(testInput).errors
+        val result = form(isAgent = true, previousNames, idMatch = false).bind(testInput).errors
 
         result should contain(FormError(untaxedAccountName, "interest.common.error.name.duplicate"))
       }
@@ -74,42 +84,42 @@ class UntaxedInterestAmountFormSpec extends UnitTest {
       "a valid interest amount has been added" in {
         val testInput = Map(untaxedAccountName -> nameValid, untaxedAmount -> amountValid.toString)
         val expected = UntaxedInterestModel(nameValid, amountValid)
-        val actual = form(isAgent = true, emptyPreviousNames).bind(testInput).value
+        val actual = form(isAgent = true, emptyPreviousNames, idMatch = false).bind(testInput).value
 
         actual shouldBe Some(expected)
       }
 
       "no entry has been added to the amount input box as an individual" in {
         val testInput = Map(untaxedAccountName -> nameValid, untaxedAmount -> amountInvalid)
-        val result = form(isAgent = false, emptyPreviousNames).bind(testInput).errors
+        val result = form(isAgent = false, emptyPreviousNames, idMatch = false).bind(testInput).errors
 
         result should contain(FormError(untaxedAmount, "interest.untaxed-uk-interest-amount.error.empty.individual"))
       }
 
       "no entry has been added to the amount input box as an agent" in {
         val testInput = Map(untaxedAccountName -> nameValid, untaxedAmount -> amountInvalid)
-        val result = form(isAgent = true, emptyPreviousNames).bind(testInput).errors
+        val result = form(isAgent = true, emptyPreviousNames, idMatch = false).bind(testInput).errors
 
         result should contain(FormError(untaxedAmount, "interest.untaxed-uk-interest-amount.error.empty.agent"))
       }
 
       "an invalid amount entry has been inputted" in {
         val testInput = Map(untaxedAccountName -> nameValid, untaxedAmount -> amountInvalidEntry)
-        val result = form(isAgent = true, emptyPreviousNames).bind(testInput).errors
+        val result = form(isAgent = true, emptyPreviousNames, idMatch = false).bind(testInput).errors
 
         result should contain(FormError(untaxedAmount, "interest.untaxed-uk-interest-amount.error.invalid-numeric"))
       }
 
       "an invalid amount entry has incorrect formatting" in {
         val testInput = Map(untaxedAccountName -> nameValid, untaxedAmount -> amountInvalidFormat)
-        val result = form(isAgent = true, emptyPreviousNames).bind(testInput).errors
+        val result = form(isAgent = true, emptyPreviousNames, idMatch = false).bind(testInput).errors
 
         result should contain(FormError(untaxedAmount, "interest.untaxed-uk-interest-amount.error.invalid-numeric"))
       }
 
       "an amount entry is too big" in {
         val testInput = Map(untaxedAccountName -> nameValid, untaxedAmount -> amountTooBig)
-        val result = form(isAgent = true, emptyPreviousNames).bind(testInput).errors
+        val result = form(isAgent = true, emptyPreviousNames, idMatch = false).bind(testInput).errors
 
         result should contain(FormError(untaxedAmount, "interest.untaxed-uk-interest-amount.error.max-amount"))
       }

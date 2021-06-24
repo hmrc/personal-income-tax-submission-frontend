@@ -124,7 +124,7 @@ trait WireMockHelper {
     )
   )
 
-  private def ninoEnrolment(nino: String = "AA123456A") = Json.obj(
+  private def ninoEnrolment(nino: String = "AA123456A"): JsObject = Json.obj(
     "key" -> "HMRC-NI",
     "identifiers" -> Json.arr(
       Json.obj(

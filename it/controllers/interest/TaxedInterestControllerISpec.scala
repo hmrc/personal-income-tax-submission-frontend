@@ -28,9 +28,6 @@ import utils.{IntegrationTest, InterestDatabaseHelper}
 
 class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabaseHelper {
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
-
-
   "as an individual" when {
 
     ".show" should {
@@ -43,7 +40,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
           insertCyaData(None)
 
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest").withHttpHeaders(xSessionId, csrfContent).get())
+          await(wsClient.url(s"$appUrl/2020/interest/taxed-uk-interest").withHttpHeaders(xSessionId, csrfContent).get())
         }
 
         "has an OK(200) status" in {
@@ -67,8 +64,8 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
           authoriseIndividual()
           await(
             wsClient
-              .url(s"$startUrl/2020/interest/taxed-uk-interest")
-            .withHttpHeaders(xSessionId, csrfContent)
+              .url(s"$appUrl/2020/interest/taxed-uk-interest")
+              .withHttpHeaders(xSessionId, csrfContent)
               .get()
           )
         }
@@ -87,7 +84,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
           insertCyaData(None)
 
           authoriseIndividualUnauthorized()
-          await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest")
+          await(wsClient.url(s"$appUrl/2020/interest/taxed-uk-interest")
             .withHttpHeaders(xSessionId, csrfContent).get())
         }
         "has an UNAUTHORIZED(401) status" in {
@@ -110,7 +107,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
             authoriseIndividual()
             await(
-              wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest")
+              wsClient.url(s"$appUrl/2020/interest/taxed-uk-interest")
                 .withHttpHeaders(xSessionId, csrfContent)
                 .withFollowRedirects(false)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
@@ -140,7 +137,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
             authoriseIndividual()
             await(
-              wsClient.url(s"$startUrl/2022/interest/taxed-uk-interest")
+              wsClient.url(s"$appUrl/2022/interest/taxed-uk-interest")
                 .withHttpHeaders(xSessionId, csrfContent)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
             )
@@ -166,7 +163,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
           insertCyaData(Some(interestCYA))
 
           authoriseIndividual()
-          await(wsClient.url(s"$startUrl/2022/interest/taxed-uk-interest").withHttpHeaders(xSessionId, csrfContent).post(Map[String, String]()))
+          await(wsClient.url(s"$appUrl/2022/interest/taxed-uk-interest").withHttpHeaders(xSessionId, csrfContent).post(Map[String, String]()))
         }
 
         result.status shouldBe BAD_REQUEST
@@ -186,7 +183,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
           authoriseIndividualUnauthorized()
           await(
-            wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest")
+            wsClient.url(s"$appUrl/2020/interest/taxed-uk-interest")
               .withHttpHeaders(xSessionId, csrfContent)
               .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
           )
@@ -224,7 +221,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
           insertCyaData(Some(interestCYA))
 
           authoriseAgent()
-          await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest")
+          await(wsClient.url(s"$appUrl/2020/interest/taxed-uk-interest")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent).get())
         }
 
@@ -252,7 +249,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
           insertCyaData(Some(interestCYA))
 
           authoriseAgentUnauthorized()
-          await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest")
+          await(wsClient.url(s"$appUrl/2020/interest/taxed-uk-interest")
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent).get())
         }
 
@@ -275,7 +272,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
             insertCyaData(None)
 
             authoriseIndividual()
-            await(wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest")
+            await(wsClient.url(s"$appUrl/2020/interest/taxed-uk-interest")
               .withHttpHeaders(xSessionId, csrfContent).post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
           }
 
@@ -304,7 +301,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
             authoriseAgent()
             await(
-              wsClient.url(s"$startUrl/2022/interest/taxed-uk-interest")
+              wsClient.url(s"$appUrl/2022/interest/taxed-uk-interest")
                 .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
                 .withFollowRedirects(false)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
@@ -336,7 +333,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
           authoriseAgent()
           await(
-            wsClient.url(s"$startUrl/2022/interest/taxed-uk-interest")
+            wsClient.url(s"$appUrl/2022/interest/taxed-uk-interest")
               .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
               .post(Map[String, String]())
           )
@@ -364,7 +361,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
           authoriseAgentUnauthorized()
           await(
-            wsClient.url(s"$startUrl/2020/interest/taxed-uk-interest")
+            wsClient.url(s"$appUrl/2020/interest/taxed-uk-interest")
               .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
               .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
           )

@@ -17,26 +17,31 @@
 package utils
 
 import akka.actor.ActorSystem
+import common.SessionValues
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
-import helpers.WireMockHelper
+import helpers.{PlaySessionCookieBaker, WireMockHelper}
 import models.User
 import models.priorDataModels.IncomeSourcesModel
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.http.HeaderNames
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
+import play.api.libs.ws.{BodyWritable, WSClient, WSRequest, WSResponse}
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.OK
 import play.api.{Application, Environment, Mode}
 import services.AuthService
-import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
+import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Enrolment, EnrolmentIdentifier, Enrolments}
+import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.authErrorPages.AgentAuthErrorPageView
 
@@ -47,8 +52,8 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   val nino = "AA123456A"
   val mtditid = "1234567890"
+  val sessionId = "sessionId-eb3158c2-0aff-4ce8-8d1b-f2208ace52fe"
   val affinityGroup = "Individual"
-  val sessionId = "eb3158c2-0aff-4ce8-8d1b-f2208ace52fe"
 
   val xSessionId: (String, String) = "X-Session-ID" -> sessionId
   val csrfContent: (String, String) = "Csrf-Token" -> "nocheck"
@@ -60,7 +65,9 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   implicit val actorSystem: ActorSystem = ActorSystem()
 
-  val startUrl = s"http://localhost:$port/income-through-software/return/personal-income"
+  implicit def wsClient: WSClient = app.injector.instanceOf[WSClient]
+
+  val appUrl = s"http://localhost:$port/income-through-software/return/personal-income"
 
   def await[T](awaitable: Awaitable[T]): T = Await.result(awaitable, Duration.Inf)
 
@@ -68,20 +75,14 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "auditing.enabled" -> false,
     "metrics.enabled" -> false,
     "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck",
-    "microservice.services.income-tax-submission-frontend.host" -> wiremockHost,
-    "microservice.services.income-tax-submission-frontend.port" -> wiremockPort,
-    "microservice.services.income-tax-submission.host" -> wiremockHost,
-    "microservice.services.income-tax-submission.port" -> wiremockPort,
-    "income-tax-submission-frontend.url" -> s"http://$wiremockHost:$wiremockPort",
+    "microservice.services.income-tax-submission-frontend.url" -> s"http://$wiremockHost:$wiremockPort",
+    "microservice.services.income-tax-submission.url" -> s"http://$wiremockHost:$wiremockPort",
     "microservice.services.auth.host" -> wiremockHost,
     "microservice.services.auth.port" -> wiremockPort,
-    "microservice.services.income-tax-dividends.host" -> wiremockHost,
-    "microservice.services.income-tax-dividends.port" -> wiremockPort,
-    "microservice.services.income-tax-interest.host" -> wiremockHost,
-    "microservice.services.income-tax-interest.port" -> wiremockPort,
-    "microservice.services.income-tax-gift-aid.host" -> wiremockHost,
-    "microservice.services.income-tax-gift-aid.port" -> wiremockPort,
-    "signIn.url" -> s"/auth-login-stub/gg-sign-in",
+    "microservice.services.income-tax-dividends.url" -> s"http://$wiremockHost:$wiremockPort",
+    "microservice.services.income-tax-interest.url" -> s"http://$wiremockHost:$wiremockPort",
+    "microservice.services.income-tax-gift-aid.url" -> s"http://$wiremockHost:$wiremockPort",
+    "microservice.services.sign-in.url" -> s"/auth-login-stub/gg-sign-in",
     "taxYearChangeResetsSession" -> false
   )
 
@@ -112,7 +113,6 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   }
 
   lazy val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-
 
   val defaultAcceptedConfidenceLevels = Seq(
     ConfidenceLevel.L200,
@@ -174,4 +174,19 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     userDataStub(IncomeSourcesModel(), nino, 2022)
   }
 
+
+  def playSessionCookie(agent: Boolean=false, extraData: Map[String, String]=Map.empty): Seq[(String, String)] = {
+
+    {
+      if (agent) {
+        Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(extraData ++ Map(
+          SessionValues.CLIENT_NINO -> "AA123456A",
+          SessionValues.CLIENT_MTDITID -> mtditid))
+        )
+      } else {
+        Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(extraData), "mtditid" -> mtditid)
+      }
+    } ++
+      Seq(xSessionId)
+  }
 }

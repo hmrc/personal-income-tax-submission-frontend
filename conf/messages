@@ -275,7 +275,7 @@ interest.changeAccountAmount.amountMaxLimit = The amount of {0} UK interest must
 
 charity.common.gift-aid.doNotInclude.individual = Do not include the Gift Aid added to your donation.
 charity.common.gift-aid.doNotInclude.agent = Do not include the Gift Aid added to your client’s donation.
-
+charity.common.aid-summary.hiddenChange = Change the details you’ve entered for {0}.
 charity.common.total.valueInPounds = Total value, in pounds
 charity.common.add.overseas.question = Do you need to add another overseas charity?
 
@@ -353,8 +353,7 @@ charity.overseas-gift-aid-summary.title.agent = Overseas {0} your client used Gi
 charity.overseas-gift-aid-summary.hint.individual = You must tell us about all the overseas charities you donated to.
 charity.overseas-gift-aid-summary.hint.agent = You must tell us about all the overseas charities your client donated to.
 charity.overseas-gift-aid-summary.noChoice = Select yes if you need to add another overseas charity
-charity.overseas-gift-aid-summary.hiddenChange = Change details you’ve entered for {0}
-charity.overseas-gift-aid-summary.hiddenRemove = Remove {0}
+charity.overseas-gift-aid-summary.hiddenRemove = Remove {0}.
 
 charity.remove-overseas-charity.content = This will remove all overseas charities.
 charity.remove-overseas-charity.noChoice = Select yes to remove this overseas charity
@@ -445,7 +444,6 @@ charity.shares-and-land-summary.title.individual = Overseas {0} you donated shar
 charity.shares-and-land-summary.title.agent = Overseas {0} your client donated shares, securities, land or property to
 charity.shares-and-land-summary.hint.individual = You must tell us about all the overseas charities you donated shares, securities, land or property to.
 charity.shares-and-land-summary.hint.agent = You must tell us about all the overseas charities your client donated shares, securities, land or property to.
-charity.shares-and-land-summary.change-hidden = Change the details you’ve entered for {0}.
 
 charity.cya.title-heading.individual = Check your donations to charity
 charity.cya.title-heading.agent = Check your client’s donations to charity

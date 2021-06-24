@@ -63,38 +63,40 @@ class ReceiveOtherUkDividendsController @Inject()(
   }
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, DIVIDENDS)).async { implicit user =>
-    yesNoForm(user.isAgent).bindFromRequest().fold(
-      {
-        formWithErrors =>
-          Future.successful(BadRequest(
-            receiveOtherDividendsView(formWithErrors, taxYear)
-          ))
-      },
-      {
-        yesNoModel =>
-          dividendsSessionService.getSessionData(taxYear).map(_.flatMap(_.dividends)).map { cya =>
-            val cyaModel: DividendsCheckYourAnswersModel = cya match {
-              case Some(model) => model
-              case None => DividendsCheckYourAnswersModel()
-            }
 
-            if (yesNoModel) {
-              updateAndRedirect(
-                cyaModel.copy(otherUkDividends = Some(true)),
-                taxYear,
-                controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear)
-              )
-            } else {
-              updateAndRedirect(
-                cyaModel.copy(otherUkDividends = Some(false), otherUkDividendsAmount = None),
-                taxYear,
-                controllers.dividends.routes.DividendsCYAController.show(taxYear)
-              )
-            }
-          }.flatten
-      }
-    )
+      yesNoForm(user.isAgent).bindFromRequest().fold(
+        {
+          formWithErrors =>
+            Future.successful(BadRequest(
+              receiveOtherDividendsView(formWithErrors, taxYear)
+            ))
+        }, {
+          yesNoModel =>
+            dividendsSessionService.getSessionData(taxYear).map(_.flatMap(_.dividends)).map[Future[Result]] { cya =>
+              cya.fold {
+                Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+              } {
+                cyaModel =>
+                  if (yesNoModel) {
+                    updateAndRedirect(
+                      cyaModel.copy(otherUkDividends = Some(true)),
+                      taxYear,
+                      controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear)
+                    )
+                  } else {
+                    updateAndRedirect(
+                      cyaModel.copy(otherUkDividends = Some(false), otherUkDividendsAmount = None),
+                      taxYear,
+                      controllers.dividends.routes.DividendsCYAController.show(taxYear)
+                    )
+                  }
+              }
+            }.flatten
+        }
+      )
+
   }
+
 
   private def updateAndRedirect(cyaModel: DividendsCheckYourAnswersModel, taxYear: Int, redirectCall: Call)(implicit user: User[_]): Future[Result] = {
     dividendsSessionService.updateSessionData(cyaModel, taxYear)(

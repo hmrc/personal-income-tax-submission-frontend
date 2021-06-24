@@ -17,14 +17,14 @@
 package forms.interest
 
 import filters.InputFilters
-import forms.validation.StringConstraints.{nonEmpty, validateChar, validateSize, validateNotDuplicate}
+import forms.validation.StringConstraints.{nonEmpty, validateChar, validateSize, validateNotDuplicateInterestAccount}
 import forms.validation.mappings.MappingUtil.{currency, trimmedText}
 import models.interest.UntaxedInterestModel
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import play.api.data.validation.Constraint
 
-object UntaxedInterestAmountForm extends InputFilters{
+object UntaxedInterestAmountForm extends InputFilters {
 
   val untaxedAccountName = "untaxedAccountName"
   val untaxedAmount = "untaxedAmount"
@@ -36,21 +36,21 @@ object UntaxedInterestAmountForm extends InputFilters{
 
   val exceedCharLimit: Constraint[String] = validateSize(charLimit)("interest.accounts.error.tooLong")
 
-  def emptyAmountKey(isAgent: Boolean): String = s"interest.untaxed-uk-interest-amount.error.empty.${if(isAgent) "agent" else "individual"}"
+  def emptyAmountKey(isAgent: Boolean): String = s"interest.untaxed-uk-interest-amount.error.empty.${if (isAgent) "agent" else "individual"}"
 
-  val invalidNumericKey: String =  "interest.untaxed-uk-interest-amount.error.invalid-numeric"
+  val invalidNumericKey: String = "interest.untaxed-uk-interest-amount.error.invalid-numeric"
 
   val maxAmountInvalidKey: String = "interest.untaxed-uk-interest-amount.error.max-amount"
 
-  def notDuplicate(previousNames: Seq[String]): Constraint[String] = validateNotDuplicate(previousNames)("interest.common.error.name.duplicate")
+  def notDuplicate(previousNames: Seq[String], idMatch: Boolean): Constraint[String] = validateNotDuplicateInterestAccount(previousNames, idMatch)("interest.common.error.name.duplicate")
 
-  def untaxedInterestAmountForm(isAgent: Boolean, previousNames: Seq[String]): Form[UntaxedInterestModel] = Form(
+  def untaxedInterestAmountForm(isAgent: Boolean, previousNames: Seq[String], idMatch: Boolean): Form[UntaxedInterestModel] = Form(
     mapping(
-      untaxedAccountName -> trimmedText.verifying(nameNotEmpty, noInvalidChar, exceedCharLimit, notDuplicate(previousNames)),
+      untaxedAccountName -> trimmedText.verifying(nameNotEmpty, noInvalidChar, exceedCharLimit, notDuplicate(previousNames, idMatch)),
       untaxedAmount -> currency(requiredKey = emptyAmountKey(isAgent: Boolean),
-                                invalidNumeric = invalidNumericKey,
-                                nonNumericKey = invalidNumericKey,
-                                maxAmountKey = maxAmountInvalidKey)
+        invalidNumeric = invalidNumericKey,
+        nonNumericKey = invalidNumericKey,
+        maxAmountKey = maxAmountInvalidKey)
     )(UntaxedInterestModel.apply)(UntaxedInterestModel.unapply).transform[UntaxedInterestModel](
       details => details.copy(
         untaxedAccountName = filter(details.untaxedAccountName)
