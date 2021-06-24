@@ -32,9 +32,10 @@ import play.api.http.HeaderNames
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.libs.ws.{BodyWritable, WSClient, WSRequest, WSResponse}
+import play.api.libs.ws.{BodyWritable, WSClient, WSResponse}
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.OK
+import play.api.test.Helpers.{OK, await}
 import play.api.{Application, Environment, Mode}
 import services.AuthService
 import uk.gov.hmrc.auth.core.retrieve.~
@@ -50,6 +51,7 @@ import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
 
 trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerPerSuite with WireMockHelper with BeforeAndAfterAll {
 
+  val year = 2022
   val nino = "AA123456A"
   val mtditid = "1234567890"
   val sessionId = "sessionId-eb3158c2-0aff-4ce8-8d1b-f2208ace52fe"
@@ -114,6 +116,38 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   lazy val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
 
+  def urlGet(url: String, welsh: Boolean = false, follow: Boolean = true, headers: Seq[(String, String)] = Seq())(implicit wsClient: WSClient): WSResponse = {
+
+    val newHeaders = if(welsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") ++ headers else headers
+    await(wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(newHeaders: _*).get())
+  }
+
+  def urlPost[T](url: String,
+                 body: T,
+                 welsh: Boolean = false,
+                 follow: Boolean = true,
+                 headers: Seq[(String, String)] = Seq())
+                (implicit wsClient: WSClient, bodyWritable: BodyWritable[T]): WSResponse = {
+
+    val headersWithNoCheck = headers ++ Seq("Csrf-Token" -> "nocheck")
+    val newHeaders = if(welsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") ++ headersWithNoCheck else headersWithNoCheck
+    await(wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(newHeaders: _*).post(body))
+  }
+
+  def playSessionCookie(agent: Boolean = false, extraData: Map[String, String] = Map.empty): Seq[(String, String)] = {
+    {
+      if (agent) {
+        Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(extraData ++ Map(
+          SessionValues.CLIENT_NINO -> "AA123456A",
+          SessionValues.CLIENT_MTDITID -> mtditid))
+        )
+      } else {
+        Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(extraData), "mtditid" -> mtditid)
+      }
+    } ++
+      Seq(xSessionId)
+  }
+
   val defaultAcceptedConfidenceLevels = Seq(
     ConfidenceLevel.L200,
     ConfidenceLevel.L500
@@ -165,28 +199,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
       Json.toJson(userData).toString(),("X-Session-ID" -> sessionId), ("mtditid" -> mtditid))
   }
 
-  def emptyUserDataStub(nino: String, taxYear: Int): StubMapping = {
+  def emptyUserDataStub(nino: String = nino, taxYear: Int = year): StubMapping = {
     userDataStub(IncomeSourcesModel(), nino, taxYear)
-  }
-
-  def emptyUserDataStub(): StubMapping = {
-    //noinspection ScalaStyle
-    userDataStub(IncomeSourcesModel(), nino, 2022)
-  }
-
-
-  def playSessionCookie(agent: Boolean=false, extraData: Map[String, String]=Map.empty): Seq[(String, String)] = {
-
-    {
-      if (agent) {
-        Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(extraData ++ Map(
-          SessionValues.CLIENT_NINO -> "AA123456A",
-          SessionValues.CLIENT_MTDITID -> mtditid))
-        )
-      } else {
-        Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(extraData), "mtditid" -> mtditid)
-      }
-    } ++
-      Seq(xSessionId)
   }
 }
