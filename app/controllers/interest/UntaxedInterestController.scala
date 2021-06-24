@@ -28,11 +28,13 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.InterestSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import utils.ClearingNewCYAAccountsHelper.clearNewEmptyAccounts
 import utils.SessionHelper
 import views.html.interest.UntaxedInterestView
-
 import java.util.UUID.randomUUID
+
 import javax.inject.Inject
+
 import scala.concurrent.{ExecutionContext, Future}
 
 class UntaxedInterestController @Inject()(
@@ -105,7 +107,7 @@ class UntaxedInterestController @Inject()(
                 val updatedCya = baseCya.copy(untaxedUkInterest = Some(yesNoModel), accounts = if (yesNoModel) {
                   baseCya.accounts
                 } else {
-                  baseCya.accounts.map(accounts => accounts.map(interestAccountModel => interestAccountModel.copy(untaxedAmount = None)))
+                  clearNewEmptyAccounts(baseCya, true)
                 })
 
                 (yesNoModel, updatedCya.isFinished) match {

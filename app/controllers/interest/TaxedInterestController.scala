@@ -32,9 +32,11 @@ import services.InterestSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.interest.TaxedInterestView
-
 import java.util.UUID.randomUUID
+
 import javax.inject.Inject
+import utils.ClearingNewCYAAccountsHelper.clearNewEmptyAccounts
+
 import scala.concurrent.{ExecutionContext, Future}
 
 class TaxedInterestController @Inject()(
@@ -86,7 +88,7 @@ class TaxedInterestController @Inject()(
                         val updatedCya = cyaData.copy(taxedUkInterest = Some(yesNoModel), accounts = if (yesNoModel) {
                           cyaData.accounts
                         } else {
-                          cyaData.accounts.map(accounts => accounts.map(interestAccountModel => interestAccountModel.copy(taxedAmount = None)))
+                          clearNewEmptyAccounts(cyaData, false)
                         })
 
                       if (yesNoModel) {
