@@ -21,7 +21,6 @@ import forms.YesNoForm
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
@@ -125,7 +124,7 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
 
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
-            urlGet(url, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+            urlGet(url, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
           }
 
           result.status shouldBe SEE_OTHER
@@ -134,7 +133,7 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
         "render the page with correct content" which {
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
-            urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear, Map(GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString()))))
+            urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent, Map(GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString())))
           }
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -171,7 +170,7 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
 
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
-            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear, Map(GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString()))))
+            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent, Map(GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString())))
           }
 
           result.status shouldBe OK
@@ -182,7 +181,7 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
 
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
-            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
           }
 
           result.status shouldBe SEE_OTHER
@@ -194,7 +193,8 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
 
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
-            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear, Map(GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString()))))
+            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent,
+              Map(GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString())))
           }
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)

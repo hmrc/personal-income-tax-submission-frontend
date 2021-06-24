@@ -16,16 +16,13 @@
 
 package controllers.charity
 
-import common.SessionValues
 import common.SessionValues.GIFT_AID_PRIOR_SUB
-import helpers.PlaySessionCookieBaker
 import models.charity.prior.{GiftAidSubmissionModel, GiftsModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.json.Json
-import play.api.libs.ws.{WSClient, WSResponse}
+import play.api.libs.ws.WSResponse
 import utils.{IntegrationTest, ViewHelpers}
 
 class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest with ViewHelpers {
@@ -122,7 +119,7 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest with View
         "render the page with correct content" which {
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
-            urlGet(url, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+            urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
           }
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -156,7 +153,7 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest with View
 
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
-            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
           }
 
           result.status shouldBe OK
@@ -169,7 +166,7 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest with View
 
             lazy val result: WSResponse = {
               authoriseAgentOrIndividual(user.isAgent)
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
             }
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -194,7 +191,7 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest with View
 
             lazy val result: WSResponse = {
               authoriseAgentOrIndividual(user.isAgent)
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
             }
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -219,7 +216,7 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest with View
 
             lazy val result: WSResponse = {
               authoriseAgentOrIndividual(user.isAgent)
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
             }
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -244,9 +241,10 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest with View
 
             lazy val result: WSResponse = {
               authoriseAgentOrIndividual(user.isAgent)
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = Seq(HeaderNames.COOKIE ->
-                playSessionCookies(taxYear, Map(GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString()))))
+              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =
+                playSessionCookie(user.isAgent, Map(GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString())))
             }
+
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 

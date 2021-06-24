@@ -164,13 +164,6 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     )) and Some(AffinityGroup.Individual) and ConfidenceLevel.L200
   )
 
-  def playSessionCookies(taxYear: Int, extraData: Map[String, String] = Map()): String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-    SessionValues.TAX_YEAR -> taxYear.toString,
-    SessionKeys.sessionId -> sessionId,
-    SessionValues.CLIENT_NINO -> "AA123456A",
-    SessionValues.CLIENT_MTDITID -> "1234567890"
-  ) ++ extraData)
-
   def userDataStub(userData: IncomeSourcesModel, nino: String, taxYear: Int): StubMapping ={
     stubGetWithHeadersCheck(
       s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", OK,
@@ -187,17 +180,18 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   }
 
 
-  def playSessionCookie(agent: Boolean=false, extraData:Seq[(String, String)]=Seq.empty): Seq[(String, String)] = {
+  def playSessionCookie(agent: Boolean=false, extraData: Map[String, String]=Map.empty): Seq[(String, String)] = {
+
     {
       if (agent) {
-        Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(Map(
+        Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(extraData ++ Map(
           SessionValues.CLIENT_NINO -> "AA123456A",
-          SessionValues.CLIENT_MTDITID -> mtditid)
-        ))
+          SessionValues.CLIENT_MTDITID -> mtditid))
+        )
       } else {
-        Seq("mtditid" -> mtditid)
+        Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(extraData), "mtditid" -> mtditid)
       }
     } ++
-      Seq(xSessionId) ++ extraData
+      Seq(xSessionId)
   }
 }
