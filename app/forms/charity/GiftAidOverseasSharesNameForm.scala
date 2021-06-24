@@ -16,7 +16,7 @@
 
 package forms.charity
 
-import forms.validation.StringConstraints.{nonEmpty, validateChar, validateNotDuplicate, validateSize}
+import forms.validation.StringConstraints.{nonEmpty, validateChar, validateNotDuplicateGiftAidAccount, validateSize}
 import forms.validation.mappings.MappingUtil.trimmedText
 import forms.validation.utils.ConstraintUtil.ConstraintUtil
 import play.api.data.Form
@@ -33,7 +33,7 @@ object GiftAidOverseasSharesNameForm {
   val NotCharLimit: Constraint[String] = validateSize(charLimit)("charity.common.name.error.limit")
   val NotInvalidChar: Constraint[String] = validateChar("charity.common.name.error.invalid")
 
-  def notDuplicate(previousNames: List[String]): Constraint[String] = validateNotDuplicate(previousNames)("charity.common.name.error.duplicate")
+  def notDuplicate(previousNames: List[String]): Constraint[String] = validateNotDuplicateGiftAidAccount(previousNames)("charity.common.name.error.duplicate")
 
   def giftAidOverseasSharesNameForm(previousNames: List[String], isAgent: Boolean): Form[String] = Form(
       giftAidOverseasSharesName -> trimmedText.verifying(
