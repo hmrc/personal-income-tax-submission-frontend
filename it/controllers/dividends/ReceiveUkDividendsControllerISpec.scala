@@ -190,7 +190,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
             Some(amount),
             Some(amount)
           ))), nino, taxYear)
-        urlGet(receiveUkDividendsUrl, follow = false, headers = playSessionCookie(false))
+        urlGet(receiveUkDividendsUrl, follow = false, headers = playSessionCookie())
       }
       "has an SEE_OTHER(303) status" in {
         result.status shouldBe SEE_OTHER
@@ -203,7 +203,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
         authoriseIndividualUnauthorized()
         dropDividendsDB()
         emptyUserDataStub()
-        urlGet(receiveUkDividendsUrl, headers = playSessionCookie(false))
+        urlGet(receiveUkDividendsUrl, headers = playSessionCookie())
       }
       "has an UNAUTHORIZED(401) status" in {
         result.status shouldBe UNAUTHORIZED
@@ -225,7 +225,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
             authoriseAgentOrIndividual(us.isAgent)
             dropDividendsDB()
             emptyUserDataStub()
-            urlPosts(receiveUkDividendsUrl, follow = false, headers = playSessionCookie(us.isAgent), postRequest = Map[String, String]())
+            urlPost(receiveUkDividendsUrl, follow = false, headers = playSessionCookie(us.isAgent), body = Map[String, String]())
           }
 
           s"has a $BAD_REQUEST(400) status" in {
@@ -244,7 +244,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
             authoriseAgentOrIndividual(us.isAgent)
             dropDividendsDB()
             emptyUserDataStub()
-            urlPosts(receiveUkDividendsUrl, us.isWelsh, follow = false, headers = playSessionCookie(us.isAgent), postRequest = Map[String, String]())
+            urlPost(receiveUkDividendsUrl, welsh=us.isWelsh, follow = false, headers = playSessionCookie(us.isAgent), body = Map[String, String]())
           }
 
           "return a BadRequest status" in {
@@ -274,7 +274,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           authoriseIndividual()
           dropDividendsDB()
           emptyUserDataStub()
-          urlPosts(receiveUkDividendsUrl, follow = false, headers = playSessionCookie(false), postRequest = Map(YesNoForm.yesNo -> YesNoForm.yes))
+          urlPost(receiveUkDividendsUrl, follow = false, headers = playSessionCookie(), body = Map(YesNoForm.yesNo -> YesNoForm.yes))
         }
 
         s"has a $SEE_OTHER(303) status" in {
@@ -289,7 +289,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           dropDividendsDB()
           emptyUserDataStub()
           insertCyaData(Some(cyaModel))
-          urlPosts(receiveUkDividendsUrl, follow = false, headers = playSessionCookie(false), postRequest = Map(YesNoForm.yesNo -> YesNoForm.yes))
+          urlPost(receiveUkDividendsUrl, follow = false, headers = playSessionCookie(), body = Map(YesNoForm.yesNo -> YesNoForm.yes))
         }
 
         s"has a $SEE_OTHER(303) status" in {
@@ -304,7 +304,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           authoriseIndividual()
           dropDividendsDB()
           emptyUserDataStub()
-          urlPosts(receiveUkDividendsUrl, follow = false, headers = playSessionCookie(false), postRequest = Map(YesNoForm.yesNo -> YesNoForm.no))
+          urlPost(receiveUkDividendsUrl, follow = false, headers = playSessionCookie(), body = Map(YesNoForm.yesNo -> YesNoForm.no))
         }
 
         s"has a $SEE_OTHER(303) status" in {
@@ -319,7 +319,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           dropDividendsDB()
           emptyUserDataStub()
           insertCyaData(Some(DividendsCheckYourAnswersModel(ukDividends = Some(true), ukDividendsAmount = Some(amount))))
-          urlPosts(receiveUkDividendsUrl, follow = false, headers = playSessionCookie(false), postRequest = Map(YesNoForm.yesNo -> YesNoForm.no))
+          urlPost(receiveUkDividendsUrl, follow = false, headers = playSessionCookie(), body = Map(YesNoForm.yesNo -> YesNoForm.no))
         }
 
         s"has a $SEE_OTHER(303) status" in {
@@ -334,7 +334,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           dropDividendsDB()
           emptyUserDataStub()
           insertCyaData(Some(cyaModel))
-          urlPosts(receiveUkDividendsUrl, follow = false, headers = playSessionCookie(false), postRequest = Map(YesNoForm.yesNo -> YesNoForm.no))
+          urlPost(receiveUkDividendsUrl, follow = false, headers = playSessionCookie(), body = Map(YesNoForm.yesNo -> YesNoForm.no))
         }
 
         s"has a $SEE_OTHER(303) status" in {
@@ -347,7 +347,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           authoriseIndividualUnauthorized()
           dropDividendsDB()
           emptyUserDataStub()
-          urlPosts(receiveUkDividendsUrl, headers = playSessionCookie(false), postRequest = Map(YesNoForm.yesNo -> YesNoForm.no))
+          urlPost(receiveUkDividendsUrl, headers = playSessionCookie(), body = Map(YesNoForm.yesNo -> YesNoForm.no))
         }
         "has an UNAUTHORIZED(401) status" in {
           result.status shouldBe UNAUTHORIZED

@@ -331,7 +331,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
               Some(true), Some(otherDividends1)
             )))
             urlGet(dividendsCheckYourAnswersUrl, us.isWelsh, headers =
-              playSessionCookie(us.isAgent, nino))
+              playSessionCookie(us.isAgent))
           }
 
           s"has an OK($OK) status" in {
@@ -501,7 +501,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
             Some(true), Some(1000.43), Some(true), Some(9983.21)
           )))
         stubPut("/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=2022", NO_CONTENT, "")
-        urlPosts(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie(), postRequest = "")
+        urlPost(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie(), body = "")
       }
       s"has a status of 303" in {
         result.status shouldBe SEE_OTHER
@@ -525,7 +525,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
             Some(true), Some(1000.43), Some(true), Some(9983.21)
           )))
         stubPut("/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=2022", INTERNAL_SERVER_ERROR, "")
-        urlPosts(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie(), postRequest = "")
+        urlPost(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie(), body = "")
       }
 
       "has a status of 500" in {
@@ -544,7 +544,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
             Some(true), Some(1000.43), Some(true), Some(9983.21)
           )))
         stubPut("/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=2022", SERVICE_UNAVAILABLE, "")
-        urlPosts(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie(), postRequest = "")
+        urlPost(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie(), body = "")
       }
 
       "has a status of 503" in {

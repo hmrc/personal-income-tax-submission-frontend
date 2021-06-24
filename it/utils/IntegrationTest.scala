@@ -187,29 +187,17 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   }
 
 
-  def playSessionCookie(agent: Boolean =false, newNino: String = "AA123456A"): Seq[(String, String)] = {
+  def playSessionCookie(agent: Boolean=false, extraData:Seq[(String, String)]=Seq.empty): Seq[(String, String)] = {
     {
       if (agent) {
         Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.CLIENT_NINO -> newNino,
+          SessionValues.CLIENT_NINO -> "AA123456A",
           SessionValues.CLIENT_MTDITID -> mtditid)
         ))
       } else {
         Seq("mtditid" -> mtditid)
       }
     } ++
-      Seq(xSessionId,
-        csrfContent)
-  }
-
-
-  def buildRouteUrl(url: String, welsh: Boolean = false, follow: Boolean = true, headers: Seq[(String, String)]): WSRequest = {
-    val newHeaders = if (welsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") ++ headers else headers
-    wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(newHeaders: _*)
-  }
-
-  def urlPosts[T:BodyWritable](url: String, welsh: Boolean = false, follow: Boolean = true,
-                                headers: Seq[(String, String)] = Seq(), postRequest: T): WSResponse = {
-    await(buildRouteUrl(url, welsh, follow, headers).post(postRequest))
+      Seq(xSessionId) ++ extraData
   }
 }

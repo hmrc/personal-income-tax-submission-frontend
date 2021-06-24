@@ -238,7 +238,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
         emptyUserDataStub()
         userDataStub(priorData, nino, taxYear)
         stubGet(s"/income-through-software/return/$taxYear/view", OK, "overview page content")
-        urlGet(receivedOtherDividendsUrl, follow = false, headers = playSessionCookie(false))
+        urlGet(receivedOtherDividendsUrl, follow = false, headers = playSessionCookie())
       }
 
       s"has an $SEE_OTHER(303) status" in {
@@ -255,7 +255,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
         dropDividendsDB()
         emptyUserDataStub()
         stubGet(s"/income-through-software/return/$taxYear/view", SEE_OTHER, "overview page content")
-        urlGet(receivedOtherDividendsUrl, follow = false, headers = playSessionCookie(false))
+        urlGet(receivedOtherDividendsUrl, follow = false, headers = playSessionCookie())
       }
 
       "has an OK(200) status" in {
@@ -268,7 +268,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
         authoriseIndividualUnauthorized()
         dropDividendsDB()
         emptyUserDataStub()
-        urlGet(receivedOtherDividendsUrl, headers = playSessionCookie(false))
+        urlGet(receivedOtherDividendsUrl, headers = playSessionCookie())
       }
       "has an UNAUTHORIZED(401) status" in {
         result.status shouldBe UNAUTHORIZED
@@ -293,7 +293,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
             lazy val result: WSResponse = {
               authoriseAgentOrIndividual(us.isAgent)
-              urlPosts(receivedOtherDividendsUrl, us.isWelsh, headers = playSessionCookie(us.isAgent), postRequest = Map[String, String]())
+              urlPost(receivedOtherDividendsUrl, welsh=us.isWelsh, headers = playSessionCookie(us.isAgent), body = Map[String, String]())
             }
 
             "has an BAD_REQUEST(400) status" in {
@@ -335,8 +335,8 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
         authoriseIndividual()
         dropDividendsDB()
         emptyUserDataStub()
-        urlGet(receivedOtherDividendsUrl, follow = false, headers = playSessionCookie(false))
-        urlPosts(receivedOtherDividendsUrl, follow = false, headers = playSessionCookie(false), postRequest = Map(YesNoForm.yesNo -> YesNoForm.yes))
+        urlGet(receivedOtherDividendsUrl, follow = false, headers = playSessionCookie())
+        urlPost(receivedOtherDividendsUrl, follow = false, headers = playSessionCookie(), body = Map(YesNoForm.yesNo -> YesNoForm.yes))
       }
       "has a SEE_OTHER(303) status" in {
         result.status shouldBe SEE_OTHER
@@ -355,7 +355,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
         insertCyaData(Some(DividendsCheckYourAnswersModel(
           ukDividends = Some(true), ukDividendsAmount = Some(amount)
         )))
-        urlPosts(receivedOtherDividendsUrl, follow = false, headers = playSessionCookie(false), postRequest = Map(YesNoForm.yesNo -> YesNoForm.yes)
+        urlPost(receivedOtherDividendsUrl, follow = false, headers = playSessionCookie(), body = Map(YesNoForm.yesNo -> YesNoForm.yes)
         )
       }
 
@@ -373,7 +373,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
         insertCyaData(Some(DividendsCheckYourAnswersModel(
           ukDividends = Some(true), ukDividendsAmount = Some(amount)
         )))
-        urlPosts(receivedOtherDividendsUrl, follow = false, headers = playSessionCookie(false), postRequest = Map(YesNoForm.yesNo -> YesNoForm.no))
+        urlPost(receivedOtherDividendsUrl, follow = false, headers = playSessionCookie(), body = Map(YesNoForm.yesNo -> YesNoForm.no))
       }
 
       s"return a Redirect($SEE_OTHER) to the other uk dividend amount page" in {
@@ -387,7 +387,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
         authoriseIndividualUnauthorized()
         dropDividendsDB()
         emptyUserDataStub()
-        urlPosts(receivedOtherDividendsUrl, headers = playSessionCookie(false), postRequest = Map(YesNoForm.yesNo -> YesNoForm.no))
+        urlPost(receivedOtherDividendsUrl, headers = playSessionCookie(), body = Map(YesNoForm.yesNo -> YesNoForm.no))
       }
       "has an UNAUTHORIZED(401) status" in {
         result.status shouldBe UNAUTHORIZED
