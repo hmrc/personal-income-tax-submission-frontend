@@ -267,6 +267,11 @@ interest.changeAccountAmount.required.agent = Enter the amount of {0} UK interes
 interest.changeAccountAmount.format = Enter the amount of {0} UK interest in the correct format
 interest.changeAccountAmount.amountMaxLimit = The amount of {0} UK interest must be less than £100,000,000,000
 
+interest.interestAccountAmount.untaxed-heading.individual = How much untaxed UK interest did you get from {0}
+interest.interestAccountAmount.untaxed-heading.agent = How much untaxed UK interest did your client get from {0}
+interest.interestAccountAmount.taxed-heading.individual = How much taxed UK interest did you get from {0}
+interest.interestAccountAmount.taxed-heading.agent = How much taxed UK interest did your client get from {0}
+
 # Gift Aid
 # ----------------------------------------------------------
 
