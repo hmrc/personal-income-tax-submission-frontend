@@ -133,7 +133,7 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
         document().select(selector).text() shouldBe text
       }
       s"has a class of govuk-button" in {
-        document().select(selector).attr("class") should include ("govuk-button")
+        document().select(selector).attr("class") should include("govuk-button")
       }
 
       if(href.isDefined) {
@@ -141,6 +141,7 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
           document().select(selector).attr("href") shouldBe href.get
         }
       }
+
     }
   }
 
