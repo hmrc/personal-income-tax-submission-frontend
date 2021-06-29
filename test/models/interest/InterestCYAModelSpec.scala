@@ -35,24 +35,13 @@ class InterestCYAModelSpec extends UnitTest {
 
   val jsonMax: JsObject = Json.obj(
     "untaxedUkInterest" -> true,
-    "untaxedUkAccounts" -> Json.arr(
-      Json.obj(
-        "id" -> "someId",
-        "accountName" -> "someName",
-        "amount" -> 100.00
-      )
-    ),
     "taxedUkInterest" -> true,
-    "taxedUkAccounts" -> Json.arr(
+    "accounts" -> Json.arr(
       Json.obj(
         "id" -> "someId",
         "accountName" -> "someName",
-        "amount" -> 100.00
-      ),
-      Json.obj(
-        "id" -> "someId",
-        "accountName" -> "someName",
-        "amount" -> 100.00
+        "untaxedAmount" -> 100.00,
+        "taxedAmount" -> 100.00
       )
     )
   )

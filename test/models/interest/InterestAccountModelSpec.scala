@@ -117,27 +117,6 @@ class InterestAccountModelSpec extends UnitTest {
 
     "return a json read exception" when {
 
-      "both tax fields are present" in {
-
-        intercept[JsResultException](
-          Json.obj(
-            "accountName" -> "Lloyds",
-            "incomeSourceId" -> "azerty",
-            "untaxedUkInterest" -> 300.00,
-            "taxedUkInterest" -> 300.00
-          ).as[InterestAccountModel](InterestAccountModel.priorSubmissionReads)
-        ).getMessage should include("Both tax values are present.")
-      }
-
-      "both tax fields are missing" in {
-        intercept[JsResultException](
-          Json.obj(
-            "accountName" -> "Lloyds",
-            "incomeSourceId" -> "azerty"
-          ).as[InterestAccountModel](InterestAccountModel.priorSubmissionReads)
-        ).getMessage should include("No tax values are present.")
-      }
-
       "the unique id is missing" in {
         intercept[JsResultException](
           Json.obj(

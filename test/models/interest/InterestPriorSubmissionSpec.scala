@@ -58,12 +58,12 @@ class InterestPriorSubmissionSpec extends UnitTest {
       Json.obj(
         "id" -> "qwerty",
         "accountName" -> "TSB Account",
-        "amount" -> 500
+        "taxedAmount" -> 500
       ),
       Json.obj(
         "id" -> "azerty",
         "accountName" -> "Lloyds Savings",
-        "amount" -> 3000
+        "untaxedAmount" -> 3000
       )
     )
   )

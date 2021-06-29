@@ -58,33 +58,32 @@ class CreateOrAmendInterestAuditDetailSpec extends UnitTest {
           s"""{
              |	"body": {
              |		"untaxedUkInterest": true,
-             |		"untaxedUkAccounts": [{
+             |		"taxedUkInterest": true,
+             |		"accounts": [{
              |			"id": "azerty",
              |			"accountName": "Account 1",
-             |			"amount": 100.01
-             |		}],
-             |		"taxedUkInterest": true,
-             |		"taxedUkAccounts": [{
+             |			"untaxedAmount": 100.01
+             |		}, {
              |			"id": "qwerty",
              |			"accountName": "Account 2",
-             |			"amount": 9001.01
+             |			"taxedAmount": 9001.01
              |		}]
              |	},
              |	"prior": {
              |		"submissions": [{
              |			"id": "UntaxedId1",
              |			"accountName": "Untaxed Account",
-             |			"amount": 100.01
+             |			"untaxedAmount": 100.01
              |		}, {
              |			"id": "TaxedId1",
              |			"accountName": "Taxed Account",
-             |			"amount": 9001.01
+             |			"taxedAmount": 9001.01
              |		}]
              |	},
-             |  "isUpdate": true,
+             |	"isUpdate": true,
              |	"nino": "AA123456A",
              |	"mtditid": "1234567890",
-             |  "userType": "Individual",
+             |	"userType": "Individual",
              |	"taxYear": 2020
              |}""".stripMargin)
 
