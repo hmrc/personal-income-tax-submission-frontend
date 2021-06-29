@@ -89,7 +89,7 @@ class InterestCYAModelSpec extends UnitTest {
         InterestCYAModel(
           Some(true),
           Some(true),
-          Some(Seq(account))
+          Some(Seq(account.copy(taxedAmount = None)))
         ).isFinished shouldBe false
       }
 
@@ -97,7 +97,7 @@ class InterestCYAModelSpec extends UnitTest {
         InterestCYAModel(
           Some(true),
           Some(true),
-          Some(Seq(account))
+          Some(Seq(account.copy(untaxedAmount = None)))
         ).isFinished shouldBe false
       }
 
@@ -113,7 +113,7 @@ class InterestCYAModelSpec extends UnitTest {
         InterestCYAModel(
           untaxedUkInterest = Some(true),
           taxedUkInterest = None,
-          accounts = Some(Seq(account))
+          accounts = Some(Seq(account.copy(taxedAmount = None)))
         ).isFinished shouldBe false
       }
 
@@ -121,7 +121,7 @@ class InterestCYAModelSpec extends UnitTest {
         InterestCYAModel(
           untaxedUkInterest = None,
           taxedUkInterest = Some(true),
-          accounts = Some(Seq(account))
+          accounts = Some(Seq(account.copy(untaxedAmount = None)))
         ).isFinished shouldBe false
       }
 
@@ -133,20 +133,17 @@ class InterestCYAModelSpec extends UnitTest {
           InterestCYAModel(
             untaxedUkInterest = Some(true),
             taxedUkInterest = Some(false),
-            accounts = Some(Seq(account))
+            accounts = Some(Seq(account.copy(taxedAmount = None)))
           ).isFinished shouldBe true
         }
 
-        "taxed interest is true with accounts and untaxed interest is false" in {
-          InterestCYAModel(
-            untaxedUkInterest = Some(false),
-            taxedUkInterest = Some(true),
-            accounts = Some(Seq(account))
-          ).isFinished shouldBe true
-        }
-
+      "taxed interest is true with accounts and untaxed interest is false" in {
+        InterestCYAModel(
+          untaxedUkInterest = Some(false),
+          taxedUkInterest = Some(true),
+          accounts = Some(Seq(account.copy(untaxedAmount = None)))
+        ).isFinished shouldBe true
+      }
     }
-
   }
-
 }
