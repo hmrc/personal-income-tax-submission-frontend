@@ -16,6 +16,7 @@
 
 package controllers.interest
 
+import common.SessionValues
 import forms.AccountList
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import models.priorDataModels.{IncomeSourcesModel, InterestModel}
@@ -133,11 +134,13 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
 
   val errorSummaryHref = "#value"
 
+  val sessionId1 = "session-id-1"
+
   val amount = 1000
   val accounts = Seq(InterestModel("Natwest", "1", taxedUkInterest=Some(amount), untaxedUkInterest = None),
     InterestModel("Halifax","2", taxedUkInterest = None, untaxedUkInterest= Some(amount)))
 
-  val accounts2 = Seq(InterestAccountModel(None, "Santander", untaxedAmount= Some(amount), taxedAmount = None),
+  val accounts2 = Seq(InterestAccountModel(None, "Santander", untaxedAmount= Some(amount), taxedAmount = None, Some(sessionId1)),
     InterestAccountModel(None, "Nationwide", untaxedAmount = None, taxedAmount = Some(amount)),
     InterestAccountModel(None, "Barclays", untaxedAmount = Some(amount), taxedAmount = Some(amount)))
 
@@ -440,8 +443,8 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
           h1Check(get.expectedH1(UNTAXED) + " " + captionExpected)
-          radioButtonCheck(santanderAccount, 1)
-          radioButtonCheck(halifaxAccount, 2)
+          radioButtonCheck(nationwideAccount, 1)
+          radioButtonCheck(natwestAccount, 2)
           radioButtonCheck(addAccountText, 3)
           textOnPageCheck(or, radioDivider)
           buttonCheck(continueText, continueSelector)
@@ -464,13 +467,15 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
           dropInterestDB()
           emptyUserDataStub()
           userDataStub(IncomeSourcesModel(interest=Some(accounts)), nino, taxYear)
-          insertCyaData(Some(InterestCYAModel(accounts = Some(accounts2))))
-          urlPost(chooseAccountUrl(TAXED), follow=false,  body = Map(AccountList.accountName -> "Add a new account"), headers = playSessionCookie())
+          insertCyaData(Some(InterestCYAModel(accounts = Some(accounts2), taxedUkInterest = Some(true))))
+          urlPost(chooseAccountUrl(TAXED), follow=false, body =
+            Map(AccountList.accountName -> SessionValues.ADD_A_NEW_ACCOUNT), headers = playSessionCookie())
         }
 
         "has a SEE_OTHER(303) status" in {
           result.status shouldBe SEE_OTHER
-          result.header(HeaderNames.LOCATION).head should include("/income-through-software/return/personal-income/2022/interest/add-taxed-uk-interest-account")
+          result.header(HeaderNames.LOCATION).head should
+            include("/income-through-software/return/personal-income/2022/interest/add-taxed-uk-interest-account")
         }
       }
 
@@ -482,15 +487,56 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
           emptyUserDataStub()
           userDataStub(IncomeSourcesModel(interest=Some(accounts)), nino, taxYear)
           insertCyaData(Some(InterestCYAModel(accounts = Some(accounts2))))
-          urlPost(chooseAccountUrl(UNTAXED), follow=false,  body = Map(AccountList.accountName -> "Add a new account"), headers = playSessionCookie())
+          urlPost(chooseAccountUrl(UNTAXED), follow=false,  body =
+            Map(AccountList.accountName -> SessionValues.ADD_A_NEW_ACCOUNT), headers = playSessionCookie())
         }
 
         "has a SEE_OTHER(303) status" in {
           result.status shouldBe SEE_OTHER
-          result.header(HeaderNames.LOCATION).head should include("/income-through-software/return/personal-income/2022/interest/add-taxed-uk-interest-account")
+          result.header(HeaderNames.LOCATION).head should include("/income-through-software/return/personal-income/2022/interest/add-untaxed-uk-interest-account")
         }
       }
-      //TODO Redirect to new page created in SASS-984 when account name radio button is clicked
+
+      s"redirect user to how-much-taxed-uk-interest did you get from[account Name] page when specific account is selected on $TAXED choose account page" when{
+
+        lazy val result: WSResponse = {
+          authoriseIndividual()
+          dropInterestDB()
+          emptyUserDataStub()
+          userDataStub(IncomeSourcesModel(interest=Some(accounts)), nino, taxYear)
+          insertCyaData(Some(InterestCYAModel(accounts = Some(accounts2), taxedUkInterest = Some(true))))
+          urlPost(chooseAccountUrl(TAXED), follow=false, body =
+            Map(AccountList.accountName -> sessionId1), headers = playSessionCookie())
+        }
+
+        "has a SEE_OTHER(303) status" in {
+          result.status shouldBe SEE_OTHER
+          result.header(HeaderNames.LOCATION).head should
+            include("/income-through-software/return/personal-income/2022/interest/check-interest")
+          //TODO Redirect to new page created in SASS-984 when account name radio button is clicked
+        }
+      }
+
+      s"redirect user to how-much-untaxed-uk-interest did you get from[account Name]" +
+        s"page when specific account is selected on $UNTAXED choose account page" when{
+
+        lazy val result: WSResponse = {
+          authoriseIndividual()
+          dropInterestDB()
+          emptyUserDataStub()
+          userDataStub(IncomeSourcesModel(interest=Some(accounts)), nino, taxYear)
+          insertCyaData(Some(InterestCYAModel(accounts = Some(accounts2), taxedUkInterest = Some(true))))
+          urlPost(chooseAccountUrl(UNTAXED), follow=false, body =
+            Map(AccountList.accountName -> "1"), headers = playSessionCookie())
+        }
+
+        "has a SEE_OTHER(303) status" in {
+          result.status shouldBe SEE_OTHER
+          result.header(HeaderNames.LOCATION).head should
+            include("/income-through-software/return/personal-income/2022/interest/check-interest")
+          //TODO Redirect to new page created in SASS-984 when account name radio button is clicked
+        }
+      }
     }
 }
 

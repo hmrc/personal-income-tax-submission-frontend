@@ -22,4 +22,5 @@ object SessionValues {
   val TAX_YEAR = "TAX_YEAR"
 
   val GIFT_AID_PRIOR_SUB = "GIFT_AID_PRIOR_SUB" //TODO To be removed
+  val ADD_A_NEW_ACCOUNT = "eb687fc3-37fc-4b7d-8038-19aaf62f9681-111-eb687fc3-37fc-4b7d-8038-19aaf62f9681"
 }

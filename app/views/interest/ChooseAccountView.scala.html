@@ -19,6 +19,7 @@
 @import views.html.templates.helpers.Button
 @import views.html.templates.helpers.Heading
 @import views.html.templates.helpers.ErrorSummary
+@import common.SessionValues
 
 @this(
 layout: Layout,
@@ -33,9 +34,7 @@ govukRadios : GovukRadios
 
 @hasFormErrors = @{form.hasErrors}
 
-
 @titleText = @{messages(s"interest.chooseAccount.title.${if(user.isAgent) "agent" else "individual"}", taxType)}
-
 
 @layout(titleText, taxYear = Some(taxYear), hasErrors = hasFormErrors) {
 
@@ -52,15 +51,15 @@ govukRadios : GovukRadios
                 items = accounts.map { account =>
                     RadioItem(
                     content = Text(account.accountName),
-                    value = Some(account.accountName),
-                    checked = form("value").value.contains(account.accountName))
+                    value = if(account.id.isDefined) account.id else account.uniqueSessionId,
+                    checked = form("value").value.contains(if(account.id.isDefined) account.id else account.uniqueSessionId))
                 } ++ Seq(RadioItem(
                     divider = Some(messages("common.or"))
                     ),
                     RadioItem(
                     content = Text(messages("interest.chooseAccount.addANewAccount")),
-                    value = Some(messages("interest.chooseAccount.addANewAccount")),
-                    checked = form("value").value.contains(messages("interest.chooseAccount.addANewAccount"))
+                    value = Some(SessionValues.ADD_A_NEW_ACCOUNT),
+                    checked = form("value").value.contains(Some(SessionValues.ADD_A_NEW_ACCOUNT))
                     )
 
                 )))
