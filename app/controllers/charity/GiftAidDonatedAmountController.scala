@@ -16,25 +16,38 @@
 
 package controllers.charity
 
-import config.{AppConfig, GIFT_AID}
+import config.{AppConfig, ErrorHandler, GIFT_AID}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.AmountForm
 import play.api.data.Form
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc._
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.charity.GiftAidDonatedAmountView
-
 import javax.inject.Inject
+import models.User
+import models.charity.GiftAidCYAModel
+import services.GiftAidSessionService
 
 class GiftAidDonatedAmountController @Inject()(
                                                 implicit cc: MessagesControllerComponents,
+                                                giftAidOneOffController: GiftAidOneOffController,
                                                 authAction: AuthorisedAction,
                                                 appConfig: AppConfig,
-                                                view: GiftAidDonatedAmountView
-                                              ) extends FrontendController(cc) with I18nSupport {
+                                                view: GiftAidDonatedAmountView,
+                                                giftAidSessionService: GiftAidSessionService,
+                                                errorHandler: ErrorHandler
+                                              ) extends FrontendController(cc) with I18nSupport with CharityJourney {
+
+  def handleRedirect(taxYear: Int, cya: GiftAidCYAModel)(implicit user: User[AnyContent]): Result = {
+    cya.donationsViaGiftAid match {
+      case Some(true) => Ok(view(taxYear, form(user.isAgent,taxYear), None))
+      case Some(_) => giftAidOneOffController.handleRedirect(taxYear, cya)
+      case _ => redirectToOverview(taxYear)
+    }
+  }
 
   def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
 
@@ -46,6 +59,13 @@ class GiftAidDonatedAmountController @Inject()(
   )
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
+
+    giftAidSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
+      prior match {
+        case Some(priorData) if priorData.
+      }
+
+    }
 
     Ok(view(taxYear, form(user.isAgent,taxYear), None))
   }
