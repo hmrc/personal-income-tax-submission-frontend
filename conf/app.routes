@@ -44,6 +44,12 @@ POST        /:taxYear/interest/check-interest                                   
 GET         /:taxYear/interest/taxed-uk-interests                                                             controllers.interest.TaxedInterestController.show(taxYear: Int)
 POST        /:taxYear/interest/taxed-uk-interests                                                             controllers.interest.TaxedInterestController.submit(taxYear: Int)
 
+GET         /:taxYear/interest/which-account-did-you-get-untaxed-interest-from                                controllers.interest.ChooseAccountController.show(taxYear:Int, taxType="untaxed")
+POST        /:taxYear/interest/which-account-did-you-get-untaxed-interest-from                                controllers.interest.ChooseAccountController.submit(taxYear:Int, taxType="untaxed")
+
+GET         /:taxYear/interest/which-account-did-you-get-taxed-interest-from                                  controllers.interest.ChooseAccountController.show(taxYear:Int, taxType="taxed")
+POST        /:taxYear/interest/which-account-did-you-get-taxed-interest-from                                  controllers.interest.ChooseAccountController.submit(taxYear:Int, taxType="taxed")
+
 GET         /:taxYear/interest/remove-untaxed-interest-account                                                controllers.interest.RemoveAccountController.show(taxYear: Int, taxType = "untaxed", accountId : String)
 GET         /:taxYear/interest/remove-taxed-interest-account                                                  controllers.interest.RemoveAccountController.show(taxYear: Int, taxType = "taxed", accountId : String)
 
