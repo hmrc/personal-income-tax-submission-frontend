@@ -16,459 +16,416 @@
 
 package controllers.interest
 
-import common.SessionValues
 import forms.YesNoForm
-import helpers.PlaySessionCookieBaker
 import models.interest.{InterestAccountModel, InterestCYAModel}
-import models.priorDataModels.IncomeSourcesModel
-import play.api.http.HeaderNames
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import play.api.http.Status._
-import play.api.libs.json.Json
-import play.api.libs.ws.{WSClient, WSResponse}
-import utils.{IntegrationTest, InterestDatabaseHelper}
+import play.api.libs.ws.WSResponse
+import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
 
 import java.util.UUID
 
-class UntaxedInterestControllerISpec extends IntegrationTest with InterestDatabaseHelper {
+class UntaxedInterestControllerISpec extends IntegrationTest with InterestDatabaseHelper with ViewHelpers {
 
   val taxYear: Int = 2022
+  val taxYearMinusOne: Int = taxYear - 1
   val amount: BigDecimal = 25
 
   lazy val id: String = UUID.randomUUID().toString
 
-  "as an individual" when {
-
-    ".show" should {
-
-      "returns an action when data is not in session" which {
-        lazy val result: WSResponse = {
-          dropInterestDB()
-
-          emptyUserDataStub()
-          insertCyaData(None)
-
-          authoriseIndividual()
-          await(
-            wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest")
-              .withHttpHeaders(xSessionId, csrfContent)
-              .get()
-          )
-        }
-
-        "has an OK(200) status" in {
-          result.status shouldBe OK
-        }
-
-      }
-      "returns an action when data is in session" which {
-
-        lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(false), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount), None)))
-        )
-
-        lazy val result: WSResponse = {
-          dropInterestDB()
-
-          emptyUserDataStub()
-          insertCyaData(Some(interestCYA))
-
-          authoriseIndividual()
-          await(wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest")
-            .withHttpHeaders(xSessionId, csrfContent).get())
-        }
-
-        "has an OK(200) status" in {
-          result.status shouldBe OK
-        }
-
-      }
-
-      "returns an action when auth call fails" which {
-        lazy val result: WSResponse = {
-          dropInterestDB()
-
-          emptyUserDataStub()
-          insertCyaData(None)
-
-          authoriseIndividualUnauthorized()
-          await(wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest")
-            .withHttpHeaders(xSessionId, csrfContent).get())
-        }
-        "has an UNAUTHORIZED(401) status" in {
-          result.status shouldBe UNAUTHORIZED
-        }
-      }
-
-    }
-
-    ".submit" should {
-
-      s"redirect" when {
-
-        "the answer is yes" when {
-
-          "data is not in session" which {
-            lazy val result: WSResponse = {
-              dropInterestDB()
-
-              emptyUserDataStub()
-
-              authoriseIndividual()
-              await(wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest/")
-                .withHttpHeaders(xSessionId, csrfContent)
-                .withFollowRedirects(false)
-                .post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
-            }
-
-            "has a SEE_OTHER(303) status" in {
-              result.status shouldBe SEE_OTHER
-            }
-
-            "redirects to the untaxed interest amount page" in {
-              result.headers("Location").head should include("/income-through-software/return/personal-income/2022/interest/add-untaxed-uk-interest-account/")
-            }
-
-          }
-
-          "data is in session" which {
-            lazy val result: WSResponse = {
-              dropInterestDB()
-
-              emptyUserDataStub()
-              insertCyaData(Some(InterestCYAModel(Some(true))))
-
-              authoriseIndividual()
-              await(wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest/")
-                .withHttpHeaders(xSessionId, csrfContent)
-                .withFollowRedirects(false)
-                .post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
-            }
-
-            "has a SEE_OTHER(303) status" in {
-              result.status shouldBe SEE_OTHER
-            }
-
-            "redirects to the untaxed interest amount page" in {
-              result.headers("Location").head should include("/income-through-software/return/personal-income/2022/interest/add-untaxed-uk-interest-account/")
-            }
-
-          }
-
-          "there is CYA model indicates it is finished" which {
-            lazy val interestCYA = InterestCYAModel(
-              Some(true), Some(false), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount), None)))
-            )
-
-            lazy val result: WSResponse = {
-              dropInterestDB()
-
-              emptyUserDataStub()
-              insertCyaData(Some(interestCYA))
-
-              authoriseIndividual()
-              await(
-                wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest")
-                  .withHttpHeaders(xSessionId, csrfContent)
-                  .withFollowRedirects(false)
-                  .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
-              )
-            }
-
-            "has a SEE_OTHER(303) status" in {
-              result.status shouldBe SEE_OTHER
-            }
-
-            "redirects to cya" in {
-              result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/check-interest"
-            }
-          }
-
-        }
-
-        "the answer is no" when {
-
-          "data is not in session" which {
-            lazy val result: WSResponse = {
-              dropInterestDB()
-
-              emptyUserDataStub()
-
-              authoriseIndividual()
-              await(wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest/")
-                .withHttpHeaders(xSessionId, csrfContent)
-                .withFollowRedirects(false)
-                .post(Map(YesNoForm.yesNo -> YesNoForm.no)))
-            }
-
-            "has a SEE_OTHER(303) status" in {
-              result.status shouldBe SEE_OTHER
-            }
-
-            "redirects to the receive tax interest page" in {
-              result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/taxed-uk-interest"
-            }
-
-          }
-
-          "data is in session" which {
-            lazy val result: WSResponse = {
-              dropInterestDB()
-
-              emptyUserDataStub()
-              insertCyaData(Some(InterestCYAModel(Some(true))))
-
-              authoriseIndividual()
-              await(wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest/")
-                .withHttpHeaders(xSessionId, csrfContent)
-                .withFollowRedirects(false)
-                .post(Map(YesNoForm.yesNo -> YesNoForm.no)))
-            }
-
-            "has a SEE_OTHER(303) status" in {
-              result.status shouldBe SEE_OTHER
-            }
-
-            "redirects to the receive tax interest page" in {
-              result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/taxed-uk-interest"
-            }
-
-          }
-
-          "there is CYA model indicates it is finished" which {
-            lazy val interestCYA = InterestCYAModel(
-              Some(true), Some(false), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount), None)))
-            )
-
-            lazy val result: WSResponse = {
-              dropInterestDB()
-
-              emptyUserDataStub()
-              insertCyaData(Some(interestCYA))
-
-              authoriseIndividual()
-              await(
-                wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest")
-                  .withHttpHeaders(xSessionId, csrfContent)
-                  .withFollowRedirects(false)
-                  .post(Map(YesNoForm.yesNo -> YesNoForm.no))
-              )
-            }
-
-            "has a SEE_OTHER(303) status" in {
-              result.status shouldBe SEE_OTHER
-            }
-
-            "redirects to cya" in {
-              result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/check-interest"
-            }
-          }
-
-        }
-
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status" in {
-        lazy val result: WSResponse = {
-          dropInterestDB()
-
-          emptyUserDataStub()
-          insertCyaData(None)
-
-          authoriseIndividual()
-          await(
-            wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest")
-              .withHttpHeaders(xSessionId, csrfContent)
-              .post(Map[String, String]())
-          )
-        }
-
-        result.status shouldBe BAD_REQUEST
-      }
-
-      "returns an action when auth call fails" which {
-        lazy val result: WSResponse = {
-          dropInterestDB()
-
-          emptyUserDataStub()
-          insertCyaData(None)
-
-          authoriseIndividualUnauthorized()
-          await(
-            wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest")
-              .withHttpHeaders(xSessionId, csrfContent)
-              .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
-          )
-        }
-        "has an UNAUTHORIZED(401) status" in {
-          result.status shouldBe UNAUTHORIZED
-        }
-      }
-
-    }
-
+  object Selectors {
+    val captionSelector = ".govuk-caption-l"
+    val forExampleSelector = "#main-content > div > div > form > div > fieldset > legend > p:nth-child(2)"
+    val bulletPointSelector1 = "#main-content > div > div > form > div > fieldset > legend > ul > li:nth-child(1)"
+    val bulletPointSelector2 = "#main-content > div > div > form > div > fieldset > legend > ul > li:nth-child(2)"
+    val bulletPointSelector3 = "#main-content > div > div > form > div > fieldset > legend > ul > li:nth-child(3)"
+    val doNotIncludeSelector = "#main-content > div > div > form > div > fieldset > legend > p:nth-child(4)"
+    val continueSelector = "#continue"
+    val continueFormSelector = "#main-content > div > div > form"
+    val errorSummaryHref = "#value"
   }
 
-  "as an agent" when {
+  import Selectors._
 
-    ".show" should {
+  trait SpecificExpectedResults {
+    val expectedTitle: String
+    val expectedErrorTitle: String
+    val expectedH1: String
+    val doNotIncludeText: String
+    val expectedErrorText: String
+  }
 
-      "returns an action when data is in session" which {
+  trait CommonExpectedResults {
+    val expectedCaption: String
+    val forExampleText: String
+    val banksAndBuildingsText: String
+    val savingsAndCreditText: String
+    val peerToPeerText: String
+    val yesText: String
+    val noText: String
+    val continueText: String
+    val continueLink: String
+  }
 
-        lazy val interestCYA = InterestCYAModel(
-          Some(true), Some(false), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount), None)))
-        )
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A")
-        )
+  object CommonExpectedEN extends CommonExpectedResults {
+    val expectedCaption = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
+    val forExampleText = "This could be interest from:"
+    val banksAndBuildingsText = "banks and building societies"
+    val savingsAndCreditText = "savings and credit union accounts"
+    val peerToPeerText = "peer-to-peer lending"
+    val yesText = "Yes"
+    val noText = "No"
+    val continueText = "Continue"
+    val continueLink = s"/income-through-software/return/personal-income/$taxYear/interest/untaxed-uk-interest"
+  }
 
-        lazy val result: WSResponse = {
-          dropInterestDB()
+  object CommonExpectedCY extends CommonExpectedResults {
+    val expectedCaption = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
+    val forExampleText = "This could be interest from:"
+    val banksAndBuildingsText = "banks and building societies"
+    val savingsAndCreditText = "savings and credit union accounts"
+    val peerToPeerText = "peer-to-peer lending"
+    val yesText = "Yes"
+    val noText = "No"
+    val continueText = "Continue"
+    val continueLink = s"/income-through-software/return/personal-income/$taxYear/interest/untaxed-uk-interest"
+  }
 
-          emptyUserDataStub()
-          insertCyaData(Some(interestCYA))
+  object ExpectedIndividualEN extends SpecificExpectedResults {
+    val expectedTitle = "Did you get untaxed interest from the UK?"
+    val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedH1 = "Did you get untaxed interest from the UK?"
+    val doNotIncludeText: String = "Do not include interest you got from an Individual Savings Account (ISA) or gilts."
+    val expectedErrorText = "Select yes if you got untaxed UK interest"
+  }
 
-          authoriseAgent()
-          await(wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent).get())
+  object ExpectedAgentEN extends SpecificExpectedResults {
+    val expectedTitle = "Did your client get untaxed interest from the UK?"
+    val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedH1 = "Did your client get untaxed interest from the UK?"
+    val doNotIncludeText: String = "Do not include interest your client got from an Individual Savings Account (ISA) or gilts."
+    val expectedErrorText = "Select yes if your client got untaxed UK interest"
+  }
+
+  object ExpectedIndividualCY extends SpecificExpectedResults {
+    val expectedTitle = "Did you get untaxed interest from the UK?"
+    val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedH1 = "Did you get untaxed interest from the UK?"
+    val doNotIncludeText: String = "Do not include interest you got from an Individual Savings Account (ISA) or gilts."
+    val expectedErrorText = "Select yes if you got untaxed UK interest"
+  }
+
+  object ExpectedAgentCY extends SpecificExpectedResults {
+    val expectedTitle = "Did your client get untaxed interest from the UK?"
+    val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedH1 = "Did your client get untaxed interest from the UK?"
+    val doNotIncludeText: String = "Do not include interest your client got from an Individual Savings Account (ISA) or gilts."
+    val expectedErrorText = "Select yes if your client got untaxed UK interest"
+  }
+
+  val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
+    Seq(
+      UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
+      UserScenario(isWelsh = false, isAgent = true, CommonExpectedEN, Some(ExpectedAgentEN)),
+      UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, Some(ExpectedIndividualCY)),
+      UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY))
+    )
+  }
+
+
+  ".show" when {
+    val url = s"$appUrl/$taxYear/interest/untaxed-uk-interest"
+
+    userScenarios.foreach { us =>
+
+      import us.commonExpectedResults._
+
+      val specific = us.specificExpectedResults.get
+
+      s"user is ${agentTest(us.isAgent)} and request is ${welshTest(us.isWelsh)}" should {
+
+        "return OK and correctly render the page" when {
+          "there is no cya data in session" which {
+            lazy val result = {
+              dropInterestDB()
+              emptyUserDataStub()
+
+              authoriseAgentOrIndividual(us.isAgent)
+              urlGet(url, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+            }
+
+            s"has an OK($OK) status" in {
+              result.status shouldBe OK
+            }
+
+            implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+            titleCheck(specific.expectedTitle)
+            welshToggleCheck(us.isWelsh)
+            h1Check(specific.expectedH1 + " " + expectedCaption)
+            textOnPageCheck(expectedCaption, captionSelector)
+
+            textOnPageCheck(forExampleText, forExampleSelector)
+            textOnPageCheck(banksAndBuildingsText, bulletPointSelector1)
+            textOnPageCheck(savingsAndCreditText, bulletPointSelector2)
+            textOnPageCheck(peerToPeerText, bulletPointSelector3)
+
+            textOnPageCheck(specific.doNotIncludeText, doNotIncludeSelector)
+
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
+            buttonCheck(continueText, continueSelector)
+            formPostLinkCheck(continueLink, continueFormSelector)
+          }
+
+          "there is cya data in session" which {
+            val interestCYA = InterestCYAModel(
+              Some(true),
+              Some(false),Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(25.00))))
+            )
+
+            lazy val result = {
+              dropInterestDB()
+              emptyUserDataStub()
+              insertCyaData(Some(interestCYA))
+
+              authoriseAgentOrIndividual(us.isAgent)
+              urlGet(url, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+            }
+
+            s"has an OK($OK) status" in {
+              result.status shouldBe OK
+            }
+
+            implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+            titleCheck(specific.expectedTitle)
+            welshToggleCheck(us.isWelsh)
+            h1Check(specific.expectedH1 + " " + expectedCaption)
+            textOnPageCheck(expectedCaption, captionSelector)
+
+            textOnPageCheck(forExampleText, forExampleSelector)
+            textOnPageCheck(banksAndBuildingsText, bulletPointSelector1)
+            textOnPageCheck(savingsAndCreditText, bulletPointSelector2)
+            textOnPageCheck(peerToPeerText, bulletPointSelector3)
+
+            textOnPageCheck(specific.doNotIncludeText, doNotIncludeSelector)
+
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
+            buttonCheck(continueText, continueSelector)
+            formPostLinkCheck(continueLink, continueFormSelector)
+          }
         }
 
-        "has an OK(200) status" in {
-          result.status shouldBe OK
-        }
-
-      }
-
-      "returns an action when auth call fails" which {
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A")
-        )
-
-        lazy val result: WSResponse = {
-          dropInterestDB()
-
-          emptyUserDataStub()
-          insertCyaData(None)
-
-          authoriseAgentUnauthorized()
-          await(wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent).get())
-        }
-        "has an UNAUTHORIZED(401) status" in {
-          result.status shouldBe UNAUTHORIZED
-        }
-      }
-
-    }
-
-    ".submit" should {
-
-      s"redirect" when {
-
-        "CYA data is not in session and the answer is yes" which {
-
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A")
-          )
-
+        "return an UNAUTHORIZED when auth call fails" which {
           lazy val result: WSResponse = {
             dropInterestDB()
-
             emptyUserDataStub()
             insertCyaData(None)
 
-            authoriseAgent()
-            await(wsClient.url(s"$appUrl/2020/interest/untaxed-uk-interest")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-              .withFollowRedirects(false)
-              .post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
+            unauthorisedAgentOrIndividual(us.isAgent)
+            urlGet(url, us.isWelsh, follow = true, playSessionCookie(us.isAgent))
           }
 
-          s"has a SEE_OTHER(303) status" in {
-            result.status shouldBe SEE_OTHER
+          "has an UNAUTHORIZED(401) status" in {
+            result.status shouldBe UNAUTHORIZED
+          }
+        }
+      }
+    }
+  }
+
+  ".submit" when {
+
+    val url = s"$appUrl/$taxYear/interest/untaxed-uk-interest"
+
+    val yesNoFormYes: Map[String, String] = Map(YesNoForm.yesNo -> YesNoForm.yes)
+    val yesNoFormNo: Map[String, String] = Map(YesNoForm.yesNo -> YesNoForm.no)
+    val yesNoFormEmpty: Map[String, String] = Map(YesNoForm.yesNo -> "")
+
+    userScenarios.foreach { us =>
+
+      import us.commonExpectedResults._
+
+      val specific = us.specificExpectedResults.get
+
+      s"user is ${agentTest(us.isAgent)} and request is ${welshTest(us.isWelsh)}" should {
+
+        "return BAD_REQUEST when yes/no form is empty" which {
+          lazy val result = {
+            dropInterestDB()
+            emptyUserDataStub()
+            insertCyaData(None)
+
+            authoriseAgentOrIndividual(us.isAgent)
+            urlPost(url, yesNoFormEmpty, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
 
-          "redirects to the untaxed amount page" in {
-            result.headers("Location").head should include("/income-through-software/return/personal-income/2020/interest/add-untaxed-uk-interest-account/")
+          s"has an BAD_REQUEST($BAD_REQUEST) status" in {
+            result.status shouldBe BAD_REQUEST
+          }
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          titleCheck(specific.expectedErrorTitle)
+          welshToggleCheck(us.isWelsh)
+          h1Check(specific.expectedH1 + " " + expectedCaption)
+          textOnPageCheck(expectedCaption, captionSelector)
+          errorSummaryCheck(specific.expectedErrorText, errorSummaryHref)
+          errorAboveElementCheck(specific.expectedErrorText)
+          buttonCheck(continueText, continueSelector)
+          formPostLinkCheck(continueLink, continueFormSelector)
+        }
+
+        "return SEE_OTHER" when {
+
+          "the yes/no form has the answer YES" when {
+
+            "there is cyaData in session" which {
+              lazy val result: WSResponse = {
+                dropInterestDB()
+                emptyUserDataStub()
+                insertCyaData(Some(InterestCYAModel(Some(true))))
+
+                authoriseAgentOrIndividual(us.isAgent)
+                urlPost(url, yesNoFormYes, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+              }
+
+              "has a SEE_OTHER(303) status" in {
+                result.status shouldBe SEE_OTHER
+              }
+
+              "redirects to the untaxed interest amount page" in {
+                result.header("Location").get should include("/income-through-software/return/personal-income/2022/interest/add-untaxed-uk-interest-account/")
+              }
+            }
+
+            "there is no cyaData in session" which {
+              lazy val result: WSResponse = {
+                dropInterestDB()
+                emptyUserDataStub()
+
+                authoriseAgentOrIndividual(us.isAgent)
+                urlPost(url, yesNoFormYes, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+              }
+
+              "has a SEE_OTHER(303) status" in {
+                result.status shouldBe SEE_OTHER
+              }
+
+              "redirects to the untaxed interest amount page" in {
+                result.header("Location").get should include("/income-through-software/return/personal-income/2022/interest/add-untaxed-uk-interest-account/")
+              }
+            }
+
+            "redirects to INTEREST CYA page when the cya model is finished" when {
+              lazy val interestCYA = InterestCYAModel(
+                Some(true), Some(false), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount))))
+              )
+
+              lazy val result: WSResponse = {
+                dropInterestDB()
+                emptyUserDataStub()
+                insertCyaData(Some(interestCYA))
+
+                authoriseAgentOrIndividual(us.isAgent)
+                urlPost(url, yesNoFormYes, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+              }
+
+              "has a SEE_OTHER(303) status" in {
+                result.status shouldBe SEE_OTHER
+              }
+
+              "redirects to the interest CYA page" in {
+                result.header("Location") shouldBe Some("/income-through-software/return/personal-income/2022/interest/check-interest")
+              }
+            }
+          }
+
+          "the yes/no form has the answer NO" when {
+
+            "there is cyaData in session" which {
+              lazy val result: WSResponse = {
+                dropInterestDB()
+                emptyUserDataStub()
+                insertCyaData(Some(InterestCYAModel(Some(true))))
+
+                authoriseAgentOrIndividual(us.isAgent)
+                urlPost(url, yesNoFormNo, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+              }
+
+              "has a SEE_OTHER(303) status" in {
+                result.status shouldBe SEE_OTHER
+              }
+
+              "redirects to the receive tax interest page" in {
+                result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/taxed-uk-interest"
+              }
+            }
+
+            "there is no cyaData in session" which {
+              lazy val result: WSResponse = {
+                dropInterestDB()
+                emptyUserDataStub()
+
+                authoriseAgentOrIndividual(us.isAgent)
+                urlPost(url, yesNoFormNo, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+              }
+
+              "has a SEE_OTHER(303) status" in {
+                result.status shouldBe SEE_OTHER
+              }
+
+              "redirects to the receive tax interest page" in {
+                result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/taxed-uk-interest"
+              }
+            }
+
+            "redirects to INTEREST CYA page when the cya model is finished" when {
+              lazy val interestCYA = InterestCYAModel(
+                Some(true), Some(false),Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount))))
+              )
+
+              lazy val result: WSResponse = {
+                dropInterestDB()
+                emptyUserDataStub()
+                insertCyaData(Some(interestCYA))
+
+                authoriseAgentOrIndividual(us.isAgent)
+                urlPost(url, yesNoFormNo, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+              }
+
+              "has a SEE_OTHER(303) status" in {
+                result.status shouldBe SEE_OTHER
+              }
+
+              "redirects to the interest CYA page" in {
+                result.header("Location") shouldBe Some("/income-through-software/return/personal-income/2022/interest/check-interest")
+              }
+            }
           }
 
         }
 
-        "there is CYA data in session" in {
-          lazy val interestCYA = InterestCYAModel(
-            Some(true), Some(false), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount), None)))
-          )
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A")
-          )
-
+        "returns UNAUTHORIZED when auth call fails" which {
           lazy val result: WSResponse = {
             dropInterestDB()
-
             emptyUserDataStub()
-            insertCyaData(Some(interestCYA))
+            insertCyaData(None)
 
-            authoriseAgent()
-            await(
-              wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest")
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-                .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
-            )
+            unauthorisedAgentOrIndividual(us.isAgent)
+            urlPost(url, yesNoFormEmpty, us.isWelsh, follow = true, playSessionCookie(us.isAgent))
           }
 
-          result.status shouldBe OK
-        }
-
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status" in {
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A")
-        )
-
-        lazy val result: WSResponse = {
-          dropInterestDB()
-
-          emptyUserDataStub()
-          insertCyaData(None)
-
-          authoriseAgent()
-          await(
-            wsClient.url(s"$appUrl/2020/interest/untaxed-uk-interest")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck", xSessionId)
-              .post(Map[String, String]())
-          )
-        }
-
-        result.status shouldBe BAD_REQUEST
-      }
-
-      "returns an action when auth call fails" which {
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A")
-        )
-        lazy val result: WSResponse = {
-          dropInterestDB()
-
-          authoriseAgentUnauthorized()
-          await(
-            wsClient.url(s"$appUrl/$taxYear/interest/untaxed-uk-interest")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-              .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
-          )
-        }
-
-        "has an UNAUTHORIZED(401) status" in {
-          result.status shouldBe UNAUTHORIZED
+          "has an UNAUTHORIZED(401) status" in {
+            result.status shouldBe UNAUTHORIZED
+          }
         }
       }
-
     }
 
   }
+
 }

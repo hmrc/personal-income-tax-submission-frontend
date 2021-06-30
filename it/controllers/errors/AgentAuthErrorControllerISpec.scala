@@ -18,41 +18,88 @@ package controllers.errors
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import play.api.libs.ws.{WSClient, WSResponse}
+import play.api.http.Status.UNAUTHORIZED
+import play.api.libs.ws.WSResponse
 import utils.{IntegrationTest, ViewHelpers}
 
 class AgentAuthErrorControllerISpec extends IntegrationTest with ViewHelpers {
 
-
-  object ExpectedResults {
-    val heading: String = "There’s a problem"
-    val title = "There’s a problem"
-    val youCan = "You cannot view this client’s information. Your client needs to authorise you as their agent (opens in new tab) before you can sign in to this service."
-    val tryAnother = "Try another client’s details"
-    val tryAnotherClientExpectedHref = "http://localhost:9081/report-quarterly/income-and-expenses/view/agents/client-utr"
-  }
   object Selectors {
     val youCan = "#main-content > div > div > p:nth-child(2)"
+    val authoriseAsAnAgentLinkSelector = "#client_auth_link"
     val tryAnother = "#main-content > div > div > a"
-
   }
-     val url = s"http://localhost:$port/income-through-software/return/personal-income/error/you-need-client-authorisation"
 
-  "calling GET" when {
-    "an individual" should {
-      "return a page" which {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(wsClient.url(url).get())
+  val url = s"$appUrl/error/you-need-client-authorisation"
+
+  trait CommonExpectedResults {
+    val heading: String
+    val title: String
+    val youCannotViewText: String
+    val authoriseYouAsText: String
+    val beforeYouCanTryText: String
+    val tryAnother: String
+    val authoriseAsAnAgentLink: String
+    val tryAnotherExpectedHref: String
+  }
+
+  object CommonExpectedEN extends CommonExpectedResults {
+    val heading: String = "There’s a problem"
+    val title = "There’s a problem"
+    val youCannotViewText: String = "You cannot view this client’s information. Your client needs to"
+    val authoriseYouAsText = "authorise you as their agent (opens in new tab)"
+    val beforeYouCanTryText = "before you can sign in to this service."
+    val tryAnother = "Try another client’s details"
+    val authoriseAsAnAgentLink = "https://www.gov.uk/guidance/client-authorisation-an-overview"
+    val tryAnotherExpectedHref = "http://localhost:9081/report-quarterly/income-and-expenses/view/agents/client-utr"
+  }
+
+  object CommonExpectedCY extends CommonExpectedResults {
+    val heading: String = "There’s a problem"
+    val title = "There’s a problem"
+    val youCannotViewText: String = "You cannot view this client’s information. Your client needs to"
+    val authoriseYouAsText = "authorise you as their agent (opens in new tab)"
+    val beforeYouCanTryText = "before you can sign in to this service."
+    val tryAnother = "Try another client’s details"
+    val authoriseAsAnAgentLink = "https://www.gov.uk/guidance/client-authorisation-an-overview"
+    val tryAnotherExpectedHref = "http://localhost:9081/report-quarterly/income-and-expenses/view/agents/client-utr"
+  }
+
+  val userScenarios: Seq[UserScenario[CommonExpectedResults, Nothing]] = {
+    Seq(UserScenario(isWelsh = false, isAgent = true, CommonExpectedEN),
+      UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY))
+  }
+
+  ".show" when {
+    import Selectors._
+
+    userScenarios.foreach { user =>
+      s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
+
+        "return the AgentAuthErrorPageView with the right content" which {
+
+          implicit lazy val result: WSResponse = {
+            authoriseAgentOrIndividual(user.isAgent)
+            urlGet(url, welsh = user.isWelsh)
+          }
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          "has an UNAUTHORIZED(401) status" in {
+            result.status shouldBe UNAUTHORIZED
+          }
+
+          import user.commonExpectedResults._
+
+          titleCheck(title)
+          h1Check(heading,"xl")
+          textOnPageCheck(s"$youCannotViewText $authoriseYouAsText $beforeYouCanTryText", youCan)
+          linkCheck(authoriseYouAsText, authoriseAsAnAgentLinkSelector, authoriseAsAnAgentLink)
+          buttonCheck(tryAnother, Selectors.tryAnother, Some(tryAnotherExpectedHref))
+          welshToggleCheck(user.isWelsh)
         }
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
-        titleCheck(ExpectedResults.title)
-        h1Check(ExpectedResults.heading,"xl")
-        textOnPageCheck(ExpectedResults.youCan, Selectors.youCan)
-        buttonCheck(ExpectedResults.tryAnother, Selectors.tryAnother, Some(ExpectedResults.tryAnotherClientExpectedHref))
       }
     }
   }
-
 }
 

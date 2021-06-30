@@ -37,15 +37,19 @@
     if(input) messages("common.yes") else messages("common.no")
 }
 
+@details(questionNumber: Int, id: Int, account: InterestAccountModel, amount: BigDecimal) = {
+    <div id="question-@{questionNumber}-account-@{id+1}">@messages("interest.cya.accountDisplay", account.accountName, bigDecimalCurrency(amount.toString))</div>
+}
+
 @accountsInfo(questionNumber: Int, accounts: Seq[InterestAccountModel], untaxed: Boolean) = {
     @accounts.zipWithIndex.map { case (account, id) =>
 
         @{untaxed match {
             case true => account.untaxedAmount.map{ amount =>
-                <div id="question-@{questionNumber}-account-@{id+1}">{messages("interest.cya.accountDisplay", account.accountName, bigDecimalCurrency(amount.toString))}</div>
+                details(questionNumber, id, account, amount)
             }
             case false => account.taxedAmount.map{ amount =>
-                <div id="question-@{questionNumber}-account-@{id+1}">{messages("interest.cya.accountDisplay", account.accountName, bigDecimalCurrency(amount.toString))}</div>
+                details(questionNumber, id, account, amount)
             }
         }}
     }

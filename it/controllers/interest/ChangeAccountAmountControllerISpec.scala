@@ -496,7 +496,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
           authoriseAgent()
           insertCyaData(Some(taxedInterestCyaModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, None, Some(amount))))), nino, taxYear)
+          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, Some(amount), None)))), nino, taxYear)
           await(wsClient.url(url(id, "taxed"))
             .withHttpHeaders(
               xSessionId,

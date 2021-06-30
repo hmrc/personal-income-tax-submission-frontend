@@ -18,7 +18,7 @@ package utils
 
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import helpers.WireMockHelper
-import org.jsoup.nodes.Document
+import org.jsoup.nodes.{Document, Element}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.http.HeaderNames
@@ -51,22 +51,14 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
   //TODO UNCOMMENT WHEN DIVIDENDS & INTEREST MOVED TO USE UserScenarios
 //  val userScenarios: Seq[UserScenario[_, _]]
 
-  def urlGet(url: String, welsh: Boolean = false, follow: Boolean = true, headers: Seq[(String, String)] = Seq())(implicit wsClient: WSClient): WSResponse = {
+  def element(selector: String)(implicit document: () => Document): Element = {
+    val elements = document().select(selector)
 
-    val newHeaders = if(welsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") ++ headers else headers
-    await(wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(newHeaders: _*).get())
-  }
+    if(elements.size() == 0) {
+      fail(s"No elements exist with the selector '$selector'")
+    }
 
-  def urlPost[T](url: String,
-                 body: T,
-                 welsh: Boolean = false,
-                 follow: Boolean = true,
-                 headers: Seq[(String, String)] = Seq())
-                (implicit wsClient: WSClient, bodyWritable: BodyWritable[T]): WSResponse = {
-
-    val headersWithNoCheck = headers ++ Seq("Csrf-Token" -> "nocheck")
-    val newHeaders = if(welsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") ++ headersWithNoCheck else headersWithNoCheck
-    await(wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(newHeaders: _*).post(body))
+    elements.first()
   }
 
   def elementText(selector: String)(implicit document: () => Document): String = {
@@ -109,6 +101,12 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
 
   def textOnPageCheck(text: String, selector: String)(implicit document: () => Document): Unit = {
     s"have text on the screen of '$text'" in {
+
+      println(document().body())
+val questionNumber = ""
+val id = ""
+      val p = s"question-$questionNumber-account-${id+1}"
+
       document().select(selector).text() shouldBe text
     }
   }
@@ -133,7 +131,7 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
         document().select(selector).text() shouldBe text
       }
       s"has a class of govuk-button" in {
-        document().select(selector).attr("class") should include ("govuk-button")
+        document().select(selector).attr("class") should include("govuk-button")
       }
 
       if(href.isDefined) {
@@ -141,6 +139,7 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
           document().select(selector).attr("href") shouldBe href.get
         }
       }
+
     }
   }
 
