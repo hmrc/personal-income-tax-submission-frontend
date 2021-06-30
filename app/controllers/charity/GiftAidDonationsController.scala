@@ -17,7 +17,7 @@
 package controllers.charity
 
 import config.{AppConfig, ErrorHandler, GIFT_AID}
-import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
+import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.YesNoForm
@@ -30,7 +30,6 @@ import utils.SessionHelper
 import views.html.charity.GiftAidDonationView
 import javax.inject.Inject
 import models.charity.GiftAidCYAModel
-import models.question.QuestionsJourney
 import services.GiftAidSessionService
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -38,7 +37,6 @@ import scala.concurrent.{ExecutionContext, Future}
 class GiftAidDonationsController @Inject()(
                                               implicit val cc: MessagesControllerComponents,
                                               authAction: AuthorisedAction,
-                                              questionHelper: QuestionsJourneyValidator,
                                               giftAidDonationView: GiftAidDonationView,
                                               giftAidSessionService: GiftAidSessionService,
                                               errorHandler: ErrorHandler,
@@ -64,48 +62,30 @@ class GiftAidDonationsController @Inject()(
   }
 
 
-  def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)) { implicit user =>
-//    giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map { cya =>
-//      yesNoForm(user).bindFromRequest().fold(
-//        {
-//          formWithErrors =>
-//            Future.successful(BadRequest(
-//              giftAidDonationView(
-//                formWithErrors,
-//                taxYear
-//              )
-//            ))
-//        },
-//        {
-//          yesNo =>
-//            val baseCya = cya.getOrElse(GiftAidCYAModel())
-//            val updatedCya = baseCya.copy(donationsViaGiftAid = Some(yesNo))
-//
-//            (yesNo, updatedCya.isFinished) match {
-//              case (true, false) =>
-//                createOrUpdateSessionData(updatedCya, taxYear, cya.isEmpty)(
-//                  Redirect(controllers.charity.routes.GiftAidDonatedAmountController.show(taxYear))
-//                )
-//              case (false, false) =>
-//                createOrUpdateSessionData(updatedCya, taxYear, cya.isEmpty)(
-//                  Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear))
-//                )
-//              case (_, true) =>
-//                giftAidSession
-//            }
-//        }
-//      )
-//    }
+  def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
 
     yesNoForm(user).bindFromRequest().fold(
       {
         formWithErrors =>
-          BadRequest(
+          Future.successful(BadRequest(
             giftAidDonationView(formWithErrors, taxYear)
-          )
+          ))
       },
       {
-        yesNoForm => Ok("Next Page")
+        yesNoForm =>
+          giftAidSessionService.getSessionData(taxYear).map { cya =>
+
+              val updatedCya = cya.flatMap(_.giftAid).getOrElse(GiftAidCYAModel()).copy(donationsViaGiftAid = Some(true))
+
+              val redirectLocation = (updatedCya.isFinished, yesNoForm) match {
+                case (true, _) => Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
+                case (_, true) => Redirect(controllers.charity.routes.GiftAidDonatedAmountController.show(taxYear))
+                case _ => Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear))
+              }
+
+              createOrUpdateSessionData(updatedCya, taxYear, cya.isEmpty)(redirectLocation)
+
+          }.flatten
       }
     )
   }
