@@ -58,7 +58,7 @@ class ChooseAccountController @Inject()(
   def show(taxYear: Int, taxType: String): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
     interestSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
 
-      checkShowingPageIsValid(taxYear, taxType, cya) {
+      checkHittingPageIsValid(taxYear, taxType, cya) {
 
         val previousAccounts: Set[InterestAccountModel] = getPreviousAccounts(cya.flatMap(_.accounts), taxType) ++
           getPreviousAccounts(prior.flatMap(_.submissions), taxType)
@@ -79,30 +79,33 @@ class ChooseAccountController @Inject()(
   def submit(taxYear: Int, taxType: String): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
     interestSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
 
-      val previousAccounts: Set[InterestAccountModel] =
-        getPreviousAccounts(cya.flatMap(_.accounts), taxType) ++ getPreviousAccounts(prior.flatMap(_.submissions), taxType)
+      checkHittingPageIsValid(taxYear, taxType, cya) {
 
-      form(user.isAgent, taxType).bindFromRequest().fold(
-        {
-          formWithErrors =>
-            Future.successful(BadRequest(chooseAccountView(
-              form = formWithErrors,
-              taxYear = taxYear,
-              previousAccounts.toSeq,
-              taxType
-            )))
-        },
-        {
-          accountId =>
-            if (accountId.equals(SessionValues.ADD_A_NEW_ACCOUNT)){
-              redirectToRelevantAmountPage(taxYear, taxType)
-            } else {
-              //TODO should send id to new page created in SASS-984
-              //Future.successful(OK(controllers.interest.routes.HowMuchPage(taxYear, id=dkki)
-              Future.successful(Redirect(controllers.interest.routes.InterestCYAController.show(taxYear)))
-            }
-        }
-      )
+        val previousAccounts: Set[InterestAccountModel] =
+          getPreviousAccounts(cya.flatMap(_.accounts), taxType) ++ getPreviousAccounts(prior.flatMap(_.submissions), taxType)
+
+        form(user.isAgent, taxType).bindFromRequest().fold(
+          {
+            formWithErrors =>
+              Future.successful(BadRequest(chooseAccountView(
+                form = formWithErrors,
+                taxYear = taxYear,
+                previousAccounts.toSeq,
+                taxType
+              )))
+          },
+          {
+            accountId =>
+              if (accountId.equals(SessionValues.ADD_A_NEW_ACCOUNT)) {
+                redirectToRelevantAmountPage(taxYear, taxType)
+              } else {
+                //TODO should send id to new page created in SASS-984
+                //Future.successful(OK(controllers.interest.routes.HowMuchPage(taxYear, id=dkki)
+                Future.successful(Redirect(controllers.interest.routes.InterestCYAController.show(taxYear)))
+              }
+          }
+        )
+      }
     }
   }
 
@@ -114,27 +117,27 @@ class ChooseAccountController @Inject()(
     }
   }
 
-  private def redirectToRelevantAmountPage(taxYear:Int, taxType:String): Future[Result] ={
-    if(taxType.equals(UNTAXED)){
+  private def redirectToRelevantAmountPage(taxYear: Int, taxType: String): Future[Result] = {
+    if (taxType.equals(UNTAXED)) {
       Future.successful(Redirect(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, id = randomUUID().toString)))
-    }else{
+    } else {
       Future.successful(Redirect(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id = randomUUID().toString)))
     }
   }
 
-  private def checkShowingPageIsValid(taxYear:Int, taxType:String, interestCYAModel: Option[InterestCYAModel])(block: => Future[Result]): Future[Result] ={
-    if(interestCYAModel.isDefined){
-      if(taxType.equals(UNTAXED) && !interestCYAModel.flatMap(_.untaxedUkInterest).getOrElse(false)){
+  private def checkHittingPageIsValid(taxYear: Int, taxType: String, interestCYAModel: Option[InterestCYAModel])(block: => Future[Result]): Future[Result] = {
+    if (interestCYAModel.isDefined) {
+      if (taxType.equals(UNTAXED) && !interestCYAModel.flatMap(_.untaxedUkInterest).getOrElse(false)) {
         Future.successful(Redirect(controllers.interest.routes.UntaxedInterestController.show(taxYear)))
-      }else if(taxType.equals(TAXED) && !interestCYAModel.flatMap(_.taxedUkInterest).getOrElse(false)){
+      } else if (taxType.equals(TAXED) && !interestCYAModel.flatMap(_.taxedUkInterest).getOrElse(false)) {
         Future.successful(Redirect(controllers.interest.routes.TaxedInterestController.show(taxYear)))
       }
-      else{
+      else {
         block
       }
-    }else{
-      Future.successful(Redirect(controllers.interest.routes.UntaxedInterestController.show(taxYear)))
-      //Redirect to overpage?
+    } else {
+      Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+      //Redirect to overview page?
     }
   }
 }
