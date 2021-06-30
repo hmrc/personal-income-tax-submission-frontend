@@ -31,6 +31,8 @@ import models.User
 import models.charity.GiftAidCYAModel
 import services.GiftAidSessionService
 
+import scala.concurrent.ExecutionContext
+
 class GiftAidDonatedAmountController @Inject()(
                                                 implicit cc: MessagesControllerComponents,
                                                 giftAidOneOffController: GiftAidOneOffController,
@@ -38,7 +40,8 @@ class GiftAidDonatedAmountController @Inject()(
                                                 appConfig: AppConfig,
                                                 view: GiftAidDonatedAmountView,
                                                 giftAidSessionService: GiftAidSessionService,
-                                                errorHandler: ErrorHandler
+                                                errorHandler: ErrorHandler,
+                                                ec: ExecutionContext
                                               ) extends FrontendController(cc) with I18nSupport with CharityJourney {
 
   def handleRedirect(taxYear: Int, cya: GiftAidCYAModel)(implicit user: User[AnyContent]): Result = {
@@ -58,16 +61,18 @@ class GiftAidDonatedAmountController @Inject()(
     emptyFieldArguments = Seq(taxYear.toString)
   )
 
-  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
 
     giftAidSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
-      prior match {
-        case Some(priorData) if priorData.
+      val priorDonatedAmount: Option[BigDecimal] = prior.flatMap(_.giftAidPayments.flatMap(_.currentYear))
+      val cyaDonatedAmount: Option[BigDecimal] = cya.flatMap(_.donationsViaGiftAidAmount)
+
+      val amountForm = (priorDonatedAmount, cyaDonatedAmount) match {
+        case (priorValueOpt, Some(cyaValue)) if !priorValueOpt.contains(cyaValue) => form(user.isAgent, taxYear).fill(cyaValue)
+        case _ => form(user.isAgent, taxYear)
       }
-
+      Ok(view(taxYear, amountForm, None))
     }
-
-    Ok(view(taxYear, form(user.isAgent,taxYear), None))
   }
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)) { implicit user =>
