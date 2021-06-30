@@ -24,19 +24,26 @@ import forms.YesNoForm
 import models.User
 import play.api.data.Form
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.charity.GiftAidOneOffView
-
 import javax.inject.Inject
+import models.charity.GiftAidCYAModel
 
 class GiftAidOneOffController @Inject()(
                                               implicit val cc: MessagesControllerComponents,
                                               authAction: AuthorisedAction,
                                               giftAidOneOffView: GiftAidOneOffView,
                                               implicit val appConfig: AppConfig
-                                            ) extends FrontendController(cc) with I18nSupport with SessionHelper {
+                                            ) extends FrontendController(cc) with I18nSupport with SessionHelper with CharityJourney {
+
+  def handleRedirect(taxYear: Int, cya: GiftAidCYAModel)(implicit user: User[AnyContent]): Result = {
+    cya.donationsViaGiftAid match {
+      case Some(true) => Ok(giftAidOneOffView(yesNoForm(user), taxYear, giftAidDonations = 100))
+      case _ => redirectToOverview(taxYear)
+    }
+  }
 
   val yesNoForm: User[AnyContent] => Form[Boolean] = user => {
     val missingInputError = s"charity.one-off.errors.noChoice.${if (user.isAgent) "agent" else "individual"}"
