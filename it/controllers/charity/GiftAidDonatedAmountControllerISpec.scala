@@ -23,12 +23,13 @@ import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.{WSClient, WSResponse}
-import utils.{IntegrationTest, ViewHelpers}
+import utils.{GiftAidDatabaseHelper, IntegrationTest, ViewHelpers}
 
-class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpers {
+class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpers with GiftAidDatabaseHelper {
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
   val taxYear: Int = 2022
+  val gitAidDonatedAmountUrl = s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-using-gift-aid"
 
   object IndividualExpected {
     val expectedTitle = "How much did you donate to charity by using Gift Aid?"
@@ -92,8 +93,13 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpe
 
       "returns an action with the correct english content" which {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(None)
+
           authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-using-gift-aid")
+          await(wsClient.url(gitAidDonatedAmountUrl)
             .withHttpHeaders(xSessionId, csrfContent)
             .get())
         }
@@ -117,8 +123,13 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpe
       }
       "returns an action with the correct welsh content" which {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(None)
+
           authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-using-gift-aid")
+          await(wsClient.url(gitAidDonatedAmountUrl)
             .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
             .get())
         }
@@ -146,9 +157,14 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpe
 
       s"return an OK($OK) status" in {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(None)
+
           authoriseIndividual()
           await(
-            wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-using-gift-aid")
+            wsClient.url(gitAidDonatedAmountUrl)
               .withHttpHeaders(xSessionId, csrfContent)
               .post(Map("amount" -> "123000.42"))
           )
@@ -160,7 +176,7 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpe
       s"return a BAD_REQUEST($BAD_REQUEST) status with empty error" which {
         lazy val result: WSResponse = {
           authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-using-gift-aid")
+          await(wsClient.url(gitAidDonatedAmountUrl)
             .withHttpHeaders(xSessionId, csrfContent)
             .post(Map[String, String]()))
         }
@@ -178,7 +194,7 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpe
       s"return a BAD_REQUEST($BAD_REQUEST) status with empty error - WELSH" which {
         lazy val result: WSResponse = {
           authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-using-gift-aid")
+          await(wsClient.url(gitAidDonatedAmountUrl)
             .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
             .post(Map[String, String]()))
         }
@@ -197,7 +213,7 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpe
       s"return a BAD_REQUEST($BAD_REQUEST) status with OverMax error" which {
         lazy val result: WSResponse = {
           authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-using-gift-aid")
+          await(wsClient.url(gitAidDonatedAmountUrl)
             .withHttpHeaders(xSessionId, csrfContent)
             .post(Map("amount" -> "999999999999999999999999999999999999999999999999")))
         }
@@ -215,7 +231,7 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpe
       s"return a BAD_REQUEST($BAD_REQUEST) status with OverMax error - WELSH" which {
         lazy val result: WSResponse = {
           authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-using-gift-aid")
+          await(wsClient.url(gitAidDonatedAmountUrl)
             .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
             .post(Map("amount" -> "999999999999999999999999999999999999999999999999")))
         }
@@ -234,7 +250,7 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpe
       s"return a BAD_REQUEST($BAD_REQUEST) status with Bad Format error" which {
         lazy val result: WSResponse = {
           authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-using-gift-aid")
+          await(wsClient.url(gitAidDonatedAmountUrl)
             .withHttpHeaders(xSessionId, csrfContent)
             .post(Map("amount" -> "|")))
         }
@@ -251,7 +267,7 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpe
       s"return a BAD_REQUEST($BAD_REQUEST) status with Bad Format error  - WELSH" which {
         lazy val result: WSResponse = {
           authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-using-gift-aid")
+          await(wsClient.url(gitAidDonatedAmountUrl)
             .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
             .post(Map("amount" -> "|")))
         }
@@ -277,13 +293,18 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpe
 
       "returns an action with correct english content" which {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(None)
+
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
           ))
 
           authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-using-gift-aid")
+          await(wsClient.url(gitAidDonatedAmountUrl)
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .get())
         }
@@ -306,13 +327,18 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpe
       }
       "returns an action with correct welsh content" which {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(None)
+
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
           ))
 
           authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-using-gift-aid")
+          await(wsClient.url(gitAidDonatedAmountUrl)
             .withHttpHeaders(
               HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent,
               HeaderNames.ACCEPT_LANGUAGE -> "cy"
@@ -344,13 +370,18 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpe
 
         "there is form data" in {
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+
+            emptyUserDataStub()
+            insertCyaData(None)
+
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
               SessionValues.CLIENT_MTDITID -> "1234567890",
               SessionValues.CLIENT_NINO -> "AA123456A"))
 
             authoriseAgent()
             await(
-              wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-using-gift-aid")
+              wsClient.url(gitAidDonatedAmountUrl)
                 .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
                 .post(Map("amount" -> "12344.98"))
             )
@@ -369,7 +400,7 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpe
           ))
 
           authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-using-gift-aid")
+          await(wsClient.url(gitAidDonatedAmountUrl)
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .post(Map[String, String]()))
         }
@@ -390,7 +421,7 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpe
           ))
 
           authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-using-gift-aid")
+          await(wsClient.url(gitAidDonatedAmountUrl)
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
             .post(Map[String, String]()))
         }
@@ -413,7 +444,7 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpe
           ))
 
           authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-using-gift-aid")
+          await(wsClient.url(gitAidDonatedAmountUrl)
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .post(Map("amount" -> "999999999999999999999999")))
         }
@@ -434,7 +465,7 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpe
           ))
 
           authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-using-gift-aid")
+          await(wsClient.url(gitAidDonatedAmountUrl)
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
             .post(Map("amount" -> "999999999999999999999999")))
         }
@@ -457,7 +488,7 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpe
           ))
 
           authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-using-gift-aid")
+          await(wsClient.url(gitAidDonatedAmountUrl)
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .post(Map("amount" -> "|")))
         }
@@ -480,7 +511,7 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpe
           ))
 
           authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-using-gift-aid")
+          await(wsClient.url(gitAidDonatedAmountUrl)
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie,HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
             .post(Map("amount" -> "|")))
         }

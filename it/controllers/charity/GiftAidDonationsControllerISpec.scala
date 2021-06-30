@@ -22,26 +22,28 @@ import helpers.PlaySessionCookieBaker
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.{WSClient, WSResponse}
-import utils.IntegrationTest
+import utils.{GiftAidDatabaseHelper, IntegrationTest, ViewHelpers}
 
-class GiftAidDonationsControllerISpec extends IntegrationTest {
+class GiftAidDonationsControllerISpec extends IntegrationTest with ViewHelpers with GiftAidDatabaseHelper {
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
   lazy val controller: GiftAidDonationsController = app.injector.instanceOf[GiftAidDonationsController]
   val taxYear: Int = 2022
+  val giftAidDonationsUrl = s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/charity-donation-using-gift-aid"
+
   "as an individual" when {
 
     ".show" should {
 
       "returns an action" which {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(None)
+
           authoriseIndividual()
-          await(
-            wsClient
-              .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/charity-donation-using-gift-aid")
-              .withHttpHeaders(xSessionId, csrfContent)
-              .get()
-          )
+          await(wsClient.url(giftAidDonationsUrl).withHttpHeaders(xSessionId, csrfContent).get())
         }
 
         "has an OK(200) status" in {
@@ -56,6 +58,11 @@ class GiftAidDonationsControllerISpec extends IntegrationTest {
 
       s"return an OK($OK) status" in {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(None)
+
           authoriseIndividual()
           await(
             wsClient
@@ -92,6 +99,11 @@ class GiftAidDonationsControllerISpec extends IntegrationTest {
 
       "returns an action" which {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(None)
+
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
