@@ -37,9 +37,21 @@
     if(input) messages("common.yes") else messages("common.no")
 }
 
-@accountsInfo(questionNumber: Int, accounts: Seq[InterestAccountModel]) = {
+@details(questionNumber: Int, id: Int, account: InterestAccountModel, amount: BigDecimal) = {
+    <div id="question-@{questionNumber}-account-@{id+1}">@messages("interest.cya.accountDisplay", account.accountName, bigDecimalCurrency(amount.toString))</div>
+}
+
+@accountsInfo(questionNumber: Int, accounts: Seq[InterestAccountModel], untaxed: Boolean) = {
     @accounts.zipWithIndex.map { case (account, id) =>
-        <div id="question-@{questionNumber}-account-@{id+1}">@messages("interest.cya.accountDisplay", account.accountName, bigDecimalCurrency(account.amount.toString))</div>
+
+        @{untaxed match {
+            case true => account.untaxedAmount.map{ amount =>
+                details(questionNumber, id, account, amount)
+            }
+            case false => account.taxedAmount.map{ amount =>
+                details(questionNumber, id, account, amount)
+            }
+        }}
     }
 }
 
@@ -57,10 +69,10 @@
                 ))
             } else { None },
             if(cyaModel.untaxedUkInterest.getOrElse(false)) {
-                cyaModel.untaxedUkAccounts.map { accounts =>
+                cyaModel.accounts.map(_.filter(_.hasUntaxed)).map { accounts =>
                     summaryListRow(
                         HtmlContent(messages("interest.cya.questions.2")),
-                        HtmlContent(accountsInfo(2, accounts)),
+                        HtmlContent(accountsInfo(2, accounts, true)),
                         actions = Seq((controllers.interest.routes.AccountsController.show(taxYear, UNTAXED), messages("common.change"), Some(messages(s"interest.cya.change-untaxed-details.hiddenChange.${if(user.isAgent) "agent" else "individual"}"))))
                     )
                 }
@@ -73,10 +85,10 @@
                 ))
             } else { None },
             if(cyaModel.taxedUkInterest.getOrElse(false)) {
-                cyaModel.taxedUkAccounts.map { accounts =>
+                cyaModel.accounts.map(_.filter(_.hasTaxed)).map { accounts =>
                     summaryListRow(
                         HtmlContent(messages("interest.cya.questions.4")),
-                        HtmlContent(accountsInfo(4, accounts)),
+                        HtmlContent(accountsInfo(4, accounts, false)),
                         actions = Seq((controllers.interest.routes.AccountsController.show(taxYear, TAXED), messages("common.change"), Some(messages(s"interest.cya.change-taxed-details.hiddenChange.${if(user.isAgent) "agent" else "individual"}"))))
                     )
                 }

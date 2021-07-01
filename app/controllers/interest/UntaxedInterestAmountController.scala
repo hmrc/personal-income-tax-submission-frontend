@@ -51,14 +51,14 @@ class UntaxedInterestAmountController @Inject()(
                                                ) extends FrontendController(mcc) with I18nSupport with SessionHelper with Logging {
 
   def show(taxYear: Int, id: String): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
-
     interestSessionService.getSessionData(taxYear).map { cya =>
 
       implicit val journey: QuestionsJourney[InterestCYAModel] = InterestCYAModel.interestJourney(taxYear, Some(id))
+
       val optionalCyaData = cya.flatMap(_.interest)
-      val previousNames: Seq[String] = cya.flatMap(_.interest).flatMap(_.untaxedUkAccounts.map(_.map(_.accountName))).getOrElse(Seq.empty[String])
-      val idMatchesPreviouslySubmittedAccount: Boolean = optionalCyaData.flatMap(_.untaxedUkAccounts.map(_.exists(_.id.contains(id)))).getOrElse(false)
-      val sessionIDMatchesPreviouslySubmittedAccount: Boolean = optionalCyaData.flatMap(_.untaxedUkAccounts.map(_.exists(_.uniqueSessionId.contains(id)))).getOrElse(false)
+      val previousNames: Seq[String] = cya.flatMap(_.interest).flatMap(_.accounts.map(_.map(_.accountName))).getOrElse(Seq.empty[String])
+      val idMatchesPreviouslySubmittedAccount: Boolean = optionalCyaData.flatMap(_.accounts.map(_.exists(_.id.contains(id)))).getOrElse(false)
+      val sessionIDMatchesPreviouslySubmittedAccount: Boolean = optionalCyaData.flatMap(_.accounts.map(_.exists(_.uniqueSessionId.contains(id)))).getOrElse(false)
 
       def untaxedInterestAmountForm(implicit isAgent: Boolean, previousNames: Seq[String]): Form[UntaxedInterestModel] =
         UntaxedInterestAmountForm.untaxedInterestAmountForm(
@@ -74,12 +74,12 @@ class UntaxedInterestAmountController @Inject()(
 
         } else if (sessionIdIsUUID(id)) {
 
-          val account: Option[InterestAccountModel] = optionalCyaData.flatMap(_.untaxedUkAccounts.flatMap(_.find { account =>
+          val account: Option[InterestAccountModel] = optionalCyaData.flatMap(_.accounts.flatMap(_.find { account =>
             account.uniqueSessionId.getOrElse("") == id
           }))
 
-          val accountName = account.map(_.accountName)
-          val accountAmount = account.map(_.amount)
+          val accountName: Option[String] = account.map(_.accountName)
+          val accountAmount: Option[BigDecimal] = account.flatMap(_.untaxedAmount)
 
           val model: Option[UntaxedInterestModel] = (accountName, accountAmount) match {
             case (Some(name), Some(amount)) => Some(UntaxedInterestModel(name, amount))
@@ -104,14 +104,14 @@ class UntaxedInterestAmountController @Inject()(
 
     interestSessionService.getSessionData(taxYear).map { cya =>
       val optionalCyaData = cya.flatMap(_.interest)
-      val previousNames: Seq[String] = optionalCyaData.flatMap(_.untaxedUkAccounts.map(_.map(_.accountName))).getOrElse(Seq.empty[String])
-      val sessionIDMatchesPreviouslySubmittedAccount: Boolean = optionalCyaData.flatMap(_.untaxedUkAccounts.map(_.exists(_.uniqueSessionId.contains(id)))).getOrElse(false)
+      val previousNames: Seq[String] = optionalCyaData.flatMap(_.accounts.map(_.map(_.accountName))).getOrElse(Seq.empty[String])
+      val sessionIDMatchesPreviouslySubmittedAccount: Boolean = {
+        optionalCyaData.flatMap(_.accounts.map(_.exists(_.uniqueSessionId.contains(id)))).getOrElse(false)
+      }
 
-      def untaxedInterestAmountForm(implicit isAgent: Boolean): Form[UntaxedInterestModel] = UntaxedInterestAmountForm.untaxedInterestAmountForm(
-        isAgent,
-        previousNames,
-        sessionIDMatchesPreviouslySubmittedAccount
-      )
+      def untaxedInterestAmountForm(implicit isAgent: Boolean): Form[UntaxedInterestModel] = {
+        UntaxedInterestAmountForm.untaxedInterestAmountForm(isAgent, previousNames, sessionIDMatchesPreviouslySubmittedAccount)
+      }
 
       untaxedInterestAmountForm(user.isAgent).bindFromRequest().fold({
         formWithErrors =>
@@ -124,24 +124,22 @@ class UntaxedInterestAmountController @Inject()(
       }, {
         completeForm =>
           val newAmount: BigDecimal = completeForm.untaxedAmount
-
-          def createNewAccount: InterestAccountModel = InterestAccountModel(None, completeForm.untaxedAccountName, newAmount, Some(id))
+          def createNewAccount: InterestAccountModel = InterestAccountModel(None, completeForm.untaxedAccountName, Some(newAmount), None, Some(id))
 
           cya.flatMap(_.interest) match {
             case Some(cyaData) =>
-              val accounts = cyaData.untaxedUkAccounts.getOrElse(Seq.empty[InterestAccountModel])
+              val accounts = cyaData.accounts.getOrElse(Seq.empty[InterestAccountModel])
 
               val newAccount = accounts.find(_.getPrimaryId().exists(_ == id)).map(_.copy(
-                accountName = completeForm.untaxedAccountName, amount = newAmount
+                accountName = completeForm.untaxedAccountName, untaxedAmount = Some(newAmount)
               )).getOrElse(createNewAccount)
 
               val newAccountList = if (newAccount.getPrimaryId().nonEmpty && accounts.exists(_.getPrimaryId() == newAccount.getPrimaryId())) {
                 accounts.map(account => if (account.getPrimaryId() == newAccount.getPrimaryId()) newAccount else account)
               } else {
                 accounts :+ newAccount
-
               }
-              val updatedCyaModel = cyaData.copy(untaxedUkAccounts = Some(newAccountList))
+              val updatedCyaModel = cyaData.copy(accounts = Some(newAccountList))
 
               interestSessionService.updateSessionData(updatedCyaModel, taxYear)(InternalServerError(errorHandler.internalServerErrorTemplate))(
                 Redirect(controllers.interest.routes.AccountsController.show(taxYear, InterestTaxTypes.UNTAXED))

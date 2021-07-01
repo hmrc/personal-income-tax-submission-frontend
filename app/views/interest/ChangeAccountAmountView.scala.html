@@ -62,6 +62,7 @@
 
 @contentHtml = {
 
+<!--TODO REFACTOR PRE AMOUNT TO NOT SHOW CONTENT IF EMPTY-->
     <p>
     @messages("common.youToldUs")
     @messages(s"common.youGot.${if(user.isAgent) "agent" else "individual"}")

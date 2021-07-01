@@ -16,7 +16,6 @@
 
 package controllers
 
-
 import play.api.http.Status.{NO_CONTENT, OK}
 import play.api.test.Helpers.{charset, contentType}
 import play.api.test.{DefaultAwaitTimeout, FakeRequest}

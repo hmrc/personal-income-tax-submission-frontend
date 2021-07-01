@@ -114,8 +114,8 @@ class AccountsController @Inject()(
 
   private[interest] def getTaxAccounts(taxType: String, cyaData: InterestCYAModel): Option[Seq[InterestAccountModel]] = {
     taxType match {
-      case `TAXED` => cyaData.taxedUkAccounts
-      case `UNTAXED` => cyaData.untaxedUkAccounts
+      case `TAXED` => cyaData.accounts.map(_.filter(_.hasTaxed))
+      case `UNTAXED` => cyaData.accounts.map(_.filter(_.hasUntaxed))
     }
   }
 

@@ -23,45 +23,33 @@ class InterestCYAModelSpec extends UnitTest {
   val account = InterestAccountModel(
     id = Some("someId"),
     accountName = "someName",
-    amount = 100.00
+    Some(100.00),
+    Some(100.00)
   )
 
   val modelMax: InterestCYAModel = InterestCYAModel(
     untaxedUkInterest = Some(true),
-    untaxedUkAccounts = Some(Seq(account)),
     taxedUkInterest = Some(true),
-    taxedUkAccounts = Some(Seq(account, account))
+    Some(Seq(account))
   )
 
   val jsonMax: JsObject = Json.obj(
     "untaxedUkInterest" -> true,
-    "untaxedUkAccounts" -> Json.arr(
-      Json.obj(
-        "id" -> "someId",
-        "accountName" -> "someName",
-        "amount" -> 100.00
-      )
-    ),
     "taxedUkInterest" -> true,
-    "taxedUkAccounts" -> Json.arr(
+    "accounts" -> Json.arr(
       Json.obj(
         "id" -> "someId",
         "accountName" -> "someName",
-        "amount" -> 100.00
-      ),
-      Json.obj(
-        "id" -> "someId",
-        "accountName" -> "someName",
-        "amount" -> 100.00
+        "untaxedAmount" -> 100.00,
+        "taxedAmount" -> 100.00
       )
     )
   )
 
   val modelMin: InterestCYAModel = InterestCYAModel(
     untaxedUkInterest = None,
-    untaxedUkAccounts = None,
     taxedUkInterest = None,
-    taxedUkAccounts = None
+    accounts = None
   )
 
   val jsonMin: JsObject = Json.obj()
@@ -100,25 +88,22 @@ class InterestCYAModelSpec extends UnitTest {
       "untaxed interest exist with accounts and taxed interest exist with no accounts" in {
         InterestCYAModel(
           Some(true),
-          Some(Seq(account)),
           Some(true),
-          None
+          Some(Seq(account.copy(taxedAmount = None)))
         ).isFinished shouldBe false
       }
 
       "untaxed interest exist with no accounts and taxed interest exist with accounts" in {
         InterestCYAModel(
           Some(true),
-          None,
           Some(true),
-          Some(Seq(account))
+          Some(Seq(account.copy(untaxedAmount = None)))
         ).isFinished shouldBe false
       }
 
       "untaxed and taxed interest exist, each with no accounts" in {
         InterestCYAModel(
           Some(true),
-          None,
           Some(true),
           None
         ).isFinished shouldBe false
@@ -127,18 +112,16 @@ class InterestCYAModelSpec extends UnitTest {
       "untaxed interest is true with accounts and taxed interest does not exist" in {
         InterestCYAModel(
           untaxedUkInterest = Some(true),
-          untaxedUkAccounts = Some(Seq(account)),
           taxedUkInterest = None,
-          taxedUkAccounts = None
+          accounts = Some(Seq(account.copy(taxedAmount = None)))
         ).isFinished shouldBe false
       }
 
       "taxed interest is true with accounts and untaxed interest does not exist" in {
         InterestCYAModel(
           untaxedUkInterest = None,
-          untaxedUkAccounts = None,
           taxedUkInterest = Some(true),
-          taxedUkAccounts = Some(Seq(account))
+          accounts = Some(Seq(account.copy(untaxedAmount = None)))
         ).isFinished shouldBe false
       }
 
@@ -149,23 +132,18 @@ class InterestCYAModelSpec extends UnitTest {
         "untaxed interest is true with accounts and taxed interest is false" in {
           InterestCYAModel(
             untaxedUkInterest = Some(true),
-            untaxedUkAccounts = Some(Seq(account)),
             taxedUkInterest = Some(false),
-            taxedUkAccounts = None
+            accounts = Some(Seq(account.copy(taxedAmount = None)))
           ).isFinished shouldBe true
         }
 
-        "taxed interest is true with accounts and untaxed interest is false" in {
-          InterestCYAModel(
-            untaxedUkInterest = Some(false),
-            untaxedUkAccounts = None,
-            taxedUkInterest = Some(true),
-            taxedUkAccounts = Some(Seq(account))
-          ).isFinished shouldBe true
-        }
-
+      "taxed interest is true with accounts and untaxed interest is false" in {
+        InterestCYAModel(
+          untaxedUkInterest = Some(false),
+          taxedUkInterest = Some(true),
+          accounts = Some(Seq(account.copy(untaxedAmount = None)))
+        ).isFinished shouldBe true
+      }
     }
-
   }
-
 }

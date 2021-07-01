@@ -28,5 +28,6 @@ case class CreateOrAmendInterestAuditDetail(body: Option[InterestCYAModel],
                                             taxYear: Int)
 
 object CreateOrAmendInterestAuditDetail {
+  implicit val writesInterestPriorSubmission: OWrites[InterestPriorSubmission] = InterestPriorSubmission.writes
   implicit def writes: OWrites[CreateOrAmendInterestAuditDetail] = Json.writes[CreateOrAmendInterestAuditDetail]
 }

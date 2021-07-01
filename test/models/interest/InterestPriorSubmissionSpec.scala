@@ -58,12 +58,12 @@ class InterestPriorSubmissionSpec extends UnitTest {
       Json.obj(
         "id" -> "qwerty",
         "accountName" -> "TSB Account",
-        "amount" -> 500
+        "taxedAmount" -> 500
       ),
       Json.obj(
         "id" -> "azerty",
         "accountName" -> "Lloyds Savings",
-        "amount" -> 3000
+        "untaxedAmount" -> 3000
       )
     )
   )
@@ -75,14 +75,12 @@ class InterestPriorSubmissionSpec extends UnitTest {
       InterestAccountModel(
         Some("qwerty"),
         "TSB Account",
-        500.00,
-        priorType = Some(InterestTaxTypes.TAXED)
+        taxedAmount = Some(500.00)
       ),
       InterestAccountModel(
         Some("azerty"),
         "Lloyds Savings",
-        3000.00,
-        priorType = Some(InterestTaxTypes.UNTAXED)
+        untaxedAmount = Some(3000.00)
       )
     ))
   )
@@ -94,8 +92,7 @@ class InterestPriorSubmissionSpec extends UnitTest {
       InterestAccountModel(
         Some("azerty"),
         "Lloyds Savings",
-        3000.00,
-        priorType = Some(InterestTaxTypes.UNTAXED)
+        untaxedAmount = Some(3000.00)
       )
     ))
   )
@@ -107,29 +104,13 @@ class InterestPriorSubmissionSpec extends UnitTest {
       InterestAccountModel(
         Some("qwerty"),
         "TSB Account",
-        500.00,
-        priorType = Some(InterestTaxTypes.TAXED)
+        taxedAmount = Some(500.00)
       )
     ))
   )
 
-  "should correctly parse from json when both tax types are present" in {
-    validJsonRead.as[InterestPriorSubmission] shouldBe validModel
-  }
-
-  "should correctly parse from json when only untaxed accounts are present" in {
-    validJsonReadUntaxed.as[InterestPriorSubmission] shouldBe validModelUntaxed
-  }
-
-  "should correctly parse from json when taxed accounts are present" in {
-    validJsonReadTaxed.as[InterestPriorSubmission] shouldBe validModelTaxed
-  }
-
-  "should correctly parse from json when no accounts are present" in {
-    Json.arr().as[InterestPriorSubmission] shouldBe InterestPriorSubmission(hasUntaxed = false, hasTaxed = false, None)
-  }
-
   "should correctly parse to json" in {
+    implicit val writes = InterestPriorSubmission.writes
     Json.toJson(validModel) shouldBe validJsonWrite
   }
 

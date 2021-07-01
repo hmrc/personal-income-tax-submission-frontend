@@ -22,37 +22,40 @@ import play.api.http.Status.UNAUTHORIZED
 import play.api.libs.ws.WSResponse
 import utils.{IntegrationTest, ViewHelpers}
 
-class IndividualAuthErrorControllerISpec extends IntegrationTest with ViewHelpers {
+class YouNeedAgentServicesControllerISpec extends IntegrationTest with ViewHelpers {
 
   object Selectors {
-    val paragraphSelector: String = ".govuk-body"
-    val linkSelector: String = paragraphSelector + " > a"
+    val p1Selector = "#main-content > div > div > p"
+    val createAnAgentLinkSelector = "#create_agent_services_link"
   }
 
-  val url = s"$appUrl/error/you-need-to-sign-up"
+  val url = s"$appUrl/error/you-need-agent-services-account"
 
   trait CommonExpectedResults {
-    val validTitle: String
-    val pageContent: String
-    val linkContent: String
-    val linkHref: String
+    val h1Expected: String
+    val youNeedText: String
+    val createAnAgentText: String
+    val beforeYouCanText: String
+    val createAnAgentLink: String
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
-    val validTitle: String = "You cannot view this page"
-    val pageContent: String = "You need to sign up for Making Tax Digital for Income Tax before you can view this page."
-    val linkContent: String = "sign up for Making Tax Digital for Income Tax"
-    val linkHref: String = "https://www.gov.uk/guidance/sign-up-your-business-for-making-tax-digital-for-income-tax"
+    val h1Expected = "You cannot view this page"
+    val youNeedText = "You need to"
+    val createAnAgentText = "create an agent services account"
+    val beforeYouCanText = "before you can view this page."
+    val createAnAgentLink = "https://www.gov.uk/guidance/get-an-hmrc-agent-services-account"
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val validTitle: String = "You cannot view this page"
-    val pageContent: String = "You need to sign up for Making Tax Digital for Income Tax before you can view this page."
-    val linkContent: String = "sign up for Making Tax Digital for Income Tax"
-    val linkHref: String = "https://www.gov.uk/guidance/sign-up-your-business-for-making-tax-digital-for-income-tax"
+    val h1Expected = "You cannot view this page"
+    val youNeedText = "You need to"
+    val createAnAgentText = "create an agent services account"
+    val beforeYouCanText = "before you can view this page."
+    val createAnAgentLink = "https://www.gov.uk/guidance/get-an-hmrc-agent-services-account"
   }
 
-  val userScenarios: Seq[UserScenario[CommonExpectedResults, CommonExpectedResults]] = {
+  val userScenarios: Seq[UserScenario[CommonExpectedResults, Nothing]] = {
     Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN),
       UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY))
   }
@@ -63,7 +66,7 @@ class IndividualAuthErrorControllerISpec extends IntegrationTest with ViewHelper
     userScenarios.foreach { user =>
       s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
-        "return the AgentAuthErrorPageView with the right content" which {
+        "render the page with the right content" which {
 
           implicit lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
@@ -78,11 +81,11 @@ class IndividualAuthErrorControllerISpec extends IntegrationTest with ViewHelper
 
           import user.commonExpectedResults._
 
-          titleCheck(validTitle)
+          titleCheck(h1Expected)
           welshToggleCheck(user.isWelsh)
-          h1Check(validTitle, "xl")
-          textOnPageCheck(pageContent, paragraphSelector)
-          linkCheck(linkContent, linkSelector, linkHref)
+          h1Check(h1Expected, "xl")
+          textOnPageCheck(s"$youNeedText $createAnAgentText $beforeYouCanText", p1Selector)
+          linkCheck(createAnAgentText, createAnAgentLinkSelector, createAnAgentLink)
         }
       }
     }

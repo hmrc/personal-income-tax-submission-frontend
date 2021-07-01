@@ -42,9 +42,9 @@ class InterestSubmissionServiceSpec extends UnitTest {
 
       lazy val cyaModel = InterestCYAModel(
         Some(true),
-        Some(Seq(InterestAccountModel(Some("anId"), "dis account yo", 100.00, None, None))),
         Some(true),
-        Some(Seq(InterestAccountModel(Some("anotherId"), "a bank thing", 200.00, None, None)))
+        Some(Seq(InterestAccountModel(Some("anId"), "dis account yo", Some(100.00), None, None),
+          InterestAccountModel(Some("anotherId"), "a bank thing", None, Some(200.00), None)))
       )
 
       lazy val accounts: Seq[InterestSubmissionModel] = Seq(
@@ -75,7 +75,7 @@ class InterestSubmissionServiceSpec extends UnitTest {
                 Right(NO_CONTENT)
               )
 
-            await(service.submit(cyaModel.copy(Some(false), None, Some(false), None), "AA123456A", taxYear, "1234567890"))
+            await(service.submit(cyaModel.copy(Some(false), Some(false), None), "AA123456A", taxYear, "1234567890"))
           }
 
           result shouldBe Right(NO_CONTENT)

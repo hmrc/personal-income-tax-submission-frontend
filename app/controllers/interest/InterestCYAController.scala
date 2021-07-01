@@ -56,7 +56,7 @@ class InterestCYAController @Inject()(
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
     interestSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
-      getCyaModel(cya, prior) match {
+      Future(getCyaModel(cya, prior) match {
         case Some(cyaData) if !cyaData.isFinished => handleUnfinishedRedirect(cyaData, taxYear)
         case Some(cyaData) =>
             if(cya.isDefined) {
@@ -71,13 +71,13 @@ class InterestCYAController @Inject()(
         case _ =>
           logger.info("[InterestCYAController][show] No CYA data in session. Redirecting to the overview page.")
           Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
-      }
+      })
     }.flatten
   }
 
   def submit(taxYear: Int): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
     interestSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
-      (cya match {
+      Future((cya match {
         case Some(cyaData) => interestSubmissionService.submit(cyaData, user.nino, taxYear, user.mtditid).map {
           case response@Right(_) =>
             val model = CreateOrAmendInterestAuditDetail(
@@ -96,7 +96,7 @@ class InterestCYAController @Inject()(
             Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
           )
         case Left(error) => Future.successful(errorHandler.handleError(error.status))
-      }
+      })
     }.flatten
   }
 
@@ -105,9 +105,8 @@ class InterestCYAController @Inject()(
       case (None, Some(priorData)) =>
         Some(InterestCYAModel(
           Some(priorData.hasUntaxed),
-          priorData.submissions.map(_.filter(_.priorType.contains(InterestTaxTypes.UNTAXED))),
           Some(priorData.hasTaxed),
-          priorData.submissions.map(_.filter(_.priorType.contains(InterestTaxTypes.TAXED)))
+          priorData.submissions
         ))
       case (Some(cyaData), _) => Some(cyaData)
       case _ => None
