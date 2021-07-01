@@ -22,7 +22,7 @@ import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import forms.AmountForm
 import models.User
-import models.interest.InterestAccountModel
+import models.interest.{InterestAccountModel, InterestPriorSubmission}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
@@ -60,7 +60,6 @@ class InterestAccountAmountController @Inject()(
             taxYear: Int,
             taxType: String,
             accountName: InterestAccountModel
-//            preAmount: Option[BigDecimal] = None
           )(implicit user: User[AnyContent]): Html = {
 
     interestAccountAmountView(
@@ -71,15 +70,35 @@ class InterestAccountAmountController @Inject()(
     )
   }
 
-val accountName = InterestAccountModel(None, "Greggs", 0, None, None)
+val accountName = InterestAccountModel(None, "Halifax", 0, None, None)
 
+//add id as a parameter
   def show(taxYear: Int, taxType: String): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
 
     val form: Form[BigDecimal] = interestAccountAmountForm(user.isAgent, taxType)
 
-    Future.successful(Ok(interestAccountAmountView(form,taxYear, taxType, accountName)))
+    //check name using id or session id
+    // use " account => account.id.contains(accountId) " (taken from ChangeAccountAmountController)
+    //checks session data
+    //redirect: if there's already a value assigned to the account (interest cya) - check id or session id - check for each tax type
+    //pre-pop box with session data - cya session (for change link)
 
-    }
+//    interestSessionService.getSessionData(taxYear).map { cya =>
+//
+//      def accountIdExists(accountId: String, interestAccounts: Option[InterestAccountModel]): Boolean = {
+//        interestAccounts.flatMap(_.id.contains(accountId)) {
+//          interestAccounts.map(_.accountName).get
+//      }
+//      val singleAccount: InterestAccountModel = accountIdExists(id, cya)
+//
+//      interestSessionService.getSessionData(taxYear).map { cya =>
+//        val cyaData = cya.flatMap(_.interest)
+
+        Future.successful(Ok(interestAccountAmountView(form, taxYear, taxType, accountName)))
+
+//      }
+//    }
+  }
 
 
 
