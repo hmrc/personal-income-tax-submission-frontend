@@ -18,14 +18,17 @@ package controllers.charity
 
 import common.SessionValues
 import helpers.PlaySessionCookieBaker
+import models.charity.GiftAidCYAModel
+import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel}
+import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
-import play.api.http.Status.OK
+import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.libs.ws.WSClient
-import utils.{IntegrationTest, ViewHelpers}
+import utils.{GiftAidDatabaseHelper, IntegrationTest, ViewHelpers}
 
-class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers {
+class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers with GiftAidDatabaseHelper {
 
   object Selectors {
     val para = "label > p"
@@ -48,6 +51,8 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
     val tooLongError = "The amount of your donation you add to the last tax year must be less than £100,000,000,000"
     val tooLongErrorAgent = "The amount of your client’s donation you add to the last tax year must be less than £100,000,000,000"
     val invalidFormatError = "Enter the amount you want to add to the last tax year in the correct format"
+
+    val priorPageTitle = "Do you want to add any of your donations to the last tax year?"
   }
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
@@ -62,16 +67,27 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
       "the user is a non-agent" should {
 
-        lazy val result = {
-          authoriseIndividual()
-          await(wsClient.url(lastTaxYearAmountUrl)
-            .withHttpHeaders(xSessionId, csrfContent)
-            .get())
-        }
+        "return the page when there is valid CYA data" which {
+          lazy val result = {
+            dropGiftAidDB()
 
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
+            emptyUserDataStub()
+            insertCyaData(Some(GiftAidCYAModel(
+              addDonationToLastYear = Some(true)
+            )))
 
-        "return the page" which {
+            authoriseIndividual()
+            await(wsClient.url(lastTaxYearAmountUrl)
+              .withHttpHeaders(xSessionId, csrfContent)
+              .get())
+          }
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          s"has an OK($OK) status" in {
+            result.status shouldBe OK
+          }
+
           titleCheck(Content.heading)
           h1Check(Content.heading + " " + Content.caption)
           textOnPageCheck(Content.para, Selectors.para)
@@ -85,14 +101,146 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
           elementExtinct(Selectors.errorMessage)
         }
 
-        s"have an OK($OK) status" in {
-          result.status shouldBe OK
+        "redirect the user to the overview page" when {
+
+          "there is no session data" which {
+            lazy val result = {
+              dropGiftAidDB()
+
+              emptyUserDataStub()
+              insertCyaData(None)
+
+              authoriseIndividual()
+              await(wsClient.url(lastTaxYearAmountUrl)
+                .withFollowRedirects(false)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .get())
+            }
+
+            "has a status of SEE_OTHER (303)" in {
+              result.status shouldBe SEE_OTHER
+            }
+
+            "redirects to the overview page" in {
+              result.headers("Location").head shouldBe overviewUrl
+            }
+          }
+        }
+
+        "redirect the user to the donations added to last tax year page" when {
+
+          "the session data is missing the addDonationToLastYear field" when {
+
+            "there have been no overseas donations via gift aid" which {
+              lazy val result = {
+                dropGiftAidDB()
+
+                userDataStub(IncomeSourcesModel(giftAid = Some(GiftAidSubmissionModel(Some(GiftAidPaymentsModel(
+                  currentYearTreatedAsPreviousYear = Some(1000.00)
+                ))))), nino, taxYear)
+
+                insertCyaData(Some(GiftAidCYAModel(
+                  overseasDonationsViaGiftAid = Some(false)
+                )))
+
+                authoriseIndividual()
+                await(wsClient.url(lastTaxYearAmountUrl)
+                  .withFollowRedirects(false)
+                  .withHttpHeaders(xSessionId, csrfContent)
+                  .get())
+              }
+
+              implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+              "has a status of SEE_OTHER(303)" in {
+                result.status shouldBe SEE_OTHER
+              }
+
+              "has the correct redirect URL" in {
+                result.headers("Location").head shouldBe controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear).url
+              }
+            }
+
+            "there have been overseas donations via gift aid, and charity names are present" which {
+              lazy val result = {
+                dropGiftAidDB()
+
+                userDataStub(IncomeSourcesModel(giftAid = Some(GiftAidSubmissionModel(Some(GiftAidPaymentsModel(
+                  currentYearTreatedAsPreviousYear = Some(1000.00)
+                ))))), nino, taxYear)
+
+                insertCyaData(Some(GiftAidCYAModel(
+                  overseasDonationsViaGiftAid = Some(true),
+                  overseasDonationsViaGiftAidAmount = Some(123.45),
+                  overseasCharityNames = Some(Seq(
+                    "Whiterun Knee Fund",
+                    "Champions Guild Litter Fund"
+                  ))
+                )))
+
+                authoriseIndividual()
+                await(wsClient.url(lastTaxYearAmountUrl)
+                  .withFollowRedirects(false)
+                  .withHttpHeaders(xSessionId, csrfContent)
+                  .get())
+              }
+
+              implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+              "has a status of SEE_OTHER(303)" in {
+                result.status shouldBe SEE_OTHER
+              }
+
+              "has the correct redirect URL" in {
+                result.headers("Location").head shouldBe controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear).url
+              }
+            }
+
+          }
+
+        }
+
+        "redirect the user to the add donations made next tax year to this tax year page" when {
+
+          "the user has answered no to the add donations made this year to last year question" which {
+            lazy val result = {
+              dropGiftAidDB()
+
+              emptyUserDataStub()
+              insertCyaData(Some(GiftAidCYAModel(
+                overseasDonationsViaGiftAid = Some(false),
+                addDonationToLastYear = Some(false)
+              )))
+
+              authoriseIndividual()
+              await(wsClient.url(lastTaxYearAmountUrl)
+                .withFollowRedirects(false)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .get())
+            }
+
+            "has a status of SEE_OTHER(303)" in {
+              result.status shouldBe SEE_OTHER
+            }
+
+            "redirect to the correct URL" in {
+              result.headers("Location").head shouldBe controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear).url
+            }
+          }
+
         }
       }
 
       "the user is an agent" should {
 
         lazy val result = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(GiftAidCYAModel(
+            addDonationToLastYear = Some(true)
+          )))
+
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -132,19 +280,62 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
       "the form data is valid" should {
 
-        "return an OK" in {
+        "redirect to the donate land share securities or properties page" which {
           lazy val result = {
+            dropGiftAidDB()
+
+            emptyUserDataStub()
+            insertCyaData(Some(GiftAidCYAModel(
+              addDonationToLastYear = Some(true)
+            )))
+
             authoriseIndividual()
             await(wsClient.url(lastTaxYearAmountUrl)
+              .withFollowRedirects(false)
               .withHttpHeaders(xSessionId, csrfContent)
               .post(Map[String, String](
                 "amount" -> "1234"
               )))
           }
 
-          result.status shouldBe OK
+          "has a status of SEE_OTHER(303)" in {
+            result.status shouldBe SEE_OTHER
+          }
+
+          "has the correct redirect URL" in {
+            result.headers("Location").head shouldBe controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear).url
+          }
         }
 
+      }
+      
+      "the form data is valid, but there is no session data" should {
+        
+        "redirect to the overview page" which {
+          lazy val result = {
+            dropGiftAidDB()
+
+            emptyUserDataStub()
+            insertCyaData(None)
+
+            authoriseIndividual()
+            await(wsClient.url(lastTaxYearAmountUrl)
+              .withFollowRedirects(false)
+              .withHttpHeaders(xSessionId, csrfContent)
+              .post(Map[String, String](
+                "amount" -> "1234"
+              )))
+          }
+
+          "has a status of SEE_OTHER(303)" in {
+            result.status shouldBe SEE_OTHER
+          }
+
+          "has the correct redirect URL" in {
+            result.headers("Location").head shouldBe overviewUrl
+          }
+        }
+        
       }
 
       "return an error" when {
@@ -228,7 +419,7 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
       "the form data is valid" should {
 
-        "return an OK" in {
+        "redirect to the gift aid shares, securities, land or properties yes/no page" which {
           lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
             SessionValues.TAX_YEAR -> taxYear.toString,
             SessionValues.CLIENT_NINO -> "AA123456A",
@@ -236,16 +427,32 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
           ))
 
           lazy val result = {
+            dropGiftAidDB()
+            
+            emptyUserDataStub()
+            insertCyaData(Some(GiftAidCYAModel()))
+            
             authoriseAgent()
-            await(wsClient.url(lastTaxYearAmountUrl).withHttpHeaders(
-              HeaderNames.COOKIE -> playSessionCookies,
-              xSessionId, csrfContent
-            ).post(Map[String, String](
-              "amount" -> "1234"
-            )))
+            await(
+              wsClient
+                .url(lastTaxYearAmountUrl)
+                .withHttpHeaders(
+                  HeaderNames.COOKIE -> playSessionCookies,
+                  xSessionId, csrfContent
+                )
+                .withFollowRedirects(false)
+                .post(Map[String, String](
+                  "amount" -> "1234"
+                )))
           }
 
-          result.status shouldBe OK
+          "has a status of SEE_OTHER" in {
+            result.status shouldBe SEE_OTHER
+          }
+          
+          "has the correct URL" in {
+            result.headers("Location").head shouldBe controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear).url
+          }
         }
 
       }
