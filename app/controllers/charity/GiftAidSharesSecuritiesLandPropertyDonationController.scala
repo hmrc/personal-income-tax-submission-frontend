@@ -16,47 +16,107 @@
 
 package controllers.charity
 
-import config.{AppConfig, GIFT_AID}
+import config.{AppConfig, ErrorHandler, GIFT_AID}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.YesNoForm
+
 import javax.inject.Inject
 import models.User
+import models.charity.GiftAidCYAModel
+import models.charity.prior.GiftAidSubmissionModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import services.GiftAidSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.charity.GiftAidSharesSecuritiesLandPropertyDonationView
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+
 class GiftAidSharesSecuritiesLandPropertyDonationController @Inject()(
-                                              implicit val cc: MessagesControllerComponents,
-                                              authAction: AuthorisedAction,
-                                              giftAidSharesSecuritiesLandPropertyDonationView: GiftAidSharesSecuritiesLandPropertyDonationView,
-                                              implicit val appConfig: AppConfig
-                                            ) extends FrontendController(cc) with I18nSupport with SessionHelper {
+                                                                       implicit val cc: MessagesControllerComponents,
+                                                                       authAction: AuthorisedAction,
+                                                                       giftAidSharesSecuritiesLandPropertyDonationView: GiftAidSharesSecuritiesLandPropertyDonationView,
+                                                                       giftAidSessionService: GiftAidSessionService,
+                                                                       errorHandler: ErrorHandler,
+                                                                       yesNoRedirect: DonationsToPreviousTaxYearController,
+                                                                       amountRedirect: GiftAidAppendNextYearTaxAmountController,
+                                                                       implicit val appConfig: AppConfig
+                                                                     ) extends FrontendController(cc) with I18nSupport with SessionHelper with CharityJourney {
+
+  override def handleRedirect(
+                               taxYear: Int,
+                               cya: GiftAidCYAModel,
+                               prior: Option[GiftAidSubmissionModel],
+                               fromShow: Boolean = false
+                             )(implicit user: User[AnyContent]): Result = {
+
+    val appendToThisTaxYearYesNo = cya.addDonationToThisYear
+    val appendToThisTaxYearAmount = cya.addDonationToThisYearAmount
+
+    lazy val page = if (fromShow) {
+      Ok(giftAidSharesSecuritiesLandPropertyDonationView(yesNoForm(user), taxYear))
+    } else {
+      Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(taxYear))
+    }
+
+    (appendToThisTaxYearYesNo, appendToThisTaxYearAmount) match {
+      case (Some(yesNo), amount) if !yesNo || (yesNo && amount.nonEmpty) => if (fromShow) page else {
+        Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(taxYear))
+      }
+      case (Some(true), None) => amountRedirect.handleRedirect(taxYear, cya, prior)
+      case _ => yesNoRedirect.handleRedirect(taxYear, cya, prior)
+    }
+
+  }
 
   val yesNoForm: User[AnyContent] => Form[Boolean] = user => {
     val missingInputError = s"charity.shares-securities-land-property.noChoice.${if (user.isAgent) "agent" else "individual"}"
     YesNoForm.yesNoForm(missingInputError)
   }
 
-  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
-    Ok(giftAidSharesSecuritiesLandPropertyDonationView(yesNoForm(user), taxYear))
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
+    giftAidSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { case (cya, prior) =>
+      cya match {
+        case Some(cyaData) => handleRedirect(taxYear, cyaData, prior, fromShow = true)
+        case _ => redirectToOverview(taxYear)
+      }
+    }
   }
 
 
-  def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)) { implicit user =>
+  def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
     yesNoForm(user).bindFromRequest().fold(
       {
         formWithErrors =>
-          BadRequest(
+          Future.successful(BadRequest(
             giftAidSharesSecuritiesLandPropertyDonationView(formWithErrors, taxYear)
-          )
+          ))
       },
       {
-        yesNoForm => Ok("Next Page")
+        yesNoForm =>
+          giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
+            case Some(cyaData) =>
+              val updatedCya = cyaData.copy(
+                donatedSharesSecuritiesLandOrProperty = Some(yesNoForm),
+                donatedSharesOrSecurities = if (yesNoForm) cyaData.donatedSharesOrSecurities else None,
+                donatedSharesOrSecuritiesAmount = if (yesNoForm) cyaData.donatedSharesOrSecuritiesAmount else None,
+                donatedLandOrProperty = if (yesNoForm) cyaData.donatedLandOrProperty else None,
+                donatedLandOrPropertyAmount = if (yesNoForm) cyaData.donatedLandOrPropertyAmount else None
+              )
+
+              giftAidSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError()) {
+                (yesNoForm, updatedCya.isFinished) match {
+                  case (true, false) => Redirect(controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(taxYear))
+                  case _ => Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
+                }
+              }
+            case None => Future.successful(redirectToOverview(taxYear))
+          }.flatten
       }
     )
   }
