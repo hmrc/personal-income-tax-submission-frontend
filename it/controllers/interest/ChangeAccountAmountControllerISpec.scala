@@ -316,7 +316,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
       "render the untaxed change amount page without paragraph text" when {
 
-        "there is not previous amount submitted" which {
+        "there is no amount previously submitted" which {
           val interestCYA = InterestCYAModel(
             Some(true), Some(false), Some(Seq(InterestAccountModel(Some(id), accountName, None)))
           )
@@ -581,7 +581,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
       "render the taxed change amount page without paragraph text" when {
 
-        "there is not previous amount submitted" which {
+        "there is no previous amount submitted" which {
           val interestCYA = InterestCYAModel(
             Some(false), Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, None, None)))
           )
