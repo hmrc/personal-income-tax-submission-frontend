@@ -97,12 +97,16 @@ class ChooseAccountController @Inject()(
               if (accountId.equals(SessionValues.ADD_A_NEW_ACCOUNT)) {
                 redirectToRelevantAmountPage(taxYear, taxType)
               } else {
-                Future.successful(Redirect(controllers.interest.routes.ChangeAccountAmountController.show(taxYear, taxType, accountId)))
+                Future(Redirect(controllers.interest.routes.ChangeAccountAmountController.show(taxYear, taxType, accountId)))
               }
           }
         )
       }
     }
+  }
+
+  def accountsIgnoringAmounts(accounts: Seq[InterestAccountModel]): Set[InterestAccountModel] = {
+    accounts.map(_.copy(untaxedAmount = None, taxedAmount = None)).toSet
   }
 
   private def getPreviousAccounts(cya: Option[InterestCYAModel], prior: Option[InterestPriorSubmission], taxType: String): Set[InterestAccountModel] = {
@@ -112,24 +116,28 @@ class ChooseAccountController @Inject()(
 
     if (taxType.equals(UNTAXED)) {
 
-      val priorAccountsToDisplay: Seq[InterestAccountModel] = priorAccounts.filter(!_.hasUntaxed)
-      val priorIds: Seq[String] = priorAccountsToDisplay.flatMap(_.id)
+      val inSessionAccountsToDisplay = accountsInSession.filter(!_.hasUntaxed)
+      val inSessionIdsToExclude: Seq[String] = accountsInSession.filter(_.hasUntaxed).flatMap(_.id)
 
-      (priorAccountsToDisplay ++ accountsInSession.filter(!_.hasUntaxed).filterNot(_.id.exists(priorIds.contains))).toSet
+      val priorAccountsToDisplay: Seq[InterestAccountModel] = priorAccounts.filter(!_.hasUntaxed).filterNot(_.id.exists(inSessionIdsToExclude.contains))
+
+      accountsIgnoringAmounts(inSessionAccountsToDisplay ++ priorAccountsToDisplay)
 
     } else {
-      val priorAccountsToDisplay: Seq[InterestAccountModel] = priorAccounts.filter(!_.hasTaxed)
-      val priorIds: Seq[String] = priorAccountsToDisplay.flatMap(_.id)
+      val inSessionAccountsToDisplay = accountsInSession.filter(!_.hasTaxed)
+      val inSessionIdsToExclude: Seq[String] = accountsInSession.filter(_.hasTaxed).flatMap(_.id)
 
-      (priorAccountsToDisplay ++ accountsInSession.filter(!_.hasTaxed).filterNot(_.id.exists(priorIds.contains))).toSet
+      val priorAccountsToDisplay: Seq[InterestAccountModel] = priorAccounts.filter(!_.hasTaxed).filterNot(_.id.exists(inSessionIdsToExclude.contains))
+
+      accountsIgnoringAmounts(inSessionAccountsToDisplay ++ priorAccountsToDisplay)
     }
   }
 
-  private def redirectToRelevantAmountPage(taxYear: Int, taxType: String): Future[Result] = {
+  private def redirectToRelevantAmountPage(taxYear: Int, taxType: String, idOverride: Option[String] = None): Future[Result] = {
     if (taxType.equals(UNTAXED)) {
-      Future.successful(Redirect(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, id = randomUUID().toString)))
+      Future.successful(Redirect(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, id = idOverride.getOrElse(randomUUID().toString))))
     } else {
-      Future.successful(Redirect(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id = randomUUID().toString)))
+      Future.successful(Redirect(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id = idOverride.getOrElse(randomUUID().toString))))
     }
   }
 
