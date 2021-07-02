@@ -56,12 +56,6 @@ GET         /:taxYear/interest/change-taxed-uk-interest                         
 POST        /:taxYear/interest/change-untaxed-uk-interest                                                     controllers.interest.ChangeAccountAmountController.submit(taxYear: Int, taxType = "untaxed", accountId : String)
 POST        /:taxYear/interest/change-taxed-uk-interest                                                       controllers.interest.ChangeAccountAmountController.submit(taxYear: Int, taxType = "taxed", accountId : String)
 
-GET        /:taxYear/interest/how-much-untaxed-uk-interest                                                    controllers.interest.InterestAccountAmountController.show(taxYear: Int, taxType = "untaxed")
-GET        /:taxYear/interest/how-much-taxed-uk-interest                                                      controllers.interest.InterestAccountAmountController.show(taxYear: Int, taxType = "taxed")
-
-POST        /:taxYear/interest/how-much-untaxed-uk-interest                                                   controllers.interest.InterestAccountAmountController.submit(taxYear: Int, taxType = "untaxed")
-POST        /:taxYear/interest/how-much-taxed-uk-interest                                                     controllers.interest.InterestAccountAmountController.submit(taxYear: Int, taxType = "taxed")
-
 GET         /:taxYear/charity/charity-donation-using-gift-aid                                                 controllers.charity.GiftAidDonationsController.show(taxYear: Int)
 POST        /:taxYear/charity/charity-donation-using-gift-aid                                                 controllers.charity.GiftAidDonationsController.submit(taxYear: Int)
 
