@@ -20,6 +20,7 @@ import common.InterestTaxTypes.{TAXED, UNTAXED}
 import forms.YesNoForm
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import models.mongo.InterestUserDataModel
+import models.priorDataModels.{IncomeSourcesModel, InterestModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
@@ -181,6 +182,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
         "render 1 row when there is a single untaxed account passed in that is not a prior submission" which {
           lazy val result: WSResponse = {
             dropInterestDB()
+            emptyUserDataStub()
             await(interestDatabase.create(InterestUserDataModel(
               sessionId, mtditid, nino, taxYear,
               Some(InterestCYAModel(
@@ -241,6 +243,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
         "render 2 rows when there are two accounts passed in, one new account and one prior" which {
           lazy val result: WSResponse = {
             dropInterestDB()
+            userDataStub(IncomeSourcesModel(None,Some(Seq(InterestModel("Bank of EU","azerty",None,Some(1234.56))))) ,nino, taxYear)
             await(interestDatabase.create(InterestUserDataModel(
               sessionId, mtditid, nino, taxYear,
               Some(InterestCYAModel(
@@ -324,6 +327,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           )))
 
           val result: WSResponse = {
+            emptyUserDataStub()
             authoriseAgentOrIndividual(us.isAgent)
             urlGet(untaxedUrl, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
@@ -346,6 +350,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           )))
 
           val result: WSResponse = {
+            emptyUserDataStub()
             authoriseAgentOrIndividual(us.isAgent)
             urlGet(untaxedUrl, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
@@ -369,7 +374,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
                 Some(false), Some(true), Some(Seq(InterestAccountModel(None, "Bank of UK", None, Some(9001.00), Some("qwerty"))))
               ))
             )))
-
+            emptyUserDataStub()
             authoriseAgentOrIndividual(us.isAgent)
             urlGet(taxedUrl, us.isWelsh, follow = true, playSessionCookie(us.isAgent))
           }
@@ -423,6 +428,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
         "render 2 rows when there are two accounts passed in, one new account and one prior" which {
           lazy val result: WSResponse = {
             dropInterestDB()
+            userDataStub(IncomeSourcesModel(None,Some(Seq(InterestModel("Bank of EU","azerty",Some(1234.56),None)))) ,nino, taxYear)
             await(interestDatabase.create(InterestUserDataModel(
               sessionId, mtditid, nino, taxYear,
               Some(InterestCYAModel(
@@ -507,6 +513,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           )))
 
           val result: WSResponse = {
+            emptyUserDataStub()
             authoriseAgentOrIndividual(us.isAgent)
             urlGet(taxedUrl, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
@@ -529,6 +536,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           )))
 
           val result: WSResponse = {
+            emptyUserDataStub()
             authoriseAgentOrIndividual(us.isAgent)
             urlGet(taxedUrl, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
@@ -555,6 +563,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           )))
 
           val result: WSResponse = {
+            emptyUserDataStub()
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(untaxedUrl, yesNoFormNo, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
@@ -576,6 +585,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           emptyUserDataStub()
 
           val result: WSResponse = {
+            emptyUserDataStub()
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(untaxedUrl, yesNoFormNo, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
@@ -590,7 +600,6 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
         "redirect to the untaxed interest amount page" in {
           val result: WSResponse = {
             dropInterestDB()
-
             emptyUserDataStub()
             insertCyaData(Some(InterestCYAModel(
               Some(true),  Some(false), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount)))),
@@ -610,7 +619,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
         "return a BAD_REQUEST with correct errors displayed" which {
           lazy val result: WSResponse = {
             dropInterestDB()
-
+            emptyUserDataStub()
             await(interestDatabase.create(InterestUserDataModel(
               sessionId, mtditid, nino, taxYear,
               Some(InterestCYAModel(
@@ -679,7 +688,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           "redirect to the interest cya page" in {
             val result: WSResponse = {
               dropInterestDB()
-
+              emptyUserDataStub()
               await(interestDatabase.create(InterestUserDataModel(
                 sessionId, mtditid, nino, taxYear,
                 Some(InterestCYAModel(
@@ -703,7 +712,6 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
         "redirect to the untaxed interest amount page" in {
           val result: WSResponse = {
             dropInterestDB()
-
             emptyUserDataStub()
             insertCyaData(Some(InterestCYAModel(
               Some(false),
@@ -724,7 +732,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
         "return a BAD_REQUEST with correct errors displayed" which {
           lazy val result: WSResponse = {
             dropInterestDB()
-
+            emptyUserDataStub()
             await(interestDatabase.create(InterestUserDataModel(
               sessionId, mtditid, nino, taxYear,
               Some(InterestCYAModel(

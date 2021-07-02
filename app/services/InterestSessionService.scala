@@ -35,7 +35,7 @@ class InterestSessionService @Inject()(
                                         incomeTaxUserDataConnector: IncomeTaxUserDataConnector
                                       ) {
 
-  def getPriorData(taxYear: Int)(implicit user: User[_], hc: HeaderCarrier): Future[IncomeTaxUserDataResponse] = {
+  private def getPriorData(taxYear: Int)(implicit user: User[_], hc: HeaderCarrier): Future[IncomeTaxUserDataResponse] = {
     incomeTaxUserDataConnector.getUserData(taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid))
   }
 

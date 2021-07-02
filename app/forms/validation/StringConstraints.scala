@@ -38,8 +38,8 @@ object StringConstraints {
     x => if (previousEntries.contains(x)) Invalid(msgKey) else Valid
   )
 
-  def validateNotDuplicateInterestAccount(previousEntries: Seq[String], idMatch: Boolean): String => Constraint[String] = msgKey => constraint[String](
-    x => if (previousEntries.contains(x) && idMatch == false) Invalid(msgKey) else Valid
+  def validateNotDuplicateInterestAccount(previousEntries: Seq[String]): String => Constraint[String] = msgKey => constraint[String](
+    x => if(previousEntries.contains(x)) Invalid(msgKey) else Valid
   )
 
   val nonEmpty: String => Constraint[String] = msgKey => constraint[String](

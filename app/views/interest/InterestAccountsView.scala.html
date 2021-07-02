@@ -15,6 +15,7 @@
  *@
 
 @import models.interest.InterestAccountModel
+@import models.interest.InterestPriorSubmission
 @import views.html.headerFooterTemplate.Layout
 @import common.InterestTaxTypes._
 @import views.html.templates.helpers.Button
@@ -23,15 +24,15 @@
 @import views.html.templates.helpers.ErrorSummary
 
 @this(
-layout: Layout,
-formWithCSRF: FormWithCSRF,
-button: Button,
-heading: Heading,
-inputRadio: InputRadio,
-errorSummary: ErrorSummary,
+    layout: Layout,
+    formWithCSRF: FormWithCSRF,
+    button: Button,
+    heading: Heading,
+    inputRadio: InputRadio,
+    errorSummary: ErrorSummary
 )
 
-@(form: Form[Boolean], taxYear: Int, accounts: Seq[InterestAccountModel], taxType: String, isAgent: Boolean)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(form: Form[Boolean], taxYear: Int, accounts: Seq[InterestAccountModel], taxType: String, isAgent: Boolean, priorSubmission: Option[InterestPriorSubmission] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @hasFormErrors = @{form.hasErrors}
 
@@ -79,27 +80,61 @@ val identifier = account.id.getOrElse(account.uniqueSessionId.getOrElse(""))
 
 @accountRow(account: InterestAccountModel, changeLink: Call, removeLink: Call) = {
     <li class="hmrc-add-to-a-list__contents">
-            <span class="hmrc-add-to-a-list__identifier hmrc-add-to-a-list__identifier--light">
-                @account.accountName
-            </span>
-        @if(account.id.nonEmpty) {
-        <span class="hmrc-add-to-a-list__change"></span>
-        }
+        <span class="hmrc-add-to-a-list__identifier hmrc-add-to-a-list__identifier--light">
+            @account.accountName
+        </span>
+
+        @{taxType match {
+            case `UNTAXED` =>
+                if(priorSubmission.exists(_.submissions.exists(_.exists(prior => prior.id.equals(account.id) && prior.hasUntaxed)))) {
+                    emptyChangeColumn
+                }
+            case `TAXED` =>
+                if(priorSubmission.exists(_.submissions.exists(_.exists(prior => prior.id.equals(account.id) && prior.hasTaxed)))) {
+                    emptyChangeColumn
+                }
+        }}
+
         <span class="hmrc-add-to-a-list__change">
-                <a class="govuk-link" href="@changeLink">
-                    <span aria-hidden="true">@messages("common.change")</span>
-                    <span class="govuk-visually-hidden">@messages("common.change") @account.accountName @messages("common.account-details")</span>
-                </a>
-            </span>
-        @if(account.id.isEmpty) {
-        <span class="hmrc-add-to-a-list__remove">
-                    <a class="govuk-link" href="@removeLink">
-                        <span aria-hidden="true">@messages("common.remove")</span>
-                        <span class="govuk-visually-hidden">@messages("common.remove") @account.accountName @messages("common.account")</span>
-                    </a>
-                </span>
-        }
+            <a class="govuk-link" href="@changeLink">
+                <span aria-hidden="true">@messages("common.change")</span>
+                <span class="govuk-visually-hidden">@messages("common.change") @account.accountName @messages("common.account-details")</span>
+            </a>
+        </span>
+
+        @removeColumn(account,priorSubmission,taxType,removeLink)
     </li>
+}
+
+@removeColumn(account: InterestAccountModel, priorSubmission: Option[InterestPriorSubmission], taxType: String, removeLink: Call) = @{
+
+    if(account.id.isEmpty){
+        removeColumnHtml(account, removeLink)
+    } else {
+        taxType match {
+            case `UNTAXED` =>
+                if(priorSubmission.exists(_.submissions.exists(_.exists(prior => prior.id.equals(account.id) && !prior.hasUntaxed)))) {
+                    removeColumnHtml(account, removeLink)
+                }
+            case `TAXED` =>
+                if(priorSubmission.exists(_.submissions.exists(_.exists(prior => prior.id.equals(account.id) && !prior.hasTaxed)))) {
+                    removeColumnHtml(account, removeLink)
+                }
+        }
+    }
+}
+
+@removeColumnHtml(account: InterestAccountModel, removeLink: Call) = {
+    <span class="hmrc-add-to-a-list__remove">
+        <a class="govuk-link" href="@removeLink">
+            <span aria-hidden="true">@messages("common.remove")</span>
+            <span class="govuk-visually-hidden">@messages("common.remove") @account.accountName @messages("common.account")</span>
+        </a>
+    </span>
+}
+
+@emptyChangeColumn = {
+    <span class="hmrc-add-to-a-list__change"></span>
 }
 
 @hint = {
@@ -124,7 +159,7 @@ val identifier = account.id.getOrElse(account.uniqueSessionId.getOrElse(""))
     <div class="govuk-form-group">
         <ul class="hmrc-add-to-a-list hmrc-add-to-a-list--short">
             @accounts.map { account =>
-            @accountRow(account, accountChangeCall(account), accountRemoveCall(account))
+                @accountRow(account, accountChangeCall(account), accountRemoveCall(account))
             }
         </ul>
     </div>
