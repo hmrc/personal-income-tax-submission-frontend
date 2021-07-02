@@ -18,6 +18,7 @@ package controllers.charity
 
 import common.SessionValues
 import helpers.PlaySessionCookieBaker
+import models.charity.GiftAidCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
@@ -87,6 +88,8 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpe
   val inputLabelSelector = "#main-content > div > div > form > div > label > div"
   val inputHintTextSelector = ".govuk-hint"
 
+  val requiredSessionData: Some[GiftAidCYAModel] = Some(GiftAidCYAModel(donationsViaGiftAid = Some(true)))
+
   "as an individual" when {
     import IndividualExpected._
     ".show" should {
@@ -96,7 +99,7 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpe
           dropGiftAidDB()
 
           emptyUserDataStub()
-          insertCyaData(None)
+          insertCyaData(requiredSessionData)
 
           authoriseIndividual()
           await(wsClient.url(gitAidDonatedAmountUrl)
@@ -126,7 +129,7 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpe
           dropGiftAidDB()
 
           emptyUserDataStub()
-          insertCyaData(None)
+          insertCyaData(requiredSessionData)
 
           authoriseIndividual()
           await(wsClient.url(gitAidDonatedAmountUrl)
@@ -160,7 +163,7 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpe
           dropGiftAidDB()
 
           emptyUserDataStub()
-          insertCyaData(None)
+          insertCyaData(requiredSessionData)
 
           authoriseIndividual()
           await(
@@ -296,7 +299,7 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpe
           dropGiftAidDB()
 
           emptyUserDataStub()
-          insertCyaData(None)
+          insertCyaData(requiredSessionData)
 
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
@@ -330,7 +333,7 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpe
           dropGiftAidDB()
 
           emptyUserDataStub()
-          insertCyaData(None)
+          insertCyaData(requiredSessionData)
 
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
@@ -373,7 +376,7 @@ class GiftAidDonatedAmountControllerISpec extends IntegrationTest with ViewHelpe
             dropGiftAidDB()
 
             emptyUserDataStub()
-            insertCyaData(None)
+            insertCyaData(requiredSessionData)
 
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
               SessionValues.CLIENT_MTDITID -> "1234567890",

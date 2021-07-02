@@ -28,7 +28,7 @@
     inputRadio:InputRadio
 )
 
-@(form: Form[Boolean], taxYear: Int, giftAidDonations: Int)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
+@(form: Form[Boolean], taxYear: Int, giftAidDonations: BigDecimal)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @titleForUse = @{messages(s"charity.one-off.title.${if(user.isAgent) "agent" else "individual"}")}
 

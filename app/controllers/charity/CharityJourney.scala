@@ -19,12 +19,13 @@ package controllers.charity
 import config.AppConfig
 import models.User
 import models.charity.GiftAidCYAModel
+import models.charity.prior.GiftAidSubmissionModel
 import play.api.mvc.{AnyContent, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 trait CharityJourney extends FrontendController {
 
-  def handleRedirect(taxYear: Int, cya: GiftAidCYAModel)(implicit user: User[AnyContent]): Result
+  def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, prior: Option[GiftAidSubmissionModel])(implicit user: User[AnyContent]): Result
 
   def redirectToOverview(taxYear: Int)(implicit appConfig: AppConfig): Result =
     Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))

@@ -28,26 +28,37 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.charity.GiftAidDonatedAmountView
 import javax.inject.Inject
 import models.User
+import play.api.Logging
 import models.charity.GiftAidCYAModel
+import models.charity.prior.GiftAidSubmissionModel
 import services.GiftAidSessionService
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class GiftAidDonatedAmountController @Inject()(
                                                 implicit cc: MessagesControllerComponents,
-                                                giftAidOneOffController: GiftAidOneOffController,
+                                                donationsToPreviousTaxYearController: DonationsToPreviousTaxYearController,
                                                 authAction: AuthorisedAction,
                                                 appConfig: AppConfig,
                                                 view: GiftAidDonatedAmountView,
                                                 giftAidSessionService: GiftAidSessionService,
                                                 errorHandler: ErrorHandler,
                                                 ec: ExecutionContext
-                                              ) extends FrontendController(cc) with I18nSupport with CharityJourney {
+                                              ) extends FrontendController(cc) with I18nSupport with CharityJourney with Logging {
 
-  def handleRedirect(taxYear: Int, cya: GiftAidCYAModel)(implicit user: User[AnyContent]): Result = {
+  def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, prior: Option[GiftAidSubmissionModel])(implicit user: User[AnyContent]): Result = {
+
+    val priorDonatedAmount: Option[BigDecimal] = prior.flatMap(_.giftAidPayments.flatMap(_.currentYear))
+    val cyaDonatedAmount: Option[BigDecimal] = cya.donationsViaGiftAidAmount
+
+    val amountForm = (priorDonatedAmount, cyaDonatedAmount) match {
+      case (priorValueOpt, Some(cyaValue)) if !priorValueOpt.contains(cyaValue) => form(user.isAgent, taxYear).fill(cyaValue)
+      case _ => form(user.isAgent, taxYear)
+    }
+
     cya.donationsViaGiftAid match {
-      case Some(true) => Ok(view(taxYear, form(user.isAgent,taxYear), None))
-      case Some(_) => giftAidOneOffController.handleRedirect(taxYear, cya)
+      case Some(true) => Ok(view(taxYear, amountForm, None))
+      case Some(_) => Ok(view(taxYear, form(user.isAgent,taxYear), None)) //TODO - redirect to donationsToPreviousTaxYearController.handleRedirect
       case _ => redirectToOverview(taxYear)
     }
   }
@@ -64,30 +75,41 @@ class GiftAidDonatedAmountController @Inject()(
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
 
     giftAidSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
-      val priorDonatedAmount: Option[BigDecimal] = prior.flatMap(_.giftAidPayments.flatMap(_.currentYear))
-      val cyaDonatedAmount: Option[BigDecimal] = cya.flatMap(_.donationsViaGiftAidAmount)
 
-      val amountForm = (priorDonatedAmount, cyaDonatedAmount) match {
-        case (priorValueOpt, Some(cyaValue)) if !priorValueOpt.contains(cyaValue) => form(user.isAgent, taxYear).fill(cyaValue)
-        case _ => form(user.isAgent, taxYear)
+      cya match {
+        case Some(cyaData) => handleRedirect(taxYear, cyaData, prior)
+        case _ => redirectToOverview(taxYear)
       }
-      Ok(view(taxYear, amountForm, None))
     }
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)) { implicit user =>
+  def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
 
+    giftAidSessionService.getSessionData(taxYear).map {
 
-    form(user.isAgent,taxYear).bindFromRequest().fold(
-      { formWithErrors =>
-        BadRequest(view(taxYear, formWithErrors, None))
-      },
-      { submittedAmount =>
-        //TODO Add to data model during wireup
-        Ok("YAY NEXT PAGE") //TODO direct to next page during wireup
-      }
-    )
-
+      case Some(cyaData) =>
+        form(user.isAgent, taxYear).bindFromRequest().fold(
+          {
+            formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors, None)))
+          },
+          {
+            success =>
+              cyaData.giftAid.fold {
+              Future.successful(redirectToOverview(taxYear))
+              } {
+                cyaModel =>
+                  giftAidSessionService.updateSessionData(cyaModel.copy(donationsViaGiftAidAmount = Some(success)), taxYear)(
+                    InternalServerError(errorHandler.internalServerErrorTemplate)
+                  )(
+                    Redirect(controllers.charity.routes.GiftAidOneOffController.show(taxYear))
+                  )
+              }
+          }
+        )
+      case _ =>
+        logger.info("[GiftAidOneOffController][submit] No CYA data in session. Redirecting to overview page.")
+        Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+    }.flatten
   }
 
 }
