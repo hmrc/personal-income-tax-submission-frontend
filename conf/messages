@@ -12,6 +12,7 @@ betaBar.banner.message.3 = will help us to improve it.
 common.back = Back
 common.yes = Yes
 common.no = No
+common.or = or
 common.continue = Continue
 common.saveAndContinue = Save and continue
 common.change = Change
@@ -266,6 +267,16 @@ interest.changeAccountAmount.required.individual = Enter the amount of {0} UK in
 interest.changeAccountAmount.required.agent = Enter the amount of {0} UK interest your client got
 interest.changeAccountAmount.format = Enter the amount of {0} UK interest in the correct format
 interest.changeAccountAmount.amountMaxLimit = The amount of {0} UK interest must be less than £100,000,000,000
+
+interest.chooseAccount.title.agent = Which account did your client get {0} UK interest from?
+interest.chooseAccount.title.individual = Which account did you get {0} UK interest from?
+
+interest.chooseAccount.addANewAccount = Add a new account
+
+interest.chooseAccount.error.noRadioSelected.agent = Select the account your client got {0} UK interest from
+interest.chooseAccount.error.noRadioSelected.individual = Select the account you got {0} UK interest from
+
+
 
 # Gift Aid
 # ----------------------------------------------------------
