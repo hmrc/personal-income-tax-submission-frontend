@@ -33,12 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 trait UserDataRepository[C <: UserDataTemplate] { self: PlayMongoRepository[C] =>
   implicit val ec: ExecutionContext
 
-  def create[T](userData: C)(implicit user: User[T]): Future[Boolean] = {
-    println()
-    println("creatin")
-    println()
-    collection.insertOne(userData).toFutureOption().map(_.isDefined)
-  }
+  def create[T](userData: C)(implicit user: User[T]): Future[Boolean] = collection.insertOne(userData).toFutureOption().map(_.isDefined)
 
   def find[T](taxYear: Int)(implicit user: User[T]): Future[Option[C]] = collection.findOneAndUpdate(
     filter = filter(user.sessionId, user.mtditid, user.nino, taxYear),
@@ -47,10 +42,6 @@ trait UserDataRepository[C <: UserDataTemplate] { self: PlayMongoRepository[C] =
   ).toFutureOption()
 
   def update(userData: C): Future[Boolean] = {
-
-    println()
-    println("updatin")
-    println()
     collection.findOneAndReplace(
       filter = filter(userData.sessionId, userData.mtditid, userData.nino, userData.taxYear),
       replacement = userData,

@@ -92,15 +92,6 @@ class TaxedInterestController @Inject()(
                       clearNewEmptyAccounts(cyaData, false)
                     })
 
-                    println()
-                    println()
-                    println(cya)
-                    println()
-                    println()
-                    println(updatedCya)
-                    println()
-                    println()
-
                     if (yesNoModel) {
                       interestSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(
                         Redirect(controllers.interest.routes.ChooseAccountController.show(taxYear, TAXED)))

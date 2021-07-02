@@ -96,14 +96,10 @@ class InterestCYAController @Inject()(
 
   private[interest] def getCyaModel(cya: Option[InterestCYAModel], prior: Option[InterestPriorSubmission]): Option[InterestCYAModel] = {
     (cya, prior) match {
-      case (cya, Some(priorData)) =>
-
-        val untaxed: Option[Boolean] = cya.flatMap(_.untaxedUkInterest)
-        val taxed: Option[Boolean] = cya.flatMap(_.taxedUkInterest)
-
+      case (None, Some(priorData)) =>
         Some(InterestCYAModel(
-          Some(untaxed.getOrElse(priorData.hasUntaxed)),
-          Some(taxed.getOrElse(priorData.hasTaxed)),
+          Some(priorData.hasUntaxed),
+          Some(priorData.hasTaxed),
           priorData.submissions.filter(_.exists(x => x.hasTaxed || x.hasUntaxed))
         ))
       case (Some(cyaData), _) => Some(cyaData)
