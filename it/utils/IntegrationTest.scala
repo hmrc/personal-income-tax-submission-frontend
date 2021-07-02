@@ -193,11 +193,12 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     )) and Some(AffinityGroup.Individual) and ConfidenceLevel.L200
   )
 
-  def userDataStub(userData: IncomeSourcesModel, nino: String, taxYear: Int): StubMapping ={
+  def userDataStub(userData: IncomeSourcesModel, nino: String, taxYear: Int, agent:Boolean=false): StubMapping ={
     stubGetWithHeadersCheck(
       s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", OK,
-      Json.toJson(userData).toString(),("X-Session-ID" -> sessionId), ("mtditid" -> mtditid))
+      Json.toJson(userData).toString(),"X-Session-ID" -> sessionId, "mtditid" -> mtditid)
   }
+
 
   def emptyUserDataStub(nino: String = nino, taxYear: Int = year): StubMapping = {
     userDataStub(IncomeSourcesModel(), nino, taxYear)
