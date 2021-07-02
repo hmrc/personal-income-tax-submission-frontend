@@ -16,15 +16,17 @@
 
 package controllers.interest
 
+import common.InterestTaxTypes
 import common.InterestTaxTypes.TAXED
 import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import forms.AmountForm
 import models.User
-import models.interest.{InterestAccountModel, InterestPriorSubmission}
+import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
+import play.api.libs.json.{Json, Reads}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import play.api.mvc.Result
 import play.twirl.api.Html
@@ -70,7 +72,7 @@ class InterestAccountAmountController @Inject()(
     )
   }
 
-val accountName = InterestAccountModel(None, "Halifax", 0, None, None)
+val accountName = InterestAccountModel(None, "Halifax", None, None, None)
 
 //add id as a parameter
   def show(taxYear: Int, taxType: String): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
