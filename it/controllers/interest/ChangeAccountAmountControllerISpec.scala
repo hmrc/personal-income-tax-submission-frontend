@@ -71,7 +71,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
     val youToldUsTaxed = s"You told us you got £$amount taxed UK interest. Tell us if this has changed."
 
     val expectedUntaxedTitleCy = "How much untaxed UK interest did you get?"
-    val expectedUntaxedErrorTitleCy = s"Error: $expectedUntaxedTitle"
+    val expectedUntaxedErrorTitleCy = s"Error: $expectedUntaxedTitleCy"
     val expectedTaxedTitleCy = "How much taxed UK interest did you get?"
     val expectedTaxedErrorTitleCy = s"Error: $expectedTaxedTitle"
     def expectedErrorEmptyCy(taxType: String): String = s"Enter the amount of $taxType UK interest you got"
@@ -98,7 +98,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
     val youToldUsTaxed = s"You told us your client got £$amount taxed UK interest. Tell us if this has changed."
 
     val expectedUntaxedTitleCy = "How much untaxed UK interest did your client get?"
-    val expectedUntaxedErrorTitleCy = s"Error: $expectedUntaxedTitle"
+    val expectedUntaxedErrorTitleCy = s"Error: $expectedUntaxedTitleCy"
     val expectedTaxedTitleCy = "How much taxed UK interest did your client get?"
     val expectedTaxedErrorTitleCy = s"Error: $expectedTaxedTitle"
     def expectedErrorEmptyCy(taxType: String): String = s"Enter the amount of $taxType UK interest your client got"
@@ -312,6 +312,36 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
         titleCheck(untaxedChangeAmountPageTitle)
         inputFieldValueCheck(differentAmount.toString(), amountSelector)
+      }
+
+      "render the untaxed change amount page without paragraph text" when {
+
+        "there is no amount previously submitted" which {
+          val interestCYA = InterestCYAModel(
+            Some(true), Some(false), Some(Seq(InterestAccountModel(Some(id), accountName, None)))
+          )
+
+          lazy val result = {
+            dropInterestDB()
+
+            authoriseIndividual()
+            insertCyaData(Some(interestCYA))
+            userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, None, None)))), nino, taxYear)
+            await(wsClient.url(url(id, "untaxed"))
+              .withHttpHeaders(
+                xSessionId,
+                csrfContent
+              ).get()
+            )
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+          titleCheck(untaxedChangeAmountPageTitle)
+          textOnPageCheck("", youToldUsSelector)
+          inputFieldValueCheck("", amountSelector)
+
+        }
       }
 
       "redirect to the overview page" when {
@@ -547,6 +577,36 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
         titleCheck(taxedChangeAmountPageTitle)
         inputFieldValueCheck(differentAmount.toString(), amountSelector)
 
+      }
+
+      "render the taxed change amount page without paragraph text" when {
+
+        "there is no previous amount submitted" which {
+          val interestCYA = InterestCYAModel(
+            Some(false), Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, None, None)))
+          )
+
+          lazy val result = {
+            dropInterestDB()
+
+            authoriseIndividual()
+            insertCyaData(Some(interestCYA))
+            userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, None, None)))), nino, taxYear)
+            await(wsClient.url(url(id, "taxed"))
+              .withHttpHeaders(
+                xSessionId,
+                csrfContent
+              ).get()
+            )
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+          titleCheck(taxedChangeAmountPageTitle)
+          textOnPageCheck("", youToldUsSelector)
+          inputFieldValueCheck("", amountSelector)
+
+        }
       }
 
       "redirect to the overview page" when {
