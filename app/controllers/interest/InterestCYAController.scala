@@ -59,15 +59,9 @@ class InterestCYAController @Inject()(
       Future(getCyaModel(cya, prior) match {
         case Some(cyaData) if !cyaData.isFinished => handleUnfinishedRedirect(cyaData, taxYear)
         case Some(cyaData) =>
-            if(cya.isDefined) {
-              interestSessionService.updateSessionData(cyaData, taxYear)(errorHandler.internalServerError())(
-                Ok(interestCyaView(cyaData, taxYear, prior))
-              )
-            } else {
-              interestSessionService.createSessionData(cyaData, taxYear)(errorHandler.internalServerError())(
-                Ok(interestCyaView(cyaData, taxYear, prior))
-              )
-            }
+          interestSessionService.updateSessionData(cyaData, taxYear, cya.isEmpty)(errorHandler.internalServerError())(
+            Ok(interestCyaView(cyaData, taxYear, prior))
+          )
         case _ =>
           logger.info("[InterestCYAController][show] No CYA data in session. Redirecting to the overview page.")
           Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
@@ -102,11 +96,15 @@ class InterestCYAController @Inject()(
 
   private[interest] def getCyaModel(cya: Option[InterestCYAModel], prior: Option[InterestPriorSubmission]): Option[InterestCYAModel] = {
     (cya, prior) match {
-      case (None, Some(priorData)) =>
+      case (cya, Some(priorData)) =>
+
+        val untaxed: Option[Boolean] = cya.flatMap(_.untaxedUkInterest)
+        val taxed: Option[Boolean] = cya.flatMap(_.taxedUkInterest)
+
         Some(InterestCYAModel(
-          Some(priorData.hasUntaxed),
-          Some(priorData.hasTaxed),
-          priorData.submissions
+          Some(untaxed.getOrElse(priorData.hasUntaxed)),
+          Some(taxed.getOrElse(priorData.hasTaxed)),
+          priorData.submissions.filter(_.exists(x => x.hasTaxed || x.hasUntaxed))
         ))
       case (Some(cyaData), _) => Some(cyaData)
       case _ => None
@@ -121,7 +119,7 @@ class InterestCYAController @Inject()(
   }
 
   private def handleUnfinishedRedirect(cya: InterestCYAModel, taxYear: Int): Future[Result] = {
-    Future.successful(
+    Future(
       InterestCYAModel.unapply(cya).getOrElse(None, None, None, None) match {
         case (Some(true), None, None, None) => Redirect(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, randomUUID().toString))
         case (Some(false), None, None, None) => Redirect(controllers.interest.routes.TaxedInterestController.show(taxYear))

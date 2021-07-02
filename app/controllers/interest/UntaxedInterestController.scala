@@ -33,6 +33,7 @@ import utils.SessionHelper
 import views.html.interest.UntaxedInterestView
 import java.util.UUID.randomUUID
 
+import common.InterestTaxTypes.UNTAXED
 import javax.inject.Inject
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -69,23 +70,10 @@ class UntaxedInterestController @Inject()(
     }
   }
 
-  private[interest] def createOrUpdateSessionData(cyaModel: InterestCYAModel, taxYear: Int, newData: Boolean)
+  private[interest] def createOrUpdateSessionData(cyaModel: InterestCYAModel, taxYear: Int, needsCreating: Boolean)
                                                  (block: Result)
                                                  (implicit user: User[_]): Future[Result] = {
-
-    if(newData) {
-      interestSessionService.createSessionData(cyaModel, taxYear)(
-        errorHandler.internalServerError()
-      )(
-        block
-      )
-    } else {
-      interestSessionService.updateSessionData(cyaModel, taxYear)(
-        errorHandler.internalServerError()
-      )(
-        block
-      )
-    }
+    interestSessionService.updateSessionData(cyaModel, taxYear, needsCreating)(errorHandler.internalServerError())(block)
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authAction.async { implicit user =>
@@ -113,7 +101,7 @@ class UntaxedInterestController @Inject()(
                 (yesNoModel, updatedCya.isFinished) match {
                   case (true, false) =>
                     createOrUpdateSessionData(updatedCya, taxYear, cya.isEmpty)(
-                      Redirect(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, id = randomUUID().toString))
+                      Redirect(controllers.interest.routes.ChooseAccountController.show(taxYear, UNTAXED))
                     )
                   case (false, false) =>
                     createOrUpdateSessionData(updatedCya, taxYear, cya.isEmpty)(

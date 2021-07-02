@@ -34,6 +34,7 @@ import utils.SessionHelper
 import views.html.interest.TaxedInterestView
 import java.util.UUID.randomUUID
 
+import common.InterestTaxTypes.TAXED
 import javax.inject.Inject
 import utils.ClearingNewCYAAccountsHelper.clearNewEmptyAccounts
 
@@ -74,35 +75,44 @@ class TaxedInterestController @Inject()(
       prior match {
         case Some(prior) if prior.hasTaxed => Future(Redirect(controllers.interest.routes.InterestCYAController.show(taxYear)))
         case _ =>
-            val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(
-              s"interest.taxed-uk-interest.errors.noRadioSelected.${if (user.isAgent) "agent" else "individual"}")
+          val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(
+            s"interest.taxed-uk-interest.errors.noRadioSelected.${if (user.isAgent) "agent" else "individual"}")
 
-            cya match {
-              case Some(cyaData) =>
-                yesNoForm.bindFromRequest().fold(
-                  {
-                    formWithErrors => Future.successful(BadRequest(taxedInterestView(form = formWithErrors, taxYear = taxYear)))
-                  },
-                  {
-                      yesNoModel =>
-                        val updatedCya = cyaData.copy(taxedUkInterest = Some(yesNoModel), accounts = if (yesNoModel) {
-                          cyaData.accounts
-                        } else {
-                          clearNewEmptyAccounts(cyaData, false)
-                        })
+          cya match {
+            case Some(cyaData) =>
+              yesNoForm.bindFromRequest().fold(
+                {
+                  formWithErrors => Future.successful(BadRequest(taxedInterestView(form = formWithErrors, taxYear = taxYear)))
+                },
+                {
+                  yesNoModel =>
+                    val updatedCya = cyaData.copy(taxedUkInterest = Some(yesNoModel), accounts = if (yesNoModel) {
+                      cyaData.accounts
+                    } else {
+                      clearNewEmptyAccounts(cyaData, false)
+                    })
 
-                      if (yesNoModel) {
-                        interestSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(
-                          Redirect(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id = randomUUID().toString)))
-                      } else {
-                        interestSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(
-                          Redirect(controllers.interest.routes.InterestCYAController.show(taxYear)))
-                      }
-                  })
-              case _ =>
-                logger.info("[TaxedInterestController][submit] No CYA data in session. Redirecting to overview page.")
-                Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
-            }
+                    println()
+                    println()
+                    println(cya)
+                    println()
+                    println()
+                    println(updatedCya)
+                    println()
+                    println()
+
+                    if (yesNoModel) {
+                      interestSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(
+                        Redirect(controllers.interest.routes.ChooseAccountController.show(taxYear, TAXED)))
+                    } else {
+                      interestSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(
+                        Redirect(controllers.interest.routes.InterestCYAController.show(taxYear)))
+                    }
+                })
+            case _ =>
+              logger.info("[TaxedInterestController][submit] No CYA data in session. Redirecting to overview page.")
+              Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+          }
       }
     }
   }
