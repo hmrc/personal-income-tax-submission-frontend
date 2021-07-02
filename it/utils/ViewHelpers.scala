@@ -54,8 +54,6 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
   def element(selector: String)(implicit document: () => Document): Element = {
     val elements = document().select(selector)
 
-    println(document().body())
-
     if(elements.size() == 0) {
       fail(s"No elements exist with the selector '$selector'")
     }
@@ -103,12 +101,6 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
 
   def textOnPageCheck(text: String, selector: String)(implicit document: () => Document): Unit = {
     s"have text on the screen of '$text'" in {
-
-      println(document().body())
-      val questionNumber = ""
-      val id = ""
-      val p = s"question-$questionNumber-account-${id+1}"
-
       document().select(selector).text() shouldBe text
     }
   }

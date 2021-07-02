@@ -22,11 +22,8 @@ import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.Call
 
 case class InterestCYAModel(untaxedUkInterest: Option[Boolean] = None,
-                            //untaxedUkAccounts: Option[Seq[InterestAccountModel]] = None,
                             taxedUkInterest: Option[Boolean] = None,
-                            accounts: Option[Seq[InterestAccountModel]] = None
-                            //taxedUkAccounts: Option[Seq[InterestAccountModel]] = None
-                           ) {
+                            accounts: Option[Seq[InterestAccountModel]] = None) {
 
   def asJsonString: String = Json.toJson(this).toString()
 
