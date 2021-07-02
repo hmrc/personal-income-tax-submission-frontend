@@ -42,11 +42,13 @@ object TaxedInterestAmountForm extends InputFilters {
 
   val maxAmountInvalidKey: String = "interest.taxed-uk-interest-amount.error.max-amount"
 
-  def notDuplicate(previousNames: Seq[String], idMatch: Boolean): Constraint[String] = validateNotDuplicateInterestAccount(previousNames, idMatch)("interest.common.error.name.duplicate")
+  def notDuplicate(disallowedDuplicateNames: Seq[String]): Constraint[String] = {
+    validateNotDuplicateInterestAccount(disallowedDuplicateNames)("interest.common.error.name.duplicate")
+  }
 
-  def taxedInterestAmountForm(isAgent: Boolean, previousNames: Seq[String], idMatch: Boolean): Form[TaxedInterestModel] = Form(
+  def taxedInterestAmountForm(isAgent: Boolean, disallowedDuplicateNames: Seq[String]): Form[TaxedInterestModel] = Form(
     mapping(
-      taxedAccountName -> trimmedText.verifying(nameNotEmpty, noInvalidChar, exceedCharLimit, notDuplicate(previousNames, idMatch)),
+      taxedAccountName -> trimmedText.verifying(nameNotEmpty, noInvalidChar, exceedCharLimit, notDuplicate(disallowedDuplicateNames)),
       taxedAmount -> currency(requiredKey = emptyAmountKey(isAgent: Boolean),
         invalidNumeric = invalidNumericKey,
         nonNumericKey = invalidNumericKey,

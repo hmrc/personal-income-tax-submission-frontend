@@ -16,6 +16,7 @@
 
 package controllers.interest
 
+import java.util.UUID
 import java.util.UUID.randomUUID
 
 import common.InterestTaxTypes
@@ -56,22 +57,15 @@ class UntaxedInterestAmountController @Inject()(
       implicit val journey: QuestionsJourney[InterestCYAModel] = InterestCYAModel.interestJourney(taxYear, Some(id))
 
       val optionalCyaData = cya.flatMap(_.interest)
-      val previousNames: Seq[String] = cya.flatMap(_.interest).flatMap(_.accounts.map(_.map(_.accountName))).getOrElse(Seq.empty[String])
       val idMatchesPreviouslySubmittedAccount: Boolean = optionalCyaData.flatMap(_.accounts.map(_.exists(_.id.contains(id)))).getOrElse(false)
-      val sessionIDMatchesPreviouslySubmittedAccount: Boolean = optionalCyaData.flatMap(_.accounts.map(_.exists(_.uniqueSessionId.contains(id)))).getOrElse(false)
 
-      def untaxedInterestAmountForm(implicit isAgent: Boolean, previousNames: Seq[String]): Form[UntaxedInterestModel] =
-        UntaxedInterestAmountForm.untaxedInterestAmountForm(
-          isAgent,
-          previousNames,
-          sessionIDMatchesPreviouslySubmittedAccount
-        )
+      def untaxedInterestAmountForm: Form[UntaxedInterestModel] =
+        UntaxedInterestAmountForm.untaxedInterestAmountForm(user.isAgent, disallowedDuplicateNames(optionalCyaData,id))
 
       questionsJourneyValidator.validate(routes.UntaxedInterestAmountController.show(taxYear, id), optionalCyaData, taxYear) {
 
         if (idMatchesPreviouslySubmittedAccount) {
           Redirect(controllers.interest.routes.ChangeAccountAmountController.show(taxYear, UNTAXED, id))
-
         } else if (sessionIdIsUUID(id)) {
 
           val account: Option[InterestAccountModel] = optionalCyaData.flatMap(_.accounts.flatMap(_.find { account =>
@@ -86,34 +80,32 @@ class UntaxedInterestAmountController @Inject()(
             case _ => None
           }
 
-          Ok(untaxedInterestAmountView(
-            form = model.fold(untaxedInterestAmountForm(user.isAgent, previousNames))(untaxedInterestAmountForm(user.isAgent, previousNames).fill),
-            taxYear = taxYear,
-            postAction = routes.UntaxedInterestAmountController.submit(taxYear, id),
-            isAgent = user.isAgent
+          Ok(untaxedInterestAmountView(form = model.fold(untaxedInterestAmountForm)(untaxedInterestAmountForm.fill),
+            taxYear = taxYear, postAction = routes.UntaxedInterestAmountController.submit(taxYear, id), isAgent = user.isAgent
           ))
-        }
-        else {
+        } else {
           Redirect(routes.UntaxedInterestAmountController.show(taxYear, randomUUID().toString))
         }
       }
     }
   }
 
+  def disallowedDuplicateNames(optionalCyaData: Option[InterestCYAModel], id: String): Seq[String] = {
+    optionalCyaData.flatMap(_.accounts.map { accounts =>
+      accounts.filter(_.hasUntaxed).filterNot(_.getPrimaryId().contains(id))
+    }).getOrElse(Seq()).map(_.accountName)
+  }
+
   def submit(taxYear: Int, id: String): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
 
     interestSessionService.getSessionData(taxYear).map { cya =>
       val optionalCyaData = cya.flatMap(_.interest)
-      val previousNames: Seq[String] = optionalCyaData.flatMap(_.accounts.map(_.map(_.accountName))).getOrElse(Seq.empty[String])
-      val sessionIDMatchesPreviouslySubmittedAccount: Boolean = {
-        optionalCyaData.flatMap(_.accounts.map(_.exists(_.uniqueSessionId.contains(id)))).getOrElse(false)
+
+      def untaxedInterestAmountForm: Form[UntaxedInterestModel] = {
+        UntaxedInterestAmountForm.untaxedInterestAmountForm(user.isAgent, disallowedDuplicateNames(optionalCyaData,id))
       }
 
-      def untaxedInterestAmountForm(implicit isAgent: Boolean): Form[UntaxedInterestModel] = {
-        UntaxedInterestAmountForm.untaxedInterestAmountForm(isAgent, previousNames, sessionIDMatchesPreviouslySubmittedAccount)
-      }
-
-      untaxedInterestAmountForm(user.isAgent).bindFromRequest().fold({
+      untaxedInterestAmountForm.bindFromRequest().fold({
         formWithErrors =>
           Future.successful(BadRequest(untaxedInterestAmountView(
             form = formWithErrors,
@@ -123,22 +115,16 @@ class UntaxedInterestAmountController @Inject()(
           )))
       }, {
         completeForm =>
-          val newAmount: BigDecimal = completeForm.untaxedAmount
-          def createNewAccount: InterestAccountModel = InterestAccountModel(None, completeForm.untaxedAccountName, Some(newAmount), None, Some(id))
+
+          val accountsAbleToReuse: Seq[InterestAccountModel] = {
+            optionalCyaData.flatMap(_.accounts.map(accounts => accounts.filter(!_.hasUntaxed))).getOrElse(Seq())
+          }
 
           cya.flatMap(_.interest) match {
             case Some(cyaData) =>
               val accounts = cyaData.accounts.getOrElse(Seq.empty[InterestAccountModel])
-
-              val newAccount = accounts.find(_.getPrimaryId().exists(_ == id)).map(_.copy(
-                accountName = completeForm.untaxedAccountName, untaxedAmount = Some(newAmount)
-              )).getOrElse(createNewAccount)
-
-              val newAccountList = if (newAccount.getPrimaryId().nonEmpty && accounts.exists(_.getPrimaryId() == newAccount.getPrimaryId())) {
-                accounts.map(account => if (account.getPrimaryId() == newAccount.getPrimaryId()) newAccount else account)
-              } else {
-                accounts :+ newAccount
-              }
+              val accountToReuse: Option[InterestAccountModel] = accountsAbleToReuse.find(_.accountName == completeForm.untaxedAccountName)
+              val newAccountList = createNewAccountsList(completeForm, accountToReuse, accounts, id)
               val updatedCyaModel = cyaData.copy(accounts = Some(newAccountList))
 
               interestSessionService.updateSessionData(updatedCyaModel, taxYear)(InternalServerError(errorHandler.internalServerErrorTemplate))(
@@ -150,5 +136,54 @@ class UntaxedInterestAmountController @Inject()(
           }
       })
     }.flatten
+  }
+
+  def createNewAccountsList(completeForm: UntaxedInterestModel,
+                            accountToReuse: Option[InterestAccountModel],
+                            accounts: Seq[InterestAccountModel],
+                            id: String): Seq[InterestAccountModel] = {
+
+    def createNewAccount(overrideId: Option[String] = None): InterestAccountModel = {
+      InterestAccountModel(None, completeForm.untaxedAccountName, Some(completeForm.untaxedAmount), None, Some(overrideId.getOrElse(id)))
+    }
+
+    if(accountToReuse.isDefined){
+      // update existing account
+      // remove account with id if now empty
+      val updatedAccount: InterestAccountModel = accountToReuse.get.copy(untaxedAmount = Some(completeForm.untaxedAmount))
+      val existingAccountNeedsRemoving: Boolean = {
+        accounts.find(_.getPrimaryId().exists(_ == id)).exists(account => !account.hasTaxed)
+      }
+
+      if(existingAccountNeedsRemoving){
+        accounts.filterNot(account => account.accountName == completeForm.untaxedAccountName || account.getPrimaryId().contains(id)) :+ updatedAccount
+      } else {
+        accounts.filterNot(_.accountName == completeForm.untaxedAccountName) :+ updatedAccount
+      }
+    } else {
+
+      val existingAccount: Option[InterestAccountModel] = accounts.find(_.getPrimaryId().exists(_ == id))
+      val accountAlreadyExistsWithTaxedAmountAndNameChanged = existingAccount.exists{
+        account => account.hasTaxed && (account.accountName != completeForm.untaxedAccountName)
+      }
+
+      //if the name has been updated only update the name for the untaxed account and keep the existing taxed account as is
+      if(accountAlreadyExistsWithTaxedAmountAndNameChanged){
+        val removedAmountFromExistingAccount: InterestAccountModel = existingAccount.get.copy(untaxedAmount = None)
+        val newAccount: InterestAccountModel = createNewAccount(Some(UUID.randomUUID().toString))
+
+        accounts.filterNot(_.getPrimaryId().contains(id)) ++ Seq(newAccount, removedAmountFromExistingAccount)
+      } else {
+        val newAccount = accounts.find(_.getPrimaryId().exists(_ == id)).map(_.copy(
+          accountName = completeForm.untaxedAccountName, untaxedAmount = Some(completeForm.untaxedAmount)
+        )).getOrElse(createNewAccount())
+
+        if (newAccount.getPrimaryId().nonEmpty && accounts.exists(_.getPrimaryId() == newAccount.getPrimaryId())) {
+          accounts.map(account => if (account.getPrimaryId() == newAccount.getPrimaryId()) newAccount else account)
+        } else {
+          accounts :+ newAccount
+        }
+      }
+    }
   }
 }
