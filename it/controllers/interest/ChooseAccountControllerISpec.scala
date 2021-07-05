@@ -616,8 +616,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
         "has a SEE_OTHER(303) status" in {
           result.status shouldBe SEE_OTHER
           result.header(HeaderNames.LOCATION).head should
-            include("/income-through-software/return/personal-income/2022/interest/check-interest")
-          //TODO Redirect to new page created in SASS-984 when account name radio button is clicked
+            include("/income-through-software/return/personal-income/2022/interest/change-taxed-uk-interest?accountId=session-id-1")
         }
       }
 
@@ -637,8 +636,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
         "has a SEE_OTHER(303) status" in {
           result.status shouldBe SEE_OTHER
           result.header(HeaderNames.LOCATION).head should
-            include("/income-through-software/return/personal-income/2022/interest/check-interest")
-          //TODO Redirect to new page created in SASS-984 when account name radio button is clicked
+            include("/income-through-software/return/personal-income/2022/interest/change-untaxed-uk-interest?accountId=1")
         }
       }
 

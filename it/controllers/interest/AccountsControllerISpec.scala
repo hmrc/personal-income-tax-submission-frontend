@@ -610,7 +610,8 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           }
 
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head should include("/income-through-software/return/personal-income/2022/interest/add-untaxed-uk-interest-account")
+          result.headers("Location").head should include(
+            "/income-through-software/return/personal-income/2022/interest/which-account-did-you-get-untaxed-interest-from")
         }
       }
 
@@ -723,7 +724,8 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           }
 
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head should include("/income-through-software/return/personal-income/2022/interest/add-taxed-uk-interest-account")
+          result.headers("Location").head should include(
+            "/income-through-software/return/personal-income/2022/interest/which-account-did-you-get-taxed-interest-from")
         }
       }
 

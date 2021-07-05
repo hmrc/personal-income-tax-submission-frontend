@@ -297,8 +297,10 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
                 result.status shouldBe SEE_OTHER
               }
 
-              "redirects to the untaxed interest amount page" in {
-                result.header("Location").get should include("/income-through-software/return/personal-income/2022/interest/add-untaxed-uk-interest-account/")
+              "redirects to the which-account-did-you-get-untaxed-interest-from page" in {
+
+                result.header("Location").get should include(
+                  "/income-through-software/return/personal-income/2022/interest/which-account-did-you-get-untaxed-interest-from")
               }
             }
 
@@ -316,7 +318,8 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
               }
 
               "redirects to the untaxed interest amount page" in {
-                result.header("Location").get should include("/income-through-software/return/personal-income/2022/interest/add-untaxed-uk-interest-account/")
+                result.header("Location").get should include(
+                  "/income-through-software/return/personal-income/2022/interest/which-account-did-you-get-untaxed-interest-from")
               }
             }
 
