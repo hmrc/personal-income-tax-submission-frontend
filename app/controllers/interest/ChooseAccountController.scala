@@ -55,7 +55,6 @@ class ChooseAccountController @Inject()(
       Seq(if (taxType.equals(TAXED)) "taxed" else "untaxed"))
   }
 
-  //TODO check the relevant yesNo Taxed or Untaxed question have been answered with a yes
   def show(taxYear: Int, taxType: String): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
     interestSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
 
