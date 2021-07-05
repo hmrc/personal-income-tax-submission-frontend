@@ -128,9 +128,6 @@ class AccountsController @Inject()(view: InterestAccountsView,
   }
 
   private[interest] def getRedirectUrl(taxType: String, taxYear: Int): Call = {
-    taxType match {
-      case `TAXED` => controllers.interest.routes.ChooseAccountController.show(taxYear, TAXED)
-      case `UNTAXED` => controllers.interest.routes.ChooseAccountController.show(taxYear, UNTAXED)
-    }
+    controllers.interest.routes.ChooseAccountController.show(taxYear, taxType)
   }
 }

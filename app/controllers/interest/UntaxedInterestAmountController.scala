@@ -88,7 +88,9 @@ class UntaxedInterestAmountController @Inject()(
   }
 
   def disallowedDuplicateNames(optionalCyaData: Option[InterestCYAModel], id: String): Seq[String] = {
-    optionalCyaData.flatMap(_.accounts.map(_.filter(_.hasUntaxed).filterNot(_.getPrimaryId().contains(id)))).getOrElse(Seq()).map(_.accountName)
+    optionalCyaData.flatMap(_.accounts.map { accounts =>
+      accounts.filter(_.hasUntaxed).filterNot(_.getPrimaryId().contains(id))
+    }).getOrElse(Seq()).map(_.accountName)
   }
 
   def submit(taxYear: Int, id: String): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
@@ -143,8 +145,6 @@ class UntaxedInterestAmountController @Inject()(
     }
 
     if(existingAccountWithName.isDefined){
-      // update existing account
-      // remove account with id if empty
       val updatedAccount: InterestAccountModel = existingAccountWithName.get.copy(untaxedAmount = Some(completeForm.untaxedAmount))
       val existingAccount: Option[InterestAccountModel] = accounts.find(_.getPrimaryId().exists(_ == id)).map(_.copy(untaxedAmount = None))
       val existingAccountNeedsRemoving: Boolean = existingAccount.exists(account => !account.hasTaxed)

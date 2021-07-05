@@ -143,8 +143,6 @@ class TaxedInterestAmountController @Inject()(
     }
 
     if(existingAccountWithName.isDefined){
-      // update existing account
-      // remove account with id if empty
       val updatedAccount: InterestAccountModel = existingAccountWithName.get.copy(taxedAmount = Some(completeForm.taxedAmount))
       val existingAccount: Option[InterestAccountModel] = accounts.find(_.getPrimaryId().exists(_ == id)).map(_.copy(taxedAmount = None))
       val existingAccountNeedsRemoving: Boolean = existingAccount.exists(account => !account.hasUntaxed)
