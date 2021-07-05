@@ -16,11 +16,10 @@
 
 package models.dividends
 
-import common.SessionValues
-import controllers.dividends.routes.{OtherUkDividendsAmountController, ReceiveOtherUkDividendsController, ReceiveUkDividendsController, UkDividendsAmountController}
+import controllers.dividends.routes.{OtherUkDividendsAmountController,
+  ReceiveOtherUkDividendsController, ReceiveUkDividendsController, UkDividendsAmountController}
 import models.question.Question.{WithDependency, WithoutDependency}
 import models.question.{Question, QuestionsJourney}
-import models.User
 import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.Call
 
@@ -57,7 +56,8 @@ object DividendsCheckYourAnswersModel {
       WithoutDependency(model.ukDividends, ReceiveUkDividendsController.show(taxYear)),
       WithDependency(model.ukDividendsAmount, model.ukDividends, UkDividendsAmountController.show(taxYear), ReceiveUkDividendsController.show(taxYear)),
       WithoutDependency(model.otherUkDividends, ReceiveOtherUkDividendsController.show(taxYear)),
-      WithDependency(model.otherUkDividendsAmount, model.otherUkDividends, OtherUkDividendsAmountController.show(taxYear), ReceiveOtherUkDividendsController.show(taxYear))
+      WithDependency(model.otherUkDividendsAmount, model.otherUkDividends,
+        OtherUkDividendsAmountController.show(taxYear), ReceiveOtherUkDividendsController.show(taxYear))
     )
   }
 }
