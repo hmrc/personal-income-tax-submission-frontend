@@ -54,25 +54,22 @@ class TaxedInterestAmountController @Inject()(
   implicit val executionContext: ExecutionContext = mcc.executionContext
 
   def show(taxYear: Int, id: String): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
-    interestSessionService.getSessionData(taxYear).map { cya =>
+    interestSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
 
       implicit val journey: QuestionsJourney[InterestCYAModel] = InterestCYAModel.interestJourney(taxYear, Some(id))
 
-      val optionalCyaData = cya.flatMap(_.interest)
-      val idMatchesPreviouslySubmittedAccount: Boolean = optionalCyaData.flatMap(_.accounts.map(_.exists(_.id.contains(id)))).getOrElse(false)
+      val idMatchesPreviouslySubmittedAccount: Boolean = prior.exists(_.submissions.exists(_.exists(_.id.contains(id))))
 
       def taxedInterestAmountForm: Form[TaxedInterestModel] =
-        TaxedInterestAmountForm.taxedInterestAmountForm(user.isAgent, disallowedDuplicateNames(optionalCyaData,id))
+        TaxedInterestAmountForm.taxedInterestAmountForm(user.isAgent, disallowedDuplicateNames(cya,id))
 
-      questionsJourneyValidator.validate(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id), optionalCyaData, taxYear) {
+      Future(questionsJourneyValidator.validate(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id), cya, taxYear) {
 
         if (idMatchesPreviouslySubmittedAccount) {
           Redirect(controllers.interest.routes.ChangeAccountAmountController.show(taxYear, TAXED, id))
         } else if (sessionIdIsUUID(id)) {
 
-          val account: Option[InterestAccountModel] = optionalCyaData.flatMap(_.accounts.flatMap(_.find { account =>
-            account.uniqueSessionId.getOrElse("") == id
-          }))
+          val account: Option[InterestAccountModel] = cya.flatMap(_.accounts.flatMap(_.find(_.uniqueSessionId.contains(id))))
 
           val accountName: Option[String] = account.map(_.accountName)
           val accountAmount: Option[BigDecimal] = account.flatMap(_.taxedAmount)
@@ -88,7 +85,7 @@ class TaxedInterestAmountController @Inject()(
         } else {
           Redirect(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, randomUUID().toString))
         }
-      }
+      })
     }
   }
 
@@ -99,12 +96,10 @@ class TaxedInterestAmountController @Inject()(
   }
 
   def submit(taxYear: Int, id: String): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
-    interestSessionService.getSessionData(taxYear).map { cya =>
-
-      val optionalCyaData = cya.flatMap(_.interest)
+    interestSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
 
       def taxedInterestAmountForm: Form[TaxedInterestModel] = {
-        TaxedInterestAmountForm.taxedInterestAmountForm(user.isAgent, disallowedDuplicateNames(optionalCyaData,id))
+        TaxedInterestAmountForm.taxedInterestAmountForm(user.isAgent, disallowedDuplicateNames(cya,id))
       }
 
       taxedInterestAmountForm.bindFromRequest().fold({
@@ -115,15 +110,16 @@ class TaxedInterestAmountController @Inject()(
         completeForm =>
 
           val accountsAbleToReuse: Seq[InterestAccountModel] = {
-            optionalCyaData.flatMap(_.accounts.map(accounts => accounts.filter(!_.hasTaxed))).getOrElse(Seq())
+            cya.flatMap(_.accounts.map(_.filter(!_.hasTaxed))).getOrElse(Seq()) ++
+            prior.flatMap(_.submissions.map(_.filter(!_.hasTaxed))).getOrElse(Seq())
           }
 
-          optionalCyaData match {
+          cya match {
             case Some(cyaData) =>
 
               val accounts = cyaData.accounts.getOrElse(Seq.empty[InterestAccountModel])
-              val accountToReuse: Option[InterestAccountModel] = accountsAbleToReuse.find(_.accountName == completeForm.taxedAccountName)
-              val newAccountList = createNewAccountsList(completeForm, accountToReuse, accounts, id)
+              val existingAccountWithName: Option[InterestAccountModel] = accountsAbleToReuse.find(_.accountName == completeForm.taxedAccountName)
+              val newAccountList = createNewAccountsList(completeForm, existingAccountWithName, accounts, id)
               val updatedCyaModel = cyaData.copy(accounts = Some(newAccountList))
 
               interestSessionService.updateSessionData(updatedCyaModel, taxYear)(errorHandler.internalServerError())(
@@ -134,11 +130,11 @@ class TaxedInterestAmountController @Inject()(
               Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
           }
       })
-    }.flatten
+    }
   }
 
   def createNewAccountsList(completeForm: TaxedInterestModel,
-                            accountToReuse: Option[InterestAccountModel],
+                            existingAccountWithName: Option[InterestAccountModel],
                             accounts: Seq[InterestAccountModel],
                             id: String): Seq[InterestAccountModel] = {
 
@@ -146,18 +142,19 @@ class TaxedInterestAmountController @Inject()(
       InterestAccountModel(None, completeForm.taxedAccountName, None, Some(completeForm.taxedAmount), Some(overrideId.getOrElse(id)))
     }
 
-    if(accountToReuse.isDefined){
-      // update existing account
-      // remove account with id if empty
-      val updatedAccount: InterestAccountModel = accountToReuse.get.copy(taxedAmount = Some(completeForm.taxedAmount))
-      val existingAccountNeedsRemoving: Boolean = {
-        accounts.find(_.getPrimaryId().exists(_ == id)).exists(account => !account.hasUntaxed)
+    if(existingAccountWithName.isDefined){
+      val updatedAccount: InterestAccountModel = existingAccountWithName.get.copy(taxedAmount = Some(completeForm.taxedAmount))
+      val existingAccount: Option[InterestAccountModel] = accounts.find(_.getPrimaryId().exists(_ == id)).map(_.copy(taxedAmount = None))
+      val existingAccountNeedsRemoving: Boolean = existingAccount.exists(account => !account.hasUntaxed)
+
+      val accountsExcludingImpactedAccounts: Seq[InterestAccountModel]  = {
+        accounts.filterNot(account => account.accountName == completeForm.taxedAccountName || account.getPrimaryId().contains(id))
       }
 
       if(existingAccountNeedsRemoving){
-        accounts.filterNot(account => account.accountName == completeForm.taxedAccountName || account.getPrimaryId().contains(id)) :+ updatedAccount
+       accountsExcludingImpactedAccounts :+ updatedAccount
       } else {
-        accounts.filterNot(_.accountName == completeForm.taxedAccountName) :+ updatedAccount
+        accountsExcludingImpactedAccounts ++ Seq(Some(updatedAccount), existingAccount).flatten
       }
     } else {
 

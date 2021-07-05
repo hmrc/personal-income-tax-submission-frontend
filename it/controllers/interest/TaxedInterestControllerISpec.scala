@@ -244,14 +244,14 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
               dropInterestDB()
               insertCyaData(Some(interestCYA))
-
+              emptyUserDataStub()
               authoriseAgentOrIndividual(us.isAgent)
               urlPost(url, yesNoFormYes, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
             }
 
             s"returns an SEE_OTHER($SEE_OTHER) status" in {
               result.status shouldBe SEE_OTHER
-              result.header("Location").get.contains("/income-through-software/return/personal-income/2022/interest/add-taxed-uk-interest-account/") shouldBe true
+              result.header("Location").get.contains("/income-through-software/return/personal-income/2022/interest/which-account-did-you-get-taxed-interest-from") shouldBe true
             }
           }
         }

@@ -28,11 +28,11 @@ object ClearingNewCYAAccountsHelper {
       cya.accounts.map(accounts => accounts.map(interestAccountModel => interestAccountModel.copy(taxedAmount = None)))
     }
 
-    val newAccountsWithNoAmountsFilteredOut = {
-      accountsWithRemovedAmounts.map(_.filterNot(account => account.id.isEmpty && !account.hasUntaxed && !account.hasTaxed))
+    val accountsWithNoAmountsFilteredOut = {
+      accountsWithRemovedAmounts.map(_.filterNot(account => !account.hasUntaxed && !account.hasTaxed))
     }
 
-    newAccountsWithNoAmountsFilteredOut
+    accountsWithNoAmountsFilteredOut
   }
 
 }

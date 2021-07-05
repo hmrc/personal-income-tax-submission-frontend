@@ -45,7 +45,8 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
   def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.overview")
   def incomeTaxSubmissionStartUrl(taxYear: Int): String = s"$incomeTaxSubmissionBaseUrl/$taxYear/start"
-  def incomeTaxSubmissionIvRedirect: String = incomeTaxSubmissionBaseUrl + servicesConfig.getString("microservice.services.income-tax-submission-frontend.iv-redirect")
+  def incomeTaxSubmissionIvRedirect: String = incomeTaxSubmissionBaseUrl +
+    servicesConfig.getString("microservice.services.income-tax-submission-frontend.iv-redirect")
 
 
   private lazy val vcBaseUrl: String = servicesConfig.getString(ConfigKeys.viewAndChangeUrl)

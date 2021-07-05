@@ -39,29 +39,11 @@ class InterestSessionService @Inject()(
     incomeTaxUserDataConnector.getUserData(taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid))
   }
 
-  def createSessionData[A](cyaModel: InterestCYAModel, taxYear: Int)(onFail: A)(onSuccess: A)
-                          (implicit user: User[_], ec: ExecutionContext): Future[A] = {
-
-    val userData = InterestUserDataModel(
-      user.sessionId,
-      user.mtditid,
-      user.nino,
-      taxYear,
-      Some(cyaModel),
-      DateTime.now(DateTimeZone.UTC)
-    )
-
-    interestUserDataRepository.create(userData).map {
-      case true => onSuccess
-      case false => onFail
-    }
-  }
-
   def getSessionData(taxYear: Int)(implicit user: User[_]): Future[Option[InterestUserDataModel]] = {
     interestUserDataRepository.find(taxYear)
   }
 
-  def updateSessionData[A](cyaModel: InterestCYAModel, taxYear: Int)(onFail: A)(onSuccess: A)
+  def updateSessionData[A](cyaModel: InterestCYAModel, taxYear: Int, needsCreating: Boolean = false)(onFail: A)(onSuccess: A)
                           (implicit user: User[_], ec: ExecutionContext): Future[A] = {
 
     val userData = InterestUserDataModel(
@@ -73,9 +55,16 @@ class InterestSessionService @Inject()(
       DateTime.now(DateTimeZone.UTC)
     )
 
-    interestUserDataRepository.update(userData).map {
-      case true => onSuccess
-      case false => onFail
+    if(needsCreating){
+      interestUserDataRepository.create(userData).map {
+        case true => onSuccess
+        case false => onFail
+      }
+    } else {
+      interestUserDataRepository.update(userData).map {
+        case true => onSuccess
+        case false => onFail
+      }
     }
   }
 

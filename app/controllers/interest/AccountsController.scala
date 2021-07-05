@@ -37,7 +37,6 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class AccountsController @Inject()(view: InterestAccountsView,
-                                   uuid: UUID,
                                    interestSessionService: InterestSessionService)
                                   (implicit appConfig: AppConfig,
                                    val mcc: MessagesControllerComponents,
@@ -129,9 +128,6 @@ class AccountsController @Inject()(view: InterestAccountsView,
   }
 
   private[interest] def getRedirectUrl(taxType: String, taxYear: Int): Call = {
-    taxType match {
-      case `TAXED` => controllers.interest.routes.TaxedInterestAmountController.show(taxYear, uuid.randomUUID)
-      case `UNTAXED` => controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, uuid.randomUUID)
-    }
+    controllers.interest.routes.ChooseAccountController.show(taxYear, taxType)
   }
 }

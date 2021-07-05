@@ -167,8 +167,6 @@ class RemoveAccountController @Inject()(
 
     val updatedAccounts = if(accountToUpdate.exists(_.hasUntaxed)){
       accountsWithoutCurrentAccount ++ Seq(accountToUpdate.map(_.copy(taxedAmount = None))).flatten
-    } else if(foundPriorSubmission(prior, accountId).isDefined) {
-      accountsWithoutCurrentAccount ++ Seq(accountToUpdate.map(_.copy(taxedAmount = None, untaxedAmount = None))).flatten
     } else {
       accountsWithoutCurrentAccount
     }
@@ -194,8 +192,6 @@ class RemoveAccountController @Inject()(
 
     val updatedAccounts = if(accountToUpdate.exists(_.hasTaxed)){
       accountsWithoutCurrentAccount ++ Seq(accountToUpdate.map(_.copy(untaxedAmount = None))).flatten
-    } else if(foundPriorSubmission(prior, accountId).isDefined) {
-      accountsWithoutCurrentAccount ++ Seq(accountToUpdate.map(_.copy(taxedAmount = None, untaxedAmount = None))).flatten
     } else {
       accountsWithoutCurrentAccount
     }

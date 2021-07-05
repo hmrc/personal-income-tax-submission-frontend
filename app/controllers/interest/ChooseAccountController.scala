@@ -23,7 +23,7 @@ import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.AccountList
-import models.interest.{InterestAccountModel, InterestCYAModel}
+import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.I18nSupport
@@ -32,9 +32,10 @@ import services.InterestSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.interest.ChooseAccountView
-
 import java.util.UUID.randomUUID
+
 import javax.inject.Inject
+
 import scala.concurrent.{ExecutionContext, Future}
 
 class ChooseAccountController @Inject()(
@@ -54,21 +55,18 @@ class ChooseAccountController @Inject()(
       Seq(if (taxType.equals(TAXED)) "taxed" else "untaxed"))
   }
 
-  //TODO check the relevant yesNo Taxed or Untaxed question have been answered with a yes
   def show(taxYear: Int, taxType: String): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
     interestSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
 
       checkHittingPageIsValid(taxYear, taxType, cya) {
 
-        val previousAccounts: Set[InterestAccountModel] = getPreviousAccounts(cya.flatMap(_.accounts), taxType) ++
-          getPreviousAccounts(prior.flatMap(_.submissions), taxType)
+        val previousAccounts: Set[InterestAccountModel] = getPreviousAccounts(cya, prior, taxType)
 
         val accountForm: Form[String] = form(user.isAgent, taxType)
 
         if (previousAccounts.isEmpty) {
           redirectToRelevantAmountPage(taxYear, taxType)
-        }
-        else {
+        } else {
           Future.successful(Ok(chooseAccountView(accountForm, taxYear, previousAccounts.toSeq, taxType)))
         }
       }
@@ -81,8 +79,7 @@ class ChooseAccountController @Inject()(
 
       checkHittingPageIsValid(taxYear, taxType, cya) {
 
-        val previousAccounts: Set[InterestAccountModel] =
-          getPreviousAccounts(cya.flatMap(_.accounts), taxType) ++ getPreviousAccounts(prior.flatMap(_.submissions), taxType)
+        val previousAccounts: Set[InterestAccountModel] = getPreviousAccounts(cya, prior, taxType)
 
         form(user.isAgent, taxType).bindFromRequest().fold(
           {
@@ -99,9 +96,7 @@ class ChooseAccountController @Inject()(
               if (accountId.equals(SessionValues.ADD_A_NEW_ACCOUNT)) {
                 redirectToRelevantAmountPage(taxYear, taxType)
               } else {
-                //TODO should send id to new page created in SASS-984
-                //Future.successful(OK(controllers.interest.routes.HowMuchPage(taxYear, id=dkki)
-                Future.successful(Redirect(controllers.interest.routes.InterestCYAController.show(taxYear)))
+                Future(Redirect(controllers.interest.routes.ChangeAccountAmountController.show(taxYear, taxType, accountId)))
               }
           }
         )
@@ -109,19 +104,39 @@ class ChooseAccountController @Inject()(
     }
   }
 
-  private def getPreviousAccounts(interestAccountModel: Option[Seq[InterestAccountModel]], taxType: String): Set[InterestAccountModel] = {
+  def accountsIgnoringAmounts(accounts: Seq[InterestAccountModel]): Set[InterestAccountModel] = {
+    accounts.map(_.copy(untaxedAmount = None, taxedAmount = None)).toSet
+  }
+
+  private def getPreviousAccounts(cya: Option[InterestCYAModel], prior: Option[InterestPriorSubmission], taxType: String): Set[InterestAccountModel] = {
+
+    val accountsInSession: Seq[InterestAccountModel] = cya.flatMap(_.accounts).getOrElse(Seq())
+    val priorAccounts: Seq[InterestAccountModel] = prior.flatMap(_.submissions).getOrElse(Seq())
+
     if (taxType.equals(UNTAXED)) {
-      interestAccountModel.map(_.filter(!_.untaxedAmount.isDefined)).getOrElse(Seq.empty).toSet
+
+      val inSessionAccountsToDisplay = accountsInSession.filter(!_.hasUntaxed)
+      val inSessionIdsToExclude: Seq[String] = accountsInSession.filter(_.hasUntaxed).flatMap(_.id)
+
+      val priorAccountsToDisplay: Seq[InterestAccountModel] = priorAccounts.filter(!_.hasUntaxed).filterNot(_.id.exists(inSessionIdsToExclude.contains))
+
+      accountsIgnoringAmounts(inSessionAccountsToDisplay ++ priorAccountsToDisplay)
+
     } else {
-      interestAccountModel.map(_.filter(!_.taxedAmount.isDefined)).getOrElse(Seq.empty).toSet
+      val inSessionAccountsToDisplay = accountsInSession.filter(!_.hasTaxed)
+      val inSessionIdsToExclude: Seq[String] = accountsInSession.filter(_.hasTaxed).flatMap(_.id)
+
+      val priorAccountsToDisplay: Seq[InterestAccountModel] = priorAccounts.filter(!_.hasTaxed).filterNot(_.id.exists(inSessionIdsToExclude.contains))
+
+      accountsIgnoringAmounts(inSessionAccountsToDisplay ++ priorAccountsToDisplay)
     }
   }
 
-  private def redirectToRelevantAmountPage(taxYear: Int, taxType: String): Future[Result] = {
+  private def redirectToRelevantAmountPage(taxYear: Int, taxType: String, idOverride: Option[String] = None): Future[Result] = {
     if (taxType.equals(UNTAXED)) {
-      Future.successful(Redirect(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, id = randomUUID().toString)))
+      Future.successful(Redirect(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, id = idOverride.getOrElse(randomUUID().toString))))
     } else {
-      Future.successful(Redirect(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id = randomUUID().toString)))
+      Future.successful(Redirect(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id = idOverride.getOrElse(randomUUID().toString))))
     }
   }
 
@@ -131,8 +146,7 @@ class ChooseAccountController @Inject()(
         Future.successful(Redirect(controllers.interest.routes.UntaxedInterestController.show(taxYear)))
       } else if (taxType.equals(TAXED) && !interestCYAModel.flatMap(_.taxedUkInterest).getOrElse(false)) {
         Future.successful(Redirect(controllers.interest.routes.TaxedInterestController.show(taxYear)))
-      }
-      else {
+      } else {
         block
       }
     } else {
