@@ -160,7 +160,7 @@ class TaxedInterestAmountController @Inject()(
 
       val existingAccount: Option[InterestAccountModel] = accounts.find(_.getPrimaryId().exists(_ == id))
       val accountAlreadyExistsWithUntaxedAmountAndNameChanged = existingAccount.exists{
-        account => account.hasTaxed && (account.accountName != completeForm.taxedAccountName)
+        account => account.hasUntaxed && (account.accountName != completeForm.taxedAccountName)
       }
 
       //if the name has been updated only update the name for the taxed account and keep the existing untaxed account as is
