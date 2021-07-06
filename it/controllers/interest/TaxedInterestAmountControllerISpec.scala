@@ -112,9 +112,9 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
 
       "the user is a non-agent" should {
         lazy val interestCYA = InterestCYAModel(
-          Some(false), None, Some(true), Some(Seq(
-            InterestAccountModel(Some("differentId"), accountName, amount),
-            InterestAccountModel(None, accountName, amount, Some(id))
+          Some(false), Some(true), Some(Seq(
+            InterestAccountModel(Some("differentId"), accountName, None, Some(amount)),
+            InterestAccountModel(None, accountName, None, Some(amount), Some(id))
           ))
         )
 
@@ -160,9 +160,9 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
       "the user is an agent" should {
 
         lazy val interestCYA = InterestCYAModel(
-          Some(false), None, Some(true), Some(Seq(
-            InterestAccountModel(Some("differentId"), accountName, amount),
-            InterestAccountModel(None, accountName, amount, Some(id))
+          Some(false), Some(true), Some(Seq(
+            InterestAccountModel(Some("differentId"), accountName, None, Some(amount)),
+            InterestAccountModel(None, accountName, None, Some(amount), Some(id))
           ))
         )
 
@@ -210,9 +210,9 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
 
       "the user has welsh selected" should {
         lazy val interestCYA = InterestCYAModel(
-          Some(false), None, Some(true), Some(Seq(
-            InterestAccountModel(Some("differentId"), accountName, amount),
-            InterestAccountModel(None, accountName, amount, Some(id))
+          Some(false), Some(true), Some(Seq(
+            InterestAccountModel(Some("differentId"), accountName, None, Some(amount)),
+            InterestAccountModel(None, accountName, None, Some(amount), Some(id))
           ))
         )
 
@@ -254,7 +254,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
       }
 
       "the id is not a UUID" which {
-        lazy val interestCYA = InterestCYAModel(Some(false), None, Some(true), None)
+        lazy val interestCYA = InterestCYAModel(Some(false), Some(true), None)
 
         lazy val result = {
           dropInterestDB()
@@ -281,10 +281,9 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
 
           lazy val interestCYA = InterestCYAModel(
             Some(false),
-            None,
             Some(true),
             Some(Seq(
-              InterestAccountModel(Some(id), accountName, amount)))
+              InterestAccountModel(Some(id), accountName, None, Some(amount))))
           )
 
           lazy val priorData = Some(Seq(
@@ -356,9 +355,9 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
     "the user is authorised" when {
 
       lazy val interestCYA = InterestCYAModel(
-        Some(false), None, Some(true), Some(Seq(
-          InterestAccountModel(Some("differentId"), accountName, amount),
-          InterestAccountModel(None, secondAccountName, amount, Some(id))
+        Some(false), Some(true), Some(Seq(
+          InterestAccountModel(Some("differentId"), accountName, None, Some(amount)),
+          InterestAccountModel(None, secondAccountName, None, Some(amount), Some(id))
         ))
       )
 
@@ -477,9 +476,9 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
       "a duplicate account name is entered" should {
 
         lazy val interestCYA = InterestCYAModel(
-          Some(false), None, Some(true), Some(Seq(
-            InterestAccountModel(Some("differentId"), accountName, amount),
-            InterestAccountModel(None, secondAccountName, amount, Some(id))
+          Some(false), Some(true), Some(Seq(
+            InterestAccountModel(Some("differentId"), accountName, None, Some(amount)),
+            InterestAccountModel(None, secondAccountName, None, Some(amount), Some(id))
           ))
         )
 
@@ -515,10 +514,10 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
     "the user is authorised as an agent" when {
 
       lazy val interestCYA = InterestCYAModel(
-        Some(false), None, Some(true), Some(Seq(
-          InterestAccountModel(Some("differentId"), accountName, amount),
-          InterestAccountModel(None, accountName, amount, Some(id))
-        ))
+        Some(false), Some(true), Some(Seq(
+            InterestAccountModel(Some("differentId"), accountName, None, Some(amount)),
+            InterestAccountModel(None, accountName, None, Some(amount), Some(id))
+          ))
       )
       lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
         SessionValues.CLIENT_MTDITID -> "1234567890",
@@ -560,10 +559,10 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
     "the user has Welsh toggled" when {
 
       lazy val interestCYA = InterestCYAModel(
-        Some(false), None, Some(true), Some(Seq(
-          InterestAccountModel(Some("differentId"), accountName, amount),
-          InterestAccountModel(None, accountName, amount, Some(id))
-        ))
+        Some(false), Some(true), Some(Seq(
+            InterestAccountModel(Some("differentId"), accountName, None, Some(amount)),
+            InterestAccountModel(None, accountName, None, Some(amount), Some(id))
+          ))
       )
 
       def response(formMap: Map[String, String]): WSResponse = {
@@ -679,9 +678,9 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
       "a duplicate account name is entered" should {
 
         lazy val interestCYA = InterestCYAModel(
-          Some(false), None, Some(true), Some(Seq(
-            InterestAccountModel(Some("differentId"), accountName, amount),
-            InterestAccountModel(None, secondAccountName, amount, Some(id))
+          Some(false), Some(true), Some(Seq(
+            InterestAccountModel(Some("differentId"), accountName, None, Some(amount)),
+            InterestAccountModel(None, secondAccountName, None, Some(amount), Some(id))
           ))
         )
 

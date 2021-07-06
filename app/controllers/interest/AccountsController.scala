@@ -18,7 +18,7 @@ package controllers.interest
 
 import common.InterestTaxTypes._
 import common.UUID
-import config.{AppConfig, INTEREST}
+import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
@@ -32,20 +32,17 @@ import services.InterestSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.interest.InterestAccountsView
-
 import javax.inject.Inject
+
 import scala.concurrent.{ExecutionContext, Future}
 
-class AccountsController @Inject()(
-                                    view: InterestAccountsView,
-                                    uuid: UUID,
-                                    interestSessionService: InterestSessionService
-                                  )(
-                                    implicit appConfig: AppConfig,
-                                    val mcc: MessagesControllerComponents,
-                                    val authorisedAction: AuthorisedAction,
-                                    ec: ExecutionContext
-                                  ) extends FrontendController(mcc) with I18nSupport with SessionHelper with Logging {
+class AccountsController @Inject()(view: InterestAccountsView,
+                                   interestSessionService: InterestSessionService)
+                                  (implicit appConfig: AppConfig,
+                                   val mcc: MessagesControllerComponents,
+                                   val authorisedAction: AuthorisedAction,
+                                   ec: ExecutionContext,
+                                   errorHandler: ErrorHandler) extends FrontendController(mcc) with I18nSupport with SessionHelper with Logging {
 
   implicit def resultToFutureResult: Result => Future[Result] = baseResult => Future.successful(baseResult)
 
@@ -54,24 +51,26 @@ class AccountsController @Inject()(
   def show(taxYear: Int, taxType: String): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
     def overviewRedirect: Result = Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
 
-    interestSessionService.getSessionData(taxYear).map { cya =>
-      cya.flatMap(_.interest) match {
-        case Some(cyaData) =>
-          getTaxAccounts(taxType, cyaData) match {
-            case Some(taxAccounts) if taxAccounts.nonEmpty => Ok(view(yesNoForm, taxYear, taxAccounts, taxType, isAgent = user.isAgent))
+    interestSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
+      (cya, prior) match {
+        case (Some(cyaData), priorSubmission) =>
+          Future(getTaxAccounts(taxType, cyaData) match {
+            case Some(taxAccounts) if taxAccounts.nonEmpty =>
+              Ok(view(yesNoForm, taxYear, taxAccounts, taxType, isAgent = user.isAgent, priorSubmission))
             case _ => missingAccountsRedirect(taxType, taxYear)
-          }
+          })
         case _ =>
           logger.info("[AccountsController][show] No CYA data in session. Redirecting to the overview page.")
-          overviewRedirect
+          Future(overviewRedirect)
       }
-    }
+    }.flatten
   }
 
   def submit(taxYear: Int, taxType: String): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
 
-    interestSessionService.getSessionData(taxYear).map { cya =>
-      def checkInterestDataIsPresent: Either[Result, InterestCYAModel] = cya.flatMap(_.interest).toRight {
+    interestSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
+
+      def checkInterestDataIsPresent: Either[Result, InterestCYAModel] = cya.toRight {
         logger.info("[AccountsController][submit] No CYA data in session. Redirecting to the overview page.")
         Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
       }
@@ -84,7 +83,7 @@ class AccountsController @Inject()(
 
       def checkForm(taxAccounts: Seq[InterestAccountModel]): Either[Result, Boolean] = {
         yesNoForm.bindFromRequest().fold(
-          { formWithErrors => Left(BadRequest(view(formWithErrors, taxYear, taxAccounts, taxType, isAgent = user.isAgent))) },
+          { formWithErrors => Left(BadRequest(view(formWithErrors, taxYear, taxAccounts, taxType, isAgent = user.isAgent, prior))) },
           { yesNoModel => Right(yesNoModel) }
         )
       }
@@ -108,14 +107,14 @@ class AccountsController @Inject()(
         result <- addAnotherAccount(yesNoModel, cyaData)
       } yield result
 
-      response.merge
-    }
+      Future(response.merge)
+    }.flatten
   }
 
   private[interest] def getTaxAccounts(taxType: String, cyaData: InterestCYAModel): Option[Seq[InterestAccountModel]] = {
     taxType match {
-      case `TAXED` => cyaData.taxedUkAccounts
-      case `UNTAXED` => cyaData.untaxedUkAccounts
+      case `TAXED` => cyaData.accounts.map(_.filter(_.hasTaxed))
+      case `UNTAXED` => cyaData.accounts.map(_.filter(_.hasUntaxed))
     }
   }
 
@@ -129,9 +128,6 @@ class AccountsController @Inject()(
   }
 
   private[interest] def getRedirectUrl(taxType: String, taxYear: Int): Call = {
-    taxType match {
-      case `TAXED` => controllers.interest.routes.TaxedInterestAmountController.show(taxYear, uuid.randomUUID)
-      case `UNTAXED` => controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, uuid.randomUUID)
-    }
+    controllers.interest.routes.ChooseAccountController.show(taxYear, taxType)
   }
 }

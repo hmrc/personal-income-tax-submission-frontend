@@ -21,24 +21,21 @@ import models.question.{Question, QuestionsJourney}
 import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.Call
 
-case class InterestCYAModel(
-                             untaxedUkInterest: Option[Boolean] = None,
-                             untaxedUkAccounts: Option[Seq[InterestAccountModel]] = None,
-                             taxedUkInterest: Option[Boolean] = None,
-                             taxedUkAccounts: Option[Seq[InterestAccountModel]] = None
-                           ) {
+case class InterestCYAModel(untaxedUkInterest: Option[Boolean] = None,
+                            taxedUkInterest: Option[Boolean] = None,
+                            accounts: Option[Seq[InterestAccountModel]] = None) {
 
   def asJsonString: String = Json.toJson(this).toString()
 
   def isFinished: Boolean = {
 
     val untaxedInterestFinished: Boolean = untaxedUkInterest.exists {
-      case true => untaxedUkAccounts.getOrElse(Seq.empty).nonEmpty
+      case true => accounts.getOrElse(Seq.empty).exists(_.untaxedAmount.isDefined)
       case false => true
     }
 
     val taxedInterestFinished: Boolean = taxedUkInterest.exists {
-      case true => taxedUkAccounts.getOrElse(Seq.empty).nonEmpty
+      case true => accounts.getOrElse(Seq.empty).exists(_.taxedAmount.isDefined)
       case false => true
     }
 
@@ -56,9 +53,9 @@ object InterestCYAModel {
     override def questions(model: InterestCYAModel): Set[Question] = {
       val questionsUsingId = idOpt.map { id =>
         Set(
-          WithDependency(model.untaxedUkAccounts, model.untaxedUkInterest,
+          WithDependency(model.accounts.map(_.filter(_.untaxedAmount.isDefined)), model.untaxedUkInterest,
             controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, id), controllers.interest.routes.UntaxedInterestController.show(taxYear)),
-          WithDependency(model.taxedUkAccounts, model.taxedUkInterest,
+          WithDependency(model.accounts.map(_.filter(_.taxedAmount.isDefined)), model.taxedUkInterest,
             controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id), controllers.interest.routes.TaxedInterestController.show(taxYear))
         )
       }.getOrElse(Seq.empty[Question])

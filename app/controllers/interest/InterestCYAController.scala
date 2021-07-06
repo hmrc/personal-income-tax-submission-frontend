@@ -33,9 +33,11 @@ import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.interest.InterestCYAView
-
 import java.util.UUID.randomUUID
+
+import common.InterestTaxTypes.{TAXED, UNTAXED}
 import javax.inject.Inject
+
 import scala.concurrent.{ExecutionContext, Future}
 
 class InterestCYAController @Inject()(
@@ -55,29 +57,23 @@ class InterestCYAController @Inject()(
   implicit val executionContext: ExecutionContext = mcc.executionContext
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
-    interestSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
+    interestSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
       getCyaModel(cya, prior) match {
         case Some(cyaData) if !cyaData.isFinished => handleUnfinishedRedirect(cyaData, taxYear)
         case Some(cyaData) =>
-            if(cya.isDefined) {
-              interestSessionService.updateSessionData(cyaData, taxYear)(errorHandler.internalServerError())(
-                Ok(interestCyaView(cyaData, taxYear, prior))
-              )
-            } else {
-              interestSessionService.createSessionData(cyaData, taxYear)(errorHandler.internalServerError())(
-                Ok(interestCyaView(cyaData, taxYear, prior))
-              )
-            }
+          interestSessionService.updateSessionData(cyaData, taxYear, cya.isEmpty)(errorHandler.internalServerError())(
+            Ok(interestCyaView(cyaData, taxYear, prior))
+          )
         case _ =>
           logger.info("[InterestCYAController][show] No CYA data in session. Redirecting to the overview page.")
           Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
       }
-    }.flatten
+    }
   }
 
   def submit(taxYear: Int): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
     interestSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
-      (cya match {
+      Future((cya match {
         case Some(cyaData) => interestSubmissionService.submit(cyaData, user.nino, taxYear, user.mtditid).map {
           case response@Right(_) =>
             val model = CreateOrAmendInterestAuditDetail(
@@ -96,7 +92,7 @@ class InterestCYAController @Inject()(
             Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
           )
         case Left(error) => Future.successful(errorHandler.handleError(error.status))
-      }
+      })
     }.flatten
   }
 
@@ -105,9 +101,8 @@ class InterestCYAController @Inject()(
       case (None, Some(priorData)) =>
         Some(InterestCYAModel(
           Some(priorData.hasUntaxed),
-          priorData.submissions.map(_.filter(_.priorType.contains(InterestTaxTypes.UNTAXED))),
           Some(priorData.hasTaxed),
-          priorData.submissions.map(_.filter(_.priorType.contains(InterestTaxTypes.TAXED)))
+          priorData.submissions.filter(_.exists(x => x.hasTaxed || x.hasUntaxed))
         ))
       case (Some(cyaData), _) => Some(cyaData)
       case _ => None
@@ -122,12 +117,12 @@ class InterestCYAController @Inject()(
   }
 
   private def handleUnfinishedRedirect(cya: InterestCYAModel, taxYear: Int): Future[Result] = {
-    Future.successful(
+    Future(
       InterestCYAModel.unapply(cya).getOrElse(None, None, None, None) match {
-        case (Some(true), None, None, None) => Redirect(controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, randomUUID().toString))
+        case (Some(true), None, None, None) => Redirect(controllers.interest.routes.ChooseAccountController.show(taxYear, UNTAXED))
         case (Some(false), None, None, None) => Redirect(controllers.interest.routes.TaxedInterestController.show(taxYear))
         case (Some(true), Some(_), None, None) => Redirect(controllers.interest.routes.TaxedInterestController.show(taxYear))
-        case _ => Redirect(controllers.interest.routes.TaxedInterestAmountController.show(taxYear, randomUUID().toString))
+        case _ => Redirect(controllers.interest.routes.ChooseAccountController.show(taxYear, TAXED))
       }
     )
   }

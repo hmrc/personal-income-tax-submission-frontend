@@ -181,8 +181,8 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
           "there is cya data in session" which {
             val interestCYA = InterestCYAModel(
-              Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", 25.00))),
-              Some(false), None,
+              Some(true),
+              Some(false),Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(25.00))))
             )
 
             lazy val result = {
@@ -297,8 +297,10 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
                 result.status shouldBe SEE_OTHER
               }
 
-              "redirects to the untaxed interest amount page" in {
-                result.header("Location").get should include("/income-through-software/return/personal-income/2022/interest/add-untaxed-uk-interest-account/")
+              "redirects to the which-account-did-you-get-untaxed-interest-from page" in {
+
+                result.header("Location").get should include(
+                  "/income-through-software/return/personal-income/2022/interest/which-account-did-you-get-untaxed-interest-from")
               }
             }
 
@@ -316,14 +318,14 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
               }
 
               "redirects to the untaxed interest amount page" in {
-                result.header("Location").get should include("/income-through-software/return/personal-income/2022/interest/add-untaxed-uk-interest-account/")
+                result.header("Location").get should include(
+                  "/income-through-software/return/personal-income/2022/interest/which-account-did-you-get-untaxed-interest-from")
               }
             }
 
             "redirects to INTEREST CYA page when the cya model is finished" when {
               lazy val interestCYA = InterestCYAModel(
-                Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-                Some(false), None
+                Some(true), Some(false), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount))))
               )
 
               lazy val result: WSResponse = {
@@ -386,8 +388,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
             "redirects to INTEREST CYA page when the cya model is finished" when {
               lazy val interestCYA = InterestCYAModel(
-                Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-                Some(false), None
+                Some(true), Some(false),Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount))))
               )
 
               lazy val result: WSResponse = {

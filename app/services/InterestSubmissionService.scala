@@ -33,21 +33,18 @@ class InterestSubmissionService @Inject()(interestSubmissionConnector: InterestS
   def submit(cyaData: InterestCYAModel, nino: String, taxYear: Int, mtditid: String)
             (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[InterestSubmissionsResponse] = {
 
-    val untaxedAccounts: Seq[InterestSubmissionModel] = cyaData.untaxedUkAccounts.map(_.map { account =>
-      InterestSubmissionModel(account.id, account.accountName, Some(account.amount), None)
-    }).getOrElse(Seq.empty[InterestSubmissionModel])
+    val accounts: Seq[InterestSubmissionModel] = cyaData.accounts.map {
+      _.map {
+        account =>
+          InterestSubmissionModel(account.id, account.accountName, account.untaxedAmount, account.taxedAmount)
+      }
+    }.getOrElse(Seq.empty[InterestSubmissionModel])
 
-    val taxedAccounts: Seq[InterestSubmissionModel] = cyaData.taxedUkAccounts.map(_.map { account =>
-      InterestSubmissionModel(account.id, account.accountName, None, Some(account.amount))
-    }).getOrElse(Seq.empty[InterestSubmissionModel])
-
-    val body: Seq[InterestSubmissionModel] = untaxedAccounts ++ taxedAccounts
-
-    if(body.isEmpty){
+    if(accounts.isEmpty){
       logger.info("[InterestSubmissionService][submit] User has entered No & No to both interest questions. Not submitting data to DES.")
       Future(Right(NO_CONTENT))
     } else {
-      interestSubmissionConnector.submit(body, nino, taxYear)(hc.withExtraHeaders("mtditid" -> mtditid), ec)
+      interestSubmissionConnector.submit(accounts, nino, taxYear)(hc.withExtraHeaders("mtditid" -> mtditid), ec)
     }
   }
 }

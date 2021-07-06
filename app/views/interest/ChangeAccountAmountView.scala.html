@@ -62,12 +62,14 @@
 
 @contentHtml = {
 
-    <p>
-    @messages("common.youToldUs")
-    @messages(s"common.youGot.${if(user.isAgent) "agent" else "individual"}")
-    @bigDecimalCurrency(preAmount.getOrElse(BigDecimal("0")).toString)
-    @messages(s"interest.change-account.${taxType.toLowerCase}-label.prior.common2")
-    </p>
+    @if(preAmount.isDefined) {
+        <p>
+            @messages("common.youToldUs")
+            @messages(s"common.youGot.${if(user.isAgent) "agent" else "individual"}")
+            @bigDecimalCurrency(preAmount.getOrElse(BigDecimal("0")).toString)
+            @messages(s"interest.change-account.${taxType.toLowerCase}-label.prior.common2")
+        </p>
+    }
 }
 
 @{

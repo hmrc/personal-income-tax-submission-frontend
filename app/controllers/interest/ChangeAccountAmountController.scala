@@ -55,15 +55,12 @@ class ChangeAccountAmountController @Inject()(
     emptyFieldArguments = Seq(if (taxType.equals(TAXED)) "taxed" else "untaxed")
   )
 
-
-  def view(
-            formInput: Form[BigDecimal],
-            priorSubmission: InterestAccountModel,
-            taxYear: Int,
-            taxType: String,
-            accountId: String,
-            preAmount: Option[BigDecimal] = None
-          )(implicit user: User[AnyContent]): Html = {
+  def view(formInput: Form[BigDecimal],
+           priorSubmission: InterestAccountModel,
+           taxYear: Int,
+           taxType: String,
+           accountId: String,
+           preAmount: Option[BigDecimal] = None)(implicit user: User[AnyContent]): Html = {
 
     changeAccountAmountView(
       form = formInput,
@@ -74,35 +71,51 @@ class ChangeAccountAmountController @Inject()(
       preAmount = preAmount)
   }
 
+  def priorAmount(account: InterestAccountModel, taxType: String): Option[BigDecimal] ={
+    taxType match {
+      case InterestTaxTypes.UNTAXED => account.untaxedAmount
+      case InterestTaxTypes.TAXED => account.taxedAmount
+    }
+  }
+
   def show(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
     interestSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
-      val singleAccount: Option[InterestAccountModel] = getSingleAccount(accountId, prior)
+      val singleAccount: Option[InterestAccountModel] = getSingleAccount(accountId, prior, cya)
 
       (singleAccount, cya) match {
-        case (None, Some(_)) => Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType))
+        case (None, Some(_)) => Future(Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)))
         case (Some(accountModel), Some(cya)) =>
 
-          val previousAmount: Option[BigDecimal] = extractPreAmount(taxType, Some(cya), accountId)
+          val previousCYAAmount: Option[BigDecimal] = extractPreAmount(taxType, Some(cya), accountId)
 
-          val form: Form[BigDecimal] = {
-            if (previousAmount.contains(accountModel.amount)) {
-              changeAmountForm(user.isAgent, taxType)
-            }
-            else {
-              changeAmountForm(user.isAgent, taxType).
-                fill(previousAmount.getOrElse(accountModel.amount))
+          val priorValue: Option[BigDecimal] = {
+            if(previousCYAAmount.isDefined){
+              previousCYAAmount
+            } else if (priorAmount(accountModel, taxType).isDefined){
+              priorAmount(accountModel, taxType)
+            } else {
+              None
             }
           }
 
-          Ok(view(form, accountModel, taxYear, taxType, accountId, Some(previousAmount.getOrElse(accountModel.amount))))
-        case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+          val form: Form[BigDecimal] = {
+            if (previousCYAAmount == priorAmount(accountModel, taxType)) {
+              changeAmountForm(user.isAgent, taxType)
+            } else {
+              priorValue.fold(changeAmountForm(user.isAgent, taxType))(changeAmountForm(user.isAgent, taxType).fill(_))
+            }
+          }
+
+          Future(Ok(view(form, accountModel, taxYear, taxType, accountId, priorValue)))
+
+        case _ => Future(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
       }
     }
   }
 
   def submit(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = authAction.async { implicit user =>
-    interestSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
-      val singleAccount: Option[InterestAccountModel] = getSingleAccount(accountId, prior)
+    interestSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
+      val singleAccount: Option[InterestAccountModel] = getSingleAccount(accountId, prior, cya)
 
       cya match {
         case Some(cyaData) =>
@@ -112,10 +125,10 @@ class ChangeAccountAmountController @Inject()(
 
               changeAmountForm(user.isAgent, taxType).bindFromRequest().fold(
                 formWithErrors => {
-                  Future.successful(BadRequest(view(formWithErrors, account, taxYear, taxType, accountId, previousAmount)))
+                  Future(BadRequest(view(formWithErrors, account, taxYear, taxType, accountId, previousAmount)))
                 },
-                formModel => {
-                  val updatedAccounts = updateAccounts(taxType, cyaData, accountId, formModel)
+                formAmount => {
+                  val updatedAccounts = updateAccounts(taxType, cyaData, prior, accountId, formAmount)
                   val updatedCYA = replaceAccounts(taxType, cyaData, updatedAccounts)
 
                   interestSessionService.updateSessionData(updatedCYA, taxYear)(errorHandler.internalServerError())(
@@ -123,71 +136,65 @@ class ChangeAccountAmountController @Inject()(
                   )
                 }
               )
-            case _ => Future.successful(Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)))
+            case _ => Future(Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)))
           }
-        case _ => Future.successful(Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)))
+        case _ => Future(Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)))
       }
-    }.flatten
+    }
   }
 
-  private def getSingleAccount(accountId: String, interestPriorSubmissionSession: Option[InterestPriorSubmission]): Option[InterestAccountModel] = {
-    interestPriorSubmissionSession.flatMap { unwrappedPrior =>
-      unwrappedPrior.submissions.flatMap { unwrappedAccounts =>
-        unwrappedAccounts.find { account =>
-          account.id.contains(accountId)
-        }
-      }
+  private def getSingleAccount(accountId: String, prior: Option[InterestPriorSubmission], cya: Option[InterestCYAModel]): Option[InterestAccountModel] = {
+
+    val priorAccount: Option[InterestAccountModel] = prior.flatMap(_.submissions.flatMap(_.find(_.id.contains(accountId))))
+    val cyaAccount: Option[InterestAccountModel] = cya.flatMap(_.accounts.flatMap(_.find(_.uniqueSessionId.contains(accountId))))
+
+    (priorAccount, cyaAccount) match {
+      case (account@Some(_), _) => account
+      case (_, account@Some(_)) => account
+      case _ => None
     }
   }
 
   private[interest] def replaceAccounts(taxType: String, cyaData: InterestCYAModel,
-                                        accounts: Option[Seq[InterestAccountModel]]): InterestCYAModel = taxType match {
-    case InterestTaxTypes.UNTAXED => cyaData.copy(untaxedUkAccounts = accounts, untaxedUkInterest = Some(true))
-    case InterestTaxTypes.TAXED => cyaData.copy(taxedUkAccounts = accounts, taxedUkInterest = Some(true))
+                                        accounts: Seq[InterestAccountModel]): InterestCYAModel = taxType match {
+    case InterestTaxTypes.UNTAXED => cyaData.copy(accounts = Some(accounts), untaxedUkInterest = Some(true))
+    case InterestTaxTypes.TAXED => cyaData.copy(accounts = Some(accounts), taxedUkInterest = Some(true))
   }
 
-  private[interest] def extractPreAmount(taxType: String, checkYourAnswerSession: Option[InterestCYAModel],
+  private[interest] def extractPreAmount(taxType: String, cya: Option[InterestCYAModel],
                                          accountId: String): Option[BigDecimal] = taxType match {
-    case InterestTaxTypes.UNTAXED => checkYourAnswerSession.flatMap { unwrappedCya =>
-      unwrappedCya.untaxedUkAccounts.flatMap { unwrappedAccounts =>
-        unwrappedAccounts.find { account =>
-          account.id.contains(accountId) || account.uniqueSessionId.contains(accountId)
-        }.map(_.amount)
-      }
-    }
-    case InterestTaxTypes.TAXED => checkYourAnswerSession.flatMap { unwrappedCya =>
-      unwrappedCya.taxedUkAccounts.flatMap { unwrappedAccounts =>
-        unwrappedAccounts.find { account =>
-          account.id.contains(accountId) || account.uniqueSessionId.contains(accountId)
-        }.map(_.amount)
-      }
-    }
+    case InterestTaxTypes.UNTAXED =>
+      cya.flatMap(_.accounts.flatMap(_.find(_.getPrimaryId().contains(accountId)))).flatMap(_.untaxedAmount)
+    case InterestTaxTypes.TAXED =>
+      cya.flatMap(_.accounts.flatMap(_.find(_.getPrimaryId().contains(accountId)))).flatMap(_.taxedAmount)
   }
 
-  private[interest] def updateAccounts(taxType: String, cya: InterestCYAModel, accountId: String,
-                                       newAmount: BigDecimal): Option[Seq[InterestAccountModel]] = taxType match {
-    case InterestTaxTypes.UNTAXED =>
-      cya.untaxedUkAccounts.map { unwrappedAccounts =>
-        unwrappedAccounts.map { account =>
-          if (account.id.contains(accountId) || account.uniqueSessionId.contains(accountId)) {
-            account.copy(amount = newAmount)
-          } else {
-            account
-          }
-        }
-      }
+  private[interest] def updateAccounts(taxType: String, cya: InterestCYAModel, prior: Option[InterestPriorSubmission],  accountId: String,
+                                       newAmount: BigDecimal): Seq[InterestAccountModel] = {
 
-    case InterestTaxTypes.TAXED =>
-      cya.taxedUkAccounts.map { unwrappedAccounts =>
-        unwrappedAccounts.map { account =>
-          if (account.id.contains(accountId) || account.uniqueSessionId.contains(accountId)) {
-            account.copy(amount = newAmount)
-          } else {
-            account
-          }
-        }
-      }
+    val otherAccounts = cya.accounts.map(_.filterNot(_.getPrimaryId().contains(accountId))).getOrElse(Seq())
+    val accountInCYA: Option[InterestAccountModel] = cya.accounts.flatMap(_.find(_.getPrimaryId().contains(accountId)))
+    val accountInPrior: Option[InterestAccountModel] = prior.flatMap(_.submissions.flatMap(_.find(_.getPrimaryId().contains(accountId))))
 
+    taxType match {
+      case InterestTaxTypes.UNTAXED =>
+        if(accountInCYA.isDefined){
+          otherAccounts :+ accountInCYA.get.copy(untaxedAmount = Some(newAmount))
+        } else if(accountInPrior.isDefined){
+          otherAccounts :+ accountInPrior.get.copy(untaxedAmount = Some(newAmount))
+        } else {
+          otherAccounts
+        }
+
+      case InterestTaxTypes.TAXED =>
+        if(accountInCYA.isDefined){
+          otherAccounts :+ accountInCYA.get.copy(taxedAmount = Some(newAmount))
+        } else if(accountInPrior.isDefined){
+          otherAccounts :+ accountInPrior.get.copy(taxedAmount = Some(newAmount))
+        } else {
+          otherAccounts
+        }
+    }
   }
 
   private[interest] def getSessionData[T](key: String)(implicit user: User[_], reads: Reads[T]): Option[T] = {

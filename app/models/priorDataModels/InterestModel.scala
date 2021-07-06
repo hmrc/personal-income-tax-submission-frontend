@@ -18,12 +18,10 @@ package models.priorDataModels
 
 import play.api.libs.json.{Json, OFormat}
 
-case class InterestModel(
-                          accountName: String,
-                          incomeSourceId: String,
-                          taxedUkInterest: Option[BigDecimal],
-                          untaxedUkInterest: Option[BigDecimal]
-                        )
+case class InterestModel(accountName: String,
+                         incomeSourceId: String,
+                         taxedUkInterest: Option[BigDecimal],
+                         untaxedUkInterest: Option[BigDecimal])
 
 object InterestModel {
   implicit val formats: OFormat[InterestModel] = Json.format[InterestModel]

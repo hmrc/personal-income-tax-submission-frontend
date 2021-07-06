@@ -41,11 +41,13 @@ trait UserDataRepository[C <: UserDataTemplate] { self: PlayMongoRepository[C] =
     options = FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
   ).toFutureOption()
 
-  def update(userData: C): Future[Boolean] = collection.findOneAndReplace(
-    filter = filter(userData.sessionId, userData.mtditid, userData.nino, userData.taxYear),
-    replacement = userData,
-    options = FindOneAndReplaceOptions().returnDocument(ReturnDocument.AFTER)
-  ).toFutureOption().map(_.isDefined)
+  def update(userData: C): Future[Boolean] = {
+    collection.findOneAndReplace(
+      filter = filter(userData.sessionId, userData.mtditid, userData.nino, userData.taxYear),
+      replacement = userData,
+      options = FindOneAndReplaceOptions().returnDocument(ReturnDocument.AFTER)
+    ).toFutureOption().map(_.isDefined)
+  }
 
   def clear(taxYear: Int)(implicit user: User[_]): Future[Boolean] = collection.deleteOne(
     filter = filter(user.sessionId, user.mtditid, user.nino, taxYear)

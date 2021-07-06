@@ -16,7 +16,6 @@
 
 package audit
 
-import common.InterestTaxTypes
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
 import play.api.libs.json.Json
 import utils.UnitTest
@@ -24,8 +23,10 @@ import utils.UnitTest
 class CreateOrAmendInterestAuditDetailSpec extends UnitTest {
 
   val body = InterestCYAModel(
-    Some(true), Some(Seq(InterestAccountModel(Some("azerty"), "Account 1", 100.01))),
-    Some(true), Some(Seq(InterestAccountModel(Some("qwerty"), "Account 2", 9001.01)))
+    Some(true), Some(true), Some(Seq(
+      InterestAccountModel(Some("azerty"), "Account 1", Some(100.01)),
+      InterestAccountModel(Some("qwerty"), "Account 2", None, Some(9001.01))
+    ))
   )
 
   val prior = InterestPriorSubmission(
@@ -35,14 +36,12 @@ class CreateOrAmendInterestAuditDetailSpec extends UnitTest {
       InterestAccountModel(
         Some("UntaxedId1"),
         "Untaxed Account",
-        100.01,
-        priorType = Some(InterestTaxTypes.UNTAXED)
+        untaxedAmount = Some(100.01)
       ),
       InterestAccountModel(
         Some("TaxedId1"),
         "Taxed Account",
-        9001.01,
-        priorType = Some(InterestTaxTypes.TAXED)
+        taxedAmount = Some(9001.01)
       )
     ))
   )
@@ -59,33 +58,32 @@ class CreateOrAmendInterestAuditDetailSpec extends UnitTest {
           s"""{
              |	"body": {
              |		"untaxedUkInterest": true,
-             |		"untaxedUkAccounts": [{
+             |		"taxedUkInterest": true,
+             |		"accounts": [{
              |			"id": "azerty",
              |			"accountName": "Account 1",
-             |			"amount": 100.01
-             |		}],
-             |		"taxedUkInterest": true,
-             |		"taxedUkAccounts": [{
+             |			"untaxedAmount": 100.01
+             |		}, {
              |			"id": "qwerty",
              |			"accountName": "Account 2",
-             |			"amount": 9001.01
+             |			"taxedAmount": 9001.01
              |		}]
              |	},
              |	"prior": {
              |		"submissions": [{
              |			"id": "UntaxedId1",
              |			"accountName": "Untaxed Account",
-             |			"amount": 100.01
+             |			"untaxedAmount": 100.01
              |		}, {
              |			"id": "TaxedId1",
              |			"accountName": "Taxed Account",
-             |			"amount": 9001.01
+             |			"taxedAmount": 9001.01
              |		}]
              |	},
-             |  "isUpdate": true,
+             |	"isUpdate": true,
              |	"nino": "AA123456A",
              |	"mtditid": "1234567890",
-             |  "userType": "Individual",
+             |	"userType": "Individual",
              |	"taxYear": 2020
              |}""".stripMargin)
 

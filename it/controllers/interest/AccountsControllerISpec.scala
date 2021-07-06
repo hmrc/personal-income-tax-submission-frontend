@@ -20,6 +20,7 @@ import common.InterestTaxTypes.{TAXED, UNTAXED}
 import forms.YesNoForm
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import models.mongo.InterestUserDataModel
+import models.priorDataModels.{IncomeSourcesModel, InterestModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
@@ -181,11 +182,11 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
         "render 1 row when there is a single untaxed account passed in that is not a prior submission" which {
           lazy val result: WSResponse = {
             dropInterestDB()
+            emptyUserDataStub()
             await(interestDatabase.create(InterestUserDataModel(
               sessionId, mtditid, nino, taxYear,
               Some(InterestCYAModel(
-                Some(true), Some(Seq(InterestAccountModel(None, "Bank of UK", 9001.00, Some("qwerty")))),
-                Some(false), None
+                Some(true), Some(false), Some(Seq(InterestAccountModel(None, "Bank of UK", untaxedAmount = Some(9001.00), None, Some("qwerty"))))
               ))
             )))
 
@@ -242,14 +243,14 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
         "render 2 rows when there are two accounts passed in, one new account and one prior" which {
           lazy val result: WSResponse = {
             dropInterestDB()
+            userDataStub(IncomeSourcesModel(None,Some(Seq(InterestModel("Bank of EU","azerty",None,Some(1234.56))))) ,nino, taxYear)
             await(interestDatabase.create(InterestUserDataModel(
               sessionId, mtditid, nino, taxYear,
               Some(InterestCYAModel(
-                Some(true), Some(Seq(
-                  InterestAccountModel(None, "Bank of UK", 9000.01, Some("qwerty")),
-                  InterestAccountModel(Some("azerty"), "Bank of EU", 1234.56)
-                )),
-                Some(false), None
+                Some(true), Some(false), Some(Seq(
+                  InterestAccountModel(None, "Bank of UK", Some(9000.01), None, Some("qwerty")),
+                  InterestAccountModel(Some("azerty"), "Bank of EU",  Some(1234.56), None)
+                ))
               ))
             )))
 
@@ -326,6 +327,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           )))
 
           val result: WSResponse = {
+            emptyUserDataStub()
             authoriseAgentOrIndividual(us.isAgent)
             urlGet(untaxedUrl, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
@@ -343,12 +345,12 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           await(interestDatabase.create(InterestUserDataModel(
             sessionId, mtditid, nino, taxYear,
             Some(InterestCYAModel(
-              Some(true), None,
-              Some(false), None
+              Some(true), Some(false)
             ))
           )))
 
           val result: WSResponse = {
+            emptyUserDataStub()
             authoriseAgentOrIndividual(us.isAgent)
             urlGet(untaxedUrl, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
@@ -369,11 +371,10 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
             await(interestDatabase.create(InterestUserDataModel(
               sessionId, mtditid, nino, taxYear,
               Some(InterestCYAModel(
-                Some(false), None,
-                Some(true), Some(Seq(InterestAccountModel(None, "Bank of UK", 9001.00, Some("qwerty"))))
+                Some(false), Some(true), Some(Seq(InterestAccountModel(None, "Bank of UK", None, Some(9001.00), Some("qwerty"))))
               ))
             )))
-
+            emptyUserDataStub()
             authoriseAgentOrIndividual(us.isAgent)
             urlGet(taxedUrl, us.isWelsh, follow = true, playSessionCookie(us.isAgent))
           }
@@ -427,13 +428,13 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
         "render 2 rows when there are two accounts passed in, one new account and one prior" which {
           lazy val result: WSResponse = {
             dropInterestDB()
+            userDataStub(IncomeSourcesModel(None,Some(Seq(InterestModel("Bank of EU","azerty",Some(1234.56),None)))) ,nino, taxYear)
             await(interestDatabase.create(InterestUserDataModel(
               sessionId, mtditid, nino, taxYear,
               Some(InterestCYAModel(
-                Some(false), None,
-                Some(true), Some(Seq(
-                  InterestAccountModel(None, "Bank of UK", 9000.01, Some("qwerty")),
-                  InterestAccountModel(Some("azerty"), "Bank of EU", 1234.56)
+                Some(false), Some(true), Some(Seq(
+                  InterestAccountModel(None, "Bank of UK", None, Some(9000.01), Some("qwerty")),
+                  InterestAccountModel(Some("azerty"), "Bank of EU", None, Some(1234.56))
                 ))
               ))
             )))
@@ -512,6 +513,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           )))
 
           val result: WSResponse = {
+            emptyUserDataStub()
             authoriseAgentOrIndividual(us.isAgent)
             urlGet(taxedUrl, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
@@ -529,12 +531,12 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           await(interestDatabase.create(InterestUserDataModel(
             sessionId, mtditid, nino, taxYear,
             Some(InterestCYAModel(
-              Some(false), None,
-              Some(true), None
+              Some(false),Some(true)
             ))
           )))
 
           val result: WSResponse = {
+            emptyUserDataStub()
             authoriseAgentOrIndividual(us.isAgent)
             urlGet(taxedUrl, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
@@ -556,12 +558,12 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           await(interestDatabase.create(InterestUserDataModel(
             sessionId, mtditid, nino, taxYear,
             Some(InterestCYAModel(
-              Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-              Some(false), None
+              Some(true), Some(false),Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount), None))),
             ))
           )))
 
           val result: WSResponse = {
+            emptyUserDataStub()
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(untaxedUrl, yesNoFormNo, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
@@ -576,14 +578,14 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           await(interestDatabase.create(InterestUserDataModel(
             sessionId, mtditid, nino, taxYear,
             Some(InterestCYAModel(
-              Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-              None, None
+              Some(true), None, Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount), None)))
             ))
           )))
 
           emptyUserDataStub()
 
           val result: WSResponse = {
+            emptyUserDataStub()
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(untaxedUrl, yesNoFormNo, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
@@ -598,11 +600,9 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
         "redirect to the untaxed interest amount page" in {
           val result: WSResponse = {
             dropInterestDB()
-
             emptyUserDataStub()
             insertCyaData(Some(InterestCYAModel(
-              Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", amount))),
-              Some(false), None
+              Some(true),  Some(false), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount)))),
             )), overrideNino = Some(nino))
 
             authoriseAgentOrIndividual(us.isAgent)
@@ -610,7 +610,8 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           }
 
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head should include("/income-through-software/return/personal-income/2022/interest/add-untaxed-uk-interest-account")
+          result.headers("Location").head should include(
+            "/income-through-software/return/personal-income/2022/interest/which-account-did-you-get-untaxed-interest-from")
         }
       }
 
@@ -619,12 +620,11 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
         "return a BAD_REQUEST with correct errors displayed" which {
           lazy val result: WSResponse = {
             dropInterestDB()
-
+            emptyUserDataStub()
             await(interestDatabase.create(InterestUserDataModel(
               sessionId, mtditid, nino, taxYear,
               Some(InterestCYAModel(
-                Some(true), Some(Seq(InterestAccountModel(None, "Untaxed Account", 9001.00, Some("qwerty")))),
-                Some(false), None
+                Some(true), Some(false), Some(Seq(InterestAccountModel(None, "Untaxed Account", Some(9001.00), None, Some("qwerty"))))
               ))
             )))
 
@@ -689,12 +689,12 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           "redirect to the interest cya page" in {
             val result: WSResponse = {
               dropInterestDB()
-
+              emptyUserDataStub()
               await(interestDatabase.create(InterestUserDataModel(
                 sessionId, mtditid, nino, taxYear,
                 Some(InterestCYAModel(
-                  Some(false), None,
-                  Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
+                  Some(false), Some(true),
+                  Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))))
                 ))
               )))
               emptyUserDataStub()
@@ -713,11 +713,10 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
         "redirect to the untaxed interest amount page" in {
           val result: WSResponse = {
             dropInterestDB()
-
             emptyUserDataStub()
             insertCyaData(Some(InterestCYAModel(
-              Some(false), None,
-              Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
+              Some(false),
+              Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))))
             )), overrideNino = Some(nino))
 
             authoriseAgentOrIndividual(us.isAgent)
@@ -725,7 +724,8 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           }
 
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head should include("/income-through-software/return/personal-income/2022/interest/add-taxed-uk-interest-account")
+          result.headers("Location").head should include(
+            "/income-through-software/return/personal-income/2022/interest/which-account-did-you-get-taxed-interest-from")
         }
       }
 
@@ -734,12 +734,12 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
         "return a BAD_REQUEST with correct errors displayed" which {
           lazy val result: WSResponse = {
             dropInterestDB()
-
+            emptyUserDataStub()
             await(interestDatabase.create(InterestUserDataModel(
               sessionId, mtditid, nino, taxYear,
               Some(InterestCYAModel(
-                Some(false), None,
-                Some(true), Some(Seq(InterestAccountModel(None, "Taxed Account", amount, Some("qwerty"))))
+                Some(false),
+                Some(true), Some(Seq(InterestAccountModel(None, "Taxed Account", None, Some(amount), Some("qwerty"))))
               ))
             )))
             authoriseAgentOrIndividual(us.isAgent)

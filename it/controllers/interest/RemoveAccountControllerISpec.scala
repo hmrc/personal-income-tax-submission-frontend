@@ -105,19 +105,19 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
     )
   }
 
-  val untaxedInterestAccount = InterestAccountModel(Some("UntaxedId"), "Monzo", 9001.00)
-  val untaxedInterestAccount2 = InterestAccountModel(Some("UntaxedId2"), "Starling", 9001.00)
+  val untaxedInterestAccount = InterestAccountModel(Some("UntaxedId"), "Monzo", Some(9001.00))
+  val untaxedInterestAccount2 = InterestAccountModel(Some("UntaxedId2"), "Starling", Some(9001.00))
 
-  val taxedInterestAccount = InterestAccountModel(Some("TaxedId"), "Monzo", 9001.00)
-  val taxedInterestAccount2 = InterestAccountModel(Some("TaxedId2"), "Starling", 9001.00)
+  val taxedInterestAccount = InterestAccountModel(Some("TaxedId"), "Monzo", None, Some(9001.00))
+  val taxedInterestAccount2 = InterestAccountModel(Some("TaxedId2"), "Starling", None, Some(9001.00))
 
   ".show" when {
 
-    val untaxedInterestAccount = InterestAccountModel(Some("UntaxedId"), "Monzo", 9001.00)
-    val untaxedInterestAccount2 = InterestAccountModel(Some("UntaxedId2"), "Starling", 9001.00)
+    val untaxedInterestAccount = InterestAccountModel(Some("UntaxedId"), "Monzo", Some(9001.00))
+    val untaxedInterestAccount2 = InterestAccountModel(Some("UntaxedId2"), "Starling", Some(9001.00))
 
-    val taxedInterestAccount = InterestAccountModel(Some("TaxedId"), "Monzo", 9001.00)
-    val taxedInterestAccount2 = InterestAccountModel(Some("TaxedId2"), "Starling", 9001.00)
+    val taxedInterestAccount = InterestAccountModel(Some("TaxedId"), "Monzo", None, Some(9001.00))
+    val taxedInterestAccount2 = InterestAccountModel(Some("TaxedId2"), "Starling", None, Some(9001.00))
 
     userScenarios.foreach { us =>
 
@@ -133,8 +133,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
                   dropInterestDB()
                   emptyUserDataStub()
                   insertCyaData(Some(InterestCYAModel(
-                    Some(true), Some(Seq(untaxedInterestAccount, untaxedInterestAccount2)),
-                    Some(false), None
+                    Some(true), Some(false),Some(Seq(untaxedInterestAccount, untaxedInterestAccount2)),
                   )))
                   authoriseAgentOrIndividual(us.isAgent)
                   urlGet(s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId", us.isWelsh, follow = false, playSessionCookie(us.isAgent))
@@ -161,8 +160,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
                   dropInterestDB()
                   emptyUserDataStub()
                   insertCyaData(Some(InterestCYAModel(
-                    Some(true), Some(Seq(untaxedInterestAccount)),
-                    Some(false), None
+                    Some(true), Some(false),Some(Seq(untaxedInterestAccount))
                   )))
                   authoriseAgentOrIndividual(us.isAgent)
                   urlGet(s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId", us.isWelsh, follow = false, playSessionCookie(us.isAgent))
@@ -234,8 +232,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
                   dropInterestDB()
                   emptyUserDataStub()
                   insertCyaData(Some(InterestCYAModel(
-                    Some(false), None,
-                    Some(true), Some(Seq(taxedInterestAccount, taxedInterestAccount2)),
+                    Some(false), Some(true), Some(Seq(taxedInterestAccount, taxedInterestAccount2)),
                   )))
                   authoriseAgentOrIndividual(us.isAgent)
                   urlGet(s"$appUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId", us.isWelsh, follow = false, playSessionCookie(us.isAgent))
@@ -262,8 +259,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
                   dropInterestDB()
                   emptyUserDataStub()
                   insertCyaData(Some(InterestCYAModel(
-                    Some(false), None,
-                    Some(true), Some(Seq(taxedInterestAccount)),
+                    Some(false), Some(true), Some(Seq(taxedInterestAccount)),
                   )))
                   authoriseAgentOrIndividual(us.isAgent)
                   urlGet(s"$appUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId", us.isWelsh, follow = false, playSessionCookie(us.isAgent))
@@ -367,8 +363,8 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
               dropInterestDB()
               emptyUserDataStub()
               insertCyaData(Some(InterestCYAModel(
-                Some(true), Some(Seq(untaxedInterestAccount)),
-                Some(true), Some(Seq(taxedInterestAccount))
+                Some(true),
+                Some(true), Some(Seq(taxedInterestAccount, untaxedInterestAccount))
               )))
               authoriseAgentOrIndividual(us.isAgent)
 
@@ -455,8 +451,8 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
               dropInterestDB()
               emptyUserDataStub()
               insertCyaData(Some(InterestCYAModel(
-                Some(true), Some(Seq(untaxedInterestAccount)),
-                Some(true), Some(Seq(taxedInterestAccount))
+                Some(true),
+                Some(true), Some(Seq(untaxedInterestAccount, taxedInterestAccount))
               )))
               authoriseAgentOrIndividual(us.isAgent)
 

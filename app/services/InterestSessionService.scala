@@ -35,33 +35,15 @@ class InterestSessionService @Inject()(
                                         incomeTaxUserDataConnector: IncomeTaxUserDataConnector
                                       ) {
 
-  def getPriorData(taxYear: Int)(implicit user: User[_], hc: HeaderCarrier): Future[IncomeTaxUserDataResponse] = {
+  private def getPriorData(taxYear: Int)(implicit user: User[_], hc: HeaderCarrier): Future[IncomeTaxUserDataResponse] = {
     incomeTaxUserDataConnector.getUserData(taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid))
-  }
-
-  def createSessionData[A](cyaModel: InterestCYAModel, taxYear: Int)(onFail: A)(onSuccess: A)
-                          (implicit user: User[_], ec: ExecutionContext): Future[A] = {
-
-    val userData = InterestUserDataModel(
-      user.sessionId,
-      user.mtditid,
-      user.nino,
-      taxYear,
-      Some(cyaModel),
-      DateTime.now(DateTimeZone.UTC)
-    )
-
-    interestUserDataRepository.create(userData).map {
-      case true => onSuccess
-      case false => onFail
-    }
   }
 
   def getSessionData(taxYear: Int)(implicit user: User[_]): Future[Option[InterestUserDataModel]] = {
     interestUserDataRepository.find(taxYear)
   }
 
-  def updateSessionData[A](cyaModel: InterestCYAModel, taxYear: Int)(onFail: A)(onSuccess: A)
+  def updateSessionData[A](cyaModel: InterestCYAModel, taxYear: Int, needsCreating: Boolean = false)(onFail: A)(onSuccess: A)
                           (implicit user: User[_], ec: ExecutionContext): Future[A] = {
 
     val userData = InterestUserDataModel(
@@ -73,64 +55,60 @@ class InterestSessionService @Inject()(
       DateTime.now(DateTimeZone.UTC)
     )
 
-    interestUserDataRepository.update(userData).map {
-      case true => onSuccess
-      case false => onFail
-    }
-  }
-
-  private[services] def interestModelToInterestAccount(input: InterestModel, taxType: String): Option[InterestAccountModel] = {
-    if (taxType == "untaxed") {
-      input.untaxedUkInterest.map { amount =>
-        InterestAccountModel(
-          Some(input.incomeSourceId),
-          input.accountName,
-          amount,
-          priorType = Some(InterestTaxTypes.UNTAXED)
-        )
+    if(needsCreating){
+      interestUserDataRepository.create(userData).map {
+        case true => onSuccess
+        case false => onFail
       }
     } else {
-      input.taxedUkInterest.map { amount =>
-        InterestAccountModel(
-          Some(input.incomeSourceId),
-          input.accountName,
-          amount,
-          priorType = Some(InterestTaxTypes.TAXED)
-        )
+      interestUserDataRepository.update(userData).map {
+        case true => onSuccess
+        case false => onFail
       }
     }
-
   }
 
-  def getAndHandle[R](taxYear: Int)(onFail: R)(block: (Option[InterestCYAModel], Option[InterestPriorSubmission]) => R)
+  private[services] def interestModelToInterestAccount(input: InterestModel): InterestAccountModel = {
+
+    InterestAccountModel(
+      Some(input.incomeSourceId),
+      input.accountName,
+      input.untaxedUkInterest,
+      input.taxedUkInterest
+    )
+  }
+
+  def getAndHandle[R](taxYear: Int)(onFail: R)(block: (Option[InterestCYAModel], Option[InterestPriorSubmission]) => Future[R])
                      (implicit executionContext: ExecutionContext, user: User[_], hc: HeaderCarrier): Future[R] = {
-    for {
+    val result = for {
       optionalCya <- getSessionData(taxYear)
       priorDataResponse <- getPriorData(taxYear)
     } yield {
-      val priorUntaxed: Seq[InterestAccountModel] = priorDataResponse.map(_.interest.map(_.filter(_.untaxedUkInterest.nonEmpty))).right
-        .getOrElse(None)
-        .getOrElse(Seq.empty[InterestModel])
-        .flatMap(interestModelToInterestAccount(_, "untaxed"))
 
-      priorDataResponse.map(_.interest.map(_.filter(_.taxedUkInterest.nonEmpty))) match {
-        case Right(prior) =>
-          val priorTaxed = prior
-            .getOrElse(Seq.empty[InterestModel])
-            .flatMap(interestModelToInterestAccount(_, "taxed"))
+      val interestAccountsResponse = priorDataResponse.map(_.interest).map{
+        priorSubmission =>
+          priorSubmission.getOrElse(Seq.empty[InterestModel]).map(interestModelToInterestAccount)
+      }
 
-          val priorDataManipulation = priorDataResponse.map { prior =>
+      interestAccountsResponse match {
+        case Right(accounts) =>
+          val priorData = if(accounts.isEmpty){
+            None
+          } else {
             Some(InterestPriorSubmission(
-              prior.interest.map(_.filter(_.untaxedUkInterest.nonEmpty)).exists(_.nonEmpty),
-              prior.interest.map(_.filter(_.taxedUkInterest.nonEmpty)).exists(_.nonEmpty),
-              Some(priorUntaxed ++ priorTaxed)
+              accounts.exists(_.untaxedAmount.isDefined),
+              accounts.exists(_.taxedAmount.isDefined),
+              Some(accounts)
             ))
-          }.right.getOrElse(None)
+          }
 
-          block(optionalCya.flatMap(_.interest), priorDataManipulation)
-        case Left(_) => onFail
+          block(optionalCya.flatMap(_.interest), priorData)
+
+        case Left(_) => Future(onFail)
       }
     }
+
+    result.flatten
   }
 
   def clear[R](taxYear: Int)(onFail: R)(onSuccess: R)(implicit user: User[_], ec: ExecutionContext): Future[R] = {

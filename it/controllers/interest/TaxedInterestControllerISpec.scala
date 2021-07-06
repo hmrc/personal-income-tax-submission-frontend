@@ -145,8 +145,8 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
           "there is cyaData in session" which {
 
             val interestCYA = InterestCYAModel(
-              Some(false), None,
-              Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25.00)))
+              Some(false),
+              Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00))))
             )
 
             lazy val result: WSResponse = {
@@ -238,20 +238,20 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
           "there is CYA data in session and answer to yes/no is YES" which {
             lazy val result: WSResponse = {
               val interestCYA = InterestCYAModel(
-                Some(false), None,
-                Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25.00)))
+                Some(false),
+                Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00))))
               )
 
               dropInterestDB()
               insertCyaData(Some(interestCYA))
-
+              emptyUserDataStub()
               authoriseAgentOrIndividual(us.isAgent)
               urlPost(url, yesNoFormYes, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
             }
 
             s"returns an SEE_OTHER($SEE_OTHER) status" in {
               result.status shouldBe SEE_OTHER
-              result.header("Location").get.contains("/income-through-software/return/personal-income/2022/interest/add-taxed-uk-interest-account/") shouldBe true
+              result.header("Location").get.contains("/income-through-software/return/personal-income/2022/interest/which-account-did-you-get-taxed-interest-from") shouldBe true
             }
           }
         }
@@ -260,8 +260,8 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
           "there is CYA data in session and answer to yes/no is NO" which {
             lazy val result: WSResponse = {
               val interestCYA = InterestCYAModel(
-                Some(false), None,
-                Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25.00)))
+                Some(false),
+                Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00))))
               )
 
               dropInterestDB()
@@ -281,8 +281,8 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
         "return BAD_REQUEST and render correct errors" when {
           "the yes/no radio button has not been selected" which {
             val interestCYA = InterestCYAModel(
-              Some(false), None,
-              Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", 25.00)))
+              Some(false),
+              Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00))))
             )
 
             lazy val result: WSResponse = {

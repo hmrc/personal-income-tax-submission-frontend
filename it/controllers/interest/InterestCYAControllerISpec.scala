@@ -188,11 +188,11 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
         "renders a page with all the fields" which {
           val cyaModel = InterestCYAModel(
             untaxedUkInterest = Some(true),
-            untaxedUkAccounts = Some(Seq(InterestAccountModel(Some("id"), "UntaxedBank1", 100.00))),
             taxedUkInterest = Some(true),
-            taxedUkAccounts = Some(Seq(
-              InterestAccountModel(Some("id"), "TaxedBank1", 200.00),
-              InterestAccountModel(Some("id"), "TaxedBank2", 400.00)
+            accounts = Some(Seq(
+              InterestAccountModel(Some("id"), "UntaxedBank1", Some(100.00)),
+              InterestAccountModel(Some("id2"), "TaxedBank1", None, Some(200.00)),
+              InterestAccountModel(Some("id3"), "TaxedBank2", None, Some(400.00))
             ))
           )
 
@@ -202,7 +202,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
             insertCyaData(Some(cyaModel))
 
             authoriseAgentOrIndividual(us.isAgent)
-            urlGet(s"$appUrl/$taxYear/interest/check-interest", us.isWelsh, follow = true,  playSessionCookie(us.isAgent))
+            urlGet(s"$appUrl/$taxYear/interest/check-interest", us.isWelsh, follow = false,  playSessionCookie(us.isAgent))
           }
 
           s"has an OK($OK) status" in {
@@ -251,9 +251,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           "the user has selected no to receiving taxed and untaxed interest" which {
             val cyaModel = InterestCYAModel(
               untaxedUkInterest = Some(false),
-              untaxedUkAccounts = None,
-              taxedUkInterest = Some(false),
-              taxedUkAccounts = None
+              taxedUkInterest = Some(false)
             )
 
             lazy val result = {
@@ -308,9 +306,10 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
 
             val cyaModel = InterestCYAModel(
               untaxedUkInterest = Some(true),
-              untaxedUkAccounts = Some(Seq(InterestAccountModel(Some("qwerty"), "TSB", 100.00))),
               taxedUkInterest = Some(true),
-              taxedUkAccounts = Some(Seq(InterestAccountModel(Some("azerty"), "TSB Account", 100.00)))
+              accounts = Some(Seq(
+                InterestAccountModel(Some("qwerty"), "TSB", Some(100.00)),
+                InterestAccountModel(Some("azerty"), "TSB Account", None, Some(100.00))))
             )
 
             lazy val result = {
@@ -367,11 +366,11 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
             insertCyaData(None, taxYear, Some("AA123456A"), None)
             authoriseAgentOrIndividual(us.isAgent)
 
-            urlGet(s"$appUrl/$taxYear/interest/check-interest", us.isWelsh, follow = true,  playSessionCookie(us.isAgent))
+            urlGet(s"$appUrl/$taxYear/interest/check-interest", us.isWelsh, follow = false,  playSessionCookie(us.isAgent))
           }
 
-          s"has an OK($OK) status" in {
-            result.status shouldBe OK
+          s"has an SEE_OTHER($SEE_OTHER) status" in {
+            result.status shouldBe SEE_OTHER
           }
 
         }
@@ -405,8 +404,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           dropInterestDB()
           emptyUserDataStub()
           insertCyaData(Some(InterestCYAModel(
-            Some(false), None,
-            Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
+            Some(false), Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))))
           )), taxYear, Some(mtditid), None)
           authoriseIndividual()
           stubGet(s"/income-through-software/return/$taxYear/view", OK, "")
@@ -425,8 +423,8 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           dropInterestDB()
           emptyUserDataStub()
           insertCyaData(Some(InterestCYAModel(
-            Some(false), None,
-            Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
+            Some(false),
+            Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))))
           )))
           authoriseIndividual(None)
           await(wsClient.url(s"$appUrl/$taxYear/interest/check-interest")
@@ -442,8 +440,8 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           dropInterestDB()
           emptyUserDataStub()
           insertCyaData(Some(InterestCYAModel(
-            Some(false), None,
-            Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", amount)))
+            Some(false),
+            Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))))
           )))
           authoriseIndividualUnauthorized()
           await(wsClient.url(s"$appUrl/$taxYear/interest/check-interest")
