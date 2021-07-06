@@ -18,6 +18,7 @@ package controllers.interest
 
 import forms.YesNoForm
 import models.interest.{InterestAccountModel, InterestCYAModel}
+import models.priorDataModels.{IncomeSourcesModel, InterestModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
@@ -184,6 +185,29 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
           }
         }
 
+        "return a redirect to CYA when previous data exists with untaxed accounts" which {
+          lazy val result = {
+            dropInterestDB()
+            userDataStub(IncomeSourcesModel(interest = Some(
+              Seq(
+                InterestModel(
+                  "Accounty","1234567890",Some(1),Some(1)
+                )
+              )
+            )), nino, taxYear)
+            insertCyaData(None)
+
+            authoriseAgentOrIndividual(us.isAgent)
+            urlGet(url, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+          }
+
+          "has an SEE OTHER status" in {
+            result.status shouldBe SEE_OTHER
+            result.header("Location").get should include(
+              "/income-through-software/return/personal-income/2022/interest/check-interest")
+          }
+        }
+
         "return SEE_OTHER which redirects to overview page" when {
           "there is no cyaData in session" which {
             lazy val result: WSResponse = {
@@ -253,6 +277,29 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
               result.status shouldBe SEE_OTHER
               result.header("Location").get.contains("/income-through-software/return/personal-income/2022/interest/which-account-did-you-get-taxed-interest-from") shouldBe true
             }
+          }
+        }
+
+        "return a redirect to CYA when previous data exists with untaxed accounts" which {
+          lazy val result = {
+            dropInterestDB()
+            userDataStub(IncomeSourcesModel(interest = Some(
+              Seq(
+                InterestModel(
+                  "Accounty","1234567890",Some(1),Some(1)
+                )
+              )
+            )), nino, taxYear)
+            insertCyaData(None)
+
+            authoriseAgentOrIndividual(us.isAgent)
+            urlPost(url, yesNoFormYes, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+          }
+
+          "has an SEE OTHER status" in {
+            result.status shouldBe SEE_OTHER
+            result.header("Location").get should include(
+              "/income-through-software/return/personal-income/2022/interest/check-interest")
           }
         }
 
