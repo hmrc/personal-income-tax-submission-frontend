@@ -114,10 +114,10 @@ class ChangeAccountAmountController @Inject()(
   }
 
   def submit(taxYear: Int, taxType: String, accountId: String): Action[AnyContent] = authAction.async { implicit user =>
-    interestSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
+    interestSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
       val singleAccount: Option[InterestAccountModel] = getSingleAccount(accountId, prior, cya)
 
-      Future(cya match {
+      cya match {
         case Some(cyaData) =>
           singleAccount match {
             case Some(account) =>
@@ -139,8 +139,8 @@ class ChangeAccountAmountController @Inject()(
             case _ => Future(Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)))
           }
         case _ => Future(Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)))
-      })
-    }.flatten
+      }
+    }
   }
 
   private def getSingleAccount(accountId: String, prior: Option[InterestPriorSubmission], cya: Option[InterestCYAModel]): Option[InterestAccountModel] = {

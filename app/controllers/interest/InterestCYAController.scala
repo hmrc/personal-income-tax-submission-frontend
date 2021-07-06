@@ -57,8 +57,8 @@ class InterestCYAController @Inject()(
   implicit val executionContext: ExecutionContext = mcc.executionContext
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
-    interestSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
-      Future(getCyaModel(cya, prior) match {
+    interestSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
+      getCyaModel(cya, prior) match {
         case Some(cyaData) if !cyaData.isFinished => handleUnfinishedRedirect(cyaData, taxYear)
         case Some(cyaData) =>
           interestSessionService.updateSessionData(cyaData, taxYear, cya.isEmpty)(errorHandler.internalServerError())(
@@ -67,8 +67,8 @@ class InterestCYAController @Inject()(
         case _ =>
           logger.info("[InterestCYAController][show] No CYA data in session. Redirecting to the overview page.")
           Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
-      })
-    }.flatten
+      }
+    }
   }
 
   def submit(taxYear: Int): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
