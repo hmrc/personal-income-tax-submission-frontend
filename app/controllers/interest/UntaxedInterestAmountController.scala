@@ -27,7 +27,7 @@ import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.interest.UntaxedInterestAmountForm
 import javax.inject.Inject
-import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission, UntaxedInterestModel}
+import models.interest.{InterestAccountModel, InterestCYAModel, UntaxedInterestModel}
 import models.question.QuestionsJourney
 import play.api.Logging
 import play.api.data.Form
