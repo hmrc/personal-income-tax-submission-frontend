@@ -46,7 +46,8 @@ class GiftAidDonatedAmountController @Inject()(
                                                 ec: ExecutionContext
                                               ) extends FrontendController(cc) with I18nSupport with CharityJourney with Logging {
 
-  def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, prior: Option[GiftAidSubmissionModel])(implicit user: User[AnyContent]): Result = {
+  override def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, prior: Option[GiftAidSubmissionModel], fromShow:Boolean)
+                             (implicit user: User[AnyContent]): Result = {
 
     val priorDonatedAmount: Option[BigDecimal] = prior.flatMap(_.giftAidPayments.flatMap(_.currentYear))
     val cyaDonatedAmount: Option[BigDecimal] = cya.donationsViaGiftAidAmount
@@ -57,9 +58,12 @@ class GiftAidDonatedAmountController @Inject()(
     }
 
     cya.donationsViaGiftAid match {
-      case Some(true) => Ok(view(taxYear, amountForm, None))
+      case Some(true) => determineResult(
+        Ok(view(taxYear, amountForm, None)),
+        Redirect(controllers.charity.routes.GiftAidDonatedAmountController.show(taxYear)),
+        fromShow)
       case Some(_) => Ok(view(taxYear, form(user.isAgent,taxYear), None)) //TODO - redirect to donationsToPreviousTaxYearController.handleRedirect
-      case _ => redirectToOverview(taxYear)
+      case _ => Redirect(controllers.charity.routes.GiftAidDonationsController.show(taxYear))
     }
   }
 
@@ -77,7 +81,7 @@ class GiftAidDonatedAmountController @Inject()(
     giftAidSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
 
       cya match {
-        case Some(cyaData) => handleRedirect(taxYear, cyaData, prior)
+        case Some(cyaData) => handleRedirect(taxYear, cyaData, prior, fromShow = true)
         case _ => redirectToOverview(taxYear)
       }
     }
@@ -95,7 +99,7 @@ class GiftAidDonatedAmountController @Inject()(
           {
             success =>
               cyaData.giftAid.fold {
-              Future.successful(redirectToOverview(taxYear))
+                Future.successful(redirectToOverview(taxYear))
               } {
                 cyaModel =>
                   giftAidSessionService.updateSessionData(cyaModel.copy(donationsViaGiftAidAmount = Some(success)), taxYear)(
@@ -107,7 +111,7 @@ class GiftAidDonatedAmountController @Inject()(
           }
         )
       case _ =>
-        logger.info("[GiftAidOneOffController][submit] No CYA data in session. Redirecting to overview page.")
+        logger.info("[GiftAidDonatedAmountController][submit] No CYA data in session. Redirecting to overview page.")
         Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
     }.flatten
   }

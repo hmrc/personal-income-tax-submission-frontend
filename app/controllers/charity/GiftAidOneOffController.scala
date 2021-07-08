@@ -46,12 +46,16 @@ class GiftAidOneOffController @Inject()(
                                               implicit val appConfig: AppConfig
                                             ) extends FrontendController(cc) with I18nSupport with SessionHelper with CharityJourney with Logging {
 
-  def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, prior: Option[GiftAidSubmissionModel])(implicit user: User[AnyContent]): Result = {
+  override def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, prior: Option[GiftAidSubmissionModel], fromShow: Boolean)
+                             (implicit user: User[AnyContent]): Result = {
 
     (prior, cya.donationsViaGiftAidAmount) match {
       case (Some(priorData), _) if priorData.giftAidPayments.map(_.oneOffCurrentYear).isDefined =>
         Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
-      case (_, Some(amount)) => Ok(giftAidOneOffView(yesNoForm(user), taxYear, giftAidDonations = amount))
+      case (_, Some(amount)) => determineResult(
+        Ok(giftAidOneOffView(yesNoForm(user), taxYear, giftAidDonations = amount)),
+        Redirect(controllers.charity.routes.GiftAidOneOffController.show(taxYear)),
+        fromShow)
       case _ => giftAidDonatedAmountController.handleRedirect(taxYear, cya, prior)
     }
   }
@@ -67,7 +71,7 @@ class GiftAidOneOffController @Inject()(
     giftAidSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
 
       cya match {
-        case Some(cyaData) => handleRedirect(taxYear, cyaData, prior)
+        case Some(cyaData) => handleRedirect(taxYear, cyaData, prior, fromShow = true)
         case _ => redirectToOverview(taxYear)
       }
     }
@@ -77,10 +81,14 @@ class GiftAidOneOffController @Inject()(
 
     giftAidSessionService.getSessionData(taxYear).map {
         case Some(cyaData) =>
-          val previousAmount: BigDecimal = cyaData.giftAid.flatMap(_.donationsViaGiftAidAmount).getOrElse(BigDecimal(""))
+          val previousAmount: Option[BigDecimal] = cyaData.giftAid.flatMap(_.donationsViaGiftAidAmount)
 
           yesNoForm(user).bindFromRequest().fold({
-            formWithErrors => Future.successful(BadRequest(giftAidOneOffView(formWithErrors, taxYear, previousAmount)))
+            formWithErrors =>
+              previousAmount match {
+                case Some(amount) => Future.successful(BadRequest(giftAidOneOffView(formWithErrors, taxYear, amount)))
+                case _ => Future.successful(errorHandler.internalServerError())
+              }
           }, {
             success =>
               val redirectLocation = if(success){
@@ -97,8 +105,6 @@ class GiftAidOneOffController @Inject()(
                   Redirect(redirectLocation)
                 )
               }
-
-
           }
 
           )

@@ -25,8 +25,17 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 trait CharityJourney extends FrontendController {
 
-  def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, prior: Option[GiftAidSubmissionModel])(implicit user: User[AnyContent]): Result
+  def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, prior: Option[GiftAidSubmissionModel], fromShow: Boolean = false)
+                    (implicit user: User[AnyContent]): Result
 
   def redirectToOverview(taxYear: Int)(implicit appConfig: AppConfig): Result =
     Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+
+  def determineResult(showPage: Result, redirectedResult: Result, fromShow: Boolean): Result = {
+    if(fromShow){
+      showPage
+    } else {
+      redirectedResult
+    }
+  }
 }
