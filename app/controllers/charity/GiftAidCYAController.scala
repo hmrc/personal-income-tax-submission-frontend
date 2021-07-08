@@ -159,7 +159,7 @@ class GiftAidCYAController @Inject()(
               prior, Some(submissionModel), prior.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase(), taxYear)
             )
             Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-          case Left(_) => errorHandler.handleError(INTERNAL_SERVER_ERROR)
+          case Left(error) => errorHandler.handleError(error.status)
         }
       }
     }.flatten
