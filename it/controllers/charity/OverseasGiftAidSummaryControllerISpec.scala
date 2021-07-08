@@ -19,14 +19,15 @@ package controllers.charity
 import common.SessionValues
 import forms.YesNoForm
 import helpers.PlaySessionCookieBaker
+import models.charity.GiftAidCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status.{BAD_REQUEST, OK, UNAUTHORIZED}
 import play.api.libs.ws.WSClient
-import utils.IntegrationTest
+import utils.{GiftAidDatabaseHelper, IntegrationTest}
 
-class OverseasGiftAidSummaryControllerISpec extends IntegrationTest {
+class OverseasGiftAidSummaryControllerISpec extends IntegrationTest with GiftAidDatabaseHelper {
 
   object Selectors {
     val heading = "h1"
@@ -54,17 +55,17 @@ class OverseasGiftAidSummaryControllerISpec extends IntegrationTest {
     val heading = "Overseas charities you used Gift Aid to donate to"
     val headingAgent = "Overseas charities your client used Gift Aid to donate to"
     val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
-    val charity1 = "overseasCharity1"
-    val charity2 = "overseasCharity2"
+    val charity1 = "Sponsor a pikachu"
+    val charity2 = "Dudes in need"
     val question = "Do you need to add another overseas charity?"
     val hint = "You must tell us about all the overseas charities you donated to."
     val hintAgent = "You must tell us about all the overseas charities your client donated to."
     val change = "Change"
     val remove = "Remove"
-    val hiddenChange1 = "Change details you’ve entered for overseasCharity1"
-    val hiddenRemove1 = "Remove overseasCharity1"
-    val hiddenChange2 = "Change details you’ve entered for overseasCharity2"
-    val hiddenRemove2 = "Remove overseasCharity2"
+    val hiddenChange1 = s"Change details you’ve entered for $charity1"
+    val hiddenRemove1 = s"Remove $charity1"
+    val hiddenChange2 = s"Change details you’ve entered for $charity2"
+    val hiddenRemove2 = s"Remove $charity2"
     val yes = "Yes"
     val no = "No"
     val errorSummary = "There is a problem"
@@ -77,6 +78,8 @@ class OverseasGiftAidSummaryControllerISpec extends IntegrationTest {
 
   val overseasGiftAidSummaryUrl = s"$startUrl/$taxYear/charity/overseas-charities-donated-to"
 
+  val requiredSessionData: GiftAidCYAModel = GiftAidCYAModel(overseasCharityNames = Some(Seq(Content.charity1, Content.charity2)))
+
   "Calling GET /charity/overseas-charities-donated-to" when {
 
     "the user is authorised" when {
@@ -84,6 +87,11 @@ class OverseasGiftAidSummaryControllerISpec extends IntegrationTest {
       "the user is a non-agent" should {
 
         lazy val result = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(requiredSessionData))
+
           authoriseIndividual()
           await(wsClient.url(overseasGiftAidSummaryUrl)
             .withHttpHeaders(xSessionId, csrfContent)
@@ -124,6 +132,11 @@ class OverseasGiftAidSummaryControllerISpec extends IntegrationTest {
       "the user is an agent" should {
 
         lazy val result = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(requiredSessionData))
+
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -170,6 +183,11 @@ class OverseasGiftAidSummaryControllerISpec extends IntegrationTest {
     "the user is unauthorized" should {
 
       lazy val result = {
+        dropGiftAidDB()
+
+        emptyUserDataStub()
+        insertCyaData(Some(requiredSessionData))
+
         authoriseIndividualUnauthorized()
         await(wsClient.url(overseasGiftAidSummaryUrl)
           .withHttpHeaders(xSessionId, csrfContent)
@@ -187,6 +205,11 @@ class OverseasGiftAidSummaryControllerISpec extends IntegrationTest {
     "the user is authorised" when {
 
       lazy val result = {
+        dropGiftAidDB()
+
+        emptyUserDataStub()
+        insertCyaData(Some(requiredSessionData))
+
         authoriseIndividual()
         await(wsClient.url(overseasGiftAidSummaryUrl)
           .withHttpHeaders(xSessionId, csrfContent)
@@ -208,10 +231,15 @@ class OverseasGiftAidSummaryControllerISpec extends IntegrationTest {
       "an option is selected" should {
 
         lazy val result = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(requiredSessionData.copy(overseasDonationsViaGiftAidAmount = Some(BigDecimal(125)))))
+          
           authoriseIndividual()
           await(wsClient.url(overseasGiftAidSummaryUrl)
             .withHttpHeaders(xSessionId, csrfContent)
-            .post(Map(YesNoForm.yesNo -> YesNoForm.no)))
+            .post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
         }
 
         "return a 200(Ok) status" in {

@@ -18,14 +18,15 @@ package controllers.charity
 
 import common.SessionValues
 import helpers.PlaySessionCookieBaker
+import models.charity.GiftAidCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.{WSClient, WSResponse}
-import utils.{IntegrationTest, ViewHelpers}
+import utils.{GiftAidDatabaseHelper, IntegrationTest, ViewHelpers}
 
-class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelpers {
+class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelpers with GiftAidDatabaseHelper {
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
   val taxYear: Int = 2022
@@ -86,12 +87,19 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
   val inputLabelSelector = "#main-content > div > div > form > div > label > div"
   val inputHintTextSelector = ".govuk-hint"
 
+  val requiredSessionData: Some[GiftAidCYAModel] = Some(GiftAidCYAModel(oneOffDonationsViaGiftAid = Some(true)))
+
   "as an individual" when {
     import IndividualExpected._
     ".show" should {
 
       "returns an action with the correct english content" which {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(requiredSessionData)
+
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
             .withHttpHeaders(xSessionId, csrfContent)
@@ -116,6 +124,11 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
       }
       "returns an action with the correct welsh content" which {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(requiredSessionData)
+
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
             .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
@@ -144,6 +157,11 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
 
       s"return an OK($OK) status" in {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(requiredSessionData)
+
           authoriseIndividual()
           await(
             wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
@@ -157,6 +175,11 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
 
       s"return a BAD_REQUEST($BAD_REQUEST) status with the correct Empty error" which {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(requiredSessionData)
+
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
             .withHttpHeaders(xSessionId, csrfContent)
@@ -173,6 +196,11 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
 
       s"return a BAD_REQUEST($BAD_REQUEST) status with the correct invalid error" which {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(requiredSessionData)
+
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
             .withHttpHeaders(xSessionId, csrfContent)
@@ -189,6 +217,11 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
 
       s"return a BAD_REQUEST($BAD_REQUEST) status with the correct overMax error" which {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(requiredSessionData)
+
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
             .withHttpHeaders(xSessionId, csrfContent)
@@ -204,6 +237,11 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
       }
       s"return a BAD_REQUEST($BAD_REQUEST) status with the correct Empty error - Welsh" which {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(requiredSessionData)
+
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
             .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
@@ -221,6 +259,11 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
 
       s"return a BAD_REQUEST($BAD_REQUEST) status with the correct invalid error - Welsh" which {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(requiredSessionData)
+
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
             .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
@@ -238,6 +281,11 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
 
       s"return a BAD_REQUEST($BAD_REQUEST) status with the correct overMax error - Welsh" which {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(requiredSessionData)
+
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
             .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
@@ -263,6 +311,11 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
 
       "returns an action with the correct english content" which {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(requiredSessionData)
+
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -292,6 +345,11 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
 
       "returns an action with the correct welsh content" which {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(requiredSessionData)
+
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -330,6 +388,11 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
 
         "there is form data" in {
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+
+            emptyUserDataStub()
+            insertCyaData(requiredSessionData)
+
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
               SessionValues.CLIENT_MTDITID -> "1234567890",
               SessionValues.CLIENT_NINO -> "AA123456A"))
@@ -349,6 +412,11 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
       s"return a BAD_REQUEST($BAD_REQUEST) status with the Empty Error" which {
 
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(requiredSessionData)
+
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -372,6 +440,11 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
       s"return a BAD_REQUEST($BAD_REQUEST) status with the Invalid Format error" which {
 
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(requiredSessionData)
+
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -395,6 +468,11 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
       s"return a BAD_REQUEST($BAD_REQUEST) status with the OverMax error" which {
 
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(requiredSessionData)
+
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -418,6 +496,11 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
       s"return a BAD_REQUEST($BAD_REQUEST) status with the Empty Error - Welsh" which {
 
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(requiredSessionData)
+
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -442,6 +525,11 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
       s"return a BAD_REQUEST($BAD_REQUEST) status with the Invalid Format error - Welsh" which {
 
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(requiredSessionData)
+
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -466,6 +554,11 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
       s"return a BAD_REQUEST($BAD_REQUEST) status with the OverMax error - Welsh" which {
 
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(requiredSessionData)
+
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"

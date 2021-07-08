@@ -43,13 +43,13 @@
                     @charity
                 </span>
                 <span class="hmrc-add-to-a-list__change">
-                    <a class="govuk-link" href="#"> @*TODO - update href*@
+                    <a class="govuk-link" href="@controllers.charity.routes.GiftAidOverseasNameController.show(taxYear = taxYear)">
                         <span aria-hidden="true">@messages("common.change")</span>
                         <span class="govuk-visually-hidden">@{messages("charity.overseas-gift-aid-summary.hiddenChange", charity)}</span>
                     </a>
                 </span>
                 <span class="hmrc-add-to-a-list__remove">
-                    <a class="govuk-link" href="#"> @*TODO - update href*@
+                    <a class="govuk-link" href="@controllers.charity.routes.RemoveOverseasCharityController.show(taxYear = taxYear, charityType = "GIFT_AID", charityName = charity)">
                         <span aria-hidden="true">@messages("common.remove")</span>
                         <span class="govuk-visually-hidden">@{messages("charity.overseas-gift-aid-summary.hiddenRemove", charity)}</span>
                     </a>

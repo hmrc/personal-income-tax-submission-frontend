@@ -19,6 +19,7 @@ package controllers.charity
 import common.SessionValues
 import common.SessionValues.GIFT_AID_PRIOR_SUB
 import helpers.PlaySessionCookieBaker
+import models.charity.GiftAidCYAModel
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -26,9 +27,9 @@ import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.libs.ws.{WSClient, WSResponse}
-import utils.IntegrationTest
+import utils.{GiftAidDatabaseHelper, IntegrationTest}
 
-class GiftAidOverseasNameControllerISpec extends IntegrationTest {
+class GiftAidOverseasNameControllerISpec extends IntegrationTest with GiftAidDatabaseHelper {
 
 
   object IndividualExpected {
@@ -66,6 +67,8 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
   val charLimit: String = "ukHzoBYHkKGGk2V5iuYgS137gN7EB7LRw3uDjvujYg00ZtHwo3sokyOOCEoAK9vuPiP374QKOelo"
   val testModel: GiftAidSubmissionModel = GiftAidSubmissionModel(Some(GiftAidPaymentsModel(None, Some(List("JaneDoe")), None, None, None, None)),None)
 
+  val requiredSessionCyaModel: GiftAidCYAModel = GiftAidCYAModel(overseasDonationsViaGiftAidAmount = Some(BigDecimal(1)))
+
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
   val taxYear: Int = 2022
@@ -77,6 +80,11 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
 
       "returns an action" which {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(requiredSessionCyaModel))
+
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charity")
             .withHttpHeaders(xSessionId, csrfContent)
@@ -102,6 +110,11 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
 
       s"return an OK($OK) status" in {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(requiredSessionCyaModel))
+
           authoriseIndividual()
           await(
             wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charity")
@@ -115,6 +128,11 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
 
       s"return a BAD_REQUEST($BAD_REQUEST) status with an empty error" in {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(requiredSessionCyaModel))
+
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charity")
             .withHttpHeaders(xSessionId, csrfContent)
@@ -129,6 +147,11 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
 
       s"return a BAD_REQUEST($BAD_REQUEST) status with an invalid Character error" in {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(requiredSessionCyaModel))
+
           authoriseIndividual()
           await(
             wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charity")
@@ -145,6 +168,11 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
 
       s"return a BAD_REQUEST($BAD_REQUEST) status with an character limit error" in {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(requiredSessionCyaModel))
+
           authoriseIndividual()
           await(
             wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charity")
@@ -160,16 +188,18 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
       }
 
       s"return a BAD_REQUEST($BAD_REQUEST) status with an duplicate name error" in {
-        val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-          GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString()
-        ))
 
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(requiredSessionCyaModel.copy(overseasCharityNames = Some(Seq("DudesInNeed")))))
+
           authoriseIndividual()
           await(
             wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/name-of-overseas-charity")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-              .post(Map("name" -> "JaneDoe"))
+              .withHttpHeaders(xSessionId, csrfContent)
+              .post(Map("name" -> "DudesInNeed"))
           )
         }
         lazy val document: Document = Jsoup.parse(result.body)
@@ -190,6 +220,11 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
 
       "returns an action" which {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(requiredSessionCyaModel))
+
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -221,6 +256,11 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
 
         "there is form data" in {
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+
+            emptyUserDataStub()
+            insertCyaData(Some(requiredSessionCyaModel))
+
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
               SessionValues.CLIENT_MTDITID -> "1234567890",
               SessionValues.CLIENT_NINO -> "AA123456A"))
@@ -241,6 +281,11 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest {
 
         "there is no form data" in {
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+
+            emptyUserDataStub()
+            insertCyaData(Some(requiredSessionCyaModel))
+
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
               SessionValues.CLIENT_MTDITID -> "1234567890",
               SessionValues.CLIENT_NINO -> "AA123456A"

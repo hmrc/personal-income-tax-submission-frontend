@@ -19,22 +19,31 @@ package controllers.charity
 import common.SessionValues
 import forms.YesNoForm
 import helpers.PlaySessionCookieBaker
+import models.charity.GiftAidCYAModel
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.{WSClient, WSResponse}
-import utils.IntegrationTest
+import utils.{GiftAidDatabaseHelper, IntegrationTest}
 
-class OverseasGiftAidDonationControllerISpec extends IntegrationTest {
+class OverseasGiftAidDonationControllerISpec extends IntegrationTest with GiftAidDatabaseHelper {
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
   lazy val controller: OverseasGiftAidDonationsController = app.injector.instanceOf[OverseasGiftAidDonationsController]
   val taxYear: Int = 2022
+
+  val requiredSessionData: Some[GiftAidCYAModel] = Some(GiftAidCYAModel(oneOffDonationsViaGiftAid = Some(false)))
+
     "as an individual" when {
 
       ".show" should {
 
         "returns an action" which {
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+
+            emptyUserDataStub()
+            insertCyaData(requiredSessionData)
+
             authoriseIndividual()
             await(
               wsClient
@@ -56,6 +65,11 @@ class OverseasGiftAidDonationControllerISpec extends IntegrationTest {
 
         s"return an OK($OK) status" in {
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+
+            emptyUserDataStub()
+            insertCyaData(requiredSessionData)
+
             authoriseIndividual()
             await(
               wsClient
@@ -70,6 +84,11 @@ class OverseasGiftAidDonationControllerISpec extends IntegrationTest {
 
         s"return a BAD_REQUEST($BAD_REQUEST) status" in {
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+
+            emptyUserDataStub()
+            insertCyaData(requiredSessionData)
+
             authoriseIndividual()
             await(
               wsClient
@@ -92,6 +111,11 @@ class OverseasGiftAidDonationControllerISpec extends IntegrationTest {
 
       "returns an action" which {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(requiredSessionData)
+
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -116,6 +140,11 @@ class OverseasGiftAidDonationControllerISpec extends IntegrationTest {
 
         "there is form data" in {
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+
+            emptyUserDataStub()
+            insertCyaData(requiredSessionData)
+
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
               SessionValues.CLIENT_MTDITID -> "1234567890",
               SessionValues.CLIENT_NINO -> "AA123456A"))
@@ -137,6 +166,11 @@ class OverseasGiftAidDonationControllerISpec extends IntegrationTest {
 
         "there is no form data" in {
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+
+            emptyUserDataStub()
+            insertCyaData(requiredSessionData)
+
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
               SessionValues.CLIENT_MTDITID -> "1234567890",
               SessionValues.CLIENT_NINO -> "AA123456A"
