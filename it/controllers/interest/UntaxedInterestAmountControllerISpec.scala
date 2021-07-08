@@ -22,6 +22,7 @@ import common.SessionValues
 import forms.interest.UntaxedInterestAmountForm
 import helpers.PlaySessionCookieBaker
 import models.interest.{InterestAccountModel, InterestCYAModel}
+import models.mongo.InterestUserDataModel
 import models.priorDataModels.{IncomeSourcesModel, InterestModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -413,6 +414,131 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
           errorSummaryCheck(duplicateNameError, Selectors.accountNameInput)
           errorAboveElementCheck(duplicateNameError)
+        }
+
+        "return a redirect when no cya" should {
+
+          lazy val result: WSResponse = {
+            dropInterestDB()
+            userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel(firstAccountName, id, None, None))), None), nino, taxYear)
+            insertCyaData(None)
+            authoriseAgentOrIndividual(us.isAgent)
+            urlPost(url(id), Map(
+              UntaxedInterestAmountForm.untaxedAmount -> "12344.98",
+              UntaxedInterestAmountForm.untaxedAccountName -> firstAccountName
+            ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+          }
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          s"return a SEE OTHER status" in {
+            result.status shouldBe SEE_OTHER
+            result.header("Location").get should include(
+              "http://localhost:11111/income-through-software/return/2022/view")
+          }
+        }
+
+        "an account is reused and amount is updated" should {
+
+          lazy val result: WSResponse = {
+            dropInterestDB()
+            userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel(firstAccountName, id, None, None))), None), nino, taxYear)
+            insertCyaData(Some(InterestCYAModel(Some(true),None,Some(Seq(
+              InterestAccountModel(None,"name",Some(1234),uniqueSessionId = Some("1234567890"))
+            )))))
+            authoriseAgentOrIndividual(us.isAgent)
+            urlPost(url("1234567890"), Map(
+              UntaxedInterestAmountForm.untaxedAmount -> "12344.98",
+              UntaxedInterestAmountForm.untaxedAccountName -> firstAccountName
+            ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+          }
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          s"return a SEE OTHER status" in {
+            result.status shouldBe SEE_OTHER
+            result.header("Location").get should include(
+              "/income-through-software/return/personal-income/2022/interest/accounts-with-untaxed-uk-interest")
+          }
+        }
+
+        "a new account is added and old account removes the untaxed amount" should {
+
+          lazy val result: WSResponse = {
+            dropInterestDB()
+            emptyUserDataStub()
+            insertCyaData(Some(InterestCYAModel(Some(true),None,Some(Seq(
+              InterestAccountModel(None,"name",Some(1234),Some(1234),uniqueSessionId = Some("1234567890"))
+            )))))
+            authoriseAgentOrIndividual(us.isAgent)
+            urlPost(url("1234567890"), Map(
+              UntaxedInterestAmountForm.untaxedAmount -> "12344.98",
+              UntaxedInterestAmountForm.untaxedAccountName -> firstAccountName
+            ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+          }
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          s"return a SEE OTHER status" in {
+            result.status shouldBe SEE_OTHER
+            result.header("Location").get should include(
+              "/income-through-software/return/personal-income/2022/interest/accounts-with-untaxed-uk-interest")
+
+            val data: Seq[InterestCYAModel] = await(interestDatabase.collection.find().toFuture()).flatMap(_.interest)
+            data.head shouldBe InterestCYAModel(Some(true),None,Some(Seq(
+              InterestAccountModel(None,firstAccountName,Some(12344.98),uniqueSessionId = data.head.accounts.get.head.uniqueSessionId),
+              InterestAccountModel(None,"name",None,Some(1234),uniqueSessionId = Some("1234567890"))
+            )))
+          }
+        }
+
+        "a new account is added" should {
+
+          lazy val result: WSResponse = {
+            dropInterestDB()
+            emptyUserDataStub()
+            insertCyaData(Some(InterestCYAModel(Some(true),None)))
+            authoriseAgentOrIndividual(us.isAgent)
+            urlPost(url(id), Map(
+              UntaxedInterestAmountForm.untaxedAmount -> "12344.98",
+              UntaxedInterestAmountForm.untaxedAccountName -> firstAccountName
+            ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+          }
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          s"return a SEE OTHER status" in {
+            result.status shouldBe SEE_OTHER
+            result.header("Location").get should include(
+              "/income-through-software/return/personal-income/2022/interest/accounts-with-untaxed-uk-interest")
+
+            val data: Seq[InterestCYAModel] = await(interestDatabase.collection.find().toFuture()).flatMap(_.interest)
+            data.head shouldBe InterestCYAModel(Some(true),None,Some(Seq(
+              InterestAccountModel(None,firstAccountName,Some(12344.98),uniqueSessionId = data.head.accounts.get.head.uniqueSessionId)
+            )))
+          }
+        }
+
+        "an account is reused and amount is updated even if the id is different" should {
+
+          lazy val result: WSResponse = {
+            dropInterestDB()
+            userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel(firstAccountName, id, None, None))), None), nino, taxYear)
+            insertCyaData(Some(InterestCYAModel(Some(true))))
+            authoriseAgentOrIndividual(us.isAgent)
+            urlPost(url("id"), Map(
+              UntaxedInterestAmountForm.untaxedAmount -> "12344.98",
+              UntaxedInterestAmountForm.untaxedAccountName -> firstAccountName
+            ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+          }
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          s"return a SEE OTHER status" in {
+            result.status shouldBe SEE_OTHER
+            result.header("Location").get should include(
+              "/income-through-software/return/personal-income/2022/interest/accounts-with-untaxed-uk-interest")
+          }
         }
       }
     }

@@ -139,7 +139,6 @@ class UntaxedInterestAmountController @Inject()(
                             existingAccountWithName: Option[InterestAccountModel],
                             accounts: Seq[InterestAccountModel],
                             id: String): Seq[InterestAccountModel] = {
-
     def createNewAccount(overrideId: Option[String] = None): InterestAccountModel = {
       InterestAccountModel(None, completeForm.untaxedAccountName, Some(completeForm.untaxedAmount), None, Some(overrideId.getOrElse(id)))
     }
