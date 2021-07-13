@@ -19,14 +19,17 @@ package controllers.charity
 import common.SessionValues
 import forms.YesNoForm
 import helpers.PlaySessionCookieBaker
+import models.charity.GiftAidCYAModel
+import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
+import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.{WSClient, WSResponse}
-import utils.{IntegrationTest, ViewHelpers}
+import utils.{GiftAidDatabaseHelper, IntegrationTest, ViewHelpers}
 
-class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with ViewHelpers {
+class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with ViewHelpers with GiftAidDatabaseHelper {
 
   object IndividualExpectedEN {
     val expectedH1 = "Did you donate land or property to charity?"
@@ -56,6 +59,8 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
     val expectedErrorTitle = s"Error: $expectedTitle"
   }
 
+  val expectedCyaTitle = "Check your donations to charity"
+
   val taxYear: Int = 2022
   val taxYearMinusOne: Int = taxYear - 1
 
@@ -77,6 +82,32 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
   lazy val controller: GiftAidDonateLandOrPropertyController = app.injector.instanceOf[GiftAidDonateLandOrPropertyController]
 
+  val testModel: GiftAidCYAModel =
+    GiftAidCYAModel(donatedSharesOrSecurities = Some(true))
+
+  val testModelFalse: GiftAidCYAModel =
+    GiftAidCYAModel(donatedSharesOrSecurities = Some(false))
+
+  val priorDataMin: GiftAidSubmissionModel = GiftAidSubmissionModel(
+    Some(GiftAidPaymentsModel(
+      Some(100.00),
+      Some(List("JohnDoe")),
+      Some(100.00),
+      Some(100.00),
+      Some(100.00),
+      Some(100.00)
+    )),
+    Some(GiftsModel(
+      Some(100.00),
+      Some(List("JaneDoe")),
+      Some(100.00),
+      Some(100.00)
+    ))
+  )
+
+  val priorModel: IncomeSourcesModel = IncomeSourcesModel(giftAid = Some(priorDataMin))
+
+
   "in english" when {
 
     "as an individual" when {
@@ -84,8 +115,11 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
 
       ".show is called" should {
 
-        "return a page" which {
+        "return the DonateLandOrPropertyPage" which {
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModel))
             authoriseIndividual()
             await(wsClient
               .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
@@ -121,6 +155,9 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
           "there is form data" in {
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseIndividual()
               await(
                 wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
@@ -138,6 +175,9 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
           "there is no form data" which {
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseIndividual()
               await(wsClient
                 .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
@@ -177,6 +217,9 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
 
         "return a page" which {
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModel))
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
               SessionValues.CLIENT_MTDITID -> "1234567890",
               SessionValues.CLIENT_NINO -> "AA123456A"
@@ -215,6 +258,9 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
 
           "there is form data" in {
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
                 SessionValues.CLIENT_MTDITID -> "1234567890",
                 SessionValues.CLIENT_NINO -> "AA123456A"))
@@ -235,6 +281,9 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
 
           "there is no form data" which {
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
                 SessionValues.CLIENT_MTDITID -> "1234567890",
                 SessionValues.CLIENT_NINO -> "AA123456A"
@@ -281,6 +330,9 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
 
         "return a page" which {
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModel))
             authoriseIndividual()
             await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
               .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
@@ -315,6 +367,9 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
           "there is form data" in {
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseIndividual()
               await(
                 wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
@@ -332,6 +387,9 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
           "there is no form data" which {
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseIndividual()
               await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
                 .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
@@ -370,6 +428,9 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
 
         "return a page" which {
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModel))
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
               SessionValues.CLIENT_MTDITID -> "1234567890",
               SessionValues.CLIENT_NINO -> "AA123456A"
@@ -412,6 +473,9 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
 
           "there is form data" in {
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
                 SessionValues.CLIENT_MTDITID -> "1234567890",
                 SessionValues.CLIENT_NINO -> "AA123456A"))
@@ -436,6 +500,9 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
 
           "there is no form data" which {
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
                 SessionValues.CLIENT_MTDITID -> "1234567890",
                 SessionValues.CLIENT_NINO -> "AA123456A"

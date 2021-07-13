@@ -19,14 +19,15 @@ package controllers.charity
 import common.SessionValues
 import forms.YesNoForm
 import helpers.PlaySessionCookieBaker
+import models.charity.GiftAidCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.libs.ws.{WSClient, WSResponse}
-import utils.{IntegrationTest, ViewHelpers}
+import utils.{GiftAidDatabaseHelper, IntegrationTest, ViewHelpers}
 import play.api.http.Status._
 
-class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends IntegrationTest with ViewHelpers {
+class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends IntegrationTest with ViewHelpers with GiftAidDatabaseHelper {
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
   lazy val controller: GiftAidSharesSecuritiesLandPropertyOverseasController = app.injector.instanceOf[GiftAidSharesSecuritiesLandPropertyOverseasController]
@@ -87,6 +88,9 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Integra
     val expectedError = "Select yes if your client donated shares, securities, land or property to overseas charities"
     val expectedErrorTitle = s"Error: $expectedTitle"
   }
+  val testModel: GiftAidCYAModel =
+    GiftAidCYAModel(donatedLandOrProperty = Some(true))
+
 
   "In english" when {
 
@@ -99,6 +103,9 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Integra
         "return a page" which {
 
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModel))
             authoriseIndividual()
             await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
               s"donation-of-shares-securities-land-or-property-to-overseas-charities")
@@ -140,6 +147,9 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Integra
           "there is form data" in {
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseIndividual()
               await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
                 s"donation-of-shares-securities-land-or-property-to-overseas-charities")
@@ -156,6 +166,9 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Integra
             "there is no form data" which {
 
               lazy val result: WSResponse = {
+                dropGiftAidDB()
+                emptyUserDataStub()
+                insertCyaData(Some(testModel))
                 authoriseIndividual()
                 await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
                   s"donation-of-shares-securities-land-or-property-to-overseas-charities")
@@ -203,6 +216,9 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Integra
         "return a page" which {
 
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModel))
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
               SessionValues.CLIENT_MTDITID -> "1234567890",
               SessionValues.CLIENT_NINO -> "AA123456A"
@@ -253,6 +269,9 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Integra
           "there is form data" in {
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               lazy val sessionCookie = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
                 SessionValues.CLIENT_MTDITID -> "1234567890",
                 SessionValues.CLIENT_NINO -> "AA123456A"
@@ -277,6 +296,9 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Integra
           "there is no form data" which {
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               lazy val sessionCookie = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
                 SessionValues.CLIENT_MTDITID -> "1234567890",
                 SessionValues.CLIENT_NINO -> "AA123456A"
@@ -330,6 +352,9 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Integra
         "return a page" which {
 
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModel))
             authoriseIndividual()
             await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
               s"donation-of-shares-securities-land-or-property-to-overseas-charities")
@@ -366,6 +391,9 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Integra
           "there is form data" in {
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseIndividual()
               await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
                 s"donation-of-shares-securities-land-or-property-to-overseas-charities")
@@ -382,6 +410,9 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Integra
             "there is no form data" which {
 
               lazy val result: WSResponse = {
+                dropGiftAidDB()
+                emptyUserDataStub()
+                insertCyaData(Some(testModel))
                 authoriseIndividual()
                 await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
                   s"donation-of-shares-securities-land-or-property-to-overseas-charities")
@@ -430,6 +461,9 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Integra
         "return a page" which {
 
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModel))
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
               SessionValues.CLIENT_MTDITID -> "1234567890",
               SessionValues.CLIENT_NINO -> "AA123456A"
@@ -480,6 +514,9 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Integra
           "there is form data" in {
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               lazy val sessionCookie = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
                 SessionValues.CLIENT_MTDITID -> "1234567890",
                 SessionValues.CLIENT_NINO -> "AA123456A"
@@ -504,6 +541,9 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Integra
           "there is no form data" which {
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               lazy val sessionCookie = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
                 SessionValues.CLIENT_MTDITID -> "1234567890",
                 SessionValues.CLIENT_NINO -> "AA123456A"
