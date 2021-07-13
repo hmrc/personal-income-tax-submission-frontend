@@ -67,7 +67,8 @@ class MessagesSpec extends ViewTest with GuiceOneAppPerSuite {
         "global.error.pageNotFound404.message",
         "global.error.fallbackClientError4xx.title",
         "global.error.fallbackClientError4xx.message",
-        "global.error.fallbackClientError4xx.heading"
+        "global.error.fallbackClientError4xx.heading",
+        "error.summary.title"
       )
 
       val defaults = allLanguages("default").filter(entry => !exclusionKeys.contains(entry._1))

@@ -258,6 +258,30 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
       s"user is ${agentTest(us.isAgent)} and request is ${welshTest(us.isWelsh)}" should {
 
+        "update the CYA data when an existing account with taxed interest gets removed on the back of selecting no" which {
+          lazy val result: WSResponse = {
+            val interestCYA = InterestCYAModel(
+              Some(false),
+              Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00))))
+            )
+
+            dropInterestDB()
+            insertCyaData(Some(interestCYA))
+            emptyUserDataStub()
+            authoriseAgentOrIndividual(us.isAgent)
+            urlPost(url, yesNoFormNo, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+          }
+
+          s"returns an SEE_OTHER($SEE_OTHER) status" in {
+            result.status shouldBe SEE_OTHER
+            result.header("Location").get shouldBe "/income-through-software/return/personal-income/2022/interest/check-interest"
+          }
+
+          "saves the record in the database" in {
+            await(interestDatabase.collection.find().toFuture()).head.interest.get shouldBe InterestCYAModel(Some(false), Some(false))
+          }
+        }
+
         "return SEE_OTHER which redirects to TaxedInterestAmount page" when {
           "there is CYA data in session and answer to yes/no is YES" which {
             lazy val result: WSResponse = {
