@@ -18,15 +18,11 @@ package controllers.interest
 
 import java.util.UUID
 
-import common.SessionValues
 import forms.interest.UntaxedInterestAmountForm
-import helpers.PlaySessionCookieBaker
 import models.interest.{InterestAccountModel, InterestCYAModel}
-import models.mongo.InterestUserDataModel
 import models.priorDataModels.{IncomeSourcesModel, InterestModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import play.api.http.HeaderNames
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER, UNAUTHORIZED}
 import play.api.libs.ws.WSResponse
 import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
@@ -51,8 +47,6 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
     val secondError: String = ".govuk-error-summary__body > ul > li:nth-child(2) > a"
     val errorMessage: String = "#value-error"
   }
-
-  import Selectors._
 
   trait SpecificExpectedResults {
     val noAmountEntryError: String
