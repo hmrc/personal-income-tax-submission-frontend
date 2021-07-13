@@ -18,14 +18,15 @@ package controllers.charity
 
 import common.SessionValues
 import helpers.PlaySessionCookieBaker
+import models.charity.GiftAidCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.{WSClient, WSResponse}
-import utils.{IntegrationTest, ViewHelpers}
+import utils.{GiftAidDatabaseHelper, IntegrationTest, ViewHelpers}
 
-class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with ViewHelpers {
+class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with ViewHelpers with GiftAidDatabaseHelper {
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
   val taxYear: Int = 2022
@@ -79,12 +80,20 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
   val invalidAmount = "1000000000000"
 
 
+  val testModel: GiftAidCYAModel =
+    GiftAidCYAModel(donatedLandOrProperty = Some(true))
+
+
+
   "as an individual" when {
     import individualExpected._
     ".show" should {
 
       "returns an action with english content" which {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModel))
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
             .withHttpHeaders(xSessionId, csrfContent)
@@ -107,6 +116,9 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
       }
       "returns an action with welsh content" which {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModel))
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
             .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
@@ -133,6 +145,9 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
 
       s"return an OK($OK) status" in {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModel))
           authoriseIndividual()
           await(
             wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
@@ -147,7 +162,9 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
       s"return a BAD_REQUEST($BAD_REQUEST) status with the expectedEmptyError" which {
 
         lazy val result: WSResponse = {
-
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModel))
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
             .withHttpHeaders(xSessionId, csrfContent)
@@ -166,7 +183,9 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
       s"return a BAD_REQUEST($BAD_REQUEST) status with the expectedErrorOverMax" which {
 
         lazy val result: WSResponse = {
-
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModel))
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
             .withHttpHeaders(xSessionId, csrfContent)
@@ -185,7 +204,9 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
       s"return a BAD_REQUEST($BAD_REQUEST) status with the expectedInvalidCharacters" which {
 
         lazy val result: WSResponse = {
-
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModel))
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
             .withHttpHeaders(xSessionId, csrfContent)
@@ -204,7 +225,9 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
       s"return a BAD_REQUEST($BAD_REQUEST) status with the expectedEmptyError in welsh" which {
 
         lazy val result: WSResponse = {
-
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModel))
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
             .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
@@ -223,7 +246,9 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
       s"return a BAD_REQUEST($BAD_REQUEST) status with the expectedErrorOverMax in welsh" which {
 
         lazy val result: WSResponse = {
-
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModel))
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
             .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
@@ -242,7 +267,9 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
       s"return a BAD_REQUEST($BAD_REQUEST) status with the expectedInvalidCharacters in welsh" which {
 
         lazy val result: WSResponse = {
-
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModel))
           authoriseIndividual()
           await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
             .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
@@ -269,6 +296,9 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
 
       "returns an action with english content" which {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModel))
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -294,6 +324,9 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
       }
       "returns an action with welsh content" which {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModel))
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -329,6 +362,9 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
 
         "there is form data" in {
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModel))
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
               SessionValues.CLIENT_MTDITID -> "1234567890",
               SessionValues.CLIENT_NINO -> "AA123456A"))
@@ -348,6 +384,9 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
       s"return a BAD_REQUEST($BAD_REQUEST) status with the expectedEmptyError" which {
 
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModel))
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -370,6 +409,9 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
       s"return a BAD_REQUEST($BAD_REQUEST) status with the expectedErrorOverMax" which {
 
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModel))
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -392,6 +434,9 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
       s"return a BAD_REQUEST($BAD_REQUEST) status with the expectedInvalidCharacters" which {
 
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModel))
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -414,6 +459,9 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
       s"return a BAD_REQUEST($BAD_REQUEST) status with the expectedEmptyError in welsh" which {
 
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModel))
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -436,6 +484,9 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
       s"return a BAD_REQUEST($BAD_REQUEST) status with the expectedErrorOverMax in welsh" which {
 
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModel))
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -458,6 +509,9 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
       s"return a BAD_REQUEST($BAD_REQUEST) status with the expectedInvalidCharacters in welsh" which {
 
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModel))
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"

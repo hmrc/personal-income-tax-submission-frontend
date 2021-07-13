@@ -19,14 +19,15 @@ package controllers.charity
 import common.SessionValues
 import forms.YesNoForm
 import helpers.PlaySessionCookieBaker
+import models.charity.GiftAidCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.{WSClient, WSResponse}
-import utils.{IntegrationTest, ViewHelpers}
+import utils.{GiftAidDatabaseHelper, IntegrationTest, ViewHelpers}
 
-class GiftAidQualifyingSharesSecuritiesControllerISpec extends IntegrationTest with ViewHelpers {
+class GiftAidQualifyingSharesSecuritiesControllerISpec extends IntegrationTest with ViewHelpers with GiftAidDatabaseHelper {
 
   object IndividualExpected {
     val expectedH1 = "Did you donate qualifying shares or securities to charity?"
@@ -56,6 +57,10 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends IntegrationTest w
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
   lazy val controller: GiftAidQualifyingSharesSecuritiesController = app.injector.instanceOf[GiftAidQualifyingSharesSecuritiesController]
 
+  val testModel: GiftAidCYAModel =
+    GiftAidCYAModel(donatedSharesSecuritiesLandOrProperty = Some(true))
+
+
   "as an individual" when {
     import IndividualExpected._
 
@@ -63,6 +68,9 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends IntegrationTest w
 
       "return a page" which {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModel))
           authoriseIndividual()
           await(wsClient.url(
             s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-shares-or-securities"
@@ -96,6 +104,9 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends IntegrationTest w
         "there is form data" in {
 
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModel))
             authoriseIndividual()
             await(
               wsClient.url(
@@ -115,6 +126,9 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends IntegrationTest w
         "there is no form data" which {
 
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModel))
             authoriseIndividual()
             await(wsClient.url(
               s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-shares-or-securities"
@@ -154,6 +168,9 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends IntegrationTest w
 
       "return a page" which {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModel))
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -191,6 +208,9 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends IntegrationTest w
 
         "there is form data" in {
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModel))
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
               SessionValues.CLIENT_MTDITID -> "1234567890",
               SessionValues.CLIENT_NINO -> "AA123456A"))
@@ -213,6 +233,9 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends IntegrationTest w
 
         "there is no form data" which {
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModel))
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
               SessionValues.CLIENT_MTDITID -> "1234567890",
               SessionValues.CLIENT_NINO -> "AA123456A"

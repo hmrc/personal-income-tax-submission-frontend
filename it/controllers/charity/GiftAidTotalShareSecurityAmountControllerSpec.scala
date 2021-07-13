@@ -18,14 +18,15 @@ package controllers.charity
 
 import common.SessionValues
 import helpers.PlaySessionCookieBaker
+import models.charity.GiftAidCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.{WSClient, WSResponse}
-import utils.{IntegrationTest, ViewHelpers}
+import utils.{GiftAidDatabaseHelper, IntegrationTest, ViewHelpers}
 
-class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with ViewHelpers {
+class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with ViewHelpers with GiftAidDatabaseHelper {
 
   val defaultTaxYear = 2022
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
@@ -81,6 +82,9 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
     val errorHref = "#amount"
   }
 
+  val testModel: GiftAidCYAModel = GiftAidCYAModel(donatedSharesOrSecurities = Some(true))
+
+
   "in english" when {
 
     "calling GET /2022/charity/value-of-shares-or-securities" when {
@@ -89,6 +93,9 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
 
         "return a page" which {
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModel))
             authoriseIndividual()
             await(wsClient.url(url)
               .withHttpHeaders(xSessionId, csrfContent).get())
@@ -120,6 +127,9 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
           ))
 
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModel))
             authoriseAgent()
             await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).get())
           }
@@ -151,6 +161,9 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
 
           "return an OK" in {
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseIndividual()
               await(wsClient.url(url)
                 .withHttpHeaders(xSessionId, csrfContent)
@@ -168,6 +181,9 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
 
           "the submitted data is empty" which {
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseIndividual()
               await(wsClient.url(url)
                 .withHttpHeaders(xSessionId, csrfContent)
@@ -193,7 +209,11 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
           }
 
           "the submitted data is too long" which {
+
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseIndividual()
               await(wsClient.url(url)
                 .withHttpHeaders(xSessionId, csrfContent)
@@ -220,6 +240,9 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
 
           "the submitted data is in the incorrect format" which {
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseIndividual()
               await(wsClient.url(url)
                 .withHttpHeaders(xSessionId, csrfContent)
@@ -259,6 +282,9 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
             ))
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseAgent()
               await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).post(Map[String, String](
                 "amount" -> "1234"
@@ -280,6 +306,9 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
             ))
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseAgent()
               await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).post(Map[String, String](
                 "amount" -> ""
@@ -310,6 +339,9 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
             ))
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseAgent()
               await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).post(Map(
                 "amount" -> "999999999999999999999999999999999999999999999999"
@@ -340,6 +372,9 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
             ))
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseAgent()
               await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).post(Map(
                 "amount" -> ":@~{}<>?"
@@ -377,6 +412,9 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
 
         "return a page" which {
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModel))
             authoriseIndividual()
             await(wsClient.url(url).withHttpHeaders(
               HeaderNames.ACCEPT_LANGUAGE -> "cy",
@@ -410,6 +448,9 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
           ))
 
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModel))
             authoriseAgent()
             await(wsClient.url(url).withHttpHeaders(
               HeaderNames.COOKIE -> playSessionCookies,
@@ -445,6 +486,9 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
 
           "return an OK" in {
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseIndividual()
               await(wsClient.url(url).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent).post(Map[String, String](
                 "amount" -> "1234"
@@ -460,6 +504,9 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
 
           "the submitted data is empty" which {
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseIndividual()
               await(wsClient.url(url).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent).post(Map[String, String](
                 "amount" -> ""
@@ -484,6 +531,9 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
 
           "the submitted data is too long" which {
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseIndividual()
               await(wsClient.url(url).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent).post(Map(
                 "amount" -> "999999999999999999999999999999999999999999999999"
@@ -508,6 +558,9 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
 
           "the submitted data is in the incorrect format" which {
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseIndividual()
               await(wsClient.url(url).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent).post(Map(
                 "amount" -> ":@~{}<>?"
@@ -545,6 +598,9 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
             ))
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseAgent()
               await(wsClient.url(url).withHttpHeaders(
                 HeaderNames.COOKIE -> playSessionCookies,
@@ -570,6 +626,9 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
             ))
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseAgent()
               await(wsClient.url(url).withHttpHeaders(
                 HeaderNames.COOKIE -> playSessionCookies,
@@ -604,6 +663,9 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
             ))
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseAgent()
               await(wsClient.url(url).withHttpHeaders(
                 HeaderNames.COOKIE -> playSessionCookies,
@@ -638,6 +700,9 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
             ))
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseAgent()
               await(wsClient.url(url).withHttpHeaders(
                 HeaderNames.COOKIE -> playSessionCookies,

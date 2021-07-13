@@ -18,14 +18,15 @@ package controllers.charity
 
 import common.SessionValues
 import helpers.PlaySessionCookieBaker
+import models.charity.GiftAidCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.{WSClient, WSResponse}
-import utils.{IntegrationTest, ViewHelpers}
+import utils.{GiftAidDatabaseHelper, IntegrationTest, ViewHelpers}
 
-class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends IntegrationTest with ViewHelpers {
+class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends IntegrationTest with ViewHelpers with GiftAidDatabaseHelper {
 
   val defaultTaxYear = 2022
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
@@ -80,6 +81,8 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
 
     val errorHref = "#amount"
   }
+  val testModel: GiftAidCYAModel =
+    GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrProperty = Some(true))
 
   "in english" when {
 
@@ -89,6 +92,9 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
 
         "return a page" which {
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModel))
             authoriseIndividual()
             await(
               wsClient.url(url)
@@ -123,6 +129,9 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
           ))
 
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModel))
             authoriseAgent()
             await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).get())
           }
@@ -154,6 +163,9 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
 
           "return an OK" in {
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseIndividual()
               await(wsClient.url(url)
                 .withHttpHeaders(xSessionId, csrfContent)
@@ -171,6 +183,9 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
 
           "the submitted data is empty" which {
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseIndividual()
               await(wsClient.url(url)
                 .withHttpHeaders(xSessionId, csrfContent)
@@ -197,6 +212,9 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
 
           "the submitted data is too long" which {
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseIndividual()
               await(wsClient.url(url)
                 .withHttpHeaders(xSessionId, csrfContent)
@@ -223,6 +241,9 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
 
           "the submitted data is in the incorrect format" which {
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseIndividual()
               await(wsClient.url(url)
                 .withHttpHeaders(xSessionId, csrfContent)
@@ -262,6 +283,9 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
             ))
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseAgent()
               await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).post(Map[String, String](
                 "amount" -> "1234"
@@ -283,6 +307,9 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
             ))
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseAgent()
               await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).post(Map[String, String](
                 "amount" -> ""
@@ -313,6 +340,9 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
             ))
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseAgent()
               await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).post(Map(
                 "amount" -> "999999999999999999999999999999999999999999999999"
@@ -343,6 +373,9 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
             ))
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseAgent()
               await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).post(Map(
                 "amount" -> ":@~{}<>?"
@@ -380,6 +413,9 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
 
         "return a page" which {
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModel))
             authoriseIndividual()
             await(wsClient.url(url).withHttpHeaders(
               HeaderNames.ACCEPT_LANGUAGE -> "cy",
@@ -413,6 +449,9 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
           ))
 
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModel))
             authoriseAgent()
             await(wsClient.url(url).withHttpHeaders(
               HeaderNames.COOKIE -> playSessionCookies,
@@ -448,6 +487,9 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
 
           "return an OK" in {
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseIndividual()
               await(wsClient.url(url).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent).post(Map[String, String](
                 "amount" -> "1234"
@@ -463,6 +505,9 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
 
           "the submitted data is empty" which {
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseIndividual()
               await(wsClient.url(url).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent).post(Map[String, String](
                 "amount" -> ""
@@ -487,6 +532,9 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
 
           "the submitted data is too long" which {
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseIndividual()
               await(wsClient.url(url).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent).post(Map(
                 "amount" -> "999999999999999999999999999999999999999999999999"
@@ -511,6 +559,9 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
 
           "the submitted data is in the incorrect format" which {
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseIndividual()
               await(wsClient.url(url).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent).post(Map(
                 "amount" -> ":@~{}<>?"
@@ -548,6 +599,9 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
             ))
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseAgent()
               await(wsClient.url(url).withHttpHeaders(
                 HeaderNames.COOKIE -> playSessionCookies,
@@ -573,6 +627,9 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
             ))
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseAgent()
               await(wsClient.url(url).withHttpHeaders(
                 HeaderNames.COOKIE -> playSessionCookies,
@@ -607,6 +664,9 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
             ))
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseAgent()
               await(wsClient.url(url).withHttpHeaders(
                 HeaderNames.COOKIE -> playSessionCookies,
@@ -641,6 +701,9 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
             ))
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
               authoriseAgent()
               await(wsClient.url(url).withHttpHeaders(
                 HeaderNames.COOKIE -> playSessionCookies,

@@ -19,14 +19,15 @@ package controllers.charity
 import common.SessionValues
 import forms.YesNoForm
 import helpers.PlaySessionCookieBaker
+import models.charity.GiftAidCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status.{OK, UNAUTHORIZED}
 import play.api.libs.ws.WSClient
-import utils.{IntegrationTest, ViewHelpers}
+import utils.{GiftAidDatabaseHelper, IntegrationTest, ViewHelpers}
 
-class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with ViewHelpers {
+class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with ViewHelpers with GiftAidDatabaseHelper{
 
   object Selectors {
     val question = ".govuk-fieldset__legend"
@@ -41,17 +42,17 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
     val headingAgentSingle = "Overseas charity your client donated shares, securities, land or property to"
     val headingAgentMultiple = "Overseas charities your client donated shares, securities, land or property to"
     val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
-    val charity1 = "overseasCharity1"
-    val charity2 = "overseasCharity2"
+    val charity1 = "John Doe"
+    val charity2 = "Jane Doe"
     val question = "Do you need to add another overseas charity?"
     val hintIndividual = "You must tell us about all the overseas charities you donated shares, securities, land or property to."
     val hintAgent = "You must tell us about all the overseas charities your client donated shares, securities, land or property to."
     val change = "Change"
     val remove = "Remove"
-    val hiddenChange1 = "Change the details you’ve entered for overseasCharity1."
-    val hiddenRemove1 = "Remove overseasCharity1."
-    val hiddenChange2 = "Change the details you’ve entered for overseasCharity2."
-    val hiddenRemove2 = "Remove overseasCharity2."
+    val hiddenChange1 = "Change the details you’ve entered for John Doe."
+    val hiddenRemove1 = "Remove John Doe."
+    val hiddenChange2 = "Change the details you’ve entered for Jane Doe."
+    val hiddenRemove2 = "Remove Jane Doe."
     val yes = "Yes"
     val no = "No"
     val errorSummary = "There is a problem"
@@ -65,23 +66,31 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
     val headingAgentSingle = "Overseas charity your client donated shares, securities, land or property to"
     val headingAgentMultiple = "Overseas charities your client donated shares, securities, land or property to"
     val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
-    val charity1 = "overseasCharity1"
-    val charity2 = "overseasCharity2"
+    val charity1 = "John Doe"
+    val charity2 = "Jane Doe"
     val question = "Do you need to add another overseas charity?"
     val hintIndividual = "You must tell us about all the overseas charities you donated shares, securities, land or property to."
     val hintAgent = "You must tell us about all the overseas charities your client donated shares, securities, land or property to."
     val change = "Change"
     val remove = "Remove"
-    val hiddenChange1 = "Change the details you’ve entered for overseasCharity1."
-    val hiddenRemove1 = "Remove overseasCharity1."
-    val hiddenChange2 = "Change the details you’ve entered for overseasCharity2."
-    val hiddenRemove2 = "Remove overseasCharity2."
+    val hiddenChange1 = "Change the details you’ve entered for John Doe."
+    val hiddenRemove1 = "Remove John Doe."
+    val hiddenChange2 = "Change the details you’ve entered for Jane Doe."
+    val hiddenRemove2 = "Remove Jane Doe."
     val yes = "Yes"
     val no = "No"
     val errorSummary = "There is a problem"
     val noSelectionError = "Select yes if you need to add another overseas charity"
     val button = "Continue"
   }
+  val testModelSingle: GiftAidCYAModel =
+    GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq("John Doe")))
+  val testModelMultiple: GiftAidCYAModel =
+    GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq("John Doe", "Jane Doe")))
+  val testModelComplete: GiftAidCYAModel =
+    GiftAidCYAModel(Some(true),Some(100.00),Some(true),Some(100.00),Some(true),Some(100.00),Some(Seq("Jack Doe"))
+      ,Some(true),Some(100.00),Some(true),Some(100.00),Some(true), Some(false),Some(100.00),Some(true),Some(100.00),
+      Some(true),Some(100.00), Some(Seq("John Doe")))
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
@@ -96,6 +105,9 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
       "the user is a non-agent" should {
 
         lazy val result = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModelSingle))
           authoriseIndividual()
           await(wsClient.url(overseasSharesLandSummaryUrl)
             .withHttpHeaders(xSessionId, csrfContent)
@@ -125,6 +137,9 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
       "the user is an agent" should {
 
         lazy val result = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModelSingle))
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -162,6 +177,9 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
       "the user is a non-agent" should {
 
         lazy val result = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModelSingle))
           authoriseIndividual()
           await(wsClient.url(overseasSharesLandSummaryUrl).withHttpHeaders(
             HeaderNames.ACCEPT_LANGUAGE -> "cy",
@@ -192,6 +210,9 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
       "the user is an agent" should {
 
         lazy val result = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModelSingle))
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
@@ -227,6 +248,9 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
     "the user is unauthorized" should {
 
       lazy val result = {
+        dropGiftAidDB()
+        emptyUserDataStub()
+        insertCyaData(Some(testModelSingle))
         authoriseIndividualUnauthorized()
         await(
           wsClient.url(overseasSharesLandSummaryUrl)
@@ -249,6 +273,9 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
 
         "the submitted data is empty" which {
           lazy val result = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModelSingle))
             authoriseIndividual()
             await(wsClient.url(overseasSharesLandSummaryUrl)
               .withHttpHeaders(xSessionId, csrfContent)
@@ -274,6 +301,9 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
       "an option is selected" should {
 
         lazy val result = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModelComplete))
           authoriseIndividual()
           await(wsClient.url(overseasSharesLandSummaryUrl)
             .withHttpHeaders(xSessionId, csrfContent)
@@ -298,6 +328,9 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
           ))
 
           lazy val result = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModelSingle))
             authoriseAgent()
             await(wsClient.url(overseasSharesLandSummaryUrl).withHttpHeaders(
               HeaderNames.COOKIE -> playSessionCookies,
@@ -331,13 +364,13 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
         ))
 
         lazy val result = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModelSingle.copy(overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(BigDecimal(125.00)))))
           authoriseAgent()
-          await(wsClient.url(overseasSharesLandSummaryUrl).withHttpHeaders(
-            HeaderNames.COOKIE -> playSessionCookies,
-            xSessionId, csrfContent
-          ).post(Map[String, String](
-            YesNoForm.yesNo -> YesNoForm.yes
-          )))
+          await(wsClient.url(overseasSharesLandSummaryUrl)
+            .withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent)
+            .post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
         }
 
         "return a 200(Ok) status" in {
@@ -354,6 +387,9 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
 
           "the submitted data is empty" which {
             lazy val result = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModelSingle))
               authoriseIndividual()
               await(wsClient.url(overseasSharesLandSummaryUrl)
                 .withHttpHeaders(xSessionId, csrfContent)
@@ -379,6 +415,9 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
         "an option is selected" should {
 
           lazy val result = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModelComplete))
             authoriseIndividual()
             await(wsClient.url(overseasSharesLandSummaryUrl)
               .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
@@ -403,6 +442,9 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
             ))
 
             lazy val result = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModelSingle))
               authoriseAgent()
               await(wsClient.url(overseasSharesLandSummaryUrl).withHttpHeaders(
                 HeaderNames.COOKIE -> playSessionCookies,
@@ -437,6 +479,9 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
           ))
 
           lazy val result = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModelSingle.copy(overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(100.00))))
             authoriseAgent()
             await(wsClient.url(overseasSharesLandSummaryUrl).withHttpHeaders(
               HeaderNames.COOKIE -> playSessionCookies,
