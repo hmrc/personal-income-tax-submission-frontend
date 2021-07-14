@@ -17,13 +17,11 @@
 package controllers.interest
 
 import com.github.tomakehurst.wiremock.http.HttpHeader
-import common.InterestTaxTypes
-import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
+import models.interest.{InterestAccountModel, InterestCYAModel}
 import models.priorDataModels.{IncomeSourcesModel, InterestModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status.{NOT_FOUND, NO_CONTENT, OK, SEE_OTHER, UNAUTHORIZED}
-import play.api.libs.ws.WSClient
 import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
 
 class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHelper with ViewHelpers {
@@ -183,7 +181,91 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
 
       val specific = us.specificExpectedResults.get
 
-      s"return 200 with the InterestCYA page - ${welshTest(us.isWelsh)} - ${agentTest(us.isAgent)}" which {
+      s"attempt to return the InterestCYA page - ${welshTest(us.isWelsh)} - ${agentTest(us.isAgent)}" which {
+
+        "has the untaxedUkInterest & taxedUkInterest question answered but with no accounts" which {
+          val cyaModel = InterestCYAModel(
+            untaxedUkInterest = Some(false),
+            taxedUkInterest = Some(true)
+          )
+
+          lazy val result = {
+            dropInterestDB()
+            emptyUserDataStub()
+            insertCyaData(Some(cyaModel))
+            authoriseAgentOrIndividual(us.isAgent)
+            urlGet(s"$appUrl/$taxYear/interest/check-interest", us.isWelsh, follow = false,  playSessionCookie(us.isAgent))
+          }
+
+          s"then redirects and has an SEE OTHER status" in {
+            result.status shouldBe SEE_OTHER
+            result.header("Location").get shouldBe
+              "/income-through-software/return/personal-income/2022/interest/which-account-did-you-get-taxed-interest-from"
+          }
+        }
+
+        "only has the untaxedUkInterest question answered with no" which {
+          val cyaModel = InterestCYAModel(
+            untaxedUkInterest = Some(false)
+          )
+
+          lazy val result = {
+            dropInterestDB()
+            emptyUserDataStub()
+            insertCyaData(Some(cyaModel))
+            authoriseAgentOrIndividual(us.isAgent)
+            urlGet(s"$appUrl/$taxYear/interest/check-interest", us.isWelsh, follow = false,  playSessionCookie(us.isAgent))
+          }
+
+          s"then redirects and has an SEE OTHER status" in {
+            result.status shouldBe SEE_OTHER
+            result.header("Location").get shouldBe
+              "/income-through-software/return/personal-income/2022/interest/taxed-uk-interest"
+          }
+        }
+
+        "only has the untaxedUkInterest questions answered" which {
+          val cyaModel = InterestCYAModel(
+            untaxedUkInterest = Some(true),
+            accounts = Some(Seq(
+              InterestAccountModel(Some("id"), "UntaxedBank1", Some(100.00))
+            ))
+          )
+
+          lazy val result = {
+            dropInterestDB()
+            emptyUserDataStub()
+            insertCyaData(Some(cyaModel))
+            authoriseAgentOrIndividual(us.isAgent)
+            urlGet(s"$appUrl/$taxYear/interest/check-interest", us.isWelsh, follow = false,  playSessionCookie(us.isAgent))
+          }
+
+          s"then redirects and has an SEE OTHER status" in {
+            result.status shouldBe SEE_OTHER
+            result.header("Location").get shouldBe
+              "/income-through-software/return/personal-income/2022/interest/taxed-uk-interest"
+          }
+        }
+
+        "only has the untaxedUkInterest question answered" which {
+          val cyaModel = InterestCYAModel(
+            untaxedUkInterest = Some(true)
+          )
+
+          lazy val result = {
+            dropInterestDB()
+            emptyUserDataStub()
+            insertCyaData(Some(cyaModel))
+            authoriseAgentOrIndividual(us.isAgent)
+            urlGet(s"$appUrl/$taxYear/interest/check-interest", us.isWelsh, follow = false,  playSessionCookie(us.isAgent))
+          }
+
+          s"then redirects and has an SEE OTHER status" in {
+            result.status shouldBe SEE_OTHER
+            result.header("Location").get shouldBe
+              "/income-through-software/return/personal-income/2022/interest/which-account-did-you-get-untaxed-interest-from"
+          }
+        }
 
         "renders a page with all the fields" which {
           val cyaModel = InterestCYAModel(
@@ -371,8 +453,8 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
 
           s"has an SEE_OTHER($SEE_OTHER) status" in {
             result.status shouldBe SEE_OTHER
+            result.header("Location").get shouldBe "http://localhost:11111/income-through-software/return/2022/view"
           }
-
         }
 
         "the authorization fails" which {
