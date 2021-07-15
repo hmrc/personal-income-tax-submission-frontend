@@ -21,7 +21,7 @@ import models.interest.{InterestAccountModel, InterestCYAModel}
 import models.priorDataModels.{IncomeSourcesModel, InterestModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import play.api.http.Status.{NOT_FOUND, NO_CONTENT, OK, SEE_OTHER, UNAUTHORIZED}
+import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, NO_CONTENT, OK, SEE_OTHER, UNAUTHORIZED}
 import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
 
 class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHelper with ViewHelpers {
@@ -46,6 +46,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
     val questionSelector: Int => String = questionNumber => s".govuk-summary-list__row:nth-child($questionNumber) > .govuk-summary-list__key"
     val questionAccountSelector: (Int, Int, Int) => String = (questionNumber, accountNumber,account) =>
       s"#question-$questionNumber-account-$account:nth-child($accountNumber)"
+
     val questionChangeLinkSelector: Int => String = questionNumber => s"#main-content > div > div > dl > div:nth-child($questionNumber) " +
       s"> dd.govuk-summary-list__actions > a"
     val questionTextSelector: Int => String = question => s"#main-content > div > div > dl > div:nth-child($question) > dt"
@@ -201,6 +202,42 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
             result.status shouldBe SEE_OTHER
             result.header("Location").get shouldBe
               "/income-through-software/return/personal-income/2022/interest/which-account-did-you-get-taxed-interest-from"
+          }
+        }
+
+        "create a CYA model from prior data if no cya exists" which {
+
+          lazy val result = {
+            dropInterestDB()
+            userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel("accountName", "id", Some(amount), Some(amount))))), nino, taxYear)
+            authoriseAgentOrIndividual(us.isAgent)
+            urlGet(s"$appUrl/$taxYear/interest/check-interest", us.isWelsh, follow = false,  playSessionCookie(us.isAgent))
+          }
+
+          s"has an OK($OK) status" in {
+            result.status shouldBe OK
+          }
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          titleCheck(specific.titleExpected)
+          welshToggleCheck(us.isWelsh)
+          h1Check(specific.h1Expected + " " + captionExpected)
+          textOnPageCheck(captionExpected, captionSelector)
+
+          buttonCheck(submitText, submitButton)
+          formPostLinkCheck(submitLink, submitButtonForm)
+
+          "has an area for untaxed accounts" which {
+            textOnPageCheck(questionUntaxedInterestDetailsExpected, questionSelector(1))
+            textOnPageCheck("accountName : £25", questionAccountSelector(2, 1, 1))
+            linkCheck(s"$changeLinkExpected ${specific.changeUntaxedDetailsHiddenText}", questionChangeLinkSelector(1), changeUntaxedInterestAmountHref)
+          }
+
+          "has an area for taxed accounts" which {
+            textOnPageCheck(question4TaxedInterestDetailExpected, questionSelector(2))
+            textOnPageCheck("accountName : £25", questionAccountSelector(4, 1, 1))
+            linkCheck(s"$changeLinkExpected ${specific.changeTaxedDetailsHiddenText}", questionChangeLinkSelector(2), changeTaxedInterestAmountHref)
           }
         }
 
@@ -471,70 +508,80 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
 
       }
     }
-
   }
 
-  ".post" should {
 
-    val expectedHeaders = Seq(new HttpHeader("mtditid", mtditid))
+  ".submit" should {
 
-    "return an action" which {
+    userScenarios.foreach { us =>
 
-      s"has an OK($OK) status" in {
+      val expectedHeaders = Seq(new HttpHeader("mtditid", mtditid))
 
-        lazy val result = {
-          dropInterestDB()
-          emptyUserDataStub()
-          insertCyaData(Some(InterestCYAModel(
-            Some(false), Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))))
-          )), taxYear, Some(mtditid), None)
-          authoriseIndividual()
-          stubGet(s"/income-through-software/return/$taxYear/view", OK, "")
-          stubPost(s"/income-tax-interest/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "", expectedHeaders)
+      s"attempt to return the InterestCYA page - ${welshTest(us.isWelsh)} - ${agentTest(us.isAgent)}" which {
 
-          await(wsClient.url(s"$appUrl/$taxYear/interest/check-interest")
-            .withHttpHeaders(xSessionId, csrfContent)
-            .post("{}"))
+        s"has an OK($OK) status" in {
+
+          lazy val result = {
+            dropInterestDB()
+            emptyUserDataStub()
+            insertCyaData(Some(InterestCYAModel(
+              Some(false), Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))))
+            )), taxYear, Some(mtditid), None)
+            authoriseIndividual()
+            stubGet(s"/income-through-software/return/$taxYear/view", OK, "")
+            stubPost(s"/income-tax-interest/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "", expectedHeaders)
+
+            urlPost(s"$appUrl/$taxYear/interest/check-interest", "{}", us.isWelsh, follow = true, playSessionCookie(us.isAgent))
+          }
+
+          result.status shouldBe OK
         }
 
-        result.status shouldBe OK
-      }
+        s"returns the internal server error page when no CYA" in {
 
-      s"handle no nino is in the enrolments" in {
-        lazy val result = {
-          dropInterestDB()
-          emptyUserDataStub()
-          insertCyaData(Some(InterestCYAModel(
-            Some(false),
-            Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))))
-          )))
-          authoriseIndividual(None)
-          await(wsClient.url(s"$appUrl/$taxYear/interest/check-interest")
-            .withHttpHeaders(xSessionId, csrfContent)
-            .post("{}"))
+          lazy val result = {
+            dropInterestDB()
+            emptyUserDataStub()
+            insertCyaData(None)
+            authoriseIndividual()
+            stubPost(s"/income-tax-interest/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "", expectedHeaders)
+            urlPost(s"$appUrl/$taxYear/interest/check-interest", "{}", us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+          }
+
+          result.status shouldBe INTERNAL_SERVER_ERROR
         }
 
-        result.status shouldBe NOT_FOUND
-      }
+        s"redirect when there is no session" in {
+          lazy val result = {
+            dropInterestDB()
+            emptyUserDataStub()
+            insertCyaData(Some(InterestCYAModel(
+              Some(false),
+              Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))))
+            )))
+            authoriseIndividual(None)
+            urlPost(s"$appUrl/$taxYear/interest/check-interest", "{}", us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+          }
 
-      "the authorization fails" in {
-        lazy val result = {
-          dropInterestDB()
-          emptyUserDataStub()
-          insertCyaData(Some(InterestCYAModel(
-            Some(false),
-            Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))))
-          )))
-          authoriseIndividualUnauthorized()
-          await(wsClient.url(s"$appUrl/$taxYear/interest/check-interest")
-            .withHttpHeaders(xSessionId, csrfContent)
-            .post("{}"))
+          result.status shouldBe SEE_OTHER
         }
 
-        result.status shouldBe UNAUTHORIZED
+        "the authorization fails" in {
+          lazy val result = {
+            dropInterestDB()
+            emptyUserDataStub()
+            insertCyaData(Some(InterestCYAModel(
+              Some(false),
+              Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))))
+            )))
+            authoriseIndividualUnauthorized()
+            urlPost(s"$appUrl/$taxYear/interest/check-interest", "{}", us.isWelsh, follow = true, playSessionCookie(us.isAgent))
+          }
 
+          result.status shouldBe UNAUTHORIZED
+
+        }
       }
-
     }
   }
 }
