@@ -19,6 +19,7 @@ package controllers.interest
 import common.InterestTaxTypes.{TAXED, UNTAXED}
 import forms.YesNoForm
 import models.interest.{InterestAccountModel, InterestCYAModel}
+import models.priorDataModels.{IncomeSourcesModel, InterestModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER, UNAUTHORIZED}
@@ -155,6 +156,60 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
                 formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, UNTAXED, untaxedInterestAccount.id.get).url, continueButtonFormSelector)
               }
 
+              "The account is not the last account when they have prior data for untaxed" which {
+                lazy val result: WSResponse = {
+                  dropInterestDB()
+                  userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel("firstAccountName", "Id", Some(123), Some(123)))), None), nino, taxYear)
+                  insertCyaData(Some(InterestCYAModel(
+                    Some(true), Some(true),Some(Seq(untaxedInterestAccount, taxedInterestAccount)),
+                  )))
+                  authoriseAgentOrIndividual(us.isAgent)
+                  urlGet(s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId", us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+                }
+
+                s"has an OK($OK) status" in {
+                  result.status shouldBe OK
+                }
+
+                implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+                titleCheck(expectedTitle)
+                welshToggleCheck(us.isWelsh)
+                textOnPageCheck(expectedCaption, captionSelector)
+                h1Check(expectedH1 + " " + expectedCaption)
+                radioButtonCheck(yesText, 1)
+                radioButtonCheck(noText, 2)
+                buttonCheck(continueText, continueButtonSelector)
+                formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, UNTAXED, untaxedInterestAccount.id.get).url, continueButtonFormSelector)
+              }
+
+              "The account is not the last account when they have prior data for taxed" which {
+                lazy val result: WSResponse = {
+                  dropInterestDB()
+                  userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel("firstAccountName", "Id", Some(123), Some(123)))), None), nino, taxYear)
+                  insertCyaData(Some(InterestCYAModel(
+                    Some(true), Some(true),Some(Seq(untaxedInterestAccount, taxedInterestAccount)),
+                  )))
+                  authoriseAgentOrIndividual(us.isAgent)
+                  urlGet(s"$appUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId", us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+                }
+
+                s"has an OK($OK) status" in {
+                  result.status shouldBe OK
+                }
+
+                implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+                titleCheck(expectedTitle)
+                welshToggleCheck(us.isWelsh)
+                textOnPageCheck(expectedCaption, captionSelector)
+                h1Check(expectedH1 + " " + expectedCaption)
+                radioButtonCheck(yesText, 1)
+                radioButtonCheck(noText, 2)
+                buttonCheck(continueText, continueButtonSelector)
+                formPostLinkCheck(controllers.interest.routes.RemoveAccountController.submit(taxYear, TAXED, taxedInterestAccount.id.get).url, continueButtonFormSelector)
+              }
+
               "The last account is being removed" which {
                 lazy val result: WSResponse = {
                   dropInterestDB()
@@ -185,7 +240,6 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
 
             }
           }
-
         }
 
         "return 303 with valid redirect url" when {
@@ -204,6 +258,101 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
 
             "redirects to the correct URL" in {
               result.headers("Location").head shouldBe "http://localhost:11111/income-through-software/return/2022/view"
+            }
+          }
+
+          "there is no valid CYA account data in session for untaxed" which {
+            lazy val result = {
+              dropInterestDB()
+              emptyUserDataStub()
+              insertCyaData(Some(InterestCYAModel(
+                Some(true), Some(false),Some(Seq(taxedInterestAccount))
+              )))
+              authoriseAgentOrIndividual(us.isAgent)
+              urlGet(s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId", us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+            }
+
+            s"has a SEE_OTHER($SEE_OTHER) status" in {
+              result.status shouldBe SEE_OTHER
+            }
+
+            "redirects to the correct URL" in {
+              result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/untaxed-uk-interest"
+            }
+          }
+
+          "there is CYA account data in session for untaxed but not for the id" which {
+            lazy val result = {
+              dropInterestDB()
+              emptyUserDataStub()
+              insertCyaData(Some(InterestCYAModel(
+                Some(true), Some(false),Some(Seq(untaxedInterestAccount))
+              )))
+              authoriseAgentOrIndividual(us.isAgent)
+              urlGet(s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId2", us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+            }
+
+            s"has a SEE_OTHER($SEE_OTHER) status" in {
+              result.status shouldBe SEE_OTHER
+            }
+
+            "redirects to the correct URL" in {
+              result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/untaxed-uk-interest"
+            }
+          }
+          "there is no valid CYA account data in session for taxed" which {
+            lazy val result = {
+              dropInterestDB()
+              emptyUserDataStub()
+              insertCyaData(Some(InterestCYAModel(
+                Some(false), Some(true),Some(Seq(untaxedInterestAccount))
+              )))
+              authoriseAgentOrIndividual(us.isAgent)
+              urlGet(s"$appUrl/$taxYear/interest/remove-taxed-interest-account?accountId=UntaxedId", us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+            }
+
+            s"has a SEE_OTHER($SEE_OTHER) status" in {
+              result.status shouldBe SEE_OTHER
+            }
+
+            "redirects to the correct URL" in {
+              result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/taxed-uk-interest"
+            }
+          }
+
+          "there is prior untaxed data for id" which {
+            lazy val result = {
+              dropInterestDB()
+              userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel("firstAccountName", "UntaxedId", Some(123), Some(123)))), None), nino, taxYear)
+              insertCyaData(None)
+              authoriseAgentOrIndividual(us.isAgent)
+              urlGet(s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId", us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+            }
+
+            s"has a SEE_OTHER($SEE_OTHER) status" in {
+              result.status shouldBe SEE_OTHER
+            }
+
+            "redirects to the correct URL" in {
+              result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/accounts-with-untaxed-uk-interest"
+            }
+          }
+
+          "there is prior taxed data for id" which {
+            lazy val result = {
+              dropInterestDB()
+              userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel("firstAccountName", "TaxedId", Some(123), Some(123)))), None), nino, taxYear)
+              insertCyaData(None)
+              authoriseAgentOrIndividual(us.isAgent)
+              urlGet(s"$appUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId", us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+            }
+
+            s"has a SEE_OTHER($SEE_OTHER) status" in {
+              result.status shouldBe SEE_OTHER
+            }
+
+            "redirects to the correct URL" in {
+              result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/accounts-with-taxed-uk-interest"
             }
           }
         }
@@ -321,12 +470,12 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
         }
       }
     }
-
   }
 
   ".submit" when {
 
     val yesNoFormYes: Map[String, String] = Map(YesNoForm.yesNo -> YesNoForm.yes)
+    val yesNoFormNo: Map[String, String] = Map(YesNoForm.yesNo -> YesNoForm.no)
     val yesNoFormEmpty: Map[String, String] = Map(YesNoForm.yesNo -> "")
 
     userScenarios.foreach { us =>
@@ -334,6 +483,138 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
       import us.commonExpectedResults._
 
       s"user is ${agentTest(us.isAgent)} and request is ${welshTest(us.isWelsh)} - UNTAXED" should {
+
+        "remove the account" when {
+          "there is CYA data in session and they have selected yes for untaxed" in {
+            lazy val result: WSResponse = {
+              dropInterestDB()
+              emptyUserDataStub()
+              insertCyaData(Some(InterestCYAModel(
+                Some(true), Some(true), Some(Seq(untaxedInterestAccount,taxedInterestAccount)),
+              )))
+              authoriseAgentOrIndividual(us.isAgent)
+
+              urlPost(
+                s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId",
+                yesNoFormYes,
+                us.isWelsh,
+                follow = false,
+                playSessionCookie(us.isAgent)
+              )
+            }
+
+            result.status shouldBe SEE_OTHER
+            result.header("Location") shouldBe Some("/income-through-software/return/personal-income/2022/interest/check-interest")
+          }
+          "there is CYA data in session and they have selected yes for taxed" in {
+            lazy val result: WSResponse = {
+              dropInterestDB()
+              emptyUserDataStub()
+              insertCyaData(Some(InterestCYAModel(
+                Some(true), Some(true), Some(Seq(untaxedInterestAccount,taxedInterestAccount)),
+              )))
+              authoriseAgentOrIndividual(us.isAgent)
+
+              urlPost(
+                s"$appUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId",
+                yesNoFormYes,
+                us.isWelsh,
+                follow = false,
+                playSessionCookie(us.isAgent)
+              )
+            }
+
+            result.status shouldBe SEE_OTHER
+            result.header("Location") shouldBe Some("/income-through-software/return/personal-income/2022/interest/check-interest")
+          }
+          "there is CYA data in session and they have selected yes for taxed when account has both amounts" in {
+            lazy val result: WSResponse = {
+              dropInterestDB()
+              emptyUserDataStub()
+              insertCyaData(Some(InterestCYAModel(
+                Some(true), Some(true), Some(Seq(untaxedInterestAccount.copy(taxedAmount = Some(55)),taxedInterestAccount.copy(untaxedAmount = Some(55)))),
+              )))
+              authoriseAgentOrIndividual(us.isAgent)
+
+              urlPost(
+                s"$appUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId",
+                yesNoFormYes,
+                us.isWelsh,
+                follow = false,
+                playSessionCookie(us.isAgent)
+              )
+            }
+
+            result.status shouldBe SEE_OTHER
+            result.header("Location") shouldBe Some("/income-through-software/return/personal-income/2022/interest/accounts-with-taxed-uk-interest")
+          }
+          "there is CYA data in session and they have selected yes for untaxed when account has both amounts" in {
+            lazy val result: WSResponse = {
+              dropInterestDB()
+              emptyUserDataStub()
+              insertCyaData(Some(InterestCYAModel(
+                Some(true), Some(true), Some(Seq(untaxedInterestAccount.copy(taxedAmount = Some(55)),taxedInterestAccount.copy(untaxedAmount = Some(55)))),
+              )))
+              authoriseAgentOrIndividual(us.isAgent)
+
+              urlPost(
+                s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId",
+                yesNoFormYes,
+                us.isWelsh,
+                follow = false,
+                playSessionCookie(us.isAgent)
+              )
+            }
+
+            result.status shouldBe SEE_OTHER
+            result.header("Location") shouldBe Some("/income-through-software/return/personal-income/2022/interest/accounts-with-untaxed-uk-interest")
+          }
+        }
+
+        "redirect" when {
+          "there is CYA data in session and they have selected no" in {
+            lazy val result: WSResponse = {
+              dropInterestDB()
+              emptyUserDataStub()
+              insertCyaData(Some(InterestCYAModel(
+                Some(true), Some(true), Some(Seq(untaxedInterestAccount,taxedInterestAccount)),
+              )))
+              authoriseAgentOrIndividual(us.isAgent)
+
+              urlPost(
+                s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId",
+                yesNoFormNo,
+                us.isWelsh,
+                follow = false,
+                playSessionCookie(us.isAgent)
+              )
+            }
+
+            result.status shouldBe SEE_OTHER
+            result.header("Location") shouldBe Some("/income-through-software/return/personal-income/2022/interest/accounts-with-untaxed-uk-interest")
+          }
+          "there is no valid CYA data in session and they have selected yes" in {
+            lazy val result: WSResponse = {
+              dropInterestDB()
+              emptyUserDataStub()
+              insertCyaData(Some(InterestCYAModel(
+                Some(true), Some(true), Some(Seq(taxedInterestAccount)),
+              )))
+              authoriseAgentOrIndividual(us.isAgent)
+
+              urlPost(
+                s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId",
+                yesNoFormYes,
+                us.isWelsh,
+                follow = false,
+                playSessionCookie(us.isAgent)
+              )
+            }
+
+            result.status shouldBe SEE_OTHER
+            result.header("Location") shouldBe Some("/income-through-software/return/personal-income/2022/interest/untaxed-uk-interest")
+          }
+        }
 
         "return SEE_OTHER which redirects to overview page" when {
           "there is no CYA data in session" in {
@@ -354,6 +635,32 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
 
             result.status shouldBe SEE_OTHER
             result.header("Location") shouldBe Some("http://localhost:11111/income-through-software/return/2022/view")
+          }
+        }
+
+        "return a redirect" when {
+          "there is prior data for id" which {
+            lazy val result = {
+              dropInterestDB()
+              userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel("firstAccountName", "UntaxedId", Some(123), Some(123)))), None), nino, taxYear)
+              insertCyaData(None)
+              authoriseAgentOrIndividual(us.isAgent)
+              urlPost(
+                s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId",
+                yesNoFormYes,
+                us.isWelsh,
+                follow = false,
+                playSessionCookie(us.isAgent)
+              )
+            }
+
+            s"has a SEE_OTHER($SEE_OTHER) status" in {
+              result.status shouldBe SEE_OTHER
+            }
+
+            "redirects to the correct URL" in {
+              result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/accounts-with-untaxed-uk-interest"
+            }
           }
         }
 
@@ -508,7 +815,5 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
         }
       }
     }
-
   }
-
 }

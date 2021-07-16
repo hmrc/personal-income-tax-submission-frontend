@@ -18,14 +18,11 @@ package controllers.interest
 
 import java.util.UUID
 
-import common.SessionValues
 import forms.interest.UntaxedInterestAmountForm
-import helpers.PlaySessionCookieBaker
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import models.priorDataModels.{IncomeSourcesModel, InterestModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import play.api.http.HeaderNames
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER, UNAUTHORIZED}
 import play.api.libs.ws.WSResponse
 import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
@@ -51,7 +48,28 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
     val errorMessage: String = "#value-error"
   }
 
-  object Content {
+  trait SpecificExpectedResults {
+    val noAmountEntryError: String
+  }
+
+  trait CommonExpectedResults {
+    val heading: String
+    val caption: String
+    val accountName: String
+    val eachAccount: String
+    val interestEarned: String
+    val hint: String
+    val button: String
+    val noNameEntryError: String
+    val invalidCharEntry: String
+    val nameTooLongError: String
+    val duplicateNameError: String
+    val tooMuchMoneyError: String
+    val incorrectFormatError: String
+    val errorTitle: String
+  }
+
+  object CommonExpectedEN extends CommonExpectedResults {
     val heading: String = "Add an account with untaxed UK interest"
     val caption: String = "Interest for 6 April 2021 to 5 April 2022"
     val accountName: String = "What do you want to name this account?"
@@ -59,54 +77,195 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
     val interestEarned: String = "Amount of untaxed UK interest"
     val hint: String = "For example, ‘HSBC savings account’. " + "For example, £600 or £193.54"
     val button: String = "Continue"
-
     val noNameEntryError: String = "Enter a name for this account"
     val invalidCharEntry: String = "Name of account with untaxed UK interest must only include numbers 0-9, " +
       "letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets, and the special characters &, /, @, £, *"
     val nameTooLongError: String = "The name of the account must be 32 characters or fewer"
     val duplicateNameError: String = "You cannot add 2 accounts with the same name"
-
-    val noAmountEntryErrorIndividual = "Enter the amount of untaxed UK interest you got"
-    val noAmountEntryErrorAgent = "Enter the amount of untaxed UK interest your client got"
     val tooMuchMoneyError = "The amount of untaxed UK interest must be less than £100,000,000,000"
     val incorrectFormatError = "Enter the amount of untaxed UK interest in the correct format"
-
     val errorTitle: String = s"Error: $heading"
-
-    val changeAmountPageTitle: String = "How much untaxed UK interest did you get?"
   }
 
-  object WelshContent {
+  object CommonExpectedCY extends CommonExpectedResults {
     val heading: String = "Add an account with untaxed UK interest"
     val caption: String = "Interest for 6 April 2021 to 5 April 2022"
     val accountName: String = "What do you want to name this account?"
+    val eachAccount = "Give each account a different name."
     val interestEarned: String = "Amount of untaxed UK interest"
     val hint: String = "For example, ‘HSBC savings account’. " + "For example, £600 or £193.54"
     val button: String = "Continue"
-
     val noNameEntryError: String = "Enter a name for this account"
     val invalidCharEntry: String = "Name of account with untaxed UK interest must only include numbers 0-9, " +
       "letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets, and the special characters &, /, @, £, *"
     val nameTooLongError: String = "The name of the account must be 32 characters or fewer"
     val duplicateNameError: String = "You cannot add 2 accounts with the same name"
-
-    val noAmountEntryErrorIndividual = "Enter the amount of untaxed UK interest you got"
-    val noAmountEntryErrorAgent = "Enter the amount of untaxed UK interest your client got"
     val tooMuchMoneyError = "The amount of untaxed UK interest must be less than £100,000,000,000"
     val incorrectFormatError = "Enter the amount of untaxed UK interest in the correct format"
-
     val errorTitle: String = s"Error: $heading"
   }
 
-  def untaxedInterestAmountUrl(newId: String): String = s"$appUrl/$taxYear/interest/add-untaxed-uk-interest-account/$newId"
+  object ExpectedIndividualEN extends SpecificExpectedResults {
+    val noAmountEntryError = "Enter the amount of untaxed UK interest you got"
+  }
 
-  s"Calling GET /interest/add-untaxed-uk-interest-account/$id" when {
+  object ExpectedAgentEN extends SpecificExpectedResults {
+    val noAmountEntryError = "Enter the amount of untaxed UK interest your client got"
+  }
 
-    "the user is authorised" when {
+  object ExpectedIndividualCY extends SpecificExpectedResults {
+    val noAmountEntryError = "Enter the amount of untaxed UK interest you got"
+  }
 
-      "the user is a non-agent" should {
+  object ExpectedAgentCY extends SpecificExpectedResults {
+    val noAmountEntryError = "Enter the amount of untaxed UK interest your client got"
+  }
 
-        lazy val result = {
+  val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
+    Seq(
+      UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
+      UserScenario(isWelsh = false, isAgent = true, CommonExpectedEN, Some(ExpectedAgentEN)),
+      UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, Some(ExpectedIndividualCY)),
+      UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY))
+    )
+  }
+
+  def url(newId: String): String = s"$appUrl/$taxYear/interest/add-untaxed-uk-interest-account/$newId"
+
+  ".show" when {
+
+    userScenarios.foreach { us =>
+
+      import us.commonExpectedResults._
+
+      val specific = us.specificExpectedResults.get
+
+      s"user is ${agentTest(us.isAgent)} and request is ${welshTest(us.isWelsh)}" should {
+
+        "return OK and correctly render the page" when {
+          lazy val result = {
+            dropInterestDB()
+            emptyUserDataStub()
+            insertCyaData(Some(InterestCYAModel(
+              Some(true), Some(false), Some(Seq(
+                InterestAccountModel(Some("differentId"), firstAccountName, Some(amount)),
+                InterestAccountModel(None, secondAccountName, Some(amount), uniqueSessionId = Some(id))
+              ))
+            )))
+            authoriseAgentOrIndividual(us.isAgent)
+            urlGet(url(id), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+          }
+
+          s"has an OK($OK) status" in {
+            result.status shouldBe OK
+          }
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          titleCheck(heading)
+          welshToggleCheck(us.isWelsh)
+          h1Check(s"$heading $caption")
+          captionCheck(caption)
+          textOnPageCheck(accountName, Selectors.accountName)
+          textOnPageCheck(eachAccount, Selectors.eachAccount)
+          inputFieldCheck(UntaxedInterestAmountForm.untaxedAccountName, Selectors.accountNameInput)
+          textOnPageCheck(interestEarned, Selectors.interestEarned)
+          hintTextCheck(hint)
+          inputFieldCheck(UntaxedInterestAmountForm.untaxedAmount, Selectors.amountInput)
+          buttonCheck(button)
+
+          elementExtinct(Selectors.errorSummary)
+          elementExtinct(Selectors.firstError)
+          elementExtinct(Selectors.errorMessage)
+        }
+
+        "redirect when the id is not a UUID" which {
+          lazy val result = {
+            dropInterestDB()
+            emptyUserDataStub()
+            insertCyaData(Some(InterestCYAModel(Some(true), Some(false), None)))
+            authoriseAgentOrIndividual(us.isAgent)
+            urlGet(url("id"), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+          }
+
+          s"has an SEE OTHER status" in {
+            result.status shouldBe SEE_OTHER
+            result.header("Location").get should include(
+              "/income-through-software/return/personal-income/2022/interest/add-untaxed-uk-interest-account/")
+          }
+        }
+
+        "redirect to the change amount page" when {
+
+          "the id matches a prior submission" which {
+            lazy val result = {
+              dropInterestDB()
+              userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel(firstAccountName, id, None, Some(amount)))), None), nino, taxYear)
+              insertCyaData(Some(InterestCYAModel(
+                Some(true), Some(false),
+                Some(Seq(InterestAccountModel(Some(id), firstAccountName, Some(amount), None, Some(id))))
+              )), taxYear, None, Some(nino))
+              authoriseAgentOrIndividual(us.isAgent)
+              urlGet(url(id), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+            }
+
+            s"has an SEE OTHER status" in {
+              result.status shouldBe SEE_OTHER
+              result.header("Location").get should include(
+                "/income-through-software/return/personal-income/2022/interest/change-untaxed-uk-interest?accountId=")
+            }
+          }
+        }
+
+        "redirect to the overview page" when {
+
+          "there is no cya data in session" which {
+
+            lazy val result = {
+              dropInterestDB()
+              emptyUserDataStub()
+              insertCyaData(None)
+              authoriseAgentOrIndividual(us.isAgent)
+              urlGet(url(id), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+            }
+
+            s"has an SEE OTHER status" in {
+              result.status shouldBe SEE_OTHER
+              result.header("Location").get should include(
+                "http://localhost:11111/income-through-software/return/2022/view")
+            }
+          }
+        }
+
+        "handle when the user is unauthorized" should {
+
+          lazy val result = {
+            dropInterestDB()
+            emptyUserDataStub()
+            insertCyaData(None)
+            unauthorisedAgentOrIndividual(us.isAgent)
+            urlGet(url(id), us.isWelsh, follow = true, playSessionCookie(us.isAgent))
+          }
+
+          s"return an Unauthorised($UNAUTHORIZED) status" in {
+            result.status shouldBe UNAUTHORIZED
+          }
+        }
+      }
+    }
+  }
+
+  ".submit" when {
+
+    userScenarios.foreach { us =>
+
+      import us.commonExpectedResults._
+
+      val specific = us.specificExpectedResults.get
+
+      s"user is ${agentTest(us.isAgent)} and request is ${welshTest(us.isWelsh)}" when {
+
+        def response(formMap: Map[String, String]): WSResponse = {
           dropInterestDB()
           emptyUserDataStub()
           insertCyaData(Some(InterestCYAModel(
@@ -115,561 +274,266 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
               InterestAccountModel(None, secondAccountName, Some(amount), uniqueSessionId = Some(id))
             ))
           )))
-          authoriseIndividual()
-          await(wsClient.url(untaxedInterestAmountUrl(id)).withHttpHeaders(
-            xSessionId,
-            csrfContent
-          ).get())
+          authoriseAgentOrIndividual(us.isAgent)
+          urlPost(url(id), formMap, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
         }
 
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
+        "an account name and amount are entered correctly" should {
 
-        "return the page" which {
-          titleCheck(Content.heading)
-          welshToggleCheck("English")
-          h1Check(s"${Content.heading} ${Content.caption}")
-          captionCheck(Content.caption)
-          textOnPageCheck(Content.accountName, Selectors.accountName)
-          textOnPageCheck(Content.eachAccount, Selectors.eachAccount)
-          inputFieldCheck(UntaxedInterestAmountForm.untaxedAccountName, Selectors.accountNameInput)
-          textOnPageCheck(Content.interestEarned, Selectors.interestEarned)
-          hintTextCheck(Content.hint)
-          inputFieldCheck(UntaxedInterestAmountForm.untaxedAmount, Selectors.amountInput)
-          buttonCheck(Content.button)
+          lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "67.66",
+            UntaxedInterestAmountForm.untaxedAccountName -> "Halifax"))
 
-          elementExtinct(Selectors.errorSummary)
-          elementExtinct(Selectors.firstError)
-          elementExtinct(Selectors.errorMessage)
+          "return a SEE OTHER status" in {
+            result.status shouldBe SEE_OTHER
+            result.header("Location").get should include(
+              "/income-through-software/return/personal-income/2022/interest/accounts-with-untaxed-uk-interest")
+          }
         }
 
-        s"have an OK($OK) status" in {
-          result.status shouldBe OK
-        }
-      }
-
-      "the user is an agent" should {
-
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A")
-        )
-
-        lazy val result: WSResponse = {
-          dropInterestDB()
-          emptyUserDataStub()
-          insertCyaData(Some(InterestCYAModel(
-            Some(true), Some(false), Some(Seq(
-            InterestAccountModel(Some("differentId"), firstAccountName, Some(amount)),
-            InterestAccountModel(None, secondAccountName, Some(amount), uniqueSessionId = Some(id))
+        "an existing account is updated" should {
+          lazy val result = response(Map(
+            UntaxedInterestAmountForm.untaxedAmount -> "50",
+            UntaxedInterestAmountForm.untaxedAccountName -> secondAccountName
           ))
-          )))
-          authoriseAgent()
-          await(wsClient.url(untaxedInterestAmountUrl(id))
-            .withHttpHeaders(
-              HeaderNames.COOKIE -> sessionCookie,
-              xSessionId,
-              csrfContent
-            )
-            .get())
+
+          "return a 200(Ok) status" in {
+            result.status shouldBe SEE_OTHER
+            result.header("Location").get should include(
+              "/income-through-software/return/personal-income/2022/interest/accounts-with-untaxed-uk-interest")
+          }
         }
 
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
+        "the fields are empty" should {
 
-        "return the page" which {
-          titleCheck(Content.heading)
-          welshToggleCheck("English")
-          h1Check(s"${Content.heading} ${Content.caption}")
-          captionCheck(Content.caption)
-          textOnPageCheck(Content.accountName, Selectors.accountName)
-          textOnPageCheck(Content.eachAccount, Selectors.eachAccount)
-          inputFieldCheck(UntaxedInterestAmountForm.untaxedAccountName, Selectors.accountNameInput)
-          textOnPageCheck(Content.interestEarned, Selectors.interestEarned)
-          hintTextCheck(Content.hint)
-          inputFieldCheck(UntaxedInterestAmountForm.untaxedAmount, Selectors.amountInput)
-          buttonCheck(Content.button)
+          lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "",
+            UntaxedInterestAmountForm.untaxedAccountName -> ""))
 
-          elementExtinct(Selectors.errorSummary)
-          elementExtinct(Selectors.firstError)
-          elementExtinct(Selectors.errorMessage)
-        }
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-        s"have an OK($OK) status" in {
-          result.status shouldBe OK
-        }
-      }
-
-      "the user has welsh selected" should {
-        lazy val result = {
-          dropInterestDB()
-          emptyUserDataStub()
-          insertCyaData(Some(InterestCYAModel(
-            Some(true), Some(false), Some(Seq(
-            InterestAccountModel(Some("differentId"), firstAccountName, Some(amount)),
-            InterestAccountModel(None, secondAccountName, Some(amount), uniqueSessionId = Some(id))
-          ))
-          )))
-          authoriseIndividual()
-          await(wsClient.url(untaxedInterestAmountUrl(id)).withHttpHeaders(
-            HeaderNames.ACCEPT_LANGUAGE -> "cy",
-            xSessionId,
-            csrfContent
-          ).get())
-        }
-
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-        "return the page" which {
-          titleCheck(WelshContent.heading)
-          welshToggleCheck("Welsh")
-          h1Check(s"${WelshContent.heading} ${WelshContent.caption}")
-          captionCheck(WelshContent.caption)
-          textOnPageCheck(WelshContent.accountName, Selectors.accountName)
-          textOnPageCheck(Content.eachAccount, Selectors.eachAccount)
-          inputFieldCheck(UntaxedInterestAmountForm.untaxedAccountName, Selectors.accountNameInput)
-          textOnPageCheck(WelshContent.interestEarned, Selectors.interestEarned)
-          hintTextCheck(WelshContent.hint)
-          inputFieldCheck(UntaxedInterestAmountForm.untaxedAmount, Selectors.amountInput)
-          buttonCheck(WelshContent.button)
-
-          elementExtinct(Selectors.errorSummary)
-          elementExtinct(Selectors.firstError)
-          elementExtinct(Selectors.errorMessage)
-        }
-
-        s"have an OK($OK) status" in {
-          result.status shouldBe OK
-        }
-      }
-
-      "the id is not a UUID" which {
-        lazy val result = {
-          dropInterestDB()
-          emptyUserDataStub()
-          insertCyaData(Some(InterestCYAModel(Some(true), Some(false), None)))
-          authoriseIndividual()
-          await(wsClient.url(untaxedInterestAmountUrl(id)).withHttpHeaders(xSessionId, csrfContent).get())
-        }
-
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        titleCheck(Content.heading)
-
-        "id in url is UUID" in {
-          UUID.fromString(result.uri.toString.split("/").last)
-        }
-      }
-
-      "redirect to the change amount page" when {
-
-        "the id matches a prior submission" which {
-          lazy val result = {
-            dropInterestDB()
-            userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel(firstAccountName, id, None, Some(amount)))), None), nino, taxYear)
-            insertCyaData(Some(InterestCYAModel(
-              Some(true), Some(false),
-              Some(Seq(InterestAccountModel(Some(id), firstAccountName, Some(amount), None, Some(id))))
-            )), taxYear, None, Some(nino))
-
-            authoriseIndividual()
-            await(wsClient.url(untaxedInterestAmountUrl(id))
-              .withHttpHeaders(xSessionId, csrfContent)
-              .get())
+          s"return a 400(BadRequest) status" in {
+            result.status shouldBe BAD_REQUEST
           }
 
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-          titleCheck(Content.changeAmountPageTitle)
-
+          multipleErrorCheck(
+            List(
+              (noNameEntryError, Selectors.accountNameInput),
+              (specific.noAmountEntryError, Selectors.amountInput)
+            )
+          )
         }
-      }
 
-      "redirect to the overview page" when {
+        "invalid characters are entered into the fields" should {
+          lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "money",
+            UntaxedInterestAmountForm.untaxedAccountName -> "$uper"))
 
-        "there is no cya data in session" which {
-          lazy val result = {
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          s"return a 400(BadRequest) status" in {
+            result.status shouldBe BAD_REQUEST
+          }
+
+          multipleErrorCheck(
+            List(
+              (invalidCharEntry, Selectors.accountNameInput),
+              (incorrectFormatError, Selectors.amountInput)
+            )
+          )
+        }
+
+        "the account name is too long and the amount is too great" should {
+          lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "100000000000",
+            UntaxedInterestAmountForm.untaxedAccountName -> "SuperAwesomeBigBusinessMoneyStash"))
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          s"return a 400(BadRequest) status" in {
+            result.status shouldBe BAD_REQUEST
+          }
+
+          multipleErrorCheck(
+            List(
+              (nameTooLongError, Selectors.accountNameInput),
+              (tooMuchMoneyError, Selectors.amountInput)
+            )
+          )
+        }
+
+        "an amount is entered with incorrect format" should {
+          lazy val result = response(Map(
+            UntaxedInterestAmountForm.untaxedAmount -> "500.8.75",
+            UntaxedInterestAmountForm.untaxedAccountName -> "Sensible account"
+          ))
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          s"return a 400(BadRequest) status" in {
+            result.status shouldBe BAD_REQUEST
+          }
+
+          inputFieldValueCheck("Sensible account", Selectors.accountNameInput)
+          inputFieldValueCheck("", Selectors.amountInput)
+          titleCheck(errorTitle)
+
+          errorSummaryCheck(incorrectFormatError, Selectors.amountInput)
+          errorAboveElementCheck(incorrectFormatError)
+        }
+
+        "a duplicate account name is entered" should {
+
+          lazy val result: WSResponse = {
             dropInterestDB()
             emptyUserDataStub()
+            insertCyaData(Some(InterestCYAModel(
+              Some(true), Some(false), Some(Seq(
+                InterestAccountModel(Some("differentId"), firstAccountName, Some(amount)),
+                InterestAccountModel(None, secondAccountName, Some(amount), uniqueSessionId = Some(id))
+              ))
+            )))
+            authoriseAgentOrIndividual(us.isAgent)
+            urlPost(url("1234567890-09876543210"), Map(
+              UntaxedInterestAmountForm.untaxedAmount -> "12344.98",
+              UntaxedInterestAmountForm.untaxedAccountName -> secondAccountName
+            ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+          }
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          s"return a 400(BadRequest) status" in {
+            result.status shouldBe BAD_REQUEST
+          }
+
+          inputFieldValueCheck(secondAccountName, Selectors.accountNameInput)
+          inputFieldValueCheck("12344.98", Selectors.amountInput)
+          titleCheck(errorTitle)
+
+          errorSummaryCheck(duplicateNameError, Selectors.accountNameInput)
+          errorAboveElementCheck(duplicateNameError)
+        }
+
+        "return a redirect when no cya" should {
+
+          lazy val result: WSResponse = {
+            dropInterestDB()
+            userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel(firstAccountName, id, None, None))), None), nino, taxYear)
             insertCyaData(None)
-            authoriseIndividual()
-            stubGet("/income-through-software/return/2022/view", OK, "")
-            await(
-              wsClient.url(untaxedInterestAmountUrl(id))
-                .withHttpHeaders(xSessionId, csrfContent)
-                .withFollowRedirects(false)
-                .get()
-            )
+            authoriseAgentOrIndividual(us.isAgent)
+            urlPost(url(id), Map(
+              UntaxedInterestAmountForm.untaxedAmount -> "12344.98",
+              UntaxedInterestAmountForm.untaxedAccountName -> firstAccountName
+            ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
 
-          s"has a SEE_OTHER($SEE_OTHER) status" in {
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          s"return a SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
+            result.header("Location").get should include(
+              "http://localhost:11111/income-through-software/return/2022/view")
+          }
+        }
+
+        "an account is reused and amount is updated" should {
+
+          lazy val result: WSResponse = {
+            dropInterestDB()
+            userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel(firstAccountName, id, None, None))), None), nino, taxYear)
+            insertCyaData(Some(InterestCYAModel(Some(true),None,Some(Seq(
+              InterestAccountModel(None,"name",Some(1234),uniqueSessionId = Some("1234567890"))
+            )))))
+            authoriseAgentOrIndividual(us.isAgent)
+            urlPost(url("1234567890"), Map(
+              UntaxedInterestAmountForm.untaxedAmount -> "12344.98",
+              UntaxedInterestAmountForm.untaxedAccountName -> firstAccountName
+            ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
 
-          "redirects to the correct URL" in {
-            result.headers("Location").head shouldBe "http://localhost:11111/income-through-software/return/2022/view"
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          s"return a SEE OTHER status" in {
+            result.status shouldBe SEE_OTHER
+            result.header("Location").get should include(
+              "/income-through-software/return/personal-income/2022/interest/accounts-with-untaxed-uk-interest")
+          }
+        }
+
+        "a new account is added and old account removes the untaxed amount" should {
+
+          lazy val result: WSResponse = {
+            dropInterestDB()
+            emptyUserDataStub()
+            insertCyaData(Some(InterestCYAModel(Some(true),None,Some(Seq(
+              InterestAccountModel(None,"name",Some(1234),Some(1234),uniqueSessionId = Some("1234567890"))
+            )))))
+            authoriseAgentOrIndividual(us.isAgent)
+            urlPost(url("1234567890"), Map(
+              UntaxedInterestAmountForm.untaxedAmount -> "12344.98",
+              UntaxedInterestAmountForm.untaxedAccountName -> firstAccountName
+            ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
 
-        }
-      }
-    }
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-    "the user is unauthorized" should {
+          s"return a SEE OTHER status" in {
+            result.status shouldBe SEE_OTHER
+            result.header("Location").get should include(
+              "/income-through-software/return/personal-income/2022/interest/accounts-with-untaxed-uk-interest")
 
-      lazy val result = {
-        authoriseIndividualUnauthorized()
-        await(wsClient.url(untaxedInterestAmountUrl(id))
-          .withHttpHeaders(xSessionId, csrfContent)
-          .get())
-      }
-
-      s"return an Unauthorised($UNAUTHORIZED) status" in {
-        result.status shouldBe UNAUTHORIZED
-      }
-    }
-  }
-
-  s"Calling POST /interest/add-untaxed-uk-interest-account/$id" when {
-
-    "the user is authorised" when {
-
-      def response(formMap: Map[String, String]): WSResponse = {
-        dropInterestDB()
-        emptyUserDataStub()
-        insertCyaData(Some(InterestCYAModel(
-          Some(true), Some(false), Some(Seq(
-            InterestAccountModel(Some("differentId"), firstAccountName, Some(amount)),
-            InterestAccountModel(None, secondAccountName, Some(amount), uniqueSessionId = Some(id))
-          ))
-        )))
-        authoriseIndividual()
-        await(wsClient.url(untaxedInterestAmountUrl(id))
-          .withHttpHeaders(xSessionId, csrfContent)
-          .post(formMap))
-      }
-
-      "an account name and amount are entered correctly" should {
-
-        lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "67.66",
-          UntaxedInterestAmountForm.untaxedAccountName -> "Halifax"))
-
-        "return a 200(Ok) status" in {
-          result.status shouldBe OK
-        }
-      }
-
-      "an existing account is updated" should {
-        lazy val result = response(Map(
-          UntaxedInterestAmountForm.untaxedAmount -> "50",
-          UntaxedInterestAmountForm.untaxedAccountName -> secondAccountName
-        ))
-
-        "return a 200(Ok) status" in {
-          result.status shouldBe OK
-        }
-      }
-
-      "the fields are empty" should {
-
-        lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "",
-          UntaxedInterestAmountForm.untaxedAccountName -> ""))
-
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-        s"return a 400(BadRequest) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-
-        multipleErrorCheck(
-          List(
-            (Content.noNameEntryError, Selectors.accountNameInput),
-            (Content.noAmountEntryErrorIndividual, Selectors.amountInput)
-          )
-        )
-      }
-
-      "invalid characters are entered into the fields" should {
-        lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "money",
-          UntaxedInterestAmountForm.untaxedAccountName -> "$uper"))
-
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-        s"return a 400(BadRequest) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-
-        multipleErrorCheck(
-          List(
-            (Content.invalidCharEntry, Selectors.accountNameInput),
-            (Content.incorrectFormatError, Selectors.amountInput)
-          )
-        )
-      }
-
-      "the account name is too long and the amount is too great" should {
-        lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "100000000000",
-          UntaxedInterestAmountForm.untaxedAccountName -> "SuperAwesomeBigBusinessMoneyStash"))
-
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-        s"return a 400(BadRequest) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-
-        multipleErrorCheck(
-          List(
-            (Content.nameTooLongError, Selectors.accountNameInput),
-            (Content.tooMuchMoneyError, Selectors.amountInput)
-          )
-        )
-      }
-
-      "an amount is entered with incorrect format" should {
-        lazy val result = response(Map(
-          UntaxedInterestAmountForm.untaxedAmount -> "500.8.75",
-          UntaxedInterestAmountForm.untaxedAccountName -> "Sensible account"
-        ))
-
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-        s"return a 400(BadRequest) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-
-        inputFieldValueCheck("Sensible account", Selectors.accountNameInput)
-        inputFieldValueCheck("", Selectors.amountInput)
-        titleCheck(Content.errorTitle)
-
-        errorSummaryCheck(Content.incorrectFormatError, Selectors.amountInput)
-        errorAboveElementCheck(Content.incorrectFormatError)
-      }
-
-      "a duplicate account name is entered" should {
-
-        lazy val result: WSResponse = {
-          dropInterestDB()
-          emptyUserDataStub()
-          insertCyaData(Some(InterestCYAModel(
-            Some(true), Some(false), Some(Seq(
-            InterestAccountModel(Some("differentId"), firstAccountName, Some(amount)),
-            InterestAccountModel(None, secondAccountName, Some(amount), uniqueSessionId = Some(id))
-          ))
-          )))
-          authoriseIndividual()
-          await(wsClient.url(untaxedInterestAmountUrl("1234567890-09876543210"))
-            .withHttpHeaders(xSessionId, csrfContent)
-            .post(Map(
-              UntaxedInterestAmountForm.untaxedAmount -> "12344.98",
-              UntaxedInterestAmountForm.untaxedAccountName -> secondAccountName
+            val data: Seq[InterestCYAModel] = await(interestDatabase.collection.find().toFuture()).flatMap(_.interest)
+            data.head shouldBe InterestCYAModel(Some(true),None,Some(Seq(
+              InterestAccountModel(None,firstAccountName,Some(12344.98),uniqueSessionId = data.head.accounts.get.head.uniqueSessionId),
+              InterestAccountModel(None,"name",None,Some(1234),uniqueSessionId = Some("1234567890"))
             )))
+          }
         }
 
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
+        "a new account is added" should {
 
-        s"return a 400(BadRequest) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-
-        inputFieldValueCheck(secondAccountName, Selectors.accountNameInput)
-        inputFieldValueCheck("12344.98", Selectors.amountInput)
-        titleCheck(Content.errorTitle)
-
-        errorSummaryCheck(Content.duplicateNameError, Selectors.accountNameInput)
-        errorAboveElementCheck(Content.duplicateNameError)
-      }
-    }
-
-    "the user is authorised as an agent" when {
-
-      lazy val interestCYA = InterestCYAModel(
-        Some(false), Some(true), Some(Seq(
-          InterestAccountModel(Some("differentId"), firstAccountName, None, Some(amount)),
-          InterestAccountModel(None, secondAccountName, None, Some(amount), Some(id))
-        ))
-      )
-      lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-        SessionValues.CLIENT_MTDITID -> "1234567890",
-        SessionValues.CLIENT_NINO -> "AA123456A"
-      ))
-
-      def response(formMap: Map[String, String]): WSResponse = {
-        dropInterestDB()
-
-        insertCyaData(Some(interestCYA))
-        emptyUserDataStub()
-
-        authoriseAgent()
-        await(wsClient.url(untaxedInterestAmountUrl(id))
-          .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, "Csrf-Token" -> "nocheck")
-          .post(formMap))
-      }
-
-      "the fields are empty as an agent" should {
-
-        lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "",
-          UntaxedInterestAmountForm.untaxedAccountName -> ""))
-
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-        s"return a 400(BadRequest) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-
-        multipleErrorCheck(
-          List(
-            (Content.noNameEntryError, Selectors.accountNameInput),
-            (Content.noAmountEntryErrorAgent, Selectors.amountInput)
-          )
-        )
-      }
-    }
-
-    "the user has Welsh toggled" when {
-      def response(formMap: Map[String, String]): WSResponse = {
-        dropInterestDB()
-
-        emptyUserDataStub()
-        insertCyaData(Some(InterestCYAModel(
-          Some(true), Some(false), Some(Seq(
-            InterestAccountModel(Some("differentId"), firstAccountName, Some(amount)),
-            InterestAccountModel(None, secondAccountName, Some(amount), uniqueSessionId = Some(id))
-          ))
-        )))
-
-        authoriseIndividual()
-        await(wsClient.url(untaxedInterestAmountUrl(id))
-          .withHttpHeaders(xSessionId, csrfContent, HeaderNames.ACCEPT_LANGUAGE -> "cy")
-          .post(formMap))
-      }
-
-      "an account name and amount are entered correctly" should {
-
-        lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "67.66",
-          UntaxedInterestAmountForm.untaxedAccountName -> "Halifax"))
-
-        "return a 200(Ok) status" in {
-          result.status shouldBe OK
-        }
-      }
-
-      "an existing account is updated" should {
-        lazy val result = response(Map(
-          UntaxedInterestAmountForm.untaxedAmount -> "50",
-          UntaxedInterestAmountForm.untaxedAccountName -> secondAccountName
-        ))
-
-        "return a 200(Ok) status" in {
-          result.status shouldBe OK
-        }
-      }
-
-      "the fields are empty" should {
-
-        lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "",
-          UntaxedInterestAmountForm.untaxedAccountName -> ""))
-
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-        s"return a 400(BadRequest) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-
-        multipleErrorCheck(
-          List(
-            (WelshContent.noNameEntryError, Selectors.accountNameInput),
-            (WelshContent.noAmountEntryErrorIndividual, Selectors.amountInput)
-          )
-        )
-      }
-
-      "invalid characters are entered into the fields" should {
-        lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "money",
-          UntaxedInterestAmountForm.untaxedAccountName -> "$uper"))
-
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-        s"return a 400(BadRequest) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-
-        multipleErrorCheck(
-          List(
-            (WelshContent.invalidCharEntry, Selectors.accountNameInput),
-            (WelshContent.incorrectFormatError, Selectors.amountInput)
-          )
-        )
-      }
-
-      "the account name is too long and the amount is too great" should {
-        lazy val result = response(Map(UntaxedInterestAmountForm.untaxedAmount -> "100000000000",
-          UntaxedInterestAmountForm.untaxedAccountName -> "SuperAwesomeBigBusinessMoneyStash"))
-
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-        s"return a 400(BadRequest) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-
-        multipleErrorCheck(
-          List(
-            (WelshContent.nameTooLongError, Selectors.accountNameInput),
-            (WelshContent.tooMuchMoneyError, Selectors.amountInput)
-          )
-        )
-      }
-
-      "an amount is entered with incorrect format" should {
-        lazy val result = response(Map(
-          UntaxedInterestAmountForm.untaxedAmount -> "500.8.75",
-          UntaxedInterestAmountForm.untaxedAccountName -> "Sensible account"
-        ))
-
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-        s"return a 400(BadRequest) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-
-        inputFieldValueCheck("Sensible account", Selectors.accountNameInput)
-        inputFieldValueCheck("", Selectors.amountInput)
-        titleCheck(WelshContent.errorTitle)
-
-        errorSummaryCheck(WelshContent.incorrectFormatError, Selectors.amountInput)
-        errorAboveElementCheck(WelshContent.incorrectFormatError)
-      }
-
-      "a duplicate account name is entered" should {
-
-        lazy val result: WSResponse = {
-          dropInterestDB()
-
-          emptyUserDataStub()
-          insertCyaData(Some(InterestCYAModel(
-            Some(true), Some(false), Some(Seq(
-            InterestAccountModel(Some("differentId"), firstAccountName, Some(amount)),
-            InterestAccountModel(None, secondAccountName, Some(amount), uniqueSessionId = Some(id))
-          ))
-          )))
-
-          authoriseIndividual()
-          await(wsClient.url(untaxedInterestAmountUrl("1234567890-0987654321"))
-            .withHttpHeaders(xSessionId, csrfContent, HeaderNames.ACCEPT_LANGUAGE -> "cy")
-            .post(Map(
+          lazy val result: WSResponse = {
+            dropInterestDB()
+            emptyUserDataStub()
+            insertCyaData(Some(InterestCYAModel(Some(true),None)))
+            authoriseAgentOrIndividual(us.isAgent)
+            urlPost(url(id), Map(
               UntaxedInterestAmountForm.untaxedAmount -> "12344.98",
-              UntaxedInterestAmountForm.untaxedAccountName -> secondAccountName
+              UntaxedInterestAmountForm.untaxedAccountName -> firstAccountName
+            ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+          }
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          s"return a SEE OTHER status" in {
+            result.status shouldBe SEE_OTHER
+            result.header("Location").get should include(
+              "/income-through-software/return/personal-income/2022/interest/accounts-with-untaxed-uk-interest")
+
+            val data: Seq[InterestCYAModel] = await(interestDatabase.collection.find().toFuture()).flatMap(_.interest)
+            data.head shouldBe InterestCYAModel(Some(true),None,Some(Seq(
+              InterestAccountModel(None,firstAccountName,Some(12344.98),uniqueSessionId = data.head.accounts.get.head.uniqueSessionId)
             )))
+          }
         }
 
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
+        "an account is reused and amount is updated even if the id is different" should {
 
-        s"return a 400(BadRequest) status" in {
-          result.status shouldBe BAD_REQUEST
+          lazy val result: WSResponse = {
+            dropInterestDB()
+            userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel(firstAccountName, id, None, None))), None), nino, taxYear)
+            insertCyaData(Some(InterestCYAModel(Some(true))))
+            authoriseAgentOrIndividual(us.isAgent)
+            urlPost(url("id"), Map(
+              UntaxedInterestAmountForm.untaxedAmount -> "12344.98",
+              UntaxedInterestAmountForm.untaxedAccountName -> firstAccountName
+            ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+          }
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          s"return a SEE OTHER status" in {
+            result.status shouldBe SEE_OTHER
+            result.header("Location").get should include(
+              "/income-through-software/return/personal-income/2022/interest/accounts-with-untaxed-uk-interest")
+          }
         }
-
-        inputFieldValueCheck(secondAccountName, Selectors.accountNameInput)
-        inputFieldValueCheck("12344.98", Selectors.amountInput)
-        titleCheck(WelshContent.errorTitle)
-
-        errorSummaryCheck(WelshContent.duplicateNameError, Selectors.accountNameInput)
-        errorAboveElementCheck(WelshContent.duplicateNameError)
       }
     }
   }

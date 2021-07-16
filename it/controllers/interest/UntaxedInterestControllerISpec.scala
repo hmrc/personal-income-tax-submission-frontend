@@ -16,15 +16,16 @@
 
 package controllers.interest
 
+import java.util.UUID
+
 import forms.YesNoForm
 import models.interest.{InterestAccountModel, InterestCYAModel}
+import models.priorDataModels.{IncomeSourcesModel, InterestModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
 import play.api.libs.ws.WSResponse
 import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
-
-import java.util.UUID
 
 class UntaxedInterestControllerISpec extends IntegrationTest with InterestDatabaseHelper with ViewHelpers {
 
@@ -219,6 +220,29 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
           }
         }
 
+        "return a redirect to CYA when previous data exists with untaxed accounts" which {
+          lazy val result = {
+            dropInterestDB()
+            userDataStub(IncomeSourcesModel(interest = Some(
+              Seq(
+                InterestModel(
+                  "Accounty","1234567890",Some(1),Some(1)
+                )
+              )
+            )), nino, taxYear)
+            insertCyaData(None)
+
+            authoriseAgentOrIndividual(us.isAgent)
+            urlGet(url, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+          }
+
+          "has an SEE OTHER status" in {
+            result.status shouldBe SEE_OTHER
+            result.header("Location").get should include(
+              "/income-through-software/return/personal-income/2022/interest/check-interest")
+          }
+        }
+
         "return an UNAUTHORIZED when auth call fails" which {
           lazy val result: WSResponse = {
             dropInterestDB()
@@ -277,6 +301,29 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
           errorAboveElementCheck(specific.expectedErrorText)
           buttonCheck(continueText, continueSelector)
           formPostLinkCheck(continueLink, continueFormSelector)
+        }
+
+        "return a redirect to CYA when previous data exists with untaxed accounts" which {
+          lazy val result = {
+            dropInterestDB()
+            userDataStub(IncomeSourcesModel(interest = Some(
+              Seq(
+                InterestModel(
+                  "Accounty","1234567890",Some(1),Some(1)
+                )
+              )
+            )), nino, taxYear)
+            insertCyaData(None)
+
+            authoriseAgentOrIndividual(us.isAgent)
+            urlPost(url, yesNoFormYes, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+          }
+
+          "has an SEE OTHER status" in {
+            result.status shouldBe SEE_OTHER
+            result.header("Location").get should include(
+              "/income-through-software/return/personal-income/2022/interest/check-interest")
+          }
         }
 
         "return SEE_OTHER" when {

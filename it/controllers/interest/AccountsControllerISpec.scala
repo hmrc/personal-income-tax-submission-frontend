@@ -572,6 +572,46 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           result.headers("Location").head.contains("/income-through-software/return/personal-income/2022/interest/check-interest") shouldBe true
         }
 
+        "redirect to the  page when accounts are missing" in {
+          dropInterestDB()
+
+          await(interestDatabase.create(InterestUserDataModel(
+            sessionId, mtditid, nino, taxYear,
+            Some(InterestCYAModel(
+              Some(true), Some(false),None
+            ))
+          )))
+
+          val result: WSResponse = {
+            emptyUserDataStub()
+            authoriseAgentOrIndividual(us.isAgent)
+            urlPost(untaxedUrl, yesNoFormNo, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+          }
+
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/untaxed-uk-interest"
+        }
+
+        "redirect to the overview page" when {
+
+          s"there is no cya data in session - ${welshTest(us.isWelsh)} - ${agentTest(us.isAgent)}" in {
+            dropInterestDB()
+
+            await(interestDatabase.create(InterestUserDataModel(
+              sessionId, mtditid, nino, taxYear, None
+            )))
+
+            val result: WSResponse = {
+              emptyUserDataStub()
+              authoriseAgentOrIndividual(us.isAgent)
+              urlPost(untaxedUrl, yesNoFormNo, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+            }
+
+            result.status shouldBe SEE_OTHER
+            result.header("Location") shouldBe Some("http://localhost:11111/income-through-software/return/2022/view")
+          }
+        }
+
         "redirect to the taxed interest page when cya taxed data is not yet complete" in {
           dropInterestDB()
 
@@ -706,6 +746,46 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
             result.status shouldBe SEE_OTHER
             result.headers("Location").head.contains("/income-through-software/return/personal-income/2022/interest/check-interest") shouldBe true
           }
+        }
+      }
+
+      "redirect to the  page when accounts are missing" in {
+        dropInterestDB()
+
+        await(interestDatabase.create(InterestUserDataModel(
+          sessionId, mtditid, nino, taxYear,
+          Some(InterestCYAModel(
+            Some(true), Some(false),None
+          ))
+        )))
+
+        val result: WSResponse = {
+          emptyUserDataStub()
+          authoriseAgentOrIndividual(us.isAgent)
+          urlPost(taxedUrl, yesNoFormNo, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+        }
+
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/taxed-uk-interest"
+      }
+
+      "redirect to the overview page" when {
+
+        s"there is no cya data in session - ${welshTest(us.isWelsh)} - ${agentTest(us.isAgent)}" in {
+          dropInterestDB()
+
+          await(interestDatabase.create(InterestUserDataModel(
+            sessionId, mtditid, nino, taxYear, None
+          )))
+
+          val result: WSResponse = {
+            emptyUserDataStub()
+            authoriseAgentOrIndividual(us.isAgent)
+            urlPost(taxedUrl, yesNoFormNo, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+          }
+
+          result.status shouldBe SEE_OTHER
+          result.header("Location") shouldBe Some("http://localhost:11111/income-through-software/return/2022/view")
         }
       }
 

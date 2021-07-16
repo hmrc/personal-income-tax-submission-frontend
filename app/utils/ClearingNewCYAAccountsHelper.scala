@@ -32,7 +32,10 @@ object ClearingNewCYAAccountsHelper {
       accountsWithRemovedAmounts.map(_.filterNot(account => !account.hasUntaxed && !account.hasTaxed))
     }
 
-    accountsWithNoAmountsFilteredOut
+    if(accountsWithNoAmountsFilteredOut.getOrElse(Seq()).isEmpty){
+      None
+    } else {
+      accountsWithNoAmountsFilteredOut
+    }
   }
-
 }
