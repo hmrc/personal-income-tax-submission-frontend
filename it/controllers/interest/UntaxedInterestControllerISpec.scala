@@ -16,16 +16,16 @@
 
 package controllers.interest
 
+import java.util.UUID
+
 import forms.YesNoForm
 import models.interest.{InterestAccountModel, InterestCYAModel}
+import models.priorDataModels.{IncomeSourcesModel, InterestModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
 import play.api.libs.ws.WSResponse
 import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
-import java.util.UUID
-
-import models.priorDataModels.{IncomeSourcesModel, InterestModel}
 
 class UntaxedInterestControllerISpec extends IntegrationTest with InterestDatabaseHelper with ViewHelpers {
 

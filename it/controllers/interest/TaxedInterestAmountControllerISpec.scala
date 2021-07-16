@@ -48,8 +48,6 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
     val errorMessage: String = "#value-error"
   }
 
-  import Selectors._
-
   trait SpecificExpectedResults {
     val noAmountEntryError: String
   }

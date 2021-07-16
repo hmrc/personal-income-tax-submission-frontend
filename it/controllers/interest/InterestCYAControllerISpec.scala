@@ -21,7 +21,7 @@ import models.interest.{InterestAccountModel, InterestCYAModel}
 import models.priorDataModels.{IncomeSourcesModel, InterestModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, NO_CONTENT, OK, SEE_OTHER, UNAUTHORIZED}
+import play.api.http.Status._
 import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
 
 class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHelper with ViewHelpers {

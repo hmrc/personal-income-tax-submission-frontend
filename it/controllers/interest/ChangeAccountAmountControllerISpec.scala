@@ -16,18 +16,14 @@
 
 package controllers.interest
 
-import common.SessionValues
-import helpers.PlaySessionCookieBaker
+import java.util.UUID
+
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import models.priorDataModels.{IncomeSourcesModel, InterestModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import play.api.http.HeaderNames
 import play.api.http.Status._
-import play.api.libs.ws.WSClient
 import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
-
-import java.util.UUID
 
 class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelpers with InterestDatabaseHelper{
 
@@ -38,60 +34,6 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
   val accountName: String = "HSBC"
 
   val taxYearMinusOne: Int = taxYear - 1
-
-//  object IndividualExpected {
-//    val expectedUntaxedTitle = "How much untaxed UK interest did you get?"
-//    val expectedUntaxedErrorTitle = s"Error: $expectedUntaxedTitle"
-//    val expectedTaxedTitle = "How much taxed UK interest did you get?"
-//    val expectedTaxedErrorTitle = s"Error: $expectedTaxedTitle"
-//    def expectedErrorEmpty(taxType: String): String = s"Enter the amount of $taxType UK interest you got"
-//    def expectedErrorOverMax(taxType: String): String = s"The amount of $taxType UK interest must be less than £100,000,000,000"
-//    def expectedErrorInvalid(taxType: String): String = s"Enter the amount of $taxType UK interest in the correct format"
-//    val expectedUntaxedH1 = "HSBC: how much untaxed UK interest did you get?"
-//    val expectedTaxedH1 = "HSBC: how much taxed UK interest did you get?"
-//    val youToldUsUntaxed = s"You told us you got £$amount untaxed UK interest. Tell us if this has changed."
-//    val youToldUsTaxed = s"You told us you got £$amount taxed UK interest. Tell us if this has changed."
-//
-//    val expectedUntaxedTitleCy = "How much untaxed UK interest did you get?"
-//    val expectedUntaxedErrorTitleCy = s"Error: $expectedUntaxedTitleCy"
-//    val expectedTaxedTitleCy = "How much taxed UK interest did you get?"
-//    val expectedTaxedErrorTitleCy = s"Error: $expectedTaxedTitle"
-//    def expectedErrorEmptyCy(taxType: String): String = s"Enter the amount of $taxType UK interest you got"
-//    def expectedErrorOverMaxCy(taxType: String): String = s"The amount of $taxType UK interest must be less than £100,000,000,000"
-//    def expectedErrorInvalidCy(taxType: String): String = s"Enter the amount of $taxType UK interest in the correct format"
-//    val expectedUntaxedH1Cy = "HSBC: how much untaxed UK interest did you get?"
-//    val expectedTaxedH1Cy = "HSBC: how much taxed UK interest did you get?"
-//    val youToldUsUntaxedCy = s"You told us you got £$amount untaxed UK interest. Tell us if this has changed."
-//    val youToldUsTaxedCy = s"You told us you got £$amount taxed UK interest. Tell us if this has changed."
-//  }
-//
-//
-//  object AgentExpected {
-//    val expectedUntaxedTitle = "How much untaxed UK interest did your client get?"
-//    val expectedUntaxedErrorTitle = s"Error: $expectedUntaxedTitle"
-//    val expectedTaxedTitle = "How much taxed UK interest did your client get?"
-//    val expectedTaxedErrorTitle = s"Error: $expectedTaxedTitle"
-//    def expectedErrorEmpty(taxType: String): String = s"Enter the amount of $taxType UK interest your client got"
-//    def expectedErrorOverMax(taxType: String): String = s"The amount of $taxType UK interest must be less than £100,000,000,000"
-//    def expectedErrorInvalid(taxType: String): String = s"Enter the amount of $taxType UK interest in the correct format"
-//    val expectedUntaxedH1 = "HSBC: how much untaxed UK interest did your client get?"
-//    val expectedTaxedH1 = "HSBC: how much taxed UK interest did your client get?"
-//    val youToldUsUntaxed = s"You told us your client got £$amount untaxed UK interest. Tell us if this has changed."
-//    val youToldUsTaxed = s"You told us your client got £$amount taxed UK interest. Tell us if this has changed."
-//
-//    val expectedUntaxedTitleCy = "How much untaxed UK interest did your client get?"
-//    val expectedUntaxedErrorTitleCy = s"Error: $expectedUntaxedTitleCy"
-//    val expectedTaxedTitleCy = "How much taxed UK interest did your client get?"
-//    val expectedTaxedErrorTitleCy = s"Error: $expectedTaxedTitle"
-//    def expectedErrorEmptyCy(taxType: String): String = s"Enter the amount of $taxType UK interest your client got"
-//    def expectedErrorOverMaxCy(taxType: String): String = s"The amount of $taxType UK interest must be less than £100,000,000,000"
-//    def expectedErrorInvalidCy(taxType: String): String = s"Enter the amount of $taxType UK interest in the correct format"
-//    val expectedUntaxedH1Cy = "HSBC: how much untaxed UK interest did your client get?"
-//    val expectedTaxedH1Cy = "HSBC: how much taxed UK interest did your client get?"
-//    val youToldUsUntaxedCy = s"You told us your client got £$amount untaxed UK interest. Tell us if this has changed."
-//    val youToldUsTaxedCy = s"You told us your client got £$amount taxed UK interest. Tell us if this has changed."
-//  }
-
 
   def url(newId: String, accountType: String): String = s"$appUrl/$taxYear/interest/change-$accountType-uk-interest?accountId=$newId"
 
@@ -229,8 +171,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
     userScenarios.foreach { us =>
 
-      import us.commonExpectedResults._
       import Selectors._
+      import us.commonExpectedResults._
 
       val specific = us.specificExpectedResults.get
 
@@ -433,7 +375,6 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
     userScenarios.foreach { us =>
 
-      import us.commonExpectedResults._
       import Selectors._
 
       val specific = us.specificExpectedResults.get
