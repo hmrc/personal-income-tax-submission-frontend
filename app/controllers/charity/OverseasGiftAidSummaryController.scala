@@ -50,7 +50,7 @@ class OverseasGiftAidSummaryController @Inject()(overseasGiftAidSummaryView: Ove
                              (implicit user: User[AnyContent]): Result = {
 
     cya.overseasCharityNames match {
-      case Some(nameList) => determineResult(
+      case Some(nameList) if nameList.nonEmpty => determineResult(
         Ok(overseasGiftAidSummaryView(yesNoForm, taxYear, nameList.toList)),
         Redirect(controllers.charity.routes.OverseasGiftAidSummaryController.show(taxYear)),
         fromShow)

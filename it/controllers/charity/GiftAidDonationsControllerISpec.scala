@@ -19,6 +19,11 @@ package controllers.charity
 import common.SessionValues
 import forms.YesNoForm
 import helpers.PlaySessionCookieBaker
+import models.charity.GiftAidCYAModel
+import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel}
+import models.priorDataModels.IncomeSourcesModel
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.{WSClient, WSResponse}
@@ -26,16 +31,50 @@ import utils.{GiftAidDatabaseHelper, IntegrationTest, ViewHelpers}
 
 class GiftAidDonationsControllerISpec extends IntegrationTest with ViewHelpers with GiftAidDatabaseHelper {
 
+  object Content {
+    val heading = "Did you use Gift Aid to donate to charity?"
+    val headingAgent = "Did your client use Gift Aid to donate to charity?"
+    val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val button = "Continue"
+    val yesText = "Yes"
+    val noText = "No"
+    val errorText = "Select yes if you used Gift Aid to donate to charity"
+    val errorTextAgent = "Select yes if your client used Gift Aid to donate to charity"
+  }
+
+  object Selectors {
+    val errorSummary: String = "#error-summary-title"
+    val firstError: String = ".govuk-error-summary__body > ul > li:nth-child(1) > a"
+    val errorMessage: String = "#value-error"
+    val errorHref = "#value"
+  }
+
+  val cyaModelMax: GiftAidCYAModel = GiftAidCYAModel(
+    Some(true), Some(100.00),
+    Some(true), Some(100.00),
+    Some(true), Some(100.00), Some(Seq("Belgian Trust", "American Trust")),
+    Some(true), Some(100.00),
+    Some(true), Some(100.00),
+    Some(true), Some(true), Some(100.00), Some(true), Some(100.00),
+    Some(true), Some(100.00), Some(Seq("Belgian Trust", "American Trust"))
+  )
+
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
   lazy val controller: GiftAidDonationsController = app.injector.instanceOf[GiftAidDonationsController]
+
+  val yesNoFormNo: Map[String, String] = Map(YesNoForm.yesNo -> YesNoForm.no)
+  val yesNoFormYes: Map[String, String] = Map(YesNoForm.yesNo -> YesNoForm.yes)
+  val yesNoFormEmpty: Map[String, String] = Map(YesNoForm.yesNo -> "")
+
   val taxYear: Int = 2022
   val giftAidDonationsUrl = s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/charity-donation-using-gift-aid"
 
   "as an individual" when {
 
-    ".show" should {
+    s"Calling GET $giftAidDonationsUrl" when {
 
-      "returns an action" which {
+      "there is no prior data" should {
+
         lazy val result: WSResponse = {
           dropGiftAidDB()
 
@@ -46,17 +85,72 @@ class GiftAidDonationsControllerISpec extends IntegrationTest with ViewHelpers w
           await(wsClient.url(giftAidDonationsUrl).withHttpHeaders(xSessionId, csrfContent).get())
         }
 
-        "has an OK(200) status" in {
-          result.status shouldBe OK
+        implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+        "return the page" which {
+          titleCheck(Content.heading)
+          welshToggleCheck("English")
+          h1Check(s"${Content.heading} ${Content.caption}")
+          captionCheck(Content.caption)
+          radioButtonCheck(Content.yesText, 1)
+          radioButtonCheck(Content.noText, 2)
+          buttonCheck(Content.button)
+
+          elementExtinct(Selectors.errorSummary)
+          elementExtinct(Selectors.firstError)
+          elementExtinct(Selectors.errorMessage)
         }
 
+        s"have an OK($OK) status" in {
+          result.status shouldBe OK
+        }
       }
 
+      "there is prior data" should {
+
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          userDataStub(IncomeSourcesModel(giftAid = Some(GiftAidSubmissionModel(Some(GiftAidPaymentsModel(
+            currentYear = Some(1000.00)
+          ))))), nino, taxYear)
+          insertCyaData(None)
+
+          authoriseIndividual()
+          await(wsClient.url(giftAidDonationsUrl).withHttpHeaders(xSessionId, csrfContent)
+            .withFollowRedirects(false).get())
+        }
+
+        "redirect the user to the CYA page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
+        }
+      }
     }
 
-    ".submit" should {
+    s"Calling POST $giftAidDonationsUrl" when {
 
-      s"return an OK($OK) status" in {
+      "cya is finished" should {
+
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(cyaModelMax.copy(donationsViaGiftAid = None)))
+
+          authoriseIndividual()
+          await(wsClient.url(giftAidDonationsUrl).withHttpHeaders(xSessionId, csrfContent)
+            .withFollowRedirects(false).post(yesNoFormYes))
+        }
+
+        "redirect the user to the CYA page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
+        }
+      }
+
+      "the user has selected 'Yes'" should {
+
         lazy val result: WSResponse = {
           dropGiftAidDB()
 
@@ -64,40 +158,76 @@ class GiftAidDonationsControllerISpec extends IntegrationTest with ViewHelpers w
           insertCyaData(None)
 
           authoriseIndividual()
-          await(
-            wsClient
-              .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/charity-donation-using-gift-aid")
-              .withHttpHeaders(xSessionId, csrfContent)
-              .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
-          )
+          await(wsClient.url(giftAidDonationsUrl).withHttpHeaders(xSessionId, csrfContent)
+            .withFollowRedirects(false).post(yesNoFormYes))
         }
 
-        result.status shouldBe OK
+        "redirect the user to the donated amount page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidDonatedAmountController.show(taxYear)}"
+        }
       }
 
-      s"return a BAD_REQUEST($BAD_REQUEST) status" in {
+      "the user has selected 'No'" should {
+
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(None)
+
           authoriseIndividual()
-          await(
-            wsClient
-              .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/charity-donation-using-gift-aid")
-              .withHttpHeaders(xSessionId, csrfContent)
-              .post(Map[String, String]())
-          )
+          await(wsClient.url(giftAidDonationsUrl).withHttpHeaders(xSessionId, csrfContent)
+            .withFollowRedirects(false).post(yesNoFormNo))
         }
 
-        result.status shouldBe BAD_REQUEST
+        "redirect the user to the 'Add donations to this tax year' page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear)}"
+        }
       }
 
-    }
+      "the user has not selected an option" should {
 
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(None)
+
+          authoriseIndividual()
+          await(wsClient.url(giftAidDonationsUrl).withHttpHeaders(xSessionId, csrfContent)
+            .withFollowRedirects(false).post(yesNoFormEmpty))
+        }
+
+        implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+        "return the page" which {
+          titleCheck("Error: " + Content.heading)
+          welshToggleCheck("English")
+          h1Check(s"${Content.heading} ${Content.caption}")
+          captionCheck(Content.caption)
+          radioButtonCheck(Content.yesText, 1)
+          radioButtonCheck(Content.noText, 2)
+          buttonCheck(Content.button)
+
+          errorSummaryCheck(Content.errorText, Selectors.errorHref)
+          errorAboveElementCheck(Content.errorText)
+        }
+
+        "return a BAD_REQUEST" in {
+          result.status shouldBe BAD_REQUEST
+        }
+      }
+    }
   }
 
-  "as an agent" when {
+  "As an agent" when {
 
-    ".show" should {
+    s"Calling GET $giftAidDonationsUrl" when {
 
-      "returns an action" which {
+      "there is no prior data" should {
+
         lazy val result: WSResponse = {
           dropGiftAidDB()
 
@@ -110,60 +240,180 @@ class GiftAidDonationsControllerISpec extends IntegrationTest with ViewHelpers w
           ))
 
           authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/charity-donation-using-gift-aid")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-            .get())
+          await(wsClient.url(giftAidDonationsUrl).withHttpHeaders(
+            HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent).get()
+          )
         }
 
-        "has an OK(200) status" in {
+        implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+        "return the page" which {
+          titleCheck(Content.headingAgent)
+          welshToggleCheck("English")
+          h1Check(s"${Content.headingAgent} ${Content.caption}")
+          captionCheck(Content.caption)
+          radioButtonCheck(Content.yesText, 1)
+          radioButtonCheck(Content.noText, 2)
+          buttonCheck(Content.button)
+
+          elementExtinct(Selectors.errorSummary)
+          elementExtinct(Selectors.firstError)
+          elementExtinct(Selectors.errorMessage)
+        }
+
+        s"have an OK($OK) status" in {
           result.status shouldBe OK
+        }
+      }
+
+      "there is prior data" should {
+
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          userDataStub(IncomeSourcesModel(giftAid = Some(GiftAidSubmissionModel(Some(GiftAidPaymentsModel(
+            currentYear = Some(1000.00)
+          ))))), nino, taxYear)
+          insertCyaData(None)
+
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A"
+          ))
+
+          authoriseAgent()
+          await(wsClient.url(giftAidDonationsUrl).withHttpHeaders(
+            HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
+            .withFollowRedirects(false).get()
+          )
+        }
+
+
+        "redirect the user to the CYA page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
         }
       }
     }
 
-    ".submit" should {
+    s"Calling POST $giftAidDonationsUrl" when {
 
-      s"return an OK($OK) status" when {
+      "cya is finished" should {
 
-        "there is form data" in {
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"))
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
 
-            authoriseAgent()
-            await(
-              wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/charity-donation-using-gift-aid")
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-                .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
-            )
-          }
+          emptyUserDataStub()
+          insertCyaData(Some(cyaModelMax.copy(donationsViaGiftAid = None)))
 
-          result.status shouldBe OK
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A"
+          ))
+
+          authoriseAgent()
+          await(wsClient.url(giftAidDonationsUrl).withHttpHeaders(
+            HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
+            .withFollowRedirects(false).post(yesNoFormYes)
+          )
+        }
+
+        "redirect the user to the CYA page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
         }
       }
 
-      s"return a BAD_REQUEST($BAD_REQUEST) status" when {
+      "the user has selected 'Yes'" should {
 
-        "there is no form data" in {
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"
-            ))
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
 
-            authoriseAgent()
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/charity-donation-using-gift-aid")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-              .post(Map[String, String]()))
-          }
+          emptyUserDataStub()
+          insertCyaData(None)
 
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A"
+          ))
+
+          authoriseAgent()
+          await(wsClient.url(giftAidDonationsUrl).withHttpHeaders(
+            HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
+            .withFollowRedirects(false).post(yesNoFormYes)
+          )
+        }
+
+        "redirect the user to the donated amount page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidDonatedAmountController.show(taxYear)}"
+        }
+      }
+
+      "the user has selected 'No'" should {
+
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(None)
+
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A"
+          ))
+
+          authoriseAgent()
+          await(wsClient.url(giftAidDonationsUrl).withHttpHeaders(
+            HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
+            .withFollowRedirects(false).post(yesNoFormNo)
+          )
+        }
+
+        "redirect the user to the 'Add donations to this tax year' page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear)}"
+        }
+      }
+
+      "the user has not selected an option" should {
+
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(None)
+
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A"
+          ))
+
+          authoriseAgent()
+          await(wsClient.url(giftAidDonationsUrl).withHttpHeaders(
+            HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
+            .withFollowRedirects(false).post(yesNoFormEmpty))
+        }
+
+        implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+        "return the page" which {
+          titleCheck("Error: " + Content.headingAgent)
+          welshToggleCheck("English")
+          h1Check(s"${Content.headingAgent} ${Content.caption}")
+          captionCheck(Content.caption)
+          radioButtonCheck(Content.yesText, 1)
+          radioButtonCheck(Content.noText, 2)
+          buttonCheck(Content.button)
+
+          errorSummaryCheck(Content.errorTextAgent, Selectors.errorHref)
+          errorAboveElementCheck(Content.errorTextAgent)
+        }
+
+        "return a BAD_REQUEST" in {
           result.status shouldBe BAD_REQUEST
         }
       }
-
     }
-
   }
-
 }

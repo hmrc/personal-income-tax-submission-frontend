@@ -19,6 +19,7 @@ package controllers.charity
 import common.SessionValues
 import helpers.PlaySessionCookieBaker
 import models.charity.GiftAidCYAModel
+import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
@@ -87,24 +88,110 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
   val inputLabelSelector = "#main-content > div > div > form > div > label > div"
   val inputHintTextSelector = ".govuk-hint"
 
+  val oneOffAmountUrl: String = s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off"
   val requiredSessionData: Some[GiftAidCYAModel] = Some(GiftAidCYAModel(oneOffDonationsViaGiftAid = Some(true)))
+
+  lazy val agentSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+    SessionValues.CLIENT_MTDITID -> "1234567890",
+    SessionValues.CLIENT_NINO -> "AA123456A"
+  ))
+
+  def getResult(cyaData: Option[GiftAidCYAModel],
+                priorData: Option[IncomeSourcesModel],
+                isAgent: Boolean,
+                welsh: Boolean = false): WSResponse = {
+
+    if(priorData.isDefined) userDataStub(priorData.get, nino, taxYear) else emptyUserDataStub()
+
+    dropGiftAidDB()
+    insertCyaData(cyaData)
+
+    val langHeader: (String, String) = if(welsh) HeaderNames.ACCEPT_LANGUAGE -> "cy" else HeaderNames.ACCEPT_LANGUAGE -> "en"
+
+    if(isAgent){
+      authoriseAgent()
+      await(wsClient.url(oneOffAmountUrl).withHttpHeaders(
+        HeaderNames.COOKIE -> agentSessionCookie, langHeader, xSessionId, csrfContent)
+        .withFollowRedirects(false).get
+      )
+    } else {
+      authoriseIndividual()
+      await(wsClient.url(oneOffAmountUrl).withHttpHeaders(langHeader, xSessionId, csrfContent)
+        .withFollowRedirects(false).get()
+      )
+    }
+
+  }
+
+  def postResult(cyaData: Option[GiftAidCYAModel],
+                 priorData: Option[IncomeSourcesModel],
+                 isAgent: Boolean,
+                 input: Map[String, String],
+                 welsh: Boolean = false): WSResponse = {
+
+    if(priorData.isDefined) userDataStub(priorData.get, nino, taxYear) else emptyUserDataStub()
+
+    dropGiftAidDB()
+    insertCyaData(cyaData)
+
+    val langHeader: (String, String) = if(welsh) HeaderNames.ACCEPT_LANGUAGE -> "cy" else HeaderNames.ACCEPT_LANGUAGE -> "en"
+
+    if(isAgent) {
+      authoriseAgent()
+      await(wsClient.url(oneOffAmountUrl).withHttpHeaders(
+        HeaderNames.COOKIE -> agentSessionCookie, langHeader, xSessionId, csrfContent)
+        .withFollowRedirects(false).post(input)
+      )
+    } else {
+      authoriseIndividual()
+      await(wsClient.url(oneOffAmountUrl).withHttpHeaders(
+        langHeader, xSessionId, csrfContent)
+        .withFollowRedirects(false).post(input)
+      )
+    }
+  }
 
   "as an individual" when {
     import IndividualExpected._
-    ".show" should {
 
-      "returns an action with the correct english content" which {
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
+    s"Calling GET $oneOffAmountUrl" when {
 
-          emptyUserDataStub()
-          insertCyaData(requiredSessionData)
+      "there is no cya data" should {
 
-          authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(xSessionId, csrfContent)
-            .get())
+        lazy val result: WSResponse = getResult(None, None, isAgent = false)
+
+        "redirect the user to the overview page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe s"${appConfig.incomeTaxSubmissionOverviewUrl(taxYear)}"
         }
+      }
+
+      "there is cya data, but 'oneOffDonationsViaGiftAid' has not been stored" should {
+
+        lazy val result: WSResponse = getResult(Some(GiftAidCYAModel(donationsViaGiftAidAmount = Some(50))), None, isAgent = false)
+
+        "redirect the user to the one off donation page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOneOffController.show(taxYear)}"
+        }
+      }
+
+      "'oneOffDonationsViaGiftAid' exists and is false" should {
+        lazy val result: WSResponse =
+          getResult(Some(GiftAidCYAModel(
+            donationsViaGiftAidAmount = Some(50),
+            oneOffDonationsViaGiftAid = Some(false))),
+            None,
+            isAgent = false)
+
+        "redirect the user to the one off donation page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOneOffController.show(taxYear)}"
+        }
+      }
+
+      "'oneOffDonationsViaGiftAid' exists and is true - with the correct english content" should {
+        lazy val result: WSResponse = getResult(requiredSessionData, None, isAgent = false)
 
         implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -120,20 +207,10 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
         textOnPageCheck(expectedInputHintText, inputHintTextSelector)
         inputFieldCheck(expectedInputName, inputFieldSelector)
         buttonCheck(expectedButtonText, buttonSelector)
-
       }
-      "returns an action with the correct welsh content" which {
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
 
-          emptyUserDataStub()
-          insertCyaData(requiredSessionData)
-
-          authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-            .get())
-        }
+      "'oneOffDonationsViaGiftAid' exists and is true - with the correct welsh content" should {
+        lazy val result: WSResponse = getResult(requiredSessionData, None, isAgent = false, welsh = true)
 
         implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -141,7 +218,7 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
           result.status shouldBe OK
         }
         titleCheck(expectedTitleCy)
-        h1Check(expectedH1Cy + " " + expectedCaptionCy)
+        h1Check(expectedH1Cy + " " + expectedCaption)
         welshToggleCheck("Welsh")
         textOnPageCheck(expectedCaptionCy, captionSelector)
         textOnPageCheck(expectedParagraphCy, paragraphSelector)
@@ -149,183 +226,160 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
         textOnPageCheck(expectedInputHintTextCy, inputHintTextSelector)
         inputFieldCheck(expectedInputNameCy, inputFieldSelector)
         buttonCheck(expectedButtonTextCy, buttonSelector)
-
       }
     }
 
-    ".submit" should {
+    s"Calling POST $oneOffAmountUrl" when {
 
-      s"return an OK($OK) status" in {
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
+      "there is no cya data stored" should {
 
-          emptyUserDataStub()
-          insertCyaData(requiredSessionData)
+        lazy val result: WSResponse = postResult(None, None, isAgent = false, Map("amount" -> "123000.42"))
 
-          authoriseIndividual()
-          await(
-            wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-              .withHttpHeaders(xSessionId, csrfContent)
-              .post(Map("amount" -> "123000.42"))
-          )
+        "redirect the user to the overview page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe s"${appConfig.incomeTaxSubmissionOverviewUrl(taxYear)}"
         }
-
-        result.status shouldBe OK
       }
 
-      s"return a BAD_REQUEST($BAD_REQUEST) status with the correct Empty error" which {
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
+      "there is data stored" when {
 
-          emptyUserDataStub()
-          insertCyaData(requiredSessionData)
+        "the user has not entered an amount" which {
+          lazy val result: WSResponse = postResult(requiredSessionData, None, isAgent = false, Map("amount" -> ""))
 
-          authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(xSessionId, csrfContent)
-            .post(Map[String, String]()))
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          errorSummaryCheck(expectedErrorEmpty, expectedErrorLink)
+          errorAboveElementCheck(expectedErrorEmpty)
+
+          "return a BAD_REQUEST" in {
+            result.status shouldBe BAD_REQUEST
+          }
         }
 
-        "has the correct status" in {
-          result.status shouldBe BAD_REQUEST
+        "the user has entered an amount too large" which {
+          lazy val result: WSResponse = postResult(requiredSessionData, None, isAgent = false, Map("amount" -> "999999999999"))
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          errorSummaryCheck(expectedErrorOverMax, expectedErrorLink)
+          errorAboveElementCheck(expectedErrorOverMax)
+
+          "return a BAD_REQUEST" in {
+            result.status shouldBe BAD_REQUEST
+          }
         }
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
-        errorSummaryCheck(expectedErrorEmpty, expectedErrorLink)
-        errorAboveElementCheck(expectedErrorEmpty)
+
+        "the user has entered an invalid amount" which {
+          lazy val result: WSResponse = postResult(requiredSessionData, None, isAgent = false, Map("amount" -> "|"))
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          errorSummaryCheck(expectedErrorInvalid, expectedErrorLink)
+          errorAboveElementCheck(expectedErrorInvalid)
+
+          "return a BAD_REQUEST" in {
+            result.status shouldBe BAD_REQUEST
+          }
+        }
+
+        "the user has not entered an amount - with the correct welsh content" which {
+          lazy val result: WSResponse = postResult(requiredSessionData, None, isAgent = false, Map("amount" -> ""), welsh = true)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          welshToggleCheck("Welsh")
+          errorSummaryCheck(expectedErrorEmptyCy, expectedErrorLink)
+          errorAboveElementCheck(expectedErrorEmptyCy)
+
+          "return a BAD_REQUEST" in {
+            result.status shouldBe BAD_REQUEST
+          }
+        }
+
+        "the user has entered an amount too large - with the correct welsh content" which {
+          lazy val result: WSResponse = postResult(requiredSessionData, None, isAgent = false, Map("amount" -> "999999999999"), welsh = true)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          welshToggleCheck("Welsh")
+          errorSummaryCheck(expectedErrorOverMaxCy, expectedErrorLink)
+          errorAboveElementCheck(expectedErrorOverMaxCy)
+
+          "return a BAD_REQUEST" in {
+            result.status shouldBe BAD_REQUEST
+          }
+        }
+
+        "the user has entered an invalid amount - with the correct welsh content" which {
+          lazy val result: WSResponse = postResult(requiredSessionData, None, isAgent = false, Map("amount" -> "|"), welsh = true)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          welshToggleCheck("Welsh")
+          errorSummaryCheck(expectedErrorInvalidCy, expectedErrorLink)
+          errorAboveElementCheck(expectedErrorInvalidCy)
+
+          "return a BAD_REQUEST" in {
+            result.status shouldBe BAD_REQUEST
+          }
+        }
+
+        "the user has entered a valid amount" when {
+
+          "the cya data is updated successfully" should {
+            lazy val result: WSResponse = postResult(requiredSessionData, None, isAgent = false, Map("amount" -> "123"))
+
+            "redirect the user to the 'overseas donations' page" in {
+              result.status shouldBe SEE_OTHER
+              result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasGiftAidDonationsController.show(taxYear)}"
+            }
+          }
+        }
       }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status with the correct invalid error" which {
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-
-          emptyUserDataStub()
-          insertCyaData(requiredSessionData)
-
-          authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(xSessionId, csrfContent)
-            .post(Map("amount" -> "|")))
-        }
-
-        "has the correct status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
-        errorSummaryCheck(expectedErrorInvalid, expectedErrorLink)
-        errorAboveElementCheck(expectedErrorInvalid)
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status with the correct overMax error" which {
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-
-          emptyUserDataStub()
-          insertCyaData(requiredSessionData)
-
-          authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(xSessionId, csrfContent)
-            .post(Map("amount" -> "9999999999999999999999999")))
-        }
-
-        "has the correct status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
-        errorSummaryCheck(expectedErrorOverMax, expectedErrorLink)
-        errorAboveElementCheck(expectedErrorOverMax)
-      }
-      s"return a BAD_REQUEST($BAD_REQUEST) status with the correct Empty error - Welsh" which {
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-
-          emptyUserDataStub()
-          insertCyaData(requiredSessionData)
-
-          authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-            .post(Map[String, String]()))
-        }
-
-        "has the correct status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
-        welshToggleCheck("Welsh")
-        errorSummaryCheck(expectedErrorEmptyCy, expectedErrorLink)
-        errorAboveElementCheck(expectedErrorEmptyCy)
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status with the correct invalid error - Welsh" which {
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-
-          emptyUserDataStub()
-          insertCyaData(requiredSessionData)
-
-          authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-            .post(Map("amount" -> "|")))
-        }
-
-        "has the correct status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
-        welshToggleCheck("Welsh")
-        errorSummaryCheck(expectedErrorInvalidCy, expectedErrorLink)
-        errorAboveElementCheck(expectedErrorInvalidCy)
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status with the correct overMax error - Welsh" which {
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-
-          emptyUserDataStub()
-          insertCyaData(requiredSessionData)
-
-          authoriseIndividual()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-            .post(Map("amount" -> "9999999999999999999999999")))
-        }
-
-        "has the correct status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
-        welshToggleCheck("Welsh")
-        errorSummaryCheck(expectedErrorOverMaxCy, expectedErrorLink)
-        errorAboveElementCheck(expectedErrorOverMaxCy)
-      }
-
     }
-
   }
 
   "as an agent" when {
     import AgentExpected._
-    ".show" should {
 
-      "returns an action with the correct english content" which {
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
+    s"Calling GET $oneOffAmountUrl" when {
 
-          emptyUserDataStub()
-          insertCyaData(requiredSessionData)
+      "there is no cya data" should {
 
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
+        lazy val result: WSResponse = getResult(None, None, isAgent = true)
 
-          authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-            .get())
+        "redirect the user to the overview page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe s"${appConfig.incomeTaxSubmissionOverviewUrl(taxYear)}"
         }
+      }
+
+      "there is cya data, but 'oneOffDonationsViaGiftAid' has not been stored" should {
+
+        lazy val result: WSResponse = getResult(Some(GiftAidCYAModel(donationsViaGiftAidAmount = Some(50))), None, isAgent = true)
+
+        "redirect the user to the one off donation page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOneOffController.show(taxYear)}"
+        }
+      }
+
+      "'oneOffDonationsViaGiftAid' exists and is false" should {
+        lazy val result: WSResponse =
+          getResult(Some(GiftAidCYAModel(
+            donationsViaGiftAidAmount = Some(50),
+            oneOffDonationsViaGiftAid = Some(false))),
+            None,
+            isAgent = true)
+
+        "redirect the user to the one off donation page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOneOffController.show(taxYear)}"
+        }
+      }
+
+      "'oneOffDonationsViaGiftAid' exists and is true - with the correct english content" should {
+        lazy val result: WSResponse = getResult(requiredSessionData, None, isAgent = true)
 
         implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -343,27 +397,8 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
         buttonCheck(expectedButtonText, buttonSelector)
       }
 
-      "returns an action with the correct welsh content" which {
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-
-          emptyUserDataStub()
-          insertCyaData(requiredSessionData)
-
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
-
-          authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(
-              HeaderNames.COOKIE -> sessionCookie,
-              HeaderNames.ACCEPT_LANGUAGE -> "cy",
-              xSessionId, csrfContent
-            )
-            .get())
-        }
+      "'oneOffDonationsViaGiftAid' exists and is true - with the correct welsh content" should {
+        lazy val result: WSResponse = getResult(requiredSessionData, None, isAgent = true, welsh = true)
 
         implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -371,7 +406,7 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
           result.status shouldBe OK
         }
         titleCheck(expectedTitleCy)
-        h1Check(expectedH1Cy + " " + expectedCaptionCy)
+        h1Check(expectedH1Cy + " " + expectedCaption)
         welshToggleCheck("Welsh")
         textOnPageCheck(expectedCaptionCy, captionSelector)
         textOnPageCheck(expectedParagraphCy, paragraphSelector)
@@ -382,207 +417,113 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
       }
     }
 
-    ".submit" should {
+    s"Calling POST $oneOffAmountUrl" when {
 
-      s"return an OK($OK) status" when {
+      "there is no cya data stored" should {
 
-        "there is form data" in {
-          lazy val result: WSResponse = {
-            dropGiftAidDB()
+        lazy val result: WSResponse = postResult(None, None, isAgent = true, Map("amount" -> "123000.42"))
 
-            emptyUserDataStub()
-            insertCyaData(requiredSessionData)
+        "redirect the user to the overview page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe s"${appConfig.incomeTaxSubmissionOverviewUrl(taxYear)}"
+        }
+      }
 
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"))
+      "there is data stored" when {
 
-            authoriseAgent()
-            await(
-              wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-                .post(Map("amount" -> "12344.98"))
-            )
+        "the user has not entered an amount" which {
+          lazy val result: WSResponse = postResult(requiredSessionData, None, isAgent = true, Map("amount" -> ""))
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          errorSummaryCheck(expectedErrorEmpty, expectedErrorLink)
+          errorAboveElementCheck(expectedErrorEmpty)
+
+          "return a BAD_REQUEST" in {
+            result.status shouldBe BAD_REQUEST
           }
+        }
 
-          result.status shouldBe OK
+        "the user has entered an amount too large" which {
+          lazy val result: WSResponse = postResult(requiredSessionData, None, isAgent = true, Map("amount" -> "999999999999"))
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          errorSummaryCheck(expectedErrorOverMax, expectedErrorLink)
+          errorAboveElementCheck(expectedErrorOverMax)
+
+          "return a BAD_REQUEST" in {
+            result.status shouldBe BAD_REQUEST
+          }
+        }
+
+        "the user has entered an invalid amount" which {
+          lazy val result: WSResponse = postResult(requiredSessionData, None, isAgent = true, Map("amount" -> "|"))
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          errorSummaryCheck(expectedErrorInvalid, expectedErrorLink)
+          errorAboveElementCheck(expectedErrorInvalid)
+
+          "return a BAD_REQUEST" in {
+            result.status shouldBe BAD_REQUEST
+          }
+        }
+
+        "the user has not entered an amount - with the correct welsh content" which {
+          lazy val result: WSResponse = postResult(requiredSessionData, None, isAgent = true, Map("amount" -> ""), welsh = true)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          welshToggleCheck("Welsh")
+          errorSummaryCheck(expectedErrorEmptyCy, expectedErrorLink)
+          errorAboveElementCheck(expectedErrorEmptyCy)
+
+          "return a BAD_REQUEST" in {
+            result.status shouldBe BAD_REQUEST
+          }
+        }
+
+        "the user has entered an amount too large - with the correct welsh content" which {
+          lazy val result: WSResponse = postResult(requiredSessionData, None, isAgent = true, Map("amount" -> "999999999999"), welsh = true)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          welshToggleCheck("Welsh")
+          errorSummaryCheck(expectedErrorOverMaxCy, expectedErrorLink)
+          errorAboveElementCheck(expectedErrorOverMaxCy)
+
+          "return a BAD_REQUEST" in {
+            result.status shouldBe BAD_REQUEST
+          }
+        }
+
+        "the user has entered an invalid amount - with the correct welsh content" which {
+          lazy val result: WSResponse = postResult(requiredSessionData, None, isAgent = true, Map("amount" -> "|"), welsh = true)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          welshToggleCheck("Welsh")
+          errorSummaryCheck(expectedErrorInvalidCy, expectedErrorLink)
+          errorAboveElementCheck(expectedErrorInvalidCy)
+
+          "return a BAD_REQUEST" in {
+            result.status shouldBe BAD_REQUEST
+          }
+        }
+
+        "the user has entered a valid amount" when {
+
+          "the cya data is updated successfully" should {
+            lazy val result: WSResponse = postResult(requiredSessionData, None, isAgent = true, Map("amount" -> "123"))
+
+            "redirect the user to the 'overseas donations' page" in {
+              result.status shouldBe SEE_OTHER
+              result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasGiftAidDonationsController.show(taxYear)}"
+            }
+          }
         }
       }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status with the Empty Error" which {
-
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-
-          emptyUserDataStub()
-          insertCyaData(requiredSessionData)
-
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
-
-          authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-            .post(Map[String, String]()))
-        }
-
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-        "returns the the correct status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        errorSummaryCheck(expectedErrorEmpty, expectedErrorLink)
-        errorAboveElementCheck(expectedErrorEmpty)
-
-      }
-      s"return a BAD_REQUEST($BAD_REQUEST) status with the Invalid Format error" which {
-
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-
-          emptyUserDataStub()
-          insertCyaData(requiredSessionData)
-
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
-
-          authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-            .post(Map("amount" -> "|")))
-        }
-
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-        "returns the the correct status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        errorSummaryCheck(expectedErrorInvalid, expectedErrorLink)
-        errorAboveElementCheck(expectedErrorInvalid)
-
-      }
-      s"return a BAD_REQUEST($BAD_REQUEST) status with the OverMax error" which {
-
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-
-          emptyUserDataStub()
-          insertCyaData(requiredSessionData)
-
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
-
-          authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-            .post(Map("amount" -> "9999999999999999999999999999999")))
-        }
-
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-        "returns the the correct status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        errorSummaryCheck(expectedErrorOverMax, expectedErrorLink)
-        errorAboveElementCheck(expectedErrorOverMax)
-
-      }
-      s"return a BAD_REQUEST($BAD_REQUEST) status with the Empty Error - Welsh" which {
-
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-
-          emptyUserDataStub()
-          insertCyaData(requiredSessionData)
-
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
-
-          authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-            .post(Map[String, String]()))
-        }
-
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-        "returns the the correct status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        welshToggleCheck("Welsh")
-        errorSummaryCheck(expectedErrorEmptyCy, expectedErrorLink)
-        errorAboveElementCheck(expectedErrorEmptyCy)
-
-      }
-      s"return a BAD_REQUEST($BAD_REQUEST) status with the Invalid Format error - Welsh" which {
-
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-
-          emptyUserDataStub()
-          insertCyaData(requiredSessionData)
-
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
-
-          authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-            .post(Map("amount" -> "|")))
-        }
-
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-        "returns the the correct status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        welshToggleCheck("Welsh")
-        errorSummaryCheck(expectedErrorInvalidCy, expectedErrorLink)
-        errorAboveElementCheck(expectedErrorInvalidCy)
-
-      }
-      s"return a BAD_REQUEST($BAD_REQUEST) status with the OverMax error - Welsh" which {
-
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-
-          emptyUserDataStub()
-          insertCyaData(requiredSessionData)
-
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
-
-          authoriseAgent()
-          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off ")
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-            .post(Map("amount" -> "9999999999999999999999999999999")))
-        }
-
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-        "returns the the correct status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        welshToggleCheck("Welsh")
-        errorSummaryCheck(expectedErrorOverMaxCy, expectedErrorLink)
-        errorAboveElementCheck(expectedErrorOverMaxCy)
-
-      }
-
     }
-
   }
-
 }
