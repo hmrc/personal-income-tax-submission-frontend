@@ -19,14 +19,15 @@ package controllers.charity
 import common.SessionValues
 import forms.YesNoForm
 import helpers.PlaySessionCookieBaker
+import models.charity.GiftAidCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.{WSClient, WSResponse}
-import utils.{IntegrationTest, ViewHelpers}
+import utils.{GiftAidDatabaseHelper, IntegrationTest, ViewHelpers}
 
-class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest with ViewHelpers {
+class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest with ViewHelpers with GiftAidDatabaseHelper {
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
@@ -69,6 +70,7 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
   }
 
   val taxYear: Int = 2022
+  val requiredSessionData: Option[GiftAidCYAModel] = Some(GiftAidCYAModel(overseasCharityNames = Some(Seq(Content.charityName))))
 
   "as an individual" when {
 
@@ -77,6 +79,11 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
       "return an action with english content" which {
         lazy val result: WSResponse = {
           authoriseIndividual()
+
+          emptyUserDataStub()
+          dropGiftAidDB()
+          insertCyaData(requiredSessionData)
+
           await(
             wsClient
               .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
@@ -103,6 +110,11 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
       "return an action with welsh content" which {
         lazy val result: WSResponse = {
           authoriseIndividual()
+
+          emptyUserDataStub()
+          dropGiftAidDB()
+          insertCyaData(requiredSessionData)
+
           await(
             wsClient
               .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
@@ -129,22 +141,33 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
 
       ".submit" should {
 
-        "return an OK(200) status" in {
+        "return a redirect status" in {
           lazy val result: WSResponse = {
             authoriseIndividual()
+
+            emptyUserDataStub()
+            dropGiftAidDB()
+            insertCyaData(requiredSessionData)
+
             await(
               wsClient
                 .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
                 .withHttpHeaders(xSessionId, csrfContent)
+                .withFollowRedirects(false)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
             )
           }
-          result.status shouldBe OK
+          result.status shouldBe SEE_OTHER
         }
 
         "when there is no input" should {
           lazy val result: WSResponse = {
             authoriseIndividual()
+
+            emptyUserDataStub()
+            dropGiftAidDB()
+            insertCyaData(requiredSessionData)
+
             await(
               wsClient
                 .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
@@ -166,6 +189,11 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
         "when there is no input welsh content" should {
           lazy val result: WSResponse = {
             authoriseIndividual()
+
+            emptyUserDataStub()
+            dropGiftAidDB()
+            insertCyaData(requiredSessionData)
+
             await(
               wsClient
                 .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
@@ -199,6 +227,11 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
           ))
 
           authoriseAgent()
+
+          emptyUserDataStub()
+          dropGiftAidDB()
+          insertCyaData(requiredSessionData)
+
           await(
             wsClient
               .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
@@ -215,7 +248,7 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
 
     ".submit" should {
 
-      s"return an OK($OK) status" when {
+      s"return a redirect status" when {
 
         "there is form data" in {
           lazy val result: WSResponse = {
@@ -224,15 +257,21 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
               SessionValues.CLIENT_NINO -> "AA123456A"))
 
             authoriseAgent()
+
+            emptyUserDataStub()
+            dropGiftAidDB()
+            insertCyaData(requiredSessionData)
+
             await(
               wsClient
                 .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
                 .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
+                .withFollowRedirects(false)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
             )
           }
 
-          result.status shouldBe OK
+          result.status shouldBe SEE_OTHER
         }
       }
 
@@ -246,6 +285,11 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
             ))
 
             authoriseAgent()
+
+            emptyUserDataStub()
+            dropGiftAidDB()
+            insertCyaData(requiredSessionData)
+
             await(
               wsClient
                 .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
