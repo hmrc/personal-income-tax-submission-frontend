@@ -33,90 +33,65 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
   val taxYear: Int = 2022
 
-  val amountSelector = "#amount"
-
   val amount: BigDecimal = 25
   val differentAmount: BigDecimal = 30
   val accountName: String = "HSBC"
 
-  val overviewPageTitle = "Your Income Tax Return"
-  val untaxedAccountPageTitle = "Accounts with untaxed UK interest"
-  val taxedAccountPageTitle = "Accounts with taxed UK interest"
-  val untaxedChangeAmountPageTitle = "How much untaxed UK interest did you get?"
-  val taxedChangeAmountPageTitle = "How much taxed UK interest did you get?"
-
   val taxYearMinusOne: Int = taxYear - 1
 
-  val captionSelector = ".govuk-caption-l"
-  val continueButtonSelector = "#continue"
-  val continueFormSelector = "#main-content > div > div > form"
-  val errorSummarySelector = ".govuk-error-summary"
-  val errorSummaryTitleSelector = ".govuk-error-summary__title"
-  val errorSummaryTextSelector = ".govuk-error-summary__body"
-  val newAmountInputSelector = "#amount"
-  val amountInputName = "amount"
-  val youToldUsSelector = "#main-content > div > div > form > div > div > label > p"
+//  object IndividualExpected {
+//    val expectedUntaxedTitle = "How much untaxed UK interest did you get?"
+//    val expectedUntaxedErrorTitle = s"Error: $expectedUntaxedTitle"
+//    val expectedTaxedTitle = "How much taxed UK interest did you get?"
+//    val expectedTaxedErrorTitle = s"Error: $expectedTaxedTitle"
+//    def expectedErrorEmpty(taxType: String): String = s"Enter the amount of $taxType UK interest you got"
+//    def expectedErrorOverMax(taxType: String): String = s"The amount of $taxType UK interest must be less than £100,000,000,000"
+//    def expectedErrorInvalid(taxType: String): String = s"Enter the amount of $taxType UK interest in the correct format"
+//    val expectedUntaxedH1 = "HSBC: how much untaxed UK interest did you get?"
+//    val expectedTaxedH1 = "HSBC: how much taxed UK interest did you get?"
+//    val youToldUsUntaxed = s"You told us you got £$amount untaxed UK interest. Tell us if this has changed."
+//    val youToldUsTaxed = s"You told us you got £$amount taxed UK interest. Tell us if this has changed."
+//
+//    val expectedUntaxedTitleCy = "How much untaxed UK interest did you get?"
+//    val expectedUntaxedErrorTitleCy = s"Error: $expectedUntaxedTitleCy"
+//    val expectedTaxedTitleCy = "How much taxed UK interest did you get?"
+//    val expectedTaxedErrorTitleCy = s"Error: $expectedTaxedTitle"
+//    def expectedErrorEmptyCy(taxType: String): String = s"Enter the amount of $taxType UK interest you got"
+//    def expectedErrorOverMaxCy(taxType: String): String = s"The amount of $taxType UK interest must be less than £100,000,000,000"
+//    def expectedErrorInvalidCy(taxType: String): String = s"Enter the amount of $taxType UK interest in the correct format"
+//    val expectedUntaxedH1Cy = "HSBC: how much untaxed UK interest did you get?"
+//    val expectedTaxedH1Cy = "HSBC: how much taxed UK interest did you get?"
+//    val youToldUsUntaxedCy = s"You told us you got £$amount untaxed UK interest. Tell us if this has changed."
+//    val youToldUsTaxedCy = s"You told us you got £$amount taxed UK interest. Tell us if this has changed."
+//  }
+//
+//
+//  object AgentExpected {
+//    val expectedUntaxedTitle = "How much untaxed UK interest did your client get?"
+//    val expectedUntaxedErrorTitle = s"Error: $expectedUntaxedTitle"
+//    val expectedTaxedTitle = "How much taxed UK interest did your client get?"
+//    val expectedTaxedErrorTitle = s"Error: $expectedTaxedTitle"
+//    def expectedErrorEmpty(taxType: String): String = s"Enter the amount of $taxType UK interest your client got"
+//    def expectedErrorOverMax(taxType: String): String = s"The amount of $taxType UK interest must be less than £100,000,000,000"
+//    def expectedErrorInvalid(taxType: String): String = s"Enter the amount of $taxType UK interest in the correct format"
+//    val expectedUntaxedH1 = "HSBC: how much untaxed UK interest did your client get?"
+//    val expectedTaxedH1 = "HSBC: how much taxed UK interest did your client get?"
+//    val youToldUsUntaxed = s"You told us your client got £$amount untaxed UK interest. Tell us if this has changed."
+//    val youToldUsTaxed = s"You told us your client got £$amount taxed UK interest. Tell us if this has changed."
+//
+//    val expectedUntaxedTitleCy = "How much untaxed UK interest did your client get?"
+//    val expectedUntaxedErrorTitleCy = s"Error: $expectedUntaxedTitleCy"
+//    val expectedTaxedTitleCy = "How much taxed UK interest did your client get?"
+//    val expectedTaxedErrorTitleCy = s"Error: $expectedTaxedTitle"
+//    def expectedErrorEmptyCy(taxType: String): String = s"Enter the amount of $taxType UK interest your client got"
+//    def expectedErrorOverMaxCy(taxType: String): String = s"The amount of $taxType UK interest must be less than £100,000,000,000"
+//    def expectedErrorInvalidCy(taxType: String): String = s"Enter the amount of $taxType UK interest in the correct format"
+//    val expectedUntaxedH1Cy = "HSBC: how much untaxed UK interest did your client get?"
+//    val expectedTaxedH1Cy = "HSBC: how much taxed UK interest did your client get?"
+//    val youToldUsUntaxedCy = s"You told us your client got £$amount untaxed UK interest. Tell us if this has changed."
+//    val youToldUsTaxedCy = s"You told us your client got £$amount taxed UK interest. Tell us if this has changed."
+//  }
 
-  object IndividualExpected {
-    val expectedUntaxedTitle = "How much untaxed UK interest did you get?"
-    val expectedUntaxedErrorTitle = s"Error: $expectedUntaxedTitle"
-    val expectedTaxedTitle = "How much taxed UK interest did you get?"
-    val expectedTaxedErrorTitle = s"Error: $expectedTaxedTitle"
-    def expectedErrorEmpty(taxType: String): String = s"Enter the amount of $taxType UK interest you got"
-    def expectedErrorOverMax(taxType: String): String = s"The amount of $taxType UK interest must be less than £100,000,000,000"
-    def expectedErrorInvalid(taxType: String): String = s"Enter the amount of $taxType UK interest in the correct format"
-    val expectedUntaxedH1 = "HSBC: how much untaxed UK interest did you get?"
-    val expectedTaxedH1 = "HSBC: how much taxed UK interest did you get?"
-    val youToldUsUntaxed = s"You told us you got £$amount untaxed UK interest. Tell us if this has changed."
-    val youToldUsTaxed = s"You told us you got £$amount taxed UK interest. Tell us if this has changed."
-
-    val expectedUntaxedTitleCy = "How much untaxed UK interest did you get?"
-    val expectedUntaxedErrorTitleCy = s"Error: $expectedUntaxedTitleCy"
-    val expectedTaxedTitleCy = "How much taxed UK interest did you get?"
-    val expectedTaxedErrorTitleCy = s"Error: $expectedTaxedTitle"
-    def expectedErrorEmptyCy(taxType: String): String = s"Enter the amount of $taxType UK interest you got"
-    def expectedErrorOverMaxCy(taxType: String): String = s"The amount of $taxType UK interest must be less than £100,000,000,000"
-    def expectedErrorInvalidCy(taxType: String): String = s"Enter the amount of $taxType UK interest in the correct format"
-    val expectedUntaxedH1Cy = "HSBC: how much untaxed UK interest did you get?"
-    val expectedTaxedH1Cy = "HSBC: how much taxed UK interest did you get?"
-    val youToldUsUntaxedCy = s"You told us you got £$amount untaxed UK interest. Tell us if this has changed."
-    val youToldUsTaxedCy = s"You told us you got £$amount taxed UK interest. Tell us if this has changed."
-  }
-
-
-  object AgentExpected {
-    val expectedUntaxedTitle = "How much untaxed UK interest did your client get?"
-    val expectedUntaxedErrorTitle = s"Error: $expectedUntaxedTitle"
-    val expectedTaxedTitle = "How much taxed UK interest did your client get?"
-    val expectedTaxedErrorTitle = s"Error: $expectedTaxedTitle"
-    def expectedErrorEmpty(taxType: String): String = s"Enter the amount of $taxType UK interest your client got"
-    def expectedErrorOverMax(taxType: String): String = s"The amount of $taxType UK interest must be less than £100,000,000,000"
-    def expectedErrorInvalid(taxType: String): String = s"Enter the amount of $taxType UK interest in the correct format"
-    val expectedUntaxedH1 = "HSBC: how much untaxed UK interest did your client get?"
-    val expectedTaxedH1 = "HSBC: how much taxed UK interest did your client get?"
-    val youToldUsUntaxed = s"You told us your client got £$amount untaxed UK interest. Tell us if this has changed."
-    val youToldUsTaxed = s"You told us your client got £$amount taxed UK interest. Tell us if this has changed."
-
-    val expectedUntaxedTitleCy = "How much untaxed UK interest did your client get?"
-    val expectedUntaxedErrorTitleCy = s"Error: $expectedUntaxedTitleCy"
-    val expectedTaxedTitleCy = "How much taxed UK interest did your client get?"
-    val expectedTaxedErrorTitleCy = s"Error: $expectedTaxedTitle"
-    def expectedErrorEmptyCy(taxType: String): String = s"Enter the amount of $taxType UK interest your client got"
-    def expectedErrorOverMaxCy(taxType: String): String = s"The amount of $taxType UK interest must be less than £100,000,000,000"
-    def expectedErrorInvalidCy(taxType: String): String = s"Enter the amount of $taxType UK interest in the correct format"
-    val expectedUntaxedH1Cy = "HSBC: how much untaxed UK interest did your client get?"
-    val expectedTaxedH1Cy = "HSBC: how much taxed UK interest did your client get?"
-    val youToldUsUntaxedCy = s"You told us your client got £$amount untaxed UK interest. Tell us if this has changed."
-    val youToldUsTaxedCy = s"You told us your client got £$amount taxed UK interest. Tell us if this has changed."
-  }
-
-  val expectedCaption = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
-  val expectedHintText = "For example, £600 or £193.54"
-  val continueText = "Continue"
-
-  val expectedCaptionCy = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
-  val expectedHintTextCy = "For example, £600 or £193.54"
-  val continueTextCy = "Continue"
 
   def url(newId: String, accountType: String): String = s"$appUrl/$taxYear/interest/change-$accountType-uk-interest?accountId=$newId"
 
@@ -141,1360 +116,546 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
     Some(true), Some(false), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount)))),
   )
 
-  "calling /GET" when {
+  object Selectors {
+    val captionSelector = ".govuk-caption-l"
+    val continueButtonSelector = "#continue"
+    val continueFormSelector = "#main-content > div > div > form"
+    val errorSummarySelector = ".govuk-error-summary"
+    val errorSummaryTitleSelector = ".govuk-error-summary__title"
+    val errorSummaryTextSelector = ".govuk-error-summary__body"
+    val newAmountInputSelector = "#amount"
+    val amountInputName = "amount"
+    val youToldUsSelector = "#main-content > div > div > form > div > div > label > p"
+  }
 
-    "untaxed" should {
+  trait SpecificExpectedResults {
+    val expectedUntaxedTitle: String
+    val expectedUntaxedErrorTitle: String
+    val expectedTaxedTitle: String
+    val expectedTaxedErrorTitle: String
+    def expectedErrorEmpty(taxType: String): String
+    def expectedErrorOverMax(taxType: String): String
+    def expectedErrorInvalid(taxType: String): String
+    val expectedUntaxedH1: String
+    val expectedTaxedH1: String
+    val youToldUsUntaxed: String
+    val youToldUsTaxed: String
+  }
 
-      "render the untaxed change amount page without pre-populated amount box and Individual content" which {
-        import IndividualExpected._
+  trait CommonExpectedResults {
+    val expectedCaption: String
+    val expectedHintText: String
+    val continueText: String
+  }
 
-        val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.TAX_YEAR -> taxYear.toString
-        ))
+  object CommonExpectedEN extends CommonExpectedResults {
+    val expectedCaption = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
+    val expectedHintText = "For example, £600 or £193.54"
+    val continueText = "Continue"
+  }
 
-        lazy val result = {
-          dropInterestDB()
+  object CommonExpectedCY extends CommonExpectedResults {
+    val expectedCaption = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
+    val expectedHintText = "For example, £600 or £193.54"
+    val continueText = "Continue"
+  }
 
-          authoriseIndividual()
-          insertCyaData(Some(untaxedInterestCyaModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, None, Some(amount))))), nino, taxYear)
-          await(wsClient.url(url(id, "untaxed"))
-            .withHttpHeaders(
-              xSessionId,
-              csrfContent,
-              HeaderNames.COOKIE -> sessionCookie
-            ).get()
-          )
+  object ExpectedIndividualEN extends SpecificExpectedResults {
+    val expectedUntaxedTitle = "How much untaxed UK interest did you get?"
+    val expectedUntaxedErrorTitle = s"Error: $expectedUntaxedTitle"
+    val expectedTaxedTitle = "How much taxed UK interest did you get?"
+    val expectedTaxedErrorTitle = s"Error: $expectedTaxedTitle"
+    def expectedErrorEmpty(taxType: String): String = s"Enter the amount of $taxType UK interest you got"
+    def expectedErrorOverMax(taxType: String): String = s"The amount of $taxType UK interest must be less than £100,000,000,000"
+    def expectedErrorInvalid(taxType: String): String = s"Enter the amount of $taxType UK interest in the correct format"
+    val expectedUntaxedH1 = "HSBC: how much untaxed UK interest did you get?"
+    val expectedTaxedH1 = "HSBC: how much taxed UK interest did you get?"
+    val youToldUsUntaxed = s"You told us you got £$amount untaxed UK interest. Tell us if this has changed."
+    val youToldUsTaxed = s"You told us you got £$amount taxed UK interest. Tell us if this has changed."
+  }
+
+  object ExpectedAgentEN extends SpecificExpectedResults {
+    val expectedUntaxedTitle = "How much untaxed UK interest did your client get?"
+    val expectedUntaxedErrorTitle = s"Error: $expectedUntaxedTitle"
+    val expectedTaxedTitle = "How much taxed UK interest did your client get?"
+    val expectedTaxedErrorTitle = s"Error: $expectedTaxedTitle"
+    def expectedErrorEmpty(taxType: String): String = s"Enter the amount of $taxType UK interest your client got"
+    def expectedErrorOverMax(taxType: String): String = s"The amount of $taxType UK interest must be less than £100,000,000,000"
+    def expectedErrorInvalid(taxType: String): String = s"Enter the amount of $taxType UK interest in the correct format"
+    val expectedUntaxedH1 = "HSBC: how much untaxed UK interest did your client get?"
+    val expectedTaxedH1 = "HSBC: how much taxed UK interest did your client get?"
+    val youToldUsUntaxed = s"You told us your client got £$amount untaxed UK interest. Tell us if this has changed."
+    val youToldUsTaxed = s"You told us your client got £$amount taxed UK interest. Tell us if this has changed."
+  }
+
+  object ExpectedIndividualCY extends SpecificExpectedResults {
+    val expectedUntaxedTitle = "How much untaxed UK interest did you get?"
+    val expectedUntaxedErrorTitle = s"Error: $expectedUntaxedTitle"
+    val expectedTaxedTitle = "How much taxed UK interest did you get?"
+    val expectedTaxedErrorTitle = s"Error: $expectedTaxedTitle"
+    def expectedErrorEmpty(taxType: String): String = s"Enter the amount of $taxType UK interest you got"
+    def expectedErrorOverMax(taxType: String): String = s"The amount of $taxType UK interest must be less than £100,000,000,000"
+    def expectedErrorInvalid(taxType: String): String = s"Enter the amount of $taxType UK interest in the correct format"
+    val expectedUntaxedH1 = "HSBC: how much untaxed UK interest did you get?"
+    val expectedTaxedH1 = "HSBC: how much taxed UK interest did you get?"
+    val youToldUsUntaxed = s"You told us you got £$amount untaxed UK interest. Tell us if this has changed."
+    val youToldUsTaxed = s"You told us you got £$amount taxed UK interest. Tell us if this has changed."
+  }
+
+  object ExpectedAgentCY extends SpecificExpectedResults {
+    val expectedUntaxedTitle = "How much untaxed UK interest did your client get?"
+    val expectedUntaxedErrorTitle = s"Error: $expectedUntaxedTitle"
+    val expectedTaxedTitle = "How much taxed UK interest did your client get?"
+    val expectedTaxedErrorTitle = s"Error: $expectedTaxedTitle"
+    def expectedErrorEmpty(taxType: String): String = s"Enter the amount of $taxType UK interest your client got"
+    def expectedErrorOverMax(taxType: String): String = s"The amount of $taxType UK interest must be less than £100,000,000,000"
+    def expectedErrorInvalid(taxType: String): String = s"Enter the amount of $taxType UK interest in the correct format"
+    val expectedUntaxedH1 = "HSBC: how much untaxed UK interest did your client get?"
+    val expectedTaxedH1 = "HSBC: how much taxed UK interest did your client get?"
+    val youToldUsUntaxed = s"You told us your client got £$amount untaxed UK interest. Tell us if this has changed."
+    val youToldUsTaxed = s"You told us your client got £$amount taxed UK interest. Tell us if this has changed."
+  }
+
+  val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
+    Seq(
+      UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
+      UserScenario(isWelsh = false, isAgent = true, CommonExpectedEN, Some(ExpectedAgentEN)),
+      UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, Some(ExpectedIndividualCY)),
+      UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY))
+    )
+  }
+
+  ".show" when {
+
+    userScenarios.foreach { us =>
+
+      import us.commonExpectedResults._
+      import Selectors._
+
+      val specific = us.specificExpectedResults.get
+
+      s"user is ${agentTest(us.isAgent)} and request is ${welshTest(us.isWelsh)}" should {
+
+        Seq(
+          (untaxedInterestCyaModel,InterestModel(accountName, id, None, Some(amount)),/*untaxed =*/true),
+          (taxedInterestCyaModel,InterestModel(accountName, id, Some(amount), None),/*untaxed =*/false)
+        ) foreach {
+          testCase =>
+            s"return OK and correctly render the page for ${if(testCase._3) "untaxed" else "taxed"}" when {
+              lazy val result = {
+
+                dropInterestDB()
+                insertCyaData(Some(testCase._1))
+                userDataStub(IncomeSourcesModel(interest = Some(Seq(testCase._2))), nino, taxYear)
+                authoriseAgentOrIndividual(us.isAgent)
+                urlGet(url(id, if(testCase._3) "untaxed" else "taxed"), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+              }
+
+              s"has an OK($OK) status" in {
+                result.status shouldBe OK
+              }
+
+              implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+              titleCheck(if(testCase._3) specific.expectedUntaxedTitle else specific.expectedTaxedTitle)
+              welshToggleCheck(us.isWelsh)
+              h1Check((if(testCase._3) specific.expectedUntaxedH1 else specific.expectedTaxedH1) + " " + expectedCaption)
+              textOnPageCheck(if(testCase._3) specific.youToldUsUntaxed else specific.youToldUsTaxed, youToldUsSelector)
+              textOnPageCheck(expectedCaption, captionSelector)
+              hintTextCheck(expectedHintText)
+              inputFieldCheck(amountInputName, newAmountInputSelector)
+              buttonCheck(continueText, continueButtonSelector)
+              formPostLinkCheck(urlNoPreFix(id, if(testCase._3) "untaxed" else "taxed"), continueFormSelector)
+              inputFieldValueCheck("", newAmountInputSelector)
+            }
         }
 
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        titleCheck(expectedUntaxedTitle)
-        welshToggleCheck("English")
-        h1Check(expectedUntaxedH1 + " " + expectedCaption)
-        textOnPageCheck(youToldUsUntaxed, youToldUsSelector)
-        textOnPageCheck(expectedCaption, captionSelector)
-        hintTextCheck(expectedHintText)
-        inputFieldCheck(amountInputName, newAmountInputSelector)
-        buttonCheck(continueText, continueButtonSelector)
-        formPostLinkCheck(urlNoPreFix(id, "untaxed"), continueFormSelector)
-        inputFieldValueCheck("", amountSelector)
-      }
-
-      "render the untaxed change amount page without pre-populated amount box and agent content" which {
-        import AgentExpected._
-
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A"
-        ))
-
-        lazy val result = {
-          dropInterestDB()
-
-          authoriseAgent()
-          insertCyaData(Some(untaxedInterestCyaModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, None, Some(amount))))), nino, taxYear)
-          await(wsClient.url(url(id, "untaxed"))
-            .withHttpHeaders(
-              xSessionId,
-              csrfContent,
-              HeaderNames.COOKIE -> sessionCookie
-            ).get()
-          )
-        }
-
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        titleCheck(expectedUntaxedTitle)
-        welshToggleCheck("English")
-        h1Check(expectedUntaxedH1 + " " + expectedCaption)
-        textOnPageCheck(youToldUsUntaxed, youToldUsSelector)
-        textOnPageCheck(expectedCaption, captionSelector)
-        hintTextCheck(expectedHintText)
-        inputFieldCheck(amountInputName, newAmountInputSelector)
-        buttonCheck(continueText, continueButtonSelector)
-        formPostLinkCheck(urlNoPreFix(id, "untaxed"), continueFormSelector)
-        inputFieldValueCheck("", amountSelector)
-      }
-
-      "render the untaxed change amount page without pre-populated amount box and Individual content- Welsh" which {
-        import IndividualExpected._
-
-        lazy val result = {
-          dropInterestDB()
-
-          authoriseIndividual()
-          insertCyaData(Some(untaxedInterestCyaModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, None, Some(amount))))), nino, taxYear)
-          await(wsClient.url(url(id, "untaxed"))
-            .withHttpHeaders(
-              xSessionId,
-              csrfContent,
-              HeaderNames.ACCEPT_LANGUAGE -> "cy"
-            ).get()
-          )
-        }
-
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        titleCheck(expectedUntaxedTitleCy)
-        welshToggleCheck("Welsh")
-        h1Check(expectedUntaxedH1Cy + " " + expectedCaptionCy)
-        textOnPageCheck(youToldUsUntaxedCy, youToldUsSelector)
-        textOnPageCheck(expectedCaptionCy, captionSelector)
-        hintTextCheck(expectedHintTextCy)
-        inputFieldCheck(amountInputName, newAmountInputSelector)
-        buttonCheck(continueTextCy, continueButtonSelector)
-        formPostLinkCheck(urlNoPreFix(id, "untaxed"), continueFormSelector)
-        inputFieldValueCheck("", amountSelector)
-      }
-
-      "render the untaxed change amount page without pre-populated amount box and agent content - Welsh" which {
-        import AgentExpected._
-
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A",
-        ))
-
-        lazy val result = {
-          dropInterestDB()
-
-          authoriseAgent()
-          insertCyaData(Some(untaxedInterestCyaModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, None, Some(amount))))), nino, taxYear)
-          await(wsClient.url(url(id, "untaxed"))
-            .withHttpHeaders(
-              xSessionId,
-              csrfContent,
-              HeaderNames.COOKIE -> sessionCookie,
-              HeaderNames.ACCEPT_LANGUAGE -> "cy"
-            ).get()
-          )
-        }
-
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        titleCheck(expectedUntaxedTitleCy)
-        welshToggleCheck("Welsh")
-        h1Check(expectedUntaxedH1Cy + " " + expectedCaptionCy)
-        textOnPageCheck(youToldUsUntaxedCy, youToldUsSelector)
-        textOnPageCheck(expectedCaptionCy, captionSelector)
-        hintTextCheck(expectedHintTextCy)
-        inputFieldCheck(amountInputName, newAmountInputSelector)
-        buttonCheck(continueTextCy, continueButtonSelector)
-        formPostLinkCheck(urlNoPreFix(id, "untaxed"), continueFormSelector)
-        inputFieldValueCheck("", amountSelector)
-      }
-
-      "render the untaxed change amount page with pre-populated amount box" which {
-
-        val interestCYA = InterestCYAModel(
-          Some(true), Some(false), Some(Seq(InterestAccountModel(Some(id), accountName, Some(differentAmount))))
-        )
-
-        lazy val result = {
-          dropInterestDB()
-
-          authoriseIndividual()
-          insertCyaData(Some(interestCYA))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, None, Some(amount))))), nino, taxYear)
-          await(wsClient.url(url(id, "untaxed"))
-            .withHttpHeaders(
-              xSessionId,
-              csrfContent
-            ).get()
-          )
-        }
-
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        titleCheck(untaxedChangeAmountPageTitle)
-        inputFieldValueCheck(differentAmount.toString(), amountSelector)
-      }
-
-      "render the untaxed change amount page without paragraph text" when {
-
-        "there is no amount previously submitted" which {
-          val interestCYA = InterestCYAModel(
-            Some(true), Some(false), Some(Seq(InterestAccountModel(Some(id), accountName, None)))
-          )
-
-          lazy val result = {
-            dropInterestDB()
-
-            authoriseIndividual()
-            insertCyaData(Some(interestCYA))
-            userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, None, None)))), nino, taxYear)
-            await(wsClient.url(url(id, "untaxed"))
-              .withHttpHeaders(
-                xSessionId,
-                csrfContent
-              ).get()
-            )
-          }
-
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-          titleCheck(untaxedChangeAmountPageTitle)
-          textOnPageCheck("", youToldUsSelector)
-          inputFieldValueCheck("", amountSelector)
-
-        }
-      }
-
-      "redirect to the overview page" when {
-
-        "there is no prior or cya data" in {
-
-          val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.TAX_YEAR -> taxYear.toString
-          ))
-
-          lazy val result = {
-            dropInterestDB()
-
-            authoriseIndividual()
-            insertCyaData(None)
-            userDataStub(IncomeSourcesModel(interest = Some(Seq())), nino, taxYear)
-            stubGet("/income-through-software/return/2022/view", SEE_OTHER, "overview")
-            await(wsClient.url(url(id, "untaxed"))
-              .withHttpHeaders(
-                xSessionId,
-                csrfContent,
-                HeaderNames.COOKIE -> playSessionCookie
-              )
-              .withFollowRedirects(false)
-              .get()
-            )
-          }
-
-          wireMockServer.resetAll()
-
-          result.status shouldBe SEE_OTHER
-          result.headers("Location").head.contains("/income-through-software/return/2022/view") shouldBe true
-        }
-
-      }
-
-      "redirect to untaxed account summary page" when {
-
-        "there is cya data but no prior data" which {
-
-          lazy val result = {
-            dropInterestDB()
-
-            authoriseIndividual()
-            insertCyaData(Some(untaxedInterestCyaModel))
-            userDataStub(IncomeSourcesModel(interest = Some(Seq())), nino, taxYear)
-            await(wsClient.url(url(id, "untaxed"))
-              .withHttpHeaders(
-                xSessionId,
-                csrfContent,
-              ).get()
-            )
-          }
-
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-          titleCheck(untaxedAccountPageTitle)
-        }
-      }
-    }
-
-    "taxed" should {
-
-      "render the taxed change amount page without pre-populated amount box and Individual content" which {
-        import IndividualExpected._
-
-        val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.TAX_YEAR -> taxYear.toString
-        ))
-
-        lazy val result = {
-          dropInterestDB()
-
-          authoriseIndividual()
-          insertCyaData(Some(taxedInterestCyaModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, Some(amount), None)))), nino, taxYear)
-          await(wsClient.url(url(id, "taxed"))
-            .withHttpHeaders(
-              xSessionId,
-              csrfContent,
-              HeaderNames.COOKIE -> sessionCookie
-            ).get()
-          )
-        }
-
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        titleCheck(expectedTaxedTitle)
-        welshToggleCheck("English")
-        h1Check(expectedTaxedH1 + " " + expectedCaption)
-        textOnPageCheck(youToldUsTaxed, youToldUsSelector)
-        textOnPageCheck(expectedCaption, captionSelector)
-        hintTextCheck(expectedHintText)
-        inputFieldCheck(amountInputName, newAmountInputSelector)
-        buttonCheck(continueText, continueButtonSelector)
-        formPostLinkCheck(urlNoPreFix(id, "taxed"), continueFormSelector)
-        inputFieldValueCheck("", amountSelector)
-
-      }
-
-      "render the taxed change amount page without pre-populated amount box and agent content" which {
-        import AgentExpected._
-
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A"
-        ))
-
-        lazy val result = {
-          dropInterestDB()
-
-          authoriseAgent()
-          insertCyaData(Some(taxedInterestCyaModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, Some(amount), None)))), nino, taxYear)
-          await(wsClient.url(url(id, "taxed"))
-            .withHttpHeaders(
-              xSessionId,
-              csrfContent,
-              HeaderNames.COOKIE -> sessionCookie
-            ).get()
-          )
-        }
-
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        titleCheck(expectedTaxedTitle)
-        welshToggleCheck("English")
-        h1Check(expectedTaxedH1 + " " + expectedCaption)
-        textOnPageCheck(youToldUsTaxed, youToldUsSelector)
-        textOnPageCheck(expectedCaption, captionSelector)
-        hintTextCheck(expectedHintText)
-        inputFieldCheck(amountInputName, newAmountInputSelector)
-        buttonCheck(continueText, continueButtonSelector)
-        formPostLinkCheck(urlNoPreFix(id, "taxed"), continueFormSelector)
-        inputFieldValueCheck("", amountSelector)
-
-      }
-
-      "render the taxed change amount page without pre-populated amount box and Individual content - Welsh" which {
-        import IndividualExpected._
-
-        lazy val result = {
-          dropInterestDB()
-
-          authoriseIndividual()
-          insertCyaData(Some(taxedInterestCyaModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, Some(amount), None)))), nino, taxYear)
-          await(wsClient.url(url(id, "taxed"))
-            .withHttpHeaders(
-              xSessionId,
-              csrfContent,
-              HeaderNames.ACCEPT_LANGUAGE -> "cy"
-            ).get()
-          )
-        }
-
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        titleCheck(expectedTaxedTitleCy)
-        welshToggleCheck("Welsh")
-        h1Check(expectedTaxedH1Cy + " " + expectedCaptionCy)
-        textOnPageCheck(youToldUsTaxedCy, youToldUsSelector)
-        textOnPageCheck(expectedCaptionCy, captionSelector)
-        hintTextCheck(expectedHintTextCy)
-        inputFieldCheck(amountInputName, newAmountInputSelector)
-        buttonCheck(continueTextCy, continueButtonSelector)
-        formPostLinkCheck(urlNoPreFix(id, "taxed"), continueFormSelector)
-        inputFieldValueCheck("", amountSelector)
-
-      }
-
-      "render the taxed change amount page without pre-populated amount box and agent content - Welsh" which {
-        import AgentExpected._
-
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A"
-        ))
-
-        lazy val result = {
-          dropInterestDB()
-
-          authoriseAgent()
-          insertCyaData(Some(taxedInterestCyaModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, Some(amount), None)))), nino, taxYear)
-          await(wsClient.url(url(id, "taxed"))
-            .withHttpHeaders(
-              xSessionId,
-              csrfContent,
-              HeaderNames.COOKIE -> sessionCookie,
-              HeaderNames.ACCEPT_LANGUAGE -> "cy"
-            ).get()
-          )
-        }
-
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        titleCheck(expectedTaxedTitleCy)
-        welshToggleCheck("Welsh")
-        h1Check(expectedTaxedH1Cy + " " + expectedCaptionCy)
-        textOnPageCheck(youToldUsTaxedCy, youToldUsSelector)
-        textOnPageCheck(expectedCaptionCy, captionSelector)
-        hintTextCheck(expectedHintTextCy)
-        inputFieldCheck(amountInputName, newAmountInputSelector)
-        buttonCheck(continueTextCy, continueButtonSelector)
-        formPostLinkCheck(urlNoPreFix(id, "taxed"), continueFormSelector)
-        inputFieldValueCheck("", amountSelector)
-
-      }
-
-      "render the taxed change amount page with pre-populated amount box" which {
-
-        lazy val interestCYA = InterestCYAModel(
-          Some(false), Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, None, Some(differentAmount))))
-        )
-
-        lazy val result = {
-          dropInterestDB()
-
-          authoriseIndividual()
-          insertCyaData(Some(interestCYA))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, Some(amount), None)))), nino, taxYear)
-          await(wsClient.url(url(id, "taxed"))
-            .withHttpHeaders(
-              xSessionId,
-              csrfContent
-            ).get()
-          )
-        }
-
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        titleCheck(taxedChangeAmountPageTitle)
-        inputFieldValueCheck(differentAmount.toString(), amountSelector)
-
-      }
-
-      "render the taxed change amount page without paragraph text" when {
-
-        "there is no previous amount submitted" which {
-          val interestCYA = InterestCYAModel(
+        Seq(
+          (InterestCYAModel(
+            Some(true), Some(false), Some(Seq(InterestAccountModel(Some(id), accountName, None, None)))
+          ), InterestModel(accountName, id, None, Some(amount)), /*untaxed =*/ true),
+          (InterestCYAModel(
             Some(false), Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, None, None)))
-          )
+          ), InterestModel(accountName, id, Some(amount), None), /*untaxed =*/ false)
+        ) foreach {
+          testCase =>
+            s"return OK and correctly render the page for ${if(testCase._3) "untaxed" else "taxed"} when there is no cya amount" when {
+              lazy val result = {
 
-          lazy val result = {
-            dropInterestDB()
+                dropInterestDB()
+                insertCyaData(Some(testCase._1))
+                userDataStub(IncomeSourcesModel(interest = Some(Seq(testCase._2))), nino, taxYear)
+                authoriseAgentOrIndividual(us.isAgent)
+                urlGet(url(id, if(testCase._3) "untaxed" else "taxed"), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+              }
 
-            authoriseIndividual()
-            insertCyaData(Some(interestCYA))
-            userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, id, None, None)))), nino, taxYear)
-            await(wsClient.url(url(id, "taxed"))
-              .withHttpHeaders(
-                xSessionId,
-                csrfContent
-              ).get()
-            )
-          }
+              s"has an OK($OK) status" in {
+                result.status shouldBe OK
+              }
 
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
+              implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(taxedChangeAmountPageTitle)
-          textOnPageCheck("", youToldUsSelector)
-          inputFieldValueCheck("", amountSelector)
-
-        }
-      }
-
-      "redirect to the overview page" when {
-
-        "there is no prior or cya data" in {
-
-          val playSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-            SessionValues.TAX_YEAR -> taxYear.toString
-          ))
-
-          lazy val result = {
-            dropInterestDB()
-
-            authoriseIndividual()
-            insertCyaData(None)
-            userDataStub(IncomeSourcesModel(interest = Some(Seq())), nino, taxYear)
-            stubGet("/income-through-software/return/2022/view", SEE_OTHER, "overview")
-            await(wsClient.url(url(id, "taxed"))
-              .withHttpHeaders(
-                xSessionId,
-                csrfContent,
-                HeaderNames.COOKIE -> playSessionCookie
-              )
-              .withFollowRedirects(false)
-              .get()
-            )
-          }
-
-          wireMockServer.resetAll()
-
-          result.status shouldBe SEE_OTHER
-          result.headers("Location").head.contains("/income-through-software/return/2022/view") shouldBe true
+              titleCheck(if(testCase._3) specific.expectedUntaxedTitle else specific.expectedTaxedTitle)
+              welshToggleCheck(us.isWelsh)
+              h1Check((if(testCase._3) specific.expectedUntaxedH1 else specific.expectedTaxedH1) + " " + expectedCaption)
+              textOnPageCheck(if(testCase._3) specific.youToldUsUntaxed else specific.youToldUsTaxed, youToldUsSelector)
+              textOnPageCheck(expectedCaption, captionSelector)
+              hintTextCheck(expectedHintText)
+              inputFieldCheck(amountInputName, newAmountInputSelector)
+              buttonCheck(continueText, continueButtonSelector)
+              formPostLinkCheck(urlNoPreFix(id, if(testCase._3) "untaxed" else "taxed"), continueFormSelector)
+              inputFieldValueCheck(amount.toString(), newAmountInputSelector)
+            }
         }
 
-      }
+        Seq(
+          (InterestCYAModel(
+            Some(true), Some(false), Some(Seq(InterestAccountModel(Some(id), accountName, Some(differentAmount))))
+          ),InterestModel(accountName, id, None, Some(amount)),/*untaxed =*/true),
+          (InterestCYAModel(
+            Some(false), Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, None, Some(differentAmount))))
+          ),InterestModel(accountName, id, Some(amount), None),/*untaxed =*/false)
+        ) foreach {
+          testCase =>
 
-      "redirect to taxed account summary page" when {
+            s"render the ${if (testCase._3) "untaxed" else "taxed"} change amount page with pre-populated amount box" which {
 
-        "there is cya data but no prior data" which {
+              lazy val result = {
+                dropInterestDB()
+                insertCyaData(Some(testCase._1))
+                userDataStub(IncomeSourcesModel(interest = Some(Seq(testCase._2))), nino, taxYear)
+                authoriseAgentOrIndividual(us.isAgent)
+                urlGet(url(id, if(testCase._3) "untaxed" else "taxed"), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+              }
 
-          lazy val result = {
-            dropInterestDB()
+              implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-            authoriseIndividual()
-            insertCyaData(Some(taxedInterestCyaModel))
-            userDataStub(IncomeSourcesModel(interest = Some(Seq())), nino, taxYear)
-            await(wsClient.url(url(id, "taxed"))
-              .withHttpHeaders(
-                xSessionId,
-                csrfContent,
-              ).get()
-            )
-          }
-
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-          titleCheck(taxedAccountPageTitle)
-
+              titleCheck(if(testCase._3) specific.expectedUntaxedTitle else specific.expectedTaxedTitle)
+              inputFieldValueCheck(differentAmount.toString(), newAmountInputSelector)
+            }
         }
 
-      }
+        Seq(
+          (InterestCYAModel(
+            Some(true), Some(false), Some(Seq(InterestAccountModel(Some(id), accountName)))
+          ),InterestModel(accountName, id, None, None),/*untaxed =*/true),
+          (InterestCYAModel(
+            Some(false), Some(true), Some(Seq(InterestAccountModel(Some(id), accountName)))
+          ),InterestModel(accountName, id, None, None),/*untaxed =*/false)
+        ) foreach {
+          testCase =>
 
-    }
+            s"render the ${if (testCase._3) "untaxed" else "taxed"} change amount page without paragraph text" when {
 
-  }
+              "there is no amount previously submitted" which {
 
-  ".submit taxed" should {
+                lazy val result = {
+                  dropInterestDB()
+                  insertCyaData(Some(testCase._1))
+                  userDataStub(IncomeSourcesModel(interest = Some(Seq(testCase._2))), nino, taxYear)
+                  authoriseAgentOrIndividual(us.isAgent)
+                  urlGet(url(id, if (testCase._3) "untaxed" else "taxed"), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+                }
 
-    "return an action and the correct errors" when {
+                implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-      "there is both CYA data and prior in session and input is empty as an Individual" which {
-        import IndividualExpected._
+                titleCheck(if(testCase._3) specific.expectedUntaxedTitle else specific.expectedTaxedTitle)
+                textOnPageCheck("", youToldUsSelector)
+                inputFieldValueCheck("", newAmountInputSelector)
 
-        lazy val result = {
-          dropInterestDB()
-
-          authoriseIndividual()
-          insertCyaData(Some(taxedCyaSubmitModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
-          await(wsClient.url(url("TaxedId", "taxed"))
-            .withHttpHeaders(
-              xSessionId,
-              csrfContent
-            ).post(Map("amount" -> ""))
-          )
-        }
-        s"has an BAD_REQUEST($BAD_REQUEST) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        errorSummaryCheck(expectedErrorEmpty("taxed"), newAmountInputSelector)
-        errorAboveElementCheck(expectedErrorEmpty("taxed"))
-      }
-
-      "there is both CYA data and prior in session and input is empty as an agent" which {
-        import AgentExpected._
-
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A"
-        ))
-
-        lazy val result = {
-          dropInterestDB()
-
-          authoriseAgent()
-          insertCyaData(Some(taxedCyaSubmitModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
-          await(wsClient.url(url("TaxedId", "taxed"))
-            .withHttpHeaders(
-              xSessionId,
-              csrfContent,
-              HeaderNames.COOKIE -> sessionCookie
-            ).post(Map("amount" -> ""))
-          )
-        }
-        s"has an BAD_REQUEST($BAD_REQUEST) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        errorSummaryCheck(expectedErrorEmpty("taxed"), newAmountInputSelector)
-        errorAboveElementCheck(expectedErrorEmpty("taxed"))
-      }
-
-      "there is both CYA data and prior in session and input is invalid as an Individual" which {
-        import IndividualExpected._
-
-        lazy val result = {
-          dropInterestDB()
-
-          authoriseIndividual()
-          insertCyaData(Some(taxedCyaSubmitModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
-          await(wsClient.url(url("TaxedId", "taxed"))
-            .withHttpHeaders(
-              xSessionId,
-              csrfContent)
-            .post(Map("amount" -> "|")))
-        }
-        s"has an BAD_REQUEST($BAD_REQUEST) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        errorSummaryCheck(expectedErrorInvalid("taxed"), newAmountInputSelector)
-        errorAboveElementCheck(expectedErrorInvalid("taxed"))
-      }
-
-      "there is both CYA data and prior in session and input is invalid as an agent" which {
-        import AgentExpected._
-
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A"
-        ))
-
-        lazy val result = {
-          dropInterestDB()
-
-          authoriseAgent()
-          insertCyaData(Some(taxedCyaSubmitModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
-          await(wsClient.url(url("TaxedId", "taxed"))
-            .withHttpHeaders(
-              xSessionId,
-              csrfContent,
-              HeaderNames.COOKIE -> sessionCookie
-            ).post(Map("amount" -> "|"))
-          )
-        }
-        s"has an BAD_REQUEST($BAD_REQUEST) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        errorSummaryCheck(expectedErrorInvalid("taxed"), newAmountInputSelector)
-        errorAboveElementCheck(expectedErrorInvalid("taxed"))
-      }
-
-      "there is both CYA data and prior in session and input is OverMax as an Individual" which {
-        import IndividualExpected._
-
-        lazy val result = {
-          dropInterestDB()
-          authoriseIndividual()
-          insertCyaData(Some(taxedCyaSubmitModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
-          await(wsClient.url(url("TaxedId", "taxed"))
-            .withHttpHeaders(
-              xSessionId,
-              csrfContent
-            ).post(Map("amount" -> "99999999999999999999999999999999999999999"))
-          )
-        }
-        s"has an BAD_REQUEST($BAD_REQUEST) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        errorSummaryCheck(expectedErrorOverMax("taxed"), newAmountInputSelector)
-        errorAboveElementCheck(expectedErrorOverMax("taxed"))
-      }
-
-      "there is both CYA data and prior in session and input is OverMax as an agent" which {
-        import AgentExpected._
-
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A",
-        ))
-
-        lazy val result = {
-          dropInterestDB()
-          authoriseAgent()
-          insertCyaData(Some(taxedCyaSubmitModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
-          await(wsClient.url(url("TaxedId", "taxed"))
-            .withHttpHeaders(
-              HeaderNames.COOKIE -> sessionCookie,
-              xSessionId,
-              csrfContent
-            ).post(Map("amount" -> "999999999999999999999999999999999999"))
-          )
-        }
-        s"has an BAD_REQUEST($BAD_REQUEST) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        errorSummaryCheck(expectedErrorOverMax("taxed"), newAmountInputSelector)
-        errorAboveElementCheck(expectedErrorOverMax("taxed"))
-      }
-
-      "there is both CYA data and prior in session and input is empty as an Individual - Welsh" which {
-        import IndividualExpected._
-
-        lazy val result = {
-          dropInterestDB()
-          authoriseIndividual()
-          insertCyaData(Some(taxedCyaSubmitModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
-          await(wsClient.url(url("TaxedId", "taxed"))
-            .withHttpHeaders(
-              HeaderNames.ACCEPT_LANGUAGE -> "cy",
-              xSessionId,
-              csrfContent
-            ).post(Map("amount" -> ""))
-          )
+              }
+            }
         }
 
-        s"has an BAD_REQUEST($BAD_REQUEST) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-        welshToggleCheck("Welsh")
-        errorSummaryCheck(expectedErrorEmptyCy("taxed"), newAmountInputSelector)
-        errorAboveElementCheck(expectedErrorEmptyCy("taxed"))
-      }
+        Seq(
+          /*untaxed =*/true,
+          /*untaxed =*/false
+        ) foreach {
+          testCase =>
 
-      "there is both CYA data and prior in session and input is empty as an agent - Welsh" which {
-        import AgentExpected._
+            s"redirect to the overview page for ${if (testCase) "untaxed" else "taxed"} accounts" when {
 
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A"
-        ))
+              "there is no prior or cya data" in {
 
-        lazy val result = {
-          dropInterestDB()
-          authoriseAgent()
-          insertCyaData(Some(taxedCyaSubmitModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
-          await(wsClient.url(url("TaxedId", "taxed"))
-            .withHttpHeaders(
-              HeaderNames.COOKIE -> sessionCookie,
-              HeaderNames.ACCEPT_LANGUAGE -> "cy",
-              xSessionId,
-              csrfContent
-            ).post(Map("amount" -> ""))
-          )
+                lazy val result = {
+                  dropInterestDB()
+                  insertCyaData(None)
+                  userDataStub(IncomeSourcesModel(interest = Some(Seq())), nino, taxYear)
+                  authoriseAgentOrIndividual(us.isAgent)
+                  urlGet(url(id, if (testCase) "untaxed" else "taxed"), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+                }
+
+                wireMockServer.resetAll()
+
+                result.status shouldBe SEE_OTHER
+                result.headers("Location").head.contains("/income-through-software/return/2022/view") shouldBe true
+              }
+            }
         }
 
-        s"has an BAD_REQUEST($BAD_REQUEST) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
+        Seq(
+          (InterestCYAModel(
+            Some(true), Some(false), Some(Seq(InterestAccountModel(Some(id), accountName, Some(amount))))
+          ),/*untaxed =*/true),
+          (InterestCYAModel(
+            Some(false), Some(true), Some(Seq(InterestAccountModel(Some(id), accountName, None, Some(amount))))
+          ),/*untaxed =*/false)
+        ) foreach {
+          testCase =>
 
-        welshToggleCheck("Welsh")
-        errorSummaryCheck(expectedErrorEmptyCy("taxed"), newAmountInputSelector)
-        errorAboveElementCheck(expectedErrorEmptyCy("taxed"))
-      }
+            s"redirect to ${testCase._2} account summary page" when {
 
-      "there is both CYA data and prior in session and input is invalid as an Individual - Welsh" which {
-        import IndividualExpected._
+              "there is cya data but no prior data" which {
 
-        lazy val result = {
-          dropInterestDB()
-          authoriseIndividual()
-          insertCyaData(Some(taxedCyaSubmitModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
-          await(wsClient.url(url("TaxedId", "taxed"))
-            .withHttpHeaders(
-              HeaderNames.ACCEPT_LANGUAGE -> "cy",
-              xSessionId,
-              csrfContent
-            ).post(Map("amount" -> "|"))
-          )
-        }
+                lazy val result = {
+                  dropInterestDB()
+                  insertCyaData(Some(testCase._1))
+                  userDataStub(IncomeSourcesModel(interest = Some(Seq())), nino, taxYear)
+                  authoriseAgentOrIndividual(us.isAgent)
+                  urlGet(url(id, if (testCase._2) "untaxed" else "taxed"), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+                }
 
-        s"has an BAD_REQUEST($BAD_REQUEST) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
+                implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-        welshToggleCheck("Welsh")
-        errorSummaryCheck(expectedErrorInvalidCy("taxed"), newAmountInputSelector)
-        errorAboveElementCheck(expectedErrorInvalidCy("taxed"))
-      }
-
-      "there is both CYA data and prior in session and input is invalid as an agent - Welsh" which {
-        import AgentExpected._
-
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A"
-        ))
-
-        lazy val result = {
-          dropInterestDB()
-          authoriseAgent()
-          insertCyaData(Some(taxedCyaSubmitModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
-          await(wsClient.url(url("TaxedId", "taxed"))
-            .withHttpHeaders(
-              HeaderNames.COOKIE -> sessionCookie,
-              HeaderNames.ACCEPT_LANGUAGE -> "cy",
-              xSessionId,
-              csrfContent
-            ).post(Map("amount" -> "|"))
-          )
-        }
-
-        s"has an BAD_REQUEST($BAD_REQUEST) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        welshToggleCheck("Welsh")
-        errorSummaryCheck(expectedErrorInvalidCy("taxed"), newAmountInputSelector)
-        errorAboveElementCheck(expectedErrorInvalidCy("taxed"))
-      }
-
-      "there is both CYA data and prior in session and input is OverMax as an Individual - Welsh" which {
-        import IndividualExpected._
-
-        lazy val result = {
-          dropInterestDB()
-          authoriseIndividual()
-          insertCyaData(Some(taxedCyaSubmitModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
-          await(wsClient.url(url("TaxedId", "taxed"))
-            .withHttpHeaders(
-              HeaderNames.ACCEPT_LANGUAGE -> "cy",
-              xSessionId,
-              csrfContent
-            ).post(Map("amount" -> "99999999999999999999999999999999999999999"))
-          )
-        }
-
-        s"has an BAD_REQUEST($BAD_REQUEST) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        welshToggleCheck("Welsh")
-        errorSummaryCheck(expectedErrorOverMaxCy("taxed"), newAmountInputSelector)
-        errorAboveElementCheck(expectedErrorOverMaxCy("taxed"))
-      }
-
-      "there is both CYA data and prior in session and input is OverMax as an agent - Welsh" which {
-        import AgentExpected._
-
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A",
-        ))
-
-        lazy val result = {
-          dropInterestDB()
-          authoriseAgent()
-          insertCyaData(Some(taxedCyaSubmitModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "TaxedId", Some(amount), None)))), nino, taxYear)
-          await(wsClient.url(url("TaxedId", "taxed"))
-            .withHttpHeaders(
-              HeaderNames.COOKIE -> sessionCookie,
-              HeaderNames.ACCEPT_LANGUAGE -> "cy",
-              xSessionId,
-              csrfContent
-            ).post(Map("amount" -> "99999999999999999999999999999999999999999"))
-          )
-        }
-
-        s"has an BAD_REQUEST($BAD_REQUEST) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        welshToggleCheck("Welsh")
-        errorSummaryCheck(expectedErrorOverMaxCy("taxed"), newAmountInputSelector)
-        errorAboveElementCheck(expectedErrorOverMaxCy("taxed"))
-      }
-
-      "there is CYA data in session" which {
-
-        lazy val result = {
-          dropInterestDB()
-          authoriseIndividual()
-          insertCyaData(Some(taxedCyaSubmitModel))
-          userDataStub(IncomeSourcesModel(interest = None), nino, taxYear)
-          await(wsClient.url(url("TaxedId", "taxed"))
-            .withHttpHeaders(
-              xSessionId,
-              csrfContent
-            ).post("{}")
-          )
-        }
-
-        s"has an OK($OK) status" in {
-          result.status shouldBe OK
-        }
-      }
-
-      "there is no CYA data in session" which {
-
-        lazy val result = {
-          dropInterestDB()
-
-          emptyUserDataStub()
-          insertCyaData(None)
-
-          authoriseIndividual()
-          await(wsClient.url(url("TaxedId", "taxed"))
-            .withHttpHeaders(
-              xSessionId,
-              csrfContent
-            ).withFollowRedirects(false).post("{}")
-          )
-        }
-
-        "redirects to the taxed accounts summary page" in {
-          result.status shouldBe SEE_OTHER
-          result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/accounts-with-taxed-uk-interest"
-        }
-      }
-
-      "the authorization fails" which {
-
-        lazy val result = {
-          dropInterestDB()
-          authoriseIndividualUnauthorized()
-          await(wsClient.url(url("TaxedId", "taxed"))
-            .withHttpHeaders(
-              xSessionId,
-              csrfContent
-            ).post("{}")
-          )
-        }
-        s"has an UNAUTHORIZED($UNAUTHORIZED) status" in {
-          result.status shouldBe UNAUTHORIZED
+                "returns a SEE OTHER" in {
+                  result.status shouldBe SEE_OTHER
+                  result.headers("Location").head shouldBe s"/income-through-software/return/personal-income/2022/" +
+                    s"interest/accounts-with-${if (testCase._2) "untaxed" else "taxed"}-uk-interest"
+                }
+              }
+            }
         }
       }
     }
   }
 
-  ".submit untaxed" should {
+  ".submit" when {
 
-    "return an action" when {
+    userScenarios.foreach { us =>
 
-      "there is CYA data in session" which {
+      import us.commonExpectedResults._
+      import Selectors._
 
-        lazy val result = {
-          dropInterestDB()
-          authoriseIndividual()
-          insertCyaData(Some(untaxedCyaSubmitModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
-          await(wsClient.url(url("UntaxedId", "untaxed"))
-            .withHttpHeaders(
-              xSessionId,
-              csrfContent
-            ).post(Map("amount" -> "250"))
-          )
+      val specific = us.specificExpectedResults.get
+
+      s"user is ${agentTest(us.isAgent)} and request is ${welshTest(us.isWelsh)}" when {
+
+        Seq(
+          (untaxedCyaSubmitModel, InterestModel(accountName, "UntaxedId", None, Some(amount)), /*untaxed =*/ true),
+          (taxedCyaSubmitModel, InterestModel(accountName, "TaxedId", Some(amount), None), /*untaxed =*/ false)
+        ) foreach {
+          testCase =>
+            s"there is both CYA data and prior in session and input is empty for a ${if (testCase._3) "untaxed" else "taxed"} submission" should {
+              lazy val result = {
+
+                dropInterestDB()
+                insertCyaData(Some(testCase._1))
+                userDataStub(IncomeSourcesModel(interest = Some(Seq(testCase._2))), nino, taxYear)
+                authoriseAgentOrIndividual(us.isAgent)
+                urlPost(url(testCase._2.incomeSourceId, if (testCase._3) "untaxed" else "taxed"), Map("amount" -> ""),
+                  us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+              }
+
+              s"return a BAD_REQUEST($BAD_REQUEST) status" in {
+                result.status shouldBe BAD_REQUEST
+              }
+
+              implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+              errorSummaryCheck(specific.expectedErrorEmpty(if (testCase._3) "untaxed" else "taxed"), newAmountInputSelector)
+              errorAboveElementCheck(specific.expectedErrorEmpty(if (testCase._3) "untaxed" else "taxed"))
+            }
         }
 
-        s"has an OK($OK) status" in {
-          result.status shouldBe OK
-        }
-      }
+        Seq(
+          (InterestCYAModel(
+            Some(true), Some(true), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount),Some(amount)))),
+          ), InterestModel(accountName, "UntaxedId",  Some(amount), Some(amount)), /*untaxed =*/ true),
+          (InterestCYAModel(
+            Some(true), Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", Some(amount),Some(amount)))),
+          ), InterestModel(accountName, "TaxedId", Some(amount),  Some(amount)), /*untaxed =*/ false)
+        ) foreach {
+          testCase =>
+            s"there is both CYA data and prior in session and input is valid for a ${if (testCase._3) "untaxed" else "taxed"} submission" should {
+              lazy val result = {
 
-      "there is CYA and Prior data in session and input is empty as an Individual" which {
-        import IndividualExpected._
+                dropInterestDB()
+                insertCyaData(Some(testCase._1))
+                userDataStub(IncomeSourcesModel(interest = Some(Seq(testCase._2))), nino, taxYear)
+                authoriseAgentOrIndividual(us.isAgent)
+                urlPost(url(testCase._2.incomeSourceId, if (testCase._3) "untaxed" else "taxed"), Map("amount" -> "45645.99"),
+                  us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+              }
 
-        lazy val result = {
-          dropInterestDB()
-
-          authoriseIndividual()
-          insertCyaData(Some(untaxedCyaSubmitModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
-          await(wsClient.url(url("UntaxedId", "untaxed"))
-            .withHttpHeaders(
-              xSessionId,
-              csrfContent
-            ).post(Map("amount" -> ""))
-          )
-        }
-
-        s"has an BAD_REQUEST($BAD_REQUEST) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        errorSummaryCheck(expectedErrorEmpty("untaxed"), newAmountInputSelector)
-        errorAboveElementCheck(expectedErrorEmpty("untaxed"))
-      }
-
-      "there is CYA and Prior data in session and input is empty as an agent" which {
-        import AgentExpected._
-
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A"
-        ))
-        lazy val result = {
-          dropInterestDB()
-
-          authoriseAgent()
-          insertCyaData(Some(untaxedCyaSubmitModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
-          await(wsClient.url(url("UntaxedId", "untaxed"))
-            .withHttpHeaders(
-              HeaderNames.COOKIE -> sessionCookie,
-              xSessionId,
-              csrfContent
-            ).post(Map("amount" -> ""))
-          )
+              s"return a SEE OTHER status" in {
+                result.status shouldBe SEE_OTHER
+                result.headers("Location").head shouldBe s"/income-through-software/return/personal-income/2022/" +
+                  s"interest/accounts-with-${if (testCase._3) "untaxed" else "taxed"}-uk-interest"
+                await(interestDatabase.collection.find().toFuture()).head.interest.get shouldBe InterestCYAModel(
+                  Some(true),Some(true),Some(Seq(
+                    InterestAccountModel(Some(if (testCase._3) "UntaxedId" else "TaxedId"),
+                      s"${if (testCase._3) "Untaxed" else "Taxed"} Account",
+                      if (testCase._3) Some(45645.99) else Some(25),
+                      if (!testCase._3) Some(45645.99) else Some(25)))))
+              }
+            }
         }
 
-        s"has an BAD_REQUEST($BAD_REQUEST) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
+        Seq(
+          (InterestCYAModel(Some(true), Some(true), None), InterestModel(accountName, "UntaxedId",  Some(amount), Some(amount)), /*untaxed =*/ true),
+          (InterestCYAModel(Some(true), Some(true), None), InterestModel(accountName, "TaxedId", Some(amount),  Some(amount)), /*untaxed =*/ false)
+        ) foreach {
+          testCase =>
+            s"there is no CYA data but there is prior data and input is valid for a ${if (testCase._3) "untaxed" else "taxed"} submission" should {
+              lazy val result = {
 
-        errorSummaryCheck(expectedErrorEmpty("untaxed"), newAmountInputSelector)
-        errorAboveElementCheck(expectedErrorEmpty("untaxed"))
-      }
+                dropInterestDB()
+                insertCyaData(Some(testCase._1))
+                userDataStub(IncomeSourcesModel(interest = Some(Seq(testCase._2))), nino, taxYear)
+                authoriseAgentOrIndividual(us.isAgent)
+                urlPost(url(testCase._2.incomeSourceId, if (testCase._3) "untaxed" else "taxed"), Map("amount" -> "45645.99"),
+                  us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+              }
 
-      "there is CYA and Prior data in session and input is invalid as an Individual" which {
-        import IndividualExpected._
-
-        lazy val result = {
-          dropInterestDB()
-
-          authoriseIndividual()
-          insertCyaData(Some(untaxedCyaSubmitModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
-          await(wsClient.url(url("UntaxedId", "untaxed"))
-            .withHttpHeaders(
-              xSessionId,
-              csrfContent
-            ).post(Map("amount" -> "|"))
-          )
-        }
-        s"has an BAD_REQUEST($BAD_REQUEST) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        errorSummaryCheck(expectedErrorInvalid("untaxed"), newAmountInputSelector)
-        errorAboveElementCheck(expectedErrorInvalid("untaxed"))
-      }
-
-      "there is CYA and Prior data in session and input is invalid as an agent" which {
-        import AgentExpected._
-
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A"
-        ))
-
-        lazy val result = {
-          dropInterestDB()
-
-          authoriseAgent()
-          insertCyaData(Some(untaxedCyaSubmitModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
-          await(wsClient.url(url("UntaxedId", "untaxed"))
-            .withHttpHeaders(
-              HeaderNames.COOKIE -> sessionCookie,
-              xSessionId,
-              csrfContent
-            ).post(Map("amount" -> "|"))
-          )
-        }
-        s"has an BAD_REQUEST($BAD_REQUEST) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        errorSummaryCheck(expectedErrorInvalid("untaxed"), newAmountInputSelector)
-        errorAboveElementCheck(expectedErrorInvalid("untaxed"))
-      }
-
-      "there is CYA and Prior data in session and input is OverMax as an Individual" which {
-        import IndividualExpected._
-
-        lazy val result = {
-          dropInterestDB()
-
-          authoriseIndividual()
-          insertCyaData(Some(untaxedCyaSubmitModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
-          await(wsClient.url(url("UntaxedId", "untaxed"))
-            .withHttpHeaders(
-              xSessionId,
-              csrfContent
-            ).post(Map("amount" -> "9999999999999999999999999999"))
-          )
-        }
-        s"has an BAD_REQUEST($BAD_REQUEST) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        errorSummaryCheck(expectedErrorOverMax("untaxed"), newAmountInputSelector)
-        errorAboveElementCheck(expectedErrorOverMax("untaxed"))
-      }
-
-      "there is CYA and Prior data in session and input is OverMax as an agent" which {
-        import AgentExpected._
-
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A"
-        ))
-
-        lazy val result = {
-          dropInterestDB()
-
-          authoriseAgent()
-          insertCyaData(Some(untaxedCyaSubmitModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
-          await(wsClient.url(url("UntaxedId", "untaxed"))
-            .withHttpHeaders(
-              HeaderNames.COOKIE -> sessionCookie,
-              xSessionId,
-              csrfContent
-            ).post(Map("amount" -> "99999999999999999999999999999999"))
-          )
+              s"return a SEE OTHER status" in {
+                result.status shouldBe SEE_OTHER
+                result.headers("Location").head shouldBe s"/income-through-software/return/personal-income/2022/" +
+                  s"interest/accounts-with-${if (testCase._3) "untaxed" else "taxed"}-uk-interest"
+                await(interestDatabase.collection.find().toFuture()).head.interest.get shouldBe InterestCYAModel(
+                  Some(true),Some(true),Some(Seq(
+                    InterestAccountModel(Some(if (testCase._3) "UntaxedId" else "TaxedId"),
+                      accountName,
+                      if (testCase._3) Some(45645.99) else Some(25),
+                      if (!testCase._3) Some(45645.99) else Some(25)))))
+              }
+            }
         }
 
-        s"has an BAD_REQUEST($BAD_REQUEST) status" in {
-          result.status shouldBe BAD_REQUEST
+        Seq(
+          (untaxedCyaSubmitModel, InterestModel(accountName, "UntaxedId", None, Some(amount)), /*untaxed =*/ true),
+          (taxedCyaSubmitModel, InterestModel(accountName, "TaxedId", Some(amount), None), /*untaxed =*/ false)
+        ) foreach {
+          testCase =>
+            s"there is both CYA data and prior in session and input is invalid for a ${if (testCase._3) "untaxed" else "taxed"} submission" should {
+              lazy val result = {
+
+                dropInterestDB()
+                authoriseAgentOrIndividual(us.isAgent)
+                insertCyaData(Some(testCase._1))
+                userDataStub(IncomeSourcesModel(interest = Some(Seq(testCase._2))), nino, taxYear)
+                urlPost(url(testCase._2.incomeSourceId, if (testCase._3) "untaxed" else "taxed"), Map("amount" -> "|"),
+                  us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+              }
+
+              s"return a BAD_REQUEST($BAD_REQUEST) status" in {
+                result.status shouldBe BAD_REQUEST
+              }
+
+              implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+              errorSummaryCheck(specific.expectedErrorInvalid(if (testCase._3) "untaxed" else "taxed"), newAmountInputSelector)
+              errorAboveElementCheck(specific.expectedErrorInvalid(if (testCase._3) "untaxed" else "taxed"))
+            }
         }
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-        errorSummaryCheck(expectedErrorOverMax("untaxed"), newAmountInputSelector)
-        errorAboveElementCheck(expectedErrorOverMax("untaxed"))
-      }
+        Seq(
+          (untaxedCyaSubmitModel, InterestModel(accountName, "UntaxedId", None, Some(amount)), /*untaxed =*/ true),
+          (taxedCyaSubmitModel, InterestModel(accountName, "TaxedId", Some(amount), None), /*untaxed =*/ false)
+        ) foreach {
+          testCase =>
+            s"there is both CYA data and prior in session and input is over the max for a ${if (testCase._3) "untaxed" else "taxed"} submission" should {
+              lazy val result = {
 
-      "there is CYA and Prior data in session and input is empty as an Individual - Welsh" which {
-        import IndividualExpected._
+                dropInterestDB()
+                authoriseAgentOrIndividual(us.isAgent)
+                insertCyaData(Some(testCase._1))
+                userDataStub(IncomeSourcesModel(interest = Some(Seq(testCase._2))), nino, taxYear)
+                urlPost(url(testCase._2.incomeSourceId, if (testCase._3) "untaxed" else "taxed"), Map("amount" -> "99999999999999999999999999999999999999999"),
+                  us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+              }
 
-        lazy val result = {
-          dropInterestDB()
+              s"return a BAD_REQUEST($BAD_REQUEST) status" in {
+                result.status shouldBe BAD_REQUEST
+              }
 
-          authoriseIndividual()
-          insertCyaData(Some(untaxedCyaSubmitModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
-          await(wsClient.url(url("UntaxedId", "untaxed"))
-            .withHttpHeaders(
-              HeaderNames.ACCEPT_LANGUAGE -> "cy",
-              xSessionId,
-              csrfContent
-            ).post(Map("amount" -> ""))
-          )
+              implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+              errorSummaryCheck(specific.expectedErrorOverMax(if (testCase._3) "untaxed" else "taxed"), newAmountInputSelector)
+              errorAboveElementCheck(specific.expectedErrorOverMax(if (testCase._3) "untaxed" else "taxed"))
+            }
         }
-        s"has an BAD_REQUEST($BAD_REQUEST) status" in {
-          result.status shouldBe BAD_REQUEST
+
+        Seq(
+          (untaxedCyaSubmitModel, /*untaxed =*/ true),
+          (taxedCyaSubmitModel, /*untaxed =*/ false)
+        ) foreach {
+          testCase =>
+            s"there is CYA data for a ${if (testCase._2) "untaxed" else "taxed"} submission" should {
+              lazy val result = {
+
+                dropInterestDB()
+                authoriseAgentOrIndividual(us.isAgent)
+                insertCyaData(Some(testCase._1))
+                userDataStub(IncomeSourcesModel(interest = None), nino, taxYear)
+                urlPost(url(testCase._1.accounts.get.head.id.get, if (testCase._2) "untaxed" else "taxed"),
+                  Map("" -> ""),
+                  us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+              }
+
+              s"return a SEE OTHER status to account summary page" in {
+                result.status shouldBe SEE_OTHER
+                result.headers("Location").head shouldBe s"/income-through-software/return/personal-income/2022/" +
+                  s"interest/accounts-with-${if (testCase._2) "untaxed" else "taxed"}-uk-interest"
+              }
+            }
         }
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-        welshToggleCheck("Welsh")
-        errorSummaryCheck(expectedErrorEmptyCy("untaxed"), newAmountInputSelector)
-        errorAboveElementCheck(expectedErrorEmptyCy("untaxed"))
-      }
+        Seq(
+          /*untaxed =*/ true,
+          /*untaxed =*/ false
+        ) foreach {
+          testCase =>
+            s"there is no CYA data for a ${if (testCase) "untaxed" else "taxed"} submission" should {
+              lazy val result = {
 
-      "there is CYA and Prior data in session and input is empty as an agent - Welsh" which {
-        import AgentExpected._
+                dropInterestDB()
+                authoriseAgentOrIndividual(us.isAgent)
+                insertCyaData(None)
+                emptyUserDataStub()
+                urlPost(url("randomid", if (testCase) "untaxed" else "taxed"),
+                  Map("" -> ""),
+                  us.isWelsh, follow = false, playSessionCookie(us.isAgent))
+              }
 
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A"
-        ))
-        lazy val result = {
-          dropInterestDB()
-
-          authoriseAgent()
-          insertCyaData(Some(untaxedCyaSubmitModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
-          await(wsClient.url(url("UntaxedId", "untaxed"))
-            .withHttpHeaders(
-              HeaderNames.ACCEPT_LANGUAGE -> "cy",
-              HeaderNames.COOKIE -> sessionCookie,
-              xSessionId,
-              csrfContent
-            ).post(Map("amount" -> ""))
-          )
+              s"return a SEE OTHER status to account summary page" in {
+                result.status shouldBe SEE_OTHER
+                result.headers("Location").head shouldBe s"/income-through-software/return/personal-income/2022/" +
+                  s"interest/accounts-with-${if (testCase) "untaxed" else "taxed"}-uk-interest"
+              }
+            }
         }
-        s"has an BAD_REQUEST($BAD_REQUEST) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-        welshToggleCheck("Welsh")
-        errorSummaryCheck(expectedErrorEmptyCy("untaxed"), newAmountInputSelector)
-        errorAboveElementCheck(expectedErrorEmptyCy("untaxed"))
-      }
+        Seq(
+          /*untaxed =*/ true,
+          /*untaxed =*/ false
+        ) foreach {
+          testCase =>
+            s"authorization fails for a ${if (testCase) "untaxed" else "taxed"} submission" should {
+              lazy val result = {
 
-      "there is CYA and Prior data in session and input is invalid as an Individual - Welsh" which {
-        import IndividualExpected._
+                dropInterestDB()
+                unauthorisedAgentOrIndividual(us.isAgent)
+                urlPost(url("randomid", if (testCase) "untaxed" else "taxed"),
+                  Map("" -> ""),
+                  us.isWelsh, follow = true, playSessionCookie(us.isAgent))
+              }
 
-        lazy val result = {
-          dropInterestDB()
-
-          authoriseIndividual()
-          insertCyaData(Some(untaxedCyaSubmitModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
-          await(wsClient.url(url("UntaxedId", "untaxed"))
-            .withHttpHeaders(
-              HeaderNames.ACCEPT_LANGUAGE -> "cy",
-              xSessionId,
-              csrfContent
-            ).post(Map("amount" -> "|"))
-          )
-        }
-        s"has an BAD_REQUEST($BAD_REQUEST) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        welshToggleCheck("Welsh")
-        errorSummaryCheck(expectedErrorInvalidCy("untaxed"), newAmountInputSelector)
-        errorAboveElementCheck(expectedErrorInvalidCy("untaxed"))
-      }
-
-      "there is CYA and Prior data in session and input is invalid as an agent - Welsh" which {
-        import AgentExpected._
-
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A"
-        ))
-
-        lazy val result = {
-          dropInterestDB()
-
-          authoriseAgent()
-          insertCyaData(Some(untaxedCyaSubmitModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
-          await(wsClient.url(url("UntaxedId", "untaxed"))
-            .withHttpHeaders(
-              HeaderNames.ACCEPT_LANGUAGE -> "cy",
-              HeaderNames.COOKIE -> sessionCookie,
-              xSessionId,
-              csrfContent
-            ).post(Map("amount" -> "|"))
-          )
-        }
-        s"has an BAD_REQUEST($BAD_REQUEST) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        welshToggleCheck("Welsh")
-        errorSummaryCheck(expectedErrorInvalidCy("untaxed"), newAmountInputSelector)
-        errorAboveElementCheck(expectedErrorInvalidCy("untaxed"))
-      }
-
-      "there is CYA and Prior data in session and input is OverMax as an Individual - Welsh" which {
-        import IndividualExpected._
-
-        lazy val result = {
-          dropInterestDB()
-
-          authoriseIndividual()
-          insertCyaData(Some(untaxedCyaSubmitModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
-          await(wsClient.url(url("UntaxedId", "untaxed"))
-            .withHttpHeaders(
-              HeaderNames.ACCEPT_LANGUAGE -> "cy",
-              xSessionId,
-              csrfContent
-            ).post(Map("amount" -> "9999999999999999999999999999"))
-          )
-        }
-        s"has an BAD_REQUEST($BAD_REQUEST) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        welshToggleCheck("Welsh")
-        errorSummaryCheck(expectedErrorOverMaxCy("untaxed"), newAmountInputSelector)
-        errorAboveElementCheck(expectedErrorOverMaxCy("untaxed"))
-      }
-
-      "there is CYA and Prior data in session and input is OverMax as an agent - Welsh" which {
-        import AgentExpected._
-
-        lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map(
-          SessionValues.CLIENT_MTDITID -> "1234567890",
-          SessionValues.CLIENT_NINO -> "AA123456A"
-        ))
-
-        lazy val result = {
-          dropInterestDB()
-
-          authoriseAgent()
-          insertCyaData(Some(untaxedCyaSubmitModel))
-          userDataStub(IncomeSourcesModel(interest = Some(Seq(InterestModel(accountName, "UntaxedId", None, Some(amount))))), nino, taxYear)
-          await(wsClient.url(url("UntaxedId", "untaxed"))
-            .withHttpHeaders(
-              HeaderNames.ACCEPT_LANGUAGE -> "cy",
-              HeaderNames.COOKIE -> sessionCookie,
-              xSessionId,
-              csrfContent
-            ).post(Map("amount" -> "99999999999999999999999999999999"))
-          )
-        }
-        s"has an BAD_REQUEST($BAD_REQUEST) status" in {
-          result.status shouldBe BAD_REQUEST
-        }
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-        welshToggleCheck("Welsh")
-        errorSummaryCheck(expectedErrorOverMaxCy("untaxed"), newAmountInputSelector)
-        errorAboveElementCheck(expectedErrorOverMaxCy("untaxed"))
-      }
-
-      "there is no CYA data in session" which {
-        lazy val result = {
-          dropInterestDB()
-
-          emptyUserDataStub()
-          insertCyaData(None)
-
-          authoriseIndividual()
-          await(wsClient.url(url("UntaxedId", "untaxed"))
-            .withHttpHeaders(
-              xSessionId,
-              csrfContent
-            ).withFollowRedirects(false).post("{}")
-          )
-        }
-        s"redirects to the untaxed accounts summary page" in {
-          result.status shouldBe SEE_OTHER
-          result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/accounts-with-untaxed-uk-interest"
-        }
-      }
-
-      "the authorization fails" which {
-
-        lazy val result = {
-          dropInterestDB()
-          authoriseIndividualUnauthorized()
-          await(wsClient.url(url("UntaxedId", "untaxed"))
-            .withHttpHeaders(
-              xSessionId,
-              csrfContent
-            ).post("{}")
-          )
-        }
-        s"has an UNAUTHORIZED($UNAUTHORIZED) status" in {
-          result.status shouldBe UNAUTHORIZED
+              s"has an UNAUTHORIZED($UNAUTHORIZED) status" in {
+                result.status shouldBe UNAUTHORIZED
+              }
+            }
         }
       }
     }
-
   }
-
 }
