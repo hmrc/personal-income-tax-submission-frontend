@@ -62,7 +62,6 @@ class GiftAidDonatedAmountController @Inject()(
         Ok(view(taxYear, amountForm, None)),
         Redirect(controllers.charity.routes.GiftAidDonatedAmountController.show(taxYear)),
         fromShow)
-      case Some(_) => Ok(view(taxYear, form(user.isAgent,taxYear), None)) //TODO - redirect to donationsToPreviousTaxYearController.handleRedirect
       case _ => Redirect(controllers.charity.routes.GiftAidDonationsController.show(taxYear))
     }
   }

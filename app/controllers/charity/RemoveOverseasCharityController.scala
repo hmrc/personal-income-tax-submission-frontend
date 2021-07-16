@@ -16,7 +16,7 @@
 
 package controllers.charity
 
-import config.{AppConfig, GIFT_AID}
+import config.{AppConfig, ErrorHandler, GIFT_AID}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
@@ -27,40 +27,78 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.charity.RemoveOverseasCharityView
-
 import javax.inject.Inject
+import play.api.Logging
+import services.GiftAidSessionService
+
+import scala.concurrent.{ExecutionContext, Future}
 
 class RemoveOverseasCharityController @Inject()(
                                                  implicit val cc: MessagesControllerComponents,
+                                                 overseasGiftAidSummaryController: OverseasGiftAidSummaryController,
                                                  authAction: AuthorisedAction,
                                                  removeOverseasCharityView: RemoveOverseasCharityView,
+                                                 giftAidSessionService: GiftAidSessionService,
+                                                 errorHandler: ErrorHandler,
+                                                 ec: ExecutionContext,
                                                  implicit val appConfig: AppConfig
-                                               ) extends FrontendController(cc) with I18nSupport with SessionHelper {
+                                               ) extends FrontendController(cc) with I18nSupport with SessionHelper with Logging {
 
-  val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(s"charity.remove-overseas-charity.noChoice")
+  val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("charity.remove-overseas-charity.noChoice")
 
-  //Remove charity name from URL
-  def show(taxYear: Int, charityType: String, charityName: String): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
+  def show(taxYear: Int, charityType: String, charityName: String): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
 
-    // TODO - use charityID to retrieve charity name
+    giftAidSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
 
-    Ok(removeOverseasCharityView(yesNoForm, taxYear, charityType, charityName, true))     // TODO - overseas charity to be retrieved from session
+      cya match {
+
+        case Some(cyaData) => cyaData.overseasCharityNames match {
+
+          case Some(namesList) if namesList.contains(charityName) =>
+            val isLast = namesList.forall(_ == charityName)
+            Ok(removeOverseasCharityView(yesNoForm, taxYear, charityType, charityName, isLast = isLast))
+
+          case _ =>
+            overseasGiftAidSummaryController.handleRedirect(taxYear, cyaData, prior)
+        }
+        case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+      }
+    }
   }
 
-  //Remove charity name from URL
-  def submit(taxYear: Int, charityType: String, charityName: String): Action[AnyContent] =
-    (authAction andThen journeyFilterAction(taxYear, GIFT_AID)) { implicit user =>
 
-    yesNoForm.bindFromRequest().fold(
-      {
-        formWithErrors =>
-          BadRequest(
-            removeOverseasCharityView(formWithErrors, taxYear, charityType, charityName, false)
+  def submit(taxYear: Int, charityType: String, charityName: String): Action[AnyContent] =
+
+    (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
+
+      giftAidSessionService.getSessionData(taxYear).map {
+
+        case Some(model) =>
+          yesNoForm.bindFromRequest().fold({
+            formWithErrors =>
+              model.giftAid.flatMap(_.overseasCharityNames) match {
+                case Some(names) =>
+                  BadRequest(
+                    removeOverseasCharityView(formWithErrors, taxYear, charityType, charityName, names.forall(_ == charityName))
+                  )
+                case _ => errorHandler.internalServerError()
+              }
+          }, {
+            yesNoForm =>
+              model.giftAid match {
+                case Some(cya) =>
+                  if(yesNoForm && cya.overseasCharityNames.exists(_.forall(_ == charityName))) {
+                    Redirect(controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear))
+                  } else {
+                    Redirect(controllers.charity.routes.OverseasGiftAidSummaryController.show(taxYear))
+                  }
+                case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+              }
+          }
           )
-      },
-      {
-        yesNoForm => Ok("")    // TODO - Direct to next page during wireup
+        case _ =>
+          logger.info("[GiftAidOneOffAmountController][submit] No CYA data in session. Redirecting to overview page.")
+          Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
       }
-    )
   }
 }
