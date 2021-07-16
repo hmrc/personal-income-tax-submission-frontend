@@ -19,6 +19,9 @@ package controllers.charity
 import common.SessionValues
 import forms.YesNoForm
 import helpers.PlaySessionCookieBaker
+import models.charity.GiftAidCYAModel
+import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel}
+import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
@@ -26,9 +29,9 @@ import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import utils.{IntegrationTest, ViewHelpers}
+import utils.{GiftAidDatabaseHelper, IntegrationTest, ViewHelpers}
 
-class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with ViewHelpers {
+class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with ViewHelpers with GiftAidDatabaseHelper {
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
   lazy val controller: DonationsToPreviousTaxYearController = app.injector.instanceOf[DonationsToPreviousTaxYearController]
@@ -45,7 +48,6 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
   }
 
   object Content {
-
     val expectedHeading = "Do you want to add any donations made after 5 April 2022 to this tax year?"
     val expectedCaption = "Donations to charity for 6 April 2021 to 5 April 2022"
     val expectedParagraph1Individual = "If you made donations after 5 April 2022, you can add them to the 6 April 2021 to 5 April 2022 tax year."
@@ -59,11 +61,12 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
     val errorText = "Select yes to add any of your donations made after 5 April 2022 to this tax year"
     val errorTextAgent = "Select yes to add any of your client’s donations made after 5 April 2022 to this tax year"
     val errorHref = "#value"
-
+    
+    val addDonationToLastTaxYearTitle = "Do you want to add any of your donations to the last tax year?"
+    val addDonationToLastTaxYearAmountTitle = "How much of your donation do you want to add to the last tax year?"
   }
 
   object WelshContent {
-
     val expectedHeading = "Do you want to add any donations made after 5 April 2022 to this tax year?"
     val expectedCaption = "Donations to charity for 6 April 2021 to 5 April 2022"
     val expectedParagraph1Individual = "If you made donations after 5 April 2022, you can add them to the 6 April 2021 to 5 April 2022 tax year."
@@ -77,7 +80,6 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
     val errorText = "Select yes to add any of your donations made after 5 April 2022 to this tax year"
     val errorTextAgent = "Select yes to add any of your client’s donations made after 5 April 2022 to this tax year"
     val errorHref = "#value"
-
   }
 
   ".show" when {
@@ -86,6 +88,11 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
 
       "redirect to a correct URL" in {
         val result: Result = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(None)
+
           authoriseIndividual()
           await(controller.show(taxYear, taxYear + 1)(FakeRequest().withHeaders(xSessionId, csrfContent).withSession(
             SessionValues.TAX_YEAR -> taxYear.toString
@@ -108,6 +115,11 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
 
       "redirect to a correct URL" in {
         val result: Result = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(None)
+
           authoriseIndividual()
           await(controller.submit(taxYear, taxYear + 1)(FakeRequest().withHeaders(xSessionId, csrfContent)
             .withFormUrlEncodedBody("amount" -> "123")
@@ -132,28 +144,161 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
 
       "the user is an individual" should {
 
-        "return a page" which {
-          lazy val result: WSResponse = {
-            authoriseIndividual()
-            await(wsClient.url(url).withHttpHeaders(xSessionId, csrfContent).get())
+        "show the donations to previous tax year page" when {
+
+          "the user has indicated they did attribute donations to last tax year" which {
+            val cyaData = GiftAidCYAModel(
+              addDonationToLastYear = Some(false)
+            )
+
+            lazy val result: WSResponse = {
+              dropGiftAidDB()
+
+              emptyUserDataStub()
+              insertCyaData(Some(cyaData))
+
+              authoriseIndividual()
+              await(wsClient.url(url).withHttpHeaders(xSessionId, csrfContent).withFollowRedirects(false).get())
+            }
+
+            implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+            titleCheck(Content.expectedHeading)
+            h1Check(Content.expectedHeading + " " + Content.expectedCaption)
+            textOnPageCheck(Content.expectedParagraph1Individual, Selectors.paragraph1HintText)
+            textOnPageCheck(Content.expectedParagraph2Individual, Selectors.paragraph2HintText)
+            radioButtonCheck(Content.yesText, 1)
+            radioButtonCheck(Content.noText, 2)
+            captionCheck(Content.expectedCaption)
+            buttonCheck(Content.button)
           }
 
-          implicit def document: () => Document = () => Jsoup.parse(result.body)
+          "the user has indicated they did attribute donations to last year and have provided an amount" which {
+            val cyaData = GiftAidCYAModel(
+              addDonationToLastYear = Some(true),
+              addDonationToLastYearAmount = Some(1000.00)
+            )
 
-          titleCheck(Content.expectedHeading)
-          h1Check(Content.expectedHeading + " " + Content.expectedCaption)
-          textOnPageCheck(Content.expectedParagraph1Individual, Selectors.paragraph1HintText)
-          textOnPageCheck(Content.expectedParagraph2Individual, Selectors.paragraph2HintText)
-          radioButtonCheck(Content.yesText, 1)
-          radioButtonCheck(Content.noText, 2)
-          captionCheck(Content.expectedCaption)
-          buttonCheck(Content.button)
+            lazy val result: WSResponse = {
+              dropGiftAidDB()
+
+              emptyUserDataStub()
+              insertCyaData(Some(cyaData))
+
+              authoriseIndividual()
+              await(wsClient.url(url).withHttpHeaders(xSessionId, csrfContent).withFollowRedirects(false).get())
+            }
+
+            implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+            titleCheck(Content.expectedHeading)
+            h1Check(Content.expectedHeading + " " + Content.expectedCaption)
+            textOnPageCheck(Content.expectedParagraph1Individual, Selectors.paragraph1HintText)
+            textOnPageCheck(Content.expectedParagraph2Individual, Selectors.paragraph2HintText)
+            radioButtonCheck(Content.yesText, 1)
+            radioButtonCheck(Content.noText, 2)
+            captionCheck(Content.expectedCaption)
+            buttonCheck(Content.button)
+          }
+
         }
+
+        "redirect to the overview page" when {
+
+          "there is no session data" which {
+            lazy val result = {
+              dropGiftAidDB()
+
+              emptyUserDataStub()
+              insertCyaData(None)
+
+              authoriseIndividual()
+              await(wsClient.url(url).withHttpHeaders(xSessionId, csrfContent).withFollowRedirects(false).get())
+            }
+
+            "has a status of SEE_OTHER(303)" in {
+              result.status shouldBe SEE_OTHER
+            }
+
+            "redirects to the overview page" in {
+              result.headers("Location").head shouldBe overviewUrl
+            }
+          }
+          
+        }
+
+        "redirect to the how much donations to be added to this tax year from next page" when {
+
+          "the user has indicated they attribute donations to last year, but have not entered an amount" which {
+            val cyaData = GiftAidCYAModel(
+              addDonationToLastYear = Some(true)
+            )
+
+            lazy val result = {
+              dropGiftAidDB()
+
+              emptyUserDataStub()
+              insertCyaData(Some(cyaData))
+
+              authoriseIndividual()
+              await(wsClient.url(url).withHttpHeaders(xSessionId, csrfContent).withFollowRedirects(false).get())
+            }
+
+            "has a status of SEE_OTHER(303)" in {
+              result.status shouldBe SEE_OTHER
+            }
+            
+            "have the correct redirect url" in {
+              result.headers("Location").head shouldBe controllers.charity.routes.LastTaxYearAmountController.show(taxYear).url
+            }
+          }
+
+        }
+        
+        "redirect to the donations to be attributed to last tax year page" when {
+
+          "the cya model is missing the addToLastTaxYear data" which {
+            val cyaData = GiftAidCYAModel(
+              overseasDonationsViaGiftAid = Some(false)
+            )
+
+            lazy val result = {
+              dropGiftAidDB()
+
+              userDataStub(IncomeSourcesModel(giftAid = Some(GiftAidSubmissionModel(Some(GiftAidPaymentsModel(
+                currentYearTreatedAsPreviousYear = Some(1000.00)
+              ))))), nino, taxYear)
+              insertCyaData(Some(cyaData))
+
+              authoriseIndividual()
+              await(
+                wsClient.url(url)
+                  .withHttpHeaders(xSessionId, csrfContent)
+                  .withFollowRedirects(false)
+                  .get()
+              )
+            }
+
+            "has a status of SEE_OTHER(303)" in {
+              result.status shouldBe SEE_OTHER
+            }
+
+            "have the correct redirect url" in {
+              result.headers("Location").head shouldBe controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear).url
+            }
+          }
+
+        }
+
       }
 
       "the user is an agent" should {
 
         "return a page" which {
+          val cyaData = GiftAidCYAModel(
+            addDonationToLastYear = Some(false)
+          )
+
           lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
             SessionValues.TAX_YEAR -> taxYear.toString,
             SessionValues.CLIENT_NINO -> "AA123456A",
@@ -161,6 +306,11 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
           ))
 
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+
+            emptyUserDataStub()
+            insertCyaData(Some(cyaData))
+
             authoriseAgent()
             await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).get())
           }
@@ -186,7 +336,16 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
       "the user is an individual" should {
 
         "return a page" which {
+          val cyaData = GiftAidCYAModel(
+            addDonationToLastYear = Some(false)
+          )
+
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+
+            emptyUserDataStub()
+            insertCyaData(Some(cyaData))
+
             authoriseIndividual()
             await(wsClient.url(url).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent).get())
           }
@@ -209,6 +368,10 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
       "the user is an agent" should {
 
         "return a page" which {
+          val cyaData = GiftAidCYAModel(
+            addDonationToLastYear = Some(false)
+          )
+
           lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
             SessionValues.TAX_YEAR -> taxYear.toString,
             SessionValues.CLIENT_NINO -> "AA123456A",
@@ -216,6 +379,11 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
           ))
 
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+
+            emptyUserDataStub()
+            insertCyaData(Some(cyaData))
+
             authoriseAgent()
             await(wsClient.url(url).withHttpHeaders(
               HeaderNames.COOKIE -> playSessionCookies,
@@ -247,17 +415,93 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
 
       "the user is an individual" when {
 
-        "a radio button has been selected" should {
+        "yes has been selected when there is CYA data" which {
+          lazy val result: WSResponse = {
+            dropGiftAidDB()
 
-          "return an OK" in {
-            lazy val result: WSResponse = {
-              authoriseIndividual()
-              await(wsClient.url(url)
+            emptyUserDataStub()
+            insertCyaData(Some(GiftAidCYAModel()))
+
+            authoriseIndividual()
+            await(
+              wsClient.url(url)
                 .withHttpHeaders(xSessionId, csrfContent)
-                .post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
-            }
+                .withFollowRedirects(false)
+                .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
+            )
+          }
 
-            result.status shouldBe OK
+          "has a status of SEE_OTHER(303)" in {
+            result.status shouldBe SEE_OTHER
+          }
+
+          "redirects to the donation to previous year amount page" in {
+            result.headers("Location").head shouldBe controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(taxYear, taxYear).url
+          }
+
+          "addDonationToThisYear should be true" in {
+            await(giftAidDatabase.find(taxYear)).get.giftAid.get.addDonationToThisYear.get shouldBe true
+          }
+        }
+
+        "no has been selected when there is CYA data" which {
+          lazy val result: WSResponse = {
+            dropGiftAidDB()
+
+            emptyUserDataStub()
+            insertCyaData(Some(GiftAidCYAModel(
+              addDonationToThisYear = Some(true),
+              addDonationToThisYearAmount = Some(4000.23)
+            )))
+
+            authoriseIndividual()
+            await(
+              wsClient.url(url)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .withFollowRedirects(false)
+                .post(Map(YesNoForm.yesNo -> YesNoForm.no))
+            )
+          }
+
+          "has a status of SEE_OTHER(303)" in {
+            result.status shouldBe SEE_OTHER
+          }
+
+          "redirects to the donation to the shares, securities, land or property yes/no page" in {
+            result.headers("Location").head shouldBe controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(taxYear).url
+          }
+
+          "addDonationToLastYear should be false" in {
+            await(giftAidDatabase.find(taxYear)).get.giftAid.get.addDonationToThisYear.get shouldBe false
+          }
+
+          "addDonationToLastYearAmount should have been cleared" in {
+            await(giftAidDatabase.find(taxYear)).get.giftAid.get.addDonationToThisYearAmount shouldBe None
+          }
+        }
+
+        "any option has been selected when there is no CYA data" which {
+          lazy val result: WSResponse = {
+            dropGiftAidDB()
+
+            emptyUserDataStub()
+            insertCyaData(None)
+
+            authoriseIndividual()
+            await(
+              wsClient.url(url)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .withFollowRedirects(false)
+                .post(Map(YesNoForm.yesNo -> YesNoForm.no))
+            )
+          }
+
+          "has a status of SEE_OTHER(303)" in {
+            result.status shouldBe SEE_OTHER
+          }
+
+          "redirects to the overview page" in {
+            result.headers("Location").head shouldBe overviewUrl
           }
         }
 
@@ -302,6 +546,11 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
             ))
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              
+              emptyUserDataStub()
+              insertCyaData(Some(GiftAidCYAModel()))
+              
               authoriseAgent()
               await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent)
                 .post(Map[String, String](YesNoForm.yesNo -> YesNoForm.yes)))
@@ -354,6 +603,11 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
 
           "return an OK" in {
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              
+              emptyUserDataStub()
+              insertCyaData(Some(GiftAidCYAModel()))
+              
               authoriseIndividual()
               await(wsClient.url(url).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes)))
@@ -397,7 +651,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
 
         "a radio button has been selected" should {
 
-          "return an OK" in {
+          "redirected to the donations added to previous tax year amount page" in {
             lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
               SessionValues.TAX_YEAR -> taxYear.toString,
               SessionValues.CLIENT_NINO -> "AA123456A",
@@ -405,16 +659,23 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
             ))
 
             lazy val result: WSResponse = {
+              dropGiftAidDB()
+              
+              emptyUserDataStub()
+              insertCyaData(Some(GiftAidCYAModel()))
+              
               authoriseAgent()
               await(wsClient.url(url).withHttpHeaders(
                 HeaderNames.COOKIE -> playSessionCookies,
                 xSessionId, csrfContent,
                 HeaderNames.ACCEPT_LANGUAGE -> "cy"
               )
+                .withFollowRedirects(false)
                 .post(Map[String, String](YesNoForm.yesNo -> YesNoForm.yes)))
             }
 
-            result.status shouldBe OK
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(taxYear, taxYear).url
           }
         }
 

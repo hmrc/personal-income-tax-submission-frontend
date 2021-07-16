@@ -16,67 +16,103 @@
 
 package controllers.charity
 
-import common.SessionValues
-import config.{AppConfig, GIFT_AID}
+import config.{AppConfig, ErrorHandler, GIFT_AID}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.YesNoForm
 import models.User
+import models.charity.GiftAidCYAModel
 import models.charity.prior.GiftAidSubmissionModel
+import org.slf4j
+import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.I18nSupport
-import play.api.libs.json.{Json, Reads}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import services.GiftAidSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.charity.GiftAidLastTaxYearView
 
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class GiftAidLastTaxYearController @Inject()(
                                               implicit val cc: MessagesControllerComponents,
                                               authAction: AuthorisedAction,
                                               giftAidLastTaxYearView: GiftAidLastTaxYearView,
-                                              implicit val appConfig: AppConfig
-                                            ) extends FrontendController(cc) with I18nSupport with SessionHelper {
+                                              val appConfig: AppConfig,
+                                              giftAidSessionService: GiftAidSessionService,
+                                              errorHandler: ErrorHandler
+                                            ) extends FrontendController(cc) with I18nSupport with SessionHelper with CharityJourney {
+
+  lazy val logger: slf4j.Logger = Logger(this.getClass).logger
+  
+  override def handleRedirect(
+                               taxYear: Int,
+                               cya: GiftAidCYAModel,
+                               prior: Option[GiftAidSubmissionModel],
+                               fromShow: Boolean = false
+                             )(implicit user: User[AnyContent]): Result = {
+    lazy val page: BigDecimal => Result = priorInput => Ok(giftAidLastTaxYearView(yesNoForm(user), taxYear, priorInput))
+    lazy val priorData = prior.flatMap(_.giftAidPayments.flatMap(_.currentYearTreatedAsPreviousYear))
+    
+    (cya.overseasDonationsViaGiftAid, cya.overseasCharityNames, priorData) match {
+      case (_, _, None) => Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear))
+      case (Some(false), optionalNames, Some(priorAmount)) if optionalNames.forall(_.isEmpty) =>
+        if(fromShow) page(priorAmount) else Redirect(controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear))
+      case (Some(true), Some(names), Some(priorAmount)) if names.nonEmpty =>
+        if(fromShow) page(priorAmount) else Redirect(controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear))
+      case (Some(true), _, _) => Redirect("/todo") //TODO Redirect to the Name of Overseas Charities page
+      case _ => redirectToOverview(taxYear)
+    }
+  }
 
   val yesNoForm: User[AnyContent] => Form[Boolean] = user => {
     val missingInputError = s"charity.last-tax-year.errors.noChoice.${if (user.isAgent) "agent" else "individual"}"
     YesNoForm.yesNoForm(missingInputError)
   }
 
-  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
-
-    //TODO giftAidDonations to be retrieved from session
-    //TODO Only take user to page if data is present
-    getSessionData[GiftAidSubmissionModel](SessionValues.GIFT_AID_PRIOR_SUB).
-      flatMap(_.giftAidPayments).flatMap(_.currentYearTreatedAsPreviousYear) match {
-      case Some(previousDonation) => Ok(giftAidLastTaxYearView(yesNoForm(user), taxYear, previousDonation))
-      case None => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-    }
-
-  }
-
-  def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)) { implicit user =>
-
-    yesNoForm(user).bindFromRequest().fold(
-      {
-        formWithErrors =>
-          getSessionData[GiftAidSubmissionModel](SessionValues.GIFT_AID_PRIOR_SUB).
-            flatMap(_.giftAidPayments).flatMap(_.currentYearTreatedAsPreviousYear) match {
-            case Some(previousDonation) => BadRequest(giftAidLastTaxYearView(formWithErrors, taxYear, previousDonation))
-            case None => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-          }
-      },
-      {
-        yesNoForm => Ok("Next Page")
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
+    giftAidSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
+      cya match {
+        case Some(cyaData) => handleRedirect(taxYear, cyaData, prior, fromShow = true)
+        case _ =>
+          logger.warn("[GiftAidLastTaxYearController][show] Empty CYA data returned from database. Redirecting to the overview paage.")
+          redirectToOverview(taxYear)
       }
-    )
-  }
-  private[charity] def getSessionData[T](key: String)(implicit user: User[_], reads: Reads[T]): Option[T] = {
-    user.session.get(key).flatMap { stringValue =>
-      Json.parse(stringValue).asOpt[T]
     }
   }
+
+  def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
+    giftAidSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { case (cya, prior) =>
+      yesNoForm(user).bindFromRequest().fold(
+        {
+          formWithErrors =>
+            prior.flatMap(_.giftAidPayments).flatMap(_.currentYearTreatedAsPreviousYear) match {
+              case Some(previousDonation) => Future.successful(BadRequest(giftAidLastTaxYearView(formWithErrors, taxYear, previousDonation)))
+              case None => Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+            }
+        },
+        {
+          yesNoForm => cya.fold(Future.successful(redirectToOverview(taxYear))) { cyaData =>
+            val updatedCya = cyaData.copy(
+              addDonationToLastYear = Some(yesNoForm),
+              addDonationToLastYearAmount = if(yesNoForm) cyaData.addDonationToLastYearAmount else None
+            )
+            
+            giftAidSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError()) {
+              if(yesNoForm) {
+                Redirect(controllers.charity.routes.LastTaxYearAmountController.show(taxYear))
+              } else {
+                Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear))
+              }
+            }
+          }
+        }
+      )
+    }.flatten
+  }
+
 }

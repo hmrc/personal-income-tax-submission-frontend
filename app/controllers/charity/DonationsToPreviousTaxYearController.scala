@@ -16,54 +16,105 @@
 
 package controllers.charity
 
-import config.{AppConfig, GIFT_AID}
+import config.{AppConfig, ErrorHandler, GIFT_AID}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.YesNoForm
 import models.User
+import models.charity.GiftAidCYAModel
+import models.charity.prior.GiftAidSubmissionModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import services.GiftAidSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.charity.DonationsToPreviousTaxYearView
+
 import javax.inject.Inject
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class DonationsToPreviousTaxYearController @Inject() (
                                                       implicit val cc: MessagesControllerComponents,
                                                       authAction: AuthorisedAction,
                                                       donationsToPreviousTaxYearView: DonationsToPreviousTaxYearView,
+                                                      giftAidSessionService: GiftAidSessionService,
+                                                      giftAidLastTaxYearController: GiftAidLastTaxYearController,
+                                                      giftAidLastTaxYearAmountController: LastTaxYearAmountController,
+                                                      errorHandler: ErrorHandler,
                                                       implicit val appConfig: AppConfig
-                                                     ) extends FrontendController(cc) with I18nSupport with SessionHelper {
+                                                     ) extends FrontendController(cc) with I18nSupport with SessionHelper with CharityJourney {
+
+  private def showOrRedirect(fromShow: Boolean, taxYear: Int)(implicit user: User[AnyContent]): Result = {
+    lazy val page = Ok(donationsToPreviousTaxYearView(yesNoForm(user, taxYear), taxYear))
+
+    if(fromShow) page else Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear))
+  }
+  
+  override def handleRedirect(
+                               taxYear: Int,
+                               cya: GiftAidCYAModel,
+                               prior: Option[GiftAidSubmissionModel],
+                               fromShow: Boolean = false
+                             )(implicit user: User[AnyContent]): Result = {
+    
+    (cya.addDonationToLastYear, cya.addDonationToLastYearAmount) match {
+      case (Some(true), Some(_)) => showOrRedirect(fromShow, taxYear)
+      case (Some(false), _) => showOrRedirect(fromShow, taxYear)
+      case (Some(true), None) => giftAidLastTaxYearAmountController.handleRedirect(taxYear, cya, prior)
+      case _ => giftAidLastTaxYearController.handleRedirect(taxYear, cya, prior)
+    }
+  }
 
   val yesNoForm: (User[AnyContent], Int) => Form[Boolean] = (user, taxYear) => {
     val missingInputError = s"charity.donations-to-previous-tax-year.errors.noChoice.${if (user.isAgent) "agent" else "individual"}"
     YesNoForm.yesNoForm(missingInputError, Seq(taxYear.toString))
   }
 
-  def show(taxYear: Int, otherTaxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
+  def show(taxYear: Int, otherTaxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
     if(taxYear != otherTaxYear) {
-      Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear))
+      Future.successful(Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear)))
     } else {
-      Ok(donationsToPreviousTaxYearView(yesNoForm(user, taxYear), taxYear))
+      giftAidSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { case (cya, prior) =>
+        cya.fold(
+          redirectToOverview(taxYear)
+        ) {
+          cyaData => handleRedirect(taxYear, cyaData, prior, fromShow = true)
+        }
+      }
     }
   }
 
-  def submit(taxYear: Int, otherTaxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)) { implicit user =>
+  def submit(taxYear: Int, otherTaxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
     if(taxYear != otherTaxYear) {
-      Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear))
+      Future.successful(Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear)))
     } else {
       yesNoForm(user, taxYear).bindFromRequest().fold(
         {
           formWithErrors =>
-            BadRequest(donationsToPreviousTaxYearView(formWithErrors, taxYear))
+            Future.successful(BadRequest(donationsToPreviousTaxYearView(formWithErrors, taxYear)))
         },
         {
-          yesNoForm => Ok("next page")
+          yesNoForm => giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
+            case Some(cya) =>
+              val updatedCya = cya.copy(
+                addDonationToThisYear = Some(yesNoForm),
+                addDonationToThisYearAmount = if(yesNoForm) cya.addDonationToLastYearAmount else None
+              )
+              
+              giftAidSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError()) {
+                if(yesNoForm) {
+                  Redirect(controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(taxYear, taxYear))
+                } else {
+                  Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(taxYear))
+                }
+              }
+            case _ => Future.successful(redirectToOverview(taxYear))
+          }.flatten
         }
       )
     }
   }
-
 }

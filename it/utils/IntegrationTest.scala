@@ -53,6 +53,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   val xSessionId: (String, String) = "X-Session-ID" -> sessionId
   val csrfContent: (String, String) = "Csrf-Token" -> "nocheck"
 
+
   implicit lazy val user: User[AnyContent] = new User[AnyContent](mtditid, None, nino, affinityGroup, sessionId)(FakeRequest())
 
   implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
@@ -61,6 +62,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   implicit val actorSystem: ActorSystem = ActorSystem()
 
   val startUrl = s"http://localhost:$port/income-through-software/return/personal-income"
+  val overviewUrl = "http://localhost:11111/income-through-software/return/2022/view"
 
   def await[T](awaitable: Awaitable[T]): T = Await.result(awaitable, Duration.Inf)
 
