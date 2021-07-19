@@ -71,10 +71,6 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
   val testModel: GiftAidSubmissionModel =
     GiftAidSubmissionModel(Some(GiftAidPaymentsModel(None, Some(List("JaneDoe")), None, Some(150.00), None, None)),None)
 
-  val minimumUserData: IncomeSourcesModel = IncomeSourcesModel(giftAid = Some(GiftAidSubmissionModel(Some(GiftAidPaymentsModel(
-    currentYearTreatedAsPreviousYear = Some(150.00)
-  )))))
-
   "the user is an individual" when {
     import IndividualExpected._
 
@@ -84,19 +80,15 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
 
         "the user has indicated they did not donate to an overseas charity" which {
           val cyaData = GiftAidCYAModel(
+            donationsViaGiftAid = Some(true),
+            donationsViaGiftAidAmount = Some(150.00),
             overseasDonationsViaGiftAid = Some(false)
           )
 
           lazy val result: WSResponse = {
             dropGiftAidDB()
 
-            userDataStub(IncomeSourcesModel(
-              giftAid = Some(GiftAidSubmissionModel(
-                Some(GiftAidPaymentsModel(
-                  currentYearTreatedAsPreviousYear = Some(150.00)
-                ))
-              ))
-            ), nino, taxYear)
+            emptyUserDataStub()
             insertCyaData(Some(cyaData))
 
             authoriseIndividual()
@@ -118,6 +110,8 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
 
         "the user has indicated they did donate to an overseas charity, and there are charity names in session" which {
           val cyaData = GiftAidCYAModel(
+            donationsViaGiftAid = Some(true),
+            donationsViaGiftAidAmount = Some(150.00),
             overseasDonationsViaGiftAid = Some(true),
             overseasDonationsViaGiftAidAmount = Some(1000.00),
             overseasCharityNames = Some(Seq("Skyrim Guard Knee Support", "Dodogama Preservation Fund"))
@@ -126,7 +120,7 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
           lazy val result: WSResponse = {
             dropGiftAidDB()
 
-            userDataStub(minimumUserData, nino, taxYear)
+            emptyUserDataStub()
             insertCyaData(Some(cyaData))
 
             authoriseIndividual()
@@ -154,7 +148,7 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
           lazy val result = {
             dropGiftAidDB()
 
-            userDataStub(minimumUserData, nino, taxYear)
+            emptyUserDataStub()
             insertCyaData(None)
 
             authoriseIndividual()
@@ -169,44 +163,14 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
             result.headers("Location").head shouldBe overviewUrl
           }
         }
-
-        "the user has indicated that they have not donated overseas via gift aid, but have overseas charity names" which {
-          val cyaData = GiftAidCYAModel(
-            overseasDonationsViaGiftAid = Some(false),
-            overseasCharityNames = Some(Seq("Limsa Lominsa Help Me Fund"))
-          )
-
-          lazy val result = {
-            dropGiftAidDB()
-
-            userDataStub(IncomeSourcesModel(
-              giftAid = Some(GiftAidSubmissionModel(
-                Some(GiftAidPaymentsModel(
-                  currentYearTreatedAsPreviousYear = Some(150.00)
-                ))
-              ))
-            ), nino, taxYear)
-            insertCyaData(Some(cyaData))
-
-            authoriseIndividual()
-            await(wsClient.url(url).withHttpHeaders(xSessionId, csrfContent).withFollowRedirects(false).get())
-          }
-
-          "has a status of SEE_OTHER(303)" in {
-            result.status shouldBe SEE_OTHER
-          }
-
-          "redirects to the overview page" in {
-            result.headers("Location").head shouldBe overviewUrl
-          }
-        }
-
       }
 
       "redirect to the Name of overseas charity page" when {
 
         "the user has indicated they donated to overseas charities, but have no charity names" which {
           val cyaData = GiftAidCYAModel(
+            donationsViaGiftAid = Some(true),
+            donationsViaGiftAidAmount = Some(150.00),
             overseasDonationsViaGiftAid = Some(true),
             overseasDonationsViaGiftAidAmount = Some(1000.23)
           )
@@ -214,7 +178,7 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
           lazy val result = {
             dropGiftAidDB()
 
-            userDataStub(minimumUserData, nino, taxYear)
+            emptyUserDataStub()
             insertCyaData(Some(cyaData))
 
             authoriseIndividual()
@@ -234,12 +198,15 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
     
       "redirect to the add donations made next year to this year  yes/no page" when {
         
-        "there is CYA data, but the currentYearTreatedAsPreviousYear prior field is not filled in" which {
+        "there is CYA data, but the donationsViaGiftAidAmount prior field is not filled in" which {
           lazy val result = {
             dropGiftAidDB()
             
             emptyUserDataStub()
-            insertCyaData(Some(GiftAidCYAModel()))
+            insertCyaData(Some(GiftAidCYAModel(
+              overseasDonationsViaGiftAid = Some(false),
+              donationsViaGiftAid = Some(true)
+            )))
             
             authoriseIndividual()
             await(
@@ -459,6 +426,8 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
       "returns an action" which {
         lazy val result: WSResponse = {
           val cyaData = GiftAidCYAModel(
+            donationsViaGiftAid = Some(true),
+            donationsViaGiftAidAmount = Some(150.00),
             overseasDonationsViaGiftAid = Some(false)
           )
           

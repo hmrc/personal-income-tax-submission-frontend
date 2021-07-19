@@ -46,12 +46,6 @@ class DonationsToPreviousTaxYearController @Inject() (
                                                       errorHandler: ErrorHandler,
                                                       implicit val appConfig: AppConfig
                                                      ) extends FrontendController(cc) with I18nSupport with SessionHelper with CharityJourney {
-
-  private def showOrRedirect(fromShow: Boolean, taxYear: Int)(implicit user: User[AnyContent]): Result = {
-    lazy val page = Ok(donationsToPreviousTaxYearView(yesNoForm(user, taxYear), taxYear))
-
-    if(fromShow) page else Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear))
-  }
   
   override def handleRedirect(
                                taxYear: Int,
@@ -60,11 +54,15 @@ class DonationsToPreviousTaxYearController @Inject() (
                                fromShow: Boolean = false
                              )(implicit user: User[AnyContent]): Result = {
     
-    (cya.addDonationToLastYear, cya.addDonationToLastYearAmount) match {
-      case (Some(true), Some(_)) => showOrRedirect(fromShow, taxYear)
-      case (Some(false), _) => showOrRedirect(fromShow, taxYear)
-      case (Some(true), None) => giftAidLastTaxYearAmountController.handleRedirect(taxYear, cya, prior)
-      case _ => giftAidLastTaxYearController.handleRedirect(taxYear, cya, prior)
+    (cya.donationsViaGiftAid, cya.addDonationToLastYear, cya.addDonationToLastYearAmount) match {
+      case (Some(true), Some(true), None) => giftAidLastTaxYearAmountController.handleRedirect(taxYear, cya, prior)
+      case (Some(true), None, _) => giftAidLastTaxYearController.handleRedirect(taxYear, cya, prior)
+      case (None, _, _) => Redirect(controllers.charity.routes.GiftAidDonationsController.show(taxYear))
+      case _ => determineResult(
+        Ok(donationsToPreviousTaxYearView(yesNoForm(user, taxYear), taxYear)),
+        Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear)),
+        fromShow
+      )
     }
   }
 

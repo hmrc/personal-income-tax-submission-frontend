@@ -174,6 +174,7 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Integra
 
             emptyUserDataStub()
             insertCyaData(Some(GiftAidCYAModel(
+              donationsViaGiftAid = Some(true),
               addDonationToLastYear = Some(false)
             )))
 

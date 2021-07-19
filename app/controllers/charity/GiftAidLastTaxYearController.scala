@@ -56,14 +56,13 @@ class GiftAidLastTaxYearController @Inject()(
                                fromShow: Boolean = false
                              )(implicit user: User[AnyContent]): Result = {
     lazy val page: BigDecimal => Result = priorInput => Ok(giftAidLastTaxYearView(yesNoForm(user), taxYear, priorInput))
-    lazy val priorData = prior.flatMap(_.giftAidPayments.flatMap(_.currentYearTreatedAsPreviousYear))
     
-    (cya.overseasDonationsViaGiftAid, cya.overseasCharityNames, priorData) match {
-      case (_, _, None) => Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear))
-      case (Some(false), optionalNames, Some(priorAmount)) if optionalNames.forall(_.isEmpty) =>
-        if(fromShow) page(priorAmount) else Redirect(controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear))
-      case (Some(true), Some(names), Some(priorAmount)) if names.nonEmpty =>
-        if(fromShow) page(priorAmount) else Redirect(controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear))
+    (cya.overseasDonationsViaGiftAid, cya.overseasCharityNames, cya.donationsViaGiftAidAmount) match {
+      case (Some(_), _, None) => Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear))
+      case (Some(false), optionalNames, Some(totalDonations)) if optionalNames.forall(_.isEmpty) =>
+        if(fromShow) page(totalDonations) else Redirect(controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear))
+      case (Some(true), Some(names), Some(totalDonations)) if names.nonEmpty =>
+        if(fromShow) page(totalDonations) else Redirect(controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear))
       case (Some(true), _, _) => Redirect("/todo") //TODO Redirect to the Name of Overseas Charities page
       case _ => redirectToOverview(taxYear)
     }
@@ -79,7 +78,7 @@ class GiftAidLastTaxYearController @Inject()(
       cya match {
         case Some(cyaData) => handleRedirect(taxYear, cyaData, prior, fromShow = true)
         case _ =>
-          logger.warn("[GiftAidLastTaxYearController][show] Empty CYA data returned from database. Redirecting to the overview paage.")
+          logger.warn("[GiftAidLastTaxYearController][show] Empty CYA data returned from database. Redirecting to the overview page.")
           redirectToOverview(taxYear)
       }
     }

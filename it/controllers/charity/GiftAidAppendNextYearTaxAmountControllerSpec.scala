@@ -179,6 +179,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
 
             emptyUserDataStub()
             insertCyaData(Some(GiftAidCYAModel(
+              donationsViaGiftAid = Some(true),
               addDonationToLastYear = Some(false)
             )))
 
