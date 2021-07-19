@@ -18,17 +18,18 @@ package controllers.charity
 
 import common.SessionValues
 import helpers.PlaySessionCookieBaker
+import models.charity.GiftAidCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.libs.ws.{WSClient, WSResponse}
-import utils.{IntegrationTest, ViewHelpers}
+import utils.{GiftAidDatabaseHelper, IntegrationTest, ViewHelpers}
 import play.api.http.Status._
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 
 
-class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with ViewHelpers {
+class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with ViewHelpers with GiftAidDatabaseHelper {
 
   val defaultTaxYear = 2022
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
@@ -50,6 +51,8 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
     val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
     val button = "Continue"
     val inputName = "amount"
+
+    val previousPageTitle = "Do you want to add any donations made after 5 April 2022 to this tax year?"
   }
 
   object ExpectedErrors {
@@ -115,10 +118,19 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
 
     "an individual" should {
 
-      "return a page" which {
+      "return a page when valid session data is present" which {
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(GiftAidCYAModel(
+            addDonationToThisYear = Some(true)
+          )))
+
           authoriseIndividual()
-          await(wsClient.url(url).withHttpHeaders(xSessionId, csrfContent).get())
+          await(
+            wsClient.url(url).withHttpHeaders(xSessionId, csrfContent).get()
+          )
         }
 
         implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -129,6 +141,96 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
         hintTextCheck(ExpectedResults.hintText)
         captionCheck(ExpectedResults.caption)
         buttonCheck(ExpectedResults.button)
+      }
+
+      "redirect to the overview page" when {
+
+        "there is no session data present" which {
+          lazy val result = {
+            dropGiftAidDB()
+
+            emptyUserDataStub()
+            insertCyaData(None)
+
+            authoriseIndividual()
+            await(
+              wsClient.url(url)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .withFollowRedirects(false)
+                .get()
+            )
+          }
+
+          "has a status of SEE_OTHER (303)" in {
+            result.status shouldBe SEE_OTHER
+          }
+
+          "has the redirect location as overview" in {
+            result.headers("Location").head shouldBe overviewUrl
+          }
+        }
+      }
+
+      "redirect to the donations to previous tax year controller" when {
+
+        "the addDonationToThisYear field is empty" which {
+          lazy val result = {
+            dropGiftAidDB()
+
+            emptyUserDataStub()
+            insertCyaData(Some(GiftAidCYAModel(
+              addDonationToLastYear = Some(false)
+            )))
+
+            authoriseIndividual()
+            await(
+              wsClient.url(url)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .withFollowRedirects(false)
+                .get()
+            )
+          }
+
+          "has a status of SEE_OTHER (303)" in {
+            result.status shouldBe SEE_OTHER
+          }
+
+          "has the correct redirect URL" in {
+            result.headers("Location").head shouldBe controllers.charity.routes.DonationsToPreviousTaxYearController.show(defaultTaxYear, defaultTaxYear).url
+          }
+        }
+
+      }
+
+      "redirect to the did you donate shares, securities, land or property page" when {
+
+        "addDonationToThisYear is false" which {
+          lazy val result = {
+            dropGiftAidDB()
+
+            emptyUserDataStub()
+            insertCyaData(Some(GiftAidCYAModel(
+              addDonationToThisYear = Some(false)
+            )))
+
+            authoriseIndividual()
+            await(
+              wsClient.url(url)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .withFollowRedirects(false)
+                .get()
+            )
+          }
+
+          "has a status of SEE_OTHER (303)" in {
+            result.status shouldBe SEE_OTHER
+          }
+
+          "has a redirect location of the shares, securities, land or property yes/no page" in {
+            result.headers("Location").head shouldBe controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(defaultTaxYear).url
+          }
+        }
+
       }
     }
 
@@ -142,6 +244,13 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
         ))
 
         lazy val result: WSResponse = {
+          dropGiftAidDB()
+
+          emptyUserDataStub()
+          insertCyaData(Some(GiftAidCYAModel(
+            addDonationToThisYear = Some(true)
+          )))
+
           authoriseAgent()
           await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).get())
         }
@@ -166,23 +275,64 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
 
       "the form data is valid" should {
 
-        "return an OK" in {
+        "redirect the user to the shares, securities, land or property page" which {
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+
+            insertCyaData(Some(GiftAidCYAModel()))
+
             authoriseIndividual()
-            await(wsClient.url(url).withHttpHeaders(xSessionId, csrfContent).post(Map[String, String](
-              "amount" -> "1234"
-            )))
+            await(
+              wsClient.url(url)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .withFollowRedirects(false)
+                .post(Map[String, String]("amount" -> "1234"))
+            )
           }
 
-          result.status shouldBe OK
-        }
+          "has a status of SEE_OTHER (303)" in {
+            result.status shouldBe SEE_OTHER
+          }
 
+          "has the redirect url to the shares, securities, land or property yes/no page" in {
+            result.headers("Location").head shouldBe controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(defaultTaxYear).url
+          }
+        }
+      }
+
+      "there is no session data" should {
+
+        "redirect to the overview page" which {
+          lazy val result: WSResponse = {
+            dropGiftAidDB()
+
+            insertCyaData(None)
+
+            authoriseIndividual()
+            await(
+              wsClient.url(url)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .withFollowRedirects(false)
+                .post(Map[String, String]("amount" -> "1234"))
+            )
+          }
+
+          "has a status of SEE_OTHER (303)" in {
+            result.status shouldBe SEE_OTHER
+          }
+
+          "has the redirect url to the overview page" in {
+            result.headers("Location").head shouldBe overviewUrl
+          }
+        }
       }
 
       "return an error" when {
 
         "the submitted data is empty" which {
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+
             authoriseIndividual()
             await(wsClient.url(url).withHttpHeaders(xSessionId, csrfContent).post(Map[String, String](
               "amount" -> ""
@@ -204,6 +354,8 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
 
         "the submitted data is too long" which {
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+
             authoriseIndividual()
             await(wsClient.url(url).withHttpHeaders(xSessionId, csrfContent).post(Map(
               "amount" -> "999999999999999999999999999999999999999999999999"
@@ -225,6 +377,8 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
 
         "the submitted data is in the incorrect format" which {
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+
             authoriseIndividual()
             await(wsClient.url(url).withHttpHeaders(xSessionId, csrfContent).post(Map(
               "amount" -> ":@~{}<>?"
@@ -251,7 +405,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
 
       "the form data is valid" should {
 
-        "return an OK" in {
+        "redirect to the gift aid shares, securities, land or properties page" in {
           lazy val playSessionCookies = PlaySessionCookieBaker.bakeSessionCookie(Map(
             SessionValues.TAX_YEAR -> defaultTaxYear.toString,
             SessionValues.CLIENT_NINO -> "AA123456A",
@@ -259,13 +413,22 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
           ))
 
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+
+            emptyUserDataStub()
+            insertCyaData(Some(GiftAidCYAModel()))
+
             authoriseAgent()
-            await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).post(Map[String, String](
-              "amount" -> "1234"
-            )))
+            await(
+              wsClient.url(url)
+                .withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent)
+                .withFollowRedirects(false)
+                .post(Map[String, String](
+                  "amount" -> "1234"
+                )))
           }
 
-          result.status shouldBe OK
+          result.status shouldBe SEE_OTHER
         }
 
       }
@@ -280,6 +443,8 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
           ))
 
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+
             authoriseAgent()
             await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).post(Map[String, String](
               "amount" -> ""
@@ -307,6 +472,8 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
           ))
 
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+
             authoriseAgent()
             await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).post(Map(
               "amount" -> "999999999999999999999999999999999999999999999999"
@@ -334,6 +501,8 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
           ))
 
           lazy val result: WSResponse = {
+            dropGiftAidDB()
+
             authoriseAgent()
             await(wsClient.url(url).withHttpHeaders(HeaderNames.COOKIE -> playSessionCookies, xSessionId, csrfContent).post(Map(
               "amount" -> ":@~{}<>?"
