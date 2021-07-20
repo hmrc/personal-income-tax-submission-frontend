@@ -148,6 +148,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
 
           "the user has indicated they did attribute donations to last tax year" which {
             val cyaData = GiftAidCYAModel(
+              donationsViaGiftAid = Some(true),
               addDonationToLastYear = Some(false)
             )
 
@@ -175,6 +176,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
 
           "the user has indicated they did attribute donations to last year and have provided an amount" which {
             val cyaData = GiftAidCYAModel(
+              donationsViaGiftAid = Some(true),
               addDonationToLastYear = Some(true),
               addDonationToLastYearAmount = Some(1000.00)
             )
@@ -231,6 +233,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
 
           "the user has indicated they attribute donations to last year, but have not entered an amount" which {
             val cyaData = GiftAidCYAModel(
+              donationsViaGiftAid = Some(true),
               addDonationToLastYear = Some(true)
             )
 
@@ -254,20 +257,20 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
           }
 
         }
-        
+
         "redirect to the donations to be attributed to last tax year page" when {
 
           "the cya model is missing the addToLastTaxYear data" which {
             val cyaData = GiftAidCYAModel(
+              donationsViaGiftAid = Some(true),
+              donationsViaGiftAidAmount = Some(1000.00),
               overseasDonationsViaGiftAid = Some(false)
             )
 
             lazy val result = {
               dropGiftAidDB()
 
-              userDataStub(IncomeSourcesModel(giftAid = Some(GiftAidSubmissionModel(Some(GiftAidPaymentsModel(
-                currentYearTreatedAsPreviousYear = Some(1000.00)
-              ))))), nino, taxYear)
+              emptyUserDataStub()
               insertCyaData(Some(cyaData))
 
               authoriseIndividual()
@@ -290,12 +293,44 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
 
         }
 
+        "redirect to the did you donate via gift aid" when {
+
+          "the cya model is missing the donationsViaGiftAid field" which {
+            val cyaData = GiftAidCYAModel()
+
+            lazy val result = {
+              dropGiftAidDB()
+
+              emptyUserDataStub()
+              insertCyaData(Some(cyaData))
+
+              authoriseIndividual()
+              await(
+                wsClient.url(url)
+                  .withHttpHeaders(xSessionId, csrfContent)
+                  .withFollowRedirects(false)
+                  .get()
+              )
+            }
+
+            "has a status of SEE_OTHER(303)" in {
+              result.status shouldBe SEE_OTHER
+            }
+
+            "have the correct redirect url" in {
+              result.headers("Location").head shouldBe controllers.charity.routes.GiftAidDonationsController.show(taxYear).url
+            }
+          }
+
+        }
+
       }
 
       "the user is an agent" should {
 
         "return a page" which {
           val cyaData = GiftAidCYAModel(
+            donationsViaGiftAid = Some(true),
             addDonationToLastYear = Some(false)
           )
 
@@ -337,6 +372,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
 
         "return a page" which {
           val cyaData = GiftAidCYAModel(
+            donationsViaGiftAid = Some(true),
             addDonationToLastYear = Some(false)
           )
 
@@ -369,6 +405,7 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
 
         "return a page" which {
           val cyaData = GiftAidCYAModel(
+            donationsViaGiftAid = Some(true),
             addDonationToLastYear = Some(false)
           )
 

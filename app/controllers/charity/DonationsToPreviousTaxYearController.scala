@@ -46,12 +46,6 @@ class DonationsToPreviousTaxYearController @Inject() (
                                                       errorHandler: ErrorHandler,
                                                       implicit val appConfig: AppConfig
                                                      ) extends FrontendController(cc) with I18nSupport with SessionHelper with CharityJourney {
-
-  private def showOrRedirect(fromShow: Boolean, taxYear: Int)(implicit user: User[AnyContent]): Result = {
-    lazy val page = Ok(donationsToPreviousTaxYearView(yesNoForm(user, taxYear), taxYear))
-
-    if(fromShow) page else Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear))
-  }
   
   override def handleRedirect(
                                taxYear: Int,
@@ -67,7 +61,8 @@ class DonationsToPreviousTaxYearController @Inject() (
       case _ => determineResult(
         Ok(donationsToPreviousTaxYearView(yesNoForm(user, taxYear), taxYear)),
         Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear)),
-        fromShow)
+        fromShow
+      )
     }
   }
 

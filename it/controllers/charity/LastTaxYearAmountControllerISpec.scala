@@ -135,11 +135,10 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
               lazy val result = {
                 dropGiftAidDB()
 
-                userDataStub(IncomeSourcesModel(giftAid = Some(GiftAidSubmissionModel(Some(GiftAidPaymentsModel(
-                  currentYearTreatedAsPreviousYear = Some(1000.00)
-                ))))), nino, taxYear)
-
+                emptyUserDataStub()
                 insertCyaData(Some(GiftAidCYAModel(
+                  donationsViaGiftAid = Some(true),
+                  donationsViaGiftAidAmount = Some(1000.00),
                   overseasDonationsViaGiftAid = Some(false)
                 )))
 
@@ -165,11 +164,10 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
               lazy val result = {
                 dropGiftAidDB()
 
-                userDataStub(IncomeSourcesModel(giftAid = Some(GiftAidSubmissionModel(Some(GiftAidPaymentsModel(
-                  currentYearTreatedAsPreviousYear = Some(1000.00)
-                ))))), nino, taxYear)
-
+                emptyUserDataStub()
                 insertCyaData(Some(GiftAidCYAModel(
+                  donationsViaGiftAid = Some(true),
+                  donationsViaGiftAidAmount = Some(1000.00),
                   overseasDonationsViaGiftAid = Some(true),
                   overseasDonationsViaGiftAidAmount = Some(123.45),
                   overseasCharityNames = Some(Seq(
