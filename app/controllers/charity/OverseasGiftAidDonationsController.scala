@@ -81,31 +81,35 @@ class OverseasGiftAidDonationsController @Inject()(
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
 
-    giftAidSessionService.getSessionData(taxYear).map {
-      case Some(cyaData) =>
-        yesNoForm(user).bindFromRequest().fold({
-          formWithErrors =>
-            Future.successful(BadRequest(overseasGiftAidDonationView(formWithErrors, taxYear)))
-        }, {
-          success =>
-            val redirectLocation = if(success){
-              controllers.charity.routes.GiftAidOverseasAmountController.show(taxYear)
+    yesNoForm(user).bindFromRequest().fold({
+      formWithErrors =>
+        Future.successful(BadRequest(overseasGiftAidDonationView(formWithErrors, taxYear)))
+    }, {
+      formAnswer => giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
+        case Some(cyaModel) =>
+
+          val updatedCya = {
+            val updatedModel = cyaModel.copy(overseasDonationsViaGiftAid = Some(formAnswer))
+            if(formAnswer) {
+              updatedModel
             } else {
-              controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear)
+              updatedModel.copy(overseasDonationsViaGiftAidAmount = None, overseasCharityNames = None)
             }
-            cyaData.giftAid.fold{
-              Future.successful(redirectToOverview(taxYear))
-            } {
-              cyaModel => giftAidSessionService.updateSessionData(cyaModel.copy(overseasDonationsViaGiftAid = Some(success)), taxYear)(
-                InternalServerError(errorHandler.internalServerErrorTemplate)
-              )(
-                Redirect(redirectLocation)
-              )
-            }
-        })
-      case _ =>
-        logger.info("[OverseasGiftAidDonationsController][submit] No CYA data in session. Redirecting to overview page.")
-        Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
-    }.flatten
+          }
+
+          val redirectLocation = (formAnswer, updatedCya.isFinished) match {
+            case (true, _) => Redirect(controllers.charity.routes.GiftAidOverseasAmountController.show(taxYear))
+            case (_, true) => redirectToCya(taxYear)
+            case _ => Redirect(controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear))
+          }
+
+          giftAidSessionService.updateSessionData(updatedCya, taxYear)(
+            InternalServerError(errorHandler.internalServerErrorTemplate)
+          )(redirectLocation)
+        case _ =>
+          logger.info("[OverseasGiftAidDonationsController][submit] No CYA data in session. Redirecting to overview page.")
+          Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+      }.flatten
+    })
   }
 }

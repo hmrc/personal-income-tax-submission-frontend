@@ -88,31 +88,28 @@ class GiftAidDonatedAmountController @Inject()(
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
 
-    giftAidSessionService.getSessionData(taxYear).map {
+    form(user.isAgent, taxYear).bindFromRequest().fold(
+      {
+        formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors, None)))
+      },
+      {
+        formAmount => giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
+          case Some(cyaData) =>
+            val updatedCya = cyaData.copy(donationsViaGiftAidAmount = Some(formAmount))
+            val redirectLocation = if(updatedCya.isFinished) {
+              redirectToCya(taxYear)
+            } else {
+              Redirect(controllers.charity.routes.GiftAidOneOffController.show(taxYear))
+            }
 
-      case Some(cyaData) =>
-        form(user.isAgent, taxYear).bindFromRequest().fold(
-          {
-            formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors, None)))
-          },
-          {
-            success =>
-              cyaData.giftAid.fold {
-                Future.successful(redirectToOverview(taxYear))
-              } {
-                cyaModel =>
-                  giftAidSessionService.updateSessionData(cyaModel.copy(donationsViaGiftAidAmount = Some(success)), taxYear)(
-                    InternalServerError(errorHandler.internalServerErrorTemplate)
-                  )(
-                    Redirect(controllers.charity.routes.GiftAidOneOffController.show(taxYear))
-                  )
-              }
-          }
-        )
-      case _ =>
-        logger.info("[GiftAidDonatedAmountController][submit] No CYA data in session. Redirecting to overview page.")
-        Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
-    }.flatten
+            giftAidSessionService.updateSessionData(updatedCya, taxYear)(
+              InternalServerError(errorHandler.internalServerErrorTemplate))(redirectLocation)
+          case _ =>
+            logger.info("[GiftAidDonatedAmountController][submit] No CYA data in session. Redirecting to overview page.")
+            Future.successful(redirectToOverview(taxYear))
+        }.flatten
+      }
+    )
   }
 
 }

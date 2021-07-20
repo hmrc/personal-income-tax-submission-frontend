@@ -79,9 +79,9 @@ class GiftAidOneOffController @Inject()(
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
 
-    giftAidSessionService.getSessionData(taxYear).map {
+    giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
         case Some(cyaData) =>
-          val previousAmount: Option[BigDecimal] = cyaData.giftAid.flatMap(_.donationsViaGiftAidAmount)
+          val previousAmount: Option[BigDecimal] = cyaData.donationsViaGiftAidAmount
 
           yesNoForm(user).bindFromRequest().fold({
             formWithErrors =>
@@ -90,21 +90,19 @@ class GiftAidOneOffController @Inject()(
                 case _ => Future.successful(errorHandler.internalServerError())
               }
           }, {
-            success =>
-              val redirectLocation = if(success){
-                controllers.charity.routes.GiftAidOneOffAmountController.show(taxYear)
-              } else {
-                controllers.charity.routes.OverseasGiftAidDonationsController.show(taxYear)
+            yesNoForm =>
+              val updatedCya = cyaData.copy(
+                oneOffDonationsViaGiftAid = Some(yesNoForm),
+                oneOffDonationsViaGiftAidAmount = if(yesNoForm) cyaData.oneOffDonationsViaGiftAidAmount else None
+              )
+              val redirectLocation = (yesNoForm, updatedCya.isFinished) match {
+                case (true, _) => Redirect(controllers.charity.routes.GiftAidOneOffAmountController.show(taxYear))
+                case (_, true) => redirectToCya(taxYear)
+                case _ => Redirect(controllers.charity.routes.OverseasGiftAidDonationsController.show(taxYear))
               }
-              cyaData.giftAid.fold{
-                Future.successful(redirectToOverview(taxYear))
-              } {
-                cyaModel => giftAidSessionService.updateSessionData(cyaModel.copy(oneOffDonationsViaGiftAid = Some(success)), taxYear)(
-                  InternalServerError(errorHandler.internalServerErrorTemplate)
-                )(
-                  Redirect(redirectLocation)
-                )
-              }
+
+              giftAidSessionService.updateSessionData(updatedCya, taxYear)(
+                InternalServerError(errorHandler.internalServerErrorTemplate))(redirectLocation)
           }
 
           )

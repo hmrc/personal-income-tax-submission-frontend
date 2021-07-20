@@ -310,7 +310,7 @@ class GiftAidOverseasAmountControllerISpec extends IntegrationTest with ViewHelp
 
             "redirect the user to the 'overseas charity name' page" in {
               result.status shouldBe SEE_OTHER
-              result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOverseasNameController.show(taxYear)}"
+              result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOverseasNameController.show(taxYear, None)}"
             }
           }
         }
@@ -482,7 +482,7 @@ class GiftAidOverseasAmountControllerISpec extends IntegrationTest with ViewHelp
 
             "redirect the user to the 'overseas charity name' page" in {
               result.status shouldBe SEE_OTHER
-              result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOverseasNameController.show(taxYear)}"
+              result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOverseasNameController.show(taxYear, None)}"
             }
           }
         }

@@ -73,27 +73,22 @@ class OverseasGiftAidSummaryController @Inject()(overseasGiftAidSummaryView: Ove
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
 
-    giftAidSessionService.getSessionData(taxYear).map {
-      case Some(cyaData) =>
+    giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
+      case Some(cyaModel) =>
         yesNoForm.bindFromRequest().fold({
           formWithErrors =>
-            cyaData.giftAid.flatMap(_.overseasCharityNames) match {
+            cyaModel.overseasCharityNames match {
               case Some(namesList) => BadRequest(overseasGiftAidSummaryView(formWithErrors, taxYear, namesList.toList))
               case _ => redirectToOverview(taxYear)
             }
         }, {
-          success =>
-            val redirectLocation = if(success){
-              controllers.charity.routes.GiftAidOverseasNameController.show(taxYear)
+          formAnswer =>
+            val redirectLocation = if(formAnswer){
+              controllers.charity.routes.GiftAidOverseasNameController.show(taxYear, None)
             } else {
               controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear)
             }
-
-            cyaData.giftAid.fold{
-              redirectToOverview(taxYear)
-            } {
-              _ => Redirect(redirectLocation)
-            }
+            Redirect(redirectLocation)
         })
       case _ =>
         logger.info("[OverseasGiftAidDonationsController][submit] No CYA data in session. Redirecting to overview page.")

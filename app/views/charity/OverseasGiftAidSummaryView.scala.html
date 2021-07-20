@@ -43,7 +43,7 @@
                     @charity
                 </span>
                 <span class="hmrc-add-to-a-list__change">
-                    <a class="govuk-link" href="@controllers.charity.routes.GiftAidOverseasNameController.show(taxYear = taxYear)">
+                    <a class="govuk-link" href="@controllers.charity.routes.GiftAidOverseasNameController.show(taxYear = taxYear, changeCharity = Some(charity))">
                         <span aria-hidden="true">@messages("common.change")</span>
                         <span class="govuk-visually-hidden">@{messages("charity.overseas-gift-aid-summary.hiddenChange", charity)}</span>
                     </a>

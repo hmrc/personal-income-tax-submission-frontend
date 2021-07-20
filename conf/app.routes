@@ -77,8 +77,8 @@ POST        /:taxYear/charity/amount-donated-to-overseas-charities              
 GET         /:taxYear/charity/overseas-charities-donated-to                                                   controllers.charity.OverseasGiftAidSummaryController.show(taxYear: Int)
 POST        /:taxYear/charity/overseas-charities-donated-to                                                   controllers.charity.OverseasGiftAidSummaryController.submit(taxYear: Int)
 
-GET         /:taxYear/charity/name-of-overseas-charity                                                        controllers.charity.GiftAidOverseasNameController.show(taxYear: Int)
-POST        /:taxYear/charity/name-of-overseas-charity                                                        controllers.charity.GiftAidOverseasNameController.submit(taxYear: Int)
+GET         /:taxYear/charity/name-of-overseas-charity                                                        controllers.charity.GiftAidOverseasNameController.show(taxYear: Int, changeCharity: Option[String])
+POST        /:taxYear/charity/name-of-overseas-charity                                                        controllers.charity.GiftAidOverseasNameController.submit(taxYear: Int, changeCharity: Option[String])
 
 GET         /:taxYear/charity/remove-overseas-charity-gift-aid                                                controllers.charity.RemoveOverseasCharityController.show(taxYear: Int, charityType = "GIFT_AID", charityName: String)
 POST        /:taxYear/charity/remove-overseas-charity-gift-aid                                                controllers.charity.RemoveOverseasCharityController.submit(taxYear: Int, charityType = "GIFT_AID", charityName: String)
