@@ -84,7 +84,7 @@ class GiftAidTotalShareSecurityAmountController @Inject()(
             cyaData.giftAid.fold{
               Future.successful(redirectToOverview(taxYear))
             } {
-              cyaModel => giftAidSessionService.updateSessionData(cyaModel.copy(donatedLandOrPropertyAmount = Some(amount)), taxYear)(
+              cyaModel => giftAidSessionService.updateSessionData(cyaModel.copy(donatedSharesOrSecuritiesAmount = Some(amount)), taxYear)(
                 InternalServerError(errorHandler.internalServerErrorTemplate)
               )(
                 Redirect(redirectLocation)
