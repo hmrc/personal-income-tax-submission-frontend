@@ -31,6 +31,8 @@ trait CharityJourney extends FrontendController {
   def redirectToOverview(taxYear: Int)(implicit appConfig: AppConfig): Result =
     Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
 
+  def redirectToCya(taxYear: Int): Result = Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
+
   def determineResult(showPage: Result, redirectedResult: Result, fromShow: Boolean): Result = {
     if(fromShow){
       showPage

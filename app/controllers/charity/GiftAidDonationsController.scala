@@ -75,7 +75,23 @@ class GiftAidDonationsController @Inject()(
         yesNoForm =>
           giftAidSessionService.getSessionData(taxYear).map { cya =>
 
-              val updatedCya = cya.flatMap(_.giftAid).getOrElse(GiftAidCYAModel()).copy(donationsViaGiftAid = Some(true))
+              val updatedCya = {
+                val updatedModel = cya.flatMap(_.giftAid).getOrElse(GiftAidCYAModel()).copy(donationsViaGiftAid = Some(yesNoForm))
+
+                if(yesNoForm) {
+                  updatedModel
+                } else {
+                  updatedModel.copy(
+                    donationsViaGiftAidAmount = None,
+                    oneOffDonationsViaGiftAid = None,
+                    oneOffDonationsViaGiftAidAmount = None,
+                    overseasDonationsViaGiftAid = None,
+                    overseasDonationsViaGiftAidAmount = None,
+                    overseasCharityNames = None,
+                    addDonationToLastYear = None,
+                    addDonationToLastYearAmount = None)
+                }
+              }
 
               val redirectLocation = (updatedCya.isFinished, yesNoForm) match {
                 case (true, _) => Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
