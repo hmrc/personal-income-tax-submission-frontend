@@ -50,8 +50,9 @@ class OverseasSharesSecuritiesLandPropertyAmountController @Inject()(
   override def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, prior: Option[GiftAidSubmissionModel], fromShow: Boolean)
                              (implicit user: User[AnyContent]): Result = {
     (prior, cya.overseasDonatedSharesSecuritiesLandOrProperty) match {
-      case (_, Some(true)) => Ok(view(taxYear, form(user.isAgent)))
-      case (Some(priorData), None) => Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
+      case (_, Some(true)) => determineResult(Ok(view(taxYear, form(user.isAgent))),
+        Redirect(controllers.charity.routes.OverseasSharesSecuritiesLandPropertyAmountController.show(taxYear)),
+        fromShow)
       case _ => giftAidSharesSecuritiesLandPropertyOverseasController.handleRedirect(taxYear, cya, prior)
     }
   }

@@ -39,14 +39,14 @@ import views.html.charity.GiftAidOverseasSharesNameView
 import scala.concurrent.{ExecutionContext, Future}
 
 class GiftAidOverseasSharesNameController @Inject()(
-                                                implicit cc: MessagesControllerComponents,
-                                                authAction: AuthorisedAction,
-                                                appConfig: AppConfig,
-                                                view: GiftAidOverseasSharesNameView,
-                                                giftAidSharesSecuritiesLandPropertyOverseasController: GiftAidSharesSecuritiesLandPropertyOverseasController,
-                                                giftAidSessionService: GiftAidSessionService,
-                                                errorHandler: ErrorHandler,
-                                              ) extends FrontendController(cc) with I18nSupport with CharityJourney {
+                                                     implicit cc: MessagesControllerComponents,
+                                                     authAction: AuthorisedAction,
+                                                     appConfig: AppConfig,
+                                                     view: GiftAidOverseasSharesNameView,
+                                                     overseasSharesSecuritiesLandPropertyAmountController: OverseasSharesSecuritiesLandPropertyAmountController,
+                                                     giftAidSessionService: GiftAidSessionService,
+                                                     errorHandler: ErrorHandler,
+                                                   ) extends FrontendController(cc) with I18nSupport with CharityJourney {
 
   implicit val executionContext: ExecutionContext = cc.executionContext
 
@@ -54,12 +54,18 @@ class GiftAidOverseasSharesNameController @Inject()(
                              (implicit user: User[AnyContent]): Result = {
     (prior, cya.overseasDonatedSharesSecuritiesLandOrPropertyAmount) match {
       case (_, Some(amount)) => cya.overseasCharityNames.fold {
-          Ok(view(taxYear, GiftAidOverseasSharesNameForm.giftAidOverseasSharesNameForm(List(), user.isAgent)))
-        } {
-          names => Ok(view(taxYear, GiftAidOverseasSharesNameForm.giftAidOverseasSharesNameForm(names.toList, user.isAgent)))
-        }
-      case (Some(priorData), None) => Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
-      case _ => giftAidSharesSecuritiesLandPropertyOverseasController.handleRedirect(taxYear, cya, prior)
+        determineResult(
+          Ok(view(taxYear, GiftAidOverseasSharesNameForm.giftAidOverseasSharesNameForm(List(), user.isAgent))),
+          Redirect(controllers.charity.routes.GiftAidOverseasSharesNameController.show(taxYear)),
+          fromShow)
+      } {
+        names =>
+          determineResult(
+            Ok(view(taxYear, GiftAidOverseasSharesNameForm.giftAidOverseasSharesNameForm(names.toList, user.isAgent))),
+            Redirect(controllers.charity.routes.GiftAidOverseasSharesNameController.show(taxYear)),
+            fromShow)
+      }
+      case _ => overseasSharesSecuritiesLandPropertyAmountController.handleRedirect(taxYear, cya, prior)
     }
   }
 
@@ -90,7 +96,7 @@ class GiftAidOverseasSharesNameController @Inject()(
               success =>
                 giftAidSessionService.updateSessionData(cyaModel.copy(
                   overseasDonatedSharesSecuritiesLandOrPropertyCharityNames =
-                    Some(cyaModel.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.getOrElse(Seq("")):+ success)), taxYear)(
+                    Some(cyaModel.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.getOrElse(Seq("")) :+ success)), taxYear)(
                   InternalServerError(errorHandler.internalServerErrorTemplate)
                 )(
                   Redirect(controllers.charity.routes.OverseasSharesLandSummaryController.show(taxYear))
