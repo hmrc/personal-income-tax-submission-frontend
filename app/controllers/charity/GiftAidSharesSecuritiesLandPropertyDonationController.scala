@@ -103,10 +103,11 @@ class GiftAidSharesSecuritiesLandPropertyDonationController @Inject()(
             case Some(cyaData) =>
               val updatedCya = cyaData.copy(
                 donatedSharesSecuritiesLandOrProperty = Some(yesNoForm),
-                donatedSharesOrSecurities = if (yesNoForm) cyaData.donatedSharesOrSecurities else None,
+                donatedSharesOrSecurities = if (yesNoForm) cyaData.donatedSharesOrSecurities else Some(false),
                 donatedSharesOrSecuritiesAmount = if (yesNoForm) cyaData.donatedSharesOrSecuritiesAmount else None,
-                donatedLandOrProperty = if (yesNoForm) cyaData.donatedLandOrProperty else None,
-                donatedLandOrPropertyAmount = if (yesNoForm) cyaData.donatedLandOrPropertyAmount else None
+                donatedLandOrProperty = if (yesNoForm) cyaData.donatedLandOrProperty else Some(false),
+                donatedLandOrPropertyAmount = if (yesNoForm) cyaData.donatedLandOrPropertyAmount else None,
+                overseasDonatedSharesSecuritiesLandOrProperty = if (yesNoForm) cyaData.overseasDonatedSharesSecuritiesLandOrProperty else Some(false)
               )
 
               val redirectLocation = if(yesNoForm){
