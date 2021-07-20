@@ -103,6 +103,9 @@ class GiftAidCYAController @Inject()(
           if (cyaData.isFinished) {
             Ok(view(taxYear, cyaData, potentialPriorData))
           } else {
+            println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+            println(cyaData)
+            println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
             Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)) //TODO This should redirect to the last logical position. Sort out during navigation.
           }
         case (None, Some(priorData)) =>
