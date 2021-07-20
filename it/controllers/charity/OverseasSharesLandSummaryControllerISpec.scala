@@ -23,8 +23,8 @@ import models.charity.GiftAidCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
-import play.api.http.Status.{OK, UNAUTHORIZED}
-import play.api.libs.ws.WSClient
+import play.api.http.Status.{OK, SEE_OTHER, UNAUTHORIZED}
+import play.api.libs.ws.{WSClient, WSResponse}
 import utils.{GiftAidDatabaseHelper, IntegrationTest, ViewHelpers}
 
 class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with ViewHelpers with GiftAidDatabaseHelper{
@@ -91,6 +91,11 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
     GiftAidCYAModel(Some(true),Some(100.00),Some(true),Some(100.00),Some(true),Some(100.00),Some(Seq("Jack Doe"))
       ,Some(true),Some(100.00),Some(true),Some(100.00),Some(true), Some(false),Some(100.00),Some(true),Some(100.00),
       Some(true),Some(100.00), Some(Seq("John Doe")))
+
+  val testModelFalse: GiftAidCYAModel =
+    GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(100.00))
+
+
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
@@ -168,6 +173,47 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
 
         s"have an OK($OK) status" in {
           result.status shouldBe OK
+        }
+      }
+      "return the overview page when there is no data" which {
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          authoriseIndividual()
+          await(wsClient
+            .url(overseasSharesLandSummaryUrl)
+            .withHttpHeaders(xSessionId, csrfContent)
+            .withFollowRedirects(false)
+            .get())
+        }
+
+        "has a status of SEE_OTHER(303)" in {
+          result.status shouldBe SEE_OTHER
+        }
+
+        "redirects to the overview page" in {
+          result.headers("Location").head shouldBe overviewUrl
+        }
+      }
+      "return the GiftAidOverseasName page when there are no overseasDonatedSharesSecuritiesLandOrPropertyCharityNames" which {
+        lazy val result: WSResponse = {
+          emptyUserDataStub()
+          dropGiftAidDB()
+          insertCyaData(Some(testModelFalse))
+          authoriseIndividual()
+          await(wsClient
+            .url(overseasSharesLandSummaryUrl)
+            .withHttpHeaders(xSessionId, csrfContent)
+            .withFollowRedirects(false)
+            .get())
+        }
+
+        "has a status of SEE_OTHER(303)" in {
+          result.status shouldBe SEE_OTHER
+        }
+
+        "redirects to the GiftAidOverseasSharesNameController page" in {
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOverseasSharesNameController.show(taxYear)}"
         }
       }
     }

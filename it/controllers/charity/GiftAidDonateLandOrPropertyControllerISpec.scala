@@ -86,7 +86,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
     GiftAidCYAModel(donatedSharesOrSecurities = Some(true))
 
   val testModelFalse: GiftAidCYAModel =
-    GiftAidCYAModel(donatedSharesOrSecurities = Some(false))
+    GiftAidCYAModel(donatedSharesOrSecurities = Some(false), donatedSharesSecuritiesLandOrProperty = Some(true))
 
   val priorDataMin: GiftAidSubmissionModel = GiftAidSubmissionModel(
     Some(GiftAidPaymentsModel(
@@ -146,13 +146,55 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
             welshToggleCheck(ENGLISH)
           }
         }
+        "return the overview page when there is no data" which {
+          lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            authoriseIndividual()
+            await(wsClient
+              .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
+              .withHttpHeaders(xSessionId, csrfContent)
+              .withFollowRedirects(false)
+              .get())
+          }
+
+          "has a status of SEE_OTHER(303)" in {
+            result.status shouldBe SEE_OTHER
+          }
+
+          "redirects to the overview page" in {
+            result.headers("Location").head shouldBe overviewUrl
+          }
+        }
+        "return the sharesOrSecurities page when there is no donatedSharesOrSecurities" which {
+          lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModelFalse))
+            userDataStub(priorModel, nino, taxYear)
+            authoriseIndividual()
+            await(wsClient
+              .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
+              .withHttpHeaders(xSessionId, csrfContent)
+              .withFollowRedirects(false)
+              .get())
+          }
+
+          "has a status of SEE_OTHER(303)" in {
+            result.status shouldBe SEE_OTHER
+          }
+
+          "redirects to the QualifyingSharesSecurities page" in {
+            result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(taxYear)}"
+          }
+        }
       }
 
       ".submit is called" should {
 
         s"return an OK($OK) status" when {
 
-          "there is form data" in {
+          "there is form data (yes)" in {
 
             lazy val result: WSResponse = {
               dropGiftAidDB()
@@ -167,6 +209,60 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
             }
 
             result.status shouldBe OK
+          }
+          "there is form data (no)" in {
+
+            lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(Some(testModel))
+              authoriseIndividual()
+              await(
+                wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
+                  .withHttpHeaders(xSessionId, csrfContent)
+                  .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
+              )
+            }
+
+            result.status shouldBe OK
+          }
+        }
+        s"return the overview page" when {
+
+          "there is no cya data" in {
+
+            lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              authoriseIndividual()
+              await(
+                wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
+                  .withHttpHeaders(xSessionId, csrfContent)
+                  .withFollowRedirects(false)
+                  .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
+              )
+            }
+
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe overviewUrl
+          }
+          "there is empty cya data" in {
+
+            lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(None)
+              authoriseIndividual()
+              await(
+                wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
+                  .withHttpHeaders(xSessionId, csrfContent)
+                  .withFollowRedirects(false)
+                  .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
+              )
+            }
+
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe overviewUrl
           }
         }
 

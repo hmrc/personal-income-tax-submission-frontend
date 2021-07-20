@@ -83,6 +83,12 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest with Gift
   val testModel: GiftAidCYAModel =
     GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(100.00), overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(List("JaneDoe")))
 
+  val testModelEmpty: GiftAidCYAModel =
+    GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(100.00))
+
+  val testModelFalse: GiftAidCYAModel =
+    GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrProperty = Some(true))
+
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
   val taxYear: Int = 2022
@@ -94,7 +100,6 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest with Gift
     ".show" should {
 
       "returns an action with english content" which {
-
 
         lazy val result: WSResponse = {
           dropGiftAidDB()
@@ -119,6 +124,27 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest with Gift
           document.select(inputFieldSelector).attr("name")
           document.select(buttonSelector).text() shouldBe expectedButtonText
           document.select(buttonSelector).attr("class") should include("govuk-button")
+        }
+
+      }
+      "returns an action without previousNames" which {
+
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModelEmpty))
+          authoriseIndividual()
+          await(wsClient.url(
+            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+          )
+            .withHttpHeaders(xSessionId, csrfContent)
+            .get())
+        }
+        lazy val document: Document = Jsoup.parse(result.body)
+
+        "has an OK(200) status with the correct content" in {
+          result.status shouldBe OK
         }
 
       }
@@ -149,11 +175,56 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest with Gift
           document.select(buttonSelector).attr("class") should include("govuk-button")
         }
       }
+      "return the overview page when there is no data" which {
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          authoriseIndividual()
+          await(wsClient
+            .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+            )
+            .withHttpHeaders(xSessionId, csrfContent)
+            .withFollowRedirects(false)
+            .get())
+        }
+
+        "has a status of SEE_OTHER(303)" in {
+          result.status shouldBe SEE_OTHER
+        }
+
+        "redirects to the overview page" in {
+          result.headers("Location").head shouldBe overviewUrl
+        }
+      }
+      "return the OverseasSharesSecuritiesLandPropertyAmount page when there is no overseasDonatedSharesSecuritiesLandOrPropertyAmount" which {
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModelFalse))
+          authoriseIndividual()
+          await(wsClient
+            .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+            )
+            .withHttpHeaders(xSessionId, csrfContent)
+            .withFollowRedirects(false)
+            .get())
+        }
+
+        "has a status of SEE_OTHER(303)" in {
+          result.status shouldBe SEE_OTHER
+        }
+
+        "redirects to the OverseasSharesSecuritiesLandPropertyAmountController page" in {
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasSharesSecuritiesLandPropertyAmountController.show(taxYear)}"
+        }
+      }
     }
 
     ".submit" should {
 
-      s"return an OK($OK) status" in {
+      s"return an OK($OK) status when there are previous names" in {
         lazy val result: WSResponse = {
           dropGiftAidDB()
           emptyUserDataStub()
@@ -170,6 +241,64 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest with Gift
         }
 
         result.status shouldBe OK
+      }
+      s"return an OK($OK) status when there are no previous names" in {
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModelEmpty))
+          authoriseIndividual()
+          await(
+            wsClient.url(
+              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+            )
+              .withHttpHeaders(xSessionId, csrfContent)
+              .post(Map("name" -> "adam"))
+          )
+        }
+
+        result.status shouldBe OK
+      }
+
+      s"return a Redirect to the overview page when there is no data" in {
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          authoriseIndividual()
+          await(
+            wsClient.url(
+              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+            )
+              .withHttpHeaders(xSessionId, csrfContent)
+              .withFollowRedirects(false)
+              .post(Map("name" -> "adam"))
+          )
+        }
+
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe overviewUrl
+      }
+      s"return a Redirect to the overview page when there is empty data" in {
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(None)
+          authoriseIndividual()
+          await(
+            wsClient.url(
+              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+            )
+              .withHttpHeaders(xSessionId, csrfContent)
+              .withFollowRedirects(false)
+              .post(Map("name" -> "adam"))
+          )
+        }
+
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe overviewUrl
       }
 
       s"return a BAD_REQUEST($BAD_REQUEST) status with an empty error in english" in {

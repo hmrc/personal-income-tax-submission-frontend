@@ -19,6 +19,8 @@ package controllers.charity
 import common.SessionValues
 import helpers.PlaySessionCookieBaker
 import models.charity.GiftAidCYAModel
+import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
+import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
@@ -81,9 +83,29 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
 
 
   val testModel: GiftAidCYAModel =
-    GiftAidCYAModel(donatedLandOrProperty = Some(true))
+    GiftAidCYAModel(donatedLandOrProperty = Some(true), donatedSharesOrSecurities = Some(true))
 
+  val testModelFalse: GiftAidCYAModel =
+    GiftAidCYAModel(donatedLandOrProperty = Some(false), donatedSharesOrSecurities = Some(true))
 
+  val priorDataMin: GiftAidSubmissionModel = GiftAidSubmissionModel(
+    Some(GiftAidPaymentsModel(
+      Some(100.00),
+      Some(List("JohnDoe")),
+      Some(100.00),
+      Some(100.00),
+      Some(100.00),
+      Some(100.00)
+    )),
+    Some(GiftsModel(
+      Some(100.00),
+      Some(List("JaneDoe")),
+      Some(100.00),
+      Some(100.00)
+    ))
+  )
+
+  val priorModel: IncomeSourcesModel = IncomeSourcesModel(giftAid = Some(priorDataMin))
 
   "as an individual" when {
     import individualExpected._
@@ -139,6 +161,48 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
         inputFieldCheck(expectedInputName, inputFieldSelector)
         buttonCheck(expectedButtonText, buttonSelector)
       }
+      "return the overview page when there is no data" which {
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          authoriseIndividual()
+          await(wsClient
+            .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
+            .withHttpHeaders(xSessionId, csrfContent)
+            .withFollowRedirects(false)
+            .get())
+        }
+
+        "has a status of SEE_OTHER(303)" in {
+          result.status shouldBe SEE_OTHER
+        }
+
+        "redirects to the overview page" in {
+          result.headers("Location").head shouldBe overviewUrl
+        }
+      }
+      "return the DonateLandOrProperty page when there is no donatedLandOrProperty" which {
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModelFalse))
+          userDataStub(priorModel, nino, taxYear)
+          authoriseIndividual()
+          await(wsClient
+            .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
+            .withHttpHeaders(xSessionId, csrfContent)
+            .withFollowRedirects(false)
+            .get())
+        }
+
+        "has a status of SEE_OTHER(303)" in {
+          result.status shouldBe SEE_OTHER
+        }
+
+        "redirects to the LandOrProperty page" in {
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(taxYear)}"
+        }
+      }
     }
 
     ".submit" should {
@@ -157,6 +221,40 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
         }
 
         result.status shouldBe OK
+      }
+
+      s"return the overview page when without cyaData" in {
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          authoriseIndividual()
+          await(
+            wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
+              .withHttpHeaders(xSessionId, csrfContent)
+              .withFollowRedirects(false)
+              .post(Map("amount" -> "123000.42"))
+          )
+        }
+
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe overviewUrl
+      }
+      s"return the overview page when with Empty cyaData" in {
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(None)
+          authoriseIndividual()
+          await(
+            wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")
+              .withHttpHeaders(xSessionId, csrfContent)
+              .withFollowRedirects(false)
+              .post(Map("amount" -> "123000.42"))
+          )
+        }
+
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe overviewUrl
       }
 
       s"return a BAD_REQUEST($BAD_REQUEST) status with the expectedEmptyError" which {

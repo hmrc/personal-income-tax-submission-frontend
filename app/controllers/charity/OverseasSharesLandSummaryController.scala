@@ -50,7 +50,7 @@ class OverseasSharesLandSummaryController @Inject()(overseasSharesLandSummaryVie
                              (implicit user: User[AnyContent]): Result = {
 
     cya.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames match {
-      case Some(nameList) => determineResult(
+      case Some(nameList) if nameList.nonEmpty => determineResult(
         Ok(overseasSharesLandSummaryView(yesNoForm, taxYear, nameList.toList)),
         Redirect(controllers.charity.routes.OverseasGiftAidSummaryController.show(taxYear)),
         fromShow)

@@ -89,8 +89,10 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Integra
     val expectedErrorTitle = s"Error: $expectedTitle"
   }
   val testModel: GiftAidCYAModel =
-    GiftAidCYAModel(donatedLandOrProperty = Some(true))
+    GiftAidCYAModel(donatedLandOrProperty = Some(true), donatedSharesOrSecurities = Some(true))
 
+  val testModelFalse: GiftAidCYAModel =
+    GiftAidCYAModel(donatedSharesOrSecurities = Some(true))
 
   "In english" when {
 
@@ -136,6 +138,49 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Integra
             textOnPageCheck(disclosureContentBullet2, disclosureSelectorBullet2)
             textOnPageCheck(disclosureContentBullet3, disclosureSelectorBullet3)
             textOnPageCheck(disclosureContentBullet4, disclosureSelectorBullet4)
+          }
+        }
+        "return the overview page when there is no data" which {
+          lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            authoriseIndividual()
+            await(wsClient
+              .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
+                s"donation-of-shares-securities-land-or-property-to-overseas-charities")
+              .withHttpHeaders(xSessionId, csrfContent)
+              .withFollowRedirects(false)
+              .get())
+          }
+
+          "has a status of SEE_OTHER(303)" in {
+            result.status shouldBe SEE_OTHER
+          }
+
+          "redirects to the overview page" in {
+            result.headers("Location").head shouldBe overviewUrl
+          }
+        }
+        "return the DonateLandOrProperty page when there is no donatedLandOrProperty" which {
+          lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModelFalse))
+            authoriseIndividual()
+            await(wsClient
+              .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
+                s"donation-of-shares-securities-land-or-property-to-overseas-charities")
+              .withHttpHeaders(xSessionId, csrfContent)
+              .withFollowRedirects(false)
+              .get())
+          }
+
+          "has a status of SEE_OTHER(303)" in {
+            result.status shouldBe SEE_OTHER
+          }
+
+          "redirects to the LandOrProperty page" in {
+            result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(taxYear)}"
           }
         }
       }

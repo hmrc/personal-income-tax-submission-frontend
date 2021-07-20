@@ -84,6 +84,9 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
   val testModel: GiftAidCYAModel =
     GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrProperty = Some(true))
 
+  val testModelFalse: GiftAidCYAModel =
+    GiftAidCYAModel(donatedLandOrProperty = Some(false), donatedSharesOrSecurities = Some(true))
+
   "in english" when {
 
     "calling GET /2022/charity/value-of-shares-securities-land-or-property-to-overseas-charities" when {
@@ -151,6 +154,48 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
           welshToggleCheck(ENGLISH)
         }
 
+      }
+
+      "return the overview page when there is no data" which {
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          authoriseIndividual()
+          await(wsClient
+            .url(url)
+            .withHttpHeaders(xSessionId, csrfContent)
+            .withFollowRedirects(false)
+            .get())
+        }
+
+        "has a status of SEE_OTHER(303)" in {
+          result.status shouldBe SEE_OTHER
+        }
+
+        "redirects to the overview page" in {
+          result.headers("Location").head shouldBe overviewUrl
+        }
+      }
+      "return the overseasDonatedSharesSecuritiesLandOrProperty page when there is no overseasDonatedSharesSecuritiesLandOrProperty" which {
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModelFalse))
+          authoriseIndividual()
+          await(wsClient
+            .url(url)
+            .withHttpHeaders(xSessionId, csrfContent)
+            .withFollowRedirects(false)
+            .get())
+        }
+
+        "has a status of SEE_OTHER(303)" in {
+          result.status shouldBe SEE_OTHER
+        }
+
+        "redirects to the SharesSecuritiesLandPropertyOverseas page" in {
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(defaultTaxYear)}"
+        }
       }
 
     }

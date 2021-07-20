@@ -19,6 +19,8 @@ package controllers.charity
 import common.SessionValues
 import helpers.PlaySessionCookieBaker
 import models.charity.GiftAidCYAModel
+import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
+import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
@@ -84,6 +86,27 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
 
   val testModel: GiftAidCYAModel = GiftAidCYAModel(donatedSharesOrSecurities = Some(true))
 
+  val testModelFalse: GiftAidCYAModel =
+    GiftAidCYAModel(donatedSharesOrSecurities = Some(false), donatedSharesSecuritiesLandOrProperty = Some(true))
+
+  val priorDataMin: GiftAidSubmissionModel = GiftAidSubmissionModel(
+    Some(GiftAidPaymentsModel(
+      Some(100.00),
+      Some(List("JohnDoe")),
+      Some(100.00),
+      Some(100.00),
+      Some(100.00),
+      Some(100.00)
+    )),
+    Some(GiftsModel(
+      Some(100.00),
+      Some(List("JaneDoe")),
+      Some(100.00),
+      Some(100.00)
+    ))
+  )
+
+  val priorModel: IncomeSourcesModel = IncomeSourcesModel(giftAid = Some(priorDataMin))
 
   "in english" when {
 
@@ -151,6 +174,48 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
 
       }
 
+      "return the overview page when there is no data" which {
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          authoriseIndividual()
+          await(wsClient
+            .url(url)
+            .withHttpHeaders(xSessionId, csrfContent)
+            .withFollowRedirects(false)
+            .get())
+        }
+
+        "has a status of SEE_OTHER(303)" in {
+          result.status shouldBe SEE_OTHER
+        }
+
+        "redirects to the overview page" in {
+          result.headers("Location").head shouldBe overviewUrl
+        }
+      }
+      "return the QualifyingSharesSecurities page when donatedSharesOrSecurities in cyaData is not true" which {
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModelFalse))
+          userDataStub(priorModel, nino, defaultTaxYear)
+          authoriseIndividual()
+          await(wsClient
+            .url(url)
+            .withHttpHeaders(xSessionId, csrfContent)
+            .withFollowRedirects(false)
+            .get())
+        }
+
+        "has a status of SEE_OTHER(303)" in {
+          result.status shouldBe SEE_OTHER
+        }
+
+        "redirects to the QualifyingSharesSecurities page" in {
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(defaultTaxYear)}"
+        }
+      }
     }
 
     "calling POST /2022/charity/value-of-shares-or-securities" when {
