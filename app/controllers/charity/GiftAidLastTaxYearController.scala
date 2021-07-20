@@ -58,11 +58,10 @@ class GiftAidLastTaxYearController @Inject()(
     lazy val page: BigDecimal => Result = priorInput => Ok(giftAidLastTaxYearView(yesNoForm(user), taxYear, priorInput))
     
     (cya.overseasDonationsViaGiftAid, cya.overseasCharityNames, cya.donationsViaGiftAidAmount) match {
-      case (Some(_), _, None) => Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear))
-      case (Some(false), optionalNames, Some(totalDonations)) if optionalNames.forall(_.isEmpty) =>
-        if(fromShow) page(totalDonations) else Redirect(controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear))
+      case (Some(false), _, Some(totalDonations)) =>
+        determineResult(page(totalDonations), Redirect(controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear)), fromShow)
       case (Some(true), Some(names), Some(totalDonations)) if names.nonEmpty =>
-        if(fromShow) page(totalDonations) else Redirect(controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear))
+        determineResult(page(totalDonations), Redirect(controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear)), fromShow)
       case (Some(true), _, _) => Redirect("/todo") //TODO Redirect to the Name of Overseas Charities page
       case _ => redirectToOverview(taxYear)
     }

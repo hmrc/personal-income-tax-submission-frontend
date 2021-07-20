@@ -195,38 +195,6 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
         }
 
       }
-    
-      "redirect to the add donations made next year to this year  yes/no page" when {
-        
-        "there is CYA data, but the donationsViaGiftAidAmount prior field is not filled in" which {
-          lazy val result = {
-            dropGiftAidDB()
-            
-            emptyUserDataStub()
-            insertCyaData(Some(GiftAidCYAModel(
-              overseasDonationsViaGiftAid = Some(false),
-              donationsViaGiftAid = Some(true)
-            )))
-            
-            authoriseIndividual()
-            await(
-              wsClient.url(url)
-                .withHttpHeaders(xSessionId, csrfContent)
-                .withFollowRedirects(false)
-                .get()
-            )
-          }
-          
-          "has a status of SEE_OTHER (303)" in {
-            result.status shouldBe SEE_OTHER
-          }
-          
-          "has the correct redirect URL" in {
-            result.headers("Location").head shouldBe controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear).url
-          }
-        }
-        
-      }
     }
 
     "calling the POST/ endpoint" should {
