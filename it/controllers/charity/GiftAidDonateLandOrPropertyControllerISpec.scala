@@ -220,7 +220,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
               await(
                 wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
                   .withHttpHeaders(xSessionId, csrfContent)
-                  .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
+                  .post(Map(YesNoForm.yesNo -> YesNoForm.no))
               )
             }
 

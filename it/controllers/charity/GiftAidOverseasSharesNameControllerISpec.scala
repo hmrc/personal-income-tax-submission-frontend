@@ -84,7 +84,7 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest with Gift
     GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(100.00), overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(List("JaneDoe")))
 
   val testModelEmpty: GiftAidCYAModel =
-    GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(100.00))
+    GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(100.00), overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = None)
 
   val testModelFalse: GiftAidCYAModel =
     GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrProperty = Some(true))
