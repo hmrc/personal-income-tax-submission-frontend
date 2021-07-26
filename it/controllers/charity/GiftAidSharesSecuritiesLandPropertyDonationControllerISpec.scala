@@ -412,10 +412,11 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Integra
           }
 
           "data in the donatedSharesOrSecurities, donatedSharesOrSecuritiesAmount, donatedLandOrProperty, donatedLandOrPropertyAmount fields wiped" in {
-            databaseModel.donatedSharesOrSecurities shouldBe None
+            databaseModel.donatedSharesOrSecurities shouldBe Some(false)
             databaseModel.donatedSharesOrSecuritiesAmount shouldBe None
-            databaseModel.donatedLandOrProperty shouldBe None
+            databaseModel.donatedLandOrProperty shouldBe Some(false)
             databaseModel.donatedLandOrPropertyAmount shouldBe None
+            databaseModel.overseasDonatedSharesSecuritiesLandOrProperty shouldBe Some(false)
           }
         }
       }
