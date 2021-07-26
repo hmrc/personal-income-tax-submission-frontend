@@ -63,7 +63,6 @@ class GiftAidOverseasNameController @Inject()(
   def form(isAgent: Boolean, cya: GiftAidCYAModel): Form[String] = {
     val previousNames = cya.overseasCharityNames.getOrElse(Seq("")).toList
     GiftAidOverseasNameForm.giftAidOverseasNameForm(previousNames, isAgent)
-
   }
 
   def show(taxYear: Int, changeCharity: Option[String]): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
@@ -119,3 +118,4 @@ class GiftAidOverseasNameController @Inject()(
   }
 
 }
+
