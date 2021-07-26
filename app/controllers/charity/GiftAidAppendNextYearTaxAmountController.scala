@@ -98,8 +98,14 @@ class GiftAidAppendNextYearTaxAmountController @Inject()(
                 //noinspection DuplicatedCode
                 val updatedCya: GiftAidCYAModel = cyaData.copy(addDonationToThisYearAmount = Some(formAmount))
 
-                giftAidSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(
+                val redirectLocation = if(updatedCya.isFinished) {
+                  Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
+                } else {
                   Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(taxYear))
+                }
+
+                giftAidSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(
+                  redirectLocation
                 )
               case None => Future.successful(redirectToOverview(taxYear))
             }.flatten

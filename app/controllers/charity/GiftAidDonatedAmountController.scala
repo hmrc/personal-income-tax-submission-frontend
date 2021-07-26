@@ -37,7 +37,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class GiftAidDonatedAmountController @Inject()(
                                                 implicit cc: MessagesControllerComponents,
-                                                donationsToPreviousTaxYearController: DonationsToPreviousTaxYearController,
                                                 authAction: AuthorisedAction,
                                                 appConfig: AppConfig,
                                                 view: GiftAidDonatedAmountView,

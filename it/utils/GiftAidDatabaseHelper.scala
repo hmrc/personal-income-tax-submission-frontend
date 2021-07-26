@@ -43,4 +43,7 @@ trait GiftAidDatabaseHelper { self: IntegrationTest =>
     ))
   }
 
+  //noinspection ScalaStyle
+  def findGiftAidDb: Option[GiftAidCYAModel] = await(giftAidDatabase.collection.find().toFuture()).head.giftAid
+
 }

@@ -87,7 +87,7 @@ class GiftAidDonationsController @Inject()(
                     oneOffDonationsViaGiftAidAmount = None,
                     overseasDonationsViaGiftAid = Some(false),
                     overseasDonationsViaGiftAidAmount = None,
-                    overseasCharityNames = None,
+                    overseasCharityNames = Some(Seq.empty[String]),
                     addDonationToLastYear = Some(false),
                     addDonationToLastYearAmount = None)
                 }
