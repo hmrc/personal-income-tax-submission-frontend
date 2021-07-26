@@ -52,9 +52,10 @@ class OverseasSharesLandSummaryController @Inject()(overseasSharesLandSummaryVie
     cya.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames match {
       case Some(nameList) if nameList.nonEmpty => determineResult(
         Ok(overseasSharesLandSummaryView(yesNoForm, taxYear, nameList.toList)),
-        Redirect(controllers.charity.routes.OverseasGiftAidSummaryController.show(taxYear)),
+        Redirect(controllers.charity.routes.OverseasSharesLandSummaryController.show(taxYear)),
         fromShow)
-      case _ => giftAidOverseasSharesNameController.handleRedirect(taxYear, cya, prior)
+      case _ =>
+        giftAidOverseasSharesNameController.handleRedirect(taxYear, cya, prior)
     }
   }
   val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("charity.overseas-gift-aid-summary.noChoice")
@@ -83,7 +84,7 @@ class OverseasSharesLandSummaryController @Inject()(overseasSharesLandSummaryVie
         }, {
           success =>
             val redirectLocation = if(success){
-              controllers.charity.routes.GiftAidOverseasSharesNameController.show(taxYear)
+              controllers.charity.routes.GiftAidOverseasSharesNameController.show(taxYear, None)
             } else {
               controllers.charity.routes.GiftAidCYAController.show(taxYear)
             }

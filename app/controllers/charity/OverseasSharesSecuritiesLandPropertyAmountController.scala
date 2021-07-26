@@ -82,7 +82,7 @@ class OverseasSharesSecuritiesLandPropertyAmountController @Inject()(
           formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors)))
         }, {
           amount =>
-            val redirectLocation = controllers.charity.routes.GiftAidOverseasSharesNameController.show(taxYear)
+            val redirectLocation = controllers.charity.routes.GiftAidOverseasSharesNameController.show(taxYear, None)
             cyaData.giftAid.fold{
               Future.successful(redirectToOverview(taxYear))
             } {
