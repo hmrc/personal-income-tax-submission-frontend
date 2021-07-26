@@ -109,12 +109,13 @@ class GiftAidSharesSecuritiesLandPropertyDonationController @Inject()(
                 donatedLandOrPropertyAmount = if (yesNoForm) cyaData.donatedLandOrPropertyAmount else None
               )
 
-              giftAidSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError()) {
-                (yesNoForm, updatedCya.isFinished) match {
-                  case (true, false) => Redirect(controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(taxYear))
-                  case _ => Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
-                }
+              val redirectLocation = if(yesNoForm){
+                Redirect(controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(taxYear))
+              } else {
+                Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
               }
+
+              giftAidSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(redirectLocation)
             case None => Future.successful(redirectToOverview(taxYear))
           }.flatten
       }

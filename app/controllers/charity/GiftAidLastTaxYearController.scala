@@ -41,6 +41,7 @@ import scala.concurrent.Future
 class GiftAidLastTaxYearController @Inject()(
                                               implicit val cc: MessagesControllerComponents,
                                               authAction: AuthorisedAction,
+                                              giftAidOverseasNameController: GiftAidOverseasNameController,
                                               giftAidLastTaxYearView: GiftAidLastTaxYearView,
                                               val appConfig: AppConfig,
                                               giftAidSessionService: GiftAidSessionService,
@@ -62,7 +63,7 @@ class GiftAidLastTaxYearController @Inject()(
         determineResult(page(totalDonations), Redirect(controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear)), fromShow)
       case (Some(true), Some(names), Some(totalDonations)) if names.nonEmpty =>
         determineResult(page(totalDonations), Redirect(controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear)), fromShow)
-      case (Some(true), _, _) => Redirect("/todo") //TODO Redirect to the Name of Overseas Charities page
+      case (Some(true), _, _) => giftAidOverseasNameController.handleRedirect(taxYear, cya, prior)
       case _ => redirectToOverview(taxYear)
     }
   }
@@ -99,14 +100,14 @@ class GiftAidLastTaxYearController @Inject()(
               addDonationToLastYear = Some(yesNoForm),
               addDonationToLastYearAmount = if(yesNoForm) cyaData.addDonationToLastYearAmount else None
             )
-            
-            giftAidSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError()) {
-              if(yesNoForm) {
-                Redirect(controllers.charity.routes.LastTaxYearAmountController.show(taxYear))
-              } else {
-                Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear))
-              }
+
+            val redirectLocation = (yesNoForm, updatedCya.isFinished) match {
+              case (true, _) => Redirect(controllers.charity.routes.LastTaxYearAmountController.show(taxYear))
+              case (_, true) => redirectToCya(taxYear)
+              case _ => Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear))
             }
+            
+            giftAidSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(redirectLocation)
           }
         }
       )

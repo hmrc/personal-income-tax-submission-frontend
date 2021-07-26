@@ -481,40 +481,79 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
           }
         }
 
-        "no has been selected when there is CYA data" which {
-          lazy val result: WSResponse = {
-            dropGiftAidDB()
+        "no has been selected when there is CYA data" when {
 
-            emptyUserDataStub()
-            insertCyaData(Some(GiftAidCYAModel(
-              addDonationToThisYear = Some(true),
-              addDonationToThisYearAmount = Some(4000.23)
-            )))
+          "this completes the cya model" should {
+            lazy val result: WSResponse = {
+              dropGiftAidDB()
 
-            authoriseIndividual()
-            await(
-              wsClient.url(url)
-                .withHttpHeaders(xSessionId, csrfContent)
-                .withFollowRedirects(false)
-                .post(Map(YesNoForm.yesNo -> YesNoForm.no))
-            )
+              emptyUserDataStub()
+              insertCyaData(Some(completeGiftAidCYAModel))
+
+              authoriseIndividual()
+              await(
+                wsClient.url(url)
+                  .withHttpHeaders(xSessionId, csrfContent)
+                  .withFollowRedirects(false)
+                  .post(Map(YesNoForm.yesNo -> YesNoForm.no))
+              )
+            }
+
+            "has a status of SEE_OTHER(303)" in {
+              result.status shouldBe SEE_OTHER
+            }
+
+            "redirects to the donation to the check your answers page" in {
+              result.headers("Location").head shouldBe controllers.charity.routes.GiftAidCYAController.show(taxYear).url
+            }
+
+            "addDonationToLastYear should be false" in {
+              await(giftAidDatabase.find(taxYear)).get.giftAid.get.addDonationToThisYear.get shouldBe false
+            }
+
+            "addDonationToLastYearAmount should have been cleared" in {
+              await(giftAidDatabase.find(taxYear)).get.giftAid.get.addDonationToThisYearAmount shouldBe None
+            }
           }
 
-          "has a status of SEE_OTHER(303)" in {
-            result.status shouldBe SEE_OTHER
+          "this does not complete the cya model" should {
+
+            lazy val result: WSResponse = {
+              dropGiftAidDB()
+
+              emptyUserDataStub()
+              insertCyaData(Some(GiftAidCYAModel(
+                addDonationToThisYear = Some(true),
+                addDonationToThisYearAmount = Some(4000.23)
+              )))
+
+              authoriseIndividual()
+              await(
+                wsClient.url(url)
+                  .withHttpHeaders(xSessionId, csrfContent)
+                  .withFollowRedirects(false)
+                  .post(Map(YesNoForm.yesNo -> YesNoForm.no))
+              )
+            }
+
+            "has a status of SEE_OTHER(303)" in {
+              result.status shouldBe SEE_OTHER
+            }
+
+            "redirects to the donation to the shares, securities, land or property yes/no page" in {
+              result.headers("Location").head shouldBe controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(taxYear).url
+            }
+
+            "addDonationToLastYear should be false" in {
+              await(giftAidDatabase.find(taxYear)).get.giftAid.get.addDonationToThisYear.get shouldBe false
+            }
+
+            "addDonationToLastYearAmount should have been cleared" in {
+              await(giftAidDatabase.find(taxYear)).get.giftAid.get.addDonationToThisYearAmount shouldBe None
+            }
           }
 
-          "redirects to the donation to the shares, securities, land or property yes/no page" in {
-            result.headers("Location").head shouldBe controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(taxYear).url
-          }
 
-          "addDonationToLastYear should be false" in {
-            await(giftAidDatabase.find(taxYear)).get.giftAid.get.addDonationToThisYear.get shouldBe false
-          }
-
-          "addDonationToLastYearAmount should have been cleared" in {
-            await(giftAidDatabase.find(taxYear)).get.giftAid.get.addDonationToThisYearAmount shouldBe None
-          }
         }
 
         "any option has been selected when there is no CYA data" which {

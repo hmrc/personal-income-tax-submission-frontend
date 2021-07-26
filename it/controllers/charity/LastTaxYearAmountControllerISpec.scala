@@ -276,35 +276,77 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
     "an individual" when {
 
-      "the form data is valid" should {
+      "the form data is valid" when {
+        val validAmount = 1234
 
-        "redirect to the donate land share securities or properties page" which {
-          lazy val result = {
-            dropGiftAidDB()
+        "this completes the cya model" should {
 
-            emptyUserDataStub()
-            insertCyaData(Some(GiftAidCYAModel(
-              addDonationToLastYear = Some(true)
-            )))
+          "redirect to the check your answers page" which {
+            lazy val result = {
+              dropGiftAidDB()
 
-            authoriseIndividual()
-            await(wsClient.url(lastTaxYearAmountUrl)
-              .withFollowRedirects(false)
-              .withHttpHeaders(xSessionId, csrfContent)
-              .post(Map[String, String](
-                "amount" -> "1234"
-              )))
-          }
+              emptyUserDataStub()
+              insertCyaData(Some(completeGiftAidCYAModel))
 
-          "has a status of SEE_OTHER(303)" in {
-            result.status shouldBe SEE_OTHER
-          }
+              authoriseIndividual()
+              await(wsClient.url(lastTaxYearAmountUrl)
+                .withFollowRedirects(false)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .post(Map[String, String](
+                  "amount" -> s"$validAmount"
+                )))
+            }
 
-          "has the correct redirect URL" in {
-            result.headers("Location").head shouldBe controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear).url
+            "has a status of SEE_OTHER(303)" in {
+              result.status shouldBe SEE_OTHER
+            }
+
+            "has the correct redirect URL" in {
+              result.headers("Location").head shouldBe controllers.charity.routes.GiftAidCYAController.show(taxYear).url
+            }
+
+            "update the cya data" in {
+              findGiftAidDb shouldBe Some(completeGiftAidCYAModel.copy(addDonationToLastYearAmount = Some(validAmount)))
+            }
           }
         }
 
+        "this does not complete the cya model" should {
+
+          "redirect to the donate land share securities or properties page" which {
+            lazy val result = {
+              dropGiftAidDB()
+
+              emptyUserDataStub()
+              insertCyaData(Some(GiftAidCYAModel(
+                addDonationToLastYear = Some(true)
+              )))
+
+              authoriseIndividual()
+              await(wsClient.url(lastTaxYearAmountUrl)
+                .withFollowRedirects(false)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .post(Map[String, String](
+                  "amount" -> s"$validAmount"
+                )))
+            }
+
+            "has a status of SEE_OTHER(303)" in {
+              result.status shouldBe SEE_OTHER
+            }
+
+            "has the correct redirect URL" in {
+              result.headers("Location").head shouldBe controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear).url
+            }
+
+            "update the cya data" in {
+              findGiftAidDb shouldBe Some(GiftAidCYAModel(
+                addDonationToLastYear = Some(true),
+                addDonationToLastYearAmount = Some(validAmount)
+              ))
+            }
+          }
+        }
       }
       
       "the form data is valid, but there is no session data" should {

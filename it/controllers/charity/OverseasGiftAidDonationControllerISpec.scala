@@ -57,8 +57,11 @@ class OverseasGiftAidDonationControllerISpec extends IntegrationTest with ViewHe
   val yesNoFormEmpty: Map[String, String] = Map(YesNoForm.yesNo -> "")
 
   val taxYear: Int = 2022
-  val requiredSessionData: Some[GiftAidCYAModel] =
-    Some(GiftAidCYAModel(oneOffDonationsViaGiftAid = Some(true), oneOffDonationsViaGiftAidAmount = Some(BigDecimal("50"))))
+
+  val requiredSessionModel: GiftAidCYAModel =
+    GiftAidCYAModel(oneOffDonationsViaGiftAid = Some(true), oneOffDonationsViaGiftAidAmount = Some(BigDecimal("50")))
+  val requiredSessionData: Some[GiftAidCYAModel] = Some(requiredSessionModel)
+
   val overseasDonationsUrl = s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/overseas-charity-donations-using-gift-aid"
 
   lazy val agentSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
@@ -220,12 +223,37 @@ class OverseasGiftAidDonationControllerISpec extends IntegrationTest with ViewHe
           }
         }
 
-        "the user has selected 'No'" should {
-          lazy val result = postResult(requiredSessionData, None, isAgent = false, yesNoFormNo)
+        "the user has selected 'No'" when {
 
-          "redirect the user to the 'Add donation to last tax year' page" in {
-            result.status shouldBe SEE_OTHER
-            result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear)}"
+          "this completes the cya model" should {
+            lazy val result = postResult(Some(completeGiftAidCYAModel.copy(overseasDonationsViaGiftAid = None)), None, isAgent = false, yesNoFormNo)
+
+            "redirect the user to the 'check your answers' page" in {
+              result.status shouldBe SEE_OTHER
+              result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
+            }
+
+            "update the cya data" in {
+              findGiftAidDb shouldBe
+                Some(completeGiftAidCYAModel.copy(
+                  overseasDonationsViaGiftAid = Some(false),
+                  overseasDonationsViaGiftAidAmount = None,
+                  overseasCharityNames = Some(Seq.empty[String])
+                ))
+            }
+          }
+
+          "this does not complete the cya model" should {
+            lazy val result = postResult(requiredSessionData, None, isAgent = false, yesNoFormNo)
+
+            "redirect the user to the 'Add donation to last tax year' page" in {
+              result.status shouldBe SEE_OTHER
+              result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear)}"
+            }
+
+            "update the cya data" in {
+              findGiftAidDb shouldBe Some(requiredSessionModel.copy(overseasDonationsViaGiftAid = Some(false)))
+            }
           }
         }
 
@@ -355,11 +383,36 @@ class OverseasGiftAidDonationControllerISpec extends IntegrationTest with ViewHe
         }
 
         "the user has selected 'No'" should {
-          lazy val result = postResult(requiredSessionData, None, isAgent = true, yesNoFormNo)
 
-          "redirect the user to the 'Add donation to last tax year' page" in {
-            result.status shouldBe SEE_OTHER
-            result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear)}"
+          "this completes the cya model" should {
+            lazy val result = postResult(Some(completeGiftAidCYAModel.copy(overseasDonationsViaGiftAid = None)), None, isAgent = true, yesNoFormNo)
+
+            "redirect the user to the 'check your answers' page" in {
+              result.status shouldBe SEE_OTHER
+              result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
+            }
+
+            "update the cya data" in {
+              findGiftAidDb shouldBe
+                Some(completeGiftAidCYAModel.copy(
+                  overseasDonationsViaGiftAid = Some(false),
+                  overseasDonationsViaGiftAidAmount = None,
+                  overseasCharityNames = Some(Seq.empty[String])
+                ))
+            }
+          }
+
+          "this does not complete the cya model" should {
+            lazy val result = postResult(requiredSessionData, None, isAgent = true, yesNoFormNo)
+
+            "redirect the user to the 'Add donation to last tax year' page" in {
+              result.status shouldBe SEE_OTHER
+              result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear)}"
+            }
+
+            "update the cya data" in {
+              findGiftAidDb shouldBe Some(requiredSessionModel.copy(overseasDonationsViaGiftAid = Some(false)))
+            }
           }
         }
 

@@ -93,7 +93,7 @@ class OverseasGiftAidDonationsController @Inject()(
             if(formAnswer) {
               updatedModel
             } else {
-              updatedModel.copy(overseasDonationsViaGiftAidAmount = None, overseasCharityNames = None)
+              updatedModel.copy(overseasDonationsViaGiftAidAmount = None, overseasCharityNames = Some(Seq.empty[String]))
             }
           }
 

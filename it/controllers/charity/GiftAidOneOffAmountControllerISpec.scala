@@ -89,7 +89,8 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
   val inputHintTextSelector = ".govuk-hint"
 
   val oneOffAmountUrl: String = s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-donated-as-one-off"
-  val requiredSessionData: Some[GiftAidCYAModel] = Some(GiftAidCYAModel(oneOffDonationsViaGiftAid = Some(true)))
+  val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(oneOffDonationsViaGiftAid = Some(true))
+  val requiredSessionData: Some[GiftAidCYAModel] = Some(requiredSessionModel)
 
   lazy val agentSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
     SessionValues.CLIENT_MTDITID -> "1234567890",
@@ -325,13 +326,32 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
         }
 
         "the user has entered a valid amount" when {
+          val validAmount = 123
 
-          "the cya data is updated successfully" should {
-            lazy val result: WSResponse = postResult(requiredSessionData, None, isAgent = false, Map("amount" -> "123"))
+          "this does not complete the cya model" should {
+            lazy val result: WSResponse = postResult(requiredSessionData, None, isAgent = false, Map("amount" -> s"$validAmount"))
 
             "redirect the user to the 'overseas donations' page" in {
               result.status shouldBe SEE_OTHER
               result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasGiftAidDonationsController.show(taxYear)}"
+            }
+
+            "update the cya data" in {
+              findGiftAidDb shouldBe Some(requiredSessionModel.copy(oneOffDonationsViaGiftAidAmount = Some(validAmount)))
+            }
+          }
+
+          "this completes the cya model" should {
+            lazy val result: WSResponse =
+              postResult(Some(completeGiftAidCYAModel.copy(oneOffDonationsViaGiftAidAmount = None)), None, isAgent = false, Map("amount" -> s"$validAmount"))
+
+            "redirect the user to the 'check your answers' page" in {
+              result.status shouldBe SEE_OTHER
+              result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
+            }
+
+            "update the cya data" in {
+              findGiftAidDb shouldBe Some(completeGiftAidCYAModel.copy(oneOffDonationsViaGiftAidAmount = Some(validAmount)))
             }
           }
         }
@@ -513,13 +533,32 @@ class GiftAidOneOffAmountControllerISpec extends IntegrationTest with ViewHelper
         }
 
         "the user has entered a valid amount" when {
+          val validAmount = 123
 
-          "the cya data is updated successfully" should {
-            lazy val result: WSResponse = postResult(requiredSessionData, None, isAgent = true, Map("amount" -> "123"))
+          "this does not complete the cya model" should {
+            lazy val result: WSResponse = postResult(requiredSessionData, None, isAgent = true, Map("amount" -> s"$validAmount"))
 
             "redirect the user to the 'overseas donations' page" in {
               result.status shouldBe SEE_OTHER
               result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasGiftAidDonationsController.show(taxYear)}"
+            }
+
+            "update the cya data" in {
+              findGiftAidDb shouldBe Some(requiredSessionModel.copy(oneOffDonationsViaGiftAidAmount = Some(validAmount)))
+            }
+          }
+
+          "this completes the cya model" should {
+            lazy val result: WSResponse =
+              postResult(Some(completeGiftAidCYAModel.copy(oneOffDonationsViaGiftAidAmount = None)), None, isAgent = true, Map("amount" -> s"$validAmount"))
+
+            "redirect the user to the 'check your answers' page" in {
+              result.status shouldBe SEE_OTHER
+              result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
+            }
+
+            "update the cya data" in {
+              findGiftAidDb shouldBe Some(completeGiftAidCYAModel.copy(oneOffDonationsViaGiftAidAmount = Some(validAmount)))
             }
           }
         }

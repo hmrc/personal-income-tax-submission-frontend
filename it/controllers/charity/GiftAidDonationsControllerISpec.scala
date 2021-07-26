@@ -166,6 +166,10 @@ class GiftAidDonationsControllerISpec extends IntegrationTest with ViewHelpers w
           result.status shouldBe SEE_OTHER
           result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidDonatedAmountController.show(taxYear)}"
         }
+
+        "update the cya data" in {
+          findGiftAidDb shouldBe Some(GiftAidCYAModel(donationsViaGiftAid = Some(true)))
+        }
       }
 
       "the user has selected 'No'" should {
@@ -184,6 +188,16 @@ class GiftAidDonationsControllerISpec extends IntegrationTest with ViewHelpers w
         "redirect the user to the 'Add donations to this tax year' page" in {
           result.status shouldBe SEE_OTHER
           result.headers("Location").head shouldBe s"${controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear)}"
+        }
+
+        "update the cya data" in {
+          findGiftAidDb shouldBe
+            Some(GiftAidCYAModel(
+              donationsViaGiftAid = Some(false),
+              oneOffDonationsViaGiftAid = Some(false),
+              overseasDonationsViaGiftAid = Some(false),
+              addDonationToLastYear = Some(false)
+            ))
         }
       }
 
@@ -348,9 +362,88 @@ class GiftAidDonationsControllerISpec extends IntegrationTest with ViewHelpers w
           result.status shouldBe SEE_OTHER
           result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidDonatedAmountController.show(taxYear)}"
         }
+
+        "update the cya data" in {
+          findGiftAidDb shouldBe Some(GiftAidCYAModel(donationsViaGiftAid = Some(true)))
+        }
       }
 
-      "the user has selected 'No'" should {
+      "the user has selected 'No'" when {
+
+        "this completes the CYA model" should {
+          lazy val result: WSResponse = {
+            dropGiftAidDB()
+
+            emptyUserDataStub()
+            insertCyaData(Some(completeGiftAidCYAModel.copy(donationsViaGiftAid = None)))
+
+            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+              SessionValues.CLIENT_MTDITID -> "1234567890",
+              SessionValues.CLIENT_NINO -> "AA123456A"
+            ))
+
+            authoriseAgent()
+            await(wsClient.url(giftAidDonationsUrl).withHttpHeaders(
+              HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
+              .withFollowRedirects(false).post(yesNoFormNo)
+            )
+          }
+
+          "redirect the user to the 'check your answers' page" in {
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
+          }
+
+          "update the cya data" in {
+            findGiftAidDb shouldBe
+              Some(completeGiftAidCYAModel.copy(
+                donationsViaGiftAid = Some(false),
+                donationsViaGiftAidAmount = None,
+                oneOffDonationsViaGiftAid = Some(false),
+                oneOffDonationsViaGiftAidAmount = None,
+                overseasDonationsViaGiftAid = Some(false),
+                overseasDonationsViaGiftAidAmount = None,
+                overseasCharityNames = Some(Seq.empty[String]),
+                addDonationToLastYear = Some(false),
+                addDonationToLastYearAmount = None
+              ))
+          }
+        }
+
+        "this does not complete the CYA model" should {
+          lazy val result: WSResponse = {
+            dropGiftAidDB()
+
+            emptyUserDataStub()
+            insertCyaData(None)
+
+            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+              SessionValues.CLIENT_MTDITID -> "1234567890",
+              SessionValues.CLIENT_NINO -> "AA123456A"
+            ))
+
+            authoriseAgent()
+            await(wsClient.url(giftAidDonationsUrl).withHttpHeaders(
+              HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
+              .withFollowRedirects(false).post(yesNoFormNo)
+            )
+          }
+
+          "redirect the user to the 'Add donations to this tax year' page" in {
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe s"${controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear)}"
+          }
+
+          "update the cya data" in {
+            findGiftAidDb shouldBe
+              Some(GiftAidCYAModel(
+                donationsViaGiftAid = Some(false),
+                oneOffDonationsViaGiftAid = Some(false),
+                overseasDonationsViaGiftAid = Some(false),
+                addDonationToLastYear = Some(false)
+              ))
+          }
+        }
 
         lazy val result: WSResponse = {
           dropGiftAidDB()
@@ -374,15 +467,21 @@ class GiftAidDonationsControllerISpec extends IntegrationTest with ViewHelpers w
           result.status shouldBe SEE_OTHER
           result.headers("Location").head shouldBe s"${controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear)}"
         }
+
+        "update the cya data" in {
+          findGiftAidDb shouldBe
+            Some(GiftAidCYAModel(
+              donationsViaGiftAid = Some(false),
+              oneOffDonationsViaGiftAid = Some(false),
+              overseasDonationsViaGiftAid = Some(false),
+              addDonationToLastYear = Some(false)
+            ))
+        }
       }
 
       "the user has not selected an option" should {
 
         lazy val result: WSResponse = {
-          dropGiftAidDB()
-
-          emptyUserDataStub()
-          insertCyaData(None)
 
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",

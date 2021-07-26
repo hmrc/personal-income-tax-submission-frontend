@@ -346,6 +346,35 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Integra
       }
 
       "redirect to the overview page" when {
+        
+        "there is no CYA data in session" which {
+          lazy val result: WSResponse = {
+            dropGiftAidDB()
+
+            emptyUserDataStub()
+            insertCyaData(None)
+
+            authoriseIndividual()
+            await(
+              wsClient.url(url)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .withFollowRedirects(false)
+                .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
+            )
+          }
+
+          "has a status of SEE_OTHER(303)" in {
+            result.status shouldBe SEE_OTHER
+          }
+
+          "has the correct redirect url" in {
+            result.header("Location").get shouldBe overviewUrl
+          }
+        }
+
+      }
+
+      "redirect to the CYA page" when {
 
         "the user has submitted no" which {
           lazy val result: WSResponse = {
@@ -389,73 +418,8 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Integra
             databaseModel.donatedLandOrPropertyAmount shouldBe None
           }
         }
-        
-        "there is no CYA data in session" which {
-          lazy val result: WSResponse = {
-            dropGiftAidDB()
-
-            emptyUserDataStub()
-            insertCyaData(None)
-
-            authoriseIndividual()
-            await(
-              wsClient.url(url)
-                .withHttpHeaders(xSessionId, csrfContent)
-                .withFollowRedirects(false)
-                .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
-            )
-          }
-
-          "has a status of SEE_OTHER(303)" in {
-            result.status shouldBe SEE_OTHER
-          }
-
-          "has the correct redirect url" in {
-            result.header("Location").get shouldBe overviewUrl
-          }
-        }
-
       }
-
-      "redirect to the CYA page" when {
-
-        "the CYA model indicates that the form is finished" which {
-          lazy val result: WSResponse = {
-            dropGiftAidDB()
-
-            emptyUserDataStub()
-            insertCyaData(Some(GiftAidCYAModel(
-              Some(false), None,
-              Some(false), None,
-              Some(false), None, None,
-              Some(false), None,
-              Some(false), None,
-              Some(false), None, None, None, None,
-              Some(false), None, None
-            )))
-
-            authoriseIndividual()
-            await(
-              wsClient.url(url)
-                .withHttpHeaders(xSessionId, csrfContent)
-                .withFollowRedirects(false)
-                .post(Map(YesNoForm.yesNo -> YesNoForm.no))
-            )
-          }
-
-          "has a status of SEE_OTHER(303)" in {
-            result.status shouldBe SEE_OTHER
-          }
-
-          "has the correct redirect url" in {
-            result.header("Location").get shouldBe controllers.charity.routes.GiftAidCYAController.show(taxYear).url
-          }
-        }
-
-      }
-
     }
-
   }
 
   "as an agent" when {
@@ -588,13 +552,8 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Integra
             radioButtonCheck(noText, 2)
             buttonCheck(continueText, continueSelector)
           }
-
         }
-
       }
-
     }
-
   }
-
 }

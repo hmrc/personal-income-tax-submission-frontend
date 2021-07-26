@@ -101,14 +101,14 @@ class DonationsToPreviousTaxYearController @Inject() (
                 addDonationToThisYear = Some(yesNoForm),
                 addDonationToThisYearAmount = if(yesNoForm) cya.addDonationToLastYearAmount else None
               )
-              
-              giftAidSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError()) {
-                if(yesNoForm) {
-                  Redirect(controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(taxYear, taxYear))
-                } else {
-                  Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(taxYear))
-                }
+
+              val redirectLocation = (yesNoForm, updatedCya.isFinished) match {
+                case (true, _) => Redirect(controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(taxYear, taxYear))
+                case (_, true) => redirectToCya(taxYear)
+                case _ => Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(taxYear))
               }
+              
+              giftAidSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(redirectLocation)
             case _ => Future.successful(redirectToOverview(taxYear))
           }.flatten
         }

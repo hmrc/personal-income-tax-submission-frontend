@@ -274,29 +274,68 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
 
     "an individual" when {
 
-      "the form data is valid" should {
+      "the form data is valid" when {
+        val validAmount = 1234
 
-        "redirect the user to the shares, securities, land or property page" which {
-          lazy val result: WSResponse = {
-            dropGiftAidDB()
+        "this completes the cya model" should {
 
-            insertCyaData(Some(GiftAidCYAModel()))
+          "redirect the user to the check your answers page" which {
+            lazy val result: WSResponse = {
+              dropGiftAidDB()
 
-            authoriseIndividual()
-            await(
-              wsClient.url(url)
-                .withHttpHeaders(xSessionId, csrfContent)
-                .withFollowRedirects(false)
-                .post(Map[String, String]("amount" -> "1234"))
-            )
+              insertCyaData(Some(completeGiftAidCYAModel))
+
+              authoriseIndividual()
+              await(
+                wsClient.url(url)
+                  .withHttpHeaders(xSessionId, csrfContent)
+                  .withFollowRedirects(false)
+                  .post(Map[String, String]("amount" -> s"$validAmount"))
+              )
+            }
+
+            "has a status of SEE_OTHER (303)" in {
+              result.status shouldBe SEE_OTHER
+            }
+
+            "has the redirect url to the check your answers page" in {
+              result.headers("Location").head shouldBe controllers.charity.routes.GiftAidCYAController.show(defaultTaxYear).url
+            }
+
+            "update the cya data" in {
+              findGiftAidDb shouldBe Some(completeGiftAidCYAModel.copy(addDonationToThisYearAmount = Some(validAmount)))
+            }
           }
+        }
 
-          "has a status of SEE_OTHER (303)" in {
-            result.status shouldBe SEE_OTHER
-          }
+        "this does not complete the cya model" should {
 
-          "has the redirect url to the shares, securities, land or property yes/no page" in {
-            result.headers("Location").head shouldBe controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(defaultTaxYear).url
+          "redirect the user to the shares, securities, land or property page" which {
+            lazy val result: WSResponse = {
+              dropGiftAidDB()
+
+              insertCyaData(Some(GiftAidCYAModel()))
+
+              authoriseIndividual()
+              await(
+                wsClient.url(url)
+                  .withHttpHeaders(xSessionId, csrfContent)
+                  .withFollowRedirects(false)
+                  .post(Map[String, String]("amount" -> "1234"))
+              )
+            }
+
+            "has a status of SEE_OTHER (303)" in {
+              result.status shouldBe SEE_OTHER
+            }
+
+            "has the redirect url to the shares, securities, land or property yes/no page" in {
+              result.headers("Location").head shouldBe controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(defaultTaxYear).url
+            }
+
+            "update the cya data" in {
+              findGiftAidDb shouldBe Some(GiftAidCYAModel(addDonationToThisYearAmount = Some(validAmount)))
+            }
           }
         }
       }

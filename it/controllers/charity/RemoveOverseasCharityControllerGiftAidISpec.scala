@@ -79,7 +79,8 @@ class RemoveOverseasCharityControllerGiftAidISpec extends IntegrationTest with V
   val yesNoFormYes: Map[String, String] = Map(YesNoForm.yesNo -> YesNoForm.yes)
   val yesNoFormEmpty: Map[String, String] = Map(YesNoForm.yesNo -> "")
 
-  val requiredSessionData: Option[GiftAidCYAModel] = Some(GiftAidCYAModel(overseasCharityNames = Some(Seq(Content.charityName))))
+  val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(overseasCharityNames = Some(Seq(Content.charityName)))
+  val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
 
 
   lazy val agentSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
@@ -240,6 +241,9 @@ class RemoveOverseasCharityControllerGiftAidISpec extends IntegrationTest with V
             result.status shouldBe SEE_OTHER
             result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear)}"
           }
+          "update the cya data" in {
+            findGiftAidDb shouldBe Some(requiredSessionModel.copy(overseasCharityNames = Some(Seq.empty[String])))
+          }
         }
 
         "the user has selected 'Yes' and is not removing the last charity" should {
@@ -252,6 +256,9 @@ class RemoveOverseasCharityControllerGiftAidISpec extends IntegrationTest with V
           "redirect the user to the 'overseas charity summary' page" in {
             result.status shouldBe SEE_OTHER
             result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasGiftAidSummaryController.show(taxYear)}"
+          }
+          "update the cya data" in {
+            findGiftAidDb shouldBe Some(requiredSessionModel.copy(overseasCharityNames = Some(Seq("Other"))))
           }
         }
 

@@ -189,8 +189,8 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
             result.status shouldBe SEE_OTHER
           }
 
-          "redirects to the correct page" in {
-            result.headers("Location").head shouldBe "/todo"
+          "redirects to the gift aid overseas name page" in {
+            result.headers("Location").head shouldBe controllers.charity.routes.GiftAidOverseasNameController.show(taxYear, None).url
           }
         }
 
@@ -231,11 +231,8 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
             "updated the addDonationsToLastTaxYear field to true" in {
               await(giftAidDatabase.find(taxYear)).get.giftAid.get.addDonationToLastYear.get shouldBe true
             }
-
           }
-
         }
-
       }
 
       "redirect to the add tax to this tax year page" when {
@@ -275,7 +272,48 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
               databaseResult.addDonationToLastYear.get shouldBe false
             }
 
-            "cleared the addDonatiosnToLastTaxYearAmount field" in {
+            "cleared the addDonationsToLastTaxYearAmount field" in {
+              databaseResult.addDonationToLastYearAmount shouldBe None
+            }
+          }
+        }
+      }
+
+      "redirect to the check your answers page" when {
+
+        "the user answers no" when {
+
+          "this will complete the cya model" which {
+            lazy val result = {
+              dropGiftAidDB()
+
+              emptyUserDataStub()
+              insertCyaData(Some(completeGiftAidCYAModel))
+
+              authoriseIndividual()
+              await(
+                wsClient.url(url)
+                  .withHttpHeaders(xSessionId, csrfContent)
+                  .withFollowRedirects(false)
+                  .post(Map[String, String](YesNoForm.yesNo -> YesNoForm.no))
+              )
+            }
+
+            lazy val databaseResult: GiftAidCYAModel = await(giftAidDatabase.find(taxYear)).get.giftAid.get
+
+            "has a status of SEE_OTHER" in {
+              result.status shouldBe SEE_OTHER
+            }
+
+            "has the correct URL" in {
+              result.headers("Location").head shouldBe controllers.charity.routes.GiftAidCYAController.show(taxYear).url
+            }
+
+            "updated the addDonationsToLastTaxYear field to false" in {
+              databaseResult.addDonationToLastYear.get shouldBe false
+            }
+
+            "cleared the addDonationsToLastTaxYearAmount field" in {
               databaseResult.addDonationToLastYearAmount shouldBe None
             }
           }
@@ -382,7 +420,7 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
         }
 
       }
-      
+
     }
 
   }
@@ -398,14 +436,14 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
             donationsViaGiftAidAmount = Some(150.00),
             overseasDonationsViaGiftAid = Some(false)
           )
-          
+
           dropGiftAidDB()
-          
+
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A"
           ))
-          
+
           userDataStub(IncomeSourcesModel(
             giftAid = Some(testModel)
           ), nino, taxYear)
@@ -430,17 +468,17 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
         radioButtonCheck(yesText, 1)
         radioButtonCheck(noText, 2)
         buttonCheck(expectedContinue, continueSelector)
-        
+
         noErrorsCheck()
       }
-      
+
       "returns an redirect" which {
         lazy val result: WSResponse = {
           dropGiftAidDB()
-          
+
           emptyUserDataStub()
           insertCyaData(None)
-          
+
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
             SessionValues.CLIENT_NINO -> "AA123456A",
@@ -451,19 +489,19 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
             .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
             .get())
         }
-        
+
         "has an NOT_FOUND status" in {
           result.status shouldBe NOT_FOUND
           result.uri.toString shouldBe overviewUrl
         }
-        
+
       }
     }
 
     ".submit" should {
 
       "display the page with errors" when {
-        
+
         "the user submits faulty form data when they have session and prior data" which {
           lazy val result = {
             dropGiftAidDB()
@@ -472,7 +510,7 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
               SessionValues.CLIENT_MTDITID -> "1234567890",
               SessionValues.CLIENT_NINO -> "AA123456A"
             ))
-            
+
             userDataStub(IncomeSourcesModel(
               giftAid = Some(GiftAidSubmissionModel(
                 giftAidPayments = Some(GiftAidPaymentsModel(
@@ -481,7 +519,7 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
               ))
             ), nino, taxYear)
             insertCyaData(Some(GiftAidCYAModel()))
-            
+
             authoriseAgent()
             await(
               wsClient.url(url)
@@ -490,11 +528,11 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
                 .post(Map[String, String]())
             )
           }
-          
+
           "has a status of bad request" in {
             result.status shouldBe BAD_REQUEST
           }
-          
+
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck("Error: " + expectedTitle)
@@ -506,11 +544,11 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
           buttonCheck(expectedContinue, continueSelector)
-          
+
           errorSummaryCheck(expectedError, errorSummaryHref)
           errorAboveElementCheck(expectedError)
         }
-        
+
       }
 
     }

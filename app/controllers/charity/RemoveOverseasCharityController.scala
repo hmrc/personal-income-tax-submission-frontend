@@ -71,34 +71,43 @@ class RemoveOverseasCharityController @Inject()(
 
     (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
 
-      giftAidSessionService.getSessionData(taxYear).map {
-
-        case Some(model) =>
+      giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
+        case Some(cyaModel) =>
           yesNoForm.bindFromRequest().fold({
             formWithErrors =>
-              model.giftAid.flatMap(_.overseasCharityNames) match {
+              cyaModel.overseasCharityNames match {
                 case Some(names) =>
-                  BadRequest(
+                  Future.successful(BadRequest(
                     removeOverseasCharityView(formWithErrors, taxYear, charityType, charityName, names.forall(_ == charityName))
-                  )
-                case _ => errorHandler.internalServerError()
+                  ))
+                case _ => Future.successful(errorHandler.internalServerError())
               }
           }, {
             yesNoForm =>
-              model.giftAid match {
-                case Some(cya) =>
-                  if(yesNoForm && cya.overseasCharityNames.exists(_.forall(_ == charityName))) {
+              cyaModel.overseasCharityNames.fold(
+                Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+              ){
+                seqNames =>
+                  val updatedCya = cyaModel.copy(overseasCharityNames = Some(seqNames.filterNot(_ == charityName)))
+
+                  val redirectLocation = if(yesNoForm && seqNames.length == 1) {
                     Redirect(controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear))
                   } else {
                     Redirect(controllers.charity.routes.OverseasGiftAidSummaryController.show(taxYear))
                   }
-                case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+
+                  if(yesNoForm){
+                    giftAidSessionService.updateSessionData(updatedCya, taxYear)(
+                      InternalServerError(errorHandler.internalServerErrorTemplate)
+                    )(redirectLocation)
+                  } else {
+                    Future.successful(Redirect(controllers.charity.routes.OverseasGiftAidSummaryController.show(taxYear)))
+                  }
               }
-          }
-          )
+          })
         case _ =>
           logger.info("[GiftAidOneOffAmountController][submit] No CYA data in session. Redirecting to overview page.")
-          Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-      }
+          Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+      }.flatten
   }
 }

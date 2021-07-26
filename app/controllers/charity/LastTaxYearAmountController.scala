@@ -102,11 +102,15 @@ class LastTaxYearAmountController @Inject()(
               //noinspection DuplicatedCode
               val updatedCyaData: GiftAidCYAModel = cyaData.copy(addDonationToLastYearAmount = Some(submittedAmount))
 
+              val redirectLocation = if(updatedCyaData.isFinished){
+                Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
+              } else {
+                Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear))
+              }
+
               giftAidSessionService.updateSessionData(updatedCyaData, taxYear)(
                 errorHandler.internalServerError()
-              )(
-                Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear))
-              )
+              )(redirectLocation)
             case _ =>
               logger.warn("[LastTaxYearAmountController][submit] No CYA data retrieved from the mongo database. Redirecting to the overview page.")
               Future.successful(redirectToOverview(taxYear))

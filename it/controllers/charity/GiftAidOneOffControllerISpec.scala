@@ -64,8 +64,10 @@ class GiftAidOneOffControllerISpec extends IntegrationTest with ViewHelpers with
   val yesNoFormEmpty: Map[String, String] = Map(YesNoForm.yesNo -> "")
 
   val taxYear: Int = 2022
-  val requiredSessionData: Some[GiftAidCYAModel] =
-    Some(GiftAidCYAModel(donationsViaGiftAid = Some(true), donationsViaGiftAidAmount = Some(BigDecimal("50"))))
+
+  val requiredSessionModel = GiftAidCYAModel(donationsViaGiftAid = Some(true), donationsViaGiftAidAmount = Some(BigDecimal("50")))
+  val requiredSessionData: Some[GiftAidCYAModel] = Some(requiredSessionModel)
+
   val oneOffDonationsUrl = s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/one-off-charity-donations"
 
   lazy val agentSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
@@ -217,14 +219,41 @@ class GiftAidOneOffControllerISpec extends IntegrationTest with ViewHelpers with
             result.status shouldBe SEE_OTHER
             result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOneOffAmountController.show(taxYear)}"
           }
+
+          "update the cya data" in {
+            findGiftAidDb shouldBe Some(requiredSessionModel.copy(oneOffDonationsViaGiftAid = Some(true)))
+          }
         }
 
-        "the user has selected 'No'" should {
-          lazy val result = postResult(requiredSessionData, None, isAgent = false, yesNoFormNo)
+        "the user has selected 'No'" when {
 
-          "redirect the user to the 'overseas donations' page" in {
-            result.status shouldBe SEE_OTHER
-            result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasGiftAidDonationsController.show(taxYear)}"
+          "this completes the cya model" should {
+            lazy val result =
+              postResult(Some(completeGiftAidCYAModel.copy(oneOffDonationsViaGiftAid = None)), None, isAgent = false, yesNoFormNo)
+
+            "redirect the user to the 'check your answers' page" in {
+              result.status shouldBe SEE_OTHER
+              result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
+            }
+
+            "update the cya data" in {
+              findGiftAidDb shouldBe
+                Some(completeGiftAidCYAModel.copy(oneOffDonationsViaGiftAid = Some(false), oneOffDonationsViaGiftAidAmount = None))
+            }
+          }
+
+          "this does not complete the cya model" should {
+            lazy val result =
+              postResult(Some(requiredSessionModel.copy(oneOffDonationsViaGiftAidAmount = Some(50))), None, isAgent = false, yesNoFormNo)
+
+            "redirect the user to the 'overseas donations' page" in {
+              result.status shouldBe SEE_OTHER
+              result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasGiftAidDonationsController.show(taxYear)}"
+            }
+
+            "update the cya data and remove 'one off amount'" in {
+              findGiftAidDb shouldBe Some(requiredSessionModel.copy(oneOffDonationsViaGiftAid = Some(false)))
+            }
           }
         }
 
@@ -345,14 +374,41 @@ class GiftAidOneOffControllerISpec extends IntegrationTest with ViewHelpers with
             result.status shouldBe SEE_OTHER
             result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOneOffAmountController.show(taxYear)}"
           }
+
+          "update the cya data" in {
+            findGiftAidDb shouldBe Some(requiredSessionModel.copy(oneOffDonationsViaGiftAid = Some(true)))
+          }
         }
 
         "the user has selected 'No'" should {
-          lazy val result = postResult(requiredSessionData, None, isAgent = true, yesNoFormNo)
 
-          "redirect the user to the 'overseas donations' page" in {
-            result.status shouldBe SEE_OTHER
-            result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasGiftAidDonationsController.show(taxYear)}"
+          "this completes the cya model" should {
+            lazy val result =
+              postResult(Some(completeGiftAidCYAModel.copy(oneOffDonationsViaGiftAid = None)), None, isAgent = true, yesNoFormNo)
+
+            "redirect the user to the 'check your answers' page" in {
+              result.status shouldBe SEE_OTHER
+              result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
+            }
+
+            "update the cya data" in {
+              findGiftAidDb shouldBe
+                Some(completeGiftAidCYAModel.copy(oneOffDonationsViaGiftAid = Some(false), oneOffDonationsViaGiftAidAmount = None))
+            }
+          }
+
+          "this does not complete the cya model" should {
+            lazy val result =
+              postResult(Some(requiredSessionModel.copy(oneOffDonationsViaGiftAidAmount = Some(50))), None, isAgent = true, yesNoFormNo)
+
+            "redirect the user to the 'overseas donations' page" in {
+              result.status shouldBe SEE_OTHER
+              result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasGiftAidDonationsController.show(taxYear)}"
+            }
+
+            "update the cya data and remove 'one off amount'" in {
+              findGiftAidDb shouldBe Some(requiredSessionModel.copy(oneOffDonationsViaGiftAid = Some(false)))
+            }
           }
         }
 
