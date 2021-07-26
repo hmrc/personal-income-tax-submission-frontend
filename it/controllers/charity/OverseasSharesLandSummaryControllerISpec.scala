@@ -213,7 +213,7 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
         }
 
         "redirects to the GiftAidOverseasSharesNameController page" in {
-          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOverseasSharesNameController.show(taxYear)}"
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOverseasSharesNameController.show(taxYear, None)}"
         }
       }
     }
@@ -341,6 +341,60 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
 
           errorSummaryCheck(Content.noSelectionError, "#value")
           errorAboveElementCheck(Content.noSelectionError)
+        }
+      }
+      "return the overview page" when {
+
+        "the the form is invalid and the cyadata is empty" in {
+          lazy val result = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(None)
+            authoriseIndividual()
+            await(wsClient.url(overseasSharesLandSummaryUrl)
+              .withHttpHeaders(xSessionId, csrfContent)
+              .withFollowRedirects(false)
+              .post(Map[String, String](YesNoForm.yesNo -> ""
+            )))
+          }
+
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe overviewUrl
+
+
+        }
+
+        "the the form is valid and the cyadata is empty" in {
+          lazy val result = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(None)
+            authoriseIndividual()
+            await(wsClient.url(overseasSharesLandSummaryUrl)
+              .withHttpHeaders(xSessionId, csrfContent)
+              .withFollowRedirects(false)
+              .post(Map(YesNoForm.yesNo -> YesNoForm.no)))
+          }
+
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe overviewUrl
+
+        }
+
+        "there is no cyaData" in {
+          lazy val result = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            authoriseIndividual()
+            await(wsClient.url(overseasSharesLandSummaryUrl)
+              .withHttpHeaders(xSessionId, csrfContent)
+              .withFollowRedirects(false)
+              .post(Map(YesNoForm.yesNo -> YesNoForm.no)))
+          }
+
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe overviewUrl
+
         }
       }
 

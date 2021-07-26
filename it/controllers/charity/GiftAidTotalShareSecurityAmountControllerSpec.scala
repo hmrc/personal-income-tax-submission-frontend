@@ -241,6 +241,47 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
           }
 
         }
+        "there is no cyaData" should {
+
+          "return a the overview page" in {
+            lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              authoriseIndividual()
+              await(wsClient.url(url)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .withFollowRedirects(false)
+                .post(Map[String, String](
+                  "amount" -> "1234"
+                )))
+            }
+
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe overviewUrl
+          }
+
+        }
+        "there is empty cyaData" should {
+
+          "return a the overview page" in {
+            lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(None)
+              authoriseIndividual()
+              await(wsClient.url(url)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .withFollowRedirects(false)
+                .post(Map[String, String](
+                  "amount" -> "1234"
+                )))
+            }
+
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe overviewUrl
+          }
+
+        }
 
         "return an error" when {
 

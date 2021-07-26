@@ -127,6 +127,34 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest with Gift
         }
 
       }
+      "returns an action with english content when passed a charity" which {
+
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModel))
+          authoriseIndividual()
+          await(wsClient.url(
+            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to?changeCharity=JaneDoe"
+          )
+            .withHttpHeaders(xSessionId, csrfContent)
+            .get())
+        }
+        lazy val document: Document = Jsoup.parse(result.body)
+
+        "has an OK(200) status with the correct content" in {
+          result.status shouldBe OK
+          document.title() shouldBe s"$expectedTitle - $serviceName - $govUkExtension"
+          document.select(".govuk-heading-l").text() shouldBe expectedH1 + " " + expectedCaption
+          document.select(captionSelector).text() shouldBe expectedCaption
+          document.select(inputHintTextSelector).text() shouldBe expectedInputHintText
+          document.select(inputFieldSelector).attr("name")
+          document.select(buttonSelector).text() shouldBe expectedButtonText
+          document.select(buttonSelector).attr("class") should include("govuk-button")
+        }
+
+      }
       "returns an action without previousNames" which {
 
         lazy val result: WSResponse = {
@@ -234,6 +262,24 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest with Gift
             wsClient.url(
               s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
                 s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+            )
+              .withHttpHeaders(xSessionId, csrfContent)
+              .post(Map("name" -> "adam"))
+          )
+        }
+
+        result.status shouldBe OK
+      }
+      s"return an OK($OK) status when there are previous names and is passed a charity" in {
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModel))
+          authoriseIndividual()
+          await(
+            wsClient.url(
+              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to?changeCharity=JaneDoe"
             )
               .withHttpHeaders(xSessionId, csrfContent)
               .post(Map("name" -> "adam"))

@@ -419,7 +419,9 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Integra
           }
         }
       }
+
     }
+
   }
 
   "as an agent" when {
@@ -552,8 +554,13 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Integra
             radioButtonCheck(noText, 2)
             buttonCheck(continueText, continueSelector)
           }
+
         }
+
       }
+
     }
+
   }
+
 }

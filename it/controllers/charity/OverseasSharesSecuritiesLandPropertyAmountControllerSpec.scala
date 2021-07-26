@@ -223,6 +223,47 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
           }
 
         }
+        "there is no cyaData" should {
+
+          "return the overview page" in {
+            lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              authoriseIndividual()
+              await(wsClient.url(url)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .withFollowRedirects(false)
+                .post(Map[String, String](
+                  "amount" -> "1234"
+                )))
+            }
+
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe overviewUrl
+          }
+
+        }
+        "there is Empty cyaData" should {
+
+          "return the overview page" in {
+            lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(None)
+              authoriseIndividual()
+              await(wsClient.url(url)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .withFollowRedirects(false)
+                .post(Map[String, String](
+                  "amount" -> "1234"
+                )))
+            }
+
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe overviewUrl
+          }
+
+        }
 
         "return an error" when {
 

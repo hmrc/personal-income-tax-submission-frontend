@@ -88,6 +88,7 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Integra
     val expectedError = "Select yes if your client donated shares, securities, land or property to overseas charities"
     val expectedErrorTitle = s"Error: $expectedTitle"
   }
+
   val testModel: GiftAidCYAModel =
     GiftAidCYAModel(donatedLandOrProperty = Some(true), donatedSharesOrSecurities = Some(true))
 
@@ -189,7 +190,7 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Integra
 
         "return an OK(200) status" when {
 
-          "there is form data" in {
+          "there is form data (yes)" in {
 
             lazy val result: WSResponse = {
               dropGiftAidDB()
@@ -205,138 +206,66 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Integra
 
             result.status shouldBe OK
           }
-
-          "return an error page" when {
-
-            "there is no form data" which {
-
-              lazy val result: WSResponse = {
-                dropGiftAidDB()
-                emptyUserDataStub()
-                insertCyaData(Some(testModel))
-                authoriseIndividual()
-                await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
-                  s"donation-of-shares-securities-land-or-property-to-overseas-charities")
-                  .withHttpHeaders(xSessionId, csrfContent)
-                  .post(Map[String, String]())
-                )
-              }
-
-              implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-              "has a BadRequest(400) status" in {
-
-                result.status shouldBe BAD_REQUEST
-              }
-
-              "has the page elements" which {
-
-                titleCheck(expectedErrorTitle)
-                welshToggleCheck(ENGLISH)
-                h1Check(expectedH1 + " " + captionText)
-                textOnPageCheck(captionText, captionSelector)
-                errorSummaryCheck(expectedError, errorSummaryHref)
-                errorAboveElementCheck(expectedError)
-                radioButtonCheck(yesText, 1)
-                radioButtonCheck(noText, 2)
-                buttonCheck(continueText, continueSelector)
-              }
-
-            }
-
-          }
-
-        }
-
-      }
-
-    }
-
-    "as an agent" when {
-
-      import AgentExpected._
-
-      ".show" should {
-
-        "return a page" which {
-
-          lazy val result: WSResponse = {
-            dropGiftAidDB()
-            emptyUserDataStub()
-            insertCyaData(Some(testModel))
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"
-            ))
-
-            authoriseAgent()
-
-            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
-              s"donation-of-shares-securities-land-or-property-to-overseas-charities")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-              .get()
-            )
-
-          }
-
-          implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-          "has an Ok (200) status" in {
-
-            result.status shouldBe OK
-          }
-
-          "has the page elements" which {
-
-            titleCheck(expectedTitle)
-            welshToggleCheck(ENGLISH)
-            h1Check(expectedH1 + " " + captionText)
-            textOnPageCheck(captionText, captionSelector)
-            radioButtonCheck(yesText, 1)
-            radioButtonCheck(noText, 2)
-            buttonCheck(continueText, continueSelector)
-            textOnPageCheck(disclosureContentTitle, disclosureSelectorTitle)
-            textOnPageCheck(disclosureContentParagraph, disclosureSelectorParagraph)
-            textOnPageCheck(disclosureContentBullet1, disclosureSelectorBullet1)
-            textOnPageCheck(disclosureContentBullet2, disclosureSelectorBullet2)
-            textOnPageCheck(disclosureContentBullet3, disclosureSelectorBullet3)
-            textOnPageCheck(disclosureContentBullet4, disclosureSelectorBullet4)
-          }
-
-        }
-
-      }
-
-      ".submit" should {
-
-        "return an OK (200) status" when {
-
-          "there is form data" in {
+          "there is form data (no)" in {
 
             lazy val result: WSResponse = {
               dropGiftAidDB()
               emptyUserDataStub()
               insertCyaData(Some(testModel))
-              lazy val sessionCookie = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-                SessionValues.CLIENT_MTDITID -> "1234567890",
-                SessionValues.CLIENT_NINO -> "AA123456A"
-              ))
-
-              authoriseAgent()
-
+              authoriseIndividual()
               await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
                 s"donation-of-shares-securities-land-or-property-to-overseas-charities")
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .withFollowRedirects(false)
+                .post(Map(YesNoForm.yesNo -> YesNoForm.no))
+              )
+            }
+
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
+          }
+        }
+        "return a redirect to the overview page" when {
+
+          "there is no data" in {
+
+            lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              authoriseIndividual()
+              await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
+                s"donation-of-shares-securities-land-or-property-to-overseas-charities")
+                .withHttpHeaders(xSessionId, csrfContent)
+                .withFollowRedirects(false)
                 .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
               )
             }
 
-            result.status shouldBe OK
-          }
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe overviewUrl
 
+          }
+          "there is empty cyaData" in {
+
+            lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              insertCyaData(None)
+              authoriseIndividual()
+              await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
+                s"donation-of-shares-securities-land-or-property-to-overseas-charities")
+                .withHttpHeaders(xSessionId, csrfContent)
+                .withFollowRedirects(false)
+                .post(Map(YesNoForm.yesNo -> YesNoForm.no))
+              )
+            }
+
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe overviewUrl
+          }
         }
 
-        "return an error page with a BadRequest (400) status" when {
+        "return an error page" when {
 
           "there is no form data" which {
 
@@ -344,28 +273,23 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Integra
               dropGiftAidDB()
               emptyUserDataStub()
               insertCyaData(Some(testModel))
-              lazy val sessionCookie = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-                SessionValues.CLIENT_MTDITID -> "1234567890",
-                SessionValues.CLIENT_NINO -> "AA123456A"
-              ))
-
-              authoriseAgent()
-
+              authoriseIndividual()
               await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
                 s"donation-of-shares-securities-land-or-property-to-overseas-charities")
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
+                .withHttpHeaders(xSessionId, csrfContent)
                 .post(Map[String, String]())
               )
             }
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            "returns a BadRequest (400) status" in {
+            "has a BadRequest(400) status" in {
 
               result.status shouldBe BAD_REQUEST
             }
 
             "has the page elements" which {
+
               titleCheck(expectedErrorTitle)
               welshToggleCheck(ENGLISH)
               h1Check(expectedH1 + " " + captionText)
@@ -380,8 +304,142 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Integra
           }
 
         }
+      }
+
+    }
+
+  }
+
+
+  "as an agent" when {
+
+    import AgentExpected._
+
+    ".show" should {
+
+      "return a page" which {
+
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModel))
+          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+            SessionValues.CLIENT_MTDITID -> "1234567890",
+            SessionValues.CLIENT_NINO -> "AA123456A"
+          ))
+
+          authoriseAgent()
+
+          await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
+            s"donation-of-shares-securities-land-or-property-to-overseas-charities")
+            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
+            .get()
+          )
+
+        }
+
+        implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+        "has an Ok (200) status" in {
+
+          result.status shouldBe OK
+        }
+
+        "has the page elements" which {
+
+          titleCheck(expectedTitle)
+          welshToggleCheck(ENGLISH)
+          h1Check(expectedH1 + " " + captionText)
+          textOnPageCheck(captionText, captionSelector)
+          radioButtonCheck(yesText, 1)
+          radioButtonCheck(noText, 2)
+          buttonCheck(continueText, continueSelector)
+          textOnPageCheck(disclosureContentTitle, disclosureSelectorTitle)
+          textOnPageCheck(disclosureContentParagraph, disclosureSelectorParagraph)
+          textOnPageCheck(disclosureContentBullet1, disclosureSelectorBullet1)
+          textOnPageCheck(disclosureContentBullet2, disclosureSelectorBullet2)
+          textOnPageCheck(disclosureContentBullet3, disclosureSelectorBullet3)
+          textOnPageCheck(disclosureContentBullet4, disclosureSelectorBullet4)
+        }
 
       }
+
+    }
+
+    ".submit" should {
+
+      "return an OK (200) status" when {
+
+        "there is form data" in {
+
+          lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModel))
+            lazy val sessionCookie = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+              SessionValues.CLIENT_MTDITID -> "1234567890",
+              SessionValues.CLIENT_NINO -> "AA123456A"
+            ))
+
+            authoriseAgent()
+
+            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
+              s"donation-of-shares-securities-land-or-property-to-overseas-charities")
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
+              .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
+            )
+          }
+
+          result.status shouldBe OK
+        }
+
+      }
+
+      "return an error page with a BadRequest (400) status" when {
+
+        "there is no form data" which {
+
+          lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModel))
+            lazy val sessionCookie = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+              SessionValues.CLIENT_MTDITID -> "1234567890",
+              SessionValues.CLIENT_NINO -> "AA123456A"
+            ))
+
+            authoriseAgent()
+
+            await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
+              s"donation-of-shares-securities-land-or-property-to-overseas-charities")
+              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
+              .post(Map[String, String]())
+            )
+          }
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          "returns a BadRequest (400) status" in {
+
+            result.status shouldBe BAD_REQUEST
+          }
+
+          "has the page elements" which {
+            titleCheck(expectedErrorTitle)
+            welshToggleCheck(ENGLISH)
+            h1Check(expectedH1 + " " + captionText)
+            textOnPageCheck(captionText, captionSelector)
+            errorSummaryCheck(expectedError, errorSummaryHref)
+            errorAboveElementCheck(expectedError)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
+            buttonCheck(continueText, continueSelector)
+          }
+
+        }
+
+      }
+
 
     }
   }
