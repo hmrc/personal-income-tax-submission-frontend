@@ -20,6 +20,7 @@ import common.SessionValues
 import forms.YesNoForm
 import helpers.PlaySessionCookieBaker
 import models.charity.GiftAidCYAModel
+import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
@@ -70,235 +71,239 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
   }
 
   val taxYear: Int = 2022
-  val requiredSessionData: Option[GiftAidCYAModel] = Some(GiftAidCYAModel(overseasCharityNames = Some(Seq(Content.charityName))))
+  val removeOverseasSSLPUrl =
+    s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity"
 
-  "as an individual" when {
+  val yesNoFormNo: Map[String, String] = Map(YesNoForm.yesNo -> YesNoForm.no)
+  val yesNoFormYes: Map[String, String] = Map(YesNoForm.yesNo -> YesNoForm.yes)
+  val yesNoFormEmpty: Map[String, String] = Map(YesNoForm.yesNo -> "")
 
-    ".show" should {
+  val requiredSessionModel: GiftAidCYAModel =
+    GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq(Content.charityName)))
+  val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
 
-      "return an action with english content" which {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
 
-          emptyUserDataStub()
-          dropGiftAidDB()
-          insertCyaData(requiredSessionData)
+  lazy val agentSessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+    SessionValues.CLIENT_MTDITID -> "1234567890",
+    SessionValues.CLIENT_NINO -> "AA123456A"
+  ))
 
-          await(
-            wsClient
-              .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
-              .withHttpHeaders(xSessionId, csrfContent)
-              .get()
-          )
-        }
+  def getResult(cyaData: Option[GiftAidCYAModel],
+                priorData: Option[IncomeSourcesModel],
+                isAgent: Boolean,
+                welsh: Boolean = false): WSResponse = {
 
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
+    if(priorData.isDefined) userDataStub(priorData.get, nino, taxYear) else emptyUserDataStub()
 
-        "has an OK(200) status" in {
-          result.status shouldBe OK
-        }
+    dropGiftAidDB()
+    insertCyaData(cyaData)
 
-        titleCheck(Content.expectedTitle)
-        h1Check(Content.expectedH1 + " " + Content.expectedCaption)
-        textOnPageCheck(Content.expectedContent, Selectors.content)
-        radioButtonCheck(Content.yesText, 1)
-        radioButtonCheck(Content.noText, 2)
-        captionCheck(Content.expectedCaption)
-        buttonCheck(Content.button)
+    val langHeader: (String, String) = if(welsh) HeaderNames.ACCEPT_LANGUAGE -> "cy" else HeaderNames.ACCEPT_LANGUAGE -> "en"
 
-      }
-      "return an action with welsh content" which {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
+    if(isAgent){
+      authoriseAgent()
+      await(wsClient.url(removeOverseasSSLPUrl).withHttpHeaders(
+        HeaderNames.COOKIE -> agentSessionCookie, langHeader, xSessionId, csrfContent)
+        .withFollowRedirects(false).get
+      )
+    } else {
+      authoriseIndividual()
+      await(wsClient.url(removeOverseasSSLPUrl).withHttpHeaders(langHeader, xSessionId, csrfContent)
+        .withFollowRedirects(false).get()
+      )
+    }
 
-          emptyUserDataStub()
-          dropGiftAidDB()
-          insertCyaData(requiredSessionData)
+  }
 
-          await(
-            wsClient
-              .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
-              .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-              .get()
-          )
-        }
+  def postResult(cyaData: Option[GiftAidCYAModel],
+                 priorData: Option[IncomeSourcesModel],
+                 isAgent: Boolean,
+                 input: Map[String, String],
+                 welsh: Boolean = false): WSResponse = {
 
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
+    if(priorData.isDefined) userDataStub(priorData.get, nino, taxYear) else emptyUserDataStub()
 
-        "has an OK(200) status" in {
-          result.status shouldBe OK
-        }
+    dropGiftAidDB()
+    insertCyaData(cyaData)
 
-        titleCheck(Content.expectedTitleCy)
-        h1Check(Content.expectedH1Cy + " " + Content.expectedCaptionCy)
-        textOnPageCheck(Content.expectedContentCy, Selectors.content)
-        radioButtonCheck(Content.yesTextCy, 1)
-        radioButtonCheck(Content.noTextCy, 2)
-        captionCheck(Content.expectedCaptionCy)
-        buttonCheck(Content.buttonCy)
+    val langHeader: (String, String) = if(welsh) HeaderNames.ACCEPT_LANGUAGE -> "cy" else HeaderNames.ACCEPT_LANGUAGE -> "en"
 
-      }
-
-      ".submit" should {
-
-        "return a redirect status" in {
-          lazy val result: WSResponse = {
-            authoriseIndividual()
-
-            emptyUserDataStub()
-            dropGiftAidDB()
-            insertCyaData(requiredSessionData)
-
-            await(
-              wsClient
-                .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
-                .withHttpHeaders(xSessionId, csrfContent)
-                .withFollowRedirects(false)
-                .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
-            )
-          }
-          result.status shouldBe SEE_OTHER
-        }
-
-        "when there is no input" should {
-          lazy val result: WSResponse = {
-            authoriseIndividual()
-
-            emptyUserDataStub()
-            dropGiftAidDB()
-            insertCyaData(requiredSessionData)
-
-            await(
-              wsClient
-                .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
-                .withHttpHeaders(xSessionId, csrfContent)
-                .post(Map[String, String]())
-            )
-          }
-
-          implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-          s"return a BAD_REQUEST($BAD_REQUEST) status" in {
-            result.status shouldBe BAD_REQUEST
-          }
-
-          errorSummaryCheck(Content.expectedErrorTitle, Content.errorHref)
-          errorAboveElementCheck(Content.expectedErrorTitle)
-        }
-
-        "when there is no input welsh content" should {
-          lazy val result: WSResponse = {
-            authoriseIndividual()
-
-            emptyUserDataStub()
-            dropGiftAidDB()
-            insertCyaData(requiredSessionData)
-
-            await(
-              wsClient
-                .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
-                .withHttpHeaders(xSessionId, csrfContent)
-                .post(Map[String, String]())
-            )
-          }
-
-          implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-          s"return a BAD_REQUEST($BAD_REQUEST) status" in {
-            result.status shouldBe BAD_REQUEST
-          }
-
-          errorSummaryCheck(Content.expectedErrorTitleCy, Content.errorHrefCy)
-          errorAboveElementCheck(Content.expectedErrorTitleCy)
-        }
-      }
+    if(isAgent) {
+      authoriseAgent()
+      await(wsClient.url(removeOverseasSSLPUrl).withHttpHeaders(
+        HeaderNames.COOKIE -> agentSessionCookie, langHeader, xSessionId, csrfContent)
+        .withFollowRedirects(false).post(input)
+      )
+    } else {
+      authoriseIndividual()
+      await(wsClient.url(removeOverseasSSLPUrl).withHttpHeaders(
+        langHeader, xSessionId, csrfContent)
+        .withFollowRedirects(false).post(input)
+      )
     }
   }
 
-  "as an agent" when {
+  "As an individual" when {
 
-    ".show" should {
+    s"Calling GET $removeOverseasSSLPUrl" when {
 
-      "returns an action" which {
-        lazy val result: WSResponse = {
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
+      "there is no cya data stored" should {
 
-          authoriseAgent()
+        lazy val result = getResult(None, None, isAgent = false)
 
-          emptyUserDataStub()
-          dropGiftAidDB()
-          insertCyaData(requiredSessionData)
+        "redirect the user to the overview page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe s"${appConfig.incomeTaxSubmissionOverviewUrl(taxYear)}"
+        }
+      }
 
-          await(
-            wsClient
-              .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-              .get()
-          )
+      "there is stored cya data" when {
+
+        "'overseasDonatedSharesSecuritiesLandOrPropertyCharityNames' is empty in cya data" should {
+
+          lazy val result = getResult(Some(GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(50))), None, isAgent = false)
+
+          "redirect the user to the 'overseas charity donated shares name' page" in {
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOverseasSharesNameController.show(taxYear, None)}"
+          }
         }
 
-        "has an OK(200) status" in {
-          result.status shouldBe OK
+        "'overseasDonatedSharesSecuritiesLandOrPropertyCharityNames' is nonEmpty and the given charity is the only one" which {
+          lazy val result = getResult(requiredSessionData, None, isAgent = false)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          "has an OK(200) status" in {
+            result.status shouldBe OK
+          }
+
+          titleCheck(Content.expectedTitle)
+          h1Check(Content.expectedH1 + " " + Content.expectedCaption)
+          captionCheck(Content.expectedCaption)
+          textOnPageCheck(Content.expectedContent, Selectors.content)
+          radioButtonCheck(Content.yesText, 1)
+          radioButtonCheck(Content.noText, 2)
+
+          buttonCheck(Content.button)
+          welshToggleCheck(ENGLISH)
+        }
+
+        "'overseasDonatedSharesSecuritiesLandOrPropertyCharityNames' is nonEmpty and the given charity is not the only one" which {
+          lazy val result =
+            getResult(
+              Some(GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq("Other", Content.charityName)))),
+              None,
+              isAgent = false)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          "has an OK(200) status" in {
+            result.status shouldBe OK
+          }
+
+          titleCheck(Content.expectedTitle)
+          h1Check(Content.expectedH1 + " " + Content.expectedCaption)
+          captionCheck(Content.expectedCaption)
+          elementExtinct(Selectors.content)
+          radioButtonCheck(Content.yesText, 1)
+          radioButtonCheck(Content.noText, 2)
+
+          buttonCheck(Content.button)
+          welshToggleCheck(ENGLISH)
+        }
+
+        "'overseasDonatedSharesSecuritiesLandOrPropertyCharityNames' is nonEmpty, but the given charity is not there" should {
+
+          lazy val result =
+            getResult(
+              Some(GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq("Dudes In Need")))),
+              None,
+              isAgent = false)
+
+          "redirect the user to the 'overseas charity SSLP summary' page" in {
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasSharesLandSummaryController.show(taxYear)}"
+          }
         }
       }
     }
 
-    ".submit" should {
+    s"Calling POST $removeOverseasSSLPUrl" when {
 
-      s"return a redirect status" when {
+      "there is no cya data" should {
+        lazy val result = postResult(None, None, isAgent = false, yesNoFormYes)
 
-        "there is form data" in {
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"))
-
-            authoriseAgent()
-
-            emptyUserDataStub()
-            dropGiftAidDB()
-            insertCyaData(requiredSessionData)
-
-            await(
-              wsClient
-                .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-                .withFollowRedirects(false)
-                .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
-            )
-          }
-
+        "redirect the user to the overview page" in {
           result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe s"${appConfig.incomeTaxSubmissionOverviewUrl(taxYear)}"
         }
       }
 
-      s"return a BAD_REQUEST($BAD_REQUEST) status" when {
+      "there is cya data stored" when {
 
-        "there is no form data" in {
-          lazy val result: WSResponse = {
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"
-            ))
+        "the user has selected 'Yes' and is removing the last charity" should {
+          lazy val result = postResult(requiredSessionData, None, isAgent = false, yesNoFormYes)
 
-            authoriseAgent()
+          "redirect the user to the cya page" in {
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
+          }
+          "update the cya data" in {
+            findGiftAidDb shouldBe
+              Some(requiredSessionModel.copy(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq.empty[String])))
+          }
+        }
 
-            emptyUserDataStub()
-            dropGiftAidDB()
-            insertCyaData(requiredSessionData)
+        "the user has selected 'Yes' and is not removing the last charity" should {
+          lazy val result = postResult(Some(GiftAidCYAModel(
+            overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq("Other", Content.charityName)))),
+            None,
+            isAgent = false,
+            yesNoFormYes
+          )
+          "redirect the user to the 'overseas charity SSLP summary' page" in {
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasSharesLandSummaryController.show(taxYear)}"
+          }
+          "update the cya data" in {
+            findGiftAidDb shouldBe
+              Some(requiredSessionModel.copy(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq("Other"))))
+          }
+        }
 
-            await(
-              wsClient
-                .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=TestCharity")
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-                .post(Map[String, String]())
-            )
+        "the user has selected 'No'" should {
+          lazy val result = postResult(requiredSessionData, None, isAgent = false, yesNoFormNo)
+
+          "redirect the user to the 'overseas charity SSLP summary' page" in {
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasSharesLandSummaryController.show(taxYear)}"
+          }
+        }
+
+        "the user has not selected an option" should {
+          lazy val result = postResult(requiredSessionData, None, isAgent = false, yesNoFormEmpty)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          "return the page" which {
+            titleCheck("Error: " + Content.expectedTitle)
+            h1Check(Content.expectedH1 + " " + Content.expectedCaption)
+            captionCheck(Content.expectedCaption)
+            textOnPageCheck(Content.expectedContent, Selectors.content)
+            radioButtonCheck(Content.yesText, 1)
+            radioButtonCheck(Content.noText, 2)
+
+            buttonCheck(Content.button)
+            welshToggleCheck(ENGLISH)
+
+            errorSummaryCheck(Content.expectedErrorTitle, Content.errorHref)
+            errorAboveElementCheck(Content.expectedErrorTitle)
           }
 
-          result.status shouldBe BAD_REQUEST
+          "return a BAD_REQUEST" in {
+            result.status shouldBe BAD_REQUEST
+          }
         }
       }
     }

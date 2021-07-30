@@ -20,6 +20,8 @@ import common.SessionValues
 import forms.YesNoForm
 import helpers.PlaySessionCookieBaker
 import models.charity.GiftAidCYAModel
+import models.charity.prior.{GiftAidSubmissionModel, GiftsModel}
+import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
@@ -256,7 +258,32 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Integra
             result.header("Location").get shouldBe overviewUrl
           }
         }
+      }
 
+      "redirect to the cya page" when {
+
+        "there is prior data for lands, buildings, shares or securities" which {
+
+          lazy val result = {
+            dropGiftAidDB()
+
+            userDataStub(
+              IncomeSourcesModel(
+                giftAid = Some(GiftAidSubmissionModel(gifts = Some(GiftsModel(landAndBuildings = Some(1000.00)))))
+              ),
+              nino, taxYear
+            )
+            insertCyaData(Some(GiftAidCYAModel()))
+
+            authoriseIndividual()
+            await(wsClient.url(url).withHttpHeaders(xSessionId, csrfContent).withFollowRedirects(false).get())
+          }
+
+          "correctly redirects" in {
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
+          }
+        }
       }
 
     }
@@ -417,6 +444,34 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Integra
             databaseModel.donatedLandOrProperty shouldBe Some(false)
             databaseModel.donatedLandOrPropertyAmount shouldBe None
             databaseModel.overseasDonatedSharesSecuritiesLandOrProperty shouldBe Some(false)
+          }
+        }
+
+        "there is prior data for lands, buildings, shares or securities" which {
+
+          lazy val result = {
+            dropGiftAidDB()
+
+            userDataStub(
+              IncomeSourcesModel(
+                giftAid = Some(GiftAidSubmissionModel(gifts = Some(GiftsModel(sharesOrSecurities = Some(1000.00)))))
+              ),
+              nino, taxYear
+            )
+            insertCyaData(Some(GiftAidCYAModel()))
+
+            authoriseIndividual()
+            await(
+              wsClient.url(url)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .withFollowRedirects(false)
+                .post(Map(YesNoForm.yesNo -> YesNoForm.no))
+            )
+          }
+
+          "correctly redirects" in {
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
           }
         }
       }

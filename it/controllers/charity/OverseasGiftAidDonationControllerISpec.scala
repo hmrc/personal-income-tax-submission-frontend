@@ -203,6 +203,20 @@ class OverseasGiftAidDonationControllerISpec extends IntegrationTest with ViewHe
 
     s"Calling POST $overseasDonationsUrl" when {
 
+      "prior data exists for nonUkCharities" should {
+
+        lazy val result = postResult(
+          None,
+          Some(IncomeSourcesModel(giftAid = Some(GiftAidSubmissionModel(Some(GiftAidPaymentsModel(nonUkCharities = Some(1000.00))))))),
+          isAgent = false,
+          yesNoFormYes)
+
+        "redirect the user to the CYA page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
+        }
+      }
+
       "there is no cya data" should {
         lazy val result = postResult(None, None, isAgent = false, yesNoFormYes)
 
