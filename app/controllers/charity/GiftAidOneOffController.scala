@@ -79,18 +79,20 @@ class GiftAidOneOffController @Inject()(
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
 
-    giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
-        case Some(cyaData) =>
-          val previousAmount: Option[BigDecimal] = cyaData.donationsViaGiftAidAmount
+    giftAidSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { case (cya, prior) =>
 
-          yesNoForm(user).bindFromRequest().fold({
-            formWithErrors =>
-              previousAmount match {
-                case Some(amount) => Future.successful(BadRequest(giftAidOneOffView(formWithErrors, taxYear, amount)))
-                case _ => Future.successful(errorHandler.internalServerError())
-              }
-          }, {
-            yesNoForm =>
+      yesNoForm(user).bindFromRequest().fold({
+        formWithErrors =>
+          cya.flatMap(_.donationsViaGiftAidAmount) match {
+            case Some(amount) => Future.successful(BadRequest(giftAidOneOffView(formWithErrors, taxYear, amount)))
+            case _ => Future.successful(errorHandler.internalServerError())
+          }
+      }, {
+        yesNoForm =>
+          if(prior.flatMap(_.giftAidPayments.flatMap(_.oneOffCurrentYear)).isDefined) {
+            Future.successful(redirectToCya(taxYear))
+          } else {
+            cya.fold(Future.successful(redirectToOverview(taxYear))) { cyaData =>
               val updatedCya = cyaData.copy(
                 oneOffDonationsViaGiftAid = Some(yesNoForm),
                 oneOffDonationsViaGiftAidAmount = if(yesNoForm) cyaData.oneOffDonationsViaGiftAidAmount else None
@@ -100,15 +102,11 @@ class GiftAidOneOffController @Inject()(
                 case (_, true) => redirectToCya(taxYear)
                 case _ => Redirect(controllers.charity.routes.OverseasGiftAidDonationsController.show(taxYear))
               }
-
               giftAidSessionService.updateSessionData(updatedCya, taxYear)(
                 InternalServerError(errorHandler.internalServerErrorTemplate))(redirectLocation)
+            }
           }
-
-          )
-        case _ =>
-          logger.info("[GiftAidOneOffController][submit] No CYA data in session. Redirecting to overview page.")
-          Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+      })
     }.flatten
   }
 
