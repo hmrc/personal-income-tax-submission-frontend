@@ -16,6 +16,7 @@
 
 package controllers.charity
 
+import common.OverseasCharityTaxTypes._
 import config.{AppConfig, ErrorHandler, GIFT_AID}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
@@ -36,6 +37,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class RemoveOverseasCharityController @Inject()(
                                                  implicit val cc: MessagesControllerComponents,
                                                  overseasGiftAidSummaryController: OverseasGiftAidSummaryController,
+                                                 overseasSharesLandSummaryController: OverseasSharesLandSummaryController,
                                                  authAction: AuthorisedAction,
                                                  removeOverseasCharityView: RemoveOverseasCharityView,
                                                  giftAidSessionService: GiftAidSessionService,
@@ -51,16 +53,21 @@ class RemoveOverseasCharityController @Inject()(
     giftAidSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
 
       cya match {
-
-        case Some(cyaData) => cyaData.overseasCharityNames match {
-
-          case Some(namesList) if namesList.contains(charityName) =>
-            val isLast = namesList.forall(_ == charityName)
-            Ok(removeOverseasCharityView(yesNoForm, taxYear, charityType, charityName, isLast = isLast))
-
-          case _ =>
+        case Some(cyaData) =>
+          val charityNames = if(charityType == GIFTAID) cyaData.overseasCharityNames else cyaData.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames
+          val redirectLocation = if(charityType == GIFTAID){
             overseasGiftAidSummaryController.handleRedirect(taxYear, cyaData, prior)
-        }
+          } else {
+            overseasSharesLandSummaryController.handleRedirect(taxYear, cyaData, prior)
+          }
+
+          charityNames match {
+            case Some(namesList) if namesList.contains(charityName) =>
+              val isLast = namesList.forall(_ == charityName)
+              Ok(removeOverseasCharityView(yesNoForm, taxYear, charityType, charityName, isLast = isLast))
+
+            case _ => redirectLocation
+          }
         case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
       }
     }
@@ -68,14 +75,14 @@ class RemoveOverseasCharityController @Inject()(
 
 
   def submit(taxYear: Int, charityType: String, charityName: String): Action[AnyContent] =
-
     (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
-
       giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
         case Some(cyaModel) =>
+          val charityNames = if(charityType == GIFTAID) cyaModel.overseasCharityNames else cyaModel.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames
+
           yesNoForm.bindFromRequest().fold({
             formWithErrors =>
-              cyaModel.overseasCharityNames match {
+              charityNames match {
                 case Some(names) =>
                   Future.successful(BadRequest(
                     removeOverseasCharityView(formWithErrors, taxYear, charityType, charityName, names.forall(_ == charityName))
@@ -84,16 +91,23 @@ class RemoveOverseasCharityController @Inject()(
               }
           }, {
             yesNoForm =>
-              cyaModel.overseasCharityNames.fold(
+              charityNames.fold(
                 Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
               ){
                 seqNames =>
-                  val updatedCya = cyaModel.copy(overseasCharityNames = Some(seqNames.filterNot(_ == charityName)))
-
-                  val redirectLocation = if(yesNoForm && seqNames.length == 1) {
-                    Redirect(controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear))
+                  val updatedCya = if(charityType == GIFTAID){
+                    cyaModel.copy(overseasCharityNames = Some(seqNames.filterNot(_ == charityName)))
                   } else {
-                    Redirect(controllers.charity.routes.OverseasGiftAidSummaryController.show(taxYear))
+                    cyaModel.copy(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(seqNames.filterNot(_ == charityName)))
+                  }
+
+                  val redirectLocation = (yesNoForm, charityType) match {
+                    case (true, GIFTAID) if seqNames.length == 1 =>
+                      Redirect(controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear))
+                    case (true, SHARES) if seqNames.length == 1 =>
+                      Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
+                    case (_, GIFTAID) => Redirect(controllers.charity.routes.OverseasGiftAidSummaryController.show(taxYear))
+                    case _ => Redirect(controllers.charity.routes.OverseasSharesLandSummaryController.show(taxYear))
                   }
 
                   if(yesNoForm){
@@ -101,7 +115,7 @@ class RemoveOverseasCharityController @Inject()(
                       InternalServerError(errorHandler.internalServerErrorTemplate)
                     )(redirectLocation)
                   } else {
-                    Future.successful(Redirect(controllers.charity.routes.OverseasGiftAidSummaryController.show(taxYear)))
+                    Future.successful(redirectLocation)
                   }
               }
           })
