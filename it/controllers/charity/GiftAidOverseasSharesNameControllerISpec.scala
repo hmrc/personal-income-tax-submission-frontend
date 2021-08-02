@@ -94,674 +94,674 @@ class GiftAidOverseasSharesNameControllerISpec extends IntegrationTest with Gift
   val taxYear: Int = 2022
   val fullNino = "AA000003A"
 
-  "as an individual" when {
-    import IndividualExpected._
-
-    ".show" should {
-
-      "returns an action with english content" which {
-
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-          emptyUserDataStub()
-          insertCyaData(Some(testModel))
-          authoriseIndividual()
-          await(wsClient.url(
-            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-          )
-            .withHttpHeaders(xSessionId, csrfContent)
-            .get())
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        "has an OK(200) status with the correct content" in {
-          result.status shouldBe OK
-          document.title() shouldBe s"$expectedTitle - $serviceName - $govUkExtension"
-          document.select(".govuk-heading-l").text() shouldBe expectedH1 + " " + expectedCaption
-          document.select(captionSelector).text() shouldBe expectedCaption
-          document.select(inputHintTextSelector).text() shouldBe expectedInputHintText
-          document.select(inputFieldSelector).attr("name")
-          document.select(buttonSelector).text() shouldBe expectedButtonText
-          document.select(buttonSelector).attr("class") should include("govuk-button")
-        }
-
-      }
-      "returns an action with english content when passed a charity" which {
-
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-          emptyUserDataStub()
-          insertCyaData(Some(testModel))
-          authoriseIndividual()
-          await(wsClient.url(
-            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to?changeCharity=JaneDoe"
-          )
-            .withHttpHeaders(xSessionId, csrfContent)
-            .get())
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        "has an OK(200) status with the correct content" in {
-          result.status shouldBe OK
-          document.title() shouldBe s"$expectedTitle - $serviceName - $govUkExtension"
-          document.select(".govuk-heading-l").text() shouldBe expectedH1 + " " + expectedCaption
-          document.select(captionSelector).text() shouldBe expectedCaption
-          document.select(inputHintTextSelector).text() shouldBe expectedInputHintText
-          document.select(inputFieldSelector).attr("name")
-          document.select(buttonSelector).text() shouldBe expectedButtonText
-          document.select(buttonSelector).attr("class") should include("govuk-button")
-        }
-
-      }
-      "returns an action without previousNames" which {
-
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-          emptyUserDataStub()
-          insertCyaData(Some(testModelEmpty))
-          authoriseIndividual()
-          await(wsClient.url(
-            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-          )
-            .withHttpHeaders(xSessionId, csrfContent)
-            .get())
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        "has an OK(200) status with the correct content" in {
-          result.status shouldBe OK
-        }
-
-      }
-
-      "returns an action with welsh content" which {
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-          emptyUserDataStub()
-          insertCyaData(Some(testModel))
-          authoriseIndividual()
-          await(wsClient.url(
-            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-          )
-            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-            .get())
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        "has an OK(200) status with the correct content" in {
-          result.status shouldBe OK
-          document.title() shouldBe s"$expectedTitleCy - $serviceNameCy - $govUkExtension"
-          document.select(".govuk-heading-l").text() shouldBe expectedH1Cy + " " + expectedCaptionCy
-          document.select(captionSelector).text() shouldBe expectedCaptionCy
-          document.select(inputHintTextSelector).text() shouldBe expectedInputHintTextCy
-          document.select(inputFieldSelector).attr("name")
-          document.select(buttonSelector).text() shouldBe expectedButtonTextCy
-          document.select(buttonSelector).attr("class") should include("govuk-button")
-        }
-      }
-      "return the overview page when there is no data" which {
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-          emptyUserDataStub()
-          authoriseIndividual()
-          await(wsClient
-            .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-            .withHttpHeaders(xSessionId, csrfContent)
-            .withFollowRedirects(false)
-            .get())
-        }
-
-        "has a status of SEE_OTHER(303)" in {
-          result.status shouldBe SEE_OTHER
-        }
-
-        "redirects to the overview page" in {
-          result.headers("Location").head shouldBe overviewUrl
-        }
-      }
-      "return the OverseasSharesSecuritiesLandPropertyAmount page when there is no overseasDonatedSharesSecuritiesLandOrPropertyAmount" which {
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-          emptyUserDataStub()
-          insertCyaData(Some(testModelFalse))
-          authoriseIndividual()
-          await(wsClient
-            .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-            .withHttpHeaders(xSessionId, csrfContent)
-            .withFollowRedirects(false)
-            .get())
-        }
-
-        "has a status of SEE_OTHER(303)" in {
-          result.status shouldBe SEE_OTHER
-        }
-
-        "redirects to the OverseasSharesSecuritiesLandPropertyAmountController page" in {
-          result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasSharesSecuritiesLandPropertyAmountController.show(taxYear)}"
-        }
-      }
-    }
-
-    ".submit" should {
-
-      s"return an OK($OK) status when there are previous names" in {
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-          emptyUserDataStub()
-          insertCyaData(Some(testModel))
-          authoriseIndividual()
-          await(
-            wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(xSessionId, csrfContent)
-              .post(Map("name" -> "adam"))
-          )
-        }
-
-        result.status shouldBe OK
-      }
-      s"return an OK($OK) status when there are previous names and is passed a charity" in {
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-          emptyUserDataStub()
-          insertCyaData(Some(testModel))
-          authoriseIndividual()
-          await(
-            wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to?changeCharity=JaneDoe"
-            )
-              .withHttpHeaders(xSessionId, csrfContent)
-              .post(Map("name" -> "adam"))
-          )
-        }
-
-        result.status shouldBe OK
-      }
-      s"return an OK($OK) status when there are no previous names" in {
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-          emptyUserDataStub()
-          insertCyaData(Some(testModelEmpty))
-          authoriseIndividual()
-          await(
-            wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(xSessionId, csrfContent)
-              .post(Map("name" -> "adam"))
-          )
-        }
-
-        result.status shouldBe OK
-      }
-
-      s"return a Redirect to the overview page when there is no data" in {
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-          emptyUserDataStub()
-          authoriseIndividual()
-          await(
-            wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(xSessionId, csrfContent)
-              .withFollowRedirects(false)
-              .post(Map("name" -> "adam"))
-          )
-        }
-
-        result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe overviewUrl
-      }
-      s"return a Redirect to the overview page when there is empty data" in {
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-          emptyUserDataStub()
-          insertCyaData(None)
-          authoriseIndividual()
-          await(
-            wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(xSessionId, csrfContent)
-              .withFollowRedirects(false)
-              .post(Map("name" -> "adam"))
-          )
-        }
-
-        result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe overviewUrl
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an empty error in english" in {
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-          emptyUserDataStub()
-          insertCyaData(Some(testModel))
-          authoriseIndividual()
-          await(wsClient.url(
-            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-          )
-            .withHttpHeaders(xSessionId, csrfContent)
-            .post(Map[String, String]()))
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        result.status shouldBe BAD_REQUEST
-        document.select(errorSelector).text() shouldBe expectedError
-        document.title() shouldBe s"$expectedErrorTitle - $serviceName - $govUkExtension"
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an invalid Character error in english" in {
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-          emptyUserDataStub()
-          insertCyaData(Some(testModel))
-          authoriseIndividual()
-          await(
-            wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(xSessionId, csrfContent)
-              .post(Map("name" -> "ad|am"))
-          )
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        result.status shouldBe BAD_REQUEST
-        document.select(errorSelector).text() shouldBe expectedInvalidCharError
-        document.title() shouldBe s"$expectedErrorTitle - $serviceName - $govUkExtension"
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status with a character limit error in english" in {
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-          emptyUserDataStub()
-          insertCyaData(Some(testModel))
-          authoriseIndividual()
-          await(
-            wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(xSessionId, csrfContent)
-              .post(Map("name" -> charLimit))
-          )
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        result.status shouldBe BAD_REQUEST
-        document.select(errorSelector).text() shouldBe expectedCharLimitError
-        document.title() shouldBe s"$expectedErrorTitle - $serviceName - $govUkExtension"
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an duplicate name error in english" in {
-
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-          emptyUserDataStub()
-          insertCyaData(Some(testModel))
-          authoriseIndividual()
-          await(
-            wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(xSessionId, csrfContent)
-              .post(Map("name" -> "JaneDoe"))
-          )
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        result.status shouldBe BAD_REQUEST
-        document.select(errorSelector).text() shouldBe expectedDuplicateError
-        document.title() shouldBe s"$expectedErrorTitle - $serviceName - $govUkExtension"
-      }
-
-    }
-
-    s"return a BAD_REQUEST($BAD_REQUEST) status with an empty error in welsh" in {
-      lazy val result: WSResponse = {
-        dropGiftAidDB()
-        emptyUserDataStub()
-        insertCyaData(Some(testModel))
-        authoriseIndividual()
-        await(wsClient.url(
-          s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-            s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-        )
-          .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-          .post(Map[String, String]()))
-      }
-      lazy val document: Document = Jsoup.parse(result.body)
-
-      result.status shouldBe BAD_REQUEST
-      document.select(errorSelector).text() shouldBe expectedErrorCy
-      document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
-    }
-
-    s"return a BAD_REQUEST($BAD_REQUEST) status with an invalid Character error in welsh" in {
-      lazy val result: WSResponse = {
-        dropGiftAidDB()
-        emptyUserDataStub()
-        insertCyaData(Some(testModel))
-        authoriseIndividual()
-        await(
-          wsClient.url(
-            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-          )
-            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-            .post(Map("name" -> "ad|am"))
-        )
-      }
-      lazy val document: Document = Jsoup.parse(result.body)
-
-      result.status shouldBe BAD_REQUEST
-      document.select(errorSelector).text() shouldBe expectedInvalidCharErrorCy
-      document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
-    }
-
-    s"return a BAD_REQUEST($BAD_REQUEST) status with a character limit error in welsh" in {
-      lazy val result: WSResponse = {
-        dropGiftAidDB()
-        emptyUserDataStub()
-        insertCyaData(Some(testModel))
-        authoriseIndividual()
-        await(
-          wsClient.url(
-            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-          )
-            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-            .post(Map("name" -> charLimit))
-        )
-      }
-      lazy val document: Document = Jsoup.parse(result.body)
-
-      result.status shouldBe BAD_REQUEST
-      document.select(errorSelector).text() shouldBe expectedCharLimitErrorCy
-      document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
-    }
-
-    s"return a BAD_REQUEST($BAD_REQUEST) status with an duplicate name error in welsh" in {
-
-      lazy val result: WSResponse = {
-        dropGiftAidDB()
-        emptyUserDataStub()
-        insertCyaData(Some(testModel))
-        authoriseIndividual()
-        await(
-          wsClient.url(
-            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-          )
-            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-            .post(Map("name" -> "JaneDoe"))
-        )
-      }
-      lazy val document: Document = Jsoup.parse(result.body)
-
-      result.status shouldBe BAD_REQUEST
-      document.select(errorSelector).text() shouldBe expectedDuplicateErrorCy
-      document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
-    }
-  }
-
-  "as an agent" when {
-    import AgentExpected._
-
-    ".show" should {
-
-      "returns an action with english content" which {
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-          emptyUserDataStub()
-          insertCyaData(Some(testModel))
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
-
-          authoriseAgent()
-          await(wsClient.url(
-            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-          )
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-            .get())
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        "has an OK(200) status with the correct content" in {
-          result.status shouldBe OK
-          document.title() shouldBe s"$expectedTitle - $serviceName - $govUkExtension"
-          document.select(".govuk-heading-l").text() shouldBe expectedH1 + " " + expectedCaption
-          document.select(captionSelector).text() shouldBe expectedCaption
-          document.select(inputHintTextSelector).text() shouldBe expectedInputHintText
-          document.select(inputFieldSelector).attr("name")
-          document.select(buttonSelector).text() shouldBe expectedButtonText
-          document.select(buttonSelector).attr("class") should include("govuk-button")
-        }
-      }
-
-      "returns an action with welsh content" which {
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-          emptyUserDataStub()
-          insertCyaData(Some(testModel))
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
-
-          authoriseAgent()
-          await(wsClient.url(
-            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-          )
-            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-            .get())
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        "has an OK(200) status with the correct content" in {
-          result.status shouldBe OK
-          document.title() shouldBe s"$expectedTitleCy - $serviceNameCy - $govUkExtension"
-          document.select(".govuk-heading-l").text() shouldBe expectedH1Cy + " " + expectedCaptionCy
-          document.select(captionSelector).text() shouldBe expectedCaptionCy
-          document.select(inputHintTextSelector).text() shouldBe expectedInputHintTextCy
-          document.select(inputFieldSelector).attr("name")
-          document.select(buttonSelector).text() shouldBe expectedButtonTextCy
-          document.select(buttonSelector).attr("class") should include("govuk-button")
-        }
-      }
-    }
-
-    ".submit" should {
-
-      s"return an OK($OK) status" when {
-
-        "there is form data" in {
-          lazy val result: WSResponse = {
-            dropGiftAidDB()
-            emptyUserDataStub()
-            insertCyaData(Some(testModel))
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"))
-
-            authoriseAgent()
-            await(
-              wsClient.url(
-                s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                  s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-              )
-                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-                .post(Map("name" -> "adam"))
-            )
-          }
-
-          result.status shouldBe OK
-        }
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an empty error in english" when {
-
-        "there is no form data" in {
-          lazy val result: WSResponse = {
-            dropGiftAidDB()
-            emptyUserDataStub()
-            insertCyaData(Some(testModel))
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"
-            ))
-
-            authoriseAgent()
-            await(wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
-              .post(Map[String, String]()))
-          }
-          lazy val document: Document = Jsoup.parse(result.body)
-
-          result.status shouldBe BAD_REQUEST
-          document.select(errorSelector).text() shouldBe expectedError
-          document.title() shouldBe s"$expectedErrorTitle - $serviceName - $govUkExtension"
-        }
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an empty error in welsh" when {
-
-        "there is no form data" in {
-          lazy val result: WSResponse = {
-            dropGiftAidDB()
-            emptyUserDataStub()
-            insertCyaData(Some(testModel))
-            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-              SessionValues.CLIENT_MTDITID -> "1234567890",
-              SessionValues.CLIENT_NINO -> "AA123456A"
-            ))
-
-            authoriseAgent()
-            await(wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-              .post(Map[String, String]()))
-          }
-          lazy val document: Document = Jsoup.parse(result.body)
-
-          result.status shouldBe BAD_REQUEST
-          document.select(errorSelector).text() shouldBe expectedErrorCy
-          document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
-        }
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an invalid Character error in welsh" in {
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-          emptyUserDataStub()
-          insertCyaData(Some(testModel))
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
-
-          authoriseAgent()
-          await(
-            wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-              .post(Map("name" -> "ad|am"))
-          )
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        result.status shouldBe BAD_REQUEST
-        document.select(errorSelector).text() shouldBe expectedInvalidCharErrorCy
-        document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status with a character limit error in welsh" in {
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-          emptyUserDataStub()
-          insertCyaData(Some(testModel))
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
-
-          authoriseAgent()
-          await(
-            wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-              .post(Map("name" -> charLimit))
-          )
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        result.status shouldBe BAD_REQUEST
-        document.select(errorSelector).text() shouldBe expectedCharLimitErrorCy
-        document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
-      }
-
-      s"return a BAD_REQUEST($BAD_REQUEST) status with an duplicate name error in welsh" in {
-
-        lazy val result: WSResponse = {
-          dropGiftAidDB()
-          emptyUserDataStub()
-          insertCyaData(Some(testModel))
-          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
-            SessionValues.CLIENT_MTDITID -> "1234567890",
-            SessionValues.CLIENT_NINO -> "AA123456A"
-          ))
-
-          authoriseAgent()
-          await(
-            wsClient.url(
-              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
-                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
-            )
-              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
-              .post(Map("name" -> "JaneDoe"))
-          )
-        }
-        lazy val document: Document = Jsoup.parse(result.body)
-
-        result.status shouldBe BAD_REQUEST
-        document.select(errorSelector).text() shouldBe expectedDuplicateErrorCy
-        document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
-      }
-
-    }
-
-  }
+//  "as an individual" when {
+//    import IndividualExpected._
+
+//    ".show" should {
+//
+//      "returns an action with english content" which {
+//
+//        lazy val result: WSResponse = {
+//          dropGiftAidDB()
+//          emptyUserDataStub()
+//          insertCyaData(Some(testModel))
+//          authoriseIndividual()
+//          await(wsClient.url(
+//            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+//          )
+//            .withHttpHeaders(xSessionId, csrfContent)
+//            .get())
+//        }
+//        lazy val document: Document = Jsoup.parse(result.body)
+//
+//        "has an OK(200) status with the correct content" in {
+//          result.status shouldBe OK
+//          document.title() shouldBe s"$expectedTitle - $serviceName - $govUkExtension"
+//          document.select(".govuk-heading-l").text() shouldBe expectedH1 + " " + expectedCaption
+//          document.select(captionSelector).text() shouldBe expectedCaption
+//          document.select(inputHintTextSelector).text() shouldBe expectedInputHintText
+//          document.select(inputFieldSelector).attr("name")
+//          document.select(buttonSelector).text() shouldBe expectedButtonText
+//          document.select(buttonSelector).attr("class") should include("govuk-button")
+//        }
+//
+//      }
+//      "returns an action with english content when passed a charity" which {
+//
+//        lazy val result: WSResponse = {
+//          dropGiftAidDB()
+//          emptyUserDataStub()
+//          insertCyaData(Some(testModel))
+//          authoriseIndividual()
+//          await(wsClient.url(
+//            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to?changeCharity=JaneDoe"
+//          )
+//            .withHttpHeaders(xSessionId, csrfContent)
+//            .get())
+//        }
+//        lazy val document: Document = Jsoup.parse(result.body)
+//
+//        "has an OK(200) status with the correct content" in {
+//          result.status shouldBe OK
+//          document.title() shouldBe s"$expectedTitle - $serviceName - $govUkExtension"
+//          document.select(".govuk-heading-l").text() shouldBe expectedH1 + " " + expectedCaption
+//          document.select(captionSelector).text() shouldBe expectedCaption
+//          document.select(inputHintTextSelector).text() shouldBe expectedInputHintText
+//          document.select(inputFieldSelector).attr("name")
+//          document.select(buttonSelector).text() shouldBe expectedButtonText
+//          document.select(buttonSelector).attr("class") should include("govuk-button")
+//        }
+//
+//      }
+//      "returns an action without previousNames" which {
+//
+//        lazy val result: WSResponse = {
+//          dropGiftAidDB()
+//          emptyUserDataStub()
+//          insertCyaData(Some(testModelEmpty))
+//          authoriseIndividual()
+//          await(wsClient.url(
+//            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+//          )
+//            .withHttpHeaders(xSessionId, csrfContent)
+//            .get())
+//        }
+//        lazy val document: Document = Jsoup.parse(result.body)
+//
+//        "has an OK(200) status with the correct content" in {
+//          result.status shouldBe OK
+//        }
+//
+//      }
+//
+//      "returns an action with welsh content" which {
+//        lazy val result: WSResponse = {
+//          dropGiftAidDB()
+//          emptyUserDataStub()
+//          insertCyaData(Some(testModel))
+//          authoriseIndividual()
+//          await(wsClient.url(
+//            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+//          )
+//            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
+//            .get())
+//        }
+//        lazy val document: Document = Jsoup.parse(result.body)
+//
+//        "has an OK(200) status with the correct content" in {
+//          result.status shouldBe OK
+//          document.title() shouldBe s"$expectedTitleCy - $serviceNameCy - $govUkExtension"
+//          document.select(".govuk-heading-l").text() shouldBe expectedH1Cy + " " + expectedCaptionCy
+//          document.select(captionSelector).text() shouldBe expectedCaptionCy
+//          document.select(inputHintTextSelector).text() shouldBe expectedInputHintTextCy
+//          document.select(inputFieldSelector).attr("name")
+//          document.select(buttonSelector).text() shouldBe expectedButtonTextCy
+//          document.select(buttonSelector).attr("class") should include("govuk-button")
+//        }
+//      }
+//      "return the overview page when there is no data" which {
+//        lazy val result: WSResponse = {
+//          dropGiftAidDB()
+//          emptyUserDataStub()
+//          authoriseIndividual()
+//          await(wsClient
+//            .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+//            )
+//            .withHttpHeaders(xSessionId, csrfContent)
+//            .withFollowRedirects(false)
+//            .get())
+//        }
+//
+//        "has a status of SEE_OTHER(303)" in {
+//          result.status shouldBe SEE_OTHER
+//        }
+//
+//        "redirects to the overview page" in {
+//          result.headers("Location").head shouldBe overviewUrl
+//        }
+//      }
+//      "return the OverseasSharesSecuritiesLandPropertyAmount page when there is no overseasDonatedSharesSecuritiesLandOrPropertyAmount" which {
+//        lazy val result: WSResponse = {
+//          dropGiftAidDB()
+//          emptyUserDataStub()
+//          insertCyaData(Some(testModelFalse))
+//          authoriseIndividual()
+//          await(wsClient
+//            .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+//            )
+//            .withHttpHeaders(xSessionId, csrfContent)
+//            .withFollowRedirects(false)
+//            .get())
+//        }
+//
+//        "has a status of SEE_OTHER(303)" in {
+//          result.status shouldBe SEE_OTHER
+//        }
+//
+//        "redirects to the OverseasSharesSecuritiesLandPropertyAmountController page" in {
+//          result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasSharesSecuritiesLandPropertyAmountController.show(taxYear)}"
+//        }
+//      }
+//    }
+//
+//    ".submit" should {
+//
+//      s"return an OK($OK) status when there are previous names" in {
+//        lazy val result: WSResponse = {
+//          dropGiftAidDB()
+//          emptyUserDataStub()
+//          insertCyaData(Some(testModel))
+//          authoriseIndividual()
+//          await(
+//            wsClient.url(
+//              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+//            )
+//              .withHttpHeaders(xSessionId, csrfContent)
+//              .post(Map("name" -> "adam"))
+//          )
+//        }
+//
+//        result.status shouldBe OK
+//      }
+//      s"return an OK($OK) status when there are previous names and is passed a charity" in {
+//        lazy val result: WSResponse = {
+//          dropGiftAidDB()
+//          emptyUserDataStub()
+//          insertCyaData(Some(testModel))
+//          authoriseIndividual()
+//          await(
+//            wsClient.url(
+//              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to?changeCharity=JaneDoe"
+//            )
+//              .withHttpHeaders(xSessionId, csrfContent)
+//              .post(Map("name" -> "adam"))
+//          )
+//        }
+//
+//        result.status shouldBe OK
+//      }
+//      s"return an OK($OK) status when there are no previous names" in {
+//        lazy val result: WSResponse = {
+//          dropGiftAidDB()
+//          emptyUserDataStub()
+//          insertCyaData(Some(testModelEmpty))
+//          authoriseIndividual()
+//          await(
+//            wsClient.url(
+//              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+//            )
+//              .withHttpHeaders(xSessionId, csrfContent)
+//              .post(Map("name" -> "adam"))
+//          )
+//        }
+//
+//        result.status shouldBe OK
+//      }
+//
+//      s"return a Redirect to the overview page when there is no data" in {
+//        lazy val result: WSResponse = {
+//          dropGiftAidDB()
+//          emptyUserDataStub()
+//          authoriseIndividual()
+//          await(
+//            wsClient.url(
+//              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+//            )
+//              .withHttpHeaders(xSessionId, csrfContent)
+//              .withFollowRedirects(false)
+//              .post(Map("name" -> "adam"))
+//          )
+//        }
+//
+//        result.status shouldBe SEE_OTHER
+//        result.headers("Location").head shouldBe overviewUrl
+//      }
+//      s"return a Redirect to the overview page when there is empty data" in {
+//        lazy val result: WSResponse = {
+//          dropGiftAidDB()
+//          emptyUserDataStub()
+//          insertCyaData(None)
+//          authoriseIndividual()
+//          await(
+//            wsClient.url(
+//              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+//            )
+//              .withHttpHeaders(xSessionId, csrfContent)
+//              .withFollowRedirects(false)
+//              .post(Map("name" -> "adam"))
+//          )
+//        }
+//
+//        result.status shouldBe SEE_OTHER
+//        result.headers("Location").head shouldBe overviewUrl
+//      }
+//
+//      s"return a BAD_REQUEST($BAD_REQUEST) status with an empty error in english" in {
+//        lazy val result: WSResponse = {
+//          dropGiftAidDB()
+//          emptyUserDataStub()
+//          insertCyaData(Some(testModel))
+//          authoriseIndividual()
+//          await(wsClient.url(
+//            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+//          )
+//            .withHttpHeaders(xSessionId, csrfContent)
+//            .post(Map[String, String]()))
+//        }
+//        lazy val document: Document = Jsoup.parse(result.body)
+//
+//        result.status shouldBe BAD_REQUEST
+//        document.select(errorSelector).text() shouldBe expectedError
+//        document.title() shouldBe s"$expectedErrorTitle - $serviceName - $govUkExtension"
+//      }
+//
+//      s"return a BAD_REQUEST($BAD_REQUEST) status with an invalid Character error in english" in {
+//        lazy val result: WSResponse = {
+//          dropGiftAidDB()
+//          emptyUserDataStub()
+//          insertCyaData(Some(testModel))
+//          authoriseIndividual()
+//          await(
+//            wsClient.url(
+//              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+//            )
+//              .withHttpHeaders(xSessionId, csrfContent)
+//              .post(Map("name" -> "ad|am"))
+//          )
+//        }
+//        lazy val document: Document = Jsoup.parse(result.body)
+//
+//        result.status shouldBe BAD_REQUEST
+//        document.select(errorSelector).text() shouldBe expectedInvalidCharError
+//        document.title() shouldBe s"$expectedErrorTitle - $serviceName - $govUkExtension"
+//      }
+//
+//      s"return a BAD_REQUEST($BAD_REQUEST) status with a character limit error in english" in {
+//        lazy val result: WSResponse = {
+//          dropGiftAidDB()
+//          emptyUserDataStub()
+//          insertCyaData(Some(testModel))
+//          authoriseIndividual()
+//          await(
+//            wsClient.url(
+//              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+//            )
+//              .withHttpHeaders(xSessionId, csrfContent)
+//              .post(Map("name" -> charLimit))
+//          )
+//        }
+//        lazy val document: Document = Jsoup.parse(result.body)
+//
+//        result.status shouldBe BAD_REQUEST
+//        document.select(errorSelector).text() shouldBe expectedCharLimitError
+//        document.title() shouldBe s"$expectedErrorTitle - $serviceName - $govUkExtension"
+//      }
+//
+//      s"return a BAD_REQUEST($BAD_REQUEST) status with an duplicate name error in english" in {
+//
+//        lazy val result: WSResponse = {
+//          dropGiftAidDB()
+//          emptyUserDataStub()
+//          insertCyaData(Some(testModel))
+//          authoriseIndividual()
+//          await(
+//            wsClient.url(
+//              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+//            )
+//              .withHttpHeaders(xSessionId, csrfContent)
+//              .post(Map("name" -> "JaneDoe"))
+//          )
+//        }
+//        lazy val document: Document = Jsoup.parse(result.body)
+//
+//        result.status shouldBe BAD_REQUEST
+//        document.select(errorSelector).text() shouldBe expectedDuplicateError
+//        document.title() shouldBe s"$expectedErrorTitle - $serviceName - $govUkExtension"
+//      }
+//
+//    }
+//
+//    s"return a BAD_REQUEST($BAD_REQUEST) status with an empty error in welsh" in {
+//      lazy val result: WSResponse = {
+//        dropGiftAidDB()
+//        emptyUserDataStub()
+//        insertCyaData(Some(testModel))
+//        authoriseIndividual()
+//        await(wsClient.url(
+//          s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//            s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+//        )
+//          .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
+//          .post(Map[String, String]()))
+//      }
+//      lazy val document: Document = Jsoup.parse(result.body)
+//
+//      result.status shouldBe BAD_REQUEST
+//      document.select(errorSelector).text() shouldBe expectedErrorCy
+//      document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
+//    }
+//
+//    s"return a BAD_REQUEST($BAD_REQUEST) status with an invalid Character error in welsh" in {
+//      lazy val result: WSResponse = {
+//        dropGiftAidDB()
+//        emptyUserDataStub()
+//        insertCyaData(Some(testModel))
+//        authoriseIndividual()
+//        await(
+//          wsClient.url(
+//            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+//          )
+//            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
+//            .post(Map("name" -> "ad|am"))
+//        )
+//      }
+//      lazy val document: Document = Jsoup.parse(result.body)
+//
+//      result.status shouldBe BAD_REQUEST
+//      document.select(errorSelector).text() shouldBe expectedInvalidCharErrorCy
+//      document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
+//    }
+//
+//    s"return a BAD_REQUEST($BAD_REQUEST) status with a character limit error in welsh" in {
+//      lazy val result: WSResponse = {
+//        dropGiftAidDB()
+//        emptyUserDataStub()
+//        insertCyaData(Some(testModel))
+//        authoriseIndividual()
+//        await(
+//          wsClient.url(
+//            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+//          )
+//            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
+//            .post(Map("name" -> charLimit))
+//        )
+//      }
+//      lazy val document: Document = Jsoup.parse(result.body)
+//
+//      result.status shouldBe BAD_REQUEST
+//      document.select(errorSelector).text() shouldBe expectedCharLimitErrorCy
+//      document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
+//    }
+//
+//    s"return a BAD_REQUEST($BAD_REQUEST) status with an duplicate name error in welsh" in {
+//
+//      lazy val result: WSResponse = {
+//        dropGiftAidDB()
+//        emptyUserDataStub()
+//        insertCyaData(Some(testModel))
+//        authoriseIndividual()
+//        await(
+//          wsClient.url(
+//            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+//          )
+//            .withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
+//            .post(Map("name" -> "JaneDoe"))
+//        )
+//      }
+//      lazy val document: Document = Jsoup.parse(result.body)
+//
+//      result.status shouldBe BAD_REQUEST
+//      document.select(errorSelector).text() shouldBe expectedDuplicateErrorCy
+//      document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
+//    }
+//  }
+//
+//  "as an agent" when {
+//    import AgentExpected._
+//
+//    ".show" should {
+//
+//      "returns an action with english content" which {
+//        lazy val result: WSResponse = {
+//          dropGiftAidDB()
+//          emptyUserDataStub()
+//          insertCyaData(Some(testModel))
+//          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+//            SessionValues.CLIENT_MTDITID -> "1234567890",
+//            SessionValues.CLIENT_NINO -> "AA123456A"
+//          ))
+//
+//          authoriseAgent()
+//          await(wsClient.url(
+//            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+//          )
+//            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
+//            .get())
+//        }
+//        lazy val document: Document = Jsoup.parse(result.body)
+//
+//        "has an OK(200) status with the correct content" in {
+//          result.status shouldBe OK
+//          document.title() shouldBe s"$expectedTitle - $serviceName - $govUkExtension"
+//          document.select(".govuk-heading-l").text() shouldBe expectedH1 + " " + expectedCaption
+//          document.select(captionSelector).text() shouldBe expectedCaption
+//          document.select(inputHintTextSelector).text() shouldBe expectedInputHintText
+//          document.select(inputFieldSelector).attr("name")
+//          document.select(buttonSelector).text() shouldBe expectedButtonText
+//          document.select(buttonSelector).attr("class") should include("govuk-button")
+//        }
+//      }
+//
+//      "returns an action with welsh content" which {
+//        lazy val result: WSResponse = {
+//          dropGiftAidDB()
+//          emptyUserDataStub()
+//          insertCyaData(Some(testModel))
+//          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+//            SessionValues.CLIENT_MTDITID -> "1234567890",
+//            SessionValues.CLIENT_NINO -> "AA123456A"
+//          ))
+//
+//          authoriseAgent()
+//          await(wsClient.url(
+//            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//              s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+//          )
+//            .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
+//            .get())
+//        }
+//        lazy val document: Document = Jsoup.parse(result.body)
+//
+//        "has an OK(200) status with the correct content" in {
+//          result.status shouldBe OK
+//          document.title() shouldBe s"$expectedTitleCy - $serviceNameCy - $govUkExtension"
+//          document.select(".govuk-heading-l").text() shouldBe expectedH1Cy + " " + expectedCaptionCy
+//          document.select(captionSelector).text() shouldBe expectedCaptionCy
+//          document.select(inputHintTextSelector).text() shouldBe expectedInputHintTextCy
+//          document.select(inputFieldSelector).attr("name")
+//          document.select(buttonSelector).text() shouldBe expectedButtonTextCy
+//          document.select(buttonSelector).attr("class") should include("govuk-button")
+//        }
+//      }
+//    }
+//
+//    ".submit" should {
+//
+//      s"return an OK($OK) status" when {
+//
+//        "there is form data" in {
+//          lazy val result: WSResponse = {
+//            dropGiftAidDB()
+//            emptyUserDataStub()
+//            insertCyaData(Some(testModel))
+//            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+//              SessionValues.CLIENT_MTDITID -> "1234567890",
+//              SessionValues.CLIENT_NINO -> "AA123456A"))
+//
+//            authoriseAgent()
+//            await(
+//              wsClient.url(
+//                s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//                  s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+//              )
+//                .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
+//                .post(Map("name" -> "adam"))
+//            )
+//          }
+//
+//          result.status shouldBe OK
+//        }
+//      }
+//
+//      s"return a BAD_REQUEST($BAD_REQUEST) status with an empty error in english" when {
+//
+//        "there is no form data" in {
+//          lazy val result: WSResponse = {
+//            dropGiftAidDB()
+//            emptyUserDataStub()
+//            insertCyaData(Some(testModel))
+//            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+//              SessionValues.CLIENT_MTDITID -> "1234567890",
+//              SessionValues.CLIENT_NINO -> "AA123456A"
+//            ))
+//
+//            authoriseAgent()
+//            await(wsClient.url(
+//              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+//            )
+//              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, xSessionId, csrfContent)
+//              .post(Map[String, String]()))
+//          }
+//          lazy val document: Document = Jsoup.parse(result.body)
+//
+//          result.status shouldBe BAD_REQUEST
+//          document.select(errorSelector).text() shouldBe expectedError
+//          document.title() shouldBe s"$expectedErrorTitle - $serviceName - $govUkExtension"
+//        }
+//      }
+//
+//      s"return a BAD_REQUEST($BAD_REQUEST) status with an empty error in welsh" when {
+//
+//        "there is no form data" in {
+//          lazy val result: WSResponse = {
+//            dropGiftAidDB()
+//            emptyUserDataStub()
+//            insertCyaData(Some(testModel))
+//            lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+//              SessionValues.CLIENT_MTDITID -> "1234567890",
+//              SessionValues.CLIENT_NINO -> "AA123456A"
+//            ))
+//
+//            authoriseAgent()
+//            await(wsClient.url(
+//              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+//            )
+//              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
+//              .post(Map[String, String]()))
+//          }
+//          lazy val document: Document = Jsoup.parse(result.body)
+//
+//          result.status shouldBe BAD_REQUEST
+//          document.select(errorSelector).text() shouldBe expectedErrorCy
+//          document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
+//        }
+//      }
+//
+//      s"return a BAD_REQUEST($BAD_REQUEST) status with an invalid Character error in welsh" in {
+//        lazy val result: WSResponse = {
+//          dropGiftAidDB()
+//          emptyUserDataStub()
+//          insertCyaData(Some(testModel))
+//          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+//            SessionValues.CLIENT_MTDITID -> "1234567890",
+//            SessionValues.CLIENT_NINO -> "AA123456A"
+//          ))
+//
+//          authoriseAgent()
+//          await(
+//            wsClient.url(
+//              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+//            )
+//              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
+//              .post(Map("name" -> "ad|am"))
+//          )
+//        }
+//        lazy val document: Document = Jsoup.parse(result.body)
+//
+//        result.status shouldBe BAD_REQUEST
+//        document.select(errorSelector).text() shouldBe expectedInvalidCharErrorCy
+//        document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
+//      }
+//
+//      s"return a BAD_REQUEST($BAD_REQUEST) status with a character limit error in welsh" in {
+//        lazy val result: WSResponse = {
+//          dropGiftAidDB()
+//          emptyUserDataStub()
+//          insertCyaData(Some(testModel))
+//          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+//            SessionValues.CLIENT_MTDITID -> "1234567890",
+//            SessionValues.CLIENT_NINO -> "AA123456A"
+//          ))
+//
+//          authoriseAgent()
+//          await(
+//            wsClient.url(
+//              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+//            )
+//              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
+//              .post(Map("name" -> charLimit))
+//          )
+//        }
+//        lazy val document: Document = Jsoup.parse(result.body)
+//
+//        result.status shouldBe BAD_REQUEST
+//        document.select(errorSelector).text() shouldBe expectedCharLimitErrorCy
+//        document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
+//      }
+//
+//      s"return a BAD_REQUEST($BAD_REQUEST) status with an duplicate name error in welsh" in {
+//
+//        lazy val result: WSResponse = {
+//          dropGiftAidDB()
+//          emptyUserDataStub()
+//          insertCyaData(Some(testModel))
+//          lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
+//            SessionValues.CLIENT_MTDITID -> "1234567890",
+//            SessionValues.CLIENT_NINO -> "AA123456A"
+//          ))
+//
+//          authoriseAgent()
+//          await(
+//            wsClient.url(
+//              s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/" +
+//                s"charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to"
+//            )
+//              .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, HeaderNames.ACCEPT_LANGUAGE -> "cy", xSessionId, csrfContent)
+//              .post(Map("name" -> "JaneDoe"))
+//          )
+//        }
+//        lazy val document: Document = Jsoup.parse(result.body)
+//
+//        result.status shouldBe BAD_REQUEST
+//        document.select(errorSelector).text() shouldBe expectedDuplicateErrorCy
+//        document.title() shouldBe s"$expectedErrorTitleCy - $serviceNameCy - $govUkExtension"
+//      }
+//
+//    }
+//
+//  }
 
 }
