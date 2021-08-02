@@ -20,6 +20,8 @@ import common.SessionValues
 import forms.YesNoForm
 import helpers.PlaySessionCookieBaker
 import models.charity.GiftAidCYAModel
+import models.charity.prior.{GiftAidSubmissionModel, GiftsModel}
+import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
@@ -162,6 +164,30 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Integra
             result.headers("Location").head shouldBe overviewUrl
           }
         }
+        "return the checkYourAnswers page when there is prior data" which {
+          lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModel))
+            userDataStub(IncomeSourcesModel(
+              giftAid = Some(GiftAidSubmissionModel(gifts = Some(GiftsModel(investmentsNonUkCharities = Some(100.00)))))),nino, taxYear)
+            authoriseIndividual()
+            await(wsClient
+              .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
+                s"donation-of-shares-securities-land-or-property-to-overseas-charities")
+              .withHttpHeaders(xSessionId, csrfContent)
+              .withFollowRedirects(false)
+              .get())
+          }
+
+          "has a status of SEE_OTHER(303)" in {
+            result.status shouldBe SEE_OTHER
+          }
+
+          "redirects to the overview page" in {
+            result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
+          }
+        }
         "return the DonateLandOrProperty page when there is no donatedLandOrProperty" which {
           lazy val result: WSResponse = {
             dropGiftAidDB()
@@ -262,6 +288,29 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Integra
 
             result.status shouldBe SEE_OTHER
             result.headers("Location").head shouldBe overviewUrl
+          }
+        }
+        "return a redirect to the checkYourAnswers page" when {
+
+          "there is prior data" in {
+
+            lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              userDataStub(IncomeSourcesModel(
+                giftAid = Some(GiftAidSubmissionModel(gifts = Some(GiftsModel(investmentsNonUkCharities = Some(100.00)))))),nino, taxYear)
+              authoriseIndividual()
+              await(wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/" +
+                s"donation-of-shares-securities-land-or-property-to-overseas-charities")
+                .withHttpHeaders(xSessionId, csrfContent)
+                .withFollowRedirects(false)
+                .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
+              )
+            }
+
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
+
           }
         }
 

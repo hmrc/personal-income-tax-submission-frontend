@@ -171,7 +171,6 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
             dropGiftAidDB()
             emptyUserDataStub()
             insertCyaData(Some(testModelFalse))
-            userDataStub(priorModel, nino, taxYear)
             authoriseIndividual()
             await(wsClient
               .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
@@ -186,6 +185,28 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
 
           "redirects to the QualifyingSharesSecurities page" in {
             result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(taxYear)}"
+          }
+        }
+        "return the check your answers page when there is prior data" which {
+          lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            insertCyaData(Some(testModelFalse))
+            userDataStub(priorModel, nino, taxYear)
+            authoriseIndividual()
+            await(wsClient
+              .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
+              .withHttpHeaders(xSessionId, csrfContent)
+              .withFollowRedirects(false)
+              .get())
+          }
+
+          "has a status of SEE_OTHER(303)" in {
+            result.status shouldBe SEE_OTHER
+          }
+
+          "redirects to the checkYourAnswers page" in {
+            result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
           }
         }
       }
@@ -263,6 +284,27 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
 
             result.status shouldBe SEE_OTHER
             result.headers("Location").head shouldBe overviewUrl
+          }
+        }
+        s"return the checkYourAnswers page" when {
+
+          "there is prior data" in {
+
+            lazy val result: WSResponse = {
+              dropGiftAidDB()
+              emptyUserDataStub()
+              authoriseIndividual()
+              userDataStub(priorModel, nino, taxYear)
+              await(
+                wsClient.url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-land-or-property")
+                  .withHttpHeaders(xSessionId, csrfContent)
+                  .withFollowRedirects(false)
+                  .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
+              )
+            }
+
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
           }
         }
 

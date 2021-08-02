@@ -186,7 +186,6 @@ class GiftAidLandOrPropertyAmountControllerISpec extends IntegrationTest with Vi
           dropGiftAidDB()
           emptyUserDataStub()
           insertCyaData(Some(testModelFalse))
-          userDataStub(priorModel, nino, taxYear)
           authoriseIndividual()
           await(wsClient
             .url(s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/value-of-land-or-property ")

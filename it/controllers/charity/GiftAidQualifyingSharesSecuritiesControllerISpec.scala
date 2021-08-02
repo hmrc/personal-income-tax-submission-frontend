@@ -20,6 +20,8 @@ import common.SessionValues
 import forms.YesNoForm
 import helpers.PlaySessionCookieBaker
 import models.charity.GiftAidCYAModel
+import models.charity.prior.{GiftAidSubmissionModel, GiftsModel}
+import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
@@ -61,6 +63,9 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends IntegrationTest w
     GiftAidCYAModel(donatedSharesSecuritiesLandOrProperty = Some(true))
 
   val testModelFalse: GiftAidCYAModel =
+    GiftAidCYAModel(donatedSharesSecuritiesLandOrProperty = Some(false))
+
+  val testModelFail: GiftAidCYAModel =
     GiftAidCYAModel(addDonationToThisYear = Some(true), addDonationToThisYearAmount = Some(100.00))
 
 
@@ -119,11 +124,56 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends IntegrationTest w
           result.headers("Location").head shouldBe overviewUrl
         }
       }
-      "return the giftAidSharesSecuritiesLandPropertyDonationController page when there is no addDonationToThisYearAmount" which {
+      "return the checkYourAnswers when there is priorData" which {
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModel))
+          userDataStub(IncomeSourcesModel(giftAid = Some(GiftAidSubmissionModel(gifts = Some(GiftsModel(sharesOrSecurities = Some(100.00)))))),nino, taxYear)
+          authoriseIndividual()
+          await(wsClient.url(
+            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-shares-or-securities"
+            )
+            .withHttpHeaders(xSessionId, csrfContent)
+            .withFollowRedirects(false)
+            .get())
+        }
+
+        "has a status of SEE_OTHER(303)" in {
+          result.status shouldBe SEE_OTHER
+        }
+
+        "redirects to the check your answers page" in {
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
+        }
+      }
+      "return the checkYourAnswers when the previous value is false" which {
         lazy val result: WSResponse = {
           dropGiftAidDB()
           emptyUserDataStub()
           insertCyaData(Some(testModelFalse))
+          authoriseIndividual()
+          await(wsClient.url(
+            s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-shares-or-securities"
+            )
+            .withHttpHeaders(xSessionId, csrfContent)
+            .withFollowRedirects(false)
+            .get())
+        }
+
+        "has a status of SEE_OTHER(303)" in {
+          result.status shouldBe SEE_OTHER
+        }
+
+        "redirects to the check your answers page" in {
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
+        }
+      }
+      "return the giftAidSharesSecuritiesLandPropertyDonationController page when there is no addDonationToThisYearAmount" which {
+        lazy val result: WSResponse = {
+          dropGiftAidDB()
+          emptyUserDataStub()
+          insertCyaData(Some(testModelFail))
           authoriseIndividual()
           await(wsClient.url(
             s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-shares-or-securities"
@@ -230,6 +280,28 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends IntegrationTest w
           result.headers("Location").head shouldBe overviewUrl
         }
 
+      }
+      s"return the checkYourAnswers page " when {
+        "there is prior data " in {
+
+          lazy val result: WSResponse = {
+            dropGiftAidDB()
+            emptyUserDataStub()
+            userDataStub(IncomeSourcesModel(giftAid = Some(GiftAidSubmissionModel(gifts = Some(GiftsModel(sharesOrSecurities = Some(100.00)))))),nino, taxYear)
+            authoriseIndividual()
+            await(
+              wsClient.url(
+                s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/donation-of-shares-or-securities"
+              )
+                .withHttpHeaders(xSessionId, csrfContent)
+                .withFollowRedirects(false)
+                .post(Map(YesNoForm.yesNo -> YesNoForm.no))
+            )
+          }
+
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
+        }
       }
 
       s"return an error page" when {

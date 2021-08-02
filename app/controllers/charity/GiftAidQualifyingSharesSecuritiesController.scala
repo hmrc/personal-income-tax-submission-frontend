@@ -38,27 +38,32 @@ import views.html.charity.GiftAidQualifyingSharesSecuritiesView
 import scala.concurrent.{ExecutionContext, Future}
 
 class GiftAidQualifyingSharesSecuritiesController @Inject()(
-                                              implicit val cc: MessagesControllerComponents,
-                                              authAction: AuthorisedAction,
-                                              giftAidQualifyingSharesSecuritiesView: GiftAidQualifyingSharesSecuritiesView,
-                                              giftAidSharesSecuritiesLandPropertyDonationController: GiftAidSharesSecuritiesLandPropertyDonationController,
-                                              errorHandler: ErrorHandler,
-                                              giftAidSessionService: GiftAidSessionService,
-                                              implicit val appConfig: AppConfig
-                                            ) extends FrontendController(cc) with I18nSupport with CharityJourney {
+                                                             implicit val cc: MessagesControllerComponents,
+                                                             authAction: AuthorisedAction,
+                                                             giftAidQualifyingSharesSecuritiesView: GiftAidQualifyingSharesSecuritiesView,
+                                                             giftAidSharesSecuritiesLandPropertyDonationController: GiftAidSharesSecuritiesLandPropertyDonationController,
+                                                             errorHandler: ErrorHandler,
+                                                             giftAidSessionService: GiftAidSessionService,
+                                                             implicit val appConfig: AppConfig
+                                                           ) extends FrontendController(cc) with I18nSupport with CharityJourney {
 
   implicit val executionContext: ExecutionContext = cc.executionContext
 
   override def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, prior: Option[GiftAidSubmissionModel], fromShow: Boolean)
                              (implicit user: User[AnyContent]): Result = {
     (prior, cya.donatedSharesSecuritiesLandOrProperty) match {
-      case (_,Some(true)) => determineResult(
+      case (Some(priorData), _) if priorData.gifts.map(_.sharesOrSecurities).isDefined =>
+        Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
+      case (_, Some(true)) => determineResult(
         Ok(giftAidQualifyingSharesSecuritiesView(yesNoForm(user), taxYear)),
         Redirect(controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(taxYear)),
         fromShow)
+      case (_, Some(false)) =>
+        Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
       case _ => giftAidSharesSecuritiesLandPropertyDonationController.handleRedirect(taxYear, cya, prior)
     }
   }
+
   val yesNoForm: User[AnyContent] => Form[Boolean] = user => {
     val missingInputError = s"charity.qualifying-shares-or-securities.errors.noChoice.${if (user.isAgent) "agent" else "individual"}"
     YesNoForm.yesNoForm(missingInputError)
@@ -77,34 +82,30 @@ class GiftAidQualifyingSharesSecuritiesController @Inject()(
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
 
-    giftAidSessionService.getSessionData(taxYear).map {
-      case Some(cyaData) =>
-        yesNoForm(user).bindFromRequest().fold({
-          formWithErrors => Future.successful(BadRequest(giftAidQualifyingSharesSecuritiesView(formWithErrors, taxYear)))
-        }, {
-          success =>
-            val redirectLocation = if(success){
-              controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(taxYear)
-            } else {
-              controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(taxYear)
-            }
-            cyaData.giftAid.fold{
-              Future.successful(redirectToOverview(taxYear))
-            } {
-              cyaModel => giftAidSessionService.updateSessionData(cyaModel.copy(donatedSharesOrSecurities = Some(success)), taxYear)(
+    giftAidSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
+      (cya, prior) match {
+        case (_, Some(priorData)) => Future.successful(Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear)))
+        case (Some(cyaData), _) =>
+          yesNoForm(user).bindFromRequest().fold({
+            formWithErrors => Future.successful(BadRequest(giftAidQualifyingSharesSecuritiesView(formWithErrors, taxYear)))
+          }, {
+            success =>
+              val redirectLocation = if (success) {
+                controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(taxYear)
+              } else {
+                controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(taxYear)
+              }
+              giftAidSessionService.updateSessionData(cyaData.copy(donatedSharesOrSecurities = Some(success)), taxYear)(
                 InternalServerError(errorHandler.internalServerErrorTemplate)
               )(
                 Redirect(redirectLocation)
               )
-            }
-
-
-        }
-
-        )
-      case _ =>
-        logger.info("[GiftAidQualifyingSharesSecuritiesController][submit] No CYA data in session. Redirecting to overview page.")
-        Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+          }
+          )
+        case _ =>
+          logger.info("[GiftAidQualifyingSharesSecuritiesController][submit] No CYA data in session. Redirecting to overview page.")
+          Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+      }
     }.flatten
   }
 

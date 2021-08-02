@@ -199,7 +199,6 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends IntegrationTest with
           dropGiftAidDB()
           emptyUserDataStub()
           insertCyaData(Some(testModelFalse))
-          userDataStub(priorModel, nino, defaultTaxYear)
           authoriseIndividual()
           await(wsClient
             .url(url)
