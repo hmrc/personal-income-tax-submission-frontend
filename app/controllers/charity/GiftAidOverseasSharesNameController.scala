@@ -48,8 +48,7 @@ class GiftAidOverseasSharesNameController @Inject()(
                                                      errorHandler: ErrorHandler,
                                                      ec: ExecutionContext
                                                    ) extends FrontendController(cc) with I18nSupport with CharityJourney {
-
-
+  
   override def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, prior: Option[GiftAidSubmissionModel], fromShow: Boolean)
                              (implicit user: User[AnyContent]): Result = {
 
