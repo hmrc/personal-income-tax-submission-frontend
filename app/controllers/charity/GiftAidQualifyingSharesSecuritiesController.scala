@@ -84,7 +84,7 @@ class GiftAidQualifyingSharesSecuritiesController @Inject()(
 
     giftAidSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
       (cya, prior) match {
-        case (_, Some(_)) => Future.successful(redirectToCya(taxYear))
+        case (_, Some(priorData)) if priorData.gifts.map(_.sharesOrSecurities).isDefined => Future.successful(redirectToCya(taxYear))
         case (Some(cyaData), _) =>
           yesNoForm(user).bindFromRequest().fold({
             formWithErrors => Future.successful(BadRequest(giftAidQualifyingSharesSecuritiesView(formWithErrors, taxYear)))

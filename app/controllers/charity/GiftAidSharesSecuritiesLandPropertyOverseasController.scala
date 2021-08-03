@@ -50,12 +50,11 @@ class GiftAidSharesSecuritiesLandPropertyOverseasController @Inject()(
 
   override def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, prior: Option[GiftAidSubmissionModel], fromShow: Boolean)
                              (implicit user: User[AnyContent]): Result = {
-    (prior, cya.donatedLandOrProperty, cya.donatedLandOrPropertyAmount, cya.donatedSharesOrSecurities) match {
-      case (Some(priorData), _, _, _) if priorData.gifts.map(_.investmentsNonUkCharities).isDefined =>
+    (prior, cya.donatedLandOrProperty, cya.donatedLandOrPropertyAmount) match {
+      case (Some(priorData), _, _) if priorData.gifts.map(_.investmentsNonUkCharities).isDefined =>
         Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
-      case (_, None, _, _) => giftAidDonateLandOrPropertyController.handleRedirect(taxYear, cya, prior)
-      case (_, Some(true), None, _) => giftAidLandOrPropertyAmountController.handleRedirect(taxYear, cya, prior)
-      case (_, Some(false), _, Some(false)) => redirectToCya(taxYear)
+      case (_, None, _) => giftAidDonateLandOrPropertyController.handleRedirect(taxYear, cya, prior)
+      case (_, Some(true), None) => giftAidLandOrPropertyAmountController.handleRedirect(taxYear, cya, prior)
       case _ => determineResult(
         Ok(view(yesNoForm(user), taxYear)),
         Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(taxYear)),
@@ -71,7 +70,7 @@ class GiftAidSharesSecuritiesLandPropertyOverseasController @Inject()(
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
     giftAidSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
       cya match {
-        case Some(cyaData) => handleRedirect(taxYear, cyaData, prior, true)
+        case Some(cyaData) => handleRedirect(taxYear, cyaData, prior, fromShow = true)
         case _ => redirectToOverview(taxYear)
       }
     }
@@ -81,7 +80,8 @@ class GiftAidSharesSecuritiesLandPropertyOverseasController @Inject()(
 
     giftAidSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
       (cya, prior) match {
-        case (_, Some(priorData)) => Future.successful(Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear)))
+        case (_, Some(priorData)) if priorData.gifts.map(_.investmentsNonUkCharities).isDefined =>
+          Future.successful(Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear)))
         case (Some(cyaData), _) =>
           yesNoForm(user).bindFromRequest().fold({
             formWithErrors => Future.successful(BadRequest(view(formWithErrors, taxYear)))
