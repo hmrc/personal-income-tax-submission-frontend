@@ -43,6 +43,7 @@ class GiftAidDonateLandOrPropertyController @Inject()(
                                                        authAction: AuthorisedAction,
                                                        giftAidDonateLandOrPropertyView: GiftAidDonateLandOrPropertyView,
                                                        giftAidQualifyingSharesSecuritiesController: GiftAidQualifyingSharesSecuritiesController,
+                                                       giftAidTotalShareSecurityAmountController: GiftAidTotalShareSecurityAmountController,
                                                        giftAidSessionService: GiftAidSessionService,
                                                        errorHandler: ErrorHandler,
                                                        implicit val appConfig: AppConfig
@@ -52,15 +53,17 @@ class GiftAidDonateLandOrPropertyController @Inject()(
 
   override def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, prior: Option[GiftAidSubmissionModel], fromShow: Boolean)
                              (implicit user: User[AnyContent]): Result = {
-    (prior, cya.donatedSharesOrSecurities) match {
-      case (Some(priorData), _) if priorData.gifts.map(_.landAndBuildings).isDefined =>
-        Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
-      case (_, Some(true)) => determineResult(
+    (prior, cya.donatedSharesOrSecurities, cya.donatedSharesOrSecuritiesAmount) match {
+      case (Some(priorData), _, _) if priorData.gifts.map(_.landAndBuildings).isDefined =>
+        redirectToCya(taxYear)
+      case (_, Some(true), None) =>
+        giftAidTotalShareSecurityAmountController.handleRedirect(taxYear, cya, prior)
+      case (_, None, _) =>
+        giftAidQualifyingSharesSecuritiesController.handleRedirect(taxYear, cya, prior)
+      case _ => determineResult(
         Ok(giftAidDonateLandOrPropertyView(yesNoForm(user), taxYear)),
         Redirect(controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(taxYear)),
         fromShow)
-      case _ =>
-        giftAidQualifyingSharesSecuritiesController.handleRedirect(taxYear, cya, prior)
     }
   }
 
@@ -73,7 +76,7 @@ class GiftAidDonateLandOrPropertyController @Inject()(
     giftAidSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
 
       cya match {
-        case Some(cyaData) => handleRedirect(taxYear, cyaData, prior, true)
+        case Some(cyaData) => handleRedirect(taxYear, cyaData, prior, fromShow = true)
         case _ => redirectToOverview(taxYear)
       }
     }

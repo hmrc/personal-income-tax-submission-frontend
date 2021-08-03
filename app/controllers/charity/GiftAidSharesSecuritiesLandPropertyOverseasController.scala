@@ -40,6 +40,7 @@ class GiftAidSharesSecuritiesLandPropertyOverseasController @Inject()(
                                                                        authAction: AuthorisedAction,
                                                                        view: GiftAidSharesSecuritiesLandPropertyOverseasView,
                                                                        giftAidDonateLandOrPropertyController: GiftAidDonateLandOrPropertyController,
+                                                                       giftAidLandOrPropertyAmountController: GiftAidLandOrPropertyAmountController,
                                                                        giftAidSessionService: GiftAidSessionService,
                                                                        errorHandler: ErrorHandler,
                                                                        implicit val appConfig: AppConfig
@@ -52,13 +53,13 @@ class GiftAidSharesSecuritiesLandPropertyOverseasController @Inject()(
     (prior, cya.donatedLandOrProperty, cya.donatedLandOrPropertyAmount, cya.donatedSharesOrSecurities) match {
       case (Some(priorData), _, _, _) if priorData.gifts.map(_.investmentsNonUkCharities).isDefined =>
         Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
-      case (_, Some(_), _, Some(true)) => determineResult(
+      case (_, None, _, _) => giftAidDonateLandOrPropertyController.handleRedirect(taxYear, cya, prior)
+      case (_, Some(true), None, _) => giftAidLandOrPropertyAmountController.handleRedirect(taxYear, cya, prior)
+      case (_, Some(false), _, Some(false)) => redirectToCya(taxYear)
+      case _ => determineResult(
         Ok(view(yesNoForm(user), taxYear)),
         Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(taxYear)),
         fromShow)
-      case (_, Some(true), None, Some(true)) =>
-        Redirect(controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(taxYear))
-      case _ => giftAidDonateLandOrPropertyController.handleRedirect(taxYear, cya, prior)
     }
   }
 
