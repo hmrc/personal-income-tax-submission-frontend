@@ -58,20 +58,29 @@ class GiftAidSharesSecuritiesLandPropertyDonationController @Inject()(
     val appendToThisTaxYearYesNo = cya.addDonationToThisYear
     val appendToThisTaxYearAmount = cya.addDonationToThisYearAmount
 
-    lazy val page = if (fromShow) {
-      Ok(giftAidSharesSecuritiesLandPropertyDonationView(yesNoForm(user), taxYear))
-    } else {
-      Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(taxYear))
-    }
+    lazy val page = determineResult(
+      Ok(giftAidSharesSecuritiesLandPropertyDonationView(yesNoForm(user), taxYear)),
+      Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(taxYear)),
+      fromShow
+    )
 
-    (appendToThisTaxYearYesNo, appendToThisTaxYearAmount) match {
-      case (Some(yesNo), amount) if !yesNo || (yesNo && amount.nonEmpty) => if (fromShow) page else {
+    (prior, appendToThisTaxYearYesNo, appendToThisTaxYearAmount) match {
+      case (Some(priorData), _, _) if priorCondition(priorData) =>
+        redirectToCya(taxYear)
+      case (_, Some(yesNo), amount) if !yesNo || (yesNo && amount.nonEmpty) => if (fromShow) page else {
         Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(taxYear))
       }
-      case (Some(true), None) => amountRedirect.handleRedirect(taxYear, cya, prior)
+      case (_, Some(true), None) => amountRedirect.handleRedirect(taxYear, cya, prior)
       case _ => yesNoRedirect.handleRedirect(taxYear, cya, prior)
     }
 
+  }
+
+  private def priorCondition(prior: GiftAidSubmissionModel) = {
+    val landsBuildings = prior.gifts.flatMap(_.landAndBuildings).isDefined
+    val sharesSecurities = prior.gifts.flatMap(_.sharesOrSecurities).isDefined
+
+    if(landsBuildings || sharesSecurities) true else false
   }
 
   val yesNoForm: User[AnyContent] => Form[Boolean] = user => {

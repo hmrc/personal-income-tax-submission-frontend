@@ -205,6 +205,34 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
 
         }
 
+        "redirect to the cya page" when {
+
+          "there is prior data for nextYearTreatedAsCurrentYear" which {
+            lazy val result = {
+              dropGiftAidDB()
+
+              userDataStub(
+                IncomeSourcesModel(
+                  giftAid = Some(GiftAidSubmissionModel(Some(GiftAidPaymentsModel(nextYearTreatedAsCurrentYear = Some(1000.00)))))
+                ),
+                nino, taxYear
+              )
+              insertCyaData(Some(GiftAidCYAModel()))
+
+              authoriseIndividual()
+              await(wsClient.url(url).withHttpHeaders(xSessionId, csrfContent).withFollowRedirects(false).get())
+            }
+
+            "has a status of SEE_OTHER(303)" in {
+              result.status shouldBe SEE_OTHER
+            }
+
+            "redirects to the overview page" in {
+              result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
+            }
+          }
+        }
+
         "redirect to the overview page" when {
 
           "there is no session data" which {
@@ -451,6 +479,36 @@ class DonationsToPreviousTaxYearControllerISpec extends IntegrationTest with Vie
     "the language is set to ENGLISH" when {
 
       "the user is an individual" when {
+
+        "there is prior data for nextYearTreatedAsCurrentYear" which {
+          lazy val result = {
+            dropGiftAidDB()
+
+            userDataStub(
+              IncomeSourcesModel(
+                giftAid = Some(GiftAidSubmissionModel(Some(GiftAidPaymentsModel(nextYearTreatedAsCurrentYear = Some(1000.00)))))
+              ),
+              nino, taxYear
+            )
+            insertCyaData(Some(GiftAidCYAModel()))
+
+            authoriseIndividual()
+            await(
+              wsClient.url(url)
+                .withHttpHeaders(xSessionId, csrfContent)
+                .withFollowRedirects(false)
+                .post(Map(YesNoForm.yesNo -> YesNoForm.yes))
+            )
+          }
+
+          "has a status of SEE_OTHER(303)" in {
+            result.status shouldBe SEE_OTHER
+          }
+
+          "redirects to the overview page" in {
+            result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
+          }
+        }
 
         "yes has been selected when there is CYA data" which {
           lazy val result: WSResponse = {

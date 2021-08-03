@@ -79,7 +79,6 @@ class GiftAidDonationsControllerISpec extends IntegrationTest with ViewHelpers w
           dropGiftAidDB()
 
           emptyUserDataStub()
-          insertCyaData(None)
 
           authoriseIndividual()
           await(wsClient.url(giftAidDonationsUrl).withHttpHeaders(xSessionId, csrfContent).get())
@@ -114,7 +113,6 @@ class GiftAidDonationsControllerISpec extends IntegrationTest with ViewHelpers w
           userDataStub(IncomeSourcesModel(giftAid = Some(GiftAidSubmissionModel(Some(GiftAidPaymentsModel(
             currentYear = Some(1000.00)
           ))))), nino, taxYear)
-          insertCyaData(None)
 
           authoriseIndividual()
           await(wsClient.url(giftAidDonationsUrl).withHttpHeaders(xSessionId, csrfContent)
@@ -155,7 +153,6 @@ class GiftAidDonationsControllerISpec extends IntegrationTest with ViewHelpers w
           dropGiftAidDB()
 
           emptyUserDataStub()
-          insertCyaData(None)
 
           authoriseIndividual()
           await(wsClient.url(giftAidDonationsUrl).withHttpHeaders(xSessionId, csrfContent)
@@ -178,7 +175,6 @@ class GiftAidDonationsControllerISpec extends IntegrationTest with ViewHelpers w
           dropGiftAidDB()
 
           emptyUserDataStub()
-          insertCyaData(None)
 
           authoriseIndividual()
           await(wsClient.url(giftAidDonationsUrl).withHttpHeaders(xSessionId, csrfContent)
@@ -207,7 +203,6 @@ class GiftAidDonationsControllerISpec extends IntegrationTest with ViewHelpers w
           dropGiftAidDB()
 
           emptyUserDataStub()
-          insertCyaData(None)
 
           authoriseIndividual()
           await(wsClient.url(giftAidDonationsUrl).withHttpHeaders(xSessionId, csrfContent)
@@ -246,7 +241,6 @@ class GiftAidDonationsControllerISpec extends IntegrationTest with ViewHelpers w
           dropGiftAidDB()
 
           emptyUserDataStub()
-          insertCyaData(None)
 
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
@@ -288,7 +282,6 @@ class GiftAidDonationsControllerISpec extends IntegrationTest with ViewHelpers w
           userDataStub(IncomeSourcesModel(giftAid = Some(GiftAidSubmissionModel(Some(GiftAidPaymentsModel(
             currentYear = Some(1000.00)
           ))))), nino, taxYear)
-          insertCyaData(None)
 
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
@@ -344,7 +337,6 @@ class GiftAidDonationsControllerISpec extends IntegrationTest with ViewHelpers w
           dropGiftAidDB()
 
           emptyUserDataStub()
-          insertCyaData(None)
 
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",
@@ -415,7 +407,6 @@ class GiftAidDonationsControllerISpec extends IntegrationTest with ViewHelpers w
             dropGiftAidDB()
 
             emptyUserDataStub()
-            insertCyaData(None)
 
             lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
               SessionValues.CLIENT_MTDITID -> "1234567890",
@@ -449,7 +440,6 @@ class GiftAidDonationsControllerISpec extends IntegrationTest with ViewHelpers w
           dropGiftAidDB()
 
           emptyUserDataStub()
-          insertCyaData(None)
 
           lazy val sessionCookie: String = PlaySessionCookieBaker.bakeSessionCookie(Map[String, String](
             SessionValues.CLIENT_MTDITID -> "1234567890",

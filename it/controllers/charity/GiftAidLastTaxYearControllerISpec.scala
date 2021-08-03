@@ -165,6 +165,29 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
         }
       }
 
+      "redirect to the cya page" when {
+
+        lazy val result = {
+          dropGiftAidDB()
+
+          userDataStub(
+            IncomeSourcesModel(
+              giftAid = Some(GiftAidSubmissionModel(Some(GiftAidPaymentsModel(currentYearTreatedAsPreviousYear = Some(1000.00)))))
+            ),
+            nino, taxYear
+          )
+          insertCyaData(Some(GiftAidCYAModel()))
+
+          authoriseIndividual()
+          await(wsClient.url(url).withHttpHeaders(xSessionId, csrfContent).withFollowRedirects(false).get())
+        }
+
+        "there is prior data for currentYearTreatedAsPreviousYear" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
+        }
+      }
+
       "redirect to the Name of overseas charity page" when {
 
         "the user has indicated they donated to overseas charities, but have no charity names" which {
@@ -199,6 +222,33 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
 
     "calling the POST/ endpoint" should {
 
+      "redirect to the cya page" when {
+
+        lazy val result = {
+          dropGiftAidDB()
+
+          userDataStub(
+            IncomeSourcesModel(
+              giftAid = Some(GiftAidSubmissionModel(Some(GiftAidPaymentsModel(currentYearTreatedAsPreviousYear = Some(1000.00)))))
+            ),
+            nino, taxYear
+          )
+          insertCyaData(Some(GiftAidCYAModel()))
+
+          authoriseIndividual()
+          await(
+            wsClient.url(url)
+              .withHttpHeaders(xSessionId, csrfContent)
+              .withFollowRedirects(false)
+              .post(Map[String, String](YesNoForm.yesNo -> YesNoForm.yes))
+          )
+        }
+
+        "there is prior data for currentYearTreatedAsPreviousYear" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
+        }
+      }
 
       "redirect to the last tax year amount page" when {
 
@@ -444,9 +494,7 @@ class GiftAidLastTaxYearControllerISpec extends IntegrationTest with ViewHelpers
             SessionValues.CLIENT_NINO -> "AA123456A"
           ))
 
-          userDataStub(IncomeSourcesModel(
-            giftAid = Some(testModel)
-          ), nino, taxYear)
+          emptyUserDataStub()
           insertCyaData(Some(cyaData))
 
           authoriseAgent()
