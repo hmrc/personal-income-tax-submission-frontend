@@ -73,7 +73,7 @@ class GiftAidQualifyingSharesSecuritiesController @Inject()(
     giftAidSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
 
       cya match {
-        case Some(cyaData) => handleRedirect(taxYear, cyaData, prior, true)
+        case Some(cyaData) => handleRedirect(taxYear, cyaData, prior, fromShow = true)
         case _ => redirectToOverview(taxYear)
       }
     }
@@ -84,21 +84,27 @@ class GiftAidQualifyingSharesSecuritiesController @Inject()(
 
     giftAidSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
       (cya, prior) match {
-        case (_, Some(priorData)) => Future.successful(Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear)))
+        case (_, Some(_)) => Future.successful(redirectToCya(taxYear))
         case (Some(cyaData), _) =>
           yesNoForm(user).bindFromRequest().fold({
             formWithErrors => Future.successful(BadRequest(giftAidQualifyingSharesSecuritiesView(formWithErrors, taxYear)))
           }, {
             success =>
-              val redirectLocation = if (success) {
-                controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(taxYear)
-              } else {
-                controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(taxYear)
+              val updatedCya = cyaData.copy(
+                donatedSharesOrSecurities = Some(success),
+                donatedSharesOrSecuritiesAmount = if(success) cyaData.donatedSharesOrSecuritiesAmount else None
+              )
+
+              val redirectLocation = (success, updatedCya.isFinished) match {
+                case (true, _) => Redirect(controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(taxYear))
+                case (_, true) => redirectToCya(taxYear)
+                case _ => Redirect(controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(taxYear))
               }
+
               giftAidSessionService.updateSessionData(cyaData.copy(donatedSharesOrSecurities = Some(success)), taxYear)(
                 InternalServerError(errorHandler.internalServerErrorTemplate)
               )(
-                Redirect(redirectLocation)
+                redirectLocation
               )
           }
           )

@@ -93,6 +93,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   val startUrl = s"http://localhost:$port/income-through-software/return/personal-income"
   val overviewUrl = "http://localhost:11111/income-through-software/return/2022/view"
+  val cyaUrl: Int => String = taxYear => s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
   implicit def wsClient: WSClient = app.injector.instanceOf[WSClient]
 
   val appUrl = s"http://localhost:$port/income-through-software/return/personal-income"

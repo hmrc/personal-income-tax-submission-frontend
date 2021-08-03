@@ -47,8 +47,8 @@ class GiftAidTotalShareSecurityAmountController @Inject()(
 
   override def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, prior: Option[GiftAidSubmissionModel], fromShow: Boolean)
                              (implicit user: User[AnyContent]): Result = {
-    (prior, cya.donatedSharesOrSecurities) match {
-      case (_, Some(true)) => determineResult(Ok(view(taxYear, form(user.isAgent))),
+    cya.donatedSharesOrSecurities match {
+      case Some(true) => determineResult(Ok(view(taxYear, form(user.isAgent))),
         Redirect(controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(taxYear)),
         fromShow)
       case _ => giftAidQualifyingSharesSecuritiesController.handleRedirect(taxYear, cya, prior)
@@ -67,7 +67,7 @@ class GiftAidTotalShareSecurityAmountController @Inject()(
     giftAidSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
 
       cya match {
-        case Some(cyaData) => handleRedirect(taxYear, cyaData, prior, true)
+        case Some(cyaData) => handleRedirect(taxYear, cyaData, prior, fromShow = true)
         case _ => redirectToOverview(taxYear)
       }
     }
@@ -80,18 +80,23 @@ class GiftAidTotalShareSecurityAmountController @Inject()(
           formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors)))
         }, {
           amount =>
-            val redirectLocation = controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(taxYear)
             cyaData.giftAid.fold{
               Future.successful(redirectToOverview(taxYear))
             } {
-              cyaModel => giftAidSessionService.updateSessionData(cyaModel.copy(donatedSharesOrSecuritiesAmount = Some(amount)), taxYear)(
-                InternalServerError(errorHandler.internalServerErrorTemplate)
-              )(
-                Redirect(redirectLocation)
-              )
+              cyaModel =>
+                val updatedCya = cyaModel.copy(donatedSharesOrSecuritiesAmount = Some(amount))
+                val redirectLocation = if(updatedCya.isFinished) {
+                  redirectToCya(taxYear)
+                } else {
+                  Redirect(controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(taxYear))
+                }
+
+                giftAidSessionService.updateSessionData(updatedCya, taxYear)(
+                  InternalServerError(errorHandler.internalServerErrorTemplate)
+                )(
+                  redirectLocation
+                )
             }
-
-
         }
 
         )
