@@ -51,12 +51,12 @@
 }
 
 @amountRow(key: String, field: Option[BigDecimal], condition: Boolean, changeLink: Call = Call("GET", "#"), args: Seq[String] = Seq(), hiddenIsAgent: Option[Boolean] = None) = @{
-    if(condition) field.flatMap(amount => rowWithContent(key, amount, args = args, hiddenIsAgent = hiddenIsAgent)) else None
+    if(condition) field.flatMap(amount => rowWithContent(key, amount, args = args, hiddenIsAgent = hiddenIsAgent, changeLink = changeLink)) else None
 }
 
 @seqRow(key: String, field: Seq[String], condition: Boolean, changeLink: Call = Call("GET", "#"), hiddenIsAgent: Option[Boolean] = None) = @{
     if(condition) {
-        rowWithContent(key, field.mkString("<br>"), hiddenIsAgent = hiddenIsAgent)
+        rowWithContent(key, field.mkString("<br>"), hiddenIsAgent = hiddenIsAgent, changeLink = changeLink)
     } else None
 }
 

@@ -122,30 +122,49 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
       val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
 
       val donationViaGiftAid = "Donation to charity using Gift Aid"
+      val donationViaGiftAidUrl = controllers.charity.routes.GiftAidDonationsController.show(taxYear).url
       val donationViaGiftAidAmount = "Amount donated to charity using Gift Aid"
+      val donationViaGiftAidAmountUrl = controllers.charity.routes.GiftAidDonatedAmountController.show(taxYear).url
 
       val oneOffDonation = "One-off donations to charity using Gift Aid"
+      val oneOffDonationUrl = controllers.charity.routes.GiftAidOneOffController.show(taxYear).url
       val oneOffDonationAmount = "Amount of one-off donations to charity using Gift Aid"
+      val oneOffDonationAmountUrl = controllers.charity.routes.GiftAidOneOffAmountController.show(taxYear).url
 
       val overseasDonation = "Donations to overseas charities using Gift Aid"
+      val overseasDonationUrl = controllers.charity.routes.OverseasGiftAidDonationsController.show(taxYear).url
       val overseasDonationAmount = "Amount donated to overseas charities using Gift Aid"
+      val overseasDonationAmountUrl = controllers.charity.routes.GiftAidOverseasAmountController.show(taxYear).url
       val overseasDonationNamesValue = "Belgium Trust American Trust"
+      val overseasDonationNamesValueUrl = controllers.charity.routes.OverseasGiftAidSummaryController.show(taxYear).url
 
       val lastYear = "Adding donations to last tax year"
+      val lastYearUrl = controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear).url
       val lastYearAmount = "Amount added to last tax year"
+      val lastYearAmountUrl = controllers.charity.routes.LastTaxYearAmountController.show(taxYear).url
 
       val thisYear = "Donation after 5 April 2022 added to this tax year"
+      val thisYearUrl = controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear).url
       val thisYearAmount = "Amount of donation after 5 April 2022 added to this tax year"
+      val thisYearAmountUrl = controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(taxYear, taxYear).url
 
       val sharesSecuritiesLandProperty = "Donation of shares, securities, land or property"
+      val sharesSecuritiesLandPropertyUrl = controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(taxYear).url
       val sharesSecurities = "Donation of shares or securities"
+      val sharesSecuritiesUrl = controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(taxYear).url
       val sharesSecuritiesAmount = "Value of shares or securities"
+      val sharesSecuritiesAmountUrl = controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(taxYear).url
       val landProperty = "Donation of land or property"
+      val landPropertyUrl = controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(taxYear).url
       val landPropertyAmount = "Value of land or property"
+      val landPropertyAmountUrl = controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(taxYear).url
 
       val overseasSharesSecuritiesLandProperty = "Donation of shares, securities, land or property to overseas charities"
+      val overseasSharesSecuritiesLandPropertyUrl = controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(taxYear).url
       val overseasSharesSecuritiesLandPropertyAmount = "Value of shares, securities, land or property to overseas charities"
+      val overseasSharesSecuritiesLandPropertyAmountUrl = controllers.charity.routes.OverseasSharesSecuritiesLandPropertyAmountController.show(taxYear).url
       val overseasSharesSecuritiesLandPropertyNamesValue = "Belgium Trust American Trust"
+      val overseasSharesSecuritiesLandPropertyNamesValueUrl = controllers.charity.routes.OverseasSharesLandSummaryController.show(taxYear).url
 
       val priorDonationNames = "Jello Corporation"
       val priorSharesSecuritiesLandPropertyNames = "Simbas College Fund"
@@ -278,31 +297,31 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
           //noinspection ScalaStyle
           {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, yes, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, "#", 2)
+            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, yes, ExpectedValuesEnglish.Common.donationViaGiftAidUrl, 1)
+            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, ExpectedValuesEnglish.Common.donationViaGiftAidAmountUrl, 2)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, yes, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, "#", 4)
+            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, yes, ExpectedValuesEnglish.Common.oneOffDonationUrl, 3)
+            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, ExpectedValuesEnglish.Common.oneOffDonationAmountUrl, 4)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, yes, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValue, "#", 7)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, yes, ExpectedValuesEnglish.Common.overseasDonationUrl, 5)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, ExpectedValuesEnglish.Common.overseasDonationAmountUrl, 6)
+            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValue, ExpectedValuesEnglish.Common.overseasDonationNamesValueUrl, 7)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, yes, "#", 8)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, "#", 9)
+            cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, yes, ExpectedValuesEnglish.Common.lastYearUrl, 8)
+            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, ExpectedValuesEnglish.Common.lastYearAmountUrl, 9)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, yes, "#", 10)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, "#", 11)
+            cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, yes, ExpectedValuesEnglish.Common.thisYearUrl, 10)
+            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, ExpectedValuesEnglish.Common.thisYearAmountUrl, 11)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesLandProperty, yes, "#", 12)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecurities, yes, "#", 13)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, "#", 14)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landProperty, yes, "#", 15)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, "#", 16)
+            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesLandProperty, yes, ExpectedValuesEnglish.Common.sharesSecuritiesLandPropertyUrl, 12)
+            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecurities, yes, ExpectedValuesEnglish.Common.sharesSecuritiesUrl, 13)
+            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, ExpectedValuesEnglish.Common.sharesSecuritiesAmountUrl, 14)
+            cyaRowCheck(ExpectedValuesEnglish.Common.landProperty, yes, ExpectedValuesEnglish.Common.landPropertyUrl, 15)
+            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, ExpectedValuesEnglish.Common.landPropertyAmountUrl, 16)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, yes, "#", 17)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, "#", 18)
-            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValue, "#", 19)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, yes, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyUrl, 17)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmountUrl, 18)
+            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValue, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValueUrl, 19)
           }
 
           buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
@@ -336,16 +355,10 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
             //noinspection ScalaStyle
             {
-              cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, no, "#", 1)
-              cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, no, "#", 2)
-              cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, no, "#", 3)
-              cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, no, "#", 4)
-              cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, no, "#", 5)
-
-              cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecurities, no, "#", 6)
-              cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, "£1000.74", "#", 7)
-
-              cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, no, "#", 8)
+              cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, no, ExpectedValuesEnglish.Common.donationViaGiftAidUrl, 1)
+              cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, no, ExpectedValuesEnglish.Common.thisYearUrl, 2)
+              cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecurities, no, ExpectedValuesEnglish.Common.sharesSecuritiesUrl, 3)
+              cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, "£1000.74", ExpectedValuesEnglish.Common.landPropertyAmountUrl, 4)
             }
 
             buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
@@ -372,16 +385,13 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
             //noinspection ScalaStyle
             {
-              cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, no, "#", 1)
-              cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, no, "#", 2)
-              cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, no, "#", 3)
-              cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, no, "#", 4)
-              cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, no, "#", 5)
+              cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, no, ExpectedValuesEnglish.Common.donationViaGiftAidUrl, 1)
+              cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, no, ExpectedValuesEnglish.Common.thisYearUrl, 2)
 
-              cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, "£1000.74", "#", 6)
-              cyaRowCheck(ExpectedValuesEnglish.Common.landProperty, no, "#", 7)
+              cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, "£1000.74", ExpectedValuesEnglish.Common.sharesSecuritiesAmountUrl, 3)
+              cyaRowCheck(ExpectedValuesEnglish.Common.landProperty, no, ExpectedValuesEnglish.Common.landPropertyUrl, 4)
 
-              cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, no, "#", 8)
+              cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, no, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyUrl, 5)
             }
 
             buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
@@ -410,16 +420,16 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
           //noinspection ScalaStyle
           {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, "#", 2)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasDonationNames, ExpectedValuesEnglish.Common.priorDonationNames, "#", 4)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, "#", 7)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, "#", 8)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, "#", 9)
-            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.priorSharesSecuritiesLandPropertyNames, "#", 10)
+            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, ExpectedValuesEnglish.Common.donationViaGiftAidAmountUrl, 1)
+            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, ExpectedValuesEnglish.Common.oneOffDonationAmountUrl, 2)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, ExpectedValuesEnglish.Common.overseasDonationAmountUrl, 3)
+            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasDonationNames, ExpectedValuesEnglish.Common.priorDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValueUrl, 4)
+            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, ExpectedValuesEnglish.Common.lastYearAmountUrl, 5)
+            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, ExpectedValuesEnglish.Common.thisYearAmountUrl, 6)
+            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, ExpectedValuesEnglish.Common.sharesSecuritiesAmountUrl, 7)
+            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, ExpectedValuesEnglish.Common.landPropertyAmountUrl, 8)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmountUrl, 9)
+            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.priorSharesSecuritiesLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValueUrl, 10)
           }
 
           buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
@@ -442,16 +452,16 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
           //noinspection ScalaStyle
           {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, "#", 2)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValue, "#", 4)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, "#", 7)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, "#", 8)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, "#", 9)
-            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValue, "#", 10)
+            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, ExpectedValuesEnglish.Common.donationViaGiftAidAmountUrl, 1)
+            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, ExpectedValuesEnglish.Common.oneOffDonationAmountUrl, 2)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, ExpectedValuesEnglish.Common.overseasDonationAmountUrl, 3)
+            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValue, ExpectedValuesEnglish.Common.overseasDonationNamesValueUrl, 4)
+            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, ExpectedValuesEnglish.Common.lastYearAmountUrl, 5)
+            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, ExpectedValuesEnglish.Common.thisYearAmountUrl, 6)
+            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, ExpectedValuesEnglish.Common.sharesSecuritiesAmountUrl, 7)
+            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, ExpectedValuesEnglish.Common.landPropertyAmountUrl, 8)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmountUrl, 9)
+            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValue, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValueUrl, 10)
           }
 
           buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
@@ -478,13 +488,9 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
           //noinspection ScalaStyle
           {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, no, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, no, "#", 2)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, no, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, no, "#", 4)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, no, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesLandProperty, no, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, no, "#", 7)
+            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, no, ExpectedValuesEnglish.Common.donationViaGiftAidUrl, 1)
+            cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, no, ExpectedValuesEnglish.Common.thisYearUrl, 2)
+            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesLandProperty, no, ExpectedValuesEnglish.Common.sharesSecuritiesLandPropertyUrl, 3)
           }
 
           buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
@@ -543,31 +549,31 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
           //noinspection ScalaStyle
           {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, yes, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, "#", 2)
+            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, yes, ExpectedValuesEnglish.Common.donationViaGiftAidUrl, 1)
+            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, ExpectedValuesEnglish.Common.donationViaGiftAidAmountUrl, 2)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, yes, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, "#", 4)
+            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, yes, ExpectedValuesEnglish.Common.oneOffDonationUrl, 3)
+            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, ExpectedValuesEnglish.Common.oneOffDonationAmountUrl, 4)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, yes, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValue, "#", 7)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, yes, ExpectedValuesEnglish.Common.overseasDonationUrl, 5)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, ExpectedValuesEnglish.Common.overseasDonationAmountUrl, 6)
+            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValue, ExpectedValuesEnglish.Common.overseasDonationNamesValueUrl, 7)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, yes, "#", 8)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, "#", 9)
+            cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, yes, ExpectedValuesEnglish.Common.lastYearUrl, 8)
+            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, ExpectedValuesEnglish.Common.lastYearAmountUrl, 9)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, yes, "#", 10)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, "#", 11)
+            cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, yes, ExpectedValuesEnglish.Common.thisYearUrl, 10)
+            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, ExpectedValuesEnglish.Common.thisYearAmountUrl, 11)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesLandProperty, yes, "#", 12)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecurities, yes, "#", 13)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, "#", 14)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landProperty, yes, "#", 15)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, "#", 16)
+            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesLandProperty, yes, ExpectedValuesEnglish.Common.sharesSecuritiesLandPropertyUrl, 12)
+            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecurities, yes, ExpectedValuesEnglish.Common.sharesSecuritiesUrl, 13)
+            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, ExpectedValuesEnglish.Common.sharesSecuritiesAmountUrl, 14)
+            cyaRowCheck(ExpectedValuesEnglish.Common.landProperty, yes, ExpectedValuesEnglish.Common.landPropertyUrl, 15)
+            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, ExpectedValuesEnglish.Common.landPropertyAmountUrl, 16)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, yes, "#", 17)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, "#", 18)
-            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValue, "#", 19)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, yes, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyUrl, 17)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmountUrl, 18)
+            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValue, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValueUrl, 19)
           }
 
           buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
@@ -595,16 +601,16 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
           //noinspection ScalaStyle
           {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, "#", 2)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasDonationNames, ExpectedValuesEnglish.Common.priorDonationNames, "#", 4)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, "#", 7)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, "#", 8)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, "#", 9)
-            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.priorSharesSecuritiesLandPropertyNames, "#", 10)
+            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, ExpectedValuesEnglish.Common.donationViaGiftAidAmountUrl, 1)
+            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, ExpectedValuesEnglish.Common.oneOffDonationAmountUrl, 2)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, ExpectedValuesEnglish.Common.overseasDonationAmountUrl, 3)
+            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasDonationNames, ExpectedValuesEnglish.Common.priorDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValueUrl, 4)
+            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, ExpectedValuesEnglish.Common.lastYearAmountUrl, 5)
+            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, ExpectedValuesEnglish.Common.thisYearAmountUrl, 6)
+            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, ExpectedValuesEnglish.Common.sharesSecuritiesAmountUrl, 7)
+            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, ExpectedValuesEnglish.Common.landPropertyAmountUrl, 8)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmountUrl, 9)
+            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.priorSharesSecuritiesLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValueUrl, 10)
           }
 
           buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
@@ -627,16 +633,16 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
           //noinspection ScalaStyle
           {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, "#", 2)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValue, "#", 4)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, "#", 7)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, "#", 8)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, "#", 9)
-            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValue, "#", 10)
+            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, ExpectedValuesEnglish.Common.donationViaGiftAidAmountUrl, 1)
+            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, ExpectedValuesEnglish.Common.oneOffDonationAmountUrl, 2)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, ExpectedValuesEnglish.Common.overseasDonationAmountUrl, 3)
+            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValue, ExpectedValuesEnglish.Common.overseasDonationNamesValueUrl, 4)
+            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, ExpectedValuesEnglish.Common.lastYearAmountUrl, 5)
+            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, ExpectedValuesEnglish.Common.thisYearAmountUrl, 6)
+            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, ExpectedValuesEnglish.Common.sharesSecuritiesAmountUrl, 7)
+            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, ExpectedValuesEnglish.Common.landPropertyAmountUrl, 8)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmountUrl, 9)
+            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValue, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValueUrl, 10)
           }
 
           buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
@@ -663,13 +669,9 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
           //noinspection ScalaStyle
           {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, no, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, no, "#", 2)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, no, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, no, "#", 4)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, no, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesLandProperty, no, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, no, "#", 7)
+            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, no, ExpectedValuesEnglish.Common.donationViaGiftAidUrl, 1)
+            cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, no, ExpectedValuesEnglish.Common.thisYearUrl, 2)
+            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesLandProperty, no, ExpectedValuesEnglish.Common.sharesSecuritiesLandPropertyUrl, 3)
           }
 
           buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
@@ -732,31 +734,31 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
           //noinspection ScalaStyle
           {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, yes, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, "#", 2)
+            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, yes, ExpectedValuesEnglish.Common.donationViaGiftAidUrl, 1)
+            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, ExpectedValuesEnglish.Common.donationViaGiftAidAmountUrl, 2)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, yes, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, "#", 4)
+            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, yes, ExpectedValuesEnglish.Common.oneOffDonationUrl, 3)
+            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, ExpectedValuesEnglish.Common.oneOffDonationAmountUrl, 4)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, yes, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValue, "#", 7)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, yes, ExpectedValuesEnglish.Common.overseasDonationUrl, 5)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, ExpectedValuesEnglish.Common.overseasDonationAmountUrl, 6)
+            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValue, ExpectedValuesEnglish.Common.overseasDonationNamesValueUrl, 7)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, yes, "#", 8)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, "#", 9)
+            cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, yes, ExpectedValuesEnglish.Common.lastYearUrl, 8)
+            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, ExpectedValuesEnglish.Common.lastYearAmountUrl, 9)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, yes, "#", 10)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, "#", 11)
+            cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, yes, ExpectedValuesEnglish.Common.thisYearUrl, 10)
+            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, ExpectedValuesEnglish.Common.thisYearAmountUrl, 11)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesLandProperty, yes, "#", 12)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecurities, yes, "#", 13)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, "#", 14)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landProperty, yes, "#", 15)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, "#", 16)
+            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesLandProperty, yes, ExpectedValuesEnglish.Common.sharesSecuritiesLandPropertyUrl, 12)
+            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecurities, yes, ExpectedValuesEnglish.Common.sharesSecuritiesUrl, 13)
+            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, ExpectedValuesEnglish.Common.sharesSecuritiesAmountUrl, 14)
+            cyaRowCheck(ExpectedValuesEnglish.Common.landProperty, yes, ExpectedValuesEnglish.Common.landPropertyUrl, 15)
+            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, ExpectedValuesEnglish.Common.landPropertyAmountUrl, 16)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, yes, "#", 17)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, "#", 18)
-            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValue, "#", 19)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, yes, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyUrl, 17)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmountUrl, 18)
+            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValue, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValueUrl, 19)
           }
 
           buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
@@ -784,16 +786,16 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
           //noinspection ScalaStyle
           {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, "#", 2)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasDonationNames, ExpectedValuesEnglish.Common.priorDonationNames, "#", 4)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, "#", 7)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, "#", 8)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, "#", 9)
-            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.priorSharesSecuritiesLandPropertyNames, "#", 10)
+            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, ExpectedValuesEnglish.Common.donationViaGiftAidAmountUrl, 1)
+            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, ExpectedValuesEnglish.Common.oneOffDonationAmountUrl, 2)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, ExpectedValuesEnglish.Common.overseasDonationAmountUrl, 3)
+            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasDonationNames, ExpectedValuesEnglish.Common.priorDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValueUrl, 4)
+            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, ExpectedValuesEnglish.Common.lastYearAmountUrl, 5)
+            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, ExpectedValuesEnglish.Common.thisYearAmountUrl, 6)
+            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, ExpectedValuesEnglish.Common.sharesSecuritiesAmountUrl, 7)
+            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, ExpectedValuesEnglish.Common.landPropertyAmountUrl, 8)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmountUrl, 9)
+            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.priorSharesSecuritiesLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValueUrl, 10)
           }
 
           buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
@@ -816,16 +818,16 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
           //noinspection ScalaStyle
           {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, "#", 2)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValue, "#", 4)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, "#", 7)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, "#", 8)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, "#", 9)
-            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValue, "#", 10)
+            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, ExpectedValuesEnglish.Common.donationViaGiftAidAmountUrl, 1)
+            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, ExpectedValuesEnglish.Common.oneOffDonationAmountUrl, 2)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, ExpectedValuesEnglish.Common.overseasDonationAmountUrl, 3)
+            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValue, ExpectedValuesEnglish.Common.overseasDonationNamesValueUrl, 4)
+            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, ExpectedValuesEnglish.Common.lastYearAmountUrl, 5)
+            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, ExpectedValuesEnglish.Common.thisYearAmountUrl, 6)
+            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, ExpectedValuesEnglish.Common.sharesSecuritiesAmountUrl, 7)
+            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, ExpectedValuesEnglish.Common.landPropertyAmountUrl, 8)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmountUrl, 9)
+            cyaRowCheck(ExpectedValuesEnglish.Individual.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValue, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValueUrl, 10)
           }
 
           buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
@@ -852,13 +854,9 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
           //noinspection ScalaStyle
           {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, no, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, no, "#", 2)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, no, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, no, "#", 4)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, no, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesLandProperty, no, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, no, "#", 7)
+            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, no, ExpectedValuesEnglish.Common.donationViaGiftAidUrl, 1)
+            cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, no, ExpectedValuesEnglish.Common.thisYearUrl, 2)
+            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesLandProperty, no, ExpectedValuesEnglish.Common.sharesSecuritiesLandPropertyUrl, 3)
           }
 
           buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
@@ -917,31 +915,31 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
           //noinspection ScalaStyle
           {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, yes, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, "#", 2)
+            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, yes, ExpectedValuesEnglish.Common.donationViaGiftAidUrl, 1)
+            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, ExpectedValuesEnglish.Common.donationViaGiftAidAmountUrl, 2)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, yes, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, "#", 4)
+            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, yes, ExpectedValuesEnglish.Common.oneOffDonationUrl, 3)
+            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, ExpectedValuesEnglish.Common.oneOffDonationAmountUrl, 4)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, yes, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValue, "#", 7)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, yes, ExpectedValuesEnglish.Common.overseasDonationUrl, 5)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, ExpectedValuesEnglish.Common.overseasDonationAmountUrl, 6)
+            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValue, ExpectedValuesEnglish.Common.overseasDonationNamesValueUrl, 7)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, yes, "#", 8)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, "#", 9)
+            cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, yes, ExpectedValuesEnglish.Common.lastYearUrl, 8)
+            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, ExpectedValuesEnglish.Common.lastYearAmountUrl, 9)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, yes, "#", 10)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, "#", 11)
+            cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, yes, ExpectedValuesEnglish.Common.thisYearUrl, 10)
+            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, ExpectedValuesEnglish.Common.thisYearAmountUrl, 11)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesLandProperty, yes, "#", 12)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecurities, yes, "#", 13)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, "#", 14)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landProperty, yes, "#", 15)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, "#", 16)
+            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesLandProperty, yes, ExpectedValuesEnglish.Common.sharesSecuritiesLandPropertyUrl, 12)
+            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecurities, yes, ExpectedValuesEnglish.Common.sharesSecuritiesUrl, 13)
+            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, ExpectedValuesEnglish.Common.sharesSecuritiesAmountUrl, 14)
+            cyaRowCheck(ExpectedValuesEnglish.Common.landProperty, yes, ExpectedValuesEnglish.Common.landPropertyUrl, 15)
+            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, ExpectedValuesEnglish.Common.landPropertyAmountUrl, 16)
 
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, yes, "#", 17)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, "#", 18)
-            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValue, "#", 19)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, yes, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyUrl, 17)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmountUrl, 18)
+            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValue, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValueUrl, 19)
           }
 
           buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
@@ -969,16 +967,16 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
           //noinspection ScalaStyle
           {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, "#", 2)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasDonationNames, ExpectedValuesEnglish.Common.priorDonationNames, "#", 4)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, "#", 7)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, "#", 8)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, "#", 9)
-            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.priorSharesSecuritiesLandPropertyNames, "#", 10)
+            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, ExpectedValuesEnglish.Common.donationViaGiftAidAmountUrl, 1)
+            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, ExpectedValuesEnglish.Common.oneOffDonationAmountUrl, 2)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, ExpectedValuesEnglish.Common.overseasDonationAmountUrl, 3)
+            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasDonationNames, ExpectedValuesEnglish.Common.priorDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValueUrl, 4)
+            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, ExpectedValuesEnglish.Common.lastYearAmountUrl, 5)
+            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, ExpectedValuesEnglish.Common.thisYearAmountUrl, 6)
+            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, ExpectedValuesEnglish.Common.sharesSecuritiesAmountUrl, 7)
+            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, ExpectedValuesEnglish.Common.landPropertyAmountUrl, 8)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmountUrl, 9)
+            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.priorSharesSecuritiesLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValueUrl, 10)
           }
 
           buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
@@ -1001,16 +999,16 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
           //noinspection ScalaStyle
           {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, "#", 2)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValue, "#", 4)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, "#", 7)
-            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, "#", 8)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, "#", 9)
-            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValue, "#", 10)
+            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAidAmount, amount, ExpectedValuesEnglish.Common.donationViaGiftAidAmountUrl, 1)
+            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonationAmount, amount, ExpectedValuesEnglish.Common.oneOffDonationAmountUrl, 2)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonationAmount, amount, ExpectedValuesEnglish.Common.overseasDonationAmountUrl, 3)
+            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasDonationNames, ExpectedValuesEnglish.Common.overseasDonationNamesValue, ExpectedValuesEnglish.Common.overseasDonationNamesValueUrl, 4)
+            cyaRowCheck(ExpectedValuesEnglish.Common.lastYearAmount, amount, ExpectedValuesEnglish.Common.lastYearAmountUrl, 5)
+            cyaRowCheck(ExpectedValuesEnglish.Common.thisYearAmount, amount, ExpectedValuesEnglish.Common.thisYearAmountUrl, 6)
+            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesAmount, amount, ExpectedValuesEnglish.Common.sharesSecuritiesAmountUrl, 7)
+            cyaRowCheck(ExpectedValuesEnglish.Common.landPropertyAmount, amount, ExpectedValuesEnglish.Common.landPropertyAmountUrl, 8)
+            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmount, amount, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyAmountUrl, 9)
+            cyaRowCheck(ExpectedValuesEnglish.Agent.overseasSharesSecurityLandPropertyNames, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValue, ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandPropertyNamesValueUrl,10)
           }
 
           buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
@@ -1037,13 +1035,9 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
           //noinspection ScalaStyle
           {
-            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, no, "#", 1)
-            cyaRowCheck(ExpectedValuesEnglish.Common.oneOffDonation, no, "#", 2)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasDonation, no, "#", 3)
-            cyaRowCheck(ExpectedValuesEnglish.Common.lastYear, no, "#", 4)
-            cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, no, "#", 5)
-            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesLandProperty, no, "#", 6)
-            cyaRowCheck(ExpectedValuesEnglish.Common.overseasSharesSecuritiesLandProperty, no, "#", 7)
+            cyaRowCheck(ExpectedValuesEnglish.Common.donationViaGiftAid, no, ExpectedValuesEnglish.Common.donationViaGiftAidUrl, 1)
+            cyaRowCheck(ExpectedValuesEnglish.Common.thisYear, no, ExpectedValuesEnglish.Common.thisYearUrl, 2)
+            cyaRowCheck(ExpectedValuesEnglish.Common.sharesSecuritiesLandProperty, no, ExpectedValuesEnglish.Common.sharesSecuritiesLandPropertyUrl, 3)
           }
 
           buttonCheck(ExpectedValuesEnglish.Common.saveAndContinue)
