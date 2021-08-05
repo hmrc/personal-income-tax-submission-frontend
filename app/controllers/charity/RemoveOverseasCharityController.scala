@@ -22,12 +22,14 @@ import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.YesNoForm
+import models.charity.GiftAidCYAModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.charity.RemoveOverseasCharityView
+
 import javax.inject.Inject
 import play.api.Logging
 import services.GiftAidSessionService
@@ -95,23 +97,12 @@ class RemoveOverseasCharityController @Inject()(
                 Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
               ){
                 seqNames =>
-                  val updatedCya = if(charityType == GIFTAID){
-                    cyaModel.copy(overseasCharityNames = Some(seqNames.filterNot(_ == charityName)))
-                  } else {
-                    cyaModel.copy(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(seqNames.filterNot(_ == charityName)))
-                  }
+                  val updatedModel = updatedCya(seqNames, charityName, charityType, cyaModel)
 
-                  val redirectLocation = (yesNoForm, charityType) match {
-                    case (true, GIFTAID) if seqNames.length == 1 =>
-                      Redirect(controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear))
-                    case (true, SHARES) if seqNames.length == 1 =>
-                      Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
-                    case (_, GIFTAID) => Redirect(controllers.charity.routes.OverseasGiftAidSummaryController.show(taxYear))
-                    case _ => Redirect(controllers.charity.routes.OverseasSharesLandSummaryController.show(taxYear))
-                  }
+                  val redirectLocation = redirect(yesNoForm, charityType, taxYear, seqNames)
 
                   if(yesNoForm){
-                    giftAidSessionService.updateSessionData(updatedCya, taxYear)(
+                    giftAidSessionService.updateSessionData(updatedModel, taxYear)(
                       InternalServerError(errorHandler.internalServerErrorTemplate)
                     )(redirectLocation)
                   } else {
@@ -123,5 +114,32 @@ class RemoveOverseasCharityController @Inject()(
           logger.info("[GiftAidOneOffAmountController][submit] No CYA data in session. Redirecting to overview page.")
           Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
       }.flatten
+  }
+
+  def updatedCya(names: Seq[String], charityName: String, charityType: String, cyaModel: GiftAidCYAModel): GiftAidCYAModel = {
+    charityType match {
+      case GIFTAID =>
+        cyaModel.copy(overseasCharityNames = Some(names.filterNot(_ == charityName)),
+          overseasDonationsViaGiftAid = if (names.length == 1) Some(false) else cyaModel.overseasDonationsViaGiftAid,
+          overseasDonationsViaGiftAidAmount = if (names.length == 1) None else cyaModel.overseasDonationsViaGiftAidAmount
+        )
+      case SHARES =>
+        cyaModel.copy(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(names.filterNot(_ == charityName)),
+          overseasDonatedSharesSecuritiesLandOrProperty = if (names.length == 1)  Some(false) else cyaModel.overseasDonatedSharesSecuritiesLandOrProperty,
+          overseasDonatedSharesSecuritiesLandOrPropertyAmount = if (names.length == 1)  None else cyaModel.overseasDonatedSharesSecuritiesLandOrPropertyAmount
+        )
+    }
+  }
+
+  def redirect(result: Boolean, charityType: String, taxYear: Int,  names: Seq[String]): Result = {
+    (result, charityType) match {
+      case (true, GIFTAID) if names.length == 1 =>
+        Redirect(controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear))
+      case (true, SHARES) if names.length == 1 =>
+        Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
+      case (_, GIFTAID) => Redirect(controllers.charity.routes.OverseasGiftAidSummaryController.show(taxYear))
+      case _ => Redirect(controllers.charity.routes.OverseasSharesLandSummaryController.show(taxYear))
+    }
+
   }
 }

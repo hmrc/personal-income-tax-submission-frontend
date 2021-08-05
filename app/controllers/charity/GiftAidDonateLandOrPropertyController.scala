@@ -93,25 +93,16 @@ class GiftAidDonateLandOrPropertyController @Inject()(
             formWithErrors => Future.successful(BadRequest(giftAidDonateLandOrPropertyView(formWithErrors, taxYear)))
           },{
             success =>
-              val updatedCya = cyaData.copy(
-                donatedLandOrProperty = Some(success),
-                donatedLandOrPropertyAmount =
-                  if (success) cyaData.donatedLandOrPropertyAmount else None,
-                overseasDonatedSharesSecuritiesLandOrProperty =
-                  if (success) cyaData.overseasDonatedSharesSecuritiesLandOrProperty else Some(false),
-                overseasDonatedSharesSecuritiesLandOrPropertyAmount =
-                  if (success) cyaData.overseasDonatedSharesSecuritiesLandOrPropertyAmount else None,
-                overseasDonatedSharesSecuritiesLandOrPropertyCharityNames =
-                  if (success) cyaData.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames else Some(Seq.empty[String])
-              )
 
-              val redirectLocation = (success, updatedCya.isFinished) match {
+              val updatedModel = updatedCya(success, cyaData)
+
+              val redirectLocation = (success, cyaData.isFinished) match {
                 case (true, _) => Redirect(controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(taxYear))
                 case (_, true) => redirectToCya(taxYear)
                 case _ => Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(taxYear))
               }
 
-              giftAidSessionService.updateSessionData(updatedCya, taxYear)(
+              giftAidSessionService.updateSessionData(updatedModel, taxYear)(
                 InternalServerError(errorHandler.internalServerErrorTemplate)
               )(
                 redirectLocation
@@ -124,4 +115,23 @@ class GiftAidDonateLandOrPropertyController @Inject()(
     }.flatten
   }
 
+
+  def updatedCya(result: Boolean, cyaData: GiftAidCYAModel): GiftAidCYAModel = {
+    val oneOfSslp = result || cyaData.donatedSharesOrSecurities.getOrElse(false)
+    cyaData.copy(
+      donatedLandOrProperty = Some(result),
+      donatedLandOrPropertyAmount =
+        if (result) cyaData.donatedLandOrPropertyAmount else None,
+      overseasDonatedSharesSecuritiesLandOrProperty =
+        if (oneOfSslp) cyaData.overseasDonatedSharesSecuritiesLandOrProperty else Some(false),
+      overseasDonatedSharesSecuritiesLandOrPropertyAmount =
+        if (oneOfSslp) cyaData.overseasDonatedSharesSecuritiesLandOrPropertyAmount else None,
+      overseasDonatedSharesSecuritiesLandOrPropertyCharityNames =
+        if (oneOfSslp) cyaData.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames else Some(Seq.empty[String])
+    )
+  }
+
+
+
 }
+

@@ -111,11 +111,6 @@ class GiftAidOverseasNameController @Inject()(
     }.flatten
   }
 
-  private[charity] def getSessionData[T](key: String)(implicit user: User[_], reads: Reads[T]): Option[T] = {
-    user.session.get(key).flatMap { stringValue =>
-      Json.parse(stringValue).asOpt[T]
-    }
-  }
 
 }
 

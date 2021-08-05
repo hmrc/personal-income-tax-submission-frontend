@@ -141,14 +141,17 @@ class GiftAidCYAController @Inject()(
       ) { model =>
         val submissionModel = GiftAidSubmissionModel(
           Some(GiftAidPaymentsModel(
-            model.overseasDonationsViaGiftAidAmount, model.overseasCharityNames.map(_.toList),
+            model.overseasDonationsViaGiftAidAmount,
+            if (model.overseasCharityNames.map(_.toList).getOrElse(List()).isEmpty) None else model.overseasCharityNames.map(_.toList),
             model.donationsViaGiftAidAmount,
             model.addDonationToLastYearAmount,
             model.addDonationToThisYearAmount,
             model.oneOffDonationsViaGiftAidAmount
           )),
           Some(GiftsModel(
-            model.overseasDonatedSharesSecuritiesLandOrPropertyAmount, model.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.map(_.toList),
+            model.overseasDonatedSharesSecuritiesLandOrPropertyAmount,
+            if (model.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.map(_.toList).getOrElse(List()).isEmpty){None }
+            else { model.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.map(_.toList)},
             model.donatedSharesOrSecuritiesAmount, model.donatedLandOrPropertyAmount
           ))
         )
