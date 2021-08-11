@@ -25,9 +25,9 @@ import org.jsoup.nodes.Document
 import play.api.http.Status.{BAD_REQUEST, NO_CONTENT, OK, SEE_OTHER}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
-import utils.{GiftAidDatabaseHelper, IntegrationTest, ViewHelpers}
+import utils.CharityITHelper
 
-class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with GiftAidDatabaseHelper {
+class GiftAidCYAControllerISpec extends CharityITHelper {
 
   val taxYear = 2022
 
@@ -261,15 +261,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
         "render the page with full CYA model" which {
 
-          lazy val result: WSResponse = {
-
-            dropGiftAidDB()
-            insertCyaData(Some(cyaDataMax))
-            userDataStub(IncomeSourcesModel(), nino, taxYear)
-
-            authoriseAgentOrIndividual(user.isAgent)
-            urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-          }
+          lazy val result = getResult(url, Some(cyaDataMax), None, user.isAgent, user.isWelsh)
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -285,31 +277,31 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
           //noinspection ScalaStyle
           {
-            cyaRowCheck(donationViaGiftAid, yes, "#", 1)
-            cyaRowCheck(donationViaGiftAidAmount, amount, "#", 2)
+            cyaRowCheck(donationViaGiftAid, yes, controllers.charity.routes.GiftAidDonationsController.show(year).url, 1)
+            cyaRowCheck(donationViaGiftAidAmount, amount, controllers.charity.routes.GiftAidDonatedAmountController.show(year).url, 2)
 
-            cyaRowCheck(oneOffDonation, yes, "#", 3)
-            cyaRowCheck(oneOffDonationAmount, amount, "#", 4)
+            cyaRowCheck(oneOffDonation, yes, controllers.charity.routes.GiftAidOneOffController.show(year).url, 3)
+            cyaRowCheck(oneOffDonationAmount, amount, controllers.charity.routes.GiftAidOneOffAmountController.show(year).url, 4)
 
-            cyaRowCheck(overseasDonation, yes, "#", 5)
-            cyaRowCheck(overseasDonationAmount, amount, "#", 6)
-            cyaRowCheck(user.specificExpectedResults.get.overseasDonationNames, overseasDonationNamesValue, "#", 7)
+            cyaRowCheck(overseasDonation, yes, controllers.charity.routes.OverseasGiftAidDonationsController.show(year).url, 5)
+            cyaRowCheck(overseasDonationAmount, amount, controllers.charity.routes.GiftAidOverseasAmountController.show(year).url, 6)
+            cyaRowCheck(user.specificExpectedResults.get.overseasDonationNames, overseasDonationNamesValue, controllers.charity.routes.OverseasGiftAidSummaryController.show(year).url, 7)
 
-            cyaRowCheck(lastYear, yes, "#", 8)
-            cyaRowCheck(lastYearAmount, amount, "#", 9)
+            cyaRowCheck(lastYear, yes, controllers.charity.routes.GiftAidLastTaxYearController.show(year).url, 8)
+            cyaRowCheck(lastYearAmount, amount, controllers.charity.routes.LastTaxYearAmountController.show(year).url, 9)
 
-            cyaRowCheck(thisYear, yes, "#", 10)
-            cyaRowCheck(thisYearAmount, amount, "#", 11)
+            cyaRowCheck(thisYear, yes, controllers.charity.routes.DonationsToPreviousTaxYearController.show(year, year).url, 10)
+            cyaRowCheck(thisYearAmount, amount, controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(year, year).url, 11)
 
-            cyaRowCheck(sharesSecuritiesLandProperty, yes, "#", 12)
-            cyaRowCheck(sharesSecurities, yes, "#", 13)
-            cyaRowCheck(sharesSecuritiesAmount, amount, "#", 14)
-            cyaRowCheck(landProperty, yes, "#", 15)
-            cyaRowCheck(landPropertyAmount, amount, "#", 16)
+            cyaRowCheck(sharesSecuritiesLandProperty, yes, controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(year).url, 12)
+            cyaRowCheck(sharesSecurities, yes, controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(year).url, 13)
+            cyaRowCheck(sharesSecuritiesAmount, amount, controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(year).url, 14)
+            cyaRowCheck(landProperty, yes, controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(year).url, 15)
+            cyaRowCheck(landPropertyAmount, amount, controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(year).url, 16)
 
-            cyaRowCheck(overseasSharesSecuritiesLandProperty, yes, "#", 17)
-            cyaRowCheck(overseasSharesSecuritiesLandPropertyAmount, amount, "#", 18)
-            cyaRowCheck(user.specificExpectedResults.get.overseasSharesSecurityLandPropertyNames, overseasSharesSecuritiesLandPropertyNamesValue, "#", 19)
+            cyaRowCheck(overseasSharesSecuritiesLandProperty, yes, controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(year).url, 17)
+            cyaRowCheck(overseasSharesSecuritiesLandPropertyAmount, amount, controllers.charity.routes.OverseasSharesSecuritiesLandPropertyAmountController.show(year).url, 18)
+            cyaRowCheck(user.specificExpectedResults.get.overseasSharesSecurityLandPropertyNames, overseasSharesSecuritiesLandPropertyNamesValue, controllers.charity.routes.OverseasSharesLandSummaryController.show(year).url, 19)
           }
 
           buttonCheck(saveAndContinue)
@@ -322,17 +314,13 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
             "land or properties is the only value" which {
 
-              lazy val result: WSResponse = {
-                dropGiftAidDB()
-                insertCyaData(None)
-                userDataStub(IncomeSourcesModel(giftAid = Some(GiftAidSubmissionModel(None,
-                  Some(GiftsModel(
-                    landAndBuildings = Some(1000.74)
-                  ))
-                ))), nino, taxYear)
-                authoriseAgentOrIndividual(user.isAgent)
-                urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-              }
+              val priorData = IncomeSourcesModel(giftAid = Some(GiftAidSubmissionModel(None,
+                Some(GiftsModel(
+                  landAndBuildings = Some(1000.74)
+                ))
+              )))
+
+              lazy val result = getResult(url, None, Some(priorData), user.isAgent, user.isWelsh)
 
               implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -348,16 +336,10 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
               //noinspection ScalaStyle
               {
-                cyaRowCheck(donationViaGiftAid, user.commonExpectedResults.no, "#", 1)
-                cyaRowCheck(oneOffDonation, user.commonExpectedResults.no, "#", 2)
-                cyaRowCheck(overseasDonation, user.commonExpectedResults.no, "#", 3)
-                cyaRowCheck(lastYear, user.commonExpectedResults.no, "#", 4)
-                cyaRowCheck(thisYear, user.commonExpectedResults.no, "#", 5)
-
-                cyaRowCheck(sharesSecurities, user.commonExpectedResults.no, "#", 6)
-                cyaRowCheck(landPropertyAmount, "£1000.74", "#", 7)
-
-                cyaRowCheck(overseasSharesSecuritiesLandProperty, user.commonExpectedResults.no, "#", 8)
+                cyaRowCheck(donationViaGiftAid, user.commonExpectedResults.no, controllers.charity.routes.GiftAidDonationsController.show(year).url, 1)
+                cyaRowCheck(thisYear, user.commonExpectedResults.no, controllers.charity.routes.DonationsToPreviousTaxYearController.show(year, year).url, 2)
+                cyaRowCheck(sharesSecurities, user.commonExpectedResults.no, controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(year).url, 3)
+                cyaRowCheck(landPropertyAmount, "£1000.74", controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(year).url, 4)
               }
 
               buttonCheck(saveAndContinue)
@@ -366,17 +348,13 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
             "shares or securities is the only value" which {
 
-              lazy val result: WSResponse = {
-                dropGiftAidDB()
-                insertCyaData(None)
-                userDataStub(IncomeSourcesModel(giftAid = Some(GiftAidSubmissionModel(None,
-                  Some(GiftsModel(
-                    sharesOrSecurities = Some(1000.74)
-                  ))
-                ))), nino, taxYear)
-                authoriseAgentOrIndividual(user.isAgent)
-                urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-              }
+              val priorData = IncomeSourcesModel(giftAid = Some(GiftAidSubmissionModel(None,
+                Some(GiftsModel(
+                  sharesOrSecurities = Some(1000.74)
+                ))
+              )))
+
+              lazy val result = getResult(url, None, Some(priorData), user.isAgent, user.isWelsh)
 
               implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -392,16 +370,11 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
               //noinspection ScalaStyle
               {
-                cyaRowCheck(donationViaGiftAid, user.commonExpectedResults.no, "#", 1)
-                cyaRowCheck(oneOffDonation, user.commonExpectedResults.no, "#", 2)
-                cyaRowCheck(overseasDonation, user.commonExpectedResults.no, "#", 3)
-                cyaRowCheck(lastYear, user.commonExpectedResults.no, "#", 4)
-                cyaRowCheck(thisYear, user.commonExpectedResults.no, "#", 5)
-
-                cyaRowCheck(sharesSecuritiesAmount, "£1000.74", "#", 6)
-                cyaRowCheck(landProperty, user.commonExpectedResults.no, "#", 7)
-
-                cyaRowCheck(overseasSharesSecuritiesLandProperty, user.commonExpectedResults.no, "#", 8)
+                cyaRowCheck(donationViaGiftAid, user.commonExpectedResults.no, controllers.charity.routes.GiftAidDonationsController.show(year).url, 1)
+                cyaRowCheck(thisYear, user.commonExpectedResults.no, controllers.charity.routes.DonationsToPreviousTaxYearController.show(year, year).url, 2)
+                cyaRowCheck(sharesSecuritiesAmount, "£1000.74", controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(year).url, 3)
+                cyaRowCheck(landProperty, user.commonExpectedResults.no, controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(year).url, 4)
+                cyaRowCheck(overseasSharesSecuritiesLandProperty, user.commonExpectedResults.no, controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(year).url, 5)
               }
 
               buttonCheck(saveAndContinue)
@@ -416,13 +389,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
           "there is no CYA model, but there is a full prior data model" which {
 
-            lazy val result: WSResponse = {
-              dropGiftAidDB()
-              insertCyaData(None)
-              userDataStub(IncomeSourcesModel(giftAid = Some(priorDataMax)), nino, taxYear)
-              authoriseAgentOrIndividual(user.isAgent)
-              urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-            }
+            lazy val result = getResult(url, None, Some(IncomeSourcesModel(giftAid = Some(priorDataMax))), user.isAgent, user.isWelsh)
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -438,16 +405,16 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
             //noinspection ScalaStyle
             {
-              cyaRowCheck(donationViaGiftAidAmount, amount, "#", 1)
-              cyaRowCheck(oneOffDonationAmount, amount, "#", 2)
-              cyaRowCheck(overseasDonationAmount, amount, "#", 3)
-              cyaRowCheck(user.specificExpectedResults.get.overseasDonationNames, priorDonationNames, "#", 4)
-              cyaRowCheck(lastYearAmount, amount, "#", 5)
-              cyaRowCheck(thisYearAmount, amount, "#", 6)
-              cyaRowCheck(sharesSecuritiesAmount, amount, "#", 7)
-              cyaRowCheck(landPropertyAmount, amount, "#", 8)
-              cyaRowCheck(overseasSharesSecuritiesLandPropertyAmount, amount, "#", 9)
-              cyaRowCheck(user.specificExpectedResults.get.overseasSharesSecurityLandPropertyNames, priorSharesSecuritiesLandPropertyNames, "#", 10)
+              cyaRowCheck(donationViaGiftAidAmount, amount, controllers.charity.routes.GiftAidDonatedAmountController.show(year).url, 1)
+              cyaRowCheck(oneOffDonationAmount, amount, controllers.charity.routes.GiftAidOneOffAmountController.show(year).url, 2)
+              cyaRowCheck(overseasDonationAmount, amount, controllers.charity.routes.GiftAidOverseasAmountController.show(year).url, 3)
+              cyaRowCheck(user.specificExpectedResults.get.overseasDonationNames, priorDonationNames, controllers.charity.routes.OverseasGiftAidSummaryController.show(year).url, 4)
+              cyaRowCheck(lastYearAmount, amount, controllers.charity.routes.LastTaxYearAmountController.show(year).url, 5)
+              cyaRowCheck(thisYearAmount, amount, controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(year, year).url, 6)
+              cyaRowCheck(sharesSecuritiesAmount, amount, controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(year).url, 7)
+              cyaRowCheck(landPropertyAmount, amount, controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(year).url, 8)
+              cyaRowCheck(overseasSharesSecuritiesLandPropertyAmount, amount, controllers.charity.routes.OverseasSharesSecuritiesLandPropertyAmountController.show(year).url, 9)
+              cyaRowCheck(user.specificExpectedResults.get.overseasSharesSecurityLandPropertyNames, priorSharesSecuritiesLandPropertyNames, controllers.charity.routes.OverseasSharesLandSummaryController.show(year).url, 10)
             }
 
             buttonCheck(saveAndContinue)
@@ -456,15 +423,8 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
           "there is a full CYA model, and there is a full prior data model" which {
 
-            lazy val result: WSResponse = {
-
-              dropGiftAidDB()
-              userDataStub(IncomeSourcesModel(giftAid = Some(priorDataMax)), nino, taxYear)
-              insertCyaData(Some(cyaDataMax))
-
-              authoriseAgentOrIndividual(user.isAgent)
-              urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-            }
+            lazy val result =
+              getResult(url, Some(cyaDataMax), Some(IncomeSourcesModel(giftAid = Some(priorDataMax))), user.isAgent, user.isWelsh)
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -480,16 +440,16 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
             //noinspection ScalaStyle
             {
-              cyaRowCheck(donationViaGiftAidAmount, amount, "#", 1)
-              cyaRowCheck(oneOffDonationAmount, amount, "#", 2)
-              cyaRowCheck(overseasDonationAmount, amount, "#", 3)
-              cyaRowCheck(user.specificExpectedResults.get.overseasDonationNames, overseasDonationNamesValue, "#", 4)
-              cyaRowCheck(lastYearAmount, amount, "#", 5)
-              cyaRowCheck(thisYearAmount, amount, "#", 6)
-              cyaRowCheck(sharesSecuritiesAmount, amount, "#", 7)
-              cyaRowCheck(landPropertyAmount, amount, "#", 8)
-              cyaRowCheck(overseasSharesSecuritiesLandPropertyAmount, amount, "#", 9)
-              cyaRowCheck(user.specificExpectedResults.get.overseasSharesSecurityLandPropertyNames, overseasSharesSecuritiesLandPropertyNamesValue, "#", 10)
+              cyaRowCheck(donationViaGiftAidAmount, amount, controllers.charity.routes.GiftAidDonatedAmountController.show(year).url, 1)
+              cyaRowCheck(oneOffDonationAmount, amount, controllers.charity.routes.GiftAidOneOffAmountController.show(year).url, 2)
+              cyaRowCheck(overseasDonationAmount, amount, controllers.charity.routes.GiftAidOverseasAmountController.show(year).url, 3)
+              cyaRowCheck(user.specificExpectedResults.get.overseasDonationNames, overseasDonationNamesValue, controllers.charity.routes.OverseasGiftAidSummaryController.show(year).url, 4)
+              cyaRowCheck(lastYearAmount, amount, controllers.charity.routes.LastTaxYearAmountController.show(year).url, 5)
+              cyaRowCheck(thisYearAmount, amount, controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(year, year).url, 6)
+              cyaRowCheck(sharesSecuritiesAmount, amount, controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(year).url, 7)
+              cyaRowCheck(landPropertyAmount, amount, controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(year).url, 8)
+              cyaRowCheck(overseasSharesSecuritiesLandPropertyAmount, amount, controllers.charity.routes.OverseasSharesSecuritiesLandPropertyAmountController.show(year).url, 9)
+              cyaRowCheck(user.specificExpectedResults.get.overseasSharesSecurityLandPropertyNames, overseasSharesSecuritiesLandPropertyNamesValue, controllers.charity.routes.OverseasSharesLandSummaryController.show(year).url, 10)
             }
 
             buttonCheck(saveAndContinue)
@@ -502,15 +462,7 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
           "the CYA model contains all false values" which {
 
-            lazy val result: WSResponse = {
-
-              dropGiftAidDB()
-              insertCyaData(Some(cyaDataMin))
-              userDataStub(IncomeSourcesModel(), nino, taxYear)
-
-              authoriseAgentOrIndividual(user.isAgent)
-              urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-            }
+            lazy val result = getResult(url, Some(cyaDataMin), None, user.isAgent, user.isWelsh)
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -526,13 +478,9 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
             //noinspection ScalaStyle
             {
-              cyaRowCheck(donationViaGiftAid, user.commonExpectedResults.no, "#", 1)
-              cyaRowCheck(oneOffDonation, user.commonExpectedResults.no, "#", 2)
-              cyaRowCheck(overseasDonation, user.commonExpectedResults.no, "#", 3)
-              cyaRowCheck(lastYear, user.commonExpectedResults.no, "#", 4)
-              cyaRowCheck(thisYear, user.commonExpectedResults.no, "#", 5)
-              cyaRowCheck(sharesSecuritiesLandProperty, user.commonExpectedResults.no, "#", 6)
-              cyaRowCheck(overseasSharesSecuritiesLandProperty, user.commonExpectedResults.no, "#", 7)
+              cyaRowCheck(donationViaGiftAid, user.commonExpectedResults.no, controllers.charity.routes.GiftAidDonationsController.show(year).url, 1)
+              cyaRowCheck(thisYear, user.commonExpectedResults.no, controllers.charity.routes.DonationsToPreviousTaxYearController.show(year, year).url, 2)
+              cyaRowCheck(sharesSecuritiesLandProperty, user.commonExpectedResults.no, controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(year).url, 3)
             }
 
             buttonCheck(saveAndContinue)
@@ -594,19 +542,14 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
             val form = Map[String, String]()
 
-            lazy val result: WSResponse = {
-              wireMockServer.resetAll()
-
-              dropGiftAidDB()
-              insertCyaData(None)
-              userDataStub(IncomeSourcesModel(), nino, taxYear)
-
-              authoriseAgentOrIndividual(user.isAgent)
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-            }
+            lazy val result = postResult(url, None, None, form, user.isAgent, user.isWelsh)
 
             "the status is SEE OTHER" in {
               result.status shouldBe SEE_OTHER
+            }
+
+            "redirects to the overview page" in {
+              result.headers("Location").head shouldBe overviewUrl
             }
           }
 
@@ -627,6 +570,10 @@ class GiftAidCYAControllerISpec extends IntegrationTest with ViewHelpers with Gi
 
             "the status is SEE OTHER" in {
               result.status shouldBe SEE_OTHER
+            }
+
+            "redirects to the overview page" in {
+              result.headers("Location").head shouldBe overviewUrl
             }
           }
         }

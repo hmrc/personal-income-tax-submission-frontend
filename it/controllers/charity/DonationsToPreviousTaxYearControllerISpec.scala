@@ -318,7 +318,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper {
         }
 
         "addDonationToThisYear should be true" in {
-          await(giftAidDatabase.find(year)).get.giftAid.get.addDonationToThisYear.get shouldBe true
+          findGiftAidDb.get.addDonationToThisYear shouldBe Some(true)
         }
       }
     }
@@ -339,12 +339,12 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper {
           result.status shouldBe SEE_OTHER
         }
 
-        "redirects to the donation to the check your answers page" in {
+        "redirects to the check your answers page" in {
           result.headers("Location").head shouldBe controllers.charity.routes.GiftAidCYAController.show(year).url
         }
 
         "addDonationToLastYear should be false" in {
-          await(giftAidDatabase.find(year)).get.giftAid.get.addDonationToThisYear.get shouldBe false
+          findGiftAidDb.get.addDonationToThisYear shouldBe Some(false)
         }
 
         "addDonationToLastYearAmount should have been cleared" in {
@@ -372,7 +372,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper {
         }
 
         "addDonationToLastYear should be false" in {
-          await(giftAidDatabase.find(year)).get.giftAid.get.addDonationToThisYear.get shouldBe false
+          findGiftAidDb.get.addDonationToThisYear shouldBe Some(false)
         }
       }
     }

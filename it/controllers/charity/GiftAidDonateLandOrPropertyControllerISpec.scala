@@ -17,18 +17,18 @@
 package controllers.charity
 
 import forms.YesNoForm
+import models.charity.GiftAidCYAModel
+import models.charity.prior.{GiftAidSubmissionModel, GiftsModel}
+import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
 import play.api.libs.ws.WSResponse
-import utils.{IntegrationTest, ViewHelpers}
+import utils.CharityITHelper
 
-class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with ViewHelpers {
+class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
 
-  val taxYear: Int = 2022
-  val taxYearMinusOne: Int = taxYear - 1
-
-  def url: String = s"$appUrl/$taxYear/charity/donation-of-land-or-property"
+  def url: String = s"$appUrl/$year/charity/donation-of-land-or-property"
 
   object Selectors {
     val captionSelector = ".govuk-caption-l"
@@ -52,14 +52,14 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
-    val captionText = s"Donations to charity for 6 April $taxYearMinusOne to 5 April $taxYear"
+    val captionText = s"Donations to charity for 6 April ${year - 1} to 5 April $year"
     val yesText = "Yes"
     val noText = "No"
     val continueText = "Continue"
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val captionText = s"Donations to charity for 6 April $taxYearMinusOne to 5 April $taxYear"
+    val captionText = s"Donations to charity for 6 April ${year - 1} to 5 April $year"
     val yesText = "Yes"
     val noText = "No"
     val continueText = "Continue"
@@ -100,16 +100,16 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
+  val requiredSessionModel = GiftAidCYAModel(donatedSharesOrSecurities = Some(false), donatedSharesSecuritiesLandOrProperty = Some(true))
+  val requiredSessionData = Some(requiredSessionModel)
+
   ".show" when {
 
     userScenarios.foreach { user =>
       s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
         "render the page with correct content" which {
-          lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(user.isAgent)
-            urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-          }
+          lazy val result = getResult(url, requiredSessionData, None, user.isAgent, user.isWelsh)
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -131,6 +131,51 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
         }
       }
     }
+
+    "there is no cya data" should {
+      lazy val result = getResult(url, None, None)
+
+      "redirects to the overview page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe overviewUrl
+      }
+    }
+
+    "there is no donatedSharesOrSecurities" should {
+      lazy val result = getResult(url, Some(requiredSessionModel.copy(donatedSharesOrSecurities = None)), None)
+
+      "redirect to the sharesOrSecurities page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(year)}"
+      }
+    }
+
+    "there is donatedSharesOrSecurities, but no sharesOrSecuritiesAmount" should {
+      lazy val result = getResult(url, Some(GiftAidCYAModel(donatedSharesOrSecurities = Some(true))), None)
+
+
+      "redirect to the sharesOrSecuritiesAmount page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(year)}"
+      }
+    }
+
+    "return the check your answers page when there is prior data" which {
+      val priorData = IncomeSourcesModel(
+        giftAid = Some(
+          GiftAidSubmissionModel(
+            gifts = Some(GiftsModel(landAndBuildings = Some(50)))
+          )
+        )
+      )
+
+      lazy val result = getResult(url, requiredSessionData, Some(priorData))
+
+      "redirect to the checkYourAnswers page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(year)}"
+      }
+    }
   }
 
   ".submit" when {
@@ -138,25 +183,9 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
     userScenarios.foreach { user =>
       s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
-        "return an OK" in {
-          lazy val form: Map[String, Seq[String]] = Map(YesNoForm.yesNo -> Seq(YesNoForm.yes))
-
-          lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(user.isAgent)
-            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-          }
-
-          result.status shouldBe OK
-        }
-
         "no radio button has been selected" should {
 
-          lazy val form: Map[String, Seq[String]] = Map(YesNoForm.yesNo -> Seq(""))
-
-          lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(user.isAgent)
-            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-          }
+          lazy val result = postResult(url, requiredSessionData, None, Map(YesNoForm.yesNo -> ""), user.isAgent, user.isWelsh)
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -177,6 +206,84 @@ class GiftAidDonateLandOrPropertyControllerISpec extends IntegrationTest with Vi
             result.status shouldBe BAD_REQUEST
           }
         }
+      }
+    }
+
+    "the user has selected 'yes'" should {
+      lazy val result = postResult(url, requiredSessionData, None, Map(YesNoForm.yesNo -> YesNoForm.yes))
+
+      "redirect to the land and property amount" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe
+          controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(year).url
+      }
+
+      "update the cya data" in {
+        findGiftAidDb shouldBe Some(requiredSessionModel.copy(donatedLandOrProperty = Some(true)))
+      }
+    }
+
+    "the user has selected 'no'" when {
+
+      "this completes the cya model" should {
+        lazy val result = postResult(url, Some(completeGiftAidCYAModel), None, Map(YesNoForm.yesNo -> YesNoForm.no))
+
+        "redirect to the cya page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe cyaUrl(year)
+        }
+
+        "update the cya data" in {
+          findGiftAidDb shouldBe
+            Some(completeGiftAidCYAModel.copy(
+              donatedLandOrProperty = Some(false),
+              donatedLandOrPropertyAmount = None
+            ))
+        }
+      }
+
+      "this does not complete the cya model" should {
+        lazy val result = postResult(url, requiredSessionData, None, Map(YesNoForm.yesNo -> YesNoForm.no))
+
+        "redirect to the SSLP overseas page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe
+            s"${controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(year).url}"
+        }
+
+        "update the cya data" in {
+          findGiftAidDb shouldBe
+            Some(requiredSessionModel.copy(
+              donatedLandOrProperty = Some(false),
+              overseasDonatedSharesSecuritiesLandOrProperty = Some(false)
+            ))
+        }
+      }
+    }
+
+    "there is no cya data" should {
+      lazy val result = postResult(url, None, None, Map(YesNoForm.yesNo -> YesNoForm.no))
+
+      "redirect to the overview page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe overviewUrl
+      }
+    }
+
+    "there is prior data for landOrProperty" should {
+      val priorData = IncomeSourcesModel(
+        giftAid = Some(
+          GiftAidSubmissionModel(
+            gifts = Some(GiftsModel(landAndBuildings = Some(50)))
+          )
+        )
+      )
+
+      lazy val result = postResult(url, requiredSessionData, Some(priorData), Map(YesNoForm.yesNo -> YesNoForm.no))
+
+      "redirect to the cya page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(year)}"
       }
     }
   }

@@ -28,10 +28,12 @@ trait CharityITHelper extends IntegrationTest with ViewHelpers with GiftAidDatab
                 isAgent: Boolean = false,
                 welsh: Boolean = false): WSResponse = {
 
+    wireMockServer.resetAll()
+
     if(priorData.isDefined) userDataStub(priorData.get, nino, year) else emptyUserDataStub()
 
     dropGiftAidDB()
-    insertCyaData(cyaData)
+    if (cyaData.isDefined) insertCyaData(cyaData)
 
     authoriseAgentOrIndividual(isAgent)
     urlGet(pageUrl, welsh, follow = false, playSessionCookie(isAgent))
@@ -45,10 +47,12 @@ trait CharityITHelper extends IntegrationTest with ViewHelpers with GiftAidDatab
                  isAgent: Boolean = false,
                  welsh: Boolean = false): WSResponse = {
 
+    wireMockServer.resetAll()
+
     if(priorData.isDefined) userDataStub(priorData.get, nino, year) else emptyUserDataStub()
 
     dropGiftAidDB()
-    insertCyaData(cyaData)
+    if (cyaData.isDefined) insertCyaData(cyaData)
 
     authoriseAgentOrIndividual(isAgent)
     urlPost(pageUrl, input, welsh, follow = false, playSessionCookie(isAgent))

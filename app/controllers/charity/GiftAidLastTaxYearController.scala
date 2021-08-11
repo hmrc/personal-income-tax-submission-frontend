@@ -91,8 +91,8 @@ class GiftAidLastTaxYearController @Inject()(
       yesNoForm(user).bindFromRequest().fold(
         {
           formWithErrors =>
-            prior.flatMap(_.giftAidPayments).flatMap(_.currentYearTreatedAsPreviousYear) match {
-              case Some(previousDonation) => Future.successful(BadRequest(giftAidLastTaxYearView(formWithErrors, taxYear, previousDonation)))
+            cya.flatMap(_.donationsViaGiftAidAmount) match {
+              case Some(donation) => Future.successful(BadRequest(giftAidLastTaxYearView(formWithErrors, taxYear, donation)))
               case None => Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
             }
         },
