@@ -101,7 +101,7 @@ class GiftAidQualifyingSharesSecuritiesController @Inject()(
                 case _ => Redirect(controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(taxYear))
               }
 
-              giftAidSessionService.updateSessionData(cyaData.copy(donatedSharesOrSecurities = Some(success)), taxYear)(
+              giftAidSessionService.updateSessionData(updatedCya, taxYear)(
                 InternalServerError(errorHandler.internalServerErrorTemplate)
               )(
                 redirectLocation

@@ -17,19 +17,17 @@
 package controllers.charity
 
 import forms.YesNoForm
+import models.charity.GiftAidCYAModel
+import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel}
+import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
-import play.api.libs.ws.WSResponse
-import utils.{IntegrationTest, ViewHelpers}
+import utils.CharityITHelper
 
-class OverseasGiftAidDonationControllerISpec extends IntegrationTest with ViewHelpers {
+class OverseasGiftAidDonationControllerISpec extends CharityITHelper {
 
-  val taxYear: Int = 2022
-
-  def url: String = s"$appUrl/$taxYear/charity/overseas-charity-donations-using-gift-aid"
-
-  val taxYearMinusOne: Int = taxYear - 1
+  def url: String = s"$appUrl/$year/charity/overseas-charity-donations-using-gift-aid"
 
   object Selectors {
     val captionSelector = ".govuk-caption-l"
@@ -54,19 +52,19 @@ class OverseasGiftAidDonationControllerISpec extends IntegrationTest with ViewHe
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
-    val captionText = s"Donations to charity for 6 April $taxYearMinusOne to 5 April $taxYear"
+    val captionText = s"Donations to charity for 6 April ${year - 1} to 5 April $year"
     val yesText = "Yes"
     val noText = "No"
     val continueText = "Continue"
-    val continueLink = s"/income-through-software/return/personal-income/$taxYear/charity/overseas-charity-donations-using-gift-aid"
+    val continueLink = s"/income-through-software/return/personal-income/$year/charity/overseas-charity-donations-using-gift-aid"
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val captionText = s"Donations to charity for 6 April $taxYearMinusOne to 5 April $taxYear"
+    val captionText = s"Donations to charity for 6 April ${year - 1} to 5 April $year"
     val yesText = "Yes"
     val noText = "No"
     val continueText = "Continue"
-    val continueLink = s"/income-through-software/return/personal-income/$taxYear/charity/overseas-charity-donations-using-gift-aid"
+    val continueLink = s"/income-through-software/return/personal-income/$year/charity/overseas-charity-donations-using-gift-aid"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -100,16 +98,16 @@ class OverseasGiftAidDonationControllerISpec extends IntegrationTest with ViewHe
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
+  val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(oneOffDonationsViaGiftAid = Some(false))
+  val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
+
   ".show" when {
 
     userScenarios.foreach { user =>
       s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
         "render the page with correct content" which {
-          lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(user.isAgent)
-            urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-          }
+          lazy val result = getResult(url, requiredSessionData, None, user.isAgent, user.isWelsh)
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -132,6 +130,52 @@ class OverseasGiftAidDonationControllerISpec extends IntegrationTest with ViewHe
         }
       }
     }
+
+    "there is no cya data stored" should {
+      lazy val result = getResult(url, None, None)
+
+      "redirect the user to the overview page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe overviewUrl
+      }
+    }
+
+    "there is prior overseas donations data" should {
+      val priorData = IncomeSourcesModel(giftAid = Some(
+        GiftAidSubmissionModel(Some(
+          GiftAidPaymentsModel(
+            nonUkCharities = Some(BigDecimal(125))
+          )
+        ))
+      ))
+      lazy val result = getResult(url, requiredSessionData, Some(priorData))
+
+      "redirect the user to the CYA page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(year)}"
+      }
+    }
+
+    "'one off donations' does not exist in cya data" should {
+      lazy val result = getResult(url, Some(GiftAidCYAModel(donationsViaGiftAidAmount = Some(BigDecimal(50)))), None)
+
+      "redirect the user to the 'one off donations' page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOneOffController.show(year)}"
+      }
+    }
+
+    "'one off donations' is true, but 'one off amount' does not exist in cya data" should {
+
+      lazy val result = getResult(url, Some(GiftAidCYAModel(oneOffDonationsViaGiftAid = Some(true))), None)
+
+      "redirect the user to the 'one off amount' page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOneOffAmountController.show(year)}"
+      }
+    }
+
+
   }
 
   ".submit" when {
@@ -139,25 +183,8 @@ class OverseasGiftAidDonationControllerISpec extends IntegrationTest with ViewHe
     userScenarios.foreach { user =>
       s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
-        "return an OK" in {
-          lazy val form: Map[String, Seq[String]] = Map(YesNoForm.yesNo -> Seq(YesNoForm.yes))
-
-          lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(user.isAgent)
-            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-          }
-
-          result.status shouldBe OK
-        }
-
         "no radio button has been selected" should {
-
-          lazy val form: Map[String, Seq[String]] = Map(YesNoForm.yesNo -> Seq(""))
-
-          lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(user.isAgent)
-            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-          }
+          lazy val result = postResult(url, requiredSessionData, None, Map(YesNoForm.yesNo -> ""), user.isAgent, user.isWelsh)
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -178,6 +205,78 @@ class OverseasGiftAidDonationControllerISpec extends IntegrationTest with ViewHe
           "return a BAD_REQUEST" in {
             result.status shouldBe BAD_REQUEST
           }
+        }
+      }
+    }
+
+    "prior data exists for nonUkCharities" should {
+      val priorData = IncomeSourcesModel(giftAid = Some(
+        GiftAidSubmissionModel(Some(
+          GiftAidPaymentsModel(
+            nonUkCharities = Some(BigDecimal(125))
+          )
+        ))
+      ))
+      lazy val result = postResult(url, requiredSessionData, Some(priorData), Map(YesNoForm.yesNo -> YesNoForm.yes))
+
+      "redirect the user to the CYA page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(year)}"
+      }
+    }
+
+    "there is no cya data" should {
+      lazy val result = postResult(url, None, None, Map(YesNoForm.yesNo -> YesNoForm.yes))
+
+      "redirect the user to the overview page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe overviewUrl
+      }
+    }
+
+    "the user has selected 'Yes'" should {
+      lazy val result = postResult(url, requiredSessionData, None, Map(YesNoForm.yesNo -> YesNoForm.yes))
+
+      "redirect the user to the 'Overseas donation amount' page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOverseasAmountController.show(year)}"
+      }
+
+      "update the cya data" in {
+        findGiftAidDb shouldBe Some(requiredSessionModel.copy(overseasDonationsViaGiftAid = Some(true)))
+      }
+    }
+
+    "the user selects 'no'" when {
+
+      "this completes the cya model" should {
+        lazy val result = postResult(url, Some(completeGiftAidCYAModel), None, Map(YesNoForm.yesNo -> YesNoForm.no))
+
+        "redirect the user to the 'check your answers' page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe cyaUrl(year)
+        }
+
+        "update the cya data" in {
+          findGiftAidDb shouldBe
+            Some(completeGiftAidCYAModel.copy(
+              overseasDonationsViaGiftAid = Some(false),
+              overseasDonationsViaGiftAidAmount = None,
+              overseasCharityNames = Some(Seq.empty[String])
+            ))
+        }
+      }
+
+      "this does not complete the cya model" should {
+        lazy val result = postResult(url, requiredSessionData, None, Map(YesNoForm.yesNo -> YesNoForm.no))
+
+        "redirect the user to the 'Add donation to last tax year' page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidLastTaxYearController.show(year)}"
+        }
+
+        "update the cya data" in {
+          findGiftAidDb shouldBe Some(requiredSessionModel.copy(overseasDonationsViaGiftAid = Some(false)))
         }
       }
     }

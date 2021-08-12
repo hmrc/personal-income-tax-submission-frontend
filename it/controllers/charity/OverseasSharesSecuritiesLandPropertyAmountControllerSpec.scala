@@ -16,15 +16,13 @@
 
 package controllers.charity
 
+import models.charity.GiftAidCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
-import play.api.libs.ws.WSResponse
-import utils.{IntegrationTest, ViewHelpers}
+import utils.CharityITHelper
 
-class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends IntegrationTest with ViewHelpers {
-
-  val taxYear = 2022
+class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityITHelper {
 
   object Selectors {
     val titleSelector = "title"
@@ -33,7 +31,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
     val errorHref = "#amount"
   }
 
-  def url: String = s"$appUrl/$taxYear/charity/value-of-shares-securities-land-or-property-to-overseas-charities"
+  def url: String = s"$appUrl/$year/charity/value-of-shares-securities-land-or-property-to-overseas-charities"
 
   trait SpecificExpectedResults {
     val tooLong: String
@@ -99,16 +97,16 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
+  val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrProperty = Some(true))
+  val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
+
   ".show" when {
 
     userScenarios.foreach { user =>
       s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
         "render the page with correct content" which {
-          lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(user.isAgent)
-            urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-          }
+          lazy val result = getResult(url, requiredSessionData, None, user.isAgent, user.isWelsh)
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -130,6 +128,24 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
         }
       }
     }
+
+    "there is no cya data in session" should {
+      lazy val result = getResult(url, None, None)
+
+      "redirect to the overview page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe overviewUrl
+      }
+    }
+
+    "there is no overseasDonatedSharesSecuritiesLandOrProperty" should {
+      lazy val result = getResult(url, Some(GiftAidCYAModel(donatedLandOrProperty = Some(false))), None)
+
+      "redirect to the SharesSecuritiesLandPropertyOverseas page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(year)}"
+      }
+    }
   }
 
   ".submit" when {
@@ -137,28 +153,10 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
     userScenarios.foreach { user =>
       s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
-        "return an OK" in {
-          lazy val form: Map[String, Seq[String]] = Map("amount" -> Seq("1234"))
-
-          lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(user.isAgent)
-            urlPost(url, body = form, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-          }
-
-          result.status shouldBe OK
-        }
-
         "return an error" when {
 
           "the submitted data is empty" which {
-            lazy val form: Map[String, Seq[String]] = Map("amount" -> Seq(""))
-
-            lazy val result: WSResponse = {
-              authoriseAgentOrIndividual(user.isAgent)
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-            }
-
-
+            lazy val result = postResult(url, requiredSessionData, None, Map("amount" -> ""), user.isAgent, user.isWelsh)
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -177,12 +175,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
           }
 
           "the submitted data is too long" which {
-            lazy val form: Map[String, Seq[String]] = Map("amount" -> Seq("999999999999999999999999999999999999999999999999"))
-
-            lazy val result: WSResponse = {
-              authoriseAgentOrIndividual(user.isAgent)
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-            }
+            lazy val result = postResult(url, requiredSessionData, None, Map("amount" -> "999999999999999"), user.isAgent, user.isWelsh)
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -201,12 +194,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
           }
 
           "the submitted data is in the incorrect format" which {
-            lazy val form: Map[String, Seq[String]] = Map("amount" -> Seq(":@~{}<>?"))
-
-            lazy val result: WSResponse = {
-              authoriseAgentOrIndividual(user.isAgent)
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-            }
+            lazy val result = postResult(url, requiredSessionData, None, Map("amount" -> ":@~{}<>?"), user.isAgent, user.isWelsh)
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -224,6 +212,26 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends Integrati
             welshToggleCheck(user.isWelsh)
           }
         }
+      }
+    }
+
+    "there is no cyaData" should {
+      lazy val result = getResult(url, None, None)
+
+      "redirect to the overview page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe overviewUrl
+      }
+    }
+
+    "the form is valid" should {
+      val validAmount = 123
+      lazy val result = postResult(url, requiredSessionData, None, Map("amount" -> s"$validAmount"))
+
+      "should redirect to the 'overseas SSLP charity name' page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe
+          controllers.charity.routes.GiftAidOverseasSharesNameController.show(year, None).url
       }
     }
   }

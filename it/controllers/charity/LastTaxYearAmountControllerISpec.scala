@@ -16,13 +16,13 @@
 
 package controllers.charity
 
+import models.charity.GiftAidCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import play.api.http.Status.OK
-import play.api.libs.ws.WSResponse
-import utils.{IntegrationTest, ViewHelpers}
+import play.api.http.Status.{OK, SEE_OTHER}
+import utils.CharityITHelper
 
-class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers {
+class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
   object Selectors {
     val para = "label > p"
@@ -32,9 +32,7 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
     val errorMessage = "#value-error"
   }
 
-  val taxYear: Int = 2022
-
-  def url: String = s"$appUrl/$taxYear/charity/amount-added-to-last-tax-year"
+  def url: String = s"$appUrl/$year/charity/amount-added-to-last-tax-year"
 
   trait SpecificExpectedResults {
     val heading: String
@@ -101,16 +99,18 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
+  val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(addDonationToLastYear = Some(true))
+  val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
+
+  val validAmount = 1234
+
   ".show" when {
 
     userScenarios.foreach { user =>
       s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
         "render the page with correct content" which {
-          lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(user.isAgent)
-            urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-          }
+          lazy val result = getResult(url, requiredSessionData, None, user.isAgent, user.isWelsh)
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -135,6 +135,35 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
         }
       }
     }
+
+    "there is no session data" should {
+      lazy val result = getResult(url, None, None)
+
+      "redirects to the overview page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe overviewUrl
+      }
+    }
+
+    "the addDonationToLastYear field is missing" should {
+      lazy val result =
+        getResult(url, Some(GiftAidCYAModel(donationsViaGiftAidAmount = Some(validAmount), overseasDonationsViaGiftAid = Some(false))), None)
+
+      "redirect to the 'add donation to last tax year' page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe controllers.charity.routes.GiftAidLastTaxYearController.show(year).url
+      }
+    }
+
+    "the addDonationToLastYear field is false" should {
+      lazy val result =
+        getResult(url, Some(GiftAidCYAModel(addDonationToLastYear = Some(false))), None)
+
+      "redirect to the 'add donation to this tax year' page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe controllers.charity.routes.DonationsToPreviousTaxYearController.show(year, year).url
+      }
+    }
   }
 
   ".submit" when {
@@ -142,26 +171,10 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
     userScenarios.foreach { user =>
       s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
-        "return an OK" in {
-          lazy val form: Map[String, Seq[String]] = Map("amount" -> Seq("1234"))
-
-          lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(user.isAgent)
-            urlPost(url, body = form, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-          }
-
-          result.status shouldBe OK
-        }
-
         "return an error" when {
 
           "the submitted data is empty" which {
-            lazy val form: Map[String, Seq[String]] = Map("amount" -> Seq(""))
-
-            lazy val result: WSResponse = {
-              authoriseAgentOrIndividual(user.isAgent)
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-            }
+            lazy val result = postResult(url, requiredSessionData, None, Map("amount" -> ""), user.isAgent, user.isWelsh)
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -181,12 +194,7 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
           }
 
           "the submitted data is too long" which {
-            lazy val form: Map[String, Seq[String]] = Map("amount" -> Seq("999999999999999999999999999999999999999999999999"))
-
-            lazy val result: WSResponse = {
-              authoriseAgentOrIndividual(user.isAgent)
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-            }
+            lazy val result = postResult(url, requiredSessionData, None, Map("amount" -> "999999999999999"), user.isAgent, user.isWelsh)
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -206,12 +214,7 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
           }
 
           "the submitted data is in the incorrect format" which {
-            lazy val form: Map[String, Seq[String]] = Map("amount" -> Seq(":@~{}<>?"))
-
-            lazy val result: WSResponse = {
-              authoriseAgentOrIndividual(user.isAgent)
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-            }
+            lazy val result = postResult(url, requiredSessionData, None, Map("amount" -> ":@~{}<>?"), user.isAgent, user.isWelsh)
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -229,6 +232,44 @@ class LastTaxYearAmountControllerISpec extends IntegrationTest with ViewHelpers 
             errorAboveElementCheck(user.specificExpectedResults.get.invalidFormatError)
             welshToggleCheck(user.isWelsh)
           }
+        }
+      }
+    }
+
+    "there is no session data" should {
+      lazy val result = postResult(url, None, None, Map("amount" -> s"$validAmount"))
+
+      "redirect to the overview page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe overviewUrl
+      }
+    }
+
+    "the user enters a valid amount" when {
+
+      "this completes the cya data" should {
+        lazy val result = postResult(url, Some(completeGiftAidCYAModel), None, Map("amount" -> s"$validAmount"))
+
+        "redirect to the cya page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe cyaUrl(year)
+        }
+
+        "update the cya data" in {
+          findGiftAidDb shouldBe Some(completeGiftAidCYAModel.copy(addDonationToLastYearAmount = Some(validAmount)))
+        }
+      }
+
+      "this does not complete the cya data" should {
+        lazy val result = postResult(url, requiredSessionData, None, Map("amount" -> s"$validAmount"))
+
+        "redirect to the 'add donation to this tax year' page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe controllers.charity.routes.DonationsToPreviousTaxYearController.show(year, year).url
+        }
+
+        "update the cya data" in {
+          findGiftAidDb shouldBe Some(requiredSessionModel.copy(addDonationToLastYearAmount = Some(validAmount)))
         }
       }
     }

@@ -17,13 +17,13 @@
 package controllers.charity
 
 import forms.YesNoForm
+import models.charity.GiftAidCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
-import play.api.libs.ws.WSResponse
-import utils.{IntegrationTest, ViewHelpers}
+import utils.CharityITHelper
 
-class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest with ViewHelpers {
+class RemoveOverseasCharityControllerSharesPropertyISpec extends CharityITHelper {
 
   object Selectors {
     val heading = "h1"
@@ -36,9 +36,8 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
   }
 
   val charityName = "TestCharity"
-  val taxYear: Int = 2022
 
-  def url: String = s"$appUrl/$taxYear/charity/remove-overseas-charity-shares-and-property?charityName=$charityName"
+  def url: String = s"$appUrl/$year/charity/remove-overseas-charity-shares-and-property?charityName=$charityName"
 
   trait CommonExpectedResults {
     val expectedTitle: String
@@ -84,35 +83,94 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, None))
   }
 
+  val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq(charityName)))
+  val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
+
   ".show" when {
 
     userScenarios.foreach { user =>
       s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
-        "render the page with correct content" which {
-          lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(user.isAgent)
-            urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
+        "there are multiple charities in session" should {
+
+          "render the page with correct content" which {
+            val multipleCharities = GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq(charityName, "secondCharity")))
+            lazy val result = getResult(url, Some(multipleCharities), None, user.isAgent, user.isWelsh)
+
+            implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+            import user.commonExpectedResults._
+
+            "has an OK status" in {
+              result.status shouldBe OK
+            }
+
+            titleCheck(expectedTitle)
+            h1Check(expectedH1 + " " + expectedCaption)
+            elementExtinct(Selectors.content)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
+            captionCheck(expectedCaption)
+            buttonCheck(button)
+            noErrorsCheck()
+            welshToggleCheck(user.isWelsh)
           }
-
-          implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-          import user.commonExpectedResults._
-
-          "has an OK status" in {
-            result.status shouldBe OK
-          }
-
-          titleCheck(expectedTitle)
-          h1Check(expectedH1 + " " + expectedCaption)
-          textOnPageCheck(expectedContent, Selectors.content)
-          radioButtonCheck(yesText, 1)
-          radioButtonCheck(noText, 2)
-          captionCheck(expectedCaption)
-          buttonCheck(button)
-          noErrorsCheck()
-          welshToggleCheck(user.isWelsh)
         }
+
+        "there is a single charity in session" should {
+
+          "render the page with correct content" which {
+            lazy val result = getResult(url, requiredSessionData, None, user.isAgent, user.isWelsh)
+
+            implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+            import user.commonExpectedResults._
+
+            "has an OK status" in {
+              result.status shouldBe OK
+            }
+
+            titleCheck(expectedTitle)
+            h1Check(expectedH1 + " " + expectedCaption)
+            textOnPageCheck(expectedContent, Selectors.content)
+            radioButtonCheck(yesText, 1)
+            radioButtonCheck(noText, 2)
+            captionCheck(expectedCaption)
+            buttonCheck(button)
+            noErrorsCheck()
+            welshToggleCheck(user.isWelsh)
+          }
+        }
+      }
+    }
+
+    "there is no cya data stored" should {
+
+      lazy val result = getResult(url, None, None)
+
+      "redirect the user to the overview page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe overviewUrl
+      }
+    }
+
+    "'overseas SSLP charity names' is empty in cya data" should {
+
+      lazy val result = getResult(url, Some(GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(50))), None)
+
+      "redirect the user to the 'overseas SSLP charity name' page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOverseasSharesNameController.show(year, None)}"
+      }
+    }
+
+    "'overseas SSLP charity names' is nonEmpty, but the given charity is not there" should {
+
+      lazy val result = getResult(url, Some(GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq("Dudes In Need")))), None)
+
+      "redirect the user to the 'overseas charity summary' page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasSharesLandSummaryController.show(year)}"
       }
     }
   }
@@ -122,26 +180,10 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
     userScenarios.foreach { user =>
       s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
-        "return an OK" in {
-          lazy val form: Map[String, Seq[String]] = Map(YesNoForm.yesNo -> Seq(YesNoForm.yes))
-
-          lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(user.isAgent)
-            urlPost(url, body = form, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-          }
-
-          result.status shouldBe OK
-        }
-
         "return an error" when {
 
           "the submitted data is empty" which {
-            lazy val form: Map[String, Seq[String]] = Map(YesNoForm.yesNo -> Seq(""))
-
-            lazy val result: WSResponse = {
-              authoriseAgentOrIndividual(user.isAgent)
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-            }
+            lazy val result = postResult(url, requiredSessionData, None, Map(YesNoForm.yesNo -> ""), user.isAgent, user.isWelsh)
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -158,6 +200,51 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends IntegrationTest
             errorAboveElementCheck(expectedErrorTitle)
           }
         }
+      }
+    }
+
+    "there is no cya data" should {
+      lazy val result = postResult(url, None, None, Map(YesNoForm.yesNo -> YesNoForm.yes))
+
+      "redirect the user to the overview page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${appConfig.incomeTaxSubmissionOverviewUrl(year)}"
+      }
+    }
+
+    "the user has selected 'Yes' and is removing the last charity" should {
+      lazy val result = postResult(url, requiredSessionData, None, Map(YesNoForm.yesNo -> YesNoForm.yes))
+
+      "redirect the user to the cya page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe cyaUrl(year)
+      }
+      "update the cya data" in {
+        findGiftAidDb shouldBe Some(requiredSessionModel.copy(
+          overseasDonatedSharesSecuritiesLandOrProperty = Some(false),
+          overseasDonatedSharesSecuritiesLandOrPropertyAmount = None,
+          overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq.empty[String])))
+      }
+    }
+
+    "the user has selected 'Yes' and is not removing the last charity" should {
+      val multipleCharities = GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq(charityName, "secondCharity")))
+      lazy val result = postResult(url, Some(multipleCharities), None, Map(YesNoForm.yesNo -> YesNoForm.yes))
+      "redirect the user to the 'overseas SSLP charity summary' page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasSharesLandSummaryController.show(year)}"
+      }
+      "update the cya data" in {
+        findGiftAidDb shouldBe Some(requiredSessionModel.copy(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq("secondCharity"))))
+      }
+    }
+
+    "the user has selected 'No'" should {
+      lazy val result = postResult(url, requiredSessionData, None, Map(YesNoForm.yesNo -> YesNoForm.no))
+
+      "redirect the user to the 'overseas SSLP charity summary' page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasSharesLandSummaryController.show(year)}"
       }
     }
   }

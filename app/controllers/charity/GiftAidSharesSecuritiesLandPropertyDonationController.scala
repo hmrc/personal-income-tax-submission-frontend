@@ -110,14 +110,20 @@ class GiftAidSharesSecuritiesLandPropertyDonationController @Inject()(
         yesNoForm =>
           giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
             case Some(cyaData) =>
-              val updatedCya = cyaData.copy(
-                donatedSharesSecuritiesLandOrProperty = Some(yesNoForm),
-                donatedSharesOrSecurities = if (yesNoForm) cyaData.donatedSharesOrSecurities else Some(false),
-                donatedSharesOrSecuritiesAmount = if (yesNoForm) cyaData.donatedSharesOrSecuritiesAmount else None,
-                donatedLandOrProperty = if (yesNoForm) cyaData.donatedLandOrProperty else Some(false),
-                donatedLandOrPropertyAmount = if (yesNoForm) cyaData.donatedLandOrPropertyAmount else None,
-                overseasDonatedSharesSecuritiesLandOrProperty = if (yesNoForm) cyaData.overseasDonatedSharesSecuritiesLandOrProperty else Some(false)
-              )
+              val updatedCya = if (yesNoForm) {
+                cyaData.copy(donatedSharesSecuritiesLandOrProperty = Some(true))
+              } else {
+                cyaData.copy(
+                  donatedSharesSecuritiesLandOrProperty = Some(false),
+                  donatedSharesOrSecurities = Some(false),
+                  donatedSharesOrSecuritiesAmount = None,
+                  donatedLandOrProperty = Some(false),
+                  donatedLandOrPropertyAmount = None,
+                  overseasDonatedSharesSecuritiesLandOrProperty = Some(false),
+                  overseasDonatedSharesSecuritiesLandOrPropertyAmount = None,
+                  overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq.empty[String])
+                )
+              }
 
               val redirectLocation = if(yesNoForm){
                 Redirect(controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(taxYear))

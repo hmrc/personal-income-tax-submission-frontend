@@ -83,12 +83,11 @@ class OverseasGiftAidSummaryController @Inject()(overseasGiftAidSummaryView: Ove
             }
         }, {
           formAnswer =>
-            val redirectLocation = if(formAnswer){
-              controllers.charity.routes.GiftAidOverseasNameController.show(taxYear, None)
-            } else {
-              controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear)
+            (formAnswer, cyaModel.isFinished) match {
+              case (true, _) => Redirect(controllers.charity.routes.GiftAidOverseasNameController.show(taxYear, None))
+              case (_, true) => redirectToCya(taxYear)
+              case _ => Redirect(controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear))
             }
-            Redirect(redirectLocation)
         })
       case _ =>
         logger.info("[OverseasGiftAidDonationsController][submit] No CYA data in session. Redirecting to overview page.")
