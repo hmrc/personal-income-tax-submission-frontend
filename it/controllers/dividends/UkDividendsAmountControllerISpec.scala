@@ -90,31 +90,31 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
   }
 
   object IndividualExpectedWelsh extends SpecificExpectedResults {
-    val expectedH1 = "How much did you get in dividends from UK-based companies?"
-    val expectedTitle = "How much did you get in dividends from UK-based companies?"
+    val expectedH1 = "Faint a gawsoch mewn difidendau gan gwmnïau yn y DU?"
+    val expectedTitle = "Faint a gawsoch mewn difidendau gan gwmnïau yn y DU?"
     val expectedErrorTitle = s"Error: $expectedTitle"
-    val tellUsTheValue = "Tell us the value of the dividends you got, in pounds. You can find this information in your dividend voucher."
-    val youToldUsPriorText = s"You told us you got £$amount in dividends from UK-based companies this year. Tell us if this has changed."
-    val expectedErrorEmpty = "Enter how much you got in dividends from UK-based companies"
-    val expectedErrorOverMax = "The amount of dividends from UK-based companies must be less than £100,000,000,000"
-    val expectedErrorInvalid = "Enter how much you got in dividends in the correct format"
+    val tellUsTheValue = "Rhowch wybod i ni beth yw gwerth y difidendau a gawsoch, mewn punnoedd. Gallwch ddod o hyd i’r wybodaeth hon yn eich taleb ddifidend."
+    val youToldUsPriorText = s"You told us you got £$amount mewn difidendau gan gwmnïau yn y DU y flwyddyn hon. Rhowch wybod i ni a yw hyn wedi newid."
+    val expectedErrorEmpty = "Nodwch faint a gawsoch mewn difidendau gan gwmnïau yn y DU"
+    val expectedErrorOverMax = "Mae’n rhaid i swm y difidendau gan gwmnïau yn y DU fod yn llai na £100,000,000,000"
+    val expectedErrorInvalid = "Nodwch faint a gawsoch mewn difidendau yn y fformat cywir"
   }
 
   object AgentExpectedWelsh extends SpecificExpectedResults {
-    val expectedH1 = "How much did your client get in dividends from UK-based companies?"
-    val expectedTitle = "How much did your client get in dividends from UK-based companies?"
+    val expectedH1 = "Faint gafodd eich cleient mewn difidendau gan gwmnïau yn y DU?"
+    val expectedTitle = "Faint gafodd eich cleient mewn difidendau gan gwmnïau yn y DU?"
     val expectedErrorTitle = s"Error: $expectedTitle"
-    val tellUsTheValue = "Tell us the value of the dividends your client got, in pounds. You can find this information in their dividend voucher."
-    val youToldUsPriorText = s"You told us your client got £$amount in dividends from UK-based companies this year. Tell us if this has changed."
-    val expectedErrorEmpty = "Enter how much your client got in dividends from UK-based companies"
-    val expectedErrorOverMax = "The amount of dividends from UK-based companies must be less than £100,000,000,000"
-    val expectedErrorInvalid = "Enter how much your client got in dividends in the correct format"
+    val tellUsTheValue = "Rhowch wybod i ni beth yw gwerth y difidendau a gafodd eich cleient, mewn punnoedd. Gallwch ddod o hyd i’r wybodaeth hon yn eu taleb ddifidend."
+    val youToldUsPriorText = s"You told us your client got £$amount mewn difidendau gan gwmnïau yn y DU y flwyddyn hon. Rhowch wybod i ni a yw hyn wedi newid."
+    val expectedErrorEmpty = "Nodwch faint gafodd eich cleient mewn difidendau gan gwmnïau yn y DU"
+    val expectedErrorOverMax = "Mae’n rhaid i swm y difidendau gan gwmnïau yn y DU fod yn llai na £100,000,000,000"
+    val expectedErrorInvalid = "Nodwch faint gafodd eich cleient mewn difidendau yn y fformat cywir"
   }
 
   object AllExpectedWelsh extends CommonExpectedResults {
     val continueText = "Continue"
     val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-companies"
-    val captionExpected = s"Dividends for 6 April $taxYearMinusOne to 5 April $taxYear"
+    val captionExpected = s"Difidendau ar gyfer 6 Ebrill $taxYearMinusOne i 5 Ebrill $taxYear"
   }
 
   object Selectors {
