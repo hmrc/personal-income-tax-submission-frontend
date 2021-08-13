@@ -80,16 +80,16 @@ class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val expectedH1 = "Did you donate land or property to charity?"
-    val expectedTitle = "Did you donate land or property to charity?"
-    val expectedError: String = "Select yes if you donated land or property to charity"
+    val expectedH1 = "A wnaethoch roi tir neu eiddo i elusen?"
+    val expectedTitle = "A wnaethoch roi tir neu eiddo i elusen?"
+    val expectedError: String = "Dewiswch ‘Iawn’ os wnaethoch roi tir neu eiddo i elusen"
     val expectedErrorTitle = s"Gwall: $expectedTitle"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val expectedTitle: String = "Did your client donate land or property to charity?"
-    val expectedH1: String = "Did your client donate land or property to charity?"
-    val expectedError: String = "Select yes if your client donated land or property to charity"
+    val expectedTitle: String = "A wnaeth eich cleient rhoi tir neu eiddo i elusen?"
+    val expectedH1: String = "A wnaeth eich cleient rhoi tir neu eiddo i elusen?"
+    val expectedError: String = "Dewiswch ‘Iawn’ os wnaeth eich cleient rhoi tir neu eiddo i elusen"
     val expectedErrorTitle = s"Gwall: $expectedTitle"
   }
 
