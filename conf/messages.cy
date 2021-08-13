@@ -164,117 +164,117 @@ dividends.cya.changeOtherDividendsAmount.agent = faint a gafodd eich cleient mew
 
 interest.cya.accountDisplay = {0} : {1}
 
-interest.account.add-another = Do you need to add another account?
+interest.account.add-another = A oes angen i chi ychwanegu cyfrif arall?
 
-interest.common.paragraph.1 = This could be interest from:
+interest.common.paragraph.1 = Gallai hyn fod yn llog gan:
 
-interest.common.sub-heading.1 = What do you want to name this account?
-interest.common.sub-heading.2 = Give each account a different name.
+interest.common.sub-heading.1 = Beth yw’r enw rydych am roi i’r cyfrif hwn?
+interest.common.sub-heading.2 = Rhowch enw gwahanol i bob cyfrif.
 
-interest.common.error.name.empty = Enter a name for this account
-interest.common.error.name.duplicate = You cannot add 2 accounts with the same name
+interest.common.error.name.empty = Nodwch enw ar gyfer y cyfrif hwn
+interest.common.error.name.duplicate = Ni allwch ychwanegu 2 gyfrif gyda’r un enw
 
-interest.common.account.hint = For example, ‘HSBC savings account’.
+interest.common.account.hint = Er enghraifft, ‘cyfrif cynilo HSBC’.
 
-interest.uk-interest.paragraph.individual = Do not include interest you got from an Individual Savings Account (ISA) or gilts.
-interest.uk-interest.paragraph.agent = Do not include interest your client got from an Individual Savings Account (ISA) or gilts.
+interest.uk-interest.paragraph.individual = Peidiwch â chynnwys llog a gawsoch gan Gyfrif Cynilo Unigol (ISA) neu giltiau.
+interest.uk-interest.paragraph.agent = Peidiwch â chynnwys llog a gafodd eich cleient gan Gyfrif Cynilo Unigol (ISA) neu giltiau.
 
-interest.untaxed-uk-interest.title.individual = Did you get untaxed interest from the UK?
-interest.untaxed-uk-interest.title.agent = Did your client get untaxed interest from the UK?
-interest.untaxed-uk-interest.errors.noRadioSelected.individual = Select yes if you got untaxed UK interest
-interest.untaxed-uk-interest.errors.noRadioSelected.agent = Select yes if your client got untaxed UK interest
-interest.untaxed-uk-interest.list.1 = banks and building societies
-interest.untaxed-uk-interest.list.2 = savings and credit union accounts
-interest.untaxed-uk-interest.list.3 = peer-to-peer lending
+interest.untaxed-uk-interest.title.individual = A gawsoch log y DU sydd heb ei drethu?
+interest.untaxed-uk-interest.title.agent = A chafodd eich cleient llog y DU sydd heb ei drethu?
+interest.untaxed-uk-interest.errors.noRadioSelected.individual = Dewiswch ‘Iawn’ os cawsoch log y DU sydd heb ei drethu
+interest.untaxed-uk-interest.errors.noRadioSelected.agent = Dewiswch ‘Iawn’ os cafodd eich cleient llog y DU sydd heb ei drethu
+interest.untaxed-uk-interest.list.1 = banciau a chymdeithasau adeiladu
+interest.untaxed-uk-interest.list.2 = cyfrifon cynilion ac undebau credyd
+interest.untaxed-uk-interest.list.3 = benthyca cymar i gymar
 
-interest.untaxed-uk-interest.amount.interest.earned = Amount of untaxed UK interest
-interest.untaxed-uk-interest.accounts.summary = Untaxed account summary
-interest.untaxed-uk-interest-details.title = Add an account with untaxed UK interest
-interest.untaxed-uk-interest-amount.error.empty.individual = Enter the amount of untaxed UK interest you got
-interest.untaxed-uk-interest-amount.error.empty.agent = Enter the amount of untaxed UK interest your client got
-interest.untaxed-uk-interest-amount.error.invalid-numeric = Enter the amount of untaxed UK interest in the correct format
-interest.untaxed-uk-interest-amount.error.max-amount = The amount of untaxed UK interest must be less than £100,000,000,000
+interest.untaxed-uk-interest.amount.interest.earned = Swm y llog y DU sydd heb ei drethu
+interest.untaxed-uk-interest.accounts.summary = Crynodeb o’r cyfrif sydd heb ei drethu
+interest.untaxed-uk-interest-details.title = Ychwanegwch gyfrif sydd â llog y DU sydd heb ei drethu
+interest.untaxed-uk-interest-amount.error.empty.individual = Nodwch swm y llog y DU sydd heb ei drethu a gawsoch
+interest.untaxed-uk-interest-amount.error.empty.agent = Nodwch swm y llog y DU sydd heb ei drethu a gafodd eich cleient
+interest.untaxed-uk-interest-amount.error.invalid-numeric = Nodwch swm y llog y DU sydd heb ei drethu yn y fformat cywir
+interest.untaxed-uk-interest-amount.error.max-amount = Mae’n rhaid i swm y llog y DU sydd heb ei drethu fod yn llai na £100,000,000,000
 
-interest.untaxed-uk-interest-details.error.invalidChars = Name of account with untaxed UK interest must only include numbers 0-9, letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets, and the special characters &, /, @, £, *
+interest.untaxed-uk-interest-details.error.invalidChars = Mae’n rhaid i enw’r cyfrif sydd â llog y DU sydd heb ei drethu cynnwys rhifau 0-9, llythrennau a i z, cysylltnodau, bylchau, collnodau, comas, atalnodau llawn, cromfachau crwn, a’r cymeriadau arbennig &, /, @, £, * yn unig
 
-interest.untaxed-uk-interest-accounts.title = Accounts with untaxed UK interest
-interest.untaxed-uk-interest-accounts.account.tell-us-about-all.individual = You must tell us about all your accounts with untaxed UK interest.
-interest.untaxed-uk-interest-accounts.account.tell-us-about-all.agent = You must tell us about all your client’s accounts with untaxed UK interest.
+interest.untaxed-uk-interest-accounts.title = Cyfrifon sydd â llog y DU sydd heb ei drethu
+interest.untaxed-uk-interest-accounts.account.tell-us-about-all.individual = Mae’n rhaid i chi roi gwybod i ni am eich holl gyfrifon sydd â llog y DU sydd heb ei drethu.
+interest.untaxed-uk-interest-accounts.account.tell-us-about-all.agent = Mae’n rhaid i chi roi gwybod i ni am holl gyfrifon eich cleient sydd â llog y DU sydd heb ei drethu.
 
-interest.taxed-uk-interest.accounts.summary = Taxed account summary
+interest.taxed-uk-interest.accounts.summary = Crynodeb o’r cyfrif wedi’i drethu
 
-interest.taxed-uk-interest.title.individual = Did you get taxed interest from the UK?
-interest.taxed-uk-interest.title.agent = Did your client get taxed interest from the UK?
-interest.taxed-uk-interest.list.1 = trust funds
-interest.taxed-uk-interest.list.2 = company bonds
-interest.taxed-uk-interest.list.3 = life annuity payments
-interest.taxed-uk-interest.errors.noRadioSelected.individual = Select yes if you got taxed UK interest
-interest.taxed-uk-interest.errors.noRadioSelected.agent = Select yes if your client got taxed UK interest
+interest.taxed-uk-interest.title.individual = A gawsoch log y DU a drethwyd?
+interest.taxed-uk-interest.title.agent = A gafodd eich cleient llog y DU a drethwyd?
+interest.taxed-uk-interest.list.1 = cronfeydd ymddiriedolaeth
+interest.taxed-uk-interest.list.2 = bondiau cwmni
+interest.taxed-uk-interest.list.3 = taliadau blwydd-dal bywyd
+interest.taxed-uk-interest.errors.noRadioSelected.individual = Dewiswch ‘Iawn’ os gawsoch log y DU a drethwyd
+interest.taxed-uk-interest.errors.noRadioSelected.agent = Dewiswch ‘Iawn’ os gafodd eich cleient llog y DU a drethwyd
 
-interest.taxed-uk-interest-details.title = Add an account with taxed UK interest
-interest.taxed-uk-interest-amount.error.invalidChars = Name of account with taxed UK interest must only include numbers 0-9, letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets, and the special characters &, /, @, £, *
-interest.taxed-uk-interest.amount.interest.earned = Amount of taxed UK interest
-interest.taxed-uk-interest-amount.error.empty.individual = Enter the amount of taxed UK interest you got
-interest.taxed-uk-interest-amount.error.empty.agent = Enter the amount of taxed UK interest your client got
-interest.taxed-uk-interest-amount.error.invalid-numeric = Enter the amount of taxed UK interest in the correct format
-interest.taxed-uk-interest-amount.error.max-amount = The amount of taxed UK interest must be less than £100,000,000,000
+interest.taxed-uk-interest-details.title = Ychwanegwch gyfrif gyda llog y DU a drethwyd
+interest.taxed-uk-interest-amount.error.invalidChars = Mae’n rhaid i enw’r cyfrif sydd â llog y DU a drethwyd cynnwys rhifau 0-9, llythrennau a i z, cysylltnodau, bylchau, collnodau, comas, atalnodau llawn, cromfachau crwn, a’r cymeriadau arbennig &, /, @, £, * yn unig
+interest.taxed-uk-interest.amount.interest.earned = Swm y llog y DU a drethwyd
+interest.taxed-uk-interest-amount.error.empty.individual = Nodwch swm y llog y DU a drethwyd a gawsoch
+interest.taxed-uk-interest-amount.error.empty.agent = Nodwch swm y llog y DU a drethwyd a gafodd eich cleient
+interest.taxed-uk-interest-amount.error.invalid-numeric = Nodwch swm y llog y DU a drethwyd yn y fformat cywir
+interest.taxed-uk-interest-amount.error.max-amount = Mae’n rhaid i swm y llog y DU a drethwyd fod yn llai na £100,000,000,000
 
-interest.taxed-uk-interest-accounts.title = Accounts with taxed UK interest
-interest.taxed-uk-interest-accounts.account.tell-us-about-all.individual = You must tell us about all your accounts with taxed UK interest.
-interest.taxed-uk-interest-accounts.account.tell-us-about-all.agent = You must tell us about all your client’s accounts with taxed UK interest.
+interest.taxed-uk-interest-accounts.title = Cyfrifon gyda llog y DU a drethwyd
+interest.taxed-uk-interest-accounts.account.tell-us-about-all.individual = Mae’n rhaid i chi roi gwybod i ni am eich holl gyfrifon sydd â llog y DU a drethwyd.
+interest.taxed-uk-interest-accounts.account.tell-us-about-all.agent = Mae’n rhaid i chi roi gwybod i ni am holl gyfrifon eich cleient gyda llog y DU a drethwyd.
 
-interest.uk-interest.paragraph.individual = Do not include interest you got from an Individual Savings Account (ISA) or gilts.
-interest.uk-interest.paragraph.agent = Do not include interest your client got from an Individual Savings Account (ISA) or gilts.
+interest.uk-interest.paragraph.individual = Peidiwch â chynnwys llog a gawsoch gan Gyfrif Cynilo Unigol (ISA) neu giltiau.
+interest.uk-interest.paragraph.agent = Peidiwch â chynnwys llog a gafodd eich cleient gan Gyfrif Cynilo Unigol (ISA) neu giltiau.
 
-interest.accounts.addAnotherAccount = Add another account
-interest.accounts.error.tooLong = The name of the account must be 32 characters or fewer
-interest.accounts.error.noRadioSelected = Select yes to add another account
+interest.accounts.addAnotherAccount = Ychwanegwch gyfrif arall
+interest.accounts.error.tooLong = Mae’n rhaid i enw’r cyfrif fod yn 32 o gymeriadau neu lai
+interest.accounts.error.noRadioSelected = Dewiswch ‘Iawn’ er mwyn ychwanegu cyfrif arall
 
-interest.cya.title.individual = Check your UK interest
-interest.cya.title.agent = Check your client’s UK interest
-interest.cya.questions.1 = Untaxed UK Interest
-interest.cya.questions.2 = Untaxed UK interest accounts
-interest.cya.questions.3 = Taxed UK Interest
-interest.cya.questions.4 = Taxed UK interest accounts
+interest.cya.title.individual = Gwiriwch eich llog y DU
+interest.cya.title.agent = Gwiriwch log y DU eich cleient
+interest.cya.questions.1 = Llog y DU sydd heb ei drethu
+interest.cya.questions.2 = Cyfrifon llog y DU sydd heb ei drethu
+interest.cya.questions.3 = Llog y DU a drethwyd
+interest.cya.questions.4 = Cyfrifon llog y DU a drethwyd
 
-interest.cya.untaxed-uk-interest-accounts.hiddenChange.individual = if you got untaxed UK interest
-interest.cya.untaxed-uk-interest-accounts.hiddenChange.agent = if your client got untaxed UK interest
-interest.cya.taxed-uk-interest-accounts.hiddenChange.individual = if you got taxed UK interest
-interest.cya.taxed-uk-interest-accounts.hiddenChange.agent = if your client got taxed UK interest
-interest.cya.change-untaxed-details.hiddenChange.individual = the details of your account with untaxed UK interest
-interest.cya.change-untaxed-details.hiddenChange.agent = the details of your client’s account with untaxed UK interest
-interest.cya.change-taxed-details.hiddenChange.individual = the details of your account with taxed UK interest
-interest.cya.change-taxed-details.hiddenChange.agent = the details of your client’s account with taxed UK interest
+interest.cya.untaxed-uk-interest-accounts.hiddenChange.individual = os cawsoch gyfrifon llog y DU a drethwyd
+interest.cya.untaxed-uk-interest-accounts.hiddenChange.agent = os cafodd eich cleient cyfrifon llog y DU sydd heb ei drethu
+interest.cya.taxed-uk-interest-accounts.hiddenChange.individual = os cawsoch log y DU a drethwyd
+interest.cya.taxed-uk-interest-accounts.hiddenChange.agent = os cafodd eich cleient llog y DU a drethwyd
+interest.cya.change-untaxed-details.hiddenChange.individual = manylion eich cyfrif sydd â llog y DU sydd heb ei drethu
+interest.cya.change-untaxed-details.hiddenChange.agent = manylion cyfrif eich cleient sydd â llog y DU sydd heb ei drethu
+interest.cya.change-taxed-details.hiddenChange.individual = manylion eich cyfrif sydd â llog y DU a drethwyd
+interest.cya.change-taxed-details.hiddenChange.agent = manylion cyfrif eich cleient sydd â llog y DU a drethwyd
 
-interest.remove-account.title = Are you sure you want to remove this account?
-interest.remove-account.untaxed-hint = This will remove all untaxed UK interest.
-interest.remove-account.taxed-hint = This will remove all taxed UK interest.
-interest.remove-account.errors.noRadioSelected = Select yes to remove this account
+interest.remove-account.title = A ydych yn siŵr eich bod am ddileu’r cyfrif hwn?
+interest.remove-account.untaxed-hint = Bydd hyn yn dileu holl log y DU sydd heb ei drethu.
+interest.remove-account.taxed-hint = Bydd hyn yn dileu holl log y DU a drethwyd.
+interest.remove-account.errors.noRadioSelected = Dewiswch ‘Iawn’ i dynnu’r cyfrif hon
 
-interest.change-account.untaxed-title.individual = How much untaxed UK interest did you get?
-interest.change-account.untaxed-title.agent = How much untaxed UK interest did your client get?
-interest.change-account.taxed-title.individual = How much taxed UK interest did you get?
-interest.change-account.taxed-title.agent = How much taxed UK interest did your client get?
-interest.change-account.untaxed-heading.individual = {0}: how much untaxed UK interest did you get?
-interest.change-account.untaxed-heading.agent = {0}: how much untaxed UK interest did your client get?
-interest.change-account.taxed-heading.individual = {0}: how much taxed UK interest did you get?
-interest.change-account.taxed-heading.agent = {0}: how much taxed UK interest did your client get?
+interest.change-account.untaxed-title.individual = Faint o log y DU sydd heb ei drethu a gawsoch?
+interest.change-account.untaxed-title.agent = Faint o log y DU sydd heb ei drethu a gafodd eich cleient?
+interest.change-account.taxed-title.individual = Faint o log y DU a drethwyd a gawsoch?
+interest.change-account.taxed-title.agent = Faint o log y DU a drethwyd a gafodd eich cleient?
+interest.change-account.untaxed-heading.individual = {0}: Faint o log y DU sydd heb ei drethu a gawsoch?
+interest.change-account.untaxed-heading.agent = {0}: Faint o log y DU sydd heb ei drethu a gafodd eich cleient?
+interest.change-account.taxed-heading.individual = {0}: Faint o log y DU a drethwyd a gawsoch?
+interest.change-account.taxed-heading.agent = {0}: Faint o log y DU a drethwyd a gafodd eich cleient?
 
-interest.change-account.taxed-label.prior.common2 = taxed UK interest. Tell us if this has changed.
-interest.change-account.untaxed-label.prior.common2 = untaxed UK interest. Tell us if this has changed.
+interest.change-account.taxed-label.prior.common2 = Llog y DU a drethwyd. Rhowch wybod i ni a yw hyn wedi newid.
+interest.change-account.untaxed-label.prior.common2 = Llog y DU sydd heb ei drethu. Rhowch wybod i ni a yw hyn wedi newid.
 
-interest.changeAccountAmount.required.individual = Enter the amount of {0} UK interest you got
-interest.changeAccountAmount.required.agent = Enter the amount of {0} UK interest your client got
-interest.changeAccountAmount.format = Enter the amount of {0} UK interest in the correct format
-interest.changeAccountAmount.amountMaxLimit = The amount of {0} UK interest must be less than £100,000,000,000
+interest.changeAccountAmount.required.individual = Nodwch swm y {0} llog y DU a gawsoch
+interest.changeAccountAmount.required.agent = Nodwch swm y {0} llog y DU a gafodd eich cleient
+interest.changeAccountAmount.format = Nodwch swm y {0} llog y DU yn y fformat cywir
+interest.changeAccountAmount.amountMaxLimit = Mae’n rhaid i swm {0} llog y DU fod yn llai na £100,000,000,000
 
-interest.chooseAccount.title.agent = Which account did your client get {0} UK interest from?
-interest.chooseAccount.title.individual = Which account did you get {0} UK interest from?
+interest.chooseAccount.title.agent = O ba gyfrif a gafodd eich cleient {0} llog y DU?
+interest.chooseAccount.title.individual = O ba gyfrif a gawsoch {0} llog y DU?
 
-interest.chooseAccount.addANewAccount = Add a new account
+interest.chooseAccount.addANewAccount = Ychwanegwch gyfrif newydd
 
-interest.chooseAccount.error.noRadioSelected.agent = Select the account your client got {0} UK interest from
-interest.chooseAccount.error.noRadioSelected.individual = Select the account you got {0} UK interest from
+interest.chooseAccount.error.noRadioSelected.agent = Dewiswch y cyfrif a gafodd eich cleient {0} llog y DU
+interest.chooseAccount.error.noRadioSelected.individual = Dewiswch y cyfrif a gawsoch {0} llog y DU
 
 
 

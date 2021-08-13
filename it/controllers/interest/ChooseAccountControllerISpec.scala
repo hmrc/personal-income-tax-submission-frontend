@@ -101,23 +101,23 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
   }
 
   object IndividualExpectedWelsh extends SpecificExpectedResults {
-    def expectedTitle(taxType: String): String = s"Which account did you get $taxType UK interest from?"
+    def expectedTitle(taxType: String): String = s"O ba gyfrif a gawsoch $taxType llog y DU?"
 
-    def expectedH1(taxType: String): String = s"Which account did you get $taxType UK interest from?"
+    def expectedH1(taxType: String): String = s"O ba gyfrif a gawsoch $taxType llog y DU?"
 
     def expectedErrorTitle(taxType: String): String = s"Error: ${expectedTitle(taxType)}"
 
-    def expectedErrorText(taxType: String): String = s"Select the account you got $taxType UK interest from"
+    def expectedErrorText(taxType: String): String = s"Dewiswch y cyfrif a gawsoch $taxType llog y DU"
   }
 
   object AgentExpectedWelsh extends SpecificExpectedResults {
-    def expectedTitle(taxType: String): String = s"Which account did your client get $taxType UK interest from?"
+    def expectedTitle(taxType: String): String = s"O ba gyfrif a gafodd eich cleient $taxType llog y DU?"
 
-    def expectedH1(taxType: String): String = s"Which account did your client get $taxType UK interest from?"
+    def expectedH1(taxType: String): String = s"O ba gyfrif a gafodd eich cleient $taxType llog y DU?"
 
     def expectedErrorTitle(taxType: String): String = s"Error: ${expectedTitle(taxType)}"
 
-    def expectedErrorText(taxType: String): String = s"Select the account your client got $taxType UK interest from"
+    def expectedErrorText(taxType: String): String = s"Dewiswch y cyfrif a gafodd eich cleient $taxType llog y DU"
   }
 
   object AllExpectedWelsh extends CommonExpectedResults {
@@ -126,8 +126,8 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
     val santanderAccount = "Santander"
     val nationwideAccount = "Nationwide"
     val barclayAccount = "Barclays"
-    val addAccountText = "Add a new account"
-    val captionExpected = "Interest for 6 April 2021 to 5 April 2022"
+    val addAccountText = "Ychwanegwch gyfrif newydd"
+    val captionExpected = "Llog ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
     val or = "or"
     val continueText = "Continue"
 
