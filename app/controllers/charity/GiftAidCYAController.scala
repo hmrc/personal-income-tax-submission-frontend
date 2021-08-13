@@ -49,61 +49,14 @@ class GiftAidCYAController @Inject()(
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
 
-  val fakeCyaDataMax: Option[GiftAidCYAModel] = Some(GiftAidCYAModel(
-    Some(true), Some(100.00),
-    Some(true), Some(100.00),
-    Some(true), Some(100.00), Some(Seq("Belgium Trust", "American Trust")),
-    Some(true), Some(100.00),
-    Some(true), Some(100.00),
-    Some(true), Some(true), Some(100.00), Some(true), Some(100.00),
-    Some(true), Some(100.00), Some(Seq("Belgium Trust", "American Trust"))
-  ))
-
-  val fakeCyaDataMin: Option[GiftAidCYAModel] = Some(GiftAidCYAModel(
-    donationsViaGiftAid = Some(false),
-    oneOffDonationsViaGiftAid = Some(false),
-    overseasDonationsViaGiftAid = Some(false),
-    addDonationToLastYear = Some(false),
-    addDonationToThisYear = Some(false),
-    donatedSharesSecuritiesLandOrProperty = Some(false),
-    overseasDonatedSharesSecuritiesLandOrProperty = Some(false)
-  ))
-
-  val fakeCyaDataUnfinished: Option[GiftAidCYAModel] = Some(GiftAidCYAModel(
-    donationsViaGiftAid = Some(false),
-    oneOffDonationsViaGiftAid = Some(false),
-    overseasDonationsViaGiftAid = Some(false),
-    addDonationToLastYear = None,
-    addDonationToThisYear = Some(false),
-    donatedSharesSecuritiesLandOrProperty = Some(false),
-    overseasDonatedSharesSecuritiesLandOrProperty = Some(false)
-  ))
-
-  val fakePriorData: Option[GiftAidSubmissionModel] = Some(GiftAidSubmissionModel(
-    Some(GiftAidPaymentsModel(
-      Some(123.55), Some(List("Trust 1", "Trust 2")), Some(103.4), Some(154.78), Some(983.92), Some(200.00)
-    )),
-    Some(GiftsModel(
-      Some(98765.32), Some(List("Trust 3", "Trust 4")), Some(142.9), Some(123.44)
-    ))
-  ))
-
-  val fakePriorDataMin: Option[GiftAidSubmissionModel] = Some(GiftAidSubmissionModel())
-
-  val fakePriorDataAlmostMin: Option[GiftAidSubmissionModel] = Some(GiftAidSubmissionModel(
-    gifts = Some(GiftsModel(
-      landAndBuildings = Some(100.34)
-    ))
-  ))
-
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
-    giftAidSessionService.getAndHandle[Result](taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
+    giftAidSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
       (cya, prior) match {
         case (Some(cyaData), potentialPriorData) =>
           if (cyaData.isFinished) {
-            Ok(view(taxYear, cyaData, potentialPriorData))
+            Future.successful(Ok(view(taxYear, cyaData, potentialPriorData)))
           } else {
-            Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)) //TODO This should redirect to the last logical position. Sort out during navigation.
+            Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))) //TODO This should redirect to the last logical position. Sort out during navigation.
           }
         case (None, Some(priorData)) =>
           val cyaModel = GiftAidCYAModel(
@@ -128,10 +81,10 @@ class GiftAidCYAController @Inject()(
             priorData.gifts.flatMap(_.investmentsNonUkCharitiesCharityNames.map(_.toSeq))
           )
 
-          Ok(view(taxYear, cyaModel, Some(priorData)))
-        case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+          giftAidSessionService.createSessionData(cyaModel, taxYear)(errorHandler.internalServerError())(Ok(view(taxYear, cyaModel, Some(priorData))))
+        case _ => Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
       }
-    }
+    }.flatten
   }
 
   def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
@@ -156,13 +109,13 @@ class GiftAidCYAController @Inject()(
           ))
         )
 
-        giftAidSubmissionService.submitGiftAid(Some(submissionModel), user.nino, user.mtditid, taxYear).map {
+        giftAidSubmissionService.submitGiftAid(Some(submissionModel), user.nino, user.mtditid, taxYear).flatMap {
           case Right(_) =>
             auditSubmission(CreateOrAmendGiftAidAuditDetail(
               prior, Some(submissionModel), prior.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase(), taxYear)
             )
-            Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-          case Left(error) => errorHandler.handleError(error.status)
+            giftAidSessionService.clear(taxYear)(errorHandler.internalServerError())(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+          case Left(error) => Future.successful(errorHandler.handleError(error.status))
         }
       }
     }.flatten
