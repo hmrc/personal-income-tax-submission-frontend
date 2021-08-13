@@ -16,23 +16,46 @@
 
 package controllers.charity
 
-import config.{AppConfig, GIFT_AID}
+import config.{AppConfig, GIFT_AID, ErrorHandler}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import forms.AmountForm
+import models.User
+import models.charity.GiftAidCYAModel
+import models.charity.prior.GiftAidSubmissionModel
+
 import javax.inject.Inject
 import play.api.data.Form
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.i18n.Lang.logger
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import services.GiftAidSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.charity.OverseasSharesSecuritiesLandPropertyAmountView
+
+import scala.concurrent.{ExecutionContext, Future}
 
 class OverseasSharesSecuritiesLandPropertyAmountController @Inject()(
                                                            implicit cc: MessagesControllerComponents,
                                                            appConfig: AppConfig,
                                                            view: OverseasSharesSecuritiesLandPropertyAmountView,
+                                                           giftAidSharesSecuritiesLandPropertyOverseasController: GiftAidSharesSecuritiesLandPropertyOverseasController,
+                                                           giftAidSessionService: GiftAidSessionService,
+                                                           errorHandler: ErrorHandler,
                                                            authorisedAction: AuthorisedAction
-                                                         ) extends FrontendController(cc) with I18nSupport {
+                                                         ) extends FrontendController(cc) with I18nSupport with CharityJourney {
+
+  implicit val executionContext: ExecutionContext = cc.executionContext
+
+  override def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, prior: Option[GiftAidSubmissionModel], fromShow: Boolean)
+                             (implicit user: User[AnyContent]): Result = {
+    (prior, cya.overseasDonatedSharesSecuritiesLandOrProperty) match {
+      case (_, Some(true)) => determineResult(Ok(view(taxYear, form(user.isAgent))),
+        Redirect(controllers.charity.routes.OverseasSharesSecuritiesLandPropertyAmountController.show(taxYear)),
+        fromShow)
+      case _ => giftAidSharesSecuritiesLandPropertyOverseasController.handleRedirect(taxYear, cya, prior)
+    }
+  }
 
   def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
 
@@ -42,18 +65,42 @@ class OverseasSharesSecuritiesLandPropertyAmountController @Inject()(
     exceedsMaxAmountKey = "charity.overseas-shares-securities-land-property-amount.error.max-amount." + agentOrIndividual
   )
 
-  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
-    Ok(view(taxYear, form(user.isAgent)))
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
+    giftAidSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
+
+      cya match {
+        case Some(cyaData) => handleRedirect(taxYear, cyaData, prior, true)
+        case _ => redirectToOverview(taxYear)
+      }
+    }
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
-    form(user.isAgent).bindFromRequest().fold(
-      formWithErrors => BadRequest(view(taxYear, formWithErrors)),
-      amount => {
-        Ok("Next page\nSubmitted: " + amount)
-      }
-    )
+  def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
+    giftAidSessionService.getSessionData(taxYear).map {
+      case Some(cyaData) =>
+        form(user.isAgent).bindFromRequest().fold({
+          formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors)))
+        }, {
+          amount =>
+            val redirectLocation = controllers.charity.routes.GiftAidOverseasSharesNameController.show(taxYear, None)
+            cyaData.giftAid.fold{
+              Future.successful(redirectToOverview(taxYear))
+            } {
+              cyaModel => giftAidSessionService.updateSessionData(cyaModel.copy(overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(amount)), taxYear)(
+                InternalServerError(errorHandler.internalServerErrorTemplate)
+              )(
+                Redirect(redirectLocation)
+              )
+            }
 
+
+        }
+
+        )
+      case _ =>
+        logger.info("[OverseasSharesSecuritiesLandPropertyAmountController][submit] No CYA data in session. Redirecting to overview page.")
+        Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+    }.flatten
   }
 
 }

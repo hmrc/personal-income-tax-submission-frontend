@@ -16,24 +16,51 @@
 
 package controllers.charity
 
-import config.{AppConfig, GIFT_AID}
+import config.{AppConfig, ErrorHandler, GIFT_AID}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import forms.AmountForm
+import models.User
+import models.charity.GiftAidCYAModel
+import models.charity.prior.GiftAidSubmissionModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import services.GiftAidSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.charity.GiftAidAppendNextYearTaxAmountView
 
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class GiftAidAppendNextYearTaxAmountController @Inject()(
                                                           implicit cc: MessagesControllerComponents,
                                                           view: GiftAidAppendNextYearTaxAmountView,
                                                           authorisedAction: AuthorisedAction,
-                                                          appConfig: AppConfig
-                                                        ) extends FrontendController(cc) with I18nSupport {
+                                                          appConfig: AppConfig,
+                                                          giftAidSessionService: GiftAidSessionService,
+                                                          errorHandler: ErrorHandler,
+                                                          previousPage: DonationsToPreviousTaxYearController
+                                                        ) extends FrontendController(cc) with I18nSupport with CharityJourney {
+
+  override def handleRedirect(
+                               taxYear: Int,
+                               cya: GiftAidCYAModel,
+                               prior: Option[GiftAidSubmissionModel],
+                               fromShow: Boolean = false
+                             )(implicit user: User[AnyContent]): Result = {
+    
+    cya.addDonationToThisYear match {
+      case Some(true) => if(fromShow) {
+        Ok(view(taxYear, form(user.isAgent, taxYear)))
+      } else {
+        Redirect(controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(taxYear, taxYear))
+      }
+      case Some(false) => Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(taxYear))
+      case _ => previousPage.handleRedirect(taxYear, cya, prior)
+    }
+  }
 
   def agentOrIndividual(implicit isAgent: Boolean): String = (if (isAgent) "agent" else "individual")
 
@@ -44,27 +71,48 @@ class GiftAidAppendNextYearTaxAmountController @Inject()(
     emptyFieldArguments = Seq(taxYear.toString)
   )
 
-  def show(taxYear: Int, someTaxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
+  def show(taxYear: Int, someTaxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
     if (taxYear == someTaxYear) {
-      Ok(view(taxYear, form(user.isAgent, taxYear)))
+      giftAidSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { case (cya, prior) =>
+        cya match {
+          case Some(cyaData) => handleRedirect(taxYear, cyaData, prior, fromShow = true)
+          case None => redirectToOverview(taxYear)
+        }
+      }
     } else {
-      Redirect(controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(taxYear, taxYear))
+      Future.successful(Redirect(controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(taxYear, taxYear)))
     }
 
   }
 
-  def submit(taxYear: Int, someTaxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
+  def submit(taxYear: Int, someTaxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
     if (taxYear == someTaxYear) {
       form(user.isAgent, taxYear).bindFromRequest.fold(
         {
-          formWithErrors => BadRequest(view(taxYear, formWithErrors))
+          formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors)))
         },
         {
-          formAmount => Ok("Next page") //TODO Link to next page here
+          formAmount =>
+            giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
+              case Some(cyaData) =>
+                //noinspection DuplicatedCode
+                val updatedCya: GiftAidCYAModel = cyaData.copy(addDonationToThisYearAmount = Some(formAmount))
+
+                val redirectLocation = if(updatedCya.isFinished) {
+                  Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
+                } else {
+                  Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(taxYear))
+                }
+
+                giftAidSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(
+                  redirectLocation
+                )
+              case None => Future.successful(redirectToOverview(taxYear))
+            }.flatten
         }
       )
     } else {
-      Redirect(controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(taxYear, taxYear))
+      Future.successful(Redirect(controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(taxYear, taxYear)))
     }
   }
 

@@ -17,24 +17,23 @@
 package controllers.charity
 
 import forms.YesNoForm
+import models.charity.GiftAidCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.libs.ws.WSResponse
-import utils.{IntegrationTest, ViewHelpers}
+import utils.CharityITHelper
 
-class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with ViewHelpers {
+class OverseasSharesLandSummaryControllerISpec  extends CharityITHelper {
 
   object Selectors {
     val question = ".govuk-fieldset__legend"
   }
 
-  val charity1 = "overseasCharity1"
-  val charity2 = "overseasCharity2"
+  val charity1 = "Pirate leg replacement fund"
+  val charity2 = "Save the Rathalos foundation"
 
-  val taxYear: Int = 2022
-
-  def url: String = s"$appUrl/$taxYear/charity/overseas-charities-donated-shares-securities-land-or-property-to"
+  def url: String = s"$appUrl/$year/charity/overseas-charities-donated-shares-securities-land-or-property-to"
 
   trait SpecificExpectedResults {
     val headingSingle: String
@@ -121,16 +120,16 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
+  val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq(charity1)))
+  val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
+
   ".show" when {
 
     userScenarios.foreach { user =>
       s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
         "render the page with correct content with single charity" which {
-          lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(user.isAgent)
-            urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-          }
+          lazy val result = getResult(url, requiredSessionData, None, user.isAgent, user.isWelsh)
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -153,6 +152,25 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
         }
       }
     }
+
+    "there is no cya data" should {
+
+      lazy val result: WSResponse = getResult(url, None, None)
+
+      "redirect the user to the overview page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe overviewUrl
+      }
+    }
+
+    "there is cya data, but 'overseasDonatedSSLPCharityNames' has not been stored" should {
+      lazy val result: WSResponse = getResult(url, Some(GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(50))), None)
+
+      "redirect the user to the overseas SSLP charity name page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOverseasSharesNameController.show(year, None)}"
+      }
+    }
   }
 
   ".submit" when {
@@ -160,26 +178,10 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
     userScenarios.foreach { user =>
       s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
-        "return SEE_OTHER" in {
-          lazy val form: Map[String, Seq[String]] = Map(YesNoForm.yesNo -> Seq(YesNoForm.yes))
-
-          lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(user.isAgent)
-            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-          }
-
-          result.status shouldBe SEE_OTHER
-        }
-
         "return an error" when {
 
           "the submitted data is empty" which {
-            lazy val form: Map[String, Seq[String]] = Map(YesNoForm.yesNo -> Seq(""))
-
-            lazy val result: WSResponse = {
-              authoriseAgentOrIndividual(user.isAgent)
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-            }
+            lazy val result = postResult(url, requiredSessionData, None, Map(YesNoForm.yesNo -> ""), user.isAgent, user.isWelsh)
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -197,6 +199,34 @@ class OverseasSharesLandSummaryControllerISpec  extends IntegrationTest with Vie
             welshToggleCheck(user.isWelsh)
           }
         }
+      }
+    }
+
+    "there is no cya data stored" should {
+
+      lazy val result: WSResponse = postResult(url, None, None, Map(YesNoForm.yesNo -> YesNoForm.yes))
+
+      "redirect the user to the overview page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe overviewUrl
+      }
+    }
+
+    "the user has selected 'Yes'" should {
+      lazy val result = postResult(url, requiredSessionData, None, Map(YesNoForm.yesNo -> YesNoForm.yes))
+
+      "redirect the user to the overseas SSLP charity name page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOverseasSharesNameController.show(year, None)}"
+      }
+    }
+
+    "the user selects 'no'" should {
+      lazy val result = postResult(url, Some(completeGiftAidCYAModel), None, Map(YesNoForm.yesNo -> YesNoForm.no))
+
+      "redirect the user to the 'check your answers' page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(year)}"
       }
     }
   }

@@ -16,23 +16,20 @@
 
 package controllers.charity
 
-import common.SessionValues.GIFT_AID_PRIOR_SUB
+import models.charity.GiftAidCYAModel
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
-import play.api.libs.json.Json
-import play.api.libs.ws.WSResponse
-import utils.{IntegrationTest, ViewHelpers}
+import utils.CharityITHelper
 
-class GiftAidOverseasNameControllerISpec extends IntegrationTest with ViewHelpers {
+class GiftAidOverseasNameControllerISpec extends CharityITHelper {
 
   val charLimit: String = "ukHzoBYHkKGGk2V5iuYgS137gN7EB7LRw3uDjvujYg00ZtHwo3sokyOOCEoAK9vuPiP374QKOelo"
   val testModel: GiftAidSubmissionModel = GiftAidSubmissionModel(Some(GiftAidPaymentsModel(None, Some(List("dupe")), None, None, None, None)),None)
 
-  val taxYear: Int = 2022
-
-  def url: String = s"$appUrl/$taxYear/charity/name-of-overseas-charity"
+  def url(changeCharity: Option[String] = None): String =
+    s"$appUrl/$year/charity/name-of-overseas-charity${if (changeCharity.nonEmpty) s"?changeCharity=${changeCharity.get}" else ""}"
 
   object Selectors {
     val captionSelector: String = ".govuk-caption-l"
@@ -117,16 +114,18 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest with ViewHelper
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
+  val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(overseasDonationsViaGiftAidAmount = Some(BigDecimal(1)))
+  val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
+
+  val validAmount = 445.30
+
   ".show" when {
 
     userScenarios.foreach { user =>
       s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
         "render the page with correct content" which {
-          lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(user.isAgent)
-            urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-          }
+          lazy val result = getResult(url(), requiredSessionData, None, user.isAgent, user.isWelsh)
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -147,6 +146,28 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest with ViewHelper
         }
       }
     }
+
+    "there is no cya data" should {
+
+      lazy val result = getResult(url(), None, None)
+
+      "redirect the user to the overview page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe overviewUrl
+      }
+    }
+
+    "there is cya data, but 'overseasDonationsViaGiftAidAmount' has not been stored" should {
+
+      lazy val result = getResult(url(), Some(GiftAidCYAModel(overseasDonationsViaGiftAid = Some(true))), None)
+
+      "redirect the user to the overseas donation amount page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOverseasAmountController.show(year)}"
+      }
+    }
+
+
   }
 
   ".submit" when {
@@ -154,26 +175,10 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest with ViewHelper
     userScenarios.foreach { user =>
       s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
-        "return an OK" in {
-          lazy val form: Map[String, Seq[String]] = Map("name" -> Seq("juamal"))
-
-          lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(user.isAgent)
-            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-          }
-
-          result.status shouldBe OK
-        }
-
         "return an error" when {
 
           "the submitted data is empty" which {
-            lazy val form: Map[String, Seq[String]] = Map("name" -> Seq(""))
-
-            lazy val result: WSResponse = {
-              authoriseAgentOrIndividual(user.isAgent)
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-            }
+            lazy val result = postResult(url(), requiredSessionData, None, Map("name" -> ""), user.isAgent, user.isWelsh)
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -193,12 +198,7 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest with ViewHelper
           }
 
           "the submitted data is too long" which {
-            lazy val form: Map[String, Seq[String]] = Map("name" -> Seq(charLimit))
-
-            lazy val result: WSResponse = {
-              authoriseAgentOrIndividual(user.isAgent)
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-            }
+            lazy val result = postResult(url(), requiredSessionData, None, Map("name" -> charLimit), user.isAgent, user.isWelsh)
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -218,12 +218,7 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest with ViewHelper
           }
 
           "the submitted data is in the incorrect format" which {
-            lazy val form: Map[String, Seq[String]] = Map("name" -> Seq(":@~{}<>?"))
-
-            lazy val result: WSResponse = {
-              authoriseAgentOrIndividual(user.isAgent)
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-            }
+            lazy val result = postResult(url(), requiredSessionData, None, Map("name" -> ":@~{}<>?"), user.isAgent, user.isWelsh)
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -243,13 +238,8 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest with ViewHelper
           }
 
           "the submitted data is a duplicate name" which {
-            lazy val form: Map[String, Seq[String]] = Map("name" -> Seq("dupe"))
-
-            lazy val result: WSResponse = {
-              authoriseAgentOrIndividual(user.isAgent)
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =
-                playSessionCookie(user.isAgent, Map(GIFT_AID_PRIOR_SUB -> Json.toJson(testModel).toString())))
-            }
+            val cyaModel = requiredSessionModel.copy(overseasCharityNames = Some(Seq("Dudes In Need")))
+            lazy val result = postResult(url(), Some(cyaModel), None, Map("name" -> "Dudes In Need"), user.isAgent, user.isWelsh)
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -268,6 +258,44 @@ class GiftAidOverseasNameControllerISpec extends IntegrationTest with ViewHelper
             errorAboveElementCheck(expectedDuplicateError)
           }
         }
+      }
+    }
+
+    "there is no cya data stored" should {
+
+      lazy val result = postResult(url(), None, None, Map("amount" -> s"$validAmount"))
+
+      "redirect the user to the overview page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${appConfig.incomeTaxSubmissionOverviewUrl(year)}"
+      }
+    }
+
+    "the user enters a valid name" when {
+      lazy val result = postResult(url(), requiredSessionData, None, Map("name" -> "Dudes In Need"))
+
+      "redirect the user to the 'overseas charity summary' page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasGiftAidSummaryController.show(year)}"
+      }
+
+      "store the data" in {
+        findGiftAidDb shouldBe Some(requiredSessionModel.copy(overseasCharityNames = Some(Seq("Dudes In Need"))))
+      }
+    }
+
+    "the user enters a valid name and is changing an existing name" when {
+      lazy val result = postResult(url(Some("Dudes")),
+        Some(requiredSessionModel.copy(overseasCharityNames = Some(Seq("Dudes")))),
+        None, Map("name" -> "Dudess"))
+
+      "redirect the user to the 'overseas charity summary' page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasGiftAidSummaryController.show(year)}"
+      }
+
+      "store the data" in {
+        findGiftAidDb shouldBe Some(requiredSessionModel.copy(overseasCharityNames = Some(Seq("Dudess"))))
       }
     }
   }

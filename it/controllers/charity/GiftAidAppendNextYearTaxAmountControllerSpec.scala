@@ -16,15 +16,15 @@
 
 package controllers.charity
 
+import models.charity.GiftAidCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
 import play.api.libs.ws.WSResponse
-import utils.{IntegrationTest, ViewHelpers}
+import utils.CharityITHelper
 
-class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with ViewHelpers {
+class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
-  val taxYear = 2022
   val urlWithSameYears = "/income-through-software/return/personal-income/2022/charity/amount-after-5-april-2022-added-to-this-tax-year"
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
     Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
@@ -33,7 +33,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
-  def url: String = url(taxYear, taxYear)
+  def url: String = url(year, year)
 
   def url(taxYear: Int, someTaxYear: Int): String =
     s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-after-5-april-$someTaxYear-added-to-this-tax-year"
@@ -103,17 +103,18 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
     val incorrectFormatError: String = "Enter the amount you want to add to this tax year in the correct format"
   }
 
+  val requiredSessionModel = GiftAidCYAModel(addDonationToThisYear = Some(true))
+  val requiredSessionData = Some(requiredSessionModel)
+
+  val validForm: Map[String, String] = Map("amount" -> "1234")
+
   ".show" when {
 
     userScenarios.foreach { user =>
       s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
         "redirect to a correct URL when years don't match up" which {
-          lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(user.isAgent)
-            urlGet(url(taxYear, taxYear + 1), follow = false, welsh = user.isWelsh,
-              headers =  playSessionCookie(user.isAgent))
-          }
+          lazy val result = getResult(url(year, year + 1), requiredSessionData, None, user.isAgent, user.isWelsh)
 
           "has an SEE_OTHER status" in {
             result.status shouldBe SEE_OTHER
@@ -122,10 +123,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
         }
 
         "render the page with correct content" which {
-          lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(user.isAgent)
-            urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-          }
+          lazy val result = getResult(url, requiredSessionData, None, user.isAgent, user.isWelsh)
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -145,6 +143,58 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
         }
       }
     }
+
+    "there is no cya session data" should {
+
+      "redirect to the overview page" which {
+
+        lazy val result = getResult(url, None, None)
+
+        "has a status of SEE_OTHER(303)" in {
+          result.status shouldBe SEE_OTHER
+        }
+
+        "redirects to the overview page" in {
+          result.headers("Location").head shouldBe overviewUrl
+        }
+      }
+    }
+
+    "the addDonationToThisYear field is empty" should {
+
+      "redirect to the donations to previous tax year controller" which {
+        val cyaData = GiftAidCYAModel(
+          donationsViaGiftAid = Some(true),
+          addDonationToLastYear = Some(false)
+        )
+
+        lazy val result = getResult(url, Some(cyaData), None)
+
+        "has a status of SEE_OTHER (303)" in {
+          result.status shouldBe SEE_OTHER
+        }
+
+        "has the correct redirect URL" in {
+          result.headers("Location").head shouldBe controllers.charity.routes.DonationsToPreviousTaxYearController.show(year, year).url
+        }
+      }
+    }
+
+    "addDonationToThisYear is false" should {
+
+      "redirect to the did you donate shares, securities, land or property page" which {
+
+        lazy val result = getResult(url, Some(GiftAidCYAModel(addDonationToThisYear = Some(false))), None)
+
+        "has a status of SEE_OTHER (303)" in {
+          result.status shouldBe SEE_OTHER
+        }
+
+        "has a redirect location of the shares, securities, land or property yes/no page" in {
+          result.headers("Location").head shouldBe controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(year).url
+        }
+      }
+    }
   }
 
   ".submit" when {
@@ -153,13 +203,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
       s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
         "redirect to a correct URL when years don't match up" which {
-          lazy val form: Map[String, Seq[String]] = Map("amount" -> Seq("1234"))
-
-          lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(user.isAgent)
-            urlPost(url(taxYear, taxYear + 1), body = form, follow = false, welsh = user.isWelsh,
-              headers =  playSessionCookie(user.isAgent))
-          }
+          lazy val result = postResult(url(year, year + 1), requiredSessionData, None, validForm, user.isAgent, user.isWelsh)
 
           "has an SEE_OTHER status" in {
             result.status shouldBe SEE_OTHER
@@ -167,27 +211,12 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
           }
         }
 
-        "return an OK" in {
-          lazy val form: Map[String, Seq[String]] = Map("amount" -> Seq("1234"))
-
-          lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(user.isAgent)
-            urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-          }
-
-          result.status shouldBe OK
-        }
-
-
         "return an error" when {
 
           "the submitted data is empty" which {
-            lazy val form: Map[String, Seq[String]] = Map("amount" -> Seq(""))
+            lazy val form: Map[String, String] = Map("amount" -> "")
 
-            lazy val result: WSResponse = {
-              authoriseAgentOrIndividual(user.isAgent)
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-            }
+            lazy val result = postResult(url, requiredSessionData, None, form, user.isAgent, user.isWelsh)
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -205,12 +234,9 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
           }
 
           "the submitted data is too long" which {
-            lazy val form: Map[String, Seq[String]] = Map("amount" -> Seq("999999999999999999999999999999999999999999999999"))
+            lazy val form: Map[String, String] = Map("amount" -> "999999999999999999999999999999999999999999999999")
 
-            lazy val result: WSResponse = {
-              authoriseAgentOrIndividual(user.isAgent)
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-            }
+            lazy val result = postResult(url, requiredSessionData, None, form, user.isAgent, user.isWelsh)
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -228,12 +254,9 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
           }
 
           "the submitted data is in the incorrect format" which {
-            lazy val form: Map[String, Seq[String]] = Map("amount" -> Seq(":@~{}<>?"))
+            lazy val form: Map[String, String] = Map("amount" -> ":@~{}<>?")
 
-            lazy val result: WSResponse = {
-              authoriseAgentOrIndividual(user.isAgent)
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
-            }
+            lazy val result = postResult(url, requiredSessionData, None, form, user.isAgent, user.isWelsh)
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -249,6 +272,60 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends IntegrationTest with 
             errorSummaryCheck(user.specificExpectedResults.get.incorrectFormatError, Selectors.errorHref)
             errorAboveElementCheck(user.specificExpectedResults.get.incorrectFormatError)
           }
+        }
+      }
+    }
+
+    "submission is successful and completes the CYA model" should {
+
+      "redirect to the CYA page" which {
+        lazy val result = postResult(url, Some(completeGiftAidCYAModel), None, validForm)
+
+        "has a status of SEE_OTHER(303)" in {
+          result.status shouldBe SEE_OTHER
+        }
+
+        "redirects to the check your answers page" in {
+          result.headers("Location").head shouldBe controllers.charity.routes.GiftAidCYAController.show(year).url
+        }
+
+        "addDonationToThisYearAmount should be 1234" in {
+          findGiftAidDb.get.addDonationToThisYearAmount shouldBe Some(1234)
+        }
+      }
+    }
+
+    "submission is successful, but does not complete the CYA model" should {
+
+      "redirect to the donation of SSLP page" which {
+        lazy val result = postResult(url, requiredSessionData, None, validForm)
+
+        "has a status of SEE_OTHER (303)" in {
+          result.status shouldBe SEE_OTHER
+        }
+
+        "has a redirect location of the shares, securities, land or property yes/no page" in {
+          result.headers("Location").head shouldBe controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(year).url
+        }
+
+        "addDonationToThisYearAmount should be 1234" in {
+          findGiftAidDb.get.addDonationToThisYearAmount shouldBe Some(1234)
+        }
+      }
+    }
+
+    "there is no session data" should {
+
+      "redirect to the overview page" which {
+
+        lazy val result = postResult(url, None, None, validForm)
+
+        "has a status of SEE_OTHER (303)" in {
+          result.status shouldBe SEE_OTHER
+        }
+
+        "has the redirect url to the overview page" in {
+          result.headers("Location").head shouldBe overviewUrl
         }
       }
     }

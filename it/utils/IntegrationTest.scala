@@ -23,6 +23,7 @@ import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import helpers.{PlaySessionCookieBaker, WireMockHelper}
 import models.User
+import models.charity.GiftAidCYAModel
 import models.priorDataModels.IncomeSourcesModel
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
@@ -60,6 +61,29 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   val xSessionId: (String, String) = "X-Session-ID" -> sessionId
   val csrfContent: (String, String) = "Csrf-Token" -> "nocheck"
 
+  val completeGiftAidCYAModel = GiftAidCYAModel(
+    donationsViaGiftAid = Some(true),
+    donationsViaGiftAidAmount = Some(50),
+    oneOffDonationsViaGiftAid = Some(true),
+    oneOffDonationsViaGiftAidAmount = Some(50),
+    overseasDonationsViaGiftAid = Some(true),
+    overseasDonationsViaGiftAidAmount = Some(50),
+    overseasCharityNames = Some(Seq("Dudes In Need")),
+    addDonationToLastYear = Some(true),
+    addDonationToLastYearAmount = Some(50),
+    addDonationToThisYear = Some(true),
+    addDonationToThisYearAmount = Some(50),
+    donatedSharesSecuritiesLandOrProperty = Some(true),
+    donatedSharesOrSecurities = Some(true),
+    donatedSharesOrSecuritiesAmount = Some(50),
+    donatedLandOrProperty = Some(true),
+    donatedLandOrPropertyAmount = Some(50),
+    overseasDonatedSharesSecuritiesLandOrProperty = Some(true),
+    overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(50),
+    overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq("Awesome Devs initiative")),
+  )
+
+
   implicit lazy val user: User[AnyContent] = new User[AnyContent](mtditid, None, nino, affinityGroup, sessionId)(FakeRequest())
 
   implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
@@ -67,6 +91,9 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   implicit val actorSystem: ActorSystem = ActorSystem()
 
+  val startUrl = s"http://localhost:$port/income-through-software/return/personal-income"
+  val overviewUrl = "http://localhost:11111/income-through-software/return/2022/view"
+  val cyaUrl: Int => String = taxYear => s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
   implicit def wsClient: WSClient = app.injector.instanceOf[WSClient]
 
   val appUrl = s"http://localhost:$port/income-through-software/return/personal-income"
@@ -193,7 +220,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     )) and Some(AffinityGroup.Individual) and ConfidenceLevel.L200
   )
 
-  def userDataStub(userData: IncomeSourcesModel, nino: String, taxYear: Int, agent:Boolean=false): StubMapping ={
+  def userDataStub(userData: IncomeSourcesModel, nino: String, taxYear: Int): StubMapping ={
     stubGetWithHeadersCheck(
       s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", OK,
       Json.toJson(userData).toString(),"X-Session-ID" -> sessionId, "mtditid" -> mtditid)

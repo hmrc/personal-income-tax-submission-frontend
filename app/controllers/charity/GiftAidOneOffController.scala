@@ -16,49 +16,98 @@
 
 package controllers.charity
 
-import config.{AppConfig, GIFT_AID}
+import config.{AppConfig, ErrorHandler, GIFT_AID}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.YesNoForm
 import models.User
+import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.charity.GiftAidOneOffView
-
 import javax.inject.Inject
+import models.charity.GiftAidCYAModel
+import models.charity.prior.GiftAidSubmissionModel
+import services.GiftAidSessionService
+
+import scala.concurrent.{ExecutionContext, Future}
 
 class GiftAidOneOffController @Inject()(
                                               implicit val cc: MessagesControllerComponents,
                                               authAction: AuthorisedAction,
+                                              giftAidDonatedAmountController: GiftAidDonatedAmountController,
                                               giftAidOneOffView: GiftAidOneOffView,
+                                              giftAidSessionService: GiftAidSessionService,
+                                              errorHandler: ErrorHandler,
                                               implicit val appConfig: AppConfig
-                                            ) extends FrontendController(cc) with I18nSupport with SessionHelper {
+                                            ) extends FrontendController(cc) with I18nSupport with SessionHelper with CharityJourney with Logging {
+
+  override def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, prior: Option[GiftAidSubmissionModel], fromShow: Boolean)
+                             (implicit user: User[AnyContent]): Result = {
+
+    (prior, cya.donationsViaGiftAidAmount) match {
+      case (Some(priorData), _) if priorData.giftAidPayments.map(_.oneOffCurrentYear).isDefined =>
+        Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
+      case (_, Some(amount)) => determineResult(
+        Ok(giftAidOneOffView(yesNoForm(user), taxYear, giftAidDonations = amount)),
+        Redirect(controllers.charity.routes.GiftAidOneOffController.show(taxYear)),
+        fromShow)
+      case _ => giftAidDonatedAmountController.handleRedirect(taxYear, cya, prior)
+    }
+  }
 
   val yesNoForm: User[AnyContent] => Form[Boolean] = user => {
     val missingInputError = s"charity.one-off.errors.noChoice.${if (user.isAgent) "agent" else "individual"}"
     YesNoForm.yesNoForm(missingInputError)
   }
 
-  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).apply { implicit user =>
-    Ok(giftAidOneOffView(yesNoForm(user), taxYear, giftAidDonations = 100))
-    //TODO giftAidDonations to be retrieved from session
+  implicit val executionContext: ExecutionContext = cc.executionContext
+
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
+    giftAidSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
+
+      cya match {
+        case Some(cyaData) => handleRedirect(taxYear, cyaData, prior, fromShow = true)
+        case _ => redirectToOverview(taxYear)
+      }
+    }
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)) { implicit user =>
-    yesNoForm(user).bindFromRequest().fold(
-      {
+  def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
+
+    giftAidSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { case (cya, prior) =>
+
+      yesNoForm(user).bindFromRequest().fold({
         formWithErrors =>
-          BadRequest(
-            giftAidOneOffView(formWithErrors, taxYear, 100)
-          )
-      },
-      {
-        yesNoForm => Ok("Next Page")
-      }
-    )
+          cya.flatMap(_.donationsViaGiftAidAmount) match {
+            case Some(amount) => Future.successful(BadRequest(giftAidOneOffView(formWithErrors, taxYear, amount)))
+            case _ => Future.successful(errorHandler.internalServerError())
+          }
+      }, {
+        yesNoForm =>
+          if(prior.flatMap(_.giftAidPayments.flatMap(_.oneOffCurrentYear)).isDefined) {
+            Future.successful(redirectToCya(taxYear))
+          } else {
+            cya.fold(Future.successful(redirectToOverview(taxYear))) { cyaData =>
+              val updatedCya = cyaData.copy(
+                oneOffDonationsViaGiftAid = Some(yesNoForm),
+                oneOffDonationsViaGiftAidAmount = if(yesNoForm) cyaData.oneOffDonationsViaGiftAidAmount else None
+              )
+              val redirectLocation = (yesNoForm, updatedCya.isFinished) match {
+                case (true, _) => Redirect(controllers.charity.routes.GiftAidOneOffAmountController.show(taxYear))
+                case (_, true) => redirectToCya(taxYear)
+                case _ => Redirect(controllers.charity.routes.OverseasGiftAidDonationsController.show(taxYear))
+              }
+              giftAidSessionService.updateSessionData(updatedCya, taxYear)(
+                InternalServerError(errorHandler.internalServerErrorTemplate))(redirectLocation)
+            }
+          }
+      })
+    }.flatten
   }
+
 }
