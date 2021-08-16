@@ -91,21 +91,21 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val expectedTitle: String = "Do you want to add any of your donations to the last tax year?"
-    val expectedH1: String = "Do you want to add any of your donations to the last tax year?"
-    val expectedError: String = "Select yes to add any of your donations to the last tax year"
-    val expectedContent1: String = "You told us you donated £150 to charity by using Gift Aid. You can add some of this donation" +
-      " to the 6 April 2020 to 5 April 2021 tax year."
-    val expectedContent2: String = "You might want to do this if you paid higher rate tax last year but will not this year."
+    val expectedTitle: String = "A ydych am ychwanegu unrhyw un o’ch rhoddion at y flwyddyn dreth ddiwethaf?"
+    val expectedH1: String = "A ydych am ychwanegu unrhyw un o’ch rhoddion at y flwyddyn dreth ddiwethaf?"
+    val expectedError: String = "Dewiswch ‘Iawn’ i ychwanegu unrhyw un o’ch rhoddion at y flwyddyn dreth ddiwethaf"
+    val expectedContent1: String = "Gwnaethoch roi gwybod i ni eich bod wedi rhoi £150 i elusen drwy ddefnyddio Rhodd Cymorth." +
+      " Gallwch ychwanegu rhywfaint o’r rhodd hon at flwyddyn dreth 6 Ebrill 2020 i 5 Ebrill 2021."
+    val expectedContent2: String = "Efallai y byddwch am wneud hyn os gwnaethoch dalu treth gyfradd uwch blwyddyn diwethaf ond na fyddwch y flwyddyn hon."
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val expectedTitle: String = "Do you want to add any of your client’s donations to the last tax year?"
-    val expectedH1: String = "Do you want to add any of your client’s donations to the last tax year?"
-    val expectedError: String = "Select yes to add any of your client’s donations to the last tax year"
-    val expectedContent1: String = "You told us your client donated £150 to charity by using Gift Aid. You can add some of this donation" +
-      " to the 6 April 2020 to 5 April 2021 tax year."
-    val expectedContent2: String = "You might want to do this if your client paid higher rate tax last year but will not this year."
+    val expectedTitle: String = "A ydych am ychwanegu unrhyw un o roddion eich cleient at y flwyddyn dreth ddiwethaf?"
+    val expectedH1: String = "A ydych am ychwanegu unrhyw un o roddion eich cleient at y flwyddyn dreth ddiwethaf?"
+    val expectedError: String = "Dewiswch ‘Iawn’ i ychwanegu unrhyw un o roddion eich cleient at y flwyddyn dreth ddiwethaf"
+    val expectedContent1: String = "Gwnaethoch roi gwybod i ni fod eich cleient wedi rhoi £150 i elusen drwy ddefnyddio Rhodd Cymorth." +
+      " Gallwch ychwanegu rhywfaint o’r rhodd hon at flwyddyn dreth 6 Ebrill 2020 i 5 Ebrill 2021."
+    val expectedContent2: String = "Efallai y byddwch am wneud hyn os gwnaeth eich cleient dalu treth gyfradd uwch blwyddyn diwethaf ond na fydd y flwyddyn hon."
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {

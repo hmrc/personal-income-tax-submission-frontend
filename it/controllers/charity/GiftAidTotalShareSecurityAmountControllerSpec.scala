@@ -58,12 +58,12 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val heading: String = "What is the total value of qualifying shares or securities donated to charity?"
+    val heading: String = "Beth yw cyfanswm gwerth cyfranddaliadau neu warantau cymwys a roddir i elusen?"
     val hintText: String = "Er enghraifft, £600 neu £193.54"
     val caption = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
     val button = "Yn eich blaen"
     val inputName = "amount"
-    val inputLabel = "Total value, in pounds"
+    val inputLabel = "Cyfanswm y gwerth, mewn punnoedd"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -79,15 +79,15 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val tooLong = "The value of your shares or securities must be less than £100,000,000,000"
-    val emptyField = "Enter the value of shares or securities you donated to charity"
-    val incorrectFormat = "Enter the value of shares or securities you donated to charity in the correct format"
+    val tooLong = "Mae’n rhaid i werth eich cyfranddaliadau neu warantau fod yn llai na £100,000,000,000"
+    val emptyField = "Nodwch werth cyfranddaliadau neu warantau a roddwyd gennych i elusen"
+    val incorrectFormat = "Nodwch werth cyfranddaliadau neu warantau a roesoch i elusen yn y fformat cywir"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val tooLong = "The value of your client’s shares or securities must be less than £100,000,000,000"
-    val emptyField = "Enter the value of shares or securities your client donated to charity"
-    val incorrectFormat = "Enter the value of shares or securities your client donated to charity in the correct format"
+    val tooLong = "Mae’n rhaid i werth cyfranddaliadau neu warantau eich cleient fod yn llai na £100,000,000,000"
+    val emptyField = "Nodwch werth cyfranddaliadau neu warantau a roddwyd gan eich cleient i elusen"
+    val incorrectFormat = "Nodwch werth cyfranddaliadau neu warantau a roddwyd gan eich cleient i elusen yn y fformat cywir"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {

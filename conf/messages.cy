@@ -286,7 +286,7 @@ interest.chooseAccount.error.noRadioSelected.individual = Dewiswch y cyfrif a ga
 
 charity.common.gift-aid.doNotInclude.individual = Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at eich rhodd.
 charity.common.gift-aid.doNotInclude.agent = Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at rodd eich cleient.
-charity.common.aid-summary.hiddenChange = Newidiwch y manylion rydych wedi’u nodi ar gyfer 0}.
+charity.common.aid-summary.hiddenChange = Newidiwch y manylion rydych wedi’u nodi ar gyfer {0}.
 charity.common.total.valueInPounds = Cyfanswm y gwerth, mewn punnoedd
 charity.common.add.overseas.question = A oes angen i chi ychwanegu elusen arall o dramor?
 
@@ -359,8 +359,10 @@ charity.gift-aid-overseas-name.title.agent = Enw’r elusen o dramor y gwnaeth e
 charity.gift-aid-overseas-name.error.empty.individual = Nodwch enw’r elusen o dramor y gwnaethoch ddefnyddio Rhodd Cymorth i’w rhoi iddo
 charity.gift-aid-overseas-name.error.empty.agent = Nodwch enw’r elusen o dramor y gwnaeth eich cleient defnyddio Rhodd Cymorth i’w rhoi iddo
 
-charity.overseas-gift-aid-summary.title.individual = {0} Tramor y gwnaethoch ddefnyddio Rhodd Cymorth i’w rhoi iddo
-charity.overseas-gift-aid-summary.title.agent = {0} Tramor y gwnaeth eich cleient defnyddio Rhodd Cymorth i’w rhoi iddo
+charity.overseas-gift-aid-summary.title.single.individual = {0} Tramor y gwnaethoch ddefnyddio Rhodd Cymorth i’w rhoi iddo
+charity.overseas-gift-aid-summary.title.multiple.individual = {0} Tramor y gwnaethoch ddefnyddio Rhodd Cymorth i’w rhoi iddo
+charity.overseas-gift-aid-summary.title.single.agent = {0} Tramor y gwnaeth eich cleient defnyddio Rhodd Cymorth i’w rhoi iddo
+charity.overseas-gift-aid-summary.title.multiple.agent = {0} Tramor y gwnaeth eich cleient defnyddio Rhodd Cymorth i’w rhoi iddo
 charity.overseas-gift-aid-summary.hint.individual = Mae’n rhaid i chi roi gwybod i ni am yr holl elusennau tramor y gwnaethoch roi rhodd iddynt.
 charity.overseas-gift-aid-summary.hint.agent = Mae’n rhaid i chi roi gwybod i ni am yr holl elusennau tramor y gwnaeth eich cleient roi rhodd iddynt.
 charity.overseas-gift-aid-summary.noChoice = Dewiswch ‘Iawn’ os oes angen i chi ychwanegu elusen arall o dramor
@@ -451,8 +453,10 @@ charity.overseas-shares-donated-name.title.agent = Enw’r elusen o dramor a rod
 charity.overseas-shares-donated-name.error.empty-field.individual = Nodwch enw’r elusen dramor a roesoch gyfranddaliadau, gwarantau, tir neu eiddo iddo
 charity.overseas-shares-donated-name.error.empty-field.agent = Nodwch enw’r elusen o dramor a roddodd eich cleient gyfranddaliadau, gwarantau, tir neu eiddo iddo
 
-charity.shares-and-land-summary.title.individual = {0} Tramor wnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo iddo
-charity.shares-and-land-summary.title.agent = {0} Tramor wnaeth eich cleient rhoi cyfranddaliadau, gwarantau, tir neu eiddo iddo
+charity.shares-and-land-summary.title.single.individual = {0} Tramor wnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo iddo
+charity.shares-and-land-summary.title.mulitple.individual = {0} Tramor wnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo iddo
+charity.shares-and-land-summary.title.single.agent = {0} Tramor wnaeth eich cleient rhoi cyfranddaliadau, gwarantau, tir neu eiddo iddo
+charity.shares-and-land-summary.title.multiple.agent = {0} Tramor wnaeth eich cleient rhoi cyfranddaliadau, gwarantau, tir neu eiddo iddo
 charity.shares-and-land-summary.hint.individual = Mae’n rhaid i chi roi gwybod i ni am yr holl elusennau tramor y gwnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo iddynt.
 charity.shares-and-land-summary.hint.agent = Mae’n rhaid i chi roi gwybod i ni am yr holl elusennau tramor y gwnaeth eich cleient rhoi cyfranddaliadau, gwarantau, tir neu eiddo iddynt.
 

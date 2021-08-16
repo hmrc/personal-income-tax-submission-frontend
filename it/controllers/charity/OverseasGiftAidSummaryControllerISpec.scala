@@ -75,17 +75,17 @@ class OverseasGiftAidSummaryControllerISpec extends CharityITHelper {
 
   object CommonExpectedCY extends CommonExpectedResults {
     val caption = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
-    val question = "Do you need to add another overseas charity?"
+    val question = "A oes angen i chi ychwanegu elusen arall o dramor?"
     val yes = "Iawn"
     val no = "Na"
-    val errorSummary = "There is a problem"
-    val change = "Change"
-    val remove = "Remove"
-    val hiddenChange1 = s"Change the details you’ve entered for $charity1."
-    val hiddenRemove1 = s"Remove $charity1."
-    val hiddenChange2 = s"Change the details you’ve entered for $charity2."
-    val hiddenRemove2 = s"Remove $charity2."
-    val noSelectionError = "Select yes if you need to add another overseas charity"
+    val errorSummary = "Mae problem wedi codi"
+    val change = "Newid"
+    val remove = "Tynnu"
+    val hiddenChange1 = s"Newidiwch y manylion rydych wedi’u nodi ar gyfer $charity1."
+    val hiddenRemove1 = s"Tynnu $charity1."
+    val hiddenChange2 = s"Newidiwch y manylion rydych wedi’u nodi ar gyfer $charity2."
+    val hiddenRemove2 = s"Tynnu $charity2."
+    val noSelectionError = "Dewiswch ‘Iawn’ os oes angen i chi ychwanegu elusen arall o dramor"
     val button = "Yn eich blaen"
   }
 
@@ -102,15 +102,15 @@ class OverseasGiftAidSummaryControllerISpec extends CharityITHelper {
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val headingSingle = "Overseas charities you used Gift Aid to donate to"
-    val headingMultiple = "Overseas charities you used Gift Aid to donate to"
-    val hint = "You must tell us about all the overseas charities you donated to."
+    val headingSingle = "{0} Tramor y gwnaethoch ddefnyddio Rhodd Cymorth i’w rhoi iddo"
+    val headingMultiple = "{0} Tramor y gwnaethoch ddefnyddio Rhodd Cymorth i’w rhoi iddo"
+    val hint = "Mae’n rhaid i chi roi gwybod i ni am yr holl elusennau tramor y gwnaethoch roi rhodd iddynt."
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val headingSingle = "Overseas charities your client used Gift Aid to donate to"
-    val headingMultiple = "Overseas charities your client used Gift Aid to donate to"
-    val hint = "You must tell us about all the overseas charities your client donated to."
+    val headingSingle = "{0} Tramor y gwnaeth eich cleient defnyddio Rhodd Cymorth i’w rhoi iddo"
+    val headingMultiple = "{0} Tramor y gwnaeth eich cleient defnyddio Rhodd Cymorth i’w rhoi iddo"
+    val hint = "Mae’n rhaid i chi roi gwybod i ni am yr holl elusennau tramor y gwnaeth eich cleient roi rhodd iddynt."
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
