@@ -102,14 +102,14 @@ class OverseasGiftAidSummaryControllerISpec extends CharityITHelper {
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val headingSingle = "{0} Tramor y gwnaethoch ddefnyddio Rhodd Cymorth i’w rhoi iddo"
-    val headingMultiple = "{0} Tramor y gwnaethoch ddefnyddio Rhodd Cymorth i’w rhoi iddo"
+    val headingSingle = "charity Tramor y gwnaethoch ddefnyddio Rhodd Cymorth i’w rhoi iddo"
+    val headingMultiple = "charities Tramor y gwnaethoch ddefnyddio Rhodd Cymorth i’w rhoi iddo"
     val hint = "Mae’n rhaid i chi roi gwybod i ni am yr holl elusennau tramor y gwnaethoch roi rhodd iddynt."
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val headingSingle = "{0} Tramor y gwnaeth eich cleient defnyddio Rhodd Cymorth i’w rhoi iddo"
-    val headingMultiple = "{0} Tramor y gwnaeth eich cleient defnyddio Rhodd Cymorth i’w rhoi iddo"
+    val headingSingle = "charity Tramor y gwnaeth eich cleient defnyddio Rhodd Cymorth i’w rhoi iddo"
+    val headingMultiple = "charities Tramor y gwnaeth eich cleient defnyddio Rhodd Cymorth i’w rhoi iddo"
     val hint = "Mae’n rhaid i chi roi gwybod i ni am yr holl elusennau tramor y gwnaeth eich cleient roi rhodd iddynt."
   }
 

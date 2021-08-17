@@ -65,13 +65,12 @@ class RemoveOverseasCharityControllerGiftAidISpec extends CharityITHelper {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val charityName = "TestCharity"
     val expectedTitle = s"A ydych yn siŵr eich bod am dynnu $charityName?"
-    val expectedErrorTitle = "Select yes to remove this overseas charity"
+    val expectedErrorTitle = "Dewiswch ‘Iawn’ i dynnu’r elusen o dramor hon"
     val expectedH1 = s"A ydych yn siŵr eich bod am dynnu $charityName?"
-    val expectedContent = "This will remove all overseas charities."
+    val expectedContent = "Bydd hyn yn tynnu pob elusen o dramor."
     val expectedCaption = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
-    val noSelectionError = "Select yes to remove this overseas charity"
+    val noSelectionError = "Dewiswch ‘Iawn’ i dynnu’r elusen o dramor hon"
     val yesText = "Iawn"
     val noText = "Na"
     val button = "Yn eich blaen"
