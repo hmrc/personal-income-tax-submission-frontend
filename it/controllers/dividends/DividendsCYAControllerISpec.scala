@@ -128,39 +128,39 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
   }
 
   object IndividualExpectedWelsh extends SpecificExpectedResults {
-    val titleExpected = "Check your income from dividends"
-    val h1Expected = "Check your income from dividends"
+    val titleExpected = "Gwiriwch eich incwm o ddifidendau"
+    val h1Expected = "Gwiriwch eich incwm o ddifidendau"
     val expectedErrorTitle = s"Error: $titleExpected"
 
-    val changeUkDividendsHiddenText = "if you got dividends from UK-based companies."
-    val changeUkDividendsAmountHiddenText = "how much you got from UK-based companies."
-    val changeOtherDividendsHiddenText = "if you got dividends from trusts or open-ended investment companies based in the UK."
-    val changeOtherDividendsAmountHiddenText = "how much you got in dividends from trusts or open-ended investment companies based in the UK."
+    val changeUkDividendsHiddenText = "os cawsoch ddifidendau gan gwmnïau yn y DU."
+    val changeUkDividendsAmountHiddenText = "faint a gawsoch gan gwmnïau yn y DU."
+    val changeOtherDividendsHiddenText = "os cawsoch ddifidendau gan ymddiriedolaethau neu gwmnïau buddsoddi penagored yn y DU."
+    val changeOtherDividendsAmountHiddenText = "faint a gawsoch mewn difidendau gan ymddiriedolaethau neu gwmnïau buddsoddi penagored yn y DU."
   }
 
   object AgentExpectedWelsh extends SpecificExpectedResults {
-    val titleExpected = "Check your client’s income from dividends"
-    val h1Expected = "Check your client’s income from dividends"
+    val titleExpected = "Gwiriwch incwm eich cleient o ddifidendau"
+    val h1Expected = "Gwiriwch incwm eich cleient o ddifidendau"
     val expectedErrorTitle = s"Error: $titleExpected"
 
-    val changeUkDividendsHiddenText = "if your client got dividends from UK-based companies."
-    val changeUkDividendsAmountHiddenText = "how much your client got from UK-based companies."
-    val changeOtherDividendsHiddenText = "if your client got dividends from trusts or open-ended investment companies based in the UK."
-    val changeOtherDividendsAmountHiddenText = "how much your client got in dividends from trusts or open-ended investment companies based in the UK."
+    val changeUkDividendsHiddenText = "os cafodd eich cleient ddifidendau gan gwmnïau yn y DU."
+    val changeUkDividendsAmountHiddenText = "faint gafodd eich cleient gan gwmnïau yn y DU."
+    val changeOtherDividendsHiddenText = "os cafodd eich cleient ddifidendau gan ymddiriedolaethau neu gwmnïau buddsoddi penagored yn y DU."
+    val changeOtherDividendsAmountHiddenText = "faint a gafodd eich cleient mewn difidendau gan ymddiriedolaethau neu gwmnïau buddsoddi penagored yn y DU."
   }
 
   object AllExpectedWelsh extends CommonExpectedResults {
-    val captionExpected = s"Dividends for 6 April ${taxYear - 1} to 5 April $taxYear"
+    val captionExpected = s"Difidendau ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
     val yesNoExpectedAnswer: Boolean => String = isYes => if (isYes) "Yes" else "No"
     val ukDividendsAmount = "£10"
     val otherDividendsAmount = "£10.50"
     val continueButtonText = "Save and continue"
     val continueButtonLink = "/income-through-software/return/personal-income/2022/dividends/check-income-from-dividends"
     val changeLinkExpected = "Change"
-    val UkDividendsText = "Dividends from UK-based companies"
-    val ukDividendsAmountText = "Value of dividends from UK-based companies"
-    val otherDividendsText = "Dividends from UK-based unit trusts or open-ended investment companies"
-    val otherDividendsAmountText = "Value of dividends from UK-based unit trusts or open-ended investment companies"
+    val UkDividendsText = "Difidendau o gwmnïau yn y DU"
+    val ukDividendsAmountText = "Swm difidendau o gwmnïau yn y DU"
+    val otherDividendsText = "Difidendau gan ymddiriedolaethau unedol yn y DU neu gwmnïau buddsoddi penagored"
+    val otherDividendsAmountText = "Swm difidendau gan ymddiriedolaethau unedol yn y DU neu gwmnïau buddsoddi penagored"
   }
 
 
