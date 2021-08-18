@@ -80,16 +80,16 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val expectedTitle = "Are you sure you want to remove this account?"
+    val expectedTitle = "A ydych yn siŵr eich bod am ddileu’r cyfrif hwn?"
     val expectedErrorTitle = s"Error: $expectedTitle"
     val expectedH1 = "Are you sure you want to remove Monzo?"
-    val expectedCaption = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
-    val thisWillTextUntaxed = "This will remove all untaxed UK interest."
-    val thisWillTextTaxed = "This will remove all taxed UK interest."
+    val expectedCaption = s"Llog ar gyfer 6 Ebrill $taxYearMinusOne i 5 Ebrill $taxYear"
+    val thisWillTextUntaxed = "Bydd hyn yn dileu holl log y DU sydd heb ei drethu."
+    val thisWillTextTaxed = "Bydd hyn yn dileu holl log y DU a drethwyd."
     val yesText = "Yes"
     val noText = "No"
     val continueText = "Continue"
-    val expectedErrorText = "Select yes to remove this account"
+    val expectedErrorText = "Dewiswch ‘Iawn’ i dynnu’r cyfrif hon"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults

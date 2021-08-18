@@ -122,22 +122,22 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
     val changePriorTaxedHref = s"/income-through-software/return/personal-income/$taxYear/interest/change-taxed-uk-interest?accountId=azerty"
     val removeUntaxedHref = s"/income-through-software/return/personal-income/$taxYear/interest/remove-untaxed-interest-account?accountId=qwerty"
     val removeTaxedHref = s"/income-through-software/return/personal-income/$taxYear/interest/remove-taxed-interest-account?accountId=qwerty"
-    val untaxedH1 = "Accounts with untaxed UK interest"
-    val taxedH1 = "Accounts with taxed UK interest"
-    val untaxedTitle = "Accounts with untaxed UK interest"
-    val taxedTitle = "Accounts with taxed UK interest"
-    val captionText = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
+    val untaxedH1 = "Cyfrifon sydd â llog y DU sydd heb ei drethu"
+    val taxedH1 = "Cyfrifon gyda llog y DU a drethwyd"
+    val untaxedTitle = "Cyfrifon sydd â llog y DU sydd heb ei drethu"
+    val taxedTitle = "Cyfrifon gyda llog y DU a drethwyd"
+    val captionText = s"Llog ar gyfer 6 Ebrill $taxYearMinusOne i 5 Ebrill $taxYear"
     val changeText = "Change"
     val removeText = "Remove"
-    val addAnotherAccountText = "Add another account"
+    val addAnotherAccountText = "Ychwanegwch gyfrif arall"
     val continueText = "Continue"
     val errorTitleText: String => String = (titleText: String) => s"Error: $titleText"
-    val doYouNeedText = "Do you need to add another account?"
+    val doYouNeedText = "A oes angen i chi ychwanegu cyfrif arall?"
     val yesText = "Yes"
     val noText = "No"
     val removeAccountHiddenText = (account: String) => s"$removeText $account account"
     val changeAccountHiddenText = (account: String) => s"$changeText $account account details"
-    val expectedErrorText = "Select yes to add another account"
+    val expectedErrorText = "Dewiswch ‘Iawn’ er mwyn ychwanegu cyfrif arall"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -151,13 +151,13 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val youMustTellTextUntaxed = "You must tell us about all your accounts with untaxed UK interest."
-    val youMustTellTextTaxed = "You must tell us about all your accounts with taxed UK interest."
+    val youMustTellTextUntaxed = "Mae’n rhaid i chi roi gwybod i ni am eich holl gyfrifon sydd â llog y DU sydd heb ei drethu."
+    val youMustTellTextTaxed = "Mae’n rhaid i chi roi gwybod i ni am eich holl gyfrifon sydd â llog y DU a drethwyd."
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val youMustTellTextUntaxed = "You must tell us about all your client’s accounts with untaxed UK interest."
-    val youMustTellTextTaxed = "You must tell us about all your client’s accounts with taxed UK interest."
+    val youMustTellTextUntaxed = "Mae’n rhaid i chi roi gwybod i ni am holl gyfrifon eich cleient sydd â llog y DU sydd heb ei drethu."
+    val youMustTellTextTaxed = "Mae’n rhaid i chi roi gwybod i ni am holl gyfrifon eich cleient gyda llog y DU a drethwyd."
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
