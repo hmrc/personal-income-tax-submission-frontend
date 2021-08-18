@@ -30,7 +30,7 @@ common.youGot.individual = you got
 common.youGot.agent = your client got
 common.currency.hint = For example, £600 or £193.54
 
-dividends.caption = Dividends for 6 April {0} to 5 April {1}
+dividends.caption =  Difidendau ar gyfer 6 Ebrill {0} i 5 Ebrill {1}
 interest.caption = Interest for 6 April {0} to 5 April {1}
 charity.caption = Donations to charity for 6 April {0} to 5 April {1}
 
@@ -96,65 +96,65 @@ taxYear-error-template.paragraph.2 = Check that you’ve entered the correct web
 # Common Dividends Messages
 # ----------------------------------------------------------
 
-dividends.common.error.invalidFormat.individual = Enter how much you got in dividends in the correct format
-dividends.common.error.invalidFormat.agent = Enter how much your client got in dividends in the correct format
+dividends.common.error.invalidFormat.individual = Nodwch faint a gawsoch mewn difidendau yn y fformat cywir
+dividends.common.error.invalidFormat.agent =  Nodwch faint gafodd eich cleient mewn difidendau yn y fformat cywir
 
-dividends.common.change-amount.caption.individual = Tell us the value of the dividends you got, in pounds. You can find this information in your dividend voucher.
-dividends.common.change-amount.caption.agent = Tell us the value of the dividends your client got, in pounds. You can find this information in their dividend voucher.
+dividends.common.change-amount.caption.individual = Rhowch wybod i ni beth yw gwerth y difidendau a gawsoch, mewn punnoedd. Gallwch ddod o hyd i’r wybodaeth hon yn eich taleb ddifidend.
+dividends.common.change-amount.caption.agent = Rhowch wybod i ni beth yw gwerth y difidendau a gafodd eich cleient, mewn punnoedd. Gallwch ddod o hyd i’r wybodaeth hon yn eu taleb ddifidend.
 
-dividends.uk-dividends.title.individual = Did you get dividends from UK-based companies?
-dividends.uk-dividends.title.agent = Did your client get dividends from UK-based companies?
-dividends.uk-dividends.sub-heading.agent = Your client’s dividend voucher will tell you the shares they have in the company and the amount of the dividend they got.
-dividends.uk-dividends.sub-heading.individual = Your dividend voucher will tell you the shares you have in the company and the amount of the dividend you got.
-dividends.uk-dividends.errors.noChoice.individual = Select yes if you got dividends from UK-based companies
-dividends.uk-dividends.errors.noChoice.agent = Select yes if your client got dividends from UK-based companies
+dividends.uk-dividends.title.individual = A gawsoch ddifidendau gan gwmnïau yn y DU?
+dividends.uk-dividends.title.agent = A gafodd eich cleient ddifidendau gan gwmnïau yn y DU?
+dividends.uk-dividends.sub-heading.agent = Bydd taleb ddifidend eich cleient yn rhoi gwybod i chi am y cyfranddaliadau sydd ganddynt yn y cwmni a swm y difidend a gafodd.
+dividends.uk-dividends.sub-heading.individual = Bydd eich taleb ddifidend yn rhoi gwybod i chi am y cyfranddaliadau sydd gennych yn y cwmni a swm y difidend a gawsoch.
+dividends.uk-dividends.errors.noChoice.individual = Dewiswch ‘Iawn’ os cawsoch ddifidendau gan gwmnïau yn y DU
+dividends.uk-dividends.errors.noChoice.agent = Dewiswch ‘Iawn’ os cafodd eich cleient ddifidendau gan gwmnïau yn y DU
 
-dividends.uk-dividends-amount.title.individual = How much did you get in dividends from UK-based companies?
-dividends.uk-dividends-amount.title.agent = How much did your client get in dividends from UK-based companies?
-dividends.uk-dividends-amount.change-amount.prior.common.2 = in dividends from UK-based companies this year. Tell us if this has changed.
-dividends.uk-dividends-amount.error.empty.individual = Enter how much you got in dividends from UK-based companies
-dividends.uk-dividends-amount.error.empty.agent = Enter how much your client got in dividends from UK-based companies
-dividends.uk-dividends-amount.error.amountMaxLimit = The amount of dividends from UK-based companies must be less than £100,000,000,000
+dividends.uk-dividends-amount.title.individual = Faint a gawsoch mewn difidendau gan gwmnïau yn y DU?
+dividends.uk-dividends-amount.title.agent = Faint gafodd eich cleient mewn difidendau gan gwmnïau yn y DU?
+dividends.uk-dividends-amount.change-amount.prior.common.2 = mewn difidendau gan gwmnïau yn y DU y flwyddyn hon. Rhowch wybod i ni a yw hyn wedi newid.
+dividends.uk-dividends-amount.error.empty.individual = Nodwch faint a gawsoch mewn difidendau gan gwmnïau yn y DU
+dividends.uk-dividends-amount.error.empty.agent = Nodwch faint gafodd eich cleient mewn difidendau gan gwmnïau yn y DU
+dividends.uk-dividends-amount.error.amountMaxLimit = Mae’n rhaid i swm y difidendau gan gwmnïau yn y DU fod yn llai na £100,000,000,000
 
-dividends.other-dividends.title.individual = Did you get dividends from UK-based trusts or open-ended investment companies?
-dividends.other-dividends.title.agent = Did your client get dividends from UK-based trusts or open-ended investment companies?
-dividends.other-dividends.errors.noChoice.individual = Select yes if you got dividends from UK-based trusts or open-ended investment companies
-dividends.other-dividends.errors.noChoice.agent = Select yes if your client got dividends from UK-based trusts or open-ended investment companies
-dividends.other-dividends.paragraph.1 = You must also tell us about:
-dividends.other-dividends.bullet.1 = authorised unit trusts
-dividends.other-dividends.bullet.2 = investment trusts
-dividends.other-dividends.bullet.3 = your dividends that were automatically reinvested
-dividends.other-dividends.paragraph.2.individual = You do not need to tell us about amounts shown as ''equalisation'' on your dividend voucher.
-dividends.other-dividends.paragraph.2.agent = You do not need to tell us about amounts shown as ''equalisation'' on your client’s dividend voucher.
-dividends.other-dividends.details.title = What are investment trusts, unit trusts and open-ended investment companies?
-dividends.other-dividends.details.paragraph.1 = Investment trusts make money through buying and selling shares or assets in other companies.
-dividends.other-dividends.details.paragraph.2 = Unit trusts make money by buying and selling bonds or shares on the stock market. The fund is split into units which an investor buys. A fund manager creates and cancels units when investors join and leave the trust.
-dividends.other-dividends.details.paragraph.3 = Open-ended investment companies are like unit trusts but create and cancel shares, rather than units, when investors join or leave.
-dividends.other-dividends.details2.title = What are equalisation payments?
-dividends.other-dividends.details2.paragraph.1 = Equalisation payments are given to investors to make sure they’re charged fairly based on the performance of the trust. Equalisation payments are not counted as income because they’re a return of part of an investment.
+dividends.other-dividends.title.individual = A gawsoch ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored?
+dividends.other-dividends.title.agent = A gafodd eich cleient ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored?
+dividends.other-dividends.errors.noChoice.individual = Dewiswch ‘Iawn’ os cawsoch ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored
+dividends.other-dividends.errors.noChoice.agent = Dewiswch ‘Iawn’ os cafodd eich cleient ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored
+dividends.other-dividends.paragraph.1 = Mae’n rhaid i chi hefyd rhoi gwybod i ni am y canlynol:
+dividends.other-dividends.bullet.1 = ymddiriedolaethau unedol awdurdodedig
+dividends.other-dividends.bullet.2 = ymddiriedolaethau buddsoddi
+dividends.other-dividends.bullet.3 = eich difidendau a gafodd eu hail-fuddsoddi’n awtomatig
+dividends.other-dividends.paragraph.2.individual = Nid oes angen i chi roi gwybod i ni am symiau a ddangosir fel ''cyfartaliad'' ar eich taleb ddifidend.
+dividends.other-dividends.paragraph.2.agent = Nid oes angen i chi roi gwybod i ni am symiau a ddangosir fel ''cyfartaliad'' ar daleb ddifidend eich cleient.
+dividends.other-dividends.details.title = Beth yw ymddiriedolaethau buddsoddi, ymddiriedolaethau unedol a chwmnïau buddsoddi penagored?
+dividends.other-dividends.details.paragraph.1 = Mae ymddiriedolaethau buddsoddi yn gwneud arian drwy brynu a gwerthu cyfranddaliadau neu asedau mewn cwmnïau eraill.
+dividends.other-dividends.details.paragraph.2 = Mae ymddiriedolaethau unedol yn gwneud arian drwy brynu a gwerthu bondiau neu gyfranddaliadau ar y farchnad stoc. Mae’r gronfa wedi’i rhannu’n unedau y mae buddsoddwr yn eu prynu. Mae rheolwr cronfa yn creu ac yn canslo unedau pan fydd buddsoddwyr yn ymuno ac yn gadael yr ymddiriedolaeth.
+dividends.other-dividends.details.paragraph.3 = Mae cwmnïau buddsoddi penagored yn debyg i ymddiriedolaethau unedol ond yn creu ac yn canslo cyfranddaliadau, yn hytrach nag unedau, pan fydd buddsoddwyr yn ymuno neu’n gadael.
+dividends.other-dividends.details2.title = Beth yw taliadau cyfartaliad?
+dividends.other-dividends.details2.paragraph.1 = Rhoddir taliadau cyfartaliad i fuddsoddwyr i sicrhau y codir taliadau arnynt yn deg ar sail perfformiad yr ymddiriedolaeth. Nid yw taliadau cyfartaliad yn cael eu cyfrif fel incwm oherwydd eu bod yn rhan o fuddsoddiad.
 
-dividends.other-dividends-amount.title.individual = How much did you get in dividends from trusts and open-ended investment companies based in the UK?
-dividends.other-dividends-amount.title.agent = How much did your client get in dividends from trusts and open-ended investment companies based in the UK?
-dividends.other-dividends-amount.change-amount.details = in dividends from UK-based trusts and open-ended investment companies this year. Tell us if this has changed.
-dividends.other-dividends-amount.form.caption = Enter the amount of dividends as shown on your dividend voucher.
-dividends.other-dividends-amount.error.empty.individual = Enter how much you got in dividends from trusts and open-ended investment companies
-dividends.other-dividends-amount.error.empty.agent = Enter how much your client got in dividends from trusts and open-ended investment companies
-dividends.other-dividends-amount.error.amountMaxLimit = The amount of dividends from trusts and open-ended investment companies based in the UK must be less than £100,000,000,000
+dividends.other-dividends-amount.title.individual = Faint a gawsoch mewn difidendau gan ymddiriedolaethau a chwmnïau buddsoddi penagored sydd wedi’u lleoli yn y DU?
+dividends.other-dividends-amount.title.agent = Faint wnaeth eich cleient gael mewn difidendau gan ymddiriedolaethau a chwmnïau buddsoddi penagored sydd wedi’u lleoli yn y DU?
+dividends.other-dividends-amount.change-amount.details = mewn difidendau gan ymddiriedolaethau yn y DU a chwmnïau buddsoddi penagored eleni. Rhowch wybod i ni a yw hyn wedi newid.
+dividends.other-dividends-amount.form.caption = Nodwch swm y difidendau fel y mae’n ymddangos ar eich taleb ddifidend.
+dividends.other-dividends-amount.error.empty.individual = Nodwch faint a gawsoch mewn difidendau gan ymddiriedolaethau a chwmnïau buddsoddi penagored
+dividends.other-dividends-amount.error.empty.agent = Nodwch faint a gafodd eich cleient gan ymddiriedolaethau a chwmnïau buddsoddi penagored
+dividends.other-dividends-amount.error.amountMaxLimit = Mae’n rhaid i swm y difidendau gan ymddiriedolaethau a chwmnïau buddsoddi penagored sydd wedi’u lleoli yn y DU fod yn llai na £100,000,000,000
 
-dividends.cya.title.individual = Check your income from dividends
-dividends.cya.title.agent = Check your client’s income from dividends
-dividends.cya.questions.1 = Dividends from UK-based companies
-dividends.cya.questions.2 = Value of dividends from UK-based companies
-dividends.cya.questions.3 = Dividends from UK-based unit trusts or open-ended investment companies
-dividends.cya.questions.4 = Value of dividends from UK-based unit trusts or open-ended investment companies
-dividends.cya.changeUkDividends.individual = if you got dividends from UK-based companies.
-dividends.cya.changeUkDividends.agent = if your client got dividends from UK-based companies.
-dividends.cya.changeUkDividendsAmount.individual = how much you got from UK-based companies.
-dividends.cya.changeUkDividendsAmount.agent = how much your client got from UK-based companies.
-dividends.cya.changeOtherDividends.individual = if you got dividends from trusts or open-ended investment companies based in the UK.
-dividends.cya.changeOtherDividends.agent = if your client got dividends from trusts or open-ended investment companies based in the UK.
-dividends.cya.changeOtherDividendsAmount.individual = how much you got in dividends from trusts or open-ended investment companies based in the UK.
-dividends.cya.changeOtherDividendsAmount.agent = how much your client got in dividends from trusts or open-ended investment companies based in the UK.
+dividends.cya.title.individual = Gwiriwch eich incwm o ddifidendau
+dividends.cya.title.agent = Gwiriwch incwm eich cleient o ddifidendau
+dividends.cya.questions.1 = Difidendau o gwmnïau yn y DU
+dividends.cya.questions.2 = Swm difidendau o gwmnïau yn y DU
+dividends.cya.questions.3 = Difidendau gan ymddiriedolaethau unedol yn y DU neu gwmnïau buddsoddi penagored
+dividends.cya.questions.4 = Swm difidendau gan ymddiriedolaethau unedol yn y DU neu gwmnïau buddsoddi penagored
+dividends.cya.changeUkDividends.individual = os cawsoch ddifidendau gan gwmnïau yn y DU.
+dividends.cya.changeUkDividends.agent = os cafodd eich cleient ddifidendau gan gwmnïau yn y DU.
+dividends.cya.changeUkDividendsAmount.individual = faint a gawsoch gan gwmnïau yn y DU.
+dividends.cya.changeUkDividendsAmount.agent = faint gafodd eich cleient gan gwmnïau yn y DU.
+dividends.cya.changeOtherDividends.individual = os cawsoch ddifidendau gan ymddiriedolaethau neu gwmnïau buddsoddi penagored yn y DU.
+dividends.cya.changeOtherDividends.agent = os cafodd eich cleient ddifidendau gan ymddiriedolaethau neu gwmnïau buddsoddi penagored yn y DU.
+dividends.cya.changeOtherDividendsAmount.individual = faint a gawsoch mewn difidendau gan ymddiriedolaethau neu gwmnïau buddsoddi penagored yn y DU.
+dividends.cya.changeOtherDividendsAmount.agent = faint a gafodd eich cleient mewn difidendau gan ymddiriedolaethau neu gwmnïau buddsoddi penagored yn y DU.
 
 # Interest
 # ----------------------------------------------------------
