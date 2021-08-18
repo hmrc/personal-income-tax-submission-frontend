@@ -88,20 +88,20 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val heading: String = "Add an account with untaxed UK interest"
-    val caption: String = "Interest for 6 April 2021 to 5 April 2022"
-    val accountName: String = "What do you want to name this account?"
-    val eachAccount = "Give each account a different name."
-    val interestEarned: String = "Amount of untaxed UK interest"
-    val hint: String = "For example, ‘HSBC savings account’. " + "For example, £600 or £193.54"
+    val heading: String = "Ychwanegwch gyfrif sydd â llog y DU sydd heb ei drethu"
+    val caption: String = "Llog ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
+    val accountName: String = "Beth yw’r enw rydych am roi i’r cyfrif hwn?"
+    val eachAccount = "Rhowch enw gwahanol i bob cyfrif."
+    val interestEarned: String = "Swm y llog y DU sydd heb ei drethu"
+    val hint: String = "Er enghraifft, ‘cyfrif cynilo HSBC’. " + "For example, £600 or £193.54"
     val button: String = "Continue"
-    val noNameEntryError: String = "Enter a name for this account"
-    val invalidCharEntry: String = "Name of account with untaxed UK interest must only include numbers 0-9, " +
-      "letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets, and the special characters &, /, @, £, *"
-    val nameTooLongError: String = "The name of the account must be 32 characters or fewer"
-    val duplicateNameError: String = "You cannot add 2 accounts with the same name"
-    val tooMuchMoneyError = "The amount of untaxed UK interest must be less than £100,000,000,000"
-    val incorrectFormatError = "Enter the amount of untaxed UK interest in the correct format"
+    val noNameEntryError: String = "Nodwch enw ar gyfer y cyfrif hwn"
+    val invalidCharEntry: String = "Mae’n rhaid i enw’r cyfrif sydd â llog y DU sydd heb ei drethu cynnwys rhifau 0-9," +
+      " llythrennau a i z, cysylltnodau, bylchau, collnodau, comas, atalnodau llawn, cromfachau crwn, a’r cymeriadau arbennig &, /, @, £, * yn unig"
+    val nameTooLongError: String = "Mae’n rhaid i enw’r cyfrif fod yn 32 o gymeriadau neu lai"
+    val duplicateNameError: String = "Ni allwch ychwanegu 2 gyfrif gyda’r un enw"
+    val tooMuchMoneyError = "Mae’n rhaid i swm y llog y DU sydd heb ei drethu fod yn llai na £100,000,000,000"
+    val incorrectFormatError = "Nodwch swm y llog y DU sydd heb ei drethu yn y fformat cywir"
     val errorTitle: String = s"Error: $heading"
   }
 
@@ -114,11 +114,11 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val noAmountEntryError = "Enter the amount of untaxed UK interest you got"
+    val noAmountEntryError = "Nodwch swm y llog y DU sydd heb ei drethu a gawsoch"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val noAmountEntryError = "Enter the amount of untaxed UK interest your client got"
+    val noAmountEntryError = "Nodwch swm y llog y DU sydd heb ei drethu a gafodd eich cleient"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
