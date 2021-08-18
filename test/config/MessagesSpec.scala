@@ -68,7 +68,8 @@ class MessagesSpec extends ViewTest with GuiceOneAppPerSuite {
         "global.error.fallbackClientError4xx.title",
         "global.error.fallbackClientError4xx.message",
         "global.error.fallbackClientError4xx.heading",
-        "error.summary.title"
+        "error.summary.title",
+        "back.text"
       )
 
       val defaults = allLanguages("default").filter(entry => !exclusionKeys.contains(entry._1))
