@@ -31,7 +31,7 @@ common.youGot.agent = your client got
 common.currency.hint = For example, £600 or £193.54
 
 dividends.caption =  Difidendau ar gyfer 6 Ebrill {0} i 5 Ebrill {1}
-interest.caption = Interest for 6 April {0} to 5 April {1}
+interest.caption = Llog ar gyfer 6 Ebrill {0} i 5 Ebrill {1}
 charity.caption = Donations to charity for 6 April {0} to 5 April {1}
 
 # Common Error Messages
