@@ -81,14 +81,14 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
 
   object CommonExpectedCY extends CommonExpectedResults {
     val expectedTitle = "A ydych yn siŵr eich bod am ddileu’r cyfrif hwn?"
-    val expectedErrorTitle = s"Error: $expectedTitle"
-    val expectedH1 = "Are you sure you want to remove Monzo?"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
+    val expectedH1 = "A ydych yn siŵr eich bod am dynnu Monzo?"
     val expectedCaption = s"Llog ar gyfer 6 Ebrill $taxYearMinusOne i 5 Ebrill $taxYear"
     val thisWillTextUntaxed = "Bydd hyn yn dileu holl log y DU sydd heb ei drethu."
     val thisWillTextTaxed = "Bydd hyn yn dileu holl log y DU a drethwyd."
-    val yesText = "Yes"
-    val noText = "No"
-    val continueText = "Continue"
+    val yesText = "Iawn"
+    val noText = "Na"
+    val continueText = "Yn eich blaen"
     val expectedErrorText = "Dewiswch ‘Iawn’ i dynnu’r cyfrif hon"
   }
 
@@ -146,7 +146,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
 
                 implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-                titleCheck(expectedTitle)
+                titleCheck(expectedTitle, us.isWelsh)
                 welshToggleCheck(us.isWelsh)
                 textOnPageCheck(expectedCaption, captionSelector)
                 h1Check(expectedH1 + " " + expectedCaption)
@@ -173,7 +173,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
 
                 implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-                titleCheck(expectedTitle)
+                titleCheck(expectedTitle, us.isWelsh)
                 welshToggleCheck(us.isWelsh)
                 textOnPageCheck(expectedCaption, captionSelector)
                 h1Check(expectedH1 + " " + expectedCaption)
@@ -200,7 +200,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
 
                 implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-                titleCheck(expectedTitle)
+                titleCheck(expectedTitle, us.isWelsh)
                 welshToggleCheck(us.isWelsh)
                 textOnPageCheck(expectedCaption, captionSelector)
                 h1Check(expectedH1 + " " + expectedCaption)
@@ -227,7 +227,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
 
                 implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-                titleCheck(expectedTitle)
+                titleCheck(expectedTitle, us.isWelsh)
                 welshToggleCheck(us.isWelsh)
                 textOnPageCheck(expectedCaption, captionSelector)
                 h1Check(expectedH1 + " " + expectedCaption)
@@ -393,7 +393,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
 
                 implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-                titleCheck(expectedTitle)
+                titleCheck(expectedTitle, us.isWelsh)
                 welshToggleCheck(us.isWelsh)
                 textOnPageCheck(expectedCaption, captionSelector)
                 h1Check(expectedH1 + " " + expectedCaption)
@@ -420,7 +420,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
 
                 implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-                titleCheck(expectedTitle)
+                titleCheck(expectedTitle, us.isWelsh)
                 welshToggleCheck(us.isWelsh)
                 textOnPageCheck(expectedCaption, captionSelector)
                 h1Check(expectedH1 + " " + expectedCaption)
@@ -690,9 +690,9 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(expectedErrorTitle)
+            titleCheck(expectedErrorTitle, us.isWelsh)
             welshToggleCheck(us.isWelsh)
-            errorSummaryCheck(expectedErrorText, errorSummaryHref)
+            errorSummaryCheck(expectedErrorText, errorSummaryHref, us.isWelsh)
             textOnPageCheck(expectedCaption, captionSelector)
             h1Check(expectedH1 + " " + expectedCaption)
             errorAboveElementCheck(expectedErrorText)
@@ -778,9 +778,9 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(expectedErrorTitle)
+            titleCheck(expectedErrorTitle, us.isWelsh)
             welshToggleCheck(us.isWelsh)
-            errorSummaryCheck(expectedErrorText, errorSummaryHref)
+            errorSummaryCheck(expectedErrorText, errorSummaryHref, us.isWelsh)
             textOnPageCheck(expectedCaption, captionSelector)
             h1Check(expectedH1 + " " + expectedCaption)
             errorAboveElementCheck(expectedErrorText)

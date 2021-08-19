@@ -61,10 +61,10 @@ class GiftAidDonationsControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val captionText = s"Donations to charity for 6 April ${year - 1} to 5 April $year"
-    val yesText = "Yes"
-    val noText = "No"
-    val continueText = "Continue"
+    val captionText = s"Rhoddion i elusennau ar gyfer 6 Ebrill ${year -1} i 5 Ebrill $year"
+    val yesText = "Iawn"
+    val noText = "Na"
+    val continueText = "Yn eich blaen"
     val continueLink = s"/income-through-software/return/personal-income/$year/charity/charity-donation-using-gift-aid"
   }
 
@@ -85,14 +85,14 @@ class GiftAidDonationsControllerISpec extends CharityITHelper {
   object ExpectedIndividualCY extends SpecificExpectedResults {
     val expectedH1 = "Did you use Gift Aid to donate to charity?"
     val expectedTitle = "Did you use Gift Aid to donate to charity?"
-    val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
     val expectedErrorText = "Select yes if you used Gift Aid to donate to charity"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
     val expectedH1 = "Did your client use Gift Aid to donate to charity?"
     val expectedTitle = "Did your client use Gift Aid to donate to charity?"
-    val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
     val expectedErrorText = "Select yes if your client used Gift Aid to donate to charity"
   }
 
@@ -120,7 +120,7 @@ class GiftAidDonationsControllerISpec extends CharityITHelper {
             result.status shouldBe OK
           }
 
-          titleCheck(user.specificExpectedResults.get.expectedTitle)
+          titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           welshToggleCheck(user.isWelsh)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)
           textOnPageCheck(captionText, captionSelector)
@@ -162,14 +162,14 @@ class GiftAidDonationsControllerISpec extends CharityITHelper {
           import Selectors._
           import user.commonExpectedResults._
 
-          titleCheck(user.specificExpectedResults.get.expectedErrorTitle)
+          titleCheck(user.specificExpectedResults.get.expectedErrorTitle, user.isWelsh)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)
           textOnPageCheck(captionText, captionSelector)
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
           buttonCheck(continueText, continueSelector)
           formPostLinkCheck(continueLink, continueButtonFormSelector)
-          errorSummaryCheck(user.specificExpectedResults.get.expectedErrorText, errorSummaryHref)
+          errorSummaryCheck(user.specificExpectedResults.get.expectedErrorText, errorSummaryHref, user.isWelsh)
           errorAboveElementCheck(user.specificExpectedResults.get.expectedErrorText)
           welshToggleCheck(user.isWelsh)
 

@@ -158,9 +158,9 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val yes: String = "Yes"
-    val no: String = "No"
-    val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val yes: String = "Iawn"
+    val no: String = "Na"
+    val caption = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
     val donationViaGiftAid = "Donation to charity using Gift Aid"
     val donationViaGiftAidAmount = "Amount donated to charity using Gift Aid"
     val oneOffDonation = "One-off donations to charity using Gift Aid"
@@ -182,8 +182,8 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
     val overseasSharesSecuritiesLandPropertyNamesValue = "Belgium Trust American Trust"
     val priorDonationNames = "Jello Corporation"
     val priorSharesSecuritiesLandPropertyNames = "Simbas College Fund"
-    val saveAndContinue = "Save and continue"
-    val error = "Sorry, there is a problem with the service"
+    val saveAndContinue = "Cadw ac yn eich blaen"
+    val error = "Mae’n ddrwg gennym – mae problem gyda’r gwasanaeth"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -271,7 +271,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
             result.status shouldBe OK
           }
 
-          titleCheck(user.specificExpectedResults.get.title)
+          titleCheck(user.specificExpectedResults.get.title, user.isWelsh)
           h1Check(user.specificExpectedResults.get.title + " " + caption)
           captionCheck(caption)
 
@@ -330,7 +330,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
                 result.status shouldBe OK
               }
 
-              titleCheck(user.specificExpectedResults.get.title)
+              titleCheck(user.specificExpectedResults.get.title, user.isWelsh)
               h1Check(user.specificExpectedResults.get.title + " " + caption)
               captionCheck(caption)
 
@@ -364,7 +364,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
                 result.status shouldBe OK
               }
 
-              titleCheck(user.specificExpectedResults.get.title)
+              titleCheck(user.specificExpectedResults.get.title, user.isWelsh)
               h1Check(user.specificExpectedResults.get.title + " " + caption)
               captionCheck(caption)
 
@@ -399,7 +399,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
               result.status shouldBe OK
             }
 
-            titleCheck(user.specificExpectedResults.get.title)
+            titleCheck(user.specificExpectedResults.get.title, user.isWelsh)
             h1Check(user.specificExpectedResults.get.title + " " + caption)
             captionCheck(caption)
 
@@ -434,7 +434,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
               result.status shouldBe OK
             }
 
-            titleCheck(user.specificExpectedResults.get.title)
+            titleCheck(user.specificExpectedResults.get.title, user.isWelsh)
             h1Check(user.specificExpectedResults.get.title + " " + caption)
             captionCheck(caption)
 
@@ -472,7 +472,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
               result.status shouldBe OK
             }
 
-            titleCheck(user.specificExpectedResults.get.title)
+            titleCheck(user.specificExpectedResults.get.title, user.isWelsh)
             h1Check(user.specificExpectedResults.get.title + " " + caption)
             captionCheck(caption)
 
@@ -601,7 +601,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(user.commonExpectedResults.error)
+            titleCheck(user.commonExpectedResults.error, user.isWelsh)
           }
         }
       }

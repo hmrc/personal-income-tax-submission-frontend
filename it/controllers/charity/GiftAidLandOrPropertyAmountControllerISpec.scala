@@ -64,10 +64,10 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val expectedCaption = "Donations to charity for 6 April 2021 to 5 April 2022"
-    val expectedHint = "For example, £600 or £193.54"
+    val expectedCaption = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
+    val expectedHint = "Er enghraifft, £600 neu £193.54"
     val expectedInputName = "amount"
-    val expectedButtonText = "Continue"
+    val expectedButtonText = "Yn eich blaen"
     val expectedTitle = "What is the value of land or property donated to charity?"
     val expectedHeading = "What is the value of land or property donated to charity?"
     val expectedContent = "Total value, in pounds"
@@ -126,7 +126,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
             result.status shouldBe OK
           }
 
-          titleCheck(expectedTitle)
+          titleCheck(expectedTitle, user.isWelsh)
           h1Check(expectedHeading + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(expectedContent, contentSelector)
@@ -172,7 +172,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
             import Selectors._
             import user.commonExpectedResults._
 
-            titleCheck(errorPrefix + expectedTitle)
+            titleCheck(errorPrefix(user.isWelsh) + expectedTitle, user.isWelsh)
             h1Check(expectedHeading + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(expectedContent, contentSelector)
@@ -181,7 +181,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
             buttonCheck(expectedButtonText, buttonSelector)
             welshToggleCheck(user.isWelsh)
 
-            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorEmpty, Selectors.expectedErrorLink)
+            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorEmpty, Selectors.expectedErrorLink, user.isWelsh)
             errorAboveElementCheck(user.specificExpectedResults.get.expectedErrorEmpty)
           }
 
@@ -194,7 +194,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
             import Selectors._
             import user.commonExpectedResults._
 
-            titleCheck(errorPrefix + expectedTitle)
+            titleCheck(errorPrefix(user.isWelsh) + expectedTitle, user.isWelsh)
             h1Check(expectedHeading + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(expectedContent, contentSelector)
@@ -203,7 +203,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
             buttonCheck(expectedButtonText, buttonSelector)
             welshToggleCheck(user.isWelsh)
 
-            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorOverMax, Selectors.expectedErrorLink)
+            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorOverMax, Selectors.expectedErrorLink, user.isWelsh)
             errorAboveElementCheck(user.specificExpectedResults.get.expectedErrorOverMax)
           }
 
@@ -215,7 +215,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
             import Selectors._
             import user.commonExpectedResults._
 
-            titleCheck(errorPrefix + expectedTitle)
+            titleCheck(errorPrefix(user.isWelsh) + expectedTitle, user.isWelsh)
             h1Check(expectedHeading + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(expectedContent, contentSelector)
@@ -224,7 +224,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
             buttonCheck(expectedButtonText, buttonSelector)
             welshToggleCheck(user.isWelsh)
 
-            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorInvalid, Selectors.expectedErrorLink)
+            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorInvalid, Selectors.expectedErrorLink, user.isWelsh)
             errorAboveElementCheck(user.specificExpectedResults.get.expectedErrorInvalid)
           }
         }

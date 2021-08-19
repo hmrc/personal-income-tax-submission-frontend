@@ -65,15 +65,15 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends CharityITHelper
 
   object CommonExpectedCY extends CommonExpectedResults {
     val charityName = "TestCharity"
-    val expectedTitle = s"Are you sure you want to remove $charityName?"
+    val expectedTitle = s"A ydych yn siŵr eich bod am dynnu $charityName?"
     val expectedErrorTitle = "Select yes to remove this overseas charity"
-    val expectedH1 = s"Are you sure you want to remove $charityName?"
+    val expectedH1 = s"A ydych yn siŵr eich bod am dynnu $charityName?"
     val expectedContent = "This will remove all overseas charities."
-    val expectedCaption = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val expectedCaption = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
     val noSelectionError = "Select yes to remove this overseas charity"
-    val yesText = "Yes"
-    val noText = "No"
-    val button = "Continue"
+    val yesText = "Iawn"
+    val noText = "Na"
+    val button = "Yn eich blaen"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, CommonExpectedResults]] = {
@@ -105,7 +105,7 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends CharityITHelper
               result.status shouldBe OK
             }
 
-            titleCheck(expectedTitle)
+            titleCheck(expectedTitle, user.isWelsh)
             h1Check(expectedH1 + " " + expectedCaption)
             elementExtinct(Selectors.content)
             radioButtonCheck(yesText, 1)
@@ -130,16 +130,15 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends CharityITHelper
               result.status shouldBe OK
             }
 
-            titleCheck(expectedTitle)
-            h1Check(expectedH1 + " " + expectedCaption)
-            textOnPageCheck(expectedContent, Selectors.content)
-            radioButtonCheck(yesText, 1)
-            radioButtonCheck(noText, 2)
-            captionCheck(expectedCaption)
-            buttonCheck(button)
-            noErrorsCheck()
-            welshToggleCheck(user.isWelsh)
-          }
+          titleCheck(expectedTitle, user.isWelsh)
+          h1Check(expectedH1 + " " + expectedCaption)
+          textOnPageCheck(expectedContent, Selectors.content)
+          radioButtonCheck(yesText, 1)
+          radioButtonCheck(noText, 2)
+          captionCheck(expectedCaption)
+          buttonCheck(button)
+          noErrorsCheck()
+          welshToggleCheck(user.isWelsh)
         }
       }
     }
@@ -160,7 +159,7 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends CharityITHelper
 
       "redirect the user to the 'overseas SSLP charity name' page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOverseasSharesNameController.show(year, None)}"
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOverseasSharesNameController.show(year)}"
       }
     }
 
@@ -189,14 +188,14 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends CharityITHelper
 
             import user.commonExpectedResults._
 
-            titleCheck(errorPrefix + expectedTitle)
+            titleCheck(errorPrefix(user.isWelsh) + expectedTitle, user.isWelsh)
             h1Check(expectedH1 + " " + expectedCaption)
             radioButtonCheck(yesText, 1)
             radioButtonCheck(noText, 2)
             captionCheck(expectedCaption)
             buttonCheck(button)
             welshToggleCheck(user.isWelsh)
-            errorSummaryCheck(expectedErrorTitle, Selectors.errorHref)
+            errorSummaryCheck(expectedErrorTitle, Selectors.errorHref, user.isWelsh)
             errorAboveElementCheck(expectedErrorTitle)
           }
         }
