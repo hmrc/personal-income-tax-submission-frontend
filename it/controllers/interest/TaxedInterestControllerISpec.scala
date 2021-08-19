@@ -78,17 +78,10 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
   object CommonExpectedCY extends CommonExpectedResults {
     val expectedCaption = s"Llog ar gyfer 6 Ebrill $taxYearMinusOne i 5 Ebrill $taxYear"
-<<<<<<< HEAD
     val forExampleText = "Gallai hyn fod yn llog gan:"
     val trustFundsText = "cronfeydd ymddiriedolaeth"
     val companyBondsText = "bondiau cwmni"
     val lifeAnnuityText = "taliadau blwydd-dal bywyd"
-=======
-    val forExampleText = "This could be interest from:"
-    val trustFundsText = "trust funds"
-    val companyBondsText = "company bonds"
-    val lifeAnnuityText = "life annuity payments"
->>>>>>> 03903e4 (Updated messages.cy and tests)
 
     val yesText = "Iawn"
     val noText = "Na"

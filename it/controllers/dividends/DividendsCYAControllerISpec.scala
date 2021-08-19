@@ -157,10 +157,10 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
     val continueButtonText = "Cadw ac yn eich blaen"
     val continueButtonLink = "/income-through-software/return/personal-income/2022/dividends/check-income-from-dividends"
     val changeLinkExpected = "Newid"
-    val UkDividendsText = "Dividends from UK-based companies"
-    val ukDividendsAmountText = "Value of dividends from UK-based companies"
-    val otherDividendsText = "Dividends from UK-based unit trusts or open-ended investment companies"
-    val otherDividendsAmountText = "Value of dividends from UK-based unit trusts or open-ended investment companies"
+    val UkDividendsText = "Difidendau o gwmnïau yn y DU"
+    val ukDividendsAmountText = "Swm difidendau o gwmnïau yn y DU"
+    val otherDividendsText = "Difidendau gan ymddiriedolaethau unedol yn y DU neu gwmnïau buddsoddi penagored"
+    val otherDividendsAmountText = "Swm difidendau gan ymddiriedolaethau unedol yn y DU neu gwmnïau buddsoddi penagored"
   }
 
 

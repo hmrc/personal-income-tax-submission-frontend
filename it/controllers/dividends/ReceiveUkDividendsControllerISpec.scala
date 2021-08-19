@@ -101,7 +101,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
 
   object AllExpectedWelsh extends CommonExpectedResults {
     val captionExpected = s"Difidendau ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
-    val yesNo: Boolean => String = isYes => if (isYes) "Yes" else "No"
+    val yesNo: Boolean => String = isYes => if (isYes) "Iawn" else "Na"
     val continueText = "Yn eich blaen"
     val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/dividends-from-uk-companies"
     val errorSummaryHref = "#value"

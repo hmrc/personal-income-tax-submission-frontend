@@ -93,7 +93,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
     val accountName: String = "Beth yw’r enw rydych am roi i’r cyfrif hwn?"
     val eachAccount = "Rhowch enw gwahanol i bob cyfrif."
     val interestEarned: String = "Swm y llog y DU a drethwyd"
-    val hint: String = "Er enghraifft, ‘cyfrif cynilo HSBC’. " + "For example, £600 or £193.54"
+    val hint: String = "Er enghraifft, ‘cyfrif cynilo HSBC’. " + "Er enghraifft, £600 neu £193.54"
     val button: String = "Yn eich blaen"
     val noNameEntryError: String = "Nodwch enw ar gyfer y cyfrif hwn"
     val invalidCharEntry: String = "Mae’n rhaid i enw’r cyfrif sydd â llog y DU a drethwyd cynnwys rhifau 0-9, " +
