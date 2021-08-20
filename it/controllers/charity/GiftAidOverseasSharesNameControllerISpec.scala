@@ -68,9 +68,9 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val expectedCaption: String = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val expectedCaption: String = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
     val expectedInputName: String = "name"
-    val expectedButtonText: String = "Continue"
+    val expectedButtonText: String = "Yn eich blaen"
     val expectedInputHintText: String = "You can add more than one charity."
     val expectedCharLimitError: String = "The name of the overseas charity must be 75 characters or fewer"
     val expectedInvalidCharError: String = "Name of overseas charity must only include numbers 0-9, letters a " +
@@ -129,7 +129,7 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
             result.status shouldBe OK
           }
 
-          titleCheck(user.specificExpectedResults.get.expectedTitle)
+          titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(expectedInputHintText, inputHintTextSelector)
@@ -174,7 +174,7 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
             import Selectors._
             import user.commonExpectedResults._
 
-            titleCheck(errorPrefix + user.specificExpectedResults.get.expectedTitle)
+            titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.expectedTitle, user.isWelsh)
             h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(expectedInputHintText, inputHintTextSelector)
@@ -182,7 +182,7 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
             buttonCheck(expectedButtonText, buttonSelector)
             welshToggleCheck(user.isWelsh)
 
-            errorSummaryCheck(user.specificExpectedResults.get.expectedError, Selectors.inputFieldSelector)
+            errorSummaryCheck(user.specificExpectedResults.get.expectedError, Selectors.inputFieldSelector, user.isWelsh)
             errorAboveElementCheck(user.specificExpectedResults.get.expectedError)
           }
 
@@ -194,7 +194,7 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
             import Selectors._
             import user.commonExpectedResults._
 
-            titleCheck(errorPrefix + user.specificExpectedResults.get.expectedTitle)
+            titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.expectedTitle, user.isWelsh)
             h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(expectedInputHintText, inputHintTextSelector)
@@ -202,7 +202,7 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
             buttonCheck(expectedButtonText, buttonSelector)
             welshToggleCheck(user.isWelsh)
 
-            errorSummaryCheck(expectedCharLimitError, Selectors.inputFieldSelector)
+            errorSummaryCheck(expectedCharLimitError, Selectors.inputFieldSelector, user.isWelsh)
             errorAboveElementCheck(expectedCharLimitError)
           }
 
@@ -214,7 +214,7 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
             import Selectors._
             import user.commonExpectedResults._
 
-            titleCheck(errorPrefix + user.specificExpectedResults.get.expectedTitle)
+            titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.expectedTitle, user.isWelsh)
             h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(expectedInputHintText, inputHintTextSelector)
@@ -222,7 +222,7 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
             buttonCheck(expectedButtonText, buttonSelector)
             welshToggleCheck(user.isWelsh)
 
-            errorSummaryCheck(expectedInvalidCharError, Selectors.inputFieldSelector)
+            errorSummaryCheck(expectedInvalidCharError, Selectors.inputFieldSelector, user.isWelsh)
             errorAboveElementCheck(expectedInvalidCharError)
           }
 
@@ -236,7 +236,7 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
             import Selectors._
             import user.commonExpectedResults._
 
-            titleCheck(errorPrefix + user.specificExpectedResults.get.expectedTitle)
+            titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.expectedTitle, user.isWelsh)
             h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(expectedInputHintText, inputHintTextSelector)
@@ -244,7 +244,7 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
             buttonCheck(expectedButtonText, buttonSelector)
             welshToggleCheck(user.isWelsh)
 
-            errorSummaryCheck(expectedDuplicateError, Selectors.inputFieldSelector)
+            errorSummaryCheck(expectedDuplicateError, Selectors.inputFieldSelector, user.isWelsh)
             errorAboveElementCheck(expectedDuplicateError)
           }
         }

@@ -87,9 +87,9 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
     val banksAndBuildingsText = "banciau a chymdeithasau adeiladu"
     val savingsAndCreditText = "cyfrifon cynilion ac undebau credyd"
     val peerToPeerText = "benthyca cymar i gymar"
-    val yesText = "Yes"
-    val noText = "No"
-    val continueText = "Continue"
+    val yesText = "Iawn"
+    val noText = "Na"
+    val continueText = "Yn eich blaen"
     val continueLink = s"/income-through-software/return/personal-income/$taxYear/interest/untaxed-uk-interest"
   }
 
@@ -111,7 +111,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
     val expectedTitle = "A gawsoch log y DU sydd heb ei drethu?"
-    val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
     val expectedH1 = "A gawsoch log y DU sydd heb ei drethu?"
     val doNotIncludeText: String = "Peidiwch â chynnwys llog a gawsoch gan Gyfrif Cynilo Unigol (ISA) neu giltiau."
     val expectedErrorText = "Dewiswch ‘Iawn’ os cawsoch log y DU sydd heb ei drethu"
@@ -119,7 +119,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
   object ExpectedAgentCY extends SpecificExpectedResults {
     val expectedTitle = "A chafodd eich cleient llog y DU sydd heb ei drethu?"
-    val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
     val expectedH1 = "A chafodd eich cleient llog y DU sydd heb ei drethu?"
     val doNotIncludeText: String = "Peidiwch â chynnwys llog a gafodd eich cleient gan Gyfrif Cynilo Unigol (ISA) neu giltiau."
     val expectedErrorText = "Dewiswch ‘Iawn’ os cafodd eich cleient llog y DU sydd heb ei drethu"
@@ -162,7 +162,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(specific.expectedTitle)
+            titleCheck(specific.expectedTitle, us.isWelsh)
             welshToggleCheck(us.isWelsh)
             h1Check(specific.expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
@@ -201,7 +201,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(specific.expectedTitle)
+            titleCheck(specific.expectedTitle, us.isWelsh)
             welshToggleCheck(us.isWelsh)
             h1Check(specific.expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
@@ -293,11 +293,11 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(specific.expectedErrorTitle)
+          titleCheck(specific.expectedErrorTitle, us.isWelsh)
           welshToggleCheck(us.isWelsh)
           h1Check(specific.expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
-          errorSummaryCheck(specific.expectedErrorText, errorSummaryHref)
+          errorSummaryCheck(specific.expectedErrorText, errorSummaryHref, us.isWelsh)
           errorAboveElementCheck(specific.expectedErrorText)
           buttonCheck(continueText, continueSelector)
           formPostLinkCheck(continueLink, continueFormSelector)

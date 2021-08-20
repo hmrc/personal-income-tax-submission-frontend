@@ -55,12 +55,12 @@ class AgentAuthErrorControllerISpec extends IntegrationTest with ViewHelpers {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val heading: String = "There’s a problem"
-    val title = "There’s a problem"
-    val youCannotViewText: String = "You cannot view this client’s information. Your client needs to"
-    val authoriseYouAsText = "authorise you as their agent (opens in new tab)"
-    val beforeYouCanTryText = "before you can sign in to this service."
-    val tryAnother = "Try another client’s details"
+    val heading: String = "Mae problem wedi codi"
+    val title = "Mae problem wedi codi"
+    val youCannotViewText: String = "Ni allwch fwrw golwg dros wybodaeth y cleient hwn. Mae’n rhaid i’ch cleient"
+    val authoriseYouAsText = "eich awdurdodi fel ei asiant (yn agor tab newydd)"
+    val beforeYouCanTryText = "cyn y gallwch fewngofnodi i’r gwasanaeth hwn."
+    val tryAnother = "Rhowch gynnig ar fanylion cleient arall"
     val authoriseAsAnAgentLink = "https://www.gov.uk/guidance/client-authorisation-an-overview"
     val tryAnotherExpectedHref = "http://localhost:9081/report-quarterly/income-and-expenses/view/agents/client-utr"
   }
@@ -91,7 +91,7 @@ class AgentAuthErrorControllerISpec extends IntegrationTest with ViewHelpers {
 
           import user.commonExpectedResults._
 
-          titleCheck(title)
+          titleCheck(title, user.isWelsh)
           h1Check(heading,"xl")
           textOnPageCheck(s"$youCannotViewText $authoriseYouAsText $beforeYouCanTryText", youCan)
           linkCheck(authoriseYouAsText, authoriseAsAnAgentLinkSelector, authoriseAsAnAgentLink)

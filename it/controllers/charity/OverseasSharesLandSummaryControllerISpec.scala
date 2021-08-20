@@ -74,19 +74,19 @@ class OverseasSharesLandSummaryControllerISpec  extends CharityITHelper {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val caption = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
     val question = "Do you need to add another overseas charity?"
-    val yes = "Yes"
-    val no = "No"
+    val yes = "Iawn"
+    val no = "Na"
     val errorSummary = "There is a problem"
-    val change = "Change"
-    val remove = "Remove"
+    val change = "Newid"
+    val remove = "Tynnu"
     val hiddenChange1 = s"Change the details you’ve entered for $charity1."
-    val hiddenRemove1 = s"Remove $charity1."
+    val hiddenRemove1 = s"Tynnu $charity1."
     val hiddenChange2 = s"Change the details you’ve entered for $charity2."
-    val hiddenRemove2 = s"Remove $charity2."
+    val hiddenRemove2 = s"Tynnu $charity2."
     val noSelectionError = "Select yes if you need to add another overseas charity"
-    val button = "Continue"
+    val button = "Yn eich blaen"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -139,10 +139,10 @@ class OverseasSharesLandSummaryControllerISpec  extends CharityITHelper {
             result.status shouldBe OK
           }
 
-          titleCheck(user.specificExpectedResults.get.headingSingle)
+          titleCheck(user.specificExpectedResults.get.headingSingle, user.isWelsh)
           h1Check(s"${user.specificExpectedResults.get.headingSingle} $caption")
           captionCheck(caption)
-          taskListCheck(Seq((charity1, hiddenChange1, hiddenRemove1)))
+          taskListCheck(Seq((charity1, hiddenChange1, hiddenRemove1)), user.isWelsh)
           textOnPageCheck(question, Selectors.question)
           radioButtonCheck(user.commonExpectedResults.yes, 1)
           radioButtonCheck(user.commonExpectedResults.no, 2)
@@ -187,14 +187,14 @@ class OverseasSharesLandSummaryControllerISpec  extends CharityITHelper {
 
             import user.commonExpectedResults._
 
-            titleCheck(errorPrefix + user.specificExpectedResults.get.headingSingle)
+            titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.headingSingle, user.isWelsh)
             h1Check(s"${user.specificExpectedResults.get.headingSingle} $caption")
             radioButtonCheck(user.commonExpectedResults.yes, 1)
             radioButtonCheck(user.commonExpectedResults.no, 2)
             hintTextCheck(user.specificExpectedResults.get.hint)
             captionCheck(caption)
             buttonCheck(button)
-            errorSummaryCheck(noSelectionError, "#value")
+            errorSummaryCheck(noSelectionError, "#value", user.isWelsh)
             errorAboveElementCheck(noSelectionError)
             welshToggleCheck(user.isWelsh)
           }

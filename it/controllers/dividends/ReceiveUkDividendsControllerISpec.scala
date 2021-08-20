@@ -86,7 +86,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
   object IndividualExpectedWelsh extends SpecificExpectedReults {
     val expectedH1 = "A gawsoch ddifidendau gan gwmnïau yn y DU?"
     val expectedTitle = "A gawsoch ddifidendau gan gwmnïau yn y DU?"
-    val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
     val yourDividendsText = "Bydd eich taleb ddifidend yn rhoi gwybod i chi am y cyfranddaliadau sydd gennych yn y cwmni a swm y difidend a gawsoch."
     val expectedErrorText = "Dewiswch ‘Iawn’ os cawsoch ddifidendau gan gwmnïau yn y DU"
   }
@@ -94,15 +94,15 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
   object AgentExpectedWelsh extends SpecificExpectedReults {
     val expectedH1 = "A gafodd eich cleient ddifidendau gan gwmnïau yn y DU?"
     val expectedTitle = "A gafodd eich cleient ddifidendau gan gwmnïau yn y DU?"
-    val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
     val yourDividendsText = "Bydd taleb ddifidend eich cleient yn rhoi gwybod i chi am y cyfranddaliadau sydd ganddynt yn y cwmni a swm y difidend a gafodd."
     val expectedErrorText = "Dewiswch ‘Iawn’ os cafodd eich cleient ddifidendau gan gwmnïau yn y DU"
   }
 
   object AllExpectedWelsh extends CommonExpectedResults {
     val captionExpected = s"Difidendau ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
-    val yesNo: Boolean => String = isYes => if (isYes) "Yes" else "No"
-    val continueText = "Continue"
+    val yesNo: Boolean => String = isYes => if (isYes) "Iawn" else "Na"
+    val continueText = "Yn eich blaen"
     val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/dividends-from-uk-companies"
     val errorSummaryHref = "#value"
   }
@@ -136,8 +136,8 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(get.expectedTitle)
-          h1Check(s"${get.expectedH1} $captionExpected")
+          titleCheck(get.expectedTitle, us.isWelsh)
+          h1Check(s"${get.expectedH1} ${captionExpected}")
           textOnPageCheck(get.yourDividendsText, yourDividendsSelector)
           radioButtonCheck(yesNo(true), 1)
           radioButtonCheck(yesNo(false), 2)
@@ -162,8 +162,8 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(get.expectedTitle)
-          h1Check(s"${get.expectedH1} $captionExpected")
+          titleCheck(get.expectedTitle, us.isWelsh)
+          h1Check(s"${get.expectedH1} ${captionExpected}")
           textOnPageCheck(get.yourDividendsText, yourDividendsSelector)
           radioButtonCheck(yesNo(true), 1)
           radioButtonCheck(yesNo(false), 2)
@@ -225,7 +225,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
             authoriseAgentOrIndividual(us.isAgent)
             dropDividendsDB()
             emptyUserDataStub()
-            urlPost(receiveUkDividendsUrl,follow = false, headers = playSessionCookie(us.isAgent), body = Map[String, String](), welsh=us.isWelsh)
+            urlPost(receiveUkDividendsUrl, welsh=us.isWelsh, follow = false, headers = playSessionCookie(us.isAgent), body = Map[String, String]())
           }
 
           s"has a $BAD_REQUEST(400) status" in {
@@ -233,7 +233,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           }
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
-          errorSummaryCheck(get.expectedErrorText, expectedErrorLink)
+          errorSummaryCheck(get.expectedErrorText, expectedErrorLink, us.isWelsh)
           errorAboveElementCheck(get.expectedErrorText)
         }
 
@@ -253,9 +253,9 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(get.expectedErrorTitle)
-          h1Check(s"${get.expectedH1} $captionExpected")
-          errorSummaryCheck(get.expectedErrorText, errorSummaryHref)
+          titleCheck(get.expectedErrorTitle, us.isWelsh)
+          h1Check(s"${get.expectedH1} ${captionExpected}")
+          errorSummaryCheck(get.expectedErrorText, errorSummaryHref, us.isWelsh)
           textOnPageCheck(get.yourDividendsText, yourDividendsSelector)
           radioButtonCheck(yesNo(true), 1)
           radioButtonCheck(yesNo(false), 2)

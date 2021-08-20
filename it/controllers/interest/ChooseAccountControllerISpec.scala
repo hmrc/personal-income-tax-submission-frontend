@@ -128,8 +128,8 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
     val barclayAccount = "Barclays"
     val addAccountText = "Ychwanegwch gyfrif newydd"
     val captionExpected = "Llog ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
-    val or = "or"
-    val continueText = "Continue"
+    val or = "neu"
+    val continueText = "Yn eich blaen"
 
     def continueLink(taxType: String): String =
       s"/income-through-software/return/personal-income/$taxYear/interest/which-account-did-you-get-$taxType-interest-from"
@@ -186,7 +186,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(get.expectedTitle(TAXED))
+          titleCheck(get.expectedTitle(TAXED), us.isWelsh)
           h1Check(get.expectedH1(TAXED) + " " + captionExpected)
           radioButtonCheck(halifaxAccount, 1)
           radioButtonCheck(addAccountText, 2)
@@ -218,7 +218,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(get.expectedTitle(TAXED))
+          titleCheck(get.expectedTitle(TAXED), us.isWelsh)
           h1Check(get.expectedH1(TAXED) + " " + captionExpected)
           radioButtonCheck(santanderAccount, 1)
           radioButtonCheck(halifaxAccount, 2)
@@ -253,7 +253,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(get.expectedTitle(UNTAXED))
+          titleCheck(get.expectedTitle(UNTAXED), us.isWelsh)
           h1Check(get.expectedH1(UNTAXED) + " " + captionExpected)
           radioButtonCheck(natwestAccount, 1)
           radioButtonCheck(addAccountText, 2)
@@ -286,7 +286,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(get.expectedTitle(UNTAXED))
+          titleCheck(get.expectedTitle(UNTAXED), us.isWelsh)
           h1Check(get.expectedH1(UNTAXED) + " " + captionExpected)
           radioButtonCheck(nationwideAccount, 1)
           radioButtonCheck(natwestAccount, 2)
@@ -523,7 +523,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
             buttonCheck(continueText, continueSelector)
             formPostLinkCheck(continueLink(TAXED), continueButtonFormSelector)
 
-            errorSummaryCheck(get.expectedErrorText(TAXED), errorSummaryHref)
+            errorSummaryCheck(get.expectedErrorText(TAXED), errorSummaryHref, us.isWelsh)
 
             welshToggleCheck(us.isWelsh)
           }
@@ -553,7 +553,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
             buttonCheck(continueText, continueSelector)
             formPostLinkCheck(continueLink(UNTAXED), continueButtonFormSelector)
 
-            errorSummaryCheck(get.expectedErrorText(UNTAXED), errorSummaryHref)
+            errorSummaryCheck(get.expectedErrorText(UNTAXED), errorSummaryHref, us.isWelsh)
 
             welshToggleCheck(us.isWelsh)
           }

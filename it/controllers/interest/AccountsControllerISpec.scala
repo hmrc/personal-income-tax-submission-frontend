@@ -127,16 +127,16 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
     val untaxedTitle = "Cyfrifon sydd â llog y DU sydd heb ei drethu"
     val taxedTitle = "Cyfrifon gyda llog y DU a drethwyd"
     val captionText = s"Llog ar gyfer 6 Ebrill $taxYearMinusOne i 5 Ebrill $taxYear"
-    val changeText = "Change"
-    val removeText = "Remove"
+    val changeText = "Newid"
+    val removeText = "Tynnu"
     val addAnotherAccountText = "Ychwanegwch gyfrif arall"
-    val continueText = "Continue"
-    val errorTitleText: String => String = (titleText: String) => s"Error: $titleText"
+    val continueText = "Yn eich blaen"
+    val errorTitleText: String => String = (titleText: String) => s"Gwall: $titleText"
     val doYouNeedText = "A oes angen i chi ychwanegu cyfrif arall?"
-    val yesText = "Yes"
-    val noText = "No"
-    val removeAccountHiddenText = (account: String) => s"$removeText $account account"
-    val changeAccountHiddenText = (account: String) => s"$changeText $account account details"
+    val yesText = "Iawn"
+    val noText = "Na"
+    val removeAccountHiddenText = (account: String) => s"$removeText $account cyfrif"
+    val changeAccountHiddenText = (account: String) => s"$changeText $account manylion y cyfrif"
     val expectedErrorText = "Dewiswch ‘Iawn’ er mwyn ychwanegu cyfrif arall"
   }
 
@@ -200,7 +200,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(untaxedTitle)
+          titleCheck(untaxedTitle, us.isWelsh)
           welshToggleCheck(us.isWelsh)
           textOnPageCheck(captionText, captionSelector)
           h1Check(untaxedH1 + " " + captionText)
@@ -264,7 +264,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(untaxedTitle)
+          titleCheck(untaxedTitle, us.isWelsh)
           welshToggleCheck(us.isWelsh)
           h1Check(untaxedH1 + " " + captionText)
           textOnPageCheck(captionText, captionSelector)
@@ -385,7 +385,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(taxedTitle)
+          titleCheck(taxedTitle, us.isWelsh)
           welshToggleCheck(us.isWelsh)
           textOnPageCheck(captionText, captionSelector)
           h1Check(taxedH1 + " " + captionText)
@@ -449,7 +449,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(taxedTitle)
+          titleCheck(taxedTitle, us.isWelsh)
           welshToggleCheck(us.isWelsh)
           h1Check(taxedH1 + " " + captionText)
           textOnPageCheck(captionText, captionSelector)
@@ -679,12 +679,12 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           welshToggleCheck(us.isWelsh)
-          titleCheck(errorTitleText(untaxedTitle))
+          titleCheck(errorTitleText(untaxedTitle), us.isWelsh)
           h1Check(untaxedH1 + " " + captionText)
           textOnPageCheck(captionText, captionSelector)
           textOnPageCheck("Untaxed Account", accountRowName(1))
 
-          errorSummaryCheck(expectedErrorText, "#value")
+          errorSummaryCheck(expectedErrorText, "#value", us.isWelsh)
           errorAboveElementCheck(expectedErrorText)
 
           "has a link for changing the account" which {
@@ -833,12 +833,12 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           welshToggleCheck(us.isWelsh)
-          titleCheck(errorTitleText(taxedTitle))
+          titleCheck(errorTitleText(taxedTitle), us.isWelsh)
           h1Check(taxedH1 + " " + captionText)
           textOnPageCheck(captionText, captionSelector)
           textOnPageCheck("Taxed Account", accountRowName(1))
 
-          errorSummaryCheck(expectedErrorText, "#value")
+          errorSummaryCheck(expectedErrorText, "#value", us.isWelsh)
           errorAboveElementCheck(expectedErrorText)
 
           "has a link for changing the account" which {

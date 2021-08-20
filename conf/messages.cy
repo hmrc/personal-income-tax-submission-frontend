@@ -1,94 +1,94 @@
 # Common Service Messages
 # ----------------------------------------------------------
 
-service.name = Update and submit an Income Tax Return
+service.name = Diweddaru a chyflwyno Ffurflen Dreth Incwm
 service.govUkExtension = GOV.UK
 
 betaBar.beta = beta
-betaBar.banner.message.1 = This is a new service – your
-betaBar.banner.message.2 = feedback
-betaBar.banner.message.3 = will help us to improve it.
+betaBar.banner.message.1 = Gwasanaeth newydd yw hwn – bydd eich
+betaBar.banner.message.2 = adborth
+betaBar.banner.message.3 = yn ein helpu i’w wella.
 
-common.back = Back
-common.yes = Yes
-common.no = No
-common.or = or
-common.continue = Continue
-common.saveAndContinue = Save and continue
-common.change = Change
-common.aDifferentAmount = A different amount
-common.enterAmount = Enter amount
-common.remove = Remove
-common.remove.account = Are you sure you want to remove {0}?
-common.account = account
-common.account-details = account details
-common.opensInNewWindowOrTab = (opens in new tab)
-common.help.getHelpWithThisPage = Get help with this page
+common.back = Yn ôl
+common.yes = Iawn
+common.no = Na
+common.or = neu
+common.continue = Yn eich blaen
+common.saveAndContinue = Cadw ac yn eich blaen
+common.change = Newid
+common.aDifferentAmount = Swm gwahanol
+common.enterAmount = Nodwch y swm
+common.remove = Tynnu
+common.remove.account = A ydych yn siŵr eich bod am dynnu {0}?
+common.account = cyfrif
+common.account-details = manylion y cyfrif
+common.opensInNewWindowOrTab = (yn agor tab newydd)
+common.help.getHelpWithThisPage = Help gyda’r dudalen hon
 
-common.youToldUs = You told us
-common.youGot.individual = you got
-common.youGot.agent = your client got
-common.currency.hint = For example, £600 or £193.54
+common.youToldUs = Gwnaethoch ddweud wrthym
+common.youGot.individual = cawsoch
+common.youGot.agent = cafodd eich cleient
+common.currency.hint = Er enghraifft, £600 neu £193.54
 
-dividends.caption =  Difidendau ar gyfer 6 Ebrill {0} i 5 Ebrill {1}
+dividends.caption = Difidendau ar gyfer 6 Ebrill {0} i 5 Ebrill {1}
 interest.caption = Llog ar gyfer 6 Ebrill {0} i 5 Ebrill {1}
-charity.caption = Donations to charity for 6 April {0} to 5 April {1}
+charity.caption = Rhoddion i elusennau ar gyfer 6 Ebrill {0} i 5 Ebrill {1}
 
 # Common Error Messages
 # ----------------------------------------------------------
 
-common.error.summary.title = There is a problem
-common.error.errorKey = Error:
-common.error.invalid_number = Enter an amount using numbers 0 to 9
-common.error.amountMaxLimit = Enter an amount less than £100,000,000,000
-common.error.invalid_currency_format = Enter the amount in the correct format
+common.error.summary.title = Mae problem wedi codi
+common.error.errorKey = Gwall:
+common.error.invalid_number = Nodwch swm gan ddefnyddio’r rhifau 0 i 9
+common.error.amountMaxLimit = Nodwch swm sy’n llai na £100,000,000,000
+common.error.invalid_currency_format = Nodwch y swm yn y fformat cywir
 
 # General Service Pages
 # ----------------------------------------------------------
 
-not-found-template.title = Page not found
-not-found-template.paragraph.1 = If you typed the web address, check it is correct.
-not-found-template.paragraph.2 = If you used ‘copy and paste’ to enter the web address, check you copied the full address.
+not-found-template.title = Heb ddod o hyd i’r dudalen
+not-found-template.paragraph.1 = Os gwnaethoch deipio’r cyfeiriad gwe, gwiriwch ei fod yn gywir.
+not-found-template.paragraph.2 = Os gwnaethoch ddefnyddio ‘copïo a gludo’ i nodi’r cyfeiriad gwe, gwiriwch eich bod wedi copïo’r cyfeiriad llawn.
 
-internal-server-error-template.title = Sorry, there is a problem with the service
-internal-server-error-template.paragraph.1 = Try again later.
+internal-server-error-template.title = Mae’n ddrwg gennym – mae problem gyda’r gwasanaeth
+internal-server-error-template.paragraph.1 = Rhowch gynnig arall arni yn nes ymlaen.
 
-service-unavailable-error-template.title = Sorry, the service is unavailable
-service-unavailable-error-template.paragraph.1 = You will be able to use this service later.
+service-unavailable-error-template.title = Mae’n ddrwg gennym, nid yw’r gwasanaeth ar gael
+service-unavailable-error-template.paragraph.1 = Byddwch yn gallu defnyddio’r gwasanaeth hwn nes ymlaen.
 
-error-template.paragraph.1.1 = You can also:
-error-template.paragraph.1.2 = go to the
-error-template.paragraph.1.3 = Income Tax home page (opens in new tab)
-error-template.paragraph.1.4 = for more information
-error-template.paragraph.2.1 = use
-error-template.paragraph.2.2 = Self Assessment: general enquiries (opens in new tab)
-error-template.paragraph.2.3 = to speak to someone about your income tax.
+error-template.paragraph.1.1 = Gallwch hefyd wneud y canlynol:
+error-template.paragraph.1.2 = ewch i’r
+error-template.paragraph.1.3 = Tudalen hafan Treth Incwm (yn agor tab newydd)
+error-template.paragraph.1.4 = am ragor o wybodaeth
+error-template.paragraph.2.1 = defnyddiwch
+error-template.paragraph.2.2 = Hunanasesiad: ymholiadau cyffredinol (yn agor tab newydd)
+error-template.paragraph.2.3 = i siarad â rhywun am eich Treth Incwm.
 
-error-template.paragraph.2.4 = If the web address is correct or you selected a link or button, you can use
+error-template.paragraph.2.4 = Os yw’r cyfeiriad gwe yn gywir neu os ydych wedi dewis cysylltiad neu fotwm, gallwch ddefnyddio
 
-error.unauthorised-user.title = You are not authorised to use this service
-error.unauthorised-user.paragraph.1.1 = You can:
+error.unauthorised-user.title = Nid ydych wedi’ch awdurdodi i ddefnyddio’r gwasanaeth hwn
+error.unauthorised-user.paragraph.1.1 = Gallwch wneud y canlynol:
 
-error.agent.title = There’s a problem
-error.agent.paragraph1 = You cannot view this client’s information. Your client needs to
-error.agent.paragraph2 = authorise you as their agent (opens in new tab)
-error.agent.paragraph3 = before you can sign in to this service.
-error.agent.paragraph4 = Try another client’s details
+error.agent.title = Mae problem wedi codi
+error.agent.paragraph1 = Ni allwch fwrw golwg dros wybodaeth y cleient hwn. Mae’n rhaid i’ch cleient
+error.agent.paragraph2 = eich awdurdodi fel ei asiant (yn agor tab newydd)
+error.agent.paragraph3 = cyn y gallwch fewngofnodi i’r gwasanaeth hwn.
+error.agent.paragraph4 = Rhowch gynnig ar fanylion cleient arall
 
-error.common.title = You cannot view this page
-error.common.p.1 = You need to
-error.common.p.2 = before you can view this page.
+error.common.title = Ni allwch fwrw golwg dros y dudalen hon
+error.common.p.1 = Mae’n rhaid i chi
+error.common.p.2 = cyn i chi allu bwrw golwg ar y dudalen hon.
 
-error.unauthorised.p = sign up for Making Tax Digital for Income Tax
+error.unauthorised.p = cofrestru am y cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm
 
-youNeedAgentServices.p = create an agent services account
+youNeedAgentServices.p = greu cyfrif gwasanaethau asiant
 
-timeout.heading = For your security, we signed you out
-timeout.p1 = We did not save your answers.
-timeout.button = Sign in
+timeout.heading = Er eich diogelwch, gwnaethom eich allgofnodi
+timeout.p1 = Ni wnaethom gadw’ch atebion.
+timeout.button = Mewngofnodi
 
-taxYear-error-template.paragraph.1 = You can only enter information for the 2021 to 2022 tax year.
-taxYear-error-template.paragraph.2 = Check that you’ve entered the correct web address.
+taxYear-error-template.paragraph.1 = Dim ond ar gyfer blwyddyn dreth 2021 i 2022 y gallwch nodi gwybodaeth.
+taxYear-error-template.paragraph.2 = Gwiriwch eich bod wedi nodi’r cyfeiriad gwe cywir.
 
 # Dividends
 # ----------------------------------------------------------

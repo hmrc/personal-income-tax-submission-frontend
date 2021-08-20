@@ -147,9 +147,9 @@ class UserDataRepositoryISpec extends IntegrationTest with FutureAwaits with Def
 
     "clear the document for the current user" in {
       count shouldBe 1
-      dividendsRepo.create(DividendsUserDataModel(sessionId, "7788990066", nino, taxYear))
+      await(dividendsRepo.create(DividendsUserDataModel(sessionId, "7788990066", nino, taxYear)))
       count shouldBe 2
-      dividendsRepo.clear(taxYear)
+      await(dividendsRepo.clear(taxYear))
       count shouldBe 1
     }
   }

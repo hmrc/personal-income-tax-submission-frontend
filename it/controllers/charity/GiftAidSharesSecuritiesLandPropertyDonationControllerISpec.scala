@@ -74,10 +74,10 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Charity
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val captionText = s"Donations to charity for 6 April ${year - 1} to 5 April $year"
-    val yesText = "Yes"
-    val noText = "No"
-    val continueText = "Continue"
+    val captionText = s"Rhoddion i elusennau ar gyfer 6 Ebrill ${year - 1} i 5 Ebrill $year"
+    val yesText = "Iawn"
+    val noText = "Na"
+    val continueText = "Yn eich blaen"
     val disclosureContentTitle = "What are qualifying shares and securities?"
     val disclosureContentParagraph = "Qualifying shares and securities are:"
     val disclosureContentBullet1 = "listed on a recognised stock exchange or dealt in on a designated market in the UK"
@@ -137,7 +137,7 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Charity
             result.status shouldBe OK
           }
 
-          titleCheck(user.specificExpectedResults.get.expectedTitle)
+          titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           welshToggleCheck(user.isWelsh)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)
           textOnPageCheck(captionText, captionSelector)
@@ -214,7 +214,7 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Charity
           import Selectors._
           import user.commonExpectedResults._
 
-          titleCheck(errorPrefix + user.specificExpectedResults.get.expectedTitle)
+          titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           welshToggleCheck(user.isWelsh)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)
           textOnPageCheck(captionText, captionSelector)
@@ -227,7 +227,7 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Charity
           textOnPageCheck(disclosureContentBullet2, disclosureSelectorBullet2)
           textOnPageCheck(disclosureContentBullet3, disclosureSelectorBullet3)
           textOnPageCheck(disclosureContentBullet4, disclosureSelectorBullet4)
-          errorSummaryCheck(user.specificExpectedResults.get.expectedError, errorSummaryHref)
+          errorSummaryCheck(user.specificExpectedResults.get.expectedError, errorSummaryHref, user.isWelsh)
           errorAboveElementCheck(user.specificExpectedResults.get.expectedError)
 
           "return a BAD_REQUEST" in {

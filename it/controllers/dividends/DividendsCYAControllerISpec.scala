@@ -151,12 +151,12 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
   object AllExpectedWelsh extends CommonExpectedResults {
     val captionExpected = s"Difidendau ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
-    val yesNoExpectedAnswer: Boolean => String = isYes => if (isYes) "Yes" else "No"
+    val yesNoExpectedAnswer: Boolean => String = isYes => if (isYes) "Iawn" else "Na"
     val ukDividendsAmount = "£10"
     val otherDividendsAmount = "£10.50"
-    val continueButtonText = "Save and continue"
+    val continueButtonText = "Cadw ac yn eich blaen"
     val continueButtonLink = "/income-through-software/return/personal-income/2022/dividends/check-income-from-dividends"
-    val changeLinkExpected = "Change"
+    val changeLinkExpected = "Newid"
     val UkDividendsText = "Difidendau o gwmnïau yn y DU"
     val ukDividendsAmountText = "Swm difidendau o gwmnïau yn y DU"
     val otherDividendsText = "Difidendau gan ymddiriedolaethau unedol yn y DU neu gwmnïau buddsoddi penagored"
@@ -200,7 +200,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
 
-          titleCheck(get.titleExpected)
+          titleCheck(get.titleExpected, us.isWelsh)
           h1Check(get.h1Expected + " " + captionExpected)
           textOnPageCheck(captionExpected, Selectors.captionSelector)
           "has an area for section 1" which {
@@ -254,7 +254,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(get.titleExpected)
+          titleCheck(get.titleExpected, us.isWelsh)
           h1Check(get.h1Expected + " " + captionExpected)
           textOnPageCheck(captionExpected, Selectors.captionSelector)
           "has an area for section 1" which {
@@ -294,7 +294,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(get.titleExpected)
+          titleCheck(get.titleExpected, us.isWelsh)
           h1Check(get.h1Expected + " " + captionExpected)
           textOnPageCheck(captionExpected, Selectors.captionSelector)
           "has an area for section 1" which {
@@ -340,7 +340,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(get.titleExpected)
+          titleCheck(get.titleExpected, us.isWelsh)
           h1Check(get.h1Expected + " " + captionExpected)
           textOnPageCheck(captionExpected, Selectors.captionSelector)
           "has an area for section 1" which {
