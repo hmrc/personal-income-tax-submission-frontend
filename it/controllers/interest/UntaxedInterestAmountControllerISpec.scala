@@ -93,8 +93,8 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
     val accountName: String = "Beth yw’r enw rydych am roi i’r cyfrif hwn?"
     val eachAccount = "Rhowch enw gwahanol i bob cyfrif."
     val interestEarned: String = "Swm y llog y DU sydd heb ei drethu"
-    val hint: String = "Er enghraifft, ‘cyfrif cynilo HSBC’. " + "For example, £600 or £193.54"
-    val button: String = "Continue"
+    val hint: String = "Er enghraifft, ‘cyfrif cynilo HSBC’. " + "Er enghraifft, £600 neu £193.54"
+    val button: String = "Yn eich blaen"
     val noNameEntryError: String = "Nodwch enw ar gyfer y cyfrif hwn"
     val invalidCharEntry: String = "Mae’n rhaid i enw’r cyfrif sydd â llog y DU sydd heb ei drethu cynnwys rhifau 0-9," +
       " llythrennau a i z, cysylltnodau, bylchau, collnodau, comas, atalnodau llawn, cromfachau crwn, a’r cymeriadau arbennig &, /, @, £, * yn unig"
@@ -102,7 +102,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
     val duplicateNameError: String = "Ni allwch ychwanegu 2 gyfrif gyda’r un enw"
     val tooMuchMoneyError = "Mae’n rhaid i swm y llog y DU sydd heb ei drethu fod yn llai na £100,000,000,000"
     val incorrectFormatError = "Nodwch swm y llog y DU sydd heb ei drethu yn y fformat cywir"
-    val errorTitle: String = s"Error: $heading"
+    val errorTitle: String = s"Gwall: $heading"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -160,7 +160,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(heading)
+          titleCheck(heading, us.isWelsh)
           welshToggleCheck(us.isWelsh)
           h1Check(s"$heading $caption")
           captionCheck(caption)
@@ -316,7 +316,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
             List(
               (noNameEntryError, Selectors.accountNameInput),
               (specific.noAmountEntryError, Selectors.amountInput)
-            )
+            ), us.isWelsh
           )
         }
 
@@ -334,7 +334,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
             List(
               (invalidCharEntry, Selectors.accountNameInput),
               (incorrectFormatError, Selectors.amountInput)
-            )
+            ), us.isWelsh
           )
         }
 
@@ -352,7 +352,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
             List(
               (nameTooLongError, Selectors.accountNameInput),
               (tooMuchMoneyError, Selectors.amountInput)
-            )
+            ), us.isWelsh
           )
         }
 
@@ -370,9 +370,8 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
           inputFieldValueCheck("Sensible account", Selectors.accountNameInput)
           inputFieldValueCheck("500.8.75", Selectors.amountInput)
-          titleCheck(errorTitle)
-
-          errorSummaryCheck(incorrectFormatError, Selectors.amountInput)
+          titleCheck(errorTitle, us.isWelsh)
+          errorSummaryCheck(incorrectFormatError, Selectors.amountInput, us.isWelsh)
           errorAboveElementCheck(incorrectFormatError)
         }
 
@@ -402,9 +401,9 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
           inputFieldValueCheck(secondAccountName, Selectors.accountNameInput)
           inputFieldValueCheck("12344.98", Selectors.amountInput)
-          titleCheck(errorTitle)
+          titleCheck(errorTitle, us.isWelsh)
 
-          errorSummaryCheck(duplicateNameError, Selectors.accountNameInput)
+          errorSummaryCheck(duplicateNameError, Selectors.accountNameInput, us.isWelsh)
           errorAboveElementCheck(duplicateNameError)
         }
 

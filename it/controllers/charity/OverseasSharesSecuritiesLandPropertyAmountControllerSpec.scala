@@ -65,9 +65,9 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
 
   object CommonExpectedCY extends CommonExpectedResults {
     val heading: String = "What is the value of qualifying shares, securities, land or property donated to overseas charities?"
-    val hintText: String = "For example, £600 or £193.54"
-    val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
-    val button = "Continue"
+    val hintText: String = "Er enghraifft, £600 neu £193.54"
+    val caption = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
+    val button = "Yn eich blaen"
     val inputName = "amount"
     val inputLabel = "Total value, in pounds"
   }
@@ -152,7 +152,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
             result.status shouldBe OK
           }
 
-          titleCheck(heading)
+          titleCheck(heading, user.isWelsh)
           h1Check(heading + " " + caption)
           inputFieldCheck(inputName, Selectors.inputField)
           textOnPageCheck(inputLabel, Selectors.inputLabel)
@@ -174,7 +174,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
             result.status shouldBe OK
           }
 
-          titleCheck(heading)
+          titleCheck(heading, user.isWelsh)
           h1Check(heading + " " + caption)
           inputFieldCheck(inputName, Selectors.inputField)
           textOnPageCheck(inputLabel, Selectors.inputLabel)
@@ -278,14 +278,17 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(errorPrefix + heading)
+
+            import user.commonExpectedResults._
+
+            titleCheck(errorPrefix(user.isWelsh) + heading, user.isWelsh)
             h1Check(heading + " " + caption)
             inputFieldCheck(inputName, Selectors.inputField)
             textOnPageCheck(inputLabel, Selectors.inputLabel)
             hintTextCheck(hintText)
             captionCheck(caption)
             buttonCheck(button)
-            errorSummaryCheck(user.specificExpectedResults.get.emptyField, Selectors.errorHref)
+            errorSummaryCheck(user.specificExpectedResults.get.emptyField, Selectors.errorHref, user.isWelsh)
             errorAboveElementCheck(user.specificExpectedResults.get.emptyField)
             welshToggleCheck(user.isWelsh)
           }
@@ -295,14 +298,16 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(errorPrefix + heading)
+            import user.commonExpectedResults._
+
+            titleCheck(errorPrefix(user.isWelsh) + heading, user.isWelsh)
             h1Check(heading + " " + caption)
             inputFieldCheck(inputName, Selectors.inputField)
             textOnPageCheck(inputLabel, Selectors.inputLabel)
             hintTextCheck(hintText)
             captionCheck(caption)
             buttonCheck(button)
-            errorSummaryCheck(user.specificExpectedResults.get.tooLong, Selectors.errorHref)
+            errorSummaryCheck(user.specificExpectedResults.get.tooLong, Selectors.errorHref, user.isWelsh)
             errorAboveElementCheck(user.specificExpectedResults.get.tooLong)
             welshToggleCheck(user.isWelsh)
           }
@@ -312,14 +317,17 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(errorPrefix + heading)
+
+            import user.commonExpectedResults._
+
+            titleCheck(errorPrefix(user.isWelsh) + heading, user.isWelsh)
             h1Check(heading + " " + caption)
             inputFieldCheck(inputName, Selectors.inputField)
             textOnPageCheck(inputLabel, Selectors.inputLabel)
             hintTextCheck(hintText)
             captionCheck(caption)
             buttonCheck(button)
-            errorSummaryCheck(user.specificExpectedResults.get.incorrectFormat, Selectors.errorHref)
+            errorSummaryCheck(user.specificExpectedResults.get.incorrectFormat, Selectors.errorHref, user.isWelsh)
             errorAboveElementCheck(user.specificExpectedResults.get.incorrectFormat)
             welshToggleCheck(user.isWelsh)
           }
@@ -329,14 +337,14 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(errorPrefix + heading)
+            titleCheck(errorPrefix + heading, user.isWelsh)
             h1Check(heading + " " + caption)
             inputFieldCheck(inputName, Selectors.inputField)
             textOnPageCheck(inputLabel, Selectors.inputLabel)
             hintTextCheck(hintText)
             captionCheck(caption)
             buttonCheck(button)
-            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorExceeds, Selectors.errorHref)
+            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorExceeds, Selectors.errorHref, user.isWelsh)
             errorAboveElementCheck(user.specificExpectedResults.get.expectedErrorExceeds)
             welshToggleCheck(user.isWelsh)
           }

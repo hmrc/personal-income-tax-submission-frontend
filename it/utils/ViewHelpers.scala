@@ -30,11 +30,12 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
 
   val serviceName = "Update and submit an Income Tax Return"
   val govUkExtension = "GOV.UK"
+  val serviceNameWelsh = "Diweddaru a chyflwyno Ffurflen Dreth Incwm"
 
   val ENGLISH = "English"
   val WELSH = "Welsh"
 
-  val errorPrefix = "Error: "
+  def errorPrefix(isWelsh: Boolean): String = if(isWelsh) "Gwall: " else "Error: "
 
   def welshTest(isWelsh: Boolean): String = if (isWelsh) "Welsh" else "English"
   def agentTest(isAgent: Boolean): String = if (isAgent) "Agent" else "Individual"
@@ -75,9 +76,9 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
     }
   }
 
-  def titleCheck(title: String)(implicit document: () => Document): Unit = {
+  def titleCheck(title: String, isWelsh: Boolean)(implicit document: () => Document): Unit = {
     s"has a title of $title" in {
-      document().title() shouldBe s"$title - $serviceName - $govUkExtension"
+      document().title() shouldBe s"$title - ${if(isWelsh) serviceNameWelsh else serviceName} - $govUkExtension"
     }
   }
 
@@ -182,7 +183,9 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
     }
   }
 
-  def taskListCheck(itemList: Seq[(String, String, String)])(implicit document: () => Document): Unit = {
+  def taskListCheck(itemList: Seq[(String, String, String)], isWelsh: Boolean)(implicit document: () => Document): Unit = {
+    val change = if(isWelsh) "Newid" else "Change"
+    val remove = if(isWelsh) "Tynnu" else "Remove"
     for(i <- 1 to itemList.length){
       s"display a task list row for entry number $i" which {
         s"displays the correct name for entry number $i" in {
@@ -190,12 +193,12 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
             .text() shouldBe itemList(i-1)._1
         }
         s"displays the change link and has the correct hidden-change-text for entry number $i" in {
-          document().select(s"ul.hmrc-add-to-a-list > li:nth-child($i) > .hmrc-add-to-a-list__change > a > span:nth-child(1)").text() shouldBe "Change"
+          document().select(s"ul.hmrc-add-to-a-list > li:nth-child($i) > .hmrc-add-to-a-list__change > a > span:nth-child(1)").text() shouldBe change
           document().select(s"ul.hmrc-add-to-a-list > li:nth-child($i) > .hmrc-add-to-a-list__change > a > .govuk-visually-hidden")
             .text() shouldBe itemList(i-1)._2
         }
         s"displays the remove link and has the correct hidden-remove-text for entry number $i" in {
-          document().select(s"ul.hmrc-add-to-a-list > li:nth-child($i) > .hmrc-add-to-a-list__remove > a > span:nth-child(1)").text() shouldBe "Remove"
+          document().select(s"ul.hmrc-add-to-a-list > li:nth-child($i) > .hmrc-add-to-a-list__remove > a > span:nth-child(1)").text() shouldBe remove
           document().select(s"ul.hmrc-add-to-a-list > li:nth-child($i) > .hmrc-add-to-a-list__remove > a > .govuk-visually-hidden")
             .text() shouldBe itemList(i-1)._3
         }
@@ -203,12 +206,16 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
     }
   }
 
-  def errorSummaryCheck(text: String, href: String)(implicit document: () => Document): Unit = {
+  def errorSummaryCheck(text: String, href: String, isWelsh: Boolean)(implicit document: () => Document): Unit = {
     "contains an error summary" in {
       elementExist(".govuk-error-summary")
     }
     "contains the text 'There is a problem'" in {
-      document().select(".govuk-error-summary__title").text() shouldBe "There is a problem"
+      if(isWelsh) {
+        document().select(".govuk-error-summary__title").text() shouldBe "Mae problem wedi codi"
+      } else {
+        document().select(".govuk-error-summary__title").text() shouldBe "There is a problem"
+      }
     }
     s"has a $text error in the error summary" which {
       s"has the text '$text'" in {
@@ -220,13 +227,17 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
     }
   }
 
-  def multipleErrorCheck(errors: List[(String, String)])(implicit document: () => Document): Unit = {
+  def multipleErrorCheck(errors: List[(String, String)], isWelsh: Boolean)(implicit document: () => Document): Unit = {
 
     "contains an error summary" in {
       elementExist(".govuk-error-summary")
     }
     "contains the text 'There is a problem'" in {
-      document().select(".govuk-error-summary__title").text() shouldBe "There is a problem"
+      if(isWelsh) {
+        document().select(".govuk-error-summary__title").text() shouldBe "Mae problem wedi codi"
+      } else {
+        document().select(".govuk-error-summary__title").text() shouldBe "There is a problem"
+      }
     }
 
     for(error <- errors) {

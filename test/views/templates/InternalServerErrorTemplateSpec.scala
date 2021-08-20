@@ -36,17 +36,29 @@ class InternalServerErrorTemplateSpec extends ViewTest {
     val bulletPointLinkSelector2 = "#govuk-self-assessment-link"
 
   }
+  object EnglishText {
+    val h1Expected = "Sorry, there is a problem with the service"
+    val p1Expected = "Try again later."
+    val p2Expected = "You can also:"
+    val bulletPoint1Expected = "go to the Income Tax home page (opens in new tab) for more information"
+    val bulletPoint1Link = "https://www.gov.uk/income-tax"
+    val bulletPoint1LinkText = "Income Tax home page (opens in new tab)"
+    val bulletPoint2Expected = "use Self Assessment: general enquiries (opens in new tab) to speak to someone about your income tax."
+    val bulletPoint2Link = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
+    val bulletPoint2LinkText = "Self Assessment: general enquiries (opens in new tab)"
+  }
 
-  val h1Expected = "Sorry, there is a problem with the service"
-  val p1Expected = "Try again later."
-  val p2Expected = "You can also:"
-  val bulletPoint1Expected = "go to the Income Tax home page (opens in new tab) for more information"
-  val bulletPoint1Link = "https://www.gov.uk/income-tax"
-  val bulletPoint1LinkText = "Income Tax home page (opens in new tab)"
-  val bulletPoint2Expected = "use Self Assessment: general enquiries (opens in new tab) to speak to someone about your income tax."
-  val bulletPoint2Link = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
-  val bulletPoint2LinkText = "Self Assessment: general enquiries (opens in new tab)"
-
+  object WelshText {
+    val h1Expected = "Mae’n ddrwg gennym – mae problem gyda’r gwasanaeth"
+    val p1Expected = "Rhowch gynnig arall arni yn nes ymlaen."
+    val p2Expected = "Gallwch hefyd wneud y canlynol:"
+    val bulletPoint1Expected = "ewch i’r Tudalen hafan Treth Incwm (yn agor tab newydd) am ragor o wybodaeth"
+    val bulletPoint1Link = "https://www.gov.uk/income-tax"
+    val bulletPoint1LinkText = "Tudalen hafan Treth Incwm (yn agor tab newydd)"
+    val bulletPoint2Expected = "defnyddiwch Hunanasesiad: ymholiadau cyffredinol (yn agor tab newydd) i siarad â rhywun am eich Treth Incwm."
+    val bulletPoint2Link = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
+    val bulletPoint2LinkText = "Hunanasesiad: ymholiadau cyffredinol (yn agor tab newydd)"
+  }
 
   lazy val internalServerErrorTemplate: InternalServerErrorTemplate = app.injector.instanceOf[InternalServerErrorTemplate]
   lazy val appConfig: AppConfig = mockAppConfig
@@ -58,17 +70,17 @@ class InternalServerErrorTemplateSpec extends ViewTest {
       lazy val view: HtmlFormat.Appendable = internalServerErrorTemplate()(fakeRequest, messages, appConfig)
       implicit lazy val document: Document = Jsoup.parse(view.body)
 
-      titleCheck(h1Expected)
+      titleCheck(EnglishText.h1Expected)
       welshToggleCheck("English")
-      h1Check(h1Expected, "xl")
-      textOnPageCheck(p1Expected, Selectors.p1Selector)
-      textOnPageCheck(p2Expected, Selectors.p2Selector)
+      h1Check(EnglishText.h1Expected, "xl")
+      textOnPageCheck(EnglishText.p1Expected, Selectors.p1Selector)
+      textOnPageCheck(EnglishText.p2Expected, Selectors.p2Selector)
 
-      textOnPageCheck(bulletPoint1Expected,Selectors.bulletPoint1)
-      linkCheck(bulletPoint1LinkText, Selectors.bulletPointLinkSelector1, bulletPoint1Link)
+      textOnPageCheck(EnglishText.bulletPoint1Expected,Selectors.bulletPoint1)
+      linkCheck(EnglishText.bulletPoint1LinkText, Selectors.bulletPointLinkSelector1, EnglishText.bulletPoint1Link)
 
-      textOnPageCheck(bulletPoint2Expected,Selectors.bulletPoint2)
-      linkCheck(bulletPoint2LinkText, Selectors.bulletPointLinkSelector2, bulletPoint2Link)
+      textOnPageCheck(EnglishText.bulletPoint2Expected,Selectors.bulletPoint2)
+      linkCheck(EnglishText.bulletPoint2LinkText, Selectors.bulletPointLinkSelector2, EnglishText.bulletPoint2Link)
 
     }
   }
@@ -80,17 +92,17 @@ class InternalServerErrorTemplateSpec extends ViewTest {
       lazy val view: HtmlFormat.Appendable = internalServerErrorTemplate()(fakeRequest, welshMessages, appConfig)
       implicit lazy val document: Document = Jsoup.parse(view.body)
 
-      titleCheck(h1Expected)
+      titleCheckWelsh(WelshText.h1Expected)
       welshToggleCheck("Welsh")
-      h1Check(h1Expected, "xl")
-      textOnPageCheck(p1Expected, Selectors.p1Selector)
-      textOnPageCheck(p2Expected, Selectors.p2Selector)
+      h1Check(WelshText.h1Expected, "xl")
+      textOnPageCheck(WelshText.p1Expected, Selectors.p1Selector)
+      textOnPageCheck(WelshText.p2Expected, Selectors.p2Selector)
 
-      textOnPageCheck(bulletPoint1Expected,Selectors.bulletPoint1)
-      linkCheck(bulletPoint1LinkText, Selectors.bulletPointLinkSelector1, bulletPoint1Link)
+      textOnPageCheck(WelshText.bulletPoint1Expected,Selectors.bulletPoint1)
+      linkCheck(WelshText.bulletPoint1LinkText, Selectors.bulletPointLinkSelector1, WelshText.bulletPoint1Link)
 
-      textOnPageCheck(bulletPoint2Expected,Selectors.bulletPoint2)
-      linkCheck(bulletPoint2LinkText, Selectors.bulletPointLinkSelector2, bulletPoint2Link)
+      textOnPageCheck(WelshText.bulletPoint2Expected,Selectors.bulletPoint2)
+      linkCheck(WelshText.bulletPoint2LinkText, Selectors.bulletPointLinkSelector2, WelshText.bulletPoint2Link)
 
     }
   }

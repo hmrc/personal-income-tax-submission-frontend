@@ -62,9 +62,9 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
-    val hint = "For example, £600 or £193.54"
-    val button = "Continue"
+    val caption = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
+    val hint = "Er enghraifft, £600 neu £193.54"
+    val button = "Yn eich blaen"
     val inputName = "amount"
   }
 
@@ -154,7 +154,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
             result.status shouldBe OK
           }
 
-          titleCheck(user.specificExpectedResults.get.heading)
+          titleCheck(user.specificExpectedResults.get.heading, user.isWelsh)
           h1Check(user.specificExpectedResults.get.heading + " " + caption)
           textOnPageCheck(user.specificExpectedResults.get.para, para)
           inputFieldCheck("amount", ".govuk-input")
@@ -179,7 +179,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
             result.status shouldBe OK
           }
 
-          titleCheck(user.specificExpectedResults.get.heading)
+          titleCheck(user.specificExpectedResults.get.heading, user.isWelsh)
           h1Check(user.specificExpectedResults.get.heading + " " + caption)
           textOnPageCheck(user.specificExpectedResults.get.expectedCyaP1, para)
           inputFieldCheck("amount", ".govuk-input")
@@ -297,14 +297,17 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(errorPrefix + user.specificExpectedResults.get.heading)
+            import Selectors._
+            import user.commonExpectedResults._
+
+            titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.heading, user.isWelsh)
             h1Check(user.specificExpectedResults.get.heading + " " + caption)
             textOnPageCheck(user.specificExpectedResults.get.para, para)
             inputFieldCheck("amount", ".govuk-input")
             hintTextCheck(hint)
             captionCheck(caption)
             buttonCheck(button)
-            errorSummaryCheck(user.specificExpectedResults.get.noSelectionError, amount)
+            errorSummaryCheck(user.specificExpectedResults.get.noSelectionError, amount, user.isWelsh)
             errorAboveElementCheck(user.specificExpectedResults.get.noSelectionError)
             welshToggleCheck(user.isWelsh)
           }
@@ -314,14 +317,17 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(errorPrefix + user.specificExpectedResults.get.heading)
+            import Selectors._
+            import user.commonExpectedResults._
+
+            titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.heading, user.isWelsh)
             h1Check(user.specificExpectedResults.get.heading + " " + caption)
             textOnPageCheck(user.specificExpectedResults.get.para, para)
             inputFieldCheck("amount", ".govuk-input")
             hintTextCheck(hint)
             captionCheck(caption)
             buttonCheck(button)
-            errorSummaryCheck(user.specificExpectedResults.get.tooLongError, amount)
+            errorSummaryCheck(user.specificExpectedResults.get.tooLongError, amount, user.isWelsh)
             errorAboveElementCheck(user.specificExpectedResults.get.tooLongError)
             welshToggleCheck(user.isWelsh)
           }
@@ -331,14 +337,17 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(errorPrefix + user.specificExpectedResults.get.heading)
+            import Selectors._
+            import user.commonExpectedResults._
+
+            titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.heading, user.isWelsh)
             h1Check(user.specificExpectedResults.get.heading + " " + caption)
             textOnPageCheck(user.specificExpectedResults.get.para, para)
             inputFieldCheck("amount", ".govuk-input")
             hintTextCheck(hint)
             captionCheck(caption)
             buttonCheck(button)
-            errorSummaryCheck(user.specificExpectedResults.get.invalidFormatError, amount)
+            errorSummaryCheck(user.specificExpectedResults.get.invalidFormatError, amount, user.isWelsh)
             errorAboveElementCheck(user.specificExpectedResults.get.invalidFormatError)
             welshToggleCheck(user.isWelsh)
           }
@@ -348,14 +357,14 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(errorPrefix + user.specificExpectedResults.get.heading)
+            titleCheck(errorPrefix + user.specificExpectedResults.get.heading, user.isWelsh)
             h1Check(user.specificExpectedResults.get.heading + " " + caption)
             textOnPageCheck(user.specificExpectedResults.get.para, para)
             inputFieldCheck("amount", ".govuk-input")
             hintTextCheck(hint)
             captionCheck(caption)
             buttonCheck(button)
-            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorExceeds, amount)
+            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorExceeds, amount, user.isWelsh)
             errorAboveElementCheck(user.specificExpectedResults.get.expectedErrorExceeds)
             welshToggleCheck(user.isWelsh)
           }

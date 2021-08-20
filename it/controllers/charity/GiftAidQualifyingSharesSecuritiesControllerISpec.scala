@@ -56,10 +56,10 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val captionText = s"Donations to charity for 6 April ${year - 1} to 5 April $year"
-    val yesText = "Yes"
-    val noText = "No"
-    val continueText = "Continue"
+    val captionText = s"Rhoddion i elusennau ar gyfer 6 Ebrill ${year - 1} i 5 Ebrill $year"
+    val yesText = "Iawn"
+    val noText = "Na"
+    val continueText = "Yn eich blaen"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -120,7 +120,7 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends CharityITHelper {
             result.status shouldBe OK
           }
 
-          titleCheck(user.specificExpectedResults.get.expectedTitle)
+          titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           welshToggleCheck(user.isWelsh)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)
           textOnPageCheck(captionText, captionSelector)
@@ -219,14 +219,14 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends CharityITHelper {
           import Selectors._
           import user.commonExpectedResults._
 
-          titleCheck(errorPrefix + user.specificExpectedResults.get.expectedTitle)
+          titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           welshToggleCheck(user.isWelsh)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)
           textOnPageCheck(captionText, captionSelector)
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
           buttonCheck(continueText, continueSelector)
-          errorSummaryCheck(user.specificExpectedResults.get.expectedError, errorSummaryHref)
+          errorSummaryCheck(user.specificExpectedResults.get.expectedError, errorSummaryHref, user.isWelsh)
           errorAboveElementCheck(user.specificExpectedResults.get.expectedError)
 
           "return a BAD_REQUEST" in {

@@ -66,10 +66,10 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val expectedCaption: String = "Donations to charity for 6 April 2021 to 5 April 2022"
-    val yesText = "Yes"
-    val noText = "No"
-    val expectedContinue = "Continue"
+    val expectedCaption: String = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
+    val yesText = "Iawn"
+    val noText = "Na"
+    val expectedContinue = "Yn eich blaen"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -143,7 +143,7 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
             result.status shouldBe OK
           }
 
-          titleCheck(user.specificExpectedResults.get.expectedTitle)
+          titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(user.specificExpectedResults.get.expectedContent1, contentSelector1)
@@ -240,7 +240,7 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
           import Selectors._
           import user.commonExpectedResults._
 
-          titleCheck(errorPrefix + user.specificExpectedResults.get.expectedTitle)
+          titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(user.specificExpectedResults.get.expectedContent1, contentSelector1)
@@ -248,7 +248,7 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
           buttonCheck(expectedContinue, continueSelector)
-          errorSummaryCheck(user.specificExpectedResults.get.expectedError, errorSummaryHref)
+          errorSummaryCheck(user.specificExpectedResults.get.expectedError, errorSummaryHref, user.isWelsh)
           errorAboveElementCheck(user.specificExpectedResults.get.expectedError)
           welshToggleCheck(user.isWelsh)
 

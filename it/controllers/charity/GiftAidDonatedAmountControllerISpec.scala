@@ -69,11 +69,11 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val expectedCaption = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val expectedCaption = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
     val expectedInputName = "amount"
-    val expectedButtonText = "Continue"
+    val expectedButtonText = "Yn eich blaen"
     val expectedInputLabelText = "Total amount for the year"
-    val expectedInputHintText = "For example, £600 or £193.54"
+    val expectedInputHintText = "Er enghraifft, £600 neu £193.54"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -109,7 +109,7 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
     val expectedErrorEmpty = "Enter the amount you donated to charity by using Gift Aid"
     val expectedErrorOverMax = "The amount you donated to charity must be less than £100,000,000,000"
     val expectedErrorBadFormat = "Enter the amount you donated to charity in the correct format"
-    val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
@@ -121,7 +121,7 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
     val expectedErrorEmpty = "Enter the amount your client donated to charity by using Gift Aid"
     val expectedErrorOverMax = "The amount your client donated to charity must be less than £100,000,000,000"
     val expectedErrorBadFormat = "Enter the amount your client donated to charity in the correct format"
-    val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
@@ -159,7 +159,7 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
             result.status shouldBe OK
           }
 
-          titleCheck(user.specificExpectedResults.get.expectedTitle)
+          titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(user.specificExpectedResults.get.expectedParagraph, paragraphSelector)
@@ -288,7 +288,7 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
             import Selectors._
             import user.commonExpectedResults._
 
-            titleCheck(user.specificExpectedResults.get.expectedErrorTitle)
+            titleCheck(user.specificExpectedResults.get.expectedErrorTitle, user.isWelsh)
             h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(user.specificExpectedResults.get.expectedParagraph, paragraphSelector)
@@ -298,7 +298,7 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
             buttonCheck(expectedButtonText, buttonSelector)
             welshToggleCheck(user.isWelsh)
 
-            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorEmpty, Selectors.expectedErrorLink)
+            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorEmpty, Selectors.expectedErrorLink, user.isWelsh)
             errorAboveElementCheck(user.specificExpectedResults.get.expectedErrorEmpty)
           }
 
@@ -312,7 +312,7 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
             import Selectors._
             import user.commonExpectedResults._
 
-            titleCheck(user.specificExpectedResults.get.expectedErrorTitle)
+            titleCheck(user.specificExpectedResults.get.expectedErrorTitle, user.isWelsh)
             h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(user.specificExpectedResults.get.expectedParagraph, paragraphSelector)
@@ -322,7 +322,7 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
             buttonCheck(expectedButtonText, buttonSelector)
             welshToggleCheck(user.isWelsh)
 
-            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorOverMax, Selectors.expectedErrorLink)
+            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorOverMax, Selectors.expectedErrorLink, user.isWelsh)
             errorAboveElementCheck(user.specificExpectedResults.get.expectedErrorOverMax)
           }
 
@@ -336,7 +336,7 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
             import Selectors._
             import user.commonExpectedResults._
 
-            titleCheck(user.specificExpectedResults.get.expectedErrorTitle)
+            titleCheck(user.specificExpectedResults.get.expectedErrorTitle, user.isWelsh)
             h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(user.specificExpectedResults.get.expectedParagraph, paragraphSelector)
@@ -346,7 +346,7 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
             buttonCheck(expectedButtonText, buttonSelector)
             welshToggleCheck(user.isWelsh)
 
-            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorBadFormat, Selectors.expectedErrorLink)
+            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorBadFormat, Selectors.expectedErrorLink, user.isWelsh)
             errorAboveElementCheck(user.specificExpectedResults.get.expectedErrorBadFormat)
           }
         }

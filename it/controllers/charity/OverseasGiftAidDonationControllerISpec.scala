@@ -60,10 +60,10 @@ class OverseasGiftAidDonationControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val captionText = s"Donations to charity for 6 April ${year - 1} to 5 April $year"
-    val yesText = "Yes"
-    val noText = "No"
-    val continueText = "Continue"
+    val captionText = s"Rhoddion i elusennau ar gyfer 6 Ebrill ${year - 1} i 5 Ebrill $year"
+    val yesText = "Iawn"
+    val noText = "Na"
+    val continueText = "Yn eich blaen"
     val continueLink = s"/income-through-software/return/personal-income/$year/charity/overseas-charity-donations-using-gift-aid"
   }
 
@@ -126,7 +126,7 @@ class OverseasGiftAidDonationControllerISpec extends CharityITHelper {
             result.status shouldBe OK
           }
 
-          titleCheck(user.specificExpectedResults.get.expectedTitle)
+          titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           welshToggleCheck(user.isWelsh)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)
           textOnPageCheck(captionText, captionSelector)
@@ -228,7 +228,7 @@ class OverseasGiftAidDonationControllerISpec extends CharityITHelper {
           import Selectors._
           import user.commonExpectedResults._
 
-          titleCheck(errorPrefix + user.specificExpectedResults.get.expectedTitle)
+          titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           welshToggleCheck(user.isWelsh)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)
           textOnPageCheck(captionText, captionSelector)
@@ -236,7 +236,7 @@ class OverseasGiftAidDonationControllerISpec extends CharityITHelper {
           radioButtonCheck(noText, 2)
           buttonCheck(continueText, continueSelector)
           formPostLinkCheck(continueLink, continueButtonFormSelector)
-          errorSummaryCheck(user.specificExpectedResults.get.expectedErrorText, errorSummaryHref)
+          errorSummaryCheck(user.specificExpectedResults.get.expectedErrorText, errorSummaryHref, user.isWelsh)
           errorAboveElementCheck(user.specificExpectedResults.get.expectedErrorText)
 
           "return a BAD_REQUEST" in {

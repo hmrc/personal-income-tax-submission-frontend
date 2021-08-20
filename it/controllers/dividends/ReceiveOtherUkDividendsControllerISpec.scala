@@ -137,7 +137,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
   object IndividualExpectedWelsh extends SpecificExpectedResults {
     val expectedH1 = "A gawsoch ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored?"
     val expectedTitle = "A gawsoch ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored?"
-    val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
     val youDoNotNeedText = "Nid oes angen i chi roi gwybod i ni am symiau a ddangosir fel 'cyfartaliad' ar eich taleb ddifidend."
     val expectedErrorText = "Dewiswch ‘Iawn’ os cawsoch ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored"
     val redirectTitle = "Gwiriwch eich incwm o ddifidendau"
@@ -147,7 +147,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
   object AgentExpectedWelsh extends SpecificExpectedResults {
     val expectedH1 = "A gafodd eich cleient ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored?"
     val expectedTitle = "A gafodd eich cleient ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored?"
-    val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
     val youDoNotNeedText = "Nid oes angen i chi roi gwybod i ni am symiau a ddangosir fel 'cyfartaliad' ar daleb ddifidend eich cleient."
     val expectedErrorText = "Dewiswch ‘Iawn’ os cafodd eich cleient ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored"
     val redirectTitle = "Gwiriwch incwm eich cleient o ddifidendau"
@@ -168,8 +168,8 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
     val whatAreEqualisationText = "Beth yw taliadau cyfartaliad?"
     val equalisationPaymentsText: String = "Rhoddir taliadau cyfartaliad i fuddsoddwyr i sicrhau y codir taliadau arnynt yn deg ar sail perfformiad yr ymddiriedolaeth. " +
       "Nid yw taliadau cyfartaliad yn cael eu cyfrif fel incwm oherwydd eu bod yn rhan o fuddsoddiad."
-    val yesNo: Boolean => String = isYes => if (isYes) "Yes" else "No"
-    val continueButtonText = "Continue"
+    val yesNo: Boolean => String = isYes => if (isYes) "Iawn" else "Na"
+    val continueButtonText = "Yn eich blaen"
     val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
   }
 
@@ -204,7 +204,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(get.expectedTitle)
+          titleCheck(get.expectedTitle, us.isWelsh)
           h1Check(get.expectedH1 + " " + captionExpected)
           textOnPageCheck(youMustAlsoText, youMustAlsoSelector)
           textOnPageCheck(authorisedBulletText, listContentSelector(1))
@@ -303,9 +303,9 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
             implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(get.expectedErrorTitle)
+            titleCheck(get.expectedErrorTitle, us.isWelsh)
             h1Check(get.expectedH1 + " " + captionExpected)
-            errorSummaryCheck(get.expectedErrorText, expectedErrorHref)
+            errorSummaryCheck(get.expectedErrorText, expectedErrorHref, us.isWelsh)
             textOnPageCheck(youMustAlsoText, youMustAlsoSelector)
             textOnPageCheck(authorisedBulletText, listContentSelector(1))
             textOnPageCheck(investmentBulletText, listContentSelector(2))

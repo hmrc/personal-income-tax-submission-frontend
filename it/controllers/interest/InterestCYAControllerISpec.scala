@@ -109,7 +109,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
 
   object CommonExpectedCY extends CommonExpectedResults {
     val captionExpected = s"Llog ar gyfer 6 Ebrill $taxYearMinusOne i 5 Ebrill $taxYear"
-    val changeLinkExpected = "Change"
+    val changeLinkExpected = "Newid"
     val questionUntaxedInterestExpected = "Llog y DU sydd heb ei drethu"
     val questionUntaxedInterestDetailsExpected = "Cyfrifon llog y DU sydd heb ei drethu"
     val questionTaxedInterestExpected = "Llog y DU a drethwyd"
@@ -121,10 +121,10 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
     val changeUntaxedInterestAmountHref = s"/income-through-software/return/personal-income/$taxYear/interest/accounts-with-untaxed-uk-interest"
     val changeTaxedInterestHref = s"/income-through-software/return/personal-income/$taxYear/interest/taxed-uk-interest"
     val changeTaxedInterestAmountHref = s"/income-through-software/return/personal-income/$taxYear/interest/accounts-with-taxed-uk-interest"
-    val submitText = "Save and continue"
+    val submitText = "Cadw ac yn eich blaen"
     val submitLink = s"/income-through-software/return/personal-income/$taxYear/interest/check-interest"
-    val Yes = "Yes"
-    val No = "No"
+    val Yes = "Iawn"
+    val No = "Na"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -220,7 +220,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(specific.titleExpected)
+          titleCheck(specific.titleExpected, us.isWelsh)
           welshToggleCheck(us.isWelsh)
           h1Check(specific.h1Expected + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
@@ -330,7 +330,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(specific.titleExpected)
+          titleCheck(specific.titleExpected, us.isWelsh)
           welshToggleCheck(us.isWelsh)
           h1Check(specific.h1Expected + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
@@ -388,7 +388,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(specific.titleExpected)
+            titleCheck(specific.titleExpected, us.isWelsh)
             welshToggleCheck(us.isWelsh)
             h1Check(specific.h1Expected + " " + captionExpected)
             textOnPageCheck(captionExpected, captionSelector)
@@ -448,7 +448,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(specific.titleExpected)
+            titleCheck(specific.titleExpected, us.isWelsh)
             welshToggleCheck(us.isWelsh)
             h1Check(specific.h1Expected + " " + captionExpected)
             textOnPageCheck(captionExpected, captionSelector)

@@ -92,9 +92,9 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
   object IndividualExpectedWelsh extends SpecificExpectedResults {
     val expectedH1 = "Faint a gawsoch mewn difidendau gan gwmnïau yn y DU?"
     val expectedTitle = "Faint a gawsoch mewn difidendau gan gwmnïau yn y DU?"
-    val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
     val tellUsTheValue = "Rhowch wybod i ni beth yw gwerth y difidendau a gawsoch, mewn punnoedd. Gallwch ddod o hyd i’r wybodaeth hon yn eich taleb ddifidend."
-    val youToldUsPriorText = s"You told us you got £$amount mewn difidendau gan gwmnïau yn y DU y flwyddyn hon. Rhowch wybod i ni a yw hyn wedi newid."
+    val youToldUsPriorText = s"Gwnaethoch ddweud wrthym cawsoch £$amount mewn difidendau gan gwmnïau yn y DU y flwyddyn hon. Rhowch wybod i ni a yw hyn wedi newid."
     val expectedErrorEmpty = "Nodwch faint a gawsoch mewn difidendau gan gwmnïau yn y DU"
     val expectedErrorOverMax = "Mae’n rhaid i swm y difidendau gan gwmnïau yn y DU fod yn llai na £100,000,000,000"
     val expectedErrorInvalid = "Nodwch faint a gawsoch mewn difidendau yn y fformat cywir"
@@ -103,16 +103,16 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
   object AgentExpectedWelsh extends SpecificExpectedResults {
     val expectedH1 = "Faint gafodd eich cleient mewn difidendau gan gwmnïau yn y DU?"
     val expectedTitle = "Faint gafodd eich cleient mewn difidendau gan gwmnïau yn y DU?"
-    val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
     val tellUsTheValue = "Rhowch wybod i ni beth yw gwerth y difidendau a gafodd eich cleient, mewn punnoedd. Gallwch ddod o hyd i’r wybodaeth hon yn eu taleb ddifidend."
-    val youToldUsPriorText = s"You told us your client got £$amount mewn difidendau gan gwmnïau yn y DU y flwyddyn hon. Rhowch wybod i ni a yw hyn wedi newid."
+    val youToldUsPriorText = s"Gwnaethoch ddweud wrthym cafodd eich cleient £$amount mewn difidendau gan gwmnïau yn y DU y flwyddyn hon. Rhowch wybod i ni a yw hyn wedi newid."
     val expectedErrorEmpty = "Nodwch faint gafodd eich cleient mewn difidendau gan gwmnïau yn y DU"
     val expectedErrorOverMax = "Mae’n rhaid i swm y difidendau gan gwmnïau yn y DU fod yn llai na £100,000,000,000"
     val expectedErrorInvalid = "Nodwch faint gafodd eich cleient mewn difidendau yn y fformat cywir"
   }
 
   object AllExpectedWelsh extends CommonExpectedResults {
-    val continueText = "Continue"
+    val continueText = "Yn eich blaen"
     val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-companies"
     val captionExpected = s"Difidendau ar gyfer 6 Ebrill $taxYearMinusOne i 5 Ebrill $taxYear"
   }
@@ -165,7 +165,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(get.expectedTitle)
+          titleCheck(get.expectedTitle, us.isWelsh)
           h1Check(get.expectedH1 + " " + captionExpected)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
           textOnPageCheck(get.tellUsTheValue, youToldUsSelector)
@@ -193,7 +193,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(get.expectedTitle)
+          titleCheck(get.expectedTitle, us.isWelsh)
           h1Check(get.expectedH1 + " " + captionExpected)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
           textOnPageCheck(get.youToldUsPriorText, youToldUsSelector)
@@ -318,7 +318,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
             result.status shouldBe BAD_REQUEST
           }
           implicit val document: () => Document = () => Jsoup.parse(result.body)
-          errorSummaryCheck(get.expectedErrorEmpty, expectedErrorLink)
+          errorSummaryCheck(get.expectedErrorEmpty, expectedErrorLink, us.isWelsh)
           errorAboveElementCheck(get.expectedErrorEmpty)
         }
         s"return a BAD_REQUEST($BAD_REQUEST) status with an invalid error" which {
@@ -331,7 +331,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
             result.status shouldBe BAD_REQUEST
           }
           implicit val document: () => Document = () => Jsoup.parse(result.body)
-          errorSummaryCheck(get.expectedErrorInvalid, expectedErrorLink)
+          errorSummaryCheck(get.expectedErrorInvalid, expectedErrorLink, us.isWelsh)
           errorAboveElementCheck(get.expectedErrorInvalid)
         }
         s"return a BAD_REQUEST($BAD_REQUEST) status with an OverMax error" which {
@@ -345,7 +345,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
             result.status shouldBe BAD_REQUEST
           }
           implicit val document: () => Document = () => Jsoup.parse(result.body)
-          errorSummaryCheck(get.expectedErrorOverMax, expectedErrorLink)
+          errorSummaryCheck(get.expectedErrorOverMax, expectedErrorLink, us.isWelsh)
           errorAboveElementCheck(get.expectedErrorOverMax)
         }
 

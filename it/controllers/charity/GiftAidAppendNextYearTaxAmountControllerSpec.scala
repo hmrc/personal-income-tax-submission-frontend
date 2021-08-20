@@ -72,11 +72,11 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val hintText: String = "For example, £600 or £193.54"
-    val expectedCaption: String = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val hintText: String = "Er enghraifft, £600 neu £193.54"
+    val expectedCaption: String = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
     val inputName: String = "amount"
-    val button: String = "Continue"
-    val error = "Error: "
+    val button: String = "Yn eich blaen"
+    val error = "Gwall: "
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -156,7 +156,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
             result.status shouldBe OK
           }
 
-          titleCheck(user.specificExpectedResults.get.heading)
+          titleCheck(user.specificExpectedResults.get.heading, user.isWelsh)
           h1Check(user.specificExpectedResults.get.heading + " " + expectedCaption)
           inputFieldCheck(inputName, Selectors.inputField)
           hintTextCheck(hintText)
@@ -313,7 +313,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
             import user.commonExpectedResults._
-            titleCheck(error + user.specificExpectedResults.get.heading)
+            titleCheck(error + user.specificExpectedResults.get.heading, user.isWelsh)
             h1Check(user.specificExpectedResults.get.heading + " " + expectedCaption)
             inputFieldCheck(inputName, Selectors.inputField)
             hintTextCheck(hintText)
@@ -321,7 +321,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
             buttonCheck(button)
             welshToggleCheck(user.isWelsh)
 
-            errorSummaryCheck(user.specificExpectedResults.get.emptyFieldError, Selectors.errorHref)
+            errorSummaryCheck(user.specificExpectedResults.get.emptyFieldError, Selectors.errorHref, user.isWelsh)
             errorAboveElementCheck(user.specificExpectedResults.get.emptyFieldError)
           }
 
@@ -333,7 +333,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
             import user.commonExpectedResults._
-            titleCheck(error + user.specificExpectedResults.get.heading)
+            titleCheck(error + user.specificExpectedResults.get.heading, user.isWelsh)
             h1Check(user.specificExpectedResults.get.heading + " " + expectedCaption)
             inputFieldCheck(inputName, Selectors.inputField)
             hintTextCheck(hintText)
@@ -341,7 +341,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
             buttonCheck(button)
             welshToggleCheck(user.isWelsh)
 
-            errorSummaryCheck(user.specificExpectedResults.get.tooLongError, Selectors.errorHref)
+            errorSummaryCheck(user.specificExpectedResults.get.tooLongError, Selectors.errorHref, user.isWelsh)
             errorAboveElementCheck(user.specificExpectedResults.get.tooLongError)
           }
 
@@ -353,7 +353,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
             import user.commonExpectedResults._
-            titleCheck(error + user.specificExpectedResults.get.heading)
+            titleCheck(error + user.specificExpectedResults.get.heading, user.isWelsh)
             h1Check(user.specificExpectedResults.get.heading + " " + expectedCaption)
             inputFieldCheck(inputName, Selectors.inputField)
             hintTextCheck(hintText)
@@ -361,7 +361,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
             buttonCheck(button)
             welshToggleCheck(user.isWelsh)
 
-            errorSummaryCheck(user.specificExpectedResults.get.incorrectFormatError, Selectors.errorHref)
+            errorSummaryCheck(user.specificExpectedResults.get.incorrectFormatError, Selectors.errorHref, user.isWelsh)
             errorAboveElementCheck(user.specificExpectedResults.get.incorrectFormatError)
           }
         }
