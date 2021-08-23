@@ -56,7 +56,9 @@ class GiftAidLastTaxYearController @Inject()(
                                prior: Option[GiftAidSubmissionModel],
                                fromShow: Boolean = false
                              )(implicit user: User[AnyContent]): Result = {
-    lazy val page: BigDecimal => Result = priorInput => Ok(giftAidLastTaxYearView(yesNoForm(user), taxYear, priorInput))
+
+    val prefillForm = cya.addDonationToLastYear.fold(yesNoForm(user))(yesNoForm(user).fill)
+    lazy val page: BigDecimal => Result = priorInput => Ok(giftAidLastTaxYearView(prefillForm, taxYear, priorInput))
     
     (prior, cya.overseasDonationsViaGiftAid, cya.overseasCharityNames, cya.donationsViaGiftAidAmount) match {
       case (Some(priorData), _, _, _) if priorData.giftAidPayments.flatMap(_.currentYearTreatedAsPreviousYear).isDefined =>

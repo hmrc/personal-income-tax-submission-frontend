@@ -48,9 +48,19 @@ class GiftAidLandOrPropertyAmountController @Inject()(
 
   override def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, prior: Option[GiftAidSubmissionModel], fromShow: Boolean)
                              (implicit user: User[AnyContent]): Result = {
+
+
+    val priorAmount: Option[BigDecimal] = prior.flatMap(_.gifts.flatMap(_.landAndBuildings))
+    val cyaAmount: Option[BigDecimal] = cya.donatedLandOrPropertyAmount
+
+    val amountForm = (priorAmount, cyaAmount) match {
+      case (priorValueOpt, Some(cyaValue)) if !priorValueOpt.contains(cyaValue) => form(user.isAgent).fill(cyaValue)
+      case _ => form(user.isAgent)
+    }
+
     cya.donatedLandOrProperty match {
       case Some(true) => determineResult(
-        Ok(view(taxYear, form(user.isAgent))),
+        Ok(view(taxYear, amountForm)),
         Redirect(controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(taxYear)),
         fromShow)
       case _ => giftAidDonateLandOrPropertyController.handleRedirect(taxYear, cya, prior)

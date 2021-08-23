@@ -46,7 +46,7 @@ class OverseasGiftAidDonationsController @Inject()(
                                                     errorHandler: ErrorHandler,
                                                     ec: ExecutionContext,
                                                     implicit val appConfig: AppConfig
-                                            ) extends FrontendController(cc) with I18nSupport with SessionHelper with CharityJourney with Logging {
+                                                  ) extends FrontendController(cc) with I18nSupport with SessionHelper with CharityJourney with Logging {
 
   override def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, prior: Option[GiftAidSubmissionModel], fromShow: Boolean)
                              (implicit user: User[AnyContent]): Result = {
@@ -55,10 +55,13 @@ class OverseasGiftAidDonationsController @Inject()(
       case (Some(priorData), _) if priorData.giftAidPayments.map(_.nonUkCharities).isDefined =>
         Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
       case (_, Some(true)) if cya.oneOffDonationsViaGiftAidAmount.isEmpty => giftAidOneOffAmountController.handleRedirect(taxYear, cya, prior)
-      case (_, Some(_)) => determineResult(
-        Ok(overseasGiftAidDonationView(yesNoForm(user), taxYear)),
-        Redirect(controllers.charity.routes.OverseasGiftAidDonationsController.show(taxYear)),
-        fromShow)
+      case (_, Some(_)) =>
+
+        val prefillForm = cya.overseasDonationsViaGiftAid.fold(yesNoForm(user))(yesNoForm(user).fill)
+        determineResult(
+          Ok(overseasGiftAidDonationView(prefillForm, taxYear)),
+          Redirect(controllers.charity.routes.OverseasGiftAidDonationsController.show(taxYear)),
+          fromShow)
       case _ => giftAidOneOffController.handleRedirect(taxYear, cya, prior)
     }
   }
@@ -85,15 +88,16 @@ class OverseasGiftAidDonationsController @Inject()(
       formWithErrors =>
         Future.successful(BadRequest(overseasGiftAidDonationView(formWithErrors, taxYear)))
     }, {
-      formAnswer => giftAidSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { case (cya, prior) =>
-          if(prior.flatMap(_.giftAidPayments.flatMap(_.nonUkCharities)).isDefined){
+      formAnswer =>
+        giftAidSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { case (cya, prior) =>
+          if (prior.flatMap(_.giftAidPayments.flatMap(_.nonUkCharities)).isDefined) {
             Future.successful(redirectToCya(taxYear))
           } else {
             cya.fold(Future.successful(redirectToOverview(taxYear))) { cyaData =>
 
               val updatedCya = {
                 val updatedModel = cyaData.copy(overseasDonationsViaGiftAid = Some(formAnswer))
-                if(formAnswer) {
+                if (formAnswer) {
                   updatedModel
                 } else {
                   updatedModel.copy(overseasDonationsViaGiftAidAmount = None, overseasCharityNames = Some(Seq.empty[String]))
@@ -111,7 +115,7 @@ class OverseasGiftAidDonationsController @Inject()(
               )(redirectLocation)
             }
           }
-      }.flatten
+        }.flatten
     })
   }
 }

@@ -50,10 +50,18 @@ class GiftAidAppendNextYearTaxAmountController @Inject()(
                                prior: Option[GiftAidSubmissionModel],
                                fromShow: Boolean = false
                              )(implicit user: User[AnyContent]): Result = {
+
+    val priorAmount: Option[BigDecimal] = prior.flatMap(_.giftAidPayments.flatMap(_.nextYearTreatedAsCurrentYear))
+    val cyaAmount: Option[BigDecimal] = cya.addDonationToThisYearAmount
+
+    val amountForm = (priorAmount, cyaAmount) match {
+      case (priorValueOpt, Some(cyaValue)) if !priorValueOpt.contains(cyaValue) => form(user.isAgent, taxYear).fill(cyaValue)
+      case _ => form(user.isAgent, taxYear)
+    }
     
     cya.addDonationToThisYear match {
       case Some(true) => if(fromShow) {
-        Ok(view(taxYear, form(user.isAgent, taxYear)))
+        Ok(view(taxYear, amountForm))
       } else {
         Redirect(controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(taxYear, taxYear))
       }

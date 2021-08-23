@@ -37,14 +37,14 @@ import services.GiftAidSessionService
 import scala.concurrent.{ExecutionContext, Future}
 
 class GiftAidOneOffController @Inject()(
-                                              implicit val cc: MessagesControllerComponents,
-                                              authAction: AuthorisedAction,
-                                              giftAidDonatedAmountController: GiftAidDonatedAmountController,
-                                              giftAidOneOffView: GiftAidOneOffView,
-                                              giftAidSessionService: GiftAidSessionService,
-                                              errorHandler: ErrorHandler,
-                                              implicit val appConfig: AppConfig
-                                            ) extends FrontendController(cc) with I18nSupport with SessionHelper with CharityJourney with Logging {
+                                         implicit val cc: MessagesControllerComponents,
+                                         authAction: AuthorisedAction,
+                                         giftAidDonatedAmountController: GiftAidDonatedAmountController,
+                                         giftAidOneOffView: GiftAidOneOffView,
+                                         giftAidSessionService: GiftAidSessionService,
+                                         errorHandler: ErrorHandler,
+                                         implicit val appConfig: AppConfig
+                                       ) extends FrontendController(cc) with I18nSupport with SessionHelper with CharityJourney with Logging {
 
   override def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, prior: Option[GiftAidSubmissionModel], fromShow: Boolean)
                              (implicit user: User[AnyContent]): Result = {
@@ -52,10 +52,13 @@ class GiftAidOneOffController @Inject()(
     (prior, cya.donationsViaGiftAidAmount) match {
       case (Some(priorData), _) if priorData.giftAidPayments.map(_.oneOffCurrentYear).isDefined =>
         Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
-      case (_, Some(amount)) => determineResult(
-        Ok(giftAidOneOffView(yesNoForm(user), taxYear, giftAidDonations = amount)),
-        Redirect(controllers.charity.routes.GiftAidOneOffController.show(taxYear)),
-        fromShow)
+      case (_, Some(amount)) =>
+        val prefilledForm = cya.oneOffDonationsViaGiftAid.fold(yesNoForm(user))(yesNoForm(user).fill)
+
+        determineResult(
+          Ok(giftAidOneOffView(prefilledForm, taxYear, giftAidDonations = amount)),
+          Redirect(controllers.charity.routes.GiftAidOneOffController.show(taxYear)),
+          fromShow)
       case _ => giftAidDonatedAmountController.handleRedirect(taxYear, cya, prior)
     }
   }
@@ -89,13 +92,13 @@ class GiftAidOneOffController @Inject()(
           }
       }, {
         yesNoForm =>
-          if(prior.flatMap(_.giftAidPayments.flatMap(_.oneOffCurrentYear)).isDefined) {
+          if (prior.flatMap(_.giftAidPayments.flatMap(_.oneOffCurrentYear)).isDefined) {
             Future.successful(redirectToCya(taxYear))
           } else {
             cya.fold(Future.successful(redirectToOverview(taxYear))) { cyaData =>
               val updatedCya = cyaData.copy(
                 oneOffDonationsViaGiftAid = Some(yesNoForm),
-                oneOffDonationsViaGiftAidAmount = if(yesNoForm) cyaData.oneOffDonationsViaGiftAidAmount else None
+                oneOffDonationsViaGiftAidAmount = if (yesNoForm) cyaData.oneOffDonationsViaGiftAidAmount else None
               )
               val redirectLocation = (yesNoForm, updatedCya.isFinished) match {
                 case (true, _) => Redirect(controllers.charity.routes.GiftAidOneOffAmountController.show(taxYear))
