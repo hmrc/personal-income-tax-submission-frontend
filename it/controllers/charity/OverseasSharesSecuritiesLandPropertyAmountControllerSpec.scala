@@ -97,8 +97,17 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
+  val amount: Int = 2000
+
   val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrProperty = Some(true))
   val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
+
+  val requiredSessionModelPrefill: GiftAidCYAModel = GiftAidCYAModel(
+    overseasDonatedSharesSecuritiesLandOrProperty = Some(true),
+    overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(amount)
+  )
+
+  val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
 
   ".show" when {
 
@@ -107,6 +116,28 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
 
         "render the page with correct content" which {
           lazy val result = getResult(url, requiredSessionData, None, user.isAgent, user.isWelsh)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          titleCheck(heading)
+          h1Check(heading + " " + caption)
+          inputFieldCheck(inputName, Selectors.inputField)
+          textOnPageCheck(inputLabel, Selectors.inputLabel)
+          hintTextCheck(hintText)
+          captionCheck(caption)
+          buttonCheck(button)
+          noErrorsCheck()
+          welshToggleCheck(user.isWelsh)
+        }
+
+        "render the page with correct content with prefilled CYA data" which {
+          lazy val result = getResult(url, requiredSessionDataPrefill, None, user.isAgent, user.isWelsh)
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 

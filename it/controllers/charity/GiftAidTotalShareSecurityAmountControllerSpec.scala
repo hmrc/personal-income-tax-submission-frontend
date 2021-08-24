@@ -100,7 +100,15 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
   val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(donatedSharesOrSecurities = Some(true))
   val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
 
-  val validAmount = 1234
+  val amount: Int = 2000
+
+  val requiredSessionModelPrefill: GiftAidCYAModel = GiftAidCYAModel(
+    donatedSharesOrSecurities = Some(true),
+    donatedSharesOrSecuritiesAmount = Some(amount)
+  )
+  val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
+
+  val validAmount: Int = 1234
 
   ".show" when {
 
@@ -109,6 +117,28 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
 
         "render the page with correct content" which {
           lazy val result = getResult(url, requiredSessionData, None, user.isAgent, user.isWelsh)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          titleCheck(heading)
+          h1Check(heading + " " + caption)
+          inputFieldCheck(inputName, Selectors.inputField)
+          textOnPageCheck(inputLabel, Selectors.inputLabel)
+          hintTextCheck(hintText)
+          captionCheck(caption)
+          buttonCheck(button)
+          noErrorsCheck()
+          welshToggleCheck(user.isWelsh)
+        }
+
+        "render the page with correct content with prefilled CYA data" which {
+          lazy val result = getResult(url, requiredSessionDataPrefill, None, user.isAgent, user.isWelsh)
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 

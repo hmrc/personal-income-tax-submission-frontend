@@ -99,8 +99,17 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
+  val amountValue: Int = 1000
+
   val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(addDonationToLastYear = Some(true))
   val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
+
+  val requiredSessionModelPrefill: GiftAidCYAModel = GiftAidCYAModel(
+    addDonationToLastYear = Some(true),
+    addDonationToLastYearAmount = Some(amountValue)
+  )
+
+  val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
 
   val validAmount = 1234
 
@@ -111,6 +120,31 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
         "render the page with correct content" which {
           lazy val result = getResult(url, requiredSessionData, None, user.isAgent, user.isWelsh)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import Selectors._
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          titleCheck(user.specificExpectedResults.get.heading)
+          h1Check(user.specificExpectedResults.get.heading + " " + caption)
+          textOnPageCheck(user.specificExpectedResults.get.para, para)
+          inputFieldCheck("amount", ".govuk-input")
+          hintTextCheck(hint)
+          captionCheck(caption)
+          buttonCheck(button)
+          elementExtinct(errorSummary)
+          elementExtinct(noSelectionError)
+          elementExtinct(errorMessage)
+          welshToggleCheck(user.isWelsh)
+        }
+
+        "render the page with correct content with prefilled CYA data" which {
+          lazy val result = getResult(url, requiredSessionDataPrefill, None, user.isAgent, user.isWelsh)
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 

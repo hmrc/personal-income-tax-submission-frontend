@@ -103,8 +103,17 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
     val incorrectFormatError: String = "Enter the amount you want to add to this tax year in the correct format"
   }
 
-  val requiredSessionModel = GiftAidCYAModel(addDonationToThisYear = Some(true))
-  val requiredSessionData = Some(requiredSessionModel)
+  val amount: Int = 2000
+
+  val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(addDonationToThisYear = Some(true))
+  val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
+
+  val requiredSessionModelPrefill: GiftAidCYAModel = GiftAidCYAModel(
+    addDonationToThisYear = Some(true),
+    addDonationToThisYearAmount = Some(amount)
+  )
+
+  val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
 
   val validForm: Map[String, String] = Map("amount" -> "1234")
 
@@ -124,6 +133,26 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
         "render the page with correct content" which {
           lazy val result = getResult(url, requiredSessionData, None, user.isAgent, user.isWelsh)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          titleCheck(user.specificExpectedResults.get.heading)
+          h1Check(user.specificExpectedResults.get.heading + " " + expectedCaption)
+          inputFieldCheck(inputName, Selectors.inputField)
+          hintTextCheck(hintText)
+          captionCheck(expectedCaption)
+          buttonCheck(button)
+          welshToggleCheck(user.isWelsh)
+        }
+
+        "render the page with correct content with prefilled CYA data" which {
+          lazy val result = getResult(url, requiredSessionDataPrefill, None, user.isAgent, user.isWelsh)
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 

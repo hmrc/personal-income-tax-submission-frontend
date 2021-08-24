@@ -54,6 +54,8 @@ class DonationsToPreviousTaxYearController @Inject()(
                                fromShow: Boolean = false
                              )(implicit user: User[AnyContent]): Result = {
 
+    val prefillForm = cya.addDonationToThisYear.fold(yesNoForm(user, taxYear))(yesNoForm(user, taxYear).fill)
+
     (prior, cya.donationsViaGiftAid, cya.addDonationToLastYear, cya.addDonationToLastYearAmount) match {
       case (Some(priorData), _, _, _) if priorData.giftAidPayments.flatMap(_.nextYearTreatedAsCurrentYear).isDefined =>
         redirectToCya(taxYear)
@@ -61,8 +63,6 @@ class DonationsToPreviousTaxYearController @Inject()(
       case (_, Some(true), None, _) => giftAidLastTaxYearController.handleRedirect(taxYear, cya, prior)
       case (_, None, _, _) => Redirect(controllers.charity.routes.GiftAidDonationsController.show(taxYear))
       case _ =>
-        val prefillForm = cya.addDonationToThisYear.fold(yesNoForm(user, taxYear))(yesNoForm(user, taxYear).fill)
-
         determineResult(
           Ok(donationsToPreviousTaxYearView(prefillForm, taxYear)),
           Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear)),

@@ -120,6 +120,12 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Charity
   val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(addDonationToThisYear = Some(false))
   val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
 
+  val requiredSessionModelPrefill: GiftAidCYAModel = GiftAidCYAModel(
+    addDonationToThisYear = Some(false),
+    donatedSharesSecuritiesLandOrProperty = Some(false)
+  )
+  val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
+
   ".show" when {
 
     userScenarios.foreach { user =>
@@ -143,6 +149,36 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Charity
           textOnPageCheck(captionText, captionSelector)
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
+          buttonCheck(continueText, continueSelector)
+          textOnPageCheck(disclosureContentTitle, disclosureSelectorTitle)
+          textOnPageCheck(disclosureContentParagraph, disclosureSelectorParagraph)
+          textOnPageCheck(disclosureContentBullet1, disclosureSelectorBullet1)
+          textOnPageCheck(disclosureContentBullet2, disclosureSelectorBullet2)
+          textOnPageCheck(disclosureContentBullet3, disclosureSelectorBullet3)
+          textOnPageCheck(disclosureContentBullet4, disclosureSelectorBullet4)
+          noErrorsCheck()
+        }
+
+
+        "render the page with correct content with prefilled CYA data" which {
+          lazy val result = getResult(url, requiredSessionDataPrefill, None, user.isAgent, user.isWelsh)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import Selectors._
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          titleCheck(user.specificExpectedResults.get.expectedTitle)
+          welshToggleCheck(user.isWelsh)
+          h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)
+          textOnPageCheck(captionText, captionSelector)
+          radioButtonCheck(yesText, 1)
+          radioButtonCheck(noText, 2)
+          radioButtonHasChecked(noText, 2)
           buttonCheck(continueText, continueSelector)
           textOnPageCheck(disclosureContentTitle, disclosureSelectorTitle)
           textOnPageCheck(disclosureContentParagraph, disclosureSelectorParagraph)
