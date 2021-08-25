@@ -17,6 +17,8 @@
 package controllers.charity
 
 import models.charity.GiftAidCYAModel
+import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel}
+import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status.{OK, SEE_OTHER}
@@ -196,6 +198,22 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
       "redirect to the 'add donation to this tax year' page" in {
         result.status shouldBe SEE_OTHER
         result.headers("Location").head shouldBe controllers.charity.routes.DonationsToPreviousTaxYearController.show(year, year).url
+      }
+    }
+
+    "there is prior data for currentYearTreatedAsPreviousYear" should {
+
+      "display the LastTaxYearAmount page when the 'Change' link is clicked on the CYA page" which {
+
+        val priorData = IncomeSourcesModel(None, None,
+          giftAid = Some(GiftAidSubmissionModel(Some(GiftAidPaymentsModel(nextYearTreatedAsCurrentYear = Some(1000.56)))))
+        )
+
+        lazy val result = getResult(url , requiredSessionData, Some(priorData))
+
+        "has an OK 200 status" in {
+          result.status shouldBe OK
+        }
       }
     }
   }

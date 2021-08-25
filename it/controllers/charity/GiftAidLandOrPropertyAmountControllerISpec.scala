@@ -17,6 +17,8 @@
 package controllers.charity
 
 import models.charity.GiftAidCYAModel
+import models.charity.prior.{GiftAidSubmissionModel, GiftsModel}
+import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
@@ -184,6 +186,22 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
       "redirect to the DonateLandOrProperty page" in {
         result.status shouldBe SEE_OTHER
         result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(year)}"
+      }
+    }
+
+    "there is prior data for landAndBuildings" should {
+
+      "display the GiftAidLandOrPropertyAmount page when the 'Change' link is clicked on the CYA page" which {
+
+        val priorData: IncomeSourcesModel = IncomeSourcesModel(None, None,
+          giftAid = Some(GiftAidSubmissionModel(None, Some(GiftsModel(landAndBuildings = Some(1000.21)))))
+        )
+
+        lazy val result = getResult(url , requiredSessionData, Some(priorData))
+
+        "has an OK 200 status" in {
+          result.status shouldBe OK
+        }
       }
     }
   }
