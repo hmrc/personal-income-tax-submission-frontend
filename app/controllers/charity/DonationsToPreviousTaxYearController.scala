@@ -108,7 +108,7 @@ class DonationsToPreviousTaxYearController @Inject()(
                 cya.fold(Future.successful(redirectToOverview(taxYear))) { cyaData =>
                   val updatedCya = cyaData.copy(
                     addDonationToThisYear = Some(yesNoForm),
-                    addDonationToThisYearAmount = if (yesNoForm) cyaData.addDonationToLastYearAmount else None
+                    addDonationToThisYearAmount = if (yesNoForm) cyaData.addDonationToThisYearAmount else None
                   )
 
                   val redirectLocation = (yesNoForm, updatedCya.isFinished) match {

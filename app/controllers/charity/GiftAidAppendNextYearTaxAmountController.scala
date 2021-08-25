@@ -70,7 +70,7 @@ class GiftAidAppendNextYearTaxAmountController @Inject()(
     }
   }
 
-  def agentOrIndividual(implicit isAgent: Boolean): String = (if (isAgent) "agent" else "individual")
+  def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
 
   def form(implicit isAgent: Boolean, taxYear: Int): Form[BigDecimal] = AmountForm.amountForm(
     emptyFieldKey = "charity.amount-from-next-tax-year.errors.no-entry." + agentOrIndividual,
