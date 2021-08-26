@@ -371,7 +371,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
           }
 
           inputFieldValueCheck("Sensible account", Selectors.accountNameInput)
-          inputFieldValueCheck("", Selectors.amountInput)
+          inputFieldValueCheck("500.8.75", Selectors.amountInput)
           titleCheck(errorTitle)
 
           errorSummaryCheck(incorrectFormatError, Selectors.amountInput)
