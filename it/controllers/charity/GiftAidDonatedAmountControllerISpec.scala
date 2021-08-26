@@ -93,22 +93,22 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val expectedTitle = "How much did you donate to charity by using Gift Aid?"
-    val expectedH1 = "How much did you donate to charity by using Gift Aid?"
-    val expectedParagraph = "Do not include the Gift Aid that was added to your donation."
-    val expectedErrorEmpty = "Enter the amount you donated to charity by using Gift Aid"
-    val expectedErrorOverMax = "The amount you donated to charity must be less than £100,000,000,000"
-    val expectedErrorBadFormat = "Enter the amount you donated to charity in the correct format"
-    val expectedErrorTitle = s"Gwall: $expectedTitle"
-  }
-
-  object ExpectedAgentCY extends SpecificExpectedResults {
     val expectedTitle = "Faint wnaethoch ei roi i elusen drwy ddefnyddio Rhodd Cymorth?"
     val expectedH1 = "Faint wnaethoch ei roi i elusen drwy ddefnyddio Rhodd Cymorth?"
     val expectedParagraph = "Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at eich rhodd."
     val expectedErrorEmpty = "Nodwch y swm a roesoch i elusen drwy ddefnyddio Rhodd Cymorth"
     val expectedErrorOverMax = "Mae’n rhaid i’r swm a roesoch i elusen fod yn llai na £100,000,000,000"
     val expectedErrorBadFormat = "Nodwch y swm a roesoch i elusen yn y fformat cywir"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
+  }
+
+  object ExpectedAgentCY extends SpecificExpectedResults {
+    val expectedTitle = "Faint wnaeth eich cleient ei roi i elusen drwy ddefnyddio Rhodd Cymorth?"
+    val expectedH1 = "Faint wnaeth eich cleient ei roi i elusen drwy ddefnyddio Rhodd Cymorth?"
+    val expectedParagraph = "Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at rodd eich cleient."
+    val expectedErrorEmpty = "Nodwch y swm a roddodd eich cleient i elusen drwy ddefnyddio Rhodd Cymorth"
+    val expectedErrorOverMax = "Mae’n rhaid i’r swm a roddodd eich cleient i elusen fod yn llai na £100,000,000,000"
+    val expectedErrorBadFormat = "Nodwch y swm a roddodd eich cleient i elusen yn y fformat cywir"
     val expectedErrorTitle = s"Gwall: $expectedTitle"
   }
 

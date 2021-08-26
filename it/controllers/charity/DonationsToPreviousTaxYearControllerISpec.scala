@@ -64,7 +64,6 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-<<<<<<< HEAD
     val expectedHeading = "A ydych am ychwanegu unrhyw roddion a wnaed ar ôl 5 Ebrill 2022 i’r flwyddyn dreth hon?"
     val expectedCaption = s"Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
     val yesText = "Iawn"

@@ -65,7 +65,6 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends CharityITHelper
 
   object CommonExpectedCY extends CommonExpectedResults {
     val expectedTitle = s"A ydych yn siŵr eich bod am dynnu $charityName?"
-    val expectedTitle = s"Are you sure you want to remove $charityName?"
     val expectedErrorTitle = "Dewiswch ‘Iawn’ i dynnu’r elusen o dramor hon"
     val expectedH1 = s"A ydych yn siŵr eich bod am dynnu $charityName?"
     val expectedContent = "Bydd hyn yn tynnu pob elusen o dramor."
