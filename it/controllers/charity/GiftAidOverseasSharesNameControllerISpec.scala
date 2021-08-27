@@ -109,6 +109,8 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
+  val validAmount = 50
+
   val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(BigDecimal(1)))
   val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
 
@@ -150,7 +152,12 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
     }
 
     "there is no overseasDonatedSharesSecuritiesLandOrPropertyAmount" which {
-      lazy val result = getResult(url(), Some(GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrProperty = Some(true))), None)
+      lazy val result =
+        getResult(
+          url(),
+          Some(GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrProperty = Some(true), donatedLandOrPropertyAmount = Some(validAmount))),
+          None
+        )
 
       "redirect to the OverseasSharesSecuritiesLandPropertyAmount page" in {
         result.status shouldBe SEE_OTHER

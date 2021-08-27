@@ -81,4 +81,25 @@ trait Formatters {
         baseFormatter.unbind(key, value.toString)
     }
 
+  private[mappings] def currencyExceedFormatter(requiredKey: String,
+                                       invalidNumericKey: String,
+                                       nonNumericKey: String,
+                                       maxAmountKey: String,
+                                       exceedAmountKey: String,
+                                       exceedAmount: BigDecimal,
+                                       args: Seq[String] = Seq.empty): Formatter[BigDecimal] = new Formatter[BigDecimal] {
+
+    private val baseFormatter = currencyFormatter(requiredKey, invalidNumericKey, nonNumericKey, maxAmountKey, args)
+
+    override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], BigDecimal] =
+      baseFormatter
+        .bind(key, data).right.flatMap {
+          case x if x > exceedAmount => Left(Seq(FormError(key, exceedAmountKey, args)))
+          case x => Right(x)
+      }
+
+    override def unbind(key: String, value: BigDecimal): Map[String, String] =
+      stringFormatter(requiredKey).unbind(key, value.toString)
+  }
+
 }

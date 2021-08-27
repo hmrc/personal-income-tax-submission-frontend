@@ -39,6 +39,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
     val tooLong: String
     val emptyField: String
     val incorrectFormat: String
+    val expectedErrorExceeds: String
   }
 
   trait CommonExpectedResults {
@@ -72,24 +73,32 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
     val tooLong = "The value of your shares, securities, land or property must be less than £100,000,000,000"
     val emptyField = "Enter the value of shares, securities, land or property you donated to overseas charities"
     val incorrectFormat = "Enter the value of shares, securities, land or property you donated to overseas charities in the correct format"
+    val expectedErrorExceeds: String = "The value of shares, securities, land or property donated to overseas charities cannot be more than the " +
+        "‘value of shares and securities donated to charity’ plus the ‘value of land or property donated to charity’"
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
     val tooLong = "The value of your client’s shares, securities, land or property must be less than £100,000,000,000"
     val emptyField = "Enter the value of shares, securities, land or property your client donated to overseas charities"
     val incorrectFormat = "Enter the value of shares, securities, land or property your client donated to overseas charities in the correct format"
+    val expectedErrorExceeds: String = "The value of shares, securities, land or property donated to overseas charities cannot be more than the " +
+      "‘value of shares and securities donated to charity’ plus the ‘value of land or property donated to charity’"
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
     val tooLong = "The value of your shares, securities, land or property must be less than £100,000,000,000"
     val emptyField = "Enter the value of shares, securities, land or property you donated to overseas charities"
     val incorrectFormat = "Enter the value of shares, securities, land or property you donated to overseas charities in the correct format"
+    val expectedErrorExceeds: String = "The value of shares, securities, land or property donated to overseas charities cannot be more than the " +
+      "‘value of shares and securities donated to charity’ plus the ‘value of land or property donated to charity’"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
     val tooLong = "The value of your client’s shares, securities, land or property must be less than £100,000,000,000"
     val emptyField = "Enter the value of shares, securities, land or property your client donated to overseas charities"
     val incorrectFormat = "Enter the value of shares, securities, land or property your client donated to overseas charities in the correct format"
+    val expectedErrorExceeds: String = "The value of shares, securities, land or property donated to overseas charities cannot be more than the " +
+      "‘value of shares and securities donated to charity’ plus the ‘value of land or property donated to charity’"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
@@ -99,16 +108,20 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
-  val amount: Int = 2000
+  val donatedAmount = 50
+  val validAmount = 99
 
-  val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrProperty = Some(true))
+  val requiredSessionModel: GiftAidCYAModel =
+    GiftAidCYAModel(
+      overseasDonatedSharesSecuritiesLandOrProperty = Some(true),
+      donatedLandOrPropertyAmount = Some(donatedAmount),
+      donatedSharesOrSecuritiesAmount = Some(donatedAmount)
+    )
   val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
 
-  val requiredSessionModelPrefill: GiftAidCYAModel = GiftAidCYAModel(
-    overseasDonatedSharesSecuritiesLandOrProperty = Some(true),
-    overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(amount)
+  val requiredSessionModelPrefill: GiftAidCYAModel = requiredSessionModel.copy(
+    overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(validAmount)
   )
-
   val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
 
   ".show" when {
@@ -195,6 +208,15 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
         }
       }
     }
+    
+    "there is cya data, but 'donatedLandOrPropertyAmount' and 'donatedSharesOrSecuritiesAmount' have not been stored" should {
+      lazy val result = getResult(url, Some(GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrProperty = Some(true))), None)
+
+      "redirect the user to the gift aid donations page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidDonationsController.show(year)}"
+      }
+    }
   }
 
   ".submit" when {
@@ -204,12 +226,12 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
 
         "return an error" when {
 
+          import user.commonExpectedResults._
+
           "the submitted data is empty" which {
             lazy val result = postResult(url, requiredSessionData, None, Map("amount" -> ""), user.isAgent, user.isWelsh)
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-            import user.commonExpectedResults._
 
             titleCheck(errorPrefix + heading)
             h1Check(heading + " " + caption)
@@ -228,8 +250,6 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            import user.commonExpectedResults._
-
             titleCheck(errorPrefix + heading)
             h1Check(heading + " " + caption)
             inputFieldCheck(inputName, Selectors.inputField)
@@ -247,8 +267,6 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            import user.commonExpectedResults._
-
             titleCheck(errorPrefix + heading)
             h1Check(heading + " " + caption)
             inputFieldCheck(inputName, Selectors.inputField)
@@ -258,6 +276,23 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
             buttonCheck(button)
             errorSummaryCheck(user.specificExpectedResults.get.incorrectFormat, Selectors.errorHref)
             errorAboveElementCheck(user.specificExpectedResults.get.incorrectFormat)
+            welshToggleCheck(user.isWelsh)
+          }
+
+          "the submitted amount is greater than 'donatedLandOrPropertyAmount' + 'donatedSharesOrSecuritiesAmount'" which {
+            lazy val result = postResult(url, requiredSessionData, None, Map("amount" -> "100.01"), user.isAgent, user.isWelsh)
+
+            implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+            titleCheck(errorPrefix + heading)
+            h1Check(heading + " " + caption)
+            inputFieldCheck(inputName, Selectors.inputField)
+            textOnPageCheck(inputLabel, Selectors.inputLabel)
+            hintTextCheck(hintText)
+            captionCheck(caption)
+            buttonCheck(button)
+            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorExceeds, Selectors.errorHref)
+            errorAboveElementCheck(user.specificExpectedResults.get.expectedErrorExceeds)
             welshToggleCheck(user.isWelsh)
           }
         }
@@ -274,7 +309,6 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
     }
 
     "the form is valid" should {
-      val validAmount = 123
       lazy val result = postResult(url, requiredSessionData, None, Map("amount" -> s"$validAmount"))
 
       "should redirect to the 'overseas SSLP charity name' page" in {

@@ -38,4 +38,23 @@ object AmountForm {
     )
   )
 
+  def amountExceedForm(
+                        emptyFieldKey: String,
+                        wrongFormatKey: String = "common.error.invalid_currency_format",
+                        exceedsMaxAmountKey: String = "common.error.amountMaxLimit",
+                        exceedAmountKey: String,
+                        exceedAmount: BigDecimal,
+                        emptyFieldArguments: Seq[String] = Seq.empty[String]
+                      ): Form[BigDecimal] = Form(
+    amount -> currencyExceed(
+      requiredKey = emptyFieldKey,
+      invalidNumericKey = wrongFormatKey,
+      nonNumericKey = wrongFormatKey,
+      maxAmountKey = exceedsMaxAmountKey,
+      exceedAmountKey = exceedAmountKey,
+      exceedAmount = exceedAmount,
+      args = emptyFieldArguments
+    )
+  )
+
 }

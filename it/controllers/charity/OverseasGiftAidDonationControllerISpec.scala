@@ -98,6 +98,8 @@ class OverseasGiftAidDonationControllerISpec extends CharityITHelper {
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
+  val validAmount = 50
+
   val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(oneOffDonationsViaGiftAid = Some(false))
   val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
 
@@ -174,7 +176,7 @@ class OverseasGiftAidDonationControllerISpec extends CharityITHelper {
       val priorData = IncomeSourcesModel(giftAid = Some(
         GiftAidSubmissionModel(Some(
           GiftAidPaymentsModel(
-            nonUkCharities = Some(BigDecimal(125))
+            nonUkCharities = Some(validAmount)
           )
         ))
       ))
@@ -187,7 +189,7 @@ class OverseasGiftAidDonationControllerISpec extends CharityITHelper {
     }
 
     "'one off donations' does not exist in cya data" should {
-      lazy val result = getResult(url, Some(GiftAidCYAModel(donationsViaGiftAidAmount = Some(BigDecimal(50)))), None)
+      lazy val result = getResult(url, Some(GiftAidCYAModel(donationsViaGiftAidAmount = Some(validAmount))), None)
 
       "redirect the user to the 'one off donations' page" in {
         result.status shouldBe SEE_OTHER
@@ -197,7 +199,12 @@ class OverseasGiftAidDonationControllerISpec extends CharityITHelper {
 
     "'one off donations' is true, but 'one off amount' does not exist in cya data" should {
 
-      lazy val result = getResult(url, Some(GiftAidCYAModel(oneOffDonationsViaGiftAid = Some(true))), None)
+      lazy val result =
+        getResult(
+          url,
+          Some(GiftAidCYAModel(oneOffDonationsViaGiftAid = Some(true), donationsViaGiftAidAmount = Some(validAmount))),
+          None
+        )
 
       "redirect the user to the 'one off amount' page" in {
         result.status shouldBe SEE_OTHER
@@ -243,7 +250,7 @@ class OverseasGiftAidDonationControllerISpec extends CharityITHelper {
       val priorData = IncomeSourcesModel(giftAid = Some(
         GiftAidSubmissionModel(Some(
           GiftAidPaymentsModel(
-            nonUkCharities = Some(BigDecimal(125))
+            nonUkCharities = Some(validAmount)
           )
         ))
       ))

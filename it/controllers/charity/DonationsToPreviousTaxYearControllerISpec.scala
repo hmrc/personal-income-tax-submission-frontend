@@ -103,7 +103,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper {
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
-  val amount: Int = 2000
+  val validAmount = 50
 
   val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(
     donationsViaGiftAid = Some(true),
@@ -223,6 +223,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper {
       "redirect to the how much donations to be added to this tax year from next page" which {
         val cyaData = GiftAidCYAModel(
           donationsViaGiftAid = Some(true),
+          donationsViaGiftAidAmount = Some(validAmount),
           addDonationToLastYear = Some(true)
         )
         lazy val result = getResult(url(), Some(cyaData), None)
@@ -242,7 +243,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper {
       "redirect to the donations to be attributed to last tax year page" which {
         val cyaData = GiftAidCYAModel(
           donationsViaGiftAid = Some(true),
-          donationsViaGiftAidAmount = Some(50),
+          donationsViaGiftAidAmount = Some(validAmount),
           overseasDonationsViaGiftAid = Some(false)
         )
         lazy val result = getResult(url(), Some(cyaData), None)

@@ -45,6 +45,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
     val expectedErrorInvalid: String
     val expectedErrorOverMax: String
     val expectedErrorTitle: String
+    val expectedErrorExceeds: String
   }
 
   trait CommonExpectedResults {
@@ -78,6 +79,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
     val expectedErrorInvalid = "Enter the amount you donated to overseas charities in the correct format"
     val expectedErrorOverMax = "The amount you donated to overseas charities must be less than £100,000,000,000"
     val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedErrorExceeds = "The amount you donated to overseas charities must not be more than the amount you donated to charity by using Gift Aid."
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
@@ -87,6 +89,8 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
     val expectedErrorInvalid = "Enter the amount your client donated to overseas charities in the correct format"
     val expectedErrorOverMax = "The amount your client donated to overseas charities must be less than £100,000,000,000"
     val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedErrorExceeds =
+      "The amount your client donated to overseas charities must not be more than the amount your client donated to charity by using Gift Aid."
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
@@ -96,6 +100,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
     val expectedErrorInvalid = "Enter the amount you donated to overseas charities in the correct format"
     val expectedErrorOverMax = "The amount you donated to overseas charities must be less than £100,000,000,000"
     val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedErrorExceeds = "The amount you donated to overseas charities must not be more than the amount you donated to charity by using Gift Aid."
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
@@ -105,6 +110,8 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
     val expectedErrorInvalid = "Enter the amount your client donated to overseas charities in the correct format"
     val expectedErrorOverMax = "The amount your client donated to overseas charities must be less than £100,000,000,000"
     val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedErrorExceeds =
+      "The amount your client donated to overseas charities must not be more than the amount your client donated to charity by using Gift Aid."
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
@@ -114,19 +121,16 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
-  val amount: Int = 2000
+  val totalDonatedAmount = 50
+  val validAmount = 25
 
-  val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(overseasDonationsViaGiftAid = Some(true))
+  val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(overseasDonationsViaGiftAid = Some(true), donationsViaGiftAidAmount = Some(totalDonatedAmount))
   val requiredSessionData: Some[GiftAidCYAModel] = Some(requiredSessionModel)
 
-  val requiredSessionModelPrefill: GiftAidCYAModel = GiftAidCYAModel(
-    overseasDonationsViaGiftAid = Some(true),
-    overseasDonationsViaGiftAidAmount = Some(amount)
+  val requiredSessionModelPrefill: GiftAidCYAModel = requiredSessionModel.copy(
+    overseasDonationsViaGiftAidAmount = Some(validAmount)
   )
-
   val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
-
-  val validAmount = 250
 
   ".show" when {
 
@@ -214,6 +218,15 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
         }
       }
     }
+
+    "there is cya data, but 'donationsViaGiftAidAmount' has not been stored" should {
+      lazy val result: WSResponse = getResult(url, Some(GiftAidCYAModel(overseasDonationsViaGiftAid = Some(true))), None)
+
+      "redirect the user to the gift aid donation page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidDonationsController.show(year)}"
+      }
+    }
   }
 
   ".submit" when {
@@ -223,13 +236,13 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
 
         "return an error" when {
 
+          import Selectors._
+          import user.commonExpectedResults._
+
           "the submitted data is empty" which {
             lazy val result = postResult(url, requiredSessionData, None, Map("amount" -> ""), user.isAgent, user.isWelsh)
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-            import Selectors._
-            import user.commonExpectedResults._
 
             titleCheck(user.specificExpectedResults.get.expectedErrorTitle)
             h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
@@ -249,9 +262,6 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            import Selectors._
-            import user.commonExpectedResults._
-
             titleCheck(user.specificExpectedResults.get.expectedErrorTitle)
             h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
@@ -270,9 +280,6 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            import Selectors._
-            import user.commonExpectedResults._
-
             titleCheck(user.specificExpectedResults.get.expectedErrorTitle)
             h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
@@ -284,6 +291,24 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
 
             errorSummaryCheck(user.specificExpectedResults.get.expectedErrorInvalid, Selectors.expectedErrorLink)
             errorAboveElementCheck(user.specificExpectedResults.get.expectedErrorInvalid)
+          }
+
+          "the submitted amount is greater than the 'donationsViaGiftAidAmount'" which {
+            lazy val result = postResult(url, requiredSessionData, None, Map("amount" -> "50.01"), user.isAgent, user.isWelsh)
+
+            implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+            titleCheck(user.specificExpectedResults.get.expectedErrorTitle)
+            h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+            textOnPageCheck(expectedCaption, captionSelector)
+            textOnPageCheck(expectedInputLabelText, inputLabelSelector)
+            textOnPageCheck(expectedInputHintText, inputHintTextSelector)
+            inputFieldCheck(expectedInputName, inputFieldSelector)
+            buttonCheck(expectedButtonText, buttonSelector)
+            welshToggleCheck(user.isWelsh)
+
+            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorExceeds, Selectors.expectedErrorLink)
+            errorAboveElementCheck(user.specificExpectedResults.get.expectedErrorExceeds)
           }
         }
       }

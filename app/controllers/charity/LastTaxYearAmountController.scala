@@ -61,26 +61,31 @@ class LastTaxYearAmountController @Inject()(
     val priorAmount: Option[BigDecimal] = prior.flatMap(_.giftAidPayments.flatMap(_.currentYearTreatedAsPreviousYear))
     val cyaAmount: Option[BigDecimal] = cya.addDonationToLastYearAmount
 
-    val amountForm = (priorAmount, cyaAmount) match {
-      case (priorAmountOpt, Some(cyaValue)) if !priorAmountOpt.contains(cyaValue) => form(user.isAgent, taxYear).fill(cyaValue)
-      case _ => form(user.isAgent, taxYear)
-    }
-    
-    lazy val page = Ok(view(taxYear, amountForm, cya.addDonationToLastYearAmount.map(_.toString())))
-
-    cya.addDonationToLastYear match {
-      case Some(true) => if (fromShow) page else Redirect(controllers.charity.routes.LastTaxYearAmountController.show(taxYear))
-      case Some(false) => Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear))
+    (cya.addDonationToLastYear, cya.donationsViaGiftAidAmount) match {
+      case (Some(true), Some(totalDonation)) =>
+        val amountForm = (priorAmount, cyaAmount) match {
+          case (priorAmountOpt, Some(cyaValue)) if !priorAmountOpt.contains(cyaValue) => form(user.isAgent, taxYear, totalDonation).fill(cyaValue)
+          case _ => form(user.isAgent, taxYear, totalDonation)
+        }
+        val page = Ok(view(taxYear, amountForm, cya.addDonationToLastYearAmount.map(_.toString())))
+        if (fromShow){
+          page
+        } else {
+          Redirect(controllers.charity.routes.LastTaxYearAmountController.show(taxYear))
+        }
+      case (Some(false), _) => Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear))
       case _ => previousPage.handleRedirect(taxYear, cya, prior)
     }
   }
 
   def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
 
-  def form(implicit isAgent: Boolean, taxYear: Int): Form[BigDecimal] = AmountForm.amountForm(
+  def form(implicit isAgent: Boolean, taxYear: Int, cannotExceed: BigDecimal): Form[BigDecimal] = AmountForm.amountExceedForm(
     emptyFieldKey = "charity.last-tax-year-donation-amount.error.no-entry." + agentOrIndividual,
     wrongFormatKey = "charity.last-tax-year-donation-amount.error.invalid",
     exceedsMaxAmountKey = "charity.last-tax-year-donation-amount.error.maximum." + agentOrIndividual,
+    exceedAmountKey = "charity.last-tax-year-donation-amount.error.exceeds." + agentOrIndividual,
+    exceedAmount = cannotExceed,
     emptyFieldArguments = Seq(taxYear.toString)
   )
 
@@ -96,35 +101,36 @@ class LastTaxYearAmountController @Inject()(
   }
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
-    form(user.isAgent, taxYear).bindFromRequest().fold(
-      {
-        formWithErrors =>
-          Future.successful(BadRequest(
-            view(taxYear, formWithErrors, None)
-          ))
-      },
-      {
-        submittedAmount =>
-          giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
-            case Some(cyaData) =>
-              //noinspection DuplicatedCode
-              val updatedCyaData: GiftAidCYAModel = cyaData.copy(addDonationToLastYearAmount = Some(submittedAmount))
 
-              val redirectLocation = if(updatedCyaData.isFinished){
-                Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
-              } else {
-                Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear))
-              }
+    giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
+      case Some(cyaData) =>
+        cyaData.donationsViaGiftAidAmount match {
+          case Some(totalDonatedAmount) =>
+            form(user.isAgent, taxYear, totalDonatedAmount).bindFromRequest().fold(
+              {
+                formWithErrors =>
+                  Future.successful(BadRequest(view(taxYear, formWithErrors, None)))
+              }, {
+                submittedAmount =>
+                  val updatedCyaData: GiftAidCYAModel = cyaData.copy(addDonationToLastYearAmount = Some(submittedAmount))
 
-              giftAidSessionService.updateSessionData(updatedCyaData, taxYear)(
-                errorHandler.internalServerError()
-              )(redirectLocation)
-            case _ =>
-              logger.warn("[LastTaxYearAmountController][submit] No CYA data retrieved from the mongo database. Redirecting to the overview page.")
-              Future.successful(redirectToOverview(taxYear))
-          }.flatten
-      }
-    )
+                  val redirectLocation = if(updatedCyaData.isFinished){
+                    Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
+                  } else {
+                    Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear))
+                  }
+
+                  giftAidSessionService.updateSessionData(updatedCyaData, taxYear)(
+                    errorHandler.internalServerError()
+                  )(redirectLocation)
+              })
+          case _ =>
+            logger.warn("[LastTaxYearAmountController][submit] No 'donationsViaGiftAidAmount' in mongo database. Redirecting to the overview page.")
+            Future.successful(redirectToOverview(taxYear))
+        }
+      case _ =>
+        logger.warn("[LastTaxYearAmountController][submit] No CYA data retrieved from the mongo database. Redirecting to the overview page.")
+        Future.successful(redirectToOverview(taxYear))
+    }.flatten
   }
-
 }

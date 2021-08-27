@@ -42,6 +42,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
     val noSelectionError: String
     val tooLongError: String
     val invalidFormatError: String
+    val expectedErrorExceeds: String
   }
 
   trait CommonExpectedResults {
@@ -68,6 +69,8 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
     val noSelectionError = "Enter the amount of your donation you want to add to the last tax year"
     val tooLongError = "The amount of your donation you add to the last tax year must be less than £100,000,000,000"
     val invalidFormatError = "Enter the amount you want to add to the last tax year in the correct format"
+    val expectedErrorExceeds =
+      "The amount of your donation you want to add to the last tax year must not be more the amount you donated to charity by using Gift Aid"
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
@@ -76,6 +79,8 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
     val noSelectionError = "Enter the amount of your client’s donation you want to add to the last tax year"
     val tooLongError = "The amount of your client’s donation you add to the last tax year must be less than £100,000,000,000"
     val invalidFormatError = "Enter the amount you want to add to the last tax year in the correct format"
+    val expectedErrorExceeds =
+      "The amount of your client’s donation you want to add to the last tax year must not be more the amount your client donated to charity by using Gift Aid"
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
@@ -84,6 +89,8 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
     val noSelectionError = "Enter the amount of your donation you want to add to the last tax year"
     val tooLongError = "The amount of your donation you add to the last tax year must be less than £100,000,000,000"
     val invalidFormatError = "Enter the amount you want to add to the last tax year in the correct format"
+    val expectedErrorExceeds =
+      "The amount of your donation you want to add to the last tax year must not be more the amount you donated to charity by using Gift Aid"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
@@ -92,6 +99,8 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
     val noSelectionError = "Enter the amount of your client’s donation you want to add to the last tax year"
     val tooLongError =  "The amount of your client’s donation you add to the last tax year must be less than £100,000,000,000"
     val invalidFormatError = "Enter the amount you want to add to the last tax year in the correct format"
+    val expectedErrorExceeds =
+      "The amount of your client’s donation you want to add to the last tax year must not be more the amount your client donated to charity by using Gift Aid"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
@@ -101,19 +110,16 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
-  val amountValue: Int = 1000
+  val totalDonatedAmount = 50
+  val validAmount = 25
 
-  val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(addDonationToLastYear = Some(true))
+  val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(addDonationToLastYear = Some(true), donationsViaGiftAidAmount = Some(totalDonatedAmount))
   val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
 
-  val requiredSessionModelPrefill: GiftAidCYAModel = GiftAidCYAModel(
-    addDonationToLastYear = Some(true),
-    addDonationToLastYearAmount = Some(amountValue)
+  val requiredSessionModelPrefill: GiftAidCYAModel = requiredSessionModel.copy(
+    addDonationToLastYearAmount = Some(validAmount)
   )
-
   val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
-
-  val validAmount = 1234
 
   ".show" when {
 
@@ -191,6 +197,15 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
       }
     }
 
+    "there is cya data, but 'donationsViaGiftAidAmount' has not been stored" should {
+      lazy val result = getResult(url, Some(GiftAidCYAModel(addDonationToLastYear = Some(true))), None)
+
+      "redirect the user to the overview page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe overviewUrl
+      }
+    }
+
     "the addDonationToLastYear field is false" should {
       lazy val result =
         getResult(url, Some(GiftAidCYAModel(addDonationToLastYear = Some(false))), None)
@@ -225,13 +240,13 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
         "return an error" when {
 
+          import Selectors._
+          import user.commonExpectedResults._
+
           "the submitted data is empty" which {
             lazy val result = postResult(url, requiredSessionData, None, Map("amount" -> ""), user.isAgent, user.isWelsh)
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-            import Selectors._
-            import user.commonExpectedResults._
 
             titleCheck(errorPrefix + user.specificExpectedResults.get.heading)
             h1Check(user.specificExpectedResults.get.heading + " " + caption)
@@ -250,9 +265,6 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            import Selectors._
-            import user.commonExpectedResults._
-
             titleCheck(errorPrefix + user.specificExpectedResults.get.heading)
             h1Check(user.specificExpectedResults.get.heading + " " + caption)
             textOnPageCheck(user.specificExpectedResults.get.para, para)
@@ -270,9 +282,6 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            import Selectors._
-            import user.commonExpectedResults._
-
             titleCheck(errorPrefix + user.specificExpectedResults.get.heading)
             h1Check(user.specificExpectedResults.get.heading + " " + caption)
             textOnPageCheck(user.specificExpectedResults.get.para, para)
@@ -282,6 +291,23 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
             buttonCheck(button)
             errorSummaryCheck(user.specificExpectedResults.get.invalidFormatError, amount)
             errorAboveElementCheck(user.specificExpectedResults.get.invalidFormatError)
+            welshToggleCheck(user.isWelsh)
+          }
+
+          "the submitted amount is greater than the 'donationsViaGiftAidAmount'" which {
+            lazy val result = postResult(url, requiredSessionData, None, Map("amount" -> "50.01"), user.isAgent, user.isWelsh)
+
+            implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+            titleCheck(errorPrefix + user.specificExpectedResults.get.heading)
+            h1Check(user.specificExpectedResults.get.heading + " " + caption)
+            textOnPageCheck(user.specificExpectedResults.get.para, para)
+            inputFieldCheck("amount", ".govuk-input")
+            hintTextCheck(hint)
+            captionCheck(caption)
+            buttonCheck(button)
+            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorExceeds, amount)
+            errorAboveElementCheck(user.specificExpectedResults.get.expectedErrorExceeds)
             welshToggleCheck(user.isWelsh)
           }
         }
