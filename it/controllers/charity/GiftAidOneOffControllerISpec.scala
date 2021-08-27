@@ -87,7 +87,7 @@ class GiftAidOneOffControllerISpec extends CharityITHelper {
     val expectedTitle = "Did your client make one-off donations?"
     val expectedPara1 = s"You told us your client used Gift Aid to donate £$giftAidDonations to charity. Tell us if any of this was made as one-off payments."
     val expectedPara2 = "One-off donations are payments your client did not repeat."
-    val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
     val expectedErrorText = "Select yes if your client made a one-off donation to charity"
   }
 
@@ -97,7 +97,7 @@ class GiftAidOneOffControllerISpec extends CharityITHelper {
     val expectedPara1= s"Gwnaethoch roi gwybod i ni eich bod wedi defnyddio Rhodd Cymorth i roi £$giftAidDonations i elusen." +
       s" Rhowch wybod i ni a wnaed unrhyw ran o hyn fel taliadau untro."
     val expectedPara2 = "Taliadau na wnaethoch eu hailadrodd yw rhoddion untro."
-    val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
     val expectedErrorText = "Dewiswch ‘Iawn’ os gwnaethoch rodd untro i elusen"
   }
 
