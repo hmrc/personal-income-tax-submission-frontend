@@ -82,7 +82,7 @@ class GiftAidOneOffAmountControllerISpec extends CharityITHelper {
     val expectedErrorInvalid = "Enter the amount you donated as one-off payments in the correct format"
     val expectedErrorOverMax = "The amount you donated as one-off payments must be less than £100,000,000,000"
     val expectedErrorTitle = s"Error: $expectedTitle"
-    val expectedErrorExceeds = "The amount you donated as one-off payments must not be more than the amount you donated to charity by using Gift Aid."
+    val expectedErrorExceeds = "The amount you donated as one-off payments must not be more than the amount you donated to charity by using Gift Aid"
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
@@ -94,7 +94,7 @@ class GiftAidOneOffAmountControllerISpec extends CharityITHelper {
     val expectedErrorOverMax = "The amount your client donated as one-off payments must be less than £100,000,000,000"
     val expectedErrorTitle = s"Error: $expectedTitle"
     val expectedErrorExceeds =
-      "The amount your client donated as one-off payments must not be more than the amount your client donated to charity by using Gift Aid."
+      "The amount your client donated as one-off payments must not be more than the amount your client donated to charity by using Gift Aid"
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
@@ -105,7 +105,7 @@ class GiftAidOneOffAmountControllerISpec extends CharityITHelper {
     val expectedErrorInvalid = "Enter the amount you donated as one-off payments in the correct format"
     val expectedErrorOverMax = "The amount you donated as one-off payments must be less than £100,000,000,000"
     val expectedErrorTitle = s"Error: $expectedTitle"
-    val expectedErrorExceeds = "The amount you donated as one-off payments must not be more than the amount you donated to charity by using Gift Aid."
+    val expectedErrorExceeds = "The amount you donated as one-off payments must not be more than the amount you donated to charity by using Gift Aid"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
@@ -117,7 +117,7 @@ class GiftAidOneOffAmountControllerISpec extends CharityITHelper {
     val expectedErrorOverMax = "The amount your client donated as one-off payments must be less than £100,000,000,000"
     val expectedErrorTitle = s"Error: $expectedTitle"
     val expectedErrorExceeds =
-      "The amount your client donated as one-off payments must not be more than the amount your client donated to charity by using Gift Aid."
+      "The amount your client donated as one-off payments must not be more than the amount your client donated to charity by using Gift Aid"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {

@@ -337,8 +337,8 @@ charity.gift-aid-one-off-amount.error.incorrect-format.individual = Enter the am
 charity.gift-aid-one-off-amount.error.incorrect-format.agent = Enter the amount your client donated as one-off payments in the correct format
 charity.gift-aid-one-off-amount.error.too-high.individual = The amount you donated as one-off payments must be less than £100,000,000,000
 charity.gift-aid-one-off-amount.error.too-high.agent = The amount your client donated as one-off payments must be less than £100,000,000,000
-charity.gift-aid-one-off-amount.error.exceeds.individual = The amount you donated as one-off payments must not be more than the amount you donated to charity by using Gift Aid.
-charity.gift-aid-one-off-amount.error.exceeds.agent = The amount your client donated as one-off payments must not be more than the amount your client donated to charity by using Gift Aid.
+charity.gift-aid-one-off-amount.error.exceeds.individual = The amount you donated as one-off payments must not be more than the amount you donated to charity by using Gift Aid
+charity.gift-aid-one-off-amount.error.exceeds.agent = The amount your client donated as one-off payments must not be more than the amount your client donated to charity by using Gift Aid
 charity.gift-aid-one-off-amount.input.label = Total amount for the year, in pounds
 
 charity.overseas-gift-aid.title.individual = Did you use Gift Aid to donate to an overseas charity?
@@ -355,8 +355,8 @@ charity.amount-overseas-gift-aid.error.incorrect-format.agent = Enter the amount
 charity.amount-overseas-gift-aid.error.too-high.individual = The amount you donated to overseas charities must be less than £100,000,000,000
 charity.amount-overseas-gift-aid.error.too-high.agent = The amount your client donated to overseas charities must be less than £100,000,000,000
 charity.amount-overseas-gift-aid.input.label = Total amount, in pounds
-charity.amount-overseas-gift-aid.error.exceed.individual = The amount you donated to overseas charities must not be more than the amount you donated to charity by using Gift Aid.
-charity.amount-overseas-gift-aid.error.exceed.agent = The amount your client donated to overseas charities must not be more than the amount your client donated to charity by using Gift Aid.
+charity.amount-overseas-gift-aid.error.exceed.individual = The amount you donated to overseas charities must not be more than the amount you donated to charity by using Gift Aid
+charity.amount-overseas-gift-aid.error.exceed.agent = The amount your client donated to overseas charities must not be more than the amount your client donated to charity by using Gift Aid
 
 charity.gift-aid-overseas-name.title.individual = Name of overseas charity you used Gift Aid to donate to
 charity.gift-aid-overseas-name.title.agent = Name of overseas charity your client used Gift Aid to donate to
