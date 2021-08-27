@@ -102,14 +102,14 @@ class OverseasSharesLandSummaryControllerISpec  extends CharityITHelper {
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val headingSingle = "charity Tramor wnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo iddo"
-    val headingMultiple = "Elusennau tramor a wnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo iddynt"
+    val headingSingle = "Elusen dramor y gwnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo iddi"
+    val headingMultiple = "Elusen dramor y gwnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo iddi"
     val hint = "Mae’n rhaid i chi roi gwybod i ni am yr holl elusennau tramor y gwnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo iddynt."
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val headingSingle = "charity Tramor wnaeth eich cleient rhoi cyfranddaliadau, gwarantau, tir neu eiddo iddo"
-    val headingMultiple = "Elusennau tramor a wnaeth eich cleient rhoi cyfranddaliadau, gwarantau, tir neu eiddo iddynt"
+    val headingSingle = "Elusen dramor y gwnaeth eich cleient roi cyfranddaliadau, gwarantau, tir neu eiddo iddi"
+    val headingMultiple = "Elusen dramor y gwnaeth eich cleient roi cyfranddaliadau, gwarantau, tir neu eiddo iddi"
     val hint = "Mae’n rhaid i chi roi gwybod i ni am yr holl elusennau tramor y gwnaeth eich cleient rhoi cyfranddaliadau, gwarantau, tir neu eiddo iddynt."
   }
 

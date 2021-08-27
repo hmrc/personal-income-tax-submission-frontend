@@ -201,13 +201,13 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
   object ExpectedIndividualCY extends SpecificExpectedResults {
     val title = "Gwiriwch eich rhoddion i elusen"
     val overseasDonationNames = "Elusennau tramor a roesoch rhodd iddynt"
-    val overseasSharesSecurityLandPropertyNames = "Elusennau tramor a wnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo iddynt"
+    val overseasSharesSecurityLandPropertyNames = "Elusen dramor y gwnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo iddi"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
     val title = "Gwiriwch roddion eich cleient i elusen"
     val overseasDonationNames = "Elusennau tramor a roddodd eich cleient rhodd iddynt"
-    val overseasSharesSecurityLandPropertyNames = "Elusennau tramor a wnaeth eich cleient rhoi cyfranddaliadau, gwarantau, tir neu eiddo iddynt"
+    val overseasSharesSecurityLandPropertyNames = "Elusen dramor y gwnaeth eich cleient roi cyfranddaliadau, gwarantau, tir neu eiddo iddi"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
