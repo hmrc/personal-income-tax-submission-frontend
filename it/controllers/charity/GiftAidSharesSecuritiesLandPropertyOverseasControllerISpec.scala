@@ -118,8 +118,19 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Charity
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
+  val amount: Int = 2000
+  val charity: String = "Mind"
+
   val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(donatedLandOrProperty = Some(false))
   val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
+
+  val requiredSessionModelPrefill: GiftAidCYAModel = GiftAidCYAModel(
+    donatedLandOrProperty = Some(false),
+    overseasDonatedSharesSecuritiesLandOrProperty = Some(false)
+
+  )
+
+  val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
 
   ".show" when {
 
@@ -144,6 +155,35 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Charity
           textOnPageCheck(captionText, captionSelector)
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
+          buttonCheck(continueText, continueSelector)
+          textOnPageCheck(disclosureContentTitle, disclosureSelectorTitle)
+          textOnPageCheck(disclosureContentParagraph, disclosureSelectorParagraph)
+          textOnPageCheck(disclosureContentBullet1, disclosureSelectorBullet1)
+          textOnPageCheck(disclosureContentBullet2, disclosureSelectorBullet2)
+          textOnPageCheck(disclosureContentBullet3, disclosureSelectorBullet3)
+          textOnPageCheck(disclosureContentBullet4, disclosureSelectorBullet4)
+          noErrorsCheck()
+        }
+
+        "render the page with correct content with prefilled CYA data" which {
+          lazy val result = getResult(url, requiredSessionDataPrefill, None, user.isAgent, user.isWelsh)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import Selectors._
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          titleCheck(user.specificExpectedResults.get.expectedTitle)
+          welshToggleCheck(user.isWelsh)
+          h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)
+          textOnPageCheck(captionText, captionSelector)
+          radioButtonCheck(yesText, 1)
+          radioButtonCheck(noText, 2)
+          radioButtonHasChecked(noText, 2)
           buttonCheck(continueText, continueSelector)
           textOnPageCheck(disclosureContentTitle, disclosureSelectorTitle)
           textOnPageCheck(disclosureContentParagraph, disclosureSelectorParagraph)

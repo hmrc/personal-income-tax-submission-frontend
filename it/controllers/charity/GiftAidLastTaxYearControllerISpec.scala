@@ -118,6 +118,14 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
   val requiredSessionModel = GiftAidCYAModel(donationsViaGiftAidAmount = Some(150.00), overseasDonationsViaGiftAid = Some(false))
   val requiredSessionData = Some(requiredSessionModel)
 
+  val requiredSessionModelPrefill: GiftAidCYAModel = GiftAidCYAModel(
+    donationsViaGiftAidAmount = Some(150.00),
+    overseasDonationsViaGiftAid = Some(false),
+    addDonationToLastYear = Some(true)
+  )
+
+  val requiredSessionDataPrefill = Some(requiredSessionModelPrefill)
+
   ".show" when {
 
     userScenarios.foreach { user =>
@@ -142,6 +150,31 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
           textOnPageCheck(user.specificExpectedResults.get.expectedContent2, contentSelector2)
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
+          buttonCheck(expectedContinue, continueSelector)
+          noErrorsCheck()
+          welshToggleCheck(user.isWelsh)
+        }
+
+        "render the page with correct content with prefilled CYA data" which {
+          lazy val result = getResult(url, requiredSessionDataPrefill, None, user.isAgent, user.isWelsh)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import Selectors._
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          titleCheck(user.specificExpectedResults.get.expectedTitle)
+          h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+          textOnPageCheck(expectedCaption, captionSelector)
+          textOnPageCheck(user.specificExpectedResults.get.expectedContent1, contentSelector1)
+          textOnPageCheck(user.specificExpectedResults.get.expectedContent2, contentSelector2)
+          radioButtonCheck(yesText, 1)
+          radioButtonCheck(noText, 2)
+          radioButtonHasChecked(yesText, 1)
           buttonCheck(expectedContinue, continueSelector)
           noErrorsCheck()
           welshToggleCheck(user.isWelsh)

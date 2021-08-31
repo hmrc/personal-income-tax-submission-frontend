@@ -35,64 +35,55 @@ class MessagesSpec extends ViewTest with GuiceOneAppPerSuite {
     "global.error.InternalServerError500.message",
     "global.error.fallbackClientError4xx.title",
     "global.error.fallbackClientError4xx.message",
-    "global.error.fallbackClientError4xx.heading"
+    "global.error.fallbackClientError4xx.heading",
+    "this.section.is",
+    "language.day.plural",
+    "language.day.singular",
+    "back.text",
+    "common.error.summary.title",
+    "phase.banner.before",
+    "betaBar.banner.message.1",
+    "betaBar.banner.message.2",
+    "betaBar.banner.message.3"
   )
+
+
+  val defaults = allLanguages("default")
+  val welsh = allLanguages("cy")
+
+
 
   "the messages file must have welsh translations" should {
     "check all keys in the default file other than those in the exclusion list has a corresponding translation" in {
-      val defaults = allLanguages("default")
-      val welsh = allLanguages("cy")
-
       defaults.keys.foreach(
         key =>
-          if (!exclusionKeys.contains(key))
-          {welsh.keys should contain(key)}
+          if (!exclusionKeys.contains(key)) {
+            welsh.keys should contain(key)
+          }
       )
     }
   }
 
-  "the messages file" should {
+  "the english messages file" should {
 
-    "not have duplicate values" in {
+    "have no duplicate messages(values)" in {
+      val messages: List[(String, String)] = defaults.filter(entry => !exclusionKeys.contains(entry._1)).toList
 
-      // These messages keys are from hmrc libraries, so we cannot avoid the duplicates that occur in there.
-      val exclusionKeys = List(
-        "betaBar.banner.message.1",
-        "betaBar.banner.message.2",
-        "betaBar.banner.message.3",
-        "phase.banner.link",
-        "phase.banner.before",
-        "phase.banner.after",
-        "global.error.badRequest400.message",
-        "global.error.pageNotFound404.message",
-        "global.error.fallbackClientError4xx.title",
-        "global.error.fallbackClientError4xx.message",
-        "global.error.fallbackClientError4xx.heading",
-        "error.summary.title"
-      )
+      val result = checkMessagesAreUnique(messages, messages, Set())
 
-      val defaults = allLanguages("default").filter(entry => !exclusionKeys.contains(entry._1))
+      result shouldBe Set()
 
-      def go(keysToExplore: List[(String, String)], result: List[(String, String)]): List[(String, String)] = {
-        keysToExplore match {
-          case Nil => result
-          case h :: t =>
-            val (currentMessageKey, currentMessage) = (h._1, h._2)
-            val x = defaults.collect {
-              case (messageKey, message) if currentMessageKey != messageKey && currentMessage == message => currentMessageKey -> messageKey
-            }
-
-            go(t, x.toList ++ result)
-        }
-
-      }
-
-      val result = go(defaults.toList, List())
-
-      result.foreach(println)
-
-      result shouldBe List()
     }
+  }
 
+  "the welsh messages file" should {
+    "have no duplicate messages(values)" in {
+
+      val messages: List[(String, String)] = welsh.filter(entry => !exclusionKeys.contains(entry._1)).toList
+
+      val result = checkMessagesAreUnique(messages, messages, Set())
+
+      result shouldBe Set()
+    }
   }
 }

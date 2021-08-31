@@ -17,6 +17,8 @@
 package controllers.charity
 
 import models.charity.GiftAidCYAModel
+import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel}
+import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
@@ -103,8 +105,17 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
     val incorrectFormatError: String = "Enter the amount you want to add to this tax year in the correct format"
   }
 
-  val requiredSessionModel = GiftAidCYAModel(addDonationToThisYear = Some(true))
-  val requiredSessionData = Some(requiredSessionModel)
+  val amount: Int = 2000
+
+  val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(addDonationToThisYear = Some(true))
+  val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
+
+  val requiredSessionModelPrefill: GiftAidCYAModel = GiftAidCYAModel(
+    addDonationToThisYear = Some(true),
+    addDonationToThisYearAmount = Some(amount)
+  )
+
+  val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
 
   val validForm: Map[String, String] = Map("amount" -> "1234")
 
@@ -124,6 +135,26 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
         "render the page with correct content" which {
           lazy val result = getResult(url, requiredSessionData, None, user.isAgent, user.isWelsh)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          titleCheck(user.specificExpectedResults.get.heading)
+          h1Check(user.specificExpectedResults.get.heading + " " + expectedCaption)
+          inputFieldCheck(inputName, Selectors.inputField)
+          hintTextCheck(hintText)
+          captionCheck(expectedCaption)
+          buttonCheck(button)
+          welshToggleCheck(user.isWelsh)
+        }
+
+        "render the page with correct content with prefilled CYA data" which {
+          lazy val result = getResult(url, requiredSessionDataPrefill, None, user.isAgent, user.isWelsh)
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -176,6 +207,23 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
         "has the correct redirect URL" in {
           result.headers("Location").head shouldBe controllers.charity.routes.DonationsToPreviousTaxYearController.show(year, year).url
+        }
+      }
+
+      "there is prior data for nextTaxYearTreatedAsCurrent" should {
+
+        "display the GiftAidAppendNextYearTaxAmount page when the 'Change' link is clicked on the CYA page " which {
+
+          val priorData = IncomeSourcesModel(None, None,
+            giftAid = Some(GiftAidSubmissionModel(Some(GiftAidPaymentsModel(nextYearTreatedAsCurrentYear = Some(1000.56)))))
+          )
+
+          lazy val result = getResult(url , requiredSessionData, Some(priorData))
+
+          "has an 200 OK status" in {
+            result.status shouldBe OK
+          }
+
         }
       }
     }

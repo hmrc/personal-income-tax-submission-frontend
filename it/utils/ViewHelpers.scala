@@ -150,6 +150,15 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
     }
   }
 
+  def radioButtonHasChecked(text: String, radioNumber: Int)(implicit document: () => Document): Unit = {
+    s"have a $text radio button" which {
+      s"has checked attribute" in {
+        val selector = ".govuk-radios__item > input"
+        document().select(selector).get(radioNumber - 1).hasAttr("checked") shouldBe true
+      }
+    }
+  }
+
   def linkCheck(text: String, selector: String, href: String)(implicit document: () => Document): Unit = {
     s"have a $text link" which {
       s"has the text '$text'" in {

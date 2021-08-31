@@ -58,8 +58,10 @@ class GiftAidSharesSecuritiesLandPropertyDonationController @Inject()(
     val appendToThisTaxYearYesNo = cya.addDonationToThisYear
     val appendToThisTaxYearAmount = cya.addDonationToThisYearAmount
 
+    val prefilledForm = cya.donatedSharesSecuritiesLandOrProperty.fold(yesNoForm(user))(yesNoForm(user).fill)
+
     lazy val page = determineResult(
-      Ok(giftAidSharesSecuritiesLandPropertyDonationView(yesNoForm(user), taxYear)),
+      Ok(giftAidSharesSecuritiesLandPropertyDonationView(prefilledForm, taxYear)),
       Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(taxYear)),
       fromShow
     )
@@ -80,7 +82,7 @@ class GiftAidSharesSecuritiesLandPropertyDonationController @Inject()(
     val landsBuildings = prior.gifts.flatMap(_.landAndBuildings).isDefined
     val sharesSecurities = prior.gifts.flatMap(_.sharesOrSecurities).isDefined
 
-    if(landsBuildings || sharesSecurities) true else false
+    if (landsBuildings || sharesSecurities) true else false
   }
 
   val yesNoForm: User[AnyContent] => Form[Boolean] = user => {
@@ -125,7 +127,7 @@ class GiftAidSharesSecuritiesLandPropertyDonationController @Inject()(
                 )
               }
 
-              val redirectLocation = if(yesNoForm){
+              val redirectLocation = if (yesNoForm) {
                 Redirect(controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(taxYear))
               } else {
                 Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))

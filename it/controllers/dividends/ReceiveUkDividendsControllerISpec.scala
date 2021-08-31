@@ -42,7 +42,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
     val continueButtonFormSelector = "#main-content > div > div > form"
   }
 
-  trait SpecificExpectedReults {
+  trait SpecificExpectedResults {
     val expectedH1: String
     val expectedTitle: String
     val expectedErrorTitle: String
@@ -59,7 +59,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
   }
 
 
-  object IndividualExpectedEnglish extends SpecificExpectedReults {
+  object IndividualExpectedEnglish extends SpecificExpectedResults {
     val expectedH1 = "Did you get dividends from UK-based companies?"
     val expectedTitle = "Did you get dividends from UK-based companies?"
     val expectedErrorTitle = s"Error: $expectedTitle"
@@ -67,7 +67,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
     val expectedErrorText = "Select yes if you got dividends from UK-based companies"
   }
 
-  object AgentExpectedEnglish extends SpecificExpectedReults {
+  object AgentExpectedEnglish extends SpecificExpectedResults {
     val expectedH1 = "Did your client get dividends from UK-based companies?"
     val expectedTitle = "Did your client get dividends from UK-based companies?"
     val expectedErrorTitle = s"Error: $expectedTitle"
@@ -83,7 +83,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
     val errorSummaryHref = "#value"
   }
 
-  object IndividualExpectedWelsh extends SpecificExpectedReults {
+  object IndividualExpectedWelsh extends SpecificExpectedResults {
     val expectedH1 = "Did you get dividends from UK-based companies?"
     val expectedTitle = "Did you get dividends from UK-based companies?"
     val expectedErrorTitle = s"Error: $expectedTitle"
@@ -91,7 +91,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
     val expectedErrorText = "Select yes if you got dividends from UK-based companies"
   }
 
-  object AgentExpectedWelsh extends SpecificExpectedReults {
+  object AgentExpectedWelsh extends SpecificExpectedResults {
     val expectedH1 = "Did your client get dividends from UK-based companies?"
     val expectedTitle = "Did your client get dividends from UK-based companies?"
     val expectedErrorTitle = s"Error: $expectedTitle"

@@ -51,11 +51,14 @@ class GiftAidQualifyingSharesSecuritiesController @Inject()(
 
   override def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, prior: Option[GiftAidSubmissionModel], fromShow: Boolean)
                              (implicit user: User[AnyContent]): Result = {
+
+    val prefillForm = cya.donatedSharesOrSecurities.fold(yesNoForm(user))(yesNoForm(user).fill)
+
     (prior, cya.donatedSharesSecuritiesLandOrProperty) match {
       case (Some(priorData), _) if priorData.gifts.map(_.sharesOrSecurities).isDefined =>
         Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
       case (_, Some(true)) => determineResult(
-        Ok(giftAidQualifyingSharesSecuritiesView(yesNoForm(user), taxYear)),
+        Ok(giftAidQualifyingSharesSecuritiesView(prefillForm, taxYear)),
         Redirect(controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(taxYear)),
         fromShow)
       case (_, Some(false)) =>

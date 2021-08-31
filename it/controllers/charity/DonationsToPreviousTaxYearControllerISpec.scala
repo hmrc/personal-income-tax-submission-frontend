@@ -103,11 +103,21 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper {
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
+  val amount: Int = 2000
+
   val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(
     donationsViaGiftAid = Some(true),
     addDonationToLastYear = Some(false)
   )
   val requiredSessionData: Some[GiftAidCYAModel] = Some(requiredSessionModel)
+
+  val requiredSessionModelPrefill: GiftAidCYAModel = GiftAidCYAModel(
+    donationsViaGiftAid = Some(true),
+    addDonationToLastYear = Some(false),
+    addDonationToThisYear = Some(false)
+  )
+
+  val requiredSessionDataPrefill: Some[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
 
   ".show" when {
 
@@ -143,6 +153,29 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper {
           textOnPageCheck(user.specificExpectedResults.get.expectedParagraph2, Selectors.paragraph2HintText)
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
+          captionCheck(expectedCaption)
+          buttonCheck(button)
+          welshToggleCheck(user.isWelsh)
+        }
+
+        "render the page with correct content and prefilled CYA data" which {
+          lazy val result: WSResponse = getResult(url(), requiredSessionDataPrefill, None, user.isAgent, user.isWelsh)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          titleCheck(expectedHeading)
+          h1Check(expectedHeading + " " + expectedCaption)
+          textOnPageCheck(user.specificExpectedResults.get.expectedParagraph1, Selectors.paragraph1HintText)
+          textOnPageCheck(user.specificExpectedResults.get.expectedParagraph2, Selectors.paragraph2HintText)
+          radioButtonCheck(yesText, 1)
+          radioButtonCheck(noText, 2)
+          radioButtonHasChecked(noText, 2)
           captionCheck(expectedCaption)
           buttonCheck(button)
           welshToggleCheck(user.isWelsh)

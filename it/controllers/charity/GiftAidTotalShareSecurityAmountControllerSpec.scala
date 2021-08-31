@@ -17,6 +17,8 @@
 package controllers.charity
 
 import models.charity.GiftAidCYAModel
+import models.charity.prior.{GiftAidSubmissionModel, GiftsModel}
+import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
@@ -100,7 +102,15 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
   val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(donatedSharesOrSecurities = Some(true))
   val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
 
-  val validAmount = 1234
+  val amount: Int = 2000
+
+  val requiredSessionModelPrefill: GiftAidCYAModel = GiftAidCYAModel(
+    donatedSharesOrSecurities = Some(true),
+    donatedSharesOrSecuritiesAmount = Some(amount)
+  )
+  val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
+
+  val validAmount: Int = 1234
 
   ".show" when {
 
@@ -109,6 +119,28 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
 
         "render the page with correct content" which {
           lazy val result = getResult(url, requiredSessionData, None, user.isAgent, user.isWelsh)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          titleCheck(heading)
+          h1Check(heading + " " + caption)
+          inputFieldCheck(inputName, Selectors.inputField)
+          textOnPageCheck(inputLabel, Selectors.inputLabel)
+          hintTextCheck(hintText)
+          captionCheck(caption)
+          buttonCheck(button)
+          noErrorsCheck()
+          welshToggleCheck(user.isWelsh)
+        }
+
+        "render the page with correct content with prefilled CYA data" which {
+          lazy val result = getResult(url, requiredSessionDataPrefill, None, user.isAgent, user.isWelsh)
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -146,6 +178,22 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
       "redirect to the QualifyingSharesSecurities page" in {
         result.status shouldBe SEE_OTHER
         result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(year)}"
+      }
+    }
+
+    "there is prior data for sharesOrSecurities" should {
+
+      "display the GiftAidShareSecurityAmount page when the 'Change' link is clicked on the CYA page" which {
+
+        val priorData: IncomeSourcesModel = IncomeSourcesModel(None, None,
+          giftAid = Some(GiftAidSubmissionModel(None, Some(GiftsModel(landAndBuildings = Some(1000.21)))))
+        )
+
+        lazy val result = getResult(url , requiredSessionData, Some(priorData))
+
+        "has an OK 200 status" in {
+          result.status shouldBe OK
+        }
       }
     }
   }

@@ -57,8 +57,16 @@ class LastTaxYearAmountController @Inject()(
                                prior: Option[GiftAidSubmissionModel],
                                fromShow: Boolean = false
                              )(implicit user: User[AnyContent]): Result = {
+
+    val priorAmount: Option[BigDecimal] = prior.flatMap(_.giftAidPayments.flatMap(_.currentYearTreatedAsPreviousYear))
+    val cyaAmount: Option[BigDecimal] = cya.addDonationToLastYearAmount
+
+    val amountForm = (priorAmount, cyaAmount) match {
+      case (priorAmountOpt, Some(cyaValue)) if !priorAmountOpt.contains(cyaValue) => form(user.isAgent, taxYear).fill(cyaValue)
+      case _ => form(user.isAgent, taxYear)
+    }
     
-    lazy val page = Ok(view(taxYear, form(user.isAgent, taxYear), cya.addDonationToLastYearAmount.map(_.toString())))
+    lazy val page = Ok(view(taxYear, amountForm, cya.addDonationToLastYearAmount.map(_.toString())))
 
     cya.addDonationToLastYear match {
       case Some(true) => if (fromShow) page else Redirect(controllers.charity.routes.LastTaxYearAmountController.show(taxYear))

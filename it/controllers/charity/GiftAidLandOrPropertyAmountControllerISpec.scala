@@ -17,6 +17,8 @@
 package controllers.charity
 
 import models.charity.GiftAidCYAModel
+import models.charity.prior.{GiftAidSubmissionModel, GiftsModel}
+import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
@@ -104,8 +106,17 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
-  val requiredSessionModel = GiftAidCYAModel(donatedLandOrProperty = Some(true))
-  val requiredSessionData = Some(requiredSessionModel)
+  val amount: Int = 2000
+
+  val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(donatedLandOrProperty = Some(true))
+  val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
+
+  val requiredSessionModelPrefill: GiftAidCYAModel = GiftAidCYAModel(
+    donatedLandOrProperty = Some(true),
+    donatedLandOrPropertyAmount = Some(amount)
+  )
+
+  val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
 
   val validAmount = 50
 
@@ -116,6 +127,28 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
 
         "render the page with correct content" which {
           lazy val result = getResult(url, requiredSessionData, None, user.isAgent, user.isWelsh)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import Selectors._
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          titleCheck(expectedTitle)
+          h1Check(expectedHeading + " " + expectedCaption)
+          textOnPageCheck(expectedCaption, captionSelector)
+          textOnPageCheck(expectedContent, contentSelector)
+          textOnPageCheck(expectedHint, inputHintTextSelector)
+          inputFieldCheck(expectedInputName, inputFieldSelector)
+          buttonCheck(expectedButtonText, buttonSelector)
+          welshToggleCheck(user.isWelsh)
+        }
+
+        "render the page with correct content with prefilled CYA data" which {
+          lazy val result = getResult(url, requiredSessionDataPrefill, None, user.isAgent, user.isWelsh)
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -153,6 +186,22 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
       "redirect to the DonateLandOrProperty page" in {
         result.status shouldBe SEE_OTHER
         result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(year)}"
+      }
+    }
+
+    "there is prior data for landAndBuildings" should {
+
+      "display the GiftAidLandOrPropertyAmount page when the 'Change' link is clicked on the CYA page" which {
+
+        val priorData: IncomeSourcesModel = IncomeSourcesModel(None, None,
+          giftAid = Some(GiftAidSubmissionModel(None, Some(GiftsModel(landAndBuildings = Some(1000.21)))))
+        )
+
+        lazy val result = getResult(url , requiredSessionData, Some(priorData))
+
+        "has an OK 200 status" in {
+          result.status shouldBe OK
+        }
       }
     }
   }

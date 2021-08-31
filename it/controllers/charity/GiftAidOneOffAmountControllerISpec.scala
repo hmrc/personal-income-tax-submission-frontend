@@ -17,6 +17,8 @@
 package controllers.charity
 
 import models.charity.GiftAidCYAModel
+import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel}
+import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
@@ -118,8 +120,17 @@ class GiftAidOneOffAmountControllerISpec extends CharityITHelper {
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
-  val requiredSessionModel = GiftAidCYAModel(oneOffDonationsViaGiftAid = Some(true))
-  val requiredSessionData = Some(requiredSessionModel)
+  val amount: Int = 1000
+
+  val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(oneOffDonationsViaGiftAid = Some(true))
+  val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
+
+  val requiredSessionModelPrefill: GiftAidCYAModel = GiftAidCYAModel(
+    oneOffDonationsViaGiftAid = Some(true),
+    oneOffDonationsViaGiftAidAmount = Some(amount)
+  )
+
+  val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
 
   val validAmount = 125
 
@@ -130,6 +141,29 @@ class GiftAidOneOffAmountControllerISpec extends CharityITHelper {
 
         "render the page with correct content" which {
           lazy val result = getResult(url, requiredSessionData, None, user.isAgent, user.isWelsh)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import Selectors._
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          titleCheck(user.specificExpectedResults.get.expectedTitle)
+          h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+          textOnPageCheck(expectedCaption, captionSelector)
+          textOnPageCheck(user.specificExpectedResults.get.expectedParagraph, paragraphSelector)
+          textOnPageCheck(expectedInputLabelText, inputLabelSelector)
+          textOnPageCheck(expectedInputHintText, inputHintTextSelector)
+          inputFieldCheck(expectedInputName, inputFieldSelector)
+          buttonCheck(expectedButtonText, buttonSelector)
+          welshToggleCheck(user.isWelsh)
+        }
+
+        "render the page with correct content with prefill CYA data" which {
+          lazy val result = getResult(url, requiredSessionDataPrefill, None, user.isAgent, user.isWelsh)
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
@@ -181,6 +215,22 @@ class GiftAidOneOffAmountControllerISpec extends CharityITHelper {
       "redirect the user to the one off donation page" in {
         result.status shouldBe SEE_OTHER
         result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOneOffController.show(year)}"
+      }
+    }
+
+    "there is prior data for oneOffCurrentYear" should {
+
+      "display the GiftAidOneOffAmountController page when the 'Change' link is click on the CYA page" which {
+
+        val priorData = IncomeSourcesModel(None, None,
+          giftAid = Some(GiftAidSubmissionModel(Some(GiftAidPaymentsModel(oneOffCurrentYear = Some(1000.21))))))
+
+
+        lazy val result = getResult(url, requiredSessionData, Some(priorData))
+
+        "has an OK 200 status" in {
+          result.status shouldBe OK
+        }
       }
     }
   }

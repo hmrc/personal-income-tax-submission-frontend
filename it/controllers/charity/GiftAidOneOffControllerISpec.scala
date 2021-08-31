@@ -116,8 +116,15 @@ class GiftAidOneOffControllerISpec extends CharityITHelper {
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
-  val requiredSessionModel = GiftAidCYAModel(donationsViaGiftAid = Some(true), donationsViaGiftAidAmount = Some(BigDecimal(giftAidDonations)))
+  val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(donationsViaGiftAid = Some(true), donationsViaGiftAidAmount = Some(BigDecimal(giftAidDonations)))
   val requiredSessionData: Some[GiftAidCYAModel] = Some(requiredSessionModel)
+
+  val requiredSessionModelPrefill: GiftAidCYAModel = GiftAidCYAModel(
+    donationsViaGiftAid = Some(true),
+    donationsViaGiftAidAmount = Some(BigDecimal(giftAidDonations)),
+    oneOffDonationsViaGiftAid = Some(true)
+  )
+  val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
 
   ".show" when {
 
@@ -144,6 +151,31 @@ class GiftAidOneOffControllerISpec extends CharityITHelper {
           textOnPageCheck(user.specificExpectedResults.get.expectedPara2, p2Selector)
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
+          buttonCheck(continueText, continueSelector)
+          formPostLinkCheck(continueLink, continueButtonFormSelector)
+        }
+
+        "render the page with correct content and with prefilled CYA data" which {
+          lazy val result = getResult(url, requiredSessionDataPrefill, None, user.isAgent, user.isWelsh)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import Selectors._
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          titleCheck(user.specificExpectedResults.get.expectedTitle)
+          welshToggleCheck(user.isWelsh)
+          h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)
+          textOnPageCheck(captionText, captionSelector)
+          textOnPageCheck(user.specificExpectedResults.get.expectedPara1, p1Selector)
+          textOnPageCheck(user.specificExpectedResults.get.expectedPara2, p2Selector)
+          radioButtonCheck(yesText, 1)
+          radioButtonCheck(noText, 2)
+          radioButtonHasChecked(yesText, 1)
           buttonCheck(continueText, continueSelector)
           formPostLinkCheck(continueLink, continueButtonFormSelector)
         }

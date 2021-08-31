@@ -101,6 +101,12 @@ class OverseasGiftAidDonationControllerISpec extends CharityITHelper {
   val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(oneOffDonationsViaGiftAid = Some(false))
   val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
 
+  val requiredSessionModelPrefill: GiftAidCYAModel = GiftAidCYAModel(
+    oneOffDonationsViaGiftAid = Some(false),
+    overseasDonationsViaGiftAid = Some(false)
+  )
+  val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
+
   ".show" when {
 
     userScenarios.foreach { user =>
@@ -124,6 +130,30 @@ class OverseasGiftAidDonationControllerISpec extends CharityITHelper {
           textOnPageCheck(captionText, captionSelector)
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
+          buttonCheck(continueText, continueSelector)
+          formPostLinkCheck(continueLink, continueButtonFormSelector)
+          noErrorsCheck()
+        }
+
+        "render the page with correct content with prefilled CYA data" which {
+          lazy val result = getResult(url, requiredSessionDataPrefill, None, user.isAgent, user.isWelsh)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import Selectors._
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          titleCheck(user.specificExpectedResults.get.expectedTitle)
+          welshToggleCheck(user.isWelsh)
+          h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)
+          textOnPageCheck(captionText, captionSelector)
+          radioButtonCheck(yesText, 1)
+          radioButtonCheck(noText, 2)
+          radioButtonHasChecked(noText, 2)
           buttonCheck(continueText, continueSelector)
           formPostLinkCheck(continueLink, continueButtonFormSelector)
           noErrorsCheck()
