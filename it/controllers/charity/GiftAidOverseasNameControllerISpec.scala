@@ -159,7 +159,12 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
 
     "there is cya data, but 'overseasDonationsViaGiftAidAmount' has not been stored" should {
 
-      lazy val result = getResult(url(), Some(GiftAidCYAModel(overseasDonationsViaGiftAid = Some(true))), None)
+      lazy val result =
+        getResult(
+          url(),
+          Some(GiftAidCYAModel(overseasDonationsViaGiftAid = Some(true), donationsViaGiftAidAmount = Some(validAmount))),
+          None
+        )
 
       "redirect the user to the overseas donation amount page" in {
         result.status shouldBe SEE_OTHER

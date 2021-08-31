@@ -52,26 +52,33 @@ class GiftAidOneOffAmountController @Inject()(
     val priorAmount: Option[BigDecimal] = prior.flatMap(_.giftAidPayments.flatMap(_.oneOffCurrentYear))
     val cyaAmount: Option[BigDecimal] = cya.oneOffDonationsViaGiftAidAmount
 
-    val amountForm = (priorAmount, cyaAmount) match {
-      case (priorValueOpt, Some(cyaValue)) if !priorValueOpt.contains(cyaValue) => form(user.isAgent, taxYear).fill(cyaValue)
-      case _ => form(user.isAgent, taxYear)
-    }
+    val giftAidAmount: Option[BigDecimal] = cya.donationsViaGiftAidAmount
 
-    cya.oneOffDonationsViaGiftAid match {
-      case Some(true) => determineResult(
-        Ok(view(taxYear, amountForm, None)),
-        Redirect(controllers.charity.routes.GiftAidOneOffAmountController.show(taxYear)),
-        fromShow)
+
+
+    (cya.oneOffDonationsViaGiftAid, giftAidAmount) match {
+      case (Some(true), Some(totalDonation)) =>
+        val amountForm = (priorAmount, cyaAmount) match {
+          case (priorValueOpt, Some(cyaValue)) if !priorValueOpt.contains(cyaValue) => form(user.isAgent, taxYear, totalDonation).fill(cyaValue)
+          case _ => form(user.isAgent, taxYear, totalDonation)
+        }
+        determineResult(
+          Ok(view(taxYear, amountForm, None)),
+          Redirect(controllers.charity.routes.GiftAidOneOffAmountController.show(taxYear)),
+          fromShow
+        )
       case _ => giftAidOneOffController.handleRedirect(taxYear, cya, prior)
     }
   }
 
   def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
 
-  def form(implicit isAgent: Boolean, taxYear: Int): Form[BigDecimal] = AmountForm.amountForm(
+  def form(implicit isAgent: Boolean, taxYear: Int, cannotExceed: BigDecimal): Form[BigDecimal] = AmountForm.amountExceedForm(
     emptyFieldKey = "charity.gift-aid-one-off-amount.error.empty." + agentOrIndividual,
     wrongFormatKey = "charity.gift-aid-one-off-amount.error.incorrect-format." + agentOrIndividual,
     exceedsMaxAmountKey = "charity.gift-aid-one-off-amount.error.too-high." + agentOrIndividual,
+    exceedAmountKey = "charity.gift-aid-one-off-amount.error.exceeds." + agentOrIndividual,
+    exceedAmount = cannotExceed,
     emptyFieldArguments = Seq(taxYear.toString)
   )
 
@@ -88,25 +95,33 @@ class GiftAidOneOffAmountController @Inject()(
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
 
-    form(user.isAgent, taxYear).bindFromRequest().fold({
-      formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors, None)))
-    }, {
-      formAmount => giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
-        case Some(cyaModel) =>
-          val updatedCya = cyaModel.copy(oneOffDonationsViaGiftAidAmount = Some(formAmount))
-          val redirectLocation = if(updatedCya.isFinished) {
-            redirectToCya(taxYear)
-          } else {
-            Redirect(controllers.charity.routes.OverseasGiftAidDonationsController.show(taxYear))
-          }
+    giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
+      case Some(cyaModel) =>
+        cyaModel.donationsViaGiftAidAmount match {
+          case Some(totalDonatedAmount) =>
+            form(user.isAgent, taxYear, totalDonatedAmount).bindFromRequest().fold({
+              formWithErrors =>
+                Future.successful(BadRequest(view(taxYear, formWithErrors, None)))
+            }, {
+              formAmount =>
+                val updatedCya = cyaModel.copy(oneOffDonationsViaGiftAidAmount = Some(formAmount))
+                val redirectLocation = if(updatedCya.isFinished) {
+                  redirectToCya(taxYear)
+                } else {
+                  Redirect(controllers.charity.routes.OverseasGiftAidDonationsController.show(taxYear))
+                }
 
-          giftAidSessionService.updateSessionData(updatedCya, taxYear)(
-            InternalServerError(errorHandler.internalServerErrorTemplate)
-          )(redirectLocation)
-        case _ =>
-          logger.info("[GiftAidOneOffAmountController][submit] No CYA data in session. Redirecting to overview page.")
-          Future.successful(redirectToOverview(taxYear))
-      }.flatten
-    })
+                giftAidSessionService.updateSessionData(updatedCya, taxYear)(
+                  InternalServerError(errorHandler.internalServerErrorTemplate)
+                )(redirectLocation)
+            })
+          case _ =>
+            logger.warn("[GiftAidOneOffAmountController][submit] No 'donationsViaGiftAidAmount' in mongo database. Redirecting to the overview page.")
+            Future.successful(redirectToOverview(taxYear))
+        }
+      case _ =>
+        logger.info("[GiftAidOneOffAmountController][submit] No CYA data in session. Redirecting to overview page.")
+        Future.successful(redirectToOverview(taxYear))
+    }.flatten
   }
 }

@@ -337,6 +337,8 @@ charity.gift-aid-one-off-amount.error.incorrect-format.individual = Enter the am
 charity.gift-aid-one-off-amount.error.incorrect-format.agent = Enter the amount your client donated as one-off payments in the correct format
 charity.gift-aid-one-off-amount.error.too-high.individual = The amount you donated as one-off payments must be less than £100,000,000,000
 charity.gift-aid-one-off-amount.error.too-high.agent = The amount your client donated as one-off payments must be less than £100,000,000,000
+charity.gift-aid-one-off-amount.error.exceeds.individual = The amount you donated as one-off payments must not be more than the amount you donated to charity by using Gift Aid
+charity.gift-aid-one-off-amount.error.exceeds.agent = The amount your client donated as one-off payments must not be more than the amount your client donated to charity by using Gift Aid
 charity.gift-aid-one-off-amount.input.label = Total amount for the year, in pounds
 
 charity.overseas-gift-aid.title.individual = Did you use Gift Aid to donate to an overseas charity?
@@ -353,6 +355,8 @@ charity.amount-overseas-gift-aid.error.incorrect-format.agent = Enter the amount
 charity.amount-overseas-gift-aid.error.too-high.individual = The amount you donated to overseas charities must be less than £100,000,000,000
 charity.amount-overseas-gift-aid.error.too-high.agent = The amount your client donated to overseas charities must be less than £100,000,000,000
 charity.amount-overseas-gift-aid.input.label = Total amount, in pounds
+charity.amount-overseas-gift-aid.error.exceed.individual = The amount you donated to overseas charities must not be more than the amount you donated to charity by using Gift Aid
+charity.amount-overseas-gift-aid.error.exceed.agent = The amount your client donated to overseas charities must not be more than the amount your client donated to charity by using Gift Aid
 
 charity.gift-aid-overseas-name.title.individual = Name of overseas charity you used Gift Aid to donate to
 charity.gift-aid-overseas-name.title.agent = Name of overseas charity your client used Gift Aid to donate to
@@ -385,6 +389,8 @@ charity.last-tax-year-donation-amount.error.no-entry.agent = Enter the amount of
 charity.last-tax-year-donation-amount.error.invalid = Enter the amount you want to add to the last tax year in the correct format
 charity.last-tax-year-donation-amount.error.maximum.individual = The amount of your donation you add to the last tax year must be less than £100,000,000,000
 charity.last-tax-year-donation-amount.error.maximum.agent = The amount of your client’s donation you add to the last tax year must be less than £100,000,000,000
+charity.last-tax-year-donation-amount.error.exceeds.individual = The amount of your donation you want to add to the last tax year must not be more the amount you donated to charity by using Gift Aid
+charity.last-tax-year-donation-amount.error.exceeds.agent = The amount of your client’s donation you want to add to the last tax year must not be more the amount your client donated to charity by using Gift Aid
 
 charity.donations-to-previous-tax-year.title = Do you want to add any donations made after 5 April {0} to this tax year?
 charity.donations-to-previous-tax-year.paragraph.1.individual = If you made donations after 5 April {1}, you can add them to the 6 April {0} to 5 April {1} tax year.
@@ -445,6 +451,7 @@ charity.overseas-shares-securities-land-property-amount.error.max-amount.individ
 charity.overseas-shares-securities-land-property-amount.error.max-amount.agent = The value of your client’s shares, securities, land or property must be less than £100,000,000,000
 charity.overseas-shares-securities-land-property-amount.error.wrong-format.individual = Enter the value of shares, securities, land or property you donated to overseas charities in the correct format
 charity.overseas-shares-securities-land-property-amount.error.wrong-format.agent = Enter the value of shares, securities, land or property your client donated to overseas charities in the correct format
+charity.overseas-shares-securities-land-property-amount.error.exceed = The value of shares, securities, land or property donated to overseas charities cannot be more than the ‘value of shares and securities donated to charity’ plus the ‘value of land or property donated to charity’
 
 charity.overseas-shares-donated-name.title.individual = Name of overseas charity you donated shares, securities, land or property to
 charity.overseas-shares-donated-name.title.agent = Name of overseas charity your client donated shares, securities, land or property to

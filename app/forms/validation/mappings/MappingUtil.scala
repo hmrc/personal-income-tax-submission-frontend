@@ -41,4 +41,21 @@ object MappingUtil extends Formatters {
               ): FieldMapping[BigDecimal] =
     of(currencyFormatter(requiredKey, invalidNumeric, nonNumericKey, maxAmountKey, args))
 
+  def currencyExceed(requiredKey: String,
+                     invalidNumericKey: String = "common.error.invalid_currency_format",
+                     nonNumericKey: String = "common.error.invalid_number",
+                     maxAmountKey: String = "common.error.amountMaxLimit",
+                     exceedAmountKey: String,
+                     exceedAmount: BigDecimal,
+                     args: Seq[String] = Seq()): FieldMapping[BigDecimal] =
+    of(currencyExceedFormatter(
+      requiredKey,
+      invalidNumericKey,
+      nonNumericKey,
+      maxAmountKey,
+      exceedAmountKey,
+      exceedAmount,
+      args
+    ))
+
 }
