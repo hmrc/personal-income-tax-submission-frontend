@@ -162,7 +162,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
             result.status shouldBe OK
           }
 
-          titleCheck(heading)
+          titleCheck(heading, user.isWelsh)
           h1Check(heading + " " + caption)
           inputFieldCheck(inputName, Selectors.inputField)
           textOnPageCheck(inputLabel, Selectors.inputLabel)

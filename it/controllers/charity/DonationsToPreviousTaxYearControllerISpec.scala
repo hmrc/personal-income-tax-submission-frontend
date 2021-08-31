@@ -169,7 +169,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper {
             result.status shouldBe OK
           }
 
-          titleCheck(expectedHeading)
+          titleCheck(expectedHeading, user.isWelsh)
           h1Check(expectedHeading + " " + expectedCaption)
           textOnPageCheck(user.specificExpectedResults.get.expectedParagraph1, Selectors.paragraph1HintText)
           textOnPageCheck(user.specificExpectedResults.get.expectedParagraph2, Selectors.paragraph2HintText)

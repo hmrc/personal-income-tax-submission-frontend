@@ -46,6 +46,22 @@ class MessagesSpec extends ViewTest with GuiceOneAppPerSuite {
     "betaBar.banner.message.2",
     "betaBar.banner.message.3"
   )
+  val welshDuplicated = Set(
+    "charity.overseas-gift-aid-summary.title.single.individual",
+    "charity.overseas-gift-aid-summary.title.single.agent",
+    "charity.shares-and-land-summary.title.single.agent",
+    "error.agent.title",
+    "charity.amount-via-gift-aid.individual.p",
+    "charity.shares-and-land-summary.title.multiple.individual",
+    "charity.overseas-gift-aid-summary.title.multiple.agent",
+    "charity.common.gift-aid.doNotInclude.agent",
+    "charity.amount-via-gift-aid.agent.p",
+    "charity.overseas-gift-aid-summary.title.multiple.individual",
+    "charity.shares-and-land-summary.title.single.individual",
+    "charity.common.gift-aid.doNotInclude.individual",
+    "charity.shares-and-land-summary.title.multiple.agent",
+    "error.summary.title"
+  )
 
 
   val defaults = allLanguages("default")
@@ -79,7 +95,9 @@ class MessagesSpec extends ViewTest with GuiceOneAppPerSuite {
   "the welsh messages file" should {
     "have no duplicate messages(values)" in {
 
-      val messages: List[(String, String)] = welsh.filter(entry => !exclusionKeys.contains(entry._1)).toList
+      val exclusionKeysWithWelsh = exclusionKeys ++ welshDuplicated
+
+      val messages: List[(String, String)] = welsh.filter(entry => !exclusionKeysWithWelsh.contains(entry._1)).toList
 
       val result = checkMessagesAreUnique(messages, messages, Set())
 

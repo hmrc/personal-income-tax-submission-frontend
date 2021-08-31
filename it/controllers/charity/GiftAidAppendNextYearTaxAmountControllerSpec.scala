@@ -176,7 +176,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
             result.status shouldBe OK
           }
 
-          titleCheck(user.specificExpectedResults.get.heading)
+          titleCheck(user.specificExpectedResults.get.heading, user.isWelsh)
           h1Check(user.specificExpectedResults.get.heading + " " + expectedCaption)
           inputFieldCheck(inputName, Selectors.inputField)
           hintTextCheck(hintText)
