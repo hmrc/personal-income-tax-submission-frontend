@@ -71,11 +71,11 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
     val expectedCaption: String = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
     val expectedInputName: String = "name"
     val expectedButtonText: String = "Yn eich blaen"
-    val expectedInputHintText: String = "You can add more than one charity."
-    val expectedCharLimitError: String = "The name of the overseas charity must be 75 characters or fewer"
-    val expectedInvalidCharError: String = "Name of overseas charity must only include numbers 0-9, letters a " +
-      "to z, hyphens, spaces, apostrophes, commas, full stops, round brackets and the special characters, &, /, @, £, *"
-    val expectedDuplicateError: String = "You cannot add 2 charities with the same name"
+    val expectedInputHintText: String = "Gallwch ychwanegu mwy nag un elusen."
+    val expectedCharLimitError: String = "Mae’n rhaid i enw’r elusen o dramor fod yn 75 o gymeriadau neu’n llai"
+    val expectedInvalidCharError: String = "Mae’n rhaid i enw’r elusen o dramor gynnwys rhifau 0-9, llythrennau a i z," +
+      " cysylltnodau, bylchau, collnodau, comas, atalnodau llawn, cromfachau crwn, a’r cymeriadau arbennig &, /, @, £, * yn unig"
+    val expectedDuplicateError: String = "Ni allwch ychwanegu 2 elusen gyda’r un enw"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -91,15 +91,15 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val expectedTitle: String = "Name of overseas charity you donated shares, securities, land or property to"
-    val expectedH1: String = "Name of overseas charity you donated shares, securities, land or property to"
-    val expectedError: String = "Enter the name of the overseas charity you donated shares, securities, land or property to"
+    val expectedTitle: String = "Enw’r elusen o dramor a roddoch gyfranddaliadau, gwarantau, tir neu eiddo iddo"
+    val expectedH1: String = "Enw’r elusen o dramor a roddoch gyfranddaliadau, gwarantau, tir neu eiddo iddo"
+    val expectedError: String = "Nodwch enw’r elusen dramor a roesoch gyfranddaliadau, gwarantau, tir neu eiddo iddo"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val expectedTitle: String = "Name of overseas charity your client donated shares, securities, land or property to"
-    val expectedH1: String = "Name of overseas charity your client donated shares, securities, land or property to"
-    val expectedError: String = "Enter the name of the overseas charity your client donated shares, securities, land or property to"
+    val expectedTitle: String = "Enw’r elusen o dramor a roddodd eich cleient gyfranddaliadau, gwarantau, tir neu eiddo iddo"
+    val expectedH1: String = "Enw’r elusen o dramor a roddodd eich cleient gyfranddaliadau, gwarantau, tir neu eiddo iddo"
+    val expectedError: String = "Nodwch enw’r elusen o dramor a roddodd eich cleient gyfranddaliadau, gwarantau, tir neu eiddo iddo"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {

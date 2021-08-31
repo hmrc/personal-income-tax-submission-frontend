@@ -73,9 +73,9 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
     val expectedHint = "Er enghraifft, £600 neu £193.54"
     val expectedInputName = "amount"
     val expectedButtonText = "Yn eich blaen"
-    val expectedTitle = "What is the value of land or property donated to charity?"
-    val expectedHeading = "What is the value of land or property donated to charity?"
-    val expectedContent = "Total value, in pounds"
+    val expectedTitle = "Beth yw gwerth tir neu eiddo a roddwyd i elusen?"
+    val expectedHeading = "Beth yw gwerth tir neu eiddo a roddwyd i elusen?"
+    val expectedContent = "Cyfanswm y gwerth, mewn punnoedd"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -97,17 +97,17 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
   object ExpectedIndividualCY extends SpecificExpectedResults {
     val expectedPriorP1 = "You told us you donated £888 in land or property to charity this year. Tell us if this has changed."
     val expectedCyaP1 = "You told us you donated £50 in land or property to charity this year. Tell us if this has changed."
-    val expectedErrorEmpty = "Enter the value of land or property you donated to charity"
-    val expectedErrorInvalid = "Enter the value of land or property you donated to charity in the correct format"
-    val expectedErrorOverMax = "The value of your land or property must be less than £100,000,000,000"
+    val expectedErrorEmpty = "Nodwch werth y tir neu eiddo a roddwyd gennych i elusen"
+    val expectedErrorInvalid = "Nodwch werth y tir neu eiddo a roddwyd gennych i elusen yn y fformat cywir"
+    val expectedErrorOverMax = "Mae’n rhaid i werth eich tir neu eiddo fod yn llai na £100,000,000,000"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
     val expectedPriorP1 = "You told us your client donated £888 in land or property to charity this year. Tell us if this has changed."
     val expectedCyaP1 = "You told us your client donated £50 in land or property to charity this year. Tell us if this has changed."
-    val expectedErrorEmpty = "Enter the value of land or property your client donated to charity"
-    val expectedErrorInvalid = "Enter the value of land or property your client donated to charity in the correct format"
-    val expectedErrorOverMax = "The value of your client’s land or property must be less than £100,000,000,000"
+    val expectedErrorEmpty = "Nodwch werth y tir neu eiddo a roddwyd gan eich cleient i elusen"
+    val expectedErrorInvalid = "Nodwch werth y tir neu eiddo a roddwyd gan eich cleient i elusen yn y fformat cywir"
+    val expectedErrorOverMax = "Mae’n rhaid i werth tir neu eiddo eich cleient fod yn llai na £100,000,000,000"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {

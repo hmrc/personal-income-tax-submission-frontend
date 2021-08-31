@@ -93,25 +93,25 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val heading = "How much of your donation do you want to add to the last tax year?"
-    val para = "Do not include the Gift Aid added to your donation."
+    val heading = "Faint o’ch rhodd ydych am ei hychwanegu at y flwyddyn dreth ddiwethaf?"
+    val para = "Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at eich rhodd."
     val expectedPriorP1 = "You told us you want to add £333 of your donations to charity to the 6 April 2020 to 5 April 2021 tax year. Tell us if this has changed."
     val expectedCyaP1 = "You told us you want to add £50 of your donations to charity to the 6 April 2020 to 5 April 2021 tax year. Tell us if this has changed."
-    val noSelectionError = "Enter the amount of your donation you want to add to the last tax year"
-    val tooLongError = "The amount of your donation you add to the last tax year must be less than £100,000,000,000"
-    val invalidFormatError = "Enter the amount you want to add to the last tax year in the correct format"
+    val noSelectionError = "Nodwch faint o’ch rhodd rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf"
+    val tooLongError = "Mae’n rhaid i swm eich rhodd yr ydych yn ychwanegu at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000"
+    val invalidFormatError = "Nodwch y maint rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf yn y fformat cywir"
     val expectedErrorExceeds =
-      "The amount of your donation you want to add to the last tax year must not be more than the amount you donated to charity by using Gift Aid"
+      "The amount of your client’s donation you want to add to the last tax year must not be more the amount your client donated to charity by using Gift Aid"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val heading = "How much of your client’s donation do you want to add to the last tax year?"
-    val para = "Do not include the Gift Aid added to your client’s donation."
+    val heading = "Faint o rodd eich cleient ydych am ei hychwanegu at y flwyddyn dreth ddiwethaf?"
+    val para = "Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at rodd eich cleient."
     val expectedPriorP1 = "You told us you want to add £333 of your client’s donations to charity to the 6 April 2020 to 5 April 2021 tax year. Tell us if this has changed."
     val expectedCyaP1 = "You told us you want to add £50 of your client’s donations to charity to the 6 April 2020 to 5 April 2021 tax year. Tell us if this has changed."
-    val noSelectionError = "Enter the amount of your client’s donation you want to add to the last tax year"
-    val tooLongError = "The amount of your client’s donation you add to the last tax year must be less than £100,000,000,000"
-    val invalidFormatError = "Enter the amount you want to add to the last tax year in the correct format"
+    val noSelectionError = "Nodwch faint o rodd eich cleient rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf"
+    val tooLongError =  "Mae’n rhaid i swm rhodd eich cleient yr ydych yn ychwanegu at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000"
+    val invalidFormatError = "Nodwch y maint rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf yn y fformat cywir"
     val expectedErrorExceeds =
       "The amount of your client’s donation you want to add to the last tax year must not be more than the amount your client donated to charity by using Gift Aid"
   }

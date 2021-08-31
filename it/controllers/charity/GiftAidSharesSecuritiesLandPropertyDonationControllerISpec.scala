@@ -78,12 +78,12 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Charity
     val yesText = "Iawn"
     val noText = "Na"
     val continueText = "Yn eich blaen"
-    val disclosureContentTitle = "What are qualifying shares and securities?"
-    val disclosureContentParagraph = "Qualifying shares and securities are:"
-    val disclosureContentBullet1 = "listed on a recognised stock exchange or dealt in on a designated market in the UK"
-    val disclosureContentBullet2 = "units in an authorised unit trust"
-    val disclosureContentBullet3 = "shares in an open-ended investment company"
-    val disclosureContentBullet4 = "an interest in an offshore fund"
+    val disclosureContentTitle = "Beth yw cyfranddaliadau a gwarantau cymwys?"
+    val disclosureContentParagraph = "Mae cyfranddaliadau a gwarantau cymwys yn cynnwys:"
+    val disclosureContentBullet1 = "cael eu restrui ar gyfnewidfa stoc gydnabyddedig neu yr ymdrinnir â nhw ar farchnad ddynodedig yn y DU"
+    val disclosureContentBullet2 = "unedau mewn ymddiriedolaeth unedol awdurdodedig"
+    val disclosureContentBullet3 = "cyfranddaliadau mewn cwmni buddsoddi penagored"
+    val disclosureContentBullet4 = "buddiant mewn cronfa alltraeth"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -99,15 +99,15 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Charity
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val expectedTitle = "Did you donate qualifying shares, securities, land or property to charity?"
-    val expectedH1 = "Did you donate qualifying shares, securities, land or property to charity?"
-    val expectedError = "Select yes if you donated shares, securities, land or property to charity"
+    val expectedTitle = "A wnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo cymwys i elusen?"
+    val expectedH1 = "A wnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo cymwys i elusen?"
+    val expectedError = "Dewiswch ‘Iawn’ os wnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo cymwys i elusen"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val expectedTitle = "Did your client donate qualifying shares, securities, land or property to charity?"
-    val expectedH1 = "Did your client donate qualifying shares, securities, land or property to charity?"
-    val expectedError = "Select yes if your client donated shares, securities, land or property to charity"
+    val expectedTitle = "A wnaeth eich cleient rhoi cyfranddaliadau, gwarantau, tir neu eiddo cymwys i elusen?"
+    val expectedH1 = "A wnaeth eich cleient rhoi cyfranddaliadau, gwarantau, tir neu eiddo cymwys i elusen?"
+    val expectedError = "Dewiswch ‘Iawn’ os wnaeth eich cleient rhoi cyfranddaliadau, gwarantau, tir neu eiddo cymwys i elusen"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {

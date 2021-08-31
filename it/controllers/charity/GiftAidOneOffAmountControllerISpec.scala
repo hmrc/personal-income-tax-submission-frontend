@@ -72,7 +72,7 @@ class GiftAidOneOffAmountControllerISpec extends CharityITHelper {
     val expectedCaption = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
     val expectedInputName = "amount"
     val expectedButtonText = "Yn eich blaen"
-    val expectedInputLabelText = "Total amount for the year, in pounds"
+    val expectedInputLabelText = "Cyfanswm ar gyfer y flwyddyn, mewn punnoedd"
     val expectedInputHintText = "Er enghraifft, £600 neu £193.54"
   }
 
@@ -104,28 +104,27 @@ class GiftAidOneOffAmountControllerISpec extends CharityITHelper {
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val expectedTitle = "How much did you donate to charity as one-off payments?"
-    val expectedH1 = "How much did you donate to charity as one-off payments?"
-    val expectedParagraph = "Do not include the Gift Aid added to your donation."
+    val expectedTitle = "Faint wnaethoch ei roi i elusen fel taliadau untro?"
+    val expectedH1 = "Faint wnaethoch ei roi i elusen fel taliadau untro?"
+    val expectedParagraph = "Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at eich rhodd."
     val expectedPriorP1 = "You told us you donated £555 to charity as one-off payments. Tell us if this has changed."
     val expectedCyaP1 = "You told us you donated £50 to charity as one-off payments. Tell us if this has changed."
-    val expectedErrorEmpty = "Enter the amount you donated to charity as one-off payments"
-    val expectedErrorInvalid = "Enter the amount you donated as one-off payments in the correct format"
-    val expectedErrorOverMax = "The amount you donated as one-off payments must be less than £100,000,000,000"
+    val expectedErrorEmpty = "Nodwch y swm a roesoch i elusen fel taliadau untro"
+    val expectedErrorInvalid = "Nodwch y swm a roesoch fel taliadau untro yn y fformat cywir"
+    val expectedErrorOverMax = "Mae’n rhaid i’r swm a roesoch fel taliadau untro fod yn llai na £100,000,000,000"
     val expectedErrorTitle = s"Gwall: $expectedTitle"
     val expectedErrorExceeds = "The amount you donated as one-off payments must not be more than the amount you donated to charity by using Gift Aid"
-
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val expectedTitle = "How much did your client donate to charity as one-off payments?"
-    val expectedH1 = "How much did your client donate to charity as one-off payments?"
-    val expectedParagraph = "Do not include the Gift Aid added to your client’s donation."
+    val expectedTitle = "Faint wnaeth eich cleient ei roi i elusen fel taliadau untro?"
+    val expectedH1 = "Faint wnaeth eich cleient ei roi i elusen fel taliadau untro?"
+    val expectedParagraph = "Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at rodd eich cleient."
     val expectedPriorP1 = "You told us your client donated £555 to charity as one-off payments. Tell us if this has changed."
     val expectedCyaP1 = "You told us your client donated £50 to charity as one-off payments. Tell us if this has changed."
-    val expectedErrorEmpty = "Enter the amount your client donated to charity as one-off payments"
-    val expectedErrorInvalid = "Enter the amount your client donated as one-off payments in the correct format"
-    val expectedErrorOverMax = "The amount your client donated as one-off payments must be less than £100,000,000,000"
+    val expectedErrorEmpty = "Nodwch y swm a roddodd eich cleient i elusen fel taliadau untro"
+    val expectedErrorInvalid = "Nodwch y swm a roddodd eich cleient fel taliadau untro yn y fformat cywir"
+    val expectedErrorOverMax = "Mae’n rhaid i’r swm a roddodd eich cleient fel taliadau untro fod yn llai na £100,000,000,000"
     val expectedErrorTitle = s"Gwall: $expectedTitle"
     val expectedErrorExceeds =
       "The amount your client donated as one-off payments must not be more than the amount your client donated to charity by using Gift Aid"

@@ -284,6 +284,7 @@ interest.chooseAccount.error.noRadioSelected.individual = Dewiswch y cyfrif a ga
 # Common Gift Aid Messages
 # ----------------------------------------------------------
 
+<<<<<<< HEAD
 charity.common.gift-aid.doNotInclude.individual = Do not include the Gift Aid added to your donation.
 charity.common.gift-aid.doNotInclude.agent = Do not include the Gift Aid added to your client’s donation.
 charity.common.aid-summary.hiddenChange = Change the details you’ve entered for {0}.
@@ -534,3 +535,234 @@ charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.agent.hidde
 charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.amount.hidden = Change the value of shares, securities, land or properties donated to overseas charities
 charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.names.individual.hidden = Change the names of overseas charities you donated shares, securities, land or property to.
 charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.names.agent.hidden = Change the names of overseas charities your client donated shares, securities, land or property to.
+=======
+charity.common.gift-aid.doNotInclude.individual = Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at eich rhodd.
+charity.common.gift-aid.doNotInclude.agent = Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at rodd eich cleient.
+charity.common.aid-summary.hiddenChange = Newidiwch y manylion rydych wedi’u nodi ar gyfer {0}.
+charity.common.total.valueInPounds = Cyfanswm y gwerth, mewn punnoedd
+charity.common.add.overseas.question = A oes angen i chi ychwanegu elusen arall o dramor?
+
+charity.gift-aid-account.hint = Gallwch ychwanegu mwy nag un elusen.
+
+charity.common.name.error.limit = Mae’n rhaid i enw’r elusen o dramor fod yn 75 o gymeriadau neu’n llai
+charity.common.name.error.invalid = Mae’n rhaid i enw’r elusen o dramor gynnwys rhifau 0-9, llythrennau a i z, cysylltnodau, bylchau, collnodau, comas, atalnodau llawn, cromfachau crwn, a’r cymeriadau arbennig &, /, @, £, * yn unig
+charity.common.name.error.duplicate = Ni allwch ychwanegu 2 elusen gyda’r un enw
+
+charity.qualifying-shares.disclosure.title = Beth yw cyfranddaliadau a gwarantau cymwys?
+charity.qualifying-shares.disclosure.p = Mae cyfranddaliadau a gwarantau cymwys yn cynnwys:
+charity.qualifying-shares.disclosure.bullet.1 = cael eu restrui ar gyfnewidfa stoc gydnabyddedig neu yr ymdrinnir â nhw ar farchnad ddynodedig yn y DU
+charity.qualifying-shares.disclosure.bullet.2 = unedau mewn ymddiriedolaeth unedol awdurdodedig
+charity.qualifying-shares.disclosure.bullet.3 = cyfranddaliadau mewn cwmni buddsoddi penagored
+charity.qualifying-shares.disclosure.bullet.4 = buddiant mewn cronfa alltraeth
+
+charity.uk-charity.title.individual = A wnaethoch ddefnyddio Rhodd Cymorth i roi i elusen?
+charity.uk-charity.title.agent = A wnaeth eich cleient ddefnyddio Rhodd Cymorth i roi i elusen?
+charity.uk-charity.errors.noChoice.individual = Dewiswch ‘Iawn’ os wnaethoch ddefnyddio Rhodd Cymorth i roi i elusen
+charity.uk-charity.errors.noChoice.agent = Dewiswch ‘Iawn’ os wnaeth eich cleient ddefnyddio Rhodd Cymorth i roi i elusen
+
+charity.amount-via-gift-aid.individual.title = Faint wnaethoch ei roi i elusen drwy ddefnyddio Rhodd Cymorth?
+charity.amount-via-gift-aid.individual.p = Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at eich rhodd.
+charity.amount-via-gift-aid.agent.title = Faint wnaeth eich cleient ei roi i elusen drwy ddefnyddio Rhodd Cymorth?
+charity.amount-via-gift-aid.agent.p = Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at rodd eich cleient.
+charity.amount-via-gift-aid.input.label = Cyfanswm ar gyfer y flwyddyn
+charity.amount-via-gift-aid.error.no-input.individual = Nodwch y swm a roesoch i elusen drwy ddefnyddio Rhodd Cymorth
+charity.amount-via-gift-aid.error.incorrect-format.individual = Nodwch y swm a roesoch i elusen yn y fformat cywir
+charity.amount-via-gift-aid.error.too-high.individual = Mae’n rhaid i’r swm a roesoch i elusen fod yn llai na £100,000,000,000
+charity.amount-via-gift-aid.error.no-input.agent = Nodwch y swm a roddodd eich cleient i elusen drwy ddefnyddio Rhodd Cymorth
+charity.amount-via-gift-aid.error.incorrect-format.agent = Nodwch y swm a roddodd eich cleient i elusen yn y fformat cywir
+charity.amount-via-gift-aid.error.too-high.agent = Mae’n rhaid i’r swm a roddodd eich cleient i elusen fod yn llai na £100,000,000,000
+
+charity.one-off.title.individual = A wnaethoch roddion untro?
+charity.one-off.title.agent = A wnaeth eich cleient roddion untro?
+charity.one-off.caption.individual_1 = Gwnaethoch roi gwybod i ni eich bod wedi defnyddio Rhodd Cymorth i roi {0} i elusen. Rhowch wybod i ni a wnaed unrhyw ran o hyn fel taliadau untro.
+charity.one-off.caption.agent_1 = Gwnaethoch roi gwybod i ni fod eich cleient wedi defnyddio Rhodd Cymorth i roi {0} i elusen. Rhowch wybod i ni a wnaed unrhyw ran o hyn fel taliadau untro.
+charity.one-off.caption.individual_2 = Taliadau na wnaethoch eu hailadrodd yw rhoddion untro.
+charity.one-off.caption.agent_2 = Taliadau na wnaeth eich cleient eu hailadrodd yw rhoddion untro.
+charity.one-off.errors.noChoice.individual = Dewiswch ‘Iawn’ os gwnaethoch rodd untro i elusen
+charity.one-off.errors.noChoice.agent = Dewiswch ‘Iawn’ os gwnaeth eich cleient rhodd untro i elusen
+
+charity.gift-aid-one-off-amount.title.individual = Faint wnaethoch ei roi i elusen fel taliadau untro?
+charity.gift-aid-one-off-amount.title.agent = Faint wnaeth eich cleient ei roi i elusen fel taliadau untro?
+charity.gift-aid-one-off-amount.error.empty.individual = Nodwch y swm a roesoch i elusen fel taliadau untro
+charity.gift-aid-one-off-amount.error.empty.agent = Nodwch y swm a roddodd eich cleient i elusen fel taliadau untro
+charity.gift-aid-one-off-amount.error.incorrect-format.individual = Nodwch y swm a roesoch fel taliadau untro yn y fformat cywir
+charity.gift-aid-one-off-amount.error.incorrect-format.agent = Nodwch y swm a roddodd eich cleient fel taliadau untro yn y fformat cywir
+charity.gift-aid-one-off-amount.error.too-high.individual = Mae’n rhaid i’r swm a roesoch fel taliadau untro fod yn llai na £100,000,000,000
+charity.gift-aid-one-off-amount.error.too-high.agent = Mae’n rhaid i’r swm a roddodd eich cleient fel taliadau untro fod yn llai na £100,000,000,000
+charity.gift-aid-one-off-amount.input.label = Cyfanswm ar gyfer y flwyddyn, mewn punnoedd
+
+charity.overseas-gift-aid.title.individual = A wnaethoch ddefnyddio Rhodd Cymorth i roi rhodd i elusen o dramor?
+charity.overseas-gift-aid.title.agent = A wnaeth eich cleient ddefnyddio Rhodd Cymorth i roi rhodd i elusen o dramor?
+charity.overseas-gift-aid.errors.noChoice.individual = Dewiswch ‘Iawn’ os gwnaethoch ddefnyddio Rhodd Cymorth i roi rhodd i elusen o dramor
+charity.overseas-gift-aid.errors.noChoice.agent = Dewiswch ‘Iawn’ os gwnaeth eich cleient ddefnyddio Rhodd Cymorth i roi rhodd i elusen o dramor
+
+charity.amount-overseas-gift-aid.title.individual = Faint wnaethoch ei roi i elusennau tramor drwy ddefnyddio Rhodd Cymorth?
+charity.amount-overseas-gift-aid.title.agent = Faint wnaeth eich cleient ei roi i elusennau tramor drwy ddefnyddio Rhodd Cymorth?
+charity.amount-overseas-gift-aid.error.empty.individual = Nodwch y swm a roesoch i elusennau tramor
+charity.amount-overseas-gift-aid.error.empty.agent = Nodwch y swm a roddodd eich cleient i elusennau tramor
+charity.amount-overseas-gift-aid.error.incorrect-format.individual = Nodwch y swm a roesoch i elusennau tramor yn y fformat cywir
+charity.amount-overseas-gift-aid.error.incorrect-format.agent = Nodwch y swm a roddodd eich cleient i elusennau tramor yn y fformat cywir
+charity.amount-overseas-gift-aid.error.too-high.individual = Mae’n rhaid i’r swm a roesoch i elusennau tramor fod yn llai na £100,000,000,000
+charity.amount-overseas-gift-aid.error.too-high.agent = Mae’n rhaid i’r swm a roddodd eich cleient i elusennau tramor fod yn llai na £100,000,000,000
+charity.amount-overseas-gift-aid.input.label = Cyfanswm, mewn punnoedd
+
+charity.gift-aid-overseas-name.title.individual = Enw’r elusen o dramor y gwnaethoch ddefnyddio Rhodd Cymorth i’w rhoi iddo
+charity.gift-aid-overseas-name.title.agent = Enw’r elusen o dramor y gwnaeth eich cleient ddefnyddio Rhodd Cymorth i’w rhoi iddo
+charity.gift-aid-overseas-name.error.empty.individual = Nodwch enw’r elusen o dramor y gwnaethoch ddefnyddio Rhodd Cymorth i’w rhoi iddo
+charity.gift-aid-overseas-name.error.empty.agent = Nodwch enw’r elusen o dramor y gwnaeth eich cleient defnyddio Rhodd Cymorth i’w rhoi iddo
+
+charity.overseas-gift-aid-summary.title.single.individual = Elusen dramor y gwnaethoch ddefnyddio Rhodd Cymorth er mwyn cyfrannu ati
+charity.overseas-gift-aid-summary.title.multiple.individual = Elusen dramor y gwnaethoch ddefnyddio Rhodd Cymorth er mwyn cyfrannu ati
+charity.overseas-gift-aid-summary.title.single.agent = Elusen dramor y gwnaeth eich cleient ddefnyddio Rhodd Cymorth er mwyn cyfrannu ati
+charity.overseas-gift-aid-summary.title.multiple.agent = Elusen dramor y gwnaeth eich cleient ddefnyddio Rhodd Cymorth er mwyn cyfrannu ati
+charity.overseas-gift-aid-summary.hint.individual = Mae’n rhaid i chi roi gwybod i ni am yr holl elusennau tramor y gwnaethoch roi rhodd iddynt.
+charity.overseas-gift-aid-summary.hint.agent = Mae’n rhaid i chi roi gwybod i ni am yr holl elusennau tramor y gwnaeth eich cleient roi rhodd iddynt.
+charity.overseas-gift-aid-summary.noChoice = Dewiswch ‘Iawn’ os oes angen i chi ychwanegu elusen arall o dramor
+charity.overseas-gift-aid-summary.hiddenRemove = Tynnu {0}.
+
+charity.remove-overseas-charity.content = Bydd hyn yn tynnu pob elusen o dramor.
+charity.remove-overseas-charity.noChoice = Dewiswch ‘Iawn’ i dynnu’r elusen o dramor hon
+
+charity.last-tax-year.title.individual = A ydych am ychwanegu unrhyw un o’ch rhoddion at y flwyddyn dreth ddiwethaf?
+charity.last-tax-year.title.agent = A ydych am ychwanegu unrhyw un o roddion eich cleient at y flwyddyn dreth ddiwethaf?
+charity.last-tax-year.content_1.individual = Gwnaethoch roi gwybod i ni eich bod wedi rhoi {0} i elusen drwy ddefnyddio Rhodd Cymorth. Gallwch ychwanegu rhywfaint o’r rhodd hon at flwyddyn dreth 6 Ebrill {1} i 5 Ebrill {2}.
+charity.last-tax-year.content_1.agent = Gwnaethoch roi gwybod i ni fod eich cleient wedi rhoi {0} i elusen drwy ddefnyddio Rhodd Cymorth. Gallwch ychwanegu rhywfaint o’r rhodd hon at flwyddyn dreth 6 Ebrill {1} i 5 Ebrill {2}.
+charity.last-tax-year.content_2.individual = Efallai y byddwch am wneud hyn os gwnaethoch dalu treth gyfradd uwch blwyddyn diwethaf ond na fyddwch y flwyddyn hon.
+charity.last-tax-year.content_2.agent = Efallai y byddwch am wneud hyn os gwnaeth eich cleient dalu treth gyfradd uwch blwyddyn diwethaf ond na fydd y flwyddyn hon.
+charity.last-tax-year.errors.noChoice.individual = Dewiswch ‘Iawn’ i ychwanegu unrhyw un o’ch rhoddion at y flwyddyn dreth ddiwethaf
+charity.last-tax-year.errors.noChoice.agent = Dewiswch ‘Iawn’ i ychwanegu unrhyw un o roddion eich cleient at y flwyddyn dreth ddiwethaf
+
+charity.last-tax-year-donation-amount.title.individual = Faint o’ch rhodd ydych am ei hychwanegu at y flwyddyn dreth ddiwethaf?
+charity.last-tax-year-donation-amount.title.agent = Faint o rodd eich cleient ydych am ei hychwanegu at y flwyddyn dreth ddiwethaf?
+charity.last-tax-year-donation-amount.error.no-entry.individual = Nodwch faint o’ch rhodd rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf
+charity.last-tax-year-donation-amount.error.no-entry.agent = Nodwch faint o rodd eich cleient rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf
+charity.last-tax-year-donation-amount.error.invalid = Nodwch y maint rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf yn y fformat cywir
+charity.last-tax-year-donation-amount.error.maximum.individual = Mae’n rhaid i swm eich rhodd yr ydych yn ychwanegu at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000
+charity.last-tax-year-donation-amount.error.maximum.agent = Mae’n rhaid i swm rhodd eich cleient yr ydych yn ychwanegu at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000
+
+charity.donations-to-previous-tax-year.title = A ydych am ychwanegu unrhyw roddion a wnaed ar ôl 5 Ebrill {0} i’r flwyddyn dreth hon?
+charity.donations-to-previous-tax-year.paragraph.1.individual = Os gwnaethoch roddion ar ôl 5 Ebrill {1}, gallwch eu hychwanegu at flwyddyn dreth 6 Ebrill {0} i 5 Ebrill {1}.
+charity.donations-to-previous-tax-year.paragraph.2.individual = Mae’n bosibl y byddwch am wneud hyn os ydych am gael gostyngiad treth yn gynt.
+charity.donations-to-previous-tax-year.paragraph.1.agent = Os gwnaeth eich cleient roddion ar ôl 5 Ebrill {1}, gallwch eu hychwanegu at flwyddyn dreth 6 Ebrill {0} i 5 Ebrill {1}.
+charity.donations-to-previous-tax-year.paragraph.2.agent = Mae’n bosibl am wneud hyn os yw’ch cleient am gael gostyngiad treth yn gynt.
+charity.donations-to-previous-tax-year.errors.noChoice.individual = Dewiswch ‘Iawn’ os ydych am ychwanegu unrhyw roddion a wnaed ar ôl 5 Ebrill {0} i’r flwyddyn dreth hon
+charity.donations-to-previous-tax-year.errors.noChoice.agent = Dewiswch ‘Iawn’ os ydych am ychwanegu unrhyw roddion a wnaed gan eich cleient ar ôl 5 Ebrill {0} i’r flwyddyn dreth hon
+
+charity.amount-from-next-tax-year.title.individual = Faint o’r rhoddion a wnaethoch ar ôl 5 Ebrill {0} ydych am eu hychwanegu at y flwyddyn dreth hon?
+charity.amount-from-next-tax-year.title.agent = Faint o’r rhoddion a wnaeth eich cleient ar ôl 5 Ebrill {0} ydych am eu hychwanegu at y flwyddyn dreth hon?
+charity.amount-from-next-tax-year.errors.no-entry.individual = Nodwch swm eich rhodd a wnaed ar ôl 5 Ebrill {0} rydych am ei ychwanegu at y flwyddyn dreth hon
+charity.amount-from-next-tax-year.errors.no-entry.agent = Nodwch swm rhodd eich cleient a wnaed ar ôl 5 Ebrill {0} rydych am ei ychwanegu at y flwyddyn dreth hon
+charity.amount-from-next-tax-year.errors.wrong-format = Nodwch y swm rydych am ei ychwanegu at y flwyddyn dreth hon yn y fformat cywir
+charity.amount-from-next-tax-year.errors.max-amount.individual = Mae’n rhaid i swm eich rhodd a wnaed ar ôl 5 Ebrill {0} a ychwanegwch at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000
+charity.amount-from-next-tax-year.errors.max-amount.agent = Mae’n rhaid i swm rhodd eich cleient a wnaed ar ôl 5 Ebrill {0} a ychwanegwch at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000
+
+charity.shares-securities-land-property.title.individual = A wnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo cymwys i elusen?
+charity.shares-securities-land-property.title.agent = A wnaeth eich cleient rhoi cyfranddaliadau, gwarantau, tir neu eiddo cymwys i elusen?
+charity.shares-securities-land-property.noChoice.individual = Dewiswch ‘Iawn’ os wnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo cymwys i elusen
+charity.shares-securities-land-property.noChoice.agent = Dewiswch ‘Iawn’ os wnaeth eich cleient rhoi cyfranddaliadau, gwarantau, tir neu eiddo cymwys i elusen
+
+charity.qualifying-shares-or-securities.title.individual = A wnaethoch roi cyfranddaliadau neu warantau cymwys i elusen?
+charity.qualifying-shares-or-securities.title.agent = A wnaeth eich cleient rhoi cyfranddaliadau neu warantau cymwys i elusen?
+charity.qualifying-shares-or-securities.errors.noChoice.individual = Dewiswch ‘Iawn’ os wnaethoch roi cyfranddaliadau neu warantau cymwys i elusen
+charity.qualifying-shares-or-securities.errors.noChoice.agent = Dewiswch ‘Iawn’ os wnaeth eich cleient rhoi cyfranddaliadau neu warantau cymwys i elusen
+
+charity.shares-or-securities.heading = Beth yw cyfanswm gwerth cyfranddaliadau neu warantau cymwys a roddir i elusen?
+charity.shares-or-securities.error.empty-field.individual = Nodwch werth cyfranddaliadau neu warantau a roddwyd gennych i elusen
+charity.shares-or-securities.error.empty-field.agent = Nodwch werth cyfranddaliadau neu warantau a roddwyd gan eich cleient i elusen
+charity.shares-or-securities.error.max-amount.individual = Mae’n rhaid i werth eich cyfranddaliadau neu warantau fod yn llai na £100,000,000,000
+charity.shares-or-securities.error.max-amount.agent = Mae’n rhaid i werth cyfranddaliadau neu warantau eich cleient fod yn llai na £100,000,000,000
+charity.shares-or-securities.error.wrong-format.individual = Nodwch werth cyfranddaliadau neu warantau a roesoch i elusen yn y fformat cywir
+charity.shares-or-securities.error.wrong-format.agent = Nodwch werth cyfranddaliadau neu warantau a roddwyd gan eich cleient i elusen yn y fformat cywir
+
+charity.donated-land-or-property.title.individual = A wnaethoch roi tir neu eiddo i elusen?
+charity.donated-land-or-property.title.agent = A wnaeth eich cleient rhoi tir neu eiddo i elusen?
+charity.donated-land-or-property.errors.noChoice.individual = Dewiswch ‘Iawn’ os wnaethoch roi tir neu eiddo i elusen
+charity.donated-land-or-property.errors.noChoice.agent = Dewiswch ‘Iawn’ os wnaeth eich cleient rhoi tir neu eiddo i elusen
+
+charity.land-or-property.title = Beth yw gwerth tir neu eiddo a roddwyd i elusen?
+charity.land-or-property.errors.no-entry.individual = Nodwch werth y tir neu eiddo a roddwyd gennych i elusen
+charity.land-or-property.errors.no-entry.agent = Nodwch werth y tir neu eiddo a roddwyd gan eich cleient i elusen
+charity.land-or-property.errors.wrong-format.individual = Nodwch werth y tir neu eiddo a roddwyd gennych i elusen yn y fformat cywir
+charity.land-or-property.errors.wrong-format.agent = Nodwch werth y tir neu eiddo a roddwyd gan eich cleient i elusen yn y fformat cywir
+charity.land-or-property.errors.max-amount.individual = Mae’n rhaid i werth eich tir neu eiddo fod yn llai na £100,000,000,000
+charity.land-or-property.errors.max-amount.agent = Mae’n rhaid i werth tir neu eiddo eich cleient fod yn llai na £100,000,000,000
+
+charity.shares-securities-land-property-overseas.title.individual = A wnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo cymwys i elusennau tramor?
+charity.shares-securities-land-property-overseas.title.agent = A wnaeth eich cleient rhoi cyfranddaliadau, gwarantau, tir neu eiddo cymwys i elusennau tramor?
+charity.shares-securities-land-property-overseas.errors.noChoice.individual = Dewiswch ‘Iawn’ os wnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo cymwys i elusennau tramor
+charity.shares-securities-land-property-overseas.errors.noChoice.agent = Dewiswch ‘Iawn’ os wnaeth eich cleient rhoi cyfranddaliadau, gwarantau, tir neu eiddo cymwys i elusennau tramor
+
+charity.overseas-shares-securities-land-property-amount.heading = Beth yw gwerth cyfranddaliadau cymwys, gwarantau, tir neu eiddo a roddwyd i elusennau tramor?
+charity.overseas-shares-securities-land-property-amount.error.empty-field.individual = Nodwch werth cyfranddaliadau cymwys, gwarantau, tir neu eiddo a roesoch i elusennau tramor
+charity.overseas-shares-securities-land-property-amount.error.empty-field.agent = Nodwch werth cyfranddaliadau, gwarantau, tir neu eiddo a roddwyd gan eich cleient i elusennau tramor
+charity.overseas-shares-securities-land-property-amount.error.max-amount.individual = Mae’n rhaid i werth eich cyfranddaliadau, gwarantau, tir neu eiddo fod yn llai na £100,000,000,000
+charity.overseas-shares-securities-land-property-amount.error.max-amount.agent = Mae’n rhaid i werth cyfranddaliadau, gwarantau, tir neu eiddo eich cleient fod yn llai na £100,000,000,000
+charity.overseas-shares-securities-land-property-amount.error.wrong-format.individual = Nodwch werth cyfranddaliadau, gwarantau, tir neu eiddo a roddwyd gennych i elusennau tramor yn y fformat cywir
+charity.overseas-shares-securities-land-property-amount.error.wrong-format.agent = Nodwch werth cyfranddaliadau, gwarantau, tir neu eiddo a roddwyd gan eich cleient i elusennau tramor yn y fformat cywir
+
+charity.overseas-shares-donated-name.title.individual = Enw’r elusen o dramor a roddoch gyfranddaliadau, gwarantau, tir neu eiddo iddo
+charity.overseas-shares-donated-name.title.agent = Enw’r elusen o dramor a roddodd eich cleient gyfranddaliadau, gwarantau, tir neu eiddo iddo
+charity.overseas-shares-donated-name.error.empty-field.individual = Nodwch enw’r elusen dramor a roesoch gyfranddaliadau, gwarantau, tir neu eiddo iddo
+charity.overseas-shares-donated-name.error.empty-field.agent = Nodwch enw’r elusen o dramor a roddodd eich cleient gyfranddaliadau, gwarantau, tir neu eiddo iddo
+
+charity.shares-and-land-summary.title.single.individual = Elusen dramor y gwnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo iddi
+charity.shares-and-land-summary.title.multiple.individual = Elusen dramor y gwnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo iddi
+charity.shares-and-land-summary.title.single.agent = Elusen dramor y gwnaeth eich cleient roi cyfranddaliadau, gwarantau, tir neu eiddo iddi
+charity.shares-and-land-summary.title.multiple.agent = Elusen dramor y gwnaeth eich cleient roi cyfranddaliadau, gwarantau, tir neu eiddo iddi
+charity.shares-and-land-summary.hint.individual = Mae’n rhaid i chi roi gwybod i ni am yr holl elusennau tramor y gwnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo iddynt.
+charity.shares-and-land-summary.hint.agent = Mae’n rhaid i chi roi gwybod i ni am yr holl elusennau tramor y gwnaeth eich cleient rhoi cyfranddaliadau, gwarantau, tir neu eiddo iddynt.
+
+charity.cya.title-heading.individual = Gwiriwch eich rhoddion i elusen
+charity.cya.title-heading.agent = Gwiriwch roddion eich cleient i elusen
+charity.cya.questions.donatedViaGiftAid = Rhoddion i elusen drwy ddefnyddio Rhodd Cymorth
+charity.cya.questions.donatedViaGiftAid.amount = Swm a roddwyd i elusen drwy ddefnyddio Rhodd Cymorth
+charity.cya.questions.oneOffDonationsViaGiftAid = Rhoddion untro i elusen drwy ddefnyddio Rhodd Cymorth
+charity.cya.questions.oneOffDonationsViaGiftAid.amount = Swm y rhoddion untro i elusen drwy ddefnyddio Rhodd Cymorth
+charity.cya.questions.overseasDonationsViaGiftAid = Rhoddion i elusennau tramor drwy ddefnyddio Rhodd Cymorth
+charity.cya.questions.overseasDonationsViaGiftAid.amount = Swm y rhoddion i elusennau tramor drwy ddefnyddio Rhodd Cymorth
+charity.cya.questions.overseasDonationsViaGiftAid.names.individual = Elusennau tramor a roesoch rhodd iddynt
+charity.cya.questions.overseasDonationsViaGiftAid.names.agent = Elusennau tramor a roddodd eich cleient rhodd iddynt
+charity.cya.questions.addDonationToLastYear = Ychwanegu rhoddion at y flwyddyn dreth ddiwethaf
+charity.cya.questions.addDonationToLastYear.amount = Y swm a ychwanegwyd at y flwyddyn dreth ddiwethaf
+charity.cya.questions.addDonationsToThisYear = Ychwanegwyd rhodd ar ôl 5 Ebrill {0} at y flwyddyn dreth hon
+charity.cya.questions.addDonationsToThisYear.amount = Swm y rhodd ar ôl 5 Ebrill {0} wedi’i ychwanegu at y flwyddyn dreth hon
+charity.cya.questions.donateSharesSecuritiesLandOrProperties = Rhoi cyfranddaliadau, gwarantau, tir neu eiddo
+charity.cya.questions.donateSharesOrSecurities = Rhoi cyfranddaliadau neu warantau
+charity.cya.questions.donateSharesOrSecurities.amount = Swm y cyfranddaliadau neu warantau
+charity.cya.questions.donateLandOrProperties = Rhoi tir neu eiddo
+charity.cya.questions.donateLandOrProperties.amount = Swm y tir neu eiddo
+charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties = Rhoi cyfranddaliadau, gwarantau, tir neu eiddo i elusennau tramor
+charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.amount = Swm y cyfranddaliadau, gwarantau, tir neu eiddo i elusennau tramor
+
+charity.cya.questions.donatedViaGiftAid.individual.hidden = Newidiwch os gwnaethoch rhoi rodd i elusen drwy ddefnyddio Rhodd Cymorth
+charity.cya.questions.donatedViaGiftAid.agent.hidden = Newidiwch os gwnaeth eich cleient rhoi rhodd i elusen drwy ddefnyddio Rhodd Cymorth
+charity.cya.questions.donatedViaGiftAid.amount.hidden = Newidiwch y swm a roddir i elusen drwy ddefnyddio Rhodd Cymorth
+charity.cya.questions.oneOffDonationsViaGiftAid.individual.hidden = Newidiwch os gwnaethoch rhoi roddion untro i elusen
+charity.cya.questions.oneOffDonationsViaGiftAid.agent.hidden = Newidiwch os gwnaeth eich cleient rhoi roddion untro i elusen
+charity.cya.questions.oneOffDonationsViaGiftAid.amount.hidden = Newidiwch y swm a roddir i elusennau fel taliadau untro
+charity.cya.questions.overseasDonationsViaGiftAid.individual.hidden = Newidiwch os gwnaethoch rhoi rodd i elusen o dramor drwy ddefnyddio Rhodd Cymorth
+charity.cya.questions.overseasDonationsViaGiftAid.agent.hidden = Newidiwch os gwnaeth eich cleient rhoi rhodd i elusen o dramor drwy ddefnyddio Rhodd Cymorth
+charity.cya.questions.overseasDonationsViaGiftAid.amount.hidden = Newidiwch y swm a roddir i elusennau tramor
+charity.cya.questions.overseasDonationsViaGiftAid.names.hidden = Newidiwch enwau elusennau tramor y gwnaethoch ddefnyddio Rhodd Cymorth i roi rhodd iddynt
+charity.cya.questions.addDonationToLastYear.individual.hidden = Newidiwch os ydych am ychwanegu rhai o’ch rhoddion at y flwyddyn dreth ddiwethaf
+charity.cya.questions.addDonationToLastYear.agent.hidden = Newidiwch os ydych am ychwanegu rhai o roddion eich cleient i’r flwyddyn dreth ddiwethaf
+charity.cya.questions.addDonationToLastYear.amount.individual.hidden = Newidiwch swm eich rhoddion rydych am eu hychwanegu at y flwyddyn dreth ddiwethaf
+charity.cya.questions.addDonationToLastYear.amount.agent.hidden = Newidiwch swm rhoddion eich cleient rydych am eu hychwanegu at y flwyddyn dreth ddiwethaf
+charity.cya.questions.addDonationsToThisYear.hidden = Newidiwch os ydych am ychwanegu rhoddion a wnaed ar ôl 5 Ebrill 2020 at y flwyddyn dreth hon.
+charity.cya.questions.addDonationsToThisYear.amount.individual.hidden = Newidiwch swm eich rhoddion a wnaed ar ôl 5 Ebrill 2020 rydych am eu hychwanegu at y flwyddyn dreth hon.
+charity.cya.questions.addDonationsToThisYear.amount.agent.hidden = Newidiwch swm rhoddion eich cleient a wnaed ar ôl 5 Ebrill 2020 rydych am eu hychwanegu at y flwyddyn dreth hon.
+charity.cya.questions.donateSharesSecuritiesLandOrProperties.individual.hidden = Newidiwch os gwnaethoch roi cyfranddaliadau, gwarantau, tir neu elusen eiddo.
+charity.cya.questions.donateSharesSecuritiesLandOrProperties.agent.hidden = Newidiwch os yw’ch cleient yn rhoi cyfranddaliadau, gwarantau, tir neu elusen eiddo.
+charity.cya.questions.donateSharesOrSecurities.individual.hidden = Newidiwch os gwnaethoch roi cyfranddaliadau neu warantau i elusen.
+charity.cya.questions.donateSharesOrSecurities.agent.hidden = Newidiwch os gwnaeth eich cleient rhoi cyfranddaliadau neu warantau i elusen.
+charity.cya.questions.donateSharesOrSecurities.amount.hidden = Newidiwch werth y cyfranddaliadau neu’r gwarantau a roddir i elusen.
+charity.cya.questions.donateLandOrProperties.individual.hidden = Newidiwch os gwnaethoch roi tir neu eiddo i elusen.
+charity.cya.questions.donateLandOrProperties.agent.hidden = Newidiwch os gwnaeth eich cleient rhoi tir neu eiddo i elusen.
+charity.cya.questions.donateLandOrProperties.amount.individual.hidden = Newidiwch werth y tir neu’r eiddo a roddoch.
+charity.cya.questions.donateLandOrProperties.amount.agent.hidden = Newidiwch werth y tir neu’r eiddo a roddodd eich cleient.
+charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.individual.hidden = Newidiwch os gwnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo i elusennau tramor
+charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.agent.hidden = Newidiwch os yw’ch cleient yn rhoi cyfranddaliadau, gwarantau, tir neu eiddo i elusennau tramor
+charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.amount.hidden = Newidiwch werth cyfranddaliadau, gwarantau, tir neu eiddo a roddir i elusennau tramor
+charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.names.individual.hidden = Newidiwch enwau elusennau tramor y gwnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo iddynt.
+charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.names.agent.hidden = Newidiwch enwau elusennau tramor y rhoddodd eich cleient gyfranddaliadau, gwarantau, tir neu eiddo iddynt.
+>>>>>>> a08d7fb... Sass 1129 (#222)

@@ -87,26 +87,28 @@ class GiftAidOneOffControllerISpec extends CharityITHelper {
     val expectedTitle = "Did your client make one-off donations?"
     val expectedPara1 = s"You told us your client used Gift Aid to donate £$giftAidDonations to charity. Tell us if any of this was made as one-off payments."
     val expectedPara2 = "One-off donations are payments your client did not repeat."
-    val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
     val expectedErrorText = "Select yes if your client made a one-off donation to charity"
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val expectedH1 = "Did you make one-off donations?"
-    val expectedTitle = "Did you make one-off donations?"
-    val expectedPara1= s"You told us you used Gift Aid to donate £$giftAidDonations to charity. Tell us if any of this was made as one-off payments."
-    val expectedPara2 = "One-off donations are payments you did not repeat."
-    val expectedErrorTitle = s"Error: $expectedTitle"
-    val expectedErrorText = "Select yes if you made a one-off donation to charity"
+    val expectedH1 = "A wnaethoch roddion untro?"
+    val expectedTitle = "A wnaethoch roddion untro?"
+    val expectedPara1= s"Gwnaethoch roi gwybod i ni eich bod wedi defnyddio Rhodd Cymorth i roi £$giftAidDonations i elusen." +
+      s" Rhowch wybod i ni a wnaed unrhyw ran o hyn fel taliadau untro."
+    val expectedPara2 = "Taliadau na wnaethoch eu hailadrodd yw rhoddion untro."
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
+    val expectedErrorText = "Dewiswch ‘Iawn’ os gwnaethoch rodd untro i elusen"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val expectedH1 = "Did your client make one-off donations?"
-    val expectedTitle = "Did your client make one-off donations?"
-    val expectedPara1 = s"You told us your client used Gift Aid to donate £$giftAidDonations to charity. Tell us if any of this was made as one-off payments."
-    val expectedPara2 = "One-off donations are payments your client did not repeat."
+    val expectedH1 = "A wnaeth eich cleient roddion untro?"
+    val expectedTitle = "A wnaeth eich cleient roddion untro?"
+    val expectedPara1 = s"Gwnaethoch roi gwybod i ni fod eich cleient wedi defnyddio Rhodd Cymorth i roi £$giftAidDonations i elusen." +
+      s" Rhowch wybod i ni a wnaed unrhyw ran o hyn fel taliadau untro."
+    val expectedPara2 = "Taliadau na wnaeth eich cleient eu hailadrodd yw rhoddion untro."
     val expectedErrorTitle = s"Error: $expectedTitle"
-    val expectedErrorText = "Select yes if your client made a one-off donation to charity"
+    val expectedErrorText = "Dewiswch ‘Iawn’ os gwnaeth eich cleient rhodd untro i elusen"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {

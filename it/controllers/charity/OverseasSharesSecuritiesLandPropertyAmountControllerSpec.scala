@@ -64,12 +64,12 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val heading: String = "What is the value of qualifying shares, securities, land or property donated to overseas charities?"
+    val heading: String = "Beth yw gwerth cyfranddaliadau cymwys, gwarantau, tir neu eiddo a roddwyd i elusennau tramor?"
     val hintText: String = "Er enghraifft, £600 neu £193.54"
     val caption = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
     val button = "Yn eich blaen"
     val inputName = "amount"
-    val inputLabel = "Total value, in pounds"
+    val inputLabel = "Cyfanswm y gwerth, mewn punnoedd"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -95,9 +95,9 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
   object ExpectedIndividualCY extends SpecificExpectedResults {
     val expectedPriorP1 = "You told us you donated £666 in shares, securities, land or property to overseas charities this year. Tell us if this has changed."
     val expectedCyaP1 = "You told us you donated £50 in shares, securities, land or property to overseas charities this year. Tell us if this has changed."
-    val tooLong = "The value of your shares, securities, land or property must be less than £100,000,000,000"
-    val emptyField = "Enter the value of shares, securities, land or property you donated to overseas charities"
-    val incorrectFormat = "Enter the value of shares, securities, land or property you donated to overseas charities in the correct format"
+    val tooLong = "Mae’n rhaid i werth eich cyfranddaliadau, gwarantau, tir neu eiddo fod yn llai na £100,000,000,000"
+    val emptyField = "Nodwch werth cyfranddaliadau cymwys, gwarantau, tir neu eiddo a roesoch i elusennau tramor"
+    val incorrectFormat = "Nodwch werth cyfranddaliadau, gwarantau, tir neu eiddo a roddwyd gennych i elusennau tramor yn y fformat cywir"
     val expectedErrorExceeds: String = "The value of shares, securities, land or property donated to overseas charities cannot be more than the " +
       "‘value of shares and securities donated to charity’ plus the ‘value of land or property donated to charity’"
   }
@@ -105,11 +105,11 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
   object ExpectedAgentCY extends SpecificExpectedResults {
     val expectedPriorP1 = "You told us your client donated £666 in shares, securities, land or property to overseas charities this year. Tell us if this has changed."
     val expectedCyaP1 = "You told us your client donated £50 in shares, securities, land or property to overseas charities this year. Tell us if this has changed."
-    val tooLong = "The value of your client’s shares, securities, land or property must be less than £100,000,000,000"
-    val emptyField = "Enter the value of shares, securities, land or property your client donated to overseas charities"
-    val incorrectFormat = "Enter the value of shares, securities, land or property your client donated to overseas charities in the correct format"
-    val expectedErrorExceeds: String = "The value of shares, securities, land or property donated to overseas charities cannot be more than the " +
-      "‘value of shares and securities donated to charity’ plus the ‘value of land or property donated to charity’"
+    val tooLong = "Mae’n rhaid i werth cyfranddaliadau, gwarantau, tir neu eiddo eich cleient fod yn llai na £100,000,000,000"
+    val emptyField = "Nodwch werth cyfranddaliadau, gwarantau, tir neu eiddo a roddwyd gan eich cleient i elusennau tramor"
+    val incorrectFormat = "Nodwch werth cyfranddaliadau, gwarantau, tir neu eiddo a roddwyd gan eich cleient i elusennau tramor yn y fformat cywir"
+    val expectedErrorExceeds =
+      "The amount of your client’s donation you want to add to the last tax year must not be more the amount your client donated to charity by using Gift Aid"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {

@@ -83,17 +83,17 @@ class GiftAidDonationsControllerISpec extends CharityITHelper {
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val expectedH1 = "Did you use Gift Aid to donate to charity?"
-    val expectedTitle = "Did you use Gift Aid to donate to charity?"
+    val expectedH1 = "A wnaethoch ddefnyddio Rhodd Cymorth i roi i elusen?"
+    val expectedTitle = "A wnaethoch ddefnyddio Rhodd Cymorth i roi i elusen?"
     val expectedErrorTitle = s"Gwall: $expectedTitle"
-    val expectedErrorText = "Select yes if you used Gift Aid to donate to charity"
+    val expectedErrorText = "Dewiswch ‘Iawn’ os wnaethoch ddefnyddio Rhodd Cymorth i roi i elusen"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val expectedH1 = "Did your client use Gift Aid to donate to charity?"
-    val expectedTitle = "Did your client use Gift Aid to donate to charity?"
+    val expectedH1 = "A wnaeth eich cleient ddefnyddio Rhodd Cymorth i roi i elusen?"
+    val expectedTitle = "A wnaeth eich cleient ddefnyddio Rhodd Cymorth i roi i elusen?"
     val expectedErrorTitle = s"Gwall: $expectedTitle"
-    val expectedErrorText = "Select yes if your client used Gift Aid to donate to charity"
+    val expectedErrorText = "Dewiswch ‘Iawn’ os wnaeth eich cleient ddefnyddio Rhodd Cymorth i roi i elusen"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {

@@ -75,15 +75,15 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends CharityITHelper {
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val expectedH1 = "Did you donate qualifying shares or securities to charity?"
-    val expectedTitle = "Did you donate qualifying shares or securities to charity?"
-    val expectedError: String = "Select yes if you donated shares or securities to charity"
+    val expectedH1 = "A wnaethoch roi cyfranddaliadau neu warantau cymwys i elusen?"
+    val expectedTitle = "A wnaethoch roi cyfranddaliadau neu warantau cymwys i elusen?"
+    val expectedError: String = "Dewiswch ‘Iawn’ os wnaethoch roi cyfranddaliadau neu warantau cymwys i elusen"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val expectedH1 = "Did your client donate qualifying shares or securities to charity?"
-    val expectedTitle = "Did your client donate qualifying shares or securities to charity?"
-    val expectedError: String = "Select yes if your client donated shares or securities to charity"
+    val expectedH1 = "A wnaeth eich cleient rhoi cyfranddaliadau neu warantau cymwys i elusen?"
+    val expectedTitle = "A wnaeth eich cleient rhoi cyfranddaliadau neu warantau cymwys i elusen?"
+    val expectedError: String = "Dewiswch ‘Iawn’ os wnaeth eich cleient rhoi cyfranddaliadau neu warantau cymwys i elusen"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
