@@ -17,14 +17,13 @@
 package controllers.charity
 
 import audit.{AuditModel, AuditService, CreateOrAmendGiftAidAuditDetail}
-import common.SessionValues
 import config.{AppConfig, ErrorHandler, GIFT_AID}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import models.charity.GiftAidCYAModel
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.GiftAidSubmissionService
 import services.GiftAidSessionService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -32,8 +31,9 @@ import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.charity.GiftAidCYAView
-
 import javax.inject.Inject
+import play.api.Logger
+
 import scala.concurrent.{ExecutionContext, Future}
 
 class GiftAidCYAController @Inject()(
@@ -47,6 +47,8 @@ class GiftAidCYAController @Inject()(
                                       giftAidSessionService: GiftAidSessionService
                                     ) extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
+  lazy val logger: Logger = Logger(this.getClass.getName)
+
   implicit val executionContext: ExecutionContext = mcc.executionContext
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
@@ -59,28 +61,7 @@ class GiftAidCYAController @Inject()(
             Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))) //TODO This should redirect to the last logical position. Sort out during navigation.
           }
         case (None, Some(priorData)) =>
-          val cyaModel = GiftAidCYAModel(
-            Some(priorData.giftAidPayments.exists(_.currentYear.nonEmpty)),
-            priorData.giftAidPayments.flatMap(_.currentYear),
-            Some(priorData.giftAidPayments.exists(_.oneOffCurrentYear.nonEmpty)),
-            priorData.giftAidPayments.flatMap(_.oneOffCurrentYear),
-            Some(priorData.giftAidPayments.exists(_.nonUkCharities.nonEmpty)),
-            priorData.giftAidPayments.flatMap(_.nonUkCharities),
-            priorData.giftAidPayments.flatMap(_.nonUkCharitiesCharityNames.map(_.toSeq)),
-            Some(priorData.giftAidPayments.exists(_.currentYearTreatedAsPreviousYear.nonEmpty)),
-            priorData.giftAidPayments.flatMap(_.currentYearTreatedAsPreviousYear),
-            Some(priorData.giftAidPayments.exists(_.nextYearTreatedAsCurrentYear.nonEmpty)),
-            priorData.giftAidPayments.flatMap(_.nextYearTreatedAsCurrentYear),
-            Some(priorData.gifts.exists(_.sharesOrSecurities.nonEmpty) || priorData.gifts.exists(_.landAndBuildings.nonEmpty)),
-            Some(priorData.gifts.exists(_.sharesOrSecurities.nonEmpty)),
-            priorData.gifts.flatMap(_.sharesOrSecurities),
-            Some(priorData.gifts.exists(_.landAndBuildings.nonEmpty)),
-            priorData.gifts.flatMap(_.landAndBuildings),
-            Some(priorData.gifts.exists(_.investmentsNonUkCharities.nonEmpty)),
-            priorData.gifts.flatMap(_.investmentsNonUkCharities),
-            priorData.gifts.flatMap(_.investmentsNonUkCharitiesCharityNames.map(_.toSeq))
-          )
-
+          val cyaModel = generateCyaFromPrior(priorData)
           giftAidSessionService.createSessionData(cyaModel, taxYear)(errorHandler.internalServerError())(Ok(view(taxYear, cyaModel, Some(priorData))))
         case _ => Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
       }
@@ -103,19 +84,34 @@ class GiftAidCYAController @Inject()(
           )),
           Some(GiftsModel(
             model.overseasDonatedSharesSecuritiesLandOrPropertyAmount,
-            if (model.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.map(_.toList).getOrElse(List()).isEmpty){None }
-            else { model.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.map(_.toList)},
+            if (model.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.map(_.toList).getOrElse(List()).isEmpty) {
+              None
+            }
+            else {
+              model.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.map(_.toList)
+            },
             model.donatedSharesOrSecuritiesAmount, model.donatedLandOrPropertyAmount
           ))
         )
 
-        giftAidSubmissionService.submitGiftAid(Some(submissionModel), user.nino, user.mtditid, taxYear).flatMap {
-          case Right(_) =>
-            auditSubmission(CreateOrAmendGiftAidAuditDetail(
-              prior, Some(submissionModel), prior.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase(), taxYear)
-            )
-            giftAidSessionService.clear(taxYear)(errorHandler.internalServerError())(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
-          case Left(error) => Future.successful(errorHandler.handleError(error.status))
+        if (comparePriorData(model, prior)) {
+          logger.info("[GiftAidCYAController][submit] User has made Gift Aid Data Changes, " +
+            "Submitting data to DES.")
+          giftAidSubmissionService.submitGiftAid(Some(submissionModel), user.nino, user.mtditid, taxYear).flatMap {
+            case Right(_) =>
+              auditSubmission(CreateOrAmendGiftAidAuditDetail(
+                prior, Some(submissionModel), prior.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase(), taxYear)
+              )
+              giftAidSessionService.clear(taxYear)(errorHandler.internalServerError())(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+            case Left(error) => Future.successful(errorHandler.handleError(error.status))
+          }
+        } else {
+          logger.info("[GiftAidCYAController][submit] User has not made Gift Aid Data Changes, " +
+            "Not submitting data to DES.")
+          auditSubmission(CreateOrAmendGiftAidAuditDetail(
+            prior, Some(submissionModel), prior.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase(), taxYear)
+          )
+          giftAidSessionService.clear(taxYear)(errorHandler.internalServerError())(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
         }
       }
     }.flatten
@@ -126,6 +122,37 @@ class GiftAidCYAController @Inject()(
                               executionContext: ExecutionContext): Future[AuditResult] = {
     val event = AuditModel("CreateOrAmendGiftAidUpdate", "CreateOrAmendGiftAidUpdate", details)
     auditService.auditModel(event)
+  }
+
+  private def generateCyaFromPrior(prior: GiftAidSubmissionModel): GiftAidCYAModel = {
+    GiftAidCYAModel(
+      Some(prior.giftAidPayments.exists(_.currentYear.nonEmpty)),
+      prior.giftAidPayments.flatMap(_.currentYear),
+      Some(prior.giftAidPayments.exists(_.oneOffCurrentYear.nonEmpty)),
+      prior.giftAidPayments.flatMap(_.oneOffCurrentYear),
+      Some(prior.giftAidPayments.exists(_.nonUkCharities.nonEmpty)),
+      prior.giftAidPayments.flatMap(_.nonUkCharities),
+      prior.giftAidPayments.flatMap(_.nonUkCharitiesCharityNames.map(_.toSeq)),
+      Some(prior.giftAidPayments.exists(_.currentYearTreatedAsPreviousYear.nonEmpty)),
+      prior.giftAidPayments.flatMap(_.currentYearTreatedAsPreviousYear),
+      Some(prior.giftAidPayments.exists(_.nextYearTreatedAsCurrentYear.nonEmpty)),
+      prior.giftAidPayments.flatMap(_.nextYearTreatedAsCurrentYear),
+      Some(prior.gifts.exists(_.sharesOrSecurities.nonEmpty) || prior.gifts.exists(_.landAndBuildings.nonEmpty)),
+      Some(prior.gifts.exists(_.sharesOrSecurities.nonEmpty)),
+      prior.gifts.flatMap(_.sharesOrSecurities),
+      Some(prior.gifts.exists(_.landAndBuildings.nonEmpty)),
+      prior.gifts.flatMap(_.landAndBuildings),
+      Some(prior.gifts.exists(_.investmentsNonUkCharities.nonEmpty)),
+      prior.gifts.flatMap(_.investmentsNonUkCharities),
+      prior.gifts.flatMap(_.investmentsNonUkCharitiesCharityNames.map(_.toSeq))
+    )
+  }
+
+  private def comparePriorData(cyaData: GiftAidCYAModel, priorData: Option[GiftAidSubmissionModel]): Boolean = {
+    priorData match {
+      case None => true
+      case Some(prior) => !cyaData.equals(generateCyaFromPrior(prior))
+    }
   }
 
 }

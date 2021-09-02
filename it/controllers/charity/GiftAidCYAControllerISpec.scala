@@ -59,7 +59,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
     Some(false), None
   )
 
-  val priorDataMax: GiftAidSubmissionModel = GiftAidSubmissionModel(
+  override val priorDataMax: GiftAidSubmissionModel = GiftAidSubmissionModel(
     Some(GiftAidPaymentsModel(
       Some(100.00),
       Some(List("Jello Corporation")),
@@ -71,6 +71,23 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
     Some(GiftsModel(
       Some(100.00),
       Some(List("Simbas College Fund")),
+      Some(100.00),
+      Some(100.00)
+    ))
+  )
+
+  val unchangedPriorData: GiftAidSubmissionModel = GiftAidSubmissionModel(
+    Some(GiftAidPaymentsModel(
+      Some(100.00),
+      Some(List("Belgium Trust", "American Trust")),
+      Some(100.00),
+      Some(100.00),
+      Some(100.00),
+      Some(100.00)
+    )),
+    Some(GiftsModel(
+      Some(100.00),
+      Some(List("Belgium Trust", "American Trust")),
       Some(100.00),
       Some(100.00)
     ))
@@ -572,10 +589,35 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
               result.status shouldBe SEE_OTHER
             }
 
-            "redirects to the overview page" in {
+            "redirects to the overview page and submits to des" in {
               result.headers("Location").head shouldBe overviewUrl
             }
           }
+
+          "the user makes no changes and does not submit downstream to des" which {
+
+            val form = Map[String, String]()
+
+            lazy val result: WSResponse = {
+
+              wireMockServer.resetAll()
+              dropGiftAidDB()
+              insertCyaData(Some(cyaDataMax))
+              userDataStub(IncomeSourcesModel(None, None, Some(unchangedPriorData)), nino, taxYear)
+              authoriseAgentOrIndividual(user.isAgent)
+              stubPost(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
+              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
+            }
+
+            "the status is SEE OTHER" in {
+              result.status shouldBe SEE_OTHER
+            }
+
+            "redirects to the overview page and does not submit to des" in {
+              result.headers("Location").head shouldBe overviewUrl
+            }
+          }
+
         }
 
         "redirect to an error page" when {

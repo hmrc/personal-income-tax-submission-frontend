@@ -18,12 +18,35 @@
 @import views.html.templates.helpers.ErrorSummary
 @import views.html.templates.helpers.Button
 @import views.html.templates.helpers.InputText
+@import utils.ViewUtils.bigDecimalCurrency
 
 @this(layout: Layout, errorSummary: ErrorSummary, formWithCsrf: FormWithCSRF, button: Button, inputText: InputText)
-@(taxYear: Int, form: Form[_])(implicit user: User[_], messages: Messages, appConfig: AppConfig)
+@(taxYear: Int, form: Form[_], prefill: Option[String], priorSubmission: Option[BigDecimal])(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @title = @{
-    if(user.isAgent) messages("charity.amount-from-next-tax-year.title.agent", taxYear.toString) else messages("charity.amount-from-next-tax-year.title.individual", taxYear.toString)
+    messages(s"charity.amount-from-next-tax-year.title.${if(user.isAgent) "agent" else "individual"}", taxYear.toString)
+}
+
+@priorAmount() = @{
+    if(prefill.isDefined) {
+        prefill
+    } else {
+        priorSubmission
+    }
+}
+
+@paragraphText = @{
+    if(priorAmount.isDefined) {
+        messages(
+            s"charity.amount-from-next-tax-year.${if(user.isAgent) "agent" else "individual"}.prior",
+            bigDecimalCurrency(priorAmount.get.toString),
+            taxYear.toString
+        )
+    }
+}
+
+@contentHtml = {
+    <p class="govuk-body">@paragraphText</p>
 }
 
 @layout(pageTitle = title, taxYear = Some(taxYear), hasErrors = form.hasErrors, isAgent = user.isAgent) {
@@ -40,7 +63,9 @@
             isPageHeading = false,
             currency = true,
             hint = Some(Html(messages("common.currency.hint"))),
-            subheading = Some(messages("charity.caption", (taxYear-1).toString, taxYear.toString))
+            subheading = Some(messages("charity.caption", (taxYear-1).toString, taxYear.toString)),
+            autocomplete = prefill,
+            content = Some(contentHtml)
         )
 
         @button()

@@ -58,7 +58,7 @@ class GiftAidDonatedAmountController @Inject()(
 
     cya.donationsViaGiftAid match {
       case Some(true) => determineResult(
-        Ok(view(taxYear, amountForm, None)),
+        Ok(view(taxYear, amountForm, cyaDonatedAmount.map(_.toString()), priorDonatedAmount)),
         Redirect(controllers.charity.routes.GiftAidDonatedAmountController.show(taxYear)),
         fromShow)
       case _ => Redirect(controllers.charity.routes.GiftAidDonationsController.show(taxYear))
@@ -89,7 +89,7 @@ class GiftAidDonatedAmountController @Inject()(
 
     form(user.isAgent, taxYear).bindFromRequest().fold(
       {
-        formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors, None)))
+        formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors, None, None)))
       },
       {
         formAmount => giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {

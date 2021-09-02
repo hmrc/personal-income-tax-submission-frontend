@@ -24,6 +24,7 @@ import controllers.predicates.AuthorisedAction
 import helpers.{PlaySessionCookieBaker, WireMockHelper}
 import models.User
 import models.charity.GiftAidCYAModel
+import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
 import models.priorDataModels.IncomeSourcesModel
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
@@ -83,6 +84,22 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq("Awesome Devs initiative")),
   )
 
+  val priorDataMax: GiftAidSubmissionModel = GiftAidSubmissionModel(
+    Some(GiftAidPaymentsModel(
+      Some(1111.00),
+      Some(List("Jello Corporation")),
+      Some(1222.00),
+      Some(333.00),
+      Some(444.00),
+      Some(555.00)
+    )),
+    Some(GiftsModel(
+      Some(666.00),
+      Some(List("Simbas College Fund")),
+      Some(777.00),
+      Some(888.00)
+    ))
+  )
 
   implicit lazy val user: User[AnyContent] = new User[AnyContent](mtditid, None, nino, affinityGroup, sessionId)(FakeRequest())
 

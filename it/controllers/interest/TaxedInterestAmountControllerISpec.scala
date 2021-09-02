@@ -138,8 +138,6 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
 
       import us.commonExpectedResults._
 
-      val specific = us.specificExpectedResults.get
-
       s"user is ${agentTest(us.isAgent)} and request is ${welshTest(us.isWelsh)}" should {
 
         "return OK and correctly render the page" when {
@@ -423,8 +421,6 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
             ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
 
-          implicit def document: () => Document = () => Jsoup.parse(result.body)
-
           s"return a SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get should include(
@@ -447,8 +443,6 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
             ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
 
-          implicit def document: () => Document = () => Jsoup.parse(result.body)
-
           s"return a SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get should include(
@@ -470,8 +464,6 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
               TaxedInterestAmountForm.taxedAccountName -> firstAccountName
             ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
-
-          implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           s"return a SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
@@ -499,8 +491,6 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
             ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
 
-          implicit def document: () => Document = () => Jsoup.parse(result.body)
-
           s"return a SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get should include(
@@ -525,8 +515,6 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
               TaxedInterestAmountForm.taxedAccountName -> firstAccountName
             ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
-
-          implicit def document: () => Document = () => Jsoup.parse(result.body)
 
           s"return a SEE OTHER status" in {
             result.status shouldBe SEE_OTHER

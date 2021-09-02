@@ -36,11 +36,14 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
     val buttonSelector = ".govuk-button"
     val inputLabelSelector = "#main-content > div > div > form > div > label > div"
     val inputHintTextSelector = ".govuk-hint"
+    val p1Selector = "#main-content > div > div > form > div > label > p"
   }
 
   trait SpecificExpectedResults {
     val expectedTitle: String
     val expectedH1: String
+    val expectedPriorP1: String
+    val expectedCyaP1: String
     val expectedErrorEmpty: String
     val expectedErrorInvalid: String
     val expectedErrorOverMax: String
@@ -75,6 +78,8 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
   object ExpectedIndividualEN extends SpecificExpectedResults {
     val expectedTitle = "How much did you donate to overseas charities by using Gift Aid?"
     val expectedH1 = "How much did you donate to overseas charities by using Gift Aid?"
+    val expectedPriorP1 = "You told us you used Gift Aid to donate £1111 to overseas charities. Tell us if this has changed."
+    val expectedCyaP1 = "You told us you used Gift Aid to donate £50 to overseas charities. Tell us if this has changed."
     val expectedErrorEmpty = "Enter the amount you donated to overseas charities"
     val expectedErrorInvalid = "Enter the amount you donated to overseas charities in the correct format"
     val expectedErrorOverMax = "The amount you donated to overseas charities must be less than £100,000,000,000"
@@ -85,6 +90,8 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
   object ExpectedAgentEN extends SpecificExpectedResults {
     val expectedTitle = "How much did your client donate to overseas charities by using Gift Aid?"
     val expectedH1 = "How much did your client donate to overseas charities by using Gift Aid?"
+    val expectedPriorP1 = "You told us your client used Gift Aid to donate £1111 to overseas charities. Tell us if this has changed."
+    val expectedCyaP1 = "You told us your client used Gift Aid to donate £50 to overseas charities. Tell us if this has changed."
     val expectedErrorEmpty = "Enter the amount your client donated to overseas charities"
     val expectedErrorInvalid = "Enter the amount your client donated to overseas charities in the correct format"
     val expectedErrorOverMax = "The amount your client donated to overseas charities must be less than £100,000,000,000"
@@ -96,6 +103,8 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
   object ExpectedIndividualCY extends SpecificExpectedResults {
     val expectedTitle = "How much did you donate to overseas charities by using Gift Aid?"
     val expectedH1 = "How much did you donate to overseas charities by using Gift Aid?"
+    val expectedPriorP1 = "You told us you used Gift Aid to donate £1111 to overseas charities. Tell us if this has changed."
+    val expectedCyaP1 = "You told us you used Gift Aid to donate £50 to overseas charities. Tell us if this has changed."
     val expectedErrorEmpty = "Enter the amount you donated to overseas charities"
     val expectedErrorInvalid = "Enter the amount you donated to overseas charities in the correct format"
     val expectedErrorOverMax = "The amount you donated to overseas charities must be less than £100,000,000,000"
@@ -106,6 +115,8 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
   object ExpectedAgentCY extends SpecificExpectedResults {
     val expectedTitle = "How much did your client donate to overseas charities by using Gift Aid?"
     val expectedH1 = "How much did your client donate to overseas charities by using Gift Aid?"
+    val expectedPriorP1 = "You told us your client used Gift Aid to donate £1111 to overseas charities. Tell us if this has changed."
+    val expectedCyaP1 = "You told us your client used Gift Aid to donate £50 to overseas charities. Tell us if this has changed."
     val expectedErrorEmpty = "Enter the amount your client donated to overseas charities"
     val expectedErrorInvalid = "Enter the amount your client donated to overseas charities in the correct format"
     val expectedErrorOverMax = "The amount your client donated to overseas charities must be less than £100,000,000,000"
@@ -116,7 +127,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
     Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
-      UserScenario(isWelsh = false, isAgent = true,  CommonExpectedEN, Some(ExpectedAgentEN)),
+      UserScenario(isWelsh = false, isAgent = true, CommonExpectedEN, Some(ExpectedAgentEN)),
       UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, Some(ExpectedIndividualCY)),
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
@@ -126,11 +137,11 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
 
   val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(overseasDonationsViaGiftAid = Some(true), donationsViaGiftAidAmount = Some(totalDonatedAmount))
   val requiredSessionData: Some[GiftAidCYAModel] = Some(requiredSessionModel)
-
   val requiredSessionModelPrefill: GiftAidCYAModel = requiredSessionModel.copy(
     overseasDonationsViaGiftAidAmount = Some(validAmount)
   )
   val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
+  val requiredPriorData = Some(IncomeSourcesModel(None, None, Some(priorDataMax)))
 
   ".show" when {
 
@@ -180,6 +191,38 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
           buttonCheck(expectedButtonText, buttonSelector)
           welshToggleCheck(user.isWelsh)
         }
+
+        "display the correct prior amount when returning after submission" which {
+          lazy val result = getResult(url, requiredSessionData, requiredPriorData, user.isAgent, user.isWelsh)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          inputFieldCheck(expectedInputName, Selectors.inputFieldSelector)
+          inputFieldValueCheck("", Selectors.inputFieldSelector)
+          textOnPageCheck(user.specificExpectedResults.get.expectedPriorP1, Selectors.p1Selector)
+        }
+
+        "display the correct cya amount when returning before resubmitting" which {
+          lazy val result = getResult(url, Some(completeGiftAidCYAModel), requiredPriorData, user.isAgent, user.isWelsh)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          inputFieldCheck(expectedInputName, Selectors.inputFieldSelector)
+          inputFieldValueCheck("50", Selectors.inputFieldSelector)
+          textOnPageCheck(user.specificExpectedResults.get.expectedCyaP1, Selectors.p1Selector)
+        }
       }
     }
 
@@ -211,7 +254,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
           giftAid = Some(GiftAidSubmissionModel(Some(GiftAidPaymentsModel(nonUkCharities = Some(1000.56)))))
         )
 
-        lazy val result = getResult(url , requiredSessionData, Some(priorData))
+        lazy val result = getResult(url, requiredSessionData, Some(priorData))
 
         "has an OK 200 status" in {
           result.status shouldBe OK

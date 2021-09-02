@@ -312,6 +312,8 @@ charity.amount-via-gift-aid.individual.title = How much did you donate to charit
 charity.amount-via-gift-aid.individual.p = Do not include the Gift Aid that was added to your donation.
 charity.amount-via-gift-aid.agent.title = How much did your client donate to charity by using Gift Aid?
 charity.amount-via-gift-aid.agent.p = Do not include the Gift Aid that was added to your client’s donation.
+charity.amount-via-gift-aid.individual.prior = You told us you used Gift Aid to donate {0} to charity. Tell us if this has changed.
+charity.amount-via-gift-aid.agent.prior = You told us your client used Gift Aid to donate {0} to charity. Tell us if this has changed.
 charity.amount-via-gift-aid.input.label = Total amount for the year
 charity.amount-via-gift-aid.error.no-input.individual = Enter the amount you donated to charity by using Gift Aid
 charity.amount-via-gift-aid.error.incorrect-format.individual = Enter the amount you donated to charity in the correct format
@@ -331,6 +333,8 @@ charity.one-off.errors.noChoice.agent = Select yes if your client made a one-off
 
 charity.gift-aid-one-off-amount.title.individual = How much did you donate to charity as one-off payments?
 charity.gift-aid-one-off-amount.title.agent = How much did your client donate to charity as one-off payments?
+charity.gift-aid-one-off-amount.individual.prior = You told us you donated {0} to charity as one-off payments. Tell us if this has changed.
+charity.gift-aid-one-off-amount.agent.prior = You told us your client donated {0} to charity as one-off payments. Tell us if this has changed.
 charity.gift-aid-one-off-amount.error.empty.individual = Enter the amount you donated to charity as one-off payments
 charity.gift-aid-one-off-amount.error.empty.agent = Enter the amount your client donated to charity as one-off payments
 charity.gift-aid-one-off-amount.error.incorrect-format.individual = Enter the amount you donated as one-off payments in the correct format
@@ -348,6 +352,8 @@ charity.overseas-gift-aid.errors.noChoice.agent = Select yes if your client used
 
 charity.amount-overseas-gift-aid.title.individual = How much did you donate to overseas charities by using Gift Aid?
 charity.amount-overseas-gift-aid.title.agent = How much did your client donate to overseas charities by using Gift Aid?
+charity.amount-overseas-gift-aid.individual.prior = You told us you used Gift Aid to donate {0} to overseas charities. Tell us if this has changed.
+charity.amount-overseas-gift-aid.agent.prior = You told us your client used Gift Aid to donate {0} to overseas charities. Tell us if this has changed.
 charity.amount-overseas-gift-aid.error.empty.individual = Enter the amount you donated to overseas charities
 charity.amount-overseas-gift-aid.error.empty.agent = Enter the amount your client donated to overseas charities
 charity.amount-overseas-gift-aid.error.incorrect-format.individual = Enter the amount you donated to overseas charities in the correct format
@@ -384,13 +390,15 @@ charity.last-tax-year.errors.noChoice.agent = Select yes to add any of your clie
 
 charity.last-tax-year-donation-amount.title.individual = How much of your donation do you want to add to the last tax year?
 charity.last-tax-year-donation-amount.title.agent = How much of your client’s donation do you want to add to the last tax year?
+charity.last-tax-year-donation-amount.individual.prior = You told us you want to add {0} of your donations to charity to the 6 April {1} to 5 April {2} tax year. Tell us if this has changed.
+charity.last-tax-year-donation-amount.agent.prior = You told us you want to add {0} of your client’s donations to charity to the 6 April {1} to 5 April {2} tax year. Tell us if this has changed.
 charity.last-tax-year-donation-amount.error.no-entry.individual = Enter the amount of your donation you want to add to the last tax year
 charity.last-tax-year-donation-amount.error.no-entry.agent = Enter the amount of your client’s donation you want to add to the last tax year
 charity.last-tax-year-donation-amount.error.invalid = Enter the amount you want to add to the last tax year in the correct format
 charity.last-tax-year-donation-amount.error.maximum.individual = The amount of your donation you add to the last tax year must be less than £100,000,000,000
 charity.last-tax-year-donation-amount.error.maximum.agent = The amount of your client’s donation you add to the last tax year must be less than £100,000,000,000
-charity.last-tax-year-donation-amount.error.exceeds.individual = The amount of your donation you want to add to the last tax year must not be more the amount you donated to charity by using Gift Aid
-charity.last-tax-year-donation-amount.error.exceeds.agent = The amount of your client’s donation you want to add to the last tax year must not be more the amount your client donated to charity by using Gift Aid
+charity.last-tax-year-donation-amount.error.exceeds.individual = The amount of your donation you want to add to the last tax year must not be more than the amount you donated to charity by using Gift Aid
+charity.last-tax-year-donation-amount.error.exceeds.agent = The amount of your client’s donation you want to add to the last tax year must not be more than the amount your client donated to charity by using Gift Aid
 
 charity.donations-to-previous-tax-year.title = Do you want to add any donations made after 5 April {0} to this tax year?
 charity.donations-to-previous-tax-year.paragraph.1.individual = If you made donations after 5 April {1}, you can add them to the 6 April {0} to 5 April {1} tax year.
@@ -402,6 +410,8 @@ charity.donations-to-previous-tax-year.errors.noChoice.agent = Select yes to add
 
 charity.amount-from-next-tax-year.title.individual = How much of the donations you made after 5 April {0} do you want to add to this tax year?
 charity.amount-from-next-tax-year.title.agent = How much of the donations your client made after 5 April {0} do you want to add to this tax year?
+charity.amount-from-next-tax-year.individual.prior = You told us you want to add {0} of the donations you made after 5 April {1} to this tax year. Tell us if this has changed.
+charity.amount-from-next-tax-year.agent.prior = You told us you want to add {0} of the donations your client made after 5 April {1} to this tax year. Tell us if this has changed.
 charity.amount-from-next-tax-year.errors.no-entry.individual = Enter the amount of your donation made after 5 April {0} you want to add to this tax year
 charity.amount-from-next-tax-year.errors.no-entry.agent = Enter the amount of your client’s donation made after 5 April {0} you want to add to this tax year
 charity.amount-from-next-tax-year.errors.wrong-format = Enter the amount you want to add to this tax year in the correct format
@@ -419,6 +429,8 @@ charity.qualifying-shares-or-securities.errors.noChoice.individual = Select yes 
 charity.qualifying-shares-or-securities.errors.noChoice.agent = Select yes if your client donated shares or securities to charity
 
 charity.shares-or-securities.heading = What is the total value of qualifying shares or securities donated to charity?
+charity.shares-or-securities.individual.prior = You told us you donated {0} in shares and securities to charity this year. Tell us if this has changed.
+charity.shares-or-securities.agent.prior = You told us your client donated {0} in shares and securities to charity this year. Tell us if this has changed.
 charity.shares-or-securities.error.empty-field.individual = Enter the value of shares or securities you donated to charity
 charity.shares-or-securities.error.empty-field.agent = Enter the value of shares or securities your client donated to charity
 charity.shares-or-securities.error.max-amount.individual = The value of your shares or securities must be less than £100,000,000,000
@@ -432,6 +444,8 @@ charity.donated-land-or-property.errors.noChoice.individual = Select yes if you 
 charity.donated-land-or-property.errors.noChoice.agent = Select yes if your client donated land or property to charity
 
 charity.land-or-property.title = What is the value of land or property donated to charity?
+charity.land-or-property.individual.prior = You told us you donated {0} in land or property to charity this year. Tell us if this has changed.
+charity.land-or-property.agent.prior = You told us your client donated {0} in land or property to charity this year. Tell us if this has changed.
 charity.land-or-property.errors.no-entry.individual = Enter the value of land or property you donated to charity
 charity.land-or-property.errors.no-entry.agent = Enter the value of land or property your client donated to charity
 charity.land-or-property.errors.wrong-format.individual = Enter the value of land or property you donated to charity in the correct format
@@ -445,6 +459,8 @@ charity.shares-securities-land-property-overseas.errors.noChoice.individual = Se
 charity.shares-securities-land-property-overseas.errors.noChoice.agent = Select yes if your client donated shares, securities, land or property to overseas charities
 
 charity.overseas-shares-securities-land-property-amount.heading = What is the value of qualifying shares, securities, land or property donated to overseas charities?
+charity.overseas-shares-securities-land-property-amount.individual.prior = You told us you donated {0} in shares, securities, land or property to overseas charities this year. Tell us if this has changed.
+charity.overseas-shares-securities-land-property-amount.agent.prior = You told us your client donated {0} in shares, securities, land or property to overseas charities this year. Tell us if this has changed.
 charity.overseas-shares-securities-land-property-amount.error.empty-field.individual = Enter the value of shares, securities, land or property you donated to overseas charities
 charity.overseas-shares-securities-land-property-amount.error.empty-field.agent = Enter the value of shares, securities, land or property your client donated to overseas charities
 charity.overseas-shares-securities-land-property-amount.error.max-amount.individual = The value of your shares, securities, land or property must be less than £100,000,000,000

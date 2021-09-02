@@ -39,6 +39,8 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
   trait SpecificExpectedResults {
     val heading: String
     val para: String
+    val expectedPriorP1: String
+    val expectedCyaP1: String
     val noSelectionError: String
     val tooLongError: String
     val invalidFormatError: String
@@ -49,63 +51,74 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
     val caption: String
     val hint: String
     val button: String
+    val inputName: String
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
     val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
     val hint = "For example, £600 or £193.54"
     val button = "Continue"
+    val inputName = "amount"
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
     val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
     val hint = "For example, £600 or £193.54"
     val button = "Continue"
+    val inputName = "amount"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
     val heading = "How much of your donation do you want to add to the last tax year?"
     val para = "Do not include the Gift Aid added to your donation."
+    val expectedPriorP1 = "You told us you want to add £333 of your donations to charity to the 6 April 2020 to 5 April 2021 tax year. Tell us if this has changed."
+    val expectedCyaP1 = "You told us you want to add £50 of your donations to charity to the 6 April 2020 to 5 April 2021 tax year. Tell us if this has changed."
     val noSelectionError = "Enter the amount of your donation you want to add to the last tax year"
     val tooLongError = "The amount of your donation you add to the last tax year must be less than £100,000,000,000"
     val invalidFormatError = "Enter the amount you want to add to the last tax year in the correct format"
     val expectedErrorExceeds =
-      "The amount of your donation you want to add to the last tax year must not be more the amount you donated to charity by using Gift Aid"
+      "The amount of your donation you want to add to the last tax year must not be more than the amount you donated to charity by using Gift Aid"
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
     val heading = "How much of your client’s donation do you want to add to the last tax year?"
     val para = "Do not include the Gift Aid added to your client’s donation."
+    val expectedPriorP1 = "You told us you want to add £333 of your client’s donations to charity to the 6 April 2020 to 5 April 2021 tax year. Tell us if this has changed."
+    val expectedCyaP1 = "You told us you want to add £50 of your client’s donations to charity to the 6 April 2020 to 5 April 2021 tax year. Tell us if this has changed."
     val noSelectionError = "Enter the amount of your client’s donation you want to add to the last tax year"
     val tooLongError = "The amount of your client’s donation you add to the last tax year must be less than £100,000,000,000"
     val invalidFormatError = "Enter the amount you want to add to the last tax year in the correct format"
     val expectedErrorExceeds =
-      "The amount of your client’s donation you want to add to the last tax year must not be more the amount your client donated to charity by using Gift Aid"
+      "The amount of your client’s donation you want to add to the last tax year must not be more than the amount your client donated to charity by using Gift Aid"
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
     val heading = "How much of your donation do you want to add to the last tax year?"
     val para = "Do not include the Gift Aid added to your donation."
+    val expectedPriorP1 = "You told us you want to add £333 of your donations to charity to the 6 April 2020 to 5 April 2021 tax year. Tell us if this has changed."
+    val expectedCyaP1 = "You told us you want to add £50 of your donations to charity to the 6 April 2020 to 5 April 2021 tax year. Tell us if this has changed."
     val noSelectionError = "Enter the amount of your donation you want to add to the last tax year"
     val tooLongError = "The amount of your donation you add to the last tax year must be less than £100,000,000,000"
     val invalidFormatError = "Enter the amount you want to add to the last tax year in the correct format"
     val expectedErrorExceeds =
-      "The amount of your donation you want to add to the last tax year must not be more the amount you donated to charity by using Gift Aid"
+      "The amount of your donation you want to add to the last tax year must not be more than the amount you donated to charity by using Gift Aid"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
     val heading = "How much of your client’s donation do you want to add to the last tax year?"
     val para = "Do not include the Gift Aid added to your client’s donation."
+    val expectedPriorP1 = "You told us you want to add £333 of your client’s donations to charity to the 6 April 2020 to 5 April 2021 tax year. Tell us if this has changed."
+    val expectedCyaP1 = "You told us you want to add £50 of your client’s donations to charity to the 6 April 2020 to 5 April 2021 tax year. Tell us if this has changed."
     val noSelectionError = "Enter the amount of your client’s donation you want to add to the last tax year"
-    val tooLongError =  "The amount of your client’s donation you add to the last tax year must be less than £100,000,000,000"
+    val tooLongError = "The amount of your client’s donation you add to the last tax year must be less than £100,000,000,000"
     val invalidFormatError = "Enter the amount you want to add to the last tax year in the correct format"
     val expectedErrorExceeds =
-      "The amount of your client’s donation you want to add to the last tax year must not be more the amount your client donated to charity by using Gift Aid"
+      "The amount of your client’s donation you want to add to the last tax year must not be more than the amount your client donated to charity by using Gift Aid"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
     Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
-      UserScenario(isWelsh = false, isAgent = true,  CommonExpectedEN, Some(ExpectedAgentEN)),
+      UserScenario(isWelsh = false, isAgent = true, CommonExpectedEN, Some(ExpectedAgentEN)),
       UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, Some(ExpectedIndividualCY)),
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
@@ -113,13 +126,16 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
   val totalDonatedAmount = 50
   val validAmount = 25
 
+  val oneOffCyaAmount = 50
+
   val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(addDonationToLastYear = Some(true), donationsViaGiftAidAmount = Some(totalDonatedAmount))
   val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
 
   val requiredSessionModelPrefill: GiftAidCYAModel = requiredSessionModel.copy(
-    addDonationToLastYearAmount = Some(validAmount)
+    addDonationToLastYearAmount = Some(oneOffCyaAmount)
   )
   val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
+  val requiredPriorData = Some(IncomeSourcesModel(None, None, Some(priorDataMax)))
 
   ".show" when {
 
@@ -165,7 +181,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
           titleCheck(user.specificExpectedResults.get.heading)
           h1Check(user.specificExpectedResults.get.heading + " " + caption)
-          textOnPageCheck(user.specificExpectedResults.get.para, para)
+          textOnPageCheck(user.specificExpectedResults.get.expectedCyaP1, para)
           inputFieldCheck("amount", ".govuk-input")
           hintTextCheck(hint)
           captionCheck(caption)
@@ -174,6 +190,39 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
           elementExtinct(noSelectionError)
           elementExtinct(errorMessage)
           welshToggleCheck(user.isWelsh)
+        }
+
+
+        "display the correct prior amount when returning after submission" which {
+          lazy val result = getResult(url, requiredSessionData, requiredPriorData, user.isAgent, user.isWelsh)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          inputFieldCheck(inputName, Selectors.amount)
+          inputFieldValueCheck("", Selectors.amount)
+          textOnPageCheck(user.specificExpectedResults.get.expectedPriorP1, Selectors.para)
+        }
+
+        "display the correct cya amount when returning before resubmitting" which {
+          lazy val result = getResult(url, Some(completeGiftAidCYAModel), requiredPriorData, user.isAgent, user.isWelsh)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          inputFieldCheck(inputName, Selectors.amount)
+          inputFieldValueCheck("50", Selectors.amount)
+          textOnPageCheck(user.specificExpectedResults.get.expectedCyaP1, Selectors.para)
         }
       }
     }
@@ -224,7 +273,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
           giftAid = Some(GiftAidSubmissionModel(Some(GiftAidPaymentsModel(nextYearTreatedAsCurrentYear = Some(1000.56)))))
         )
 
-        lazy val result = getResult(url , requiredSessionData, Some(priorData))
+        lazy val result = getResult(url, requiredSessionData, Some(priorData))
 
         "has an OK 200 status" in {
           result.status shouldBe OK

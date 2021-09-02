@@ -31,11 +31,14 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
     val inputField = ".govuk-input"
     val inputLabel = ".govuk-label > div"
     val errorHref = "#amount"
+    val p1Selector = "#main-content > div > div > form > div > label > p"
   }
 
   def url: String = s"$appUrl/$year/charity/value-of-shares-securities-land-or-property-to-overseas-charities"
 
   trait SpecificExpectedResults {
+    val expectedPriorP1: String
+    val expectedCyaP1: String
     val tooLong: String
     val emptyField: String
     val incorrectFormat: String
@@ -70,14 +73,18 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
+    val expectedPriorP1 = "You told us you donated £666 in shares, securities, land or property to overseas charities this year. Tell us if this has changed."
+    val expectedCyaP1 = "You told us you donated £50 in shares, securities, land or property to overseas charities this year. Tell us if this has changed."
     val tooLong = "The value of your shares, securities, land or property must be less than £100,000,000,000"
     val emptyField = "Enter the value of shares, securities, land or property you donated to overseas charities"
     val incorrectFormat = "Enter the value of shares, securities, land or property you donated to overseas charities in the correct format"
     val expectedErrorExceeds: String = "The value of shares, securities, land or property donated to overseas charities cannot be more than the " +
-        "‘value of shares and securities donated to charity’ plus the ‘value of land or property donated to charity’"
+      "‘value of shares and securities donated to charity’ plus the ‘value of land or property donated to charity’"
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
+    val expectedPriorP1 = "You told us your client donated £666 in shares, securities, land or property to overseas charities this year. Tell us if this has changed."
+    val expectedCyaP1 = "You told us your client donated £50 in shares, securities, land or property to overseas charities this year. Tell us if this has changed."
     val tooLong = "The value of your client’s shares, securities, land or property must be less than £100,000,000,000"
     val emptyField = "Enter the value of shares, securities, land or property your client donated to overseas charities"
     val incorrectFormat = "Enter the value of shares, securities, land or property your client donated to overseas charities in the correct format"
@@ -86,6 +93,8 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
+    val expectedPriorP1 = "You told us you donated £666 in shares, securities, land or property to overseas charities this year. Tell us if this has changed."
+    val expectedCyaP1 = "You told us you donated £50 in shares, securities, land or property to overseas charities this year. Tell us if this has changed."
     val tooLong = "The value of your shares, securities, land or property must be less than £100,000,000,000"
     val emptyField = "Enter the value of shares, securities, land or property you donated to overseas charities"
     val incorrectFormat = "Enter the value of shares, securities, land or property you donated to overseas charities in the correct format"
@@ -94,6 +103,8 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
+    val expectedPriorP1 = "You told us your client donated £666 in shares, securities, land or property to overseas charities this year. Tell us if this has changed."
+    val expectedCyaP1 = "You told us your client donated £50 in shares, securities, land or property to overseas charities this year. Tell us if this has changed."
     val tooLong = "The value of your client’s shares, securities, land or property must be less than £100,000,000,000"
     val emptyField = "Enter the value of shares, securities, land or property your client donated to overseas charities"
     val incorrectFormat = "Enter the value of shares, securities, land or property your client donated to overseas charities in the correct format"
@@ -103,7 +114,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
     Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
-      UserScenario(isWelsh = false, isAgent = true,  CommonExpectedEN, Some(ExpectedAgentEN)),
+      UserScenario(isWelsh = false, isAgent = true, CommonExpectedEN, Some(ExpectedAgentEN)),
       UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, Some(ExpectedIndividualCY)),
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
@@ -123,6 +134,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
     overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(validAmount)
   )
   val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
+  val requiredPriorData = Some(IncomeSourcesModel(None, None, Some(priorDataMax)))
 
   ".show" when {
 
@@ -172,6 +184,39 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
           noErrorsCheck()
           welshToggleCheck(user.isWelsh)
         }
+
+        "display the correct prior amount when returning after submission" which {
+          lazy val result = getResult(url, requiredSessionData, requiredPriorData, user.isAgent, user.isWelsh)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          inputFieldCheck(inputName, Selectors.inputField)
+          inputFieldValueCheck("", Selectors.inputField)
+          textOnPageCheck(user.specificExpectedResults.get.expectedPriorP1, Selectors.p1Selector)
+        }
+
+        "display the correct cya amount when returning before resubmitting" which {
+          lazy val result = getResult(url, Some(completeGiftAidCYAModel), requiredPriorData, user.isAgent, user.isWelsh)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+
+          inputFieldCheck(inputName, Selectors.inputField)
+          inputFieldValueCheck("50", Selectors.inputField)
+          textOnPageCheck(user.specificExpectedResults.get.expectedCyaP1, Selectors.p1Selector)
+        }
       }
     }
 
@@ -201,14 +246,14 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
           giftAid = Some(GiftAidSubmissionModel(None, Some(GiftsModel(landAndBuildings = Some(1000.21)))))
         )
 
-        lazy val result = getResult(url , requiredSessionData, Some(priorData))
+        lazy val result = getResult(url, requiredSessionData, Some(priorData))
 
         "has an OK 200 status" in {
           result.status shouldBe OK
         }
       }
     }
-    
+
     "there is cya data, but 'donatedLandOrPropertyAmount' and 'donatedSharesOrSecuritiesAmount' have not been stored" should {
       lazy val result = getResult(url, Some(GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrProperty = Some(true))), None)
 
@@ -315,6 +360,16 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
         result.status shouldBe SEE_OTHER
         result.headers("Location").head shouldBe
           controllers.charity.routes.GiftAidOverseasSharesNameController.show(year, None).url
+      }
+    }
+
+    "the form is valid with completed CYA data" should {
+      lazy val result =
+        postResult(url, Some(completeGiftAidCYAModel.copy(overseasDonatedSharesSecuritiesLandOrPropertyAmount = None)), None, Map("amount" -> s"$validAmount"))
+
+      "redirect the user to the 'check your answers' page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(year)}"
       }
     }
   }
