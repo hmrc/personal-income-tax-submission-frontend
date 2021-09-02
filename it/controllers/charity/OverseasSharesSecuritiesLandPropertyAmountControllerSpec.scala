@@ -42,7 +42,6 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
     val tooLong: String
     val emptyField: String
     val incorrectFormat: String
-    val expectedErrorExceeds: String
   }
 
   trait CommonExpectedResults {
@@ -52,6 +51,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
     val button: String
     val inputName: String
     val inputLabel: String
+    val expectedErrorExceeds: String
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
@@ -61,6 +61,8 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
     val button = "Continue"
     val inputName = "amount"
     val inputLabel = "Total value, in pounds"
+    val expectedErrorExceeds: String = "The value of shares, securities, land or property donated to overseas charities cannot be more than the " +
+      "‘value of shares and securities donated to charity’ plus the ‘value of land or property donated to charity’"
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
@@ -70,6 +72,8 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
     val button = "Yn eich blaen"
     val inputName = "amount"
     val inputLabel = "Cyfanswm y gwerth, mewn punnoedd"
+    val expectedErrorExceeds: String = "The value of shares, securities, land or property donated to overseas charities cannot be more than the " +
+      "‘value of shares and securities donated to charity’ plus the ‘value of land or property donated to charity’"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -78,8 +82,6 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
     val tooLong = "The value of your shares, securities, land or property must be less than £100,000,000,000"
     val emptyField = "Enter the value of shares, securities, land or property you donated to overseas charities"
     val incorrectFormat = "Enter the value of shares, securities, land or property you donated to overseas charities in the correct format"
-    val expectedErrorExceeds: String = "The value of shares, securities, land or property donated to overseas charities cannot be more than the " +
-      "‘value of shares and securities donated to charity’ plus the ‘value of land or property donated to charity’"
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
@@ -88,8 +90,6 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
     val tooLong = "The value of your client’s shares, securities, land or property must be less than £100,000,000,000"
     val emptyField = "Enter the value of shares, securities, land or property your client donated to overseas charities"
     val incorrectFormat = "Enter the value of shares, securities, land or property your client donated to overseas charities in the correct format"
-    val expectedErrorExceeds: String = "The value of shares, securities, land or property donated to overseas charities cannot be more than the " +
-      "‘value of shares and securities donated to charity’ plus the ‘value of land or property donated to charity’"
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
@@ -98,8 +98,6 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
     val tooLong = "Mae’n rhaid i werth eich cyfranddaliadau, gwarantau, tir neu eiddo fod yn llai na £100,000,000,000"
     val emptyField = "Nodwch werth cyfranddaliadau cymwys, gwarantau, tir neu eiddo a roesoch i elusennau tramor"
     val incorrectFormat = "Nodwch werth cyfranddaliadau, gwarantau, tir neu eiddo a roddwyd gennych i elusennau tramor yn y fformat cywir"
-    val expectedErrorExceeds: String = "The value of shares, securities, land or property donated to overseas charities cannot be more than the " +
-      "‘value of shares and securities donated to charity’ plus the ‘value of land or property donated to charity’"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
@@ -108,8 +106,6 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
     val tooLong = "Mae’n rhaid i werth cyfranddaliadau, gwarantau, tir neu eiddo eich cleient fod yn llai na £100,000,000,000"
     val emptyField = "Nodwch werth cyfranddaliadau, gwarantau, tir neu eiddo a roddwyd gan eich cleient i elusennau tramor"
     val incorrectFormat = "Nodwch werth cyfranddaliadau, gwarantau, tir neu eiddo a roddwyd gan eich cleient i elusennau tramor yn y fformat cywir"
-    val expectedErrorExceeds =
-      "The amount of your client’s donation you want to add to the last tax year must not be more the amount your client donated to charity by using Gift Aid"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
@@ -337,15 +333,15 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(errorPrefix + heading, user.isWelsh)
+            titleCheck(errorPrefix(user.isWelsh) + heading, user.isWelsh)
             h1Check(heading + " " + caption)
             inputFieldCheck(inputName, Selectors.inputField)
             textOnPageCheck(inputLabel, Selectors.inputLabel)
             hintTextCheck(hintText)
             captionCheck(caption)
             buttonCheck(button)
-            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorExceeds, Selectors.errorHref, user.isWelsh)
-            errorAboveElementCheck(user.specificExpectedResults.get.expectedErrorExceeds)
+            errorSummaryCheck(user.commonExpectedResults.expectedErrorExceeds, Selectors.errorHref, user.isWelsh)
+            errorAboveElementCheck(user.commonExpectedResults.expectedErrorExceeds)
             welshToggleCheck(user.isWelsh)
           }
         }

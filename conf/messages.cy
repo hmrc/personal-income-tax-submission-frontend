@@ -276,8 +276,6 @@ interest.chooseAccount.addANewAccount = Ychwanegwch gyfrif newydd
 interest.chooseAccount.error.noRadioSelected.agent = Dewiswch y cyfrif a gafodd eich cleient {0} llog y DU
 interest.chooseAccount.error.noRadioSelected.individual = Dewiswch y cyfrif a gawsoch {0} llog y DU
 
-
-
 # Gift Aid
 # ----------------------------------------------------------
 
@@ -589,6 +587,8 @@ charity.gift-aid-one-off-amount.error.incorrect-format.individual = Nodwch y swm
 charity.gift-aid-one-off-amount.error.incorrect-format.agent = Nodwch y swm a roddodd eich cleient fel taliadau untro yn y fformat cywir
 charity.gift-aid-one-off-amount.error.too-high.individual = Mae’n rhaid i’r swm a roesoch fel taliadau untro fod yn llai na £100,000,000,000
 charity.gift-aid-one-off-amount.error.too-high.agent = Mae’n rhaid i’r swm a roddodd eich cleient fel taliadau untro fod yn llai na £100,000,000,000
+charity.gift-aid-one-off-amount.error.exceeds.individual = The amount you donated as one-off payments must not be more than the amount you donated to charity by using Gift Aid
+charity.gift-aid-one-off-amount.error.exceeds.agent = The amount your client donated as one-off payments must not be more than the amount your client donated to charity by using Gift Aid
 charity.gift-aid-one-off-amount.input.label = Cyfanswm ar gyfer y flwyddyn, mewn punnoedd
 
 charity.overseas-gift-aid.title.individual = A wnaethoch ddefnyddio Rhodd Cymorth i roi rhodd i elusen o dramor?
@@ -605,6 +605,8 @@ charity.amount-overseas-gift-aid.error.incorrect-format.agent = Nodwch y swm a r
 charity.amount-overseas-gift-aid.error.too-high.individual = Mae’n rhaid i’r swm a roesoch i elusennau tramor fod yn llai na £100,000,000,000
 charity.amount-overseas-gift-aid.error.too-high.agent = Mae’n rhaid i’r swm a roddodd eich cleient i elusennau tramor fod yn llai na £100,000,000,000
 charity.amount-overseas-gift-aid.input.label = Cyfanswm, mewn punnoedd
+charity.amount-overseas-gift-aid.error.exceed.individual = The amount you donated to overseas charities must not be more than the amount you donated to charity by using Gift Aid
+charity.amount-overseas-gift-aid.error.exceed.agent = The amount your client donated to overseas charities must not be more than the amount your client donated to charity by using Gift Aid
 
 charity.gift-aid-overseas-name.title.individual = Enw’r elusen o dramor y gwnaethoch ddefnyddio Rhodd Cymorth i’w rhoi iddo
 charity.gift-aid-overseas-name.title.agent = Enw’r elusen o dramor y gwnaeth eich cleient ddefnyddio Rhodd Cymorth i’w rhoi iddo
@@ -639,6 +641,8 @@ charity.last-tax-year-donation-amount.error.no-entry.agent = Nodwch faint o rodd
 charity.last-tax-year-donation-amount.error.invalid = Nodwch y maint rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf yn y fformat cywir
 charity.last-tax-year-donation-amount.error.maximum.individual = Mae’n rhaid i swm eich rhodd yr ydych yn ychwanegu at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000
 charity.last-tax-year-donation-amount.error.maximum.agent = Mae’n rhaid i swm rhodd eich cleient yr ydych yn ychwanegu at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000
+charity.last-tax-year-donation-amount.error.exceeds.individual = The amount of your donation you want to add to the last tax year must not be more than the amount you donated to charity by using Gift Aid
+charity.last-tax-year-donation-amount.error.exceeds.agent = The amount of your client’s donation you want to add to the last tax year must not be more than the amount your client donated to charity by using Gift Aid
 
 charity.donations-to-previous-tax-year.title = A ydych am ychwanegu unrhyw roddion a wnaed ar ôl 5 Ebrill {0} i’r flwyddyn dreth hon?
 charity.donations-to-previous-tax-year.paragraph.1.individual = Os gwnaethoch roddion ar ôl 5 Ebrill {1}, gallwch eu hychwanegu at flwyddyn dreth 6 Ebrill {0} i 5 Ebrill {1}.
@@ -699,6 +703,7 @@ charity.overseas-shares-securities-land-property-amount.error.max-amount.individ
 charity.overseas-shares-securities-land-property-amount.error.max-amount.agent = Mae’n rhaid i werth cyfranddaliadau, gwarantau, tir neu eiddo eich cleient fod yn llai na £100,000,000,000
 charity.overseas-shares-securities-land-property-amount.error.wrong-format.individual = Nodwch werth cyfranddaliadau, gwarantau, tir neu eiddo a roddwyd gennych i elusennau tramor yn y fformat cywir
 charity.overseas-shares-securities-land-property-amount.error.wrong-format.agent = Nodwch werth cyfranddaliadau, gwarantau, tir neu eiddo a roddwyd gan eich cleient i elusennau tramor yn y fformat cywir
+charity.overseas-shares-securities-land-property-amount.error.exceed = The value of shares, securities, land or property donated to overseas charities cannot be more than the ‘value of shares and securities donated to charity’ plus the ‘value of land or property donated to charity’
 
 charity.overseas-shares-donated-name.title.individual = Enw’r elusen o dramor a roddoch gyfranddaliadau, gwarantau, tir neu eiddo iddo
 charity.overseas-shares-donated-name.title.agent = Enw’r elusen o dramor a roddodd eich cleient gyfranddaliadau, gwarantau, tir neu eiddo iddo

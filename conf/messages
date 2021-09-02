@@ -276,8 +276,6 @@ interest.chooseAccount.addANewAccount = Add a new account
 interest.chooseAccount.error.noRadioSelected.agent = Select the account your client got {0} UK interest from
 interest.chooseAccount.error.noRadioSelected.individual = Select the account you got {0} UK interest from
 
-
-
 # Gift Aid
 # ----------------------------------------------------------
 

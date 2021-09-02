@@ -101,7 +101,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
     val tooLongError = "Mae’n rhaid i swm eich rhodd yr ydych yn ychwanegu at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000"
     val invalidFormatError = "Nodwch y maint rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf yn y fformat cywir"
     val expectedErrorExceeds =
-      "The amount of your client’s donation you want to add to the last tax year must not be more the amount your client donated to charity by using Gift Aid"
+      "The amount of your donation you want to add to the last tax year must not be more than the amount you donated to charity by using Gift Aid"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
@@ -357,7 +357,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(errorPrefix + user.specificExpectedResults.get.heading, user.isWelsh)
+            titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.heading, user.isWelsh)
             h1Check(user.specificExpectedResults.get.heading + " " + caption)
             textOnPageCheck(user.specificExpectedResults.get.para, para)
             inputFieldCheck("amount", ".govuk-input")
