@@ -61,11 +61,11 @@ class GiftAidOverseasAmountController @Inject()(
           case _ => form(user.isAgent, taxYear, totalDonation)
         }
         determineResult(
-          Ok(view(taxYear, amountForm, None)),
+          Ok(view(taxYear, amountForm, cyaAmount.map(_.toString()), priorAmount)),
           Redirect(controllers.charity.routes.GiftAidOverseasAmountController.show(taxYear)),
           fromShow
         )
-      case _ => overseasGiftAidDonationsController.handleRedirect(taxYear, cya, prior)
+          case _ => overseasGiftAidDonationsController.handleRedirect(taxYear, cya, prior)
     }
   }
 
@@ -92,14 +92,13 @@ class GiftAidOverseasAmountController @Inject()(
   }
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
-
     giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
       case Some(cyaModel) =>
         cyaModel.donationsViaGiftAidAmount match {
           case Some(totalDonatedAmount) =>
             form(user.isAgent, taxYear, totalDonatedAmount).bindFromRequest().fold({
               formWithErrors =>
-                Future.successful(BadRequest(view(taxYear, formWithErrors, None)))
+                Future.successful(BadRequest(view(taxYear, formWithErrors, None, None)))
             }, {
               formAmount =>
                 val updatedCya = cyaModel.copy(overseasDonationsViaGiftAidAmount = Some(formAmount))

@@ -19,9 +19,10 @@
 @import views.html.templates.helpers.Heading
 @import views.html.templates.helpers.Button
 @import views.html.templates.helpers.ErrorSummary
+@import utils.ViewUtils.bigDecimalCurrency
 
 @this(layout: Layout, formWithCsrf: FormWithCSRF, inputField: InputText, heading: Heading, button: Button, errorSummary: ErrorSummary)
-@(taxYear: Int, form: Form[BigDecimal], prefill: Option[String])(implicit user: User[_], messages: Messages, appConfig: AppConfig)
+@(taxYear: Int, form: Form[BigDecimal], prefill: Option[String], priorSubmission: Option[BigDecimal])(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @titleText = @{
     messages(s"charity.amount-via-gift-aid.${if(user.isAgent) "agent" else "individual"}.title")
@@ -29,8 +30,20 @@
 
 @headingForUse = @{(titleText)}
 
+@priorAmount() = @{
+    if(prefill.isDefined) {
+        prefill
+    } else {
+        priorSubmission
+    }
+}
+
 @paragraphText = @{
-    if(user.isAgent) messages("charity.amount-via-gift-aid.agent.p") else messages("charity.amount-via-gift-aid.individual.p")
+    if(priorAmount.isDefined) {
+        messages(s"charity.amount-via-gift-aid.${if(user.isAgent) "agent" else "individual"}.prior", bigDecimalCurrency(priorAmount.get.toString))
+    } else {
+        messages(s"charity.amount-via-gift-aid.${if(user.isAgent) "agent" else "individual"}.p")
+    }
 }
 
 @contentHtml = {

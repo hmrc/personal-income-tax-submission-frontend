@@ -67,7 +67,7 @@ class LastTaxYearAmountController @Inject()(
           case (priorAmountOpt, Some(cyaValue)) if !priorAmountOpt.contains(cyaValue) => form(user.isAgent, taxYear, totalDonation).fill(cyaValue)
           case _ => form(user.isAgent, taxYear, totalDonation)
         }
-        val page = Ok(view(taxYear, amountForm, cya.addDonationToLastYearAmount.map(_.toString())))
+        val page = Ok(view(taxYear, amountForm, cyaAmount.map(_.toString()), priorAmount))
         if (fromShow){
           page
         } else {
@@ -109,7 +109,7 @@ class LastTaxYearAmountController @Inject()(
             form(user.isAgent, taxYear, totalDonatedAmount).bindFromRequest().fold(
               {
                 formWithErrors =>
-                  Future.successful(BadRequest(view(taxYear, formWithErrors, None)))
+                  Future.successful(BadRequest(view(taxYear, formWithErrors, None, None)))
               }, {
                 submittedAmount =>
                   val updatedCyaData: GiftAidCYAModel = cyaData.copy(addDonationToLastYearAmount = Some(submittedAmount))

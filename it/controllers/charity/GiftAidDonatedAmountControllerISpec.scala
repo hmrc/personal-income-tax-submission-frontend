@@ -44,6 +44,8 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
     val expectedTitle: String
     val expectedH1: String
     val expectedParagraph: String
+    val expectedPriorP1: String
+    val expectedCyaP1: String
     val expectedErrorEmpty: String
     val expectedErrorOverMax: String
     val expectedErrorBadFormat: String
@@ -78,6 +80,8 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
     val expectedTitle = "How much did you donate to charity by using Gift Aid?"
     val expectedH1 = "How much did you donate to charity by using Gift Aid?"
     val expectedParagraph = "Do not include the Gift Aid that was added to your donation."
+    val expectedPriorP1 = "You told us you used Gift Aid to donate £1222 to charity. Tell us if this has changed."
+    val expectedCyaP1 = "You told us you used Gift Aid to donate £50 to charity. Tell us if this has changed."
     val expectedErrorEmpty = "Enter the amount you donated to charity by using Gift Aid"
     val expectedErrorOverMax = "The amount you donated to charity must be less than £100,000,000,000"
     val expectedErrorBadFormat = "Enter the amount you donated to charity in the correct format"
@@ -88,6 +92,8 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
     val expectedTitle = "How much did your client donate to charity by using Gift Aid?"
     val expectedH1 = "How much did your client donate to charity by using Gift Aid?"
     val expectedParagraph = "Do not include the Gift Aid that was added to your client’s donation."
+    val expectedPriorP1 = "You told us your client used Gift Aid to donate £1222 to charity. Tell us if this has changed."
+    val expectedCyaP1 = "You told us your client used Gift Aid to donate £50 to charity. Tell us if this has changed."
     val expectedErrorEmpty = "Enter the amount your client donated to charity by using Gift Aid"
     val expectedErrorOverMax = "The amount your client donated to charity must be less than £100,000,000,000"
     val expectedErrorBadFormat = "Enter the amount your client donated to charity in the correct format"
@@ -98,6 +104,8 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
     val expectedTitle = "How much did you donate to charity by using Gift Aid?"
     val expectedH1 = "How much did you donate to charity by using Gift Aid?"
     val expectedParagraph = "Do not include the Gift Aid that was added to your donation."
+    val expectedPriorP1 = "You told us you used Gift Aid to donate £1222 to charity. Tell us if this has changed."
+    val expectedCyaP1 = "You told us you used Gift Aid to donate £50 to charity. Tell us if this has changed."
     val expectedErrorEmpty = "Enter the amount you donated to charity by using Gift Aid"
     val expectedErrorOverMax = "The amount you donated to charity must be less than £100,000,000,000"
     val expectedErrorBadFormat = "Enter the amount you donated to charity in the correct format"
@@ -108,6 +116,8 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
     val expectedTitle = "How much did your client donate to charity by using Gift Aid?"
     val expectedH1 = "How much did your client donate to charity by using Gift Aid?"
     val expectedParagraph = "Do not include the Gift Aid that was added to your client’s donation."
+    val expectedPriorP1 = "You told us your client used Gift Aid to donate £1222 to charity. Tell us if this has changed."
+    val expectedCyaP1 = "You told us your client used Gift Aid to donate £50 to charity. Tell us if this has changed."
     val expectedErrorEmpty = "Enter the amount your client donated to charity by using Gift Aid"
     val expectedErrorOverMax = "The amount your client donated to charity must be less than £100,000,000,000"
     val expectedErrorBadFormat = "Enter the amount your client donated to charity in the correct format"
@@ -116,22 +126,21 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
     Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
-      UserScenario(isWelsh = false, isAgent = true,  CommonExpectedEN, Some(ExpectedAgentEN)),
+      UserScenario(isWelsh = false, isAgent = true, CommonExpectedEN, Some(ExpectedAgentEN)),
       UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, Some(ExpectedIndividualCY)),
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
-  val amount: Int = 2000
+  val oneOffCyaAmount = 50
 
   val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(donationsViaGiftAid = Some(true))
   val requiredSessionData: Some[GiftAidCYAModel] = Some(requiredSessionModel)
-
   val requiredSessionModelPrefill: GiftAidCYAModel = GiftAidCYAModel(
     donationsViaGiftAid = Some(true),
-    donationsViaGiftAidAmount = Some(amount)
+    donationsViaGiftAidAmount = Some(oneOffCyaAmount)
   )
-
   val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
+  val requiredPriorData = Some(IncomeSourcesModel(None, None, Some(priorDataMax)))
 
   ".show" when {
 
@@ -176,12 +185,44 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
           titleCheck(user.specificExpectedResults.get.expectedTitle)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
-          textOnPageCheck(user.specificExpectedResults.get.expectedParagraph, paragraphSelector)
+          textOnPageCheck(user.specificExpectedResults.get.expectedCyaP1, paragraphSelector)
           textOnPageCheck(expectedInputLabelText, inputLabelSelector)
           textOnPageCheck(expectedInputHintText, inputHintTextSelector)
           inputFieldCheck(expectedInputName, inputFieldSelector)
           buttonCheck(expectedButtonText, buttonSelector)
           welshToggleCheck(user.isWelsh)
+        }
+
+        "display the correct prior amount when returning after submission" which {
+          lazy val result = getResult(url, requiredSessionData, requiredPriorData, user.isAgent, user.isWelsh)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          inputFieldCheck(expectedInputName, Selectors.inputFieldSelector)
+          inputFieldValueCheck("", Selectors.inputFieldSelector)
+          textOnPageCheck(user.specificExpectedResults.get.expectedPriorP1, Selectors.paragraphSelector)
+        }
+
+        "display the correct cya amount when returning before resubmitting" which {
+          lazy val result = getResult(url, Some(completeGiftAidCYAModel), requiredPriorData, user.isAgent, user.isWelsh)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          inputFieldCheck(expectedInputName, Selectors.inputFieldSelector)
+          inputFieldValueCheck("50", Selectors.inputFieldSelector)
+          textOnPageCheck(user.specificExpectedResults.get.expectedCyaP1, Selectors.paragraphSelector)
         }
       }
     }
@@ -221,7 +262,7 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
           giftAid = Some(GiftAidSubmissionModel(Some(GiftAidPaymentsModel(currentYear = Some(1000.56)))))
         )
 
-        lazy val result = getResult(url , requiredSessionData, Some(priorData))
+        lazy val result = getResult(url, requiredSessionData, Some(priorData))
 
         "has an OK 200 status" in {
           result.status shouldBe OK
@@ -340,3 +381,4 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
     }
   }
 }
+

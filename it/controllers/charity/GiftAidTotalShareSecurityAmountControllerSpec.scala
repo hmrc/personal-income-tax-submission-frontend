@@ -31,11 +31,14 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
     val inputField = ".govuk-input"
     val inputLabel = ".govuk-label > div"
     val errorHref = "#amount"
+    val p1Selector = "#main-content > div > div > form > div > label > p"
   }
 
   def url: String = s"$appUrl/$year/charity/value-of-shares-or-securities"
 
   trait SpecificExpectedResults {
+    val expectedPriorP1: String
+    val expectedCyaP1: String
     val tooLong: String
     val emptyField: String
     val incorrectFormat: String
@@ -69,24 +72,32 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
+    val expectedPriorP1 = "You told us you donated £777 in shares and securities to charity this year. Tell us if this has changed."
+    val expectedCyaP1 = "You told us you donated £50 in shares and securities to charity this year. Tell us if this has changed."
     val tooLong = "The value of your shares or securities must be less than £100,000,000,000"
     val emptyField = "Enter the value of shares or securities you donated to charity"
     val incorrectFormat = "Enter the value of shares or securities you donated to charity in the correct format"
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
+    val expectedPriorP1 = "You told us your client donated £777 in shares and securities to charity this year. Tell us if this has changed."
+    val expectedCyaP1 = "You told us your client donated £50 in shares and securities to charity this year. Tell us if this has changed."
     val tooLong = "The value of your client’s shares or securities must be less than £100,000,000,000"
     val emptyField = "Enter the value of shares or securities your client donated to charity"
     val incorrectFormat = "Enter the value of shares or securities your client donated to charity in the correct format"
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
+    val expectedPriorP1 = "You told us you donated £777 in shares and securities to charity this year. Tell us if this has changed."
+    val expectedCyaP1 = "You told us you donated £50 in shares and securities to charity this year. Tell us if this has changed."
     val tooLong = "The value of your shares or securities must be less than £100,000,000,000"
     val emptyField = "Enter the value of shares or securities you donated to charity"
     val incorrectFormat = "Enter the value of shares or securities you donated to charity in the correct format"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
+    val expectedPriorP1 = "You told us your client donated £777 in shares and securities to charity this year. Tell us if this has changed."
+    val expectedCyaP1 = "You told us your client donated £50 in shares and securities to charity this year. Tell us if this has changed."
     val tooLong = "The value of your client’s shares or securities must be less than £100,000,000,000"
     val emptyField = "Enter the value of shares or securities your client donated to charity"
     val incorrectFormat = "Enter the value of shares or securities your client donated to charity in the correct format"
@@ -94,7 +105,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
     Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
-      UserScenario(isWelsh = false, isAgent = true,  CommonExpectedEN, Some(ExpectedAgentEN)),
+      UserScenario(isWelsh = false, isAgent = true, CommonExpectedEN, Some(ExpectedAgentEN)),
       UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, Some(ExpectedIndividualCY)),
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
@@ -111,6 +122,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
   val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
 
   val validAmount: Int = 1234
+  val requiredPriorData = Some(IncomeSourcesModel(None, None, Some(priorDataMax)))
 
   ".show" when {
 
@@ -160,6 +172,40 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
           noErrorsCheck()
           welshToggleCheck(user.isWelsh)
         }
+
+        "display the correct prior amount when returning after submission" which {
+          lazy val result = getResult(url, requiredSessionData, requiredPriorData, user.isAgent, user.isWelsh)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          inputFieldCheck(inputName, Selectors.inputField)
+          inputFieldValueCheck("", Selectors.inputField)
+          textOnPageCheck(user.specificExpectedResults.get.expectedPriorP1, Selectors.p1Selector)
+        }
+
+        "display the correct cya amount when returning before resubmitting" which {
+          lazy val result = getResult(url, Some(completeGiftAidCYAModel), requiredPriorData, user.isAgent, user.isWelsh)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          titleCheck(heading)
+          h1Check(heading + " " + caption)
+          inputFieldCheck(inputName, Selectors.inputField)
+          inputFieldValueCheck("50", Selectors.inputField)
+          textOnPageCheck(user.specificExpectedResults.get.expectedCyaP1, Selectors.p1Selector)
+        }
       }
     }
 
@@ -189,7 +235,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
           giftAid = Some(GiftAidSubmissionModel(None, Some(GiftsModel(landAndBuildings = Some(1000.21)))))
         )
 
-        lazy val result = getResult(url , requiredSessionData, Some(priorData))
+        lazy val result = getResult(url, requiredSessionData, Some(priorData))
 
         "has an OK 200 status" in {
           result.status shouldBe OK

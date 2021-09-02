@@ -57,7 +57,7 @@ class GiftAidTotalShareSecurityAmountController @Inject()(
     }
 
     cya.donatedSharesOrSecurities match {
-      case Some(true) => determineResult(Ok(view(taxYear, amountForm)),
+      case Some(true) => determineResult(Ok(view(taxYear, amountForm, cyaAmount.map(_.toString()), priorAmount)),
         Redirect(controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(taxYear)),
         fromShow)
       case _ => giftAidQualifyingSharesSecuritiesController.handleRedirect(taxYear, cya, prior)
@@ -86,7 +86,7 @@ class GiftAidTotalShareSecurityAmountController @Inject()(
     giftAidSessionService.getSessionData(taxYear).map {
       case Some(cyaData) =>
         form(user.isAgent).bindFromRequest().fold({
-          formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors)))
+          formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors, None, None)))
         }, {
           amount =>
             cyaData.giftAid.fold{

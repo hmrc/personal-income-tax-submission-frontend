@@ -54,8 +54,6 @@ class GiftAidOneOffAmountController @Inject()(
 
     val giftAidAmount: Option[BigDecimal] = cya.donationsViaGiftAidAmount
 
-
-
     (cya.oneOffDonationsViaGiftAid, giftAidAmount) match {
       case (Some(true), Some(totalDonation)) =>
         val amountForm = (priorAmount, cyaAmount) match {
@@ -63,11 +61,11 @@ class GiftAidOneOffAmountController @Inject()(
           case _ => form(user.isAgent, taxYear, totalDonation)
         }
         determineResult(
-          Ok(view(taxYear, amountForm, None)),
+          Ok(view(taxYear, amountForm, cyaAmount.map(_.toString()), priorAmount)),
           Redirect(controllers.charity.routes.GiftAidOneOffAmountController.show(taxYear)),
           fromShow
         )
-      case _ => giftAidOneOffController.handleRedirect(taxYear, cya, prior)
+          case _ => giftAidOneOffController.handleRedirect(taxYear, cya, prior)
     }
   }
 
@@ -101,7 +99,7 @@ class GiftAidOneOffAmountController @Inject()(
           case Some(totalDonatedAmount) =>
             form(user.isAgent, taxYear, totalDonatedAmount).bindFromRequest().fold({
               formWithErrors =>
-                Future.successful(BadRequest(view(taxYear, formWithErrors, None)))
+                Future.successful(BadRequest(view(taxYear, formWithErrors, None, None)))
             }, {
               formAmount =>
                 val updatedCya = cyaModel.copy(oneOffDonationsViaGiftAidAmount = Some(formAmount))

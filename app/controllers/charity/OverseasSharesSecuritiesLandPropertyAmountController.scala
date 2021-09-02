@@ -65,7 +65,7 @@ class OverseasSharesSecuritiesLandPropertyAmountController @Inject()(
 
     cya.overseasDonatedSharesSecuritiesLandOrProperty match {
       case Some(true) if donatedSSLP == BigDecimal(0) => giftAidQualifyingSharesSecuritiesController.handleRedirect(taxYear, cya, prior)
-      case Some(true) => determineResult(Ok(view(taxYear, form(user.isAgent, donatedSSLP))),
+      case Some(true) => determineResult(Ok(view(taxYear, amountForm, cyaAmount.map(_.toString()), priorAmount)),
         Redirect(controllers.charity.routes.OverseasSharesSecuritiesLandPropertyAmountController.show(taxYear)),
         fromShow)
       case _ => giftAidSharesSecuritiesLandPropertyOverseasController.handleRedirect(taxYear, cya, prior)
@@ -106,13 +106,18 @@ class OverseasSharesSecuritiesLandPropertyAmountController @Inject()(
             Future.successful(redirectToOverview(taxYear))
           case total =>
             form(user.isAgent, total).bindFromRequest().fold({
-              formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors)))
+              formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors, None, None)))
             }, {
               amount =>
-                val redirectLocation = controllers.charity.routes.GiftAidOverseasSharesNameController.show(taxYear, None)
+                val updatedCya = cyaData.copy(overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(amount))
+                val redirectLocation = if(updatedCya.isFinished){
+                  redirectToCya(taxYear)
+                } else {
+                  Redirect(controllers.charity.routes.GiftAidOverseasSharesNameController.show(taxYear, None))
+                }
                 giftAidSessionService.updateSessionData(cyaData.copy(overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(amount)), taxYear)(
                   InternalServerError(errorHandler.internalServerErrorTemplate)
-                )(Redirect(redirectLocation))
+                )(redirectLocation)
             })
         }
       case _ =>

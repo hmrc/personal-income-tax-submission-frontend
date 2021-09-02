@@ -22,7 +22,6 @@ import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
-import play.api.libs.ws.WSResponse
 import utils.CharityITHelper
 
 class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
@@ -42,6 +41,8 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
   trait SpecificExpectedResults {
     val heading: String
+    val priorP1: String
+    val cyaP1: String
     val tooLongError: String
     val emptyFieldError: String
     val incorrectFormatError: String
@@ -59,6 +60,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
     val titleSelector = "title"
     val inputField = ".govuk-input"
     val errorHref = "#amount"
+    val p1Selector = "#main-content > div > div > form > div > label > p"
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
@@ -79,6 +81,8 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
     val heading: String = "How much of the donations you made after 5 April 2022 do you want to add to this tax year?"
+    val priorP1: String = "You told us you want to add £444 of the donations you made after 5 April 2022 to this tax year. Tell us if this has changed."
+    val cyaP1: String = "You told us you want to add £50 of the donations you made after 5 April 2022 to this tax year. Tell us if this has changed."
     val tooLongError: String = "The amount of your donation made after 5 April 2022 you add to the last tax year must be less than £100,000,000,000"
     val emptyFieldError: String = "Enter the amount of your donation made after 5 April 2022 you want to add to this tax year"
     val incorrectFormatError: String = "Enter the amount you want to add to this tax year in the correct format"
@@ -86,6 +90,8 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
   object ExpectedAgentEN extends SpecificExpectedResults {
     val heading: String = "How much of the donations your client made after 5 April 2022 do you want to add to this tax year?"
+    val priorP1: String = "You told us you want to add £444 of the donations your client made after 5 April 2022 to this tax year. Tell us if this has changed."
+    val cyaP1: String = "You told us you want to add £50 of the donations your client made after 5 April 2022 to this tax year. Tell us if this has changed."
     val tooLongError: String = "The amount of your client’s donation made after 5 April 2022 you add to the last tax year must be less than £100,000,000,000"
     val emptyFieldError: String = "Enter the amount of your client’s donation made after 5 April 2022 you want to add to this tax year"
     val incorrectFormatError: String = "Enter the amount you want to add to this tax year in the correct format"
@@ -93,6 +99,8 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
     val heading: String = "How much of the donations you made after 5 April 2022 do you want to add to this tax year?"
+    val priorP1: String = "You told us you want to add £444 of the donations you made after 5 April 2022 to this tax year. Tell us if this has changed."
+    val cyaP1: String = "You told us you want to add £50 of the donations you made after 5 April 2022 to this tax year. Tell us if this has changed."
     val tooLongError: String = "The amount of your donation made after 5 April 2022 you add to the last tax year must be less than £100,000,000,000"
     val emptyFieldError: String = "Enter the amount of your donation made after 5 April 2022 you want to add to this tax year"
     val incorrectFormatError: String = "Enter the amount you want to add to this tax year in the correct format"
@@ -100,6 +108,8 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
   object ExpectedAgentCY extends SpecificExpectedResults {
     val heading: String = "How much of the donations your client made after 5 April 2022 do you want to add to this tax year?"
+    val priorP1: String = "You told us you want to add £444 of the donations your client made after 5 April 2022 to this tax year. Tell us if this has changed."
+    val cyaP1: String = "You told us you want to add £50 of the donations your client made after 5 April 2022 to this tax year. Tell us if this has changed."
     val tooLongError: String = "The amount of your client’s donation made after 5 April 2022 you add to the last tax year must be less than £100,000,000,000"
     val emptyFieldError: String = "Enter the amount of your client’s donation made after 5 April 2022 you want to add to this tax year"
     val incorrectFormatError: String = "Enter the amount you want to add to this tax year in the correct format"
@@ -116,6 +126,8 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
   )
 
   val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
+
+  val requiredPriorData = Some(IncomeSourcesModel(None, None, Some(priorDataMax)))
 
   val validForm: Map[String, String] = Map("amount" -> "1234")
 
@@ -172,6 +184,38 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
           buttonCheck(button)
           welshToggleCheck(user.isWelsh)
         }
+
+        "display the correct prior amount when returning after submission" which {
+          lazy val result = getResult(url, requiredSessionData, requiredPriorData, user.isAgent, user.isWelsh)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          inputFieldCheck(inputName, Selectors.inputField)
+          inputFieldValueCheck("", Selectors.inputField)
+          textOnPageCheck(user.specificExpectedResults.get.priorP1, Selectors.p1Selector)
+        }
+
+        "display the correct cya amount when returning before resubmitting" which {
+          lazy val result = getResult(url, Some(completeGiftAidCYAModel), requiredPriorData, user.isAgent, user.isWelsh)
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          import user.commonExpectedResults._
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          inputFieldCheck(inputName, Selectors.inputField)
+          inputFieldValueCheck("50", Selectors.inputField)
+          textOnPageCheck(user.specificExpectedResults.get.cyaP1, Selectors.p1Selector)
+        }
       }
     }
 
@@ -218,7 +262,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
             giftAid = Some(GiftAidSubmissionModel(Some(GiftAidPaymentsModel(nextYearTreatedAsCurrentYear = Some(1000.56)))))
           )
 
-          lazy val result = getResult(url , requiredSessionData, Some(priorData))
+          lazy val result = getResult(url, requiredSessionData, Some(priorData))
 
           "has an 200 OK status" in {
             result.status shouldBe OK
@@ -379,3 +423,4 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
     }
   }
 }
+

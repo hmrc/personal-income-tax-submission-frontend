@@ -18,15 +18,34 @@
 @import views.html.headerFooterTemplate.Layout
 @import views.html.templates.helpers.ErrorSummary
 @import views.html.templates.helpers.InputText
+@import utils.ViewUtils.bigDecimalCurrency
 
 @this(csrfForm: FormWithCSRF, button: Button, layout: Layout, errorSummary: ErrorSummary, inputField: InputText)
-@(taxYear: Int, form: Form[BigDecimal])(implicit user: User[_], appConfig: AppConfig, messages: Messages)
+@(taxYear: Int, form: Form[BigDecimal], prefill: Option[String], priorSubmission: Option[BigDecimal])(implicit user: User[_], appConfig: AppConfig, messages: Messages)
 
 @headingText = @{
     messages(s"charity.shares-or-securities.heading")
 }
 
+@priorAmount() = @{
+    if(prefill.isDefined) {
+        prefill
+    } else {
+        priorSubmission
+    }
+}
+
+@paragraphText = @{
+    if(priorAmount.isDefined) {
+        messages(
+            s"charity.shares-or-securities.${if(user.isAgent) "agent" else "individual"}.prior",
+            bigDecimalCurrency(priorAmount.get.toString)
+        )
+    }
+}
+
 @contentHtml = {
+    <p class="govuk-body">@paragraphText</p>
     <div>@messages("charity.common.total.valueInPounds")</div>
 }
 
@@ -45,7 +64,8 @@
             hint = Some(Html(messages("common.currency.hint"))),
             isPageHeading = false,
             currency = true,
-            headingClasses = "govuk-!-margin-bottom-2"
+            headingClasses = "govuk-!-margin-bottom-2",
+            autocomplete = prefill
         )
         @button()
     }

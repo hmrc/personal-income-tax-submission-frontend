@@ -357,8 +357,6 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
                   urlGet(url(id, if (testCase._2) "untaxed" else "taxed"), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
                 }
 
-                implicit val document: () => Document = () => Jsoup.parse(result.body)
-
                 "returns a SEE OTHER" in {
                   result.status shouldBe SEE_OTHER
                   result.headers("Location").head shouldBe s"/income-through-software/return/personal-income/2022/" +
