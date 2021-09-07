@@ -98,7 +98,6 @@ class GiftAidSharesSecuritiesLandPropertyDonationController @Inject()(
     }
   }
 
-
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
     yesNoForm(user).bindFromRequest().fold(
       {
@@ -116,11 +115,11 @@ class GiftAidSharesSecuritiesLandPropertyDonationController @Inject()(
               } else {
                 cyaData.copy(
                   donatedSharesSecuritiesLandOrProperty = Some(false),
-                  donatedSharesOrSecurities = Some(false),
+                  donatedSharesOrSecurities = None,
                   donatedSharesOrSecuritiesAmount = None,
-                  donatedLandOrProperty = Some(false),
+                  donatedLandOrProperty = None,
                   donatedLandOrPropertyAmount = None,
-                  overseasDonatedSharesSecuritiesLandOrProperty = Some(false),
+                  overseasDonatedSharesSecuritiesLandOrProperty = None,
                   overseasDonatedSharesSecuritiesLandOrPropertyAmount = None,
                   overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Seq.empty
                 )

@@ -22,8 +22,9 @@ import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.YesNoForm
 import models.User
+import models.charity.GiftAidCYAModel
+import models.charity.GiftAidCYAModel.resetDonatedSharesSecuritiesLandOrProperty
 import models.charity.prior.GiftAidSubmissionModel
-import models.charity.{CharityNameModel, GiftAidCYAModel}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.i18n.Lang.logger
@@ -93,11 +94,10 @@ class GiftAidDonateLandOrPropertyController @Inject()(
         case (Some(cyaData), _) => yesNoForm(user).bindFromRequest().fold({
           formWithErrors => Future.successful(BadRequest(giftAidDonateLandOrPropertyView(formWithErrors, taxYear)))
         }, {
-          success =>
+          yesOrNoResponse =>
+            val updatedModel = updatedCya(yesOrNoResponse, cyaData)
 
-            val updatedModel = updatedCya(success, cyaData)
-
-            val redirectLocation = (success, cyaData.isFinished) match {
+            val redirectLocation = (yesOrNoResponse, cyaData.isFinished) match {
               case (true, _) => Redirect(controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(taxYear))
               case (_, true) => redirectToCya(taxYear)
               case _ => Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(taxYear))
@@ -116,20 +116,15 @@ class GiftAidDonateLandOrPropertyController @Inject()(
     }.flatten
   }
 
-
-  def updatedCya(result: Boolean, cyaData: GiftAidCYAModel): GiftAidCYAModel = {
-    val oneOfSslp = result || cyaData.donatedSharesOrSecurities.getOrElse(false)
-    cyaData.copy(
-      donatedLandOrProperty = Some(result),
-      donatedLandOrPropertyAmount =
-        if (result) cyaData.donatedLandOrPropertyAmount else None,
-      overseasDonatedSharesSecuritiesLandOrProperty =
-        if (oneOfSslp) cyaData.overseasDonatedSharesSecuritiesLandOrProperty else Some(false),
-      overseasDonatedSharesSecuritiesLandOrPropertyAmount =
-        if (oneOfSslp) cyaData.overseasDonatedSharesSecuritiesLandOrPropertyAmount else None,
-      overseasDonatedSharesSecuritiesLandOrPropertyCharityNames =
-        if (oneOfSslp) cyaData.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames else Seq.empty[CharityNameModel]
-    )
+  private def updatedCya(yesOrNoResult: Boolean, cyaData: GiftAidCYAModel): GiftAidCYAModel = {
+    if (!yesOrNoResult & cyaData.donatedSharesOrSecurities.contains(false)) {
+      resetDonatedSharesSecuritiesLandOrProperty(cyaData)
+    } else {
+      cyaData.copy(
+        donatedLandOrProperty = Some(yesOrNoResult),
+        donatedLandOrPropertyAmount = if (yesOrNoResult) cyaData.donatedLandOrPropertyAmount else None
+      )
+    }
   }
 }
 
