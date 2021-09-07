@@ -101,7 +101,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
     val tooLongError = "Mae’n rhaid i swm eich rhodd yr ydych yn ychwanegu at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000"
     val invalidFormatError = "Nodwch y maint rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf yn y fformat cywir"
     val expectedErrorExceeds =
-      "The amount of your donation you want to add to the last tax year must not be more than the amount you donated to charity by using Gift Aid"
+      "Ni chaiff swm eich rhodd, yr hoffech ei hychwanegu at y flwyddyn dreth ddiwethaf, fod yn fwy na’r swm a roesoch i elusennau drwy ddefnyddio Rhodd Cymorth"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
@@ -113,7 +113,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
     val tooLongError =  "Mae’n rhaid i swm rhodd eich cleient yr ydych yn ychwanegu at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000"
     val invalidFormatError = "Nodwch y maint rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf yn y fformat cywir"
     val expectedErrorExceeds =
-      "The amount of your client’s donation you want to add to the last tax year must not be more than the amount your client donated to charity by using Gift Aid"
+      "Ni chaiff swm rhodd eich cleient, yr hoffech ei hychwanegu at y flwyddyn dreth ddiwethaf, fod yn fwy na’r swm a roddodd eich cleient i elusennau drwy ddefnyddio Rhodd Cymorth"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {

@@ -109,7 +109,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
     val expectedErrorInvalid = "Nodwch y swm a roesoch i elusennau tramor yn y fformat cywir"
     val expectedErrorOverMax = "Mae’n rhaid i’r swm a roesoch i elusennau tramor fod yn llai na £100,000,000,000"
     val expectedErrorTitle = s"Gwall: $expectedTitle"
-    val expectedErrorExceeds = "The amount you donated to overseas charities must not be more than the amount you donated to charity by using Gift Aid"
+    val expectedErrorExceeds = "Ni chaiff y swm a roesoch i elusennau tramor fod yn fwy na’r swm a roesoch i elusennau drwy ddefnyddio Rhodd Cymorth"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
@@ -122,7 +122,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
     val expectedErrorOverMax = "Mae’n rhaid i’r swm a roddodd eich cleient i elusennau tramor fod yn llai na £100,000,000,000"
     val expectedErrorTitle = s"Gwall: $expectedTitle"
     val expectedErrorExceeds =
-      "The amount your client donated to overseas charities must not be more than the amount your client donated to charity by using Gift Aid"
+      "Ni chaiff y swm a roddodd eich cleient i elusennau tramor fod yn fwy na’r swm a roddodd eich cleient i elusennau drwy ddefnyddio Rhodd Cymorth"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {

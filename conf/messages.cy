@@ -282,258 +282,6 @@ interest.chooseAccount.error.noRadioSelected.individual = Dewiswch y cyfrif a ga
 # Common Gift Aid Messages
 # ----------------------------------------------------------
 
-<<<<<<< HEAD
-charity.common.gift-aid.doNotInclude.individual = Do not include the Gift Aid added to your donation.
-charity.common.gift-aid.doNotInclude.agent = Do not include the Gift Aid added to your client’s donation.
-charity.common.aid-summary.hiddenChange = Change the details you’ve entered for {0}.
-charity.common.total.valueInPounds = Total value, in pounds
-charity.common.add.overseas.question = Do you need to add another overseas charity?
-
-charity.gift-aid-account.hint = You can add more than one charity.
-
-charity.common.name.error.limit = The name of the overseas charity must be 75 characters or fewer
-charity.common.name.error.invalid = Name of overseas charity must only include numbers 0-9, letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets and the special characters, &, /, @, £, *
-charity.common.name.error.duplicate = You cannot add 2 charities with the same name
-
-charity.qualifying-shares.disclosure.title = What are qualifying shares and securities?
-charity.qualifying-shares.disclosure.p = Qualifying shares and securities are:
-charity.qualifying-shares.disclosure.bullet.1 = listed on a recognised stock exchange or dealt in on a designated market in the UK
-charity.qualifying-shares.disclosure.bullet.2 = units in an authorised unit trust
-charity.qualifying-shares.disclosure.bullet.3 = shares in an open-ended investment company
-charity.qualifying-shares.disclosure.bullet.4 = an interest in an offshore fund
-
-charity.uk-charity.title.individual = Did you use Gift Aid to donate to charity?
-charity.uk-charity.title.agent = Did your client use Gift Aid to donate to charity?
-charity.uk-charity.errors.noChoice.individual = Select yes if you used Gift Aid to donate to charity
-charity.uk-charity.errors.noChoice.agent = Select yes if your client used Gift Aid to donate to charity
-
-charity.amount-via-gift-aid.individual.title = How much did you donate to charity by using Gift Aid?
-charity.amount-via-gift-aid.individual.p = Do not include the Gift Aid that was added to your donation.
-charity.amount-via-gift-aid.agent.title = How much did your client donate to charity by using Gift Aid?
-charity.amount-via-gift-aid.agent.p = Do not include the Gift Aid that was added to your client’s donation.
-charity.amount-via-gift-aid.individual.prior = You told us you used Gift Aid to donate {0} to charity. Tell us if this has changed.
-charity.amount-via-gift-aid.agent.prior = You told us your client used Gift Aid to donate {0} to charity. Tell us if this has changed.
-charity.amount-via-gift-aid.input.label = Total amount for the year
-charity.amount-via-gift-aid.error.no-input.individual = Enter the amount you donated to charity by using Gift Aid
-charity.amount-via-gift-aid.error.incorrect-format.individual = Enter the amount you donated to charity in the correct format
-charity.amount-via-gift-aid.error.too-high.individual = The amount you donated to charity must be less than £100,000,000,000
-charity.amount-via-gift-aid.error.no-input.agent = Enter the amount your client donated to charity by using Gift Aid
-charity.amount-via-gift-aid.error.incorrect-format.agent = Enter the amount your client donated to charity in the correct format
-charity.amount-via-gift-aid.error.too-high.agent = The amount your client donated to charity must be less than £100,000,000,000
-
-charity.one-off.title.individual = Did you make one-off donations?
-charity.one-off.title.agent = Did your client make one-off donations?
-charity.one-off.caption.individual_1 = You told us you used Gift Aid to donate {0} to charity. Tell us if any of this was made as one-off payments.
-charity.one-off.caption.agent_1 = You told us your client used Gift Aid to donate {0} to charity. Tell us if any of this was made as one-off payments.
-charity.one-off.caption.individual_2 = One-off donations are payments you did not repeat.
-charity.one-off.caption.agent_2 = One-off donations are payments your client did not repeat.
-charity.one-off.errors.noChoice.individual = Select yes if you made a one-off donation to charity
-charity.one-off.errors.noChoice.agent = Select yes if your client made a one-off donation to charity
-
-charity.gift-aid-one-off-amount.title.individual = How much did you donate to charity as one-off payments?
-charity.gift-aid-one-off-amount.title.agent = How much did your client donate to charity as one-off payments?
-charity.gift-aid-one-off-amount.individual.prior = You told us you donated {0} to charity as one-off payments. Tell us if this has changed.
-charity.gift-aid-one-off-amount.agent.prior = You told us your client donated {0} to charity as one-off payments. Tell us if this has changed.
-charity.gift-aid-one-off-amount.error.empty.individual = Enter the amount you donated to charity as one-off payments
-charity.gift-aid-one-off-amount.error.empty.agent = Enter the amount your client donated to charity as one-off payments
-charity.gift-aid-one-off-amount.error.incorrect-format.individual = Enter the amount you donated as one-off payments in the correct format
-charity.gift-aid-one-off-amount.error.incorrect-format.agent = Enter the amount your client donated as one-off payments in the correct format
-charity.gift-aid-one-off-amount.error.too-high.individual = The amount you donated as one-off payments must be less than £100,000,000,000
-charity.gift-aid-one-off-amount.error.too-high.agent = The amount your client donated as one-off payments must be less than £100,000,000,000
-charity.gift-aid-one-off-amount.error.exceeds.individual = The amount you donated as one-off payments must not be more than the amount you donated to charity by using Gift Aid
-charity.gift-aid-one-off-amount.error.exceeds.agent = The amount your client donated as one-off payments must not be more than the amount your client donated to charity by using Gift Aid
-charity.gift-aid-one-off-amount.input.label = Total amount for the year, in pounds
-
-charity.overseas-gift-aid.title.individual = Did you use Gift Aid to donate to an overseas charity?
-charity.overseas-gift-aid.title.agent = Did your client use Gift Aid to donate to an overseas charity?
-charity.overseas-gift-aid.errors.noChoice.individual = Select yes if you used Gift Aid to donate to an overseas charity
-charity.overseas-gift-aid.errors.noChoice.agent = Select yes if your client used Gift Aid to donate to an overseas charity
-
-charity.amount-overseas-gift-aid.title.individual = How much did you donate to overseas charities by using Gift Aid?
-charity.amount-overseas-gift-aid.title.agent = How much did your client donate to overseas charities by using Gift Aid?
-charity.amount-overseas-gift-aid.individual.prior = You told us you used Gift Aid to donate {0} to overseas charities. Tell us if this has changed.
-charity.amount-overseas-gift-aid.agent.prior = You told us your client used Gift Aid to donate {0} to overseas charities. Tell us if this has changed.
-charity.amount-overseas-gift-aid.error.empty.individual = Enter the amount you donated to overseas charities
-charity.amount-overseas-gift-aid.error.empty.agent = Enter the amount your client donated to overseas charities
-charity.amount-overseas-gift-aid.error.incorrect-format.individual = Enter the amount you donated to overseas charities in the correct format
-charity.amount-overseas-gift-aid.error.incorrect-format.agent = Enter the amount your client donated to overseas charities in the correct format
-charity.amount-overseas-gift-aid.error.too-high.individual = The amount you donated to overseas charities must be less than £100,000,000,000
-charity.amount-overseas-gift-aid.error.too-high.agent = The amount your client donated to overseas charities must be less than £100,000,000,000
-charity.amount-overseas-gift-aid.input.label = Total amount, in pounds
-charity.amount-overseas-gift-aid.error.exceed.individual = The amount you donated to overseas charities must not be more than the amount you donated to charity by using Gift Aid
-charity.amount-overseas-gift-aid.error.exceed.agent = The amount your client donated to overseas charities must not be more than the amount your client donated to charity by using Gift Aid
-
-charity.gift-aid-overseas-name.title.individual = Name of overseas charity you used Gift Aid to donate to
-charity.gift-aid-overseas-name.title.agent = Name of overseas charity your client used Gift Aid to donate to
-charity.gift-aid-overseas-name.error.empty.individual = Enter the name of the overseas charity you used Gift Aid to donate to
-charity.gift-aid-overseas-name.error.empty.agent = Enter the name of the overseas charity your client used Gift Aid to donate to
-
-charity.overseas-gift-aid-summary.title.individual = Overseas {0} you used Gift Aid to donate to
-charity.overseas-gift-aid-summary.title.agent = Overseas {0} your client used Gift Aid to donate to
-charity.overseas-gift-aid-summary.hint.individual = You must tell us about all the overseas charities you donated to.
-charity.overseas-gift-aid-summary.hint.agent = You must tell us about all the overseas charities your client donated to.
-charity.overseas-gift-aid-summary.noChoice = Select yes if you need to add another overseas charity
-charity.overseas-gift-aid-summary.hiddenRemove = Remove {0}.
-
-charity.remove-overseas-charity.content = This will remove all overseas charities.
-charity.remove-overseas-charity.noChoice = Select yes to remove this overseas charity
-
-charity.last-tax-year.title.individual = Do you want to add any of your donations to the last tax year?
-charity.last-tax-year.title.agent = Do you want to add any of your client’s donations to the last tax year?
-charity.last-tax-year.content_1.individual = You told us you donated {0} to charity by using Gift Aid. You can add some of this donation to the 6 April {1} to 5 April {2} tax year.
-charity.last-tax-year.content_1.agent = You told us your client donated {0} to charity by using Gift Aid. You can add some of this donation to the 6 April {1} to 5 April {2} tax year.
-charity.last-tax-year.content_2.individual = You might want to do this if you paid higher rate tax last year but will not this year.
-charity.last-tax-year.content_2.agent = You might want to do this if your client paid higher rate tax last year but will not this year.
-charity.last-tax-year.errors.noChoice.individual = Select yes to add any of your donations to the last tax year
-charity.last-tax-year.errors.noChoice.agent = Select yes to add any of your client’s donations to the last tax year
-
-charity.last-tax-year-donation-amount.title.individual = How much of your donation do you want to add to the last tax year?
-charity.last-tax-year-donation-amount.title.agent = How much of your client’s donation do you want to add to the last tax year?
-charity.last-tax-year-donation-amount.individual.prior = You told us you want to add {0} of your donations to charity to the 6 April {1} to 5 April {2} tax year. Tell us if this has changed.
-charity.last-tax-year-donation-amount.agent.prior = You told us you want to add {0} of your client’s donations to charity to the 6 April {1} to 5 April {2} tax year. Tell us if this has changed.
-charity.last-tax-year-donation-amount.error.no-entry.individual = Enter the amount of your donation you want to add to the last tax year
-charity.last-tax-year-donation-amount.error.no-entry.agent = Enter the amount of your client’s donation you want to add to the last tax year
-charity.last-tax-year-donation-amount.error.invalid = Enter the amount you want to add to the last tax year in the correct format
-charity.last-tax-year-donation-amount.error.maximum.individual = The amount of your donation you add to the last tax year must be less than £100,000,000,000
-charity.last-tax-year-donation-amount.error.maximum.agent = The amount of your client’s donation you add to the last tax year must be less than £100,000,000,000
-charity.last-tax-year-donation-amount.error.exceeds.individual = The amount of your donation you want to add to the last tax year must not be more than the amount you donated to charity by using Gift Aid
-charity.last-tax-year-donation-amount.error.exceeds.agent = The amount of your client’s donation you want to add to the last tax year must not be more than the amount your client donated to charity by using Gift Aid
-
-charity.donations-to-previous-tax-year.title = Do you want to add any donations made after 5 April {0} to this tax year?
-charity.donations-to-previous-tax-year.paragraph.1.individual = If you made donations after 5 April {1}, you can add them to the 6 April {0} to 5 April {1} tax year.
-charity.donations-to-previous-tax-year.paragraph.2.individual = You might want to do this if you want tax relief sooner.
-charity.donations-to-previous-tax-year.paragraph.1.agent = If your client made donations after 5 April {1}, you can add them to the 6 April {0} to 5 April {1} tax year.
-charity.donations-to-previous-tax-year.paragraph.2.agent = You might want to do this if your client wants tax relief sooner.
-charity.donations-to-previous-tax-year.errors.noChoice.individual = Select yes to add any of your donations made after 5 April {0} to this tax year
-charity.donations-to-previous-tax-year.errors.noChoice.agent = Select yes to add any of your client’s donations made after 5 April {0} to this tax year
-
-charity.amount-from-next-tax-year.title.individual = How much of the donations you made after 5 April {0} do you want to add to this tax year?
-charity.amount-from-next-tax-year.title.agent = How much of the donations your client made after 5 April {0} do you want to add to this tax year?
-charity.amount-from-next-tax-year.individual.prior = You told us you want to add {0} of the donations you made after 5 April {1} to this tax year. Tell us if this has changed.
-charity.amount-from-next-tax-year.agent.prior = You told us you want to add {0} of the donations your client made after 5 April {1} to this tax year. Tell us if this has changed.
-charity.amount-from-next-tax-year.errors.no-entry.individual = Enter the amount of your donation made after 5 April {0} you want to add to this tax year
-charity.amount-from-next-tax-year.errors.no-entry.agent = Enter the amount of your client’s donation made after 5 April {0} you want to add to this tax year
-charity.amount-from-next-tax-year.errors.wrong-format = Enter the amount you want to add to this tax year in the correct format
-charity.amount-from-next-tax-year.errors.max-amount.individual = The amount of your donation made after 5 April {0} you add to the last tax year must be less than £100,000,000,000
-charity.amount-from-next-tax-year.errors.max-amount.agent = The amount of your client’s donation made after 5 April {0} you add to the last tax year must be less than £100,000,000,000
-
-charity.shares-securities-land-property.title.individual = Did you donate qualifying shares, securities, land or property to charity?
-charity.shares-securities-land-property.title.agent = Did your client donate qualifying shares, securities, land or property to charity?
-charity.shares-securities-land-property.noChoice.individual = Select yes if you donated shares, securities, land or property to charity
-charity.shares-securities-land-property.noChoice.agent = Select yes if your client donated shares, securities, land or property to charity
-
-charity.qualifying-shares-or-securities.title.individual = Did you donate qualifying shares or securities to charity?
-charity.qualifying-shares-or-securities.title.agent = Did your client donate qualifying shares or securities to charity?
-charity.qualifying-shares-or-securities.errors.noChoice.individual = Select yes if you donated shares or securities to charity
-charity.qualifying-shares-or-securities.errors.noChoice.agent = Select yes if your client donated shares or securities to charity
-
-charity.shares-or-securities.heading = What is the total value of qualifying shares or securities donated to charity?
-charity.shares-or-securities.individual.prior = You told us you donated {0} in shares and securities to charity this year. Tell us if this has changed.
-charity.shares-or-securities.agent.prior = You told us your client donated {0} in shares and securities to charity this year. Tell us if this has changed.
-charity.shares-or-securities.error.empty-field.individual = Enter the value of shares or securities you donated to charity
-charity.shares-or-securities.error.empty-field.agent = Enter the value of shares or securities your client donated to charity
-charity.shares-or-securities.error.max-amount.individual = The value of your shares or securities must be less than £100,000,000,000
-charity.shares-or-securities.error.max-amount.agent = The value of your client’s shares or securities must be less than £100,000,000,000
-charity.shares-or-securities.error.wrong-format.individual = Enter the value of shares or securities you donated to charity in the correct format
-charity.shares-or-securities.error.wrong-format.agent = Enter the value of shares or securities your client donated to charity in the correct format
-
-charity.donated-land-or-property.title.individual = Did you donate land or property to charity?
-charity.donated-land-or-property.title.agent = Did your client donate land or property to charity?
-charity.donated-land-or-property.errors.noChoice.individual = Select yes if you donated land or property to charity
-charity.donated-land-or-property.errors.noChoice.agent = Select yes if your client donated land or property to charity
-
-charity.land-or-property.title = What is the value of land or property donated to charity?
-charity.land-or-property.individual.prior = You told us you donated {0} in land or property to charity this year. Tell us if this has changed.
-charity.land-or-property.agent.prior = You told us your client donated {0} in land or property to charity this year. Tell us if this has changed.
-charity.land-or-property.errors.no-entry.individual = Enter the value of land or property you donated to charity
-charity.land-or-property.errors.no-entry.agent = Enter the value of land or property your client donated to charity
-charity.land-or-property.errors.wrong-format.individual = Enter the value of land or property you donated to charity in the correct format
-charity.land-or-property.errors.wrong-format.agent = Enter the value of land or property your client donated to charity in the correct format
-charity.land-or-property.errors.max-amount.individual = The value of your land or property must be less than £100,000,000,000
-charity.land-or-property.errors.max-amount.agent = The value of your client’s land or property must be less than £100,000,000,000
-
-charity.shares-securities-land-property-overseas.title.individual = Did you donate qualifying shares, securities, land or property to overseas charities?
-charity.shares-securities-land-property-overseas.title.agent = Did your client donate qualifying shares, securities, land or property to overseas charities?
-charity.shares-securities-land-property-overseas.errors.noChoice.individual = Select yes if you donated shares, securities, land or property to overseas charities
-charity.shares-securities-land-property-overseas.errors.noChoice.agent = Select yes if your client donated shares, securities, land or property to overseas charities
-
-charity.overseas-shares-securities-land-property-amount.heading = What is the value of qualifying shares, securities, land or property donated to overseas charities?
-charity.overseas-shares-securities-land-property-amount.individual.prior = You told us you donated {0} in shares, securities, land or property to overseas charities this year. Tell us if this has changed.
-charity.overseas-shares-securities-land-property-amount.agent.prior = You told us your client donated {0} in shares, securities, land or property to overseas charities this year. Tell us if this has changed.
-charity.overseas-shares-securities-land-property-amount.error.empty-field.individual = Enter the value of shares, securities, land or property you donated to overseas charities
-charity.overseas-shares-securities-land-property-amount.error.empty-field.agent = Enter the value of shares, securities, land or property your client donated to overseas charities
-charity.overseas-shares-securities-land-property-amount.error.max-amount.individual = The value of your shares, securities, land or property must be less than £100,000,000,000
-charity.overseas-shares-securities-land-property-amount.error.max-amount.agent = The value of your client’s shares, securities, land or property must be less than £100,000,000,000
-charity.overseas-shares-securities-land-property-amount.error.wrong-format.individual = Enter the value of shares, securities, land or property you donated to overseas charities in the correct format
-charity.overseas-shares-securities-land-property-amount.error.wrong-format.agent = Enter the value of shares, securities, land or property your client donated to overseas charities in the correct format
-charity.overseas-shares-securities-land-property-amount.error.exceed = The value of shares, securities, land or property donated to overseas charities cannot be more than the ‘value of shares and securities donated to charity’ plus the ‘value of land or property donated to charity’
-
-charity.overseas-shares-donated-name.title.individual = Name of overseas charity you donated shares, securities, land or property to
-charity.overseas-shares-donated-name.title.agent = Name of overseas charity your client donated shares, securities, land or property to
-charity.overseas-shares-donated-name.error.empty-field.individual = Enter the name of the overseas charity you donated shares, securities, land or property to
-charity.overseas-shares-donated-name.error.empty-field.agent = Enter the name of the overseas charity your client donated shares, securities, land or property to
-
-charity.shares-and-land-summary.title.individual = Overseas {0} you donated shares, securities, land or property to
-charity.shares-and-land-summary.title.agent = Overseas {0} your client donated shares, securities, land or property to
-charity.shares-and-land-summary.hint.individual = You must tell us about all the overseas charities you donated shares, securities, land or property to.
-charity.shares-and-land-summary.hint.agent = You must tell us about all the overseas charities your client donated shares, securities, land or property to.
-
-charity.cya.title-heading.individual = Check your donations to charity
-charity.cya.title-heading.agent = Check your client’s donations to charity
-charity.cya.questions.donatedViaGiftAid = Donation to charity using Gift Aid
-charity.cya.questions.donatedViaGiftAid.amount = Amount donated to charity using Gift Aid
-charity.cya.questions.oneOffDonationsViaGiftAid = One-off donations to charity using Gift Aid
-charity.cya.questions.oneOffDonationsViaGiftAid.amount = Amount of one-off donations to charity using Gift Aid
-charity.cya.questions.overseasDonationsViaGiftAid = Donations to overseas charities using Gift Aid
-charity.cya.questions.overseasDonationsViaGiftAid.amount = Amount donated to overseas charities using Gift Aid
-charity.cya.questions.overseasDonationsViaGiftAid.names.individual = Overseas charities you donated to
-charity.cya.questions.overseasDonationsViaGiftAid.names.agent = Overseas charities your client donated to
-charity.cya.questions.addDonationToLastYear = Adding donations to last tax year
-charity.cya.questions.addDonationToLastYear.amount = Amount added to last tax year
-charity.cya.questions.addDonationsToThisYear = Donation after 5 April {0} added to this tax year
-charity.cya.questions.addDonationsToThisYear.amount = Amount of donation after 5 April {0} added to this tax year
-charity.cya.questions.donateSharesSecuritiesLandOrProperties = Donation of shares, securities, land or property
-charity.cya.questions.donateSharesOrSecurities = Donation of shares or securities
-charity.cya.questions.donateSharesOrSecurities.amount = Value of shares or securities
-charity.cya.questions.donateLandOrProperties = Donation of land or property
-charity.cya.questions.donateLandOrProperties.amount = Value of land or property
-charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties = Donation of shares, securities, land or property to overseas charities
-charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.amount = Value of shares, securities, land or property to overseas charities
-charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.names.individual = Overseas charities you donated shares, securities, land or property to
-charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.names.agent = Overseas charities your client donated shares, securities, land or property to
-
-charity.cya.questions.donatedViaGiftAid.individual.hidden = Change if you made a donation to charity by using Gift Aid
-charity.cya.questions.donatedViaGiftAid.agent.hidden = Change if your client made a donation to charity by using Gift Aid
-charity.cya.questions.donatedViaGiftAid.amount.hidden = Change the amount donated to charity by using Gift Aid
-charity.cya.questions.oneOffDonationsViaGiftAid.individual.hidden = Change if you made one-off donations to charity
-charity.cya.questions.oneOffDonationsViaGiftAid.agent.hidden = Change if your client made one-off donations to charity
-charity.cya.questions.oneOffDonationsViaGiftAid.amount.hidden = Change the amount donated to charities as one-off payments
-charity.cya.questions.overseasDonationsViaGiftAid.individual.hidden = Change  if you made a donation to an overseas charity by using Gift Aid
-charity.cya.questions.overseasDonationsViaGiftAid.agent.hidden = Change  if your client made a donation to an overseas charity by using Gift Aid
-charity.cya.questions.overseasDonationsViaGiftAid.amount.hidden = Change the amount donated to overseas charities
-charity.cya.questions.overseasDonationsViaGiftAid.names.hidden = Change the names of overseas charities you used Gift Aid to donate to
-charity.cya.questions.addDonationToLastYear.individual.hidden = Change if you want to add some of your donations to the last tax year
-charity.cya.questions.addDonationToLastYear.agent.hidden = Change if you want to add some of your client’s donations to the last tax year
-charity.cya.questions.addDonationToLastYear.amount.individual.hidden = Change the amount of your donations you want to add to the last tax year
-charity.cya.questions.addDonationToLastYear.amount.agent.hidden = Change the amount of your client’s donations you want to add to the last tax year
-charity.cya.questions.addDonationsToThisYear.hidden = Change if you want to add donations made after 5 April 2020 to this tax year.
-charity.cya.questions.addDonationsToThisYear.amount.individual.hidden = Change the amount of your donations made after 5 April 2020 you want to add to this tax year.
-charity.cya.questions.addDonationsToThisYear.amount.agent.hidden = Change the amount of your client’s donations made after 5 April 2020 you want to add to this tax year.
-charity.cya.questions.donateSharesSecuritiesLandOrProperties.individual.hidden = Change if you donated shares, securities, land or property charity.
-charity.cya.questions.donateSharesSecuritiesLandOrProperties.agent.hidden = Change if your client donated shares, securities, land or property charity.
-charity.cya.questions.donateSharesOrSecurities.individual.hidden = Change if you donated shares or securities to charity.
-charity.cya.questions.donateSharesOrSecurities.agent.hidden = Change if your client donated shares or securities to charity.
-charity.cya.questions.donateSharesOrSecurities.amount.hidden = Change the value of the shares or securities donated to charity.
-charity.cya.questions.donateLandOrProperties.individual.hidden = Change if you donated land or property to charity.
-charity.cya.questions.donateLandOrProperties.agent.hidden = Change if your client donated land or property to charity.
-charity.cya.questions.donateLandOrProperties.amount.individual.hidden = Change the value of the land or property you donated.
-charity.cya.questions.donateLandOrProperties.amount.agent.hidden = Change the value of the land or property your client donated.
-charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.individual.hidden = Change if you donated shares, securities, land or property to overseas charities
-charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.agent.hidden = Change if your client donated shares, securities, land or property to overseas charities
-charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.amount.hidden = Change the value of shares, securities, land or properties donated to overseas charities
-charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.names.individual.hidden = Change the names of overseas charities you donated shares, securities, land or property to.
-charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.names.agent.hidden = Change the names of overseas charities your client donated shares, securities, land or property to.
-=======
 charity.common.gift-aid.doNotInclude.individual = Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at eich rhodd.
 charity.common.gift-aid.doNotInclude.agent = Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at rodd eich cleient.
 charity.common.aid-summary.hiddenChange = Newidiwch y manylion rydych wedi’u nodi ar gyfer {0}.
@@ -562,6 +310,8 @@ charity.amount-via-gift-aid.individual.title = Faint wnaethoch ei roi i elusen d
 charity.amount-via-gift-aid.individual.p = Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at eich rhodd.
 charity.amount-via-gift-aid.agent.title = Faint wnaeth eich cleient ei roi i elusen drwy ddefnyddio Rhodd Cymorth?
 charity.amount-via-gift-aid.agent.p = Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at rodd eich cleient.
+charity.amount-via-gift-aid.individual.prior = You told us you used Gift Aid to donate {0} to charity. Tell us if this has changed.
+charity.amount-via-gift-aid.agent.prior = You told us your client used Gift Aid to donate {0} to charity. Tell us if this has changed.
 charity.amount-via-gift-aid.input.label = Cyfanswm ar gyfer y flwyddyn
 charity.amount-via-gift-aid.error.no-input.individual = Nodwch y swm a roesoch i elusen drwy ddefnyddio Rhodd Cymorth
 charity.amount-via-gift-aid.error.incorrect-format.individual = Nodwch y swm a roesoch i elusen yn y fformat cywir
@@ -581,14 +331,16 @@ charity.one-off.errors.noChoice.agent = Dewiswch ‘Iawn’ os gwnaeth eich clei
 
 charity.gift-aid-one-off-amount.title.individual = Faint wnaethoch ei roi i elusen fel taliadau untro?
 charity.gift-aid-one-off-amount.title.agent = Faint wnaeth eich cleient ei roi i elusen fel taliadau untro?
+charity.gift-aid-one-off-amount.individual.prior = You told us you donated {0} to charity as one-off payments. Tell us if this has changed.
+charity.gift-aid-one-off-amount.agent.prior = You told us your client donated {0} to charity as one-off payments. Tell us if this has changed.
 charity.gift-aid-one-off-amount.error.empty.individual = Nodwch y swm a roesoch i elusen fel taliadau untro
 charity.gift-aid-one-off-amount.error.empty.agent = Nodwch y swm a roddodd eich cleient i elusen fel taliadau untro
 charity.gift-aid-one-off-amount.error.incorrect-format.individual = Nodwch y swm a roesoch fel taliadau untro yn y fformat cywir
 charity.gift-aid-one-off-amount.error.incorrect-format.agent = Nodwch y swm a roddodd eich cleient fel taliadau untro yn y fformat cywir
 charity.gift-aid-one-off-amount.error.too-high.individual = Mae’n rhaid i’r swm a roesoch fel taliadau untro fod yn llai na £100,000,000,000
 charity.gift-aid-one-off-amount.error.too-high.agent = Mae’n rhaid i’r swm a roddodd eich cleient fel taliadau untro fod yn llai na £100,000,000,000
-charity.gift-aid-one-off-amount.error.exceeds.individual = The amount you donated as one-off payments must not be more than the amount you donated to charity by using Gift Aid
-charity.gift-aid-one-off-amount.error.exceeds.agent = The amount your client donated as one-off payments must not be more than the amount your client donated to charity by using Gift Aid
+charity.gift-aid-one-off-amount.error.exceeds.individual = Ni chaiff y swm a roesoch fel taliadau untro fod yn fwy na’r swm a roesoch i elusennau drwy ddefnyddio Rhodd Cymorth
+charity.gift-aid-one-off-amount.error.exceeds.agent = Ni chaiff y swm a roddodd eich cleient fel taliadau untro fod yn fwy na’r swm a roddodd eich cleient i elusennau drwy ddefnyddio Rhodd Cymorth
 charity.gift-aid-one-off-amount.input.label = Cyfanswm ar gyfer y flwyddyn, mewn punnoedd
 
 charity.overseas-gift-aid.title.individual = A wnaethoch ddefnyddio Rhodd Cymorth i roi rhodd i elusen o dramor?
@@ -598,6 +350,8 @@ charity.overseas-gift-aid.errors.noChoice.agent = Dewiswch ‘Iawn’ os gwnaeth
 
 charity.amount-overseas-gift-aid.title.individual = Faint wnaethoch ei roi i elusennau tramor drwy ddefnyddio Rhodd Cymorth?
 charity.amount-overseas-gift-aid.title.agent = Faint wnaeth eich cleient ei roi i elusennau tramor drwy ddefnyddio Rhodd Cymorth?
+charity.amount-overseas-gift-aid.individual.prior = You told us you used Gift Aid to donate {0} to overseas charities. Tell us if this has changed.
+charity.amount-overseas-gift-aid.agent.prior = You told us your client used Gift Aid to donate {0} to overseas charities. Tell us if this has changed.
 charity.amount-overseas-gift-aid.error.empty.individual = Nodwch y swm a roesoch i elusennau tramor
 charity.amount-overseas-gift-aid.error.empty.agent = Nodwch y swm a roddodd eich cleient i elusennau tramor
 charity.amount-overseas-gift-aid.error.incorrect-format.individual = Nodwch y swm a roesoch i elusennau tramor yn y fformat cywir
@@ -605,8 +359,8 @@ charity.amount-overseas-gift-aid.error.incorrect-format.agent = Nodwch y swm a r
 charity.amount-overseas-gift-aid.error.too-high.individual = Mae’n rhaid i’r swm a roesoch i elusennau tramor fod yn llai na £100,000,000,000
 charity.amount-overseas-gift-aid.error.too-high.agent = Mae’n rhaid i’r swm a roddodd eich cleient i elusennau tramor fod yn llai na £100,000,000,000
 charity.amount-overseas-gift-aid.input.label = Cyfanswm, mewn punnoedd
-charity.amount-overseas-gift-aid.error.exceed.individual = The amount you donated to overseas charities must not be more than the amount you donated to charity by using Gift Aid
-charity.amount-overseas-gift-aid.error.exceed.agent = The amount your client donated to overseas charities must not be more than the amount your client donated to charity by using Gift Aid
+charity.amount-overseas-gift-aid.error.exceed.individual = Ni chaiff y swm a roesoch i elusennau tramor fod yn fwy na’r swm a roesoch i elusennau drwy ddefnyddio Rhodd Cymorth
+charity.amount-overseas-gift-aid.error.exceed.agent = Ni chaiff y swm a roddodd eich cleient i elusennau tramor fod yn fwy na’r swm a roddodd eich cleient i elusennau drwy ddefnyddio Rhodd Cymorth
 
 charity.gift-aid-overseas-name.title.individual = Enw’r elusen o dramor y gwnaethoch ddefnyddio Rhodd Cymorth i’w rhoi iddo
 charity.gift-aid-overseas-name.title.agent = Enw’r elusen o dramor y gwnaeth eich cleient ddefnyddio Rhodd Cymorth i’w rhoi iddo
@@ -636,13 +390,15 @@ charity.last-tax-year.errors.noChoice.agent = Dewiswch ‘Iawn’ i ychwanegu un
 
 charity.last-tax-year-donation-amount.title.individual = Faint o’ch rhodd ydych am ei hychwanegu at y flwyddyn dreth ddiwethaf?
 charity.last-tax-year-donation-amount.title.agent = Faint o rodd eich cleient ydych am ei hychwanegu at y flwyddyn dreth ddiwethaf?
+charity.last-tax-year-donation-amount.individual.prior = You told us you want to add {0} of your donations to charity to the 6 April {1} to 5 April {2} tax year. Tell us if this has changed.
+charity.last-tax-year-donation-amount.agent.prior = You told us you want to add {0} of your client’s donations to charity to the 6 April {1} to 5 April {2} tax year. Tell us if this has changed.
 charity.last-tax-year-donation-amount.error.no-entry.individual = Nodwch faint o’ch rhodd rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf
 charity.last-tax-year-donation-amount.error.no-entry.agent = Nodwch faint o rodd eich cleient rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf
 charity.last-tax-year-donation-amount.error.invalid = Nodwch y maint rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf yn y fformat cywir
 charity.last-tax-year-donation-amount.error.maximum.individual = Mae’n rhaid i swm eich rhodd yr ydych yn ychwanegu at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000
 charity.last-tax-year-donation-amount.error.maximum.agent = Mae’n rhaid i swm rhodd eich cleient yr ydych yn ychwanegu at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000
-charity.last-tax-year-donation-amount.error.exceeds.individual = The amount of your donation you want to add to the last tax year must not be more than the amount you donated to charity by using Gift Aid
-charity.last-tax-year-donation-amount.error.exceeds.agent = The amount of your client’s donation you want to add to the last tax year must not be more than the amount your client donated to charity by using Gift Aid
+charity.last-tax-year-donation-amount.error.exceeds.individual = Ni chaiff swm eich rhodd, yr hoffech ei hychwanegu at y flwyddyn dreth ddiwethaf, fod yn fwy na’r swm a roesoch i elusennau drwy ddefnyddio Rhodd Cymorth
+charity.last-tax-year-donation-amount.error.exceeds.agent = Ni chaiff swm rhodd eich cleient, yr hoffech ei hychwanegu at y flwyddyn dreth ddiwethaf, fod yn fwy na’r swm a roddodd eich cleient i elusennau drwy ddefnyddio Rhodd Cymorth
 
 charity.donations-to-previous-tax-year.title = A ydych am ychwanegu unrhyw roddion a wnaed ar ôl 5 Ebrill {0} i’r flwyddyn dreth hon?
 charity.donations-to-previous-tax-year.paragraph.1.individual = Os gwnaethoch roddion ar ôl 5 Ebrill {1}, gallwch eu hychwanegu at flwyddyn dreth 6 Ebrill {0} i 5 Ebrill {1}.
@@ -654,6 +410,8 @@ charity.donations-to-previous-tax-year.errors.noChoice.agent = Dewiswch ‘Iawn�
 
 charity.amount-from-next-tax-year.title.individual = Faint o’r rhoddion a wnaethoch ar ôl 5 Ebrill {0} ydych am eu hychwanegu at y flwyddyn dreth hon?
 charity.amount-from-next-tax-year.title.agent = Faint o’r rhoddion a wnaeth eich cleient ar ôl 5 Ebrill {0} ydych am eu hychwanegu at y flwyddyn dreth hon?
+charity.amount-from-next-tax-year.individual.prior = You told us you want to add {0} of the donations you made after 5 April {1} to this tax year. Tell us if this has changed.
+charity.amount-from-next-tax-year.agent.prior = You told us you want to add {0} of the donations your client made after 5 April {1} to this tax year. Tell us if this has changed.
 charity.amount-from-next-tax-year.errors.no-entry.individual = Nodwch swm eich rhodd a wnaed ar ôl 5 Ebrill {0} rydych am ei ychwanegu at y flwyddyn dreth hon
 charity.amount-from-next-tax-year.errors.no-entry.agent = Nodwch swm rhodd eich cleient a wnaed ar ôl 5 Ebrill {0} rydych am ei ychwanegu at y flwyddyn dreth hon
 charity.amount-from-next-tax-year.errors.wrong-format = Nodwch y swm rydych am ei ychwanegu at y flwyddyn dreth hon yn y fformat cywir
@@ -671,6 +429,8 @@ charity.qualifying-shares-or-securities.errors.noChoice.individual = Dewiswch �
 charity.qualifying-shares-or-securities.errors.noChoice.agent = Dewiswch ‘Iawn’ os wnaeth eich cleient rhoi cyfranddaliadau neu warantau cymwys i elusen
 
 charity.shares-or-securities.heading = Beth yw cyfanswm gwerth cyfranddaliadau neu warantau cymwys a roddir i elusen?
+charity.shares-or-securities.individual.prior = You told us you donated {0} in shares and securities to charity this year. Tell us if this has changed.
+charity.shares-or-securities.agent.prior = You told us your client donated {0} in shares and securities to charity this year. Tell us if this has changed.
 charity.shares-or-securities.error.empty-field.individual = Nodwch werth cyfranddaliadau neu warantau a roddwyd gennych i elusen
 charity.shares-or-securities.error.empty-field.agent = Nodwch werth cyfranddaliadau neu warantau a roddwyd gan eich cleient i elusen
 charity.shares-or-securities.error.max-amount.individual = Mae’n rhaid i werth eich cyfranddaliadau neu warantau fod yn llai na £100,000,000,000
@@ -684,6 +444,8 @@ charity.donated-land-or-property.errors.noChoice.individual = Dewiswch ‘Iawn�
 charity.donated-land-or-property.errors.noChoice.agent = Dewiswch ‘Iawn’ os wnaeth eich cleient rhoi tir neu eiddo i elusen
 
 charity.land-or-property.title = Beth yw gwerth tir neu eiddo a roddwyd i elusen?
+charity.land-or-property.individual.prior = You told us you donated {0} in land or property to charity this year. Tell us if this has changed.
+charity.land-or-property.agent.prior = You told us your client donated {0} in land or property to charity this year. Tell us if this has changed.
 charity.land-or-property.errors.no-entry.individual = Nodwch werth y tir neu eiddo a roddwyd gennych i elusen
 charity.land-or-property.errors.no-entry.agent = Nodwch werth y tir neu eiddo a roddwyd gan eich cleient i elusen
 charity.land-or-property.errors.wrong-format.individual = Nodwch werth y tir neu eiddo a roddwyd gennych i elusen yn y fformat cywir
@@ -697,13 +459,15 @@ charity.shares-securities-land-property-overseas.errors.noChoice.individual = De
 charity.shares-securities-land-property-overseas.errors.noChoice.agent = Dewiswch ‘Iawn’ os wnaeth eich cleient rhoi cyfranddaliadau, gwarantau, tir neu eiddo cymwys i elusennau tramor
 
 charity.overseas-shares-securities-land-property-amount.heading = Beth yw gwerth cyfranddaliadau cymwys, gwarantau, tir neu eiddo a roddwyd i elusennau tramor?
+charity.overseas-shares-securities-land-property-amount.individual.prior = You told us you donated {0} in shares, securities, land or property to overseas charities this year. Tell us if this has changed.
+charity.overseas-shares-securities-land-property-amount.agent.prior = You told us your client donated {0} in shares, securities, land or property to overseas charities this year. Tell us if this has changed.
 charity.overseas-shares-securities-land-property-amount.error.empty-field.individual = Nodwch werth cyfranddaliadau cymwys, gwarantau, tir neu eiddo a roesoch i elusennau tramor
 charity.overseas-shares-securities-land-property-amount.error.empty-field.agent = Nodwch werth cyfranddaliadau, gwarantau, tir neu eiddo a roddwyd gan eich cleient i elusennau tramor
 charity.overseas-shares-securities-land-property-amount.error.max-amount.individual = Mae’n rhaid i werth eich cyfranddaliadau, gwarantau, tir neu eiddo fod yn llai na £100,000,000,000
 charity.overseas-shares-securities-land-property-amount.error.max-amount.agent = Mae’n rhaid i werth cyfranddaliadau, gwarantau, tir neu eiddo eich cleient fod yn llai na £100,000,000,000
 charity.overseas-shares-securities-land-property-amount.error.wrong-format.individual = Nodwch werth cyfranddaliadau, gwarantau, tir neu eiddo a roddwyd gennych i elusennau tramor yn y fformat cywir
 charity.overseas-shares-securities-land-property-amount.error.wrong-format.agent = Nodwch werth cyfranddaliadau, gwarantau, tir neu eiddo a roddwyd gan eich cleient i elusennau tramor yn y fformat cywir
-charity.overseas-shares-securities-land-property-amount.error.exceed = The value of shares, securities, land or property donated to overseas charities cannot be more than the ‘value of shares and securities donated to charity’ plus the ‘value of land or property donated to charity’
+charity.overseas-shares-securities-land-property-amount.error.exceed = Ni all gwerth cyfranddaliadau, gwarantau, tir neu eiddo a roddir i elusennau fod yn fwy na ‘gwerth cyfranddaliadau a gwarantau a roddir i elusennau’ plws ‘gwerth tir neu eiddo a roddir i elusennau’
 
 charity.overseas-shares-donated-name.title.individual = Enw’r elusen o dramor a roddoch gyfranddaliadau, gwarantau, tir neu eiddo iddo
 charity.overseas-shares-donated-name.title.agent = Enw’r elusen o dramor a roddodd eich cleient gyfranddaliadau, gwarantau, tir neu eiddo iddo
@@ -770,4 +534,3 @@ charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.agent.hidde
 charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.amount.hidden = Newidiwch werth cyfranddaliadau, gwarantau, tir neu eiddo a roddir i elusennau tramor
 charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.names.individual.hidden = Newidiwch enwau elusennau tramor y gwnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo iddynt.
 charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.names.agent.hidden = Newidiwch enwau elusennau tramor y rhoddodd eich cleient gyfranddaliadau, gwarantau, tir neu eiddo iddynt.
->>>>>>> a08d7fb... Sass 1129 (#222)

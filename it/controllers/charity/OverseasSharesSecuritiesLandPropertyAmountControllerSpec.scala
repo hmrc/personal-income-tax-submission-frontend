@@ -72,8 +72,8 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
     val button = "Yn eich blaen"
     val inputName = "amount"
     val inputLabel = "Cyfanswm y gwerth, mewn punnoedd"
-    val expectedErrorExceeds: String = "The value of shares, securities, land or property donated to overseas charities cannot be more than the " +
-      "‘value of shares and securities donated to charity’ plus the ‘value of land or property donated to charity’"
+    val expectedErrorExceeds: String = "Ni all gwerth cyfranddaliadau, gwarantau, tir neu eiddo a roddir i elusennau fod yn fwy na" +
+      " ‘gwerth cyfranddaliadau a gwarantau a roddir i elusennau’ plws ‘gwerth tir neu eiddo a roddir i elusennau’"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
