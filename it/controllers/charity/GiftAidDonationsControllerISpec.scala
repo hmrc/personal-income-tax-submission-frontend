@@ -23,7 +23,6 @@ import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
-import play.api.libs.ws.WSResponse
 import utils.CharityITHelper
 
 class GiftAidDonationsControllerISpec extends CharityITHelper {
@@ -98,7 +97,7 @@ class GiftAidDonationsControllerISpec extends CharityITHelper {
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
     Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
-      UserScenario(isWelsh = false, isAgent = true,  CommonExpectedEN, Some(ExpectedAgentEN)),
+      UserScenario(isWelsh = false, isAgent = true, CommonExpectedEN, Some(ExpectedAgentEN)),
       UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, Some(ExpectedIndividualCY)),
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
@@ -225,12 +224,12 @@ class GiftAidDonationsControllerISpec extends CharityITHelper {
             Some(completeGiftAidCYAModel.copy(
               donationsViaGiftAid = Some(false),
               donationsViaGiftAidAmount = None,
-              oneOffDonationsViaGiftAid = Some(false),
+              oneOffDonationsViaGiftAid = None,
               oneOffDonationsViaGiftAidAmount = None,
-              overseasDonationsViaGiftAid = Some(false),
+              overseasDonationsViaGiftAid = None,
               overseasDonationsViaGiftAidAmount = None,
               overseasCharityNames = Some(List()),
-              addDonationToLastYear = Some(false),
+              addDonationToLastYear = None,
               addDonationToLastYearAmount = None
             ))
         }
@@ -248,9 +247,9 @@ class GiftAidDonationsControllerISpec extends CharityITHelper {
           findGiftAidDb shouldBe
             Some(GiftAidCYAModel(
               donationsViaGiftAid = Some(false),
-              oneOffDonationsViaGiftAid = Some(false),
-              overseasDonationsViaGiftAid = Some(false),
-              addDonationToLastYear = Some(false)
+              oneOffDonationsViaGiftAid = None,
+              overseasDonationsViaGiftAid = None,
+              addDonationToLastYear = None
             ))
         }
       }

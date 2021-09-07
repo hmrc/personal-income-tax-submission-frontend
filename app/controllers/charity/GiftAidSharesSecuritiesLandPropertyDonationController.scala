@@ -21,8 +21,6 @@ import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.YesNoForm
-
-import javax.inject.Inject
 import models.User
 import models.charity.GiftAidCYAModel
 import models.charity.prior.GiftAidSubmissionModel
@@ -34,6 +32,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.charity.GiftAidSharesSecuritiesLandPropertyDonationView
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -99,7 +98,6 @@ class GiftAidSharesSecuritiesLandPropertyDonationController @Inject()(
     }
   }
 
-
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
     yesNoForm(user).bindFromRequest().fold(
       {
@@ -117,11 +115,11 @@ class GiftAidSharesSecuritiesLandPropertyDonationController @Inject()(
               } else {
                 cyaData.copy(
                   donatedSharesSecuritiesLandOrProperty = Some(false),
-                  donatedSharesOrSecurities = Some(false),
+                  donatedSharesOrSecurities = None,
                   donatedSharesOrSecuritiesAmount = None,
-                  donatedLandOrProperty = Some(false),
+                  donatedLandOrProperty = None,
                   donatedLandOrPropertyAmount = None,
-                  overseasDonatedSharesSecuritiesLandOrProperty = Some(false),
+                  overseasDonatedSharesSecuritiesLandOrProperty = None,
                   overseasDonatedSharesSecuritiesLandOrPropertyAmount = None,
                   overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq.empty[String])
                 )

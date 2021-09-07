@@ -23,7 +23,6 @@ import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
-import play.api.libs.ws.WSResponse
 import utils.CharityITHelper
 
 class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
@@ -95,7 +94,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
     Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
-      UserScenario(isWelsh = false, isAgent = true,  CommonExpectedEN, Some(ExpectedAgentEN)),
+      UserScenario(isWelsh = false, isAgent = true, CommonExpectedEN, Some(ExpectedAgentEN)),
       UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, Some(ExpectedIndividualCY)),
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
@@ -255,7 +254,6 @@ class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
     }
 
     "the user has selected 'no'" when {
-
       "this completes the cya model" should {
         lazy val result = postResult(url, Some(completeGiftAidCYAModel), None, Map(YesNoForm.yesNo -> YesNoForm.no))
 
@@ -281,12 +279,28 @@ class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
           result.headers("Location").head shouldBe
             s"${controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(year).url}"
         }
+      }
+
+      "removes all donated shares security and land or property" should {
+        val model = completeGiftAidCYAModel.copy(donatedSharesOrSecurities = Some(false), donatedSharesOrSecuritiesAmount = None)
+        lazy val result = postResult(url, Some(model), None, Map(YesNoForm.yesNo -> YesNoForm.no))
+
+        "redirect to the cya page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe cyaUrl(year)
+        }
 
         "update the cya data" in {
           findGiftAidDb shouldBe
-            Some(requiredSessionModel.copy(
-              donatedLandOrProperty = Some(false),
-              overseasDonatedSharesSecuritiesLandOrProperty = Some(false)
+            Some(completeGiftAidCYAModel.copy(
+              donatedSharesSecuritiesLandOrProperty = Some(false),
+              donatedSharesOrSecurities = None,
+              donatedSharesOrSecuritiesAmount = None,
+              donatedLandOrProperty = None,
+              donatedLandOrPropertyAmount = None,
+              overseasDonatedSharesSecuritiesLandOrProperty = None,
+              overseasDonatedSharesSecuritiesLandOrPropertyAmount = None,
+              overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq.empty[String])
             ))
         }
       }

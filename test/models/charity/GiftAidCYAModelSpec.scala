@@ -16,6 +16,7 @@
 
 package models.charity
 
+import models.charity.GiftAidCYAModel.resetDonatedSharesSecuritiesLandOrProperty
 import play.api.libs.json.{JsObject, Json}
 import utils.UnitTest
 
@@ -59,11 +60,10 @@ class GiftAidCYAModelSpec extends UnitTest {
     "overseasCharityNames" -> Json.arr(),
     "overseasDonatedSharesSecuritiesLandOrPropertyCharityNames" -> Json.arr(),
   )
+  val anyBoolean: Boolean = false
 
   "GiftAidCYAModel" should {
-
     "correctly parse to Json" when {
-
       "the model is fully filled out" in {
         Json.toJson(modelMax) shouldBe jsonMax
       }
@@ -71,11 +71,9 @@ class GiftAidCYAModelSpec extends UnitTest {
       "the model is empty" in {
         Json.toJson(modelMin) shouldBe jsonMin
       }
-
     }
 
     "correctly parse to a model" when {
-
       "the json contains all the data for the model" in {
         jsonMax.as[GiftAidCYAModel] shouldBe modelMax
       }
@@ -83,15 +81,11 @@ class GiftAidCYAModelSpec extends UnitTest {
       "the json contains no data" in {
         jsonMin.as[GiftAidCYAModel] shouldBe modelMin
       }
-
     }
-
   }
 
   "isFinished" should {
-
     "return true" when {
-
       "the model is full filled in" in {
         modelMax.isFinished shouldBe true
       }
@@ -99,12 +93,8 @@ class GiftAidCYAModelSpec extends UnitTest {
       "all required values in the model are false" in {
         GiftAidCYAModel(
           donationsViaGiftAid = Some(false),
-          oneOffDonationsViaGiftAid = Some(false),
-          overseasDonationsViaGiftAid = Some(false),
-          addDonationToLastYear = Some(false),
           addDonationToThisYear = Some(false),
           donatedSharesSecuritiesLandOrProperty = Some(false),
-          overseasDonatedSharesSecuritiesLandOrProperty = Some(false)
         ).isFinished shouldBe true
       }
 
@@ -115,70 +105,28 @@ class GiftAidCYAModelSpec extends UnitTest {
           overseasDonationsViaGiftAid = Some(false),
           addDonationToLastYear = Some(false),
           addDonationToThisYear = Some(false),
-          donatedSharesSecuritiesLandOrProperty = Some(false),
-          overseasDonatedSharesSecuritiesLandOrProperty = Some(false)
-        ).isFinished shouldBe true
-      }
-
-      "only one off donations via gift aid is true" in {
-        GiftAidCYAModel(
-          donationsViaGiftAid = Some(false),
-          oneOffDonationsViaGiftAid = Some(true), oneOffDonationsViaGiftAidAmount = Some(100.00),
-          overseasDonationsViaGiftAid = Some(false),
-          addDonationToLastYear = Some(false),
-          addDonationToThisYear = Some(false),
-          donatedSharesSecuritiesLandOrProperty = Some(false),
-          overseasDonatedSharesSecuritiesLandOrProperty = Some(false)
-        ).isFinished shouldBe true
-      }
-
-      "only overseas donations via gift aid is true" in {
-        GiftAidCYAModel(
-          donationsViaGiftAid = Some(false),
-          oneOffDonationsViaGiftAid = Some(false),
-          overseasDonationsViaGiftAid = Some(true),
-          overseasDonationsViaGiftAidAmount = Some(100.00), overseasCharityNames = Some(Seq("Cyberpunk Performance Help Fund")),
-          addDonationToLastYear = Some(false),
-          addDonationToThisYear = Some(false),
-          donatedSharesSecuritiesLandOrProperty = Some(false),
-          overseasDonatedSharesSecuritiesLandOrProperty = Some(false)
-        ).isFinished shouldBe true
-      }
-
-      "only add donations to last year is true" in {
-        GiftAidCYAModel(
-          donationsViaGiftAid = Some(false),
-          oneOffDonationsViaGiftAid = Some(false),
-          overseasDonationsViaGiftAid = Some(false),
-          addDonationToLastYear = Some(true), addDonationToLastYearAmount = Some(100.00),
-          addDonationToThisYear = Some(false),
-          donatedSharesSecuritiesLandOrProperty = Some(false),
-          overseasDonatedSharesSecuritiesLandOrProperty = Some(false)
+          donatedSharesSecuritiesLandOrProperty = Some(false)
         ).isFinished shouldBe true
       }
 
       "only add donations to this year is true" in {
         GiftAidCYAModel(
           donationsViaGiftAid = Some(false),
-          oneOffDonationsViaGiftAid = Some(false),
-          overseasDonationsViaGiftAid = Some(false),
-          addDonationToLastYear = Some(false),
-          addDonationToThisYear = Some(true), addDonationToThisYearAmount = Some(100.00),
-          donatedSharesSecuritiesLandOrProperty = Some(false),
-          overseasDonatedSharesSecuritiesLandOrProperty = Some(false)
+          addDonationToThisYear = Some(true),
+          addDonationToThisYearAmount = Some(100.00),
+          donatedSharesSecuritiesLandOrProperty = Some(false)
         ).isFinished shouldBe true
       }
 
       "only donated shares securities land or properties is true" when {
-
         "only donated shares or securities is true" in {
           GiftAidCYAModel(
             donationsViaGiftAid = Some(false),
-            oneOffDonationsViaGiftAid = Some(false),
-            overseasDonationsViaGiftAid = Some(false),
-            addDonationToLastYear = Some(false),
             addDonationToThisYear = Some(false),
-            donatedSharesSecuritiesLandOrProperty = Some(true), donatedSharesOrSecurities = Some(true), donatedSharesOrSecuritiesAmount = Some(100.00),
+            donatedSharesSecuritiesLandOrProperty = Some(true),
+            donatedSharesOrSecurities = Some(true),
+            donatedSharesOrSecuritiesAmount = Some(100.00),
+            donatedLandOrProperty = Some(false),
             overseasDonatedSharesSecuritiesLandOrProperty = Some(false)
           ).isFinished shouldBe true
         }
@@ -186,35 +134,18 @@ class GiftAidCYAModelSpec extends UnitTest {
         "only donated land or properties is true" in {
           GiftAidCYAModel(
             donationsViaGiftAid = Some(false),
-            oneOffDonationsViaGiftAid = Some(false),
-            overseasDonationsViaGiftAid = Some(false),
-            addDonationToLastYear = Some(false),
             addDonationToThisYear = Some(false),
-            donatedSharesSecuritiesLandOrProperty = Some(true), donatedLandOrProperty = Some(true), donatedLandOrPropertyAmount = Some(100.00),
+            donatedSharesSecuritiesLandOrProperty = Some(true),
+            donatedSharesOrSecurities = Some(false),
+            donatedLandOrProperty = Some(true),
+            donatedLandOrPropertyAmount = Some(100.00),
             overseasDonatedSharesSecuritiesLandOrProperty = Some(false)
           ).isFinished shouldBe true
         }
-
       }
-
-      "only overseas donated shares securities land or property is true" in {
-        GiftAidCYAModel(
-          donationsViaGiftAid = Some(false),
-          oneOffDonationsViaGiftAid = Some(false),
-          overseasDonationsViaGiftAid = Some(false),
-          addDonationToLastYear = Some(false),
-          addDonationToThisYear = Some(false),
-          donatedSharesSecuritiesLandOrProperty = Some(false),
-          overseasDonatedSharesSecuritiesLandOrProperty = Some(true),
-          overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(100.00),
-          overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq("Whiterun Nezrim Removal Fund"))
-        ).isFinished shouldBe true
-      }
-
     }
 
     "return false" when {
-
       "only donations via gift aid is true, but there is no amount value" in {
         GiftAidCYAModel(
           donationsViaGiftAid = Some(true),
@@ -240,7 +171,6 @@ class GiftAidCYAModelSpec extends UnitTest {
       }
 
       "only overseas donations via gift aid is true" when {
-
         "there is no amount of name values" in {
           GiftAidCYAModel(
             donationsViaGiftAid = Some(false),
@@ -303,7 +233,6 @@ class GiftAidCYAModelSpec extends UnitTest {
       }
 
       "only donated shares securities land or properties is true" when {
-
         "only donated shares or securities is true, but there is no amount value" in {
           GiftAidCYAModel(
             donationsViaGiftAid = Some(false),
@@ -327,11 +256,9 @@ class GiftAidCYAModelSpec extends UnitTest {
             overseasDonatedSharesSecuritiesLandOrProperty = Some(false)
           ).isFinished shouldBe false
         }
-
       }
 
       "only overseas donated shares securities land or property is true" when {
-
         "there is no amount of charity name values" in {
           GiftAidCYAModel(
             donationsViaGiftAid = Some(false),
@@ -370,9 +297,286 @@ class GiftAidCYAModelSpec extends UnitTest {
           ).isFinished shouldBe false
         }
       }
-
     }
-
   }
 
+  "hasAllRequiredAnswers" should {
+    "return true" when {
+      "maximal data is passed" in {
+        GiftAidCYAModel(
+          donationsViaGiftAid = Some(true),
+          oneOffDonationsViaGiftAid = Some(true),
+          overseasDonationsViaGiftAid = Some(true),
+          addDonationToLastYear = Some(true),
+          addDonationToThisYear = Some(true),
+          donatedSharesSecuritiesLandOrProperty = Some(true),
+          donatedSharesOrSecurities = Some(true),
+          donatedLandOrProperty = Some(true),
+          overseasDonatedSharesSecuritiesLandOrProperty = Some(true)
+        ).hasAllRequiredAnswers shouldBe true
+      }
+
+      "minimal data is passed" in {
+        GiftAidCYAModel(
+          donationsViaGiftAid = Some(false),
+          addDonationToThisYear = Some(false),
+          donatedSharesSecuritiesLandOrProperty = Some(false)
+        ).hasAllRequiredAnswers shouldBe true
+      }
+    }
+
+    "return false" when {
+      "addDonationToThisYear isEmpty" in {
+        GiftAidCYAModel(
+          donationsViaGiftAid = Some(true),
+          oneOffDonationsViaGiftAid = Some(true),
+          overseasDonationsViaGiftAid = Some(true),
+          addDonationToLastYear = Some(true),
+          addDonationToThisYear = None,
+          donatedSharesSecuritiesLandOrProperty = Some(true),
+          donatedSharesOrSecurities = Some(true),
+          donatedLandOrProperty = Some(true),
+          overseasDonatedSharesSecuritiesLandOrProperty = Some(true)
+        ).hasAllRequiredAnswers shouldBe false
+      }
+
+      "donationsViaGiftAidCompleted is false" in {
+        GiftAidCYAModel(
+          donationsViaGiftAid = Some(true),
+          overseasDonationsViaGiftAid = Some(true),
+          addDonationToLastYear = Some(true),
+          addDonationToThisYear = Some(true),
+          donatedSharesSecuritiesLandOrProperty = Some(true),
+          donatedSharesOrSecurities = Some(true),
+          donatedLandOrProperty = Some(true),
+          overseasDonatedSharesSecuritiesLandOrProperty = Some(true)
+        ).hasAllRequiredAnswers shouldBe false
+      }
+
+      "donatedSharesSecuritiesLandOrPropertyCompleted is false" in {
+        GiftAidCYAModel(
+          donationsViaGiftAid = Some(true),
+          oneOffDonationsViaGiftAid = Some(true),
+          overseasDonationsViaGiftAid = Some(true),
+          addDonationToLastYear = Some(true),
+          addDonationToThisYear = Some(anyBoolean),
+          donatedSharesSecuritiesLandOrProperty = Some(true),
+          donatedSharesOrSecurities = None,
+          donatedLandOrProperty = Some(true),
+          overseasDonatedSharesSecuritiesLandOrProperty = Some(true)
+        ).hasAllRequiredAnswers shouldBe false
+      }
+
+      "donatedSharesOrSecuritiesCompleted is false" in {
+        GiftAidCYAModel(
+          donationsViaGiftAid = Some(true),
+          oneOffDonationsViaGiftAid = Some(true),
+          overseasDonationsViaGiftAid = Some(true),
+          addDonationToLastYear = Some(true),
+          addDonationToThisYear = Some(anyBoolean),
+          donatedSharesSecuritiesLandOrProperty = Some(true),
+          donatedSharesOrSecurities = Some(true),
+          donatedLandOrProperty = Some(true),
+          overseasDonatedSharesSecuritiesLandOrProperty = None
+        ).hasAllRequiredAnswers shouldBe false
+      }
+    }
+  }
+
+  "donatedSharesOrSecuritiesCompleted" should {
+    "return true" when {
+      "donatedSharesSecuritiesLandOrProperty is None" in {
+        GiftAidCYAModel(
+          donatedSharesSecuritiesLandOrProperty = None
+        ).donatedSharesOrSecuritiesCompleted shouldBe true
+      }
+
+      "donatedSharesSecuritiesLandOrProperty is false" in {
+        GiftAidCYAModel(
+          donatedSharesSecuritiesLandOrProperty = Some(false)
+        ).donatedSharesOrSecuritiesCompleted shouldBe true
+      }
+
+      "donatedSharesOrSecurities is true and overseasDonatedSharesSecuritiesLandOrProperty is nonEmpty" in {
+        GiftAidCYAModel(
+          donatedSharesSecuritiesLandOrProperty = Some(true),
+          donatedSharesOrSecurities = Some(true),
+          overseasDonatedSharesSecuritiesLandOrProperty = Some(anyBoolean)
+        ).donatedSharesOrSecuritiesCompleted shouldBe true
+      }
+
+      "donatedLandOrProperty is true and overseasDonatedSharesSecuritiesLandOrProperty is nonEmpty" in {
+        GiftAidCYAModel(
+          donatedSharesSecuritiesLandOrProperty = Some(true),
+          donatedLandOrProperty = Some(true),
+          overseasDonatedSharesSecuritiesLandOrProperty = Some(anyBoolean)
+        ).donatedSharesOrSecuritiesCompleted shouldBe true
+      }
+
+      "donatedSharesOrSecurities and donatedLandOrProperty are true and overseasDonatedSharesSecuritiesLandOrProperty is nonEmpty" in {
+        GiftAidCYAModel(
+          donatedSharesSecuritiesLandOrProperty = Some(true),
+          donatedSharesOrSecurities = Some(true),
+          donatedLandOrProperty = Some(true),
+          overseasDonatedSharesSecuritiesLandOrProperty = Some(anyBoolean)
+        ).donatedSharesOrSecuritiesCompleted shouldBe true
+      }
+
+      "donatedSharesOrSecurities and donatedLandOrProperty are false and overseasDonatedSharesSecuritiesLandOrProperty is empty" in {
+        GiftAidCYAModel(
+          donatedSharesSecuritiesLandOrProperty = Some(true),
+          donatedSharesOrSecurities = Some(false),
+          donatedLandOrProperty = Some(false),
+          overseasDonatedSharesSecuritiesLandOrProperty = None
+        ).donatedSharesOrSecuritiesCompleted shouldBe true
+      }
+    }
+
+    "return false" when {
+      "donatedSharesSecuritiesLandOrProperty is true and " should {
+        "donatedSharesOrSecurities is true and overseasDonatedSharesSecuritiesLandOrProperty is empty" in {
+          GiftAidCYAModel(
+            donatedSharesSecuritiesLandOrProperty = Some(true),
+            donatedSharesOrSecurities = Some(true),
+            overseasDonatedSharesSecuritiesLandOrProperty = None
+          ).donatedSharesOrSecuritiesCompleted shouldBe false
+        }
+
+        "donatedLandOrProperty is true and overseasDonatedSharesSecuritiesLandOrProperty is empty" in {
+          GiftAidCYAModel(
+            donatedSharesSecuritiesLandOrProperty = Some(true),
+            donatedLandOrProperty = Some(true),
+            overseasDonatedSharesSecuritiesLandOrProperty = None
+          ).donatedSharesOrSecuritiesCompleted shouldBe false
+        }
+
+        "donatedSharesOrSecurities and donatedLandOrProperty are true and overseasDonatedSharesSecuritiesLandOrProperty is empty" in {
+          GiftAidCYAModel(
+            donatedSharesSecuritiesLandOrProperty = Some(true),
+            donatedSharesOrSecurities = Some(true),
+            donatedLandOrProperty = Some(true),
+            overseasDonatedSharesSecuritiesLandOrProperty = None
+          ).donatedSharesOrSecuritiesCompleted shouldBe false
+        }
+
+        "donatedSharesOrSecurities and donatedLandOrProperty are false and overseasDonatedSharesSecuritiesLandOrProperty is nonEmpty" in {
+          GiftAidCYAModel(
+            donatedSharesSecuritiesLandOrProperty = Some(true),
+            donatedSharesOrSecurities = Some(false),
+            donatedLandOrProperty = Some(false),
+            overseasDonatedSharesSecuritiesLandOrProperty = Some(anyBoolean)
+          ).donatedSharesOrSecuritiesCompleted shouldBe false
+        }
+      }
+    }
+  }
+
+  "donatedSharesSecuritiesLandOrPropertyCompleted" should {
+    "return true" when {
+      "donatedSharesSecuritiesLandOrProperty is true && donatedSharesOrSecurities.nonEmpty && donatedLandOrProperty.nonEmpty" in {
+        GiftAidCYAModel(
+          donatedSharesSecuritiesLandOrProperty = Some(true),
+          donatedSharesOrSecurities = Some(anyBoolean),
+          donatedLandOrProperty = Some(anyBoolean)
+        ).donatedSharesSecuritiesLandOrPropertyCompleted shouldBe true
+      }
+
+      "donatedSharesSecuritiesLandOrProperty is false and " +
+        "(donatedSharesOrSecurities, donatedLandOrProperty, overseasDonatedSharesSecuritiesLandOrProperty are empty)" in {
+        GiftAidCYAModel(
+          donatedSharesSecuritiesLandOrProperty = Some(false),
+          donatedSharesOrSecurities = None,
+          donatedLandOrProperty = None,
+          overseasDonatedSharesSecuritiesLandOrProperty = None
+        ).donatedSharesSecuritiesLandOrPropertyCompleted shouldBe true
+      }
+    }
+
+    "return false" when {
+      "donatedSharesSecuritiesLandOrProperty is true && (donatedSharesOrSecurities.isEmpty or donatedLandOrProperty.isEmpty" in {
+        GiftAidCYAModel(
+          donatedSharesSecuritiesLandOrProperty = Some(true),
+          donatedSharesOrSecurities = None,
+          donatedLandOrProperty = Some(anyBoolean)
+        ).donatedSharesSecuritiesLandOrPropertyCompleted shouldBe false
+      }
+
+      "donatedSharesSecuritiesLandOrProperty is false and " +
+        "(donatedSharesOrSecurities or donatedLandOrProperty or overseasDonatedSharesSecuritiesLandOrProperty is nonEmpty)" in {
+        GiftAidCYAModel(
+          donatedSharesSecuritiesLandOrProperty = Some(false),
+          donatedSharesOrSecurities = Some(anyBoolean),
+          donatedLandOrProperty = None,
+          overseasDonatedSharesSecuritiesLandOrProperty = None
+        ).donatedSharesSecuritiesLandOrPropertyCompleted shouldBe false
+      }
+    }
+  }
+
+  "donationsViaGiftAidCompleted" should {
+    "return true" when {
+      "donationsViaGiftAid is true and oneOffDonationsViaGiftAid.nonEmpty and overseasDonationsViaGiftAid.nonEmpty and addDonationToLastYear.nonEmpty" in {
+        GiftAidCYAModel(
+          donationsViaGiftAid = Some(true),
+          oneOffDonationsViaGiftAid = Some(anyBoolean),
+          overseasDonationsViaGiftAid = Some(anyBoolean),
+          addDonationToLastYear = Some(anyBoolean)
+        ).donationsViaGiftAidCompleted shouldBe true
+      }
+
+      "donationsViaGiftAid is false and oneOffDonationsViaGiftAid.isEmpty and overseasDonationsViaGiftAid.isEmpty and addDonationToLastYear.isEmpty" in {
+        GiftAidCYAModel(
+          donationsViaGiftAid = Some(false),
+          oneOffDonationsViaGiftAid = None,
+          overseasDonationsViaGiftAid = None,
+          addDonationToLastYear = None
+        ).donationsViaGiftAidCompleted shouldBe true
+      }
+    }
+
+    "return false" when {
+      "donationsViaGiftAid is true and (oneOffDonationsViaGiftAid.isEmpty or overseasDonationsViaGiftAid.isEmpty or addDonationToLastYear.isEmpty)" in {
+        GiftAidCYAModel(
+          donationsViaGiftAid = Some(true),
+          oneOffDonationsViaGiftAid = None,
+          overseasDonationsViaGiftAid = Some(anyBoolean),
+          addDonationToLastYear = Some(anyBoolean)
+        ).donationsViaGiftAidCompleted shouldBe false
+      }
+
+      "donationsViaGiftAid is false and (oneOffDonationsViaGiftAid.nonEmpty or overseasDonationsViaGiftAid.nonEmpty or addDonationToLastYear.nonEmpty)" in {
+        GiftAidCYAModel(
+          donationsViaGiftAid = Some(false),
+          oneOffDonationsViaGiftAid = Some(anyBoolean),
+        ).donationsViaGiftAidCompleted shouldBe false
+      }
+    }
+  }
+
+  "resetDonatedSharesSecuritiesLandOrProperty" should {
+    "reset model to correct state" in {
+      val model = GiftAidCYAModel(
+        donationsViaGiftAid = Some(true),
+        oneOffDonationsViaGiftAid = Some(true),
+        overseasDonationsViaGiftAid = Some(true),
+        addDonationToLastYear = Some(true),
+        addDonationToThisYear = Some(true),
+        donatedSharesSecuritiesLandOrProperty = Some(true),
+        donatedSharesOrSecurities = Some(true),
+        donatedLandOrProperty = Some(true),
+        overseasDonatedSharesSecuritiesLandOrProperty = Some(true)
+      )
+
+      resetDonatedSharesSecuritiesLandOrProperty(model) shouldBe model.copy(
+        donatedSharesSecuritiesLandOrProperty = Some(false),
+        donatedSharesOrSecurities = None,
+        donatedSharesOrSecuritiesAmount = None,
+        donatedLandOrProperty = None,
+        donatedLandOrPropertyAmount = None,
+        overseasDonatedSharesSecuritiesLandOrProperty = None,
+        overseasDonatedSharesSecuritiesLandOrPropertyAmount = None,
+        overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq.empty[String])
+      )
+    }
+  }
 }
