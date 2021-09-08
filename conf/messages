@@ -276,8 +276,6 @@ interest.chooseAccount.addANewAccount = Add a new account
 interest.chooseAccount.error.noRadioSelected.agent = Select the account your client got {0} UK interest from
 interest.chooseAccount.error.noRadioSelected.individual = Select the account you got {0} UK interest from
 
-
-
 # Gift Aid
 # ----------------------------------------------------------
 
@@ -369,8 +367,10 @@ charity.gift-aid-overseas-name.title.agent = Name of overseas charity your clien
 charity.gift-aid-overseas-name.error.empty.individual = Enter the name of the overseas charity you used Gift Aid to donate to
 charity.gift-aid-overseas-name.error.empty.agent = Enter the name of the overseas charity your client used Gift Aid to donate to
 
-charity.overseas-gift-aid-summary.title.individual = Overseas {0} you used Gift Aid to donate to
-charity.overseas-gift-aid-summary.title.agent = Overseas {0} your client used Gift Aid to donate to
+charity.overseas-gift-aid-summary.title.single.individual = Overseas charity you used Gift Aid to donate to
+charity.overseas-gift-aid-summary.title.multiple.individual = Overseas charities you used Gift Aid to donate to
+charity.overseas-gift-aid-summary.title.single.agent = Overseas charity your client used Gift Aid to donate to
+charity.overseas-gift-aid-summary.title.multiple.agent = Overseas charities your client used Gift Aid to donate to
 charity.overseas-gift-aid-summary.hint.individual = You must tell us about all the overseas charities you donated to.
 charity.overseas-gift-aid-summary.hint.agent = You must tell us about all the overseas charities your client donated to.
 charity.overseas-gift-aid-summary.noChoice = Select yes if you need to add another overseas charity
@@ -474,8 +474,10 @@ charity.overseas-shares-donated-name.title.agent = Name of overseas charity your
 charity.overseas-shares-donated-name.error.empty-field.individual = Enter the name of the overseas charity you donated shares, securities, land or property to
 charity.overseas-shares-donated-name.error.empty-field.agent = Enter the name of the overseas charity your client donated shares, securities, land or property to
 
-charity.shares-and-land-summary.title.individual = Overseas {0} you donated shares, securities, land or property to
-charity.shares-and-land-summary.title.agent = Overseas {0} your client donated shares, securities, land or property to
+charity.shares-and-land-summary.title.single.individual = Overseas charity you donated shares, securities, land or property to
+charity.shares-and-land-summary.title.multiple.individual = Overseas charities you donated shares, securities, land or property to
+charity.shares-and-land-summary.title.single.agent = Overseas charity your client donated shares, securities, land or property to
+charity.shares-and-land-summary.title.multiple.agent = Overseas charities your client donated shares, securities, land or property to
 charity.shares-and-land-summary.hint.individual = You must tell us about all the overseas charities you donated shares, securities, land or property to.
 charity.shares-and-land-summary.hint.agent = You must tell us about all the overseas charities your client donated shares, securities, land or property to.
 
@@ -500,8 +502,6 @@ charity.cya.questions.donateLandOrProperties = Donation of land or property
 charity.cya.questions.donateLandOrProperties.amount = Value of land or property
 charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties = Donation of shares, securities, land or property to overseas charities
 charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.amount = Value of shares, securities, land or property to overseas charities
-charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.names.individual = Overseas charities you donated shares, securities, land or property to
-charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.names.agent = Overseas charities your client donated shares, securities, land or property to
 
 charity.cya.questions.donatedViaGiftAid.individual.hidden = Change if you made a donation to charity by using Gift Aid
 charity.cya.questions.donatedViaGiftAid.agent.hidden = Change if your client made a donation to charity by using Gift Aid

@@ -74,19 +74,19 @@ class OverseasSharesLandSummaryControllerISpec  extends CharityITHelper {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
-    val question = "Do you need to add another overseas charity?"
-    val yes = "Yes"
-    val no = "No"
-    val errorSummary = "There is a problem"
-    val change = "Change"
-    val remove = "Remove"
-    val hiddenChange1 = s"Change the details you’ve entered for $charity1."
-    val hiddenRemove1 = s"Remove $charity1."
-    val hiddenChange2 = s"Change the details you’ve entered for $charity2."
-    val hiddenRemove2 = s"Remove $charity2."
-    val noSelectionError = "Select yes if you need to add another overseas charity"
-    val button = "Continue"
+    val caption = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
+    val question = "A oes angen i chi ychwanegu elusen arall o dramor?"
+    val yes = "Iawn"
+    val no = "Na"
+    val errorSummary = "Mae problem wedi codi"
+    val change = "Newid"
+    val remove = "Tynnu"
+    val hiddenChange1 = s"Newidiwch y manylion rydych wedi’u nodi ar gyfer $charity1."
+    val hiddenRemove1 = s"Tynnu $charity1."
+    val hiddenChange2 = s"Newidiwch y manylion rydych wedi’u nodi ar gyfer $charity2."
+    val hiddenRemove2 = s"Tynnu $charity2."
+    val noSelectionError = "Dewiswch ‘Iawn’ os oes angen i chi ychwanegu elusen arall o dramor"
+    val button = "Yn eich blaen"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -102,15 +102,15 @@ class OverseasSharesLandSummaryControllerISpec  extends CharityITHelper {
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val headingSingle = "Overseas charity you donated shares, securities, land or property to"
-    val headingMultiple = "Overseas charities you donated shares, securities, land or property to"
-    val hint = "You must tell us about all the overseas charities you donated shares, securities, land or property to."
+    val headingSingle = "Elusen dramor y gwnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo iddi"
+    val headingMultiple = "Elusen dramor y gwnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo iddi"
+    val hint = "Mae’n rhaid i chi roi gwybod i ni am yr holl elusennau tramor y gwnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo iddynt."
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val headingSingle = "Overseas charity your client donated shares, securities, land or property to"
-    val headingMultiple = "Overseas charities your client donated shares, securities, land or property to"
-    val hint = "You must tell us about all the overseas charities your client donated shares, securities, land or property to."
+    val headingSingle = "Elusen dramor y gwnaeth eich cleient roi cyfranddaliadau, gwarantau, tir neu eiddo iddi"
+    val headingMultiple = "Elusen dramor y gwnaeth eich cleient roi cyfranddaliadau, gwarantau, tir neu eiddo iddi"
+    val hint = "Mae’n rhaid i chi roi gwybod i ni am yr holl elusennau tramor y gwnaeth eich cleient rhoi cyfranddaliadau, gwarantau, tir neu eiddo iddynt."
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
@@ -139,10 +139,10 @@ class OverseasSharesLandSummaryControllerISpec  extends CharityITHelper {
             result.status shouldBe OK
           }
 
-          titleCheck(user.specificExpectedResults.get.headingSingle)
+          titleCheck(user.specificExpectedResults.get.headingSingle, user.isWelsh)
           h1Check(s"${user.specificExpectedResults.get.headingSingle} $caption")
           captionCheck(caption)
-          taskListCheck(Seq((charity1, hiddenChange1, hiddenRemove1)))
+          taskListCheck(Seq((charity1, hiddenChange1, hiddenRemove1)), user.isWelsh)
           textOnPageCheck(question, Selectors.question)
           radioButtonCheck(user.commonExpectedResults.yes, 1)
           radioButtonCheck(user.commonExpectedResults.no, 2)
@@ -187,14 +187,14 @@ class OverseasSharesLandSummaryControllerISpec  extends CharityITHelper {
 
             import user.commonExpectedResults._
 
-            titleCheck(errorPrefix + user.specificExpectedResults.get.headingSingle)
+            titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.headingSingle, user.isWelsh)
             h1Check(s"${user.specificExpectedResults.get.headingSingle} $caption")
             radioButtonCheck(user.commonExpectedResults.yes, 1)
             radioButtonCheck(user.commonExpectedResults.no, 2)
             hintTextCheck(user.specificExpectedResults.get.hint)
             captionCheck(caption)
             buttonCheck(button)
-            errorSummaryCheck(noSelectionError, "#value")
+            errorSummaryCheck(noSelectionError, "#value", user.isWelsh)
             errorAboveElementCheck(noSelectionError)
             welshToggleCheck(user.isWelsh)
           }

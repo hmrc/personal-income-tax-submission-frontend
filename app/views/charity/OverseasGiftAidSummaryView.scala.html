@@ -30,7 +30,7 @@
 
 @(form: Form[Boolean], taxYear: Int, overseasCharities: List[String])(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
-@titleForUse = @{messages(s"charity.overseas-gift-aid-summary.title.${if(user.isAgent) "agent" else "individual"}", if(overseasCharities.length == 1) "charity" else "charities")}
+@titleForUse = @{messages(s"charity.overseas-gift-aid-summary.title.${if(overseasCharities.length == 1) "single" else "multiple"}.${if(user.isAgent) "agent" else "individual"}")}
 
 @hasFormErrors = @{form.hasErrors}
 

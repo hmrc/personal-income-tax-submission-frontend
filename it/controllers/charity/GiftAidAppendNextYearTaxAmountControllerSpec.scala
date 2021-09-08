@@ -72,11 +72,11 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val hintText: String = "For example, £600 or £193.54"
-    val expectedCaption: String = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val hintText: String = "Er enghraifft, £600 neu £193.54"
+    val expectedCaption: String = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
     val inputName: String = "amount"
-    val button: String = "Continue"
-    val error = "Error: "
+    val button: String = "Yn eich blaen"
+    val error = "Gwall: "
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -98,21 +98,21 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val heading: String = "How much of the donations you made after 5 April 2022 do you want to add to this tax year?"
+    val heading: String = "Faint o’r rhoddion a wnaethoch ar ôl 5 Ebrill 2022 ydych am eu hychwanegu at y flwyddyn dreth hon?"
     val priorP1: String = "You told us you want to add £444 of the donations you made after 5 April 2022 to this tax year. Tell us if this has changed."
     val cyaP1: String = "You told us you want to add £50 of the donations you made after 5 April 2022 to this tax year. Tell us if this has changed."
-    val tooLongError: String = "The amount of your donation made after 5 April 2022 you add to the last tax year must be less than £100,000,000,000"
-    val emptyFieldError: String = "Enter the amount of your donation made after 5 April 2022 you want to add to this tax year"
-    val incorrectFormatError: String = "Enter the amount you want to add to this tax year in the correct format"
+    val tooLongError: String = "Mae’n rhaid i swm eich rhodd a wnaed ar ôl 5 Ebrill 2022 a ychwanegwch at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000"
+    val emptyFieldError: String = "Nodwch swm eich rhodd a wnaed ar ôl 5 Ebrill 2022 rydych am ei ychwanegu at y flwyddyn dreth hon"
+    val incorrectFormatError: String = "Nodwch y swm rydych am ei ychwanegu at y flwyddyn dreth hon yn y fformat cywir"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val heading: String = "How much of the donations your client made after 5 April 2022 do you want to add to this tax year?"
+    val heading: String = "Faint o’r rhoddion a wnaeth eich cleient ar ôl 5 Ebrill 2022 ydych am eu hychwanegu at y flwyddyn dreth hon?"
     val priorP1: String = "You told us you want to add £444 of the donations your client made after 5 April 2022 to this tax year. Tell us if this has changed."
     val cyaP1: String = "You told us you want to add £50 of the donations your client made after 5 April 2022 to this tax year. Tell us if this has changed."
-    val tooLongError: String = "The amount of your client’s donation made after 5 April 2022 you add to the last tax year must be less than £100,000,000,000"
-    val emptyFieldError: String = "Enter the amount of your client’s donation made after 5 April 2022 you want to add to this tax year"
-    val incorrectFormatError: String = "Enter the amount you want to add to this tax year in the correct format"
+    val tooLongError: String = "Mae’n rhaid i swm rhodd eich cleient a wnaed ar ôl 5 Ebrill 2022 a ychwanegwch at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000"
+    val emptyFieldError: String = "Nodwch swm rhodd eich cleient a wnaed ar ôl 5 Ebrill 2022 rydych am ei ychwanegu at y flwyddyn dreth hon"
+    val incorrectFormatError: String = "Nodwch y swm rydych am ei ychwanegu at y flwyddyn dreth hon yn y fformat cywir"
   }
 
   val amount: Int = 2000
@@ -156,7 +156,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
             result.status shouldBe OK
           }
 
-          titleCheck(user.specificExpectedResults.get.heading)
+          titleCheck(user.specificExpectedResults.get.heading, user.isWelsh)
           h1Check(user.specificExpectedResults.get.heading + " " + expectedCaption)
           inputFieldCheck(inputName, Selectors.inputField)
           hintTextCheck(hintText)
@@ -176,7 +176,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
             result.status shouldBe OK
           }
 
-          titleCheck(user.specificExpectedResults.get.heading)
+          titleCheck(user.specificExpectedResults.get.heading, user.isWelsh)
           h1Check(user.specificExpectedResults.get.heading + " " + expectedCaption)
           inputFieldCheck(inputName, Selectors.inputField)
           hintTextCheck(hintText)
@@ -313,7 +313,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
             import user.commonExpectedResults._
-            titleCheck(error + user.specificExpectedResults.get.heading)
+            titleCheck(error + user.specificExpectedResults.get.heading, user.isWelsh)
             h1Check(user.specificExpectedResults.get.heading + " " + expectedCaption)
             inputFieldCheck(inputName, Selectors.inputField)
             hintTextCheck(hintText)
@@ -321,7 +321,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
             buttonCheck(button)
             welshToggleCheck(user.isWelsh)
 
-            errorSummaryCheck(user.specificExpectedResults.get.emptyFieldError, Selectors.errorHref)
+            errorSummaryCheck(user.specificExpectedResults.get.emptyFieldError, Selectors.errorHref, user.isWelsh)
             errorAboveElementCheck(user.specificExpectedResults.get.emptyFieldError)
           }
 
@@ -333,7 +333,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
             import user.commonExpectedResults._
-            titleCheck(error + user.specificExpectedResults.get.heading)
+            titleCheck(error + user.specificExpectedResults.get.heading, user.isWelsh)
             h1Check(user.specificExpectedResults.get.heading + " " + expectedCaption)
             inputFieldCheck(inputName, Selectors.inputField)
             hintTextCheck(hintText)
@@ -341,7 +341,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
             buttonCheck(button)
             welshToggleCheck(user.isWelsh)
 
-            errorSummaryCheck(user.specificExpectedResults.get.tooLongError, Selectors.errorHref)
+            errorSummaryCheck(user.specificExpectedResults.get.tooLongError, Selectors.errorHref, user.isWelsh)
             errorAboveElementCheck(user.specificExpectedResults.get.tooLongError)
           }
 
@@ -353,7 +353,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
             import user.commonExpectedResults._
-            titleCheck(error + user.specificExpectedResults.get.heading)
+            titleCheck(error + user.specificExpectedResults.get.heading, user.isWelsh)
             h1Check(user.specificExpectedResults.get.heading + " " + expectedCaption)
             inputFieldCheck(inputName, Selectors.inputField)
             hintTextCheck(hintText)
@@ -361,7 +361,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
             buttonCheck(button)
             welshToggleCheck(user.isWelsh)
 
-            errorSummaryCheck(user.specificExpectedResults.get.incorrectFormatError, Selectors.errorHref)
+            errorSummaryCheck(user.specificExpectedResults.get.incorrectFormatError, Selectors.errorHref, user.isWelsh)
             errorAboveElementCheck(user.specificExpectedResults.get.incorrectFormatError)
           }
         }

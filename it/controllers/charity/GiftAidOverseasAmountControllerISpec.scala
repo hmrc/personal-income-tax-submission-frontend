@@ -68,11 +68,11 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val expectedCaption = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val expectedCaption = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
     val expectedInputName = "amount"
-    val expectedButtonText = "Continue"
-    val expectedInputLabelText = "Total amount, in pounds"
-    val expectedInputHintText = "For example, £600 or £193.54"
+    val expectedButtonText = "Yn eich blaen"
+    val expectedInputHintText = "Er enghraifft, £600 neu £193.54"
+    val expectedInputLabelText = "Cyfanswm, mewn punnoedd"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -101,28 +101,28 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val expectedTitle = "How much did you donate to overseas charities by using Gift Aid?"
-    val expectedH1 = "How much did you donate to overseas charities by using Gift Aid?"
+    val expectedTitle = "Faint wnaethoch ei roi i elusennau tramor drwy ddefnyddio Rhodd Cymorth?"
+    val expectedH1 = "Faint wnaethoch ei roi i elusennau tramor drwy ddefnyddio Rhodd Cymorth?"
     val expectedPriorP1 = "You told us you used Gift Aid to donate £1111 to overseas charities. Tell us if this has changed."
     val expectedCyaP1 = "You told us you used Gift Aid to donate £50 to overseas charities. Tell us if this has changed."
-    val expectedErrorEmpty = "Enter the amount you donated to overseas charities"
-    val expectedErrorInvalid = "Enter the amount you donated to overseas charities in the correct format"
-    val expectedErrorOverMax = "The amount you donated to overseas charities must be less than £100,000,000,000"
-    val expectedErrorTitle = s"Error: $expectedTitle"
-    val expectedErrorExceeds = "The amount you donated to overseas charities must not be more than the amount you donated to charity by using Gift Aid"
+    val expectedErrorEmpty = "Nodwch y swm a roesoch i elusennau tramor"
+    val expectedErrorInvalid = "Nodwch y swm a roesoch i elusennau tramor yn y fformat cywir"
+    val expectedErrorOverMax = "Mae’n rhaid i’r swm a roesoch i elusennau tramor fod yn llai na £100,000,000,000"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
+    val expectedErrorExceeds = "Ni chaiff y swm a roesoch i elusennau tramor fod yn fwy na’r swm a roesoch i elusennau drwy ddefnyddio Rhodd Cymorth"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val expectedTitle = "How much did your client donate to overseas charities by using Gift Aid?"
-    val expectedH1 = "How much did your client donate to overseas charities by using Gift Aid?"
+    val expectedTitle = "Faint wnaeth eich cleient ei roi i elusennau tramor drwy ddefnyddio Rhodd Cymorth?"
+    val expectedH1 = "Faint wnaeth eich cleient ei roi i elusennau tramor drwy ddefnyddio Rhodd Cymorth?"
     val expectedPriorP1 = "You told us your client used Gift Aid to donate £1111 to overseas charities. Tell us if this has changed."
     val expectedCyaP1 = "You told us your client used Gift Aid to donate £50 to overseas charities. Tell us if this has changed."
-    val expectedErrorEmpty = "Enter the amount your client donated to overseas charities"
-    val expectedErrorInvalid = "Enter the amount your client donated to overseas charities in the correct format"
-    val expectedErrorOverMax = "The amount your client donated to overseas charities must be less than £100,000,000,000"
-    val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedErrorEmpty = "Nodwch y swm a roddodd eich cleient i elusennau tramor"
+    val expectedErrorInvalid = "Nodwch y swm a roddodd eich cleient i elusennau tramor yn y fformat cywir"
+    val expectedErrorOverMax = "Mae’n rhaid i’r swm a roddodd eich cleient i elusennau tramor fod yn llai na £100,000,000,000"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
     val expectedErrorExceeds =
-      "The amount your client donated to overseas charities must not be more than the amount your client donated to charity by using Gift Aid"
+      "Ni chaiff y swm a roddodd eich cleient i elusennau tramor fod yn fwy na’r swm a roddodd eich cleient i elusennau drwy ddefnyddio Rhodd Cymorth"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
@@ -160,7 +160,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
             result.status shouldBe OK
           }
 
-          titleCheck(user.specificExpectedResults.get.expectedTitle)
+          titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(expectedInputLabelText, inputLabelSelector)
@@ -182,7 +182,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
             result.status shouldBe OK
           }
 
-          titleCheck(user.specificExpectedResults.get.expectedTitle)
+          titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(expectedInputLabelText, inputLabelSelector)
@@ -287,7 +287,10 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(user.specificExpectedResults.get.expectedErrorTitle)
+            import Selectors._
+            import user.commonExpectedResults._
+
+            titleCheck(user.specificExpectedResults.get.expectedErrorTitle, user.isWelsh)
             h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(expectedInputLabelText, inputLabelSelector)
@@ -296,7 +299,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
             buttonCheck(expectedButtonText, buttonSelector)
             welshToggleCheck(user.isWelsh)
 
-            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorEmpty, Selectors.expectedErrorLink)
+            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorEmpty, Selectors.expectedErrorLink, user.isWelsh)
             errorAboveElementCheck(user.specificExpectedResults.get.expectedErrorEmpty)
           }
 
@@ -305,7 +308,10 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(user.specificExpectedResults.get.expectedErrorTitle)
+            import Selectors._
+            import user.commonExpectedResults._
+
+            titleCheck(user.specificExpectedResults.get.expectedErrorTitle, user.isWelsh)
             h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(expectedInputLabelText, inputLabelSelector)
@@ -314,7 +320,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
             buttonCheck(expectedButtonText, buttonSelector)
             welshToggleCheck(user.isWelsh)
 
-            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorOverMax, Selectors.expectedErrorLink)
+            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorOverMax, Selectors.expectedErrorLink, user.isWelsh)
             errorAboveElementCheck(user.specificExpectedResults.get.expectedErrorOverMax)
           }
 
@@ -323,7 +329,10 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(user.specificExpectedResults.get.expectedErrorTitle)
+            import Selectors._
+            import user.commonExpectedResults._
+
+            titleCheck(user.specificExpectedResults.get.expectedErrorTitle, user.isWelsh)
             h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(expectedInputLabelText, inputLabelSelector)
@@ -332,7 +341,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
             buttonCheck(expectedButtonText, buttonSelector)
             welshToggleCheck(user.isWelsh)
 
-            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorInvalid, Selectors.expectedErrorLink)
+            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorInvalid, Selectors.expectedErrorLink, user.isWelsh)
             errorAboveElementCheck(user.specificExpectedResults.get.expectedErrorInvalid)
           }
 
@@ -341,7 +350,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(user.specificExpectedResults.get.expectedErrorTitle)
+            titleCheck(user.specificExpectedResults.get.expectedErrorTitle, user.isWelsh)
             h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
             textOnPageCheck(expectedInputLabelText, inputLabelSelector)
@@ -350,7 +359,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
             buttonCheck(expectedButtonText, buttonSelector)
             welshToggleCheck(user.isWelsh)
 
-            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorExceeds, Selectors.expectedErrorLink)
+            errorSummaryCheck(user.specificExpectedResults.get.expectedErrorExceeds, Selectors.expectedErrorLink, user.isWelsh)
             errorAboveElementCheck(user.specificExpectedResults.get.expectedErrorExceeds)
           }
         }

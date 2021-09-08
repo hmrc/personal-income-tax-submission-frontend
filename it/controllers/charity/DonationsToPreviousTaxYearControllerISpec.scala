@@ -64,12 +64,12 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val expectedHeading = "Do you want to add any donations made after 5 April 2022 to this tax year?"
-    val expectedCaption = s"Donations to charity for 6 April 2021 to 5 April 2022"
-    val yesText = "Yes"
-    val noText = "No"
-    val button = "Continue"
-    val error = "Error: "
+    val expectedHeading = "A ydych am ychwanegu unrhyw roddion a wnaed ar ôl 5 Ebrill 2022 i’r flwyddyn dreth hon?"
+    val expectedCaption = s"Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
+    val yesText = "Iawn"
+    val noText = "Na"
+    val button = "Yn eich blaen"
+    val error = "Gwall: "
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -85,15 +85,15 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper {
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val errorText = "Select yes to add any of your donations made after 5 April 2022 to this tax year"
-    val expectedParagraph1: String = "If you made donations after 5 April 2022, you can add them to the 6 April 2021 to 5 April 2022 tax year."
-    val expectedParagraph2: String = "You might want to do this if you want tax relief sooner."
+    val errorText = "Dewiswch ‘Iawn’ os ydych am ychwanegu unrhyw roddion a wnaed ar ôl 5 Ebrill 2022 i’r flwyddyn dreth hon"
+    val expectedParagraph1: String = "Os gwnaethoch roddion ar ôl 5 Ebrill 2022, gallwch eu hychwanegu at flwyddyn dreth 6 Ebrill 2021 i 5 Ebrill 2022."
+    val expectedParagraph2: String = "Mae’n bosibl y byddwch am wneud hyn os ydych am gael gostyngiad treth yn gynt."
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val errorText = "Select yes to add any of your client’s donations made after 5 April 2022 to this tax year"
-    val expectedParagraph1: String = "If your client made donations after 5 April 2022, you can add them to the 6 April 2021 to 5 April 2022 tax year."
-    val expectedParagraph2: String = "You might want to do this if your client wants tax relief sooner."
+    val errorText = "Dewiswch ‘Iawn’ os ydych am ychwanegu unrhyw roddion a wnaed gan eich cleient ar ôl 5 Ebrill 2022 i’r flwyddyn dreth hon"
+    val expectedParagraph1: String = "Os gwnaeth eich cleient roddion ar ôl 5 Ebrill 2022, gallwch eu hychwanegu at flwyddyn dreth 6 Ebrill 2021 i 5 Ebrill 2022."
+    val expectedParagraph2: String = "Mae’n bosibl am wneud hyn os yw’ch cleient am gael gostyngiad treth yn gynt."
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
@@ -147,7 +147,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper {
             result.status shouldBe OK
           }
 
-          titleCheck(expectedHeading)
+          titleCheck(expectedHeading, user.isWelsh)
           h1Check(expectedHeading + " " + expectedCaption)
           textOnPageCheck(user.specificExpectedResults.get.expectedParagraph1, Selectors.paragraph1HintText)
           textOnPageCheck(user.specificExpectedResults.get.expectedParagraph2, Selectors.paragraph2HintText)
@@ -169,7 +169,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper {
             result.status shouldBe OK
           }
 
-          titleCheck(expectedHeading)
+          titleCheck(expectedHeading, user.isWelsh)
           h1Check(expectedHeading + " " + expectedCaption)
           textOnPageCheck(user.specificExpectedResults.get.expectedParagraph1, Selectors.paragraph1HintText)
           textOnPageCheck(user.specificExpectedResults.get.expectedParagraph2, Selectors.paragraph2HintText)
@@ -318,7 +318,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper {
 
           import user.commonExpectedResults._
 
-          titleCheck(error + expectedHeading)
+          titleCheck(error + expectedHeading, user.isWelsh)
           h1Check(expectedHeading + " " + expectedCaption)
           textOnPageCheck(user.specificExpectedResults.get.expectedParagraph1, Selectors.paragraph1HintText)
           textOnPageCheck(user.specificExpectedResults.get.expectedParagraph2, Selectors.paragraph2HintText)
@@ -326,7 +326,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper {
           radioButtonCheck(noText, 2)
           captionCheck(expectedCaption)
           buttonCheck(button)
-          errorSummaryCheck(user.specificExpectedResults.get.errorText, Selectors.errorHref)
+          errorSummaryCheck(user.specificExpectedResults.get.errorText, Selectors.errorHref, user.isWelsh)
           errorAboveElementCheck(user.specificExpectedResults.get.errorText)
           welshToggleCheck(user.isWelsh)
 
