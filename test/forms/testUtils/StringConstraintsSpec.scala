@@ -17,6 +17,7 @@
 package forms.testUtils
 
 import forms.validation.StringConstraints
+import forms.validation.StringConstraints.charRegexInterest
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.data.validation.{Constraints, Invalid, Valid}
@@ -51,25 +52,55 @@ class StringConstraintsSpec extends Constraints with AnyWordSpecLike with Matche
 
   "The StringConstraints.validateChar method" when {
 
-    "supplied with a valid string" should {
+    "using the default regex pattern" when {
 
-      "return valid" in {
-        val lowerCaseAlphabet = ('a' to 'z').mkString
-        val upperCaseAlphabet = lowerCaseAlphabet.toUpperCase()
-        val oneToNine = (1 to 9).mkString
-        val otherChar = "&@£/()*.,-"
-        val space = ""
+      "supplied with a valid string" should {
 
-        StringConstraints.validateChar(errMsgInvalidChar)(lowerCaseAlphabet + upperCaseAlphabet + space + oneToNine + otherChar + space) shouldBe Valid
+        "return valid" in {
+          val lowerCaseAlphabet = ('a' to 'z').mkString
+          val upperCaseAlphabet = lowerCaseAlphabet.toUpperCase()
+          val oneToNine = (1 to 9).mkString
+          val otherChar = "&@£/()*.,-"
+          val space = ""
+
+          StringConstraints.validateChar(errMsgInvalidChar)(lowerCaseAlphabet + upperCaseAlphabet + space + oneToNine + otherChar + space) shouldBe Valid
+        }
       }
+
+      "supplied with a string which contains invalid characters" should {
+
+        "return invalid" in {
+          StringConstraints.validateChar(errMsgInvalidChar)("!()+{}?^~") shouldBe Invalid(errMsgInvalidChar)
+        }
+      }
+      
     }
 
-    "supplied with a string which contains invalid characters" should {
+    "using the interest regex pattern" when {
 
-      "return invalid" in {
-        StringConstraints.validateChar(errMsgInvalidChar)("!()+{}?^~") shouldBe Invalid(errMsgInvalidChar)
+      "supplied with a valid string" should {
+
+        "return valid" in {
+          val lowerCaseAlphabet = ('a' to 'z').mkString
+          val upperCaseAlphabet = lowerCaseAlphabet.toUpperCase()
+          val oneToNine = (1 to 9).mkString
+          val otherChar = "&@£()*.,'-"
+          val space = ""
+
+          StringConstraints.validateChar(
+            errMsgInvalidChar,
+            charRegexInterest
+          )(lowerCaseAlphabet + upperCaseAlphabet + space + oneToNine + otherChar + space) shouldBe Valid
+        }
       }
 
+      "supplied with a string which contains invalid characters" should {
+
+        "return invalid" in {
+          StringConstraints.validateChar(errMsgInvalidChar, charRegexInterest)("!()+{}?^~/") shouldBe Invalid(errMsgInvalidChar)
+        }
+      }
+      
     }
   }
 
