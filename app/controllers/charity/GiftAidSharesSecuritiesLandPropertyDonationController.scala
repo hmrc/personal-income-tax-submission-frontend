@@ -21,8 +21,6 @@ import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.YesNoForm
-
-import javax.inject.Inject
 import models.User
 import models.charity.GiftAidCYAModel
 import models.charity.prior.GiftAidSubmissionModel
@@ -34,6 +32,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.charity.GiftAidSharesSecuritiesLandPropertyDonationView
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -123,7 +122,7 @@ class GiftAidSharesSecuritiesLandPropertyDonationController @Inject()(
                   donatedLandOrPropertyAmount = None,
                   overseasDonatedSharesSecuritiesLandOrProperty = Some(false),
                   overseasDonatedSharesSecuritiesLandOrPropertyAmount = None,
-                  overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq.empty[String])
+                  overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Seq.empty
                 )
               }
 

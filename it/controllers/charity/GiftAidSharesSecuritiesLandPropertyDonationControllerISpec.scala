@@ -112,7 +112,7 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Charity
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
     Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
-      UserScenario(isWelsh = false, isAgent = true,  CommonExpectedEN, Some(ExpectedAgentEN)),
+      UserScenario(isWelsh = false, isAgent = true, CommonExpectedEN, Some(ExpectedAgentEN)),
       UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, Some(ExpectedIndividualCY)),
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
@@ -313,7 +313,7 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Charity
             donatedLandOrPropertyAmount = None,
             overseasDonatedSharesSecuritiesLandOrProperty = Some(false),
             overseasDonatedSharesSecuritiesLandOrPropertyAmount = None,
-            overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq())
+            overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Seq.empty
           ))
       }
     }

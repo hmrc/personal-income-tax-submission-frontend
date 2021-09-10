@@ -24,16 +24,15 @@ import forms.YesNoForm
 import models.User
 import models.charity.GiftAidCYAModel
 import models.charity.prior.GiftAidSubmissionModel
-
-import javax.inject.Inject
+import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.I18nSupport
-import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.GiftAidSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.charity.OverseasSharesLandSummaryView
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class OverseasSharesLandSummaryController @Inject()(overseasSharesLandSummaryView: OverseasSharesLandSummaryView)(
@@ -49,15 +48,16 @@ class OverseasSharesLandSummaryController @Inject()(overseasSharesLandSummaryVie
   override def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, prior: Option[GiftAidSubmissionModel], fromShow: Boolean)
                              (implicit user: User[AnyContent]): Result = {
 
-    cya.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames match {
-      case Some(nameList) if nameList.nonEmpty => determineResult(
-        Ok(overseasSharesLandSummaryView(yesNoForm, taxYear, nameList.toList)),
+    if (cya.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.nonEmpty) {
+      determineResult(
+        Ok(overseasSharesLandSummaryView(yesNoForm, taxYear, cya.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames)),
         Redirect(controllers.charity.routes.OverseasSharesLandSummaryController.show(taxYear)),
         fromShow)
-      case _ =>
-        giftAidOverseasSharesNameController.handleRedirect(taxYear, cya, prior)
+    } else {
+      giftAidOverseasSharesNameController.handleRedirect(taxYear, cya, prior)
     }
   }
+
   val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("charity.overseas-gift-aid-summary.noChoice")
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
@@ -73,31 +73,23 @@ class OverseasSharesLandSummaryController @Inject()(overseasSharesLandSummaryVie
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
 
-    giftAidSessionService.getSessionData(taxYear).map {
+    giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
       case Some(cyaData) =>
         yesNoForm.bindFromRequest().fold({
           formWithErrors =>
-            cyaData.giftAid.flatMap(_.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames) match {
-              case Some(namesList) => BadRequest(overseasSharesLandSummaryView(formWithErrors, taxYear, namesList.toList))
-              case _ => redirectToOverview(taxYear)
-            }
+            BadRequest(overseasSharesLandSummaryView(formWithErrors, taxYear, cyaData.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames))
         }, {
           success =>
-            val redirectLocation = if(success){
+            val redirectLocation = if (success) {
               controllers.charity.routes.GiftAidOverseasSharesNameController.show(taxYear, None)
             } else {
               controllers.charity.routes.GiftAidCYAController.show(taxYear)
             }
-            cyaData.giftAid.fold{
-              redirectToOverview(taxYear)
-            } {
-              _ => Redirect(redirectLocation)
-            }
+            Redirect(redirectLocation)
         })
       case _ =>
         logger.info("[OverseasSharesLandSummaryController][submit] No CYA data in session. Redirecting to overview page.")
         Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
     }
   }
-
 }

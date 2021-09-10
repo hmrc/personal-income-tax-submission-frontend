@@ -22,18 +22,18 @@ import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.YesNoForm
 import models.User
-import play.api.data.Form
-import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SessionHelper
-import views.html.charity.OverseasGiftAidDonationView
-import javax.inject.Inject
 import models.charity.GiftAidCYAModel
 import models.charity.prior.GiftAidSubmissionModel
 import play.api.Logging
+import play.api.data.Form
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.GiftAidSessionService
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import utils.SessionHelper
+import views.html.charity.OverseasGiftAidDonationView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class OverseasGiftAidDonationsController @Inject()(
@@ -100,7 +100,7 @@ class OverseasGiftAidDonationsController @Inject()(
                 if (formAnswer) {
                   updatedModel
                 } else {
-                  updatedModel.copy(overseasDonationsViaGiftAidAmount = None, overseasCharityNames = Some(Seq.empty[String]))
+                  updatedModel.copy(overseasDonationsViaGiftAidAmount = None, overseasCharityNames = Seq.empty)
                 }
               }
 

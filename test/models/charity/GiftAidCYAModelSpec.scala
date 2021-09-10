@@ -16,19 +16,23 @@
 
 package models.charity
 
+import common.UUID
 import play.api.libs.json.{JsObject, Json}
 import utils.UnitTest
 
 class GiftAidCYAModelSpec extends UnitTest {
 
+  private val belgianTrustId: String = UUID().randomUUID
+  private val americanTrustId: String = UUID().randomUUID
+
   val modelMax: GiftAidCYAModel = GiftAidCYAModel(
     Some(true), Some(100.00),
     Some(true), Some(100.00),
-    Some(true), Some(100.00), Some(Seq("Belgian Trust", "American Trust")),
+    Some(true), Some(100.00), Seq(CharityNameModel(belgianTrustId, "Belgian Trust"), CharityNameModel(americanTrustId, "American Trust")),
     Some(true), Some(100.00),
     Some(true), Some(100.00),
     Some(true), Some(true), Some(100.00), Some(true), Some(100.00),
-    Some(true), Some(100.00), Some(Seq("Belgian Trust", "American Trust"))
+    Some(true), Some(100.00), Seq(CharityNameModel(belgianTrustId, "Belgian Trust"), CharityNameModel(americanTrustId, "American Trust"))
   )
 
   val modelMin: GiftAidCYAModel = GiftAidCYAModel()
@@ -40,7 +44,10 @@ class GiftAidCYAModelSpec extends UnitTest {
     "oneOffDonationsViaGiftAidAmount" -> 100,
     "overseasDonationsViaGiftAid" -> true,
     "overseasDonationsViaGiftAidAmount" -> 100,
-    "overseasCharityNames" -> Json.arr("Belgian Trust", "American Trust"),
+    "overseasCharityNames" -> Json.arr(
+      Json.obj("id" -> belgianTrustId, "name" -> "Belgian Trust"),
+      Json.obj("id" -> americanTrustId, "name" -> "American Trust")
+    ),
     "addDonationToLastYear" -> true,
     "addDonationToLastYearAmount" -> 100,
     "addDonationToThisYear" -> true,
@@ -52,7 +59,10 @@ class GiftAidCYAModelSpec extends UnitTest {
     "donatedLandOrPropertyAmount" -> 100,
     "overseasDonatedSharesSecuritiesLandOrProperty" -> true,
     "overseasDonatedSharesSecuritiesLandOrPropertyAmount" -> 100,
-    "overseasDonatedSharesSecuritiesLandOrPropertyCharityNames" -> Json.arr("Belgian Trust", "American Trust")
+    "overseasDonatedSharesSecuritiesLandOrPropertyCharityNames" -> Json.arr(
+      Json.obj("id" -> belgianTrustId, "name" -> "Belgian Trust"),
+      Json.obj("id" -> americanTrustId, "name" -> "American Trust")
+    )
   )
 
   val jsonMin: JsObject = Json.obj(
@@ -137,7 +147,8 @@ class GiftAidCYAModelSpec extends UnitTest {
           donationsViaGiftAid = Some(false),
           oneOffDonationsViaGiftAid = Some(false),
           overseasDonationsViaGiftAid = Some(true),
-          overseasDonationsViaGiftAidAmount = Some(100.00), overseasCharityNames = Some(Seq("Cyberpunk Performance Help Fund")),
+          overseasDonationsViaGiftAidAmount = Some(100.00),
+          overseasCharityNames = Seq(CharityNameModel("Cyberpunk Performance Help Fund")),
           addDonationToLastYear = Some(false),
           addDonationToThisYear = Some(false),
           donatedSharesSecuritiesLandOrProperty = Some(false),
@@ -207,7 +218,7 @@ class GiftAidCYAModelSpec extends UnitTest {
           donatedSharesSecuritiesLandOrProperty = Some(false),
           overseasDonatedSharesSecuritiesLandOrProperty = Some(true),
           overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(100.00),
-          overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq("Whiterun Nezrim Removal Fund"))
+          overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Seq(CharityNameModel("Whiterun Nezrim Removal Fund"))
         ).isFinished shouldBe true
       }
 
@@ -257,7 +268,8 @@ class GiftAidCYAModelSpec extends UnitTest {
           GiftAidCYAModel(
             donationsViaGiftAid = Some(false),
             oneOffDonationsViaGiftAid = Some(false),
-            overseasDonationsViaGiftAid = Some(true), overseasCharityNames = Some(Seq("Cyberpunk Performance Help Fund")),
+            overseasDonationsViaGiftAid = Some(true),
+            overseasCharityNames = Seq(CharityNameModel("Cyberpunk Performance Help Fund")),
             addDonationToLastYear = Some(false),
             addDonationToThisYear = Some(false),
             donatedSharesSecuritiesLandOrProperty = Some(false),
@@ -353,7 +365,7 @@ class GiftAidCYAModelSpec extends UnitTest {
             addDonationToThisYear = Some(false),
             donatedSharesSecuritiesLandOrProperty = Some(false),
             overseasDonatedSharesSecuritiesLandOrProperty = Some(true),
-            overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq("Whiterun Nezrim Removal Fund"))
+            overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Seq(CharityNameModel("Whiterun Nezrim Removal Fund"))
           ).isFinished shouldBe false
         }
 

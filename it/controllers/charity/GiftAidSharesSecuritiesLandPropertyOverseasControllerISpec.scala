@@ -291,7 +291,7 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Charity
           Some(requiredSessionModel.copy(
             overseasDonatedSharesSecuritiesLandOrProperty = Some(false),
             overseasDonatedSharesSecuritiesLandOrPropertyAmount = None,
-            overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq.empty[String])
+            overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Seq.empty
           ))
       }
     }

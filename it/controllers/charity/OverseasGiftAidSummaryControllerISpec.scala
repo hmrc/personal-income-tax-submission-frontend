@@ -17,7 +17,7 @@
 package controllers.charity
 
 import forms.YesNoForm
-import models.charity.GiftAidCYAModel
+import models.charity.{CharityNameModel, GiftAidCYAModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status.{OK, SEE_OTHER}
@@ -115,12 +115,12 @@ class OverseasGiftAidSummaryControllerISpec extends CharityITHelper {
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
     Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
-      UserScenario(isWelsh = false, isAgent = true,  CommonExpectedEN, Some(ExpectedAgentEN)),
+      UserScenario(isWelsh = false, isAgent = true, CommonExpectedEN, Some(ExpectedAgentEN)),
       UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, Some(ExpectedIndividualCY)),
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
-  val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(overseasCharityNames = Some(Seq(charity1, charity2)))
+  val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(overseasCharityNames = Seq(CharityNameModel(charity1), CharityNameModel(charity2)))
   val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
 
   ".show" when {
