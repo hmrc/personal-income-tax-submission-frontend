@@ -79,7 +79,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
     val button: String = "Continue"
     val noNameEntryError: String = "Enter a name for this account"
     val invalidCharEntry: String = "Name of account with taxed UK interest must only include numbers 0-9, " +
-      "letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets, and the special characters &, /, @, £, *"
+      "letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets, and the special characters &, @, £, *"
     val nameTooLongError: String = "The name of the account must be 32 characters or fewer"
     val duplicateNameError: String = "You cannot add 2 accounts with the same name"
     val tooMuchMoneyError = "The amount of taxed UK interest must be less than £100,000,000,000"
@@ -97,7 +97,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
     val button: String = "Continue"
     val noNameEntryError: String = "Enter a name for this account"
     val invalidCharEntry: String = "Name of account with taxed UK interest must only include numbers 0-9, " +
-      "letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets, and the special characters &, /, @, £, *"
+      "letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets, and the special characters &, @, £, *"
     val nameTooLongError: String = "The name of the account must be 32 characters or fewer"
     val duplicateNameError: String = "You cannot add 2 accounts with the same name"
     val tooMuchMoneyError = "The amount of taxed UK interest must be less than £100,000,000,000"
