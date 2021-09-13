@@ -97,9 +97,9 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val expectedCaption = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
-    val expectedHintText = "For example, £600 or £193.54"
-    val continueText = "Continue"
+    val expectedCaption = s"Llog ar gyfer 6 Ebrill $taxYearMinusOne i 5 Ebrill $taxYear"
+    val expectedHintText = "Er enghraifft, £600 neu £193.54"
+    val continueText = "Yn eich blaen"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -131,31 +131,31 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val expectedUntaxedTitle = "How much untaxed UK interest did you get?"
-    val expectedUntaxedErrorTitle = s"Error: $expectedUntaxedTitle"
-    val expectedTaxedTitle = "How much taxed UK interest did you get?"
-    val expectedTaxedErrorTitle = s"Error: $expectedTaxedTitle"
-    def expectedErrorEmpty(taxType: String): String = s"Enter the amount of $taxType UK interest you got"
-    def expectedErrorOverMax(taxType: String): String = s"The amount of $taxType UK interest must be less than £100,000,000,000"
-    def expectedErrorInvalid(taxType: String): String = s"Enter the amount of $taxType UK interest in the correct format"
-    val expectedUntaxedH1 = "HSBC: how much untaxed UK interest did you get?"
-    val expectedTaxedH1 = "HSBC: how much taxed UK interest did you get?"
-    val youToldUsUntaxed = s"You told us you got £$amount untaxed UK interest. Tell us if this has changed."
-    val youToldUsTaxed = s"You told us you got £$amount taxed UK interest. Tell us if this has changed."
+    val expectedUntaxedTitle = "Faint o log y DU sydd heb ei drethu a gawsoch?"
+    val expectedUntaxedErrorTitle = s"Gwall: $expectedUntaxedTitle"
+    val expectedTaxedTitle = "Faint o log y DU a drethwyd a gawsoch?"
+    val expectedTaxedErrorTitle = s"Gwall: $expectedTaxedTitle"
+    def expectedErrorEmpty(taxType: String): String = s"Nodwch swm y $taxType llog y DU a gawsoch"
+    def expectedErrorOverMax(taxType: String): String = s"Mae’n rhaid i swm $taxType llog y DU fod yn llai na £100,000,000,000"
+    def expectedErrorInvalid(taxType: String): String = s"Nodwch swm y $taxType llog y DU yn y fformat cywir"
+    val expectedUntaxedH1 = "HSBC: Faint o log y DU sydd heb ei drethu a gawsoch?"
+    val expectedTaxedH1 = "HSBC: Faint o log y DU a drethwyd a gawsoch?"
+    val youToldUsUntaxed = s"Gwnaethoch ddweud wrthym cawsoch £$amount Llog y DU sydd heb ei drethu. Rhowch wybod i ni a yw hyn wedi newid."
+    val youToldUsTaxed = s"Gwnaethoch ddweud wrthym cawsoch £$amount Llog y DU a drethwyd. Rhowch wybod i ni a yw hyn wedi newid."
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val expectedUntaxedTitle = "How much untaxed UK interest did your client get?"
-    val expectedUntaxedErrorTitle = s"Error: $expectedUntaxedTitle"
-    val expectedTaxedTitle = "How much taxed UK interest did your client get?"
-    val expectedTaxedErrorTitle = s"Error: $expectedTaxedTitle"
-    def expectedErrorEmpty(taxType: String): String = s"Enter the amount of $taxType UK interest your client got"
-    def expectedErrorOverMax(taxType: String): String = s"The amount of $taxType UK interest must be less than £100,000,000,000"
-    def expectedErrorInvalid(taxType: String): String = s"Enter the amount of $taxType UK interest in the correct format"
-    val expectedUntaxedH1 = "HSBC: how much untaxed UK interest did your client get?"
-    val expectedTaxedH1 = "HSBC: how much taxed UK interest did your client get?"
-    val youToldUsUntaxed = s"You told us your client got £$amount untaxed UK interest. Tell us if this has changed."
-    val youToldUsTaxed = s"You told us your client got £$amount taxed UK interest. Tell us if this has changed."
+    val expectedUntaxedTitle = "Faint o log y DU sydd heb ei drethu a gafodd eich cleient?"
+    val expectedUntaxedErrorTitle = s"Gwall: $expectedUntaxedTitle"
+    val expectedTaxedTitle = "Faint o log y DU a drethwyd a gafodd eich cleient?"
+    val expectedTaxedErrorTitle = s"Gwall: $expectedTaxedTitle"
+    def expectedErrorEmpty(taxType: String): String = s"Nodwch swm y $taxType llog y DU a gafodd eich cleient"
+    def expectedErrorOverMax(taxType: String): String = s"Mae’n rhaid i swm $taxType llog y DU fod yn llai na £100,000,000,000"
+    def expectedErrorInvalid(taxType: String): String = s"Nodwch swm y $taxType llog y DU yn y fformat cywir"
+    val expectedUntaxedH1 = "HSBC: Faint o log y DU sydd heb ei drethu a gafodd eich cleient?"
+    val expectedTaxedH1 = "HSBC: Faint o log y DU a drethwyd a gafodd eich cleient?"
+    val youToldUsUntaxed = s"Gwnaethoch ddweud wrthym cafodd eich cleient £$amount Llog y DU sydd heb ei drethu. Rhowch wybod i ni a yw hyn wedi newid."
+    val youToldUsTaxed = s"Gwnaethoch ddweud wrthym cafodd eich cleient £$amount Llog y DU a drethwyd. Rhowch wybod i ni a yw hyn wedi newid."
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
@@ -199,7 +199,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
               implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-              titleCheck(if(testCase._3) specific.expectedUntaxedTitle else specific.expectedTaxedTitle)
+              titleCheck(if(testCase._3) specific.expectedUntaxedTitle else specific.expectedTaxedTitle, us.isWelsh)
               welshToggleCheck(us.isWelsh)
               h1Check((if(testCase._3) specific.expectedUntaxedH1 else specific.expectedTaxedH1) + " " + expectedCaption)
               textOnPageCheck(if(testCase._3) specific.youToldUsUntaxed else specific.youToldUsTaxed, youToldUsSelector)
@@ -237,7 +237,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
               implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-              titleCheck(if(testCase._3) specific.expectedUntaxedTitle else specific.expectedTaxedTitle)
+              titleCheck(if(testCase._3) specific.expectedUntaxedTitle else specific.expectedTaxedTitle, us.isWelsh)
               welshToggleCheck(us.isWelsh)
               h1Check((if(testCase._3) specific.expectedUntaxedH1 else specific.expectedTaxedH1) + " " + expectedCaption)
               textOnPageCheck(if(testCase._3) specific.youToldUsUntaxed else specific.youToldUsTaxed, youToldUsSelector)
@@ -272,7 +272,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
               implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-              titleCheck(if(testCase._3) specific.expectedUntaxedTitle else specific.expectedTaxedTitle)
+              titleCheck(if(testCase._3) specific.expectedUntaxedTitle else specific.expectedTaxedTitle, us.isWelsh)
               inputFieldValueCheck(differentAmount.toString(), newAmountInputSelector)
             }
         }
@@ -301,7 +301,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
                 implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-                titleCheck(if(testCase._3) specific.expectedUntaxedTitle else specific.expectedTaxedTitle)
+                titleCheck(if(testCase._3) specific.expectedUntaxedTitle else specific.expectedTaxedTitle, us.isWelsh)
                 textOnPageCheck("", youToldUsSelector)
                 inputFieldValueCheck("", newAmountInputSelector)
 
@@ -401,7 +401,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
               implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-              errorSummaryCheck(specific.expectedErrorEmpty(if (testCase._3) "untaxed" else "taxed"), newAmountInputSelector)
+              errorSummaryCheck(specific.expectedErrorEmpty(if (testCase._3) "untaxed" else "taxed"), newAmountInputSelector, us.isWelsh)
               errorAboveElementCheck(specific.expectedErrorEmpty(if (testCase._3) "untaxed" else "taxed"))
             }
         }
@@ -492,7 +492,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
               implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-              errorSummaryCheck(specific.expectedErrorInvalid(if (testCase._3) "untaxed" else "taxed"), newAmountInputSelector)
+              errorSummaryCheck(specific.expectedErrorInvalid(if (testCase._3) "untaxed" else "taxed"), newAmountInputSelector, us.isWelsh)
               errorAboveElementCheck(specific.expectedErrorInvalid(if (testCase._3) "untaxed" else "taxed"))
             }
         }
@@ -519,7 +519,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
               implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-              errorSummaryCheck(specific.expectedErrorOverMax(if (testCase._3) "untaxed" else "taxed"), newAmountInputSelector)
+              errorSummaryCheck(specific.expectedErrorOverMax(if (testCase._3) "untaxed" else "taxed"), newAmountInputSelector, us.isWelsh)
               errorAboveElementCheck(specific.expectedErrorOverMax(if (testCase._3) "untaxed" else "taxed"))
             }
         }

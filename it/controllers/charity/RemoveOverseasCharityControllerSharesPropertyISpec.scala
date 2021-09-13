@@ -64,21 +64,20 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends CharityITHelper
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val charityName = "TestCharity"
-    val expectedTitle = s"Are you sure you want to remove $charityName?"
-    val expectedErrorTitle = "Select yes to remove this overseas charity"
-    val expectedH1 = s"Are you sure you want to remove $charityName?"
-    val expectedContent = "This will remove all overseas charities."
-    val expectedCaption = "Donations to charity for 6 April 2021 to 5 April 2022"
-    val noSelectionError = "Select yes to remove this overseas charity"
-    val yesText = "Yes"
-    val noText = "No"
-    val button = "Continue"
+    val expectedTitle = s"A ydych yn siŵr eich bod am dynnu $charityName?"
+    val expectedErrorTitle = "Dewiswch ‘Iawn’ i dynnu’r elusen o dramor hon"
+    val expectedH1 = s"A ydych yn siŵr eich bod am dynnu $charityName?"
+    val expectedContent = "Bydd hyn yn tynnu pob elusen o dramor."
+    val expectedCaption = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
+    val noSelectionError = "Dewiswch ‘Iawn’ i dynnu’r elusen o dramor hon"
+    val yesText = "Iawn"
+    val noText = "Na"
+    val button = "Yn eich blaen"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, CommonExpectedResults]] = {
     Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, None),
-      UserScenario(isWelsh = false, isAgent = true,  CommonExpectedEN, None),
+      UserScenario(isWelsh = false, isAgent = true, CommonExpectedEN, None),
       UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, None),
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, None))
   }
@@ -105,7 +104,7 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends CharityITHelper
               result.status shouldBe OK
             }
 
-            titleCheck(expectedTitle)
+            titleCheck(expectedTitle, user.isWelsh)
             h1Check(expectedH1 + " " + expectedCaption)
             elementExtinct(Selectors.content)
             radioButtonCheck(yesText, 1)
@@ -130,7 +129,7 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends CharityITHelper
               result.status shouldBe OK
             }
 
-            titleCheck(expectedTitle)
+            titleCheck(expectedTitle, user.isWelsh)
             h1Check(expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedContent, Selectors.content)
             radioButtonCheck(yesText, 1)
@@ -141,111 +140,111 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends CharityITHelper
             welshToggleCheck(user.isWelsh)
           }
         }
-      }
-    }
 
-    "there is no cya data stored" should {
+        "there is no cya data stored" should {
 
-      lazy val result = getResult(url, None, None)
+          lazy val result = getResult(url, None, None)
 
-      "redirect the user to the overview page" in {
-        result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe overviewUrl
-      }
-    }
+          "redirect the user to the overview page" in {
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe overviewUrl
+          }
+        }
 
-    "'overseas SSLP charity names' is empty in cya data" should {
+        "'overseas SSLP charity names' is empty in cya data" should {
 
-      lazy val result = getResult(url, Some(GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(50))), None)
+          lazy val result = getResult(url, Some(GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(50))), None)
 
-      "redirect the user to the 'overseas SSLP charity name' page" in {
-        result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOverseasSharesNameController.show(year, None)}"
-      }
-    }
+          "redirect the user to the 'overseas SSLP charity name' page" in {
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOverseasSharesNameController.show(year, None)}"
+          }
+        }
 
-    "'overseas SSLP charity names' is nonEmpty, but the given charity is not there" should {
+        "'overseas SSLP charity names' is nonEmpty, but the given charity is not there" should {
 
-      lazy val result = getResult(url, Some(GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq("Dudes In Need")))), None)
+          lazy val result = getResult(url, Some(GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq("Dudes In Need")))), None)
 
-      "redirect the user to the 'overseas charity summary' page" in {
-        result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasSharesLandSummaryController.show(year)}"
-      }
-    }
-  }
-
-  ".submit" when {
-
-    userScenarios.foreach { user =>
-      s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
-
-        "return an error" when {
-
-          "the submitted data is empty" which {
-            lazy val result = postResult(url, requiredSessionData, None, Map(YesNoForm.yesNo -> ""), user.isAgent, user.isWelsh)
-
-            implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-            import user.commonExpectedResults._
-
-            titleCheck(errorPrefix + expectedTitle)
-            h1Check(expectedH1 + " " + expectedCaption)
-            radioButtonCheck(yesText, 1)
-            radioButtonCheck(noText, 2)
-            captionCheck(expectedCaption)
-            buttonCheck(button)
-            welshToggleCheck(user.isWelsh)
-            errorSummaryCheck(expectedErrorTitle, Selectors.errorHref)
-            errorAboveElementCheck(expectedErrorTitle)
+          "redirect the user to the 'overseas charity summary' page" in {
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasSharesLandSummaryController.show(year)}"
           }
         }
       }
     }
 
-    "there is no cya data" should {
-      lazy val result = postResult(url, None, None, Map(YesNoForm.yesNo -> YesNoForm.yes))
+      ".submit" when {
 
-      "redirect the user to the overview page" in {
-        result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${appConfig.incomeTaxSubmissionOverviewUrl(year)}"
-      }
-    }
+        userScenarios.foreach { user =>
+          s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
-    "the user has selected 'Yes' and is removing the last charity" should {
-      lazy val result = postResult(url, requiredSessionData, None, Map(YesNoForm.yesNo -> YesNoForm.yes))
+            "return an error" when {
 
-      "redirect the user to the cya page" in {
-        result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe cyaUrl(year)
-      }
-      "update the cya data" in {
-        findGiftAidDb shouldBe Some(requiredSessionModel.copy(
-          overseasDonatedSharesSecuritiesLandOrProperty = Some(false),
-          overseasDonatedSharesSecuritiesLandOrPropertyAmount = None,
-          overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq.empty[String])))
-      }
-    }
+              "the submitted data is empty" which {
+                lazy val result = postResult(url, requiredSessionData, None, Map(YesNoForm.yesNo -> ""), user.isAgent, user.isWelsh)
 
-    "the user has selected 'Yes' and is not removing the last charity" should {
-      val multipleCharities = GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq(charityName, "secondCharity")))
-      lazy val result = postResult(url, Some(multipleCharities), None, Map(YesNoForm.yesNo -> YesNoForm.yes))
-      "redirect the user to the 'overseas SSLP charity summary' page" in {
-        result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasSharesLandSummaryController.show(year)}"
-      }
-      "update the cya data" in {
-        findGiftAidDb shouldBe Some(requiredSessionModel.copy(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq("secondCharity"))))
-      }
-    }
+                implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-    "the user has selected 'No'" should {
-      lazy val result = postResult(url, requiredSessionData, None, Map(YesNoForm.yesNo -> YesNoForm.no))
+                import user.commonExpectedResults._
 
-      "redirect the user to the 'overseas SSLP charity summary' page" in {
-        result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasSharesLandSummaryController.show(year)}"
+                titleCheck(errorPrefix(user.isWelsh) + expectedTitle, user.isWelsh)
+                h1Check(expectedH1 + " " + expectedCaption)
+                radioButtonCheck(yesText, 1)
+                radioButtonCheck(noText, 2)
+                captionCheck(expectedCaption)
+                buttonCheck(button)
+                welshToggleCheck(user.isWelsh)
+                errorSummaryCheck(expectedErrorTitle, Selectors.errorHref, user.isWelsh)
+                errorAboveElementCheck(expectedErrorTitle)
+              }
+            }
+          }
+        }
+
+        "there is no cya data" should {
+          lazy val result = postResult(url, None, None, Map(YesNoForm.yesNo -> YesNoForm.yes))
+
+          "redirect the user to the overview page" in {
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe s"${appConfig.incomeTaxSubmissionOverviewUrl(year)}"
+          }
+        }
+
+        "the user has selected 'Yes' and is removing the last charity" should {
+          lazy val result = postResult(url, requiredSessionData, None, Map(YesNoForm.yesNo -> YesNoForm.yes))
+
+          "redirect the user to the cya page" in {
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe cyaUrl(year)
+          }
+          "update the cya data" in {
+            findGiftAidDb shouldBe Some(requiredSessionModel.copy(
+              overseasDonatedSharesSecuritiesLandOrProperty = Some(false),
+              overseasDonatedSharesSecuritiesLandOrPropertyAmount = None,
+              overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq.empty[String])))
+          }
+        }
+
+        "the user has selected 'Yes' and is not removing the last charity" should {
+          val multipleCharities = GiftAidCYAModel(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq(charityName, "secondCharity")))
+          lazy val result = postResult(url, Some(multipleCharities), None, Map(YesNoForm.yesNo -> YesNoForm.yes))
+          "redirect the user to the 'overseas SSLP charity summary' page" in {
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasSharesLandSummaryController.show(year)}"
+          }
+          "update the cya data" in {
+            findGiftAidDb shouldBe Some(requiredSessionModel.copy(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq("secondCharity"))))
+          }
+        }
+
+        "the user has selected 'No'" should {
+          lazy val result = postResult(url, requiredSessionData, None, Map(YesNoForm.yesNo -> YesNoForm.no))
+
+          "redirect the user to the 'overseas SSLP charity summary' page" in {
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasSharesLandSummaryController.show(year)}"
+          }
+        }
       }
     }
   }
-}

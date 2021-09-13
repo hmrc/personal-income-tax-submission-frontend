@@ -102,7 +102,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
     val youDoNotNeedText = "You do not need to tell us about amounts shown as 'equalisation' on your dividend voucher."
     val expectedErrorText = "Select yes if you got dividends from UK-based trusts or open-ended investment companies"
     val redirectTitle = "Check your income from dividends"
-    val redirectH1 = "Check your income from dividends Dividends for 6 April 2021 to 5 April 2022"
+    val redirectH1 = s"Check your income from dividends Dividends for 6 April ${taxYear - 1} to 5 April $taxYear"
   }
 
   object AgentExpectedEnglish extends SpecificExpectedResults {
@@ -112,7 +112,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
     val youDoNotNeedText = "You do not need to tell us about amounts shown as 'equalisation' on your client’s dividend voucher."
     val expectedErrorText = "Select yes if your client got dividends from UK-based trusts or open-ended investment companies"
     val redirectTitle = "Check your client’s income from dividends"
-    val redirectH1 = "Check your client’s income from dividends Dividends for 6 April 2021 to 5 April 2022"
+    val redirectH1 = s"Check your client’s income from dividends Dividends for 6 April ${taxYear - 1} to 5 April $taxYear"
   }
 
   object AllExpectedEnglish extends CommonExpectedResults {
@@ -135,41 +135,41 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
   }
 
   object IndividualExpectedWelsh extends SpecificExpectedResults {
-    val expectedH1 = "Did you get dividends from UK-based trusts or open-ended investment companies?"
-    val expectedTitle = "Did you get dividends from UK-based trusts or open-ended investment companies?"
-    val expectedErrorTitle = s"Error: $expectedTitle"
-    val youDoNotNeedText = "You do not need to tell us about amounts shown as 'equalisation' on your dividend voucher."
-    val expectedErrorText = "Select yes if you got dividends from UK-based trusts or open-ended investment companies"
-    val redirectTitle = "Check your income from dividends"
-    val redirectH1 = "Check your income from dividends Dividends for 6 April 2021 to 5 April 2022"
+    val expectedH1 = "A gawsoch ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored?"
+    val expectedTitle = "A gawsoch ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored?"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
+    val youDoNotNeedText = "Nid oes angen i chi roi gwybod i ni am symiau a ddangosir fel 'cyfartaliad' ar eich taleb ddifidend."
+    val expectedErrorText = "Dewiswch ‘Iawn’ os cawsoch ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored"
+    val redirectTitle = "Gwiriwch eich incwm o ddifidendau"
+    val redirectH1 = s"Gwiriwch eich incwm o ddifidendau Difidendau ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
   }
 
   object AgentExpectedWelsh extends SpecificExpectedResults {
-    val expectedH1 = "Did your client get dividends from UK-based trusts or open-ended investment companies?"
-    val expectedTitle = "Did your client get dividends from UK-based trusts or open-ended investment companies?"
-    val expectedErrorTitle = s"Error: $expectedTitle"
-    val youDoNotNeedText = "You do not need to tell us about amounts shown as 'equalisation' on your client’s dividend voucher."
-    val expectedErrorText = "Select yes if your client got dividends from UK-based trusts or open-ended investment companies"
-    val redirectTitle = "Check your client’s income from dividends"
-    val redirectH1 = "Check your client’s income from dividends Dividends for 6 April 2021 to 5 April 2022"
+    val expectedH1 = "A gafodd eich cleient ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored?"
+    val expectedTitle = "A gafodd eich cleient ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored?"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
+    val youDoNotNeedText = "Nid oes angen i chi roi gwybod i ni am symiau a ddangosir fel 'cyfartaliad' ar daleb ddifidend eich cleient."
+    val expectedErrorText = "Dewiswch ‘Iawn’ os cafodd eich cleient ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored"
+    val redirectTitle = "Gwiriwch incwm eich cleient o ddifidendau"
+    val redirectH1 = s"Gwiriwch incwm eich cleient o ddifidendau Difidendau ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
   }
 
   object AllExpectedWelsh extends CommonExpectedResults {
-    val captionExpected = s"Dividends for 6 April ${taxYear - 1} to 5 April $taxYear"
-    val youMustAlsoText = "You must also tell us about:"
-    val authorisedBulletText = "authorised unit trusts"
-    val investmentBulletText = "investment trusts"
-    val yourDividendsBulletText = "your dividends that were automatically reinvested"
-    val whatAreInvestmentText = "What are investment trusts, unit trusts and open-ended investment companies?"
-    val investmentTrustText = "Investment trusts make money through buying and selling shares or assets in other companies."
-    val unitTrustsText: String = "Unit trusts make money by buying and selling bonds or shares on the stock market. The fund is split " +
-      "into units which an investor buys. A fund manager creates and cancels units when investors join and leave the trust."
-    val openEndedText = "Open-ended investment companies are like unit trusts but create and cancel shares, rather than units, when investors join or leave."
-    val whatAreEqualisationText = "What are equalisation payments?"
-    val equalisationPaymentsText: String = "Equalisation payments are given to investors to make sure they’re charged fairly based " +
-      "on the performance of the trust. Equalisation payments are not counted as income because they’re a return of part of an investment."
-    val yesNo: Boolean => String = isYes => if (isYes) "Yes" else "No"
-    val continueButtonText = "Continue"
+    val captionExpected = s"Difidendau ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
+    val youMustAlsoText = "Mae’n rhaid i chi hefyd rhoi gwybod i ni am y canlynol:"
+    val authorisedBulletText = "ymddiriedolaethau unedol awdurdodedig"
+    val investmentBulletText = "ymddiriedolaethau buddsoddi"
+    val yourDividendsBulletText = "eich difidendau a gafodd eu hail-fuddsoddi’n awtomatig"
+    val whatAreInvestmentText = "Beth yw ymddiriedolaethau buddsoddi, ymddiriedolaethau unedol a chwmnïau buddsoddi penagored?"
+    val investmentTrustText = "Mae ymddiriedolaethau buddsoddi yn gwneud arian drwy brynu a gwerthu cyfranddaliadau neu asedau mewn cwmnïau eraill."
+    val unitTrustsText: String = "Mae ymddiriedolaethau unedol yn gwneud arian drwy brynu a gwerthu bondiau neu gyfranddaliadau ar y " +
+      "farchnad stoc. Mae’r gronfa wedi’i rhannu’n unedau y mae buddsoddwr yn eu prynu. Mae rheolwr cronfa yn creu ac yn canslo unedau pan fydd buddsoddwyr yn ymuno ac yn gadael yr ymddiriedolaeth."
+    val openEndedText = "Mae cwmnïau buddsoddi penagored yn debyg i ymddiriedolaethau unedol ond yn creu ac yn canslo cyfranddaliadau, yn hytrach nag unedau, pan fydd buddsoddwyr yn ymuno neu’n gadael."
+    val whatAreEqualisationText = "Beth yw taliadau cyfartaliad?"
+    val equalisationPaymentsText: String = "Rhoddir taliadau cyfartaliad i fuddsoddwyr i sicrhau y codir taliadau arnynt yn deg ar sail perfformiad yr ymddiriedolaeth. " +
+      "Nid yw taliadau cyfartaliad yn cael eu cyfrif fel incwm oherwydd eu bod yn rhan o fuddsoddiad."
+    val yesNo: Boolean => String = isYes => if (isYes) "Iawn" else "Na"
+    val continueButtonText = "Yn eich blaen"
     val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
   }
 
@@ -204,7 +204,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(get.expectedTitle)
+          titleCheck(get.expectedTitle, us.isWelsh)
           h1Check(get.expectedH1 + " " + captionExpected)
           textOnPageCheck(youMustAlsoText, youMustAlsoSelector)
           textOnPageCheck(authorisedBulletText, listContentSelector(1))
@@ -303,9 +303,9 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
             implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(get.expectedErrorTitle)
+            titleCheck(get.expectedErrorTitle, us.isWelsh)
             h1Check(get.expectedH1 + " " + captionExpected)
-            errorSummaryCheck(get.expectedErrorText, expectedErrorHref)
+            errorSummaryCheck(get.expectedErrorText, expectedErrorHref, us.isWelsh)
             textOnPageCheck(youMustAlsoText, youMustAlsoSelector)
             textOnPageCheck(authorisedBulletText, listContentSelector(1))
             textOnPageCheck(investmentBulletText, listContentSelector(2))

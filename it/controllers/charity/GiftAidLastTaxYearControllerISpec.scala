@@ -66,10 +66,10 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val expectedCaption: String = "Donations to charity for 6 April 2021 to 5 April 2022"
-    val yesText = "Yes"
-    val noText = "No"
-    val expectedContinue = "Continue"
+    val expectedCaption: String = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
+    val yesText = "Iawn"
+    val noText = "Na"
+    val expectedContinue = "Yn eich blaen"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -91,21 +91,21 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val expectedTitle: String = "Do you want to add any of your donations to the last tax year?"
-    val expectedH1: String = "Do you want to add any of your donations to the last tax year?"
-    val expectedError: String = "Select yes to add any of your donations to the last tax year"
-    val expectedContent1: String = "You told us you donated £150 to charity by using Gift Aid. You can add some of this donation" +
-      " to the 6 April 2020 to 5 April 2021 tax year."
-    val expectedContent2: String = "You might want to do this if you paid higher rate tax last year but will not this year."
+    val expectedTitle: String = "A ydych am ychwanegu unrhyw un o’ch rhoddion at y flwyddyn dreth ddiwethaf?"
+    val expectedH1: String = "A ydych am ychwanegu unrhyw un o’ch rhoddion at y flwyddyn dreth ddiwethaf?"
+    val expectedError: String = "Dewiswch ‘Iawn’ i ychwanegu unrhyw un o’ch rhoddion at y flwyddyn dreth ddiwethaf"
+    val expectedContent1: String = "Gwnaethoch roi gwybod i ni eich bod wedi rhoi £150 i elusen drwy ddefnyddio Rhodd Cymorth." +
+      " Gallwch ychwanegu rhywfaint o’r rhodd hon at flwyddyn dreth 6 Ebrill 2020 i 5 Ebrill 2021."
+    val expectedContent2: String = "Efallai y byddwch am wneud hyn os gwnaethoch dalu treth gyfradd uwch blwyddyn diwethaf ond na fyddwch y flwyddyn hon."
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val expectedTitle: String = "Do you want to add any of your client’s donations to the last tax year?"
-    val expectedH1: String = "Do you want to add any of your client’s donations to the last tax year?"
-    val expectedError: String = "Select yes to add any of your client’s donations to the last tax year"
-    val expectedContent1: String = "You told us your client donated £150 to charity by using Gift Aid. You can add some of this donation" +
-      " to the 6 April 2020 to 5 April 2021 tax year."
-    val expectedContent2: String = "You might want to do this if your client paid higher rate tax last year but will not this year."
+    val expectedTitle: String = "A ydych am ychwanegu unrhyw un o roddion eich cleient at y flwyddyn dreth ddiwethaf?"
+    val expectedH1: String = "A ydych am ychwanegu unrhyw un o roddion eich cleient at y flwyddyn dreth ddiwethaf?"
+    val expectedError: String = "Dewiswch ‘Iawn’ i ychwanegu unrhyw un o roddion eich cleient at y flwyddyn dreth ddiwethaf"
+    val expectedContent1: String = "Gwnaethoch roi gwybod i ni fod eich cleient wedi rhoi £150 i elusen drwy ddefnyddio Rhodd Cymorth." +
+      " Gallwch ychwanegu rhywfaint o’r rhodd hon at flwyddyn dreth 6 Ebrill 2020 i 5 Ebrill 2021."
+    val expectedContent2: String = "Efallai y byddwch am wneud hyn os gwnaeth eich cleient dalu treth gyfradd uwch blwyddyn diwethaf ond na fydd y flwyddyn hon."
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
@@ -143,7 +143,7 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
             result.status shouldBe OK
           }
 
-          titleCheck(user.specificExpectedResults.get.expectedTitle)
+          titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(user.specificExpectedResults.get.expectedContent1, contentSelector1)
@@ -167,7 +167,7 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
             result.status shouldBe OK
           }
 
-          titleCheck(user.specificExpectedResults.get.expectedTitle)
+          titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(user.specificExpectedResults.get.expectedContent1, contentSelector1)
@@ -240,7 +240,7 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
           import Selectors._
           import user.commonExpectedResults._
 
-          titleCheck(errorPrefix + user.specificExpectedResults.get.expectedTitle)
+          titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
           textOnPageCheck(user.specificExpectedResults.get.expectedContent1, contentSelector1)
@@ -248,7 +248,7 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
           buttonCheck(expectedContinue, continueSelector)
-          errorSummaryCheck(user.specificExpectedResults.get.expectedError, errorSummaryHref)
+          errorSummaryCheck(user.specificExpectedResults.get.expectedError, errorSummaryHref, user.isWelsh)
           errorAboveElementCheck(user.specificExpectedResults.get.expectedError)
           welshToggleCheck(user.isWelsh)
 

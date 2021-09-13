@@ -30,7 +30,7 @@
 
 @(form: Form[Boolean], taxYear: Int, overseasCharities: List[String])(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
-@titleForUse = @{messages(s"charity.shares-and-land-summary.title.${if(user.isAgent) "agent" else "individual"}", if(overseasCharities.length == 1) "charity" else "charities")}
+@titleForUse = @{messages(s"charity.shares-and-land-summary.title.${if(overseasCharities.length == 1) "single" else "multiple"}.${if(user.isAgent) "agent" else "individual"}")}
 
 @hasFormErrors = @{form.hasErrors}
 
@@ -51,7 +51,7 @@
                 <span class="hmrc-add-to-a-list__remove">
                     <a class="govuk-link" href="@controllers.charity.routes.RemoveOverseasCharityController.show(taxYear = taxYear, charityType = "SHARES_PROPERTY", charityName = charity)">
                     <span aria-hidden="true">@messages("common.remove")</span>
-                    <span class="govuk-visually-hidden">@{s"${messages("common.remove")} $charity."}</span>
+                    <span class="govuk-visually-hidden">@{messages("charity.overseas-gift-aid-summary.hiddenRemove", charity)}</span>
                     </a>
                 </span>
             </li>

@@ -33,6 +33,8 @@ trait ViewTest extends UnitTest {
   val serviceName = "Update and submit an Income Tax Return"
   val govUkExtension = "GOV.UK"
 
+  val serviceNameWelsh = "Diweddaru a chyflwyno Ffurflen Dreth Incwm"
+
   def elements(selector: String)(implicit document: Document): Elements = {
     document.select(selector)
   }
@@ -70,6 +72,12 @@ trait ViewTest extends UnitTest {
   def titleCheck(title: String)(implicit document: Document): Unit = {
     s"has a title of $title" in {
       document.title() shouldBe s"$title - $serviceName - $govUkExtension"
+    }
+  }
+
+  def titleCheckWelsh(title: String)(implicit document: Document): Unit = {
+    s"has a title of $title" in {
+      document.title() shouldBe s"$title - $serviceNameWelsh - $govUkExtension"
     }
   }
 

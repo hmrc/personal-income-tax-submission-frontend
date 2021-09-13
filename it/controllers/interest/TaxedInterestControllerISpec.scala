@@ -77,15 +77,15 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val expectedCaption = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
-    val forExampleText = "This could be interest from:"
-    val trustFundsText = "trust funds"
-    val companyBondsText = "company bonds"
-    val lifeAnnuityText = "life annuity payments"
+    val expectedCaption = s"Llog ar gyfer 6 Ebrill $taxYearMinusOne i 5 Ebrill $taxYear"
+    val forExampleText = "Gallai hyn fod yn llog gan:"
+    val trustFundsText = "cronfeydd ymddiriedolaeth"
+    val companyBondsText = "bondiau cwmni"
+    val lifeAnnuityText = "taliadau blwydd-dal bywyd"
 
-    val yesText = "Yes"
-    val noText = "No"
-    val continueText = "Continue"
+    val yesText = "Iawn"
+    val noText = "Na"
+    val continueText = "Yn eich blaen"
     val continueLink = s"/income-through-software/return/personal-income/$taxYear/interest/taxed-uk-interest"
   }
 
@@ -106,19 +106,19 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val expectedTitle = "Did you get taxed interest from the UK?"
-    val expectedErrorTitle = s"Error: $expectedTitle"
-    val expectedH1 = "Did you get taxed interest from the UK?"
-    val doNotIncludeText = "Do not include interest you got from an Individual Savings Account (ISA) or gilts."
-    val expectedErrorText: String = "Select yes if you got taxed UK interest"
+    val expectedTitle = "A gawsoch log y DU a drethwyd?"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
+    val expectedH1 = "A gawsoch log y DU a drethwyd?"
+    val doNotIncludeText = "Peidiwch â chynnwys llog a gawsoch gan Gyfrif Cynilo Unigol (ISA) neu giltiau."
+    val expectedErrorText: String = "Dewiswch ‘Iawn’ os gawsoch log y DU a drethwyd"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val expectedTitle = "Did your client get taxed interest from the UK?"
-    val expectedErrorTitle = s"Error: $expectedTitle"
-    val expectedH1 = "Did your client get taxed interest from the UK?"
-    val doNotIncludeText = "Do not include interest your client got from an Individual Savings Account (ISA) or gilts."
-    val expectedErrorText: String = "Select yes if your client got taxed UK interest"
+    val expectedTitle = "A gafodd eich cleient llog y DU a drethwyd?"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
+    val expectedH1 = "A gafodd eich cleient llog y DU a drethwyd?"
+    val doNotIncludeText = "Peidiwch â chynnwys llog a gafodd eich cleient gan Gyfrif Cynilo Unigol (ISA) neu giltiau."
+    val expectedErrorText: String = "Dewiswch ‘Iawn’ os gafodd eich cleient llog y DU a drethwyd"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
@@ -165,7 +165,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(specific.expectedTitle)
+            titleCheck(specific.expectedTitle, us.isWelsh)
             welshToggleCheck(us.isWelsh)
             h1Check(specific.expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
@@ -371,11 +371,11 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(specific.expectedErrorTitle)
+            titleCheck(specific.expectedErrorTitle, us.isWelsh)
             welshToggleCheck(us.isWelsh)
             h1Check(specific.expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
-            errorSummaryCheck(specific.expectedErrorText, valueHref)
+            errorSummaryCheck(specific.expectedErrorText, valueHref, us.isWelsh)
             errorAboveElementCheck(specific.expectedErrorText)
             buttonCheck(continueText, continueSelector)
             formPostLinkCheck(continueLink, continueFormSelector)

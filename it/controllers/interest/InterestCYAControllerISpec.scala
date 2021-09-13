@@ -108,12 +108,12 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val captionExpected = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
-    val changeLinkExpected = "Change"
-    val questionUntaxedInterestExpected = "Untaxed UK Interest"
-    val questionUntaxedInterestDetailsExpected = "Untaxed UK interest accounts"
-    val questionTaxedInterestExpected = "Taxed UK Interest"
-    val question4TaxedInterestDetailExpected = "Taxed UK interest accounts"
+    val captionExpected = s"Llog ar gyfer 6 Ebrill $taxYearMinusOne i 5 Ebrill $taxYear"
+    val changeLinkExpected = "Newid"
+    val questionUntaxedInterestExpected = "Llog y DU sydd heb ei drethu"
+    val questionUntaxedInterestDetailsExpected = "Cyfrifon llog y DU sydd heb ei drethu"
+    val questionTaxedInterestExpected = "Llog y DU a drethwyd"
+    val question4TaxedInterestDetailExpected = "Cyfrifon llog y DU a drethwyd"
     val untaxedInterestAccount1ExpectedTest = "UntaxedBank1 : £100"
     val taxedInterestAccount1ExpectedTest = "TaxedBank1 : £200"
     val taxedInterestAccount2ExpectedTest = "TaxedBank2 : £400"
@@ -121,10 +121,10 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
     val changeUntaxedInterestAmountHref = s"/income-through-software/return/personal-income/$taxYear/interest/accounts-with-untaxed-uk-interest"
     val changeTaxedInterestHref = s"/income-through-software/return/personal-income/$taxYear/interest/taxed-uk-interest"
     val changeTaxedInterestAmountHref = s"/income-through-software/return/personal-income/$taxYear/interest/accounts-with-taxed-uk-interest"
-    val submitText = "Save and continue"
+    val submitText = "Cadw ac yn eich blaen"
     val submitLink = s"/income-through-software/return/personal-income/$taxYear/interest/check-interest"
-    val Yes = "Yes"
-    val No = "No"
+    val Yes = "Iawn"
+    val No = "Na"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -148,23 +148,23 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val h1Expected = "Check your UK interest"
-    val titleExpected = "Check your UK interest"
+    val h1Expected = "Gwiriwch eich llog y DU"
+    val titleExpected = "Gwiriwch eich llog y DU"
 
-    val changeUntaxedInterestHiddenText = "if you got untaxed UK interest"
-    val changeUntaxedDetailsHiddenText = "the details of your account with untaxed UK interest"
-    val changeTaxedInterestHiddenText = "if you got taxed UK interest"
-    val changeTaxedDetailsHiddenText = "the details of your account with taxed UK interest"
+    val changeUntaxedInterestHiddenText = "os cawsoch gyfrifon llog y DU a drethwyd"
+    val changeUntaxedDetailsHiddenText = "manylion eich cyfrif sydd â llog y DU sydd heb ei drethu"
+    val changeTaxedInterestHiddenText = "os cawsoch log y DU a drethwyd"
+    val changeTaxedDetailsHiddenText = "manylion eich cyfrif sydd â llog y DU a drethwyd"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val h1Expected = "Check your client’s UK interest"
-    val titleExpected = "Check your client’s UK interest"
+    val h1Expected = "Gwiriwch log y DU eich cleient"
+    val titleExpected = "Gwiriwch log y DU eich cleient"
 
-    val changeUntaxedInterestHiddenText = "if your client got untaxed UK interest"
-    val changeUntaxedDetailsHiddenText = "the details of your client’s account with untaxed UK interest"
-    val changeTaxedInterestHiddenText = "if your client got taxed UK interest"
-    val changeTaxedDetailsHiddenText = "the details of your client’s account with taxed UK interest"
+    val changeUntaxedInterestHiddenText = "os cafodd eich cleient cyfrifon llog y DU sydd heb ei drethu"
+    val changeUntaxedDetailsHiddenText = "manylion cyfrif eich cleient sydd â llog y DU sydd heb ei drethu"
+    val changeTaxedInterestHiddenText = "os cafodd eich cleient llog y DU a drethwyd"
+    val changeTaxedDetailsHiddenText = "manylion cyfrif eich cleient sydd â llog y DU a drethwyd"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
@@ -220,7 +220,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(specific.titleExpected)
+          titleCheck(specific.titleExpected, us.isWelsh)
           welshToggleCheck(us.isWelsh)
           h1Check(specific.h1Expected + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
@@ -330,7 +330,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(specific.titleExpected)
+          titleCheck(specific.titleExpected, us.isWelsh)
           welshToggleCheck(us.isWelsh)
           h1Check(specific.h1Expected + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
@@ -388,7 +388,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(specific.titleExpected)
+            titleCheck(specific.titleExpected, us.isWelsh)
             welshToggleCheck(us.isWelsh)
             h1Check(specific.h1Expected + " " + captionExpected)
             textOnPageCheck(captionExpected, captionSelector)
@@ -448,7 +448,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(specific.titleExpected)
+            titleCheck(specific.titleExpected, us.isWelsh)
             welshToggleCheck(us.isWelsh)
             h1Check(specific.h1Expected + " " + captionExpected)
             textOnPageCheck(captionExpected, captionSelector)

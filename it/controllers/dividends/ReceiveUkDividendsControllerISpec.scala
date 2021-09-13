@@ -84,25 +84,25 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
   }
 
   object IndividualExpectedWelsh extends SpecificExpectedResults {
-    val expectedH1 = "Did you get dividends from UK-based companies?"
-    val expectedTitle = "Did you get dividends from UK-based companies?"
-    val expectedErrorTitle = s"Error: $expectedTitle"
-    val yourDividendsText = "Your dividend voucher will tell you the shares you have in the company and the amount of the dividend you got."
-    val expectedErrorText = "Select yes if you got dividends from UK-based companies"
+    val expectedH1 = "A gawsoch ddifidendau gan gwmnïau yn y DU?"
+    val expectedTitle = "A gawsoch ddifidendau gan gwmnïau yn y DU?"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
+    val yourDividendsText = "Bydd eich taleb ddifidend yn rhoi gwybod i chi am y cyfranddaliadau sydd gennych yn y cwmni a swm y difidend a gawsoch."
+    val expectedErrorText = "Dewiswch ‘Iawn’ os cawsoch ddifidendau gan gwmnïau yn y DU"
   }
 
   object AgentExpectedWelsh extends SpecificExpectedResults {
-    val expectedH1 = "Did your client get dividends from UK-based companies?"
-    val expectedTitle = "Did your client get dividends from UK-based companies?"
-    val expectedErrorTitle = s"Error: $expectedTitle"
-    val yourDividendsText = "Your client’s dividend voucher will tell you the shares they have in the company and the amount of the dividend they got."
-    val expectedErrorText = "Select yes if your client got dividends from UK-based companies"
+    val expectedH1 = "A gafodd eich cleient ddifidendau gan gwmnïau yn y DU?"
+    val expectedTitle = "A gafodd eich cleient ddifidendau gan gwmnïau yn y DU?"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
+    val yourDividendsText = "Bydd taleb ddifidend eich cleient yn rhoi gwybod i chi am y cyfranddaliadau sydd ganddynt yn y cwmni a swm y difidend a gafodd."
+    val expectedErrorText = "Dewiswch ‘Iawn’ os cafodd eich cleient ddifidendau gan gwmnïau yn y DU"
   }
 
   object AllExpectedWelsh extends CommonExpectedResults {
-    val captionExpected = s"Dividends for 6 April ${taxYear - 1} to 5 April $taxYear"
-    val yesNo: Boolean => String = isYes => if (isYes) "Yes" else "No"
-    val continueText = "Continue"
+    val captionExpected = s"Difidendau ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
+    val yesNo: Boolean => String = isYes => if (isYes) "Iawn" else "Na"
+    val continueText = "Yn eich blaen"
     val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/dividends-from-uk-companies"
     val errorSummaryHref = "#value"
   }
@@ -136,7 +136,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(get.expectedTitle)
+          titleCheck(get.expectedTitle, us.isWelsh)
           h1Check(s"${get.expectedH1} ${captionExpected}")
           textOnPageCheck(get.yourDividendsText, yourDividendsSelector)
           radioButtonCheck(yesNo(true), 1)
@@ -162,7 +162,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(get.expectedTitle)
+          titleCheck(get.expectedTitle, us.isWelsh)
           h1Check(s"${get.expectedH1} ${captionExpected}")
           textOnPageCheck(get.yourDividendsText, yourDividendsSelector)
           radioButtonCheck(yesNo(true), 1)
@@ -225,7 +225,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
             authoriseAgentOrIndividual(us.isAgent)
             dropDividendsDB()
             emptyUserDataStub()
-            urlPost(receiveUkDividendsUrl, follow = false, headers = playSessionCookie(us.isAgent), body = Map[String, String]())
+            urlPost(receiveUkDividendsUrl, welsh=us.isWelsh, follow = false, headers = playSessionCookie(us.isAgent), body = Map[String, String]())
           }
 
           s"has a $BAD_REQUEST(400) status" in {
@@ -233,7 +233,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           }
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
-          errorSummaryCheck(get.expectedErrorText, expectedErrorLink)
+          errorSummaryCheck(get.expectedErrorText, expectedErrorLink, us.isWelsh)
           errorAboveElementCheck(get.expectedErrorText)
         }
 
@@ -253,9 +253,9 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(get.expectedErrorTitle)
+          titleCheck(get.expectedErrorTitle, us.isWelsh)
           h1Check(s"${get.expectedH1} ${captionExpected}")
-          errorSummaryCheck(get.expectedErrorText, errorSummaryHref)
+          errorSummaryCheck(get.expectedErrorText, errorSummaryHref, us.isWelsh)
           textOnPageCheck(get.yourDividendsText, yourDividendsSelector)
           radioButtonCheck(yesNo(true), 1)
           radioButtonCheck(yesNo(false), 2)

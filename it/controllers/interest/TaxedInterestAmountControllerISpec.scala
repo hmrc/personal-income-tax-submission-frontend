@@ -88,21 +88,21 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val heading: String = "Add an account with taxed UK interest"
-    val caption: String = "Interest for 6 April 2021 to 5 April 2022"
-    val accountName: String = "What do you want to name this account?"
-    val eachAccount = "Give each account a different name."
-    val interestEarned: String = "Amount of taxed UK interest"
-    val hint: String = "For example, ‘HSBC savings account’. " + "For example, £600 or £193.54"
-    val button: String = "Continue"
-    val noNameEntryError: String = "Enter a name for this account"
-    val invalidCharEntry: String = "Name of account with taxed UK interest must only include numbers 0-9, " +
-      "letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets, and the special characters &, @, £, *"
-    val nameTooLongError: String = "The name of the account must be 32 characters or fewer"
-    val duplicateNameError: String = "You cannot add 2 accounts with the same name"
-    val tooMuchMoneyError = "The amount of taxed UK interest must be less than £100,000,000,000"
-    val incorrectFormatError = "Enter the amount of taxed UK interest in the correct format"
-    val errorTitle: String = s"Error: $heading"
+    val heading: String = "Ychwanegwch gyfrif gyda llog y DU a drethwyd"
+    val caption: String = "Llog ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
+    val accountName: String = "Beth yw’r enw rydych am roi i’r cyfrif hwn?"
+    val eachAccount = "Rhowch enw gwahanol i bob cyfrif."
+    val interestEarned: String = "Swm y llog y DU a drethwyd"
+    val hint: String = "Er enghraifft, ‘cyfrif cynilo HSBC’. " + "Er enghraifft, £600 neu £193.54"
+    val button: String = "Yn eich blaen"
+    val noNameEntryError: String = "Nodwch enw ar gyfer y cyfrif hwn"
+    val invalidCharEntry: String = "Mae’n rhaid i enw’r cyfrif sydd â llog y DU a drethwyd cynnwys rhifau 0-9, " +
+      "llythrennau a i z, cysylltnodau, bylchau, collnodau, comas, atalnodau llawn, cromfachau crwn, a’r cymeriadau arbennig &, @, £, * yn unig"
+    val nameTooLongError: String = "Mae’n rhaid i enw’r cyfrif fod yn 32 o gymeriadau neu lai"
+    val duplicateNameError: String = "Ni allwch ychwanegu 2 gyfrif gyda’r un enw"
+    val tooMuchMoneyError = "Mae’n rhaid i swm y llog y DU a drethwyd fod yn llai na £100,000,000,000"
+    val incorrectFormatError = "Nodwch swm y llog y DU a drethwyd yn y fformat cywir"
+    val errorTitle: String = s"Gwall: $heading"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -114,11 +114,11 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val noAmountEntryError = "Enter the amount of taxed UK interest you got"
+    val noAmountEntryError = "Nodwch swm y llog y DU a drethwyd a gawsoch"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val noAmountEntryError = "Enter the amount of taxed UK interest your client got"
+    val noAmountEntryError = "Nodwch swm y llog y DU a drethwyd a gafodd eich cleient"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
@@ -160,7 +160,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(heading)
+          titleCheck(heading, us.isWelsh)
           welshToggleCheck(us.isWelsh)
           h1Check(s"$heading $caption")
           captionCheck(caption)
@@ -316,7 +316,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
             List(
               (noNameEntryError, Selectors.accountNameInput),
               (specific.noAmountEntryError, Selectors.amountInput)
-            )
+            ), us.isWelsh
           )
         }
 
@@ -334,7 +334,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
             List(
               (invalidCharEntry, Selectors.accountNameInput),
               (incorrectFormatError, Selectors.amountInput)
-            )
+            ), us.isWelsh
           )
         }
 
@@ -352,7 +352,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
             List(
               (nameTooLongError, Selectors.accountNameInput),
               (tooMuchMoneyError, Selectors.amountInput)
-            )
+            ), us.isWelsh
           )
         }
 
@@ -370,9 +370,8 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
 
           inputFieldValueCheck("Sensible account", Selectors.accountNameInput)
           inputFieldValueCheck("500.8.75", Selectors.amountInput)
-          titleCheck(errorTitle)
-
-          errorSummaryCheck(incorrectFormatError, Selectors.amountInput)
+          titleCheck(errorTitle, us.isWelsh)
+          errorSummaryCheck(incorrectFormatError, Selectors.amountInput, us.isWelsh)
           errorAboveElementCheck(incorrectFormatError)
         }
 
@@ -402,9 +401,9 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
 
           inputFieldValueCheck(secondAccountName, Selectors.accountNameInput)
           inputFieldValueCheck("12344.98", Selectors.amountInput)
-          titleCheck(errorTitle)
+          titleCheck(errorTitle, us.isWelsh)
 
-          errorSummaryCheck(duplicateNameError, Selectors.accountNameInput)
+          errorSummaryCheck(duplicateNameError, Selectors.accountNameInput, us.isWelsh)
           errorAboveElementCheck(duplicateNameError)
         }
 
