@@ -79,7 +79,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
     val button: String = "Continue"
     val noNameEntryError: String = "Enter a name for this account"
     val invalidCharEntry: String = "Name of account with untaxed UK interest must only include numbers 0-9, " +
-      "letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets, and the special characters &, /, @, £, *"
+      "letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets, and the special characters &, @, £, *"
     val nameTooLongError: String = "The name of the account must be 32 characters or fewer"
     val duplicateNameError: String = "You cannot add 2 accounts with the same name"
     val tooMuchMoneyError = "The amount of untaxed UK interest must be less than £100,000,000,000"
@@ -97,7 +97,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
     val button: String = "Yn eich blaen"
     val noNameEntryError: String = "Nodwch enw ar gyfer y cyfrif hwn"
     val invalidCharEntry: String = "Mae’n rhaid i enw’r cyfrif sydd â llog y DU sydd heb ei drethu cynnwys rhifau 0-9," +
-      " llythrennau a i z, cysylltnodau, bylchau, collnodau, comas, atalnodau llawn, cromfachau crwn, a’r cymeriadau arbennig &, /, @, £, * yn unig"
+      " llythrennau a i z, cysylltnodau, bylchau, collnodau, comas, atalnodau llawn, cromfachau crwn, a’r cymeriadau arbennig &, @, £, * yn unig"
     val nameTooLongError: String = "Mae’n rhaid i enw’r cyfrif fod yn 32 o gymeriadau neu lai"
     val duplicateNameError: String = "Ni allwch ychwanegu 2 gyfrif gyda’r un enw"
     val tooMuchMoneyError = "Mae’n rhaid i swm y llog y DU sydd heb ei drethu fod yn llai na £100,000,000,000"

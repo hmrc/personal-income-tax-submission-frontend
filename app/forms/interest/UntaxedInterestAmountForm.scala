@@ -17,7 +17,7 @@
 package forms.interest
 
 import filters.InputFilters
-import forms.validation.StringConstraints.{nonEmpty, validateChar, validateSize, validateNotDuplicateInterestAccount}
+import forms.validation.StringConstraints._
 import forms.validation.mappings.MappingUtil.{currency, trimmedText}
 import models.interest.UntaxedInterestModel
 import play.api.data.Form
@@ -32,7 +32,7 @@ object UntaxedInterestAmountForm extends InputFilters {
 
   val nameNotEmpty: Constraint[String] = nonEmpty("interest.common.error.name.empty")
 
-  val noInvalidChar: Constraint[String] = validateChar("interest.untaxed-uk-interest-details.error.invalidChars")
+  val noInvalidChar: Constraint[String] = validateChar("interest.untaxed-uk-interest-details.error.invalidChars", charRegexInterest)
 
   val exceedCharLimit: Constraint[String] = validateSize(charLimit)("interest.accounts.error.tooLong")
 

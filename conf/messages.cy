@@ -195,7 +195,7 @@ interest.untaxed-uk-interest-amount.error.empty.agent = Nodwch swm y llog y DU s
 interest.untaxed-uk-interest-amount.error.invalid-numeric = Nodwch swm y llog y DU sydd heb ei drethu yn y fformat cywir
 interest.untaxed-uk-interest-amount.error.max-amount = Mae’n rhaid i swm y llog y DU sydd heb ei drethu fod yn llai na £100,000,000,000
 
-interest.untaxed-uk-interest-details.error.invalidChars = Mae’n rhaid i enw’r cyfrif sydd â llog y DU sydd heb ei drethu cynnwys rhifau 0-9, llythrennau a i z, cysylltnodau, bylchau, collnodau, comas, atalnodau llawn, cromfachau crwn, a’r cymeriadau arbennig &, /, @, £, * yn unig
+interest.untaxed-uk-interest-details.error.invalidChars = Mae’n rhaid i enw’r cyfrif sydd â llog y DU sydd heb ei drethu cynnwys rhifau 0-9, llythrennau a i z, cysylltnodau, bylchau, collnodau, comas, atalnodau llawn, cromfachau crwn, a’r cymeriadau arbennig &, @, £, * yn unig
 
 interest.untaxed-uk-interest-accounts.title = Cyfrifon sydd â llog y DU sydd heb ei drethu
 interest.untaxed-uk-interest-accounts.account.tell-us-about-all.individual = Mae’n rhaid i chi roi gwybod i ni am eich holl gyfrifon sydd â llog y DU sydd heb ei drethu.
@@ -212,7 +212,7 @@ interest.taxed-uk-interest.errors.noRadioSelected.individual = Dewiswch ‘Iawn�
 interest.taxed-uk-interest.errors.noRadioSelected.agent = Dewiswch ‘Iawn’ os gafodd eich cleient llog y DU a drethwyd
 
 interest.taxed-uk-interest-details.title = Ychwanegwch gyfrif gyda llog y DU a drethwyd
-interest.taxed-uk-interest-amount.error.invalidChars = Mae’n rhaid i enw’r cyfrif sydd â llog y DU a drethwyd cynnwys rhifau 0-9, llythrennau a i z, cysylltnodau, bylchau, collnodau, comas, atalnodau llawn, cromfachau crwn, a’r cymeriadau arbennig &, /, @, £, * yn unig
+interest.taxed-uk-interest-amount.error.invalidChars = Mae’n rhaid i enw’r cyfrif sydd â llog y DU a drethwyd cynnwys rhifau 0-9, llythrennau a i z, cysylltnodau, bylchau, collnodau, comas, atalnodau llawn, cromfachau crwn, a’r cymeriadau arbennig &, @, £, * yn unig
 interest.taxed-uk-interest.amount.interest.earned = Swm y llog y DU a drethwyd
 interest.taxed-uk-interest-amount.error.empty.individual = Nodwch swm y llog y DU a drethwyd a gawsoch
 interest.taxed-uk-interest-amount.error.empty.agent = Nodwch swm y llog y DU a drethwyd a gafodd eich cleient
