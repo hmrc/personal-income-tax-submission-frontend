@@ -23,7 +23,6 @@ import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.YesNoForm
 import models.User
 import models.charity.GiftAidCYAModel
-import models.charity.GiftAidCYAModel.resetDonatedSharesSecuritiesLandOrProperty
 import models.charity.prior.GiftAidSubmissionModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
@@ -97,9 +96,11 @@ class GiftAidDonateLandOrPropertyController @Inject()(
           yesOrNoResponse =>
             val updatedModel = updatedCya(yesOrNoResponse, cyaData)
 
-            val redirectLocation = (yesOrNoResponse, cyaData.isFinished) match {
-              case (true, _) => Redirect(controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(taxYear))
-              case (_, true) => redirectToCya(taxYear)
+            val redirectLocation = (yesOrNoResponse, cyaData.donatedSharesOrSecurities, cyaData.isFinished) match {
+              case (true, _, _) => Redirect(controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(taxYear))
+              case (false, Some(false), _) =>
+                Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyConfirmationController.show(taxYear, "LAND_PROPERTY"))
+              case (_,_ ,true) => redirectToCya(taxYear)
               case _ => Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(taxYear))
             }
 
@@ -118,7 +119,7 @@ class GiftAidDonateLandOrPropertyController @Inject()(
 
   private def updatedCya(yesOrNoResult: Boolean, cyaData: GiftAidCYAModel): GiftAidCYAModel = {
     if (!yesOrNoResult & cyaData.donatedSharesOrSecurities.contains(false)) {
-      resetDonatedSharesSecuritiesLandOrProperty(cyaData)
+        cyaData
     } else {
       cyaData.copy(
         donatedLandOrProperty = Some(yesOrNoResult),

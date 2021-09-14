@@ -19,4 +19,6 @@ package common
 object OverseasCharityTaxTypes {
   val GIFTAID = "GIFT_AID"
   val SHARES = "SHARES_PROPERTY"
+  val SHARES_SECURITIES = "SHARES_SECURITIES"
+  val LAND_PROPERTY = "LAND_PROPERTY"
 }

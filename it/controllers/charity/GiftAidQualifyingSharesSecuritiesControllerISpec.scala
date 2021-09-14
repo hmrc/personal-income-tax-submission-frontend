@@ -16,6 +16,7 @@
 
 package controllers.charity
 
+import common.OverseasCharityTaxTypes.SHARES_SECURITIES
 import forms.YesNoForm
 import models.charity.GiftAidCYAModel
 import models.charity.prior.{GiftAidSubmissionModel, GiftsModel}
@@ -271,23 +272,15 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends CharityITHelper {
         val model = completeGiftAidCYAModel.copy(donatedLandOrProperty = Some(false), donatedLandOrPropertyAmount = None)
         lazy val result = postResult(url, Some(model), None, Map(YesNoForm.yesNo -> YesNoForm.no))
 
-        "redirect to the 'check your answers' page" in {
+        "redirect to remove SharesSecurities Confirmation page" in {
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head shouldBe cyaUrl(year)
+          result.headers("Location").head shouldBe
+            controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyConfirmationController.show(year, SHARES_SECURITIES).url
         }
 
         "update the cya data" in {
           findGiftAidDb shouldBe
-            Some(completeGiftAidCYAModel.copy(
-              donatedSharesSecuritiesLandOrProperty = Some(false),
-              donatedSharesOrSecurities = None,
-              donatedSharesOrSecuritiesAmount = None,
-              donatedLandOrProperty = None,
-              donatedLandOrPropertyAmount = None,
-              overseasDonatedSharesSecuritiesLandOrProperty = None,
-              overseasDonatedSharesSecuritiesLandOrPropertyAmount = None,
-              overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq.empty[String])
-            ))
+            Some(completeGiftAidCYAModel.copy(donatedLandOrProperty = Some(false), donatedLandOrPropertyAmount = None))
         }
       }
 

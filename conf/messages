@@ -429,6 +429,14 @@ charity.qualifying-shares-or-securities.title.agent = Did your client donate qua
 charity.qualifying-shares-or-securities.errors.noChoice.individual = Select yes if you donated shares or securities to charity
 charity.qualifying-shares-or-securities.errors.noChoice.agent = Select yes if your client donated shares or securities to charity
 
+charity.sharesSecuritiesLandPropertyConfirmation.title.Shares.individual = Are you sure you did not donate shares or securities to charity?
+charity.sharesSecuritiesLandPropertyConfirmation.title.Shares.agent = Are you sure your client did not donate shares or securities to charity?
+charity.sharesSecuritiesLandPropertyConfirmation.title.Land.individual = Are you sure you did not donate land or property to charity?
+charity.sharesSecuritiesLandPropertyConfirmation.title.Land.agent = Are you sure your client did not donate land or property to charity?
+charity.sharesSecuritiesLandPropertyConfirmation.errors.noChoice = Select yes to remove all shares, securities, land and property donated to charity
+charity.sharesSecuritiesLandPropertyConfirmation.caption.individual = This will mean that you did not donate any shares, securities, land or property to charity.
+charity.sharesSecuritiesLandPropertyConfirmation.caption.agent = This will mean that your client did not donate any shares, securities, land or property to charity.
+
 charity.shares-or-securities.heading = What is the total value of qualifying shares or securities donated to charity?
 charity.shares-or-securities.individual.prior = You told us you donated {0} in shares and securities to charity this year. Tell us if this has changed.
 charity.shares-or-securities.agent.prior = You told us your client donated {0} in shares and securities to charity this year. Tell us if this has changed.

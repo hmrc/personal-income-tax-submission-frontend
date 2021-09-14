@@ -16,6 +16,7 @@
 
 package controllers.charity
 
+import common.OverseasCharityTaxTypes._
 import forms.YesNoForm
 import models.charity.GiftAidCYAModel
 import models.charity.prior.{GiftAidSubmissionModel, GiftsModel}
@@ -274,10 +275,10 @@ class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
       "this does not complete the cya model" should {
         lazy val result = postResult(url, requiredSessionData, None, Map(YesNoForm.yesNo -> YesNoForm.no))
 
-        "redirect to the SSLP overseas page" in {
+        "redirect to remove LandProperty confirmation page" in {
           result.status shouldBe SEE_OTHER
           result.headers("Location").head shouldBe
-            s"${controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(year).url}"
+            controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyConfirmationController.show(year, LAND_PROPERTY).url
         }
       }
 
@@ -285,23 +286,15 @@ class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
         val model = completeGiftAidCYAModel.copy(donatedSharesOrSecurities = Some(false), donatedSharesOrSecuritiesAmount = None)
         lazy val result = postResult(url, Some(model), None, Map(YesNoForm.yesNo -> YesNoForm.no))
 
-        "redirect to the cya page" in {
+        "redirect to the remove LandProperty confirmation page" in {
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head shouldBe cyaUrl(year)
+          result.headers("Location").head shouldBe
+            controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyConfirmationController.show(year, LAND_PROPERTY).url
         }
 
         "update the cya data" in {
           findGiftAidDb shouldBe
-            Some(completeGiftAidCYAModel.copy(
-              donatedSharesSecuritiesLandOrProperty = Some(false),
-              donatedSharesOrSecurities = None,
-              donatedSharesOrSecuritiesAmount = None,
-              donatedLandOrProperty = None,
-              donatedLandOrPropertyAmount = None,
-              overseasDonatedSharesSecuritiesLandOrProperty = None,
-              overseasDonatedSharesSecuritiesLandOrPropertyAmount = None,
-              overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq.empty[String])
-            ))
+            Some(completeGiftAidCYAModel.copy(donatedSharesOrSecurities = Some(false), donatedSharesOrSecuritiesAmount = None))
         }
       }
     }
