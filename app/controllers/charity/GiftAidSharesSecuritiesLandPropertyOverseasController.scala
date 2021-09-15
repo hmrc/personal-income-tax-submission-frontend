@@ -101,7 +101,7 @@ class GiftAidSharesSecuritiesLandPropertyOverseasController @Inject()(
                   overseasDonatedSharesSecuritiesLandOrPropertyAmount =
                     if (success) cyaData.overseasDonatedSharesSecuritiesLandOrPropertyAmount else None,
                   overseasDonatedSharesSecuritiesLandOrPropertyCharityNames =
-                    if (success) cyaData.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames else Some(Seq.empty[String]))
+                    if (success) cyaData.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames else Seq.empty)
                 , taxYear)(
                 InternalServerError(errorHandler.internalServerErrorTemplate)
               )(

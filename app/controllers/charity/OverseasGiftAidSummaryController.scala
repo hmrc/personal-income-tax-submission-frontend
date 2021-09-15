@@ -21,7 +21,6 @@ import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.YesNoForm
-import javax.inject.{Inject, Singleton}
 import models.User
 import models.charity.GiftAidCYAModel
 import models.charity.prior.GiftAidSubmissionModel
@@ -33,28 +32,29 @@ import services.GiftAidSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.charity.OverseasGiftAidSummaryView
 
-import scala.concurrent.{ExecutionContext, Future}
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class OverseasGiftAidSummaryController @Inject()(overseasGiftAidSummaryView: OverseasGiftAidSummaryView)(
-                                                 implicit cc: MessagesControllerComponents,
-                                                 giftAidOverseasNameController: GiftAidOverseasNameController,
-                                                 giftAidSessionService: GiftAidSessionService,
-                                                 errorHandler: ErrorHandler,
-                                                 ec: ExecutionContext,
-                                                 authAction: AuthorisedAction,
-                                                 appConfig: AppConfig
-                                                ) extends FrontendController(cc) with I18nSupport with CharityJourney with Logging {
+  implicit cc: MessagesControllerComponents,
+  giftAidOverseasNameController: GiftAidOverseasNameController,
+  giftAidSessionService: GiftAidSessionService,
+  errorHandler: ErrorHandler,
+  ec: ExecutionContext,
+  authAction: AuthorisedAction,
+  appConfig: AppConfig
+) extends FrontendController(cc) with I18nSupport with CharityJourney with Logging {
 
   override def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, prior: Option[GiftAidSubmissionModel], fromShow: Boolean)
                              (implicit user: User[AnyContent]): Result = {
-
-    cya.overseasCharityNames match {
-      case Some(nameList) if nameList.nonEmpty => determineResult(
-        Ok(overseasGiftAidSummaryView(yesNoForm, taxYear, nameList.toList)),
+    if (cya.overseasCharityNames.nonEmpty) {
+      determineResult(
+        Ok(overseasGiftAidSummaryView(yesNoForm, taxYear, cya.overseasCharityNames)),
         Redirect(controllers.charity.routes.OverseasGiftAidSummaryController.show(taxYear)),
         fromShow)
-      case _ => giftAidOverseasNameController.handleRedirect(taxYear, cya, prior)
+    } else {
+      giftAidOverseasNameController.handleRedirect(taxYear, cya, prior)
     }
   }
 
@@ -76,11 +76,7 @@ class OverseasGiftAidSummaryController @Inject()(overseasGiftAidSummaryView: Ove
     giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
       case Some(cyaModel) =>
         yesNoForm.bindFromRequest().fold({
-          formWithErrors =>
-            cyaModel.overseasCharityNames match {
-              case Some(namesList) => BadRequest(overseasGiftAidSummaryView(formWithErrors, taxYear, namesList.toList))
-              case _ => redirectToOverview(taxYear)
-            }
+          formWithErrors => BadRequest(overseasGiftAidSummaryView(formWithErrors, taxYear, cyaModel.overseasCharityNames))
         }, {
           formAnswer =>
             (formAnswer, cyaModel.isFinished) match {

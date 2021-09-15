@@ -22,26 +22,26 @@ import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.YesNoForm
 import models.User
+import models.charity.GiftAidCYAModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import services.GiftAidSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.charity.GiftAidDonationView
-import javax.inject.Inject
-import models.charity.GiftAidCYAModel
-import services.GiftAidSessionService
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class GiftAidDonationsController @Inject()(
-                                              implicit val cc: MessagesControllerComponents,
-                                              authAction: AuthorisedAction,
-                                              giftAidDonationView: GiftAidDonationView,
-                                              giftAidSessionService: GiftAidSessionService,
-                                              errorHandler: ErrorHandler,
-                                              implicit val appConfig: AppConfig
-                                            ) extends FrontendController(cc) with I18nSupport with SessionHelper {
+                                            implicit val cc: MessagesControllerComponents,
+                                            authAction: AuthorisedAction,
+                                            giftAidDonationView: GiftAidDonationView,
+                                            giftAidSessionService: GiftAidSessionService,
+                                            errorHandler: ErrorHandler,
+                                            implicit val appConfig: AppConfig
+                                          ) extends FrontendController(cc) with I18nSupport with SessionHelper {
 
   val yesNoForm: User[AnyContent] => Form[Boolean] = user => {
     val missingInputError = s"charity.uk-charity.errors.noChoice.${if (user.isAgent) "agent" else "individual"}"
@@ -78,11 +78,11 @@ class GiftAidDonationsController @Inject()(
             val priorData: Option[BigDecimal] = prior.flatMap(_.giftAidPayments.flatMap(_.currentYear))
             val updatedModel: GiftAidCYAModel = cya.getOrElse(GiftAidCYAModel()).copy(donationsViaGiftAid = Some(yesNoForm))
 
-            if(priorData.isDefined){
+            if (priorData.isDefined) {
               Future.successful(Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear)))
             } else {
               val updatedCya = {
-                if(yesNoForm) {
+                if (yesNoForm) {
                   updatedModel
                 } else {
                   updatedModel.copy(
@@ -91,7 +91,7 @@ class GiftAidDonationsController @Inject()(
                     oneOffDonationsViaGiftAidAmount = None,
                     overseasDonationsViaGiftAid = Some(false),
                     overseasDonationsViaGiftAidAmount = None,
-                    overseasCharityNames = Some(Seq.empty[String]),
+                    overseasCharityNames = Seq.empty,
                     addDonationToLastYear = Some(false),
                     addDonationToLastYearAmount = None)
                 }
@@ -111,9 +111,9 @@ class GiftAidDonationsController @Inject()(
   }
 
   private[charity] def createOrUpdateSessionData(cyaModel: GiftAidCYAModel, taxYear: Int, newData: Boolean)
-                                                 (block: Result)
-                                                 (implicit user: User[_]): Future[Result] = {
-    if(newData) {
+                                                (block: Result)
+                                                (implicit user: User[_]): Future[Result] = {
+    if (newData) {
       giftAidSessionService.createSessionData(cyaModel, taxYear)(
         errorHandler.internalServerError()
       )(

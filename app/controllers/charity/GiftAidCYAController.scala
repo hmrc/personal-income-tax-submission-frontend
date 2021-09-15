@@ -20,20 +20,19 @@ import audit.{AuditModel, AuditService, CreateOrAmendGiftAidAuditDetail}
 import config.{AppConfig, ErrorHandler, GIFT_AID}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
-import models.charity.GiftAidCYAModel
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
+import models.charity.{CharityNameModel, GiftAidCYAModel}
+import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.GiftAidSubmissionService
-import services.GiftAidSessionService
+import services.{GiftAidSessionService, GiftAidSubmissionService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.charity.GiftAidCYAView
-import javax.inject.Inject
-import play.api.Logger
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class GiftAidCYAController @Inject()(
@@ -76,7 +75,7 @@ class GiftAidCYAController @Inject()(
         val submissionModel = GiftAidSubmissionModel(
           Some(GiftAidPaymentsModel(
             model.overseasDonationsViaGiftAidAmount,
-            if (model.overseasCharityNames.map(_.toList).getOrElse(List()).isEmpty) None else model.overseasCharityNames.map(_.toList),
+            if (model.overseasCharityNames.isEmpty) None else Some(model.overseasCharityNames.map(_.name).toList),
             model.donationsViaGiftAidAmount,
             model.addDonationToLastYearAmount,
             model.addDonationToThisYearAmount,
@@ -84,11 +83,10 @@ class GiftAidCYAController @Inject()(
           )),
           Some(GiftsModel(
             model.overseasDonatedSharesSecuritiesLandOrPropertyAmount,
-            if (model.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.map(_.toList).getOrElse(List()).isEmpty) {
+            if (model.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.isEmpty) {
               None
-            }
-            else {
-              model.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.map(_.toList)
+            } else {
+              Some(model.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.toList.map(_.name))
             },
             model.donatedSharesOrSecuritiesAmount, model.donatedLandOrPropertyAmount
           ))
@@ -132,7 +130,7 @@ class GiftAidCYAController @Inject()(
       prior.giftAidPayments.flatMap(_.oneOffCurrentYear),
       Some(prior.giftAidPayments.exists(_.nonUkCharities.nonEmpty)),
       prior.giftAidPayments.flatMap(_.nonUkCharities),
-      prior.giftAidPayments.flatMap(_.nonUkCharitiesCharityNames.map(_.toSeq)),
+      prior.giftAidPayments.flatMap(_.nonUkCharitiesCharityNames.map(_.map(CharityNameModel(_)))).getOrElse(Seq.empty),
       Some(prior.giftAidPayments.exists(_.currentYearTreatedAsPreviousYear.nonEmpty)),
       prior.giftAidPayments.flatMap(_.currentYearTreatedAsPreviousYear),
       Some(prior.giftAidPayments.exists(_.nextYearTreatedAsCurrentYear.nonEmpty)),
@@ -144,7 +142,7 @@ class GiftAidCYAController @Inject()(
       prior.gifts.flatMap(_.landAndBuildings),
       Some(prior.gifts.exists(_.investmentsNonUkCharities.nonEmpty)),
       prior.gifts.flatMap(_.investmentsNonUkCharities),
-      prior.gifts.flatMap(_.investmentsNonUkCharitiesCharityNames.map(_.toSeq))
+      prior.gifts.flatMap(_.investmentsNonUkCharitiesCharityNames.map(_.map(CharityNameModel(_)))).getOrElse(Seq.empty)
     )
   }
 

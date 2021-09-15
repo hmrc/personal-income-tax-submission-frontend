@@ -16,26 +16,23 @@
 
 package controllers.charity
 
-import common.SessionValues
 import config.{AppConfig, ErrorHandler, GIFT_AID}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.charity.GiftAidOverseasSharesNameForm
-
-import javax.inject.Inject
 import models.User
-import models.charity.GiftAidCYAModel
 import models.charity.prior.GiftAidSubmissionModel
+import models.charity.{CharityNameModel, GiftAidCYAModel}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.i18n.Lang.logger
-import play.api.libs.json.{Json, Reads}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.GiftAidSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.charity.GiftAidOverseasSharesNameView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class GiftAidOverseasSharesNameController @Inject()(
@@ -61,42 +58,40 @@ class GiftAidOverseasSharesNameController @Inject()(
     }
   }
 
-  def form(isAgent: Boolean, cya: GiftAidCYAModel): Form[String] = {
-    val previousNames = cya.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.getOrElse(Seq("")).toList
-    GiftAidOverseasSharesNameForm.giftAidOverseasSharesNameForm(previousNames, isAgent)
-  }
-
-  def show(taxYear: Int, changeCharity: Option[String]): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
+  def show(taxYear: Int, changeCharityId: Option[String]): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
 
     giftAidSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
 
-      (cya, changeCharity) match {
-        case (Some(cyaData), Some(name)) if cyaData.overseasDonatedSharesSecuritiesLandOrPropertyAmount.isDefined =>
-          Ok(view(taxYear, form(user.isAgent, cyaData).fill(name), Some(name)))
+      (cya, changeCharityId) match {
+        case (Some(cyaData), Some(id)) if cyaData.overseasDonatedSharesSecuritiesLandOrPropertyAmount.isDefined =>
+          cyaData.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.find(_.id == id).map(_.name).fold(
+            Redirect(controllers.charity.routes.OverseasSharesLandSummaryController.show(taxYear))
+          )(charityName => Ok(view(taxYear, form(user.isAgent, cyaData, Some(id)).fill(charityName), Some(id))))
         case (Some(cyaData), _) => handleRedirect(taxYear, cyaData, prior, fromShow = true)
         case _ => redirectToOverview(taxYear)
       }
     }
   }
 
-  def submit(taxYear: Int, changeCharity: Option[String]): Action[AnyContent] =
+  def submit(taxYear: Int, changeCharityId: Option[String]): Action[AnyContent] =
     (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
 
       giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
         case Some(cyaModel) =>
-          form(user.isAgent, cyaModel).bindFromRequest().fold({
-            formWithErrors =>
-              Future.successful(BadRequest(view(taxYear, formWithErrors, changeCharity)))
+          form(user.isAgent, cyaModel, changeCharityId).bindFromRequest().fold({
+            formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors, changeCharityId)))
           }, {
             formName =>
               val updatedCya = {
-                (changeCharity, cyaModel.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames) match {
-                  case (Some(name), Some(namesList)) =>
-                    cyaModel.copy(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(namesList.filterNot(_ == name) :+ formName))
-                  case (_, Some(namesList)) =>
-                    cyaModel.copy(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(namesList :+ formName))
-                  case _ =>
-                    cyaModel.copy(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq(formName)))
+                (changeCharityId, cyaModel.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames) match {
+                  case (Some(id), namesList) =>
+                    val indexToBeUpdated = namesList.indexOf(CharityNameModel(id, namesList.find(_.id == id).map(_.name).get))
+                    cyaModel.copy(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames =
+                      namesList.updated(indexToBeUpdated, CharityNameModel(id, formName)))
+                  case (_, namesList) => cyaModel.copy(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames =
+                    namesList :+ CharityNameModel(formName))
+                  case _ => cyaModel.copy(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames =
+                    Seq(CharityNameModel(formName)))
                 }
               }
 
@@ -112,5 +107,9 @@ class GiftAidOverseasSharesNameController @Inject()(
       }.flatten
     }
 
-
+  private def form(isAgent: Boolean, cya: GiftAidCYAModel, changedCharityId: Option[String] = None): Form[String] = {
+    val previousNames = cya.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames
+      .filterNot(_.id == changedCharityId.getOrElse("")).map(_.name).toList
+    GiftAidOverseasSharesNameForm.giftAidOverseasSharesNameForm(previousNames, isAgent)
+  }
 }

@@ -16,8 +16,9 @@
 
 package controllers.charity
 
-import models.charity.GiftAidCYAModel
+import common.UUID
 import models.charity.prior.{GiftAidSubmissionModel, GiftsModel}
+import models.charity.{CharityNameModel, GiftAidCYAModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
@@ -26,11 +27,11 @@ import utils.CharityITHelper
 class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
 
   val charLimit: String = "ukHzoBYHkKGGk2V5iuYgS137gN7EB7LRw3uDjvujYg00ZtHwo3sokyOOCEoAK9vuPiP374QKOelo"
-  val testModel: GiftAidSubmissionModel = GiftAidSubmissionModel(None, Some(GiftsModel(None, Some(List("dupe")), None,None)))
+  val testModel: GiftAidSubmissionModel = GiftAidSubmissionModel(None, Some(GiftsModel(None, Some(List("dupe")), None, None)))
 
-  def url(changeCharity: Option[String] = None): String =
+  def url(changeCharityId: Option[String] = None): String =
     s"$appUrl/$year/charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to" +
-      s"${if (changeCharity.nonEmpty) s"?changeCharity=${changeCharity.get}" else ""}"
+      s"${if (changeCharityId.nonEmpty) s"?changeCharityId=${changeCharityId.get}" else ""}"
 
   object Selectors {
     val captionSelector: String = ".govuk-caption-l"
@@ -104,7 +105,7 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
     Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
-      UserScenario(isWelsh = false, isAgent = true,  CommonExpectedEN, Some(ExpectedAgentEN)),
+      UserScenario(isWelsh = false, isAgent = true, CommonExpectedEN, Some(ExpectedAgentEN)),
       UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, Some(ExpectedIndividualCY)),
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
@@ -164,10 +165,49 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
         result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasSharesSecuritiesLandPropertyAmountController.show(year)}"
       }
     }
+
+    "there is overseasDonatedSharesSecuritiesLandOrPropertyAmount and charityNameId is present and not valid" which {
+      val charityId = UUID().randomUUID
+      lazy val result =
+        getResult(
+          url(Some(charityId)),
+          Some(GiftAidCYAModel(
+            overseasDonatedSharesSecuritiesLandOrProperty = Some(true),
+            overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(validAmount)
+          )),
+          None
+        )
+
+      "redirect to the OverseasSharesLandSummary page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasSharesLandSummaryController.show(year)}"
+      }
+    }
+
+    "there is overseasDonatedSharesSecuritiesLandOrPropertyAmount and charityNameId is present and is valid" which {
+      val charityId = UUID().randomUUID
+      lazy val result =
+        getResult(
+          url(Some(charityId)),
+          Some(GiftAidCYAModel(
+            overseasDonatedSharesSecuritiesLandOrProperty = Some(true),
+            overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(validAmount),
+            overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Seq(CharityNameModel(charityId, "some-charity"))
+          )),
+          None
+        )
+
+      implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+      "redirect to the GiftAidOverseasSharesName page" in {
+        result.status shouldBe OK
+      }
+
+      titleCheck(ExpectedIndividualEN.expectedTitle, false)
+    }
   }
 
   ".submit" when {
-
     userScenarios.foreach { user =>
       s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
@@ -234,7 +274,7 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
           }
 
           "the submitted data is a duplicate name" which {
-            val cyaModel = requiredSessionModel.copy(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq("dupe")))
+            val cyaModel = requiredSessionModel.copy(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Seq(CharityNameModel("dupe")))
 
             lazy val result = postResult(url(), Some(cyaModel), None, Map("name" -> "dupe"), user.isAgent, user.isWelsh)
 
@@ -276,13 +316,18 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
       }
 
       "store the data" in {
-        findGiftAidDb shouldBe Some(requiredSessionModel.copy(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq("Dudes In Need"))))
+        val giftAidCYAModel = findGiftAidDb.get
+        val id = giftAidCYAModel.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.head.id
+
+        giftAidCYAModel shouldBe
+          requiredSessionModel.copy(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Seq(CharityNameModel(id, "Dudes In Need")))
       }
     }
 
     "the user enters a valid name and is changing an existing name" should {
-      lazy val result = postResult(url(Some("Dudes")),
-        Some(requiredSessionModel.copy(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq("Dudes")))),
+      val charityId = UUID().randomUUID
+      lazy val result = postResult(url(Some(charityId)),
+        Some(requiredSessionModel.copy(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Seq(CharityNameModel(charityId, "Dudes")))),
         None, Map("name" -> "Dudess"))
 
       "redirect the user to the 'overseas SSLP summary' page" in {
@@ -291,7 +336,8 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
       }
 
       "store the data" in {
-        findGiftAidDb shouldBe Some(requiredSessionModel.copy(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq("Dudess"))))
+        findGiftAidDb.get shouldBe
+          requiredSessionModel.copy(overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Seq(CharityNameModel(charityId, "Dudess")))
       }
     }
   }

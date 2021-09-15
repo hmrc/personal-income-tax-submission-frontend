@@ -23,7 +23,6 @@ import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
-import play.api.libs.ws.WSResponse
 import utils.CharityITHelper
 
 class GiftAidDonationsControllerISpec extends CharityITHelper {
@@ -61,7 +60,7 @@ class GiftAidDonationsControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val captionText = s"Rhoddion i elusennau ar gyfer 6 Ebrill ${year -1} i 5 Ebrill $year"
+    val captionText = s"Rhoddion i elusennau ar gyfer 6 Ebrill ${year - 1} i 5 Ebrill $year"
     val yesText = "Iawn"
     val noText = "Na"
     val continueText = "Yn eich blaen"
@@ -98,7 +97,7 @@ class GiftAidDonationsControllerISpec extends CharityITHelper {
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
     Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
-      UserScenario(isWelsh = false, isAgent = true,  CommonExpectedEN, Some(ExpectedAgentEN)),
+      UserScenario(isWelsh = false, isAgent = true, CommonExpectedEN, Some(ExpectedAgentEN)),
       UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, Some(ExpectedIndividualCY)),
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
@@ -229,7 +228,7 @@ class GiftAidDonationsControllerISpec extends CharityITHelper {
               oneOffDonationsViaGiftAidAmount = None,
               overseasDonationsViaGiftAid = Some(false),
               overseasDonationsViaGiftAidAmount = None,
-              overseasCharityNames = Some(List()),
+              overseasCharityNames = Seq.empty,
               addDonationToLastYear = Some(false),
               addDonationToLastYearAmount = None
             ))

@@ -16,8 +16,9 @@
 
 package controllers.charity
 
-import models.charity.GiftAidCYAModel
+import common.UUID
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel}
+import models.charity.{CharityNameModel, GiftAidCYAModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
@@ -26,10 +27,10 @@ import utils.CharityITHelper
 class GiftAidOverseasNameControllerISpec extends CharityITHelper {
 
   val charLimit: String = "ukHzoBYHkKGGk2V5iuYgS137gN7EB7LRw3uDjvujYg00ZtHwo3sokyOOCEoAK9vuPiP374QKOelo"
-  val testModel: GiftAidSubmissionModel = GiftAidSubmissionModel(Some(GiftAidPaymentsModel(None, Some(List("dupe")), None, None, None, None)),None)
+  val testModel: GiftAidSubmissionModel = GiftAidSubmissionModel(Some(GiftAidPaymentsModel(None, Some(List("dupe")), None, None, None, None)), None)
 
-  def url(changeCharity: Option[String] = None): String =
-    s"$appUrl/$year/charity/name-of-overseas-charity${if (changeCharity.nonEmpty) s"?changeCharity=${changeCharity.get}" else ""}"
+  def url(changeCharityId: Option[String] = None): String =
+    s"$appUrl/$year/charity/name-of-overseas-charity${if (changeCharityId.nonEmpty) s"?changeCharityId=${changeCharityId.get}" else ""}"
 
   object Selectors {
     val captionSelector: String = ".govuk-caption-l"
@@ -109,7 +110,7 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
     Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
-      UserScenario(isWelsh = false, isAgent = true,  CommonExpectedEN, Some(ExpectedAgentEN)),
+      UserScenario(isWelsh = false, isAgent = true, CommonExpectedEN, Some(ExpectedAgentEN)),
       UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, Some(ExpectedIndividualCY)),
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
@@ -148,7 +149,6 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
     }
 
     "there is no cya data" should {
-
       lazy val result = getResult(url(), None, None)
 
       "redirect the user to the overview page" in {
@@ -158,7 +158,6 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
     }
 
     "there is cya data, but 'overseasDonationsViaGiftAidAmount' has not been stored" should {
-
       lazy val result =
         getResult(
           url(),
@@ -172,7 +171,42 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
       }
     }
 
+    "there is cya data, and 'overseasDonationsViaGiftAidAmount' has been stored and charityNameId is present but not valid" should {
+      val charityId = UUID().randomUUID
+      lazy val result = getResult(
+        url(Some(charityId)),
+        Some(GiftAidCYAModel(overseasDonationsViaGiftAid = Some(true),
+          overseasDonationsViaGiftAidAmount = Some(validAmount),
+          overseasCharityNames = Seq.empty
+        )),
+        None
+      )
 
+      "redirect the user to the overseas gift aid summary page" in {
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasGiftAidSummaryController.show(year)}"
+      }
+    }
+
+    "there is cya data, and 'overseasDonationsViaGiftAidAmount' has been stored and charityNameId is present and is valid" should {
+      val charityId = UUID().randomUUID
+      lazy val result = getResult(
+        url(Some(charityId)),
+        Some(GiftAidCYAModel(overseasDonationsViaGiftAid = Some(true),
+          overseasDonationsViaGiftAidAmount = Some(validAmount),
+          overseasCharityNames = Seq(CharityNameModel(charityId, "some-charity"))
+        )),
+        None
+      )
+
+      implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+      "redirect the user to the overseas name page" in {
+        result.status shouldBe OK
+      }
+
+      titleCheck(ExpectedIndividualEN.expectedTitle, false)
+    }
   }
 
   ".submit" when {
@@ -243,7 +277,7 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
           }
 
           "the submitted data is a duplicate name" which {
-            val cyaModel = requiredSessionModel.copy(overseasCharityNames = Some(Seq("Dudes In Need")))
+            val cyaModel = requiredSessionModel.copy(overseasCharityNames = Seq(CharityNameModel("Dudes In Need")))
             lazy val result = postResult(url(), Some(cyaModel), None, Map("name" -> "Dudes In Need"), user.isAgent, user.isWelsh)
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -285,13 +319,17 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
       }
 
       "store the data" in {
-        findGiftAidDb shouldBe Some(requiredSessionModel.copy(overseasCharityNames = Some(Seq("Dudes In Need"))))
+        val giftAidCYAModel = findGiftAidDb.get
+        val id = giftAidCYAModel.overseasCharityNames.head.id
+
+        giftAidCYAModel shouldBe requiredSessionModel.copy(overseasCharityNames = Seq(CharityNameModel(id, "Dudes In Need")))
       }
     }
 
     "the user enters a valid name and is changing an existing name" when {
-      lazy val result = postResult(url(Some("Dudes")),
-        Some(requiredSessionModel.copy(overseasCharityNames = Some(Seq("Dudes")))),
+      val charityId = UUID().randomUUID
+      lazy val result = postResult(url(Some(charityId)),
+        Some(requiredSessionModel.copy(overseasCharityNames = Seq(CharityNameModel(charityId, "Dudes")))),
         None, Map("name" -> "Dudess"))
 
       "redirect the user to the 'overseas charity summary' page" in {
@@ -300,7 +338,7 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
       }
 
       "store the data" in {
-        findGiftAidDb shouldBe Some(requiredSessionModel.copy(overseasCharityNames = Some(Seq("Dudess"))))
+        findGiftAidDb.get shouldBe requiredSessionModel.copy(overseasCharityNames = Seq(CharityNameModel(charityId, "Dudess")))
       }
     }
   }

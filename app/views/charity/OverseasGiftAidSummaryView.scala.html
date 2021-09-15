@@ -19,6 +19,7 @@
 @import views.html.templates.helpers.Heading
 @import views.html.templates.helpers.Button
 @import views.html.templates.helpers.InputRadio
+@import models.charity.CharityNameModel
 
 @this(layout: Layout,
         formWithCsrf: FormWithCSRF,
@@ -28,7 +29,7 @@
         inputRadio: InputRadio,
         govukSummaryList : GovukSummaryList)
 
-@(form: Form[Boolean], taxYear: Int, overseasCharities: List[String])(implicit user: User[_], messages: Messages, appConfig: AppConfig)
+@(form: Form[Boolean], taxYear: Int, overseasCharities: Seq[CharityNameModel])(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @titleForUse = @{messages(s"charity.overseas-gift-aid-summary.title.${if(overseasCharities.length == 1) "single" else "multiple"}.${if(user.isAgent) "agent" else "individual"}")}
 
@@ -40,18 +41,18 @@
         @for(charity <- overseasCharities){
             <li class="hmrc-add-to-a-list__contents">
                 <span class="hmrc-add-to-a-list__identifier hmrc-add-to-a-list__identifier--light">
-                    @charity
+                    @charity.name
                 </span>
                 <span class="hmrc-add-to-a-list__change">
-                    <a class="govuk-link" href="@controllers.charity.routes.GiftAidOverseasNameController.show(taxYear = taxYear, changeCharity = Some(charity))">
+                    <a class="govuk-link" href="@controllers.charity.routes.GiftAidOverseasNameController.show(taxYear = taxYear, changeCharityId = Some(charity.id))">
                         <span aria-hidden="true">@messages("common.change")</span>
-                        <span class="govuk-visually-hidden">@{messages("charity.common.aid-summary.hiddenChange", charity)}</span>
+                        <span class="govuk-visually-hidden">@{messages("charity.common.aid-summary.hiddenChange", charity.name)}</span>
                     </a>
                 </span>
                 <span class="hmrc-add-to-a-list__remove">
-                    <a class="govuk-link" href="@controllers.charity.routes.RemoveOverseasCharityController.show(taxYear = taxYear, charityType = "GIFT_AID", charityName = charity)">
+                    <a class="govuk-link" href="@controllers.charity.routes.RemoveOverseasCharityController.show(taxYear = taxYear, charityType = "GIFT_AID", charityNameId = charity.id)">
                         <span aria-hidden="true">@messages("common.remove")</span>
-                        <span class="govuk-visually-hidden">@{messages("charity.overseas-gift-aid-summary.hiddenRemove", charity)}</span>
+                        <span class="govuk-visually-hidden">@{messages("charity.overseas-gift-aid-summary.hiddenRemove", charity.name)}</span>
                     </a>
                 </span>
             </li>

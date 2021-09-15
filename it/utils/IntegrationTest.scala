@@ -17,14 +17,14 @@
 package utils
 
 import akka.actor.ActorSystem
-import common.SessionValues
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import common.SessionValues
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import helpers.{PlaySessionCookieBaker, WireMockHelper}
 import models.User
-import models.charity.GiftAidCYAModel
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
+import models.charity.{CharityNameModel, GiftAidCYAModel}
 import models.priorDataModels.IncomeSourcesModel
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
@@ -33,18 +33,15 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.http.HeaderNames
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import play.api.libs.ws.{BodyWritable, WSClient, WSRequest, WSResponse}
 import play.api.libs.ws.{BodyWritable, WSClient, WSResponse}
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{OK, await}
+import play.api.test.Helpers.OK
 import play.api.{Application, Environment, Mode}
 import services.AuthService
+import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
-import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Enrolment, EnrolmentIdentifier, Enrolments}
-import uk.gov.hmrc.http.SessionKeys
-import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.authErrorPages.AgentAuthErrorPageView
 
@@ -69,7 +66,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     oneOffDonationsViaGiftAidAmount = Some(50),
     overseasDonationsViaGiftAid = Some(true),
     overseasDonationsViaGiftAidAmount = Some(50),
-    overseasCharityNames = Some(Seq("Dudes In Need")),
+    overseasCharityNames = Seq(CharityNameModel("Dudes In Need")),
     addDonationToLastYear = Some(true),
     addDonationToLastYearAmount = Some(50),
     addDonationToThisYear = Some(true),
@@ -81,7 +78,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     donatedLandOrPropertyAmount = Some(50),
     overseasDonatedSharesSecuritiesLandOrProperty = Some(true),
     overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(50),
-    overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq("Awesome Devs initiative")),
+    overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Seq(CharityNameModel("Awesome Devs initiative")),
   )
 
   val priorDataMax: GiftAidSubmissionModel = GiftAidSubmissionModel(
@@ -111,6 +108,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   val startUrl = s"http://localhost:$port/income-through-software/return/personal-income"
   val overviewUrl = "http://localhost:11111/income-through-software/return/2022/view"
   val cyaUrl: Int => String = taxYear => s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
+
   implicit def wsClient: WSClient = app.injector.instanceOf[WSClient]
 
   val appUrl = s"http://localhost:$port/income-through-software/return/personal-income"
@@ -162,7 +160,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   def urlGet(url: String, welsh: Boolean = false, follow: Boolean = true, headers: Seq[(String, String)] = Seq())(implicit wsClient: WSClient): WSResponse = {
 
-    val newHeaders = if(welsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") ++ headers else headers
+    val newHeaders = if (welsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") ++ headers else headers
     await(wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(newHeaders: _*).get())
   }
 
@@ -174,7 +172,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
                 (implicit wsClient: WSClient, bodyWritable: BodyWritable[T]): WSResponse = {
 
     val headersWithNoCheck = headers ++ Seq("Csrf-Token" -> "nocheck")
-    val newHeaders = if(welsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") ++ headersWithNoCheck else headersWithNoCheck
+    val newHeaders = if (welsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") ++ headersWithNoCheck else headersWithNoCheck
     await(wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(newHeaders: _*).post(body))
   }
 
@@ -237,10 +235,10 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     )) and Some(AffinityGroup.Individual) and ConfidenceLevel.L200
   )
 
-  def userDataStub(userData: IncomeSourcesModel, nino: String, taxYear: Int): StubMapping ={
+  def userDataStub(userData: IncomeSourcesModel, nino: String, taxYear: Int): StubMapping = {
     stubGetWithHeadersCheck(
       s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", OK,
-      Json.toJson(userData).toString(),"X-Session-ID" -> sessionId, "mtditid" -> mtditid)
+      Json.toJson(userData).toString(), "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
   }
 
 

@@ -87,14 +87,14 @@ POST        /:taxYear/charity/overseas-charity-donations-using-gift-aid         
 GET         /:taxYear/charity/amount-donated-to-overseas-charities                                            controllers.charity.GiftAidOverseasAmountController.show(taxYear: Int)
 POST        /:taxYear/charity/amount-donated-to-overseas-charities                                            controllers.charity.GiftAidOverseasAmountController.submit(taxYear: Int)
 
-GET         /:taxYear/charity/name-of-overseas-charity                                                        controllers.charity.GiftAidOverseasNameController.show(taxYear: Int, changeCharity: Option[String])
-POST        /:taxYear/charity/name-of-overseas-charity                                                        controllers.charity.GiftAidOverseasNameController.submit(taxYear: Int, changeCharity: Option[String])
+GET         /:taxYear/charity/name-of-overseas-charity                                                        controllers.charity.GiftAidOverseasNameController.show(taxYear: Int, changeCharityId: Option[String])
+POST        /:taxYear/charity/name-of-overseas-charity                                                        controllers.charity.GiftAidOverseasNameController.submit(taxYear: Int, changeCharityId: Option[String])
 
 GET         /:taxYear/charity/overseas-charities-donated-to                                                   controllers.charity.OverseasGiftAidSummaryController.show(taxYear: Int)
 POST        /:taxYear/charity/overseas-charities-donated-to                                                   controllers.charity.OverseasGiftAidSummaryController.submit(taxYear: Int)
 
-GET         /:taxYear/charity/remove-overseas-charity-gift-aid                                                controllers.charity.RemoveOverseasCharityController.show(taxYear: Int, charityType = "GIFT_AID", charityName: String)
-POST        /:taxYear/charity/remove-overseas-charity-gift-aid                                                controllers.charity.RemoveOverseasCharityController.submit(taxYear: Int, charityType = "GIFT_AID", charityName: String)
+GET         /:taxYear/charity/remove-overseas-charity-gift-aid/:charityNameId                                 controllers.charity.RemoveOverseasCharityController.show(taxYear: Int, charityType = "GIFT_AID", charityNameId: String)
+POST        /:taxYear/charity/remove-overseas-charity-gift-aid/:charityNameId                                 controllers.charity.RemoveOverseasCharityController.submit(taxYear: Int, charityType = "GIFT_AID", charityNameId: String)
 
 GET         /:taxYear/charity/add-charity-donations-to-last-tax-year                                          controllers.charity.GiftAidLastTaxYearController.show(taxYear: Int)
 POST        /:taxYear/charity/add-charity-donations-to-last-tax-year                                          controllers.charity.GiftAidLastTaxYearController.submit(taxYear: Int)
@@ -129,14 +129,14 @@ POST        /:taxYear/charity/donation-of-shares-securities-land-or-property-to-
 GET         /:taxYear/charity/value-of-shares-securities-land-or-property-to-overseas-charities               controllers.charity.OverseasSharesSecuritiesLandPropertyAmountController.show(taxYear: Int)
 POST        /:taxYear/charity/value-of-shares-securities-land-or-property-to-overseas-charities               controllers.charity.OverseasSharesSecuritiesLandPropertyAmountController.submit(taxYear: Int)
 
-GET         /:taxYear/charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to        controllers.charity.GiftAidOverseasSharesNameController.show(taxYear: Int, changeCharity: Option[String])
-POST        /:taxYear/charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to        controllers.charity.GiftAidOverseasSharesNameController.submit(taxYear: Int, changeCharity: Option[String])
+GET         /:taxYear/charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to        controllers.charity.GiftAidOverseasSharesNameController.show(taxYear: Int, changeCharityId: Option[String])
+POST        /:taxYear/charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to        controllers.charity.GiftAidOverseasSharesNameController.submit(taxYear: Int, changeCharityId: Option[String])
 
 GET         /:taxYear/charity/overseas-charities-donated-shares-securities-land-or-property-to                controllers.charity.OverseasSharesLandSummaryController.show(taxYear: Int)
 POST        /:taxYear/charity/overseas-charities-donated-shares-securities-land-or-property-to                controllers.charity.OverseasSharesLandSummaryController.submit(taxYear: Int)
 
-GET         /:taxYear/charity/remove-overseas-charity-shares-and-property                                     controllers.charity.RemoveOverseasCharityController.show(taxYear: Int, charityType = "SHARES_PROPERTY", charityName: String)
-POST        /:taxYear/charity/remove-overseas-charity-shares-and-property                                     controllers.charity.RemoveOverseasCharityController.submit(taxYear: Int, charityType = "SHARES_PROPERTY", charityName: String)
+GET         /:taxYear/charity/remove-overseas-charity-shares-and-property/:charityNameId                      controllers.charity.RemoveOverseasCharityController.show(taxYear: Int, charityType = "SHARES_PROPERTY", charityNameId: String)
+POST        /:taxYear/charity/remove-overseas-charity-shares-and-property/:charityNameId                      controllers.charity.RemoveOverseasCharityController.submit(taxYear: Int, charityType = "SHARES_PROPERTY", charityNameId: String)
 
 GET         /:taxYear/charity/check-donations-to-charity                                                      controllers.charity.GiftAidCYAController.show(taxYear: Int)
 POST        /:taxYear/charity/check-donations-to-charity                                                      controllers.charity.GiftAidCYAController.submit(taxYear: Int)

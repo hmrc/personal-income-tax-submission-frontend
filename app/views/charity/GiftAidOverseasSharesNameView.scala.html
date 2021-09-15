@@ -27,7 +27,7 @@
     heading: Heading
 )
 
-@(taxYear: Int, form: Form[String], changeCharity: Option[String] = None)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
+@(taxYear: Int, form: Form[String], changeCharityId: Option[String] = None)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @titleForUse = @{messages(s"charity.overseas-shares-donated-name.title.${if(user.isAgent) "agent" else "individual"}")}
 
@@ -43,7 +43,7 @@
 
 @errorSummary(form.errors)
 
-    @formWithCsrf(controllers.charity.routes.GiftAidOverseasSharesNameController.submit(taxYear, changeCharity)) {
+    @formWithCsrf(controllers.charity.routes.GiftAidOverseasSharesNameController.submit(taxYear, changeCharityId)) {
 
         @inputText(
             form,

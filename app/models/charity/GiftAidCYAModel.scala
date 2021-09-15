@@ -25,7 +25,7 @@ case class GiftAidCYAModel(
                             oneOffDonationsViaGiftAidAmount: Option[BigDecimal] = None,
                             overseasDonationsViaGiftAid: Option[Boolean] = None,
                             overseasDonationsViaGiftAidAmount: Option[BigDecimal] = None,
-                            overseasCharityNames: Option[Seq[String]] = Some(Seq.empty[String]),
+                            overseasCharityNames: Seq[CharityNameModel] = Seq.empty,
                             addDonationToLastYear: Option[Boolean] = None,
                             addDonationToLastYearAmount: Option[BigDecimal] = None,
                             addDonationToThisYear: Option[Boolean] = None,
@@ -37,7 +37,7 @@ case class GiftAidCYAModel(
                             donatedLandOrPropertyAmount: Option[BigDecimal] = None,
                             overseasDonatedSharesSecuritiesLandOrProperty: Option[Boolean] = None,
                             overseasDonatedSharesSecuritiesLandOrPropertyAmount: Option[BigDecimal] = None,
-                            overseasDonatedSharesSecuritiesLandOrPropertyCharityNames: Option[Seq[String]] = Some(Seq.empty[String])
+                            overseasDonatedSharesSecuritiesLandOrPropertyCharityNames: Seq[CharityNameModel] = Seq.empty
                           ) {
 
   private def falseOrTrueAndAmountPopulated(boolField: Option[Boolean], amountField: Option[BigDecimal]) = {
@@ -62,12 +62,12 @@ case class GiftAidCYAModel(
     val b_donatedSharesSecuritiesLandOrProperty: Boolean = donatedSharesSecuritiesLandOrProperty.contains(true)
     val b_donatedSharesOrSecurities = donatedSharesOrSecurities.forall(value => !value || (value && donatedSharesOrSecuritiesAmount.nonEmpty && b_donatedSharesSecuritiesLandOrProperty))
     val b_donatedLandOrProperty = donatedLandOrProperty.forall(value => !value || (value && donatedLandOrPropertyAmount.nonEmpty && b_donatedSharesSecuritiesLandOrProperty))
-    val b_overseasDonatedSharesSecurityLandOrProperty = overseasDonatedSharesSecuritiesLandOrProperty.forall( value =>
+    val b_overseasDonatedSharesSecurityLandOrProperty = overseasDonatedSharesSecuritiesLandOrProperty.forall(value =>
       !value || (value && overseasDonatedSharesSecuritiesLandOrPropertyAmount.nonEmpty && overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.nonEmpty)
     )
 
-    val b_requiredNameFieldsExist = overseasDonationsViaGiftAid.forall(value => !value || (value && overseasCharityNames.exists(_.nonEmpty))) &&
-      overseasDonatedSharesSecuritiesLandOrProperty.forall(value => !value || (value && overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.exists(_.nonEmpty)))
+    val b_requiredNameFieldsExist = overseasDonationsViaGiftAid.forall(value => !value || (value && overseasCharityNames.nonEmpty)) &&
+      overseasDonatedSharesSecuritiesLandOrProperty.forall(value => !value || (value && overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.nonEmpty))
 
     Seq(
       b_allRequiredYesNoFilledIn,

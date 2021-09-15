@@ -17,8 +17,8 @@
 package controllers.charity
 
 import models.APIErrorBodyModel
-import models.charity.GiftAidCYAModel
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
+import models.charity.{CharityNameModel, GiftAidCYAModel}
 import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -38,21 +38,21 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
   val cyaDataMax: GiftAidCYAModel = GiftAidCYAModel(
     Some(true), Some(100.00),
     Some(true), Some(100.00),
-    Some(true), Some(100.00), Some(Seq("Belgium Trust", "American Trust")),
+    Some(true), Some(100.00), Seq(CharityNameModel("Belgium Trust"), CharityNameModel("American Trust")),
     Some(true), Some(100.00),
     Some(true), Some(100.00),
     Some(true), Some(true), Some(100.00), Some(true), Some(100.00),
-    Some(true), Some(100.00), Some(Seq("Belgium Trust", "American Trust"))
+    Some(true), Some(100.00), Seq(CharityNameModel("Belgium Trust"), CharityNameModel("American Trust"))
   )
 
   val cyaDataMin: GiftAidCYAModel = GiftAidCYAModel(
     Some(false), None,
     Some(false), None,
-    Some(false), None, None,
+    Some(false), None, Seq.empty,
     Some(false), None,
     Some(false), None,
     Some(false), None, None, None, None,
-    Some(false), None, None
+    Some(false), None, Seq.empty
   )
 
   val cyaDataIncomplete: GiftAidCYAModel = GiftAidCYAModel(
@@ -518,7 +518,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
               userDataStub(IncomeSourcesModel(), nino, taxYear)
 
               authoriseAgentOrIndividual(user.isAgent)
-              urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
+              urlGet(url, welsh = user.isWelsh, headers = playSessionCookie(user.isAgent))
             }
 
             "redirects to the correct url" in {
@@ -535,7 +535,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
               userDataStub(IncomeSourcesModel(), nino, taxYear)
 
               authoriseAgentOrIndividual(user.isAgent)
-              urlGet(url, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
+              urlGet(url, welsh = user.isWelsh, headers = playSessionCookie(user.isAgent))
             }
 
             "redirects to the correct url" in {
@@ -582,7 +582,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
               userDataStub(IncomeSourcesModel(), nino, taxYear)
               authoriseAgentOrIndividual(user.isAgent)
               stubPost(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
+              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = playSessionCookie(user.isAgent))
             }
 
             "the status is SEE OTHER" in {
@@ -606,7 +606,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
               userDataStub(IncomeSourcesModel(None, None, Some(unchangedPriorData)), nino, taxYear)
               authoriseAgentOrIndividual(user.isAgent)
               stubPost(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
-              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
+              urlPost(url, body = form, follow = false, welsh = user.isWelsh, headers = playSessionCookie(user.isAgent))
             }
 
             "the status is SEE OTHER" in {
@@ -638,7 +638,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
                 BAD_REQUEST,
                 Json.toJson(APIErrorBodyModel("BAD_REQUEST", "Oh hey look, literally any error.")).toString()
               )
-              urlPost(url, body = form, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
+              urlPost(url, body = form, welsh = user.isWelsh, headers = playSessionCookie(user.isAgent))
             }
 
             implicit def document: () => Document = () => Jsoup.parse(result.body)
