@@ -37,10 +37,6 @@
 
 @(form: Form[BigDecimal], priorSubmission: Option[DividendsPriorSubmission], taxYear: Int, postAction: Call, preAmount: Option[BigDecimal] = None)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
-@hintText = @{
-    Some(Html(messages("common.currency.hint")))
-}
-
 @titleForUse = @{
     messages(s"dividends.uk-dividends-amount.title.${if(user.isAgent) "agent" else "individual"}")
 }
@@ -55,13 +51,12 @@
         id = "amount",
         name = "amount",
         heading = headingForUse,
-        content = Some(contentHtml),
-        labelClasses = Some("govuk-!-margin-bottom-4"),
-        isPageHeading = false,
+        content = None,
+        isPageHeading = true,
         currency = true,
-        hint = hintText,
+        hint = Some(hintHtml),
         subheading = Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)),
-        headingClasses = "govuk-!-margin-bottom-2"
+        headingClasses = "govuk-!-margin-bottom-4"
    )
 }
 
@@ -77,19 +72,20 @@
     form.hasErrors
 }
 
-@contentHtml = {
+@hintHtml = {
     @if(priorAmount.isDefined) {
-        <p>
+        <p class="govuk-body">
             @messages(s"common.youToldUs")
             @messages(s"common.youGot.${if(user.isAgent) "agent" else "individual"}")
             @bigDecimalCurrency(priorAmount.get.toString)
             @messages("dividends.uk-dividends-amount.change-amount.prior.common.2")
         </p>
     } else {
-        <p>
+        <p class="govuk-body">
             @messages(s"dividends.common.change-amount.caption.${if(user.isAgent) "agent" else "individual"}")
         </p>
     }
+    @messages("common.currency.hint")
 }
 
 @layout(pageTitle = titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors, isAgent = user.isAgent) {

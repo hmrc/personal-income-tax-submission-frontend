@@ -56,6 +56,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
   trait CommonExpectedResults {
     val captionExpected: String
+    val expectedHintText: String
     val continueText: String
     val continueLink: String
   }
@@ -85,6 +86,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
   object AllExpectedEnglish extends CommonExpectedResults {
     val continueText = "Continue"
+    val expectedHintText = "For example, £600 or £193.54"
     val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-companies"
     val captionExpected = s"Dividends for 6 April $taxYearMinusOne to 5 April $taxYear"
   }
@@ -113,6 +115,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
   object AllExpectedWelsh extends CommonExpectedResults {
     val continueText = "Yn eich blaen"
+    val expectedHintText = "Er enghraifft, £600 neu £193.54"
     val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-companies"
     val captionExpected = s"Difidendau ar gyfer 6 Ebrill $taxYearMinusOne i 5 Ebrill $taxYear"
   }
@@ -166,9 +169,9 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck(get.expectedTitle, us.isWelsh)
-          h1Check(get.expectedH1 + " " + captionExpected)
+          h1Check(get.expectedH1 + " " + captionExpected, labelAsHeading = true)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
-          textOnPageCheck(get.tellUsTheValue, youToldUsSelector)
+          hintTextCheck(s"${get.tellUsTheValue} $expectedHintText")
           inputFieldCheck(amountInputName, inputSelector)
           inputFieldValueCheck("", inputAmountField)
           buttonCheck(continueText, continueButtonSelector)
@@ -194,9 +197,9 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck(get.expectedTitle, us.isWelsh)
-          h1Check(get.expectedH1 + " " + captionExpected)
+          h1Check(get.expectedH1 + " " + captionExpected, labelAsHeading = true)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
-          textOnPageCheck(get.youToldUsPriorText, youToldUsSelector)
+          hintTextCheck(s"${get.youToldUsPriorText} $expectedHintText")
           inputFieldCheck(amountInputName, inputSelector)
           inputFieldValueCheck(amount.toString(), inputAmountField)
           buttonCheck(continueText, continueButtonSelector)

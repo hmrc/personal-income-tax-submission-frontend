@@ -53,8 +53,9 @@
     }
 }
 
-@contentHtml = {
+@hintHtml = {
     <p class="govuk-body">@paragraphText</p>
+    @messages("common.currency.hint")
 }
 
 @layout(pageTitle = titleText, taxYear = Some(taxYear), hasErrors = form.hasErrors, isAgent = user.isAgent) {
@@ -67,12 +68,12 @@
             "amount",
             titleText,
             headingClasses = "govuk-!-margin-bottom-2",
-            hint = Some(Html(messages("common.currency.hint"))),
-            isPageHeading = false,
+            hint = Some(hintHtml),
+            isPageHeading = true,
             currency = true,
             subheading = Some(messages("charity.caption", (taxYear-1).toString, taxYear.toString)),
             autocomplete = prefill,
-            content = Some(contentHtml)
+            content = None
         )
         @button()
     }

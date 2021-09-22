@@ -42,8 +42,6 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
     val captionSelector: String = ".govuk-caption-l"
     val inputFieldSelector: String = "#name"
     val buttonSelector: String = ".govuk-button"
-    val inputHintTextSelector: String = "#main-content > div > div > form > div > label > p"
-    val errorSelector: String = "#main-content > div > div > div.govuk-error-summary > div > ul > li > a"
   }
 
   trait SpecificExpectedResults {
@@ -140,9 +138,9 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
           }
 
           titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
-          h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+          h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption, labelAsHeading = true)
           textOnPageCheck(expectedCaption, captionSelector)
-          textOnPageCheck(user.specificExpectedResults.get.expectedInputHintText, inputHintTextSelector)
+          hintTextCheck(user.specificExpectedResults.get.expectedInputHintText)
           inputFieldCheck(expectedInputName, inputFieldSelector)
           buttonCheck(expectedButtonText, buttonSelector)
           welshToggleCheck(user.isWelsh)
@@ -229,9 +227,9 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
             import user.commonExpectedResults._
 
             titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.expectedTitle, user.isWelsh)
-            h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+            h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption, labelAsHeading = true)
             textOnPageCheck(expectedCaption, captionSelector)
-            textOnPageCheck(user.specificExpectedResults.get.expectedInputHintText, inputHintTextSelector)
+            hintTextCheck(user.specificExpectedResults.get.expectedInputHintText)
             inputFieldCheck(expectedInputName, inputFieldSelector)
             buttonCheck(expectedButtonText, buttonSelector)
             welshToggleCheck(user.isWelsh)
@@ -249,9 +247,9 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
             import user.commonExpectedResults._
 
             titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.expectedTitle, user.isWelsh)
-            h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+            h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption, labelAsHeading = true)
             textOnPageCheck(expectedCaption, captionSelector)
-            textOnPageCheck(user.specificExpectedResults.get.expectedInputHintText, inputHintTextSelector)
+            hintTextCheck(user.specificExpectedResults.get.expectedInputHintText)
             inputFieldCheck(expectedInputName, inputFieldSelector)
             buttonCheck(expectedButtonText, buttonSelector)
             welshToggleCheck(user.isWelsh)
@@ -269,9 +267,9 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
             import user.commonExpectedResults._
 
             titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.expectedTitle, user.isWelsh)
-            h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+            h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption, labelAsHeading = true)
             textOnPageCheck(expectedCaption, captionSelector)
-            textOnPageCheck(user.specificExpectedResults.get.expectedInputHintText, inputHintTextSelector)
+            hintTextCheck(user.specificExpectedResults.get.expectedInputHintText)
             inputFieldCheck(expectedInputName, inputFieldSelector)
             buttonCheck(expectedButtonText, buttonSelector)
             welshToggleCheck(user.isWelsh)
@@ -291,9 +289,9 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
             import user.commonExpectedResults._
 
             titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.expectedTitle, user.isWelsh)
-            h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+            h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption, labelAsHeading = true)
             textOnPageCheck(expectedCaption, captionSelector)
-            textOnPageCheck(user.specificExpectedResults.get.expectedInputHintText, inputHintTextSelector)
+            hintTextCheck(user.specificExpectedResults.get.expectedInputHintText)
             inputFieldCheck(expectedInputName, inputFieldSelector)
             buttonCheck(expectedButtonText, buttonSelector)
             welshToggleCheck(user.isWelsh)

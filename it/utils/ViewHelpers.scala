@@ -88,9 +88,13 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
     }
   }
 
-  def h1Check(header: String, size: String = "l")(implicit document: () => Document): Unit = {
+  def h1Check(header: String, size: String = "l", labelAsHeading: Boolean = false)(implicit document: () => Document): Unit = {
     s"have a page heading of '$header'" in {
-      document().select(s".govuk-heading-$size").text() shouldBe header
+      if(labelAsHeading){
+        document().select(s".govuk-label--$size").text() shouldBe header
+      } else {
+        document().select(s".govuk-heading-$size").text() shouldBe header
+      }
     }
   }
 

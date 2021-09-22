@@ -42,9 +42,10 @@
     }
 }
 
-@contentHtml = {
+@hintHtml = {
     <p class="govuk-body">@paragraphText</p>
-    <div>@messages("charity.amount-overseas-gift-aid.input.label")</div>
+    <p class="govuk-body govuk-!-margin-bottom-1">@messages("charity.amount-overseas-gift-aid.input.label")</p>
+    @messages("common.currency.hint")
 }
 
 @layout(pageTitle = titleText, taxYear = Some(taxYear), hasErrors = form.hasErrors) {
@@ -57,11 +58,10 @@
             id = "amount",
             name = "amount",
             heading = headingForUse,
-            content = Some(contentHtml),
-            labelClasses = Some("govuk-!-margin-bottom-1"),
-            isPageHeading = false,
+            content = None,
+            isPageHeading = true,
             currency = true,
-            hint = Some(Html(messages("common.currency.hint"))),
+            hint = Some(hintHtml),
             subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)),
             headingClasses = "govuk-!-margin-bottom-2"
         )

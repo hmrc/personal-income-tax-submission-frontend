@@ -16,7 +16,7 @@
 
 @import utils.ViewUtils.bigDecimalCurrency
 
-@this(govukInput: GovukInput, headingHelper: Heading)
+@this(govukInput: GovukInput, headingHelper: HeadingForLabel)
 
 @(
     form: Form[_],
@@ -53,7 +53,7 @@
     label = Label(
         content = HtmlContent(contentHtml),
         isPageHeading = isPageHeading,
-        classes = if(isPageHeading) "govuk-label--xl " + labelClasses.fold("")(cls => cls) else labelClasses.fold("")(cls => cls)
+        classes = if(isPageHeading) "govuk-label--l hmrc-page-heading govuk-!-margin-top-0 " + headingClasses + labelClasses.fold("")(cls => cls) else labelClasses.fold("")(cls => cls)
     ),
     hint = hint.map(hintHtml => Hint(
         content = HtmlContent(hintHtml)

@@ -37,8 +37,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
   def url: String = s"$appUrl/$year/charity/value-of-shares-or-securities"
 
   trait SpecificExpectedResults {
-    val expectedPriorP1: String
-    val expectedCyaP1: String
+    val expectedPrefillP1: Int => String
     val tooLong: String
     val emptyField: String
     val incorrectFormat: String
@@ -72,32 +71,32 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
-    val expectedPriorP1 = "You told us you donated £777 in shares and securities to charity this year. Tell us if this has changed."
-    val expectedCyaP1 = "You told us you donated £50 in shares and securities to charity this year. Tell us if this has changed."
+    val expectedPrefillP1: Int => String = amount =>
+      s"You told us you donated £$amount in shares and securities to charity this year. Tell us if this has changed."
     val tooLong = "The value of your shares or securities must be less than £100,000,000,000"
     val emptyField = "Enter the value of shares or securities you donated to charity"
     val incorrectFormat = "Enter the value of shares or securities you donated to charity in the correct format"
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
-    val expectedPriorP1 = "You told us your client donated £777 in shares and securities to charity this year. Tell us if this has changed."
-    val expectedCyaP1 = "You told us your client donated £50 in shares and securities to charity this year. Tell us if this has changed."
+    val expectedPrefillP1: Int => String = amount =>
+      s"You told us your client donated £$amount in shares and securities to charity this year. Tell us if this has changed."
     val tooLong = "The value of your client’s shares or securities must be less than £100,000,000,000"
     val emptyField = "Enter the value of shares or securities your client donated to charity"
     val incorrectFormat = "Enter the value of shares or securities your client donated to charity in the correct format"
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val expectedPriorP1 = "You told us you donated £777 in shares and securities to charity this year. Tell us if this has changed."
-    val expectedCyaP1 = "You told us you donated £50 in shares and securities to charity this year. Tell us if this has changed."
+    val expectedPrefillP1: Int => String = amount =>
+      s"You told us you donated £$amount in shares and securities to charity this year. Tell us if this has changed."
     val tooLong = "Mae’n rhaid i werth eich cyfranddaliadau neu warantau fod yn llai na £100,000,000,000"
     val emptyField = "Nodwch werth cyfranddaliadau neu warantau a roddwyd gennych i elusen"
     val incorrectFormat = "Nodwch werth cyfranddaliadau neu warantau a roesoch i elusen yn y fformat cywir"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val expectedPriorP1 = "You told us your client donated £777 in shares and securities to charity this year. Tell us if this has changed."
-    val expectedCyaP1 = "You told us your client donated £50 in shares and securities to charity this year. Tell us if this has changed."
+    val expectedPrefillP1: Int => String = amount =>
+      s"You told us your client donated £$amount in shares and securities to charity this year. Tell us if this has changed."
     val tooLong = "Mae’n rhaid i werth cyfranddaliadau neu warantau eich cleient fod yn llai na £100,000,000,000"
     val emptyField = "Nodwch werth cyfranddaliadau neu warantau a roddwyd gan eich cleient i elusen"
     val incorrectFormat = "Nodwch werth cyfranddaliadau neu warantau a roddwyd gan eich cleient i elusen yn y fformat cywir"
@@ -141,10 +140,9 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
           }
 
           titleCheck(heading, user.isWelsh)
-          h1Check(heading + " " + caption)
+          h1Check(heading + " " + caption, labelAsHeading = true)
           inputFieldCheck(inputName, Selectors.inputField)
-          textOnPageCheck(inputLabel, Selectors.inputLabel)
-          hintTextCheck(hintText)
+          hintTextCheck(s"$inputLabel $hintText")
           captionCheck(caption)
           buttonCheck(button)
           noErrorsCheck()
@@ -163,10 +161,9 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
           }
 
           titleCheck(heading, user.isWelsh)
-          h1Check(heading + " " + caption)
+          h1Check(heading + " " + caption, labelAsHeading = true)
           inputFieldCheck(inputName, Selectors.inputField)
-          textOnPageCheck(inputLabel, Selectors.inputLabel)
-          hintTextCheck(hintText)
+          hintTextCheck(s"${user.specificExpectedResults.get.expectedPrefillP1(2000)} $inputLabel $hintText")
           captionCheck(caption)
           buttonCheck(button)
           noErrorsCheck()
@@ -186,7 +183,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
 
           inputFieldCheck(inputName, Selectors.inputField)
           inputFieldValueCheck("", Selectors.inputField)
-          textOnPageCheck(user.specificExpectedResults.get.expectedPriorP1, Selectors.p1Selector)
+          hintTextCheck(s"${user.specificExpectedResults.get.expectedPrefillP1(777)} $inputLabel $hintText")
         }
 
         "display the correct cya amount when returning before resubmitting" which {
@@ -201,10 +198,10 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
           }
 
           titleCheck(heading, user.isWelsh)
-          h1Check(heading + " " + caption)
+          h1Check(heading + " " + caption, labelAsHeading = true)
           inputFieldCheck(inputName, Selectors.inputField)
           inputFieldValueCheck("50", Selectors.inputField)
-          textOnPageCheck(user.specificExpectedResults.get.expectedCyaP1, Selectors.p1Selector)
+          hintTextCheck(s"${user.specificExpectedResults.get.expectedPrefillP1(50)} $inputLabel $hintText")
         }
       }
     }
@@ -259,10 +256,9 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
             import user.commonExpectedResults._
 
             titleCheck(errorPrefix(user.isWelsh) + heading, user.isWelsh)
-            h1Check(heading + " " + caption)
+            h1Check(heading + " " + caption, labelAsHeading = true)
             inputFieldCheck(inputName, Selectors.inputField)
-            textOnPageCheck(inputLabel, Selectors.inputLabel)
-            hintTextCheck(hintText)
+            hintTextCheck(s"$inputLabel $hintText")
             captionCheck(caption)
             buttonCheck(button)
             welshToggleCheck(user.isWelsh)
@@ -278,10 +274,9 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
             import user.commonExpectedResults._
 
             titleCheck(errorPrefix(user.isWelsh) + heading, user.isWelsh)
-            h1Check(heading + " " + caption)
+            h1Check(heading + " " + caption, labelAsHeading = true)
             inputFieldCheck(inputName, Selectors.inputField)
-            textOnPageCheck(inputLabel, Selectors.inputLabel)
-            hintTextCheck(hintText)
+            hintTextCheck(s"$inputLabel $hintText")
             captionCheck(caption)
             buttonCheck(button)
             welshToggleCheck(user.isWelsh)
@@ -297,10 +292,9 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
             import user.commonExpectedResults._
 
             titleCheck(errorPrefix(user.isWelsh) + heading, user.isWelsh)
-            h1Check(heading + " " + caption)
+            h1Check(heading + " " + caption, labelAsHeading = true)
             inputFieldCheck(inputName, Selectors.inputField)
-            textOnPageCheck(inputLabel, Selectors.inputLabel)
-            hintTextCheck(hintText)
+            hintTextCheck(s"$inputLabel $hintText")
             captionCheck(caption)
             buttonCheck(button)
             welshToggleCheck(user.isWelsh)

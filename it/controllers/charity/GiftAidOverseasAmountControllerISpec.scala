@@ -42,8 +42,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
   trait SpecificExpectedResults {
     val expectedTitle: String
     val expectedH1: String
-    val expectedPriorP1: String
-    val expectedCyaP1: String
+    val expectedPrefillP1: Int => String
     val expectedErrorEmpty: String
     val expectedErrorInvalid: String
     val expectedErrorOverMax: String
@@ -78,8 +77,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
   object ExpectedIndividualEN extends SpecificExpectedResults {
     val expectedTitle = "How much did you donate to overseas charities by using Gift Aid?"
     val expectedH1 = "How much did you donate to overseas charities by using Gift Aid?"
-    val expectedPriorP1 = "You told us you used Gift Aid to donate £1111 to overseas charities. Tell us if this has changed."
-    val expectedCyaP1 = "You told us you used Gift Aid to donate £50 to overseas charities. Tell us if this has changed."
+    val expectedPrefillP1: Int => String = amount => s"You told us you used Gift Aid to donate £$amount to overseas charities. Tell us if this has changed."
     val expectedErrorEmpty = "Enter the amount you donated to overseas charities"
     val expectedErrorInvalid = "Enter the amount you donated to overseas charities in the correct format"
     val expectedErrorOverMax = "The amount you donated to overseas charities must be less than £100,000,000,000"
@@ -90,8 +88,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
   object ExpectedAgentEN extends SpecificExpectedResults {
     val expectedTitle = "How much did your client donate to overseas charities by using Gift Aid?"
     val expectedH1 = "How much did your client donate to overseas charities by using Gift Aid?"
-    val expectedPriorP1 = "You told us your client used Gift Aid to donate £1111 to overseas charities. Tell us if this has changed."
-    val expectedCyaP1 = "You told us your client used Gift Aid to donate £50 to overseas charities. Tell us if this has changed."
+    val expectedPrefillP1: Int => String = amount => s"You told us your client used Gift Aid to donate £$amount to overseas charities. Tell us if this has changed."
     val expectedErrorEmpty = "Enter the amount your client donated to overseas charities"
     val expectedErrorInvalid = "Enter the amount your client donated to overseas charities in the correct format"
     val expectedErrorOverMax = "The amount your client donated to overseas charities must be less than £100,000,000,000"
@@ -103,8 +100,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
   object ExpectedIndividualCY extends SpecificExpectedResults {
     val expectedTitle = "Faint wnaethoch ei roi i elusennau tramor drwy ddefnyddio Rhodd Cymorth?"
     val expectedH1 = "Faint wnaethoch ei roi i elusennau tramor drwy ddefnyddio Rhodd Cymorth?"
-    val expectedPriorP1 = "You told us you used Gift Aid to donate £1111 to overseas charities. Tell us if this has changed."
-    val expectedCyaP1 = "You told us you used Gift Aid to donate £50 to overseas charities. Tell us if this has changed."
+    val expectedPrefillP1: Int => String = amount => s"You told us you used Gift Aid to donate £$amount to overseas charities. Tell us if this has changed."
     val expectedErrorEmpty = "Nodwch y swm a roesoch i elusennau tramor"
     val expectedErrorInvalid = "Nodwch y swm a roesoch i elusennau tramor yn y fformat cywir"
     val expectedErrorOverMax = "Mae’n rhaid i’r swm a roesoch i elusennau tramor fod yn llai na £100,000,000,000"
@@ -115,8 +111,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
   object ExpectedAgentCY extends SpecificExpectedResults {
     val expectedTitle = "Faint wnaeth eich cleient ei roi i elusennau tramor drwy ddefnyddio Rhodd Cymorth?"
     val expectedH1 = "Faint wnaeth eich cleient ei roi i elusennau tramor drwy ddefnyddio Rhodd Cymorth?"
-    val expectedPriorP1 = "You told us your client used Gift Aid to donate £1111 to overseas charities. Tell us if this has changed."
-    val expectedCyaP1 = "You told us your client used Gift Aid to donate £50 to overseas charities. Tell us if this has changed."
+    val expectedPrefillP1: Int => String = amount => s"You told us your client used Gift Aid to donate £$amount to overseas charities. Tell us if this has changed."
     val expectedErrorEmpty = "Nodwch y swm a roddodd eich cleient i elusennau tramor"
     val expectedErrorInvalid = "Nodwch y swm a roddodd eich cleient i elusennau tramor yn y fformat cywir"
     val expectedErrorOverMax = "Mae’n rhaid i’r swm a roddodd eich cleient i elusennau tramor fod yn llai na £100,000,000,000"
@@ -161,10 +156,9 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
           }
 
           titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
-          h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+          h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption, labelAsHeading = true)
           textOnPageCheck(expectedCaption, captionSelector)
-          textOnPageCheck(expectedInputLabelText, inputLabelSelector)
-          textOnPageCheck(expectedInputHintText, inputHintTextSelector)
+          hintTextCheck(s"$expectedInputLabelText $expectedInputHintText")
           inputFieldCheck(expectedInputName, inputFieldSelector)
           buttonCheck(expectedButtonText, buttonSelector)
           welshToggleCheck(user.isWelsh)
@@ -183,10 +177,9 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
           }
 
           titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
-          h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+          h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption, labelAsHeading = true)
           textOnPageCheck(expectedCaption, captionSelector)
-          textOnPageCheck(expectedInputLabelText, inputLabelSelector)
-          textOnPageCheck(expectedInputHintText, inputHintTextSelector)
+          hintTextCheck(s"${user.specificExpectedResults.get.expectedPrefillP1(25)} $expectedInputLabelText $expectedInputHintText")
           inputFieldCheck(expectedInputName, inputFieldSelector)
           buttonCheck(expectedButtonText, buttonSelector)
           welshToggleCheck(user.isWelsh)
@@ -205,7 +198,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
 
           inputFieldCheck(expectedInputName, Selectors.inputFieldSelector)
           inputFieldValueCheck("", Selectors.inputFieldSelector)
-          textOnPageCheck(user.specificExpectedResults.get.expectedPriorP1, Selectors.p1Selector)
+          hintTextCheck(s"${user.specificExpectedResults.get.expectedPrefillP1(1111)} $expectedInputLabelText $expectedInputHintText")
         }
 
         "display the correct cya amount when returning before resubmitting" which {
@@ -221,7 +214,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
 
           inputFieldCheck(expectedInputName, Selectors.inputFieldSelector)
           inputFieldValueCheck("50", Selectors.inputFieldSelector)
-          textOnPageCheck(user.specificExpectedResults.get.expectedCyaP1, Selectors.p1Selector)
+          hintTextCheck(s"${user.specificExpectedResults.get.expectedPrefillP1(50)} $expectedInputLabelText $expectedInputHintText")
         }
       }
     }
@@ -291,10 +284,9 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
             import user.commonExpectedResults._
 
             titleCheck(user.specificExpectedResults.get.expectedErrorTitle, user.isWelsh)
-            h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+            h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption, labelAsHeading = true)
             textOnPageCheck(expectedCaption, captionSelector)
-            textOnPageCheck(expectedInputLabelText, inputLabelSelector)
-            textOnPageCheck(expectedInputHintText, inputHintTextSelector)
+            hintTextCheck(s"$expectedInputLabelText $expectedInputHintText")
             inputFieldCheck(expectedInputName, inputFieldSelector)
             buttonCheck(expectedButtonText, buttonSelector)
             welshToggleCheck(user.isWelsh)
@@ -312,10 +304,9 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
             import user.commonExpectedResults._
 
             titleCheck(user.specificExpectedResults.get.expectedErrorTitle, user.isWelsh)
-            h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+            h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption, labelAsHeading = true)
             textOnPageCheck(expectedCaption, captionSelector)
-            textOnPageCheck(expectedInputLabelText, inputLabelSelector)
-            textOnPageCheck(expectedInputHintText, inputHintTextSelector)
+            hintTextCheck(s"$expectedInputLabelText $expectedInputHintText")
             inputFieldCheck(expectedInputName, inputFieldSelector)
             buttonCheck(expectedButtonText, buttonSelector)
             welshToggleCheck(user.isWelsh)
@@ -333,10 +324,9 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
             import user.commonExpectedResults._
 
             titleCheck(user.specificExpectedResults.get.expectedErrorTitle, user.isWelsh)
-            h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+            h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption, labelAsHeading = true)
             textOnPageCheck(expectedCaption, captionSelector)
-            textOnPageCheck(expectedInputLabelText, inputLabelSelector)
-            textOnPageCheck(expectedInputHintText, inputHintTextSelector)
+            hintTextCheck(s"$expectedInputLabelText $expectedInputHintText")
             inputFieldCheck(expectedInputName, inputFieldSelector)
             buttonCheck(expectedButtonText, buttonSelector)
             welshToggleCheck(user.isWelsh)
@@ -351,10 +341,9 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
             titleCheck(user.specificExpectedResults.get.expectedErrorTitle, user.isWelsh)
-            h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+            h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption, labelAsHeading = true)
             textOnPageCheck(expectedCaption, captionSelector)
-            textOnPageCheck(expectedInputLabelText, inputLabelSelector)
-            textOnPageCheck(expectedInputHintText, inputHintTextSelector)
+            hintTextCheck(s"$expectedInputLabelText $expectedInputHintText")
             inputFieldCheck(expectedInputName, inputFieldSelector)
             buttonCheck(expectedButtonText, buttonSelector)
             welshToggleCheck(user.isWelsh)

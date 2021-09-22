@@ -24,7 +24,6 @@
    formWithCSRF: FormWithCSRF,
    errorSummary: ErrorSummary,
    button: Button,
-   heading: Heading,
    inputRadio: InputRadio,
    inputText: InputText
 )
@@ -45,13 +44,11 @@
                 id = "amount",
                 name = "amount",
                 heading = messages(s"interest.change-account.${taxType.toLowerCase}-heading.${if(user.isAgent) "agent" else "individual"}", account.accountName),
-                content = Some(contentHtml),
-                labelClasses = Some("govuk-!-margin-bottom-4"),
-                isPageHeading = false,
+                isPageHeading = true,
                 currency = true,
-                hint = Some(Html(messages("common.currency.hint"))),
+                hint = Some(hintHtml),
                 subheading = Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)),
-                headingClasses = "govuk-!-margin-bottom-2"
+                headingClasses = "govuk-!-margin-bottom-4"
             )
         </div>
 
@@ -60,16 +57,17 @@
     }
 }
 
-@contentHtml = {
+@hintHtml = {
 
     @if(preAmount.isDefined) {
-        <p>
+        <p class="govuk-body">
             @messages("common.youToldUs")
             @messages(s"common.youGot.${if(user.isAgent) "agent" else "individual"}")
             @bigDecimalCurrency(preAmount.getOrElse(BigDecimal("0")).toString)
             @messages(s"interest.change-account.${taxType.toLowerCase}-label.prior.common2")
         </p>
     }
+    @messages("common.currency.hint")
 }
 
 @{
