@@ -144,7 +144,7 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
           }
 
           titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
-          h1Check(expectedCaption + " " + user.specificExpectedResults.get.expectedH1, labelAsHeading = true)
+          h1Check(expectedCaption + " " + user.specificExpectedResults.get.expectedH1)
           textOnPageCheck(expectedCaption, captionSelector)
           hintTextCheck(s"${user.specificExpectedResults.get.expectedContent1} ${user.specificExpectedResults.get.expectedContent2}")
           radioButtonCheck(yesText, 1)
@@ -167,7 +167,7 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
           }
 
           titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
-          h1Check(expectedCaption + " " + user.specificExpectedResults.get.expectedH1, labelAsHeading = true)
+          h1Check(expectedCaption + " " + user.specificExpectedResults.get.expectedH1)
           textOnPageCheck(expectedCaption, captionSelector)
           hintTextCheck(s"${user.specificExpectedResults.get.expectedContent1} ${user.specificExpectedResults.get.expectedContent2}")
           radioButtonCheck(yesText, 1)
@@ -239,7 +239,7 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
           import user.commonExpectedResults._
 
           titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.expectedTitle, user.isWelsh)
-          h1Check(expectedCaption + " " + user.specificExpectedResults.get.expectedH1, labelAsHeading = true)
+          h1Check(expectedCaption + " " + user.specificExpectedResults.get.expectedH1)
           textOnPageCheck(expectedCaption, captionSelector)
           hintTextCheck(s"${user.specificExpectedResults.get.expectedContent1} ${user.specificExpectedResults.get.expectedContent2}")
           radioButtonCheck(yesText, 1)

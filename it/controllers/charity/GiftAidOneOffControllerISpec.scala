@@ -147,7 +147,7 @@ class GiftAidOneOffControllerISpec extends CharityITHelper {
 
           titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           welshToggleCheck(user.isWelsh)
-          h1Check(captionText + " " + user.specificExpectedResults.get.expectedH1, labelAsHeading = true)
+          h1Check(captionText + " " + user.specificExpectedResults.get.expectedH1)
           textOnPageCheck(captionText, captionSelector)
           hintTextCheck(s"${user.specificExpectedResults.get.expectedPara1} ${user.specificExpectedResults.get.expectedPara2}")
           radioButtonCheck(yesText, 1)
@@ -170,7 +170,7 @@ class GiftAidOneOffControllerISpec extends CharityITHelper {
 
           titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           welshToggleCheck(user.isWelsh)
-          h1Check(captionText + " " + user.specificExpectedResults.get.expectedH1, labelAsHeading = true)
+          h1Check(captionText + " " + user.specificExpectedResults.get.expectedH1)
           textOnPageCheck(captionText, captionSelector)
           hintTextCheck(s"${user.specificExpectedResults.get.expectedPara1} ${user.specificExpectedResults.get.expectedPara2}")
           radioButtonCheck(yesText, 1)
@@ -234,7 +234,7 @@ class GiftAidOneOffControllerISpec extends CharityITHelper {
 
           titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           welshToggleCheck(user.isWelsh)
-          h1Check(captionText + " " + user.specificExpectedResults.get.expectedH1, labelAsHeading = true)
+          h1Check(captionText + " " + user.specificExpectedResults.get.expectedH1)
           textOnPageCheck(captionText, captionSelector)
           hintTextCheck(s"${user.specificExpectedResults.get.expectedPara1} ${user.specificExpectedResults.get.expectedPara2}")
           radioButtonCheck(yesText, 1)

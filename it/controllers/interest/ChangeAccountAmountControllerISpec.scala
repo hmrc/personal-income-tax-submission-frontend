@@ -201,7 +201,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
               titleCheck(if(testCase._3) specific.expectedUntaxedTitle else specific.expectedTaxedTitle, us.isWelsh)
               welshToggleCheck(us.isWelsh)
-              h1Check(expectedCaption + " " + (if(testCase._3) specific.expectedUntaxedH1 else specific.expectedTaxedH1), labelAsHeading = true)
+              h1Check(expectedCaption + " " + (if(testCase._3) specific.expectedUntaxedH1 else specific.expectedTaxedH1))
               textOnPageCheck(expectedCaption, captionSelector)
               hintTextCheck(s"${if(testCase._3) specific.youToldUsUntaxed else specific.youToldUsTaxed} $expectedHintText")
               inputFieldCheck(amountInputName, newAmountInputSelector)
@@ -238,7 +238,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
               titleCheck(if(testCase._3) specific.expectedUntaxedTitle else specific.expectedTaxedTitle, us.isWelsh)
               welshToggleCheck(us.isWelsh)
-              h1Check(expectedCaption + " " + (if(testCase._3) specific.expectedUntaxedH1 else specific.expectedTaxedH1), labelAsHeading = true)
+              h1Check(expectedCaption + " " + (if(testCase._3) specific.expectedUntaxedH1 else specific.expectedTaxedH1))
               textOnPageCheck(expectedCaption, captionSelector)
               hintTextCheck(s"${if(testCase._3) specific.youToldUsUntaxed else specific.youToldUsTaxed} $expectedHintText")
               inputFieldCheck(amountInputName, newAmountInputSelector)

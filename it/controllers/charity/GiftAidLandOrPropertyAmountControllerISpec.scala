@@ -148,7 +148,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
           }
 
           titleCheck(expectedTitle, user.isWelsh)
-          h1Check(expectedCaption + " " + expectedHeading, labelAsHeading = true)
+          h1Check(expectedCaption + " " + expectedHeading)
           textOnPageCheck(expectedCaption, captionSelector)
           hintTextCheck(s"$expectedContent $expectedHint")
           inputFieldCheck(expectedInputName, inputFieldSelector)
@@ -169,7 +169,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
           }
 
           titleCheck(expectedTitle, user.isWelsh)
-          h1Check(expectedCaption + " " + expectedHeading, labelAsHeading = true)
+          h1Check(expectedCaption + " " + expectedHeading)
           textOnPageCheck(expectedCaption, captionSelector)
           hintTextCheck(s"${user.specificExpectedResults.get.expectedPrefillP1(2000)} $expectedContent $expectedHint")
           inputFieldCheck(expectedInputName, inputFieldSelector)
@@ -262,7 +262,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
             import user.commonExpectedResults._
 
             titleCheck(errorPrefix(user.isWelsh) + expectedTitle, user.isWelsh)
-            h1Check(expectedCaption + " " + expectedHeading, labelAsHeading = true)
+            h1Check(expectedCaption + " " + expectedHeading)
             textOnPageCheck(expectedCaption, captionSelector)
             hintTextCheck(s"$expectedContent $expectedHint")
             inputFieldCheck(expectedInputName, inputFieldSelector)
@@ -283,7 +283,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
             import user.commonExpectedResults._
 
             titleCheck(errorPrefix(user.isWelsh) + expectedTitle, user.isWelsh)
-            h1Check(expectedCaption + " " + expectedHeading, labelAsHeading = true)
+            h1Check(expectedCaption + " " + expectedHeading)
             textOnPageCheck(expectedCaption, captionSelector)
             hintTextCheck(s"$expectedContent $expectedHint")
             inputFieldCheck(expectedInputName, inputFieldSelector)
@@ -303,7 +303,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
             import user.commonExpectedResults._
 
             titleCheck(errorPrefix(user.isWelsh) + expectedTitle, user.isWelsh)
-            h1Check(expectedCaption + " " + expectedHeading, labelAsHeading = true)
+            h1Check(expectedCaption + " " + expectedHeading)
             textOnPageCheck(expectedCaption, captionSelector)
             hintTextCheck(s"$expectedContent $expectedHint")
             inputFieldCheck(expectedInputName, inputFieldSelector)

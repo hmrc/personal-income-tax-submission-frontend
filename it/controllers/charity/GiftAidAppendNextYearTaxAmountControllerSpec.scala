@@ -161,7 +161,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
           }
 
           titleCheck(user.specificExpectedResults.get.heading, user.isWelsh)
-          h1Check(expectedCaption + " " + user.specificExpectedResults.get.heading, labelAsHeading = true)
+          h1Check(expectedCaption + " " + user.specificExpectedResults.get.heading)
           inputFieldCheck(inputName, Selectors.inputField)
           hintTextCheck(hintText)
           captionCheck(expectedCaption)
@@ -181,7 +181,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
           }
 
           titleCheck(user.specificExpectedResults.get.heading, user.isWelsh)
-          h1Check(expectedCaption + " " + user.specificExpectedResults.get.heading, labelAsHeading = true)
+          h1Check(expectedCaption + " " + user.specificExpectedResults.get.heading)
           inputFieldCheck(inputName, Selectors.inputField)
           hintTextCheck(s"${user.specificExpectedResults.get.cyaP1(2000)} $hintText")
           captionCheck(expectedCaption)
@@ -318,7 +318,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
             import user.commonExpectedResults._
             titleCheck(error + user.specificExpectedResults.get.heading, user.isWelsh)
-            h1Check(expectedCaption + " " + user.specificExpectedResults.get.heading, labelAsHeading = true)
+            h1Check(expectedCaption + " " + user.specificExpectedResults.get.heading)
             inputFieldCheck(inputName, Selectors.inputField)
             hintTextCheck(hintText)
             captionCheck(expectedCaption)
@@ -338,7 +338,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
             import user.commonExpectedResults._
             titleCheck(error + user.specificExpectedResults.get.heading, user.isWelsh)
-            h1Check(expectedCaption + " " + user.specificExpectedResults.get.heading, labelAsHeading = true)
+            h1Check(expectedCaption + " " + user.specificExpectedResults.get.heading)
             inputFieldCheck(inputName, Selectors.inputField)
             hintTextCheck(hintText)
             captionCheck(expectedCaption)
@@ -358,7 +358,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
             import user.commonExpectedResults._
             titleCheck(error + user.specificExpectedResults.get.heading, user.isWelsh)
-            h1Check(expectedCaption + " " + user.specificExpectedResults.get.heading, labelAsHeading = true)
+            h1Check(expectedCaption + " " + user.specificExpectedResults.get.heading)
             inputFieldCheck(inputName, Selectors.inputField)
             hintTextCheck(hintText)
             captionCheck(expectedCaption)

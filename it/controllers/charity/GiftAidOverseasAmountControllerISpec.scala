@@ -156,7 +156,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
           }
 
           titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
-          h1Check(expectedCaption + " " + user.specificExpectedResults.get.expectedH1, labelAsHeading = true)
+          h1Check(expectedCaption + " " + user.specificExpectedResults.get.expectedH1)
           textOnPageCheck(expectedCaption, captionSelector)
           hintTextCheck(s"$expectedInputLabelText $expectedInputHintText")
           inputFieldCheck(expectedInputName, inputFieldSelector)
@@ -177,7 +177,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
           }
 
           titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
-          h1Check(expectedCaption + " " + user.specificExpectedResults.get.expectedH1, labelAsHeading = true)
+          h1Check(expectedCaption + " " + user.specificExpectedResults.get.expectedH1)
           textOnPageCheck(expectedCaption, captionSelector)
           hintTextCheck(s"${user.specificExpectedResults.get.expectedPrefillP1(25)} $expectedInputLabelText $expectedInputHintText")
           inputFieldCheck(expectedInputName, inputFieldSelector)
@@ -284,7 +284,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
             import user.commonExpectedResults._
 
             titleCheck(user.specificExpectedResults.get.expectedErrorTitle, user.isWelsh)
-            h1Check(expectedCaption + " " + user.specificExpectedResults.get.expectedH1, labelAsHeading = true)
+            h1Check(expectedCaption + " " + user.specificExpectedResults.get.expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
             hintTextCheck(s"$expectedInputLabelText $expectedInputHintText")
             inputFieldCheck(expectedInputName, inputFieldSelector)
@@ -304,7 +304,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
             import user.commonExpectedResults._
 
             titleCheck(user.specificExpectedResults.get.expectedErrorTitle, user.isWelsh)
-            h1Check(expectedCaption + " " + user.specificExpectedResults.get.expectedH1, labelAsHeading = true)
+            h1Check(expectedCaption + " " + user.specificExpectedResults.get.expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
             hintTextCheck(s"$expectedInputLabelText $expectedInputHintText")
             inputFieldCheck(expectedInputName, inputFieldSelector)
@@ -324,7 +324,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
             import user.commonExpectedResults._
 
             titleCheck(user.specificExpectedResults.get.expectedErrorTitle, user.isWelsh)
-            h1Check(expectedCaption + " " + user.specificExpectedResults.get.expectedH1, labelAsHeading = true)
+            h1Check(expectedCaption + " " + user.specificExpectedResults.get.expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
             hintTextCheck(s"$expectedInputLabelText $expectedInputHintText")
             inputFieldCheck(expectedInputName, inputFieldSelector)
@@ -341,7 +341,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
             titleCheck(user.specificExpectedResults.get.expectedErrorTitle, user.isWelsh)
-            h1Check(expectedCaption + " " + user.specificExpectedResults.get.expectedH1, labelAsHeading = true)
+            h1Check(expectedCaption + " " + user.specificExpectedResults.get.expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
             hintTextCheck(s"$expectedInputLabelText $expectedInputHintText")
             inputFieldCheck(expectedInputName, inputFieldSelector)

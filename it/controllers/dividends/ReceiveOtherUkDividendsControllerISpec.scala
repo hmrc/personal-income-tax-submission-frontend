@@ -205,7 +205,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck(get.expectedTitle, us.isWelsh)
-          h1Check(captionExpected + " " + get.expectedH1, labelAsHeading = true)
+          h1Check(captionExpected + " " + get.expectedH1)
           hintTextCheck(s"$youMustAlsoText $authorisedBulletText $investmentBulletText $yourDividendsBulletText ${get.youDoNotNeedText}")
           radioButtonCheck(yesNo(true), 1)
           radioButtonCheck(yesNo(false), 2)
@@ -300,7 +300,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
             implicit val document: () => Document = () => Jsoup.parse(result.body)
 
             titleCheck(get.expectedErrorTitle, us.isWelsh)
-            h1Check(captionExpected + " " + get.expectedH1, labelAsHeading = true)
+            h1Check(captionExpected + " " + get.expectedH1)
             errorSummaryCheck(get.expectedErrorText, expectedErrorHref, us.isWelsh)
             hintTextCheck(s"$youMustAlsoText $authorisedBulletText $investmentBulletText $yourDividendsBulletText ${get.youDoNotNeedText}")
             radioButtonCheck(yesNo(true), 1)

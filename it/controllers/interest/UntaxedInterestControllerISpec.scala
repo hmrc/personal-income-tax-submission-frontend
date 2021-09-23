@@ -164,7 +164,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
             titleCheck(specific.expectedTitle, us.isWelsh)
             welshToggleCheck(us.isWelsh)
-            h1Check(expectedCaption + " " + specific.expectedH1, labelAsHeading = true)
+            h1Check(expectedCaption + " " + specific.expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
 
             hintTextCheck(s"$forExampleText $banksAndBuildingsText $savingsAndCreditText $peerToPeerText ${specific.doNotIncludeText}")
@@ -198,7 +198,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
             titleCheck(specific.expectedTitle, us.isWelsh)
             welshToggleCheck(us.isWelsh)
-            h1Check(expectedCaption + " " + specific.expectedH1, labelAsHeading = true)
+            h1Check(expectedCaption + " " + specific.expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
 
             hintTextCheck(s"$forExampleText $banksAndBuildingsText $savingsAndCreditText $peerToPeerText ${specific.doNotIncludeText}")
@@ -285,7 +285,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
           titleCheck(specific.expectedErrorTitle, us.isWelsh)
           welshToggleCheck(us.isWelsh)
-          h1Check(expectedCaption + " " + specific.expectedH1, labelAsHeading = true)
+          h1Check(expectedCaption + " " + specific.expectedH1)
           textOnPageCheck(expectedCaption, captionSelector)
           errorSummaryCheck(specific.expectedErrorText, errorSummaryHref, us.isWelsh)
           errorAboveElementCheck(specific.expectedErrorText)

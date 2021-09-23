@@ -140,7 +140,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
           }
 
           titleCheck(heading, user.isWelsh)
-          h1Check(caption + " " + heading, labelAsHeading = true)
+          h1Check(caption + " " + heading)
           inputFieldCheck(inputName, Selectors.inputField)
           hintTextCheck(s"$inputLabel $hintText")
           captionCheck(caption)
@@ -161,7 +161,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
           }
 
           titleCheck(heading, user.isWelsh)
-          h1Check(caption + " " + heading, labelAsHeading = true)
+          h1Check(caption + " " + heading)
           inputFieldCheck(inputName, Selectors.inputField)
           hintTextCheck(s"${user.specificExpectedResults.get.expectedPrefillP1(2000)} $inputLabel $hintText")
           captionCheck(caption)
@@ -198,7 +198,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
           }
 
           titleCheck(heading, user.isWelsh)
-          h1Check(caption + " " + heading, labelAsHeading = true)
+          h1Check(caption + " " + heading)
           inputFieldCheck(inputName, Selectors.inputField)
           inputFieldValueCheck("50", Selectors.inputField)
           hintTextCheck(s"${user.specificExpectedResults.get.expectedPrefillP1(50)} $inputLabel $hintText")
@@ -256,7 +256,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
             import user.commonExpectedResults._
 
             titleCheck(errorPrefix(user.isWelsh) + heading, user.isWelsh)
-            h1Check(caption + " " + heading, labelAsHeading = true)
+            h1Check(caption + " " + heading)
             inputFieldCheck(inputName, Selectors.inputField)
             hintTextCheck(s"$inputLabel $hintText")
             captionCheck(caption)
@@ -274,7 +274,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
             import user.commonExpectedResults._
 
             titleCheck(errorPrefix(user.isWelsh) + heading, user.isWelsh)
-            h1Check(caption + " " + heading, labelAsHeading = true)
+            h1Check(caption + " " + heading)
             inputFieldCheck(inputName, Selectors.inputField)
             hintTextCheck(s"$inputLabel $hintText")
             captionCheck(caption)
@@ -292,7 +292,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
             import user.commonExpectedResults._
 
             titleCheck(errorPrefix(user.isWelsh) + heading, user.isWelsh)
-            h1Check(caption + " " + heading, labelAsHeading = true)
+            h1Check(caption + " " + heading)
             inputFieldCheck(inputName, Selectors.inputField)
             hintTextCheck(s"$inputLabel $hintText")
             captionCheck(caption)

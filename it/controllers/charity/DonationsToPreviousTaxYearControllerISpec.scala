@@ -148,7 +148,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper {
           }
 
           titleCheck(expectedHeading, user.isWelsh)
-          h1Check(expectedCaption + " " + expectedHeading, labelAsHeading = true)
+          h1Check(expectedCaption + " " + expectedHeading)
           hintTextCheck(s"${user.specificExpectedResults.get.expectedParagraph1} ${user.specificExpectedResults.get.expectedParagraph2}")
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
@@ -169,7 +169,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper {
           }
 
           titleCheck(expectedHeading, user.isWelsh)
-          h1Check(expectedCaption + " " + expectedHeading, labelAsHeading = true)
+          h1Check(expectedCaption + " " + expectedHeading)
           hintTextCheck(s"${user.specificExpectedResults.get.expectedParagraph1} ${user.specificExpectedResults.get.expectedParagraph2}")
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
@@ -317,7 +317,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper {
           import user.commonExpectedResults._
 
           titleCheck(error + expectedHeading, user.isWelsh)
-          h1Check(expectedCaption + " " + expectedHeading, labelAsHeading = true)
+          h1Check(expectedCaption + " " + expectedHeading)
           hintTextCheck(s"${user.specificExpectedResults.get.expectedParagraph1} ${user.specificExpectedResults.get.expectedParagraph2}")
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)

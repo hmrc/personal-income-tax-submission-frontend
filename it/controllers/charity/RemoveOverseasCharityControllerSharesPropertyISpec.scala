@@ -106,7 +106,7 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends CharityITHelper
             }
 
             titleCheck(expectedTitle, user.isWelsh)
-            h1Check(expectedCaption + " " + expectedH1, labelAsHeading = true)
+            h1Check(expectedCaption + " " + expectedH1)
             elementExtinct(Selectors.content)
             radioButtonCheck(yesText, 1)
             radioButtonCheck(noText, 2)
@@ -131,7 +131,7 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends CharityITHelper
             }
 
             titleCheck(expectedTitle, user.isWelsh)
-            h1Check(expectedCaption + " " + expectedH1, labelAsHeading = true)
+            h1Check(expectedCaption + " " + expectedH1)
             hintTextCheck(expectedContent)
             radioButtonCheck(yesText, 1)
             radioButtonCheck(noText, 2)
@@ -190,7 +190,7 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends CharityITHelper
               import user.commonExpectedResults._
 
               titleCheck(errorPrefix(user.isWelsh) + expectedTitle, user.isWelsh)
-              h1Check(expectedCaption + " " + expectedH1, labelAsHeading = true)
+              h1Check(expectedCaption + " " + expectedH1)
               radioButtonCheck(yesText, 1)
               radioButtonCheck(noText, 2)
               captionCheck(expectedCaption)

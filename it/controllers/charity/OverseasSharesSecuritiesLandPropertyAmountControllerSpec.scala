@@ -144,7 +144,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
           }
 
           titleCheck(heading, user.isWelsh)
-          h1Check(caption + " " + heading, labelAsHeading = true)
+          h1Check(caption + " " + heading)
           inputFieldCheck(inputName, Selectors.inputField)
           hintTextCheck(s"$inputLabel $hintText")
           captionCheck(caption)
@@ -165,7 +165,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
           }
 
           titleCheck(heading, user.isWelsh)
-          h1Check(caption + " " + heading, labelAsHeading = true)
+          h1Check(caption + " " + heading)
           inputFieldCheck(inputName, Selectors.inputField)
           hintTextCheck(s"${user.specificExpectedResults.get.expectedPrefillP1(99)} $inputLabel $hintText")
           captionCheck(caption)
@@ -271,7 +271,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
             import user.commonExpectedResults._
 
             titleCheck(errorPrefix(user.isWelsh) + heading, user.isWelsh)
-            h1Check(caption + " " + heading, labelAsHeading = true)
+            h1Check(caption + " " + heading)
             inputFieldCheck(inputName, Selectors.inputField)
             hintTextCheck(s"$inputLabel $hintText")
             captionCheck(caption)
@@ -289,7 +289,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
             import user.commonExpectedResults._
 
             titleCheck(errorPrefix(user.isWelsh) + heading, user.isWelsh)
-            h1Check(caption + " " + heading, labelAsHeading = true)
+            h1Check(caption + " " + heading)
             inputFieldCheck(inputName, Selectors.inputField)
             hintTextCheck(s"$inputLabel $hintText")
             captionCheck(caption)
@@ -308,7 +308,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
             import user.commonExpectedResults._
 
             titleCheck(errorPrefix(user.isWelsh) + heading, user.isWelsh)
-            h1Check(caption + " " + heading, labelAsHeading = true)
+            h1Check(caption + " " + heading)
             inputFieldCheck(inputName, Selectors.inputField)
             hintTextCheck(s"$inputLabel $hintText")
             captionCheck(caption)
@@ -324,7 +324,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
             titleCheck(errorPrefix(user.isWelsh) + heading, user.isWelsh)
-            h1Check(caption + " " + heading, labelAsHeading = true)
+            h1Check(caption + " " + heading)
             inputFieldCheck(inputName, Selectors.inputField)
             hintTextCheck(s"$inputLabel $hintText")
             captionCheck(caption)

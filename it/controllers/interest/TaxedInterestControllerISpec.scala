@@ -167,7 +167,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
             titleCheck(specific.expectedTitle, us.isWelsh)
             welshToggleCheck(us.isWelsh)
-            h1Check(expectedCaption + " " + specific.expectedH1, labelAsHeading = true)
+            h1Check(expectedCaption + " " + specific.expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
 
             hintTextCheck(s"$forExampleText $trustFundsText $companyBondsText $lifeAnnuityText ${specific.doNotIncludeText}")
@@ -368,7 +368,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
             titleCheck(specific.expectedErrorTitle, us.isWelsh)
             welshToggleCheck(us.isWelsh)
-            h1Check(expectedCaption + " " + specific.expectedH1, labelAsHeading = true)
+            h1Check(expectedCaption + " " + specific.expectedH1)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(specific.expectedErrorText, valueHref, us.isWelsh)
             errorAboveElementCheck(specific.expectedErrorText)

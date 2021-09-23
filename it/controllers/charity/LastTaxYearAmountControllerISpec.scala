@@ -150,7 +150,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
           }
 
           titleCheck(user.specificExpectedResults.get.heading, user.isWelsh)
-          h1Check(caption + " " + user.specificExpectedResults.get.heading, labelAsHeading = true)
+          h1Check(caption + " " + user.specificExpectedResults.get.heading)
           inputFieldCheck("amount", ".govuk-input")
           hintTextCheck(s"${user.specificExpectedResults.get.para} $hint")
           captionCheck(caption)
@@ -174,7 +174,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
           }
 
           titleCheck(user.specificExpectedResults.get.heading, user.isWelsh)
-          h1Check(caption + " " + user.specificExpectedResults.get.heading, labelAsHeading = true)
+          h1Check(caption + " " + user.specificExpectedResults.get.heading)
           inputFieldCheck("amount", ".govuk-input")
           hintTextCheck(s"${user.specificExpectedResults.get.expectedPrefillP1(50)} $hint")
           captionCheck(caption)
@@ -294,7 +294,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
             import user.commonExpectedResults._
 
             titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.heading, user.isWelsh)
-            h1Check(caption + " " + user.specificExpectedResults.get.heading, labelAsHeading = true)
+            h1Check(caption + " " + user.specificExpectedResults.get.heading)
             inputFieldCheck("amount", ".govuk-input")
             hintTextCheck(s"${user.specificExpectedResults.get.para} $hint")
             captionCheck(caption)
@@ -313,7 +313,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
             import user.commonExpectedResults._
 
             titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.heading, user.isWelsh)
-            h1Check(caption + " " + user.specificExpectedResults.get.heading, labelAsHeading = true)
+            h1Check(caption + " " + user.specificExpectedResults.get.heading)
             inputFieldCheck("amount", ".govuk-input")
             hintTextCheck(s"${user.specificExpectedResults.get.para} $hint")
             captionCheck(caption)
@@ -332,7 +332,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
             import user.commonExpectedResults._
 
             titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.heading, user.isWelsh)
-            h1Check(caption + " " + user.specificExpectedResults.get.heading, labelAsHeading = true)
+            h1Check(caption + " " + user.specificExpectedResults.get.heading)
             inputFieldCheck("amount", ".govuk-input")
             hintTextCheck(s"${user.specificExpectedResults.get.para} $hint")
             captionCheck(caption)
@@ -348,7 +348,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
             implicit def document: () => Document = () => Jsoup.parse(result.body)
 
             titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.heading, user.isWelsh)
-            h1Check(caption + " " + user.specificExpectedResults.get.heading, labelAsHeading = true)
+            h1Check(caption + " " + user.specificExpectedResults.get.heading)
             inputFieldCheck("amount", ".govuk-input")
             hintTextCheck(s"${user.specificExpectedResults.get.para} $hint")
             captionCheck(caption)
