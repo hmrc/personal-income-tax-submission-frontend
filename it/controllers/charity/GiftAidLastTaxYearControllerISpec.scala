@@ -144,10 +144,9 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
           }
 
           titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
-          h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+          h1Check(expectedCaption + " " + user.specificExpectedResults.get.expectedH1, labelAsHeading = true)
           textOnPageCheck(expectedCaption, captionSelector)
-          textOnPageCheck(user.specificExpectedResults.get.expectedContent1, contentSelector1)
-          textOnPageCheck(user.specificExpectedResults.get.expectedContent2, contentSelector2)
+          hintTextCheck(s"${user.specificExpectedResults.get.expectedContent1} ${user.specificExpectedResults.get.expectedContent2}")
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
           buttonCheck(expectedContinue, continueSelector)
@@ -168,10 +167,9 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
           }
 
           titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
-          h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+          h1Check(expectedCaption + " " + user.specificExpectedResults.get.expectedH1, labelAsHeading = true)
           textOnPageCheck(expectedCaption, captionSelector)
-          textOnPageCheck(user.specificExpectedResults.get.expectedContent1, contentSelector1)
-          textOnPageCheck(user.specificExpectedResults.get.expectedContent2, contentSelector2)
+          hintTextCheck(s"${user.specificExpectedResults.get.expectedContent1} ${user.specificExpectedResults.get.expectedContent2}")
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
           radioButtonHasChecked(yesText, 1)
@@ -241,10 +239,9 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
           import user.commonExpectedResults._
 
           titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.expectedTitle, user.isWelsh)
-          h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
+          h1Check(expectedCaption + " " + user.specificExpectedResults.get.expectedH1, labelAsHeading = true)
           textOnPageCheck(expectedCaption, captionSelector)
-          textOnPageCheck(user.specificExpectedResults.get.expectedContent1, contentSelector1)
-          textOnPageCheck(user.specificExpectedResults.get.expectedContent2, contentSelector2)
+          hintTextCheck(s"${user.specificExpectedResults.get.expectedContent1} ${user.specificExpectedResults.get.expectedContent2}")
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
           buttonCheck(expectedContinue, continueSelector)

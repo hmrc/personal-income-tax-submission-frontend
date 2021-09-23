@@ -148,9 +148,8 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper {
           }
 
           titleCheck(expectedHeading, user.isWelsh)
-          h1Check(expectedHeading + " " + expectedCaption)
-          textOnPageCheck(user.specificExpectedResults.get.expectedParagraph1, Selectors.paragraph1HintText)
-          textOnPageCheck(user.specificExpectedResults.get.expectedParagraph2, Selectors.paragraph2HintText)
+          h1Check(expectedCaption + " " + expectedHeading, labelAsHeading = true)
+          hintTextCheck(s"${user.specificExpectedResults.get.expectedParagraph1} ${user.specificExpectedResults.get.expectedParagraph2}")
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
           captionCheck(expectedCaption)
@@ -170,9 +169,8 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper {
           }
 
           titleCheck(expectedHeading, user.isWelsh)
-          h1Check(expectedHeading + " " + expectedCaption)
-          textOnPageCheck(user.specificExpectedResults.get.expectedParagraph1, Selectors.paragraph1HintText)
-          textOnPageCheck(user.specificExpectedResults.get.expectedParagraph2, Selectors.paragraph2HintText)
+          h1Check(expectedCaption + " " + expectedHeading, labelAsHeading = true)
+          hintTextCheck(s"${user.specificExpectedResults.get.expectedParagraph1} ${user.specificExpectedResults.get.expectedParagraph2}")
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
           radioButtonHasChecked(noText, 2)
@@ -319,9 +317,8 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper {
           import user.commonExpectedResults._
 
           titleCheck(error + expectedHeading, user.isWelsh)
-          h1Check(expectedHeading + " " + expectedCaption)
-          textOnPageCheck(user.specificExpectedResults.get.expectedParagraph1, Selectors.paragraph1HintText)
-          textOnPageCheck(user.specificExpectedResults.get.expectedParagraph2, Selectors.paragraph2HintText)
+          h1Check(expectedCaption + " " + expectedHeading, labelAsHeading = true)
+          hintTextCheck(s"${user.specificExpectedResults.get.expectedParagraph1} ${user.specificExpectedResults.get.expectedParagraph2}")
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
           captionCheck(expectedCaption)

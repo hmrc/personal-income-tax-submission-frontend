@@ -106,7 +106,7 @@ class RemoveOverseasCharityControllerGiftAidISpec extends CharityITHelper {
             }
 
             titleCheck(expectedTitle, user.isWelsh)
-            h1Check(expectedH1 + " " + expectedCaption)
+            h1Check(expectedCaption + " " + expectedH1, labelAsHeading = true)
             elementExtinct(Selectors.content)
             radioButtonCheck(yesText, 1)
             radioButtonCheck(noText, 2)
@@ -131,8 +131,8 @@ class RemoveOverseasCharityControllerGiftAidISpec extends CharityITHelper {
             }
 
             titleCheck(expectedTitle, user.isWelsh)
-            h1Check(expectedH1 + " " + expectedCaption)
-            textOnPageCheck(expectedContent, Selectors.content)
+            h1Check(expectedCaption + " " + expectedH1, labelAsHeading = true)
+            hintTextCheck(expectedContent)
             radioButtonCheck(yesText, 1)
             radioButtonCheck(noText, 2)
             captionCheck(expectedCaption)
@@ -190,7 +190,7 @@ class RemoveOverseasCharityControllerGiftAidISpec extends CharityITHelper {
             import user.commonExpectedResults._
 
             titleCheck(errorPrefix(user.isWelsh) + expectedTitle, user.isWelsh)
-            h1Check(expectedH1 + " " + expectedCaption)
+            h1Check(expectedCaption + " " + expectedH1, labelAsHeading = true)
             radioButtonCheck(yesText, 1)
             radioButtonCheck(noText, 2)
             captionCheck(expectedCaption)

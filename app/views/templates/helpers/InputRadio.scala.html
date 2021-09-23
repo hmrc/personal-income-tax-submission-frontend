@@ -16,7 +16,7 @@
 
 @this(
     govukRadios: GovukRadios,
-    headingHelper: Heading
+    headingHelper: HeadingForLabel
 )
 
 @(
@@ -50,7 +50,7 @@
         legend = Some(Legend(
             content = HtmlContent(contentHtml),
             isPageHeading = legendAsHeading,
-            classes = classes
+            classes = if(legendAsHeading) "govuk-fieldset__legend--l hmrc-page-heading govuk-!-margin-top-0 " + classes else classes
         ))
     )),
     hint = hint.map(hintHtml => Hint(

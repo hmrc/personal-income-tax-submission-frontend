@@ -201,10 +201,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
               titleCheck(if(testCase._3) specific.expectedUntaxedTitle else specific.expectedTaxedTitle, us.isWelsh)
               welshToggleCheck(us.isWelsh)
-              h1Check((if(testCase._3) specific.expectedUntaxedH1 else specific.expectedTaxedH1) + " " + expectedCaption, labelAsHeading = true)
-//              textOnPageCheck(if(testCase._3) specific.youToldUsUntaxed else specific.youToldUsTaxed, youToldUsSelector)
+              h1Check(expectedCaption + " " + (if(testCase._3) specific.expectedUntaxedH1 else specific.expectedTaxedH1), labelAsHeading = true)
               textOnPageCheck(expectedCaption, captionSelector)
-//              hintTextCheck(expectedHintText)
               hintTextCheck(s"${if(testCase._3) specific.youToldUsUntaxed else specific.youToldUsTaxed} $expectedHintText")
               inputFieldCheck(amountInputName, newAmountInputSelector)
               buttonCheck(continueText, continueButtonSelector)
@@ -240,10 +238,8 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
               titleCheck(if(testCase._3) specific.expectedUntaxedTitle else specific.expectedTaxedTitle, us.isWelsh)
               welshToggleCheck(us.isWelsh)
-              h1Check((if(testCase._3) specific.expectedUntaxedH1 else specific.expectedTaxedH1) + " " + expectedCaption, labelAsHeading = true)
-//              textOnPageCheck(if(testCase._3) specific.youToldUsUntaxed else specific.youToldUsTaxed, youToldUsSelector)
+              h1Check(expectedCaption + " " + (if(testCase._3) specific.expectedUntaxedH1 else specific.expectedTaxedH1), labelAsHeading = true)
               textOnPageCheck(expectedCaption, captionSelector)
-//              hintTextCheck(expectedHintText)
               hintTextCheck(s"${if(testCase._3) specific.youToldUsUntaxed else specific.youToldUsTaxed} $expectedHintText")
               inputFieldCheck(amountInputName, newAmountInputSelector)
               buttonCheck(continueText, continueButtonSelector)

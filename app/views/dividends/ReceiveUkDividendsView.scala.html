@@ -46,11 +46,11 @@
         @inputRadio(
             form = form,
             heading = headingForUse,
-            hint = None,
+            legendAsHeading = true,
+            hint = Some(detailsHtml),
             inline = true,
-            classes = "govuk-!-margin-bottom-4",
-            subheading = Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)),
-            content = Some(detailsHtml)
+            classes = "govuk-!-margin-bottom-5",
+            subheading = Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString))
         )
 
         @button()
@@ -59,7 +59,7 @@
 }
 
 @detailsHtml = {
-    <p>@messages(s"dividends.uk-dividends.sub-heading.${if(user.isAgent) "agent" else "individual"}")</p>
+    <p class="govuk-body govuk-!-margin-bottom-7">@messages(s"dividends.uk-dividends.sub-heading.${if(user.isAgent) "agent" else "individual"}")</p>
 }
 
 @{

@@ -28,7 +28,7 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends CharityITHelper
   object Selectors {
     val heading = "h1"
     val caption = ".govuk-caption-l"
-    val content = "#main-content > div > div > form > div > fieldset > legend > p"
+    val content = ".govuk-hint"
     val errorSummaryNoSelection = ".govuk-error-summary__body > ul > li > a"
     val yesRadioButton = ".govuk-radios__item:nth-child(1) > label"
     val noRadioButton = ".govuk-radios__item:nth-child(2) > label"
@@ -106,7 +106,7 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends CharityITHelper
             }
 
             titleCheck(expectedTitle, user.isWelsh)
-            h1Check(expectedH1 + " " + expectedCaption)
+            h1Check(expectedCaption + " " + expectedH1, labelAsHeading = true)
             elementExtinct(Selectors.content)
             radioButtonCheck(yesText, 1)
             radioButtonCheck(noText, 2)
@@ -131,8 +131,8 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends CharityITHelper
             }
 
             titleCheck(expectedTitle, user.isWelsh)
-            h1Check(expectedH1 + " " + expectedCaption)
-            textOnPageCheck(expectedContent, Selectors.content)
+            h1Check(expectedCaption + " " + expectedH1, labelAsHeading = true)
+            hintTextCheck(expectedContent)
             radioButtonCheck(yesText, 1)
             radioButtonCheck(noText, 2)
             captionCheck(expectedCaption)
@@ -190,7 +190,7 @@ class RemoveOverseasCharityControllerSharesPropertyISpec extends CharityITHelper
               import user.commonExpectedResults._
 
               titleCheck(errorPrefix(user.isWelsh) + expectedTitle, user.isWelsh)
-              h1Check(expectedH1 + " " + expectedCaption)
+              h1Check(expectedCaption + " " + expectedH1, labelAsHeading = true)
               radioButtonCheck(yesText, 1)
               radioButtonCheck(noText, 2)
               captionCheck(expectedCaption)

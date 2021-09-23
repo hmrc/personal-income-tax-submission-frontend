@@ -37,7 +37,7 @@
 @hasFormErrors = @{form.hasErrors}
 
 @contentHtml = {
-<div class="govuk-body">
+<div class="govuk-body govuk-!-margin-bottom-6">
     <p>
         @{if(user.isAgent) messages("charity.one-off.caption.agent_1", bigDecimalCurrency(giftAidDonations.toString)) else messages("charity.one-off.caption.individual_1", bigDecimalCurrency(giftAidDonations.toString))}
     </p>
@@ -56,10 +56,12 @@
         @inputRadio(
             form = form,
             heading = headingForUse,
-            hint = None,
+            legendAsHeading = true,
+            headingClasses = "govuk-!-margin-bottom-0",
+            classes = "govuk-!-margin-bottom-1",
+            hint = Some(contentHtml),
             inline = true,
-            subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)),
-            content = Some(contentHtml)
+            subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString))
         )
 
         @button()

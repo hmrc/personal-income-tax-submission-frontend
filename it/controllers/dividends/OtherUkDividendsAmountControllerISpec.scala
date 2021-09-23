@@ -169,7 +169,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck(get.expectedTitle, us.isWelsh)
-          h1Check(get.expectedH1 + " " + captionExpected, labelAsHeading = true)
+          h1Check(captionExpected + " " + get.expectedH1, labelAsHeading = true)
           textOnPageCheck(captionExpected, captionSelector)
           hintTextCheck(s"${get.tellUsTheValue} $expectedHintText")
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
@@ -198,7 +198,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck(get.expectedTitle, us.isWelsh)
-          h1Check(get.expectedH1 + " " + captionExpected, labelAsHeading = true)
+          h1Check(captionExpected + " " + get.expectedH1, labelAsHeading = true)
           textOnPageCheck(captionExpected, captionSelector)
           hintTextCheck(s"${get.youToldUsPriorText} $expectedHintText")
           textOnPageCheck(poundPrefixText, poundPrefixSelector)

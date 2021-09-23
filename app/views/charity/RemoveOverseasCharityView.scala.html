@@ -35,7 +35,7 @@
 @headingForUse = @{(titleForUse)}
 
 @contentHtml = {
-    <p class = "govuk-body">
+    <p class="govuk-body govuk-!-margin-bottom-6">
         @{messages("charity.remove-overseas-charity.content")}
     </p>
 }
@@ -51,8 +51,10 @@
         @inputRadio(
                     form = form,
                     heading = headingForUse,
+                    legendAsHeading = true,
+                    classes = "govuk-!-margin-bottom-4",
                     inline = true,
-                    content = if(isLast){Some(contentHtml)}else{None},
+                    hint = if(isLast){Some(contentHtml)}else{None},
                     subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString))
         )
 

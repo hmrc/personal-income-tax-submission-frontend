@@ -128,7 +128,7 @@ class OverseasGiftAidDonationControllerISpec extends CharityITHelper {
 
           titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           welshToggleCheck(user.isWelsh)
-          h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)
+          h1Check(captionText + " " + user.specificExpectedResults.get.expectedH1, labelAsHeading = true)
           textOnPageCheck(captionText, captionSelector)
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
@@ -151,7 +151,7 @@ class OverseasGiftAidDonationControllerISpec extends CharityITHelper {
 
           titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           welshToggleCheck(user.isWelsh)
-          h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)
+          h1Check(captionText + " " + user.specificExpectedResults.get.expectedH1, labelAsHeading = true)
           textOnPageCheck(captionText, captionSelector)
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
@@ -230,7 +230,7 @@ class OverseasGiftAidDonationControllerISpec extends CharityITHelper {
 
           titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           welshToggleCheck(user.isWelsh)
-          h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)
+          h1Check(captionText + " " + user.specificExpectedResults.get.expectedH1, labelAsHeading = true)
           textOnPageCheck(captionText, captionSelector)
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)

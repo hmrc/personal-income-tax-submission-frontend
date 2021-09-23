@@ -137,8 +137,8 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck(get.expectedTitle, us.isWelsh)
-          h1Check(s"${get.expectedH1} ${captionExpected}")
-          textOnPageCheck(get.yourDividendsText, yourDividendsSelector)
+          h1Check(s"${captionExpected} ${get.expectedH1}", labelAsHeading = true)
+          hintTextCheck(get.yourDividendsText)
           radioButtonCheck(yesNo(true), 1)
           radioButtonCheck(yesNo(false), 2)
           buttonCheck(continueText, continueSelector)
@@ -163,8 +163,8 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck(get.expectedTitle, us.isWelsh)
-          h1Check(s"${get.expectedH1} ${captionExpected}")
-          textOnPageCheck(get.yourDividendsText, yourDividendsSelector)
+          h1Check(s"${captionExpected} ${get.expectedH1}", labelAsHeading = true)
+          hintTextCheck(get.yourDividendsText)
           radioButtonCheck(yesNo(true), 1)
           radioButtonCheck(yesNo(false), 2)
           buttonCheck(continueText, continueSelector)
@@ -254,9 +254,9 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck(get.expectedErrorTitle, us.isWelsh)
-          h1Check(s"${get.expectedH1} ${captionExpected}")
+          h1Check(s"${captionExpected} ${get.expectedH1}", labelAsHeading = true)
           errorSummaryCheck(get.expectedErrorText, errorSummaryHref, us.isWelsh)
-          textOnPageCheck(get.yourDividendsText, yourDividendsSelector)
+          hintTextCheck(get.yourDividendsText)
           radioButtonCheck(yesNo(true), 1)
           radioButtonCheck(yesNo(false), 2)
           buttonCheck(continueText, continueSelector)

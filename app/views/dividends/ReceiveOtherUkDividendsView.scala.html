@@ -48,11 +48,11 @@
         @inputRadio(
             form = form,
             heading = headingForUse,
-            hint = None,
+            legendAsHeading = true,
+            hint = Some(contentHtml),
             inline = true,
-            classes = "govuk-!-margin-bottom-4",
-            subheading = Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)),
-            content = Some(contentHtml)
+            classes = "govuk-!-margin-bottom-1",
+            subheading = Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString))
         )
         @details("dividends.other-dividends.details.title", detailsHtml)
         @details("dividends.other-dividends.details2.title", secondDetailsHtml)
@@ -66,12 +66,12 @@
     <div class="govuk-body">
     <p>@messages("dividends.other-dividends.paragraph.1")</p>
     </div>
-    <ul>
+    <ul class="govuk-body">
         <li>@messages("dividends.other-dividends.bullet.1")</li>
         <li>@messages("dividends.other-dividends.bullet.2")</li>
         <li>@messages("dividends.other-dividends.bullet.3")</li>
     </ul>
-    <div class="govuk-body">
+    <div class="govuk-body govuk-!-margin-bottom-7">
     <p>@messages(s"dividends.other-dividends.paragraph.2.${if(user.isAgent) "agent" else "individual"}")</p>
     </div>
 }

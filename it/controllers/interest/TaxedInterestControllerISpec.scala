@@ -167,15 +167,10 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
             titleCheck(specific.expectedTitle, us.isWelsh)
             welshToggleCheck(us.isWelsh)
-            h1Check(specific.expectedH1 + " " + expectedCaption)
+            h1Check(expectedCaption + " " + specific.expectedH1, labelAsHeading = true)
             textOnPageCheck(expectedCaption, captionSelector)
 
-            textOnPageCheck(forExampleText, forExampleSelector)
-            textOnPageCheck(trustFundsText, bulletPointSelector1)
-            textOnPageCheck(companyBondsText, bulletPointSelector2)
-            textOnPageCheck(lifeAnnuityText, bulletPointSelector3)
-
-            textOnPageCheck(specific.doNotIncludeText, doNotIncludeSelector)
+            hintTextCheck(s"$forExampleText $trustFundsText $companyBondsText $lifeAnnuityText ${specific.doNotIncludeText}")
 
             radioButtonCheck(yesText, 1)
             radioButtonCheck(noText, 2)
@@ -373,7 +368,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
             titleCheck(specific.expectedErrorTitle, us.isWelsh)
             welshToggleCheck(us.isWelsh)
-            h1Check(specific.expectedH1 + " " + expectedCaption)
+            h1Check(expectedCaption + " " + specific.expectedH1, labelAsHeading = true)
             textOnPageCheck(expectedCaption, captionSelector)
             errorSummaryCheck(specific.expectedErrorText, valueHref, us.isWelsh)
             errorAboveElementCheck(specific.expectedErrorText)

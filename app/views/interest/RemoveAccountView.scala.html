@@ -54,7 +54,9 @@
         @inputRadio(
             form = form,
             heading = headingToUse,
+            legendAsHeading = true,
             hint = if(isLastAccount) Some(hint) else None,
+            classes = "govuk-!-margin-bottom-5",
             inline = true,
             subheading = Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString))
         )

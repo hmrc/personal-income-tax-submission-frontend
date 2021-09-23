@@ -45,8 +45,10 @@
         @inputRadio(
             form = form,
             heading = headingForUse,
+            legendAsHeading = true,
             inline = true,
-            subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString))
+            subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)),
+            classes = "govuk-!-margin-bottom-5"
         )
         @details("charity.qualifying-shares.disclosure.title", detailsHtml)
         @button()

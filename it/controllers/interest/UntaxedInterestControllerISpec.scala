@@ -164,15 +164,10 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
             titleCheck(specific.expectedTitle, us.isWelsh)
             welshToggleCheck(us.isWelsh)
-            h1Check(specific.expectedH1 + " " + expectedCaption)
+            h1Check(expectedCaption + " " + specific.expectedH1, labelAsHeading = true)
             textOnPageCheck(expectedCaption, captionSelector)
 
-            textOnPageCheck(forExampleText, forExampleSelector)
-            textOnPageCheck(banksAndBuildingsText, bulletPointSelector1)
-            textOnPageCheck(savingsAndCreditText, bulletPointSelector2)
-            textOnPageCheck(peerToPeerText, bulletPointSelector3)
-
-            textOnPageCheck(specific.doNotIncludeText, doNotIncludeSelector)
+            hintTextCheck(s"$forExampleText $banksAndBuildingsText $savingsAndCreditText $peerToPeerText ${specific.doNotIncludeText}")
 
             radioButtonCheck(yesText, 1)
             radioButtonCheck(noText, 2)
@@ -203,15 +198,10 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
             titleCheck(specific.expectedTitle, us.isWelsh)
             welshToggleCheck(us.isWelsh)
-            h1Check(specific.expectedH1 + " " + expectedCaption)
+            h1Check(expectedCaption + " " + specific.expectedH1, labelAsHeading = true)
             textOnPageCheck(expectedCaption, captionSelector)
 
-            textOnPageCheck(forExampleText, forExampleSelector)
-            textOnPageCheck(banksAndBuildingsText, bulletPointSelector1)
-            textOnPageCheck(savingsAndCreditText, bulletPointSelector2)
-            textOnPageCheck(peerToPeerText, bulletPointSelector3)
-
-            textOnPageCheck(specific.doNotIncludeText, doNotIncludeSelector)
+            hintTextCheck(s"$forExampleText $banksAndBuildingsText $savingsAndCreditText $peerToPeerText ${specific.doNotIncludeText}")
 
             radioButtonCheck(yesText, 1)
             radioButtonCheck(noText, 2)
@@ -295,7 +285,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
           titleCheck(specific.expectedErrorTitle, us.isWelsh)
           welshToggleCheck(us.isWelsh)
-          h1Check(specific.expectedH1 + " " + expectedCaption)
+          h1Check(expectedCaption + " " + specific.expectedH1, labelAsHeading = true)
           textOnPageCheck(expectedCaption, captionSelector)
           errorSummaryCheck(specific.expectedErrorText, errorSummaryHref, us.isWelsh)
           errorAboveElementCheck(specific.expectedErrorText)
