@@ -26,7 +26,12 @@ import utils.CharityITHelper
 
 class GiftAidOverseasNameControllerISpec extends CharityITHelper {
 
-  val charLimit: String = "ukHzoBYHkKGGk2V5iuYgS137gN7EB7LRw3uDjvujYg00ZtHwo3sokyOOCEoAK9vuPiP374QKOelo"
+  val charLimit: String = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras suscipit turpis sed blandit" +
+    " lobortis. Vestibulum dignissim nulla quis luctus placerat. Quisque commodo eros tristique nibh scelerisque, sit" +
+    " amet aliquet odio laoreet. Sed finibus dapibus lorem sit amet elementum. Nunc euismod arcu augue, tincidunt" +
+    " elementum elit vulputate et. Nunc imperdiet est magna, non vestibulum tortor vehicula eu. Nulla a est sed nibh" +
+    " lacinia maximus. Nullam facilisis nunc vel sapien facilisis tincidunt. Sed odio."
+
   val testModel: GiftAidSubmissionModel = GiftAidSubmissionModel(Some(GiftAidPaymentsModel(None, Some(List("dupe")), None, None, None, None)), None)
 
   def url(changeCharityId: Option[String] = None): String =
@@ -43,6 +48,7 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
   trait SpecificExpectedResults {
     val expectedTitle: String
     val expectedH1: String
+    val expectedInputHintText: String
     val expectedError: String
   }
 
@@ -50,7 +56,6 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
     val expectedCaption: String
     val expectedInputName: String
     val expectedButtonText: String
-    val expectedInputHintText: String
     val expectedInvalidError: String
     val expectedLengthError: String
     val expectedDuplicateError: String
@@ -62,7 +67,6 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
     val expectedCaption: String = "Donations to charity for 6 April 2021 to 5 April 2022"
     val expectedInputName: String = "name"
     val expectedButtonText: String = "Continue"
-    val expectedInputHintText: String = "You can add more than one charity."
     val serviceName = "Update and submit an Income Tax Return"
     val govUkExtension = "GOV.UK"
     val expectedInvalidError: String = "Name of overseas charity must only include numbers 0-9, letters a to z," +
@@ -75,7 +79,6 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
     val expectedCaption: String = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
     val expectedInputName: String = "name"
     val expectedButtonText: String = "Yn eich blaen"
-    val expectedInputHintText: String = "Gallwch ychwanegu mwy nag un elusen."
     val serviceName = "Diweddaru a chyflwyno Ffurflen Dreth Incwm"
     val govUkExtension = "GOV.UK"
     val expectedInvalidError: String = "Mae’n rhaid i enw’r elusen o dramor gynnwys rhifau 0-9, llythrennau a i z," +
@@ -87,24 +90,28 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
   object ExpectedIndividualEN extends SpecificExpectedResults {
     val expectedTitle: String = "Name of overseas charity you used Gift Aid to donate to"
     val expectedH1: String = "Name of overseas charity you used Gift Aid to donate to"
+    val expectedInputHintText: String = "If you donated to more than one charity, you can add them later."
     val expectedError: String = "Enter the name of the overseas charity you used Gift Aid to donate to"
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
     val expectedTitle: String = "Name of overseas charity your client used Gift Aid to donate to"
     val expectedH1: String = "Name of overseas charity your client used Gift Aid to donate to"
+    val expectedInputHintText: String = "If your client donated to more than one charity, you can add them later."
     val expectedError: String = "Enter the name of the overseas charity your client used Gift Aid to donate to"
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
     val expectedTitle: String = "Enw’r elusen o dramor y gwnaethoch ddefnyddio Rhodd Cymorth i’w rhoi iddo"
     val expectedH1: String = "Enw’r elusen o dramor y gwnaethoch ddefnyddio Rhodd Cymorth i’w rhoi iddo"
+    val expectedInputHintText: String = "Os gwnaethoch roi i fwy nag un elusen, gallwch eu hychwanegu’n ddiweddarach."
     val expectedError: String = "Nodwch enw’r elusen o dramor y gwnaethoch ddefnyddio Rhodd Cymorth i’w rhoi iddo"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
     val expectedTitle: String = "Enw’r elusen o dramor y gwnaeth eich cleient ddefnyddio Rhodd Cymorth i’w rhoi iddo"
     val expectedH1: String = "Enw’r elusen o dramor y gwnaeth eich cleient ddefnyddio Rhodd Cymorth i’w rhoi iddo"
+    val expectedInputHintText: String = "Os gwnaeth eich cleient roi i fwy nag un elusen, gallwch eu hychwanegu’n ddiweddarach."
     val expectedError: String = "Nodwch enw’r elusen o dramor y gwnaeth eich cleient defnyddio Rhodd Cymorth i’w rhoi iddo"
   }
 
@@ -140,7 +147,7 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
           titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
-          textOnPageCheck(expectedInputHintText, inputHintTextSelector)
+          textOnPageCheck(user.specificExpectedResults.get.expectedInputHintText, inputHintTextSelector)
           inputFieldCheck(expectedInputName, inputFieldSelector)
           buttonCheck(expectedButtonText, buttonSelector)
           welshToggleCheck(user.isWelsh)
@@ -227,7 +234,7 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
             titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.expectedTitle, user.isWelsh)
             h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
-            textOnPageCheck(expectedInputHintText, inputHintTextSelector)
+            textOnPageCheck(user.specificExpectedResults.get.expectedInputHintText, inputHintTextSelector)
             inputFieldCheck(expectedInputName, inputFieldSelector)
             buttonCheck(expectedButtonText, buttonSelector)
             welshToggleCheck(user.isWelsh)
@@ -247,7 +254,7 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
             titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.expectedTitle, user.isWelsh)
             h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
-            textOnPageCheck(expectedInputHintText, inputHintTextSelector)
+            textOnPageCheck(user.specificExpectedResults.get.expectedInputHintText, inputHintTextSelector)
             inputFieldCheck(expectedInputName, inputFieldSelector)
             buttonCheck(expectedButtonText, buttonSelector)
             welshToggleCheck(user.isWelsh)
@@ -267,7 +274,7 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
             titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.expectedTitle, user.isWelsh)
             h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
-            textOnPageCheck(expectedInputHintText, inputHintTextSelector)
+            textOnPageCheck(user.specificExpectedResults.get.expectedInputHintText, inputHintTextSelector)
             inputFieldCheck(expectedInputName, inputFieldSelector)
             buttonCheck(expectedButtonText, buttonSelector)
             welshToggleCheck(user.isWelsh)
@@ -288,7 +295,7 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
             titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.expectedTitle, user.isWelsh)
             h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
-            textOnPageCheck(expectedInputHintText, inputHintTextSelector)
+            textOnPageCheck(user.specificExpectedResults.get.expectedInputHintText, inputHintTextSelector)
             inputFieldCheck(expectedInputName, inputFieldSelector)
             buttonCheck(expectedButtonText, buttonSelector)
             welshToggleCheck(user.isWelsh)

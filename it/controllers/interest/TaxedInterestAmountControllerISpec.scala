@@ -35,6 +35,12 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
   val taxYear: Int = 2022
   lazy val id: String = UUID.randomUUID().toString
 
+  val charLimit: String = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras suscipit turpis sed blandit" +
+    " lobortis. Vestibulum dignissim nulla quis luctus placerat. Quisque commodo eros tristique nibh scelerisque, sit" +
+    " amet aliquet odio laoreet. Sed finibus dapibus lorem sit amet elementum. Nunc euismod arcu augue, tincidunt" +
+    " elementum elit vulputate et. Nunc imperdiet est magna, non vestibulum tortor vehicula eu. Nulla a est sed nibh" +
+    " lacinia maximus. Nullam facilisis nunc vel sapien facilisis tincidunt. Sed odio."
+
   object Selectors {
     val accountName: String = "#main-content > div > div > form > div:nth-child(3) > label > div"
     val interestEarned: String = "#main-content > div > div > form > div:nth-child(4) > label > div"
@@ -340,7 +346,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
 
         "the account name is too long and the amount is too great" should {
           lazy val result = response(Map(TaxedInterestAmountForm.taxedAmount -> "100000000000",
-            TaxedInterestAmountForm.taxedAccountName -> "SuperAwesomeBigBusinessMoneyStash"))
+            TaxedInterestAmountForm.taxedAccountName -> charLimit))
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 

@@ -288,7 +288,8 @@ charity.common.aid-summary.hiddenChange = Newidiwch y manylion rydych wedi’u n
 charity.common.total.valueInPounds = Cyfanswm y gwerth, mewn punnoedd
 charity.common.add.overseas.question = A oes angen i chi ychwanegu elusen arall o dramor?
 
-charity.gift-aid-account.hint = Gallwch ychwanegu mwy nag un elusen.
+charity.gift-aid-account.individual.hint = Os gwnaethoch roi i fwy nag un elusen, gallwch eu hychwanegu’n ddiweddarach.
+charity.gift-aid-account.agent.hint = Os gwnaeth eich cleient roi i fwy nag un elusen, gallwch eu hychwanegu’n ddiweddarach.
 
 charity.common.name.error.limit = Mae’n rhaid i enw’r elusen o dramor fod yn 75 o gymeriadau neu’n llai
 charity.common.name.error.invalid = Mae’n rhaid i enw’r elusen o dramor gynnwys rhifau 0-9, llythrennau a i z, cysylltnodau, bylchau, collnodau, comas, atalnodau llawn, cromfachau crwn, a’r cymeriadau arbennig &, /, @, £, * yn unig

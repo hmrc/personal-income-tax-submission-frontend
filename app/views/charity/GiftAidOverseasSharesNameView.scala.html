@@ -35,7 +35,7 @@
 
 @content = {
     <p>
-        @messages("charity.gift-aid-account.hint")
+        @messages(s"charity.gift-aid-account.${if(user.isAgent) "agent" else "individual"}.hint")
     </p>
 }
 
@@ -54,8 +54,7 @@
             subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)),
             classes = Some("govuk-input--width-20"),
             headingClasses = "govuk-!-margin-bottom-2",
-            content = Some(content),
-            maxLength = "76"
+            content = Some(content)
         )
 
         @button()
