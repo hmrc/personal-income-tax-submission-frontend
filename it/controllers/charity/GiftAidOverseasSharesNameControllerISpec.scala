@@ -99,14 +99,14 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
   object ExpectedIndividualCY extends SpecificExpectedResults {
     val expectedTitle: String = "Enw’r elusen o dramor a roddoch gyfranddaliadau, gwarantau, tir neu eiddo iddo"
     val expectedH1: String = "Enw’r elusen o dramor a roddoch gyfranddaliadau, gwarantau, tir neu eiddo iddo"
-    val expectedInputHintText: String = "If you donated to more than one charity, you can add them later."
+    val expectedInputHintText: String = "Os gwnaethoch roi i fwy nag un elusen, gallwch eu hychwanegu’n ddiweddarach."
     val expectedError: String = "Nodwch enw’r elusen dramor a roesoch gyfranddaliadau, gwarantau, tir neu eiddo iddo"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
     val expectedTitle: String = "Enw’r elusen o dramor a roddodd eich cleient gyfranddaliadau, gwarantau, tir neu eiddo iddo"
     val expectedH1: String = "Enw’r elusen o dramor a roddodd eich cleient gyfranddaliadau, gwarantau, tir neu eiddo iddo"
-    val expectedInputHintText: String = "If your client donated to more than one charity, you can add them later."
+    val expectedInputHintText: String = "Os gwnaeth eich cleient roi i fwy nag un elusen, gallwch eu hychwanegu’n ddiweddarach."
     val expectedError: String = "Nodwch enw’r elusen o dramor a roddodd eich cleient gyfranddaliadau, gwarantau, tir neu eiddo iddo"
   }
 
