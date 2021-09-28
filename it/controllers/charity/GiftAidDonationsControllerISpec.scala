@@ -224,12 +224,12 @@ class GiftAidDonationsControllerISpec extends CharityITHelper {
             Some(completeGiftAidCYAModel.copy(
               donationsViaGiftAid = Some(false),
               donationsViaGiftAidAmount = None,
-              oneOffDonationsViaGiftAid = Some(false),
+              oneOffDonationsViaGiftAid = None,
               oneOffDonationsViaGiftAidAmount = None,
-              overseasDonationsViaGiftAid = Some(false),
+              overseasDonationsViaGiftAid = None,
               overseasDonationsViaGiftAidAmount = None,
               overseasCharityNames = Seq.empty,
-              addDonationToLastYear = Some(false),
+              addDonationToLastYear = None,
               addDonationToLastYearAmount = None
             ))
         }
@@ -247,9 +247,9 @@ class GiftAidDonationsControllerISpec extends CharityITHelper {
           findGiftAidDb shouldBe
             Some(GiftAidCYAModel(
               donationsViaGiftAid = Some(false),
-              oneOffDonationsViaGiftAid = Some(false),
-              overseasDonationsViaGiftAid = Some(false),
-              addDonationToLastYear = Some(false)
+              oneOffDonationsViaGiftAid = None,
+              overseasDonationsViaGiftAid = None,
+              addDonationToLastYear = None
             ))
         }
       }

@@ -87,12 +87,12 @@ class GiftAidDonationsController @Inject()(
                 } else {
                   updatedModel.copy(
                     donationsViaGiftAidAmount = None,
-                    oneOffDonationsViaGiftAid = Some(false),
+                    oneOffDonationsViaGiftAid = None,
                     oneOffDonationsViaGiftAidAmount = None,
-                    overseasDonationsViaGiftAid = Some(false),
+                    overseasDonationsViaGiftAid = None,
                     overseasDonationsViaGiftAidAmount = None,
                     overseasCharityNames = Seq.empty,
-                    addDonationToLastYear = Some(false),
+                    addDonationToLastYear = None,
                     addDonationToLastYearAmount = None)
                 }
               }
