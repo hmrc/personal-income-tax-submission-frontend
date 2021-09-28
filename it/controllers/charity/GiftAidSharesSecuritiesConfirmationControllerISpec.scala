@@ -205,7 +205,7 @@ class GiftAidSharesSecuritiesConfirmationControllerISpec extends CharityITHelper
           donatedLandOrPropertyAmount = None,
           overseasDonatedSharesSecuritiesLandOrProperty = None,
           overseasDonatedSharesSecuritiesLandOrPropertyAmount = None,
-          overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq.empty[String])
+          overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Seq.empty
         ))
       }
     }
@@ -227,7 +227,7 @@ class GiftAidSharesSecuritiesConfirmationControllerISpec extends CharityITHelper
           donatedLandOrPropertyAmount = None,
           overseasDonatedSharesSecuritiesLandOrProperty = None,
           overseasDonatedSharesSecuritiesLandOrPropertyAmount = None,
-          overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq.empty[String])
+          overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Seq.empty
         ))
       }
     }

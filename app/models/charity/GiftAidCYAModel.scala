@@ -122,7 +122,7 @@ object GiftAidCYAModel {
       donatedLandOrPropertyAmount = None,
       overseasDonatedSharesSecuritiesLandOrProperty = None,
       overseasDonatedSharesSecuritiesLandOrPropertyAmount = None,
-      overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Some(Seq.empty[String])
+      overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Seq.empty
     )
   }
 }
