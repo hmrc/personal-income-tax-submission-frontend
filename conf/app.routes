@@ -143,6 +143,9 @@ POST        /:taxYear/charity/remove-shares-and-securities                      
 GET         /:taxYear/charity/remove-land-and-property                                                        controllers.charity.GiftAidSharesSecuritiesLandPropertyConfirmationController.show(taxYear: Int, charityType = "LAND_PROPERTY")
 POST        /:taxYear/charity/remove-land-and-property                                                        controllers.charity.GiftAidSharesSecuritiesLandPropertyConfirmationController.submit(taxYear: Int, charityType = "LAND_PROPERTY")
 
+GET         /:taxYear/charity/remove-shares-securities-land-and-property                                      controllers.charity.GiftAidSharesSecuritiesLandPropertyConfirmationController.show(taxYear: Int, charityType = "SHARES_SECURITIES_LAND_PROPERTY")
+POST        /:taxYear/charity/remove-shares-securities-land-and-property                                      controllers.charity.GiftAidSharesSecuritiesLandPropertyConfirmationController.submit(taxYear: Int, charityType = "SHARES_SECURITIES_LAND_PROPERTY")
+
 GET         /:taxYear/charity/check-donations-to-charity                                                      controllers.charity.GiftAidCYAController.show(taxYear: Int)
 POST        /:taxYear/charity/check-donations-to-charity                                                      controllers.charity.GiftAidCYAController.submit(taxYear: Int)
 

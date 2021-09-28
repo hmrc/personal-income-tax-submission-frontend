@@ -275,10 +275,10 @@ class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
       "this does not complete the cya model" should {
         lazy val result = postResult(url, requiredSessionData, None, Map(YesNoForm.yesNo -> YesNoForm.no))
 
-        "redirect to remove LandProperty confirmation page" in {
+        "redirect to remove SharesSecurityLandProperty confirmation page" in {
           result.status shouldBe SEE_OTHER
           result.headers("Location").head shouldBe
-            controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyConfirmationController.show(year, LAND_PROPERTY).url
+            controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyConfirmationController.show(year, SHARES_SECURITIES_LAND_PROPERTY).url
         }
       }
 

@@ -18,6 +18,7 @@
 @import views.html.templates.helpers.ErrorSummary
 @import views.html.templates.helpers.Button
 @import views.html.templates.helpers.InputRadio
+@import common.OverseasCharityTaxTypes
 
 @this(
     layout: Layout,
@@ -27,9 +28,13 @@
     inputRadio:InputRadio
 )
 
-@(form: Form[Boolean], taxYear: Int, isShares: Boolean)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
+@(form: Form[Boolean], taxYear: Int, charityType: String)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
-@titleForUse = @{messages(s"charity.sharesSecuritiesLandPropertyConfirmation.title.${if(isShares) "Shares" else "Land"}.${if(user.isAgent) "agent" else "individual"}")}
+@titleForUse = @{charityType match{
+    case OverseasCharityTaxTypes.SHARES_SECURITIES => {messages(s"charity.sharesSecuritiesLandPropertyConfirmation.title.Shares.${if(user.isAgent) "agent" else "individual"}")}
+    case OverseasCharityTaxTypes.LAND_PROPERTY => {messages(s"charity.sharesSecuritiesLandPropertyConfirmation.title.Land.${if(user.isAgent) "agent" else "individual"}")}
+    case OverseasCharityTaxTypes.SHARES_SECURITIES_LAND_PROPERTY => {messages(s"charity.sharesSecuritiesLandPropertyConfirmation.title.SharesLand.${if(user.isAgent) "agent" else "individual"}")}
+}}
 
 @headingForUse = @{(titleForUse)}
 
@@ -47,14 +52,14 @@
 
     @errorSummary(form.errors.distinct)
 
-    @formWithCsrf(action = controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyConfirmationController.submit(taxYear, if(isShares)"SHARES_SECURITIES" else "LAND_PROPERTY")) {
+    @formWithCsrf(action = controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyConfirmationController.submit(taxYear, charityType)) {
 
         @inputRadio(
             form = form,
             heading = headingForUse,
             inline = true,
             subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)),
-            content = Some(contentHtml)
+            content = if(charityType!=OverseasCharityTaxTypes.SHARES_SECURITIES_LAND_PROPERTY) Some(contentHtml) else None
         )
 
         @button()

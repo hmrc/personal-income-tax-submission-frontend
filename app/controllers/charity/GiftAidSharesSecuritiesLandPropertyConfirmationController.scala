@@ -16,7 +16,6 @@
 
 package controllers.charity
 
-import common.OverseasCharityTaxTypes
 import config.{AppConfig, ErrorHandler, GIFT_AID}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
@@ -47,11 +46,11 @@ class GiftAidSharesSecuritiesLandPropertyConfirmationController @Inject()(
 
   implicit val executionContext: ExecutionContext = cc.executionContext
 
-  def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, isShares: Boolean)
+  def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, charityType: String)
                              (implicit user: User[AnyContent]): Result = {
 
     (cya.donatedSharesOrSecurities, cya.donatedLandOrProperty) match {
-      case (Some(_), _) => Ok(giftAidSharesSecuritiesLandPropertyConfirmationView(yesNoForm(user), taxYear, isShares))
+      case (Some(_), _) => Ok(giftAidSharesSecuritiesLandPropertyConfirmationView(yesNoForm(user), taxYear, charityType))
       case _ => Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
     }
   }
@@ -64,10 +63,9 @@ class GiftAidSharesSecuritiesLandPropertyConfirmationController @Inject()(
   def show(taxYear: Int, charityType: String): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
     giftAidSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
 
-      val isShares: Boolean = if(charityType == OverseasCharityTaxTypes.SHARES_SECURITIES) true else false
 
       cya match {
-        case Some(cyaData) => handleRedirect(taxYear, cyaData, isShares)
+        case Some(cyaData) => handleRedirect(taxYear, cyaData, charityType)
         case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
       }
     }
@@ -76,13 +74,12 @@ class GiftAidSharesSecuritiesLandPropertyConfirmationController @Inject()(
 
   def submit(taxYear: Int, charityType: String): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
 
-    val isShares: Boolean = if(charityType == OverseasCharityTaxTypes.SHARES_SECURITIES) true else false
 
     giftAidSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
       (cya, prior) match {
         case (Some(cyaData), _) =>
           yesNoForm(user).bindFromRequest().fold({
-            formWithErrors => Future.successful(BadRequest(giftAidSharesSecuritiesLandPropertyConfirmationView(formWithErrors, taxYear, isShares)))
+            formWithErrors => Future.successful(BadRequest(giftAidSharesSecuritiesLandPropertyConfirmationView(formWithErrors, taxYear, charityType)))
           }, {
             yesOrNoResponse =>
               val updatedCya = getUpdatedCya(cyaData, yesOrNoResponse)
@@ -91,7 +88,7 @@ class GiftAidSharesSecuritiesLandPropertyConfirmationController @Inject()(
                 Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
               } else {
                 if (cyaData.donatedLandOrProperty.isEmpty) {
-                  Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(taxYear))
+                  Redirect(controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(taxYear))
                 }else{
                   Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
                 }

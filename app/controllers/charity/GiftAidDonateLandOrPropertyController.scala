@@ -98,7 +98,9 @@ class GiftAidDonateLandOrPropertyController @Inject()(
 
             val redirectLocation = (yesOrNoResponse, cyaData.donatedSharesOrSecurities, cyaData.isFinished) match {
               case (true, _, _) => Redirect(controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(taxYear))
-              case (false, Some(false), _) =>
+              case (false, Some(false), false) =>
+                Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyConfirmationController.show(taxYear, "SHARES_SECURITIES_LAND_PROPERTY"))
+              case (false, Some(false), true) =>
                 Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyConfirmationController.show(taxYear, "LAND_PROPERTY"))
               case (_,_ ,true) => redirectToCya(taxYear)
               case _ => Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(taxYear))

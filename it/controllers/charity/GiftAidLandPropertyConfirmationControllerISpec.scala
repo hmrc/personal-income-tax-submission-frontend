@@ -77,17 +77,17 @@ class GiftAidLandPropertyConfirmationControllerISpec extends CharityITHelper {
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val expectedH1 = "Are you sure you did not donate land or property to charity?"
-    val expectedCaption = "This will mean that you did not donate any shares, securities, land or property to charity."
-    val expectedTitle = "Are you sure you did not donate land or property to charity?"
-    val expectedError: String = "Select yes to remove all shares, securities, land and property donated to charity"
+    val expectedH1 = "A ydych yn siŵr na wnaethoch roi tir nac eiddo i elusen?"
+    val expectedCaption = "Bydd hyn yn golygu na wnaethoch roi cyfranddaliadau, gwarantau, tir nac eiddo i elusen."
+    val expectedTitle = "A ydych yn siŵr na wnaethoch roi tir nac eiddo i elusen?"
+    val expectedError: String = "Dewiswch ‘Iawn’ i dynnu pob cyfranddaliad, gwarant, tir ac eiddo a roddwyd i elusen"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val expectedH1 = "Are you sure your client did not donate land or property to charity?"
-    val expectedCaption = "This will mean that your client did not donate any shares, securities, land or property to charity."
-    val expectedTitle = "Are you sure your client did not donate land or property to charity?"
-    val expectedError: String = "Select yes to remove all shares, securities, land and property donated to charity"
+    val expectedH1 = "A ydych yn siŵr na wnaeth eich cleient roi tir nac eiddo i elusen?"
+    val expectedCaption = "Bydd hyn yn golygu na wnaeth eich cleient roi cyfranddaliadau, gwarantau, tir nac eiddo i elusen."
+    val expectedTitle = "A ydych yn siŵr na wnaeth eich cleient roi tir nac eiddo i elusen?"
+    val expectedError: String = "Dewiswch ‘Iawn’ i dynnu pob cyfranddaliad, gwarant, tir ac eiddo a roddwyd i elusen"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
@@ -214,7 +214,7 @@ class GiftAidLandPropertyConfirmationControllerISpec extends CharityITHelper {
 
       "redirect to the 'shares, securities amount' page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(year)}"
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(year)}"
       }
 
       "update the cya data" in {

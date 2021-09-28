@@ -16,7 +16,6 @@
 
 package controllers.charity
 
-
 import forms.YesNoForm
 import models.charity.GiftAidCYAModel
 import org.jsoup.Jsoup
@@ -24,9 +23,9 @@ import org.jsoup.nodes.Document
 import play.api.http.Status._
 import utils.CharityITHelper
 
-class GiftAidSharesSecuritiesConfirmationControllerISpec extends CharityITHelper {
+class GiftAidSharesSecuritiesLandPropertyConfirmationControllerISpec extends CharityITHelper {
 
-  def url: String = s"$appUrl/$year/charity/remove-shares-and-securities"
+  def url: String = s"$appUrl/$year/charity/remove-shares-securities-land-and-property"
 
   object Selectors {
     val captionSelector = ".govuk-caption-l"
@@ -37,7 +36,6 @@ class GiftAidSharesSecuritiesConfirmationControllerISpec extends CharityITHelper
 
   trait SpecificExpectedResults {
     val expectedH1: String
-    val expectedCaption: String
     val expectedTitle: String
     val expectedError: String
   }
@@ -64,30 +62,26 @@ class GiftAidSharesSecuritiesConfirmationControllerISpec extends CharityITHelper
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
-    val expectedH1 = "Are you sure you did not donate shares or securities to charity?"
-    val expectedCaption = "This will mean that you did not donate any shares, securities, land or property to charity."
-    val expectedTitle = "Are you sure you did not donate shares or securities to charity?"
+    val expectedH1 = "Are you sure you did not donate qualifying shares, securities, land, or property to charity?"
+    val expectedTitle = "Are you sure you did not donate qualifying shares, securities, land, or property to charity?"
     val expectedError: String = "Select yes to remove all shares, securities, land and property donated to charity"
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
-    val expectedH1 = "Are you sure your client did not donate shares or securities to charity?"
-    val expectedCaption = "This will mean that your client did not donate any shares, securities, land or property to charity."
-    val expectedTitle = "Are you sure your client did not donate shares or securities to charity?"
+    val expectedH1 = "Are you sure your client did not donate qualifying shares, securities, land, or property to charity?"
+    val expectedTitle = "Are you sure your client did not donate qualifying shares, securities, land, or property to charity?"
     val expectedError: String = "Select yes to remove all shares, securities, land and property donated to charity"
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val expectedH1 = "A ydych yn siŵr na wnaethoch roi cyfranddaliadau na gwarantau i elusen?"
-    val expectedCaption = "Bydd hyn yn golygu na wnaethoch roi cyfranddaliadau, gwarantau, tir nac eiddo i elusen."
-    val expectedTitle = "A ydych yn siŵr na wnaethoch roi cyfranddaliadau na gwarantau i elusen?"
+    val expectedH1 = "A ydych yn siŵr na wnaethoch roi cyfranddaliadau, gwarantau, tir nac eiddo i elusen?"
+    val expectedTitle = "A ydych yn siŵr na wnaethoch roi cyfranddaliadau, gwarantau, tir nac eiddo i elusen?"
     val expectedError: String = "Dewiswch ‘Iawn’ i dynnu pob cyfranddaliad, gwarant, tir ac eiddo a roddwyd i elusen"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val expectedH1 = "A ydych yn siŵr na wnaeth eich cleient roi cyfranddaliadau na gwarantau i elusen?"
-    val expectedCaption = "Bydd hyn yn golygu na wnaeth eich cleient roi cyfranddaliadau, gwarantau, tir nac eiddo i elusen."
-    val expectedTitle = "A ydych yn siŵr na wnaeth eich cleient roi cyfranddaliadau na gwarantau i elusen?"
+    val expectedH1 = "A ydych yn siŵr na wnaeth eich cleient roi cyfranddaliadau, gwarantau, tir nac eiddo i elusen?"
+    val expectedTitle = "A ydych yn siŵr na wnaeth eich cleient roi cyfranddaliadau, gwarantau, tir nac eiddo i elusen?"
     val expectedError: String = "Dewiswch ‘Iawn’ i dynnu pob cyfranddaliad, gwarant, tir ac eiddo a roddwyd i elusen"
   }
 
@@ -127,7 +121,6 @@ class GiftAidSharesSecuritiesConfirmationControllerISpec extends CharityITHelper
           titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           welshToggleCheck(user.isWelsh)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)
-          textOnPageCheck(user.specificExpectedResults.get.expectedCaption, extraContentSelector )
           textOnPageCheck(captionText, captionSelector)
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
