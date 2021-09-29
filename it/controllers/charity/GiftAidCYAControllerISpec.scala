@@ -46,13 +46,11 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
   )
 
   val cyaDataMin: GiftAidCYAModel = GiftAidCYAModel(
-    Some(false), None,
-    Some(false), None,
-    Some(false), None, Seq.empty,
-    Some(false), None,
-    Some(false), None,
-    Some(false), None, None, None, None,
-    Some(false), None, Seq.empty
+    donationsViaGiftAid =  Some(false),
+    overseasCharityNames = Seq.empty,
+    addDonationToThisYear = Some(false),
+    donatedSharesSecuritiesLandOrProperty = Some(false),
+    overseasDonatedSharesSecuritiesLandOrPropertyCharityNames= Seq.empty
   )
 
   val cyaDataIncomplete: GiftAidCYAModel = GiftAidCYAModel(

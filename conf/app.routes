@@ -137,6 +137,15 @@ POST        /:taxYear/charity/overseas-charities-donated-shares-securities-land-
 GET         /:taxYear/charity/remove-overseas-charity-shares-and-property/:charityNameId                      controllers.charity.RemoveOverseasCharityController.show(taxYear: Int, charityType = "SHARES_PROPERTY", charityNameId: String)
 POST        /:taxYear/charity/remove-overseas-charity-shares-and-property/:charityNameId                      controllers.charity.RemoveOverseasCharityController.submit(taxYear: Int, charityType = "SHARES_PROPERTY", charityNameId: String)
 
+GET         /:taxYear/charity/remove-shares-and-securities                                                    controllers.charity.GiftAidSharesSecuritiesLandPropertyConfirmationController.show(taxYear: Int, charityType = "SHARES_SECURITIES")
+POST        /:taxYear/charity/remove-shares-and-securities                                                    controllers.charity.GiftAidSharesSecuritiesLandPropertyConfirmationController.submit(taxYear: Int, charityType = "SHARES_SECURITIES")
+
+GET         /:taxYear/charity/remove-land-and-property                                                        controllers.charity.GiftAidSharesSecuritiesLandPropertyConfirmationController.show(taxYear: Int, charityType = "LAND_PROPERTY")
+POST        /:taxYear/charity/remove-land-and-property                                                        controllers.charity.GiftAidSharesSecuritiesLandPropertyConfirmationController.submit(taxYear: Int, charityType = "LAND_PROPERTY")
+
+GET         /:taxYear/charity/remove-shares-securities-land-and-property                                      controllers.charity.GiftAidSharesSecuritiesLandPropertyConfirmationController.show(taxYear: Int, charityType = "SHARES_SECURITIES_LAND_PROPERTY")
+POST        /:taxYear/charity/remove-shares-securities-land-and-property                                      controllers.charity.GiftAidSharesSecuritiesLandPropertyConfirmationController.submit(taxYear: Int, charityType = "SHARES_SECURITIES_LAND_PROPERTY")
+
 GET         /:taxYear/charity/check-donations-to-charity                                                      controllers.charity.GiftAidCYAController.show(taxYear: Int)
 POST        /:taxYear/charity/check-donations-to-charity                                                      controllers.charity.GiftAidCYAController.submit(taxYear: Int)
 

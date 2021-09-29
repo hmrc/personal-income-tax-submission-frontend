@@ -50,8 +50,7 @@ case class GiftAidCYAModel(
 
   //noinspection ScalaStyle
   def isFinished: Boolean = {
-    val b_allRequiredYesNoFilledIn = donationsViaGiftAid.nonEmpty && oneOffDonationsViaGiftAid.nonEmpty && overseasDonationsViaGiftAid.nonEmpty &&
-      addDonationToLastYear.nonEmpty && addDonationToThisYear.nonEmpty && donatedSharesSecuritiesLandOrProperty.nonEmpty && overseasDonatedSharesSecuritiesLandOrProperty.nonEmpty
+    val b_allRequiredYesNoFilledIn = hasAllRequiredAnswers
 
     val b_donationsViaGiftAid = falseOrTrueAndAmountPopulated(donationsViaGiftAid, donationsViaGiftAidAmount)
     val b_oneOffDonationsViaGiftAid = falseOrTrueAndAmountPopulated(oneOffDonationsViaGiftAid, oneOffDonationsViaGiftAidAmount)
@@ -83,8 +82,47 @@ case class GiftAidCYAModel(
     ).forall(_ == true)
   }
 
+  def hasAllRequiredAnswers: Boolean = addDonationToThisYear.nonEmpty &&
+    donationsViaGiftAidCompleted &&
+    donatedSharesSecuritiesLandOrPropertyCompleted &&
+    donatedSharesOrSecuritiesCompleted
+
+  def donatedSharesOrSecuritiesCompleted: Boolean = {
+    if (donatedSharesSecuritiesLandOrProperty.contains(true)) {
+      ((donatedSharesOrSecurities.contains(true) || donatedLandOrProperty.contains(true)) && overseasDonatedSharesSecuritiesLandOrProperty.nonEmpty) ||
+        (donatedSharesOrSecurities.contains(false) && donatedLandOrProperty.contains(false) && overseasDonatedSharesSecuritiesLandOrProperty.isEmpty)
+    } else {
+      true
+    }
+  }
+
+  def donatedSharesSecuritiesLandOrPropertyCompleted: Boolean = {
+    (donatedSharesSecuritiesLandOrProperty.contains(true) && donatedSharesOrSecurities.nonEmpty && donatedLandOrProperty.nonEmpty) ||
+      (donatedSharesSecuritiesLandOrProperty.contains(false) &&
+        donatedSharesOrSecurities.isEmpty
+        && donatedLandOrProperty.isEmpty
+        && overseasDonatedSharesSecuritiesLandOrProperty.isEmpty)
+  }
+
+  def donationsViaGiftAidCompleted: Boolean = {
+    (donationsViaGiftAid.contains(true) && oneOffDonationsViaGiftAid.nonEmpty && overseasDonationsViaGiftAid.nonEmpty && addDonationToLastYear.nonEmpty) ||
+      (donationsViaGiftAid.contains(false) && oneOffDonationsViaGiftAid.isEmpty && overseasDonationsViaGiftAid.isEmpty && addDonationToLastYear.isEmpty)
+  }
 }
 
 object GiftAidCYAModel {
   implicit val formats: OFormat[GiftAidCYAModel] = Json.format[GiftAidCYAModel]
+
+  def resetDonatedSharesSecuritiesLandOrProperty(cyaData: GiftAidCYAModel): GiftAidCYAModel = {
+    cyaData.copy(
+      donatedSharesSecuritiesLandOrProperty = Some(false),
+      donatedSharesOrSecurities = None,
+      donatedSharesOrSecuritiesAmount = None,
+      donatedLandOrProperty = None,
+      donatedLandOrPropertyAmount = None,
+      overseasDonatedSharesSecuritiesLandOrProperty = None,
+      overseasDonatedSharesSecuritiesLandOrPropertyAmount = None,
+      overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Seq.empty
+    )
+  }
 }

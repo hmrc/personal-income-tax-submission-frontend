@@ -307,11 +307,11 @@ class GiftAidSharesSecuritiesLandPropertyDonationControllerISpec extends Charity
         findGiftAidDb shouldBe
           Some(completeGiftAidCYAModel.copy(
             donatedSharesSecuritiesLandOrProperty = Some(false),
-            donatedSharesOrSecurities = Some(false),
+            donatedSharesOrSecurities = None,
             donatedSharesOrSecuritiesAmount = None,
-            donatedLandOrProperty = Some(false),
+            donatedLandOrProperty = None,
             donatedLandOrPropertyAmount = None,
-            overseasDonatedSharesSecuritiesLandOrProperty = Some(false),
+            overseasDonatedSharesSecuritiesLandOrProperty = None,
             overseasDonatedSharesSecuritiesLandOrPropertyAmount = None,
             overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Seq.empty
           ))

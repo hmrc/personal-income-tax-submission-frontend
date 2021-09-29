@@ -21,8 +21,6 @@ import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.YesNoForm
-
-import javax.inject.Inject
 import models.User
 import models.charity.GiftAidCYAModel
 import models.charity.prior.GiftAidSubmissionModel
@@ -32,9 +30,9 @@ import play.api.i18n.Lang.logger
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.GiftAidSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SessionHelper
 import views.html.charity.GiftAidQualifyingSharesSecuritiesView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class GiftAidQualifyingSharesSecuritiesController @Inject()(
@@ -92,15 +90,14 @@ class GiftAidQualifyingSharesSecuritiesController @Inject()(
           yesNoForm(user).bindFromRequest().fold({
             formWithErrors => Future.successful(BadRequest(giftAidQualifyingSharesSecuritiesView(formWithErrors, taxYear)))
           }, {
-            success =>
-              val updatedCya = cyaData.copy(
-                donatedSharesOrSecurities = Some(success),
-                donatedSharesOrSecuritiesAmount = if(success) cyaData.donatedSharesOrSecuritiesAmount else None
-              )
+            yesOrNoResponse =>
+              val updatedCya = getUpdatedCya(cyaData, yesOrNoResponse)
 
-              val redirectLocation = (success, updatedCya.isFinished) match {
-                case (true, _) => Redirect(controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(taxYear))
-                case (_, true) => redirectToCya(taxYear)
+              val redirectLocation = (yesOrNoResponse,cyaData.donatedLandOrProperty, updatedCya.isFinished) match {
+                case (true, _, _) => Redirect(controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(taxYear))
+                case (false, Some(false), _) =>
+                  Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyConfirmationController.show(taxYear, "SHARES_SECURITIES"))
+                case (_, _, true) => redirectToCya(taxYear)
                 case _ => Redirect(controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(taxYear))
               }
 
@@ -118,5 +115,14 @@ class GiftAidQualifyingSharesSecuritiesController @Inject()(
     }.flatten
   }
 
-
+  private def getUpdatedCya(cyaData: GiftAidCYAModel, yesOrNoResponse: Boolean) = {
+    if (!yesOrNoResponse & cyaData.donatedLandOrProperty.contains(false)) {
+      cyaData
+    } else {
+      cyaData.copy(
+        donatedSharesOrSecurities = Some(yesOrNoResponse),
+        donatedSharesOrSecuritiesAmount = if (yesOrNoResponse) cyaData.donatedSharesOrSecuritiesAmount else None
+      )
+    }
+  }
 }

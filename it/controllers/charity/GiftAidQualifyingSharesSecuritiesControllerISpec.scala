@@ -16,6 +16,7 @@
 
 package controllers.charity
 
+import common.OverseasCharityTaxTypes.SHARES_SECURITIES
 import forms.YesNoForm
 import models.charity.GiftAidCYAModel
 import models.charity.prior.{GiftAidSubmissionModel, GiftsModel}
@@ -88,7 +89,7 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends CharityITHelper {
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
     Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
-      UserScenario(isWelsh = false, isAgent = true,  CommonExpectedEN, Some(ExpectedAgentEN)),
+      UserScenario(isWelsh = false, isAgent = true, CommonExpectedEN, Some(ExpectedAgentEN)),
       UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, Some(ExpectedIndividualCY)),
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
@@ -250,7 +251,6 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends CharityITHelper {
     }
 
     "the user submits 'no'" when {
-
       "this completes the cya data" should {
         lazy val result = postResult(url, Some(completeGiftAidCYAModel), None, Map(YesNoForm.yesNo -> YesNoForm.no))
 
@@ -265,6 +265,22 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends CharityITHelper {
               donatedSharesOrSecurities = Some(false),
               donatedSharesOrSecuritiesAmount = None)
             )
+        }
+      }
+
+      "removes all donated shares security and land or property" should {
+        val model = completeGiftAidCYAModel.copy(donatedLandOrProperty = Some(false), donatedLandOrPropertyAmount = None)
+        lazy val result = postResult(url, Some(model), None, Map(YesNoForm.yesNo -> YesNoForm.no))
+
+        "redirect to remove SharesSecurities Confirmation page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe
+            controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyConfirmationController.show(year, SHARES_SECURITIES).url
+        }
+
+        "update the cya data" in {
+          findGiftAidDb shouldBe
+            Some(completeGiftAidCYAModel.copy(donatedLandOrProperty = Some(false), donatedLandOrPropertyAmount = None))
         }
       }
 

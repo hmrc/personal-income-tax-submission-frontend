@@ -16,6 +16,7 @@
 
 package controllers.charity
 
+import common.OverseasCharityTaxTypes._
 import forms.YesNoForm
 import models.charity.GiftAidCYAModel
 import models.charity.prior.{GiftAidSubmissionModel, GiftsModel}
@@ -23,7 +24,6 @@ import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
-import play.api.libs.ws.WSResponse
 import utils.CharityITHelper
 
 class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
@@ -95,7 +95,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
     Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
-      UserScenario(isWelsh = false, isAgent = true,  CommonExpectedEN, Some(ExpectedAgentEN)),
+      UserScenario(isWelsh = false, isAgent = true, CommonExpectedEN, Some(ExpectedAgentEN)),
       UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, Some(ExpectedIndividualCY)),
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
@@ -255,7 +255,6 @@ class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
     }
 
     "the user has selected 'no'" when {
-
       "this completes the cya model" should {
         lazy val result = postResult(url, Some(completeGiftAidCYAModel), None, Map(YesNoForm.yesNo -> YesNoForm.no))
 
@@ -276,18 +275,26 @@ class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
       "this does not complete the cya model" should {
         lazy val result = postResult(url, requiredSessionData, None, Map(YesNoForm.yesNo -> YesNoForm.no))
 
-        "redirect to the SSLP overseas page" in {
+        "redirect to remove SharesSecurityLandProperty confirmation page" in {
           result.status shouldBe SEE_OTHER
           result.headers("Location").head shouldBe
-            s"${controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(year).url}"
+            controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyConfirmationController.show(year, SHARES_SECURITIES_LAND_PROPERTY).url
+        }
+      }
+
+      "removes all donated shares security and land or property" should {
+        val model = completeGiftAidCYAModel.copy(donatedSharesOrSecurities = Some(false), donatedSharesOrSecuritiesAmount = None)
+        lazy val result = postResult(url, Some(model), None, Map(YesNoForm.yesNo -> YesNoForm.no))
+
+        "redirect to the remove LandProperty confirmation page" in {
+          result.status shouldBe SEE_OTHER
+          result.headers("Location").head shouldBe
+            controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyConfirmationController.show(year, LAND_PROPERTY).url
         }
 
         "update the cya data" in {
           findGiftAidDb shouldBe
-            Some(requiredSessionModel.copy(
-              donatedLandOrProperty = Some(false),
-              overseasDonatedSharesSecuritiesLandOrProperty = Some(false)
-            ))
+            Some(completeGiftAidCYAModel.copy(donatedSharesOrSecurities = Some(false), donatedSharesOrSecuritiesAmount = None))
         }
       }
     }
