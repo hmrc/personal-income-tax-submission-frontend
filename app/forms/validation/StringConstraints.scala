@@ -22,7 +22,7 @@ import play.api.data.validation.{Constraint, Invalid, Valid}
 object StringConstraints {
 
   val charRegex = """^([ A-Za-z0-9&@£/.,*’()'-])*$"""
-  val charRegexInterest = """^([ A-Za-z0-9\\,.&’'-])*$"""
+  val charRegexInterest = """^([ A-Za-z0-9&@£.,*’()'-])*$"""
   val numericalCharacters = """[0-9.]*"""
 
   val monetaryRegex = """\d+|\d*\.\d{1,2}"""
