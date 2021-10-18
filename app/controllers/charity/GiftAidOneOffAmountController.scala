@@ -93,7 +93,10 @@ class GiftAidOneOffAmountController @Inject()(
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
 
-    giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
+    giftAidSessionService.getSessionData(taxYear).map {
+      case Left(_) => Future.successful(errorHandler.internalServerError())
+      case Right(data) =>
+        data.flatMap(_.giftAid) match {
       case Some(cyaModel) =>
         cyaModel.donationsViaGiftAidAmount match {
           case Some(totalDonatedAmount) =>
@@ -120,6 +123,7 @@ class GiftAidOneOffAmountController @Inject()(
       case _ =>
         logger.info("[GiftAidOneOffAmountController][submit] No CYA data in session. Redirecting to overview page.")
         Future.successful(redirectToOverview(taxYear))
+    }
     }.flatten
   }
 }

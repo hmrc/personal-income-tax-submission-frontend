@@ -16,14 +16,15 @@
 
 package models.mongo
 
-import models.interest.InterestCYAModel
+import models.interest.{EncryptedInterestCYAModel, InterestCYAModel}
+import models.mongo.EncryptedInterestUserDataModel.dateTimeFormat
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json._
 import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
 
 case class InterestUserDataModel(
                                   sessionId: String,
-                                  mtditid: String,
+                                  mtdItId: String,
                                   nino: String,
                                   taxYear: Int,
                                   interest: Option[InterestCYAModel] = None,
@@ -31,35 +32,24 @@ case class InterestUserDataModel(
                                 ) extends UserDataTemplate
 
 object InterestUserDataModel {
-  implicit lazy val formats: OFormat[InterestUserDataModel] = OFormat(reads, writes)
+  implicit val mongoJodaDateTimeFormats: Format[DateTime] = dateTimeFormat
 
-  lazy val reads: Reads[InterestUserDataModel] = {
-    for {
-      sessionId <- (__ \ "sessionId").read[String]
-      mtditid <- (__ \ "mtdItId").read[String]
-      nino <- (__ \ "nino").read[String]
-      taxYear <- (__ \ "taxYear").read[Int]
-      interest <- (__ \ "interest").readNullable[InterestCYAModel]
-      lastUpdated <- (__ \ "lastUpdated").read(MongoJodaFormats.dateTimeReads)
-    } yield {
-      InterestUserDataModel(
-        sessionId, mtditid, nino, taxYear,
-        interest,
-        lastUpdated
-      )
-    }
-  }
+  implicit lazy val formats: OFormat[InterestUserDataModel] = Json.format[InterestUserDataModel]
 
-  lazy val writes: OWrites[InterestUserDataModel] = OWrites[InterestUserDataModel] { model =>
-    Json.obj(
-      "sessionId" -> model.sessionId,
-      "mtdItId" -> model.mtditid,
-      "nino" -> model.nino,
-      "taxYear" -> model.taxYear,
-      "interest" -> model.interest,
-      "lastUpdated" -> Json.toJson(model.lastUpdated)(MongoJodaFormats.dateTimeWrites)
-    )
-  }
+}
 
+case class EncryptedInterestUserDataModel(
+                                  sessionId: String,
+                                  mtdItId: String,
+                                  nino: String,
+                                  taxYear: Int,
+                                  interest: Option[EncryptedInterestCYAModel] = None,
+                                  lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC)
+                                ) extends UserDataTemplate
+
+object EncryptedInterestUserDataModel extends MongoJodaFormats {
+  implicit val mongoJodaDateTimeFormats: Format[DateTime] = dateTimeFormat
+
+  implicit lazy val formats: OFormat[EncryptedInterestUserDataModel] = Json.format[EncryptedInterestUserDataModel]
 }
 

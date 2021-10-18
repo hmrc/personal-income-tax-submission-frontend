@@ -24,3 +24,4 @@ case class DividendsSubmissionModel(ukDividends: Option[BigDecimal],
 object DividendsSubmissionModel {
   implicit val formats: OFormat[DividendsSubmissionModel] = Json.format[DividendsSubmissionModel]
 }
+

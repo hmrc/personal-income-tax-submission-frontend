@@ -18,35 +18,101 @@ package repositories
 
 import com.mongodb.client.model.ReturnDocument
 import models.User
-import models.mongo.UserDataTemplate
+import models.mongo._
 import org.joda.time.{DateTime, DateTimeZone}
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.Filters.{and, equal}
 import org.mongodb.scala.model.Updates.set
 import org.mongodb.scala.model.{FindOneAndReplaceOptions, FindOneAndUpdateOptions}
-import uk.gov.hmrc.mongo.play.json.Codecs.toBson
+import uk.gov.hmrc.mongo.play.json.Codecs.{logger, toBson}
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
+import utils.EncryptionDecryptionException
+import utils.PagerDutyHelper.PagerDutyKeys.{ENCRYPTION_DECRYPTION_ERROR, FAILED_TO_CREATE_DATA, FAILED_TO_FIND_DATA, FAILED_TO_UPDATE_DATA}
+import utils.PagerDutyHelper.pagerDutyLog
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
-trait UserDataRepository[C <: UserDataTemplate] { self: PlayMongoRepository[C] =>
+trait UserDataRepository[C <: UserDataTemplate] {
+  self: PlayMongoRepository[C] =>
   implicit val ec: ExecutionContext
 
-  def create[T](userData: C)(implicit user: User[T]): Future[Boolean] = collection.insertOne(userData).toFutureOption().map(_.isDefined)
+  val repoName: String
+  type UserData
 
-  def find[T](taxYear: Int)(implicit user: User[T]): Future[Option[C]] = collection.findOneAndUpdate(
-    filter = filter(user.sessionId, user.mtditid, user.nino, taxYear),
-    update = set("lastUpdated", toBson(DateTime.now(DateTimeZone.UTC))(MongoJodaFormats.dateTimeWrites)),
-    options = FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
-  ).toFutureOption()
+  def encryptionMethod: UserData => C
 
-  def update(userData: C): Future[Boolean] = {
-    collection.findOneAndReplace(
-      filter = filter(userData.sessionId, userData.mtditid, userData.nino, userData.taxYear),
-      replacement = userData,
-      options = FindOneAndReplaceOptions().returnDocument(ReturnDocument.AFTER)
-    ).toFutureOption().map(_.isDefined)
+  def decryptionMethod: C => UserData
+
+  def create[T](userData: UserData)(implicit user: User[T]): Future[Either[DatabaseError, Boolean]] = {
+    lazy val start = s"[$repoName][create]"
+    Try {
+      encryptionMethod(userData)
+    }.toEither match {
+      case Left(exception: Exception) => Future.successful(handleEncryptionDecryptionException(exception, start))
+      case Right(encryptedData) =>
+        collection.insertOne(encryptedData).toFutureOption().map {
+          case Some(_) => Right(true)
+        }.recover {
+          case exception: Exception =>
+            pagerDutyLog(FAILED_TO_CREATE_DATA, Some(s"$start Failed to create user data. Exception: ${exception.getMessage}"))
+            Left(DataNotUpdated)
+        }
+    }
+  }
+
+  def find[T](taxYear: Int)(implicit user: User[T]): Future[Either[DatabaseError, Option[UserData]]] = {
+    lazy val start = s"[$repoName][find]"
+
+    val userData = collection.findOneAndUpdate(
+      filter = filter(user.sessionId, user.mtditid, user.nino, taxYear),
+      update = set("lastUpdated", toBson(DateTime.now(DateTimeZone.UTC))(MongoJodaFormats.dateTimeWrites)),
+      options = FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
+    ).toFutureOption().map {
+      case Some(data) => Right(Some(data))
+      case None =>
+        logger.info(s"$start No CYA data found for user. SessionId: ${user.sessionId}")
+        Right(None)
+    }.recover {
+      case exception: Exception =>
+        pagerDutyLog(FAILED_TO_FIND_DATA, Some(s"$start Failed to find user data. Exception: ${exception.getMessage}"))
+        Left(DataNotFound)
+    }
+
+    userData.map {
+      case Left(_) => Left(DataNotFound)
+      case Right(data) =>
+        Try {
+          data.map(decryptionMethod)
+        }.toEither match {
+          case Left(value) => handleEncryptionDecryptionException(value, start)
+          case Right(value) => Right(value)
+        }
+    }
+
+  }
+
+  def update(userData: UserData): Future[Either[DatabaseError, Boolean]] = {
+    lazy val start = s"[$repoName][update]"
+
+    Try {
+      encryptionMethod.apply(userData)
+    }.toEither match {
+      case Left(exception: Exception) => Future.successful(handleEncryptionDecryptionException(exception, start))
+      case Right(encryptedData) =>
+        collection.findOneAndReplace(
+          filter = filter(encryptedData.sessionId, encryptedData.mtdItId, encryptedData.nino, encryptedData.taxYear),
+          replacement = encryptedData,
+          options = FindOneAndReplaceOptions().returnDocument(ReturnDocument.AFTER)
+        ).toFutureOption().map {
+          case Some(_) => Right(true)
+        }.recover {
+          case exception: Exception =>
+            pagerDutyLog(FAILED_TO_UPDATE_DATA, Some(s"$start Failed to update user data. Exception: ${exception.getMessage}"))
+            Left(DataNotUpdated)
+        }
+    }
   }
 
   def clear(taxYear: Int)(implicit user: User[_]): Future[Boolean] = collection.deleteOne(
@@ -59,4 +125,16 @@ trait UserDataRepository[C <: UserDataTemplate] { self: PlayMongoRepository[C] =
     equal("nino", toBson(nino)),
     equal("taxYear", toBson(taxYear))
   )
+
+  def handleEncryptionDecryptionException[T](exception: Throwable, startOfMessage: String): Left[DatabaseError, T] = {
+    val message: String = exception match {
+      case exception: EncryptionDecryptionException => s"${exception.failureReason} ${exception.failureMessage}"
+      case _ => exception.getMessage
+    }
+
+    pagerDutyLog(ENCRYPTION_DECRYPTION_ERROR, Some(s"$startOfMessage $message"))
+    Left(EncryptionDecryptionError(message))
+  }
+
+
 }

@@ -90,11 +90,13 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
     (lang: String) => controllers.routes.LanguageSwitchController.switchToLanguage(lang)
 
   lazy val welshToggleEnabled: Boolean = servicesConfig.getBoolean("feature-switch.welshToggleEnabled")
+  lazy val useEncryption: Boolean = servicesConfig.getBoolean("useEncryption")
 
   def isJourneyAvailable(journeyKey: JourneyKey): Boolean = servicesConfig.getBoolean("feature-switch.journeys." + journeyKey.stringify)
 
   def taxYearSwitchResetsSession: Boolean = servicesConfig.getBoolean("taxYearChangeResetsSession")
 
+  lazy val encryptionKey: String = servicesConfig.getString("mongodb.encryption.key")
   def mongoTTL: Long = Duration(servicesConfig.getString("mongodb.timeToLive")).toMinutes.toInt
 
   lazy val dividendsEnabled: Boolean = servicesConfig.getBoolean("feature-switch.dividendsEnabled")

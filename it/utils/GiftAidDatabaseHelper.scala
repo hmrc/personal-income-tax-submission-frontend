@@ -19,10 +19,13 @@ package utils
 import models.charity.GiftAidCYAModel
 import models.mongo.GiftAidUserDataModel
 import repositories.GiftAidUserDataRepository
+import services.EncryptionService
 
-trait GiftAidDatabaseHelper { self: IntegrationTest =>
+trait GiftAidDatabaseHelper {
+  self: IntegrationTest =>
 
   lazy val giftAidDatabase: GiftAidUserDataRepository = app.injector.instanceOf[GiftAidUserDataRepository]
+  val encryptionService = app.injector.instanceOf[EncryptionService]
 
   //noinspection ScalaStyle
   def dropGiftAidDB() = {
@@ -39,11 +42,15 @@ trait GiftAidDatabaseHelper { self: IntegrationTest =>
                    ): Boolean = {
 
     await(giftAidDatabase.create(
-      GiftAidUserDataModel(sessionId, overrideMtditid.fold(mtditid)(value => value), overrideNino.fold(nino)(value => value), taxYear, cya)
-    ))
+      GiftAidUserDataModel(sessionId, overrideMtditid.fold(mtditid)(value => value), overrideNino.fold(nino)(value => value), taxYear, cya))
+    ) match {
+      case Left(value) => false
+      case Right(value) => value
+    }
+
   }
 
   //noinspection ScalaStyle
-  def findGiftAidDb: Option[GiftAidCYAModel] = await(giftAidDatabase.collection.find().toFuture()).head.giftAid
+  def findGiftAidDb: Option[GiftAidCYAModel] = encryptionService.decryptGiftAidUserData(await(giftAidDatabase.collection.find().toFuture()).head).giftAid
 
 }

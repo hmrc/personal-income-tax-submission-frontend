@@ -33,7 +33,7 @@ class BetaBarViewSpec extends ViewTest {
     "provided with an implicit appConfig" should {
 
       "use appConfig.feedbackUrl in the beta banner link" which {
-        implicit val appConfig: AppConfig = new MockAppConfig().config
+        implicit val appConfig: AppConfig = new MockAppConfig().config()
 
         "contains the correct href value when the service is accessed as an individual" in {
 

@@ -24,9 +24,12 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.libs.ws.WSResponse
-import utils.CharityITHelper
+import utils.{CharityITHelper, GiftAidDatabaseHelper}
 
-class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper {
+import scala.concurrent.Future
+import scala.util.Try
+
+class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper with GiftAidDatabaseHelper {
 
   lazy val controller: DonationsToPreviousTaxYearController = app.injector.instanceOf[DonationsToPreviousTaxYearController]
 
@@ -382,7 +385,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper {
         }
 
         "addDonationToLastYearAmount should have been cleared" in {
-          await(giftAidDatabase.find(year)).get.giftAid.get.addDonationToThisYearAmount shouldBe None
+          findGiftAidDb.get.addDonationToThisYearAmount shouldBe None
         }
       }
 

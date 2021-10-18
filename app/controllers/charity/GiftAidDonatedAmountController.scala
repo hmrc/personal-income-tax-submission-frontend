@@ -92,21 +92,26 @@ class GiftAidDonatedAmountController @Inject()(
         formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors, None, None)))
       },
       {
-        formAmount => giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
-          case Some(cyaData) =>
-            val updatedCya = cyaData.copy(donationsViaGiftAidAmount = Some(formAmount))
-            val redirectLocation = if(updatedCya.isFinished) {
-              redirectToCya(taxYear)
-            } else {
-              Redirect(controllers.charity.routes.GiftAidOneOffController.show(taxYear))
-            }
+        formAmount =>
+          giftAidSessionService.getSessionData(taxYear).map {
+            case Left(_) => Future.successful(errorHandler.internalServerError())
+            case Right(data) =>
+              data.flatMap(_.giftAid) match {
+                case Some(cyaData) =>
+                  val updatedCya = cyaData.copy(donationsViaGiftAidAmount = Some(formAmount))
+                  val redirectLocation = if (updatedCya.isFinished) {
+                    redirectToCya(taxYear)
+                  } else {
+                    Redirect(controllers.charity.routes.GiftAidOneOffController.show(taxYear))
+                  }
 
-            giftAidSessionService.updateSessionData(updatedCya, taxYear)(
-              InternalServerError(errorHandler.internalServerErrorTemplate))(redirectLocation)
-          case _ =>
-            logger.info("[GiftAidDonatedAmountController][submit] No CYA data in session. Redirecting to overview page.")
-            Future.successful(redirectToOverview(taxYear))
-        }.flatten
+                  giftAidSessionService.updateSessionData(updatedCya, taxYear)(
+                    InternalServerError(errorHandler.internalServerErrorTemplate))(redirectLocation)
+                case _ =>
+                  logger.info("[GiftAidDonatedAmountController][submit] No CYA data in session. Redirecting to overview page.")
+                  Future.successful(redirectToOverview(taxYear))
+              }
+          }.flatten
       }
     )
   }

@@ -25,7 +25,7 @@ import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import models.User
 import models.dividends.{DividendsCheckYourAnswersModel, DividendsResponseModel}
-import models.mongo.DividendsUserDataModel
+import models.mongo.{DatabaseError, DividendsUserDataModel}
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -57,57 +57,59 @@ class DividendsCYAController @Inject()(
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
     lazy val futurePriorSubmissionData: Future[IncomeTaxUserDataResponse] = session.getPriorData(taxYear)
-    lazy val futureCyaSessionData: Future[Option[DividendsUserDataModel]] = session.getSessionData(taxYear)
+    session.getSessionData(taxYear).flatMap  {
+      case Left(_) => Future.successful(InternalServerError(errorHandler.internalServerErrorTemplate))
+      case Right(cyaData) =>
+        (for {
+        priorSubmissionData <- futurePriorSubmissionData
+        cyaSessionData <- Future.successful(cyaData)
+      } yield {
+        (cyaSessionData.flatMap(_.dividends), priorSubmissionData.map(_.dividends)) match {
+          case (Some(cyaData), Right(Some(priorData))) =>
+            val ukDividendsExist = cyaData.ukDividends.getOrElse(priorData.ukDividends.nonEmpty)
+            val otherDividendsExist = cyaData.otherUkDividends.getOrElse(priorData.otherUkDividends.nonEmpty)
 
-    (for {
-      priorSubmissionData <- futurePriorSubmissionData
-      cyaSessionData <- futureCyaSessionData
-    } yield {
-      (cyaSessionData.flatMap(_.dividends), priorSubmissionData.map(_.dividends)) match {
-        case (Some(cyaData), Right(Some(priorData))) =>
-          val ukDividendsExist = cyaData.ukDividends.getOrElse(priorData.ukDividends.nonEmpty)
-          val otherDividendsExist = cyaData.otherUkDividends.getOrElse(priorData.otherUkDividends.nonEmpty)
+            val ukDividendsValue: Option[BigDecimal] = priorityOrderOrNone(cyaData.ukDividendsAmount, priorData.ukDividends, ukDividendsExist)
+            val otherDividendsValue: Option[BigDecimal] = priorityOrderOrNone(cyaData.otherUkDividendsAmount, priorData.otherUkDividends, otherDividendsExist)
 
-          val ukDividendsValue: Option[BigDecimal] = priorityOrderOrNone(cyaData.ukDividendsAmount, priorData.ukDividends, ukDividendsExist)
-          val otherDividendsValue: Option[BigDecimal] = priorityOrderOrNone(cyaData.otherUkDividendsAmount, priorData.otherUkDividends, otherDividendsExist)
+            val cyaModel = DividendsCheckYourAnswersModel(
+              Some(ukDividendsExist),
+              ukDividendsValue,
+              Some(otherDividendsExist),
+              otherDividendsValue
+            )
 
-          val cyaModel = DividendsCheckYourAnswersModel(
-            Some(ukDividendsExist),
-            ukDividendsValue,
-            Some(otherDividendsExist),
-            otherDividendsValue
-          )
+            Future.successful(Ok(dividendsCyaView(cyaModel, priorData, taxYear)))
+          case (Some(cyaData), Right(None)) if !cyaData.isFinished => Future.successful(handleUnfinishedRedirect(cyaData, taxYear))
+          case (Some(cyaData), Right(None)) => Future.successful(Ok(dividendsCyaView(cyaData, taxYear = taxYear)))
+          case (None, Right(Some(priorData))) =>
+            val cyaModel = DividendsCheckYourAnswersModel(
+              Some(priorData.ukDividends.nonEmpty),
+              priorData.ukDividends,
+              Some(priorData.otherUkDividends.nonEmpty),
+              priorData.otherUkDividends
+            )
 
-          Future.successful(Ok(dividendsCyaView(cyaModel, priorData, taxYear)))
-        case (Some(cyaData), Right(None)) if !cyaData.isFinished => Future.successful(handleUnfinishedRedirect(cyaData, taxYear))
-        case (Some(cyaData), Right(None)) => Future.successful(Ok(dividendsCyaView(cyaData, taxYear = taxYear)))
-        case (None, Right(Some(priorData))) =>
-          val cyaModel = DividendsCheckYourAnswersModel(
-            Some(priorData.ukDividends.nonEmpty),
-            priorData.ukDividends,
-            Some(priorData.otherUkDividends.nonEmpty),
-            priorData.otherUkDividends
-          )
-
-          session.createSessionData(cyaModel, taxYear)(
-            InternalServerError(errorHandler.internalServerErrorTemplate)
-          )(
-            Ok(dividendsCyaView(cyaModel, priorData, taxYear))
-          )
-        case _ =>
-          logger.info("[DividendsCYAController][show] No Check Your Answers data or Prior Submission data. Redirecting to overview.")
-          Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
-      }
-    }).flatten
-
+            session.createSessionData(cyaModel, taxYear)(
+              InternalServerError(errorHandler.internalServerErrorTemplate)
+            )(
+              Ok(dividendsCyaView(cyaModel, priorData, taxYear))
+            )
+          case _ =>
+            logger.info("[DividendsCYAController][show] No Check Your Answers data or Prior Submission data. Redirecting to overview.")
+            Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+        }
+      }).flatten
+    }
   }
 
   def submit(taxYear: Int): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, DIVIDENDS)).async { implicit user =>
-    val futureCyaData: Future[Option[DividendsUserDataModel]] = session.getSessionData(taxYear)
     val futurePriorData: Future[IncomeTaxUserDataResponse] = session.getPriorData(taxYear)
-
+    session.getSessionData(taxYear).flatMap  {
+      case Left(_) => Future.successful(InternalServerError(errorHandler.internalServerErrorTemplate))
+      case Right(cyaData) =>
     (for {
-      optionalCyaData <- futureCyaData
+      optionalCyaData <- Future.successful(cyaData)
       priorDataLeftRight <- futurePriorData
     } yield {
       val cyaData: Option[DividendsCheckYourAnswersModel] = optionalCyaData.flatMap(_.dividends)
@@ -127,6 +129,7 @@ class DividendsCYAController @Inject()(
         case Left(error) => Future.successful(errorHandler.handleError(error.status))
       }
     }).flatten
+  }
   }
 
   private[dividends] def priorityOrderOrNone(priority: Option[BigDecimal], other: Option[BigDecimal], yesNoResult: Boolean): Option[BigDecimal] = {

@@ -22,7 +22,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 class MockAppConfig extends MockFactory {
 
-  val config: AppConfig = new AppConfig(mock[ServicesConfig]) {
+  def config(encrypt: Boolean = true): AppConfig = new AppConfig(mock[ServicesConfig]) {
     override lazy val signInContinueUrl: String = "/continue"
     override lazy val signInUrl: String = "/signIn"
     override lazy val dividendsBaseUrl: String = "/dividends"
@@ -61,5 +61,7 @@ class MockAppConfig extends MockFactory {
 
     //noinspection ScalaStyle
     override def mongoTTL: Long = 15
+    override lazy val useEncryption: Boolean = encrypt
+    override lazy val encryptionKey: String = "encryptionKey12345"
   }
 }

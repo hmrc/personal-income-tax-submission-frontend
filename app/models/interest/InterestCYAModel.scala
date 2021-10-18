@@ -20,6 +20,7 @@ import models.question.Question.{WithDependency, WithoutDependency}
 import models.question.{Question, QuestionsJourney}
 import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.Call
+import utils.EncryptedValue
 
 case class InterestCYAModel(untaxedUkInterest: Option[Boolean] = None,
                             taxedUkInterest: Option[Boolean] = None,
@@ -66,6 +67,16 @@ object InterestCYAModel {
       ) ++ questionsUsingId
     }
   }
+
+}
+
+case class EncryptedInterestCYAModel(untaxedUkInterest: Option[EncryptedValue] = None,
+                            taxedUkInterest: Option[EncryptedValue] = None,
+                            accounts: Option[Seq[EncryptedInterestAccountModel]] = None)
+
+object EncryptedInterestCYAModel {
+
+  implicit val formats: OFormat[EncryptedInterestCYAModel] = Json.format[EncryptedInterestCYAModel]
 
 }
 

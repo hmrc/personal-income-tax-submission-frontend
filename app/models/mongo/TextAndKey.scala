@@ -14,26 +14,6 @@
  * limitations under the License.
  */
 
-package models.charity
+package models.mongo
 
-import common.UUID
-import play.api.libs.json.{Json, OFormat}
-import utils.EncryptedValue
-
-case class CharityNameModel(id: String, name: String)
-
-object CharityNameModel {
-
-  implicit val formats: OFormat[CharityNameModel] = Json.format[CharityNameModel]
-
-  def apply(name: String): CharityNameModel = {
-    CharityNameModel(UUID().randomUUID, name)
-  }
-}
-case class EncryptedCharityNameModel(id: EncryptedValue, name: EncryptedValue)
-
-object EncryptedCharityNameModel {
-
-  implicit val formats: OFormat[EncryptedCharityNameModel] = Json.format[EncryptedCharityNameModel]
-
-}
+case class TextAndKey(associatedText: String, aesKey: String)

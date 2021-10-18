@@ -26,7 +26,7 @@ import org.jsoup.nodes.Document
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
-import utils.CharityITHelper
+import utils.{CharityITHelper, EncryptedValue}
 
 class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
 
@@ -295,7 +295,7 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
       }
 
       "updated the addDonationsToLastTaxYear field to true" in {
-        await(giftAidDatabase.find(year)).get.giftAid.get.addDonationToLastYear.get shouldBe true
+        findGiftAidDb.get.addDonationToLastYear.get shouldBe true
       }
     }
 

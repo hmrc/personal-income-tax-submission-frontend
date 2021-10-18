@@ -183,12 +183,11 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           lazy val result: WSResponse = {
             dropInterestDB()
             emptyUserDataStub()
-            await(interestDatabase.create(InterestUserDataModel(
-              sessionId, mtditid, nino, taxYear,
+            insertCyaData(
               Some(InterestCYAModel(
                 Some(true), Some(false), Some(Seq(InterestAccountModel(None, "Bank of UK", untaxedAmount = Some(9001.00), None, Some("qwerty"))))
-              ))
-            )))
+              )),taxYear, Some(mtditid), Some(nino)
+            )
 
             authoriseAgentOrIndividual(us.isAgent)
             urlGet(untaxedUrl, us.isWelsh, follow = true, playSessionCookie(us.isAgent))
@@ -244,15 +243,14 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           lazy val result: WSResponse = {
             dropInterestDB()
             userDataStub(IncomeSourcesModel(None,Some(Seq(InterestModel("Bank of EU","azerty",None,Some(1234.56))))) ,nino, taxYear)
-            await(interestDatabase.create(InterestUserDataModel(
-              sessionId, mtditid, nino, taxYear,
+            insertCyaData(
               Some(InterestCYAModel(
                 Some(true), Some(false), Some(Seq(
                   InterestAccountModel(None, "Bank of UK", Some(9000.01), None, Some("qwerty")),
                   InterestAccountModel(Some("azerty"), "Bank of EU",  Some(1234.56), None)
                 ))
-              ))
-            )))
+              )),taxYear, Some(mtditid), Some(nino)
+            )
 
             authoriseAgentOrIndividual(us.isAgent)
             urlGet(untaxedUrl, us.isWelsh, follow = true, playSessionCookie(us.isAgent))
@@ -321,10 +319,9 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
 
         s"there is no cya data in session - ${welshTest(us.isWelsh)} - ${agentTest(us.isAgent)}" in {
           dropInterestDB()
-
-          await(interestDatabase.create(InterestUserDataModel(
-            sessionId, mtditid, nino, taxYear, None
-          )))
+          insertCyaData(
+            None, taxYear, Some(mtditid), Some(nino)
+          )
 
           val result: WSResponse = {
             emptyUserDataStub()
@@ -341,13 +338,9 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
 
         "the cya data in session does not contain an untaxed interest account" in {
           dropInterestDB()
-
-          await(interestDatabase.create(InterestUserDataModel(
-            sessionId, mtditid, nino, taxYear,
-            Some(InterestCYAModel(
-              Some(true), Some(false)
-            ))
-          )))
+          insertCyaData(
+            Some(InterestCYAModel(Some(true), Some(false))), taxYear, Some(mtditid), Some(nino)
+          )
 
           val result: WSResponse = {
             emptyUserDataStub()
@@ -368,12 +361,11 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
         "render 1 row when there is a single taxed account passed in that is not a prior submission" which {
           lazy val result: WSResponse = {
             dropInterestDB()
-            await(interestDatabase.create(InterestUserDataModel(
-              sessionId, mtditid, nino, taxYear,
+            insertCyaData(
               Some(InterestCYAModel(
                 Some(false), Some(true), Some(Seq(InterestAccountModel(None, "Bank of UK", None, Some(9001.00), Some("qwerty"))))
-              ))
-            )))
+              )),taxYear, Some(mtditid), Some(nino)
+            )
             emptyUserDataStub()
             authoriseAgentOrIndividual(us.isAgent)
             urlGet(taxedUrl, us.isWelsh, follow = true, playSessionCookie(us.isAgent))
@@ -429,15 +421,14 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           lazy val result: WSResponse = {
             dropInterestDB()
             userDataStub(IncomeSourcesModel(None,Some(Seq(InterestModel("Bank of EU","azerty",Some(1234.56),None)))) ,nino, taxYear)
-            await(interestDatabase.create(InterestUserDataModel(
-              sessionId, mtditid, nino, taxYear,
+            insertCyaData(
               Some(InterestCYAModel(
                 Some(false), Some(true), Some(Seq(
                   InterestAccountModel(None, "Bank of UK", None, Some(9000.01), Some("qwerty")),
                   InterestAccountModel(Some("azerty"), "Bank of EU", None, Some(1234.56))
                 ))
-              ))
-            )))
+              )),taxYear, Some(mtditid), Some(nino)
+            )
 
             authoriseAgentOrIndividual(us.isAgent)
             urlGet(taxedUrl, us.isWelsh, follow = true, playSessionCookie(us.isAgent))
@@ -507,10 +498,9 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
 
         s"there is no cya data in session - ${welshTest(us.isWelsh)} - ${agentTest(us.isAgent)}" in {
           dropInterestDB()
-
-          await(interestDatabase.create(InterestUserDataModel(
-            sessionId, mtditid, nino, taxYear, None
-          )))
+          insertCyaData(
+            None, taxYear, Some(mtditid), Some(nino)
+          )
 
           val result: WSResponse = {
             emptyUserDataStub()
@@ -527,13 +517,9 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
 
         "the cya data in session does not contain an taxed interest account" in {
           dropInterestDB()
-
-          await(interestDatabase.create(InterestUserDataModel(
-            sessionId, mtditid, nino, taxYear,
-            Some(InterestCYAModel(
-              Some(false),Some(true)
-            ))
-          )))
+          insertCyaData(
+            Some(InterestCYAModel(Some(false),Some(true))),taxYear, Some(mtditid), Some(nino)
+          )
 
           val result: WSResponse = {
             emptyUserDataStub()
@@ -554,13 +540,11 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
 
         "redirect to the interest cya page when cya data is complete" in {
           dropInterestDB()
-
-          await(interestDatabase.create(InterestUserDataModel(
-            sessionId, mtditid, nino, taxYear,
+          insertCyaData(
             Some(InterestCYAModel(
               Some(true), Some(false),Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount), None))),
-            ))
-          )))
+            )),taxYear, Some(mtditid), Some(nino)
+          )
 
           val result: WSResponse = {
             emptyUserDataStub()
@@ -574,13 +558,9 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
 
         "redirect to the  page when accounts are missing" in {
           dropInterestDB()
-
-          await(interestDatabase.create(InterestUserDataModel(
-            sessionId, mtditid, nino, taxYear,
-            Some(InterestCYAModel(
-              Some(true), Some(false),None
-            ))
-          )))
+          insertCyaData(
+            Some(InterestCYAModel(Some(true), Some(false),None)),taxYear, Some(mtditid), Some(nino)
+          )
 
           val result: WSResponse = {
             emptyUserDataStub()
@@ -596,10 +576,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
 
           s"there is no cya data in session - ${welshTest(us.isWelsh)} - ${agentTest(us.isAgent)}" in {
             dropInterestDB()
-
-            await(interestDatabase.create(InterestUserDataModel(
-              sessionId, mtditid, nino, taxYear, None
-            )))
+            insertCyaData(None, taxYear, Some(mtditid), Some(nino))
 
             val result: WSResponse = {
               emptyUserDataStub()
@@ -614,13 +591,11 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
 
         "redirect to the taxed interest page when cya taxed data is not yet complete" in {
           dropInterestDB()
-
-          await(interestDatabase.create(InterestUserDataModel(
-            sessionId, mtditid, nino, taxYear,
+          insertCyaData(
             Some(InterestCYAModel(
               Some(true), None, Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount), None)))
-            ))
-          )))
+            )),taxYear, Some(mtditid), Some(nino)
+          )
 
           emptyUserDataStub()
 
@@ -661,12 +636,11 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           lazy val result: WSResponse = {
             dropInterestDB()
             emptyUserDataStub()
-            await(interestDatabase.create(InterestUserDataModel(
-              sessionId, mtditid, nino, taxYear,
+            insertCyaData(
               Some(InterestCYAModel(
                 Some(true), Some(false), Some(Seq(InterestAccountModel(None, "Untaxed Account", Some(9001.00), None, Some("qwerty"))))
-              ))
-            )))
+              )),taxYear, Some(mtditid), Some(nino)
+            )
 
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(untaxedUrl, yesNoFormEmpty, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
@@ -730,14 +704,12 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
             val result: WSResponse = {
               dropInterestDB()
               emptyUserDataStub()
-              await(interestDatabase.create(InterestUserDataModel(
-                sessionId, mtditid, nino, taxYear,
+              insertCyaData(
                 Some(InterestCYAModel(
                   Some(false), Some(true),
                   Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))))
-                ))
-              )))
-              emptyUserDataStub()
+                )),taxYear, Some(mtditid), Some(nino)
+              )
 
               authoriseAgentOrIndividual(us.isAgent)
               urlPost(taxedUrl, yesNoFormNo, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
@@ -751,13 +723,10 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
 
       "redirect to the  page when accounts are missing" in {
         dropInterestDB()
-
-        await(interestDatabase.create(InterestUserDataModel(
-          sessionId, mtditid, nino, taxYear,
-          Some(InterestCYAModel(
-            Some(true), Some(false),None
-          ))
-        )))
+        insertCyaData(
+          Some(InterestCYAModel(Some(true), Some(false), None)),
+          taxYear, Some(mtditid), Some(nino)
+        )
 
         val result: WSResponse = {
           emptyUserDataStub()
@@ -773,11 +742,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
 
         s"there is no cya data in session - ${welshTest(us.isWelsh)} - ${agentTest(us.isAgent)}" in {
           dropInterestDB()
-
-          await(interestDatabase.create(InterestUserDataModel(
-            sessionId, mtditid, nino, taxYear, None
-          )))
-
+          insertCyaData(None, taxYear, Some(mtditid), Some(nino))
           val result: WSResponse = {
             emptyUserDataStub()
             authoriseAgentOrIndividual(us.isAgent)
@@ -815,13 +780,12 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           lazy val result: WSResponse = {
             dropInterestDB()
             emptyUserDataStub()
-            await(interestDatabase.create(InterestUserDataModel(
-              sessionId, mtditid, nino, taxYear,
+            insertCyaData(
               Some(InterestCYAModel(
                 Some(false),
                 Some(true), Some(Seq(InterestAccountModel(None, "Taxed Account", None, Some(amount), Some("qwerty"))))
-              ))
-            )))
+              )),taxYear, Some(mtditid), Some(nino)
+            )
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(taxedUrl, yesNoFormEmpty, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }

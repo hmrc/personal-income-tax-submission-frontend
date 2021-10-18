@@ -17,7 +17,8 @@
 package repositories
 
 import config.AppConfig
-import models.mongo.GiftAidUserDataModel
+import models.mongo.{EncryptedGiftAidUserDataModel, GiftAidUserDataModel}
+import services.EncryptionService
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
@@ -27,10 +28,16 @@ import scala.concurrent.ExecutionContext
 class GiftAidUserDataRepository @Inject()(
                                             implicit mongo: MongoComponent,
                                             val ec: ExecutionContext,
-                                            appConfig: AppConfig
-                                          ) extends PlayMongoRepository[GiftAidUserDataModel](
+                                            appConfig: AppConfig,
+                                            encryptionService: EncryptionService
+                                          ) extends PlayMongoRepository[EncryptedGiftAidUserDataModel](
   mongoComponent = mongo,
   collectionName = "giftAidUserData",
-  domainFormat = GiftAidUserDataModel.formats,
+  domainFormat = EncryptedGiftAidUserDataModel.formats,
   indexes = RepositoryIndexes.indexes
-) with UserDataRepository[GiftAidUserDataModel]
+) with UserDataRepository[EncryptedGiftAidUserDataModel]{
+  override val repoName = "giftAidUserData"
+  override type UserData = GiftAidUserDataModel
+  override def encryptionMethod: GiftAidUserDataModel => EncryptedGiftAidUserDataModel = encryptionService.encryptGiftAidUserData
+  override def decryptionMethod: EncryptedGiftAidUserDataModel => GiftAidUserDataModel = encryptionService.decryptGiftAidUserData
+}

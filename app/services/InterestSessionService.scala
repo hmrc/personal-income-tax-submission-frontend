@@ -16,14 +16,14 @@
 
 package services
 
-import common.InterestTaxTypes
 import connectors.IncomeTaxUserDataConnector
 import connectors.httpParsers.IncomeTaxUserDataHttpParser.IncomeTaxUserDataResponse
 import models.User
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
-import models.mongo.InterestUserDataModel
+import models.mongo.{DatabaseError, InterestUserDataModel}
 import models.priorDataModels.InterestModel
 import org.joda.time.{DateTime, DateTimeZone}
+import play.api.i18n.Lang.logger
 import repositories.InterestUserDataRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -39,8 +39,14 @@ class InterestSessionService @Inject()(
     incomeTaxUserDataConnector.getUserData(taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid))
   }
 
-  def getSessionData(taxYear: Int)(implicit user: User[_]): Future[Option[InterestUserDataModel]] = {
-    interestUserDataRepository.find(taxYear)
+  def getSessionData(taxYear: Int)(implicit user: User[_], ec: ExecutionContext): Future[Either[DatabaseError, Option[InterestUserDataModel]]] = {
+
+    interestUserDataRepository.find(taxYear).map {
+      case Left(value) =>
+        logger.error("[InterestSessionService][getSessionData] Could not find user session.")
+        Left(value)
+      case Right(userData) => Right(userData)
+    }
   }
 
   def updateSessionData[A](cyaModel: InterestCYAModel, taxYear: Int, needsCreating: Boolean = false)(onFail: A)(onSuccess: A)
@@ -55,17 +61,20 @@ class InterestSessionService @Inject()(
       DateTime.now(DateTimeZone.UTC)
     )
 
-    if(needsCreating){
+    if (needsCreating) {
       interestUserDataRepository.create(userData).map {
-        case true => onSuccess
-        case false => onFail
+        case Right(_) => onSuccess
+        case Left(_) => onFail
       }
     } else {
       interestUserDataRepository.update(userData).map {
-        case true => onSuccess
-        case false => onFail
+        case Right(_) => onSuccess
+        case Left(_) => onFail
       }
     }
+
+
+
   }
 
   private[services] def interestModelToInterestAccount(input: InterestModel): InterestAccountModel = {
@@ -85,14 +94,14 @@ class InterestSessionService @Inject()(
       priorDataResponse <- getPriorData(taxYear)
     } yield {
 
-      val interestAccountsResponse = priorDataResponse.map(_.interest).map{
+      val interestAccountsResponse = priorDataResponse.map(_.interest).map {
         priorSubmission =>
           priorSubmission.getOrElse(Seq.empty[InterestModel]).map(interestModelToInterestAccount)
       }
 
       interestAccountsResponse match {
         case Right(accounts) =>
-          val priorData = if(accounts.isEmpty){
+          val priorData = if (accounts.isEmpty) {
             None
           } else {
             Some(InterestPriorSubmission(
@@ -101,8 +110,10 @@ class InterestSessionService @Inject()(
               Some(accounts)
             ))
           }
-
-          block(optionalCya.flatMap(_.interest), priorData)
+          optionalCya match {
+            case Left(_) => Future(onFail)
+            case Right(cyaData) => block(cyaData.flatMap(_.interest), priorData)
+          }
 
         case Left(_) => Future(onFail)
       }

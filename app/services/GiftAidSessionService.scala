@@ -21,8 +21,9 @@ import connectors.httpParsers.IncomeTaxUserDataHttpParser.IncomeTaxUserDataRespo
 import models.User
 import models.charity.GiftAidCYAModel
 import models.charity.prior.GiftAidSubmissionModel
-import models.mongo.GiftAidUserDataModel
+import models.mongo.{DatabaseError, GiftAidUserDataModel}
 import org.joda.time.{DateTime, DateTimeZone}
+import play.api.i18n.Lang.logger
 import repositories.GiftAidUserDataRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -30,9 +31,9 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class GiftAidSessionService @Inject()(
-                                        giftAidUserDataRepository: GiftAidUserDataRepository,
-                                        incomeTaxUserDataConnector: IncomeTaxUserDataConnector
-                                      ) {
+                                       giftAidUserDataRepository: GiftAidUserDataRepository,
+                                       incomeTaxUserDataConnector: IncomeTaxUserDataConnector
+                                     ) {
 
   def getPriorData(taxYear: Int)(implicit user: User[_], hc: HeaderCarrier): Future[IncomeTaxUserDataResponse] = {
     incomeTaxUserDataConnector.getUserData(taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid))
@@ -51,13 +52,20 @@ class GiftAidSessionService @Inject()(
     )
 
     giftAidUserDataRepository.create(userData).map {
-      case true => onSuccess
-      case false => onFail
+      case Right(_) => onSuccess
+      case Left(_) => onFail
+
     }
   }
 
-  def getSessionData(taxYear: Int)(implicit user: User[_]): Future[Option[GiftAidUserDataModel]] = {
-    giftAidUserDataRepository.find(taxYear)
+  def getSessionData(taxYear: Int)(implicit user: User[_], ec: ExecutionContext): Future[Either[DatabaseError, Option[GiftAidUserDataModel]]] = {
+
+    giftAidUserDataRepository.find(taxYear).map {
+      case Left(value) =>
+        logger.error("[GiftAidSessionService][getSessionData] Could not find user session.")
+        Left(value)
+      case Right(userData) => Right(userData)
+    }
   }
 
   def updateSessionData[A](cyaModel: GiftAidCYAModel, taxYear: Int)(onFail: A)(onSuccess: A)
@@ -73,9 +81,10 @@ class GiftAidSessionService @Inject()(
     )
 
     giftAidUserDataRepository.update(userData).map {
-      case true => onSuccess
-      case false => onFail
+      case Right(_) => onSuccess
+      case Left(_) => onFail
     }
+
   }
 
   def getAndHandle[R](taxYear: Int)(onFail: R)(block: (Option[GiftAidCYAModel], Option[GiftAidSubmissionModel]) => R)
@@ -85,7 +94,10 @@ class GiftAidSessionService @Inject()(
       priorDataResponse <- getPriorData(taxYear)
     } yield {
       priorDataResponse.map(_.giftAid) match {
-        case Right(prior) => block(optionalCya.flatMap(_.giftAid), prior)
+        case Right(prior) => optionalCya match {
+          case Left(_) => onFail
+          case Right(cyaData) => block(cyaData.flatMap(_.giftAid), prior)
+        }
         case Left(_) => onFail
       }
     }

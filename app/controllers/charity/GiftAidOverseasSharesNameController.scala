@@ -76,7 +76,10 @@ class GiftAidOverseasSharesNameController @Inject()(
   def submit(taxYear: Int, changeCharityId: Option[String]): Action[AnyContent] =
     (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
 
-      giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
+      giftAidSessionService.getSessionData(taxYear).map {
+        case Left(_) => Future.successful(errorHandler.internalServerError())
+        case Right(data) =>
+          data.flatMap(_.giftAid) match {
         case Some(cyaModel) =>
           form(user.isAgent, cyaModel, changeCharityId).bindFromRequest().fold({
             formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors, changeCharityId)))
@@ -104,6 +107,7 @@ class GiftAidOverseasSharesNameController @Inject()(
         case _ =>
           logger.info("[GiftAidOverseasSharesNameController][submit] No CYA data in session. Redirecting to overview page.")
           Future.successful(redirectToOverview(taxYear))
+      }
       }.flatten
     }
 

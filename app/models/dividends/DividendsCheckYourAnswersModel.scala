@@ -16,12 +16,12 @@
 
 package models.dividends
 
-import controllers.dividends.routes.{OtherUkDividendsAmountController,
-  ReceiveOtherUkDividendsController, ReceiveUkDividendsController, UkDividendsAmountController}
+import controllers.dividends.routes.{OtherUkDividendsAmountController, ReceiveOtherUkDividendsController, ReceiveUkDividendsController, UkDividendsAmountController}
 import models.question.Question.{WithDependency, WithoutDependency}
 import models.question.{Question, QuestionsJourney}
 import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.Call
+import utils.EncryptedValue
 
 case class DividendsCheckYourAnswersModel(
                                            ukDividends: Option[Boolean] = None,
@@ -60,4 +60,15 @@ object DividendsCheckYourAnswersModel {
         OtherUkDividendsAmountController.show(taxYear), ReceiveOtherUkDividendsController.show(taxYear))
     )
   }
+}
+case class EncryptedDividendsCheckYourAnswersModel(
+                                                    ukDividends: Option[EncryptedValue] = None,
+                                                    ukDividendsAmount: Option[EncryptedValue] = None,
+                                                    otherUkDividends: Option[EncryptedValue] = None,
+                                                    otherUkDividendsAmount: Option[EncryptedValue] = None)
+
+object EncryptedDividendsCheckYourAnswersModel {
+
+  implicit val formats: OFormat[EncryptedDividendsCheckYourAnswersModel] = Json.format[EncryptedDividendsCheckYourAnswersModel]
+
 }

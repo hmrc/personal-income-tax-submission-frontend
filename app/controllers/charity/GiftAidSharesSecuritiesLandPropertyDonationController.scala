@@ -108,7 +108,10 @@ class GiftAidSharesSecuritiesLandPropertyDonationController @Inject()(
       },
       {
         yesNoForm =>
-          giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
+          giftAidSessionService.getSessionData(taxYear).map {
+            case Left(_) => Future.successful(errorHandler.internalServerError())
+            case Right(data) =>
+              data.flatMap(_.giftAid) match {
             case Some(cyaData) =>
               val updatedCya = if (yesNoForm) {
                 cyaData.copy(donatedSharesSecuritiesLandOrProperty = Some(true))
@@ -133,6 +136,7 @@ class GiftAidSharesSecuritiesLandPropertyDonationController @Inject()(
 
               giftAidSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(redirectLocation)
             case None => Future.successful(redirectToOverview(taxYear))
+          }
           }.flatten
       }
     )
