@@ -72,8 +72,10 @@ class ReceiveOtherUkDividendsController @Inject()(
             ))
         }, {
           yesNoModel =>
-            dividendsSessionService.getSessionData(taxYear).map(_.flatMap(_.dividends)).map[Future[Result]] { cya =>
-              cya.fold {
+            dividendsSessionService.getSessionData(taxYear).map {
+              case Left(_) => Future.successful(errorHandler.internalServerError())
+              case Right(cyaData) => cyaData.flatMap(_.dividends)
+              .fold {
                 Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
               } {
                 cyaModel =>

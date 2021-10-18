@@ -20,7 +20,8 @@ import models.dividends.DividendsCheckYourAnswersModel
 import models.mongo.DividendsUserDataModel
 import repositories.DividendsUserDataRepository
 
-trait DividendsDatabaseHelper { self: IntegrationTest =>
+trait DividendsDatabaseHelper {
+  self: IntegrationTest =>
 
   lazy val dividendsDatabase: DividendsUserDataRepository = app.injector.instanceOf[DividendsUserDataRepository]
 
@@ -40,7 +41,10 @@ trait DividendsDatabaseHelper { self: IntegrationTest =>
 
     await(dividendsDatabase.create(
       DividendsUserDataModel(sessionId, overrideMtditid.fold(mtditid)(value => value), overrideNino.fold(nino)(value => value), taxYear, cya)
-    ))
+    )) match {
+      case Right(value) => value
+      case Left(value) => false
+    }
   }
 
 }

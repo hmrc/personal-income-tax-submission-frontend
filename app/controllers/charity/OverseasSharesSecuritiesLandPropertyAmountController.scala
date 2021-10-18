@@ -93,36 +93,40 @@ class OverseasSharesSecuritiesLandPropertyAmountController @Inject()(
   }
 
   def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
-    giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
-      case Some(cyaData) =>
-        val landPropAmt: BigDecimal = cyaData.donatedLandOrPropertyAmount.getOrElse(0)
-        val shareSecAmt: BigDecimal = cyaData.donatedSharesOrSecuritiesAmount.getOrElse(0)
-        val zero = BigDecimal(0)
+    giftAidSessionService.getSessionData(taxYear).map {
+      case Left(_) => Future.successful(errorHandler.internalServerError())
+      case Right(data) =>
+        data.flatMap(_.giftAid) match {
+          case Some(cyaData) =>
+            val landPropAmt: BigDecimal = cyaData.donatedLandOrPropertyAmount.getOrElse(0)
+            val shareSecAmt: BigDecimal = cyaData.donatedSharesOrSecuritiesAmount.getOrElse(0)
+            val zero = BigDecimal(0)
 
-        landPropAmt + shareSecAmt match {
-          case `zero` =>
-            logger.warn("[OverseasSharesSecuritiesLandPropertyAmountController][submit] " +
-              "No donated land/property or shares/securities in mongo database. Redirecting to the overview page.")
-            Future.successful(redirectToOverview(taxYear))
-          case total =>
-            form(user.isAgent, total).bindFromRequest().fold({
-              formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors, None, None)))
-            }, {
-              amount =>
-                val updatedCya = cyaData.copy(overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(amount))
-                val redirectLocation = if(updatedCya.isFinished){
-                  redirectToCya(taxYear)
-                } else {
-                  Redirect(controllers.charity.routes.GiftAidOverseasSharesNameController.show(taxYear, None))
-                }
-                giftAidSessionService.updateSessionData(cyaData.copy(overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(amount)), taxYear)(
-                  InternalServerError(errorHandler.internalServerErrorTemplate)
-                )(redirectLocation)
-            })
+            landPropAmt + shareSecAmt match {
+              case `zero` =>
+                logger.warn("[OverseasSharesSecuritiesLandPropertyAmountController][submit] " +
+                  "No donated land/property or shares/securities in mongo database. Redirecting to the overview page.")
+                Future.successful(redirectToOverview(taxYear))
+              case total =>
+                form(user.isAgent, total).bindFromRequest().fold({
+                  formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors, None, None)))
+                }, {
+                  amount =>
+                    val updatedCya = cyaData.copy(overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(amount))
+                    val redirectLocation = if (updatedCya.isFinished) {
+                      redirectToCya(taxYear)
+                    } else {
+                      Redirect(controllers.charity.routes.GiftAidOverseasSharesNameController.show(taxYear, None))
+                    }
+                    giftAidSessionService.updateSessionData(cyaData.copy(overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(amount)), taxYear)(
+                      InternalServerError(errorHandler.internalServerErrorTemplate)
+                    )(redirectLocation)
+                })
+            }
+          case _ =>
+            logger.info("[OverseasSharesSecuritiesLandPropertyAmountController][submit] No CYA data in session. Redirecting to overview page.")
+            Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
         }
-      case _ =>
-        logger.info("[OverseasSharesSecuritiesLandPropertyAmountController][submit] No CYA data in session. Redirecting to overview page.")
-        Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
     }.flatten
   }
 

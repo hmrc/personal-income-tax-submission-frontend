@@ -102,7 +102,10 @@ class LastTaxYearAmountController @Inject()(
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
 
-    giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
+    giftAidSessionService.getSessionData(taxYear).map {
+      case Left(_) => Future.successful(errorHandler.internalServerError())
+      case Right(data) =>
+        data.flatMap(_.giftAid) match {
       case Some(cyaData) =>
         cyaData.donationsViaGiftAidAmount match {
           case Some(totalDonatedAmount) =>
@@ -131,6 +134,7 @@ class LastTaxYearAmountController @Inject()(
       case _ =>
         logger.warn("[LastTaxYearAmountController][submit] No CYA data retrieved from the mongo database. Redirecting to the overview page.")
         Future.successful(redirectToOverview(taxYear))
+    }
     }.flatten
   }
 }

@@ -278,7 +278,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
           }
 
           "saves the record in the database" in {
-            await(interestDatabase.collection.find().toFuture()).head.interest.get shouldBe InterestCYAModel(Some(false), Some(false))
+            findInterestDb.get shouldBe InterestCYAModel(Some(false), Some(false))
           }
         }
 

@@ -23,3 +23,4 @@ case class DividendsResponseModel(status: Int)
 object DividendsResponseModel {
   implicit val formats: OFormat[DividendsResponseModel] = Json.format[DividendsResponseModel]
 }
+

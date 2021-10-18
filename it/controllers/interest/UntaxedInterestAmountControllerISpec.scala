@@ -475,8 +475,8 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
             result.header("Location").get should include(
               "/income-through-software/return/personal-income/2022/interest/accounts-with-untaxed-uk-interest")
 
-            val data: Seq[InterestCYAModel] = await(interestDatabase.collection.find().toFuture()).flatMap(_.interest)
-            data.head shouldBe InterestCYAModel(Some(true),None,Some(Seq(
+            val data = findInterestDb
+            data.head shouldBe InterestCYAModel(Some(true),None,Some(List(
               InterestAccountModel(None,firstAccountName,Some(12344.98),uniqueSessionId = data.head.accounts.get.head.uniqueSessionId),
               InterestAccountModel(None,"name",None,Some(1234),uniqueSessionId = Some("1234567890"))
             )))
@@ -501,10 +501,10 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
             result.header("Location").get should include(
               "/income-through-software/return/personal-income/2022/interest/accounts-with-untaxed-uk-interest")
 
-            val data: Seq[InterestCYAModel] = await(interestDatabase.collection.find().toFuture()).flatMap(_.interest)
-            data.head shouldBe InterestCYAModel(Some(true),None,Some(Seq(
+            val data = findInterestDb
+            data shouldBe Some(InterestCYAModel(Some(true),None,Some(Seq(
               InterestAccountModel(None,firstAccountName,Some(12344.98),uniqueSessionId = data.head.accounts.get.head.uniqueSessionId)
-            )))
+            ))))
           }
         }
 

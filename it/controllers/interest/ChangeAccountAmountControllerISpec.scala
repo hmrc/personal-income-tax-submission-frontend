@@ -430,12 +430,12 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
                 result.status shouldBe SEE_OTHER
                 result.headers("Location").head shouldBe s"/income-through-software/return/personal-income/2022/" +
                   s"interest/accounts-with-${if (testCase._3) "untaxed" else "taxed"}-uk-interest"
-                await(interestDatabase.collection.find().toFuture()).head.interest.get shouldBe InterestCYAModel(
+                findInterestDb shouldBe Some(InterestCYAModel(
                   Some(true),Some(true),Some(Seq(
                     InterestAccountModel(Some(if (testCase._3) "UntaxedId" else "TaxedId"),
                       s"${if (testCase._3) "Untaxed" else "Taxed"} Account",
                       if (testCase._3) Some(45645.99) else Some(25),
-                      if (!testCase._3) Some(45645.99) else Some(25)))))
+                      if (!testCase._3) Some(45645.99) else Some(25))))))
               }
             }
         }
@@ -460,12 +460,12 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
                 result.status shouldBe SEE_OTHER
                 result.headers("Location").head shouldBe s"/income-through-software/return/personal-income/2022/" +
                   s"interest/accounts-with-${if (testCase._3) "untaxed" else "taxed"}-uk-interest"
-                await(interestDatabase.collection.find().toFuture()).head.interest.get shouldBe InterestCYAModel(
+                findInterestDb shouldBe Some(InterestCYAModel(
                   Some(true),Some(true),Some(Seq(
                     InterestAccountModel(Some(if (testCase._3) "UntaxedId" else "TaxedId"),
                       accountName,
                       if (testCase._3) Some(45645.99) else Some(25),
-                      if (!testCase._3) Some(45645.99) else Some(25)))))
+                      if (!testCase._3) Some(45645.99) else Some(25))))))
               }
             }
         }

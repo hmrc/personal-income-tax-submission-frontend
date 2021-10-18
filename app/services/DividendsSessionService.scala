@@ -20,7 +20,7 @@ import connectors.IncomeTaxUserDataConnector
 import connectors.httpParsers.IncomeTaxUserDataHttpParser.IncomeTaxUserDataResponse
 import models.User
 import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
-import models.mongo.DividendsUserDataModel
+import models.mongo.{DatabaseError, DividendsUserDataModel}
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.Logger
 import repositories.DividendsUserDataRepository
@@ -30,9 +30,9 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DividendsSessionService @Inject()(
-                                        dividendsUserDataRepository: DividendsUserDataRepository,
-                                        incomeTaxUserDataConnector: IncomeTaxUserDataConnector
-                                      ) {
+                                         dividendsUserDataRepository: DividendsUserDataRepository,
+                                         incomeTaxUserDataConnector: IncomeTaxUserDataConnector
+                                       ) {
 
   lazy val logger: Logger = Logger(this.getClass)
 
@@ -53,15 +53,19 @@ class DividendsSessionService @Inject()(
     )
 
     dividendsUserDataRepository.create(userData).map {
-      case true => onSuccess
-      case false =>
-        logger.error("[DividendsSessionService][createSessionData] Could not create user session.")
-        onFail
+      case Right(_) => onSuccess
+      case Left(_) => onFail
     }
   }
 
-  def getSessionData(taxYear: Int)(implicit user: User[_]): Future[Option[DividendsUserDataModel]] = {
-    dividendsUserDataRepository.find(taxYear)
+  def getSessionData(taxYear: Int)(implicit user: User[_], ec: ExecutionContext): Future[Either[DatabaseError, Option[DividendsUserDataModel]]] = {
+
+    dividendsUserDataRepository.find(taxYear).map {
+      case Left(error) =>
+        logger.error("[DividendsSessionService][getSessionData] Could not find user session.")
+        Left(error)
+      case Right(userData) => Right(userData)
+    }
   }
 
   def updateSessionData[A](cyaModel: DividendsCheckYourAnswersModel, taxYear: Int)(onFail: A)(onSuccess: A)
@@ -77,21 +81,24 @@ class DividendsSessionService @Inject()(
     )
 
     dividendsUserDataRepository.update(userData).map {
-      case true => onSuccess
-      case false =>
-        logger.error("[DividendsSessionService][createSessionData] Could not create user session.")
+      case Right(_) => onSuccess
+      case Left(_) =>
+        logger.error("[DividendsSessionService][createSessionData] Could not update user session.")
         onFail
     }
   }
 
   def getAndHandle[R](taxYear: Int)(onFail: R)(block: (Option[DividendsCheckYourAnswersModel], Option[DividendsPriorSubmission]) => R)
-                                         (implicit executionContext: ExecutionContext, user: User[_], hc: HeaderCarrier): Future[R] = {
+                     (implicit executionContext: ExecutionContext, user: User[_], hc: HeaderCarrier): Future[R] = {
     for {
       optionalCya <- getSessionData(taxYear)
       priorDataResponse <- getPriorData(taxYear)
     } yield {
       priorDataResponse.map(_.dividends) match {
-        case Right(prior) => block(optionalCya.flatMap(_.dividends), prior)
+        case Right(prior) => optionalCya match {
+          case Left(_) => onFail
+          case Right(cyaData) => block(cyaData.flatMap(_.dividends), prior)
+        }
         case Left(_) => onFail
       }
     }

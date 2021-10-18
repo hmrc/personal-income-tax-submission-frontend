@@ -18,7 +18,7 @@ package models.mongo
 
 trait UserDataTemplate {
   val sessionId: String
-  val mtditid: String
+  val mtdItId: String
   val nino: String
   val taxYear: Int
 }

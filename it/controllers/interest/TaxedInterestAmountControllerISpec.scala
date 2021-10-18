@@ -475,7 +475,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
             result.header("Location").get should include(
               "/income-through-software/return/personal-income/2022/interest/accounts-with-taxed-uk-interest")
 
-            val data: Seq[InterestCYAModel] = await(interestDatabase.collection.find().toFuture()).flatMap(_.interest)
+            val data = findInterestDb
             data.head shouldBe InterestCYAModel(None,Some(true),Some(Seq(
               InterestAccountModel(None,firstAccountName,taxedAmount = Some(12344.98),uniqueSessionId = data.head.accounts.get.head.uniqueSessionId),
               InterestAccountModel(None,"name",Some(1234),None,uniqueSessionId = Some("1234567890"))
@@ -501,8 +501,8 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
             result.header("Location").get should include(
               "/income-through-software/return/personal-income/2022/interest/accounts-with-taxed-uk-interest")
 
-            val data: Seq[InterestCYAModel] = await(interestDatabase.collection.find().toFuture()).flatMap(_.interest)
-            data.head shouldBe InterestCYAModel(None,Some(true),Some(Seq(
+            val data = findInterestDb
+            data.head shouldBe InterestCYAModel(None,Some(true),Some(List(
               InterestAccountModel(None,firstAccountName,taxedAmount = Some(12344.98),uniqueSessionId = data.head.accounts.get.head.uniqueSessionId)
             )))
           }

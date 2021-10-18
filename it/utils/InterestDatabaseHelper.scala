@@ -18,10 +18,12 @@ package utils
 import models.interest.InterestCYAModel
 import models.mongo.InterestUserDataModel
 import repositories.InterestUserDataRepository
+import services.EncryptionService
 
 trait InterestDatabaseHelper { self: IntegrationTest =>
 
   lazy val interestDatabase: InterestUserDataRepository = app.injector.instanceOf[InterestUserDataRepository]
+  val encryptionService = app.injector.instanceOf[EncryptionService]
 
   //noinspection ScalaStyle
   def dropInterestDB() = {
@@ -36,9 +38,15 @@ trait InterestDatabaseHelper { self: IntegrationTest =>
                      overrideMtditid: Option[String] = None,
                      overrideNino: Option[String] = None
                    ): Boolean = {
+
     await(interestDatabase.create(
       InterestUserDataModel(sessionId, overrideMtditid.fold(mtditid)(value => value), overrideNino.fold(nino)(value => value), taxYear, cya)
-    ))
+    )) match {
+      case Left(value) => false
+      case Right(value) => true
+    }
+
   }
 
+  def findInterestDb: Option[InterestCYAModel] = encryptionService.decryptInterestUserData(await(interestDatabase.collection.find().toFuture()).head).interest
 }

@@ -77,7 +77,10 @@ class RemoveOverseasCharityController @Inject()(
 
   def submit(taxYear: Int, charityType: String, charityNameId: String): Action[AnyContent] =
     (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
-      giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
+      giftAidSessionService.getSessionData(taxYear).map {
+        case Left(_) => Future.successful(errorHandler.internalServerError())
+        case Right(data) =>
+          data.flatMap(_.giftAid) match {
         case Some(cyaModel) =>
           val charityNames = if (charityType == GIFTAID) cyaModel.overseasCharityNames else cyaModel.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames
 
@@ -103,6 +106,7 @@ class RemoveOverseasCharityController @Inject()(
         case _ =>
           logger.info("[RemoveOverseasCharityController][submit] No CYA data in session. Redirecting to overview page.")
           Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+      }
       }.flatten
     }
 

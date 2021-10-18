@@ -17,6 +17,7 @@
 package models.charity
 
 import play.api.libs.json.{Json, OFormat}
+import utils.EncryptedValue
 
 case class GiftAidCYAModel(
                             donationsViaGiftAid: Option[Boolean] = None,
@@ -125,4 +126,30 @@ object GiftAidCYAModel {
       overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Seq.empty
     )
   }
+}
+
+case class EncryptedGiftAidCYAModel(
+                                     donationsViaGiftAid: Option[EncryptedValue] = None,
+                                     donationsViaGiftAidAmount: Option[EncryptedValue] = None,
+                                     oneOffDonationsViaGiftAid: Option[EncryptedValue] = None,
+                                     oneOffDonationsViaGiftAidAmount: Option[EncryptedValue] = None,
+                                     overseasDonationsViaGiftAid: Option[EncryptedValue] = None,
+                                     overseasDonationsViaGiftAidAmount: Option[EncryptedValue] = None,
+                                     overseasCharityNames: Seq[EncryptedCharityNameModel] = Seq.empty,
+                                     addDonationToLastYear: Option[EncryptedValue] = None,
+                                     addDonationToLastYearAmount: Option[EncryptedValue] = None,
+                                     addDonationToThisYear: Option[EncryptedValue] = None,
+                                     addDonationToThisYearAmount: Option[EncryptedValue] = None,
+                                     donatedSharesSecuritiesLandOrProperty: Option[EncryptedValue] = None,
+                                     donatedSharesOrSecurities: Option[EncryptedValue] = None,
+                                     donatedSharesOrSecuritiesAmount: Option[EncryptedValue] = None,
+                                     donatedLandOrProperty: Option[EncryptedValue] = None,
+                                     donatedLandOrPropertyAmount: Option[EncryptedValue] = None,
+                                     overseasDonatedSharesSecuritiesLandOrProperty: Option[EncryptedValue] = None,
+                                     overseasDonatedSharesSecuritiesLandOrPropertyAmount: Option[EncryptedValue] = None,
+                                     overseasDonatedSharesSecuritiesLandOrPropertyCharityNames: Seq[EncryptedCharityNameModel] = Seq.empty
+                          )
+
+object EncryptedGiftAidCYAModel {
+  implicit val formats: OFormat[EncryptedGiftAidCYAModel] = Json.format[EncryptedGiftAidCYAModel]
 }

@@ -72,7 +72,9 @@ class ReceiveUkDividendsController @Inject()(
       },
       {
         yesNoModel =>
-          dividendsSessionService.getSessionData(taxYear).map { cya =>
+          dividendsSessionService.getSessionData(taxYear).map {
+            case Left(_) => Future.successful(errorHandler.internalServerError())
+            case Right(cya) =>
             if (yesNoModel) {
               val update = cya.nonEmpty
               val cyaModel = {
@@ -96,7 +98,7 @@ class ReceiveUkDividendsController @Inject()(
                   newAndRedirect(DividendsCheckYourAnswersModel(Some(false)), taxYear, routes.ReceiveOtherUkDividendsController.show(taxYear))
               }
             }
-          }.flatten
+      }.flatten
       }
     )
   }

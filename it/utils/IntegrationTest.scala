@@ -25,6 +25,9 @@ import helpers.{PlaySessionCookieBaker, WireMockHelper}
 import models.User
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
 import models.charity.{CharityNameModel, GiftAidCYAModel}
+import models.dividends.DividendsCheckYourAnswersModel
+import models.interest.{InterestAccountModel, InterestCYAModel}
+import models.mongo.{DividendsUserDataModel, GiftAidUserDataModel, InterestUserDataModel}
 import models.priorDataModels.IncomeSourcesModel
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
@@ -59,26 +62,46 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   val xSessionId: (String, String) = "X-Session-ID" -> sessionId
   val csrfContent: (String, String) = "Csrf-Token" -> "nocheck"
 
-  val completeGiftAidCYAModel = GiftAidCYAModel(
+
+  val completeGiftAidCYAModel: GiftAidCYAModel = GiftAidCYAModel(
     donationsViaGiftAid = Some(true),
-    donationsViaGiftAidAmount = Some(50),
+    donationsViaGiftAidAmount = Some(50.00),
     oneOffDonationsViaGiftAid = Some(true),
-    oneOffDonationsViaGiftAidAmount = Some(50),
+    oneOffDonationsViaGiftAidAmount = Some(50.00),
     overseasDonationsViaGiftAid = Some(true),
-    overseasDonationsViaGiftAidAmount = Some(50),
+    overseasDonationsViaGiftAidAmount = Some(50.00),
     overseasCharityNames = Seq(CharityNameModel("Dudes In Need")),
     addDonationToLastYear = Some(true),
-    addDonationToLastYearAmount = Some(50),
+    addDonationToLastYearAmount = Some(50.00),
     addDonationToThisYear = Some(true),
-    addDonationToThisYearAmount = Some(50),
+    addDonationToThisYearAmount = Some(50.00),
     donatedSharesSecuritiesLandOrProperty = Some(true),
     donatedSharesOrSecurities = Some(true),
-    donatedSharesOrSecuritiesAmount = Some(50),
+    donatedSharesOrSecuritiesAmount = Some(50.00),
     donatedLandOrProperty = Some(true),
-    donatedLandOrPropertyAmount = Some(50),
+    donatedLandOrPropertyAmount = Some(50.00),
     overseasDonatedSharesSecuritiesLandOrProperty = Some(true),
-    overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(50),
+    overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(50.00),
     overseasDonatedSharesSecuritiesLandOrPropertyCharityNames = Seq(CharityNameModel("Awesome Devs initiative")),
+  )
+
+  val completeDividendsCYAModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(
+    ukDividends = Some(true),
+    ukDividendsAmount = Some(50.00),
+    otherUkDividends = Some(true),
+    otherUkDividendsAmount = Some(50.00)
+  )
+
+  val completeInterestCYAModel: InterestCYAModel = InterestCYAModel(
+    untaxedUkInterest = Some(true),
+    taxedUkInterest = Some(true),
+    accounts = Some(Seq(InterestAccountModel(
+      id = Some("id"),
+      accountName = "accountName",
+      untaxedAmount = Some(50.00),
+      taxedAmount = Some(50.00),
+      uniqueSessionId = None
+    )))
   )
 
   val priorDataMax: GiftAidSubmissionModel = GiftAidSubmissionModel(
@@ -127,7 +150,25 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "microservice.services.income-tax-interest.url" -> s"http://$wiremockHost:$wiremockPort",
     "microservice.services.income-tax-gift-aid.url" -> s"http://$wiremockHost:$wiremockPort",
     "microservice.services.sign-in.url" -> s"/auth-login-stub/gg-sign-in",
-    "taxYearChangeResetsSession" -> false
+    "taxYearChangeResetsSession" -> false,
+    "useEncryption" -> true
+  )
+
+  def invalidEncryptionConfig: Map[String, Any] = Map(
+    "auditing.enabled" -> false,
+    "metrics.enabled" -> false,
+    "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck",
+    "microservice.services.income-tax-submission-frontend.url" -> s"http://$wiremockHost:$wiremockPort",
+    "microservice.services.income-tax-submission.url" -> s"http://$wiremockHost:$wiremockPort",
+    "microservice.services.auth.host" -> wiremockHost,
+    "microservice.services.auth.port" -> wiremockPort,
+    "microservice.services.income-tax-dividends.url" -> s"http://$wiremockHost:$wiremockPort",
+    "microservice.services.income-tax-interest.url" -> s"http://$wiremockHost:$wiremockPort",
+    "microservice.services.income-tax-gift-aid.url" -> s"http://$wiremockHost:$wiremockPort",
+    "microservice.services.sign-in.url" -> s"/auth-login-stub/gg-sign-in",
+    "taxYearChangeResetsSession" -> false,
+    "useEncryption" -> true,
+    "mongodb.encryption.key" -> "key"
   )
 
   lazy val agentAuthErrorPage: AgentAuthErrorPageView = app.injector.instanceOf[AgentAuthErrorPageView]
@@ -135,6 +176,10 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
     .in(Environment.simple(mode = Mode.Dev))
     .configure(config)
+    .build
+
+  lazy val appWithInvalidEncryptionKey: Application = GuiceApplicationBuilder()
+    .configure(invalidEncryptionConfig)
     .build
 
   implicit lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
@@ -241,8 +286,29 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
       Json.toJson(userData).toString(), "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
   }
 
-
   def emptyUserDataStub(nino: String = nino, taxYear: Int = year): StubMapping = {
     userDataStub(IncomeSourcesModel(), nino, taxYear)
   }
+
+  val CompleteDividendsUserData: DividendsUserDataModel = DividendsUserDataModel(
+    "sessionId-1618a1e8-4979-41d8-a32e-5ffbe69fac81",
+    "1234567890",
+    "AA123456A",
+    2022,
+    Some(completeDividendsCYAModel)
+  )
+  val CompletedInterestsUserData: InterestUserDataModel = InterestUserDataModel(
+    "sessionId-1618a1e8-4979-41d8-a32e-5ffbe69fac81",
+    "1234567890",
+    "AA123456A",
+    2022,
+    Some(completeInterestCYAModel)
+  )
+  val CompletedGiftAidUserData: GiftAidUserDataModel = GiftAidUserDataModel(
+    "sessionId-1618a1e8-4979-41d8-a32e-5ffbe69fac81",
+    "1234567890",
+    "AA123456A",
+    2022,
+    Some(completeGiftAidCYAModel)
+  )
 }

@@ -77,7 +77,10 @@ class GiftAidOverseasNameController @Inject()(
     (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async {
       implicit user =>
 
-        giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
+        giftAidSessionService.getSessionData(taxYear).map {
+          case Left(_) => Future.successful(errorHandler.internalServerError())
+          case Right(data) =>
+            data.flatMap(_.giftAid) match {
           case Some(cyaModel) =>
             form(user.isAgent, cyaModel, changeCharityId).bindFromRequest().fold({
               formWithErrors =>
@@ -103,6 +106,7 @@ class GiftAidOverseasNameController @Inject()(
           case _ =>
             logger.info("[GiftAidOverseasNameController][submit] No CYA data in session. Redirecting to overview page.")
             Future.successful(redirectToOverview(taxYear))
+        }
         }.flatten
     }
 

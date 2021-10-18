@@ -18,7 +18,7 @@ package repositories
 
 import models.User
 import models.dividends.DividendsCheckYourAnswersModel
-import models.mongo.DividendsUserDataModel
+import models.mongo._
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.result.InsertOneResult
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
@@ -30,6 +30,8 @@ import utils.IntegrationTest
 class UserDataRepositoryISpec extends IntegrationTest with FutureAwaits with DefaultAwaitTimeout {
 
   val dividendsRepo: DividendsUserDataRepository = app.injector.instanceOf[DividendsUserDataRepository]
+
+  val dividendsInvalidRepo: DividendsUserDataRepository = appWithInvalidEncryptionKey.injector.instanceOf[DividendsUserDataRepository]
 
   val taxYear = 2022
 
@@ -53,8 +55,15 @@ class UserDataRepositoryISpec extends IntegrationTest with FutureAwaits with Def
   "create" should {
     "add a document to the collection" in new EmptyDatabase {
       count mustBe 0
-      val result: Boolean = await(dividendsRepo.create(dividendsUserData))
-      result mustBe true
+      val result: Either[DatabaseError, Boolean] = await(dividendsRepo.create(dividendsUserData))
+      result mustBe Right(true)
+      count mustBe 1
+    }
+    "fail to add a document to the collection when it already exists" in new EmptyDatabase {
+      count mustBe 0
+      await(dividendsRepo.create(dividendsUserData))
+      val result: Either[DatabaseError, Boolean] = await(dividendsRepo.create(dividendsUserData))
+      result mustBe Left(DataNotUpdated)
       count mustBe 1
     }
   }
@@ -66,38 +75,41 @@ class UserDataRepositoryISpec extends IntegrationTest with FutureAwaits with Def
         mtditid, None, nino, "individual", sessionId
       )
 
-      val ludicrousAmount: BigDecimal = 999999999
-
       val initialData: DividendsUserDataModel = DividendsUserDataModel(
         testUser.sessionId, testUser.mtditid, testUser.nino, taxYear,
-        Some(DividendsCheckYourAnswersModel(
-          Some(true),
-          Some(100.00)
-        ))
+        Some(DividendsCheckYourAnswersModel())
       )
 
       val newUserData: DividendsUserDataModel = initialData.copy(
         dividends = Some(DividendsCheckYourAnswersModel(
-          Some(true), Some(ludicrousAmount)
+          Some(true), Some(100.00)
         ))
       )
 
       await(dividendsRepo.create(initialData))
       count mustBe 1
 
-      val res: Boolean = await(dividendsRepo.update(newUserData))
+      val res: Boolean = await(dividendsRepo.update(newUserData).map {
+        case Right(value) => value
+        case Left(value) => false
+      })
       res mustBe true
       count mustBe 1
 
-      val data: DividendsUserDataModel = await(dividendsRepo.find(taxYear)(testUser)).get
-      data.dividends.get.ukDividendsAmount.get shouldBe ludicrousAmount
+      val data: Option[DividendsUserDataModel] = await(dividendsRepo.find(taxYear)(testUser).map {
+        case Right(value) => value
+        case Left(value) => None
+      })
+
+      data.get.dividends.get.ukDividendsAmount.get shouldBe 100.00
+      data.get.dividends.get.ukDividends.get shouldBe true
     }
 
-    "return a false if the document cannot be found" in {
+    "return a leftDataNotUpdated if the document cannot be found" in {
       val newUserData = dividendsUserData.copy(sessionId = "sessionId-000001")
       count mustBe 1
-      val res: Boolean = await(dividendsRepo.update(newUserData))
-      res mustBe false
+      val res = await(dividendsRepo.update(newUserData))
+      res mustBe Left(DataNotUpdated)
       count mustBe 1
     }
   }
@@ -114,15 +126,19 @@ class UserDataRepositoryISpec extends IntegrationTest with FutureAwaits with Def
       mtditid, None, nino, "individual", sessionId
     )
 
-    "get a document and update the TTL" in {
+    "get a document" in {
       count mustBe 1
-      val dataBefore = await(dividendsRepo.collection.find(
-        filter(sessionId, mtditid, nino, dividendsUserData.taxYear)
-      ).toFuture()).head
-      val dataAfter: Option[DividendsUserDataModel] = await(dividendsRepo.find(taxYear)(testUser))
+      val dataAfter: Option[DividendsUserDataModel] = await(dividendsRepo.find(taxYear)(testUser).map {
+        case Right(value) => value
+        case Left(value) => None
+      })
 
-      dataAfter.map(_.copy(lastUpdated = dataBefore.lastUpdated)) mustBe Some(dataBefore)
-      dataAfter.map(_.lastUpdated.isAfter(dataBefore.lastUpdated)) mustBe Some(true)
+      dataAfter.get.dividends mustBe Some(DividendsCheckYourAnswersModel(Some(true),Some(100.0)))
+    }
+
+    "return an dataNotFoundError" in{
+      await(dividendsInvalidRepo.find(taxYear)(testUser)) mustBe
+        Left(EncryptionDecryptionError("Key being used is not valid. It could be due to invalid encoding, wrong length or uninitialized for decrypt Invalid AES key length: 2 bytes"))
     }
   }
 
@@ -130,7 +146,7 @@ class UserDataRepositoryISpec extends IntegrationTest with FutureAwaits with Def
 
     "enforce uniqueness" in {
       val result: Either[Exception, InsertOneResult] = try {
-        Right(await(dividendsRepo.collection.insertOne(DividendsUserDataModel(
+        Right(await(dividendsRepo.collection.insertOne(EncryptedDividendsUserDataModel(
           sessionId, mtditid, nino, taxYear
         )).toFuture()))
       } catch {

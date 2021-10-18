@@ -60,7 +60,7 @@ class GiftAidAppendNextYearTaxAmountController @Inject()(
     }
 
     cya.addDonationToThisYear match {
-      case Some(true) => if(fromShow) {
+      case Some(true) => if (fromShow) {
         Ok(view(taxYear, amountForm, cyaAmount.map(_.toString()), priorAmount))
       } else {
         Redirect(controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(taxYear, taxYear))
@@ -101,27 +101,33 @@ class GiftAidAppendNextYearTaxAmountController @Inject()(
         },
         {
           formAmount =>
-            giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
-              case Some(cyaData) =>
-                //noinspection DuplicatedCode
-                val updatedCya: GiftAidCYAModel = cyaData.copy(addDonationToThisYearAmount = Some(formAmount))
+            giftAidSessionService.getSessionData(taxYear).map {
+              case Left(_) => Future.successful(errorHandler.internalServerError())
+              case Right(data) =>
+                data.flatMap(_.giftAid) match {
+                  case Some(cyaData) =>
+                    //noinspection DuplicatedCode
+                    val updatedCya: GiftAidCYAModel = cyaData.copy(addDonationToThisYearAmount = Some(formAmount))
 
-                val redirectLocation = if(updatedCya.isFinished) {
-                  Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
-                } else {
-                  Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(taxYear))
+                    val redirectLocation = if (updatedCya.isFinished) {
+                      Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
+                    } else {
+                      Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(taxYear))
+                    }
+
+                    giftAidSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(
+                      redirectLocation
+                    )
+                  case None => Future.successful(redirectToOverview(taxYear))
                 }
-
-                giftAidSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(
-                  redirectLocation
-                )
-              case None => Future.successful(redirectToOverview(taxYear))
             }.flatten
         }
       )
-    } else {
-      Future.successful(Redirect(controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(taxYear, taxYear)))
     }
-  }
+      else
+      {
+        Future.successful(Redirect(controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(taxYear, taxYear)))
+      }
+    }
 
-}
+  }

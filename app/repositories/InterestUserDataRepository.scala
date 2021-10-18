@@ -17,7 +17,8 @@
 package repositories
 
 import config.AppConfig
-import models.mongo.InterestUserDataModel
+import models.mongo.{EncryptedInterestUserDataModel, InterestUserDataModel}
+import services.EncryptionService
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
@@ -27,10 +28,16 @@ import scala.concurrent.ExecutionContext
 class InterestUserDataRepository @Inject()(
                                              implicit mongo: MongoComponent,
                                              val ec: ExecutionContext,
-                                             appConfig: AppConfig
-                                           ) extends PlayMongoRepository[InterestUserDataModel](
+                                             appConfig: AppConfig,
+                                             encryptionService: EncryptionService
+                                           ) extends PlayMongoRepository[EncryptedInterestUserDataModel](
   mongoComponent = mongo,
   collectionName = "interestUserData",
-  domainFormat = InterestUserDataModel.formats,
+  domainFormat = EncryptedInterestUserDataModel.formats,
   indexes = RepositoryIndexes.indexes
-) with UserDataRepository[InterestUserDataModel]
+) with UserDataRepository[EncryptedInterestUserDataModel]{
+  override val repoName = "interestUserData"
+  override type UserData = InterestUserDataModel
+  override def encryptionMethod: InterestUserDataModel => EncryptedInterestUserDataModel = encryptionService.encryptInterestUserData
+  override def decryptionMethod: EncryptedInterestUserDataModel => InterestUserDataModel = encryptionService.decryptInterestUserData
+}

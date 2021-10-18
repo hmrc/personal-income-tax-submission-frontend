@@ -14,26 +14,18 @@
  * limitations under the License.
  */
 
-package models.charity
+package utils
 
-import common.UUID
-import play.api.libs.json.{Json, OFormat}
-import utils.EncryptedValue
+object TypeCaster {
 
-case class CharityNameModel(id: String, name: String)
-
-object CharityNameModel {
-
-  implicit val formats: OFormat[CharityNameModel] = Json.format[CharityNameModel]
-
-  def apply(name: String): CharityNameModel = {
-    CharityNameModel(UUID().randomUUID, name)
+  trait Converter[T] { self =>
+    def convert(v: String): T
   }
-}
-case class EncryptedCharityNameModel(id: EncryptedValue, name: EncryptedValue)
 
-object EncryptedCharityNameModel {
-
-  implicit val formats: OFormat[EncryptedCharityNameModel] = Json.format[EncryptedCharityNameModel]
-
+  object Converter {
+    implicit val stringLoader: Converter[String] = (v: String) => v
+    implicit val intLoader: Converter[Int] = (v: String) => v.toInt
+    implicit val booleanLoader: Converter[Boolean] = (v: String) => v.toBoolean
+    implicit val bigDecimalLoader: Converter[BigDecimal] = (v: String) => BigDecimal(v)
+  }
 }

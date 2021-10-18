@@ -84,6 +84,9 @@ class GiftAidTotalShareSecurityAmountController @Inject()(
 
   def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
     giftAidSessionService.getSessionData(taxYear).map {
+      case Left(_) => Future.successful(errorHandler.internalServerError())
+      case Right(data) =>
+        data match {
       case Some(cyaData) =>
         form(user.isAgent).bindFromRequest().fold({
           formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors, None, None)))
@@ -112,6 +115,7 @@ class GiftAidTotalShareSecurityAmountController @Inject()(
       case _ =>
         logger.info("[GiftAidTotalShareSecurityAmountController][submit] No CYA data in session. Redirecting to overview page.")
         Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+    }
     }.flatten
   }
 

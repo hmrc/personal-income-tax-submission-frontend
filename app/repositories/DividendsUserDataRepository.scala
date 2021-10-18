@@ -17,7 +17,8 @@
 package repositories
 
 import config.AppConfig
-import models.mongo.DividendsUserDataModel
+import models.mongo.{DividendsUserDataModel, EncryptedDividendsUserDataModel}
+import services.EncryptionService
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
@@ -25,12 +26,18 @@ import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class DividendsUserDataRepository @Inject()(
-                                             implicit mongo: MongoComponent,
-                                             val ec: ExecutionContext,
-                                             appConfig: AppConfig
-                                           ) extends PlayMongoRepository[DividendsUserDataModel](
+                                             mongo: MongoComponent,
+                                             appConfig: AppConfig,
+                                             encryptionService: EncryptionService
+                                           )(implicit val ec: ExecutionContext) extends PlayMongoRepository[EncryptedDividendsUserDataModel](
   mongoComponent = mongo,
   collectionName = "dividendsUserData",
-  domainFormat = DividendsUserDataModel.formats,
-  indexes = RepositoryIndexes.indexes
-) with UserDataRepository[DividendsUserDataModel]
+  domainFormat = EncryptedDividendsUserDataModel.formats,
+  indexes = RepositoryIndexes.indexes()(appConfig)
+) with UserDataRepository[EncryptedDividendsUserDataModel]{
+  override val repoName = "dividendsUserData"
+  override type UserData = DividendsUserDataModel
+  override def encryptionMethod: DividendsUserDataModel => EncryptedDividendsUserDataModel = encryptionService.encryptDividendsUserData
+  override def decryptionMethod: EncryptedDividendsUserDataModel => DividendsUserDataModel = encryptionService.decryptDividendsUserData
+
+}

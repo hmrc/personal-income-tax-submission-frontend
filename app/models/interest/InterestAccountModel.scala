@@ -17,6 +17,7 @@
 package models.interest
 
 import play.api.libs.json._
+import utils.EncryptedValue
 
 case class InterestAccountModel(id: Option[String],
                                 accountName: String,
@@ -51,4 +52,15 @@ object InterestAccountModel {
   } yield {
     InterestAccountModel(Some(uniqueId), accountName, untaxedAmount, taxedAmount, None)
   }
+}
+
+case class EncryptedInterestAccountModel(id: Option[EncryptedValue],
+                                accountName: EncryptedValue,
+                                untaxedAmount: Option[EncryptedValue] = None,
+                                taxedAmount: Option[EncryptedValue] = None,
+                                uniqueSessionId: Option[EncryptedValue] = None)
+
+object EncryptedInterestAccountModel {
+  implicit val formats: OFormat[EncryptedInterestAccountModel] = Json.format[EncryptedInterestAccountModel]
+
 }

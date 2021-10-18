@@ -33,7 +33,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.charity.OverseasGiftAidSummaryView
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class OverseasGiftAidSummaryController @Inject()(overseasGiftAidSummaryView: OverseasGiftAidSummaryView)(
@@ -73,7 +73,10 @@ class OverseasGiftAidSummaryController @Inject()(overseasGiftAidSummaryView: Ove
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, GIFT_AID)).async { implicit user =>
 
-    giftAidSessionService.getSessionData(taxYear).map(_.flatMap(_.giftAid)).map {
+    giftAidSessionService.getSessionData(taxYear).map {
+      case Left(_) => errorHandler.internalServerError()
+      case Right(data) =>
+        data.flatMap(_.giftAid) match {
       case Some(cyaModel) =>
         yesNoForm.bindFromRequest().fold({
           formWithErrors => BadRequest(overseasGiftAidSummaryView(formWithErrors, taxYear, cyaModel.overseasCharityNames))
@@ -88,6 +91,7 @@ class OverseasGiftAidSummaryController @Inject()(overseasGiftAidSummaryView: Ove
       case _ =>
         logger.info("[OverseasGiftAidDonationsController][submit] No CYA data in session. Redirecting to overview page.")
         Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+    }
     }
   }
 

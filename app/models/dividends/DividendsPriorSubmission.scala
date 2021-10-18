@@ -23,3 +23,4 @@ case class DividendsPriorSubmission(ukDividends: Option[BigDecimal] = None, othe
 object DividendsPriorSubmission {
   implicit val formats: OFormat[DividendsPriorSubmission] = Json.format[DividendsPriorSubmission]
 }
+
