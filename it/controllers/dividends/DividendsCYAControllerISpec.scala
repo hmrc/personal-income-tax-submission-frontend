@@ -69,11 +69,6 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
     val titleExpected: String
     val h1Expected: String
     val expectedErrorTitle: String
-
-    val changeUkDividendsHiddenText: String
-    val changeUkDividendsAmountHiddenText: String
-    val changeOtherDividendsHiddenText: String
-    val changeOtherDividendsAmountHiddenText: String
   }
 
   trait CommonExpectedResults {
@@ -88,6 +83,10 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
     val ukDividendsAmountText: String
     val otherDividendsText: String
     val otherDividendsAmountText: String
+    val changeUkDividendsHiddenText: String
+    val changeUkDividendsAmountHiddenText: String
+    val changeOtherDividendsHiddenText: String
+    val changeOtherDividendsAmountHiddenText: String
   }
 
 
@@ -95,22 +94,12 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
     val titleExpected = "Check your income from dividends"
     val h1Expected = "Check your income from dividends"
     val expectedErrorTitle = s"Error: $titleExpected"
-
-    val changeUkDividendsHiddenText = "if you got dividends from UK-based companies."
-    val changeUkDividendsAmountHiddenText = "how much you got from UK-based companies."
-    val changeOtherDividendsHiddenText = "if you got dividends from trusts or open-ended investment companies based in the UK."
-    val changeOtherDividendsAmountHiddenText = "how much you got in dividends from trusts or open-ended investment companies based in the UK."
   }
 
   object AgentExpectedEnglish extends SpecificExpectedResults {
     val titleExpected = "Check your client’s income from dividends"
     val h1Expected = "Check your client’s income from dividends"
     val expectedErrorTitle = s"Error: $titleExpected"
-
-    val changeUkDividendsHiddenText = "if your client got dividends from UK-based companies."
-    val changeUkDividendsAmountHiddenText = "how much your client got from UK-based companies."
-    val changeOtherDividendsHiddenText = "if your client got dividends from trusts or open-ended investment companies based in the UK."
-    val changeOtherDividendsAmountHiddenText = "how much your client got in dividends from trusts or open-ended investment companies based in the UK."
   }
 
   object AllExpectedEnglish extends CommonExpectedResults {
@@ -125,28 +114,22 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
     val ukDividendsAmountText = "Value of dividends from UK-based companies"
     val otherDividendsText = "Dividends from UK-based unit trusts or open-ended investment companies"
     val otherDividendsAmountText = "Value of dividends from UK-based unit trusts or open-ended investment companies"
+    val changeUkDividendsHiddenText =  "Change dividends from UK-based companies"
+    val changeUkDividendsAmountHiddenText = "Change value of dividends from UK-based companies"
+    val changeOtherDividendsHiddenText = "Change dividends from UK-based unit trusts or open-ended investment companies"
+    val changeOtherDividendsAmountHiddenText = "Change value of dividends from UK-based unit trusts or open-ended investment companies"
   }
 
   object IndividualExpectedWelsh extends SpecificExpectedResults {
     val titleExpected = "Gwiriwch eich incwm o ddifidendau"
     val h1Expected = "Gwiriwch eich incwm o ddifidendau"
     val expectedErrorTitle = s"Error: $titleExpected"
-
-    val changeUkDividendsHiddenText = "os cawsoch ddifidendau gan gwmnïau yn y DU."
-    val changeUkDividendsAmountHiddenText = "faint a gawsoch gan gwmnïau yn y DU."
-    val changeOtherDividendsHiddenText = "os cawsoch ddifidendau gan ymddiriedolaethau neu gwmnïau buddsoddi penagored yn y DU."
-    val changeOtherDividendsAmountHiddenText = "faint a gawsoch mewn difidendau gan ymddiriedolaethau neu gwmnïau buddsoddi penagored yn y DU."
   }
 
   object AgentExpectedWelsh extends SpecificExpectedResults {
     val titleExpected = "Gwiriwch incwm eich cleient o ddifidendau"
     val h1Expected = "Gwiriwch incwm eich cleient o ddifidendau"
     val expectedErrorTitle = s"Error: $titleExpected"
-
-    val changeUkDividendsHiddenText = "os cafodd eich cleient ddifidendau gan gwmnïau yn y DU."
-    val changeUkDividendsAmountHiddenText = "faint gafodd eich cleient gan gwmnïau yn y DU."
-    val changeOtherDividendsHiddenText = "os cafodd eich cleient ddifidendau gan ymddiriedolaethau neu gwmnïau buddsoddi penagored yn y DU."
-    val changeOtherDividendsAmountHiddenText = "faint a gafodd eich cleient mewn difidendau gan ymddiriedolaethau neu gwmnïau buddsoddi penagored yn y DU."
   }
 
   object AllExpectedWelsh extends CommonExpectedResults {
@@ -161,6 +144,10 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
     val ukDividendsAmountText = "Swm difidendau o gwmnïau yn y DU"
     val otherDividendsText = "Difidendau gan ymddiriedolaethau unedol yn y DU neu gwmnïau buddsoddi penagored"
     val otherDividendsAmountText = "Swm difidendau gan ymddiriedolaethau unedol yn y DU neu gwmnïau buddsoddi penagored"
+    val changeUkDividendsHiddenText =  "Newid difidendau o gwmnïau yn y DU"
+    val changeUkDividendsAmountHiddenText = "Newid swm difidendau o gwmnïau yn y DU"
+    val changeOtherDividendsHiddenText = "Newid difidendau gan ymddiriedolaethau unedol yn y DU neu gwmnïau buddsoddi penagored"
+    val changeOtherDividendsAmountHiddenText = "Newid swm difidendau gan ymddiriedolaethau unedol yn y DU neu gwmnïau buddsoddi penagored"
   }
 
 
@@ -206,26 +193,26 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           "has an area for section 1" which {
             textOnPageCheck(UkDividendsText, Selectors.cyaTitle(1))
             textOnPageCheck(yesNoExpectedAnswer(true), Selectors.cyaValue(1))
-            linkCheck(s"${changeLinkExpected} ${get.changeUkDividendsHiddenText}"
+            linkCheck(s"${changeLinkExpected} ${changeUkDividendsHiddenText}"
               , cyaChangeLink(1), changeUkDividendsHref)
           }
           "has an area for section 2" which {
             textOnPageCheck(ukDividendsAmountText, cyaTitle(2))
             textOnPageCheck(ukDividendsAmount, cyaValue(2))
-            linkCheck(s"${changeLinkExpected} ${get.changeUkDividendsAmountHiddenText}",
+            linkCheck(s"${changeLinkExpected} ${changeUkDividendsAmountHiddenText}",
               cyaChangeLink(2), changeUkDividendsAmountHref)
           }
           "has an area for section 3" which {
             textOnPageCheck(otherDividendsText, cyaTitle(3))
             textOnPageCheck(yesNoExpectedAnswer(true), cyaValue(3))
-            linkCheck(s"${changeLinkExpected} ${get.changeOtherDividendsHiddenText}",
+            linkCheck(s"${changeLinkExpected} ${changeOtherDividendsHiddenText}",
               cyaChangeLink(3), changeOtherDividendsHref)
           }
           //noinspection ScalaStyle
           "has an area for section 4" which {
             textOnPageCheck(otherDividendsAmountText, cyaTitle(4))
             textOnPageCheck(otherDividendsAmount, cyaValue(4))
-            linkCheck(s"${changeLinkExpected} ${get.changeOtherDividendsAmountHiddenText}",
+            linkCheck(s"${changeLinkExpected} ${changeOtherDividendsAmountHiddenText}",
               cyaChangeLink(4), changeOtherDividendsAmountHref)
           }
 
@@ -260,13 +247,13 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           "has an area for section 1" which {
             textOnPageCheck(ukDividendsAmountText, cyaTitle(1))
             textOnPageCheck(ukDividendsAmount, cyaValue(1))
-            linkCheck(s"${changeLinkExpected} ${get.changeUkDividendsAmountHiddenText}",
+            linkCheck(s"${changeLinkExpected} ${changeUkDividendsAmountHiddenText}",
               cyaChangeLink(1), changeUkDividendsAmountHref)
           }
           "has an area for section 2" which {
             textOnPageCheck(otherDividendsAmountText, cyaTitle(2))
             textOnPageCheck(otherDividendsAmount, cyaValue(2))
-            linkCheck(s"${changeLinkExpected} ${get.changeOtherDividendsAmountHiddenText}",
+            linkCheck(s"${changeLinkExpected} ${changeOtherDividendsAmountHiddenText}",
               cyaChangeLink(2), changeOtherDividendsAmountHref)
           }
 
@@ -300,13 +287,13 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           "has an area for section 1" which {
             textOnPageCheck(UkDividendsText, cyaTitle(1))
             textOnPageCheck(yesNoExpectedAnswer(false), cyaValue(1))
-            linkCheck(s"${changeLinkExpected} ${get.changeUkDividendsHiddenText}",
+            linkCheck(s"${changeLinkExpected} ${changeUkDividendsHiddenText}",
               cyaChangeLink(1), changeUkDividendsHref)
           }
           "has an area for section 2" which {
             textOnPageCheck(otherDividendsText, cyaTitle(2))
             textOnPageCheck(yesNoExpectedAnswer(false), cyaValue(2))
-            linkCheck(s"${changeLinkExpected} ${get.changeOtherDividendsHiddenText}",
+            linkCheck(s"${changeLinkExpected} ${changeOtherDividendsHiddenText}",
               cyaChangeLink(2), changeOtherDividendsHref)
           }
 
@@ -346,13 +333,13 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           "has an area for section 1" which {
             textOnPageCheck(ukDividendsAmountText, cyaTitle(1))
             textOnPageCheck("£100", cyaValue(1))
-            linkCheck(s"${changeLinkExpected} ${get.changeUkDividendsAmountHiddenText}",
+            linkCheck(s"${changeLinkExpected} ${changeUkDividendsAmountHiddenText}",
               cyaChangeLink(1), changeUkDividendsAmountHref)
           }
           "has an area for section 2" which {
             textOnPageCheck(otherDividendsAmountText, cyaTitle(2))
             textOnPageCheck("£200", cyaValue(2))
-            linkCheck(s"${changeLinkExpected} ${get.changeOtherDividendsAmountHiddenText}",
+            linkCheck(s"${changeLinkExpected} ${changeOtherDividendsAmountHiddenText}",
               cyaChangeLink(2), changeOtherDividendsAmountHref)
           }
 

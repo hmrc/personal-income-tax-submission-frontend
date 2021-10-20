@@ -65,7 +65,7 @@
                 Some(summaryListRow(
                     HtmlContent(messages("interest.cya.questions.1")),
                     HtmlContent(trueFalseToYesNo(cyaModel.untaxedUkInterest.getOrElse(false))),
-                    actions = Seq((controllers.interest.routes.UntaxedInterestController.show(taxYear), messages("common.change"), Some(messages(s"interest.cya.untaxed-uk-interest-accounts.hiddenChange.${if(user.isAgent) "agent" else "individual"}"))))
+                    actions = Seq((controllers.interest.routes.UntaxedInterestController.show(taxYear), messages("common.change"), Some(messages("interest.cya.untaxed-uk-interest-accounts.hiddenChange"))))
                 ))
             } else { None },
             if(cyaModel.untaxedUkInterest.getOrElse(false)) {
@@ -73,7 +73,7 @@
                     summaryListRow(
                         HtmlContent(messages("interest.cya.questions.2")),
                         HtmlContent(accountsInfo(2, accounts, true)),
-                        actions = Seq((controllers.interest.routes.AccountsController.show(taxYear, UNTAXED), messages("common.change"), Some(messages(s"interest.cya.change-untaxed-details.hiddenChange.${if(user.isAgent) "agent" else "individual"}"))))
+                        actions = Seq((controllers.interest.routes.AccountsController.show(taxYear, UNTAXED), messages("common.change"), Some(messages("interest.cya.change-untaxed-details.hiddenChange"))))
                     )
                 }
             } else { None },
@@ -81,7 +81,7 @@
                 Some(summaryListRow(
                     HtmlContent(messages("interest.cya.questions.3")),
                     HtmlContent(trueFalseToYesNo(cyaModel.taxedUkInterest.getOrElse(false))),
-                    actions = Seq((controllers.interest.routes.TaxedInterestController.show(taxYear), messages("common.change"), Some(messages(s"interest.cya.taxed-uk-interest-accounts.hiddenChange.${if(user.isAgent) "agent" else "individual"}"))))
+                    actions = Seq((controllers.interest.routes.TaxedInterestController.show(taxYear), messages("common.change"), Some(messages("interest.cya.taxed-uk-interest-accounts.hiddenChange"))))
                 ))
             } else { None },
             if(cyaModel.taxedUkInterest.getOrElse(false)) {
@@ -89,7 +89,7 @@
                     summaryListRow(
                         HtmlContent(messages("interest.cya.questions.4")),
                         HtmlContent(accountsInfo(4, accounts, false)),
-                        actions = Seq((controllers.interest.routes.AccountsController.show(taxYear, TAXED), messages("common.change"), Some(messages(s"interest.cya.change-taxed-details.hiddenChange.${if(user.isAgent) "agent" else "individual"}"))))
+                        actions = Seq((controllers.interest.routes.AccountsController.show(taxYear, TAXED), messages("common.change"), Some(messages("interest.cya.change-taxed-details.hiddenChange"))))
                     )
                 }
             } else { None }

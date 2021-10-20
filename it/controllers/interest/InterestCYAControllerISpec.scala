@@ -59,11 +59,6 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
   trait SpecificExpectedResults {
     val h1Expected: String
     val titleExpected: String
-
-    val changeUntaxedInterestHiddenText: String
-    val changeUntaxedDetailsHiddenText: String
-    val changeTaxedInterestHiddenText: String
-    val changeTaxedDetailsHiddenText: String
   }
 
   // Generic content
@@ -85,6 +80,10 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
     val submitLink: String
     val Yes: String
     val No: String
+    val changeUntaxedInterestHiddenText: String
+    val changeUntaxedDetailsHiddenText: String
+    val changeTaxedInterestHiddenText: String
+    val changeTaxedDetailsHiddenText: String
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
@@ -105,6 +104,10 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
     val submitLink = s"/income-through-software/return/personal-income/$taxYear/interest/check-interest"
     val Yes = "Yes"
     val No = "No"
+    val changeUntaxedInterestHiddenText = "Change untaxed UK interest"
+    val changeUntaxedDetailsHiddenText = "Change untaxed UK interest accounts"
+    val changeTaxedInterestHiddenText = "Change taxed UK interest"
+    val changeTaxedDetailsHiddenText = "Change taxed UK interest accounts"
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
@@ -125,46 +128,30 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
     val submitLink = s"/income-through-software/return/personal-income/$taxYear/interest/check-interest"
     val Yes = "Iawn"
     val No = "Na"
+    val changeUntaxedInterestHiddenText = "Newid llog y DU sydd heb ei drethu"
+    val changeUntaxedDetailsHiddenText = "Newid cyfrifon llog y DU sydd heb ei drethu"
+    val changeTaxedInterestHiddenText = "Newid llog y DU a drethwyd"
+    val changeTaxedDetailsHiddenText = "Newid cyfrifon llog y DU a drethwyd"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
     val h1Expected = "Check your UK interest"
     val titleExpected = "Check your UK interest"
-
-    val changeUntaxedInterestHiddenText = "if you got untaxed UK interest"
-    val changeUntaxedDetailsHiddenText = "the details of your account with untaxed UK interest"
-    val changeTaxedInterestHiddenText = "if you got taxed UK interest"
-    val changeTaxedDetailsHiddenText = "the details of your account with taxed UK interest"
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
     val h1Expected = "Check your client’s UK interest"
     val titleExpected= "Check your client’s UK interest"
-
-    val changeUntaxedInterestHiddenText = "if your client got untaxed UK interest"
-    val changeUntaxedDetailsHiddenText = "the details of your client’s account with untaxed UK interest"
-    val changeTaxedInterestHiddenText = "if your client got taxed UK interest"
-    val changeTaxedDetailsHiddenText = "the details of your client’s account with taxed UK interest"
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
     val h1Expected = "Gwiriwch eich llog y DU"
     val titleExpected = "Gwiriwch eich llog y DU"
-
-    val changeUntaxedInterestHiddenText = "os cawsoch gyfrifon llog y DU a drethwyd"
-    val changeUntaxedDetailsHiddenText = "manylion eich cyfrif sydd â llog y DU sydd heb ei drethu"
-    val changeTaxedInterestHiddenText = "os cawsoch log y DU a drethwyd"
-    val changeTaxedDetailsHiddenText = "manylion eich cyfrif sydd â llog y DU a drethwyd"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
     val h1Expected = "Gwiriwch log y DU eich cleient"
     val titleExpected = "Gwiriwch log y DU eich cleient"
-
-    val changeUntaxedInterestHiddenText = "os cafodd eich cleient cyfrifon llog y DU sydd heb ei drethu"
-    val changeUntaxedDetailsHiddenText = "manylion cyfrif eich cleient sydd â llog y DU sydd heb ei drethu"
-    val changeTaxedInterestHiddenText = "os cafodd eich cleient llog y DU a drethwyd"
-    val changeTaxedDetailsHiddenText = "manylion cyfrif eich cleient sydd â llog y DU a drethwyd"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
@@ -231,13 +218,13 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           "has an area for untaxed accounts" which {
             textOnPageCheck(questionUntaxedInterestDetailsExpected, questionSelector(1))
             textOnPageCheck("accountName : £25", questionAccountSelector(2, 1, 1))
-            linkCheck(s"$changeLinkExpected ${specific.changeUntaxedDetailsHiddenText}", questionChangeLinkSelector(1), changeUntaxedInterestAmountHref)
+            linkCheck(s"$changeLinkExpected ${changeUntaxedDetailsHiddenText}", questionChangeLinkSelector(1), changeUntaxedInterestAmountHref)
           }
 
           "has an area for taxed accounts" which {
             textOnPageCheck(question4TaxedInterestDetailExpected, questionSelector(2))
             textOnPageCheck("accountName : £25", questionAccountSelector(4, 1, 1))
-            linkCheck(s"$changeLinkExpected ${specific.changeTaxedDetailsHiddenText}", questionChangeLinkSelector(2), changeTaxedInterestAmountHref)
+            linkCheck(s"$changeLinkExpected ${changeTaxedDetailsHiddenText}", questionChangeLinkSelector(2), changeTaxedInterestAmountHref)
           }
         }
 
@@ -341,26 +328,26 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           "has an area for question 1" which {
             textOnPageCheck(questionUntaxedInterestExpected, questionSelector(1))
             textOnPageCheck(Yes, yesNoQuestionAnswer(1))
-            linkCheck(s"$changeLinkExpected ${specific.changeUntaxedInterestHiddenText}", questionChangeLinkSelector(1), changeUntaxedInterestHref)
+            linkCheck(s"$changeLinkExpected ${changeUntaxedInterestHiddenText}", questionChangeLinkSelector(1), changeUntaxedInterestHref)
           }
 
           "has an area for question 2" which {
             textOnPageCheck(questionUntaxedInterestDetailsExpected, questionSelector(2))
             textOnPageCheck(untaxedInterestAccount1ExpectedTest, questionAccountSelector(question2, account1, 1))
-            linkCheck(s"$changeLinkExpected ${specific.changeUntaxedDetailsHiddenText}", questionChangeLinkSelector(2), changeUntaxedInterestAmountHref)
+            linkCheck(s"$changeLinkExpected ${changeUntaxedDetailsHiddenText}", questionChangeLinkSelector(2), changeUntaxedInterestAmountHref)
           }
 
           "has an area for question 3" which {
             textOnPageCheck(questionTaxedInterestExpected, questionSelector(3))
             textOnPageCheck(Yes, yesNoQuestionAnswer(3))
-            linkCheck(s"$changeLinkExpected ${specific.changeTaxedInterestHiddenText}", questionChangeLinkSelector(3), changeTaxedInterestHref)
+            linkCheck(s"$changeLinkExpected ${changeTaxedInterestHiddenText}", questionChangeLinkSelector(3), changeTaxedInterestHref)
           }
 
           "has an area for question 4" which {
             textOnPageCheck(question4TaxedInterestDetailExpected, questionSelector(question4))
             textOnPageCheck(taxedInterestAccount1ExpectedTest, questionAccountSelector(question4, account1, 1))
             textOnPageCheck(taxedInterestAccount2ExpectedTest, questionAccountSelector(question4, account2, 2))
-            linkCheck(s"$changeLinkExpected ${specific.changeTaxedDetailsHiddenText}", questionChangeLinkSelector(question4), changeTaxedInterestAmountHref)
+            linkCheck(s"$changeLinkExpected ${changeTaxedDetailsHiddenText}", questionChangeLinkSelector(question4), changeTaxedInterestAmountHref)
           }
 
         }
@@ -399,13 +386,13 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
             "has an area for question 1" which {
               textOnPageCheck(questionUntaxedInterestExpected, questionTextSelector(1))
               textOnPageCheck(No, yesNoQuestionAnswer(1))
-              linkCheck(s"$changeLinkExpected ${specific.changeUntaxedInterestHiddenText}", questionChangeLinkSelector(1), changeUntaxedInterestHref)
+              linkCheck(s"$changeLinkExpected ${changeUntaxedInterestHiddenText}", questionChangeLinkSelector(1), changeUntaxedInterestHref)
             }
 
             "has an area for question 2" which {
               textOnPageCheck(questionTaxedInterestExpected, questionTextSelector(2))
               textOnPageCheck(No, yesNoQuestionAnswer(2))
-              linkCheck(s"$changeLinkExpected ${specific.changeTaxedInterestHiddenText}", questionChangeLinkSelector(2), changeTaxedInterestHref)
+              linkCheck(s"$changeLinkExpected ${changeTaxedInterestHiddenText}", questionChangeLinkSelector(2), changeTaxedInterestHref)
             }
 
             "there is no question 3" in {
@@ -459,13 +446,13 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
             "has an area for question 1" which {
               textOnPageCheck(questionUntaxedInterestDetailsExpected, questionTextSelector(1))
               textOnPageCheck("TSB : £100", yesNoQuestionAnswer(1))
-              linkCheck(s"$changeLinkExpected ${specific.changeUntaxedDetailsHiddenText}", questionChangeLinkSelector(1), changeUntaxedInterestAmountHref)
+              linkCheck(s"$changeLinkExpected ${changeUntaxedDetailsHiddenText}", questionChangeLinkSelector(1), changeUntaxedInterestAmountHref)
             }
 
             "has an area for question 2" which {
               textOnPageCheck(question4TaxedInterestDetailExpected, questionTextSelector(2))
               textOnPageCheck("TSB Account : £100", yesNoQuestionAnswer(2))
-              linkCheck(s"$changeLinkExpected ${specific.changeTaxedDetailsHiddenText}", questionChangeLinkSelector(2), changeTaxedInterestAmountHref)
+              linkCheck(s"$changeLinkExpected ${changeTaxedDetailsHiddenText}", questionChangeLinkSelector(2), changeTaxedInterestAmountHref)
             }
 
             "there is no question 3" in {

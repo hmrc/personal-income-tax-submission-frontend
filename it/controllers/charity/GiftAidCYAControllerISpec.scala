@@ -112,6 +112,8 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
     val title: String
     val overseasDonationNames: String
     val overseasSharesSecurityLandPropertyNames: String
+    val overseasDonationNamesHidden: String
+    val overseasSharesSecurityLandPropertyNamesHidden: String
   }
 
   trait CommonExpectedResults {
@@ -141,6 +143,23 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
     val priorSharesSecuritiesLandPropertyNames: String
     val saveAndContinue: String
     val error: String
+    val donationViaGiftAidHidden: String
+    val donationViaGiftAidAmountHidden: String
+    val oneOffDonationHidden: String
+    val oneOffDonationAmountHidden: String
+    val overseasDonationHidden: String
+    val overseasDonationAmountHidden: String
+    val lastYearHidden: String
+    val lastYearAmountHidden: String
+    val thisYearHidden: String
+    val thisYearAmountHidden: String
+    val sharesSecuritiesLandPropertyHidden: String
+    val sharesSecuritiesHidden: String
+    val sharesSecuritiesAmountHidden: String
+    val landPropertyHidden: String
+    val landPropertyAmountHidden: String
+    val overseasSharesSecuritiesLandPropertyHidden: String
+    val overseasSharesSecuritiesLandPropertyAmountHidden: String
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
@@ -166,6 +185,23 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
     val overseasSharesSecuritiesLandProperty = "Donation of shares, securities, land or property to overseas charities"
     val overseasSharesSecuritiesLandPropertyAmount = "Value of shares, securities, land or property to overseas charities"
     val overseasSharesSecuritiesLandPropertyNamesValue = "Belgium Trust American Trust"
+    val donationViaGiftAidHidden = "Change donation to charity using Gift Aid"
+    val donationViaGiftAidAmountHidden = "Change amount donated to charity using Gift Aid"
+    val oneOffDonationHidden = "Change one-off donations to charity using Gift Aid"
+    val oneOffDonationAmountHidden = "Change amount of one-off donations to charity using Gift Aid"
+    val overseasDonationHidden = "Change donations to overseas charities using Gift Aid"
+    val overseasDonationAmountHidden = "Change amount donated to overseas charities using Gift Aid"
+    val lastYearHidden = "Change adding donations to last tax year"
+    val lastYearAmountHidden = "Change amount added to last tax year"
+    val thisYearHidden = "Change donation after 5 April 2022 added to this tax year"
+    val thisYearAmountHidden = "Change amount of donation after 5 April 2022 added to this tax year"
+    val sharesSecuritiesLandPropertyHidden = "Change donation of shares, securities, land or property"
+    val sharesSecuritiesHidden = "Change donation of shares or securities"
+    val sharesSecuritiesAmountHidden = "Change value of shares or securities"
+    val landPropertyHidden = "Change donation of land or property"
+    val landPropertyAmountHidden = "Change value of land or property"
+    val overseasSharesSecuritiesLandPropertyHidden = "Change donation of shares, securities, land or property to overseas charities"
+    val overseasSharesSecuritiesLandPropertyAmountHidden = "Change value of shares, securities, land or property to overseas charities"
     val priorDonationNames = "Jello Corporation"
     val priorSharesSecuritiesLandPropertyNames = "Simbas College Fund"
     val saveAndContinue = "Save and continue"
@@ -195,6 +231,23 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
     val overseasSharesSecuritiesLandProperty = "Rhoi cyfranddaliadau, gwarantau, tir neu eiddo i elusennau tramor"
     val overseasSharesSecuritiesLandPropertyAmount = "Swm y cyfranddaliadau, gwarantau, tir neu eiddo i elusennau tramor"
     val overseasSharesSecuritiesLandPropertyNamesValue = "Belgium Trust American Trust"
+    val donationViaGiftAidHidden = "Newid rhoddion i elusen drwy ddefnyddio Rhodd Cymorth"
+    val donationViaGiftAidAmountHidden = "Newid swm a roddwyd i elusen drwy ddefnyddio Rhodd Cymorth"
+    val oneOffDonationHidden = "Newid rhoddion untro i elusen drwy ddefnyddio Rhodd Cymorth"
+    val oneOffDonationAmountHidden = "Newid swm y rhoddion untro i elusen drwy ddefnyddio Rhodd Cymorth"
+    val overseasDonationHidden = "Newid rhoddion i elusennau tramor drwy ddefnyddio Rhodd Cymorth"
+    val overseasDonationAmountHidden = "Newid swm y rhoddion i elusennau tramor drwy ddefnyddio Rhodd Cymorth"
+    val lastYearHidden = "Newid ychwanegu rhoddion at y flwyddyn dreth ddiwethaf"
+    val lastYearAmountHidden = "Newid y swm a ychwanegwyd at y flwyddyn dreth ddiwethaf"
+    val thisYearHidden = "Newid ychwanegwyd rhodd ar ôl 5 Ebrill 2022 at y flwyddyn dreth hon"
+    val thisYearAmountHidden= "Newid swm y rhodd ar ôl 5 Ebrill 2022 wedi’i ychwanegu at y flwyddyn dreth hon"
+    val sharesSecuritiesLandPropertyHidden = "Newid rhoi cyfranddaliadau, gwarantau, tir neu eiddo"
+    val sharesSecuritiesHidden = "Newid rhoi cyfranddaliadau neu warantau"
+    val sharesSecuritiesAmountHidden = "Newid swm y cyfranddaliadau neu warantau"
+    val landPropertyHidden = "Newid rhoi tir neu eiddo"
+    val landPropertyAmountHidden = "Newid swm y tir neu eiddo"
+    val overseasSharesSecuritiesLandPropertyHidden = "Newid rhoi cyfranddaliadau, gwarantau, tir neu eiddo i elusennau tramor"
+    val overseasSharesSecuritiesLandPropertyAmountHidden = "Newid swm y cyfranddaliadau, gwarantau, tir neu eiddo i elusennau tramor"
     val priorDonationNames = "Jello Corporation"
     val priorSharesSecuritiesLandPropertyNames = "Simbas College Fund"
     val saveAndContinue = "Cadw ac yn eich blaen"
@@ -205,24 +258,32 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
     val title = "Check your donations to charity"
     val overseasDonationNames = "Overseas charities you donated to"
     val overseasSharesSecurityLandPropertyNames = "Overseas charities you donated shares, securities, land or property to"
+    val overseasDonationNamesHidden = "Change overseas charities you donated to"
+    val overseasSharesSecurityLandPropertyNamesHidden = "Change overseas charities you donated shares, securities, land or property to"
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
     val title = "Check your client’s donations to charity"
     val overseasDonationNames = "Overseas charities your client donated to"
     val overseasSharesSecurityLandPropertyNames = "Overseas charities your client donated shares, securities, land or property to"
+    val overseasDonationNamesHidden = "Change overseas charities your client donated to"
+    val overseasSharesSecurityLandPropertyNamesHidden = "Change overseas charities your client donated shares, securities, land or property to"
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
     val title = "Gwiriwch eich rhoddion i elusen"
     val overseasDonationNames = "Elusennau tramor a roesoch rhodd iddynt"
     val overseasSharesSecurityLandPropertyNames = "Elusen dramor y gwnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo iddi"
+    val overseasDonationNamesHidden = "Newid elusennau tramor a roesoch rhodd iddynt"
+    val overseasSharesSecurityLandPropertyNamesHidden = "Newid elusen dramor y gwnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo iddi"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
     val title = "Gwiriwch roddion eich cleient i elusen"
     val overseasDonationNames = "Elusennau tramor a roddodd eich cleient rhodd iddynt"
     val overseasSharesSecurityLandPropertyNames = "Elusen dramor y gwnaeth eich cleient roi cyfranddaliadau, gwarantau, tir neu eiddo iddi"
+    val overseasDonationNamesHidden = "Newid elusennau tramor a roddodd eich cleient rhodd iddynt"
+    val overseasSharesSecurityLandPropertyNamesHidden = "Newid elusen dramor y gwnaeth eich cleient roi cyfranddaliadau, gwarantau, tir neu eiddo iddi"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
@@ -232,10 +293,11 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
-  def cyaRowCheck(expectedText: String, expectedValue: String, changeLinkHref: String, rowNumber: Int)(implicit document: () => Document): Unit = {
+  def cyaRowCheck(expectedText: String, expectedValue: String, changeLinkHref: String, changeLinkHiddenText: String, rowNumber: Int)(implicit document: () => Document): Unit = {
     val keySelector = s"#main-content > div > div > dl > div:nth-child($rowNumber) > dt"
     val valueSelector = s"#main-content > div > div > dl > div:nth-child($rowNumber) > dd.govuk-summary-list__value"
     val changeLinkSelector = s"#main-content > div > div > dl > div:nth-child($rowNumber) > dd.govuk-summary-list__actions > a"
+    val cyaHiddenChangeLink = s"#main-content > div > div > dl > div:nth-child($rowNumber) > dd.govuk-summary-list__actions > a > span.govuk-visually-hidden"
 
     s"row number $rowNumber is correct" which {
 
@@ -249,6 +311,10 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
 
       s"the change link should go to '$changeLinkHref''" in {
         document().select(changeLinkSelector).attr("href") shouldBe changeLinkHref
+      }
+
+      s"the change link should have hidden text '$changeLinkHiddenText''" in {
+        document().select(cyaHiddenChangeLink).text() shouldBe changeLinkHiddenText
       }
 
     }
@@ -292,31 +358,31 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
 
           //noinspection ScalaStyle
           {
-            cyaRowCheck(donationViaGiftAid, yes, controllers.charity.routes.GiftAidDonationsController.show(year).url, 1)
-            cyaRowCheck(donationViaGiftAidAmount, amount, controllers.charity.routes.GiftAidDonatedAmountController.show(year).url, 2)
+            cyaRowCheck(donationViaGiftAid, yes, controllers.charity.routes.GiftAidDonationsController.show(year).url, donationViaGiftAidHidden, 1)
+            cyaRowCheck(donationViaGiftAidAmount, amount, controllers.charity.routes.GiftAidDonatedAmountController.show(year).url, donationViaGiftAidAmountHidden, 2)
 
-            cyaRowCheck(oneOffDonation, yes, controllers.charity.routes.GiftAidOneOffController.show(year).url, 3)
-            cyaRowCheck(oneOffDonationAmount, amount, controllers.charity.routes.GiftAidOneOffAmountController.show(year).url, 4)
+            cyaRowCheck(oneOffDonation, yes, controllers.charity.routes.GiftAidOneOffController.show(year).url, oneOffDonationHidden, 3)
+            cyaRowCheck(oneOffDonationAmount, amount, controllers.charity.routes.GiftAidOneOffAmountController.show(year).url, oneOffDonationAmountHidden, 4)
 
-            cyaRowCheck(overseasDonation, yes, controllers.charity.routes.OverseasGiftAidDonationsController.show(year).url, 5)
-            cyaRowCheck(overseasDonationAmount, amount, controllers.charity.routes.GiftAidOverseasAmountController.show(year).url, 6)
-            cyaRowCheck(user.specificExpectedResults.get.overseasDonationNames, overseasDonationNamesValue, controllers.charity.routes.OverseasGiftAidSummaryController.show(year).url, 7)
+            cyaRowCheck(overseasDonation, yes, controllers.charity.routes.OverseasGiftAidDonationsController.show(year).url, overseasDonationHidden, 5)
+            cyaRowCheck(overseasDonationAmount, amount, controllers.charity.routes.GiftAidOverseasAmountController.show(year).url, overseasDonationAmountHidden, 6)
+            cyaRowCheck(user.specificExpectedResults.get.overseasDonationNames, overseasDonationNamesValue, controllers.charity.routes.OverseasGiftAidSummaryController.show(year).url, user.specificExpectedResults.get.overseasDonationNamesHidden, 7)
 
-            cyaRowCheck(lastYear, yes, controllers.charity.routes.GiftAidLastTaxYearController.show(year).url, 8)
-            cyaRowCheck(lastYearAmount, amount, controllers.charity.routes.LastTaxYearAmountController.show(year).url, 9)
+            cyaRowCheck(lastYear, yes, controllers.charity.routes.GiftAidLastTaxYearController.show(year).url, lastYearHidden, 8)
+            cyaRowCheck(lastYearAmount, amount, controllers.charity.routes.LastTaxYearAmountController.show(year).url, lastYearAmountHidden,  9)
 
-            cyaRowCheck(thisYear, yes, controllers.charity.routes.DonationsToPreviousTaxYearController.show(year, year).url, 10)
-            cyaRowCheck(thisYearAmount, amount, controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(year, year).url, 11)
+            cyaRowCheck(thisYear, yes, controllers.charity.routes.DonationsToPreviousTaxYearController.show(year, year).url, thisYearHidden, 10)
+            cyaRowCheck(thisYearAmount, amount, controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(year, year).url, thisYearAmountHidden, 11)
 
-            cyaRowCheck(sharesSecuritiesLandProperty, yes, controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(year).url, 12)
-            cyaRowCheck(sharesSecurities, yes, controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(year).url, 13)
-            cyaRowCheck(sharesSecuritiesAmount, amount, controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(year).url, 14)
-            cyaRowCheck(landProperty, yes, controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(year).url, 15)
-            cyaRowCheck(landPropertyAmount, amount, controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(year).url, 16)
+            cyaRowCheck(sharesSecuritiesLandProperty, yes, controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(year).url, sharesSecuritiesLandPropertyHidden, 12)
+            cyaRowCheck(sharesSecurities, yes, controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(year).url, sharesSecuritiesHidden, 13)
+            cyaRowCheck(sharesSecuritiesAmount, amount, controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(year).url, sharesSecuritiesAmountHidden, 14)
+            cyaRowCheck(landProperty, yes, controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(year).url, landPropertyHidden, 15)
+            cyaRowCheck(landPropertyAmount, amount, controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(year).url, landPropertyAmountHidden, 16)
 
-            cyaRowCheck(overseasSharesSecuritiesLandProperty, yes, controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(year).url, 17)
-            cyaRowCheck(overseasSharesSecuritiesLandPropertyAmount, amount, controllers.charity.routes.OverseasSharesSecuritiesLandPropertyAmountController.show(year).url, 18)
-            cyaRowCheck(user.specificExpectedResults.get.overseasSharesSecurityLandPropertyNames, overseasSharesSecuritiesLandPropertyNamesValue, controllers.charity.routes.OverseasSharesLandSummaryController.show(year).url, 19)
+            cyaRowCheck(overseasSharesSecuritiesLandProperty, yes, controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(year).url, overseasSharesSecuritiesLandPropertyHidden, 17)
+            cyaRowCheck(overseasSharesSecuritiesLandPropertyAmount, amount, controllers.charity.routes.OverseasSharesSecuritiesLandPropertyAmountController.show(year).url, overseasSharesSecuritiesLandPropertyAmountHidden, 18)
+            cyaRowCheck(user.specificExpectedResults.get.overseasSharesSecurityLandPropertyNames, overseasSharesSecuritiesLandPropertyNamesValue, controllers.charity.routes.OverseasSharesLandSummaryController.show(year).url, user.specificExpectedResults.get.overseasSharesSecurityLandPropertyNamesHidden, 19)
           }
 
           buttonCheck(saveAndContinue)
@@ -351,10 +417,10 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
 
               //noinspection ScalaStyle
               {
-                cyaRowCheck(donationViaGiftAid, user.commonExpectedResults.no, controllers.charity.routes.GiftAidDonationsController.show(year).url, 1)
-                cyaRowCheck(thisYear, user.commonExpectedResults.no, controllers.charity.routes.DonationsToPreviousTaxYearController.show(year, year).url, 2)
-                cyaRowCheck(sharesSecurities, user.commonExpectedResults.no, controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(year).url, 3)
-                cyaRowCheck(landPropertyAmount, "£1000.74", controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(year).url, 4)
+                cyaRowCheck(donationViaGiftAid, user.commonExpectedResults.no, controllers.charity.routes.GiftAidDonationsController.show(year).url, donationViaGiftAidHidden, 1)
+                cyaRowCheck(thisYear, user.commonExpectedResults.no, controllers.charity.routes.DonationsToPreviousTaxYearController.show(year, year).url, thisYearHidden, 2)
+                cyaRowCheck(sharesSecurities, user.commonExpectedResults.no, controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(year).url, sharesSecuritiesHidden, 3)
+                cyaRowCheck(landPropertyAmount, "£1000.74", controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(year).url, landPropertyAmountHidden, 4)
               }
 
               buttonCheck(saveAndContinue)
@@ -385,11 +451,11 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
 
               //noinspection ScalaStyle
               {
-                cyaRowCheck(donationViaGiftAid, user.commonExpectedResults.no, controllers.charity.routes.GiftAidDonationsController.show(year).url, 1)
-                cyaRowCheck(thisYear, user.commonExpectedResults.no, controllers.charity.routes.DonationsToPreviousTaxYearController.show(year, year).url, 2)
-                cyaRowCheck(sharesSecuritiesAmount, "£1000.74", controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(year).url, 3)
-                cyaRowCheck(landProperty, user.commonExpectedResults.no, controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(year).url, 4)
-                cyaRowCheck(overseasSharesSecuritiesLandProperty, user.commonExpectedResults.no, controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(year).url, 5)
+                cyaRowCheck(donationViaGiftAid, user.commonExpectedResults.no, controllers.charity.routes.GiftAidDonationsController.show(year).url, donationViaGiftAidHidden, 1)
+                cyaRowCheck(thisYear, user.commonExpectedResults.no, controllers.charity.routes.DonationsToPreviousTaxYearController.show(year, year).url, thisYearHidden, 2)
+                cyaRowCheck(sharesSecuritiesAmount, "£1000.74", controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(year).url, sharesSecuritiesAmountHidden, 3)
+                cyaRowCheck(landProperty, user.commonExpectedResults.no, controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(year).url, landPropertyHidden, 4)
+                cyaRowCheck(overseasSharesSecuritiesLandProperty, user.commonExpectedResults.no, controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(year).url, overseasSharesSecuritiesLandPropertyHidden, 5)
               }
 
               buttonCheck(saveAndContinue)
@@ -420,16 +486,16 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
 
             //noinspection ScalaStyle
             {
-              cyaRowCheck(donationViaGiftAidAmount, amount, controllers.charity.routes.GiftAidDonatedAmountController.show(year).url, 1)
-              cyaRowCheck(oneOffDonationAmount, amount, controllers.charity.routes.GiftAidOneOffAmountController.show(year).url, 2)
-              cyaRowCheck(overseasDonationAmount, amount, controllers.charity.routes.GiftAidOverseasAmountController.show(year).url, 3)
-              cyaRowCheck(user.specificExpectedResults.get.overseasDonationNames, priorDonationNames, controllers.charity.routes.OverseasGiftAidSummaryController.show(year).url, 4)
-              cyaRowCheck(lastYearAmount, amount, controllers.charity.routes.LastTaxYearAmountController.show(year).url, 5)
-              cyaRowCheck(thisYearAmount, amount, controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(year, year).url, 6)
-              cyaRowCheck(sharesSecuritiesAmount, amount, controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(year).url, 7)
-              cyaRowCheck(landPropertyAmount, amount, controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(year).url, 8)
-              cyaRowCheck(overseasSharesSecuritiesLandPropertyAmount, amount, controllers.charity.routes.OverseasSharesSecuritiesLandPropertyAmountController.show(year).url, 9)
-              cyaRowCheck(user.specificExpectedResults.get.overseasSharesSecurityLandPropertyNames, priorSharesSecuritiesLandPropertyNames, controllers.charity.routes.OverseasSharesLandSummaryController.show(year).url, 10)
+              cyaRowCheck(donationViaGiftAidAmount, amount, controllers.charity.routes.GiftAidDonatedAmountController.show(year).url, donationViaGiftAidAmountHidden, 1)
+              cyaRowCheck(oneOffDonationAmount, amount, controllers.charity.routes.GiftAidOneOffAmountController.show(year).url, oneOffDonationAmountHidden, 2)
+              cyaRowCheck(overseasDonationAmount, amount, controllers.charity.routes.GiftAidOverseasAmountController.show(year).url, overseasDonationAmountHidden, 3)
+              cyaRowCheck(user.specificExpectedResults.get.overseasDonationNames, priorDonationNames, controllers.charity.routes.OverseasGiftAidSummaryController.show(year).url, user.specificExpectedResults.get.overseasDonationNamesHidden, 4)
+              cyaRowCheck(lastYearAmount, amount, controllers.charity.routes.LastTaxYearAmountController.show(year).url, lastYearAmountHidden, 5)
+              cyaRowCheck(thisYearAmount, amount, controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(year, year).url, thisYearAmountHidden, 6)
+              cyaRowCheck(sharesSecuritiesAmount, amount, controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(year).url, sharesSecuritiesAmountHidden, 7)
+              cyaRowCheck(landPropertyAmount, amount, controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(year).url, landPropertyAmountHidden, 8)
+              cyaRowCheck(overseasSharesSecuritiesLandPropertyAmount, amount, controllers.charity.routes.OverseasSharesSecuritiesLandPropertyAmountController.show(year).url, overseasSharesSecuritiesLandPropertyAmountHidden, 9)
+              cyaRowCheck(user.specificExpectedResults.get.overseasSharesSecurityLandPropertyNames, priorSharesSecuritiesLandPropertyNames, controllers.charity.routes.OverseasSharesLandSummaryController.show(year).url, user.specificExpectedResults.get.overseasSharesSecurityLandPropertyNamesHidden, 10)
             }
 
             buttonCheck(saveAndContinue)
@@ -455,16 +521,16 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
 
             //noinspection ScalaStyle
             {
-              cyaRowCheck(donationViaGiftAidAmount, amount, controllers.charity.routes.GiftAidDonatedAmountController.show(year).url, 1)
-              cyaRowCheck(oneOffDonationAmount, amount, controllers.charity.routes.GiftAidOneOffAmountController.show(year).url, 2)
-              cyaRowCheck(overseasDonationAmount, amount, controllers.charity.routes.GiftAidOverseasAmountController.show(year).url, 3)
-              cyaRowCheck(user.specificExpectedResults.get.overseasDonationNames, overseasDonationNamesValue, controllers.charity.routes.OverseasGiftAidSummaryController.show(year).url, 4)
-              cyaRowCheck(lastYearAmount, amount, controllers.charity.routes.LastTaxYearAmountController.show(year).url, 5)
-              cyaRowCheck(thisYearAmount, amount, controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(year, year).url, 6)
-              cyaRowCheck(sharesSecuritiesAmount, amount, controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(year).url, 7)
-              cyaRowCheck(landPropertyAmount, amount, controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(year).url, 8)
-              cyaRowCheck(overseasSharesSecuritiesLandPropertyAmount, amount, controllers.charity.routes.OverseasSharesSecuritiesLandPropertyAmountController.show(year).url, 9)
-              cyaRowCheck(user.specificExpectedResults.get.overseasSharesSecurityLandPropertyNames, overseasSharesSecuritiesLandPropertyNamesValue, controllers.charity.routes.OverseasSharesLandSummaryController.show(year).url, 10)
+              cyaRowCheck(donationViaGiftAidAmount, amount, controllers.charity.routes.GiftAidDonatedAmountController.show(year).url, donationViaGiftAidAmountHidden, 1)
+              cyaRowCheck(oneOffDonationAmount, amount, controllers.charity.routes.GiftAidOneOffAmountController.show(year).url, oneOffDonationAmountHidden, 2)
+              cyaRowCheck(overseasDonationAmount, amount, controllers.charity.routes.GiftAidOverseasAmountController.show(year).url, overseasDonationAmountHidden, 3)
+              cyaRowCheck(user.specificExpectedResults.get.overseasDonationNames, overseasDonationNamesValue, controllers.charity.routes.OverseasGiftAidSummaryController.show(year).url, user.specificExpectedResults.get.overseasDonationNamesHidden, 4)
+              cyaRowCheck(lastYearAmount, amount, controllers.charity.routes.LastTaxYearAmountController.show(year).url, lastYearAmountHidden, 5)
+              cyaRowCheck(thisYearAmount, amount, controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(year, year).url, thisYearAmountHidden, 6)
+              cyaRowCheck(sharesSecuritiesAmount, amount, controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(year).url, sharesSecuritiesAmountHidden, 7)
+              cyaRowCheck(landPropertyAmount, amount, controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(year).url, landPropertyAmountHidden, 8)
+              cyaRowCheck(overseasSharesSecuritiesLandPropertyAmount, amount, controllers.charity.routes.OverseasSharesSecuritiesLandPropertyAmountController.show(year).url, overseasSharesSecuritiesLandPropertyAmountHidden, 9)
+              cyaRowCheck(user.specificExpectedResults.get.overseasSharesSecurityLandPropertyNames, overseasSharesSecuritiesLandPropertyNamesValue, controllers.charity.routes.OverseasSharesLandSummaryController.show(year).url, user.specificExpectedResults.get.overseasSharesSecurityLandPropertyNamesHidden, 10)
             }
 
             buttonCheck(saveAndContinue)
@@ -493,9 +559,9 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
 
             //noinspection ScalaStyle
             {
-              cyaRowCheck(donationViaGiftAid, user.commonExpectedResults.no, controllers.charity.routes.GiftAidDonationsController.show(year).url, 1)
-              cyaRowCheck(thisYear, user.commonExpectedResults.no, controllers.charity.routes.DonationsToPreviousTaxYearController.show(year, year).url, 2)
-              cyaRowCheck(sharesSecuritiesLandProperty, user.commonExpectedResults.no, controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(year).url, 3)
+              cyaRowCheck(donationViaGiftAid, user.commonExpectedResults.no, controllers.charity.routes.GiftAidDonationsController.show(year).url, donationViaGiftAidHidden, 1)
+              cyaRowCheck(thisYear, user.commonExpectedResults.no, controllers.charity.routes.DonationsToPreviousTaxYearController.show(year, year).url, thisYearHidden, 2)
+              cyaRowCheck(sharesSecuritiesLandProperty, user.commonExpectedResults.no, controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(year).url, sharesSecuritiesLandPropertyHidden, 3)
             }
 
             buttonCheck(saveAndContinue)
