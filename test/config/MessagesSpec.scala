@@ -44,7 +44,9 @@ class MessagesSpec extends ViewTest with GuiceOneAppPerSuite {
     "phase.banner.before",
     "betaBar.banner.message.1",
     "betaBar.banner.message.2",
-    "betaBar.banner.message.3"
+    "betaBar.banner.message.3",
+    "radios.yesnoitems.yes",
+    "radios.yesnoitems.no"
   )
   val welshDuplicated = Set(
     "charity.overseas-gift-aid-summary.title.single.individual",
