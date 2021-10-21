@@ -131,40 +131,40 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
     val h1Expected = "Check your UK interest"
     val titleExpected = "Check your UK interest"
 
-    val changeUntaxedInterestHiddenText = "if you got untaxed UK interest"
-    val changeUntaxedDetailsHiddenText = "the details of your account with untaxed UK interest"
-    val changeTaxedInterestHiddenText = "if you got taxed UK interest"
-    val changeTaxedDetailsHiddenText = "the details of your account with taxed UK interest"
+    val changeUntaxedInterestHiddenText = "Change if you got untaxed UK interest"
+    val changeUntaxedDetailsHiddenText = "Change the details of your account with untaxed UK interest"
+    val changeTaxedInterestHiddenText = "Change if you got taxed UK interest"
+    val changeTaxedDetailsHiddenText = "Change the details of your account with taxed UK interest"
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
     val h1Expected = "Check your client’s UK interest"
     val titleExpected= "Check your client’s UK interest"
 
-    val changeUntaxedInterestHiddenText = "if your client got untaxed UK interest"
-    val changeUntaxedDetailsHiddenText = "the details of your client’s account with untaxed UK interest"
-    val changeTaxedInterestHiddenText = "if your client got taxed UK interest"
-    val changeTaxedDetailsHiddenText = "the details of your client’s account with taxed UK interest"
+    val changeUntaxedInterestHiddenText = "Change if your client got untaxed UK interest"
+    val changeUntaxedDetailsHiddenText = "Change the details of your client’s account with untaxed UK interest"
+    val changeTaxedInterestHiddenText = "Change if your client got taxed UK interest"
+    val changeTaxedDetailsHiddenText = "Change the details of your client’s account with taxed UK interest"
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
     val h1Expected = "Gwiriwch eich llog y DU"
     val titleExpected = "Gwiriwch eich llog y DU"
 
-    val changeUntaxedInterestHiddenText = "os cawsoch gyfrifon llog y DU a drethwyd"
-    val changeUntaxedDetailsHiddenText = "manylion eich cyfrif sydd â llog y DU sydd heb ei drethu"
-    val changeTaxedInterestHiddenText = "os cawsoch log y DU a drethwyd"
-    val changeTaxedDetailsHiddenText = "manylion eich cyfrif sydd â llog y DU a drethwyd"
+    val changeUntaxedInterestHiddenText = "Newidiwch os cawsoch gyfrifon llog y DU a drethwyd"
+    val changeUntaxedDetailsHiddenText = "Newidiwch manylion eich cyfrif sydd â llog y DU sydd heb ei drethu"
+    val changeTaxedInterestHiddenText = "Newidiwch os cawsoch log y DU a drethwyd"
+    val changeTaxedDetailsHiddenText = "Newidiwch manylion eich cyfrif sydd â llog y DU a drethwyd"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
     val h1Expected = "Gwiriwch log y DU eich cleient"
     val titleExpected = "Gwiriwch log y DU eich cleient"
 
-    val changeUntaxedInterestHiddenText = "os cafodd eich cleient cyfrifon llog y DU sydd heb ei drethu"
-    val changeUntaxedDetailsHiddenText = "manylion cyfrif eich cleient sydd â llog y DU sydd heb ei drethu"
-    val changeTaxedInterestHiddenText = "os cafodd eich cleient llog y DU a drethwyd"
-    val changeTaxedDetailsHiddenText = "manylion cyfrif eich cleient sydd â llog y DU a drethwyd"
+    val changeUntaxedInterestHiddenText = "Newidiwch os cafodd eich cleient cyfrifon llog y DU sydd heb ei drethu"
+    val changeUntaxedDetailsHiddenText = "Newidiwch manylion cyfrif eich cleient sydd â llog y DU sydd heb ei drethu"
+    val changeTaxedInterestHiddenText = "Newidiwch os cafodd eich cleient llog y DU a drethwyd"
+    val changeTaxedDetailsHiddenText = "Newidiwch manylion cyfrif eich cleient sydd â llog y DU a drethwyd"
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
