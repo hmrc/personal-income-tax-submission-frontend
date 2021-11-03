@@ -31,7 +31,6 @@ case class GiftAidCYAModel(
                             addDonationToLastYearAmount: Option[BigDecimal] = None,
                             addDonationToThisYear: Option[Boolean] = None,
                             addDonationToThisYearAmount: Option[BigDecimal] = None,
-                            donatedSharesSecuritiesLandOrProperty: Option[Boolean] = None,
                             donatedSharesOrSecurities: Option[Boolean] = None,
                             donatedSharesOrSecuritiesAmount: Option[BigDecimal] = None,
                             donatedLandOrProperty: Option[Boolean] = None,
@@ -58,10 +57,8 @@ case class GiftAidCYAModel(
     val b_overseasDonationsViaGiftAid = overseasDonationsViaGiftAid.forall(value => !value || (value && overseasDonationsViaGiftAidAmount.nonEmpty && overseasCharityNames.nonEmpty))
     val b_addDonationToLastYear = falseOrTrueAndAmountPopulated(addDonationToLastYear, addDonationToLastYearAmount)
     val b_addDonationToThisYear = falseOrTrueAndAmountPopulated(addDonationToThisYear, addDonationToThisYearAmount)
-
-    val b_donatedSharesSecuritiesLandOrProperty: Boolean = donatedSharesSecuritiesLandOrProperty.contains(true)
-    val b_donatedSharesOrSecurities = donatedSharesOrSecurities.forall(value => !value || (value && donatedSharesOrSecuritiesAmount.nonEmpty && b_donatedSharesSecuritiesLandOrProperty))
-    val b_donatedLandOrProperty = donatedLandOrProperty.forall(value => !value || (value && donatedLandOrPropertyAmount.nonEmpty && b_donatedSharesSecuritiesLandOrProperty))
+    val b_donatedSharesOrSecurities = donatedSharesOrSecurities.forall(value => !value || (value && donatedSharesOrSecuritiesAmount.nonEmpty))
+    val b_donatedLandOrProperty = donatedLandOrProperty.forall(value => !value || (value && donatedLandOrPropertyAmount.nonEmpty))
     val b_overseasDonatedSharesSecurityLandOrProperty = overseasDonatedSharesSecuritiesLandOrProperty.forall(value =>
       !value || (value && overseasDonatedSharesSecuritiesLandOrPropertyAmount.nonEmpty && overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.nonEmpty)
     )
@@ -85,24 +82,11 @@ case class GiftAidCYAModel(
 
   def hasAllRequiredAnswers: Boolean = addDonationToThisYear.nonEmpty &&
     donationsViaGiftAidCompleted &&
-    donatedSharesSecuritiesLandOrPropertyCompleted &&
     donatedSharesOrSecuritiesCompleted
 
   def donatedSharesOrSecuritiesCompleted: Boolean = {
-    if (donatedSharesSecuritiesLandOrProperty.contains(true)) {
       ((donatedSharesOrSecurities.contains(true) || donatedLandOrProperty.contains(true)) && overseasDonatedSharesSecuritiesLandOrProperty.nonEmpty) ||
         (donatedSharesOrSecurities.contains(false) && donatedLandOrProperty.contains(false) && overseasDonatedSharesSecuritiesLandOrProperty.isEmpty)
-    } else {
-      true
-    }
-  }
-
-  def donatedSharesSecuritiesLandOrPropertyCompleted: Boolean = {
-    (donatedSharesSecuritiesLandOrProperty.contains(true) && donatedSharesOrSecurities.nonEmpty && donatedLandOrProperty.nonEmpty) ||
-      (donatedSharesSecuritiesLandOrProperty.contains(false) &&
-        donatedSharesOrSecurities.isEmpty
-        && donatedLandOrProperty.isEmpty
-        && overseasDonatedSharesSecuritiesLandOrProperty.isEmpty)
   }
 
   def donationsViaGiftAidCompleted: Boolean = {
@@ -116,10 +100,9 @@ object GiftAidCYAModel {
 
   def resetDonatedSharesSecuritiesLandOrProperty(cyaData: GiftAidCYAModel): GiftAidCYAModel = {
     cyaData.copy(
-      donatedSharesSecuritiesLandOrProperty = Some(false),
-      donatedSharesOrSecurities = None,
+      donatedSharesOrSecurities = Some(false),
       donatedSharesOrSecuritiesAmount = None,
-      donatedLandOrProperty = None,
+      donatedLandOrProperty = Some(false),
       donatedLandOrPropertyAmount = None,
       overseasDonatedSharesSecuritiesLandOrProperty = None,
       overseasDonatedSharesSecuritiesLandOrPropertyAmount = None,
@@ -140,7 +123,6 @@ case class EncryptedGiftAidCYAModel(
                                      addDonationToLastYearAmount: Option[EncryptedValue] = None,
                                      addDonationToThisYear: Option[EncryptedValue] = None,
                                      addDonationToThisYearAmount: Option[EncryptedValue] = None,
-                                     donatedSharesSecuritiesLandOrProperty: Option[EncryptedValue] = None,
                                      donatedSharesOrSecurities: Option[EncryptedValue] = None,
                                      donatedSharesOrSecuritiesAmount: Option[EncryptedValue] = None,
                                      donatedLandOrProperty: Option[EncryptedValue] = None,

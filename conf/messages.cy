@@ -429,16 +429,6 @@ charity.qualifying-shares-or-securities.title.agent = A wnaeth eich cleient rhoi
 charity.qualifying-shares-or-securities.errors.noChoice.individual = Dewiswch ‘Iawn’ os wnaethoch roi cyfranddaliadau neu warantau cymwys i elusen
 charity.qualifying-shares-or-securities.errors.noChoice.agent = Dewiswch ‘Iawn’ os wnaeth eich cleient rhoi cyfranddaliadau neu warantau cymwys i elusen
 
-charity.sharesSecuritiesLandPropertyConfirmation.title.Shares.individual = A ydych yn siŵr na wnaethoch roi cyfranddaliadau na gwarantau i elusen?
-charity.sharesSecuritiesLandPropertyConfirmation.title.Shares.agent = A ydych yn siŵr na wnaeth eich cleient roi cyfranddaliadau na gwarantau i elusen?
-charity.sharesSecuritiesLandPropertyConfirmation.title.Land.individual = A ydych yn siŵr na wnaethoch roi tir nac eiddo i elusen?
-charity.sharesSecuritiesLandPropertyConfirmation.title.Land.agent = A ydych yn siŵr na wnaeth eich cleient roi tir nac eiddo i elusen?
-charity.sharesSecuritiesLandPropertyConfirmation.title.SharesLand.individual = A ydych yn siŵr na wnaethoch roi cyfranddaliadau, gwarantau, tir nac eiddo i elusen?
-charity.sharesSecuritiesLandPropertyConfirmation.title.SharesLand.agent = A ydych yn siŵr na wnaeth eich cleient roi cyfranddaliadau, gwarantau, tir nac eiddo i elusen?
-charity.sharesSecuritiesLandPropertyConfirmation.errors.noChoice = Dewiswch ‘Iawn’ i dynnu pob cyfranddaliad, gwarant, tir ac eiddo a roddwyd i elusen
-charity.sharesSecuritiesLandPropertyConfirmation.caption.individual = Bydd hyn yn golygu na wnaethoch roi cyfranddaliadau, gwarantau, tir nac eiddo i elusen.
-charity.sharesSecuritiesLandPropertyConfirmation.caption.agent = Bydd hyn yn golygu na wnaeth eich cleient roi cyfranddaliadau, gwarantau, tir nac eiddo i elusen.
-
 charity.shares-or-securities.heading = Beth yw cyfanswm gwerth cyfranddaliadau neu warantau cymwys a roddir i elusen?
 charity.shares-or-securities.individual.prior = You told us you donated {0} in shares and securities to charity this year. Tell us if this has changed.
 charity.shares-or-securities.agent.prior = You told us your client donated {0} in shares and securities to charity this year. Tell us if this has changed.

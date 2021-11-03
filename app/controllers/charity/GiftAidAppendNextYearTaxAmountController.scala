@@ -65,7 +65,7 @@ class GiftAidAppendNextYearTaxAmountController @Inject()(
       } else {
         Redirect(controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(taxYear, taxYear))
       }
-      case Some(false) => Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(taxYear))
+      case Some(false) => Redirect(controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(taxYear))
       case _ => previousPage.handleRedirect(taxYear, cya, prior)
     }
   }
@@ -112,7 +112,7 @@ class GiftAidAppendNextYearTaxAmountController @Inject()(
                     val redirectLocation = if (updatedCya.isFinished) {
                       Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
                     } else {
-                      Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(taxYear))
+                      Redirect(controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(taxYear))
                     }
 
                     giftAidSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(

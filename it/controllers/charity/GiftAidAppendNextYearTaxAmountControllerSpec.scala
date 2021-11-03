@@ -274,7 +274,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
     "addDonationToThisYear is false" should {
 
-      "redirect to the did you donate shares, securities, land or property page" which {
+      "redirect to the did you donate shares or securities page" which {
 
         lazy val result = getResult(url, Some(GiftAidCYAModel(addDonationToThisYear = Some(false))), None)
 
@@ -282,8 +282,8 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
           result.status shouldBe SEE_OTHER
         }
 
-        "has a redirect location of the shares, securities, land or property yes/no page" in {
-          result.headers("Location").head shouldBe controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(year).url
+        "has a redirect location of the qualifying shares or securities yes/no page" in {
+          result.headers("Location").head shouldBe controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(year).url
         }
       }
     }
@@ -396,8 +396,8 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
           result.status shouldBe SEE_OTHER
         }
 
-        "has a redirect location of the shares, securities, land or property yes/no page" in {
-          result.headers("Location").head shouldBe controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(year).url
+        "has a redirect location of the qualifying shares or securities yes/no page" in {
+          result.headers("Location").head shouldBe controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(year).url
         }
 
         "addDonationToThisYearAmount should be 1234" in {

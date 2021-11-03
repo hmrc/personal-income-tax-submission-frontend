@@ -16,7 +16,6 @@
 
 package controllers.charity
 
-import common.OverseasCharityTaxTypes.SHARES_SECURITIES
 import forms.YesNoForm
 import models.charity.GiftAidCYAModel
 import models.charity.prior.{GiftAidSubmissionModel, GiftsModel}
@@ -94,12 +93,13 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends CharityITHelper {
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
-  val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(donatedSharesSecuritiesLandOrProperty = Some(true))
+  val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(addDonationToThisYear = Some(false))
   val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
 
   val requiredSessionModelPrefill: GiftAidCYAModel = GiftAidCYAModel(
-    donatedSharesSecuritiesLandOrProperty = Some(true),
-    donatedSharesOrSecurities = Some(true)
+    addDonationToThisYear = Some(false),
+    donatedSharesOrSecurities = Some(true),
+    donatedLandOrProperty = Some(false)
   )
 
   val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
@@ -184,25 +184,23 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends CharityITHelper {
       }
     }
 
-    "the previous value is false" should {
-      lazy val result = getResult(url, Some(GiftAidCYAModel(donatedSharesSecuritiesLandOrProperty = Some(false))), None)
+    "there is no addDonationToThisYear" should {
+      val cyaModel = completeGiftAidCYAModel.copy(addDonationToThisYear = None)
+      lazy val result = getResult(url, Some(cyaModel), None)
 
-      "has a status of SEE_OTHER(303)" in {
+      "redirect to the donations to previous tax year page" in {
         result.status shouldBe SEE_OTHER
-      }
-
-      "redirect to the check your answers page" in {
-        result.headers("Location").head shouldBe cyaUrl(year)
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.DonationsToPreviousTaxYearController.show(year, otherTaxYear = year)}"
       }
     }
 
     "there is no addDonationToThisYearAmount" should {
-      val cyaModel = GiftAidCYAModel(addDonationToThisYear = Some(true), addDonationToThisYearAmount = Some(100.00))
+      val cyaModel = GiftAidCYAModel(addDonationToThisYear = Some(true), addDonationToThisYearAmount = None)
       lazy val result = getResult(url, Some(cyaModel), None)
 
-      "redirect to the giftAidSharesSecuritiesLandPropertyDonationController page" in {
+      "redirect to the donations to previous tax year amount page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(year)}"
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(year, someTaxYear = year)}"
       }
     }
   }
@@ -268,19 +266,12 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends CharityITHelper {
         }
       }
 
-      "removes all donated shares security and land or property" should {
-        val model = completeGiftAidCYAModel.copy(donatedLandOrProperty = Some(false), donatedLandOrPropertyAmount = None)
-        lazy val result = postResult(url, Some(model), None, Map(YesNoForm.yesNo -> YesNoForm.no))
+      "the user answered no to land or property" should {
+        lazy val result = postResult(url, Some(requiredSessionModelPrefill.copy(donatedSharesOrSecurities = Some(false))), None, Map(YesNoForm.yesNo -> YesNoForm.no))
 
-        "redirect to remove SharesSecurities Confirmation page" in {
+        "redirect to the cya page" in {
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head shouldBe
-            controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyConfirmationController.show(year, SHARES_SECURITIES).url
-        }
-
-        "update the cya data" in {
-          findGiftAidDb shouldBe
-            Some(completeGiftAidCYAModel.copy(donatedLandOrProperty = Some(false), donatedLandOrPropertyAmount = None))
+          result.headers("Location").head shouldBe cyaUrl(year)
         }
       }
 

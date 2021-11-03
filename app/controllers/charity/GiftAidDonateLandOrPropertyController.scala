@@ -32,8 +32,9 @@ import services.GiftAidSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.charity.GiftAidDonateLandOrPropertyView
-
 import javax.inject.Inject
+import models.charity.GiftAidCYAModel.resetDonatedSharesSecuritiesLandOrProperty
+
 import scala.concurrent.{ExecutionContext, Future}
 
 class GiftAidDonateLandOrPropertyController @Inject()(
@@ -98,10 +99,8 @@ class GiftAidDonateLandOrPropertyController @Inject()(
 
             val redirectLocation = (yesOrNoResponse, cyaData.donatedSharesOrSecurities, cyaData.isFinished) match {
               case (true, _, _) => Redirect(controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(taxYear))
-              case (false, Some(false), false) =>
-                Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyConfirmationController.show(taxYear, "SHARES_SECURITIES_LAND_PROPERTY"))
-              case (false, Some(false), true) =>
-                Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyConfirmationController.show(taxYear, "LAND_PROPERTY"))
+              case (false, Some(false), _) =>
+                redirectToCya(taxYear)
               case (_,_ ,true) => redirectToCya(taxYear)
               case _ => Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(taxYear))
             }
@@ -121,11 +120,11 @@ class GiftAidDonateLandOrPropertyController @Inject()(
 
   private def updatedCya(yesOrNoResult: Boolean, cyaData: GiftAidCYAModel): GiftAidCYAModel = {
     if (!yesOrNoResult & cyaData.donatedSharesOrSecurities.contains(false)) {
-        cyaData
+      resetDonatedSharesSecuritiesLandOrProperty(cyaData)
     } else {
       cyaData.copy(
         donatedLandOrProperty = Some(yesOrNoResult),
-        donatedLandOrPropertyAmount = if (yesOrNoResult) cyaData.donatedLandOrPropertyAmount else None
+        donatedLandOrPropertyAmount = if (yesOrNoResult) cyaData.donatedLandOrPropertyAmount else None,
       )
     }
   }
