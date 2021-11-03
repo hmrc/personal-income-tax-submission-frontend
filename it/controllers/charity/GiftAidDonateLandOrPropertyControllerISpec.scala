@@ -99,8 +99,8 @@ class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
-  val requiredSessionModel = GiftAidCYAModel(donatedSharesOrSecurities = Some(false))
-  val requiredSessionData = Some(requiredSessionModel)
+  val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(donatedSharesOrSecurities = Some(false))
+  val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
 
   val requiredSessionModelPrefill: GiftAidCYAModel = GiftAidCYAModel(
     donatedSharesOrSecurities = Some(true),
@@ -108,7 +108,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
     donatedLandOrProperty = Some(false)
   )
 
-  val requiredSessionDataPrefill = Some(requiredSessionModelPrefill)
+  val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
 
   ".show" when {
 

@@ -267,7 +267,9 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends CharityITHelper {
       }
 
       "the user answered no to land or property" should {
-        lazy val result = postResult(url, Some(requiredSessionModelPrefill.copy(donatedSharesOrSecurities = Some(false))), None, Map(YesNoForm.yesNo -> YesNoForm.no))
+        lazy val result = postResult(
+          url, Some(requiredSessionModelPrefill.copy(donatedSharesOrSecurities = Some(false))), None, Map(YesNoForm.yesNo -> YesNoForm.no)
+        )
 
         "redirect to the cya page" in {
           result.status shouldBe SEE_OTHER

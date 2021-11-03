@@ -124,7 +124,7 @@ class GiftAidDonateLandOrPropertyController @Inject()(
     } else {
       cyaData.copy(
         donatedLandOrProperty = Some(yesOrNoResult),
-        donatedLandOrPropertyAmount = if (yesOrNoResult) cyaData.donatedLandOrPropertyAmount else None,
+        donatedLandOrPropertyAmount = if (yesOrNoResult) cyaData.donatedLandOrPropertyAmount else None
       )
     }
   }

@@ -40,7 +40,8 @@ class OverseasSharesSecuritiesLandPropertyAmountController @Inject()(
                                                            appConfig: AppConfig,
                                                            view: OverseasSharesSecuritiesLandPropertyAmountView,
                                                            giftAidQualifyingSharesSecuritiesController: GiftAidQualifyingSharesSecuritiesController,
-                                                           giftAidSharesSecuritiesLandPropertyOverseasController: GiftAidSharesSecuritiesLandPropertyOverseasController,
+                                                           giftAidSharesSecuritiesLandPropertyOverseasController:
+                                                           GiftAidSharesSecuritiesLandPropertyOverseasController,
                                                            giftAidSessionService: GiftAidSessionService,
                                                            errorHandler: ErrorHandler,
                                                            authorisedAction: AuthorisedAction
