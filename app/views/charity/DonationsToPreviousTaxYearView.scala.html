@@ -29,7 +29,7 @@ inputRadio:InputRadio
 
 @(form: Form[Boolean], taxYear: Int, checked: String = "")(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
-@titleForUse = @{messages("charity.donations-to-previous-tax-year.title", taxYear.toString)}
+@titleForUse = @{messages("charity.add-to-current-tax-year.title", taxYear.toString)}
 
 @headingForUse = @{(titleForUse)}
 
@@ -39,11 +39,11 @@ inputRadio:InputRadio
 
         <div class = "govuk-body">
             <p>
-                @{messages(s"charity.donations-to-previous-tax-year.paragraph.1.${if(user.isAgent) "agent" else "individual"}", (taxYear - 1).toString, taxYear.toString)}
+                @{messages(s"charity.add-to-current-tax-year.paragraph.1.${if(user.isAgent) "agent" else "individual"}", (taxYear - 1).toString, taxYear.toString)}
             </p>
 
             <p>
-                @{messages(s"charity.donations-to-previous-tax-year.paragraph.2.${if(user.isAgent) "agent" else "individual"}")}
+                @{messages(s"charity.add-to-current-tax-year.paragraph.2.${if(user.isAgent) "agent" else "individual"}")}
             </p>
         </div>
 }

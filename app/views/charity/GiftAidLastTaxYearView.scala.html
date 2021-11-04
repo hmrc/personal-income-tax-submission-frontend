@@ -18,7 +18,6 @@
 @import views.html.templates.helpers.ErrorSummary
 @import views.html.templates.helpers.Button
 @import views.html.templates.helpers.InputRadio
-@import utils.ViewUtils.bigDecimalCurrency
 
 @this(
     layout: Layout,
@@ -30,22 +29,11 @@
 
 @(form: Form[Boolean], taxYear: Int, giftAidDonations: BigDecimal)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
-@titleForUse = @{messages(s"charity.last-tax-year.title.${if(user.isAgent) "agent" else "individual"}")}
+@titleForUse = @{messages(s"charity.last-tax-year.title.${if(user.isAgent) "agent" else "individual"}", (taxYear - 2).toString, (taxYear - 1).toString)}
 
 @headingForUse = @{(titleForUse)}
 
 @hasFormErrors = @{form.hasErrors}
-
-@contentHtml = {
-<div class="govuk-body">
-    <p>
-        @{messages(s"charity.last-tax-year.content_1.${if(user.isAgent) "agent" else "individual"}", bigDecimalCurrency(giftAidDonations.toString), (taxYear - 2).toString, (taxYear - 1).toString)}
-    </p>
-    <p>
-        @{messages(s"charity.last-tax-year.content_2.${if(user.isAgent) "agent" else "individual"}")}
-    </p>
-</div>
-}
 
 @layout(pageTitle = titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors) {
 
@@ -59,7 +47,7 @@
             hint = None,
             inline = true,
             subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)),
-            content = Some(contentHtml)
+            content = None
         )
 
         @button()

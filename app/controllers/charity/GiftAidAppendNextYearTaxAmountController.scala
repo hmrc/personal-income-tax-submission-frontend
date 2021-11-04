@@ -73,9 +73,9 @@ class GiftAidAppendNextYearTaxAmountController @Inject()(
   def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
 
   def form(implicit isAgent: Boolean, taxYear: Int): Form[BigDecimal] = AmountForm.amountForm(
-    emptyFieldKey = "charity.amount-from-next-tax-year.errors.no-entry." + agentOrIndividual,
-    wrongFormatKey = "charity.amount-from-next-tax-year.errors.wrong-format",
-    exceedsMaxAmountKey = "charity.amount-from-next-tax-year.errors.max-amount." + agentOrIndividual,
+    emptyFieldKey = "charity.add-to-current-tax-year-amount.errors.no-entry." + agentOrIndividual,
+    wrongFormatKey = "charity.add-to-current-tax-year-amount.errors.wrong-format",
+    exceedsMaxAmountKey = "charity.add-to-current-tax-year-amount.errors.max-amount." + agentOrIndividual,
     emptyFieldArguments = Seq(taxYear.toString)
   )
 

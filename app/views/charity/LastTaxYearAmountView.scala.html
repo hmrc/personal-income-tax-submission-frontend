@@ -30,7 +30,7 @@
 
 @(taxYear: Int, form: Form[_], prefill: Option[String], priorSubmission: Option[BigDecimal])(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
-@titleText = @{messages(s"charity.last-tax-year-donation-amount.title.${if(user.isAgent) "agent" else "individual"}")}
+@titleText = @{messages(s"charity.last-tax-year-donation-amount.title.${if(user.isAgent) "agent" else "individual"}", (taxYear - 2).toString, (taxYear - 1).toString)}
 
 @priorAmount() = @{
     if(prefill.isDefined) {

@@ -16,7 +16,6 @@
 
 package controllers.charity
 
-import common.SessionValues.GIFT_AID_PRIOR_SUB
 import forms.YesNoForm
 import models.charity.GiftAidCYAModel
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel}
@@ -24,9 +23,7 @@ import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
-import play.api.libs.json.Json
-import play.api.libs.ws.WSResponse
-import utils.{CharityITHelper, EncryptedValue}
+import utils.CharityITHelper
 
 class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
 
@@ -34,6 +31,10 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
     GiftAidSubmissionModel(Some(GiftAidPaymentsModel(None, Some(List("JaneDoe")), None, Some(150.00), None, None)),None)
 
   def url: String = s"$appUrl/$year/charity/add-charity-donations-to-last-tax-year"
+
+  val currentTaxYear = 2022
+  val lastTaxYear = 2021
+  val yearBeforeLastTaxYear = 2020
 
   object Selectors {
     val continueSelector = "#continue"
@@ -47,8 +48,6 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
     val expectedTitle: String
     val expectedH1: String
     val expectedError: String
-    val expectedContent1: String
-    val expectedContent2: String
   }
 
   trait CommonExpectedResults {
@@ -59,53 +58,41 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
-    val expectedCaption: String = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val expectedCaption: String = s"Donations to charity for 6 April $lastTaxYear to 5 April $currentTaxYear"
     val yesText = "Yes"
     val noText = "No"
     val expectedContinue = "Continue"
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val expectedCaption: String = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
+    val expectedCaption: String = s"Rhoddion i elusennau ar gyfer 6 Ebrill $lastTaxYear i 5 Ebrill $currentTaxYear"
     val yesText = "Iawn"
     val noText = "Na"
     val expectedContinue = "Yn eich blaen"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
-    val expectedTitle: String = "Do you want to add any of your donations to the last tax year?"
-    val expectedH1: String = "Do you want to add any of your donations to the last tax year?"
+    val expectedTitle: String = s"Did you add any of your donations to the $yearBeforeLastTaxYear to $lastTaxYear tax year?"
+    val expectedH1: String = s"Did you add any of your donations to the $yearBeforeLastTaxYear to $lastTaxYear tax year?"
     val expectedError: String = "Select yes to add any of your donations to the last tax year"
-    val expectedContent1: String = "You told us you donated £150 to charity by using Gift Aid. You can add some of this donation" +
-      " to the 6 April 2020 to 5 April 2021 tax year."
-    val expectedContent2: String = "You might want to do this if you paid higher rate tax last year but will not this year."
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
-    val expectedTitle: String = "Do you want to add any of your client’s donations to the last tax year?"
-    val expectedH1: String = "Do you want to add any of your client’s donations to the last tax year?"
+    val expectedTitle: String = s"Did you add any of your client’s donations to the $yearBeforeLastTaxYear to $lastTaxYear tax year?"
+    val expectedH1: String = s"Did you add any of your client’s donations to the $yearBeforeLastTaxYear to $lastTaxYear tax year?"
     val expectedError: String = "Select yes to add any of your client’s donations to the last tax year"
-    val expectedContent1: String = "You told us your client donated £150 to charity by using Gift Aid. You can add some of this donation" +
-      " to the 6 April 2020 to 5 April 2021 tax year."
-    val expectedContent2: String = "You might want to do this if your client paid higher rate tax last year but will not this year."
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val expectedTitle: String = "A ydych am ychwanegu unrhyw un o’ch rhoddion at y flwyddyn dreth ddiwethaf?"
-    val expectedH1: String = "A ydych am ychwanegu unrhyw un o’ch rhoddion at y flwyddyn dreth ddiwethaf?"
+    val expectedTitle: String = s"A wnaethoch ychwanegu unrhyw rai o’ch cyfraniadau at flwyddyn dreth $yearBeforeLastTaxYear i $lastTaxYear?"
+    val expectedH1: String = s"A wnaethoch ychwanegu unrhyw rai o’ch cyfraniadau at flwyddyn dreth $yearBeforeLastTaxYear i $lastTaxYear?"
     val expectedError: String = "Dewiswch ‘Iawn’ i ychwanegu unrhyw un o’ch rhoddion at y flwyddyn dreth ddiwethaf"
-    val expectedContent1: String = "Gwnaethoch roi gwybod i ni eich bod wedi rhoi £150 i elusen drwy ddefnyddio Rhodd Cymorth." +
-      " Gallwch ychwanegu rhywfaint o’r rhodd hon at flwyddyn dreth 6 Ebrill 2020 i 5 Ebrill 2021."
-    val expectedContent2: String = "Efallai y byddwch am wneud hyn os gwnaethoch dalu treth gyfradd uwch blwyddyn diwethaf ond na fyddwch y flwyddyn hon."
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val expectedTitle: String = "A ydych am ychwanegu unrhyw un o roddion eich cleient at y flwyddyn dreth ddiwethaf?"
-    val expectedH1: String = "A ydych am ychwanegu unrhyw un o roddion eich cleient at y flwyddyn dreth ddiwethaf?"
+    val expectedTitle: String = s"A wnaethoch ychwanegu unrhyw rai o gyfraniadau eich cleient at flwyddyn dreth $yearBeforeLastTaxYear i $lastTaxYear?"
+    val expectedH1: String = s"A wnaethoch ychwanegu unrhyw rai o gyfraniadau eich cleient at flwyddyn dreth $yearBeforeLastTaxYear i $lastTaxYear?"
     val expectedError: String = "Dewiswch ‘Iawn’ i ychwanegu unrhyw un o roddion eich cleient at y flwyddyn dreth ddiwethaf"
-    val expectedContent1: String = "Gwnaethoch roi gwybod i ni fod eich cleient wedi rhoi £150 i elusen drwy ddefnyddio Rhodd Cymorth." +
-      " Gallwch ychwanegu rhywfaint o’r rhodd hon at flwyddyn dreth 6 Ebrill 2020 i 5 Ebrill 2021."
-    val expectedContent2: String = "Efallai y byddwch am wneud hyn os gwnaeth eich cleient dalu treth gyfradd uwch blwyddyn diwethaf ond na fydd y flwyddyn hon."
   }
 
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
@@ -116,7 +103,7 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
   }
 
   val requiredSessionModel = GiftAidCYAModel(donationsViaGiftAidAmount = Some(150.00), overseasDonationsViaGiftAid = Some(false))
-  val requiredSessionData = Some(requiredSessionModel)
+  val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
 
   val requiredSessionModelPrefill: GiftAidCYAModel = GiftAidCYAModel(
     donationsViaGiftAidAmount = Some(150.00),
@@ -146,8 +133,6 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
           titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
-          textOnPageCheck(user.specificExpectedResults.get.expectedContent1, contentSelector1)
-          textOnPageCheck(user.specificExpectedResults.get.expectedContent2, contentSelector2)
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
           buttonCheck(expectedContinue, continueSelector)
@@ -170,8 +155,6 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
           titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
-          textOnPageCheck(user.specificExpectedResults.get.expectedContent1, contentSelector1)
-          textOnPageCheck(user.specificExpectedResults.get.expectedContent2, contentSelector2)
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
           radioButtonHasChecked(yesText, 1)
@@ -243,8 +226,6 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
           titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
-          textOnPageCheck(user.specificExpectedResults.get.expectedContent1, contentSelector1)
-          textOnPageCheck(user.specificExpectedResults.get.expectedContent2, contentSelector2)
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
           buttonCheck(expectedContinue, continueSelector)

@@ -72,7 +72,7 @@ class DonationsToPreviousTaxYearController @Inject()(
   }
 
   val yesNoForm: (User[AnyContent], Int) => Form[Boolean] = (user, taxYear) => {
-    val missingInputError = s"charity.donations-to-previous-tax-year.errors.noChoice.${if (user.isAgent) "agent" else "individual"}"
+    val missingInputError = s"charity.add-to-current-tax-year.errors.noChoice.${if (user.isAgent) "agent" else "individual"}"
     YesNoForm.yesNoForm(missingInputError, Seq(taxYear.toString))
   }
 

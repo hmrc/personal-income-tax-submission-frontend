@@ -24,7 +24,7 @@
 @(taxYear: Int, form: Form[_], prefill: Option[String], priorSubmission: Option[BigDecimal])(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @title = @{
-    messages(s"charity.amount-from-next-tax-year.title.${if(user.isAgent) "agent" else "individual"}", taxYear.toString)
+    messages(s"charity.add-to-current-tax-year-amount.title.${if(user.isAgent) "agent" else "individual"}", taxYear.toString)
 }
 
 @priorAmount() = @{
@@ -38,7 +38,7 @@
 @paragraphText = @{
     if(priorAmount.isDefined) {
         messages(
-            s"charity.amount-from-next-tax-year.${if(user.isAgent) "agent" else "individual"}.prior",
+            s"charity.add-to-current-tax-year-amount.${if(user.isAgent) "agent" else "individual"}.prior",
             bigDecimalCurrency(priorAmount.get.toString),
             taxYear.toString
         )
