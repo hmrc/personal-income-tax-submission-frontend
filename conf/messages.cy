@@ -419,11 +419,6 @@ charity.amount-from-next-tax-year.errors.wrong-format = Nodwch y swm rydych am e
 charity.amount-from-next-tax-year.errors.max-amount.individual = Mae’n rhaid i swm eich rhodd a wnaed ar ôl 5 Ebrill {0} a ychwanegwch at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000
 charity.amount-from-next-tax-year.errors.max-amount.agent = Mae’n rhaid i swm rhodd eich cleient a wnaed ar ôl 5 Ebrill {0} a ychwanegwch at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000
 
-charity.shares-securities-land-property.title.individual = A wnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo cymwys i elusen?
-charity.shares-securities-land-property.title.agent = A wnaeth eich cleient rhoi cyfranddaliadau, gwarantau, tir neu eiddo cymwys i elusen?
-charity.shares-securities-land-property.noChoice.individual = Dewiswch ‘Iawn’ os wnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo cymwys i elusen
-charity.shares-securities-land-property.noChoice.agent = Dewiswch ‘Iawn’ os wnaeth eich cleient rhoi cyfranddaliadau, gwarantau, tir neu eiddo cymwys i elusen
-
 charity.qualifying-shares-or-securities.title.individual = A wnaethoch roi cyfranddaliadau neu warantau cymwys i elusen?
 charity.qualifying-shares-or-securities.title.agent = A wnaeth eich cleient rhoi cyfranddaliadau neu warantau cymwys i elusen?
 charity.qualifying-shares-or-securities.errors.noChoice.individual = Dewiswch ‘Iawn’ os wnaethoch roi cyfranddaliadau neu warantau cymwys i elusen

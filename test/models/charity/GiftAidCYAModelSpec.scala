@@ -241,6 +241,16 @@ class GiftAidCYAModelSpec extends UnitTest {
 
       }
 
+      "only donated land or property is true" when {
+
+        "only donated land or property is true, but there is no amount value" in {
+          GiftAidCYAModel(
+            donationsViaGiftAid = Some(false),
+            donatedSharesOrSecurities = Some(false),
+            donatedLandOrProperty = Some(true)
+          ).isFinished shouldBe false
+        }
+      }
 
     }
 

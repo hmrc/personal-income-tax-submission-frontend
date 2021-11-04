@@ -476,6 +476,79 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
 
           }
 
+          "has only the shares or securities yes/no hidden" when {
+
+            "shares or securities is the only value" which {
+
+              val priorData = IncomeSourcesModel(giftAid = Some(GiftAidSubmissionModel(None,
+                Some(GiftsModel(
+                  sharesOrSecurities = Some(740.10)
+                ))
+              )))
+
+              lazy val result = getResult(url, None, Some(priorData), user.isAgent, user.isWelsh)
+
+              implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+              import user.commonExpectedResults._
+
+              "has an OK (200) status" in {
+                result.status shouldBe OK
+              }
+
+              titleCheck(user.specificExpectedResults.get.title, user.isWelsh)
+              h1Check(user.specificExpectedResults.get.title + " " + caption)
+              captionCheck(caption)
+
+              //noinspection ScalaStyle
+              {
+                cyaRowCheck(donationViaGiftAid, user.commonExpectedResults.no, controllers.charity.routes.GiftAidDonationsController.show(year).url, user.specificExpectedResults.get.donationViaGiftAidHidden, 1)
+                cyaRowCheck(thisYear, user.commonExpectedResults.no, controllers.charity.routes.DonationsToPreviousTaxYearController.show(year, year).url, thisYearHidden, 2)
+                cyaRowCheck(sharesSecuritiesAmount, "£740.10", controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(year).url, sharesSecuritiesAmountHidden, 3)
+                cyaRowCheck(landProperty, user.commonExpectedResults.no, controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(year).url, user.specificExpectedResults.get.landPropertyHidden, 4)
+              }
+
+              buttonCheck(saveAndContinue)
+              welshToggleCheck(user.isWelsh)
+            }
+
+            "land or property is the only value" which {
+
+              val priorData = IncomeSourcesModel(giftAid = Some(GiftAidSubmissionModel(None,
+                Some(GiftsModel(
+                  landAndBuildings = Some(740.10)
+                ))
+              )))
+
+              lazy val result = getResult(url, None, Some(priorData), user.isAgent, user.isWelsh)
+
+              implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+              import user.commonExpectedResults._
+
+              "has an OK (200) status" in {
+                result.status shouldBe OK
+              }
+
+              titleCheck(user.specificExpectedResults.get.title, user.isWelsh)
+              h1Check(user.specificExpectedResults.get.title + " " + caption)
+              captionCheck(caption)
+
+              //noinspection ScalaStyle
+              {
+                cyaRowCheck(donationViaGiftAid, user.commonExpectedResults.no, controllers.charity.routes.GiftAidDonationsController.show(year).url, user.specificExpectedResults.get.donationViaGiftAidHidden, 1)
+                cyaRowCheck(thisYear, user.commonExpectedResults.no, controllers.charity.routes.DonationsToPreviousTaxYearController.show(year, year).url, thisYearHidden, 2)
+                cyaRowCheck(sharesSecurities, user.commonExpectedResults.no, controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(year).url, user.specificExpectedResults.get.sharesSecuritiesHidden, 3)
+                cyaRowCheck(landPropertyAmount, "£740.10", controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(year).url, user.specificExpectedResults.get.landPropertyAmountHidden, 4)
+                cyaRowCheck(overseasSharesSecuritiesLandProperty, user.commonExpectedResults.no, controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(year).url, user.specificExpectedResults.get.overseasSharesSecuritiesLandPropertyHidden, 5)
+              }
+
+              buttonCheck(saveAndContinue)
+              welshToggleCheck(user.isWelsh)
+            }
+
+          }
+
         }
 
         "return a cya page with all the yes/no questions hidden" when {
