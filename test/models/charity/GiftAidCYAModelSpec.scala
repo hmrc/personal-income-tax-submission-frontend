@@ -31,7 +31,7 @@ class GiftAidCYAModelSpec extends UnitTest {
     Some(true), Some(100.00), Seq(CharityNameModel(belgianTrustId, "Belgian Trust"), CharityNameModel(americanTrustId, "American Trust")),
     Some(true), Some(100.00),
     Some(true), Some(100.00),
-    Some(true), Some(true), Some(100.00), Some(true), Some(100.00),
+    Some(true), Some(100.00), Some(true), Some(100.00),
     Some(true), Some(100.00), Seq(CharityNameModel(belgianTrustId, "Belgian Trust"), CharityNameModel(americanTrustId, "American Trust"))
   )
 
@@ -52,7 +52,6 @@ class GiftAidCYAModelSpec extends UnitTest {
     "addDonationToLastYearAmount" -> 100,
     "addDonationToThisYear" -> true,
     "addDonationToThisYearAmount" -> 100,
-    "donatedSharesSecuritiesLandOrProperty" -> true,
     "donatedSharesOrSecurities" -> true,
     "donatedSharesOrSecuritiesAmount" -> 100,
     "donatedLandOrProperty" -> true,
@@ -102,7 +101,7 @@ class GiftAidCYAModelSpec extends UnitTest {
 
     "return true" when {
 
-      "the model is fullY filled in" in {
+      "the model is fully filled in" in {
         modelMax.isFinished shouldBe true
       }
 
@@ -110,7 +109,8 @@ class GiftAidCYAModelSpec extends UnitTest {
         GiftAidCYAModel(
           donationsViaGiftAid = Some(false),
           addDonationToThisYear = Some(false),
-          donatedSharesSecuritiesLandOrProperty = Some(false)
+          donatedSharesOrSecurities = Some(false),
+          donatedLandOrProperty = Some(false)
         ).isFinished shouldBe true
       }
 
@@ -121,7 +121,8 @@ class GiftAidCYAModelSpec extends UnitTest {
           overseasDonationsViaGiftAid = Some(false),
           addDonationToLastYear = Some(false),
           addDonationToThisYear = Some(false),
-          donatedSharesSecuritiesLandOrProperty = Some(false)
+          donatedSharesOrSecurities = Some(false),
+          donatedLandOrProperty = Some(false)
         ).isFinished shouldBe true
       }
 
@@ -129,7 +130,8 @@ class GiftAidCYAModelSpec extends UnitTest {
         GiftAidCYAModel(
           donationsViaGiftAid = Some(false),
           addDonationToThisYear = Some(true), addDonationToThisYearAmount = Some(100.00),
-          donatedSharesSecuritiesLandOrProperty = Some(false)
+          donatedSharesOrSecurities = Some(false),
+          donatedLandOrProperty = Some(false)
         ).isFinished shouldBe true
       }
     }
@@ -143,7 +145,8 @@ class GiftAidCYAModelSpec extends UnitTest {
           overseasDonationsViaGiftAid = Some(false),
           addDonationToLastYear = Some(false),
           addDonationToThisYear = Some(false),
-          donatedSharesSecuritiesLandOrProperty = Some(false),
+          donatedSharesOrSecurities = Some(false),
+          donatedLandOrProperty = Some(false),
           overseasDonatedSharesSecuritiesLandOrProperty = Some(false)
         ).isFinished shouldBe false
       }
@@ -155,7 +158,8 @@ class GiftAidCYAModelSpec extends UnitTest {
           overseasDonationsViaGiftAid = Some(false),
           addDonationToLastYear = Some(false),
           addDonationToThisYear = Some(false),
-          donatedSharesSecuritiesLandOrProperty = Some(false),
+          donatedSharesOrSecurities = Some(false),
+          donatedLandOrProperty = Some(false),
           overseasDonatedSharesSecuritiesLandOrProperty = Some(false)
         ).isFinished shouldBe false
       }
@@ -169,7 +173,8 @@ class GiftAidCYAModelSpec extends UnitTest {
             overseasDonationsViaGiftAid = Some(true),
             addDonationToLastYear = Some(false),
             addDonationToThisYear = Some(false),
-            donatedSharesSecuritiesLandOrProperty = Some(false),
+            donatedSharesOrSecurities = Some(false),
+            donatedLandOrProperty = Some(false),
             overseasDonatedSharesSecuritiesLandOrProperty = Some(false)
           ).isFinished shouldBe false
         }
@@ -182,7 +187,8 @@ class GiftAidCYAModelSpec extends UnitTest {
             overseasCharityNames = Seq(CharityNameModel("Cyberpunk Performance Help Fund")),
             addDonationToLastYear = Some(false),
             addDonationToThisYear = Some(false),
-            donatedSharesSecuritiesLandOrProperty = Some(false),
+            donatedSharesOrSecurities = Some(false),
+            donatedLandOrProperty = Some(false),
             overseasDonatedSharesSecuritiesLandOrProperty = Some(false)
           ).isFinished shouldBe false
         }
@@ -194,7 +200,8 @@ class GiftAidCYAModelSpec extends UnitTest {
             overseasDonationsViaGiftAid = Some(true), overseasDonationsViaGiftAidAmount = Some(100.00),
             addDonationToLastYear = Some(false),
             addDonationToThisYear = Some(false),
-            donatedSharesSecuritiesLandOrProperty = Some(false),
+            donatedSharesOrSecurities = Some(false),
+            donatedLandOrProperty = Some(false),
             overseasDonatedSharesSecuritiesLandOrProperty = Some(false)
           ).isFinished shouldBe false
         }
@@ -207,7 +214,8 @@ class GiftAidCYAModelSpec extends UnitTest {
           overseasDonationsViaGiftAid = Some(false),
           addDonationToLastYear = Some(true),
           addDonationToThisYear = Some(false),
-          donatedSharesSecuritiesLandOrProperty = Some(false),
+          donatedSharesOrSecurities = Some(false),
+          donatedLandOrProperty = Some(false)
         ).isFinished shouldBe false
       }
 
@@ -215,22 +223,34 @@ class GiftAidCYAModelSpec extends UnitTest {
         GiftAidCYAModel(
           donationsViaGiftAid = Some(false),
           addDonationToThisYear = Some(true),
+          donatedSharesOrSecurities = Some(false),
+          donatedLandOrProperty = Some(false)
         ).isFinished shouldBe false
       }
 
-      "only donated shares securities land or properties is true" when {
+      "only donated shares or securities is true" when {
 
         "only donated shares or securities is true, but there is no amount value" in {
           GiftAidCYAModel(
             donationsViaGiftAid = Some(false),
-            donatedSharesSecuritiesLandOrProperty = Some(true),
             donatedSharesOrSecurities = Some(true),
+            donatedLandOrProperty = Some(false)
           ).isFinished shouldBe false
         }
 
 
       }
 
+      "only donated land or property is true" when {
+
+        "only donated land or property is true, but there is no amount value" in {
+          GiftAidCYAModel(
+            donationsViaGiftAid = Some(false),
+            donatedSharesOrSecurities = Some(false),
+            donatedLandOrProperty = Some(true)
+          ).isFinished shouldBe false
+        }
+      }
 
     }
 

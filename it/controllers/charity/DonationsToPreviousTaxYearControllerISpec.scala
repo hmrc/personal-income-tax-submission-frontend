@@ -389,7 +389,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper with Gif
         }
       }
 
-      "redirect to the donation of SSLP page when this does not complete the cya model" which {
+      "redirect to the donation of shares or securities page when this does not complete the cya model" which {
 
         lazy val result =
           postResult(
@@ -403,9 +403,9 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper with Gif
           result.status shouldBe SEE_OTHER
         }
 
-        "redirects to the donation of SSLP page page" in {
+        "redirects to the donation of qualifying shares or securities page" in {
           result.headers("Location").head shouldBe
-            controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyDonationController.show(year).url
+            controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(year).url
         }
 
         "addDonationToLastYear should be false" in {

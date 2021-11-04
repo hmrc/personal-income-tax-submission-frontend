@@ -31,15 +31,17 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.GiftAidSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.charity.GiftAidQualifyingSharesSecuritiesView
-
 import javax.inject.Inject
+import models.charity.GiftAidCYAModel.resetDonatedSharesSecuritiesLandOrProperty
+
 import scala.concurrent.{ExecutionContext, Future}
 
 class GiftAidQualifyingSharesSecuritiesController @Inject()(
                                                              implicit val cc: MessagesControllerComponents,
                                                              authAction: AuthorisedAction,
                                                              giftAidQualifyingSharesSecuritiesView: GiftAidQualifyingSharesSecuritiesView,
-                                                             giftAidSharesSecuritiesLandPropertyDonationController: GiftAidSharesSecuritiesLandPropertyDonationController,
+                                                             donationsToPreviousTaxYearController: DonationsToPreviousTaxYearController,
+                                                             giftAidAppendNextYearTaxAmountController: GiftAidAppendNextYearTaxAmountController,
                                                              errorHandler: ErrorHandler,
                                                              giftAidSessionService: GiftAidSessionService,
                                                              implicit val appConfig: AppConfig
@@ -52,16 +54,17 @@ class GiftAidQualifyingSharesSecuritiesController @Inject()(
 
     val prefillForm = cya.donatedSharesOrSecurities.fold(yesNoForm(user))(yesNoForm(user).fill)
 
-    (prior, cya.donatedSharesSecuritiesLandOrProperty) match {
-      case (Some(priorData), _) if priorData.gifts.map(_.sharesOrSecurities).isDefined =>
+    (prior, cya.addDonationToThisYear, cya.addDonationToThisYearAmount) match {
+      case (Some(priorData), _, _) if priorData.gifts.map(_.sharesOrSecurities).isDefined =>
         Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
-      case (_, Some(true)) => determineResult(
+      case (_, Some(true), None) =>
+        giftAidAppendNextYearTaxAmountController.handleRedirect(taxYear, cya, prior)
+      case (_, None, _) =>
+        donationsToPreviousTaxYearController.handleRedirect(taxYear, cya, prior)
+      case _ => determineResult(
         Ok(giftAidQualifyingSharesSecuritiesView(prefillForm, taxYear)),
         Redirect(controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(taxYear)),
         fromShow)
-      case (_, Some(false)) =>
-        Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
-      case _ => giftAidSharesSecuritiesLandPropertyDonationController.handleRedirect(taxYear, cya, prior)
     }
   }
 
@@ -96,7 +99,7 @@ class GiftAidQualifyingSharesSecuritiesController @Inject()(
               val redirectLocation = (yesOrNoResponse,cyaData.donatedLandOrProperty, updatedCya.isFinished) match {
                 case (true, _, _) => Redirect(controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(taxYear))
                 case (false, Some(false), _) =>
-                  Redirect(controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyConfirmationController.show(taxYear, "SHARES_SECURITIES"))
+                  redirectToCya(taxYear)
                 case (_, _, true) => redirectToCya(taxYear)
                 case _ => Redirect(controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(taxYear))
               }
@@ -117,7 +120,7 @@ class GiftAidQualifyingSharesSecuritiesController @Inject()(
 
   private def getUpdatedCya(cyaData: GiftAidCYAModel, yesOrNoResponse: Boolean) = {
     if (!yesOrNoResponse & cyaData.donatedLandOrProperty.contains(false)) {
-      cyaData
+      resetDonatedSharesSecuritiesLandOrProperty(cyaData)
     } else {
       cyaData.copy(
         donatedSharesOrSecurities = Some(yesOrNoResponse),

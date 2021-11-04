@@ -218,15 +218,6 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
       }
     }
 
-    "donatedSharesOrSecurities in cyaData is not true" which {
-      lazy val result = getResult(url, Some(GiftAidCYAModel(donatedSharesSecuritiesLandOrProperty = Some(true))), None)
-
-      "redirect to the QualifyingSharesSecurities page" in {
-        result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(year)}"
-      }
-    }
-
     "there is prior data for sharesOrSecurities" should {
 
       "display the GiftAidShareSecurityAmount page when the 'Change' link is clicked on the CYA page" which {

@@ -419,25 +419,10 @@ charity.amount-from-next-tax-year.errors.wrong-format = Nodwch y swm rydych am e
 charity.amount-from-next-tax-year.errors.max-amount.individual = Mae’n rhaid i swm eich rhodd a wnaed ar ôl 5 Ebrill {0} a ychwanegwch at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000
 charity.amount-from-next-tax-year.errors.max-amount.agent = Mae’n rhaid i swm rhodd eich cleient a wnaed ar ôl 5 Ebrill {0} a ychwanegwch at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000
 
-charity.shares-securities-land-property.title.individual = A wnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo cymwys i elusen?
-charity.shares-securities-land-property.title.agent = A wnaeth eich cleient rhoi cyfranddaliadau, gwarantau, tir neu eiddo cymwys i elusen?
-charity.shares-securities-land-property.noChoice.individual = Dewiswch ‘Iawn’ os wnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo cymwys i elusen
-charity.shares-securities-land-property.noChoice.agent = Dewiswch ‘Iawn’ os wnaeth eich cleient rhoi cyfranddaliadau, gwarantau, tir neu eiddo cymwys i elusen
-
 charity.qualifying-shares-or-securities.title.individual = A wnaethoch roi cyfranddaliadau neu warantau cymwys i elusen?
 charity.qualifying-shares-or-securities.title.agent = A wnaeth eich cleient rhoi cyfranddaliadau neu warantau cymwys i elusen?
 charity.qualifying-shares-or-securities.errors.noChoice.individual = Dewiswch ‘Iawn’ os wnaethoch roi cyfranddaliadau neu warantau cymwys i elusen
 charity.qualifying-shares-or-securities.errors.noChoice.agent = Dewiswch ‘Iawn’ os wnaeth eich cleient rhoi cyfranddaliadau neu warantau cymwys i elusen
-
-charity.sharesSecuritiesLandPropertyConfirmation.title.Shares.individual = A ydych yn siŵr na wnaethoch roi cyfranddaliadau na gwarantau i elusen?
-charity.sharesSecuritiesLandPropertyConfirmation.title.Shares.agent = A ydych yn siŵr na wnaeth eich cleient roi cyfranddaliadau na gwarantau i elusen?
-charity.sharesSecuritiesLandPropertyConfirmation.title.Land.individual = A ydych yn siŵr na wnaethoch roi tir nac eiddo i elusen?
-charity.sharesSecuritiesLandPropertyConfirmation.title.Land.agent = A ydych yn siŵr na wnaeth eich cleient roi tir nac eiddo i elusen?
-charity.sharesSecuritiesLandPropertyConfirmation.title.SharesLand.individual = A ydych yn siŵr na wnaethoch roi cyfranddaliadau, gwarantau, tir nac eiddo i elusen?
-charity.sharesSecuritiesLandPropertyConfirmation.title.SharesLand.agent = A ydych yn siŵr na wnaeth eich cleient roi cyfranddaliadau, gwarantau, tir nac eiddo i elusen?
-charity.sharesSecuritiesLandPropertyConfirmation.errors.noChoice = Dewiswch ‘Iawn’ i dynnu pob cyfranddaliad, gwarant, tir ac eiddo a roddwyd i elusen
-charity.sharesSecuritiesLandPropertyConfirmation.caption.individual = Bydd hyn yn golygu na wnaethoch roi cyfranddaliadau, gwarantau, tir nac eiddo i elusen.
-charity.sharesSecuritiesLandPropertyConfirmation.caption.agent = Bydd hyn yn golygu na wnaeth eich cleient roi cyfranddaliadau, gwarantau, tir nac eiddo i elusen.
 
 charity.shares-or-securities.heading = Beth yw cyfanswm gwerth cyfranddaliadau neu warantau cymwys a roddir i elusen?
 charity.shares-or-securities.individual.prior = You told us you donated {0} in shares and securities to charity this year. Tell us if this has changed.

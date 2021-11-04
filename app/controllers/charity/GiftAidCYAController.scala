@@ -135,7 +135,6 @@ class GiftAidCYAController @Inject()(
       prior.giftAidPayments.flatMap(_.currentYearTreatedAsPreviousYear),
       Some(prior.giftAidPayments.exists(_.nextYearTreatedAsCurrentYear.nonEmpty)),
       prior.giftAidPayments.flatMap(_.nextYearTreatedAsCurrentYear),
-      Some(prior.gifts.exists(_.sharesOrSecurities.nonEmpty) || prior.gifts.exists(_.landAndBuildings.nonEmpty)),
       Some(prior.gifts.exists(_.sharesOrSecurities.nonEmpty)),
       prior.gifts.flatMap(_.sharesOrSecurities),
       Some(prior.gifts.exists(_.landAndBuildings.nonEmpty)),

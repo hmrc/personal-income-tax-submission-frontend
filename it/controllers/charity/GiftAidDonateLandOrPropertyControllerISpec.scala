@@ -16,7 +16,6 @@
 
 package controllers.charity
 
-import common.OverseasCharityTaxTypes._
 import forms.YesNoForm
 import models.charity.GiftAidCYAModel
 import models.charity.prior.{GiftAidSubmissionModel, GiftsModel}
@@ -100,16 +99,16 @@ class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
-  val requiredSessionModel = GiftAidCYAModel(donatedSharesOrSecurities = Some(false), donatedSharesSecuritiesLandOrProperty = Some(true))
-  val requiredSessionData = Some(requiredSessionModel)
+  val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(donatedSharesOrSecurities = Some(false))
+  val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
 
   val requiredSessionModelPrefill: GiftAidCYAModel = GiftAidCYAModel(
-    donatedSharesOrSecurities = Some(false),
-    donatedSharesSecuritiesLandOrProperty = Some(true),
+    donatedSharesOrSecurities = Some(true),
+    donatedSharesOrSecuritiesAmount = Some(50.00),
     donatedLandOrProperty = Some(false)
   )
 
-  val requiredSessionDataPrefill = Some(requiredSessionModelPrefill)
+  val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
 
   ".show" when {
 
@@ -173,7 +172,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
     }
 
     "there is no donatedSharesOrSecurities" should {
-      lazy val result = getResult(url, Some(requiredSessionModel.copy(donatedSharesOrSecurities = None)), None)
+      lazy val result = getResult(url, Some(completeGiftAidCYAModel.copy(donatedSharesOrSecurities = None)), None)
 
       "redirect to the sharesOrSecurities page" in {
         result.status shouldBe SEE_OTHER
@@ -272,29 +271,25 @@ class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
         }
       }
 
-      "this does not complete the cya model" should {
+      "the user answered no to shares or securities" should {
         lazy val result = postResult(url, requiredSessionData, None, Map(YesNoForm.yesNo -> YesNoForm.no))
 
-        "redirect to remove SharesSecurityLandProperty confirmation page" in {
+        "redirect to the cya page" in {
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head shouldBe
-            controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyConfirmationController.show(year, SHARES_SECURITIES_LAND_PROPERTY).url
+          result.headers("Location").head shouldBe cyaUrl(year)
         }
       }
 
-      "removes all donated shares security and land or property" should {
-        val model = completeGiftAidCYAModel.copy(donatedSharesOrSecurities = Some(false), donatedSharesOrSecuritiesAmount = None)
-        lazy val result = postResult(url, Some(model), None, Map(YesNoForm.yesNo -> YesNoForm.no))
+      "this does not complete the cya data" should {
+        lazy val result = postResult(url, requiredSessionDataPrefill, None, Map(YesNoForm.yesNo -> YesNoForm.no))
 
-        "redirect to the remove LandProperty confirmation page" in {
+        "redirect to the overseas shares,securities, land or property page" in {
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head shouldBe
-            controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyConfirmationController.show(year, LAND_PROPERTY).url
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(year)}"
         }
 
         "update the cya data" in {
-          findGiftAidDb shouldBe
-            Some(completeGiftAidCYAModel.copy(donatedSharesOrSecurities = Some(false), donatedSharesOrSecuritiesAmount = None))
+          findGiftAidDb shouldBe Some(requiredSessionModelPrefill.copy(donatedLandOrProperty = Some(false)))
         }
       }
     }

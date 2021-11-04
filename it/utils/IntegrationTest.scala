@@ -75,7 +75,6 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     addDonationToLastYearAmount = Some(50.00),
     addDonationToThisYear = Some(true),
     addDonationToThisYearAmount = Some(50.00),
-    donatedSharesSecuritiesLandOrProperty = Some(true),
     donatedSharesOrSecurities = Some(true),
     donatedSharesOrSecuritiesAmount = Some(50.00),
     donatedLandOrProperty = Some(true),
