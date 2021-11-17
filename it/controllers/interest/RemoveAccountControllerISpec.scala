@@ -257,7 +257,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             "redirects to the correct URL" in {
-              result.headers("Location").head shouldBe "http://localhost:11111/income-through-software/return/2022/view"
+              result.headers("Location").head shouldBe "http://localhost:11111/update-and-submit-income-tax-return/2022/view"
             }
           }
 
@@ -277,7 +277,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             "redirects to the correct URL" in {
-              result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/untaxed-uk-interest"
+              result.headers("Location").head shouldBe "/update-and-submit-income-tax-return/personal-income/2022/interest/untaxed-uk-interest"
             }
           }
 
@@ -297,7 +297,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             "redirects to the correct URL" in {
-              result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/untaxed-uk-interest"
+              result.headers("Location").head shouldBe "/update-and-submit-income-tax-return/personal-income/2022/interest/untaxed-uk-interest"
             }
           }
           "there is no valid CYA account data in session for taxed" which {
@@ -316,7 +316,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             "redirects to the correct URL" in {
-              result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/taxed-uk-interest"
+              result.headers("Location").head shouldBe "/update-and-submit-income-tax-return/personal-income/2022/interest/taxed-uk-interest"
             }
           }
 
@@ -334,7 +334,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             "redirects to the correct URL" in {
-              result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/accounts-with-untaxed-uk-interest"
+              result.headers("Location").head shouldBe "/update-and-submit-income-tax-return/personal-income/2022/interest/accounts-with-untaxed-uk-interest"
             }
           }
 
@@ -352,7 +352,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             "redirects to the correct URL" in {
-              result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/accounts-with-taxed-uk-interest"
+              result.headers("Location").head shouldBe "/update-and-submit-income-tax-return/personal-income/2022/interest/accounts-with-taxed-uk-interest"
             }
           }
         }
@@ -451,7 +451,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             "redirects to the correct URL" in {
-              result.headers("Location").head shouldBe "http://localhost:11111/income-through-software/return/2022/view"
+              result.headers("Location").head shouldBe "http://localhost:11111/update-and-submit-income-tax-return/2022/view"
             }
           }
         }
@@ -504,7 +504,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             result.status shouldBe SEE_OTHER
-            result.header("Location") shouldBe Some("/income-through-software/return/personal-income/2022/interest/check-interest")
+            result.header("Location") shouldBe Some("/update-and-submit-income-tax-return/personal-income/2022/interest/check-interest")
           }
           "there is CYA data in session and they have selected yes for taxed" in {
             lazy val result: WSResponse = {
@@ -525,7 +525,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             result.status shouldBe SEE_OTHER
-            result.header("Location") shouldBe Some("/income-through-software/return/personal-income/2022/interest/check-interest")
+            result.header("Location") shouldBe Some("/update-and-submit-income-tax-return/personal-income/2022/interest/check-interest")
           }
           "there is CYA data in session and they have selected yes for taxed when account has both amounts" in {
             lazy val result: WSResponse = {
@@ -546,7 +546,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             result.status shouldBe SEE_OTHER
-            result.header("Location") shouldBe Some("/income-through-software/return/personal-income/2022/interest/accounts-with-taxed-uk-interest")
+            result.header("Location") shouldBe Some("/update-and-submit-income-tax-return/personal-income/2022/interest/accounts-with-taxed-uk-interest")
           }
           "there is CYA data in session and they have selected yes for untaxed when account has both amounts" in {
             lazy val result: WSResponse = {
@@ -567,7 +567,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             result.status shouldBe SEE_OTHER
-            result.header("Location") shouldBe Some("/income-through-software/return/personal-income/2022/interest/accounts-with-untaxed-uk-interest")
+            result.header("Location") shouldBe Some("/update-and-submit-income-tax-return/personal-income/2022/interest/accounts-with-untaxed-uk-interest")
           }
         }
 
@@ -591,7 +591,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             result.status shouldBe SEE_OTHER
-            result.header("Location") shouldBe Some("/income-through-software/return/personal-income/2022/interest/accounts-with-untaxed-uk-interest")
+            result.header("Location") shouldBe Some("/update-and-submit-income-tax-return/personal-income/2022/interest/accounts-with-untaxed-uk-interest")
           }
           "there is no valid CYA data in session and they have selected yes" in {
             lazy val result: WSResponse = {
@@ -612,7 +612,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             result.status shouldBe SEE_OTHER
-            result.header("Location") shouldBe Some("/income-through-software/return/personal-income/2022/interest/untaxed-uk-interest")
+            result.header("Location") shouldBe Some("/update-and-submit-income-tax-return/personal-income/2022/interest/untaxed-uk-interest")
           }
         }
 
@@ -634,7 +634,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             result.status shouldBe SEE_OTHER
-            result.header("Location") shouldBe Some("http://localhost:11111/income-through-software/return/2022/view")
+            result.header("Location") shouldBe Some("http://localhost:11111/update-and-submit-income-tax-return/2022/view")
           }
         }
 
@@ -659,7 +659,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             "redirects to the correct URL" in {
-              result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/accounts-with-untaxed-uk-interest"
+              result.headers("Location").head shouldBe "/update-and-submit-income-tax-return/personal-income/2022/interest/accounts-with-untaxed-uk-interest"
             }
           }
         }
@@ -748,7 +748,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             result.status shouldBe SEE_OTHER
-            result.header("Location") shouldBe Some("http://localhost:11111/income-through-software/return/2022/view")
+            result.header("Location") shouldBe Some("http://localhost:11111/update-and-submit-income-tax-return/2022/view")
           }
         }
 

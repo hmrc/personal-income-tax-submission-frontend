@@ -1,6 +1,6 @@
 # Add all the application routes to the app.routes file
 
-->         /income-through-software/return/personal-income/        app.Routes
+->         /update-and-submit-income-tax-return/personal-income/        app.Routes
 ->         /                                                       health.Routes
 ->         /template                                               template.Routes
 

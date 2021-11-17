@@ -131,7 +131,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
       "on the performance of the trust. Equalisation payments are not counted as income because they’re a return of part of an investment."
     val yesNo: Boolean => String = isYes => if (isYes) "Yes" else "No"
     val continueButtonText = "Continue"
-    val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
+    val continueLink = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
   }
 
   object IndividualExpectedWelsh extends SpecificExpectedResults {
@@ -170,7 +170,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
       "Nid yw taliadau cyfartaliad yn cael eu cyfrif fel incwm oherwydd eu bod yn rhan o fuddsoddiad."
     val yesNo: Boolean => String = isYes => if (isYes) "Iawn" else "Na"
     val continueButtonText = "Yn eich blaen"
-    val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
+    val continueLink = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
   }
 
   val userScenarios =
@@ -237,14 +237,14 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
         authoriseIndividual()
         emptyUserDataStub()
         userDataStub(priorData, nino, taxYear)
-        stubGet(s"/income-through-software/return/$taxYear/view", OK, "overview page content")
+        stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "overview page content")
         urlGet(receivedOtherDividendsUrl, follow = false, headers = playSessionCookie())
       }
 
       s"has an $SEE_OTHER(303) status" in {
         result.status shouldBe SEE_OTHER
         result.header(HeaderNames.LOCATION) shouldBe
-          Some("/income-through-software/return/personal-income/2022/dividends/check-income-from-dividends")
+          Some("/update-and-submit-income-tax-return/personal-income/2022/dividends/check-income-from-dividends")
       }
     }
 
@@ -254,7 +254,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
         authoriseIndividual()
         dropDividendsDB()
         emptyUserDataStub()
-        stubGet(s"/income-through-software/return/$taxYear/view", SEE_OTHER, "overview page content")
+        stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", SEE_OTHER, "overview page content")
         urlGet(receivedOtherDividendsUrl, follow = false, headers = playSessionCookie())
       }
 
@@ -343,7 +343,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
       }
 
       "have the correct redirect URL" in {
-        result.headers(HeaderNames.LOCATION).head shouldBe "http://localhost:11111/income-through-software/return/2022/view"
+        result.headers(HeaderNames.LOCATION).head shouldBe "http://localhost:11111/update-and-submit-income-tax-return/2022/view"
       }
     }
 

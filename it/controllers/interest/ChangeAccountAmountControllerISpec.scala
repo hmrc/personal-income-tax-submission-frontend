@@ -38,7 +38,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
   def url(newId: String, accountType: String): String = s"$appUrl/$taxYear/interest/change-$accountType-uk-interest?accountId=$newId"
 
   def urlNoPreFix(newId: String, accountType: String): String =
-    s"/income-through-software/return/personal-income/$taxYear/interest/change-$accountType-uk-interest?accountId=$newId"
+    s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/change-$accountType-uk-interest?accountId=$newId"
 
   lazy val id: String = UUID.randomUUID().toString
 
@@ -330,7 +330,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
                 wireMockServer.resetAll()
 
                 result.status shouldBe SEE_OTHER
-                result.headers("Location").head.contains("/income-through-software/return/2022/view") shouldBe true
+                result.headers("Location").head.contains("/update-and-submit-income-tax-return/2022/view") shouldBe true
               }
             }
         }
@@ -359,7 +359,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
                 "returns a SEE OTHER" in {
                   result.status shouldBe SEE_OTHER
-                  result.headers("Location").head shouldBe s"/income-through-software/return/personal-income/2022/" +
+                  result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/2022/" +
                     s"interest/accounts-with-${if (testCase._2) "untaxed" else "taxed"}-uk-interest"
                 }
               }
@@ -428,7 +428,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
               s"return a SEE OTHER status" in {
                 result.status shouldBe SEE_OTHER
-                result.headers("Location").head shouldBe s"/income-through-software/return/personal-income/2022/" +
+                result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/2022/" +
                   s"interest/accounts-with-${if (testCase._3) "untaxed" else "taxed"}-uk-interest"
                 findInterestDb shouldBe Some(InterestCYAModel(
                   Some(true),Some(true),Some(Seq(
@@ -458,7 +458,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
               s"return a SEE OTHER status" in {
                 result.status shouldBe SEE_OTHER
-                result.headers("Location").head shouldBe s"/income-through-software/return/personal-income/2022/" +
+                result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/2022/" +
                   s"interest/accounts-with-${if (testCase._3) "untaxed" else "taxed"}-uk-interest"
                 findInterestDb shouldBe Some(InterestCYAModel(
                   Some(true),Some(true),Some(Seq(
@@ -543,7 +543,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
               s"return a SEE OTHER status to account summary page" in {
                 result.status shouldBe SEE_OTHER
-                result.headers("Location").head shouldBe s"/income-through-software/return/personal-income/2022/" +
+                result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/2022/" +
                   s"interest/accounts-with-${if (testCase._2) "untaxed" else "taxed"}-uk-interest"
               }
             }
@@ -568,7 +568,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
               s"return a SEE OTHER status to account summary page" in {
                 result.status shouldBe SEE_OTHER
-                result.headers("Location").head shouldBe s"/income-through-software/return/personal-income/2022/" +
+                result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/2022/" +
                   s"interest/accounts-with-${if (testCase) "untaxed" else "taxed"}-uk-interest"
               }
             }

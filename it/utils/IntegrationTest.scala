@@ -132,13 +132,13 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   implicit val actorSystem: ActorSystem = ActorSystem()
 
-  val startUrl = s"http://localhost:$port/income-through-software/return/personal-income"
-  val overviewUrl = "http://localhost:11111/income-through-software/return/2022/view"
+  val startUrl = s"http://localhost:$port/update-and-submit-income-tax-return/personal-income"
+  val overviewUrl = "http://localhost:11111/update-and-submit-income-tax-return/2022/view"
   val cyaUrl: Int => String = taxYear => s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
 
   implicit def wsClient: WSClient = app.injector.instanceOf[WSClient]
 
-  val appUrl = s"http://localhost:$port/income-through-software/return/personal-income"
+  val appUrl = s"http://localhost:$port/update-and-submit-income-tax-return/personal-income"
 
   def await[T](awaitable: Awaitable[T]): T = Await.result(awaitable, Duration.Inf)
 

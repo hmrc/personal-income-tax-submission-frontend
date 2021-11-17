@@ -78,7 +78,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
     val yesText = "Yes"
     val noText = "No"
     val continueText = "Continue"
-    val continueLink = s"/income-through-software/return/personal-income/$taxYear/interest/untaxed-uk-interest"
+    val continueLink = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/untaxed-uk-interest"
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
@@ -90,7 +90,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
     val yesText = "Iawn"
     val noText = "Na"
     val continueText = "Yn eich blaen"
-    val continueLink = s"/income-through-software/return/personal-income/$taxYear/interest/untaxed-uk-interest"
+    val continueLink = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/untaxed-uk-interest"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -239,7 +239,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
           "has an SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get should include(
-              "/income-through-software/return/personal-income/2022/interest/check-interest")
+              "/update-and-submit-income-tax-return/personal-income/2022/interest/check-interest")
           }
         }
 
@@ -322,7 +322,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
           "has an SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get should include(
-              "/income-through-software/return/personal-income/2022/interest/check-interest")
+              "/update-and-submit-income-tax-return/personal-income/2022/interest/check-interest")
           }
         }
 
@@ -347,7 +347,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
               "redirects to the which-account-did-you-get-untaxed-interest-from page" in {
 
                 result.header("Location").get should include(
-                  "/income-through-software/return/personal-income/2022/interest/which-account-did-you-get-untaxed-interest-from")
+                  "/update-and-submit-income-tax-return/personal-income/2022/interest/which-account-did-you-get-untaxed-interest-from")
               }
             }
 
@@ -366,7 +366,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
               "redirects to the untaxed interest amount page" in {
                 result.header("Location").get should include(
-                  "/income-through-software/return/personal-income/2022/interest/which-account-did-you-get-untaxed-interest-from")
+                  "/update-and-submit-income-tax-return/personal-income/2022/interest/which-account-did-you-get-untaxed-interest-from")
               }
             }
 
@@ -389,7 +389,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
               }
 
               "redirects to the interest CYA page" in {
-                result.header("Location") shouldBe Some("/income-through-software/return/personal-income/2022/interest/check-interest")
+                result.header("Location") shouldBe Some("/update-and-submit-income-tax-return/personal-income/2022/interest/check-interest")
               }
             }
           }
@@ -411,7 +411,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
               }
 
               "redirects to the receive tax interest page" in {
-                result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/taxed-uk-interest"
+                result.headers("Location").head shouldBe "/update-and-submit-income-tax-return/personal-income/2022/interest/taxed-uk-interest"
               }
             }
 
@@ -429,7 +429,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
               }
 
               "redirects to the receive tax interest page" in {
-                result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/taxed-uk-interest"
+                result.headers("Location").head shouldBe "/update-and-submit-income-tax-return/personal-income/2022/interest/taxed-uk-interest"
               }
             }
 
@@ -452,7 +452,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
               }
 
               "redirects to the interest CYA page" in {
-                result.header("Location") shouldBe Some("/income-through-software/return/personal-income/2022/interest/check-interest")
+                result.header("Location") shouldBe Some("/update-and-submit-income-tax-return/personal-income/2022/interest/check-interest")
               }
             }
           }

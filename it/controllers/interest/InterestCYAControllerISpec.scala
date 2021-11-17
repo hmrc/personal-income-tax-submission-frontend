@@ -97,12 +97,12 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
     val untaxedInterestAccount1ExpectedTest = "UntaxedBank1 : £100"
     val taxedInterestAccount1ExpectedTest = "TaxedBank1 : £200"
     val taxedInterestAccount2ExpectedTest = "TaxedBank2 : £400"
-    val changeUntaxedInterestHref = s"/income-through-software/return/personal-income/$taxYear/interest/untaxed-uk-interest"
-    val changeUntaxedInterestAmountHref = s"/income-through-software/return/personal-income/$taxYear/interest/accounts-with-untaxed-uk-interest"
-    val changeTaxedInterestHref = s"/income-through-software/return/personal-income/$taxYear/interest/taxed-uk-interest"
-    val changeTaxedInterestAmountHref = s"/income-through-software/return/personal-income/$taxYear/interest/accounts-with-taxed-uk-interest"
+    val changeUntaxedInterestHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/untaxed-uk-interest"
+    val changeUntaxedInterestAmountHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/accounts-with-untaxed-uk-interest"
+    val changeTaxedInterestHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/taxed-uk-interest"
+    val changeTaxedInterestAmountHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/accounts-with-taxed-uk-interest"
     val submitText = "Save and continue"
-    val submitLink = s"/income-through-software/return/personal-income/$taxYear/interest/check-interest"
+    val submitLink = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/check-interest"
     val Yes = "Yes"
     val No = "No"
   }
@@ -117,12 +117,12 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
     val untaxedInterestAccount1ExpectedTest = "UntaxedBank1 : £100"
     val taxedInterestAccount1ExpectedTest = "TaxedBank1 : £200"
     val taxedInterestAccount2ExpectedTest = "TaxedBank2 : £400"
-    val changeUntaxedInterestHref = s"/income-through-software/return/personal-income/$taxYear/interest/untaxed-uk-interest"
-    val changeUntaxedInterestAmountHref = s"/income-through-software/return/personal-income/$taxYear/interest/accounts-with-untaxed-uk-interest"
-    val changeTaxedInterestHref = s"/income-through-software/return/personal-income/$taxYear/interest/taxed-uk-interest"
-    val changeTaxedInterestAmountHref = s"/income-through-software/return/personal-income/$taxYear/interest/accounts-with-taxed-uk-interest"
+    val changeUntaxedInterestHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/untaxed-uk-interest"
+    val changeUntaxedInterestAmountHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/accounts-with-untaxed-uk-interest"
+    val changeTaxedInterestHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/taxed-uk-interest"
+    val changeTaxedInterestAmountHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/accounts-with-taxed-uk-interest"
     val submitText = "Cadw ac yn eich blaen"
-    val submitLink = s"/income-through-software/return/personal-income/$taxYear/interest/check-interest"
+    val submitLink = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/check-interest"
     val Yes = "Iawn"
     val No = "Na"
   }
@@ -201,7 +201,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           s"then redirects and has an SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get shouldBe
-              "/income-through-software/return/personal-income/2022/interest/which-account-did-you-get-taxed-interest-from"
+              "/update-and-submit-income-tax-return/personal-income/2022/interest/which-account-did-you-get-taxed-interest-from"
           }
         }
 
@@ -257,7 +257,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           s"then redirects and has an SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get shouldBe
-              "/income-through-software/return/personal-income/2022/interest/taxed-uk-interest"
+              "/update-and-submit-income-tax-return/personal-income/2022/interest/taxed-uk-interest"
           }
         }
 
@@ -280,7 +280,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           s"then redirects and has an SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get shouldBe
-              "/income-through-software/return/personal-income/2022/interest/taxed-uk-interest"
+              "/update-and-submit-income-tax-return/personal-income/2022/interest/taxed-uk-interest"
           }
         }
 
@@ -300,7 +300,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           s"then redirects and has an SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get shouldBe
-              "/income-through-software/return/personal-income/2022/interest/which-account-did-you-get-untaxed-interest-from"
+              "/update-and-submit-income-tax-return/personal-income/2022/interest/which-account-did-you-get-untaxed-interest-from"
           }
         }
 
@@ -490,7 +490,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
 
           s"has an SEE_OTHER($SEE_OTHER) status" in {
             result.status shouldBe SEE_OTHER
-            result.header("Location").get shouldBe "http://localhost:11111/income-through-software/return/2022/view"
+            result.header("Location").get shouldBe "http://localhost:11111/update-and-submit-income-tax-return/2022/view"
           }
         }
 
@@ -528,7 +528,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
               Some(false), Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount))))
             )), taxYear, Some(mtditid), None)
             authoriseIndividual()
-            stubGet(s"/income-through-software/return/$taxYear/view", OK, "")
+            stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "")
             stubPost(s"/income-tax-interest/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "", expectedHeaders)
 
             urlPost(s"$appUrl/$taxYear/interest/check-interest", "{}", us.isWelsh, follow = true, playSessionCookie(us.isAgent))

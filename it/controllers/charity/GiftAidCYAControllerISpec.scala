@@ -673,7 +673,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
 
             "redirects to the correct url" in {
               result
-              verifyGet("/income-through-software/return/2022/view")
+              verifyGet("/update-and-submit-income-tax-return/2022/view")
             }
           }
 
@@ -690,7 +690,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
 
             "redirects to the correct url" in {
               result
-              verifyGet("/income-through-software/return/2022/view")
+              verifyGet("/update-and-submit-income-tax-return/2022/view")
             }
           }
         }

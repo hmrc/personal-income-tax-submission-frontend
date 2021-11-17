@@ -37,7 +37,7 @@ class MockAppConfig extends AppConfig with MockFactory {
 
   override def incomeTaxSubmissionStartUrl(taxYear: Int): String = "/start"
 
-  override def incomeTaxSubmissionIvRedirect: String = "/income-through-software/return/iv-uplift"
+  override def incomeTaxSubmissionIvRedirect: String = "/update-and-submit-income-tax-return/iv-uplift"
 
   override def viewAndChangeEnterUtrUrl: String = "/report-quarterly/income-and-expenses/view/agents/client-utr"
 
