@@ -23,11 +23,11 @@ import models.{APIErrorBodyModel, APIErrorModel}
 import play.api.http.Status._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.UnitTestWithApp
+import utils.UnitTest
 
 import scala.concurrent.Future
 
-class GiftAidSubmissionServiceSpec extends UnitTestWithApp {
+class GiftAidSubmissionServiceSpec extends UnitTest {
 
   val connector: GiftAidSubmissionConnector = mock[GiftAidSubmissionConnector]
   val auth: AuthConnector = mock[AuthConnector]

@@ -16,14 +16,14 @@
 
 package views.templates
 
-import config.AppConfig
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
-import utils.ViewTest
+import utils.{IntegrationTest, ViewHelpers}
 import views.html.templates.ServiceUnavailableTemplate
 
-class ServiceUnavailableTemplateSpec extends ViewTest {
+class ServiceUnavailableTemplateISpec extends IntegrationTest with ViewHelpers {
 
   object Selectors {
 
@@ -63,16 +63,15 @@ class ServiceUnavailableTemplateSpec extends ViewTest {
 
 
   lazy val serviceUnavailableTemplate: ServiceUnavailableTemplate = app.injector.instanceOf[ServiceUnavailableTemplate]
-  lazy val appConfig: AppConfig = mockAppConfig
 
   "ServiceUnavailableTemplate in English" should {
 
     "render the page correct" which {
 
-      lazy val view: HtmlFormat.Appendable = serviceUnavailableTemplate()(fakeRequest, messages, appConfig)
-      implicit lazy val document: Document = Jsoup.parse(view.body)
+      lazy val view: HtmlFormat.Appendable = serviceUnavailableTemplate()(FakeRequest(), messages, appConfig)
+      implicit def document: () => Document = () => Jsoup.parse(view.body)
 
-      titleCheck(EnglishText.h1Expected)
+      titleCheck(EnglishText.h1Expected, false)
       welshToggleCheck("English")
       h1Check(EnglishText.h1Expected, "xl")
 
@@ -93,10 +92,10 @@ class ServiceUnavailableTemplateSpec extends ViewTest {
 
     "render the page correct" which {
 
-      lazy val view: HtmlFormat.Appendable = serviceUnavailableTemplate()(fakeRequest, welshMessages, appConfig)
-      implicit lazy val document: Document = Jsoup.parse(view.body)
+      lazy val view: HtmlFormat.Appendable = serviceUnavailableTemplate()(FakeRequest(), welshMessages, appConfig)
+      implicit def document: () => Document = () => Jsoup.parse(view.body)
 
-      titleCheckWelsh(WelshText.h1Expected)
+      titleCheck(WelshText.h1Expected, true)
       welshToggleCheck("Welsh")
       h1Check(WelshText.h1Expected, "xl")
 

@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package views.templates.helpers
+package views.helpers
 
-import config.{AppConfig, MockAppConfig}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import utils.ViewTest
+import play.api.test.FakeRequest
+import utils.{IntegrationTest, ViewHelpers}
 import views.html.templates.helpers.BetaBar
 
-class BetaBarViewSpec extends ViewTest {
+class BetaBarViewISpec extends IntegrationTest with ViewHelpers {
 
   lazy val betaBar: BetaBar = app.injector.instanceOf[BetaBar]
 
@@ -33,12 +33,11 @@ class BetaBarViewSpec extends ViewTest {
     "provided with an implicit appConfig" should {
 
       "use appConfig.feedbackUrl in the beta banner link" which {
-        implicit val appConfig: AppConfig = new MockAppConfig().config()
 
         "contains the correct href value when the service is accessed as an individual" in {
 
-          lazy val view = betaBar(isAgent = false)(fakeRequest, messages, appConfig)
-          implicit lazy val document: Document = Jsoup.parse(view.body)
+          lazy val view = betaBar(isAgent = false)(FakeRequest(), messages, appConfig)
+          implicit def document: () => Document = () => Jsoup.parse(view.body)
           implicit val isAgent: Boolean = false
 
           element(aTagSelector).attr("href") shouldBe appConfig.betaFeedbackUrl
@@ -46,8 +45,8 @@ class BetaBarViewSpec extends ViewTest {
 
         "contains the correct href value the service is accessed as an agent" in {
 
-          lazy val view = betaBar(isAgent = true)(fakeRequest, messages, appConfig)
-          implicit lazy val document: Document = Jsoup.parse(view.body)
+          lazy val view = betaBar(isAgent = true)(FakeRequest(), messages, appConfig)
+          implicit def document: () => Document = () => Jsoup.parse(view.body)
           implicit val isAgent: Boolean = true
 
           element(aTagSelector).attr("href") shouldBe appConfig.betaFeedbackUrl

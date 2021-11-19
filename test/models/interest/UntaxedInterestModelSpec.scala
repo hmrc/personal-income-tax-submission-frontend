@@ -21,7 +21,7 @@ import utils.UnitTest
 
 class UntaxedInterestModelSpec extends UnitTest {
 
-  val model = UntaxedInterestModel("account name",45.00)
+  val model: UntaxedInterestModel = UntaxedInterestModel("account name",45.00)
 
   val jsonModel: JsObject = Json.obj(
     "untaxedAccountName" -> "account name",

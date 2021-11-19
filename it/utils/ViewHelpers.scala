@@ -302,4 +302,17 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
     }
   }
 
+  def checkMessagesAreUnique(initial: List[(String, String)], keysToExplore: List[(String, String)], result: Set[String]): Set[String] = {
+    keysToExplore match {
+      case Nil => result
+      case head :: tail =>
+        val (currentMessageKey, currentMessage) = (head._1, head._2)
+        val duplicate = initial.collect {
+          case (messageKey, message) if currentMessageKey != messageKey && currentMessage == message => currentMessageKey
+        }.toSet
+
+        checkMessagesAreUnique(initial, tail, duplicate ++ result)
+    }
+  }
+
 }

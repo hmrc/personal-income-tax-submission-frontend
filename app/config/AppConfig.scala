@@ -16,21 +16,22 @@
 
 package config
 
+import com.google.inject.ImplementedBy
 import play.api.i18n.Lang
 import play.api.mvc.{Call, RequestHeader}
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.Inject
 import scala.concurrent.duration.Duration
 
-@Singleton
-class AppConfig @Inject()(servicesConfig: ServicesConfig) {
-  private lazy val signInBaseUrl: String = servicesConfig.getString(ConfigKeys.signInUrl)
+
+class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig) extends AppConfig {
+  lazy val signInBaseUrl: String = servicesConfig.getString(ConfigKeys.signInUrl)
 
   private lazy val signInContinueBaseUrl: String = servicesConfig.getString(ConfigKeys.signInContinueUrl)
   lazy val signInContinueUrl: String = SafeRedirectUrl(signInContinueBaseUrl).encodedUrl //TODO add redirect to overview page
-  private lazy val signInOrigin = servicesConfig.getString("appName")
+  private lazy val signInOrigin: String = servicesConfig.getString("appName")
   lazy val signInUrl: String = s"$signInBaseUrl?continue=$signInContinueUrl&origin=$signInOrigin"
   lazy val dividendsBaseUrl: String = s"${servicesConfig.getString(ConfigKeys.incomeTaxDividendsUrl)}/income-tax-dividends"
   lazy val interestBaseUrl: String = s"${servicesConfig.getString(ConfigKeys.incomeTaxInterestUrl)}/income-tax-interest"
@@ -44,26 +45,29 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
 
   def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.overview")
+
   def incomeTaxSubmissionStartUrl(taxYear: Int): String = s"$incomeTaxSubmissionBaseUrl/$taxYear/start"
+
   def incomeTaxSubmissionIvRedirect: String = incomeTaxSubmissionBaseUrl +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.iv-redirect")
 
 
   private lazy val vcBaseUrl: String = servicesConfig.getString(ConfigKeys.viewAndChangeUrl)
+
   def viewAndChangeEnterUtrUrl: String = s"$vcBaseUrl/report-quarterly/income-and-expenses/view/agents/client-utr"
 
-  lazy private val appUrl: String = servicesConfig.getString("microservice.url")
+  private lazy val appUrl: String = servicesConfig.getString("microservice.url")
 
-  lazy private val contactFrontEndUrl = servicesConfig.getString(ConfigKeys.contactFrontendUrl)
+  private lazy val contactFrontEndUrl: String = servicesConfig.getString(ConfigKeys.contactFrontendUrl)
 
-  lazy private val contactFormServiceIndividual = "update-and-submit-income-tax-return"
-  lazy private val contactFormServiceAgent = "update-and-submit-income-tax-return-agent"
+  private lazy val contactFormServiceIndividual: String = "update-and-submit-income-tax-return"
+  private lazy val contactFormServiceAgent: String = "update-and-submit-income-tax-return-agent"
 
   def contactFormServiceIdentifier(implicit isAgent: Boolean): String = if (isAgent) contactFormServiceAgent else contactFormServiceIndividual
 
   private def requestUri(implicit request: RequestHeader): String = SafeRedirectUrl(appUrl + request.uri).encodedUrl
 
-  private lazy val feedbackFrontendUrl = servicesConfig.getString(ConfigKeys.feedbackFrontendUrl)
+  private lazy val feedbackFrontendUrl: String = servicesConfig.getString(ConfigKeys.feedbackFrontendUrl)
 
   def feedbackSurveyUrl(implicit isAgent: Boolean): String = s"$feedbackFrontendUrl/feedback/$contactFormServiceIdentifier"
 
@@ -72,7 +76,7 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
 
   def contactUrl(implicit isAgent: Boolean): String = s"$contactFrontEndUrl/contact/contact-hmrc?service=$contactFormServiceIdentifier"
 
-  private lazy val basGatewayUrl = servicesConfig.getString(ConfigKeys.basGatewayFrontendUrl)
+  private lazy val basGatewayUrl: String = servicesConfig.getString(ConfigKeys.basGatewayFrontendUrl)
 
   lazy val signOutUrl: String = s"$basGatewayUrl/bas-gateway/sign-out-without-state"
 
@@ -81,12 +85,12 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
 
   def taxYearErrorFeature: Boolean = servicesConfig.getBoolean("taxYearErrorFeatureSwitch")
 
-  def languageMap: Map[String, Lang] = Map(
+  override def languageMap: Map[String, Lang] = Map(
     "english" -> Lang("en"),
     "cymraeg" -> Lang("cy")
   )
 
-  def routeToSwitchLanguage: String => Call =
+  override def routeToSwitchLanguage: String => Call =
     (lang: String) => controllers.routes.LanguageSwitchController.switchToLanguage(lang)
 
   lazy val welshToggleEnabled: Boolean = servicesConfig.getBoolean("feature-switch.welshToggleEnabled")
@@ -105,4 +109,66 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
   lazy val giftAidReleased: Boolean = servicesConfig.getBoolean("feature-switch.giftAidReleased")
   lazy val employmentEnabled: Boolean = servicesConfig.getBoolean("feature-switch.employmentEnabled")
   lazy val employmentReleased: Boolean = servicesConfig.getBoolean("feature-switch.employmentReleased")
+
+}
+
+@ImplementedBy(classOf[FrontendAppConfig])
+trait AppConfig {
+  val signInBaseUrl: String
+
+  val signInContinueUrl: String
+  val signInUrl: String
+  val dividendsBaseUrl: String
+  val interestBaseUrl: String
+  val giftAidBaseUrl: String
+  val incomeTaxSubmissionBEBaseUrl: String
+
+  def defaultTaxYear: Int
+
+  def incomeTaxSubmissionBaseUrl: String
+
+  def incomeTaxSubmissionOverviewUrl(taxYear: Int): String
+
+  def incomeTaxSubmissionStartUrl(taxYear: Int): String
+
+  def incomeTaxSubmissionIvRedirect: String
+
+  def viewAndChangeEnterUtrUrl: String
+
+  def contactFormServiceIdentifier(implicit isAgent: Boolean): String
+
+  def feedbackSurveyUrl(implicit isAgent: Boolean): String
+
+  def betaFeedbackUrl(implicit request: RequestHeader, isAgent: Boolean): String
+
+  def contactUrl(implicit isAgent: Boolean): String
+
+  val signOutUrl: String
+
+  val timeoutDialogTimeout: Int
+  val timeoutDialogCountdown: Int
+
+  def taxYearErrorFeature: Boolean
+
+  def languageMap: Map[String, Lang]
+
+  def routeToSwitchLanguage: String => Call
+
+  val welshToggleEnabled: Boolean
+  val useEncryption: Boolean
+
+  def isJourneyAvailable(journeyKey: JourneyKey): Boolean
+
+  def taxYearSwitchResetsSession: Boolean
+
+  val encryptionKey: String
+
+  def mongoTTL: Long
+
+  val dividendsEnabled: Boolean
+  val interestEnabled: Boolean
+  val giftAidEnabled: Boolean
+  val giftAidReleased: Boolean
+  val employmentEnabled: Boolean
+  val employmentReleased: Boolean
 }

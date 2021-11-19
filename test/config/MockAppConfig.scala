@@ -17,51 +17,73 @@
 package config
 
 import org.scalamock.scalatest.MockFactory
-import play.api.mvc.RequestHeader
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import play.api.i18n.Lang
+import play.api.mvc.{Call, RequestHeader}
 
-class MockAppConfig extends MockFactory {
+class MockAppConfig extends AppConfig with MockFactory {
+  override val signInBaseUrl: String = "/signInBase"
+  override val signInContinueUrl: String = "/continue"
+  override val signInUrl: String = "/signIn"
+  override val dividendsBaseUrl: String = "/dividends"
+  override val interestBaseUrl: String = "/interest"
+  override val giftAidBaseUrl: String = "/giftAid"
+  override val incomeTaxSubmissionBEBaseUrl: String = "/incomeTaxSubmissionBaseUrl"
 
-  def config(encrypt: Boolean = true): AppConfig = new AppConfig(mock[ServicesConfig]) {
-    override lazy val signInContinueUrl: String = "/continue"
-    override lazy val signInUrl: String = "/signIn"
-    override lazy val dividendsBaseUrl: String = "/dividends"
-    override lazy val interestBaseUrl: String = "/interest"
+  override def defaultTaxYear: Int = 2022
 
-    override def defaultTaxYear: Int = 2022
+  override def incomeTaxSubmissionBaseUrl: String = "/incomeTaxSubmissionBaseUrl"
 
-    override def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = "/overview"
+  override def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = "/overview"
 
-    override def incomeTaxSubmissionStartUrl(taxYear: Int): String = "/start"
+  override def incomeTaxSubmissionStartUrl(taxYear: Int): String = "/start"
 
-    override def feedbackSurveyUrl(implicit isAgent: Boolean): String = "/feedbackUrl"
+  override def incomeTaxSubmissionIvRedirect: String = "/income-through-software/return/iv-uplift"
 
-    override def betaFeedbackUrl(implicit request: RequestHeader, isAgent: Boolean): String = "/feedbackUrl"
+  override def viewAndChangeEnterUtrUrl: String = "/report-quarterly/income-and-expenses/view/agents/client-utr"
 
-    override def contactUrl(implicit isAgent: Boolean): String = "/contact-frontend/contact"
+  override def contactFormServiceIdentifier(implicit isAgent: Boolean): String = "contactFormServiceIdentifier"
 
-    override lazy val signOutUrl: String = "/sign-out-url"
+  override def feedbackSurveyUrl(implicit isAgent: Boolean): String = "/feedbackUrl"
 
-    override lazy val timeoutDialogTimeout: Int = 900
-    override lazy val timeoutDialogCountdown: Int = 120
+  override def betaFeedbackUrl(implicit request: RequestHeader, isAgent: Boolean): String = "betaFeedbackUrl"
 
-    override def taxYearErrorFeature: Boolean = true
+  override def contactUrl(implicit isAgent: Boolean): String = "/contact-frontend/contact"
 
-    override lazy val welshToggleEnabled: Boolean = true
+  override val signOutUrl: String = "/sign-out-url"
+  override val timeoutDialogTimeout: Int = 900
+  override val timeoutDialogCountdown: Int = 120
 
-    override def viewAndChangeEnterUtrUrl: String = "/report-quarterly/income-and-expenses/view/agents/client-utr"
+  override def taxYearErrorFeature: Boolean = true
 
-    override def incomeTaxSubmissionBaseUrl: String = ""
+  override def languageMap: Map[String, Lang] = Map(
+    "english" -> Lang("en"),
+    "cymraeg" -> Lang("cy")
+  )
 
-    override def incomeTaxSubmissionIvRedirect: String = "/income-through-software/return/iv-uplift"
+  override def routeToSwitchLanguage: String => Call =
+    (lang: String) => controllers.routes.LanguageSwitchController.switchToLanguage(lang)
 
-    override def isJourneyAvailable(journeyKey: JourneyKey): Boolean = true
+  override val welshToggleEnabled: Boolean = true
+  override val useEncryption: Boolean = true
 
-    override def taxYearSwitchResetsSession: Boolean = true
+  override def isJourneyAvailable(journeyKey: JourneyKey): Boolean = true
 
-    //noinspection ScalaStyle
-    override def mongoTTL: Long = 15
-    override lazy val useEncryption: Boolean = encrypt
-    override lazy val encryptionKey: String = "encryptionKey12345"
-  }
+  override def taxYearSwitchResetsSession: Boolean = true
+
+  override val encryptionKey: String = "1234556"
+
+  override def mongoTTL: Long = 15
+
+  override val dividendsEnabled: Boolean = true
+  override val interestEnabled: Boolean = true
+  override val giftAidEnabled: Boolean = true
+  override val giftAidReleased: Boolean = true
+  override val employmentEnabled: Boolean = true
+  override val employmentReleased: Boolean = true
 }
+
+class MockAppConfigEncyrptionOff extends MockAppConfig {
+  override val useEncryption: Boolean = false
+}
+
+

@@ -17,24 +17,14 @@
 package utils
 
 import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, Materializer}
 import com.codahale.metrics.SharedMetricRegistries
 import common.{EnrolmentIdentifiers, EnrolmentKeys, SessionValues}
-import config.{AppConfig, ErrorHandler, JourneyKey, MockAppConfig}
-import controllers.predicates.AuthorisedAction
+import config.{AppConfig, ErrorHandler, MockAppConfig}
 import models.User
-import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
-import models.mongo.DividendsUserDataModel
-import models.priorDataModels.IncomeSourcesModel
-import org.scalamock.handlers.CallHandler1
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.Application
-import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc._
 import play.api.test.{FakeRequest, Helpers}
 import services.{AuthService, DividendsSessionService, GiftAidSessionService, InterestSessionService}
@@ -44,13 +34,11 @@ import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.tools.Stubs.stubMessagesControllerComponents
-import views.html.authErrorPages.AgentAuthErrorPageView
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
 
-trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAndAfterEach with GuiceOneAppPerSuite {
+trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAndAfterEach{
 
   class TestWithAuth(isAgent: Boolean = false, nino: Option[String] = Some("AA123456A")) {
     if(isAgent) mockAuthAsAgent() else mockAuth(nino)
@@ -78,7 +66,7 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
 
   val sessionId = "eb3158c2-0aff-4ce8-8d1b-f2208ace52fe"
 
-  implicit val mockAppConfig: AppConfig = new MockAppConfig().config()
+  implicit val mockAppConfig: AppConfig = new MockAppConfig
   implicit val mockControllerComponents: ControllerComponents = Helpers.stubControllerComponents()
   implicit val mockExecutionContext: ExecutionContext = ExecutionContext.Implicits.global
   implicit val mockAuthConnector: AuthConnector = mock[AuthConnector]
@@ -87,18 +75,10 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
   implicit val mockInterestSessionService: InterestSessionService = mock[InterestSessionService]
   implicit val mockGiftAidSessionService: GiftAidSessionService = mock[GiftAidSessionService]
   implicit val mockErrorHandler: ErrorHandler = mock[ErrorHandler]
-  val agentAuthErrorPageView: AgentAuthErrorPageView = app.injector.instanceOf[AgentAuthErrorPageView]
 
   implicit lazy val mockMessagesControllerComponents: MessagesControllerComponents = Helpers.stubMessagesControllerComponents()
   implicit lazy val user: User[AnyContent] = new User[AnyContent]("1234567890", None, "AA123456A", "Individual", sessionId)(fakeRequest)
 
-  val authorisedAction = new AuthorisedAction(mockAppConfig, agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
-
-  override def fakeApplication(): Application = {
-    GuiceApplicationBuilder()
-      .overrides(bind(classOf[AppConfig]).to(mockAppConfig))
-      .build()
-  }
 
   def status(awaitable: Future[Result]): Int = await(awaitable).header.status
 

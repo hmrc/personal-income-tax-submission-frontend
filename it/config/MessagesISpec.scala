@@ -16,11 +16,10 @@
 
 package config
 
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
-import utils.ViewTest
+import utils.{IntegrationTest, ViewHelpers}
 
-class MessagesSpec extends ViewTest with GuiceOneAppPerSuite {
+class MessagesISpec extends IntegrationTest with ViewHelpers {
 
   lazy val allLanguages: Map[String, Map[String, String]] = app.injector.instanceOf[MessagesApi].messages
   val exclusionKeys = Set(

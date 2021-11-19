@@ -16,14 +16,14 @@
 
 package views.templates
 
-import config.AppConfig
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
-import utils.ViewTest
+import utils.{IntegrationTest, ViewHelpers}
 import views.html.templates.InternalServerErrorTemplate
 
-class InternalServerErrorTemplateSpec extends ViewTest {
+class InternalServerErrorTemplateISpec extends IntegrationTest with ViewHelpers {
 
   object Selectors {
 
@@ -61,16 +61,15 @@ class InternalServerErrorTemplateSpec extends ViewTest {
   }
 
   lazy val internalServerErrorTemplate: InternalServerErrorTemplate = app.injector.instanceOf[InternalServerErrorTemplate]
-  lazy val appConfig: AppConfig = mockAppConfig
 
   "UnauthorisedTemplate in English" should {
 
     "render the page correctly" which {
 
-      lazy val view: HtmlFormat.Appendable = internalServerErrorTemplate()(fakeRequest, messages, appConfig)
-      implicit lazy val document: Document = Jsoup.parse(view.body)
+      lazy val view: HtmlFormat.Appendable = internalServerErrorTemplate()(FakeRequest(), messages, appConfig)
+      implicit def document: () => Document = () => Jsoup.parse(view.body)
 
-      titleCheck(EnglishText.h1Expected)
+      titleCheck(EnglishText.h1Expected, false)
       welshToggleCheck("English")
       h1Check(EnglishText.h1Expected, "xl")
       textOnPageCheck(EnglishText.p1Expected, Selectors.p1Selector)
@@ -89,10 +88,10 @@ class InternalServerErrorTemplateSpec extends ViewTest {
 
     "render the page correctly" which {
 
-      lazy val view: HtmlFormat.Appendable = internalServerErrorTemplate()(fakeRequest, welshMessages, appConfig)
-      implicit lazy val document: Document = Jsoup.parse(view.body)
+      lazy val view: HtmlFormat.Appendable = internalServerErrorTemplate()(FakeRequest(), welshMessages, appConfig)
+      implicit def document: () => Document = () => Jsoup.parse(view.body)
 
-      titleCheckWelsh(WelshText.h1Expected)
+      titleCheck(WelshText.h1Expected, true)
       welshToggleCheck("Welsh")
       h1Check(WelshText.h1Expected, "xl")
       textOnPageCheck(WelshText.p1Expected, Selectors.p1Selector)

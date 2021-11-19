@@ -16,22 +16,14 @@
 
 package controllers
 
-import config.AppConfig
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status
 import play.api.test.Helpers._
-import play.api.{Configuration, Environment}
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.tools.Stubs.stubMessagesControllerComponents
 import utils.UnitTest
 
-class LanguageSwitchControllerSpec extends UnitTest with GuiceOneAppPerSuite {
+class LanguageSwitchControllerSpec extends UnitTest {
 
-  private val env = Environment.simple()
-  private val configuration = Configuration.load(env)
-
-  private val serviceConfig = new ServicesConfig(configuration)
-  private val mockFrontendAppConfig = new AppConfig(serviceConfig)
+  private val mockFrontendAppConfig = mockAppConfig
 
   private val controller = new LanguageSwitchController(appConfig = mockFrontendAppConfig, controllerComponents = stubMessagesControllerComponents(),
     messagesApi = stubMessagesApi())

@@ -34,6 +34,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.http.HeaderNames
+import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.libs.ws.{BodyWritable, WSClient, WSResponse}
@@ -119,6 +120,10 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
       Some(888.00)
     ))
   )
+
+  implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+  implicit lazy val messages: Messages = messagesApi.preferred(FakeRequest())
+  lazy val welshMessages: Messages = messagesApi.preferred(Seq(Lang("cy")))
 
   implicit lazy val user: User[AnyContent] = new User[AnyContent](mtditid, None, nino, affinityGroup, sessionId)(FakeRequest())
 
