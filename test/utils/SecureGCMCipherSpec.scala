@@ -17,7 +17,7 @@
 package utils
 
 import com.codahale.metrics.SharedMetricRegistries
-import config.{AppConfig, MockAppConfig}
+import config.{AppConfig, MockAppConfig, MockAppConfigEncyrptionOff}
 import models.mongo.TextAndKey
 import utils.TypeCaster.Converter.stringLoader
 
@@ -44,7 +44,7 @@ class SecureGCMCipherSpec extends UnitTest {
 
   "encrypt" should {
     "return plain text when turned off" in {
-      val encrypterWithNoCrypt = new SecureGCMCipher()(new MockAppConfig().config(false))
+      val encrypterWithNoCrypt = new SecureGCMCipher()(new MockAppConfigEncyrptionOff)
       val encryptedText = encrypterWithNoCrypt.encrypt(textToEncrypt)
 
       encryptedText.value shouldBe textToEncrypt
@@ -171,7 +171,7 @@ class SecureGCMCipherSpec extends UnitTest {
 
   "decrypt" should {
     "return plain text when turned off" in {
-      val encrypterWithNoCrypt = new SecureGCMCipher()(new MockAppConfig().config(false))
+      val encrypterWithNoCrypt = new SecureGCMCipher()(new MockAppConfigEncyrptionOff)
       val encryptedText = encrypterWithNoCrypt.decrypt(textToEncrypt, "nonce")
       encryptedText shouldBe textToEncrypt
     }

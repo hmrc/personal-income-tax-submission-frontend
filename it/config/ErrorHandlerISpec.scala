@@ -18,18 +18,17 @@ package config
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status._
 import play.api.i18n._
 import play.api.mvc.Result
-import utils.{UnitTest, ViewTest}
+import play.api.test.FakeRequest
+import utils.{IntegrationTest, ViewHelpers}
 import views.html.templates.{InternalServerErrorTemplate, NotFoundTemplate, ServiceUnavailableTemplate}
 
 import scala.concurrent.Future
 
 
-
-class ErrorHandlerSpec extends UnitTest with GuiceOneAppPerSuite with ViewTest {
+class ErrorHandlerISpec extends IntegrationTest with ViewHelpers {
 
   val serviceUnavailableTemplate: ServiceUnavailableTemplate = app.injector.instanceOf[ServiceUnavailableTemplate]
   val notFoundTemplate: NotFoundTemplate = app.injector.instanceOf[NotFoundTemplate]
@@ -48,7 +47,7 @@ class ErrorHandlerSpec extends UnitTest with GuiceOneAppPerSuite with ViewTest {
     "return a ServiceUnavailable when passed a SERVICE_UNAVAILABLE 503" in {
 
 
-      val result: Future[Result] = Future.successful(errorHandler.handleError(503)(fakeRequest))
+      val result: Future[Result] = Future.successful(errorHandler.handleError(503)(FakeRequest()))
 
       bodyOf(result) should include("Sorry, the service is unavailable")
       status(result) shouldBe SERVICE_UNAVAILABLE
@@ -56,7 +55,7 @@ class ErrorHandlerSpec extends UnitTest with GuiceOneAppPerSuite with ViewTest {
     }
     "return an InternalServerError when passed anything other than a 503" in {
 
-      val result: Future[Result] = Future.successful(errorHandler.handleError(400)(fakeRequest))
+      val result: Future[Result] = Future.successful(errorHandler.handleError(400)(FakeRequest()))
 
       bodyOf(result) should include("Sorry, there is a problem with the service")
       status(result) shouldBe INTERNAL_SERVER_ERROR

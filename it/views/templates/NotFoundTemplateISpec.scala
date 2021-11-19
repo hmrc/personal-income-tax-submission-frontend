@@ -16,14 +16,14 @@
 
 package views.templates
 
-import config.AppConfig
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
-import utils.ViewTest
+import utils.{IntegrationTest, ViewHelpers}
 import views.html.templates.NotFoundTemplate
 
-class NotFoundTemplateSpec extends ViewTest {
+class NotFoundTemplateISpec extends IntegrationTest with ViewHelpers {
 
   object Selectors {
 
@@ -53,16 +53,15 @@ class NotFoundTemplateSpec extends ViewTest {
   }
 
   val notFoundTemplate: NotFoundTemplate = app.injector.instanceOf[NotFoundTemplate]
-  val appConfig: AppConfig = mockAppConfig
 
   "NotFoundTemplate in English" should {
 
     "render the page correctly" which {
 
-      lazy val view: HtmlFormat.Appendable = notFoundTemplate()(fakeRequest, messages, mockAppConfig)
-      implicit lazy val document: Document = Jsoup.parse(view.body)
+      lazy val view: HtmlFormat.Appendable = notFoundTemplate()(FakeRequest(), messages, appConfig)
+      implicit def document: () => Document = () => Jsoup.parse(view.body)
 
-      titleCheck(EnglishText.h1Expected)
+      titleCheck(EnglishText.h1Expected, false)
       welshToggleCheck("English")
       h1Check(EnglishText.h1Expected, "xl")
 
@@ -78,10 +77,10 @@ class NotFoundTemplateSpec extends ViewTest {
 
     "render the page correctly" which {
 
-      lazy val view: HtmlFormat.Appendable = notFoundTemplate()(fakeRequest, welshMessages, mockAppConfig)
-      implicit lazy val document: Document = Jsoup.parse(view.body)
+      lazy val view: HtmlFormat.Appendable = notFoundTemplate()(FakeRequest(), welshMessages, appConfig)
+      implicit def document: () => Document = () => Jsoup.parse(view.body)
 
-      titleCheckWelsh(WelshText.h1Expected)
+      titleCheck(WelshText.h1Expected, true)
       welshToggleCheck("Welsh")
       h1Check(WelshText.h1Expected, "xl")
 

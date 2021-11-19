@@ -17,7 +17,7 @@
 package connectors
 
 import com.github.tomakehurst.wiremock.http.HttpHeader
-import config.AppConfig
+import config.{AppConfig, FrontendAppConfig}
 import connectors.httpParsers.GiftAidSubmissionHttpParser.GiftAidSubmissionsResponse
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
 import models.{APIErrorBodyModel, APIErrorModel}
@@ -37,7 +37,7 @@ class GiftAidSubmissionConnectorSpec extends IntegrationTest {
 
   lazy val httpClient: HttpClient = app.injector.instanceOf[HttpClient]
 
-  def appConfig(host: String): AppConfig = new AppConfig(app.injector.instanceOf[ServicesConfig]) {
+  def appConfig(host: String): AppConfig = new FrontendAppConfig(app.injector.instanceOf[ServicesConfig]) {
     override lazy val giftAidBaseUrl: String = s"http://$host:$wiremockPort/income-tax-gift-aid"
   }
 

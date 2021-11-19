@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package views.templates.helpers
+package views.helpers
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import utils.ViewTest
+import utils.{IntegrationTest, ViewHelpers}
 import views.html.templates.helpers.Link
 
-class LinkViewSpec extends ViewTest {
+class LinkViewISpec extends IntegrationTest with ViewHelpers {
 
   lazy val linkView: Link = app.injector.instanceOf[Link]
 
@@ -39,7 +39,7 @@ class LinkViewSpec extends ViewTest {
       "generate <a> tag" which {
         lazy val view = linkView(link, message)(messages)
 
-        implicit lazy val document: Document = Jsoup.parse(view.body)
+        implicit def document: () => Document = () => Jsoup.parse(view.body)
 
         "contains the correct href value" in {
           element(aTagSelector).attr("href") shouldBe link
@@ -64,7 +64,7 @@ class LinkViewSpec extends ViewTest {
       "generate <a> tag" which {
         lazy val view = linkView(link, message, id, isExternal)(messages)
 
-        implicit lazy val document: Document = Jsoup.parse(view.body)
+        implicit def document: () => Document = () => Jsoup.parse(view.body)
 
         "contains the correct href value" in {
           element(aTagSelector).attr("href") shouldBe link
