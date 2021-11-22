@@ -130,7 +130,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
     val amountSelector = "#amount"
   }
 
-  val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
+  val continueLink = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
   val newAmountInput = "#amount"
   val amountInputName = "amount"
   val expectedErrorLink = "#amount"
@@ -222,7 +222,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
         authoriseIndividual()
         dropDividendsDB()
         emptyUserDataStub()
-        stubGet(s"/income-through-software/return/$taxYear/view", OK, "overview page content")
+        stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "overview page content")
         urlGet(otherUkDividendsAmountUrl, headers = playSessionCookie())
       }
 
@@ -350,7 +350,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
       }
 
       "have the correct redirect URL" in {
-        result.headers(HeaderNames.LOCATION).head shouldBe "http://localhost:11111/income-through-software/return/2022/view"
+        result.headers(HeaderNames.LOCATION).head shouldBe "http://localhost:11111/update-and-submit-income-tax-return/2022/view"
       }
     }
 

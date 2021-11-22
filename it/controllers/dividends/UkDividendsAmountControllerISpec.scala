@@ -85,7 +85,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
   object AllExpectedEnglish extends CommonExpectedResults {
     val continueText = "Continue"
-    val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-companies"
+    val continueLink = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-companies"
     val captionExpected = s"Dividends for 6 April $taxYearMinusOne to 5 April $taxYear"
   }
 
@@ -113,7 +113,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
   object AllExpectedWelsh extends CommonExpectedResults {
     val continueText = "Yn eich blaen"
-    val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-companies"
+    val continueLink = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-companies"
     val captionExpected = s"Difidendau ar gyfer 6 Ebrill $taxYearMinusOne i 5 Ebrill $taxYear"
   }
 
@@ -130,7 +130,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
   }
 
   val poundPrefixText = "£"
-  val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-companies"
+  val continueLink = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-companies"
   val amountInputName = "amount"
 
   val userScenarios =
@@ -264,7 +264,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
         authoriseIndividual()
         dropDividendsDB()
         emptyUserDataStub()
-        stubGet(s"/income-through-software/return/$taxYear/view", OK, "overview page content")
+        stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "overview page content")
         urlGet(ukDividendsAmountUrl, headers = playSessionCookie())
       }
 
@@ -283,7 +283,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
           DividendsPriorSubmission(ukDividends = Some(amount))
         )), nino, taxYear)
         insertCyaData(None)
-        stubGet(s"/income-through-software/return/$taxYear/view", SEE_OTHER, "overview page content")
+        stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", SEE_OTHER, "overview page content")
         urlGet(ukDividendsAmountUrl, follow = false, headers = playSessionCookie())
       }
 
@@ -292,7 +292,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
       }
 
       "have the correct redirect URL" in {
-        result.headers(HeaderNames.LOCATION).head shouldBe "http://localhost:11111/income-through-software/return/2022/view"
+        result.headers(HeaderNames.LOCATION).head shouldBe "http://localhost:11111/update-and-submit-income-tax-return/2022/view"
       }
     }
   }
@@ -368,7 +368,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
       }
 
       "have the correct redirect URL" in {
-        result.headers(HeaderNames.LOCATION).head shouldBe "http://localhost:11111/income-through-software/return/2022/view"
+        result.headers(HeaderNames.LOCATION).head shouldBe "http://localhost:11111/update-and-submit-income-tax-return/2022/view"
       }
     }
 

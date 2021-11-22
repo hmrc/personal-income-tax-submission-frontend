@@ -79,7 +79,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
     val captionExpected = s"Dividends for 6 April ${taxYear - 1} to 5 April $taxYear"
     val yesNo: Boolean => String = isYes => if (isYes) "Yes" else "No"
     val continueText = "Continue"
-    val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/dividends-from-uk-companies"
+    val continueLink = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/dividends-from-uk-companies"
     val errorSummaryHref = "#value"
   }
 
@@ -103,7 +103,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
     val captionExpected = s"Difidendau ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
     val yesNo: Boolean => String = isYes => if (isYes) "Iawn" else "Na"
     val continueText = "Yn eich blaen"
-    val continueLink = s"/income-through-software/return/personal-income/$taxYear/dividends/dividends-from-uk-companies"
+    val continueLink = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/dividends-from-uk-companies"
     val errorSummaryHref = "#value"
   }
 

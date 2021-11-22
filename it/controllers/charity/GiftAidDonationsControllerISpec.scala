@@ -56,7 +56,7 @@ class GiftAidDonationsControllerISpec extends CharityITHelper {
     val yesText = "Yes"
     val noText = "No"
     val continueText = "Continue"
-    val continueLink = s"/income-through-software/return/personal-income/$year/charity/charity-donation-using-gift-aid"
+    val continueLink = s"/update-and-submit-income-tax-return/personal-income/$year/charity/charity-donation-using-gift-aid"
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
@@ -64,7 +64,7 @@ class GiftAidDonationsControllerISpec extends CharityITHelper {
     val yesText = "Iawn"
     val noText = "Na"
     val continueText = "Yn eich blaen"
-    val continueLink = s"/income-through-software/return/personal-income/$year/charity/charity-donation-using-gift-aid"
+    val continueLink = s"/update-and-submit-income-tax-return/personal-income/$year/charity/charity-donation-using-gift-aid"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {

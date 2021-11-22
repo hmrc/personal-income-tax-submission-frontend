@@ -97,7 +97,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
     val continueText = "Continue"
 
     def continueLink(taxType: String): String =
-      s"/income-through-software/return/personal-income/$taxYear/interest/which-account-did-you-get-$taxType-interest-from"
+      s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/which-account-did-you-get-$taxType-interest-from"
   }
 
   object IndividualExpectedWelsh extends SpecificExpectedResults {
@@ -132,7 +132,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
     val continueText = "Yn eich blaen"
 
     def continueLink(taxType: String): String =
-      s"/income-through-software/return/personal-income/$taxYear/interest/which-account-did-you-get-$taxType-interest-from"
+      s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/which-account-did-you-get-$taxType-interest-from"
   }
 
   val errorSummaryHref = "#value"
@@ -434,7 +434,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
         dropInterestDB()
         emptyUserDataStub()
         userDataStub(IncomeSourcesModel(interest = Some(accounts3)), nino, taxYear)
-        stubGet(s"/income-through-software/return/$taxYear/view", OK, "overview page content")
+        stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "overview page content")
         urlGet(chooseAccountUrl(TAXED), headers = playSessionCookie())
       }
 
@@ -451,7 +451,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
         dropInterestDB()
         emptyUserDataStub()
         userDataStub(IncomeSourcesModel(interest = Some(accounts4)), nino, taxYear)
-        stubGet(s"/income-through-software/return/$taxYear/view", OK, "overview page content")
+        stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "overview page content")
         urlGet(chooseAccountUrl(UNTAXED), headers = playSessionCookie())
       }
 
@@ -578,7 +578,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
         "has a SEE_OTHER(303) status" in {
           result.status shouldBe SEE_OTHER
           result.header(HeaderNames.LOCATION).head should
-            include("/income-through-software/return/personal-income/2022/interest/add-taxed-uk-interest-account")
+            include("/update-and-submit-income-tax-return/personal-income/2022/interest/add-taxed-uk-interest-account")
         }
       }
 
@@ -597,7 +597,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
         "has a SEE_OTHER(303) status" in {
           result.status shouldBe SEE_OTHER
           result.header(HeaderNames.LOCATION).head should
-            include("/income-through-software/return/personal-income/2022/interest/add-untaxed-uk-interest-account")
+            include("/update-and-submit-income-tax-return/personal-income/2022/interest/add-untaxed-uk-interest-account")
         }
       }
 
@@ -616,7 +616,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
         "has a SEE_OTHER(303) status" in {
           result.status shouldBe SEE_OTHER
           result.header(HeaderNames.LOCATION).head should
-            include("/income-through-software/return/personal-income/2022/interest/change-taxed-uk-interest?accountId=session-id-1")
+            include("/update-and-submit-income-tax-return/personal-income/2022/interest/change-taxed-uk-interest?accountId=session-id-1")
         }
       }
 
@@ -636,7 +636,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
         "has a SEE_OTHER(303) status" in {
           result.status shouldBe SEE_OTHER
           result.header(HeaderNames.LOCATION).head should
-            include("/income-through-software/return/personal-income/2022/interest/change-untaxed-uk-interest?accountId=1")
+            include("/update-and-submit-income-tax-return/personal-income/2022/interest/change-untaxed-uk-interest?accountId=1")
         }
       }
 
@@ -707,7 +707,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
           dropInterestDB()
           emptyUserDataStub()
           userDataStub(IncomeSourcesModel(interest = Some(accounts3)), nino, taxYear)
-          stubGet(s"/income-through-software/return/$taxYear/view", OK, "overview page content")
+          stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "overview page content")
           urlGet(chooseAccountUrl(TAXED), headers = playSessionCookie())
         }
 
@@ -724,7 +724,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
           dropInterestDB()
           emptyUserDataStub()
           userDataStub(IncomeSourcesModel(interest = Some(accounts4)), nino, taxYear)
-          stubGet(s"/income-through-software/return/$taxYear/view", OK, "overview page content")
+          stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "overview page content")
           urlGet(chooseAccountUrl(UNTAXED), headers = playSessionCookie())
         }
 

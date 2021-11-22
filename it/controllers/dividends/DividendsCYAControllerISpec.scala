@@ -32,10 +32,10 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
   val otherDividends: BigDecimal = 10.50
   val dividendsCheckYourAnswersUrl = s"$appUrl/$taxYear/dividends/check-income-from-dividends"
 
-  val changeUkDividendsHref = "/income-through-software/return/personal-income/2022/dividends/dividends-from-uk-companies"
-  val changeUkDividendsAmountHref = "/income-through-software/return/personal-income/2022/dividends/how-much-dividends-from-uk-companies"
-  val changeOtherDividendsHref = "/income-through-software/return/personal-income/2022/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
-  val changeOtherDividendsAmountHref: String = "/income-through-software/return/personal-income/2022/dividends" +
+  val changeUkDividendsHref = "/update-and-submit-income-tax-return/personal-income/2022/dividends/dividends-from-uk-companies"
+  val changeUkDividendsAmountHref = "/update-and-submit-income-tax-return/personal-income/2022/dividends/how-much-dividends-from-uk-companies"
+  val changeOtherDividendsHref = "/update-and-submit-income-tax-return/personal-income/2022/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
+  val changeOtherDividendsAmountHref: String = "/update-and-submit-income-tax-return/personal-income/2022/dividends" +
     "/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
 
 
@@ -119,7 +119,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
     val ukDividendsAmount = "£10"
     val otherDividendsAmount = "£10.50"
     val continueButtonText = "Save and continue"
-    val continueButtonLink = "/income-through-software/return/personal-income/2022/dividends/check-income-from-dividends"
+    val continueButtonLink = "/update-and-submit-income-tax-return/personal-income/2022/dividends/check-income-from-dividends"
     val changeLinkExpected = "Change"
     val UkDividendsText = "Dividends from UK-based companies"
     val ukDividendsAmountText = "Value of dividends from UK-based companies"
@@ -155,7 +155,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
     val ukDividendsAmount = "£10"
     val otherDividendsAmount = "£10.50"
     val continueButtonText = "Cadw ac yn eich blaen"
-    val continueButtonLink = "/income-through-software/return/personal-income/2022/dividends/check-income-from-dividends"
+    val continueButtonLink = "/update-and-submit-income-tax-return/personal-income/2022/dividends/check-income-from-dividends"
     val changeLinkExpected = "Newid"
     val UkDividendsText = "Difidendau o gwmnïau yn y DU"
     val ukDividendsAmountText = "Swm difidendau o gwmnïau yn y DU"
@@ -374,7 +374,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           authoriseIndividual()
           dropDividendsDB()
           emptyUserDataStub()
-          stubGet("/income-through-software/return/2022/view", SEE_OTHER, "overview")
+          stubGet("/update-and-submit-income-tax-return/2022/view", SEE_OTHER, "overview")
           urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie())
         }
 
@@ -405,7 +405,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           }
 
           "has the correct title" in {
-            result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/dividends/how-much-dividends-from-uk-companies"
+            result.headers("Location").head shouldBe "/update-and-submit-income-tax-return/personal-income/2022/dividends/how-much-dividends-from-uk-companies"
           }
         }
 
@@ -427,7 +427,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
           "has the correct title" in {
             result.headers("Location").head shouldBe
-              "/income-through-software/return/personal-income/2022/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
+              "/update-and-submit-income-tax-return/personal-income/2022/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
           }
         }
       }
@@ -449,7 +449,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
         "has the correct title" in {
           result.headers("Location").head shouldBe
-            "/income-through-software/return/personal-income/2022/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
+            "/update-and-submit-income-tax-return/personal-income/2022/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
         }
       }
 
@@ -471,14 +471,14 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
         "has the correct title" in {
           result.headers("Location").head shouldBe
-            "/income-through-software/return/personal-income/2022/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
+            "/update-and-submit-income-tax-return/personal-income/2022/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
         }
       }
     }
     "the authorization fails" which {
       lazy val result = {
         authoriseAgentUnauthorized()
-        stubGet(s"/income-through-software/return/$taxYear/view", OK, "<title>Overview Page</title>")
+        stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "<title>Overview Page</title>")
         urlGet(dividendsCheckYourAnswersUrl)
       }
 
@@ -509,7 +509,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
       "has the correct title" in {
         result.headers("Location").head shouldBe
-          "http://localhost:11111/income-through-software/return/2022/view"
+          "http://localhost:11111/update-and-submit-income-tax-return/2022/view"
       }
     }
 

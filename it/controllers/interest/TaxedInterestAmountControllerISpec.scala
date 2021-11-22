@@ -195,7 +195,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           s"has an SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get should include(
-              "/income-through-software/return/personal-income/2022/interest/add-taxed-uk-interest-account/")
+              "/update-and-submit-income-tax-return/personal-income/2022/interest/add-taxed-uk-interest-account/")
           }
         }
 
@@ -216,7 +216,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
             s"has an SEE OTHER status" in {
               result.status shouldBe SEE_OTHER
               result.header("Location").get should include(
-                "/income-through-software/return/personal-income/2022/interest/change-taxed-uk-interest?accountId=")
+                "/update-and-submit-income-tax-return/personal-income/2022/interest/change-taxed-uk-interest?accountId=")
             }
           }
         }
@@ -236,7 +236,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
             s"has an SEE OTHER status" in {
               result.status shouldBe SEE_OTHER
               result.header("Location").get should include(
-                "http://localhost:11111/income-through-software/return/2022/view")
+                "http://localhost:11111/update-and-submit-income-tax-return/2022/view")
             }
           }
         }
@@ -290,7 +290,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           "return a SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get should include(
-              "/income-through-software/return/personal-income/2022/interest/accounts-with-taxed-uk-interest")
+              "/update-and-submit-income-tax-return/personal-income/2022/interest/accounts-with-taxed-uk-interest")
           }
         }
 
@@ -303,7 +303,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           "return a 200(Ok) status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get should include(
-              "/income-through-software/return/personal-income/2022/interest/accounts-with-taxed-uk-interest")
+              "/update-and-submit-income-tax-return/personal-income/2022/interest/accounts-with-taxed-uk-interest")
           }
         }
 
@@ -429,7 +429,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           s"return a SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get should include(
-              "http://localhost:11111/income-through-software/return/2022/view")
+              "http://localhost:11111/update-and-submit-income-tax-return/2022/view")
           }
         }
 
@@ -451,7 +451,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           s"return a SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get should include(
-              "/income-through-software/return/personal-income/2022/interest/accounts-with-taxed-uk-interest")
+              "/update-and-submit-income-tax-return/personal-income/2022/interest/accounts-with-taxed-uk-interest")
           }
         }
 
@@ -473,7 +473,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           s"return a SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get should include(
-              "/income-through-software/return/personal-income/2022/interest/accounts-with-taxed-uk-interest")
+              "/update-and-submit-income-tax-return/personal-income/2022/interest/accounts-with-taxed-uk-interest")
 
             val data = findInterestDb
             data.head shouldBe InterestCYAModel(None,Some(true),Some(Seq(
@@ -499,7 +499,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           s"return a SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get should include(
-              "/income-through-software/return/personal-income/2022/interest/accounts-with-taxed-uk-interest")
+              "/update-and-submit-income-tax-return/personal-income/2022/interest/accounts-with-taxed-uk-interest")
 
             val data = findInterestDb
             data.head shouldBe InterestCYAModel(None,Some(true),Some(List(
@@ -524,7 +524,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           s"return a SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get should include(
-              "/income-through-software/return/personal-income/2022/interest/accounts-with-taxed-uk-interest")
+              "/update-and-submit-income-tax-return/personal-income/2022/interest/accounts-with-taxed-uk-interest")
           }
         }
       }

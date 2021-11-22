@@ -34,7 +34,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper with Gif
   lazy val controller: DonationsToPreviousTaxYearController = app.injector.instanceOf[DonationsToPreviousTaxYearController]
 
   def url(overrideYear: Int = year): String = s"$appUrl/$year/charity/donations-after-5-april-$overrideYear"
-  val urlWithSameYears = "/income-through-software/return/personal-income/2022/charity/donations-after-5-april-2022"
+  val urlWithSameYears = "/update-and-submit-income-tax-return/personal-income/2022/charity/donations-after-5-april-2022"
 
   object Selectors {
     val paragraph1HintText = "#main-content > div > div > form > div > fieldset > legend > div > p:nth-child(1)"

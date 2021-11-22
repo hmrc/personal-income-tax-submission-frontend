@@ -91,12 +91,12 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
-    val changeUntaxedHref = s"/income-through-software/return/personal-income/$taxYear/interest/add-untaxed-uk-interest-account/qwerty"
-    val changePriorUntaxedHref = s"/income-through-software/return/personal-income/$taxYear/interest/change-untaxed-uk-interest?accountId=azerty"
-    val changeTaxedHref = s"/income-through-software/return/personal-income/$taxYear/interest/add-taxed-uk-interest-account/qwerty"
-    val changePriorTaxedHref = s"/income-through-software/return/personal-income/$taxYear/interest/change-taxed-uk-interest?accountId=azerty"
-    val removeUntaxedHref = s"/income-through-software/return/personal-income/$taxYear/interest/remove-untaxed-interest-account?accountId=qwerty"
-    val removeTaxedHref = s"/income-through-software/return/personal-income/$taxYear/interest/remove-taxed-interest-account?accountId=qwerty"
+    val changeUntaxedHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/add-untaxed-uk-interest-account/qwerty"
+    val changePriorUntaxedHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/change-untaxed-uk-interest?accountId=azerty"
+    val changeTaxedHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/add-taxed-uk-interest-account/qwerty"
+    val changePriorTaxedHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/change-taxed-uk-interest?accountId=azerty"
+    val removeUntaxedHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/remove-untaxed-interest-account?accountId=qwerty"
+    val removeTaxedHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/remove-taxed-interest-account?accountId=qwerty"
     val untaxedH1 = "Accounts with untaxed UK interest"
     val taxedH1 = "Accounts with taxed UK interest"
     val untaxedTitle = "Accounts with untaxed UK interest"
@@ -116,12 +116,12 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val changeUntaxedHref = s"/income-through-software/return/personal-income/$taxYear/interest/add-untaxed-uk-interest-account/qwerty"
-    val changePriorUntaxedHref = s"/income-through-software/return/personal-income/$taxYear/interest/change-untaxed-uk-interest?accountId=azerty"
-    val changeTaxedHref = s"/income-through-software/return/personal-income/$taxYear/interest/add-taxed-uk-interest-account/qwerty"
-    val changePriorTaxedHref = s"/income-through-software/return/personal-income/$taxYear/interest/change-taxed-uk-interest?accountId=azerty"
-    val removeUntaxedHref = s"/income-through-software/return/personal-income/$taxYear/interest/remove-untaxed-interest-account?accountId=qwerty"
-    val removeTaxedHref = s"/income-through-software/return/personal-income/$taxYear/interest/remove-taxed-interest-account?accountId=qwerty"
+    val changeUntaxedHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/add-untaxed-uk-interest-account/qwerty"
+    val changePriorUntaxedHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/change-untaxed-uk-interest?accountId=azerty"
+    val changeTaxedHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/add-taxed-uk-interest-account/qwerty"
+    val changePriorTaxedHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/change-taxed-uk-interest?accountId=azerty"
+    val removeUntaxedHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/remove-untaxed-interest-account?accountId=qwerty"
+    val removeTaxedHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/remove-taxed-interest-account?accountId=qwerty"
     val untaxedH1 = "Cyfrifon sydd â llog y DU sydd heb ei drethu"
     val taxedH1 = "Cyfrifon gyda llog y DU a drethwyd"
     val untaxedTitle = "Cyfrifon sydd â llog y DU sydd heb ei drethu"
@@ -330,7 +330,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           }
 
           result.status shouldBe SEE_OTHER
-          result.header("Location") shouldBe Some("http://localhost:11111/income-through-software/return/2022/view")
+          result.header("Location") shouldBe Some("http://localhost:11111/update-and-submit-income-tax-return/2022/view")
         }
       }
 
@@ -349,7 +349,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           }
 
           result.status shouldBe SEE_OTHER
-          result.header("Location") shouldBe Some("/income-through-software/return/personal-income/2022/interest/untaxed-uk-interest")
+          result.header("Location") shouldBe Some("/update-and-submit-income-tax-return/personal-income/2022/interest/untaxed-uk-interest")
         }
       }
     }
@@ -509,7 +509,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           }
 
           result.status shouldBe SEE_OTHER
-          result.header("Location") shouldBe Some("http://localhost:11111/income-through-software/return/2022/view")
+          result.header("Location") shouldBe Some("http://localhost:11111/update-and-submit-income-tax-return/2022/view")
         }
       }
 
@@ -528,7 +528,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           }
 
           result.status shouldBe SEE_OTHER
-          result.header("Location") shouldBe Some("/income-through-software/return/personal-income/2022/interest/taxed-uk-interest")
+          result.header("Location") shouldBe Some("/update-and-submit-income-tax-return/personal-income/2022/interest/taxed-uk-interest")
         }
       }
 
@@ -553,7 +553,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           }
 
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head.contains("/income-through-software/return/personal-income/2022/interest/check-interest") shouldBe true
+          result.headers("Location").head.contains("/update-and-submit-income-tax-return/personal-income/2022/interest/check-interest") shouldBe true
         }
 
         "redirect to the  page when accounts are missing" in {
@@ -569,7 +569,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           }
 
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/untaxed-uk-interest"
+          result.headers("Location").head shouldBe "/update-and-submit-income-tax-return/personal-income/2022/interest/untaxed-uk-interest"
         }
 
         "redirect to the overview page" when {
@@ -585,7 +585,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
             }
 
             result.status shouldBe SEE_OTHER
-            result.header("Location") shouldBe Some("http://localhost:11111/income-through-software/return/2022/view")
+            result.header("Location") shouldBe Some("http://localhost:11111/update-and-submit-income-tax-return/2022/view")
           }
         }
 
@@ -606,7 +606,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           }
 
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head.contains("/income-through-software/return/personal-income/2022/interest/taxed-uk-interest") shouldBe true
+          result.headers("Location").head.contains("/update-and-submit-income-tax-return/personal-income/2022/interest/taxed-uk-interest") shouldBe true
         }
       }
 
@@ -626,7 +626,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
 
           result.status shouldBe SEE_OTHER
           result.headers("Location").head should include(
-            "/income-through-software/return/personal-income/2022/interest/which-account-did-you-get-untaxed-interest-from")
+            "/update-and-submit-income-tax-return/personal-income/2022/interest/which-account-did-you-get-untaxed-interest-from")
         }
       }
 
@@ -716,7 +716,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
             }
 
             result.status shouldBe SEE_OTHER
-            result.headers("Location").head.contains("/income-through-software/return/personal-income/2022/interest/check-interest") shouldBe true
+            result.headers("Location").head.contains("/update-and-submit-income-tax-return/personal-income/2022/interest/check-interest") shouldBe true
           }
         }
       }
@@ -735,7 +735,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
         }
 
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe "/income-through-software/return/personal-income/2022/interest/taxed-uk-interest"
+        result.headers("Location").head shouldBe "/update-and-submit-income-tax-return/personal-income/2022/interest/taxed-uk-interest"
       }
 
       "redirect to the overview page" when {
@@ -750,7 +750,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           }
 
           result.status shouldBe SEE_OTHER
-          result.header("Location") shouldBe Some("http://localhost:11111/income-through-software/return/2022/view")
+          result.header("Location") shouldBe Some("http://localhost:11111/update-and-submit-income-tax-return/2022/view")
         }
       }
 
@@ -770,7 +770,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
 
           result.status shouldBe SEE_OTHER
           result.headers("Location").head should include(
-            "/income-through-software/return/personal-income/2022/interest/which-account-did-you-get-taxed-interest-from")
+            "/update-and-submit-income-tax-return/personal-income/2022/interest/which-account-did-you-get-taxed-interest-from")
         }
       }
 

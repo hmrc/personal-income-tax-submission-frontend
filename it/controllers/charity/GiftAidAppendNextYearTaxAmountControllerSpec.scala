@@ -26,7 +26,7 @@ import utils.CharityITHelper
 
 class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
-  val urlWithSameYears = "/income-through-software/return/personal-income/2022/charity/amount-after-5-april-2022-added-to-this-tax-year"
+  val urlWithSameYears = "/update-and-submit-income-tax-return/personal-income/2022/charity/amount-after-5-april-2022-added-to-this-tax-year"
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
     Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
       UserScenario(isWelsh = false, isAgent = true, CommonExpectedEN, Some(ExpectedAgentEN)),
@@ -37,7 +37,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
   def url: String = url(year, year)
 
   def url(taxYear: Int, someTaxYear: Int): String =
-    s"http://localhost:$port/income-through-software/return/personal-income/$taxYear/charity/amount-after-5-april-$someTaxYear-added-to-this-tax-year"
+    s"http://localhost:$port/update-and-submit-income-tax-return/personal-income/$taxYear/charity/amount-after-5-april-$someTaxYear-added-to-this-tax-year"
 
   trait SpecificExpectedResults {
     val heading: String
