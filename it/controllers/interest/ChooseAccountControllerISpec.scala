@@ -101,23 +101,23 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
   }
 
   object IndividualExpectedWelsh extends SpecificExpectedResults {
-    def expectedTitle(taxType: String): String = s"O ba gyfrif a gawsoch $taxType llog y DU?"
+    def expectedTitle(taxType: String): String = s"O ba gyfrif a gawsoch $taxType log y DU a drethwyd?"
 
-    def expectedH1(taxType: String): String = s"O ba gyfrif a gawsoch $taxType llog y DU?"
+    def expectedH1(taxType: String): String = s"O ba gyfrif a gawsoch $taxType log y DU a drethwyd?"
 
     def expectedErrorTitle(taxType: String): String = s"Error: ${expectedTitle(taxType)}"
 
-    def expectedErrorText(taxType: String): String = s"Dewiswch y cyfrif a gawsoch $taxType llog y DU"
+    def expectedErrorText(taxType: String): String = s"Dewiswch y cyfrif a gawsoch $taxType log y DU a drethwyd"
   }
 
   object AgentExpectedWelsh extends SpecificExpectedResults {
-    def expectedTitle(taxType: String): String = s"O ba gyfrif a gafodd eich cleient $taxType llog y DU?"
+    def expectedTitle(taxType: String): String = s"O ba gyfrif a gafodd eich cleient $taxType log y DU a drethwyd?"
 
-    def expectedH1(taxType: String): String = s"O ba gyfrif a gafodd eich cleient $taxType llog y DU?"
+    def expectedH1(taxType: String): String = s"O ba gyfrif a gafodd eich cleient $taxType log y DU a drethwyd?"
 
     def expectedErrorTitle(taxType: String): String = s"Error: ${expectedTitle(taxType)}"
 
-    def expectedErrorText(taxType: String): String = s"Dewiswch y cyfrif a gafodd eich cleient $taxType llog y DU"
+    def expectedErrorText(taxType: String): String = s"Dewiswch y cyfrif a gafodd eich cleient $taxType log y DU a drethwyd"
   }
 
   object AllExpectedWelsh extends CommonExpectedResults {

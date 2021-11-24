@@ -103,8 +103,8 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
   object ExpectedIndividualCY extends SpecificExpectedResults {
     val expectedTitle = "Faint wnaethoch ei roi i elusennau tramor drwy ddefnyddio Rhodd Cymorth?"
     val expectedH1 = "Faint wnaethoch ei roi i elusennau tramor drwy ddefnyddio Rhodd Cymorth?"
-    val expectedPriorP1 = "You told us you used Gift Aid to donate £1111 to overseas charities. Tell us if this has changed."
-    val expectedCyaP1 = "You told us you used Gift Aid to donate £50 to overseas charities. Tell us if this has changed."
+    val expectedPriorP1 = "Gwnaethoch roi gwybod i ni eich bod wedi defnyddio Rhodd Cymorth i roi £1111 i elusennau tramor. Rhowch wybod i ni os yw hyn wedi newid."
+    val expectedCyaP1 = "Gwnaethoch roi gwybod i ni eich bod wedi defnyddio Rhodd Cymorth i roi £50 i elusennau tramor. Rhowch wybod i ni os yw hyn wedi newid."
     val expectedErrorEmpty = "Nodwch y swm a roesoch i elusennau tramor"
     val expectedErrorInvalid = "Nodwch y swm a roesoch i elusennau tramor yn y fformat cywir"
     val expectedErrorOverMax = "Mae’n rhaid i’r swm a roesoch i elusennau tramor fod yn llai na £100,000,000,000"
@@ -115,8 +115,8 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
   object ExpectedAgentCY extends SpecificExpectedResults {
     val expectedTitle = "Faint wnaeth eich cleient ei roi i elusennau tramor drwy ddefnyddio Rhodd Cymorth?"
     val expectedH1 = "Faint wnaeth eich cleient ei roi i elusennau tramor drwy ddefnyddio Rhodd Cymorth?"
-    val expectedPriorP1 = "You told us your client used Gift Aid to donate £1111 to overseas charities. Tell us if this has changed."
-    val expectedCyaP1 = "You told us your client used Gift Aid to donate £50 to overseas charities. Tell us if this has changed."
+    val expectedPriorP1 = "Gwnaethoch roi gwybod i ni fod eich cleient wedi defnyddio Rhodd Cymorth i roi £1111 i elusennau tramor. Rhowch wybod i ni os yw hyn wedi newid."
+    val expectedCyaP1 = "Gwnaethoch roi gwybod i ni fod eich cleient wedi defnyddio Rhodd Cymorth i roi £50 i elusennau tramor. Rhowch wybod i ni os yw hyn wedi newid."
     val expectedErrorEmpty = "Nodwch y swm a roddodd eich cleient i elusennau tramor"
     val expectedErrorInvalid = "Nodwch y swm a roddodd eich cleient i elusennau tramor yn y fformat cywir"
     val expectedErrorOverMax = "Mae’n rhaid i’r swm a roddodd eich cleient i elusennau tramor fod yn llai na £100,000,000,000"

@@ -95,16 +95,16 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val expectedPriorP1 = "You told us you donated £888 in land or property to charity this year. Tell us if this has changed."
-    val expectedCyaP1 = "You told us you donated £50 in land or property to charity this year. Tell us if this has changed."
+    val expectedPriorP1 = "Gwnaethoch roi gwybod i ni eich bod wedi rhoi £888 mewn tir neu eiddo i elusen eleni. Rhowch wybod i ni os yw hyn wedi newid."
+    val expectedCyaP1 = "Gwnaethoch roi gwybod i ni eich bod wedi rhoi £50 mewn tir neu eiddo i elusen eleni. Rhowch wybod i ni os yw hyn wedi newid."
     val expectedErrorEmpty = "Nodwch werth y tir neu eiddo a roddwyd gennych i elusen"
     val expectedErrorInvalid = "Nodwch werth y tir neu eiddo a roddwyd gennych i elusen yn y fformat cywir"
     val expectedErrorOverMax = "Mae’n rhaid i werth eich tir neu eiddo fod yn llai na £100,000,000,000"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val expectedPriorP1 = "You told us your client donated £888 in land or property to charity this year. Tell us if this has changed."
-    val expectedCyaP1 = "You told us your client donated £50 in land or property to charity this year. Tell us if this has changed."
+    val expectedPriorP1 = "Gwnaethoch roi gwybod i ni fod eich cleient wedi rhoi £888 mewn tir neu eiddo i elusen eleni. Rhowch wybod i ni os yw hyn wedi newid."
+    val expectedCyaP1 = "Gwnaethoch roi gwybod i ni fod eich cleient wedi rhoi £50 mewn tir neu eiddo i elusen eleni. Rhowch wybod i ni os yw hyn wedi newid."
     val expectedErrorEmpty = "Nodwch werth y tir neu eiddo a roddwyd gan eich cleient i elusen"
     val expectedErrorInvalid = "Nodwch werth y tir neu eiddo a roddwyd gan eich cleient i elusen yn y fformat cywir"
     val expectedErrorOverMax = "Mae’n rhaid i werth tir neu eiddo eich cleient fod yn llai na £100,000,000,000"
