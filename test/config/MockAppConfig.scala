@@ -74,12 +74,7 @@ class MockAppConfig extends AppConfig with MockFactory {
 
   override def mongoTTL: Long = 15
 
-  override val dividendsEnabled: Boolean = true
-  override val interestEnabled: Boolean = true
-  override val giftAidEnabled: Boolean = true
-  override val giftAidReleased: Boolean = true
-  override val employmentEnabled: Boolean = true
-  override val employmentReleased: Boolean = true
+  override val nrsEnabled: Boolean = true
 }
 
 class MockAppConfigEncyrptionOff extends MockAppConfig {
