@@ -189,17 +189,17 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
     for(i <- 1 to itemList.length){
       s"display a task list row for entry number $i" which {
         s"displays the correct name for entry number $i" in {
-          document().select(s"ul.hmrc-add-to-a-list > li:nth-child($i) > .hmrc-add-to-a-list__identifier")
+          document().select(s"dl.hmrc-list-with-actions > div:nth-child($i) > .hmrc-list-with-actions__name")
             .text() shouldBe itemList(i-1)._1
         }
         s"displays the change link and has the correct hidden-change-text for entry number $i" in {
-          document().select(s"ul.hmrc-add-to-a-list > li:nth-child($i) > .hmrc-add-to-a-list__change > a > span:nth-child(1)").text() shouldBe change
-          document().select(s"ul.hmrc-add-to-a-list > li:nth-child($i) > .hmrc-add-to-a-list__change > a > .govuk-visually-hidden")
+          document().select(s"dl.hmrc-list-with-actions > div:nth-child($i) > div > dd:nth-child(1) > a > span:nth-child(1)").text() shouldBe change
+          document().select(s"dl.hmrc-list-with-actions > div:nth-child($i) > div > dd:nth-child(1) > a > .govuk-visually-hidden")
             .text() shouldBe itemList(i-1)._2
         }
         s"displays the remove link and has the correct hidden-remove-text for entry number $i" in {
-          document().select(s"ul.hmrc-add-to-a-list > li:nth-child($i) > .hmrc-add-to-a-list__remove > a > span:nth-child(1)").text() shouldBe remove
-          document().select(s"ul.hmrc-add-to-a-list > li:nth-child($i) > .hmrc-add-to-a-list__remove > a > .govuk-visually-hidden")
+          document().select(s"dl.hmrc-list-with-actions > div:nth-child($i) > div > dd:nth-child(2) > a > span:nth-child(1)").text() shouldBe remove
+          document().select(s"dl.hmrc-list-with-actions > div:nth-child($i) > div > dd:nth-child(2) > a > .govuk-visually-hidden")
             .text() shouldBe itemList(i-1)._3
         }
       }

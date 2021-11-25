@@ -41,15 +41,15 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
   val taxedUrl = s"$appUrl/$taxYear/interest/accounts-with-taxed-uk-interest"
 
   object Selectors {
-    val accountRow: Int => String = rowNumber => s".govuk-form-group > ul > li:nth-child($rowNumber)"
-    val accountRowName: Int => String = rowNumber => accountRow(rowNumber) + " > span:nth-child(1)"
-    val accountRowChange: Int => String = rowNumber => accountRow(rowNumber) + " > span:nth-child(2) > a"
-    val accountRowChangeHidden: Int => String = rowNumber => accountRow(rowNumber) + " > span:nth-child(2) > a > span.govuk-visually-hidden"
-    val accountRowRemove: Int => String = rowNumber => accountRow(rowNumber) + " > span:nth-child(3) > a"
-    val accountRowRemoveHidden: Int => String = rowNumber => accountRow(rowNumber) + " > span:nth-child(3) > a > span.govuk-visually-hidden"
+    val accountRow: Int => String = rowNumber => s".govuk-form-group > dl > div:nth-child($rowNumber)"
+    val accountRowName: Int => String = rowNumber => accountRow(rowNumber) + " > dt:nth-child(1)"
+    val accountRowChange: Int => String = rowNumber => accountRow(rowNumber) + " > div > dd:nth-child(1) > a"
+    val accountRowChangeHidden: Int => String = rowNumber => accountRow(rowNumber) + " > div > dd:nth-child(1) > a > span.govuk-visually-hidden"
+    val accountRowRemove: Int => String = rowNumber => accountRow(rowNumber) + " > div > dd:nth-child(2) > a"
+    val accountRowRemoveHidden: Int => String = rowNumber => accountRow(rowNumber) + " > div > dd:nth-child(2) > a > span.govuk-visually-hidden"
 
-    val accountRowChangePriorSubmission: Int => String = rowNumber => accountRow(rowNumber) + " > span:nth-child(3) > a"
-    val accountRowChangePriorSubmissionHidden: Int => String = rowNumber => accountRow(rowNumber) + " > span:nth-child(3) > a > span.govuk-visually-hidden"
+    val accountRowChangePriorSubmission: Int => String = rowNumber => accountRow(rowNumber) + " > div > dd > a"
+    val accountRowChangePriorSubmissionHidden: Int => String = rowNumber => accountRow(rowNumber) + " > div > dd > a > span.govuk-visually-hidden"
 
     val captionSelector = ".govuk-caption-l"
     val continueSelector = "#continue"

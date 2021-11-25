@@ -36,29 +36,33 @@
 @hasFormErrors = @{form.hasErrors}
 
 @overseasGiftAidList = {
-    <div class="govuk-form-group">
-        <ul class="hmrc-add-to-a-list hmrc-add-to-a-list--short">
+<div class="govuk-form-group">
+    <dl class="hmrc-list-with-actions">
         @for(charity <- overseasCharities){
-            <li class="hmrc-add-to-a-list__contents">
-                <span class="hmrc-add-to-a-list__identifier hmrc-add-to-a-list__identifier--light">
+        <div class="hmrc-list-with-actions__item">
+            <dt class="hmrc-list-with-actions__name">
                 @charity.name
-                </span>
-                <span class="hmrc-add-to-a-list__change">
-                    <a class="govuk-link" href="@controllers.charity.routes.GiftAidOverseasSharesNameController.show(taxYear = taxYear, changeCharityId = Some(charity.id))">
-                    <span aria-hidden="true">@messages("common.change")</span>
-                    <span class="govuk-visually-hidden">@{messages("charity.common.aid-summary.hiddenChange", charity.name)}</span>
+            </dt>
+            <div class="hmrc-list-with-actions__actions">
+                <dd class="hmrc-list-with-actions__action">
+                    <a class="govuk-link"
+                       href="@controllers.charity.routes.GiftAidOverseasSharesNameController.show(taxYear = taxYear, changeCharityId = Some(charity.id))">
+                        <span aria-hidden="true">@messages("common.change")</span>
+                        <span class="govuk-visually-hidden">@{messages("charity.common.aid-summary.hiddenChange", charity.name)}</span>
                     </a>
-                </span>
-                <span class="hmrc-add-to-a-list__remove">
-                    <a class="govuk-link" href="@controllers.charity.routes.RemoveOverseasCharityController.show(taxYear = taxYear, charityType = "SHARES_PROPERTY", charityNameId = charity.id)">
+                </dd>
+                <dd class="hmrc-list-with-actions__action">
+                    <a class="govuk-link"
+                       href="@controllers.charity.routes.RemoveOverseasCharityController.show(taxYear = taxYear, charityType = "SHARES_PROPERTY", charityNameId = charity.id)">
                     <span aria-hidden="true">@messages("common.remove")</span>
                     <span class="govuk-visually-hidden">@{messages("charity.overseas-gift-aid-summary.hiddenRemove", charity.name)}</span>
                     </a>
-                </span>
-            </li>
+                </dd>
+            </div>
+        </div>
         }
-        </ul>
-    </div>
+    </dl>
+</div>
 }
 
 @layout(pageTitle = titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors) {
