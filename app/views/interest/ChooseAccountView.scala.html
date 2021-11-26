@@ -20,6 +20,7 @@
 @import views.html.templates.helpers.Heading
 @import views.html.templates.helpers.ErrorSummary
 @import common.SessionValues
+@import common.InterestTaxTypes._
 
 @this(
 layout: Layout,
@@ -34,7 +35,12 @@ govukRadios : GovukRadios
 
 @hasFormErrors = @{form.hasErrors}
 
-@titleText = @{messages(s"interest.chooseAccount.title.${if(user.isAgent) "agent" else "individual"}", taxType)}
+@titleText = @{
+    (taxType) match {
+        case(`TAXED`) => messages(s"interest.chooseAccount.title.taxed.${if(user.isAgent) "agent" else "individual"}")
+        case(`UNTAXED`) => messages(s"interest.chooseAccount.title.untaxed.${if(user.isAgent) "agent" else "individual"}")
+    }
+}
 
 @layout(titleText, taxYear = Some(taxYear), hasErrors = hasFormErrors) {
 

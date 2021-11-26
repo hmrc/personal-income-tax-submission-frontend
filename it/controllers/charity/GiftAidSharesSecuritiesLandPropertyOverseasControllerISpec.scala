@@ -81,7 +81,7 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Charity
     val continueText = "Yn eich blaen"
     val disclosureContentTitle = "Beth yw cyfranddaliadau a gwarantau cymwys?"
     val disclosureContentParagraph = "Mae cyfranddaliadau a gwarantau cymwys yn cynnwys:"
-    val disclosureContentBullet1 = "cael eu restrui ar gyfnewidfa stoc gydnabyddedig neu yr ymdrinnir â nhw ar farchnad ddynodedig yn y DU"
+    val disclosureContentBullet1 = "cael eu restri ar gyfnewidfa stoc gydnabyddedig neu yr ymdrinnir â nhw ar farchnad ddynodedig yn y DU"
     val disclosureContentBullet2 = "unedau mewn ymddiriedolaeth unedol awdurdodedig"
     val disclosureContentBullet3 = "cyfranddaliadau mewn cwmni buddsoddi penagored"
     val disclosureContentBullet4 = "buddiant mewn cronfa alltraeth"

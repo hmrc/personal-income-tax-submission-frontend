@@ -268,13 +268,19 @@ interest.changeAccountAmount.required.agent = Nodwch swm y {0} llog y DU a gafod
 interest.changeAccountAmount.format = Nodwch swm y {0} llog y DU yn y fformat cywir
 interest.changeAccountAmount.amountMaxLimit = Mae’n rhaid i swm {0} llog y DU fod yn llai na £100,000,000,000
 
-interest.chooseAccount.title.agent = O ba gyfrif a gafodd eich cleient {0} log y DU a drethwyd?
-interest.chooseAccount.title.individual = O ba gyfrif a gawsoch {0} log y DU a drethwyd?
+interest.chooseAccount.title.taxed.agent = O ba gyfrif a gafodd eich cleient log y DU a drethwyd?
+interest.chooseAccount.title.taxed.individual = O ba gyfrif a gawsoch log y DU a drethwyd?
+
+interest.chooseAccount.title.untaxed.agent = O ba gyfrif a gafodd eich cleient log y DU sydd heb ei drethu?
+interest.chooseAccount.title.untaxed.individual = O ba gyfrif a gawsoch log y DU sydd heb ei drethu?
 
 interest.chooseAccount.addANewAccount = Ychwanegwch gyfrif newydd
 
-interest.chooseAccount.error.noRadioSelected.agent = Dewiswch y cyfrif a gafodd eich cleient {0} log y DU a drethwyd
-interest.chooseAccount.error.noRadioSelected.individual = Dewiswch y cyfrif a gawsoch {0} log y DU a drethwyd
+interest.chooseAccount.error.noRadioSelected.taxed.agent = Dewiswch y cyfrif a gafodd eich cleient log y DU a drethwyd
+interest.chooseAccount.error.noRadioSelected.taxed.individual = Dewiswch y cyfrif a gawsoch log y DU a drethwyd
+
+interest.chooseAccount.error.noRadioSelected.untaxed.agent = Dewiswch y cyfrif a gafodd eich cleient log y DU sydd heb ei drethu
+interest.chooseAccount.error.noRadioSelected.untaxed.individual = Dewiswch y cyfrif a gawsoch log y DU sydd heb ei drethu
 
 # Gift Aid
 # ----------------------------------------------------------
@@ -298,7 +304,7 @@ charity.common.name.error.duplicate = Ni allwch ychwanegu 2 elusen gyda’r un e
 
 charity.qualifying-shares.disclosure.title = Beth yw cyfranddaliadau a gwarantau cymwys?
 charity.qualifying-shares.disclosure.p = Mae cyfranddaliadau a gwarantau cymwys yn cynnwys:
-charity.qualifying-shares.disclosure.bullet.1 = cael eu restrui ar gyfnewidfa stoc gydnabyddedig neu yr ymdrinnir â nhw ar farchnad ddynodedig yn y DU
+charity.qualifying-shares.disclosure.bullet.1 = cael eu restri ar gyfnewidfa stoc gydnabyddedig neu yr ymdrinnir â nhw ar farchnad ddynodedig yn y DU
 charity.qualifying-shares.disclosure.bullet.2 = unedau mewn ymddiriedolaeth unedol awdurdodedig
 charity.qualifying-shares.disclosure.bullet.3 = cyfranddaliadau mewn cwmni buddsoddi penagored
 charity.qualifying-shares.disclosure.bullet.4 = buddiant mewn cronfa alltraeth
