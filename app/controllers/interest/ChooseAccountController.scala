@@ -51,8 +51,13 @@ class ChooseAccountController @Inject()(
 
   private[interest] def form(isAgent: Boolean, taxType: String): Form[String] = {
     val user = if (isAgent) "agent" else "individual"
-    AccountList.accountListForm("interest.chooseAccount.error.noRadioSelected." + user,
-      Seq(if (taxType.equals(TAXED)) "taxed" else "untaxed"))
+    if(taxType == TAXED) {
+      AccountList.accountListForm("interest.chooseAccount.error.noRadioSelected.taxed." + user,
+        Seq(TAXED))
+    } else {
+      AccountList.accountListForm("interest.chooseAccount.error.noRadioSelected.untaxed." + user,
+        Seq(UNTAXED))
+    }
   }
 
   def show(taxYear: Int, taxType: String): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>

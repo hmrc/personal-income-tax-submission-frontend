@@ -268,13 +268,19 @@ interest.changeAccountAmount.required.agent = Enter the amount of {0} UK interes
 interest.changeAccountAmount.format = Enter the amount of {0} UK interest in the correct format
 interest.changeAccountAmount.amountMaxLimit = The amount of {0} UK interest must be less than £100,000,000,000
 
-interest.chooseAccount.title.agent = Which account did your client get {0} UK interest from?
-interest.chooseAccount.title.individual = Which account did you get {0} UK interest from?
+interest.chooseAccount.title.untaxed.agent = Which account did your client get untaxed UK interest from?
+interest.chooseAccount.title.untaxed.individual = Which account did you get untaxed UK interest from?
+
+interest.chooseAccount.title.taxed.agent = Which account did your client get taxed UK interest from?
+interest.chooseAccount.title.taxed.individual = Which account did you get taxed UK interest from?
 
 interest.chooseAccount.addANewAccount = Add a new account
 
-interest.chooseAccount.error.noRadioSelected.agent = Select the account your client got {0} UK interest from
-interest.chooseAccount.error.noRadioSelected.individual = Select the account you got {0} UK interest from
+interest.chooseAccount.error.noRadioSelected.taxed.agent = Select the account your client got taxed UK interest from
+interest.chooseAccount.error.noRadioSelected.taxed.individual = Select the account you got taxed UK interest from
+
+interest.chooseAccount.error.noRadioSelected.untaxed.agent = Select the account your client got untaxed UK interest from
+interest.chooseAccount.error.noRadioSelected.untaxed.individual = Select the account you got untaxed UK interest from
 
 # Gift Aid
 # ----------------------------------------------------------

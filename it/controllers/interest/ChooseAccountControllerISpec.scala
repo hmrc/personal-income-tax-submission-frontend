@@ -42,13 +42,17 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
   }
 
   trait SpecificExpectedResults {
-    def expectedTitle(taxType: String): String
+    def expectedTitleTaxed: String
+    def expectedTitleUntaxed: String
 
-    def expectedH1(taxType: String): String
+    def expectedH1Taxed: String
+    def expectedH1Untaxed: String
 
-    def expectedErrorTitle(taxType: String): String
+    def expectedErrorTitleTaxed: String
+    def expectedErrorTitleUntaxed: String
 
-    def expectedErrorText(taxType: String): String
+    def expectedErrorTextTaxed: String
+    def expectedErrorTextUntaxed: String
   }
 
   trait CommonExpectedResults {
@@ -66,23 +70,32 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
   }
 
   object IndividualExpectedEnglish extends SpecificExpectedResults {
-    def expectedTitle(taxType: String): String = s"Which account did you get $taxType UK interest from?"
+    def expectedTitleTaxed: String = "Which account did you get taxed UK interest from?"
+    def expectedTitleUntaxed: String = "Which account did you get untaxed UK interest from?"
 
-    def expectedH1(taxType: String): String = s"Which account did you get $taxType UK interest from?"
 
-    def expectedErrorTitle(taxType: String): String = s"Error: ${expectedTitle(taxType)}"
+    def expectedH1Taxed: String = "Which account did you get taxed UK interest from?"
+    def expectedH1Untaxed: String = "Which account did you get untaxed UK interest from?"
 
-    def expectedErrorText(taxType: String): String = s"Select the account you got $taxType UK interest from"
+    def expectedErrorTitleTaxed: String = s"Error: ${expectedTitleTaxed}"
+    def expectedErrorTitleUntaxed: String = s"Error: ${expectedTitleUntaxed}"
+
+    def expectedErrorTextTaxed: String = "Select the account you got taxed UK interest from"
+    def expectedErrorTextUntaxed: String = "Select the account you got untaxed UK interest from"
   }
 
   object AgentExpectedEnglish extends SpecificExpectedResults {
-    def expectedTitle(taxType: String): String = s"Which account did your client get $taxType UK interest from?"
+    def expectedTitleTaxed: String = "Which account did your client get taxed UK interest from?"
+    def expectedTitleUntaxed: String = "Which account did your client get untaxed UK interest from?"
 
-    def expectedH1(taxType: String): String = s"Which account did your client get $taxType UK interest from?"
+    def expectedH1Taxed: String = "Which account did your client get taxed UK interest from?"
+    def expectedH1Untaxed: String = "Which account did your client get untaxed UK interest from?"
 
-    def expectedErrorTitle(taxType: String): String = s"Error: ${expectedTitle(taxType)}"
+    def expectedErrorTitleTaxed: String = s"Error: ${expectedTitleTaxed}"
+    def expectedErrorTitleUntaxed: String = s"Error: ${expectedTitleUntaxed}"
 
-    def expectedErrorText(taxType: String): String = s"Select the account your client got $taxType UK interest from"
+    def expectedErrorTextTaxed: String = "Select the account your client got taxed UK interest from"
+    def expectedErrorTextUntaxed: String = "Select the account your client got untaxed UK interest from"
   }
 
   object AllExpectedEnglish extends CommonExpectedResults {
@@ -101,23 +114,31 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
   }
 
   object IndividualExpectedWelsh extends SpecificExpectedResults {
-    def expectedTitle(taxType: String): String = s"O ba gyfrif a gawsoch $taxType llog y DU?"
+    def expectedTitleTaxed: String = "O ba gyfrif a gawsoch log y DU a drethwyd?"
+    def expectedTitleUntaxed: String = "O ba gyfrif a gawsoch log y DU sydd heb ei drethu?"
 
-    def expectedH1(taxType: String): String = s"O ba gyfrif a gawsoch $taxType llog y DU?"
+    def expectedH1Taxed: String = "O ba gyfrif a gawsoch log y DU a drethwyd?"
+    def expectedH1Untaxed: String = "O ba gyfrif a gawsoch log y DU sydd heb ei drethu?"
 
-    def expectedErrorTitle(taxType: String): String = s"Error: ${expectedTitle(taxType)}"
+    def expectedErrorTitleTaxed: String = s"Error: ${expectedTitleTaxed}"
+    def expectedErrorTitleUntaxed: String = s"Error: ${expectedTitleUntaxed}"
 
-    def expectedErrorText(taxType: String): String = s"Dewiswch y cyfrif a gawsoch $taxType llog y DU"
+    def expectedErrorTextTaxed: String = "Dewiswch y cyfrif a gawsoch log y DU a drethwyd"
+    def expectedErrorTextUntaxed: String = "Dewiswch y cyfrif a gawsoch log y DU sydd heb ei drethu"
   }
 
   object AgentExpectedWelsh extends SpecificExpectedResults {
-    def expectedTitle(taxType: String): String = s"O ba gyfrif a gafodd eich cleient $taxType llog y DU?"
+    def expectedTitleTaxed: String = "O ba gyfrif a gafodd eich cleient log y DU a drethwyd?"
+    def expectedTitleUntaxed: String = "O ba gyfrif a gafodd eich cleient log y DU sydd heb ei drethu?"
 
-    def expectedH1(taxType: String): String = s"O ba gyfrif a gafodd eich cleient $taxType llog y DU?"
+    def expectedH1Taxed: String = "O ba gyfrif a gafodd eich cleient log y DU a drethwyd?"
+    def expectedH1Untaxed: String = "O ba gyfrif a gafodd eich cleient log y DU sydd heb ei drethu?"
 
-    def expectedErrorTitle(taxType: String): String = s"Error: ${expectedTitle(taxType)}"
+    def expectedErrorTitleTaxed: String = s"Error: ${expectedTitleTaxed}"
+    def expectedErrorTitleUntaxed: String = s"Error: ${expectedTitleUntaxed}"
 
-    def expectedErrorText(taxType: String): String = s"Dewiswch y cyfrif a gafodd eich cleient $taxType llog y DU"
+    def expectedErrorTextTaxed: String = "Dewiswch y cyfrif a gafodd eich cleient log y DU a drethwyd"
+    def expectedErrorTextUntaxed: String = "Dewiswch y cyfrif a gafodd eich cleient log y DU sydd heb ei drethu"
   }
 
   object AllExpectedWelsh extends CommonExpectedResults {
@@ -186,8 +207,8 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(get.expectedTitle(TAXED), us.isWelsh)
-          h1Check(get.expectedH1(TAXED) + " " + captionExpected)
+          titleCheck(get.expectedTitleTaxed, us.isWelsh)
+          h1Check(get.expectedH1Taxed + " " + captionExpected)
           radioButtonCheck(halifaxAccount, 1)
           radioButtonCheck(addAccountText, 2)
           textOnPageCheck(or, radioDivider)
@@ -218,8 +239,8 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(get.expectedTitle(TAXED), us.isWelsh)
-          h1Check(get.expectedH1(TAXED) + " " + captionExpected)
+          titleCheck(get.expectedTitleTaxed, us.isWelsh)
+          h1Check(get.expectedH1Taxed + " " + captionExpected)
           radioButtonCheck(santanderAccount, 1)
           radioButtonCheck(halifaxAccount, 2)
           radioButtonCheck(addAccountText, 3)
@@ -253,8 +274,8 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(get.expectedTitle(UNTAXED), us.isWelsh)
-          h1Check(get.expectedH1(UNTAXED) + " " + captionExpected)
+          titleCheck(get.expectedTitleUntaxed, us.isWelsh)
+          h1Check(get.expectedH1Untaxed + " " + captionExpected)
           radioButtonCheck(natwestAccount, 1)
           radioButtonCheck(addAccountText, 2)
           textOnPageCheck(or, radioDivider)
@@ -286,8 +307,8 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(get.expectedTitle(UNTAXED), us.isWelsh)
-          h1Check(get.expectedH1(UNTAXED) + " " + captionExpected)
+          titleCheck(get.expectedTitleUntaxed, us.isWelsh)
+          h1Check(get.expectedH1Untaxed + " " + captionExpected)
           radioButtonCheck(nationwideAccount, 1)
           radioButtonCheck(natwestAccount, 2)
           radioButtonCheck(addAccountText, 3)
@@ -515,7 +536,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
 
             implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-            h1Check(get.expectedH1(TAXED) + " " + captionExpected)
+            h1Check(get.expectedH1Taxed + " " + captionExpected)
             radioButtonCheck(santanderAccount, 1)
             radioButtonCheck(halifaxAccount, 2)
             radioButtonCheck(addAccountText, 3)
@@ -523,7 +544,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
             buttonCheck(continueText, continueSelector)
             formPostLinkCheck(continueLink(TAXED), continueButtonFormSelector)
 
-            errorSummaryCheck(get.expectedErrorText(TAXED), errorSummaryHref, us.isWelsh)
+            errorSummaryCheck(get.expectedErrorTextTaxed, errorSummaryHref, us.isWelsh)
 
             welshToggleCheck(us.isWelsh)
           }
@@ -545,7 +566,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
 
             implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-            h1Check(get.expectedH1(UNTAXED) + " " + captionExpected)
+            h1Check(get.expectedH1Untaxed + " " + captionExpected)
             radioButtonCheck(nationwideAccount, 1)
             radioButtonCheck(natwestAccount, 2)
             radioButtonCheck(addAccountText, 3)
@@ -553,7 +574,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
             buttonCheck(continueText, continueSelector)
             formPostLinkCheck(continueLink(UNTAXED), continueButtonFormSelector)
 
-            errorSummaryCheck(get.expectedErrorText(UNTAXED), errorSummaryHref, us.isWelsh)
+            errorSummaryCheck(get.expectedErrorTextUntaxed, errorSummaryHref, us.isWelsh)
 
             welshToggleCheck(us.isWelsh)
           }

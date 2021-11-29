@@ -93,16 +93,16 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val expectedPriorP1 = "You told us you donated £666 in shares, securities, land or property to overseas charities this year. Tell us if this has changed."
-    val expectedCyaP1 = "You told us you donated £50 in shares, securities, land or property to overseas charities this year. Tell us if this has changed."
+    val expectedPriorP1 = "Gwnaethoch roi gwybod i ni eich bod wedi rhoi £666 mewn cyfranddaliadau, gwarantau, tir neu eiddo i elusennau tramor eleni. Rhowch wybod i ni os yw hyn wedi newid."
+    val expectedCyaP1 = "Gwnaethoch roi gwybod i ni eich bod wedi rhoi £50 mewn cyfranddaliadau, gwarantau, tir neu eiddo i elusennau tramor eleni. Rhowch wybod i ni os yw hyn wedi newid."
     val tooLong = "Mae’n rhaid i werth eich cyfranddaliadau, gwarantau, tir neu eiddo fod yn llai na £100,000,000,000"
     val emptyField = "Nodwch werth cyfranddaliadau cymwys, gwarantau, tir neu eiddo a roesoch i elusennau tramor"
     val incorrectFormat = "Nodwch werth cyfranddaliadau, gwarantau, tir neu eiddo a roddwyd gennych i elusennau tramor yn y fformat cywir"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val expectedPriorP1 = "You told us your client donated £666 in shares, securities, land or property to overseas charities this year. Tell us if this has changed."
-    val expectedCyaP1 = "You told us your client donated £50 in shares, securities, land or property to overseas charities this year. Tell us if this has changed."
+    val expectedPriorP1 = "Gwnaethoch roi gwybod i ni fod eich cleient wedi rhoi £666 mewn cyfranddaliadau, gwarantau, tir neu eiddo i elusennau tramor eleni. Rhowch wybod i ni os yw hyn wedi newid."
+    val expectedCyaP1 = "Gwnaethoch roi gwybod i ni fod eich cleient wedi rhoi £50 mewn cyfranddaliadau, gwarantau, tir neu eiddo i elusennau tramor eleni. Rhowch wybod i ni os yw hyn wedi newid."
     val tooLong = "Mae’n rhaid i werth cyfranddaliadau, gwarantau, tir neu eiddo eich cleient fod yn llai na £100,000,000,000"
     val emptyField = "Nodwch werth cyfranddaliadau, gwarantau, tir neu eiddo a roddwyd gan eich cleient i elusennau tramor"
     val incorrectFormat = "Nodwch werth cyfranddaliadau, gwarantau, tir neu eiddo a roddwyd gan eich cleient i elusennau tramor yn y fformat cywir"

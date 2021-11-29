@@ -99,8 +99,8 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
     val heading: String = "Faint o’r rhoddion a wnaethoch ar ôl 5 Ebrill 2022 ydych am eu hychwanegu at y flwyddyn dreth hon?"
-    val priorP1: String = "You told us you want to add £444 of the donations you made after 5 April 2022 to this tax year. Tell us if this has changed."
-    val cyaP1: String = "You told us you want to add £50 of the donations you made after 5 April 2022 to this tax year. Tell us if this has changed."
+    val priorP1: String = "Gwnaethoch roi gwybod i ni eich bod am ychwanegu £444 o’r rhoddion a wnaethoch ar ôl 5 Ebrill 2022 at y flwyddyn dreth hon. Rhowch wybod i ni os yw hyn wedi newid."
+    val cyaP1: String = "Gwnaethoch roi gwybod i ni eich bod am ychwanegu £50 o’r rhoddion a wnaethoch ar ôl 5 Ebrill 2022 at y flwyddyn dreth hon. Rhowch wybod i ni os yw hyn wedi newid."
     val tooLongError: String = "Mae’n rhaid i swm eich rhodd a wnaed ar ôl 5 Ebrill 2022 a ychwanegwch at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000"
     val emptyFieldError: String = "Nodwch swm eich rhodd a wnaed ar ôl 5 Ebrill 2022 rydych am ei ychwanegu at y flwyddyn dreth hon"
     val incorrectFormatError: String = "Nodwch y swm rydych am ei ychwanegu at y flwyddyn dreth hon yn y fformat cywir"
@@ -108,8 +108,8 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
   object ExpectedAgentCY extends SpecificExpectedResults {
     val heading: String = "Faint o’r rhoddion a wnaeth eich cleient ar ôl 5 Ebrill 2022 ydych am eu hychwanegu at y flwyddyn dreth hon?"
-    val priorP1: String = "You told us you want to add £444 of the donations your client made after 5 April 2022 to this tax year. Tell us if this has changed."
-    val cyaP1: String = "You told us you want to add £50 of the donations your client made after 5 April 2022 to this tax year. Tell us if this has changed."
+    val priorP1: String = "Gwnaethoch roi gwybod i ni eich bod am ychwanegu £444 o’r rhoddion a wnaeth eich cleient ar ôl 5 Ebrill 2022 at y flwyddyn dreth hon. Rhowch wybod i ni os yw hyn wedi newid."
+    val cyaP1: String = "Gwnaethoch roi gwybod i ni eich bod am ychwanegu £50 o’r rhoddion a wnaeth eich cleient ar ôl 5 Ebrill 2022 at y flwyddyn dreth hon. Rhowch wybod i ni os yw hyn wedi newid."
     val tooLongError: String = "Mae’n rhaid i swm rhodd eich cleient a wnaed ar ôl 5 Ebrill 2022 a ychwanegwch at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000"
     val emptyFieldError: String = "Nodwch swm rhodd eich cleient a wnaed ar ôl 5 Ebrill 2022 rydych am ei ychwanegu at y flwyddyn dreth hon"
     val incorrectFormatError: String = "Nodwch y swm rydych am ei ychwanegu at y flwyddyn dreth hon yn y fformat cywir"

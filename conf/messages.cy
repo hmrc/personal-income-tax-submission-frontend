@@ -268,13 +268,19 @@ interest.changeAccountAmount.required.agent = Nodwch swm y {0} llog y DU a gafod
 interest.changeAccountAmount.format = Nodwch swm y {0} llog y DU yn y fformat cywir
 interest.changeAccountAmount.amountMaxLimit = Mae’n rhaid i swm {0} llog y DU fod yn llai na £100,000,000,000
 
-interest.chooseAccount.title.agent = O ba gyfrif a gafodd eich cleient {0} llog y DU?
-interest.chooseAccount.title.individual = O ba gyfrif a gawsoch {0} llog y DU?
+interest.chooseAccount.title.taxed.agent = O ba gyfrif a gafodd eich cleient log y DU a drethwyd?
+interest.chooseAccount.title.taxed.individual = O ba gyfrif a gawsoch log y DU a drethwyd?
+
+interest.chooseAccount.title.untaxed.agent = O ba gyfrif a gafodd eich cleient log y DU sydd heb ei drethu?
+interest.chooseAccount.title.untaxed.individual = O ba gyfrif a gawsoch log y DU sydd heb ei drethu?
 
 interest.chooseAccount.addANewAccount = Ychwanegwch gyfrif newydd
 
-interest.chooseAccount.error.noRadioSelected.agent = Dewiswch y cyfrif a gafodd eich cleient {0} llog y DU
-interest.chooseAccount.error.noRadioSelected.individual = Dewiswch y cyfrif a gawsoch {0} llog y DU
+interest.chooseAccount.error.noRadioSelected.taxed.agent = Dewiswch y cyfrif a gafodd eich cleient log y DU a drethwyd
+interest.chooseAccount.error.noRadioSelected.taxed.individual = Dewiswch y cyfrif a gawsoch log y DU a drethwyd
+
+interest.chooseAccount.error.noRadioSelected.untaxed.agent = Dewiswch y cyfrif a gafodd eich cleient log y DU sydd heb ei drethu
+interest.chooseAccount.error.noRadioSelected.untaxed.individual = Dewiswch y cyfrif a gawsoch log y DU sydd heb ei drethu
 
 # Gift Aid
 # ----------------------------------------------------------
@@ -298,7 +304,7 @@ charity.common.name.error.duplicate = Ni allwch ychwanegu 2 elusen gyda’r un e
 
 charity.qualifying-shares.disclosure.title = Beth yw cyfranddaliadau a gwarantau cymwys?
 charity.qualifying-shares.disclosure.p = Mae cyfranddaliadau a gwarantau cymwys yn cynnwys:
-charity.qualifying-shares.disclosure.bullet.1 = cael eu restrui ar gyfnewidfa stoc gydnabyddedig neu yr ymdrinnir â nhw ar farchnad ddynodedig yn y DU
+charity.qualifying-shares.disclosure.bullet.1 = cael eu restri ar gyfnewidfa stoc gydnabyddedig neu yr ymdrinnir â nhw ar farchnad ddynodedig yn y DU
 charity.qualifying-shares.disclosure.bullet.2 = unedau mewn ymddiriedolaeth unedol awdurdodedig
 charity.qualifying-shares.disclosure.bullet.3 = cyfranddaliadau mewn cwmni buddsoddi penagored
 charity.qualifying-shares.disclosure.bullet.4 = buddiant mewn cronfa alltraeth
@@ -312,8 +318,8 @@ charity.amount-via-gift-aid.individual.title = Faint wnaethoch ei roi i elusen d
 charity.amount-via-gift-aid.individual.p = Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at eich rhodd.
 charity.amount-via-gift-aid.agent.title = Faint wnaeth eich cleient ei roi i elusen drwy ddefnyddio Rhodd Cymorth?
 charity.amount-via-gift-aid.agent.p = Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at rodd eich cleient.
-charity.amount-via-gift-aid.individual.prior = You told us you used Gift Aid to donate {0} to charity. Tell us if this has changed.
-charity.amount-via-gift-aid.agent.prior = You told us your client used Gift Aid to donate {0} to charity. Tell us if this has changed.
+charity.amount-via-gift-aid.individual.prior = Gwnaethoch roi gwybod i ni eich bod wedi defnyddio Rhodd Cymorth i roi {0} i elusen. Rhowch wybod i ni os yw hyn wedi newid.
+charity.amount-via-gift-aid.agent.prior = Gwnaethoch roi gwybod i ni fod eich cleient wedi defnyddio Rhodd Cymorth i roi {0} i elusen. Rhowch wybod i ni os yw hyn wedi newid.
 charity.amount-via-gift-aid.error.no-input.individual = Nodwch y swm a roesoch i elusen drwy ddefnyddio Rhodd Cymorth
 charity.amount-via-gift-aid.error.incorrect-format.individual = Nodwch y swm a roesoch i elusen yn y fformat cywir
 charity.amount-via-gift-aid.error.too-high.individual = Mae’n rhaid i’r swm a roesoch i elusen fod yn llai na £100,000,000,000
@@ -332,8 +338,8 @@ charity.one-off.errors.noChoice.agent = Dewiswch ‘Iawn’ os gwnaeth eich clei
 
 charity.gift-aid-one-off-amount.title.individual = Faint wnaethoch ei roi i elusen fel taliadau untro?
 charity.gift-aid-one-off-amount.title.agent = Faint wnaeth eich cleient ei roi i elusen fel taliadau untro?
-charity.gift-aid-one-off-amount.individual.prior = You told us you donated {0} to charity as one-off payments. Tell us if this has changed.
-charity.gift-aid-one-off-amount.agent.prior = You told us your client donated {0} to charity as one-off payments. Tell us if this has changed.
+charity.gift-aid-one-off-amount.individual.prior = Gwnaethoch roi gwybod i ni eich bod wedi rhoi {0} i elusen fel taliadau untro. Rhowch wybod i ni os yw hyn wedi newid.
+charity.gift-aid-one-off-amount.agent.prior = Gwnaethoch roi gwybod i ni fod eich cleient wedi rhoi {0} i elusen fel taliadau untro. Rhowch wybod i ni os yw hyn wedi newid.
 charity.gift-aid-one-off-amount.error.empty.individual = Nodwch y swm a roesoch i elusen fel taliadau untro
 charity.gift-aid-one-off-amount.error.empty.agent = Nodwch y swm a roddodd eich cleient i elusen fel taliadau untro
 charity.gift-aid-one-off-amount.error.incorrect-format.individual = Nodwch y swm a roesoch fel taliadau untro yn y fformat cywir
@@ -350,8 +356,8 @@ charity.overseas-gift-aid.errors.noChoice.agent = Dewiswch ‘Iawn’ os gwnaeth
 
 charity.amount-overseas-gift-aid.title.individual = Faint wnaethoch ei roi i elusennau tramor drwy ddefnyddio Rhodd Cymorth?
 charity.amount-overseas-gift-aid.title.agent = Faint wnaeth eich cleient ei roi i elusennau tramor drwy ddefnyddio Rhodd Cymorth?
-charity.amount-overseas-gift-aid.individual.prior = You told us you used Gift Aid to donate {0} to overseas charities. Tell us if this has changed.
-charity.amount-overseas-gift-aid.agent.prior = You told us your client used Gift Aid to donate {0} to overseas charities. Tell us if this has changed.
+charity.amount-overseas-gift-aid.individual.prior = Gwnaethoch roi gwybod i ni eich bod wedi defnyddio Rhodd Cymorth i roi {0} i elusennau tramor. Rhowch wybod i ni os yw hyn wedi newid.
+charity.amount-overseas-gift-aid.agent.prior = Gwnaethoch roi gwybod i ni fod eich cleient wedi defnyddio Rhodd Cymorth i roi {0} i elusennau tramor. Rhowch wybod i ni os yw hyn wedi newid.
 charity.amount-overseas-gift-aid.error.empty.individual = Nodwch y swm a roesoch i elusennau tramor
 charity.amount-overseas-gift-aid.error.empty.agent = Nodwch y swm a roddodd eich cleient i elusennau tramor
 charity.amount-overseas-gift-aid.error.incorrect-format.individual = Nodwch y swm a roesoch i elusennau tramor yn y fformat cywir
@@ -385,8 +391,8 @@ charity.last-tax-year.errors.noChoice.agent = Dewiswch ‘Iawn’ i ychwanegu un
 
 charity.last-tax-year-donation-amount.title.individual = Faint o’ch cyfraniad y gwnaethoch ei ychwanegu at flwyddyn dreth {0} i {1}?
 charity.last-tax-year-donation-amount.title.agent = Faint o gyfraniad eich cleient y gwnaethoch ei ychwanegu at flwyddyn dreth {0} i {1}?
-charity.last-tax-year-donation-amount.individual.prior = You told us you want to add {0} of your donations to charity to the 6 April {1} to 5 April {2} tax year. Tell us if this has changed.
-charity.last-tax-year-donation-amount.agent.prior = You told us you want to add {0} of your client’s donations to charity to the 6 April {1} to 5 April {2} tax year. Tell us if this has changed.
+charity.last-tax-year-donation-amount.individual.prior = Gwnaethoch roi gwybod i ni eich bod am ychwanegu {0} o’ch rhoddion i elusen at flwyddyn dreth 6 Ebrill {1} i 5 Ebrill {2}. Rhowch wybod i ni os yw hyn wedi newid.
+charity.last-tax-year-donation-amount.agent.prior = Gwnaethoch roi gwybod i ni eich bod am ychwanegu {0} o roddion eich cleient i elusen at flwyddyn dreth 6 Ebrill {1} i 5 Ebrill {2}. Rhowch wybod i ni os yw hyn wedi newid.
 charity.last-tax-year-donation-amount.error.no-entry.individual = Nodwch faint o’ch rhodd rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf
 charity.last-tax-year-donation-amount.error.no-entry.agent = Nodwch faint o rodd eich cleient rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf
 charity.last-tax-year-donation-amount.error.invalid = Nodwch y maint rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf yn y fformat cywir
@@ -405,8 +411,8 @@ charity.add-to-current-tax-year.errors.noChoice.agent = Dewiswch ‘Iawn’ os y
 
 charity.add-to-current-tax-year-amount.title.individual = Faint o’r rhoddion a wnaethoch ar ôl 5 Ebrill {0} ydych am eu hychwanegu at y flwyddyn dreth hon?
 charity.add-to-current-tax-year-amount.title.agent = Faint o’r rhoddion a wnaeth eich cleient ar ôl 5 Ebrill {0} ydych am eu hychwanegu at y flwyddyn dreth hon?
-charity.add-to-current-tax-year-amount.individual.prior = You told us you want to add {0} of the donations you made after 5 April {1} to this tax year. Tell us if this has changed.
-charity.add-to-current-tax-year-amount.agent.prior = You told us you want to add {0} of the donations your client made after 5 April {1} to this tax year. Tell us if this has changed.
+charity.add-to-current-tax-year-amount.individual.prior = Gwnaethoch roi gwybod i ni eich bod am ychwanegu {0} o’r rhoddion a wnaethoch ar ôl 5 Ebrill {1} at y flwyddyn dreth hon. Rhowch wybod i ni os yw hyn wedi newid.
+charity.add-to-current-tax-year-amount.agent.prior = Gwnaethoch roi gwybod i ni eich bod am ychwanegu {0} o’r rhoddion a wnaeth eich cleient ar ôl 5 Ebrill {1} at y flwyddyn dreth hon. Rhowch wybod i ni os yw hyn wedi newid.
 charity.add-to-current-tax-year-amount.errors.no-entry.individual = Nodwch swm eich rhodd a wnaed ar ôl 5 Ebrill {0} rydych am ei ychwanegu at y flwyddyn dreth hon
 charity.add-to-current-tax-year-amount.errors.no-entry.agent = Nodwch swm rhodd eich cleient a wnaed ar ôl 5 Ebrill {0} rydych am ei ychwanegu at y flwyddyn dreth hon
 charity.add-to-current-tax-year-amount.errors.wrong-format = Nodwch y swm rydych am ei ychwanegu at y flwyddyn dreth hon yn y fformat cywir
@@ -419,8 +425,8 @@ charity.qualifying-shares-or-securities.errors.noChoice.individual = Dewiswch �
 charity.qualifying-shares-or-securities.errors.noChoice.agent = Dewiswch ‘Iawn’ os wnaeth eich cleient rhoi cyfranddaliadau neu warantau cymwys i elusen
 
 charity.shares-or-securities.heading = Beth yw cyfanswm gwerth cyfranddaliadau neu warantau cymwys a roddir i elusen?
-charity.shares-or-securities.individual.prior = You told us you donated {0} in shares and securities to charity this year. Tell us if this has changed.
-charity.shares-or-securities.agent.prior = You told us your client donated {0} in shares and securities to charity this year. Tell us if this has changed.
+charity.shares-or-securities.individual.prior = Gwnaethoch roi gwybod i ni eich bod wedi rhoi {0} mewn cyfranddaliadau a gwarantau i elusen eleni. Rhowch wybod i ni os yw hyn wedi newid.
+charity.shares-or-securities.agent.prior = Gwnaethoch roi gwybod i ni fod eich cleient wedi rhoi {0} mewn cyfranddaliadau a gwarantau i elusen eleni. Rhowch wybod i ni os yw hyn wedi newid.
 charity.shares-or-securities.error.empty-field.individual = Nodwch werth cyfranddaliadau neu warantau a roddwyd gennych i elusen
 charity.shares-or-securities.error.empty-field.agent = Nodwch werth cyfranddaliadau neu warantau a roddwyd gan eich cleient i elusen
 charity.shares-or-securities.error.max-amount.individual = Mae’n rhaid i werth eich cyfranddaliadau neu warantau fod yn llai na £100,000,000,000
@@ -434,8 +440,8 @@ charity.donated-land-or-property.errors.noChoice.individual = Dewiswch ‘Iawn�
 charity.donated-land-or-property.errors.noChoice.agent = Dewiswch ‘Iawn’ os wnaeth eich cleient rhoi tir neu eiddo i elusen
 
 charity.land-or-property.title = Beth yw gwerth tir neu eiddo a roddwyd i elusen?
-charity.land-or-property.individual.prior = You told us you donated {0} in land or property to charity this year. Tell us if this has changed.
-charity.land-or-property.agent.prior = You told us your client donated {0} in land or property to charity this year. Tell us if this has changed.
+charity.land-or-property.individual.prior = Gwnaethoch roi gwybod i ni eich bod wedi rhoi {0} mewn tir neu eiddo i elusen eleni. Rhowch wybod i ni os yw hyn wedi newid.
+charity.land-or-property.agent.prior = Gwnaethoch roi gwybod i ni fod eich cleient wedi rhoi {0} mewn tir neu eiddo i elusen eleni. Rhowch wybod i ni os yw hyn wedi newid.
 charity.land-or-property.errors.no-entry.individual = Nodwch werth y tir neu eiddo a roddwyd gennych i elusen
 charity.land-or-property.errors.no-entry.agent = Nodwch werth y tir neu eiddo a roddwyd gan eich cleient i elusen
 charity.land-or-property.errors.wrong-format.individual = Nodwch werth y tir neu eiddo a roddwyd gennych i elusen yn y fformat cywir
@@ -449,8 +455,8 @@ charity.shares-securities-land-property-overseas.errors.noChoice.individual = De
 charity.shares-securities-land-property-overseas.errors.noChoice.agent = Dewiswch ‘Iawn’ os wnaeth eich cleient rhoi cyfranddaliadau, gwarantau, tir neu eiddo cymwys i elusennau tramor
 
 charity.overseas-shares-securities-land-property-amount.heading = Beth yw gwerth cyfranddaliadau cymwys, gwarantau, tir neu eiddo a roddwyd i elusennau tramor?
-charity.overseas-shares-securities-land-property-amount.individual.prior = You told us you donated {0} in shares, securities, land or property to overseas charities this year. Tell us if this has changed.
-charity.overseas-shares-securities-land-property-amount.agent.prior = You told us your client donated {0} in shares, securities, land or property to overseas charities this year. Tell us if this has changed.
+charity.overseas-shares-securities-land-property-amount.individual.prior = Gwnaethoch roi gwybod i ni eich bod wedi rhoi {0} mewn cyfranddaliadau, gwarantau, tir neu eiddo i elusennau tramor eleni. Rhowch wybod i ni os yw hyn wedi newid.
+charity.overseas-shares-securities-land-property-amount.agent.prior = Gwnaethoch roi gwybod i ni fod eich cleient wedi rhoi {0} mewn cyfranddaliadau, gwarantau, tir neu eiddo i elusennau tramor eleni. Rhowch wybod i ni os yw hyn wedi newid.
 charity.overseas-shares-securities-land-property-amount.error.empty-field.individual = Nodwch werth cyfranddaliadau cymwys, gwarantau, tir neu eiddo a roesoch i elusennau tramor
 charity.overseas-shares-securities-land-property-amount.error.empty-field.agent = Nodwch werth cyfranddaliadau, gwarantau, tir neu eiddo a roddwyd gan eich cleient i elusennau tramor
 charity.overseas-shares-securities-land-property-amount.error.max-amount.individual = Mae’n rhaid i werth eich cyfranddaliadau, gwarantau, tir neu eiddo fod yn llai na £100,000,000,000

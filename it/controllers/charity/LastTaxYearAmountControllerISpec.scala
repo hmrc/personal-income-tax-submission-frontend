@@ -99,8 +99,8 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
   object ExpectedIndividualCY extends SpecificExpectedResults {
     val heading = s"Faint o’ch cyfraniad y gwnaethoch ei ychwanegu at flwyddyn dreth $yearBeforeLastTaxYear i $lastTaxYear?"
     val para = "Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at eich rhodd."
-    val expectedPriorP1 = s"You told us you want to add £333 of your donations to charity to the 6 April $yearBeforeLastTaxYear to 5 April $lastTaxYear tax year. Tell us if this has changed."
-    val expectedCyaP1 = s"You told us you want to add £50 of your donations to charity to the 6 April $yearBeforeLastTaxYear to 5 April $lastTaxYear tax year. Tell us if this has changed."
+    val expectedPriorP1 = s"Gwnaethoch roi gwybod i ni eich bod am ychwanegu £333 o’ch rhoddion i elusen at flwyddyn dreth 6 Ebrill $yearBeforeLastTaxYear i 5 Ebrill $lastTaxYear. Rhowch wybod i ni os yw hyn wedi newid."
+    val expectedCyaP1 = s"Gwnaethoch roi gwybod i ni eich bod am ychwanegu £50 o’ch rhoddion i elusen at flwyddyn dreth 6 Ebrill $yearBeforeLastTaxYear i 5 Ebrill $lastTaxYear. Rhowch wybod i ni os yw hyn wedi newid."
     val noSelectionError = "Nodwch faint o’ch rhodd rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf"
     val tooLongError = "Mae’n rhaid i swm eich rhodd yr ydych yn ychwanegu at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000"
     val invalidFormatError = "Nodwch y maint rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf yn y fformat cywir"
@@ -111,8 +111,8 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
   object ExpectedAgentCY extends SpecificExpectedResults {
     val heading = s"Faint o gyfraniad eich cleient y gwnaethoch ei ychwanegu at flwyddyn dreth $yearBeforeLastTaxYear i $lastTaxYear?"
     val para = "Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at rodd eich cleient."
-    val expectedPriorP1 = s"You told us you want to add £333 of your client’s donations to charity to the 6 April $yearBeforeLastTaxYear to 5 April $lastTaxYear tax year. Tell us if this has changed."
-    val expectedCyaP1 = s"You told us you want to add £50 of your client’s donations to charity to the 6 April $yearBeforeLastTaxYear to 5 April $lastTaxYear tax year. Tell us if this has changed."
+    val expectedPriorP1 = s"Gwnaethoch roi gwybod i ni eich bod am ychwanegu £333 o roddion eich cleient i elusen at flwyddyn dreth 6 Ebrill $yearBeforeLastTaxYear i 5 Ebrill $lastTaxYear. Rhowch wybod i ni os yw hyn wedi newid."
+    val expectedCyaP1 = s"Gwnaethoch roi gwybod i ni eich bod am ychwanegu £50 o roddion eich cleient i elusen at flwyddyn dreth 6 Ebrill $yearBeforeLastTaxYear i 5 Ebrill $lastTaxYear. Rhowch wybod i ni os yw hyn wedi newid."
     val noSelectionError = "Nodwch faint o rodd eich cleient rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf"
     val tooLongError =  "Mae’n rhaid i swm rhodd eich cleient yr ydych yn ychwanegu at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000"
     val invalidFormatError = "Nodwch y maint rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf yn y fformat cywir"
