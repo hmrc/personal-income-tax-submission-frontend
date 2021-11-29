@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package models.interest
+package models.charity
 
-import play.api.libs.json._
+import models.charity.prior.GiftAidSubmissionModel
+import play.api.libs.json.{Json, OWrites}
 
-case class InterestPriorSubmission(hasUntaxed: Boolean, hasTaxed: Boolean, submissions: Option[Seq[InterestAccountModel]])
+case class DecodedGiftAidSubmissionPayload(prior: Option[GiftAidSubmissionModel], body: Option[GiftAidSubmissionModel])
 
-object InterestPriorSubmission {
-  implicit val writes: OWrites[InterestPriorSubmission] = OWrites[InterestPriorSubmission] { model =>
-    if(model.submissions.nonEmpty) {
-      Json.obj("submissions" -> Json.toJson(model.submissions))
-    } else {
-      Json.obj()
-    }
-  }
+object DecodedGiftAidSubmissionPayload {
+  implicit def writes: OWrites[DecodedGiftAidSubmissionPayload] = Json.writes[DecodedGiftAidSubmissionPayload]
 }

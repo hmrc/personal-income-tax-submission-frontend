@@ -17,27 +17,25 @@
 package controllers.interest
 
 import audit.{AuditModel, AuditService, CreateOrAmendInterestAuditDetail}
-import common.InterestTaxTypes
 import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
-import models.interest.{InterestCYAModel, InterestPriorSubmission}
+import models.interest.{DecodedInterestSubmissionPayload, InterestCYAModel, InterestPriorSubmission}
 import models.{APIErrorBodyModel, APIErrorModel, User}
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import services.{InterestSessionService, InterestSubmissionService}
+import services.{InterestSessionService, InterestSubmissionService, NrsService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.interest.InterestCYAView
-import java.util.UUID.randomUUID
 
 import common.InterestTaxTypes.{TAXED, UNTAXED}
-import javax.inject.Inject
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class InterestCYAController @Inject()(
@@ -45,7 +43,8 @@ class InterestCYAController @Inject()(
                                        interestSubmissionService: InterestSubmissionService,
                                        auditService: AuditService,
                                        errorHandler: ErrorHandler,
-                                       interestSessionService: InterestSessionService
+                                       interestSessionService: InterestSessionService,
+                                       nrsService: NrsService
                                      )
                                      (
                                        implicit appConfig: AppConfig,
@@ -80,6 +79,11 @@ class InterestCYAController @Inject()(
               Some(cyaData), prior, prior.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase, taxYear
             )
             auditSubmission(model)
+
+            if (appConfig.nrsEnabled) {
+              nrsService.submit(user.nino, new DecodedInterestSubmissionPayload(Some(cyaData), prior), user.mtditid)
+            }
+
             response
           case response => response
         }

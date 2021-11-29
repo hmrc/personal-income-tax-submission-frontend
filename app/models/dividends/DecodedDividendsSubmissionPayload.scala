@@ -14,18 +14,12 @@
  * limitations under the License.
  */
 
-package models.interest
+package models.dividends
 
-import play.api.libs.json._
+import play.api.libs.json.{Json, OWrites}
 
-case class InterestPriorSubmission(hasUntaxed: Boolean, hasTaxed: Boolean, submissions: Option[Seq[InterestAccountModel]])
+case class DecodedDividendsSubmissionPayload(body: Option[DividendsCheckYourAnswersModel], prior: Option[DividendsPriorSubmission])
 
-object InterestPriorSubmission {
-  implicit val writes: OWrites[InterestPriorSubmission] = OWrites[InterestPriorSubmission] { model =>
-    if(model.submissions.nonEmpty) {
-      Json.obj("submissions" -> Json.toJson(model.submissions))
-    } else {
-      Json.obj()
-    }
-  }
+object DecodedDividendsSubmissionPayload {
+  implicit def writes: OWrites[DecodedDividendsSubmissionPayload] = Json.writes[DecodedDividendsSubmissionPayload]
 }

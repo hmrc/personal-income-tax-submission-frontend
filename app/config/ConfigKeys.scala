@@ -29,4 +29,5 @@ object ConfigKeys {
   val feedbackFrontendUrl = "microservice.services.feedback-frontend.url"
   val viewAndChangeUrl = "microservice.services.view-and-change.url"
   val defaultTaxYear = "defaultTaxYear"
+  val incomeTaxNrsProxyUrl = "microservice.services.income-tax-nrs-proxy.url"
 }
