@@ -103,12 +103,7 @@ class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig) extends AppCon
   lazy val encryptionKey: String = servicesConfig.getString("mongodb.encryption.key")
   def mongoTTL: Long = Duration(servicesConfig.getString("mongodb.timeToLive")).toMinutes.toInt
 
-  lazy val dividendsEnabled: Boolean = servicesConfig.getBoolean("feature-switch.dividendsEnabled")
-  lazy val interestEnabled: Boolean = servicesConfig.getBoolean("feature-switch.interestEnabled")
-  lazy val giftAidEnabled: Boolean = servicesConfig.getBoolean("feature-switch.giftAidEnabled")
-  lazy val giftAidReleased: Boolean = servicesConfig.getBoolean("feature-switch.giftAidReleased")
-  lazy val employmentEnabled: Boolean = servicesConfig.getBoolean("feature-switch.employmentEnabled")
-  lazy val employmentReleased: Boolean = servicesConfig.getBoolean("feature-switch.employmentReleased")
+  lazy val nrsEnabled: Boolean = servicesConfig.getBoolean("feature-switch.nrsEnabled")
 
 }
 
@@ -165,10 +160,5 @@ trait AppConfig {
 
   def mongoTTL: Long
 
-  val dividendsEnabled: Boolean
-  val interestEnabled: Boolean
-  val giftAidEnabled: Boolean
-  val giftAidReleased: Boolean
-  val employmentEnabled: Boolean
-  val employmentReleased: Boolean
+  val nrsEnabled: Boolean
 }
