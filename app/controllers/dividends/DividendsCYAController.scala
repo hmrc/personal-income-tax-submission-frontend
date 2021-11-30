@@ -17,19 +17,16 @@
 package controllers.dividends
 
 import audit.{AuditModel, AuditService, CreateOrAmendDividendsAuditDetail}
-import common.SessionValues
 import config.{AppConfig, DIVIDENDS, ErrorHandler}
 import connectors.httpParsers.IncomeTaxUserDataHttpParser.IncomeTaxUserDataResponse
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
-import models.User
-import models.dividends.{DividendsCheckYourAnswersModel, DividendsResponseModel}
-import models.mongo.{DatabaseError, DividendsUserDataModel}
+import models.dividends.{DecodedDividendsSubmissionPayload, DividendsCheckYourAnswersModel, DividendsResponseModel, DividendsSubmissionModel}
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{DividendsSessionService, DividendsSubmissionService}
+import services.{DividendsSessionService, DividendsSubmissionService, NrsService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -44,7 +41,8 @@ class DividendsCYAController @Inject()(
                                         dividendsSubmissionService: DividendsSubmissionService,
                                         session: DividendsSessionService,
                                         auditService: AuditService,
-                                        errorHandler: ErrorHandler
+                                        errorHandler: ErrorHandler,
+                                        nrsService: NrsService
                                       )
                                       (
                                         implicit appConfig: AppConfig,
@@ -123,6 +121,11 @@ class DividendsCYAController @Inject()(
           auditSubmission(
             CreateOrAmendDividendsAuditDetail(cyaData, priorData, priorData.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase(), taxYear)
           )
+
+          if (appConfig.nrsEnabled) {
+            nrsService.submit(user.nino, new DecodedDividendsSubmissionPayload(cyaData, priorData), user.mtditid)
+          }
+
           session.clear(taxYear)(errorHandler.internalServerError())(
             Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
           )

@@ -21,11 +21,11 @@ import config.{AppConfig, ErrorHandler, GIFT_AID}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
-import models.charity.{CharityNameModel, GiftAidCYAModel}
+import models.charity.{CharityNameModel, DecodedGiftAidSubmissionPayload, GiftAidCYAModel}
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.{GiftAidSessionService, GiftAidSubmissionService}
+import services.{GiftAidSessionService, GiftAidSubmissionService, NrsService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -43,7 +43,8 @@ class GiftAidCYAController @Inject()(
                                       view: GiftAidCYAView,
                                       giftAidSubmissionService: GiftAidSubmissionService,
                                       errorHandler: ErrorHandler,
-                                      giftAidSessionService: GiftAidSessionService
+                                      giftAidSessionService: GiftAidSessionService,
+                                      nrsService: NrsService
                                     ) extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
   lazy val logger: Logger = Logger(this.getClass.getName)
@@ -100,6 +101,11 @@ class GiftAidCYAController @Inject()(
               auditSubmission(CreateOrAmendGiftAidAuditDetail(
                 prior, Some(submissionModel), prior.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase(), taxYear)
               )
+
+              if (appConfig.nrsEnabled) {
+                nrsService.submit(user.nino, new DecodedGiftAidSubmissionPayload(prior, Some(submissionModel)), user.mtditid)
+              }
+
               giftAidSessionService.clear(taxYear)(errorHandler.internalServerError())(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
             case Left(error) => Future.successful(errorHandler.handleError(error.status))
           }

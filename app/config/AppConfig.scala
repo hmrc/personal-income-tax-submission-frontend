@@ -37,6 +37,7 @@ class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig) extends AppCon
   lazy val interestBaseUrl: String = s"${servicesConfig.getString(ConfigKeys.incomeTaxInterestUrl)}/income-tax-interest"
   lazy val giftAidBaseUrl: String = s"${servicesConfig.getString(ConfigKeys.incomeTaxGiftAidUrl)}/income-tax-gift-aid"
   lazy val incomeTaxSubmissionBEBaseUrl: String = s"${servicesConfig.getString(ConfigKeys.incomeTaxSubmissionUrl)}/income-tax-submission-service"
+  lazy val nrsProxyBaseUrl: String = servicesConfig.getString(ConfigKeys.incomeTaxNrsProxyUrl)
 
   def defaultTaxYear: Int = servicesConfig.getInt(ConfigKeys.defaultTaxYear)
 
@@ -117,6 +118,8 @@ trait AppConfig {
   val interestBaseUrl: String
   val giftAidBaseUrl: String
   val incomeTaxSubmissionBEBaseUrl: String
+
+  val nrsProxyBaseUrl: String
 
   def defaultTaxYear: Int
 

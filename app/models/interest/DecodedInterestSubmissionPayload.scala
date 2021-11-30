@@ -16,16 +16,10 @@
 
 package models.interest
 
-import play.api.libs.json._
+import play.api.libs.json.{Json, OWrites}
 
-case class InterestPriorSubmission(hasUntaxed: Boolean, hasTaxed: Boolean, submissions: Option[Seq[InterestAccountModel]])
+case class DecodedInterestSubmissionPayload(body: Option[InterestCYAModel], prior: Option[InterestPriorSubmission])
 
-object InterestPriorSubmission {
-  implicit val writes: OWrites[InterestPriorSubmission] = OWrites[InterestPriorSubmission] { model =>
-    if(model.submissions.nonEmpty) {
-      Json.obj("submissions" -> Json.toJson(model.submissions))
-    } else {
-      Json.obj()
-    }
-  }
+object DecodedInterestSubmissionPayload {
+  implicit def writes: OWrites[DecodedInterestSubmissionPayload] = Json.writes[DecodedInterestSubmissionPayload]
 }

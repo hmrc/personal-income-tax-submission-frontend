@@ -153,6 +153,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "microservice.services.income-tax-dividends.url" -> s"http://$wiremockHost:$wiremockPort",
     "microservice.services.income-tax-interest.url" -> s"http://$wiremockHost:$wiremockPort",
     "microservice.services.income-tax-gift-aid.url" -> s"http://$wiremockHost:$wiremockPort",
+    "microservice.services.income-tax-nrs-proxy.url" -> s"http://$wiremockHost:$wiremockPort",
     "microservice.services.sign-in.url" -> s"/auth-login-stub/gg-sign-in",
     "taxYearChangeResetsSession" -> false,
     "useEncryption" -> true
@@ -169,6 +170,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "microservice.services.income-tax-dividends.url" -> s"http://$wiremockHost:$wiremockPort",
     "microservice.services.income-tax-interest.url" -> s"http://$wiremockHost:$wiremockPort",
     "microservice.services.income-tax-gift-aid.url" -> s"http://$wiremockHost:$wiremockPort",
+    "microservice.services.income-tax-nrs-proxy.url" -> s"http://$wiremockHost:$wiremockPort",
     "microservice.services.sign-in.url" -> s"/auth-login-stub/gg-sign-in",
     "taxYearChangeResetsSession" -> false,
     "useEncryption" -> true,
