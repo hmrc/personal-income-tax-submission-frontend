@@ -89,7 +89,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
     val yesText = "Iawn"
     val noText = "Na"
     val continueText = "Yn eich blaen"
-    val expectedErrorText = "Dewiswch ‘Iawn’ i dynnu’r cyfrif hon"
+    val expectedErrorText = "Dewiswch ‘Iawn’ i dynnu’r cyfrif hwn"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults

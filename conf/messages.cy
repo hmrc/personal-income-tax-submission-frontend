@@ -249,7 +249,7 @@ interest.cya.change-taxed-details.hiddenChange.agent = Newidiwch manylion cyfrif
 interest.remove-account.title = A ydych yn siŵr eich bod am ddileu’r cyfrif hwn?
 interest.remove-account.untaxed-hint = Bydd hyn yn dileu holl log y DU sydd heb ei drethu.
 interest.remove-account.taxed-hint = Bydd hyn yn dileu holl log y DU a drethwyd.
-interest.remove-account.errors.noRadioSelected = Dewiswch ‘Iawn’ i dynnu’r cyfrif hon
+interest.remove-account.errors.noRadioSelected = Dewiswch ‘Iawn’ i dynnu’r cyfrif hwn
 
 interest.change-account.untaxed-title.individual = Faint o log y DU sydd heb ei drethu a gawsoch?
 interest.change-account.untaxed-title.agent = Faint o log y DU sydd heb ei drethu a gafodd eich cleient?
