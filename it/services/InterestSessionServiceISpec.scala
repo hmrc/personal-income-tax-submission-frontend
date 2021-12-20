@@ -16,7 +16,8 @@
 
 package services
 
-import connectors.IncomeTaxUserDataConnector
+import config.ErrorHandler
+import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector}
 import repositories.InterestUserDataRepository
 import utils.IntegrationTest
 
@@ -25,9 +26,10 @@ class InterestSessionServiceISpec extends IntegrationTest{
 
   val interestUserDataRepository: InterestUserDataRepository = app.injector.instanceOf[InterestUserDataRepository]
   val incomeTaxUserDataConnector: IncomeTaxUserDataConnector = app.injector.instanceOf[IncomeTaxUserDataConnector]
+  val incomeSourceConnector: IncomeSourceConnector = app.injector.instanceOf[IncomeSourceConnector]
 
   val interestSessionServiceInvalidEncryption: InterestSessionService = appWithInvalidEncryptionKey.injector.instanceOf[InterestSessionService]
-  val interestSessionService: InterestSessionService = new InterestSessionService(interestUserDataRepository, incomeTaxUserDataConnector)
+  val interestSessionService: InterestSessionService = new InterestSessionService(interestUserDataRepository, incomeTaxUserDataConnector, incomeSourceConnector)
 
   "update" should{
     "return false when failing to decrypt the model" in {

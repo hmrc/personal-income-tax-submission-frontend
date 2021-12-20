@@ -16,7 +16,8 @@
 
 package services
 
-import connectors.IncomeTaxUserDataConnector
+import config.ErrorHandler
+import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector}
 import repositories.GiftAidUserDataRepository
 import utils.IntegrationTest
 
@@ -25,9 +26,10 @@ class GiftAidSessionServiceISpec extends IntegrationTest{
 
   val giftAidUserDataRepository: GiftAidUserDataRepository = app.injector.instanceOf[GiftAidUserDataRepository]
   val incomeTaxUserDataConnector: IncomeTaxUserDataConnector = app.injector.instanceOf[IncomeTaxUserDataConnector]
+  val incomeSourceConnector: IncomeSourceConnector = app.injector.instanceOf[IncomeSourceConnector]
 
   val giftAidSessionServiceInvalidEncryption: GiftAidSessionService = appWithInvalidEncryptionKey.injector.instanceOf[GiftAidSessionService]
-  val giftAidSessionService: GiftAidSessionService = new GiftAidSessionService(giftAidUserDataRepository, incomeTaxUserDataConnector)
+  val giftAidSessionService: GiftAidSessionService = new GiftAidSessionService(giftAidUserDataRepository, incomeTaxUserDataConnector, incomeSourceConnector)
 
   "create" should{
     "return false when failing to decrypt the model" in {

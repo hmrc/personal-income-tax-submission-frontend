@@ -93,6 +93,31 @@ trait WireMockHelper {
       )
     )
   }
+  def stubPutWithRequestBody(url: String, status: Integer, requestBody: String, requestHeaders: Seq[HttpHeader] = Seq.empty): StubMapping = {
+    val mappingWithHeaders: MappingBuilder = requestHeaders.foldLeft(put(urlMatching(url))){ (result, nxt) =>
+      result.withHeader(nxt.key(), equalTo(nxt.firstValue()))
+    }
+
+    stubFor(mappingWithHeaders.withRequestBody(equalToJson(requestBody))
+      .willReturn(
+        aResponse().
+          withStatus(status)
+      )
+    )
+  }
+
+  def stubPutWithResponseBody(url: String, requestBody: String, responseBody: String, status: Int, requestHeaders: Seq[HttpHeader] = Seq.empty): StubMapping = {
+    val mappingWithHeaders: MappingBuilder = requestHeaders.foldLeft(put(urlMatching(url))) { (result, nxt) =>
+      result.withHeader(nxt.key(), equalTo(nxt.firstValue()))
+    }
+
+    stubFor(mappingWithHeaders.withRequestBody(equalToJson(requestBody))
+      .willReturn(
+        aResponse()
+          .withBody(responseBody)
+          .withStatus(status)
+          .withHeader("Content-Type", "application/json; charset=utf-8")))
+  }
 
   def stubPatch(url: String, status: Integer, responseBody: String): StubMapping =
     stubFor(patch(urlMatching(url))

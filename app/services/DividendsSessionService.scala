@@ -16,8 +16,9 @@
 
 package services
 
-import connectors.IncomeTaxUserDataConnector
+import common.IncomeSources
 import connectors.httpParsers.IncomeTaxUserDataHttpParser.IncomeTaxUserDataResponse
+import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector}
 import models.User
 import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import models.mongo.{DatabaseError, DividendsUserDataModel}
@@ -31,7 +32,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class DividendsSessionService @Inject()(
                                          dividendsUserDataRepository: DividendsUserDataRepository,
-                                         incomeTaxUserDataConnector: IncomeTaxUserDataConnector
+                                         incomeTaxUserDataConnector: IncomeTaxUserDataConnector,
+                                         incomeSourceConnector: IncomeSourceConnector
                                        ) {
 
   lazy val logger: Logger = Logger(this.getClass)
@@ -104,10 +106,14 @@ class DividendsSessionService @Inject()(
     }
   }
 
-  def clear[R](taxYear: Int)(onFail: R)(onSuccess: R)(implicit user: User[_], ec: ExecutionContext): Future[R] = {
-    dividendsUserDataRepository.clear(taxYear).map {
-      case true => onSuccess
-      case false => onFail
+  def clear[R](taxYear: Int)(onFail: R)(onSuccess: R)(implicit user: User[_], ec: ExecutionContext, hc: HeaderCarrier): Future[R] = {
+    incomeSourceConnector.put(taxYear, user.nino, IncomeSources.DIVIDENDS)(hc.withExtraHeaders("mtditid" -> user.mtditid)).flatMap {
+      case Left(_) => Future.successful(onFail)
+      case _ =>
+        dividendsUserDataRepository.clear(taxYear).map {
+          case true => onSuccess
+          case false => onFail
+        }
     }
   }
 

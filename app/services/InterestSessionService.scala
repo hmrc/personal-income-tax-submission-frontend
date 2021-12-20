@@ -16,8 +16,10 @@
 
 package services
 
-import connectors.IncomeTaxUserDataConnector
+import common.IncomeSources
+import config.ErrorHandler
 import connectors.httpParsers.IncomeTaxUserDataHttpParser.IncomeTaxUserDataResponse
+import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector}
 import models.User
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
 import models.mongo.{DatabaseError, InterestUserDataModel}
@@ -32,7 +34,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class InterestSessionService @Inject()(
                                         interestUserDataRepository: InterestUserDataRepository,
-                                        incomeTaxUserDataConnector: IncomeTaxUserDataConnector
+                                        incomeTaxUserDataConnector: IncomeTaxUserDataConnector,
+                                        incomeSourceConnector: IncomeSourceConnector
                                       ) {
 
   private def getPriorData(taxYear: Int)(implicit user: User[_], hc: HeaderCarrier): Future[IncomeTaxUserDataResponse] = {
@@ -122,10 +125,14 @@ class InterestSessionService @Inject()(
     result.flatten
   }
 
-  def clear[R](taxYear: Int)(onFail: R)(onSuccess: R)(implicit user: User[_], ec: ExecutionContext): Future[R] = {
-    interestUserDataRepository.clear(taxYear).map {
-      case true => onSuccess
-      case false => onFail
+  def clear[R](taxYear: Int)(onFail: R)(onSuccess: R)(implicit user: User[_], ec: ExecutionContext, hc: HeaderCarrier): Future[R] = {
+    incomeSourceConnector.put(taxYear, user.nino, IncomeSources.INTEREST)(hc.withExtraHeaders("mtditid" -> user.mtditid)).flatMap {
+      case Left(_) => Future.successful(onFail)
+      case _ =>
+        interestUserDataRepository.clear(taxYear).map {
+          case true => onSuccess
+          case false => onFail
+        }
     }
   }
 
