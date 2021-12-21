@@ -530,7 +530,6 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
             authoriseIndividual()
             stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "")
             stubPost(s"/income-tax-interest/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "", expectedHeaders)
-
             urlPost(s"$appUrl/$taxYear/interest/check-interest", "{}", us.isWelsh, follow = true, playSessionCookie(us.isAgent))
           }
 

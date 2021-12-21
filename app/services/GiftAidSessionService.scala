@@ -16,7 +16,9 @@
 
 package services
 
-import connectors.IncomeTaxUserDataConnector
+import common.IncomeSources
+import config.ErrorHandler
+import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector}
 import connectors.httpParsers.IncomeTaxUserDataHttpParser.IncomeTaxUserDataResponse
 import models.User
 import models.charity.GiftAidCYAModel
@@ -32,7 +34,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class GiftAidSessionService @Inject()(
                                        giftAidUserDataRepository: GiftAidUserDataRepository,
-                                       incomeTaxUserDataConnector: IncomeTaxUserDataConnector
+                                       incomeTaxUserDataConnector: IncomeTaxUserDataConnector,
+                                       incomeSourceConnector: IncomeSourceConnector
                                      ) {
 
   def getPriorData(taxYear: Int)(implicit user: User[_], hc: HeaderCarrier): Future[IncomeTaxUserDataResponse] = {
@@ -103,10 +106,14 @@ class GiftAidSessionService @Inject()(
     }
   }
 
-  def clear[R](taxYear: Int)(onFail: R)(onSuccess: R)(implicit user: User[_], ec: ExecutionContext): Future[R] = {
-    giftAidUserDataRepository.clear(taxYear).map {
-      case true => onSuccess
-      case false => onFail
+  def clear[R](taxYear: Int)(onFail: R)(onSuccess: R)(implicit user: User[_], ec: ExecutionContext, hc: HeaderCarrier): Future[R] = {
+    incomeSourceConnector.put(taxYear, user.nino, IncomeSources.GIFT_AID)(hc.withExtraHeaders("mtditid" -> user.mtditid)).flatMap {
+      case Left(_) => Future.successful(onFail)
+      case _ =>
+        giftAidUserDataRepository.clear(taxYear).map {
+          case true => onSuccess
+          case false => onFail
+        }
     }
   }
 
