@@ -110,7 +110,7 @@ class InterestSessionService @Inject()(
             Some(InterestPriorSubmission(
               accounts.exists(_.untaxedAmount.isDefined),
               accounts.exists(_.taxedAmount.isDefined),
-              Some(accounts)
+              accounts
             ))
           }
           optionalCya match {

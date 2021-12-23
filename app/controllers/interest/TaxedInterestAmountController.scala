@@ -58,7 +58,7 @@ class TaxedInterestAmountController @Inject()(
 
       implicit val journey: QuestionsJourney[InterestCYAModel] = InterestCYAModel.interestJourney(taxYear, Some(id))
 
-      val idMatchesPreviouslySubmittedAccount: Boolean = prior.exists(_.submissions.exists(_.exists(_.id.contains(id))))
+      val idMatchesPreviouslySubmittedAccount: Boolean = prior.exists(_.submissions.exists(_.id.contains(id)))
 
       def taxedInterestAmountForm: Form[TaxedInterestModel] =
         TaxedInterestAmountForm.taxedInterestAmountForm(user.isAgent, disallowedDuplicateNames(cya,id))
@@ -111,7 +111,7 @@ class TaxedInterestAmountController @Inject()(
 
           val accountsAbleToReuse: Seq[InterestAccountModel] = {
             cya.flatMap(_.accounts.map(_.filter(!_.hasTaxed))).getOrElse(Seq()) ++
-            prior.flatMap(_.submissions.map(_.filter(!_.hasTaxed))).getOrElse(Seq())
+            prior.map(_.submissions.filter(!_.hasTaxed)).getOrElse(Seq())
           }
 
           cya match {

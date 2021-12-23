@@ -56,7 +56,7 @@ class UntaxedInterestAmountController @Inject()(
 
       implicit val journey: QuestionsJourney[InterestCYAModel] = InterestCYAModel.interestJourney(taxYear, Some(id))
 
-      val idMatchesPreviouslySubmittedAccount: Boolean = prior.exists(_.submissions.exists(_.exists(_.id.contains(id))))
+      val idMatchesPreviouslySubmittedAccount: Boolean = prior.exists(_.submissions.exists(_.id.contains(id)))
 
       def untaxedInterestAmountForm: Form[UntaxedInterestModel] =
         UntaxedInterestAmountForm.untaxedInterestAmountForm(user.isAgent, disallowedDuplicateNames(cya,id))
@@ -114,7 +114,7 @@ class UntaxedInterestAmountController @Inject()(
 
           val accountsAbleToReuse: Seq[InterestAccountModel] = {
             cya.flatMap(_.accounts.map(_.filter(!_.hasUntaxed))).getOrElse(Seq()) ++
-            prior.flatMap(_.submissions.map(_.filter(!_.hasUntaxed))).getOrElse(Seq())
+            prior.map(_.submissions.filter(!_.hasUntaxed)).getOrElse(Seq())
           }
 
           cya match {

@@ -32,7 +32,7 @@ class CreateOrAmendInterestAuditDetailSpec extends UnitTest {
   val prior = InterestPriorSubmission(
     hasUntaxed = true,
     hasTaxed = true,
-    Some(Seq(
+    Seq(
       InterestAccountModel(
         Some("UntaxedId1"),
         "Untaxed Account",
@@ -43,7 +43,7 @@ class CreateOrAmendInterestAuditDetailSpec extends UnitTest {
         "Taxed Account",
         taxedAmount = Some(9001.01)
       )
-    ))
+    )
   )
   private val nino = "AA123456A"
   private val mtditid = "1234567890"

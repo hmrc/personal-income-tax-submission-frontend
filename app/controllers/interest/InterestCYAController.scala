@@ -106,7 +106,7 @@ class InterestCYAController @Inject()(
         Some(InterestCYAModel(
           Some(priorData.hasUntaxed),
           Some(priorData.hasTaxed),
-          priorData.submissions.filter(_.exists(x => x.hasTaxed || x.hasUntaxed))
+          Some(priorData.submissions.filter(x => x.hasTaxed || x.hasUntaxed))
         ))
       case (Some(cyaData), _) => Some(cyaData)
       case _ => None
