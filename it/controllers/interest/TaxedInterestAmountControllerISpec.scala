@@ -394,7 +394,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
             )))
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(url("1234567890-09876543210"), Map(
-              TaxedInterestAmountForm.taxedAmount -> "12344.98",
+              TaxedInterestAmountForm.taxedAmount -> "12,344.98",
               TaxedInterestAmountForm.taxedAccountName -> secondAccountName
             ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
@@ -406,7 +406,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           }
 
           inputFieldValueCheck(secondAccountName, Selectors.accountNameInput)
-          inputFieldValueCheck("12344.98", Selectors.amountInput)
+          inputFieldValueCheck("12,344.98", Selectors.amountInput)
           titleCheck(errorTitle, us.isWelsh)
 
           errorSummaryCheck(duplicateNameError, Selectors.accountNameInput, us.isWelsh)
@@ -421,7 +421,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
             insertCyaData(None)
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(url(id), Map(
-              TaxedInterestAmountForm.taxedAmount -> "12344.98",
+              TaxedInterestAmountForm.taxedAmount -> "12,344.98",
               TaxedInterestAmountForm.taxedAccountName -> firstAccountName
             ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
@@ -443,7 +443,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
             )))))
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(url("1234567890"), Map(
-              TaxedInterestAmountForm.taxedAmount -> "12344.98",
+              TaxedInterestAmountForm.taxedAmount -> "12,344.98",
               TaxedInterestAmountForm.taxedAccountName -> firstAccountName
             ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
@@ -465,7 +465,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
             )))))
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(url("1234567890"), Map(
-              TaxedInterestAmountForm.taxedAmount -> "12344.98",
+              TaxedInterestAmountForm.taxedAmount -> "12,344.98",
               TaxedInterestAmountForm.taxedAccountName -> firstAccountName
             ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
@@ -491,7 +491,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
             insertCyaData(Some(InterestCYAModel(None,Some(true))))
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(url(id), Map(
-              TaxedInterestAmountForm.taxedAmount -> "12344.98",
+              TaxedInterestAmountForm.taxedAmount -> "12,344.98",
               TaxedInterestAmountForm.taxedAccountName -> firstAccountName
             ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
@@ -516,7 +516,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
             insertCyaData(Some(InterestCYAModel(None,Some(true))))
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(url("id"), Map(
-              TaxedInterestAmountForm.taxedAmount -> "12344.98",
+              TaxedInterestAmountForm.taxedAmount -> "12,344.98",
               TaxedInterestAmountForm.taxedAccountName -> firstAccountName
             ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }

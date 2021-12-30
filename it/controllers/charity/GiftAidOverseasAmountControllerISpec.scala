@@ -78,7 +78,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
   object ExpectedIndividualEN extends SpecificExpectedResults {
     val expectedTitle = "How much did you donate to overseas charities by using Gift Aid?"
     val expectedH1 = "How much did you donate to overseas charities by using Gift Aid?"
-    val expectedPriorP1 = "You told us you used Gift Aid to donate £1111 to overseas charities. Tell us if this has changed."
+    val expectedPriorP1 = "You told us you used Gift Aid to donate £1,111 to overseas charities. Tell us if this has changed."
     val expectedCyaP1 = "You told us you used Gift Aid to donate £50 to overseas charities. Tell us if this has changed."
     val expectedErrorEmpty = "Enter the amount you donated to overseas charities"
     val expectedErrorInvalid = "Enter the amount you donated to overseas charities in the correct format"
@@ -90,7 +90,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
   object ExpectedAgentEN extends SpecificExpectedResults {
     val expectedTitle = "How much did your client donate to overseas charities by using Gift Aid?"
     val expectedH1 = "How much did your client donate to overseas charities by using Gift Aid?"
-    val expectedPriorP1 = "You told us your client used Gift Aid to donate £1111 to overseas charities. Tell us if this has changed."
+    val expectedPriorP1 = "You told us your client used Gift Aid to donate £1,111 to overseas charities. Tell us if this has changed."
     val expectedCyaP1 = "You told us your client used Gift Aid to donate £50 to overseas charities. Tell us if this has changed."
     val expectedErrorEmpty = "Enter the amount your client donated to overseas charities"
     val expectedErrorInvalid = "Enter the amount your client donated to overseas charities in the correct format"
@@ -103,7 +103,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
   object ExpectedIndividualCY extends SpecificExpectedResults {
     val expectedTitle = "Faint wnaethoch ei roi i elusennau tramor drwy ddefnyddio Rhodd Cymorth?"
     val expectedH1 = "Faint wnaethoch ei roi i elusennau tramor drwy ddefnyddio Rhodd Cymorth?"
-    val expectedPriorP1 = "Gwnaethoch roi gwybod i ni eich bod wedi defnyddio Rhodd Cymorth i roi £1111 i elusennau tramor. Rhowch wybod i ni os yw hyn wedi newid."
+    val expectedPriorP1 = "Gwnaethoch roi gwybod i ni eich bod wedi defnyddio Rhodd Cymorth i roi £1,111 i elusennau tramor. Rhowch wybod i ni os yw hyn wedi newid."
     val expectedCyaP1 = "Gwnaethoch roi gwybod i ni eich bod wedi defnyddio Rhodd Cymorth i roi £50 i elusennau tramor. Rhowch wybod i ni os yw hyn wedi newid."
     val expectedErrorEmpty = "Nodwch y swm a roesoch i elusennau tramor"
     val expectedErrorInvalid = "Nodwch y swm a roesoch i elusennau tramor yn y fformat cywir"
@@ -115,7 +115,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
   object ExpectedAgentCY extends SpecificExpectedResults {
     val expectedTitle = "Faint wnaeth eich cleient ei roi i elusennau tramor drwy ddefnyddio Rhodd Cymorth?"
     val expectedH1 = "Faint wnaeth eich cleient ei roi i elusennau tramor drwy ddefnyddio Rhodd Cymorth?"
-    val expectedPriorP1 = "Gwnaethoch roi gwybod i ni fod eich cleient wedi defnyddio Rhodd Cymorth i roi £1111 i elusennau tramor. Rhowch wybod i ni os yw hyn wedi newid."
+    val expectedPriorP1 = "Gwnaethoch roi gwybod i ni fod eich cleient wedi defnyddio Rhodd Cymorth i roi £1,111 i elusennau tramor. Rhowch wybod i ni os yw hyn wedi newid."
     val expectedCyaP1 = "Gwnaethoch roi gwybod i ni fod eich cleient wedi defnyddio Rhodd Cymorth i roi £50 i elusennau tramor. Rhowch wybod i ni os yw hyn wedi newid."
     val expectedErrorEmpty = "Nodwch y swm a roddodd eich cleient i elusennau tramor"
     val expectedErrorInvalid = "Nodwch y swm a roddodd eich cleient i elusennau tramor yn y fformat cywir"
@@ -141,7 +141,7 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
     overseasDonationsViaGiftAidAmount = Some(validAmount)
   )
   val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
-  val requiredPriorData = Some(IncomeSourcesModel(None, None, Some(priorDataMax)))
+  val requiredPriorData: Option[IncomeSourcesModel] = Some(IncomeSourcesModel(None, None, Some(priorDataMax)))
 
   ".show" when {
 
