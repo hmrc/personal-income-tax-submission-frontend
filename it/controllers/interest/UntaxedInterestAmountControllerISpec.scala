@@ -394,7 +394,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
             )))
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(url("1234567890-09876543210"), Map(
-              UntaxedInterestAmountForm.untaxedAmount -> "12344.98",
+              UntaxedInterestAmountForm.untaxedAmount -> "12,344.98",
               UntaxedInterestAmountForm.untaxedAccountName -> secondAccountName
             ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
@@ -406,7 +406,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
           }
 
           inputFieldValueCheck(secondAccountName, Selectors.accountNameInput)
-          inputFieldValueCheck("12344.98", Selectors.amountInput)
+          inputFieldValueCheck("12,344.98", Selectors.amountInput)
           titleCheck(errorTitle, us.isWelsh)
 
           errorSummaryCheck(duplicateNameError, Selectors.accountNameInput, us.isWelsh)
@@ -421,7 +421,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
             insertCyaData(None)
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(url(id), Map(
-              UntaxedInterestAmountForm.untaxedAmount -> "12344.98",
+              UntaxedInterestAmountForm.untaxedAmount -> "12,344.98",
               UntaxedInterestAmountForm.untaxedAccountName -> firstAccountName
             ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
@@ -443,7 +443,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
             )))))
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(url("1234567890"), Map(
-              UntaxedInterestAmountForm.untaxedAmount -> "12344.98",
+              UntaxedInterestAmountForm.untaxedAmount -> "12,344.98",
               UntaxedInterestAmountForm.untaxedAccountName -> firstAccountName
             ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
@@ -465,7 +465,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
             )))))
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(url("1234567890"), Map(
-              UntaxedInterestAmountForm.untaxedAmount -> "12344.98",
+              UntaxedInterestAmountForm.untaxedAmount -> "12,344.98",
               UntaxedInterestAmountForm.untaxedAccountName -> firstAccountName
             ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
@@ -491,7 +491,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
             insertCyaData(Some(InterestCYAModel(Some(true),None)))
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(url(id), Map(
-              UntaxedInterestAmountForm.untaxedAmount -> "12344.98",
+              UntaxedInterestAmountForm.untaxedAmount -> "12,344.98",
               UntaxedInterestAmountForm.untaxedAccountName -> firstAccountName
             ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
@@ -516,7 +516,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
             insertCyaData(Some(InterestCYAModel(Some(true))))
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(url("id"), Map(
-              UntaxedInterestAmountForm.untaxedAmount -> "12344.98",
+              UntaxedInterestAmountForm.untaxedAmount -> "12,344.98",
               UntaxedInterestAmountForm.untaxedAccountName -> firstAccountName
             ), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }

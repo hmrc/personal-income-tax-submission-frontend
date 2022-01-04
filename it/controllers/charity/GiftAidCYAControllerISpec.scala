@@ -432,7 +432,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
                 cyaRowCheck(donationViaGiftAid, user.commonExpectedResults.no, controllers.charity.routes.GiftAidDonationsController.show(year).url, user.specificExpectedResults.get.donationViaGiftAidHidden, 1)
                 cyaRowCheck(thisYear, user.commonExpectedResults.no, controllers.charity.routes.DonationsToPreviousTaxYearController.show(year, year).url, thisYearHidden, 2)
                 cyaRowCheck(sharesSecurities, user.commonExpectedResults.no, controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(year).url, user.specificExpectedResults.get.sharesSecuritiesHidden, 3)
-                cyaRowCheck(landPropertyAmount, "£1000.74", controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(year).url, user.specificExpectedResults.get.landPropertyAmountHidden, 4)
+                cyaRowCheck(landPropertyAmount, "£1,000.74", controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(year).url, user.specificExpectedResults.get.landPropertyAmountHidden, 4)
               }
 
               buttonCheck(saveAndContinue)
@@ -465,7 +465,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
               {
                 cyaRowCheck(donationViaGiftAid, user.commonExpectedResults.no, controllers.charity.routes.GiftAidDonationsController.show(year).url, user.specificExpectedResults.get.donationViaGiftAidHidden, 1)
                 cyaRowCheck(thisYear, user.commonExpectedResults.no, controllers.charity.routes.DonationsToPreviousTaxYearController.show(year, year).url, thisYearHidden, 2)
-                cyaRowCheck(sharesSecuritiesAmount, "£1000.74", controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(year).url,sharesSecuritiesAmountHidden, 3)
+                cyaRowCheck(sharesSecuritiesAmount, "£1,000.74", controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(year).url,sharesSecuritiesAmountHidden, 3)
                 cyaRowCheck(landProperty, user.commonExpectedResults.no, controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(year).url, user.specificExpectedResults.get.landPropertyHidden, 4)
                 cyaRowCheck(overseasSharesSecuritiesLandProperty, user.commonExpectedResults.no, controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(year).url, user.specificExpectedResults.get.overseasSharesSecuritiesLandPropertyHidden, 5)
               }
