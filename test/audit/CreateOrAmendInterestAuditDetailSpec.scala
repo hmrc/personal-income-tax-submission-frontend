@@ -23,10 +23,10 @@ import utils.UnitTest
 class CreateOrAmendInterestAuditDetailSpec extends UnitTest {
 
   val body = InterestCYAModel(
-    Some(true), Some(true), Some(Seq(
+    Some(true), Some(true), Seq(
       InterestAccountModel(Some("azerty"), "Account 1", Some(100.01)),
       InterestAccountModel(Some("qwerty"), "Account 2", None, Some(9001.01))
-    ))
+    )
   )
 
   val prior = InterestPriorSubmission(

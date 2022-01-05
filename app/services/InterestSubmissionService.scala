@@ -33,12 +33,9 @@ class InterestSubmissionService @Inject()(interestSubmissionConnector: InterestS
   def submit(cyaData: InterestCYAModel, nino: String, taxYear: Int, mtditid: String)
             (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[InterestSubmissionsResponse] = {
 
-    val accounts: Seq[InterestSubmissionModel] = cyaData.accounts.map {
-      _.map {
-        account =>
-          InterestSubmissionModel(account.id, account.accountName, account.untaxedAmount, account.taxedAmount)
-      }
-    }.getOrElse(Seq.empty[InterestSubmissionModel])
+    val accounts: Seq[InterestSubmissionModel] = cyaData.accounts.map { account =>
+      InterestSubmissionModel(account.id, account.accountName, account.untaxedAmount, account.taxedAmount)
+    }
 
     if(accounts.isEmpty){
       logger.info("[InterestSubmissionService][submit] User has entered No & No to both interest questions. Not submitting data to DES.")

@@ -25,23 +25,23 @@
 @import utils.ViewUtils.bigDecimalCurrency
 
 @this(
-    layout: Layout,
-    formWithCSRF: FormWithCSRF,
-    button: Button,
-    heading: Heading,
-    govukSummaryList: GovukSummaryList
+        layout: Layout,
+        formWithCSRF: FormWithCSRF,
+        button: Button,
+        heading: Heading,
+        govukSummaryList: GovukSummaryList
 )
 @(cyaModel: InterestCYAModel, taxYear: Int, priorSubmission: Option[InterestPriorSubmission] = None)(implicit user: User[AnyContent], messages: Messages, appConfig: AppConfig)
 
-@trueFalseToYesNo(input: Boolean) = @{
-    if(input) messages("common.yes") else messages("common.no")
-}
+    @trueFalseToYesNo(input: Boolean) = @{
+        if(input) messages("common.yes") else messages("common.no")
+    }
 
-@details(questionNumber: Int, id: Int, account: InterestAccountModel, amount: BigDecimal) = {
-    <div id="question-@{questionNumber}-account-@{id+1}">@messages("interest.cya.accountDisplay", account.accountName, bigDecimalCurrency(amount.toString))</div>
-}
+    @details(questionNumber: Int, id: Int, account: InterestAccountModel, amount: BigDecimal) = {
+        <div id="question-@{questionNumber}-account-@{id+1}">@messages("interest.cya.accountDisplay", account.accountName, bigDecimalCurrency(amount.toString))</div>
+    }
 
-@accountsInfo(questionNumber: Int, accounts: Seq[InterestAccountModel], untaxed: Boolean) = {
+    @accountsInfo(questionNumber: Int, accounts: Seq[InterestAccountModel], untaxed: Boolean) = {
     @accounts.zipWithIndex.map { case (account, id) =>
 
         @{untaxed match {
@@ -53,55 +53,53 @@
             }
         }}
     }
-}
+    }
 
-@layout(messages(s"interest.cya.title.${if(user.isAgent) "agent" else "individual"}"), taxYear = Some(taxYear), isAgent = user.isAgent) {
+    @layout(messages(s"interest.cya.title.${if(user.isAgent) "agent" else "individual"}"), taxYear = Some(taxYear), isAgent = user.isAgent) {
 
-    @heading(s"interest.cya.title.${if(user.isAgent) "agent" else "individual"}", Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
+        @heading(s"interest.cya.title.${if(user.isAgent) "agent" else "individual"}", Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 
-    @{
-        govukSummaryList(SummaryList(Seq(
-            if(!priorSubmission.exists(_.hasUntaxed)) {
-                Some(summaryListRow(
-                    HtmlContent(messages("interest.cya.questions.1")),
-                    HtmlContent(trueFalseToYesNo(cyaModel.untaxedUkInterest.getOrElse(false))),
-                    actions = Seq((controllers.interest.routes.UntaxedInterestController.show(taxYear), messages("common.change"), Some(messages(s"interest.cya.untaxed-uk-interest-accounts.hiddenChange.${if(user.isAgent) "agent" else "individual"}"))))
-                ))
-            } else { None },
-            if(cyaModel.untaxedUkInterest.getOrElse(false)) {
-                cyaModel.accounts.map(_.filter(_.hasUntaxed)).map { accounts =>
-                    summaryListRow(
+        @{
+            govukSummaryList(SummaryList(Seq(
+                if(!priorSubmission.exists(_.hasUntaxed)) {
+                    Some(summaryListRow(
+                        HtmlContent(messages("interest.cya.questions.1")),
+                        HtmlContent(trueFalseToYesNo(cyaModel.untaxedUkInterest.getOrElse(false))),
+                        actions = Seq((controllers.interest.routes.UntaxedInterestController.show(taxYear), messages("common.change"), Some(messages(s"interest.cya.untaxed-uk-interest-accounts.hiddenChange.${if(user.isAgent) "agent" else "individual"}"))))
+                    ))
+                } else { None },
+                if(cyaModel.untaxedUkInterest.getOrElse(false)) {
+                    val accounts = cyaModel.accounts.filter(_.hasUntaxed)
+                    Some(summaryListRow(
                         HtmlContent(messages("interest.cya.questions.2")),
                         HtmlContent(accountsInfo(2, accounts, true)),
                         actions = Seq((controllers.interest.routes.AccountsController.show(taxYear, UNTAXED), messages("common.change"), Some(messages(s"interest.cya.change-untaxed-details.hiddenChange.${if(user.isAgent) "agent" else "individual"}"))))
-                    )
-                }
-            } else { None },
-            if(!priorSubmission.exists(_.hasTaxed)) {
-                Some(summaryListRow(
-                    HtmlContent(messages("interest.cya.questions.3")),
-                    HtmlContent(trueFalseToYesNo(cyaModel.taxedUkInterest.getOrElse(false))),
-                    actions = Seq((controllers.interest.routes.TaxedInterestController.show(taxYear), messages("common.change"), Some(messages(s"interest.cya.taxed-uk-interest-accounts.hiddenChange.${if(user.isAgent) "agent" else "individual"}"))))
-                ))
-            } else { None },
-            if(cyaModel.taxedUkInterest.getOrElse(false)) {
-                cyaModel.accounts.map(_.filter(_.hasTaxed)).map { accounts =>
-                    summaryListRow(
+                    ))
+                } else { None },
+                if(!priorSubmission.exists(_.hasTaxed)) {
+                    Some(summaryListRow(
+                        HtmlContent(messages("interest.cya.questions.3")),
+                        HtmlContent(trueFalseToYesNo(cyaModel.taxedUkInterest.getOrElse(false))),
+                        actions = Seq((controllers.interest.routes.TaxedInterestController.show(taxYear), messages("common.change"), Some(messages(s"interest.cya.taxed-uk-interest-accounts.hiddenChange.${if(user.isAgent) "agent" else "individual"}"))))
+                    ))
+                } else { None },
+                if(cyaModel.taxedUkInterest.getOrElse(false)) {
+                    val accounts = cyaModel.accounts.filter(_.hasTaxed)
+                    Some(summaryListRow(
                         HtmlContent(messages("interest.cya.questions.4")),
                         HtmlContent(accountsInfo(4, accounts, false)),
                         actions = Seq((controllers.interest.routes.AccountsController.show(taxYear, TAXED), messages("common.change"), Some(messages(s"interest.cya.change-taxed-details.hiddenChange.${if(user.isAgent) "agent" else "individual"}"))))
-                    )
-                }
-            } else { None }
-        ).flatten))
+                    ))
+                } else { None }
+            ).flatten))
+        }
+
+
+        @formWithCSRF(action = controllers.interest.routes.InterestCYAController.submit(taxYear)) {
+            @button("common.saveAndContinue", classes = Some("govuk-!-margin-top-6"))
+        }
     }
 
-
-    @formWithCSRF(action = controllers.interest.routes.InterestCYAController.submit(taxYear)) {
-        @button("common.saveAndContinue", classes = Some("govuk-!-margin-top-6"))
+    @{
+        // $COVERAGE-OFF$
     }
-}
-
-@{
-// $COVERAGE-OFF$
-}

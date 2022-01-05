@@ -20,22 +20,18 @@ import models.interest.{InterestAccountModel, InterestCYAModel}
 
 object ClearingNewCYAAccountsHelper {
 
-  def clearNewEmptyAccounts(cya: InterestCYAModel, untaxed: Boolean): Option[Seq[InterestAccountModel]] = {
+  def clearNewEmptyAccounts(cya: InterestCYAModel, untaxed: Boolean): Seq[InterestAccountModel] = {
 
     val accountsWithRemovedAmounts = if(untaxed){
-      cya.accounts.map(accounts => accounts.map(interestAccountModel => interestAccountModel.copy(untaxedAmount = None)))
+      cya.accounts.map(_.copy(untaxedAmount = None))
     } else {
-      cya.accounts.map(accounts => accounts.map(interestAccountModel => interestAccountModel.copy(taxedAmount = None)))
+      cya.accounts.map(_.copy(taxedAmount = None))
     }
 
     val accountsWithNoAmountsFilteredOut = {
-      accountsWithRemovedAmounts.map(_.filterNot(account => !account.hasUntaxed && !account.hasTaxed))
+      accountsWithRemovedAmounts.filterNot(account => !account.hasUntaxed && !account.hasTaxed)
     }
 
-    if(accountsWithNoAmountsFilteredOut.getOrElse(Seq()).isEmpty){
-      None
-    } else {
-      accountsWithNoAmountsFilteredOut
-    }
+    accountsWithNoAmountsFilteredOut
   }
 }

@@ -151,11 +151,11 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
             dropInterestDB()
             emptyUserDataStub()
             insertCyaData(Some(InterestCYAModel(
-              Some(false), Some(true), Some(Seq(
+              Some(false), Some(true), Seq(
                 InterestAccountModel(Some("differentId"), firstAccountName, taxedAmount = Some(amount)),
                 InterestAccountModel(None, secondAccountName, taxedAmount = Some(amount), uniqueSessionId = Some(id))
               ))
-            )))
+            ))
             authoriseAgentOrIndividual(us.isAgent)
             urlGet(url(id), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
@@ -187,7 +187,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           lazy val result = {
             dropInterestDB()
             emptyUserDataStub()
-            insertCyaData(Some(InterestCYAModel(Some(false), Some(true), None)))
+            insertCyaData(Some(InterestCYAModel(Some(false), Some(true))))
             authoriseAgentOrIndividual(us.isAgent)
             urlGet(url("id"), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
@@ -207,7 +207,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
               userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel(firstAccountName, id, None, Some(amount)))), None), nino, taxYear)
               insertCyaData(Some(InterestCYAModel(
                 Some(false), Some(true),
-                Some(Seq(InterestAccountModel(Some(id), firstAccountName, taxedAmount = Some(amount), uniqueSessionId= Some(id))))
+                Seq(InterestAccountModel(Some(id), firstAccountName, taxedAmount = Some(amount), uniqueSessionId= Some(id)))
               )), taxYear, None, Some(nino))
               authoriseAgentOrIndividual(us.isAgent)
               urlGet(url(id), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
@@ -273,11 +273,11 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           dropInterestDB()
           emptyUserDataStub()
           insertCyaData(Some(InterestCYAModel(
-            Some(false), Some(true), Some(Seq(
+            Some(false), Some(true), Seq(
               InterestAccountModel(Some("differentId"), firstAccountName, taxedAmount =  Some(amount)),
               InterestAccountModel(None, secondAccountName, taxedAmount = Some(amount), uniqueSessionId = Some(id))
             ))
-          )))
+          ))
           authoriseAgentOrIndividual(us.isAgent)
           urlPost(url(id), formMap, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
         }
@@ -387,10 +387,10 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
             dropInterestDB()
             emptyUserDataStub()
             insertCyaData(Some(InterestCYAModel(
-              Some(false), Some(true), Some(Seq(
+              Some(false), Some(true), Seq(
                 InterestAccountModel(Some("differentId"), firstAccountName, taxedAmount = Some(amount)),
                 InterestAccountModel(None, secondAccountName, taxedAmount = Some(amount), uniqueSessionId = Some(id))
-              ))
+              )
             )))
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(url("1234567890-09876543210"), Map(
@@ -438,9 +438,9 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           lazy val result: WSResponse = {
             dropInterestDB()
             userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel(firstAccountName, id, None, None))), None), nino, taxYear)
-            insertCyaData(Some(InterestCYAModel(None,Some(true),Some(Seq(
+            insertCyaData(Some(InterestCYAModel(None,Some(true),Seq(
               InterestAccountModel(None,"name",taxedAmount = Some(1234),uniqueSessionId = Some("1234567890"))
-            )))))
+            ))))
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(url("1234567890"), Map(
               TaxedInterestAmountForm.taxedAmount -> "12,344.98",
@@ -460,9 +460,9 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           lazy val result: WSResponse = {
             dropInterestDB()
             emptyUserDataStub()
-            insertCyaData(Some(InterestCYAModel(None,Some(true),Some(Seq(
+            insertCyaData(Some(InterestCYAModel(None,Some(true),Seq(
               InterestAccountModel(None,"name",Some(1234),Some(1234),uniqueSessionId = Some("1234567890"))
-            )))))
+            ))))
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(url("1234567890"), Map(
               TaxedInterestAmountForm.taxedAmount -> "12,344.98",
@@ -476,10 +476,10 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
               "/update-and-submit-income-tax-return/personal-income/2022/interest/accounts-with-taxed-uk-interest")
 
             val data = findInterestDb
-            data.head shouldBe InterestCYAModel(None,Some(true),Some(Seq(
-              InterestAccountModel(None,firstAccountName,taxedAmount = Some(12344.98),uniqueSessionId = data.head.accounts.get.head.uniqueSessionId),
+            data.head shouldBe InterestCYAModel(None,Some(true),Seq(
+              InterestAccountModel(None,firstAccountName,taxedAmount = Some(12344.98),uniqueSessionId = data.head.accounts.head.uniqueSessionId),
               InterestAccountModel(None,"name",Some(1234),None,uniqueSessionId = Some("1234567890"))
-            )))
+            ))
           }
         }
 
@@ -502,9 +502,9 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
               "/update-and-submit-income-tax-return/personal-income/2022/interest/accounts-with-taxed-uk-interest")
 
             val data = findInterestDb
-            data.head shouldBe InterestCYAModel(None,Some(true),Some(List(
-              InterestAccountModel(None,firstAccountName,taxedAmount = Some(12344.98),uniqueSessionId = data.head.accounts.get.head.uniqueSessionId)
-            )))
+            data.head shouldBe InterestCYAModel(None,Some(true),List(
+              InterestAccountModel(None,firstAccountName,taxedAmount = Some(12344.98),uniqueSessionId = data.head.accounts.head.uniqueSessionId)
+            ))
           }
         }
 

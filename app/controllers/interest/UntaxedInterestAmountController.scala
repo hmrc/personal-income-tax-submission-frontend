@@ -67,7 +67,7 @@ class UntaxedInterestAmountController @Inject()(
           Redirect(controllers.interest.routes.ChangeAccountAmountController.show(taxYear, UNTAXED, id))
         } else if (sessionIdIsUUID(id)) {
 
-          val account: Option[InterestAccountModel] = cya.flatMap(_.accounts.flatMap(_.find(_.uniqueSessionId.contains(id))))
+          val account: Option[InterestAccountModel] = cya.flatMap(_.accounts.find(_.uniqueSessionId.contains(id)))
 
           val accountName: Option[String] = account.map(_.accountName)
           val accountAmount: Option[BigDecimal] = account.flatMap(_.untaxedAmount)
@@ -88,9 +88,11 @@ class UntaxedInterestAmountController @Inject()(
   }
 
   def disallowedDuplicateNames(optionalCyaData: Option[InterestCYAModel], id: String): Seq[String] = {
-    optionalCyaData.flatMap(_.accounts.map { accounts =>
-      accounts.filter(_.hasUntaxed).filterNot(_.getPrimaryId().contains(id))
-    }).getOrElse(Seq()).map(_.accountName)
+    optionalCyaData.map { cyaData =>
+      cyaData.accounts
+        .filter(_.hasUntaxed)
+        .filterNot(_.getPrimaryId().contains(id))
+    }.getOrElse(Seq()).map(_.accountName)
   }
 
   def submit(taxYear: Int, id: String): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
@@ -113,16 +115,15 @@ class UntaxedInterestAmountController @Inject()(
         completeForm =>
 
           val accountsAbleToReuse: Seq[InterestAccountModel] = {
-            cya.flatMap(_.accounts.map(_.filter(!_.hasUntaxed))).getOrElse(Seq()) ++
+            cya.map(_.accounts.filter(!_.hasUntaxed)).getOrElse(Seq()) ++
             prior.map(_.submissions.filter(!_.hasUntaxed)).getOrElse(Seq())
           }
 
           cya match {
             case Some(cyaData) =>
-              val accounts = cyaData.accounts.getOrElse(Seq.empty[InterestAccountModel])
               val existingAccountWithName: Option[InterestAccountModel] = accountsAbleToReuse.find(_.accountName == completeForm.untaxedAccountName)
-              val newAccountList = createNewAccountsList(completeForm, existingAccountWithName, accounts, id)
-              val updatedCyaModel = cyaData.copy(accounts = Some(newAccountList))
+              val newAccountList = createNewAccountsList(completeForm, existingAccountWithName, cyaData.accounts, id)
+              val updatedCyaModel = cyaData.copy(accounts = newAccountList)
 
               interestSessionService.updateSessionData(updatedCyaModel, taxYear)(InternalServerError(errorHandler.internalServerErrorTemplate))(
                 Redirect(controllers.interest.routes.AccountsController.show(taxYear, InterestTaxTypes.UNTAXED))

@@ -17,7 +17,6 @@
 package controllers.interest
 
 import common.InterestTaxTypes._
-import common.SessionValues
 import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
@@ -28,7 +27,6 @@ import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSub
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.I18nSupport
-import play.api.libs.json.Json
 import play.api.mvc._
 import services.InterestSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -75,7 +73,7 @@ class RemoveAccountController @Inject()(
     cya match {
       case Some(cyaData) =>
         cyaData.accounts match {
-          case Some(taxAccounts) if filteredTaxAccounts(taxAccounts, taxType).nonEmpty =>
+          case taxAccounts if filteredTaxAccounts(taxAccounts, taxType).nonEmpty =>
             val accounts = filteredTaxAccounts(taxAccounts, taxType)
             useAccount(accounts, accountId, taxType, taxYear) { account =>
               errorForm.fold(Ok(view(yesNoForm, taxYear, taxType, account, isLastAccount(taxType, prior, accounts)))){
@@ -140,7 +138,7 @@ class RemoveAccountController @Inject()(
                                      )(implicit user: User[_]): Future[Result] = {
 
     cyaData.accounts match {
-      case Some(taxAccounts) if filteredTaxAccounts(taxAccounts, taxType).nonEmpty =>
+      case taxAccounts if filteredTaxAccounts(taxAccounts, taxType).nonEmpty =>
         if (yesNoModel) {
           if (taxType == UNTAXED) {
             handleUntaxedUpdate(taxYear, taxType, cyaData, prior, taxAccounts, accountId)
@@ -173,7 +171,7 @@ class RemoveAccountController @Inject()(
 
     val updatedCyaData = cyaData.copy(
       taxedUkInterest = Some(updatedAccounts.exists(_.hasTaxed)),
-      accounts = Some(updatedAccounts)
+      accounts = updatedAccounts
     )
 
     if (updatedAccounts.exists(_.hasTaxed)) {
@@ -198,7 +196,7 @@ class RemoveAccountController @Inject()(
 
     val updatedCyaData = cyaData.copy(
       untaxedUkInterest = Some(updatedAccounts.exists(_.hasUntaxed)),
-      accounts = Some(updatedAccounts)
+      accounts = updatedAccounts
     )
 
     if (updatedAccounts.exists(_.hasUntaxed)) {

@@ -17,7 +17,6 @@
 package controllers.interest
 
 import common.InterestTaxTypes._
-import common.UUID
 import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
@@ -55,7 +54,7 @@ class AccountsController @Inject()(view: InterestAccountsView,
       (cya, prior) match {
         case (Some(cyaData), priorSubmission) =>
           Future(getTaxAccounts(taxType, cyaData) match {
-            case Some(taxAccounts) if taxAccounts.nonEmpty =>
+            case taxAccounts: Seq[InterestAccountModel] if taxAccounts.nonEmpty =>
               Ok(view(yesNoForm, taxYear, taxAccounts, taxType, isAgent = user.isAgent, priorSubmission))
             case _ => missingAccountsRedirect(taxType, taxYear)
           })
@@ -76,9 +75,10 @@ class AccountsController @Inject()(view: InterestAccountsView,
       }
 
       def checkTaxAccounts(cyaData: InterestCYAModel): Either[Result, Seq[InterestAccountModel]] = {
-        getTaxAccounts(taxType, cyaData).collect {
+        getTaxAccounts(taxType, cyaData) match {
           case taxAccounts: Seq[InterestAccountModel] if taxAccounts.nonEmpty => Right(taxAccounts)
-        }.getOrElse(Left(missingAccountsRedirect(taxType, taxYear)))
+          case _ => Left(missingAccountsRedirect(taxType, taxYear))
+        }
       }
 
       def checkForm(taxAccounts: Seq[InterestAccountModel]): Either[Result, Boolean] = {
@@ -111,10 +111,10 @@ class AccountsController @Inject()(view: InterestAccountsView,
     }.flatten
   }
 
-  private[interest] def getTaxAccounts(taxType: String, cyaData: InterestCYAModel): Option[Seq[InterestAccountModel]] = {
+  private[interest] def getTaxAccounts(taxType: String, cyaData: InterestCYAModel): Seq[InterestAccountModel] = {
     taxType match {
-      case `TAXED` => cyaData.accounts.map(_.filter(_.hasTaxed))
-      case `UNTAXED` => cyaData.accounts.map(_.filter(_.hasUntaxed))
+      case `TAXED` => cyaData.accounts.filter(_.hasTaxed)
+      case `UNTAXED` => cyaData.accounts.filter(_.hasUntaxed)
     }
   }
 

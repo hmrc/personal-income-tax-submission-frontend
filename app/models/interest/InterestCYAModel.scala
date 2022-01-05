@@ -18,25 +18,26 @@ package models.interest
 
 import models.question.Question.{WithDependency, WithoutDependency}
 import models.question.{Question, QuestionsJourney}
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.functional.syntax.toFunctionalBuilderOps
+import play.api.libs.json.{JsNull, JsObject, JsPath, Json, OFormat, Reads, Writes}
 import play.api.mvc.Call
 import utils.EncryptedValue
 
 case class InterestCYAModel(untaxedUkInterest: Option[Boolean] = None,
                             taxedUkInterest: Option[Boolean] = None,
-                            accounts: Option[Seq[InterestAccountModel]] = None) {
+                            accounts: Seq[InterestAccountModel] = Seq.empty) {
 
   def asJsonString: String = Json.toJson(this).toString()
 
   def isFinished: Boolean = {
 
     val untaxedInterestFinished: Boolean = untaxedUkInterest.exists {
-      case true => accounts.getOrElse(Seq.empty).exists(_.untaxedAmount.isDefined)
+      case true => accounts.exists(_.untaxedAmount.isDefined)
       case false => true
     }
 
     val taxedInterestFinished: Boolean = taxedUkInterest.exists {
-      case true => accounts.getOrElse(Seq.empty).exists(_.taxedAmount.isDefined)
+      case true => accounts.exists(_.taxedAmount.isDefined)
       case false => true
     }
 
@@ -46,7 +47,21 @@ case class InterestCYAModel(untaxedUkInterest: Option[Boolean] = None,
 }
 
 object InterestCYAModel {
-  implicit val formats: OFormat[InterestCYAModel] = Json.format[InterestCYAModel]
+  implicit val reads: Reads[InterestCYAModel] = (
+    (JsPath \ "untaxedUkInterest").readNullable[Boolean] and
+      (JsPath \ "taxedUkInterest").readNullable[Boolean] and
+      (JsPath \ "accounts").readNullable[Seq[InterestAccountModel]].map(_.getOrElse(Seq()))
+    ) (InterestCYAModel.apply _)
+
+  implicit val writes: Writes[InterestCYAModel] = (model: InterestCYAModel) => {
+    JsObject(Json.obj(
+      "untaxedUkInterest" -> model.untaxedUkInterest,
+      "taxedUkInterest" -> model.taxedUkInterest,
+      "accounts" -> {
+        if (model.accounts.isEmpty) JsNull else model.accounts
+      }
+    ).fields.filterNot(_._2 == JsNull))
+  }
 
   def interestJourney(taxYear: Int, idOpt: Option[String]): QuestionsJourney[InterestCYAModel] = new QuestionsJourney[InterestCYAModel] {
     override val firstPage: Call = controllers.interest.routes.UntaxedInterestController.show(taxYear)
@@ -54,9 +69,9 @@ object InterestCYAModel {
     override def questions(model: InterestCYAModel): Set[Question] = {
       val questionsUsingId = idOpt.map { id =>
         Set(
-          WithDependency(model.accounts.map(_.filter(_.untaxedAmount.isDefined)), model.untaxedUkInterest,
+          WithDependency(Option(model.accounts.filter(_.untaxedAmount.isDefined)).filterNot(_.isEmpty), model.untaxedUkInterest,
             controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, id), controllers.interest.routes.UntaxedInterestController.show(taxYear)),
-          WithDependency(model.accounts.map(_.filter(_.taxedAmount.isDefined)), model.taxedUkInterest,
+          WithDependency(Option(model.accounts.filter(_.taxedAmount.isDefined)).filterNot(_.isEmpty), model.taxedUkInterest,
             controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id), controllers.interest.routes.TaxedInterestController.show(taxYear))
         )
       }.getOrElse(Seq.empty[Question])
@@ -71,8 +86,8 @@ object InterestCYAModel {
 }
 
 case class EncryptedInterestCYAModel(untaxedUkInterest: Option[EncryptedValue] = None,
-                            taxedUkInterest: Option[EncryptedValue] = None,
-                            accounts: Option[Seq[EncryptedInterestAccountModel]] = None)
+                                     taxedUkInterest: Option[EncryptedValue] = None,
+                                     accounts: Seq[EncryptedInterestAccountModel] = Seq.empty)
 
 object EncryptedInterestCYAModel {
 

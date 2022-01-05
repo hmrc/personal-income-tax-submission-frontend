@@ -183,7 +183,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
           "there is cya data in session" which {
             val interestCYA = InterestCYAModel(
               Some(true),
-              Some(false),Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(25.00))))
+              Some(false),Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(25.00)))
             )
 
             lazy val result = {
@@ -372,7 +372,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
             "redirects to INTEREST CYA page when the cya model is finished" when {
               lazy val interestCYA = InterestCYAModel(
-                Some(true), Some(false), Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount))))
+                Some(true), Some(false), Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount)))
               )
 
               lazy val result: WSResponse = {
@@ -435,7 +435,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
             "redirects to INTEREST CYA page when the cya model is finished" when {
               lazy val interestCYA = InterestCYAModel(
-                Some(true), Some(false),Some(Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount))))
+                Some(true), Some(false), Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount)))
               )
 
               lazy val result: WSResponse = {
