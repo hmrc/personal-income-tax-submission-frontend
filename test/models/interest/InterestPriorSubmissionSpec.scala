@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ class InterestPriorSubmissionSpec extends UnitTest {
   val validModel = InterestPriorSubmission(
     hasUntaxed = true,
     hasTaxed = true,
-    Some(Seq(
+    Seq(
       InterestAccountModel(
         Some("qwerty"),
         "TSB Account",
@@ -82,31 +82,31 @@ class InterestPriorSubmissionSpec extends UnitTest {
         "Lloyds Savings",
         untaxedAmount = Some(3000.00)
       )
-    ))
+    )
   )
 
   val validModelUntaxed = InterestPriorSubmission(
     hasUntaxed = true,
     hasTaxed = false,
-    Some(Seq(
+    Seq(
       InterestAccountModel(
         Some("azerty"),
         "Lloyds Savings",
         untaxedAmount = Some(3000.00)
       )
-    ))
+    )
   )
 
   val validModelTaxed = InterestPriorSubmission(
     hasUntaxed = false,
     hasTaxed = true,
-    Some(Seq(
+    Seq(
       InterestAccountModel(
         Some("qwerty"),
         "TSB Account",
         taxedAmount = Some(500.00)
       )
-    ))
+    )
   )
 
   "should correctly parse to json" in {

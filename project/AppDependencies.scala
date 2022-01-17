@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import sbt._
 object AppDependencies {
 
   val compile = Seq(
-    "uk.gov.hmrc"             %% "bootstrap-frontend-play-28" % "5.18.0",
+    "uk.gov.hmrc"             %% "bootstrap-frontend-play-28" % "5.19.0",
     "uk.gov.hmrc"             %% "play-frontend-hmrc"         % "1.31.0-play-28",
     "uk.gov.hmrc"             %% "govuk-template"             % "5.74.0-play-28",
     "uk.gov.hmrc.mongo"       %% "hmrc-mongo-play-28"         % "0.59.0",
@@ -28,7 +28,7 @@ object AppDependencies {
   )
 
   val test = Seq(
-    "uk.gov.hmrc"             %% "bootstrap-test-play-28"   % "5.18.0"                 % Test,
+    "uk.gov.hmrc"             %% "bootstrap-test-play-28"   % "5.19.0"                 % Test,
     "org.scalatest"           %% "scalatest"                % "3.2.9"                 % Test,
     "org.jsoup"               %  "jsoup"                    % "1.13.1"                % Test,
     "com.typesafe.play"       %% "play-test"                % current                 % Test,

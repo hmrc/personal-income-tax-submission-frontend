@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ class UntaxedInterestAmountController @Inject()(
 
       implicit val journey: QuestionsJourney[InterestCYAModel] = InterestCYAModel.interestJourney(taxYear, Some(id))
 
-      val idMatchesPreviouslySubmittedAccount: Boolean = prior.exists(_.submissions.exists(_.exists(_.id.contains(id))))
+      val idMatchesPreviouslySubmittedAccount: Boolean = prior.exists(_.submissions.exists(_.id.contains(id)))
 
       def untaxedInterestAmountForm: Form[UntaxedInterestModel] =
         UntaxedInterestAmountForm.untaxedInterestAmountForm(user.isAgent, disallowedDuplicateNames(cya,id))
@@ -114,7 +114,7 @@ class UntaxedInterestAmountController @Inject()(
 
           val accountsAbleToReuse: Seq[InterestAccountModel] = {
             cya.flatMap(_.accounts.map(_.filter(!_.hasUntaxed))).getOrElse(Seq()) ++
-            prior.flatMap(_.submissions.map(_.filter(!_.hasUntaxed))).getOrElse(Seq())
+            prior.map(_.submissions.filter(!_.hasUntaxed)).getOrElse(Seq())
           }
 
           cya match {

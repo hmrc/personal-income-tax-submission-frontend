@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ class CreateOrAmendInterestAuditDetailSpec extends UnitTest {
   val prior = InterestPriorSubmission(
     hasUntaxed = true,
     hasTaxed = true,
-    Some(Seq(
+    Seq(
       InterestAccountModel(
         Some("UntaxedId1"),
         "Untaxed Account",
@@ -43,7 +43,7 @@ class CreateOrAmendInterestAuditDetailSpec extends UnitTest {
         "Taxed Account",
         taxedAmount = Some(9001.01)
       )
-    ))
+    )
   )
   private val nino = "AA123456A"
   private val mtditid = "1234567890"

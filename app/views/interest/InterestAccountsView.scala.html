@@ -1,5 +1,5 @@
 @*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,11 +86,11 @@ val identifier = account.id.getOrElse(account.uniqueSessionId.getOrElse(""))
 
         @{taxType match {
             case `UNTAXED` =>
-                if(priorSubmission.exists(_.submissions.exists(_.exists(prior => prior.id.equals(account.id) && prior.hasUntaxed)))) {
+                if(priorSubmission.exists(_.submissions.exists(prior => prior.id.equals(account.id) && prior.hasUntaxed))) {
                     emptyChangeColumn
                 }
             case `TAXED` =>
-                if(priorSubmission.exists(_.submissions.exists(_.exists(prior => prior.id.equals(account.id) && prior.hasTaxed)))) {
+                if(priorSubmission.exists(_.submissions.exists(prior => prior.id.equals(account.id) && prior.hasTaxed))) {
                     emptyChangeColumn
                 }
         }}
@@ -113,11 +113,11 @@ val identifier = account.id.getOrElse(account.uniqueSessionId.getOrElse(""))
     } else {
         taxType match {
             case `UNTAXED` =>
-                if(priorSubmission.exists(_.submissions.exists(_.exists(prior => prior.id.equals(account.id) && !prior.hasUntaxed)))) {
+                if(priorSubmission.exists(_.submissions.exists(prior => prior.id.equals(account.id) && !prior.hasUntaxed))) {
                     removeColumnHtml(account, removeLink)
                 }
             case `TAXED` =>
-                if(priorSubmission.exists(_.submissions.exists(_.exists(prior => prior.id.equals(account.id) && !prior.hasTaxed)))) {
+                if(priorSubmission.exists(_.submissions.exists(prior => prior.id.equals(account.id) && !prior.hasTaxed))) {
                     removeColumnHtml(account, removeLink)
                 }
         }

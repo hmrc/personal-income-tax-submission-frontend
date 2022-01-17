@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package models.interest
 
 import play.api.libs.json._
 
-case class InterestPriorSubmission(hasUntaxed: Boolean, hasTaxed: Boolean, submissions: Option[Seq[InterestAccountModel]])
+case class InterestPriorSubmission(hasUntaxed: Boolean, hasTaxed: Boolean, submissions: Seq[InterestAccountModel] = Seq.empty)
 
 object InterestPriorSubmission {
   implicit val writes: OWrites[InterestPriorSubmission] = OWrites[InterestPriorSubmission] { model =>

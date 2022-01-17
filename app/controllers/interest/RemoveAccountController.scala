@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,7 +97,7 @@ class RemoveAccountController @Inject()(
   }
 
   def foundPriorSubmission(prior: Option[InterestPriorSubmission], accountId: String): Option[InterestAccountModel] = {
-    prior.flatMap(_.submissions.flatMap(_.find(_.id.contains(accountId))))
+    prior.flatMap(_.submissions.find(_.id.contains(accountId)))
   }
 
   def isPriorSubmissionWithAmountsThatCantBeRemoved(prior: Option[InterestPriorSubmission], accountId: String, taxType: String): Boolean = {
@@ -231,7 +231,7 @@ class RemoveAccountController @Inject()(
   }
 
   private[interest] def isLastAccount(taxType: String, priorSubmission: Option[InterestPriorSubmission], taxAccounts: Seq[InterestAccountModel]): Boolean = {
-    lazy val blankPriorSub = InterestPriorSubmission(hasTaxed = false, hasUntaxed = false, submissions = None)
+    lazy val blankPriorSub = InterestPriorSubmission(hasTaxed = false, hasUntaxed = false)
     taxType match {
       case TAXED =>
         if (priorSubmission.getOrElse(blankPriorSub).hasTaxed) {

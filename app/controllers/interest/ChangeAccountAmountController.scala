@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -145,7 +145,7 @@ class ChangeAccountAmountController @Inject()(
 
   private def getSingleAccount(accountId: String, prior: Option[InterestPriorSubmission], cya: Option[InterestCYAModel]): Option[InterestAccountModel] = {
 
-    val priorAccount: Option[InterestAccountModel] = prior.flatMap(_.submissions.flatMap(_.find(_.id.contains(accountId))))
+    val priorAccount: Option[InterestAccountModel] = prior.flatMap(_.submissions.find(_.id.contains(accountId)))
     val cyaAccount: Option[InterestAccountModel] = cya.flatMap(_.accounts.flatMap(_.find(_.uniqueSessionId.contains(accountId))))
 
     (priorAccount, cyaAccount) match {
@@ -174,7 +174,7 @@ class ChangeAccountAmountController @Inject()(
 
     val otherAccounts = cya.accounts.map(_.filterNot(_.getPrimaryId().contains(accountId))).getOrElse(Seq())
     val accountInCYA: Option[InterestAccountModel] = cya.accounts.flatMap(_.find(_.getPrimaryId().contains(accountId)))
-    val accountInPrior: Option[InterestAccountModel] = prior.flatMap(_.submissions.flatMap(_.find(_.getPrimaryId().contains(accountId))))
+    val accountInPrior: Option[InterestAccountModel] = prior.flatMap(_.submissions.find(_.getPrimaryId().contains(accountId)))
 
     taxType match {
       case InterestTaxTypes.UNTAXED =>

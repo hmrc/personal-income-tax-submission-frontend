@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,7 +116,7 @@ class ChooseAccountController @Inject()(
   private def getPreviousAccounts(cya: Option[InterestCYAModel], prior: Option[InterestPriorSubmission], taxType: String): Set[InterestAccountModel] = {
 
     val accountsInSession: Seq[InterestAccountModel] = cya.flatMap(_.accounts).getOrElse(Seq())
-    val priorAccounts: Seq[InterestAccountModel] = prior.flatMap(_.submissions).getOrElse(Seq())
+    val priorAccounts: Seq[InterestAccountModel] = prior.map(_.submissions).getOrElse(Seq())
 
     if (taxType.equals(UNTAXED)) {
 
