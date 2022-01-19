@@ -91,7 +91,21 @@ case class EncryptedInterestCYAModel(untaxedUkInterest: Option[EncryptedValue] =
 
 object EncryptedInterestCYAModel {
 
-  implicit val formats: OFormat[EncryptedInterestCYAModel] = Json.format[EncryptedInterestCYAModel]
+  implicit val reads: Reads[EncryptedInterestCYAModel] = (
+    (JsPath \ "untaxedUkInterest").readNullable[EncryptedValue] and
+      (JsPath \ "taxedUkInterest").readNullable[EncryptedValue] and
+      (JsPath \ "accounts").readNullable[Seq[EncryptedInterestAccountModel]].map(_.getOrElse(Seq()))
+    ) (EncryptedInterestCYAModel.apply _)
+
+  implicit val writes: Writes[EncryptedInterestCYAModel] = (model: EncryptedInterestCYAModel) => {
+    JsObject(Json.obj(
+      "untaxedUkInterest" -> model.untaxedUkInterest,
+      "taxedUkInterest" -> model.taxedUkInterest,
+      "accounts" -> {
+        if (model.accounts.isEmpty) JsNull else model.accounts
+      }
+    ).fields.filterNot(_._2 == JsNull))
+  }
 
 }
 

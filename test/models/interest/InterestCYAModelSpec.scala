@@ -46,10 +46,20 @@ class InterestCYAModelSpec extends UnitTest {
     )
   )
 
+  val jsonNoAccounts: JsObject = Json.obj(
+    "untaxedUkInterest" -> true,
+    "taxedUkInterest" -> false
+  )
+
   val modelMin: InterestCYAModel = InterestCYAModel(
     untaxedUkInterest = None,
     taxedUkInterest = None,
     accounts = Seq()
+  )
+
+  val modelNoAccounts: InterestCYAModel = InterestCYAModel(
+    untaxedUkInterest = Some(true),
+    taxedUkInterest = Some(false)
   )
 
   val jsonMin: JsObject = Json.obj()
@@ -66,6 +76,9 @@ class InterestCYAModelSpec extends UnitTest {
         Json.toJson(modelMin) shouldBe jsonMin
       }
 
+      "accounts not specified" in {
+        Json.toJson(modelNoAccounts) shouldBe jsonNoAccounts
+      }
     }
 
     "correctly parse from json" when {
@@ -76,6 +89,10 @@ class InterestCYAModelSpec extends UnitTest {
 
       "no fields are present" in {
         jsonMin.as[InterestCYAModel] shouldBe modelMin
+      }
+
+      "accounts not specified" in {
+        jsonNoAccounts.as[InterestCYAModel] shouldBe modelNoAccounts
       }
     }
 
