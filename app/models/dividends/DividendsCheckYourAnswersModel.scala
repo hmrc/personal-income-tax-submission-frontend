@@ -27,8 +27,8 @@ case class DividendsCheckYourAnswersModel(
                                            ukDividends: Option[Boolean] = None,
                                            ukDividendsAmount: Option[BigDecimal] = None,
                                            otherUkDividends: Option[Boolean] = None,
-                                           otherUkDividendsAmount: Option[BigDecimal] = None
-                                    ) {
+                                           otherUkDividendsAmount: Option[BigDecimal] = None) {
+
   def isFinished: Boolean = {
 
     val ukDividendsFinished: Boolean = ukDividends.exists{

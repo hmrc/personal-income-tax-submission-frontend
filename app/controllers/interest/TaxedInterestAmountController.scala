@@ -27,7 +27,7 @@ import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.interest.TaxedInterestAmountForm
 import javax.inject.Inject
-import models.interest.{InterestAccountModel, InterestCYAModel, TaxedInterestModel, UntaxedInterestModel}
+import models.interest.{InterestAccountModel, InterestCYAModel, TaxedInterestModel}
 import models.question.QuestionsJourney
 import play.api.Logging
 import play.api.data.Form
@@ -69,7 +69,7 @@ class TaxedInterestAmountController @Inject()(
           Redirect(controllers.interest.routes.ChangeAccountAmountController.show(taxYear, TAXED, id))
         } else if (sessionIdIsUUID(id)) {
 
-          val account: Option[InterestAccountModel] = cya.flatMap(_.accounts.flatMap(_.find(_.uniqueSessionId.contains(id))))
+          val account: Option[InterestAccountModel] = cya.flatMap(_.accounts.find(_.uniqueSessionId.contains(id)))
 
           val accountName: Option[String] = account.map(_.accountName)
           val accountAmount: Option[BigDecimal] = account.flatMap(_.taxedAmount)
@@ -90,9 +90,11 @@ class TaxedInterestAmountController @Inject()(
   }
 
   def disallowedDuplicateNames(optionalCyaData: Option[InterestCYAModel], id: String): Seq[String] = {
-    optionalCyaData.flatMap(_.accounts.map { accounts =>
-      accounts.filter(_.hasTaxed).filterNot(_.getPrimaryId().contains(id))
-    }).getOrElse(Seq()).map(_.accountName)
+    optionalCyaData.map {
+      _.accounts
+        .filter(_.hasTaxed)
+        .filterNot(_.getPrimaryId().contains(id))
+    }.getOrElse(Seq()).map(_.accountName)
   }
 
   def submit(taxYear: Int, id: String): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
@@ -110,17 +112,16 @@ class TaxedInterestAmountController @Inject()(
         completeForm =>
 
           val accountsAbleToReuse: Seq[InterestAccountModel] = {
-            cya.flatMap(_.accounts.map(_.filter(!_.hasTaxed))).getOrElse(Seq()) ++
+            cya.map(_.accounts.filter(!_.hasTaxed)).getOrElse(Seq()) ++
             prior.map(_.submissions.filter(!_.hasTaxed)).getOrElse(Seq())
           }
 
           cya match {
             case Some(cyaData) =>
 
-              val accounts = cyaData.accounts.getOrElse(Seq.empty[InterestAccountModel])
               val existingAccountWithName: Option[InterestAccountModel] = accountsAbleToReuse.find(_.accountName == completeForm.taxedAccountName)
-              val newAccountList = createNewAccountsList(completeForm, existingAccountWithName, accounts, id)
-              val updatedCyaModel = cyaData.copy(accounts = Some(newAccountList))
+              val newAccountList = createNewAccountsList(completeForm, existingAccountWithName, cyaData.accounts, id)
+              val updatedCyaModel = cyaData.copy(accounts = newAccountList)
 
               interestSessionService.updateSessionData(updatedCyaModel, taxYear)(errorHandler.internalServerError())(
                 Redirect(controllers.interest.routes.AccountsController.show(taxYear, InterestTaxTypes.TAXED))
@@ -152,7 +153,7 @@ class TaxedInterestAmountController @Inject()(
       }
 
       if(existingAccountNeedsRemoving){
-       accountsExcludingImpactedAccounts :+ updatedAccount
+        accountsExcludingImpactedAccounts :+ updatedAccount
       } else {
         accountsExcludingImpactedAccounts ++ Seq(Some(updatedAccount), existingAccount).flatten
       }

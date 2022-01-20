@@ -115,7 +115,7 @@ class ChooseAccountController @Inject()(
 
   private def getPreviousAccounts(cya: Option[InterestCYAModel], prior: Option[InterestPriorSubmission], taxType: String): Set[InterestAccountModel] = {
 
-    val accountsInSession: Seq[InterestAccountModel] = cya.flatMap(_.accounts).getOrElse(Seq())
+    val accountsInSession: Seq[InterestAccountModel] = cya.map(_.accounts).getOrElse(Seq())
     val priorAccounts: Seq[InterestAccountModel] = prior.map(_.submissions).getOrElse(Seq())
 
     if (taxType.equals(UNTAXED)) {

@@ -95,13 +95,13 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   val completeInterestCYAModel: InterestCYAModel = InterestCYAModel(
     untaxedUkInterest = Some(true),
     taxedUkInterest = Some(true),
-    accounts = Some(Seq(InterestAccountModel(
+    accounts = Seq(InterestAccountModel(
       id = Some("id"),
       accountName = "accountName",
       untaxedAmount = Some(50.00),
       taxedAmount = Some(50.00),
       uniqueSessionId = None
-    )))
+    ))
   )
 
   val priorDataMax: GiftAidSubmissionModel = GiftAidSubmissionModel(

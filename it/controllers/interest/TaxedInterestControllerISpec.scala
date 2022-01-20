@@ -147,7 +147,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
             val interestCYA = InterestCYAModel(
               Some(false),
-              Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00))))
+              Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00)))
             )
 
             lazy val result: WSResponse = {
@@ -262,7 +262,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
           lazy val result: WSResponse = {
             val interestCYA = InterestCYAModel(
               Some(false),
-              Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00))))
+              Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00)))
             )
 
             dropInterestDB()
@@ -287,7 +287,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
             lazy val result: WSResponse = {
               val interestCYA = InterestCYAModel(
                 Some(false),
-                Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00))))
+                Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00)))
               )
 
               dropInterestDB()
@@ -332,7 +332,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
             lazy val result: WSResponse = {
               val interestCYA = InterestCYAModel(
                 Some(false),
-                Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00))))
+                Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00)))
               )
 
               dropInterestDB()
@@ -353,7 +353,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
           "the yes/no radio button has not been selected" which {
             val interestCYA = InterestCYAModel(
               Some(false),
-              Some(true), Some(Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00))))
+              Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00)))
             )
 
             lazy val result: WSResponse = {

@@ -26,7 +26,6 @@ import models.User
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
-import play.api.libs.json.{Json, Reads}
 import play.api.mvc._
 import play.twirl.api.Html
 import services.InterestSessionService
@@ -86,7 +85,7 @@ class ChangeAccountAmountController @Inject()(
         case (None, Some(_)) => Future(Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)))
         case (Some(accountModel), Some(cya)) =>
 
-          val previousCYAAmount: Option[BigDecimal] = extractPreAmount(taxType, Some(cya), accountId)
+          val previousCYAAmount: Option[BigDecimal] = extractPreAmount(taxType, cya, accountId)
 
           val priorValue: Option[BigDecimal] = {
             if(previousCYAAmount.isDefined){
@@ -121,7 +120,7 @@ class ChangeAccountAmountController @Inject()(
         case Some(cyaData) =>
           singleAccount match {
             case Some(account) =>
-              val previousAmount = extractPreAmount(taxType, Some(cyaData), accountId)
+              val previousAmount = extractPreAmount(taxType, cyaData, accountId)
 
               changeAmountForm(user.isAgent, taxType).bindFromRequest().fold(
                 formWithErrors => {
@@ -146,7 +145,7 @@ class ChangeAccountAmountController @Inject()(
   private def getSingleAccount(accountId: String, prior: Option[InterestPriorSubmission], cya: Option[InterestCYAModel]): Option[InterestAccountModel] = {
 
     val priorAccount: Option[InterestAccountModel] = prior.flatMap(_.submissions.find(_.id.contains(accountId)))
-    val cyaAccount: Option[InterestAccountModel] = cya.flatMap(_.accounts.flatMap(_.find(_.uniqueSessionId.contains(accountId))))
+    val cyaAccount: Option[InterestAccountModel] = cya.flatMap(_.accounts.find(_.uniqueSessionId.contains(accountId)))
 
     (priorAccount, cyaAccount) match {
       case (account@Some(_), _) => account
@@ -157,23 +156,23 @@ class ChangeAccountAmountController @Inject()(
 
   private[interest] def replaceAccounts(taxType: String, cyaData: InterestCYAModel,
                                         accounts: Seq[InterestAccountModel]): InterestCYAModel = taxType match {
-    case InterestTaxTypes.UNTAXED => cyaData.copy(accounts = Some(accounts), untaxedUkInterest = Some(true))
-    case InterestTaxTypes.TAXED => cyaData.copy(accounts = Some(accounts), taxedUkInterest = Some(true))
+    case InterestTaxTypes.UNTAXED => cyaData.copy(accounts = accounts, untaxedUkInterest = Some(true))
+    case InterestTaxTypes.TAXED => cyaData.copy(accounts = accounts, taxedUkInterest = Some(true))
   }
 
-  private[interest] def extractPreAmount(taxType: String, cya: Option[InterestCYAModel],
+  private[interest] def extractPreAmount(taxType: String, cya: InterestCYAModel,
                                          accountId: String): Option[BigDecimal] = taxType match {
     case InterestTaxTypes.UNTAXED =>
-      cya.flatMap(_.accounts.flatMap(_.find(_.getPrimaryId().contains(accountId)))).flatMap(_.untaxedAmount)
+      cya.accounts.find(_.getPrimaryId().contains(accountId)).flatMap(_.untaxedAmount)
     case InterestTaxTypes.TAXED =>
-      cya.flatMap(_.accounts.flatMap(_.find(_.getPrimaryId().contains(accountId)))).flatMap(_.taxedAmount)
+      cya.accounts.find(_.getPrimaryId().contains(accountId)).flatMap(_.taxedAmount)
   }
 
   private[interest] def updateAccounts(taxType: String, cya: InterestCYAModel, prior: Option[InterestPriorSubmission],  accountId: String,
                                        newAmount: BigDecimal): Seq[InterestAccountModel] = {
 
-    val otherAccounts = cya.accounts.map(_.filterNot(_.getPrimaryId().contains(accountId))).getOrElse(Seq())
-    val accountInCYA: Option[InterestAccountModel] = cya.accounts.flatMap(_.find(_.getPrimaryId().contains(accountId)))
+    val otherAccounts = cya.accounts.filterNot(_.getPrimaryId().contains(accountId))
+    val accountInCYA: Option[InterestAccountModel] = cya.accounts.find(_.getPrimaryId().contains(accountId))
     val accountInPrior: Option[InterestAccountModel] = prior.flatMap(_.submissions.find(_.getPrimaryId().contains(accountId)))
 
     taxType match {

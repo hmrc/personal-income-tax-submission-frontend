@@ -194,7 +194,7 @@ class EncryptionService @Inject()(encryptionService: SecureGCMCipher, appConfig:
     EncryptedInterestCYAModel(
       interests.untaxedUkInterest.map(x => encryptionService.encrypt[Boolean](x)),
       interests.taxedUkInterest.map(x => encryptionService.encrypt[Boolean](x)),
-      interests.accounts.map(_.map(encryptInterestAccountModel))
+      interests.accounts.map(encryptInterestAccountModel)
     )
   }
 
@@ -203,7 +203,7 @@ class EncryptionService @Inject()(encryptionService: SecureGCMCipher, appConfig:
     InterestCYAModel(
       interests.untaxedUkInterest.map(x => encryptionService.decrypt[Boolean](x.value, x.nonce)),
       interests.taxedUkInterest.map(x => encryptionService.decrypt[Boolean](x.value, x.nonce)),
-      interests.accounts.map(_.map(decryptInterestAccountModel))
+      interests.accounts.map(decryptInterestAccountModel)
     )
   }
 

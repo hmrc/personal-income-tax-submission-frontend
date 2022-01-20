@@ -30,7 +30,7 @@ class InterestCYAModelSpec extends UnitTest {
   val modelMax: InterestCYAModel = InterestCYAModel(
     untaxedUkInterest = Some(true),
     taxedUkInterest = Some(true),
-    Some(Seq(account))
+    Seq(account)
   )
 
   val jsonMax: JsObject = Json.obj(
@@ -46,10 +46,20 @@ class InterestCYAModelSpec extends UnitTest {
     )
   )
 
+  val jsonNoAccounts: JsObject = Json.obj(
+    "untaxedUkInterest" -> true,
+    "taxedUkInterest" -> false
+  )
+
   val modelMin: InterestCYAModel = InterestCYAModel(
     untaxedUkInterest = None,
     taxedUkInterest = None,
-    accounts = None
+    accounts = Seq()
+  )
+
+  val modelNoAccounts: InterestCYAModel = InterestCYAModel(
+    untaxedUkInterest = Some(true),
+    taxedUkInterest = Some(false)
   )
 
   val jsonMin: JsObject = Json.obj()
@@ -66,6 +76,9 @@ class InterestCYAModelSpec extends UnitTest {
         Json.toJson(modelMin) shouldBe jsonMin
       }
 
+      "accounts not specified" in {
+        Json.toJson(modelNoAccounts) shouldBe jsonNoAccounts
+      }
     }
 
     "correctly parse from json" when {
@@ -76,6 +89,10 @@ class InterestCYAModelSpec extends UnitTest {
 
       "no fields are present" in {
         jsonMin.as[InterestCYAModel] shouldBe modelMin
+      }
+
+      "accounts not specified" in {
+        jsonNoAccounts.as[InterestCYAModel] shouldBe modelNoAccounts
       }
     }
 
@@ -89,7 +106,7 @@ class InterestCYAModelSpec extends UnitTest {
         InterestCYAModel(
           Some(true),
           Some(true),
-          Some(Seq(account.copy(taxedAmount = None)))
+          Seq(account.copy(taxedAmount = None))
         ).isFinished shouldBe false
       }
 
@@ -97,7 +114,7 @@ class InterestCYAModelSpec extends UnitTest {
         InterestCYAModel(
           Some(true),
           Some(true),
-          Some(Seq(account.copy(untaxedAmount = None)))
+          Seq(account.copy(untaxedAmount = None))
         ).isFinished shouldBe false
       }
 
@@ -105,7 +122,7 @@ class InterestCYAModelSpec extends UnitTest {
         InterestCYAModel(
           Some(true),
           Some(true),
-          None
+          Seq()
         ).isFinished shouldBe false
       }
 
@@ -113,7 +130,7 @@ class InterestCYAModelSpec extends UnitTest {
         InterestCYAModel(
           untaxedUkInterest = Some(true),
           taxedUkInterest = None,
-          accounts = Some(Seq(account.copy(taxedAmount = None)))
+          accounts = Seq(account.copy(taxedAmount = None))
         ).isFinished shouldBe false
       }
 
@@ -121,7 +138,7 @@ class InterestCYAModelSpec extends UnitTest {
         InterestCYAModel(
           untaxedUkInterest = None,
           taxedUkInterest = Some(true),
-          accounts = Some(Seq(account.copy(untaxedAmount = None)))
+          accounts = Seq(account.copy(untaxedAmount = None))
         ).isFinished shouldBe false
       }
 
@@ -133,7 +150,7 @@ class InterestCYAModelSpec extends UnitTest {
           InterestCYAModel(
             untaxedUkInterest = Some(true),
             taxedUkInterest = Some(false),
-            accounts = Some(Seq(account.copy(taxedAmount = None)))
+            accounts = Seq(account.copy(taxedAmount = None))
           ).isFinished shouldBe true
         }
 
@@ -141,7 +158,7 @@ class InterestCYAModelSpec extends UnitTest {
         InterestCYAModel(
           untaxedUkInterest = Some(false),
           taxedUkInterest = Some(true),
-          accounts = Some(Seq(account.copy(untaxedAmount = None)))
+          accounts = Seq(account.copy(untaxedAmount = None))
         ).isFinished shouldBe true
       }
     }

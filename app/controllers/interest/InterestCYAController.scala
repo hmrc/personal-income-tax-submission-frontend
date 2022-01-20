@@ -22,7 +22,7 @@ import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import models.interest.{DecodedInterestSubmissionPayload, InterestCYAModel, InterestPriorSubmission}
-import models.{APIErrorBodyModel, APIErrorModel, User}
+import models.{APIErrorBodyModel, APIErrorModel}
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc._
@@ -106,7 +106,7 @@ class InterestCYAController @Inject()(
         Some(InterestCYAModel(
           Some(priorData.hasUntaxed),
           Some(priorData.hasTaxed),
-          Some(priorData.submissions.filter(x => x.hasTaxed || x.hasUntaxed))
+          priorData.submissions.filter(x => x.hasTaxed || x.hasUntaxed)
         ))
       case (Some(cyaData), _) => Some(cyaData)
       case _ => None
@@ -123,9 +123,9 @@ class InterestCYAController @Inject()(
   private def handleUnfinishedRedirect(cya: InterestCYAModel, taxYear: Int): Future[Result] = {
     Future(
       cya match {
-        case InterestCYAModel(Some(true), None, None) => Redirect(controllers.interest.routes.ChooseAccountController.show(taxYear, UNTAXED))
-        case InterestCYAModel(Some(false), None, None) => Redirect(controllers.interest.routes.TaxedInterestController.show(taxYear))
-        case InterestCYAModel(Some(true), None, Some(accounts)) if accounts.exists(_.hasUntaxed) =>
+        case InterestCYAModel(Some(true), None, Seq()) => Redirect(controllers.interest.routes.ChooseAccountController.show(taxYear, UNTAXED))
+        case InterestCYAModel(Some(false), None, Seq()) => Redirect(controllers.interest.routes.TaxedInterestController.show(taxYear))
+        case InterestCYAModel(Some(true), None, accounts) if accounts.exists(_.hasUntaxed) =>
           Redirect(controllers.interest.routes.TaxedInterestController.show(taxYear))
         case _ => Redirect(controllers.interest.routes.ChooseAccountController.show(taxYear, TAXED))
       }

@@ -31,7 +31,6 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.ClearingNewCYAAccountsHelper.clearNewEmptyAccounts
 import utils.SessionHelper
 import views.html.interest.UntaxedInterestView
-import java.util.UUID.randomUUID
 
 import common.InterestTaxTypes.UNTAXED
 import javax.inject.Inject
@@ -91,7 +90,7 @@ class UntaxedInterestController @Inject()(
             },
             {
               yesNoModel =>
-                val baseCya = cya.getOrElse(InterestCYAModel(None, None, None))
+                val baseCya = cya.getOrElse(InterestCYAModel(None, None))
                 val updatedCya = baseCya.copy(untaxedUkInterest = Some(yesNoModel), accounts = if (yesNoModel) {
                   baseCya.accounts
                 } else {
