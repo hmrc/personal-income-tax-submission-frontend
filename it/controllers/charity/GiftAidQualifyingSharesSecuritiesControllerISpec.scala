@@ -33,6 +33,13 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends CharityITHelper {
     val captionSelector = ".govuk-caption-l"
     val continueSelector = "#continue"
     val errorSummaryHref = "#value"
+    
+    val disclosureSelectorTitle = "#main-content > div > div > form > details > summary > span"
+    val disclosureSelectorParagraph = "#main-content > div > div > form > details > div > p"
+    val disclosureSelectorBullet1 = "#main-content > div > div > form > details > div > ul > li:nth-child(1)"
+    val disclosureSelectorBullet2 = "#main-content > div > div > form > details > div > ul > li:nth-child(2)"
+    val disclosureSelectorBullet3 = "#main-content > div > div > form > details > div > ul > li:nth-child(3)"
+    val disclosureSelectorBullet4 = "#main-content > div > div > form > details > div > ul > li:nth-child(4)"
   }
 
   trait SpecificExpectedResults {
@@ -46,6 +53,12 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends CharityITHelper {
     val yesText: String
     val noText: String
     val continueText: String
+    val disclosureContentTitle: String
+    val disclosureContentParagraph: String
+    val disclosureContentBullet1: String
+    val disclosureContentBullet2: String
+    val disclosureContentBullet3: String
+    val disclosureContentBullet4: String
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
@@ -53,6 +66,12 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends CharityITHelper {
     val yesText = "Yes"
     val noText = "No"
     val continueText = "Continue"
+    val disclosureContentTitle = "What are qualifying shares and securities?"
+    val disclosureContentParagraph = "Qualifying shares and securities are:"
+    val disclosureContentBullet1 = "listed on a recognised stock exchange or dealt in on a designated market in the UK"
+    val disclosureContentBullet2 = "units in an authorised unit trust"
+    val disclosureContentBullet3 = "shares in an open-ended investment company"
+    val disclosureContentBullet4 = "an interest in an offshore fund"
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
@@ -60,6 +79,12 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends CharityITHelper {
     val yesText = "Iawn"
     val noText = "Na"
     val continueText = "Yn eich blaen"
+    val disclosureContentTitle = "Beth yw cyfranddaliadau a gwarantau cymwys?"
+    val disclosureContentParagraph = "Mae cyfranddaliadau a gwarantau cymwys yn cynnwys:"
+    val disclosureContentBullet1 = "cael eu restri ar gyfnewidfa stoc gydnabyddedig neu yr ymdrinnir â nhw ar farchnad ddynodedig yn y DU"
+    val disclosureContentBullet2 = "unedau mewn ymddiriedolaeth unedol awdurdodedig"
+    val disclosureContentBullet3 = "cyfranddaliadau mewn cwmni buddsoddi penagored"
+    val disclosureContentBullet4 = "buddiant mewn cronfa alltraeth"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -127,6 +152,12 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends CharityITHelper {
           textOnPageCheck(captionText, captionSelector)
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
+          textOnPageCheck(disclosureContentTitle, disclosureSelectorTitle)
+          textOnPageCheck(disclosureContentParagraph, disclosureSelectorParagraph)
+          textOnPageCheck(disclosureContentBullet1, disclosureSelectorBullet1)
+          textOnPageCheck(disclosureContentBullet2, disclosureSelectorBullet2)
+          textOnPageCheck(disclosureContentBullet3, disclosureSelectorBullet3)
+          textOnPageCheck(disclosureContentBullet4, disclosureSelectorBullet4)
           buttonCheck(continueText, continueSelector)
           noErrorsCheck()
         }
@@ -150,6 +181,12 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends CharityITHelper {
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
           radioButtonHasChecked(yesText, 1)
+          textOnPageCheck(disclosureContentTitle, disclosureSelectorTitle)
+          textOnPageCheck(disclosureContentParagraph, disclosureSelectorParagraph)
+          textOnPageCheck(disclosureContentBullet1, disclosureSelectorBullet1)
+          textOnPageCheck(disclosureContentBullet2, disclosureSelectorBullet2)
+          textOnPageCheck(disclosureContentBullet3, disclosureSelectorBullet3)
+          textOnPageCheck(disclosureContentBullet4, disclosureSelectorBullet4)
           buttonCheck(continueText, continueSelector)
           noErrorsCheck()
         }
