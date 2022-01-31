@@ -16,6 +16,7 @@
 
 package models.interest
 
+import common.InterestTaxTypes
 import models.question.Question.{WithDependency, WithoutDependency}
 import models.question.{Question, QuestionsJourney}
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
@@ -83,6 +84,26 @@ object InterestCYAModel {
     }
   }
 
+  def disallowedDuplicateNames(optionalCyaData: Option[InterestCYAModel], id: String, taxType: String): Seq[String] = {
+    optionalCyaData.map {
+      _.accounts
+        .filter(if (taxType == InterestTaxTypes.TAXED) _.hasTaxed else _.hasUntaxed)
+        .filterNot(_.getPrimaryId().contains(id))
+    }.getOrElse(Seq()).map(_.accountName)
+  }
+
+  def getCyaModel(cya: Option[InterestCYAModel], prior: Option[InterestPriorSubmission]): Option[InterestCYAModel] = {
+    (cya, prior) match {
+      case (None, Some(priorData)) =>
+        Some(InterestCYAModel(
+          Some(priorData.hasUntaxed),
+          Some(priorData.hasTaxed),
+          priorData.submissions.filter(x => x.hasTaxed || x.hasUntaxed)
+        ))
+      case (Some(cyaData), _) => Some(cyaData)
+      case _ => None
+    }
+  }
 }
 
 case class EncryptedInterestCYAModel(untaxedUkInterest: Option[EncryptedValue] = None,

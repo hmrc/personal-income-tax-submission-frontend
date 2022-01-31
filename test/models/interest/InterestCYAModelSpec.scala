@@ -16,6 +16,7 @@
 
 package models.interest
 
+import common.InterestTaxTypes
 import play.api.libs.json.{JsObject, Json}
 import utils.UnitTest
 
@@ -63,6 +64,29 @@ class InterestCYAModelSpec extends UnitTest {
   )
 
   val jsonMin: JsObject = Json.obj()
+
+  val accounts: Seq[InterestAccountModel] = Seq(
+    InterestAccountModel(
+      Some("1"),
+      "TSB Account",
+      untaxedAmount = Some(500.00)
+    ),
+    InterestAccountModel(
+      Some("2"),
+      "Lloyds Savings",
+      untaxedAmount = Some(3000.00)
+    ),
+    InterestAccountModel(
+      Some("3"),
+      "Account 1",
+      taxedAmount = Some(100.01)
+    ),
+    InterestAccountModel(
+      Some("4"),
+      "New Account",
+      taxedAmount = Some(50.0)
+    )
+  )
 
   "InterestCYAModel" should {
 
@@ -161,6 +185,81 @@ class InterestCYAModelSpec extends UnitTest {
           accounts = Seq(account.copy(untaxedAmount = None))
         ).isFinished shouldBe true
       }
+    }
+  }
+
+  ".disallowedDuplicateNames" should {
+
+    "return names of specified accounts where accounts only have taxed amount defined and if tax type specified is 'TAXED'" in {
+      val cyaModel = Some(InterestCYAModel(
+        untaxedUkInterest = Some(false),
+        taxedUkInterest = Some(true),
+        accounts = accounts
+      ))
+
+      val accountNames = InterestCYAModel.disallowedDuplicateNames(cyaModel, "2", InterestTaxTypes.TAXED)
+
+      accountNames.length shouldBe 2
+      accountNames shouldBe Seq("Account 1", "New Account")
+    }
+
+    "return names of specified accounts where accounts only have untaxed amount defined and if tax type specified is 'UNTAXED'" in {
+      val cyaModel = Some(InterestCYAModel(
+        untaxedUkInterest = Some(false),
+        taxedUkInterest = Some(true),
+        accounts = accounts
+      ))
+
+      val accountNames = InterestCYAModel.disallowedDuplicateNames(cyaModel, "4", InterestTaxTypes.UNTAXED)
+
+      accountNames.length shouldBe 2
+      accountNames shouldBe Seq("TSB Account", "Lloyds Savings")
+    }
+
+    "return empty list if cya model is None" in {
+      val accountNames = InterestCYAModel.disallowedDuplicateNames(None, "4", InterestTaxTypes.UNTAXED)
+
+      accountNames shouldBe empty
+    }
+  }
+
+  ".getCyaModel" should {
+
+    "return cya data if prior is defined " in {
+      val prior = Some(InterestPriorSubmission(true, false, submissions = accounts))
+
+      val cyaData = InterestCYAModel.getCyaModel(None, prior)
+
+      cyaData shouldBe Some(InterestCYAModel(Some(true), Some(false),
+        List(InterestAccountModel(Some("1"),
+          "TSB Account",
+          Some(500.0),
+          None, None),
+          InterestAccountModel(Some("2"), "Lloyds Savings", Some(3000.0), None, None),
+          InterestAccountModel(Some("3"), "Account 1", None, Some(100.01), None),
+          InterestAccountModel(Some("4"), "New Account", None, Some(50.0), None))))
+    }
+
+    "return cya data if cya model is defined and prior isn't defined " in {
+      val cyaModel = Some(InterestCYAModel(
+        untaxedUkInterest = Some(false),
+        taxedUkInterest = Some(true),
+        accounts = accounts
+      ))
+
+      val cyaData = InterestCYAModel.getCyaModel(cyaModel, None)
+
+      cyaData shouldBe Some(InterestCYAModel(Some(false), Some(true),
+        List(InterestAccountModel(Some("1"), "TSB Account", Some(500.0), None, None),
+          InterestAccountModel(Some("2"), "Lloyds Savings", Some(3000.0), None, None),
+          InterestAccountModel(Some("3"), "Account 1", None, Some(100.01), None),
+          InterestAccountModel(Some("4"), "New Account", None, Some(50.0), None))))
+    }
+
+    "return None if cya model isn't defined and prior isn't defined " in {
+      val cyaData = InterestCYAModel.getCyaModel(None, None)
+
+      cyaData shouldBe None
     }
   }
 }

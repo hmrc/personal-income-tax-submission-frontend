@@ -23,24 +23,24 @@ import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.AccountList
-import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
+import models.interest.{InterestAccountModel, InterestCYAModel}
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import services.InterestSessionService
+import services.{ChooseAccountService, InterestSessionService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.interest.ChooseAccountView
+
 import java.util.UUID.randomUUID
-
 import javax.inject.Inject
-
 import scala.concurrent.{ExecutionContext, Future}
 
 class ChooseAccountController @Inject()(
                                          chooseAccountView: ChooseAccountView,
                                          interestSessionService: InterestSessionService,
+                                         chooseAccountService: ChooseAccountService,
                                          errorHandler: ErrorHandler
                                        )(
                                          implicit appConfig: AppConfig,
@@ -65,7 +65,7 @@ class ChooseAccountController @Inject()(
 
       checkHittingPageIsValid(taxYear, taxType, cya) {
 
-        val previousAccounts: Set[InterestAccountModel] = getPreviousAccounts(cya, prior, taxType)
+        val previousAccounts: Set[InterestAccountModel] = chooseAccountService.getPreviousAccounts(cya, prior, taxType)
 
         val accountForm: Form[String] = form(user.isAgent, taxType)
 
@@ -84,7 +84,7 @@ class ChooseAccountController @Inject()(
 
       checkHittingPageIsValid(taxYear, taxType, cya) {
 
-        val previousAccounts: Set[InterestAccountModel] = getPreviousAccounts(cya, prior, taxType)
+        val previousAccounts: Set[InterestAccountModel] = chooseAccountService.getPreviousAccounts(cya, prior, taxType)
 
         form(user.isAgent, taxType).bindFromRequest().fold(
           {
@@ -106,34 +106,6 @@ class ChooseAccountController @Inject()(
           }
         )
       }
-    }
-  }
-
-  def accountsIgnoringAmounts(accounts: Seq[InterestAccountModel]): Set[InterestAccountModel] = {
-    accounts.map(_.copy(untaxedAmount = None, taxedAmount = None)).toSet
-  }
-
-  private def getPreviousAccounts(cya: Option[InterestCYAModel], prior: Option[InterestPriorSubmission], taxType: String): Set[InterestAccountModel] = {
-
-    val accountsInSession: Seq[InterestAccountModel] = cya.map(_.accounts).getOrElse(Seq())
-    val priorAccounts: Seq[InterestAccountModel] = prior.map(_.submissions).getOrElse(Seq())
-
-    if (taxType.equals(UNTAXED)) {
-
-      val inSessionAccountsToDisplay = accountsInSession.filter(!_.hasUntaxed)
-      val inSessionIdsToExclude: Seq[String] = accountsInSession.filter(_.hasUntaxed).flatMap(_.id)
-
-      val priorAccountsToDisplay: Seq[InterestAccountModel] = priorAccounts.filter(!_.hasUntaxed).filterNot(_.id.exists(inSessionIdsToExclude.contains))
-
-      accountsIgnoringAmounts(inSessionAccountsToDisplay ++ priorAccountsToDisplay)
-
-    } else {
-      val inSessionAccountsToDisplay = accountsInSession.filter(!_.hasTaxed)
-      val inSessionIdsToExclude: Seq[String] = accountsInSession.filter(_.hasTaxed).flatMap(_.id)
-
-      val priorAccountsToDisplay: Seq[InterestAccountModel] = priorAccounts.filter(!_.hasTaxed).filterNot(_.id.exists(inSessionIdsToExclude.contains))
-
-      accountsIgnoringAmounts(inSessionAccountsToDisplay ++ priorAccountsToDisplay)
     }
   }
 

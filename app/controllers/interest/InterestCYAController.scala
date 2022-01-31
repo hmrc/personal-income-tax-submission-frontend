@@ -21,7 +21,7 @@ import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
-import models.interest.{DecodedInterestSubmissionPayload, InterestCYAModel, InterestPriorSubmission}
+import models.interest.{DecodedInterestSubmissionPayload, InterestCYAModel}
 import models.{APIErrorBodyModel, APIErrorModel}
 import play.api.Logging
 import play.api.i18n.I18nSupport
@@ -57,7 +57,7 @@ class InterestCYAController @Inject()(
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
     interestSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
-      getCyaModel(cya, prior) match {
+      InterestCYAModel.getCyaModel(cya, prior) match {
         case Some(cyaData) if !cyaData.isFinished => handleUnfinishedRedirect(cyaData, taxYear)
         case Some(cyaData) =>
           interestSessionService.updateSessionData(cyaData, taxYear, cya.isEmpty)(errorHandler.internalServerError())(
@@ -98,19 +98,6 @@ class InterestCYAController @Inject()(
         case Left(error) => Future.successful(errorHandler.handleError(error.status))
       })
     }.flatten
-  }
-
-  private[interest] def getCyaModel(cya: Option[InterestCYAModel], prior: Option[InterestPriorSubmission]): Option[InterestCYAModel] = {
-    (cya, prior) match {
-      case (None, Some(priorData)) =>
-        Some(InterestCYAModel(
-          Some(priorData.hasUntaxed),
-          Some(priorData.hasTaxed),
-          priorData.submissions.filter(x => x.hasTaxed || x.hasUntaxed)
-        ))
-      case (Some(cyaData), _) => Some(cyaData)
-      case _ => None
-    }
   }
 
   private def auditSubmission(details: CreateOrAmendInterestAuditDetail)
