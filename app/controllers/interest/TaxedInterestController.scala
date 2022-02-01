@@ -32,7 +32,6 @@ import services.InterestSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.interest.TaxedInterestView
-import java.util.UUID.randomUUID
 
 import common.InterestTaxTypes.TAXED
 import javax.inject.Inject

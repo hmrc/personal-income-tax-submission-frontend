@@ -16,6 +16,7 @@
 
 package models.interest
 
+import common.InterestTaxTypes.{TAXED, UNTAXED}
 import play.api.libs.json._
 
 case class InterestPriorSubmission(hasUntaxed: Boolean, hasTaxed: Boolean, submissions: Seq[InterestAccountModel] = Seq.empty)
@@ -26,6 +27,17 @@ object InterestPriorSubmission {
       Json.obj("submissions" -> Json.toJson(model.submissions))
     } else {
       Json.obj()
+    }
+  }
+
+  def foundPriorSubmission(prior: Option[InterestPriorSubmission], accountId: String): Option[InterestAccountModel] = {
+    prior.flatMap(_.submissions.find(_.id.contains(accountId)))
+  }
+
+  def isPriorSubmissionWithAmountsThatCantBeRemoved(prior: Option[InterestPriorSubmission], accountId: String, taxType: String): Boolean = {
+    taxType match {
+      case UNTAXED => foundPriorSubmission(prior,accountId).exists(account => account.hasUntaxed)
+      case TAXED => foundPriorSubmission(prior,accountId).exists(account => account.hasTaxed)
     }
   }
 }
