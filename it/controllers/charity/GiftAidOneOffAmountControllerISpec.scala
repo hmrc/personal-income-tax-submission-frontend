@@ -65,7 +65,7 @@ class GiftAidOneOffAmountControllerISpec extends CharityITHelper {
     val expectedInputName = "amount"
     val expectedButtonText = "Continue"
     val expectedInputLabelText = "Total amount for the year, in pounds"
-    val expectedInputHintText = "For example, £600 or £193.54"
+    val expectedInputHintText = "For example, £193.52"
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
@@ -73,7 +73,7 @@ class GiftAidOneOffAmountControllerISpec extends CharityITHelper {
     val expectedInputName = "amount"
     val expectedButtonText = "Yn eich blaen"
     val expectedInputLabelText = "Cyfanswm ar gyfer y flwyddyn, mewn punnoedd"
-    val expectedInputHintText = "Er enghraifft, £600 neu £193.54"
+    val expectedInputHintText = "Er enghraifft, £193.52"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {

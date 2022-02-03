@@ -92,13 +92,13 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
   object CommonExpectedEN extends CommonExpectedResults {
     val expectedCaption = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
-    val expectedHintText = "For example, £600 or £193.54"
+    val expectedHintText = "For example, £193.52"
     val continueText = "Continue"
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
     val expectedCaption = s"Llog ar gyfer 6 Ebrill $taxYearMinusOne i 5 Ebrill $taxYear"
-    val expectedHintText = "Er enghraifft, £600 neu £193.54"
+    val expectedHintText = "Er enghraifft, £193.52"
     val continueText = "Yn eich blaen"
   }
 

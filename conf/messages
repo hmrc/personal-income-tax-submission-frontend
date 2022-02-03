@@ -28,7 +28,7 @@ common.help.getHelpWithThisPage = Get help with this page
 common.youToldUs = You told us
 common.youGot.individual = you got
 common.youGot.agent = your client got
-common.currency.hint = For example, £600 or £193.54
+common.currency.hint = For example, £193.52
 
 dividends.caption = Dividends for 6 April {0} to 5 April {1}
 interest.caption = Interest for 6 April {0} to 5 April {1}

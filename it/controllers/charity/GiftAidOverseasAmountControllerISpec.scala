@@ -64,14 +64,14 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
     val expectedInputName = "amount"
     val expectedButtonText = "Continue"
     val expectedInputLabelText = "Total amount for the year, in pounds"
-    val expectedInputHintText = "For example, £600 or £193.54"
+    val expectedInputHintText = "For example, £193.52"
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
     val expectedCaption = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
     val expectedInputName = "amount"
     val expectedButtonText = "Yn eich blaen"
-    val expectedInputHintText = "Er enghraifft, £600 neu £193.54"
+    val expectedInputHintText = "Er enghraifft, £193.52"
     val expectedInputLabelText = "Cyfanswm ar gyfer y flwyddyn, mewn punnoedd"
   }
 
