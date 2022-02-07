@@ -56,7 +56,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
 
   object CommonExpectedEN extends CommonExpectedResults {
     val heading: String = "What is the value of qualifying shares, securities, land or property donated to overseas charities?"
-    val hintText: String = "For example, £600 or £193.54"
+    val hintText: String = "For example, £193.52"
     val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
     val button = "Continue"
     val inputName = "amount"
@@ -67,7 +67,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
 
   object CommonExpectedCY extends CommonExpectedResults {
     val heading: String = "Beth yw gwerth cyfranddaliadau cymwys, gwarantau, tir neu eiddo a roddwyd i elusennau tramor?"
-    val hintText: String = "Er enghraifft, £600 neu £193.54"
+    val hintText: String = "Er enghraifft, £193.52"
     val caption = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
     val button = "Yn eich blaen"
     val inputName = "amount"

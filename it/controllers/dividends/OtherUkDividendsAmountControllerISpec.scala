@@ -84,7 +84,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
 
   object AllExpectedEnglish extends CommonExpectedResults {
     val continueText = "Continue"
-    val expectedHintText = "For example, £600 or £193.54"
+    val expectedHintText = "For example, £193.52"
     val captionExpected = s"Dividends for 6 April $taxYearMinusOne to 5 April $taxYear"
   }
 
@@ -113,7 +113,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
 
   object AllExpectedWelsh extends CommonExpectedResults {
     val continueText = "Yn eich blaen"
-    val expectedHintText = "Er enghraifft, £600 neu £193.54"
+    val expectedHintText = "Er enghraifft, £193.52"
     val captionExpected = s"Difidendau ar gyfer 6 Ebrill $taxYearMinusOne i 5 Ebrill $taxYear"
   }
 

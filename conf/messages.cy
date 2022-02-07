@@ -28,7 +28,7 @@ common.help.getHelpWithThisPage = Help gyda’r dudalen hon
 common.youToldUs = Gwnaethoch ddweud wrthym
 common.youGot.individual = cawsoch
 common.youGot.agent = cafodd eich cleient
-common.currency.hint = Er enghraifft, £600 neu £193.54
+common.currency.hint = Er enghraifft, £193.52
 
 dividends.caption = Difidendau ar gyfer 6 Ebrill {0} i 5 Ebrill {1}
 interest.caption = Llog ar gyfer 6 Ebrill {0} i 5 Ebrill {1}

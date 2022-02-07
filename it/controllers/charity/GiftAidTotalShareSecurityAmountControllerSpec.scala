@@ -55,7 +55,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
 
   object CommonExpectedEN extends CommonExpectedResults {
     val heading: String = "What is the total value of qualifying shares or securities donated to charity?"
-    val hintText: String = "For example, £600 or £193.54"
+    val hintText: String = "For example, £193.52"
     val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
     val button = "Continue"
     val inputName = "amount"
@@ -64,7 +64,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
 
   object CommonExpectedCY extends CommonExpectedResults {
     val heading: String = "Beth yw cyfanswm gwerth cyfranddaliadau neu warantau cymwys a roddir i elusen?"
-    val hintText: String = "Er enghraifft, £600 neu £193.54"
+    val hintText: String = "Er enghraifft, £193.52"
     val caption = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
     val button = "Yn eich blaen"
     val inputName = "amount"

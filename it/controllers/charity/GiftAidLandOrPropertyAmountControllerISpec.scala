@@ -60,7 +60,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
 
   object CommonExpectedEN extends CommonExpectedResults {
     val expectedCaption = "Donations to charity for 6 April 2021 to 5 April 2022"
-    val expectedHint = "For example, £600 or £193.54"
+    val expectedHint = "For example, £193.52"
     val expectedInputName = "amount"
     val expectedButtonText = "Continue"
     val expectedTitle = "What is the value of land or property donated to charity?"
@@ -70,7 +70,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
 
   object CommonExpectedCY extends CommonExpectedResults {
     val expectedCaption = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
-    val expectedHint = "Er enghraifft, £600 neu £193.54"
+    val expectedHint = "Er enghraifft, £193.52"
     val expectedInputName = "amount"
     val expectedButtonText = "Yn eich blaen"
     val expectedTitle = "Beth yw gwerth tir neu eiddo a roddwyd i elusen?"

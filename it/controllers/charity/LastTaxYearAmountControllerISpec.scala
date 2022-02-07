@@ -60,14 +60,14 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
   object CommonExpectedEN extends CommonExpectedResults {
     val caption = s"Donations to charity for 6 April $lastTaxYear to 5 April $currentTaxYear"
-    val hint = "For example, £600 or £193.54"
+    val hint = "For example, £193.52"
     val button = "Continue"
     val inputName = "amount"
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
     val caption = s"Rhoddion i elusennau ar gyfer 6 Ebrill $lastTaxYear i 5 Ebrill $currentTaxYear"
-    val hint = "Er enghraifft, £600 neu £193.54"
+    val hint = "Er enghraifft, £193.52"
     val button = "Yn eich blaen"
     val inputName = "amount"
   }
