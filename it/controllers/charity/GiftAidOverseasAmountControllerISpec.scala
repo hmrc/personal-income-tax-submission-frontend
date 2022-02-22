@@ -34,9 +34,9 @@ class GiftAidOverseasAmountControllerISpec extends CharityITHelper {
     val captionSelector = ".govuk-caption-l"
     val inputFieldSelector = "#amount"
     val buttonSelector = ".govuk-button"
-    val inputLabelSelector = "#main-content > div > div > form > div > label > div"
+    val p1Selector = "#p1"
+    val inputLabelSelector = "#p2"
     val inputHintTextSelector = ".govuk-hint"
-    val p1Selector = "#main-content > div > div > form > div > label > p"
   }
 
   trait SpecificExpectedResults {

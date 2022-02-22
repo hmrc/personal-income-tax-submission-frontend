@@ -31,7 +31,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
   val yearBeforeLastTaxYear = 2020
   
   object Selectors {
-    val para = "label > p"
+    val paragraph = "#p1"
     val errorSummary = "#error-summary-title"
     val noSelectionError = ".govuk-error-summary__body > ul > li > a"
     val amount = "#amount"
@@ -42,7 +42,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
   trait SpecificExpectedResults {
     val heading: String
-    val para: String
+    val paragraph: String
     val expectedPriorP1: String
     val expectedCyaP1: String
     val noSelectionError: String
@@ -74,7 +74,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
     val heading = s"How much of your donation did you add to the $yearBeforeLastTaxYear to $lastTaxYear tax year?"
-    val para = "Do not include the Gift Aid added to your donation."
+    val paragraph = "Do not include the Gift Aid added to your donation."
     val expectedPriorP1 = s"You told us you want to add £333 of your donations to charity to the 6 April $yearBeforeLastTaxYear to 5 April $lastTaxYear tax year. Tell us if this has changed."
     val expectedCyaP1 = s"You told us you want to add £50 of your donations to charity to the 6 April $yearBeforeLastTaxYear to 5 April $lastTaxYear tax year. Tell us if this has changed."
     val noSelectionError = "Enter the amount of your donation you want to add to the last tax year"
@@ -86,7 +86,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
   object ExpectedAgentEN extends SpecificExpectedResults {
     val heading = s"How much of your client’s donation did you add to the $yearBeforeLastTaxYear to $lastTaxYear tax year?"
-    val para = "Do not include the Gift Aid added to your client’s donation."
+    val paragraph = "Do not include the Gift Aid added to your client’s donation."
     val expectedPriorP1 = s"You told us you want to add £333 of your client’s donations to charity to the 6 April $yearBeforeLastTaxYear to 5 April $lastTaxYear tax year. Tell us if this has changed."
     val expectedCyaP1 = s"You told us you want to add £50 of your client’s donations to charity to the 6 April $yearBeforeLastTaxYear to 5 April $lastTaxYear tax year. Tell us if this has changed."
     val noSelectionError = "Enter the amount of your client’s donation you want to add to the last tax year"
@@ -98,7 +98,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
     val heading = s"Faint o’ch cyfraniad y gwnaethoch ei ychwanegu at flwyddyn dreth $yearBeforeLastTaxYear i $lastTaxYear?"
-    val para = "Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at eich rhodd."
+    val paragraph = "Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at eich rhodd."
     val expectedPriorP1 = s"Gwnaethoch roi gwybod i ni eich bod am ychwanegu £333 o’ch rhoddion i elusen at flwyddyn dreth 6 Ebrill $yearBeforeLastTaxYear i 5 Ebrill $lastTaxYear. Rhowch wybod i ni os yw hyn wedi newid."
     val expectedCyaP1 = s"Gwnaethoch roi gwybod i ni eich bod am ychwanegu £50 o’ch rhoddion i elusen at flwyddyn dreth 6 Ebrill $yearBeforeLastTaxYear i 5 Ebrill $lastTaxYear. Rhowch wybod i ni os yw hyn wedi newid."
     val noSelectionError = "Nodwch faint o’ch rhodd rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf"
@@ -110,7 +110,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
   object ExpectedAgentCY extends SpecificExpectedResults {
     val heading = s"Faint o gyfraniad eich cleient y gwnaethoch ei ychwanegu at flwyddyn dreth $yearBeforeLastTaxYear i $lastTaxYear?"
-    val para = "Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at rodd eich cleient."
+    val paragraph = "Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at rodd eich cleient."
     val expectedPriorP1 = s"Gwnaethoch roi gwybod i ni eich bod am ychwanegu £333 o roddion eich cleient i elusen at flwyddyn dreth 6 Ebrill $yearBeforeLastTaxYear i 5 Ebrill $lastTaxYear. Rhowch wybod i ni os yw hyn wedi newid."
     val expectedCyaP1 = s"Gwnaethoch roi gwybod i ni eich bod am ychwanegu £50 o roddion eich cleient i elusen at flwyddyn dreth 6 Ebrill $yearBeforeLastTaxYear i 5 Ebrill $lastTaxYear. Rhowch wybod i ni os yw hyn wedi newid."
     val noSelectionError = "Nodwch faint o rodd eich cleient rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf"
@@ -160,7 +160,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
           titleCheck(user.specificExpectedResults.get.heading, user.isWelsh)
           h1Check(user.specificExpectedResults.get.heading + " " + caption)
-          textOnPageCheck(user.specificExpectedResults.get.para, para)
+          textOnPageCheck(user.specificExpectedResults.get.paragraph, paragraph)
           inputFieldCheck("amount", ".govuk-input")
           hintTextCheck(hint)
           captionCheck(caption)
@@ -185,7 +185,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
           titleCheck(user.specificExpectedResults.get.heading, user.isWelsh)
           h1Check(user.specificExpectedResults.get.heading + " " + caption)
-          textOnPageCheck(user.specificExpectedResults.get.expectedCyaP1, para)
+          textOnPageCheck(user.specificExpectedResults.get.expectedCyaP1, paragraph)
           inputFieldCheck("amount", ".govuk-input")
           hintTextCheck(hint)
           captionCheck(caption)
@@ -210,7 +210,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
           inputFieldCheck(inputName, Selectors.amount)
           inputFieldValueCheck("", Selectors.amount)
-          textOnPageCheck(user.specificExpectedResults.get.expectedPriorP1, Selectors.para)
+          textOnPageCheck(user.specificExpectedResults.get.expectedPriorP1, Selectors.paragraph)
         }
 
         "display the correct cya amount when returning before resubmitting" which {
@@ -226,7 +226,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
           inputFieldCheck(inputName, Selectors.amount)
           inputFieldValueCheck("50", Selectors.amount)
-          textOnPageCheck(user.specificExpectedResults.get.expectedCyaP1, Selectors.para)
+          textOnPageCheck(user.specificExpectedResults.get.expectedCyaP1, Selectors.paragraph)
         }
       }
     }
@@ -306,7 +306,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
             titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.heading, user.isWelsh)
             h1Check(user.specificExpectedResults.get.heading + " " + caption)
-            textOnPageCheck(user.specificExpectedResults.get.para, para)
+            textOnPageCheck(user.specificExpectedResults.get.paragraph, paragraph)
             inputFieldCheck("amount", ".govuk-input")
             hintTextCheck(hint)
             captionCheck(caption)
@@ -326,7 +326,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
             titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.heading, user.isWelsh)
             h1Check(user.specificExpectedResults.get.heading + " " + caption)
-            textOnPageCheck(user.specificExpectedResults.get.para, para)
+            textOnPageCheck(user.specificExpectedResults.get.paragraph, paragraph)
             inputFieldCheck("amount", ".govuk-input")
             hintTextCheck(hint)
             captionCheck(caption)
@@ -346,7 +346,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
             titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.heading, user.isWelsh)
             h1Check(user.specificExpectedResults.get.heading + " " + caption)
-            textOnPageCheck(user.specificExpectedResults.get.para, para)
+            textOnPageCheck(user.specificExpectedResults.get.paragraph, paragraph)
             inputFieldCheck("amount", ".govuk-input")
             hintTextCheck(hint)
             captionCheck(caption)
@@ -363,7 +363,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
             titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.heading, user.isWelsh)
             h1Check(user.specificExpectedResults.get.heading + " " + caption)
-            textOnPageCheck(user.specificExpectedResults.get.para, para)
+            textOnPageCheck(user.specificExpectedResults.get.paragraph, paragraph)
             inputFieldCheck("amount", ".govuk-input")
             hintTextCheck(hint)
             captionCheck(caption)

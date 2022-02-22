@@ -27,16 +27,15 @@ import utils.CharityITHelper
 
 class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
 
-
   def url: String = s"$appUrl/$year/charity/amount-donated-using-gift-aid"
 
   object Selectors {
     val expectedErrorLink = "#amount"
     val captionSelector = ".govuk-caption-l"
-    val paragraphSelector = "#main-content > div > div > form > div > label > p"
     val inputFieldSelector = "#amount"
     val buttonSelector = ".govuk-button"
-    val inputLabelSelector = "#main-content > div > div > form > div > label > div"
+    val paragraphSelector = "#p1"
+    val inputLabelSelector = "#p2"
     val inputHintTextSelector = ".govuk-hint"
   }
 
@@ -72,8 +71,8 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
     val expectedCaption = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
     val expectedInputName = "amount"
     val expectedButtonText = "Yn eich blaen"
-    val expectedInputHintText = "Er enghraifft, £193.52"
     val expectedInputLabelText = "Cyfanswm ar gyfer y flwyddyn, mewn punnoedd"
+    val expectedInputHintText = "Er enghraifft, £193.52"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {

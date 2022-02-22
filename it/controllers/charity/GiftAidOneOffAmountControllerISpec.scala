@@ -32,10 +32,10 @@ class GiftAidOneOffAmountControllerISpec extends CharityITHelper {
   object Selectors {
     val expectedErrorLink = "#amount"
     val captionSelector = ".govuk-caption-l"
-    val paragraphSelector = "#main-content > div > div > form > div > label > p"
     val inputFieldSelector = "#amount"
     val buttonSelector = ".govuk-button"
-    val inputLabelSelector = "#main-content > div > div > form > div > label > div"
+    val paragraphSelector = "#p1"
+    val inputLabelSelector = "#p2"
     val inputHintTextSelector = ".govuk-hint"
   }
 
@@ -142,15 +142,15 @@ class GiftAidOneOffAmountControllerISpec extends CharityITHelper {
 
   val oneOffCyaAmount = 50
 
-  val requiredSessionModel = GiftAidCYAModel(oneOffDonationsViaGiftAid = Some(true), donationsViaGiftAidAmount = Some(totalDonatedAmount))
-  val requiredSessionData = Some(requiredSessionModel)
+  val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(oneOffDonationsViaGiftAid = Some(true), donationsViaGiftAidAmount = Some(totalDonatedAmount))
+  val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
 
   val requiredSessionModelPrefill: GiftAidCYAModel = requiredSessionModel.copy(
     oneOffDonationsViaGiftAidAmount = Some(oneOffCyaAmount)
   )
   val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
 
-  val requiredPriorData = Some(IncomeSourcesModel(None, None, Some(priorDataMax)))
+  val requiredPriorData: Option[IncomeSourcesModel] = Some(IncomeSourcesModel(None, None, Some(priorDataMax)))
 
   ".show" when {
 

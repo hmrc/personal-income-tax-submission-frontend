@@ -60,7 +60,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
     val titleSelector = "title"
     val inputField = ".govuk-input"
     val errorHref = "#amount"
-    val p1Selector = "#main-content > div > div > form > div > label > p"
+    val p1Selector = "#p1"
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
@@ -127,7 +127,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
   val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
 
-  val requiredPriorData = Some(IncomeSourcesModel(None, None, Some(priorDataMax)))
+  val requiredPriorData: Option[IncomeSourcesModel] = Some(IncomeSourcesModel(None, None, Some(priorDataMax)))
 
   val validForm: Map[String, String] = Map("amount" -> "1234")
 

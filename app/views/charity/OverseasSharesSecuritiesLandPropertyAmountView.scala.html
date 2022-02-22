@@ -14,16 +14,23 @@
  * limitations under the License.
  *@
 
-@import views.html.templates.helpers.Button
 @import views.html.headerFooterTemplate.Layout
-@import views.html.templates.helpers.ErrorSummary
-@import views.html.templates.helpers.InputText
+@import views.html.templates.helpers.{Heading, Button, ErrorSummary, InputTextAlt, P}
 @import utils.ViewUtils.bigDecimalCurrency
 
-@this(csrfForm: FormWithCSRF, button: Button, layout: Layout, errorSummary: ErrorSummary, inputField: InputText)
+@this(
+    layout: Layout,
+    formWithCsrf: FormWithCSRF,
+    heading: Heading,
+    button: Button,
+    errorSummary: ErrorSummary,
+    inputField: InputTextAlt,
+    p: P
+)
+
 @(taxYear: Int, form: Form[BigDecimal], prefill: Option[String], priorSubmission: Option[BigDecimal])(implicit user: User[_], appConfig: AppConfig, messages: Messages)
 
-@headingText = @{
+@headingForUse = @{
     messages(s"charity.overseas-shares-securities-land-property-amount.heading")
 }
 
@@ -35,36 +42,35 @@
     }
 }
 
-@paragraphText = @{
-        if(priorAmount.isDefined) {
-        messages(
+@priorAmountParagraph = @{
+    if(priorAmount.isDefined) {
+        p(Html(messages(
             s"charity.overseas-shares-securities-land-property-amount.${if(user.isAgent) "agent" else "individual"}.prior",
             bigDecimalCurrency(priorAmount.get.toString)
+        )),
+            classes = "govuk-body govuk-!-margin-bottom-3",
+            id = Some("p1")
         )
     }
 }
 
-@contentHtml = {
-    <p class="govuk-body">@paragraphText</p>
-    <div>@messages("charity.common.total.valueInPounds")</div>
-}
-
-@layout(pageTitle = headingText, taxYear = Some(taxYear), hasErrors = form.hasErrors) {
-
+@layout(pageTitle = headingForUse, taxYear = Some(taxYear), hasErrors = form.hasErrors) {
     @errorSummary(form.errors)
 
-    @csrfForm(controllers.charity.routes.OverseasSharesSecuritiesLandPropertyAmountController.submit(taxYear)) {
+    @heading(headingForUse, Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
+
+    @priorAmountParagraph
+    @p(Html(messages("charity.common.total.valueInPounds")), id = Some("p2"))
+
+    @formWithCsrf(controllers.charity.routes.OverseasSharesSecuritiesLandPropertyAmountController.submit(taxYear)) {
         @inputField(
             form,
             id = "amount",
             name = "amount",
-            heading = headingText,
-            subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)),
-            content = Some(contentHtml),
-            hint = Some(Html(messages("common.currency.hint"))),
-            isPageHeading = false,
+            hint = Some(messages("common.currency.hint")),
+            label = headingForUse,
+            labelHidden = true,
             currency = true,
-            headingClasses = "govuk-!-margin-bottom-2",
             autocomplete = prefill
         )
         @button()

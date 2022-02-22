@@ -33,9 +33,9 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
     val captionSelector = ".govuk-caption-l"
     val inputFieldSelector = "#amount"
     val buttonSelector = ".govuk-button"
-    val contentSelector = "#main-content > div > div > form > div > label > div"
+    val p1Selector = "#p1"
+    val inputLabelSelector = "#p2"
     val inputHintTextSelector = "#amount-hint"
-    val p1Selector = "#main-content > div > div > form > div > label > p"
   }
 
   val invalidAmount = "1000000000000"
@@ -55,7 +55,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
     val expectedButtonText: String
     val expectedTitle: String
     val expectedHeading: String
-    val expectedContent: String
+    val expectedInputLabel: String
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
@@ -65,7 +65,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
     val expectedButtonText = "Continue"
     val expectedTitle = "What is the value of land or property donated to charity?"
     val expectedHeading = "What is the value of land or property donated to charity?"
-    val expectedContent = "Total value, in pounds"
+    val expectedInputLabel = "Total value, in pounds"
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
@@ -75,7 +75,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
     val expectedButtonText = "Yn eich blaen"
     val expectedTitle = "Beth yw gwerth tir neu eiddo a roddwyd i elusen?"
     val expectedHeading = "Beth yw gwerth tir neu eiddo a roddwyd i elusen?"
-    val expectedContent = "Cyfanswm y gwerth, mewn punnoedd"
+    val expectedInputLabel = "Cyfanswm y gwerth, mewn punnoedd"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -129,7 +129,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
 
   val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
 
-  val requiredPriorData = Some(IncomeSourcesModel(None, None, Some(priorDataMax)))
+  val requiredPriorData: Option[IncomeSourcesModel] = Some(IncomeSourcesModel(None, None, Some(priorDataMax)))
 
   val validAmount = 50
 
@@ -153,7 +153,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
           titleCheck(expectedTitle, user.isWelsh)
           h1Check(expectedHeading + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
-          textOnPageCheck(expectedContent, contentSelector)
+          textOnPageCheck(expectedInputLabel, inputLabelSelector)
           textOnPageCheck(expectedHint, inputHintTextSelector)
           inputFieldCheck(expectedInputName, inputFieldSelector)
           buttonCheck(expectedButtonText, buttonSelector)
@@ -175,7 +175,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
           titleCheck(expectedTitle, user.isWelsh)
           h1Check(expectedHeading + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
-          textOnPageCheck(expectedContent, contentSelector)
+          textOnPageCheck(expectedInputLabel, inputLabelSelector)
           textOnPageCheck(expectedHint, inputHintTextSelector)
           inputFieldCheck(expectedInputName, inputFieldSelector)
           buttonCheck(expectedButtonText, buttonSelector)
@@ -269,7 +269,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
             titleCheck(errorPrefix(user.isWelsh) + expectedTitle, user.isWelsh)
             h1Check(expectedHeading + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
-            textOnPageCheck(expectedContent, contentSelector)
+            textOnPageCheck(expectedInputLabel, inputLabelSelector)
             textOnPageCheck(expectedHint, inputHintTextSelector)
             inputFieldCheck(expectedInputName, inputFieldSelector)
             buttonCheck(expectedButtonText, buttonSelector)
@@ -291,7 +291,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
             titleCheck(errorPrefix(user.isWelsh) + expectedTitle, user.isWelsh)
             h1Check(expectedHeading + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
-            textOnPageCheck(expectedContent, contentSelector)
+            textOnPageCheck(expectedInputLabel, inputLabelSelector)
             textOnPageCheck(expectedHint, inputHintTextSelector)
             inputFieldCheck(expectedInputName, inputFieldSelector)
             buttonCheck(expectedButtonText, buttonSelector)
@@ -312,7 +312,7 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
             titleCheck(errorPrefix(user.isWelsh) + expectedTitle, user.isWelsh)
             h1Check(expectedHeading + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
-            textOnPageCheck(expectedContent, contentSelector)
+            textOnPageCheck(expectedInputLabel, inputLabelSelector)
             textOnPageCheck(expectedHint, inputHintTextSelector)
             inputFieldCheck(expectedInputName, inputFieldSelector)
             buttonCheck(expectedButtonText, buttonSelector)

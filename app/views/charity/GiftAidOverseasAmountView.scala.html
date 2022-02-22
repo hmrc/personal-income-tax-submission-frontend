@@ -15,13 +15,19 @@
  *@
 
 @import views.html.headerFooterTemplate.Layout
-@import views.html.templates.helpers.InputText
-@import views.html.templates.helpers.Heading
-@import views.html.templates.helpers.Button
-@import views.html.templates.helpers.ErrorSummary
+@import views.html.templates.helpers.{Heading, Button, ErrorSummary, InputTextAlt, P}
 @import utils.ViewUtils.bigDecimalCurrency
 
-@this(layout: Layout, formWithCsrf: FormWithCSRF, inputField: InputText, heading: Heading, button: Button, errorSummary: ErrorSummary)
+@this(
+    layout: Layout,
+    formWithCsrf: FormWithCSRF,
+    heading: Heading,
+    button: Button,
+    errorSummary: ErrorSummary,
+    inputField: InputTextAlt,
+    p: P
+)
+
 @(taxYear: Int, form: Form[BigDecimal], prefill: Option[String], priorSubmission: Option[BigDecimal])(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @titleText = @{messages(s"charity.amount-overseas-gift-aid.title.${if(user.isAgent) "agent" else "individual"}")}
@@ -36,34 +42,34 @@
     }
 }
 
-@paragraphText = @{
+@priorAmountParagraph = @{
     if(priorAmount.isDefined) {
-        messages(s"charity.amount-overseas-gift-aid.${if(user.isAgent) "agent" else "individual"}.prior", bigDecimalCurrency(priorAmount.get.toString))
+        p(Html(messages(s"charity.amount-overseas-gift-aid.${if(user.isAgent) "agent" else "individual"}.prior", bigDecimalCurrency(priorAmount.get.toString))),
+            classes = "govuk-body govuk-!-margin-bottom-3",
+            id = Some("p1")
+        )
     }
 }
 
-@contentHtml = {
-    <p class="govuk-body">@paragraphText</p>
-    <div>@messages("charity.common.total.valueInPoundsTaxYear")</div>
-}
-
-@layout(pageTitle = titleText, taxYear = Some(taxYear), hasErrors = form.hasErrors) {
+@layout(pageTitle = titleText, taxYear = Some(taxYear), hasErrors = form.hasErrors, isAgent = user.isAgent) {
 
     @errorSummary(form.errors)
+
+    @heading(headingForUse, Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
+
+    @priorAmountParagraph
+    @p(Html(messages("charity.common.total.valueInPoundsTaxYear")), id = Some("p2"))
 
     @formWithCsrf(controllers.charity.routes.GiftAidOverseasAmountController.submit(taxYear)) {
         @inputField(
             form,
             id = "amount",
             name = "amount",
-            heading = headingForUse,
-            content = Some(contentHtml),
-            labelClasses = Some("govuk-!-margin-bottom-1"),
-            isPageHeading = false,
+            hint = Some(messages("common.currency.hint")),
+            label = headingForUse,
+            labelHidden = true,
             currency = true,
-            hint = Some(Html(messages("common.currency.hint"))),
-            subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)),
-            headingClasses = "govuk-!-margin-bottom-2"
+            autocomplete = prefill
         )
         @button()
     }
