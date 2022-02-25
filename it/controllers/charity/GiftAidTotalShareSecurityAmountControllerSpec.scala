@@ -29,9 +29,9 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
   object Selectors {
     val titleSelector = "title"
     val inputField = ".govuk-input"
-    val inputLabel = ".govuk-label > div"
     val errorHref = "#amount"
-    val p1Selector = "#main-content > div > div > form > div > label > p"
+    val p1Selector = "#p1"
+    val inputLabel = "#p2"
   }
 
   def url: String = s"$appUrl/$year/charity/value-of-shares-or-securities"
@@ -122,7 +122,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
   val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
 
   val validAmount: Int = 1234
-  val requiredPriorData = Some(IncomeSourcesModel(None, None, Some(priorDataMax)))
+  val requiredPriorData: Option[IncomeSourcesModel] = Some(IncomeSourcesModel(None, None, Some(priorDataMax)))
 
   ".show" when {
 
