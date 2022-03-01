@@ -16,15 +16,16 @@
 
 @import play.api.i18n.Messages
 @import views.html.headerFooterTemplate.Layout
-@import views.html.templates.helpers.{Button, ErrorSummary, InputText, Heading}
+@import views.html.templates.helpers.{Heading, Button, ErrorSummary, InputTextAlt, P}
 
 @this(
-   layout: Layout,
-   errorSummary: ErrorSummary,
-   formWithCsrf: FormWithCSRF,
-   inputText: InputText,
-   button: Button,
-   heading: Heading
+    layout: Layout,
+    formWithCsrf: FormWithCSRF,
+    heading: Heading,
+    button: Button,
+    errorSummary: ErrorSummary,
+    inputField: InputTextAlt,
+    p: P
 )
 
 @(taxYear: Int, form: Form[String], changeCharityId: Option[String] = None)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
@@ -33,28 +34,25 @@
 
 @headingForUse = @{(titleText)}
 
-@content = {
-    <p>
-        @messages(s"charity.gift-aid-account.${if(user.isAgent) "agent" else "individual"}.hint")
-    </p>
+@charityNameParagraph = @{
+    p(Html(messages(s"charity.gift-aid-account.${if(user.isAgent) "agent" else "individual"}.hint")), id = Some("p1"))
 }
 
 @layout(pageTitle = titleText, taxYear = Some(taxYear), hasErrors = form.hasErrors) {
+    @errorSummary(form.errors)
 
-@errorSummary(form.errors)
+    @heading(headingForUse, Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
+
+    @charityNameParagraph
 
     @formWithCsrf(controllers.charity.routes.GiftAidOverseasNameController.submit(taxYear, changeCharityId)) {
-
-        @inputText(
+        @inputField(
             form,
             id = "name",
             name = "name",
-            heading = headingForUse,
-            isPageHeading = false,
-            subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)),
-            classes = Some("govuk-input--width-20"),
-            headingClasses = "govuk-!-margin-bottom-2",
-            content = Some(content)
+            label = headingForUse,
+            labelHidden = true,
+            classes = Some("govuk-input--width-20")
         )
 
         @button()
