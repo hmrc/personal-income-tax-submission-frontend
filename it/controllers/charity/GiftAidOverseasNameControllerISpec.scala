@@ -41,7 +41,7 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
     val captionSelector: String = ".govuk-caption-l"
     val inputFieldSelector: String = "#name"
     val buttonSelector: String = ".govuk-button"
-    val inputHintTextSelector: String = "#main-content > div > div > form > div > label > p"
+    val inputHintTextSelector: String = "#p1"
     val errorSelector: String = "#main-content > div > div > div.govuk-error-summary > div > ul > li > a"
   }
 
@@ -212,7 +212,7 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
         result.status shouldBe OK
       }
 
-      titleCheck(ExpectedIndividualEN.expectedTitle, false)
+      titleCheck(ExpectedIndividualEN.expectedTitle, isWelsh = false)
     }
   }
 

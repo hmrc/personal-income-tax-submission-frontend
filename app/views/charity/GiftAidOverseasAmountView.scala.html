@@ -52,7 +52,6 @@
 }
 
 @layout(pageTitle = titleText, taxYear = Some(taxYear), hasErrors = form.hasErrors, isAgent = user.isAgent) {
-
     @errorSummary(form.errors)
 
     @heading(headingForUse, Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
