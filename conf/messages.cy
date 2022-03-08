@@ -329,10 +329,10 @@ charity.amount-via-gift-aid.error.too-high.agent = Mae’n rhaid i’r swm a rod
 
 charity.one-off.title.individual = A wnaethoch roddion untro?
 charity.one-off.title.agent = A wnaeth eich cleient roddion untro?
-charity.one-off.caption.individual_1 = Gwnaethoch roi gwybod i ni eich bod wedi defnyddio Rhodd Cymorth i roi {0} i elusen. Rhowch wybod i ni a wnaed unrhyw ran o hyn fel taliadau untro.
-charity.one-off.caption.agent_1 = Gwnaethoch roi gwybod i ni fod eich cleient wedi defnyddio Rhodd Cymorth i roi {0} i elusen. Rhowch wybod i ni a wnaed unrhyw ran o hyn fel taliadau untro.
-charity.one-off.caption.individual_2 = Taliadau na wnaethoch eu hailadrodd yw rhoddion untro.
-charity.one-off.caption.agent_2 = Taliadau na wnaeth eich cleient eu hailadrodd yw rhoddion untro.
+charity.one-off.caption.1.individual = Gwnaethoch roi gwybod i ni eich bod wedi defnyddio Rhodd Cymorth i roi {0} i elusen. Rhowch wybod i ni a wnaed unrhyw ran o hyn fel taliadau untro.
+charity.one-off.caption.1.agent = Gwnaethoch roi gwybod i ni fod eich cleient wedi defnyddio Rhodd Cymorth i roi {0} i elusen. Rhowch wybod i ni a wnaed unrhyw ran o hyn fel taliadau untro.
+charity.one-off.caption.2.individual = Taliadau na wnaethoch eu hailadrodd yw rhoddion untro.
+charity.one-off.caption.2.agent = Taliadau na wnaeth eich cleient eu hailadrodd yw rhoddion untro.
 charity.one-off.errors.noChoice.individual = Dewiswch ‘Iawn’ os gwnaethoch rodd untro i elusen
 charity.one-off.errors.noChoice.agent = Dewiswch ‘Iawn’ os gwnaeth eich cleient rhodd untro i elusen
 

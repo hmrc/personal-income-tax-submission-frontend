@@ -33,8 +33,8 @@ class GiftAidOneOffControllerISpec extends CharityITHelper {
 
   object Selectors {
     val captionSelector = ".govuk-caption-l"
-    val p1Selector = "#main-content > div > div > form > div > fieldset > legend > div > p:nth-child(1)"
-    val p2Selector = "#main-content > div > div > form > div > fieldset > legend > div > p:nth-child(2)"
+    val p1Selector = "#p1"
+    val p2Selector = "#p2"
     val continueSelector = "#continue"
     val continueButtonFormSelector = "#main-content > div > div > form"
     val errorSummaryHref = "#value"
