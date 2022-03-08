@@ -29,7 +29,7 @@ class RemoveOverseasCharityControllerGiftAidISpec extends CharityITHelper {
   object Selectors {
     val heading = "h1"
     val caption = ".govuk-caption-l"
-    val content = "#main-content > div > div > form > div > fieldset > legend > p"
+    val content = "#p1"
     val errorSummaryNoSelection = ".govuk-error-summary__body > ul > li > a"
     val yesRadioButton = ".govuk-radios__item:nth-child(1) > label"
     val noRadioButton = ".govuk-radios__item:nth-child(2) > label"

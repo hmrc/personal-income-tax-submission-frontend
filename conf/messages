@@ -329,10 +329,10 @@ charity.amount-via-gift-aid.error.too-high.agent = The amount your client donate
 
 charity.one-off.title.individual = Did you make one-off donations?
 charity.one-off.title.agent = Did your client make one-off donations?
-charity.one-off.caption.individual_1 = You told us you used Gift Aid to donate {0} to charity. Tell us if any of this was made as one-off payments.
-charity.one-off.caption.agent_1 = You told us your client used Gift Aid to donate {0} to charity. Tell us if any of this was made as one-off payments.
-charity.one-off.caption.individual_2 = One-off donations are payments you did not repeat.
-charity.one-off.caption.agent_2 = One-off donations are payments your client did not repeat.
+charity.one-off.caption.1.individual = You told us you used Gift Aid to donate {0} to charity. Tell us if any of this was made as one-off payments.
+charity.one-off.caption.1.agent = You told us your client used Gift Aid to donate {0} to charity. Tell us if any of this was made as one-off payments.
+charity.one-off.caption.2.individual = One-off donations are payments you did not repeat.
+charity.one-off.caption.2.agent = One-off donations are payments your client did not repeat.
 charity.one-off.errors.noChoice.individual = Select yes if you made a one-off donation to charity
 charity.one-off.errors.noChoice.agent = Select yes if your client made a one-off donation to charity
 

@@ -37,8 +37,8 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper with Gif
   val urlWithSameYears = "/update-and-submit-income-tax-return/personal-income/2022/charity/donations-after-5-april-2022"
 
   object Selectors {
-    val paragraph1HintText = "#main-content > div > div > form > div > fieldset > legend > div > p:nth-child(1)"
-    val paragraph2HintText = "#main-content > div > div > form > div > fieldset > legend > div > p:nth-child(2)"
+    val paragraph1HintText = "#p1"
+    val paragraph2HintText = "#p2"
     val errorHref = "#value"
   }
 
