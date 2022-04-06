@@ -28,8 +28,6 @@ import utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers with DividendsDatabaseHelper {
 
 
-  val taxYear: Int = 2022
-  val taxYearMinusOne: Int = taxYear - 1
   val amount: BigDecimal = 500
   val ukDividendsAmountUrl = s"$appUrl/$taxYear/dividends/how-much-dividends-from-uk-companies"
 
@@ -86,7 +84,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
   object AllExpectedEnglish extends CommonExpectedResults {
     val continueText = "Continue"
     val continueLink = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-companies"
-    val captionExpected = s"Dividends for 6 April $taxYearMinusOne to 5 April $taxYear"
+    val captionExpected = s"Dividends for 6 April $taxYearEOY to 5 April $taxYear"
   }
 
   object IndividualExpectedWelsh extends SpecificExpectedResults {
@@ -114,7 +112,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
   object AllExpectedWelsh extends CommonExpectedResults {
     val continueText = "Yn eich blaen"
     val continueLink = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-companies"
-    val captionExpected = s"Difidendau ar gyfer 6 Ebrill $taxYearMinusOne i 5 Ebrill $taxYear"
+    val captionExpected = s"Difidendau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
   }
 
   object Selectors {
@@ -292,7 +290,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
       }
 
       "have the correct redirect URL" in {
-        result.headers(HeaderNames.LOCATION).head shouldBe "http://localhost:11111/update-and-submit-income-tax-return/2022/view"
+        result.headers(HeaderNames.LOCATION).head shouldBe s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view"
       }
     }
   }
@@ -368,7 +366,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
       }
 
       "have the correct redirect URL" in {
-        result.headers(HeaderNames.LOCATION).head shouldBe "http://localhost:11111/update-and-submit-income-tax-return/2022/view"
+        result.headers(HeaderNames.LOCATION).head shouldBe s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view"
       }
     }
 

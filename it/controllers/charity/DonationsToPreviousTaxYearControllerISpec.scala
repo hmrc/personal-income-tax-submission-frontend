@@ -33,8 +33,8 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper with Gif
 
   lazy val controller: DonationsToPreviousTaxYearController = app.injector.instanceOf[DonationsToPreviousTaxYearController]
 
-  def url(overrideYear: Int = year): String = s"$appUrl/$year/charity/donations-after-5-april-$overrideYear"
-  val urlWithSameYears = "/update-and-submit-income-tax-return/personal-income/2022/charity/donations-after-5-april-2022"
+  def url(overrideYear: Int = taxYear): String = s"$appUrl/$taxYear/charity/donations-after-5-april-$overrideYear"
+  val urlWithSameYears = s"/update-and-submit-income-tax-return/personal-income/$taxYear/charity/donations-after-5-april-$taxYear"
 
   object Selectors {
     val paragraph1HintText = "#p1"
@@ -58,8 +58,8 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper with Gif
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
-    val expectedHeading = "Do you want to add any donations made after 5 April 2022 to this tax year?"
-    val expectedCaption = s"Donations to charity for 6 April 2021 to 5 April 2022"
+    val expectedHeading = s"Do you want to add any donations made after 5 April $taxYear to this tax year?"
+    val expectedCaption = s"Donations to charity for 6 April $taxYearEOY to 5 April $taxYear"
     val yesText = "Yes"
     val noText = "No"
     val button = "Continue"
@@ -67,8 +67,8 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper with Gif
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val expectedHeading = "A ydych am ychwanegu unrhyw roddion a wnaed ar ôl 5 Ebrill 2022 i’r flwyddyn dreth hon?"
-    val expectedCaption = s"Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
+    val expectedHeading = s"A ydych am ychwanegu unrhyw roddion a wnaed ar ôl 5 Ebrill $taxYear i’r flwyddyn dreth hon?"
+    val expectedCaption = s"Rhoddion i elusennau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val yesText = "Iawn"
     val noText = "Na"
     val button = "Yn eich blaen"
@@ -76,26 +76,26 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper with Gif
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
-    val errorText = "Select yes to add any of your donations made after 5 April 2022 to this tax year"
-    val expectedParagraph1: String = "If you made donations after 5 April 2022, you can add them to the 6 April 2021 to 5 April 2022 tax year."
+    val errorText = s"Select yes to add any of your donations made after 5 April $taxYear to this tax year"
+    val expectedParagraph1: String = s"If you made donations after 5 April $taxYear, you can add them to the 6 April $taxYearEOY to 5 April $taxYear tax year."
     val expectedParagraph2: String = "You might want to do this if you want tax relief sooner."
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
-    val errorText = "Select yes to add any of your client’s donations made after 5 April 2022 to this tax year"
-    val expectedParagraph1: String = "If your client made donations after 5 April 2022, you can add them to the 6 April 2021 to 5 April 2022 tax year."
+    val errorText = s"Select yes to add any of your client’s donations made after 5 April $taxYear to this tax year"
+    val expectedParagraph1: String = s"If your client made donations after 5 April $taxYear, you can add them to the 6 April $taxYearEOY to 5 April $taxYear tax year."
     val expectedParagraph2: String = "You might want to do this if your client wants tax relief sooner."
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val errorText = "Dewiswch ‘Iawn’ os ydych am ychwanegu unrhyw roddion a wnaed ar ôl 5 Ebrill 2022 i’r flwyddyn dreth hon"
-    val expectedParagraph1: String = "Os gwnaethoch roddion ar ôl 5 Ebrill 2022, gallwch eu hychwanegu at flwyddyn dreth 6 Ebrill 2021 i 5 Ebrill 2022."
+    val errorText = s"Dewiswch ‘Iawn’ os ydych am ychwanegu unrhyw roddion a wnaed ar ôl 5 Ebrill $taxYear i’r flwyddyn dreth hon"
+    val expectedParagraph1: String = s"Os gwnaethoch roddion ar ôl 5 Ebrill $taxYear, gallwch eu hychwanegu at flwyddyn dreth 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear."
     val expectedParagraph2: String = "Mae’n bosibl y byddwch am wneud hyn os ydych am gael gostyngiad treth yn gynt."
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val errorText = "Dewiswch ‘Iawn’ os ydych am ychwanegu unrhyw roddion a wnaed gan eich cleient ar ôl 5 Ebrill 2022 i’r flwyddyn dreth hon"
-    val expectedParagraph1: String = "Os gwnaeth eich cleient roddion ar ôl 5 Ebrill 2022, gallwch eu hychwanegu at flwyddyn dreth 6 Ebrill 2021 i 5 Ebrill 2022."
+    val errorText = s"Dewiswch ‘Iawn’ os ydych am ychwanegu unrhyw roddion a wnaed gan eich cleient ar ôl 5 Ebrill $taxYear i’r flwyddyn dreth hon"
+    val expectedParagraph1: String = s"Os gwnaeth eich cleient roddion ar ôl 5 Ebrill $taxYear, gallwch eu hychwanegu at flwyddyn dreth 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear."
     val expectedParagraph2: String = "Mae’n bosibl am wneud hyn os yw’ch cleient am gael gostyngiad treth yn gynt."
   }
 
@@ -130,7 +130,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper with Gif
         "redirect to a correct URL when years don't match up" which {
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
-            urlGet(url(year + 1), welsh = user.isWelsh, follow = false, headers =  playSessionCookie(user.isAgent))
+            urlGet(url(taxYear + 1), welsh = user.isWelsh, follow = false, headers =  playSessionCookie(user.isAgent))
           }
 
           "has an SEE_OTHER status" in {
@@ -200,7 +200,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper with Gif
         }
 
         "redirects to the overview page" in {
-          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(year)}"
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
         }
       }
     }
@@ -236,7 +236,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper with Gif
         }
 
         "have the correct redirect url" in {
-          result.headers("Location").head shouldBe controllers.charity.routes.LastTaxYearAmountController.show(year).url
+          result.headers("Location").head shouldBe controllers.charity.routes.LastTaxYearAmountController.show(taxYear).url
         }
       }
     }
@@ -256,7 +256,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper with Gif
         }
 
         "have the correct redirect url" in {
-          result.headers("Location").head shouldBe controllers.charity.routes.GiftAidLastTaxYearController.show(year).url
+          result.headers("Location").head shouldBe controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear).url
         }
       }
     }
@@ -272,7 +272,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper with Gif
         }
 
         "have the correct redirect url" in {
-          result.headers("Location").head shouldBe controllers.charity.routes.GiftAidDonationsController.show(year).url
+          result.headers("Location").head shouldBe controllers.charity.routes.GiftAidDonationsController.show(taxYear).url
         }
       }
     }
@@ -288,7 +288,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper with Gif
 
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
-            urlPost(url(year + 1), body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
+            urlPost(url(taxYear + 1), body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
           }
 
           "has an SEE_OTHER status" in {
@@ -302,7 +302,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper with Gif
 
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
-            urlPost(url(year), body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
+            urlPost(url(taxYear), body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
           }
 
           result.status shouldBe SEE_OTHER
@@ -314,7 +314,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper with Gif
 
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
-            urlPost(url(year), body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
+            urlPost(url(taxYear), body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
           }
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -351,7 +351,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper with Gif
         }
 
         "redirects to the donation to previous year amount page" in {
-          result.headers("Location").head shouldBe controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(year, year).url
+          result.headers("Location").head shouldBe controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(taxYear, taxYear).url
         }
 
         "addDonationToThisYear should be true" in {
@@ -377,7 +377,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper with Gif
         }
 
         "redirects to the check your answers page" in {
-          result.headers("Location").head shouldBe controllers.charity.routes.GiftAidCYAController.show(year).url
+          result.headers("Location").head shouldBe controllers.charity.routes.GiftAidCYAController.show(taxYear).url
         }
 
         "addDonationToLastYear should be false" in {
@@ -405,7 +405,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper with Gif
 
         "redirects to the donation of qualifying shares or securities page" in {
           result.headers("Location").head shouldBe
-            controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(year).url
+            controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(taxYear).url
         }
 
         "addDonationToLastYear should be false" in {
@@ -427,7 +427,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper with Gif
         }
 
         "redirects to the cya page" in {
-          result.headers("Location").head shouldBe cyaUrl(year)
+          result.headers("Location").head shouldBe cyaUrl(taxYear)
         }
       }
     }

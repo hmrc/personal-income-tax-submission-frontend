@@ -52,9 +52,9 @@ import views.html.authErrorPages.AgentAuthErrorPageView
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
 
-trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerPerSuite with WireMockHelper with BeforeAndAfterAll {
+trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerPerSuite with WireMockHelper
+  with BeforeAndAfterAll with TaxYearHelper {
 
-  val year = 2022
   val nino = "AA123456A"
   val mtditid = "1234567890"
   val sessionId = "sessionId-eb3158c2-0aff-4ce8-8d1b-f2208ace52fe"
@@ -133,7 +133,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   implicit val actorSystem: ActorSystem = ActorSystem()
 
   val startUrl = s"http://localhost:$port/update-and-submit-income-tax-return/personal-income"
-  val overviewUrl = "http://localhost:11111/update-and-submit-income-tax-return/2022/view"
+  val overviewUrl = s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view"
   val cyaUrl: Int => String = taxYear => s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
 
   implicit def wsClient: WSClient = app.injector.instanceOf[WSClient]
@@ -156,7 +156,8 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "microservice.services.income-tax-nrs-proxy.url" -> s"http://$wiremockHost:$wiremockPort",
     "microservice.services.sign-in.url" -> s"/auth-login-stub/gg-sign-in",
     "taxYearChangeResetsSession" -> false,
-    "useEncryption" -> true
+    "useEncryption" -> true,
+    "defaultTaxYear" -> taxYear
   )
 
   def invalidEncryptionConfig: Map[String, Any] = Map(
@@ -174,7 +175,8 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "microservice.services.sign-in.url" -> s"/auth-login-stub/gg-sign-in",
     "taxYearChangeResetsSession" -> false,
     "useEncryption" -> true,
-    "mongodb.encryption.key" -> "key"
+    "mongodb.encryption.key" -> "key",
+    "defaultTaxYear" -> taxYear
   )
 
   lazy val agentAuthErrorPage: AgentAuthErrorPageView = app.injector.instanceOf[AgentAuthErrorPageView]
@@ -292,7 +294,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
       Json.toJson(userData).toString(), "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
   }
 
-  def emptyUserDataStub(nino: String = nino, taxYear: Int = year): StubMapping = {
+  def emptyUserDataStub(nino: String = nino, taxYear: Int = taxYear): StubMapping = {
     userDataStub(IncomeSourcesModel(), nino, taxYear)
   }
 
@@ -300,21 +302,21 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "sessionId-1618a1e8-4979-41d8-a32e-5ffbe69fac81",
     "1234567890",
     "AA123456A",
-    2022,
+    taxYear,
     Some(completeDividendsCYAModel)
   )
   val CompletedInterestsUserData: InterestUserDataModel = InterestUserDataModel(
     "sessionId-1618a1e8-4979-41d8-a32e-5ffbe69fac81",
     "1234567890",
     "AA123456A",
-    2022,
+    taxYear,
     Some(completeInterestCYAModel)
   )
   val CompletedGiftAidUserData: GiftAidUserDataModel = GiftAidUserDataModel(
     "sessionId-1618a1e8-4979-41d8-a32e-5ffbe69fac81",
     "1234567890",
     "AA123456A",
-    2022,
+    taxYear,
     Some(completeGiftAidCYAModel)
   )
 }

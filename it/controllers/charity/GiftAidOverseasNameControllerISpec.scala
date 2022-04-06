@@ -35,7 +35,7 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
   val testModel: GiftAidSubmissionModel = GiftAidSubmissionModel(Some(GiftAidPaymentsModel(None, Some(List("dupe")), None, None, None, None)), None)
 
   def url(changeCharityId: Option[String] = None): String =
-    s"$appUrl/$year/charity/name-of-overseas-charity${if (changeCharityId.nonEmpty) s"?changeCharityId=${changeCharityId.get}" else ""}"
+    s"$appUrl/$taxYear/charity/name-of-overseas-charity${if (changeCharityId.nonEmpty) s"?changeCharityId=${changeCharityId.get}" else ""}"
 
   object Selectors {
     val captionSelector: String = ".govuk-caption-l"
@@ -64,7 +64,7 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
-    val expectedCaption: String = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val expectedCaption: String = s"Donations to charity for 6 April $taxYearEOY to 5 April $taxYear"
     val expectedInputName: String = "name"
     val expectedButtonText: String = "Continue"
     val serviceName = "Update and submit an Income Tax Return"
@@ -76,7 +76,7 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val expectedCaption: String = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
+    val expectedCaption: String = s"Rhoddion i elusennau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val expectedInputName: String = "name"
     val expectedButtonText: String = "Yn eich blaen"
     val serviceName = "Diweddaru a chyflwyno Ffurflen Dreth Incwm"
@@ -174,7 +174,7 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
 
       "redirect the user to the overseas donation amount page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOverseasAmountController.show(year)}"
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOverseasAmountController.show(taxYear)}"
       }
     }
 
@@ -191,7 +191,7 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
 
       "redirect the user to the overseas gift aid summary page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasGiftAidSummaryController.show(year)}"
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasGiftAidSummaryController.show(taxYear)}"
       }
     }
 
@@ -313,7 +313,7 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
 
       "redirect the user to the overview page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${appConfig.incomeTaxSubmissionOverviewUrl(year)}"
+        result.headers("Location").head shouldBe s"${appConfig.incomeTaxSubmissionOverviewUrl(taxYear)}"
       }
     }
 
@@ -322,7 +322,7 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
 
       "redirect the user to the 'overseas charity summary' page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasGiftAidSummaryController.show(year)}"
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasGiftAidSummaryController.show(taxYear)}"
       }
 
       "store the data" in {
@@ -341,7 +341,7 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
 
       "redirect the user to the 'overseas charity summary' page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasGiftAidSummaryController.show(year)}"
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasGiftAidSummaryController.show(taxYear)}"
       }
 
       "store the data" in {

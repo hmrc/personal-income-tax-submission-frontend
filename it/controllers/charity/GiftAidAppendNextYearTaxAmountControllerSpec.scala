@@ -26,7 +26,7 @@ import utils.CharityITHelper
 
 class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
-  val urlWithSameYears = "/update-and-submit-income-tax-return/personal-income/2022/charity/amount-after-5-april-2022-added-to-this-tax-year"
+  val urlWithSameYears = s"/update-and-submit-income-tax-return/personal-income/$taxYear/charity/amount-after-5-april-$taxYear-added-to-this-tax-year"
   val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = {
     Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
       UserScenario(isWelsh = false, isAgent = true, CommonExpectedEN, Some(ExpectedAgentEN)),
@@ -34,7 +34,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
-  def url: String = url(year, year)
+  def url: String = url(taxYear, taxYear)
 
   def url(taxYear: Int, someTaxYear: Int): String =
     s"http://localhost:$port/update-and-submit-income-tax-return/personal-income/$taxYear/charity/amount-after-5-april-$someTaxYear-added-to-this-tax-year"
@@ -65,7 +65,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
   object CommonExpectedEN extends CommonExpectedResults {
     val hintText: String = "For example, £193.52"
-    val expectedCaption: String = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val expectedCaption: String = s"Donations to charity for 6 April $taxYearEOY to 5 April $taxYear"
     val inputName: String = "amount"
     val button: String = "Continue"
     val error = "Error: "
@@ -73,45 +73,45 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
   object CommonExpectedCY extends CommonExpectedResults {
     val hintText: String = "Er enghraifft, £193.52"
-    val expectedCaption: String = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
+    val expectedCaption: String = s"Rhoddion i elusennau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val inputName: String = "amount"
     val button: String = "Yn eich blaen"
     val error = "Gwall: "
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
-    val heading: String = "How much of the donations you made after 5 April 2022 do you want to add to this tax year?"
-    val priorP1: String = "You told us you want to add £444 of the donations you made after 5 April 2022 to this tax year. Tell us if this has changed."
-    val cyaP1: String = "You told us you want to add £50 of the donations you made after 5 April 2022 to this tax year. Tell us if this has changed."
-    val tooLongError: String = "The amount of your donation made after 5 April 2022 you add to the last tax year must be less than £100,000,000,000"
-    val emptyFieldError: String = "Enter the amount of your donation made after 5 April 2022 you want to add to this tax year"
+    val heading: String = s"How much of the donations you made after 5 April $taxYear do you want to add to this tax year?"
+    val priorP1: String = s"You told us you want to add £444 of the donations you made after 5 April $taxYear to this tax year. Tell us if this has changed."
+    val cyaP1: String = s"You told us you want to add £50 of the donations you made after 5 April $taxYear to this tax year. Tell us if this has changed."
+    val tooLongError: String = s"The amount of your donation made after 5 April $taxYear you add to the last tax year must be less than £100,000,000,000"
+    val emptyFieldError: String = s"Enter the amount of your donation made after 5 April $taxYear you want to add to this tax year"
     val incorrectFormatError: String = "Enter the amount you want to add to this tax year in the correct format"
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
-    val heading: String = "How much of the donations your client made after 5 April 2022 do you want to add to this tax year?"
-    val priorP1: String = "You told us you want to add £444 of the donations your client made after 5 April 2022 to this tax year. Tell us if this has changed."
-    val cyaP1: String = "You told us you want to add £50 of the donations your client made after 5 April 2022 to this tax year. Tell us if this has changed."
-    val tooLongError: String = "The amount of your client’s donation made after 5 April 2022 you add to the last tax year must be less than £100,000,000,000"
-    val emptyFieldError: String = "Enter the amount of your client’s donation made after 5 April 2022 you want to add to this tax year"
+    val heading: String = s"How much of the donations your client made after 5 April $taxYear do you want to add to this tax year?"
+    val priorP1: String = s"You told us you want to add £444 of the donations your client made after 5 April $taxYear to this tax year. Tell us if this has changed."
+    val cyaP1: String = s"You told us you want to add £50 of the donations your client made after 5 April $taxYear to this tax year. Tell us if this has changed."
+    val tooLongError: String = s"The amount of your client’s donation made after 5 April $taxYear you add to the last tax year must be less than £100,000,000,000"
+    val emptyFieldError: String = s"Enter the amount of your client’s donation made after 5 April $taxYear you want to add to this tax year"
     val incorrectFormatError: String = "Enter the amount you want to add to this tax year in the correct format"
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val heading: String = "Faint o’r rhoddion a wnaethoch ar ôl 5 Ebrill 2022 ydych am eu hychwanegu at y flwyddyn dreth hon?"
-    val priorP1: String = "Gwnaethoch roi gwybod i ni eich bod am ychwanegu £444 o’r rhoddion a wnaethoch ar ôl 5 Ebrill 2022 at y flwyddyn dreth hon. Rhowch wybod i ni os yw hyn wedi newid."
-    val cyaP1: String = "Gwnaethoch roi gwybod i ni eich bod am ychwanegu £50 o’r rhoddion a wnaethoch ar ôl 5 Ebrill 2022 at y flwyddyn dreth hon. Rhowch wybod i ni os yw hyn wedi newid."
-    val tooLongError: String = "Mae’n rhaid i swm eich rhodd a wnaed ar ôl 5 Ebrill 2022 a ychwanegwch at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000"
-    val emptyFieldError: String = "Nodwch swm eich rhodd a wnaed ar ôl 5 Ebrill 2022 rydych am ei ychwanegu at y flwyddyn dreth hon"
+    val heading: String = s"Faint o’r rhoddion a wnaethoch ar ôl 5 Ebrill $taxYear ydych am eu hychwanegu at y flwyddyn dreth hon?"
+    val priorP1: String = s"Gwnaethoch roi gwybod i ni eich bod am ychwanegu £444 o’r rhoddion a wnaethoch ar ôl 5 Ebrill $taxYear at y flwyddyn dreth hon. Rhowch wybod i ni os yw hyn wedi newid."
+    val cyaP1: String = s"Gwnaethoch roi gwybod i ni eich bod am ychwanegu £50 o’r rhoddion a wnaethoch ar ôl 5 Ebrill $taxYear at y flwyddyn dreth hon. Rhowch wybod i ni os yw hyn wedi newid."
+    val tooLongError: String = s"Mae’n rhaid i swm eich rhodd a wnaed ar ôl 5 Ebrill $taxYear a ychwanegwch at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000"
+    val emptyFieldError: String = s"Nodwch swm eich rhodd a wnaed ar ôl 5 Ebrill $taxYear rydych am ei ychwanegu at y flwyddyn dreth hon"
     val incorrectFormatError: String = "Nodwch y swm rydych am ei ychwanegu at y flwyddyn dreth hon yn y fformat cywir"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val heading: String = "Faint o’r rhoddion a wnaeth eich cleient ar ôl 5 Ebrill 2022 ydych am eu hychwanegu at y flwyddyn dreth hon?"
-    val priorP1: String = "Gwnaethoch roi gwybod i ni eich bod am ychwanegu £444 o’r rhoddion a wnaeth eich cleient ar ôl 5 Ebrill 2022 at y flwyddyn dreth hon. Rhowch wybod i ni os yw hyn wedi newid."
-    val cyaP1: String = "Gwnaethoch roi gwybod i ni eich bod am ychwanegu £50 o’r rhoddion a wnaeth eich cleient ar ôl 5 Ebrill 2022 at y flwyddyn dreth hon. Rhowch wybod i ni os yw hyn wedi newid."
-    val tooLongError: String = "Mae’n rhaid i swm rhodd eich cleient a wnaed ar ôl 5 Ebrill 2022 a ychwanegwch at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000"
-    val emptyFieldError: String = "Nodwch swm rhodd eich cleient a wnaed ar ôl 5 Ebrill 2022 rydych am ei ychwanegu at y flwyddyn dreth hon"
+    val heading: String = s"Faint o’r rhoddion a wnaeth eich cleient ar ôl 5 Ebrill $taxYear ydych am eu hychwanegu at y flwyddyn dreth hon?"
+    val priorP1: String = s"Gwnaethoch roi gwybod i ni eich bod am ychwanegu £444 o’r rhoddion a wnaeth eich cleient ar ôl 5 Ebrill $taxYear at y flwyddyn dreth hon. Rhowch wybod i ni os yw hyn wedi newid."
+    val cyaP1: String = s"Gwnaethoch roi gwybod i ni eich bod am ychwanegu £50 o’r rhoddion a wnaeth eich cleient ar ôl 5 Ebrill $taxYear at y flwyddyn dreth hon. Rhowch wybod i ni os yw hyn wedi newid."
+    val tooLongError: String = s"Mae’n rhaid i swm rhodd eich cleient a wnaed ar ôl 5 Ebrill $taxYear a ychwanegwch at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000"
+    val emptyFieldError: String = s"Nodwch swm rhodd eich cleient a wnaed ar ôl 5 Ebrill $taxYear rydych am ei ychwanegu at y flwyddyn dreth hon"
     val incorrectFormatError: String = "Nodwch y swm rydych am ei ychwanegu at y flwyddyn dreth hon yn y fformat cywir"
   }
 
@@ -137,7 +137,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
       s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
         "redirect to a correct URL when years don't match up" which {
-          lazy val result = getResult(url(year, year + 1), requiredSessionData, None, user.isAgent, user.isWelsh)
+          lazy val result = getResult(url(taxYear, taxYear + 1), requiredSessionData, None, user.isAgent, user.isWelsh)
 
           "has an SEE_OTHER status" in {
             result.status shouldBe SEE_OTHER
@@ -250,7 +250,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
         }
 
         "has the correct redirect URL" in {
-          result.headers("Location").head shouldBe controllers.charity.routes.DonationsToPreviousTaxYearController.show(year, year).url
+          result.headers("Location").head shouldBe controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear).url
         }
       }
 
@@ -283,7 +283,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
         }
 
         "has a redirect location of the qualifying shares or securities yes/no page" in {
-          result.headers("Location").head shouldBe controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(year).url
+          result.headers("Location").head shouldBe controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(taxYear).url
         }
       }
     }
@@ -295,7 +295,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
       s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
         "redirect to a correct URL when years don't match up" which {
-          lazy val result = postResult(url(year, year + 1), requiredSessionData, None, validForm, user.isAgent, user.isWelsh)
+          lazy val result = postResult(url(taxYear, taxYear + 1), requiredSessionData, None, validForm, user.isAgent, user.isWelsh)
 
           "has an SEE_OTHER status" in {
             result.status shouldBe SEE_OTHER
@@ -378,7 +378,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
         }
 
         "redirects to the check your answers page" in {
-          result.headers("Location").head shouldBe controllers.charity.routes.GiftAidCYAController.show(year).url
+          result.headers("Location").head shouldBe controllers.charity.routes.GiftAidCYAController.show(taxYear).url
         }
 
         "addDonationToThisYearAmount should be 1234" in {
@@ -397,7 +397,7 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
         }
 
         "has a redirect location of the qualifying shares or securities yes/no page" in {
-          result.headers("Location").head shouldBe controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(year).url
+          result.headers("Location").head shouldBe controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(taxYear).url
         }
 
         "addDonationToThisYearAmount should be 1234" in {

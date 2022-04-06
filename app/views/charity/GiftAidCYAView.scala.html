@@ -43,7 +43,7 @@
         Some(summaryListRow(
             HtmlContent(messages(textKey, args: _*)),
             HtmlContent(realValue),
-            actions = Seq((changeLink, messages("common.change"), Some(messages(constructedHiddenKey))))
+            actions = Seq((changeLink, messages("common.change"), Some(messages(constructedHiddenKey, args: _*))))
         ))
     } else {
         None

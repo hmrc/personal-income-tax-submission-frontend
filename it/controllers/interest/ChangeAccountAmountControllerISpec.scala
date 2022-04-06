@@ -27,13 +27,9 @@ import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
 
 class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelpers with InterestDatabaseHelper{
 
-  val taxYear: Int = 2022
-
   val amount: BigDecimal = 25
   val differentAmount: BigDecimal = 30
   val accountName: String = "HSBC"
-
-  val taxYearMinusOne: Int = taxYear - 1
 
   def url(newId: String, accountType: String): String = s"$appUrl/$taxYear/interest/change-$accountType-uk-interest?accountId=$newId"
 
@@ -91,13 +87,13 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
-    val expectedCaption = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
+    val expectedCaption = s"Interest for 6 April $taxYearEOY to 5 April $taxYear"
     val expectedHintText = "For example, £193.52"
     val continueText = "Continue"
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val expectedCaption = s"Llog ar gyfer 6 Ebrill $taxYearMinusOne i 5 Ebrill $taxYear"
+    val expectedCaption = s"Llog ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val expectedHintText = "Er enghraifft, £193.52"
     val continueText = "Yn eich blaen"
   }
@@ -330,7 +326,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
                 wireMockServer.resetAll()
 
                 result.status shouldBe SEE_OTHER
-                result.headers("Location").head.contains("/update-and-submit-income-tax-return/2022/view") shouldBe true
+                result.headers("Location").head.contains(s"/update-and-submit-income-tax-return/$taxYear/view") shouldBe true
               }
             }
         }
@@ -359,7 +355,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
                 "returns a SEE OTHER" in {
                   result.status shouldBe SEE_OTHER
-                  result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/2022/" +
+                  result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/$taxYear/" +
                     s"interest/accounts-with-${if (testCase._2) "untaxed" else "taxed"}-uk-interest"
                 }
               }
@@ -428,7 +424,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
               s"return a SEE OTHER status" in {
                 result.status shouldBe SEE_OTHER
-                result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/2022/" +
+                result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/$taxYear/" +
                   s"interest/accounts-with-${if (testCase._3) "untaxed" else "taxed"}-uk-interest"
                 findInterestDb shouldBe Some(InterestCYAModel(
                   Some(true),Some(true),Seq(
@@ -458,7 +454,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
               s"return a SEE OTHER status" in {
                 result.status shouldBe SEE_OTHER
-                result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/2022/" +
+                result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/$taxYear/" +
                   s"interest/accounts-with-${if (testCase._3) "untaxed" else "taxed"}-uk-interest"
                 findInterestDb shouldBe Some(InterestCYAModel(
                   Some(true),Some(true),Seq(
@@ -543,7 +539,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
               s"return a SEE OTHER status to account summary page" in {
                 result.status shouldBe SEE_OTHER
-                result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/2022/" +
+                result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/$taxYear/" +
                   s"interest/accounts-with-${if (testCase._2) "untaxed" else "taxed"}-uk-interest"
               }
             }
@@ -568,7 +564,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
               s"return a SEE OTHER status to account summary page" in {
                 result.status shouldBe SEE_OTHER
-                result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/2022/" +
+                result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/$taxYear/" +
                   s"interest/accounts-with-${if (testCase) "untaxed" else "taxed"}-uk-interest"
               }
             }

@@ -72,8 +72,6 @@ class GiftAidSubmissionConnectorSpec extends IntegrationTest {
     Some(validGiftsModel)
   )
 
-  val taxYear = 2022
-
   val expectedHeaders = Seq(new HttpHeader("mtditid", mtditid))
 
   "GiftAidSubmissionConnectorSpec" should {

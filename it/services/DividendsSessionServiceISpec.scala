@@ -33,14 +33,14 @@ class DividendsSessionServiceISpec extends IntegrationTest{
 
   "create" should{
     "return false when failing to decrypt the model" in {
-      val result = await(dividendsSessionServiceInvalidEncryption.createSessionData(completeDividendsCYAModel, year)(false)(true))
+      val result = await(dividendsSessionServiceInvalidEncryption.createSessionData(completeDividendsCYAModel, taxYear)(false)(true))
       result shouldBe false
     }
     "return true when successful and false when adding a duplicate" in {
       await(dividendsUserDataRepository.collection.drop().toFuture())
       await(dividendsUserDataRepository.ensureIndexes)
-      val initialResult = await(dividendsSessionService.createSessionData(completeDividendsCYAModel, year)(false)(true))
-      val duplicateResult = await(dividendsSessionService.createSessionData(completeDividendsCYAModel, year)(false)(true))
+      val initialResult = await(dividendsSessionService.createSessionData(completeDividendsCYAModel, taxYear)(false)(true))
+      val duplicateResult = await(dividendsSessionService.createSessionData(completeDividendsCYAModel, taxYear)(false)(true))
       initialResult shouldBe true
       duplicateResult shouldBe false
     }
@@ -48,7 +48,7 @@ class DividendsSessionServiceISpec extends IntegrationTest{
 
   "update" should{
     "return false when failing to decrypt the model" in {
-      val result = await(dividendsSessionServiceInvalidEncryption.updateSessionData(completeDividendsCYAModel, year)(false)(true))
+      val result = await(dividendsSessionServiceInvalidEncryption.updateSessionData(completeDividendsCYAModel, taxYear)(false)(true))
       result shouldBe false
     }
   }

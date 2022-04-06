@@ -29,7 +29,6 @@ import utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHelpers with DividendsDatabaseHelper {
 
 
-  val taxYear: Int = 2022
   val amount: BigDecimal = 500
   val receivedOtherDividendsUrl = s"$appUrl/$taxYear/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
 
@@ -102,7 +101,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
     val youDoNotNeedText = "You do not need to tell us about amounts shown as 'equalisation' on your dividend voucher."
     val expectedErrorText = "Select yes if you got dividends from UK-based trusts or open-ended investment companies"
     val redirectTitle = "Check your income from dividends"
-    val redirectH1 = s"Check your income from dividends Dividends for 6 April ${taxYear - 1} to 5 April $taxYear"
+    val redirectH1 = s"Check your income from dividends Dividends for 6 April $taxYearEOY to 5 April $taxYear"
   }
 
   object AgentExpectedEnglish extends SpecificExpectedResults {
@@ -112,11 +111,11 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
     val youDoNotNeedText = "You do not need to tell us about amounts shown as 'equalisation' on your client’s dividend voucher."
     val expectedErrorText = "Select yes if your client got dividends from UK-based trusts or open-ended investment companies"
     val redirectTitle = "Check your client’s income from dividends"
-    val redirectH1 = s"Check your client’s income from dividends Dividends for 6 April ${taxYear - 1} to 5 April $taxYear"
+    val redirectH1 = s"Check your client’s income from dividends Dividends for 6 April $taxYearEOY to 5 April $taxYear"
   }
 
   object AllExpectedEnglish extends CommonExpectedResults {
-    val captionExpected = s"Dividends for 6 April ${taxYear - 1} to 5 April $taxYear"
+    val captionExpected = s"Dividends for 6 April $taxYearEOY to 5 April $taxYear"
     val youMustAlsoText = "You must also tell us about:"
     val authorisedBulletText = "authorised unit trusts"
     val investmentBulletText = "investment trusts"
@@ -141,7 +140,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
     val youDoNotNeedText = "Nid oes angen i chi roi gwybod i ni am symiau a ddangosir fel 'cyfartaliad' ar eich taleb ddifidend."
     val expectedErrorText = "Dewiswch ‘Iawn’ os cawsoch ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored"
     val redirectTitle = "Gwiriwch eich incwm o ddifidendau"
-    val redirectH1 = s"Gwiriwch eich incwm o ddifidendau Difidendau ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
+    val redirectH1 = s"Gwiriwch eich incwm o ddifidendau Difidendau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
   }
 
   object AgentExpectedWelsh extends SpecificExpectedResults {
@@ -151,11 +150,11 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
     val youDoNotNeedText = "Nid oes angen i chi roi gwybod i ni am symiau a ddangosir fel 'cyfartaliad' ar daleb ddifidend eich cleient."
     val expectedErrorText = "Dewiswch ‘Iawn’ os cafodd eich cleient ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored"
     val redirectTitle = "Gwiriwch incwm eich cleient o ddifidendau"
-    val redirectH1 = s"Gwiriwch incwm eich cleient o ddifidendau Difidendau ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
+    val redirectH1 = s"Gwiriwch incwm eich cleient o ddifidendau Difidendau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
   }
 
   object AllExpectedWelsh extends CommonExpectedResults {
-    val captionExpected = s"Difidendau ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
+    val captionExpected = s"Difidendau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val youMustAlsoText = "Mae’n rhaid i chi hefyd rhoi gwybod i ni am y canlynol:"
     val authorisedBulletText = "ymddiriedolaethau unedol awdurdodedig"
     val investmentBulletText = "ymddiriedolaethau buddsoddi"
@@ -244,7 +243,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
       s"has an $SEE_OTHER(303) status" in {
         result.status shouldBe SEE_OTHER
         result.header(HeaderNames.LOCATION) shouldBe
-          Some("/update-and-submit-income-tax-return/personal-income/2022/dividends/check-income-from-dividends")
+          Some(s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends")
       }
     }
 
@@ -343,7 +342,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
       }
 
       "have the correct redirect URL" in {
-        result.headers(HeaderNames.LOCATION).head shouldBe "http://localhost:11111/update-and-submit-income-tax-return/2022/view"
+        result.headers(HeaderNames.LOCATION).head shouldBe s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view"
       }
     }
 

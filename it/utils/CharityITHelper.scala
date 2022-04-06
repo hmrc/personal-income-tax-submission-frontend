@@ -30,7 +30,7 @@ trait CharityITHelper extends IntegrationTest with ViewHelpers with GiftAidDatab
 
     wireMockServer.resetAll()
 
-    if(priorData.isDefined) userDataStub(priorData.get, nino, year) else emptyUserDataStub()
+    if(priorData.isDefined) userDataStub(priorData.get, nino, taxYear) else emptyUserDataStub()
 
     dropGiftAidDB()
     if (cyaData.isDefined) insertCyaData(cyaData)
@@ -49,7 +49,7 @@ trait CharityITHelper extends IntegrationTest with ViewHelpers with GiftAidDatab
 
     wireMockServer.resetAll()
 
-    if(priorData.isDefined) userDataStub(priorData.get, nino, year) else emptyUserDataStub()
+    if(priorData.isDefined) userDataStub(priorData.get, nino, taxYear) else emptyUserDataStub()
 
     dropGiftAidDB()
     if (cyaData.isDefined) insertCyaData(cyaData)

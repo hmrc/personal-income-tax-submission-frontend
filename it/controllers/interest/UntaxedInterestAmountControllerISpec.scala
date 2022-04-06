@@ -32,7 +32,6 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
   val amount: BigDecimal = 25
   val firstAccountName: String = "HSBC"
   val secondAccountName: String = "Santander"
-  val taxYear: Int = 2022
   lazy val id: String = UUID.randomUUID().toString
 
   val charLimit: String = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras suscipit turpis sed blandit" +
@@ -77,7 +76,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
   object CommonExpectedEN extends CommonExpectedResults {
     val heading: String = "Add an account with untaxed UK interest"
-    val caption: String = "Interest for 6 April 2021 to 5 April 2022"
+    val caption: String = s"Interest for 6 April $taxYearEOY to 5 April $taxYear"
     val accountName: String = "What do you want to name this account?"
     val eachAccount = "Give each account a different name."
     val interestEarned: String = "Amount of untaxed UK interest"
@@ -95,7 +94,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
   object CommonExpectedCY extends CommonExpectedResults {
     val heading: String = "Ychwanegwch gyfrif sydd â llog y DU sydd heb ei drethu"
-    val caption: String = "Llog ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
+    val caption: String = s"Llog ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val accountName: String = "Beth yw’r enw rydych am roi i’r cyfrif hwn?"
     val eachAccount = "Rhowch enw gwahanol i bob cyfrif."
     val interestEarned: String = "Swm y llog y DU sydd heb ei drethu"
@@ -195,7 +194,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
           s"has an SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get should include(
-              "/update-and-submit-income-tax-return/personal-income/2022/interest/add-untaxed-uk-interest-account/")
+              s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/add-untaxed-uk-interest-account/")
           }
         }
 
@@ -216,7 +215,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
             s"has an SEE OTHER status" in {
               result.status shouldBe SEE_OTHER
               result.header("Location").get should include(
-                "/update-and-submit-income-tax-return/personal-income/2022/interest/change-untaxed-uk-interest?accountId=")
+                s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/change-untaxed-uk-interest?accountId=")
             }
           }
         }
@@ -236,7 +235,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
             s"has an SEE OTHER status" in {
               result.status shouldBe SEE_OTHER
               result.header("Location").get should include(
-                "http://localhost:11111/update-and-submit-income-tax-return/2022/view")
+                s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view")
             }
           }
         }
@@ -290,7 +289,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
           "return a SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get should include(
-              "/update-and-submit-income-tax-return/personal-income/2022/interest/accounts-with-untaxed-uk-interest")
+              s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/accounts-with-untaxed-uk-interest")
           }
         }
 
@@ -303,7 +302,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
           "return a 200(Ok) status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get should include(
-              "/update-and-submit-income-tax-return/personal-income/2022/interest/accounts-with-untaxed-uk-interest")
+              s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/accounts-with-untaxed-uk-interest")
           }
         }
 
@@ -429,7 +428,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
           s"return a SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get should include(
-              "http://localhost:11111/update-and-submit-income-tax-return/2022/view")
+              s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view")
           }
         }
 
@@ -451,7 +450,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
           s"return a SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get should include(
-              "/update-and-submit-income-tax-return/personal-income/2022/interest/accounts-with-untaxed-uk-interest")
+              s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/accounts-with-untaxed-uk-interest")
           }
         }
 
@@ -473,7 +472,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
           s"return a SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get should include(
-              "/update-and-submit-income-tax-return/personal-income/2022/interest/accounts-with-untaxed-uk-interest")
+              s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/accounts-with-untaxed-uk-interest")
 
             val data = findInterestDb
             data.head shouldBe InterestCYAModel(Some(true),None,List(
@@ -499,7 +498,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
           s"return a SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get should include(
-              "/update-and-submit-income-tax-return/personal-income/2022/interest/accounts-with-untaxed-uk-interest")
+              s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/accounts-with-untaxed-uk-interest")
 
             val data = findInterestDb
             data shouldBe Some(InterestCYAModel(Some(true),None,Seq(
@@ -524,7 +523,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
           s"return a SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get should include(
-              "/update-and-submit-income-tax-return/personal-income/2022/interest/accounts-with-untaxed-uk-interest")
+              s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/accounts-with-untaxed-uk-interest")
           }
         }
       }

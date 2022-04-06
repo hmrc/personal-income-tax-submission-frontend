@@ -27,15 +27,14 @@ import utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 
 class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with DividendsDatabaseHelper {
 
-  val taxYear = 2022
   val ukDividends: BigDecimal = 10
   val otherDividends: BigDecimal = 10.50
   val dividendsCheckYourAnswersUrl = s"$appUrl/$taxYear/dividends/check-income-from-dividends"
 
-  val changeUkDividendsHref = "/update-and-submit-income-tax-return/personal-income/2022/dividends/dividends-from-uk-companies"
-  val changeUkDividendsAmountHref = "/update-and-submit-income-tax-return/personal-income/2022/dividends/how-much-dividends-from-uk-companies"
-  val changeOtherDividendsHref = "/update-and-submit-income-tax-return/personal-income/2022/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
-  val changeOtherDividendsAmountHref: String = "/update-and-submit-income-tax-return/personal-income/2022/dividends" +
+  val changeUkDividendsHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/dividends-from-uk-companies"
+  val changeUkDividendsAmountHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-companies"
+  val changeOtherDividendsHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
+  val changeOtherDividendsAmountHref: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends" +
     "/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
 
 
@@ -114,12 +113,12 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
   }
 
   object AllExpectedEnglish extends CommonExpectedResults {
-    val captionExpected = s"Dividends for 6 April ${taxYear - 1} to 5 April $taxYear"
+    val captionExpected = s"Dividends for 6 April $taxYearEOY to 5 April $taxYear"
     val yesNoExpectedAnswer: Boolean => String = isYes => if (isYes) "Yes" else "No"
     val ukDividendsAmount = "£10"
     val otherDividendsAmount = "£10.50"
     val continueButtonText = "Save and continue"
-    val continueButtonLink = "/update-and-submit-income-tax-return/personal-income/2022/dividends/check-income-from-dividends"
+    val continueButtonLink = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends"
     val changeLinkExpected = "Change"
     val UkDividendsText = "Dividends from UK-based companies"
     val ukDividendsAmountText = "Value of dividends from UK-based companies"
@@ -150,12 +149,12 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
   }
 
   object AllExpectedWelsh extends CommonExpectedResults {
-    val captionExpected = s"Difidendau ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
+    val captionExpected = s"Difidendau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val yesNoExpectedAnswer: Boolean => String = isYes => if (isYes) "Iawn" else "Na"
     val ukDividendsAmount = "£10"
     val otherDividendsAmount = "£10.50"
     val continueButtonText = "Cadw ac yn eich blaen"
-    val continueButtonLink = "/update-and-submit-income-tax-return/personal-income/2022/dividends/check-income-from-dividends"
+    val continueButtonLink = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends"
     val changeLinkExpected = "Newid"
     val UkDividendsText = "Difidendau o gwmnïau yn y DU"
     val ukDividendsAmountText = "Swm difidendau o gwmnïau yn y DU"
@@ -374,7 +373,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           authoriseIndividual()
           dropDividendsDB()
           emptyUserDataStub()
-          stubGet("/update-and-submit-income-tax-return/2022/view", SEE_OTHER, "overview")
+          stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", SEE_OTHER, "overview")
           urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie())
         }
 
@@ -405,7 +404,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           }
 
           "has the correct title" in {
-            result.headers("Location").head shouldBe "/update-and-submit-income-tax-return/personal-income/2022/dividends/how-much-dividends-from-uk-companies"
+            result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-companies"
           }
         }
 
@@ -427,7 +426,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
           "has the correct title" in {
             result.headers("Location").head shouldBe
-              "/update-and-submit-income-tax-return/personal-income/2022/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
+              s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
           }
         }
       }
@@ -449,7 +448,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
         "has the correct title" in {
           result.headers("Location").head shouldBe
-            "/update-and-submit-income-tax-return/personal-income/2022/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
+            s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
         }
       }
 
@@ -471,7 +470,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
         "has the correct title" in {
           result.headers("Location").head shouldBe
-            "/update-and-submit-income-tax-return/personal-income/2022/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
+            s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
         }
       }
     }
@@ -500,7 +499,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           Some(DividendsCheckYourAnswersModel(
             Some(true), Some(1000.43), Some(true), Some(9983.21)
           )))
-        stubPut("/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=2022", NO_CONTENT, "")
+        stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "")
         urlPost(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie(), body = "")
       }
       s"has a status of 303" in {
@@ -509,7 +508,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
       "has the correct title" in {
         result.headers("Location").head shouldBe
-          "http://localhost:11111/update-and-submit-income-tax-return/2022/view"
+          s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view"
       }
     }
 
@@ -524,7 +523,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           Some(DividendsCheckYourAnswersModel(
             Some(true), Some(1000.43), Some(true), Some(9983.21)
           )))
-        stubPut("/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=2022", INTERNAL_SERVER_ERROR, "")
+        stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", INTERNAL_SERVER_ERROR, "")
         urlPost(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie(), body = "")
       }
 
@@ -543,7 +542,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           Some(DividendsCheckYourAnswersModel(
             Some(true), Some(1000.43), Some(true), Some(9983.21)
           )))
-        stubPut("/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=2022", SERVICE_UNAVAILABLE, "")
+        stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", SERVICE_UNAVAILABLE, "")
         urlPost(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie(), body = "")
       }
 

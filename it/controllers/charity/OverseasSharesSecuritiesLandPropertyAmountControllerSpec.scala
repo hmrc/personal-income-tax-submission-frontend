@@ -34,7 +34,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
     val inputLabel = "#p2"
   }
 
-  def url: String = s"$appUrl/$year/charity/value-of-shares-securities-land-or-property-to-overseas-charities"
+  def url: String = s"$appUrl/$taxYear/charity/value-of-shares-securities-land-or-property-to-overseas-charities"
 
   trait SpecificExpectedResults {
     val expectedPriorP1: String
@@ -57,7 +57,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
   object CommonExpectedEN extends CommonExpectedResults {
     val heading: String = "What is the value of qualifying shares, securities, land or property donated to overseas charities?"
     val hintText: String = "For example, £193.52"
-    val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val caption = s"Donations to charity for 6 April $taxYearEOY to 5 April $taxYear"
     val button = "Continue"
     val inputName = "amount"
     val inputLabel = "Total value, in pounds"
@@ -68,7 +68,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
   object CommonExpectedCY extends CommonExpectedResults {
     val heading: String = "Beth yw gwerth cyfranddaliadau cymwys, gwarantau, tir neu eiddo a roddwyd i elusennau tramor?"
     val hintText: String = "Er enghraifft, £193.52"
-    val caption = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
+    val caption = s"Rhoddion i elusennau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val button = "Yn eich blaen"
     val inputName = "amount"
     val inputLabel = "Cyfanswm y gwerth, mewn punnoedd"
@@ -230,7 +230,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
 
       "redirect to the SharesSecuritiesLandPropertyOverseas page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(year)}"
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(taxYear)}"
       }
     }
 
@@ -255,7 +255,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
 
       "redirect the user to the gift aid donations page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidDonationsController.show(year)}"
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidDonationsController.show(taxYear)}"
       }
     }
   }
@@ -363,7 +363,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
       "should redirect to the 'overseas SSLP charity name' page" in {
         result.status shouldBe SEE_OTHER
         result.headers("Location").head shouldBe
-          controllers.charity.routes.GiftAidOverseasSharesNameController.show(year, None).url
+          controllers.charity.routes.GiftAidOverseasSharesNameController.show(taxYear, None).url
       }
     }
 
@@ -373,7 +373,7 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
 
       "redirect the user to the 'check your answers' page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(year)}"
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
       }
     }
   }

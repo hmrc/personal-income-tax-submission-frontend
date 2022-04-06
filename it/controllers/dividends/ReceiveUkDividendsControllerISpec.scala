@@ -28,7 +28,6 @@ import utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 
 class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers with DividendsDatabaseHelper {
 
-  val taxYear: Int = 2022
   val amount: BigDecimal = 500
   val receiveUkDividendsUrl = s"$appUrl/$taxYear/dividends/dividends-from-uk-companies"
   val expectedErrorLink = "#value"
@@ -76,7 +75,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
   }
 
   object AllExpectedEnglish extends CommonExpectedResults {
-    val captionExpected = s"Dividends for 6 April ${taxYear - 1} to 5 April $taxYear"
+    val captionExpected = s"Dividends for 6 April $taxYearEOY to 5 April $taxYear"
     val yesNo: Boolean => String = isYes => if (isYes) "Yes" else "No"
     val continueText = "Continue"
     val continueLink = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/dividends-from-uk-companies"
@@ -100,7 +99,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
   }
 
   object AllExpectedWelsh extends CommonExpectedResults {
-    val captionExpected = s"Difidendau ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
+    val captionExpected = s"Difidendau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val yesNo: Boolean => String = isYes => if (isYes) "Iawn" else "Na"
     val continueText = "Yn eich blaen"
     val continueLink = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/dividends-from-uk-companies"

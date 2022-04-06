@@ -36,7 +36,6 @@ class IncomeTaxUserDataConnectorSpec extends IntegrationTest {
 
   lazy val connector: IncomeTaxUserDataConnector = app.injector.instanceOf[IncomeTaxUserDataConnector]
 
-  val taxYear = 2022
   val testUser: User[AnyContentAsEmpty.type] = User(mtditid, None, nino, "individual", sessionId)(FakeRequest())
 
   implicit override val headerCarrier: HeaderCarrier = HeaderCarrier().withExtraHeaders("mtditid" -> mtditid, "X-Session-ID" -> sessionId)
