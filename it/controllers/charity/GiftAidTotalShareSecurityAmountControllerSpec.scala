@@ -34,7 +34,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
     val inputLabel = "#p2"
   }
 
-  def url: String = s"$appUrl/$year/charity/value-of-shares-or-securities"
+  def url: String = s"$appUrl/$taxYear/charity/value-of-shares-or-securities"
 
   trait SpecificExpectedResults {
     val expectedPriorP1: String
@@ -56,7 +56,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
   object CommonExpectedEN extends CommonExpectedResults {
     val heading: String = "What is the total value of qualifying shares or securities donated to charity?"
     val hintText: String = "For example, £193.52"
-    val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val caption = s"Donations to charity for 6 April $taxYearEOY to 5 April $taxYear"
     val button = "Continue"
     val inputName = "amount"
     val inputLabel = "Total value, in pounds"
@@ -65,7 +65,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
   object CommonExpectedCY extends CommonExpectedResults {
     val heading: String = "Beth yw cyfanswm gwerth cyfranddaliadau neu warantau cymwys a roddir i elusen?"
     val hintText: String = "Er enghraifft, £193.52"
-    val caption = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
+    val caption = s"Rhoddion i elusennau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val button = "Yn eich blaen"
     val inputName = "amount"
     val inputLabel = "Cyfanswm y gwerth, mewn punnoedd"
@@ -318,7 +318,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
 
         "redirect to the cya page" in {
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head shouldBe cyaUrl(year)
+          result.headers("Location").head shouldBe cyaUrl(taxYear)
         }
 
         "update the cya data" in {
@@ -332,7 +332,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
 
         "redirect to the 'land or property donation' page" in {
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head shouldBe controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(year).url
+          result.headers("Location").head shouldBe controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(taxYear).url
         }
 
         "update the cya data" in {

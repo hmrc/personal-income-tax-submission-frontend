@@ -32,8 +32,6 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
   val yesNoFormYes: Map[String, String] = Map(YesNoForm.yesNo -> YesNoForm.yes)
   val yesNoFormEmpty: Map[String, String] = Map(YesNoForm.yesNo -> "")
 
-  val taxYear: Int = 2022
-  val taxYearMinusOne: Int = taxYear - 1
   val amount: BigDecimal = 25
 
   val untaxedUrl = s"$appUrl/$taxYear/interest/accounts-with-untaxed-uk-interest"
@@ -100,7 +98,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
     val taxedH1 = "Accounts with taxed UK interest"
     val untaxedTitle = "Accounts with untaxed UK interest"
     val taxedTitle = "Accounts with taxed UK interest"
-    val captionText = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
+    val captionText = s"Interest for 6 April $taxYearEOY to 5 April $taxYear"
     val changeText = "Change"
     val removeText = "Remove"
     val addAnotherAccountText = "Add another account"
@@ -109,8 +107,8 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
     val doYouNeedText = "Do you need to add another account?"
     val yesText = "Yes"
     val noText = "No"
-    val removeAccountHiddenText = (account: String) => s"$removeText $account account"
-    val changeAccountHiddenText = (account: String) => s"$changeText $account account details"
+    val removeAccountHiddenText: String => String = (account: String) => s"$removeText $account account"
+    val changeAccountHiddenText: String => String = (account: String) => s"$changeText $account account details"
     val expectedErrorText = "Select yes to add another account"
   }
 
@@ -125,7 +123,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
     val taxedH1 = "Cyfrifon gyda llog y DU a drethwyd"
     val untaxedTitle = "Cyfrifon sydd â llog y DU sydd heb ei drethu"
     val taxedTitle = "Cyfrifon gyda llog y DU a drethwyd"
-    val captionText = s"Llog ar gyfer 6 Ebrill $taxYearMinusOne i 5 Ebrill $taxYear"
+    val captionText = s"Llog ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val changeText = "Newid"
     val removeText = "Tynnu"
     val addAnotherAccountText = "Ychwanegwch gyfrif arall"
@@ -134,8 +132,8 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
     val doYouNeedText = "A oes angen i chi ychwanegu cyfrif arall?"
     val yesText = "Iawn"
     val noText = "Na"
-    val removeAccountHiddenText = (account: String) => s"$removeText $account cyfrif"
-    val changeAccountHiddenText = (account: String) => s"$changeText $account manylion y cyfrif"
+    val removeAccountHiddenText: String => String = (account: String) => s"$removeText $account cyfrif"
+    val changeAccountHiddenText: String => String = (account: String) => s"$changeText $account manylion y cyfrif"
     val expectedErrorText = "Dewiswch ‘Iawn’ er mwyn ychwanegu cyfrif arall"
   }
 
@@ -329,7 +327,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           }
 
           result.status shouldBe SEE_OTHER
-          result.header("Location") shouldBe Some("http://localhost:11111/update-and-submit-income-tax-return/2022/view")
+          result.header("Location") shouldBe Some(s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view")
         }
       }
 
@@ -348,7 +346,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           }
 
           result.status shouldBe SEE_OTHER
-          result.header("Location") shouldBe Some("/update-and-submit-income-tax-return/personal-income/2022/interest/untaxed-uk-interest")
+          result.header("Location") shouldBe Some(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/untaxed-uk-interest")
         }
       }
     }
@@ -508,7 +506,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           }
 
           result.status shouldBe SEE_OTHER
-          result.header("Location") shouldBe Some("http://localhost:11111/update-and-submit-income-tax-return/2022/view")
+          result.header("Location") shouldBe Some(s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view")
         }
       }
 
@@ -527,7 +525,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           }
 
           result.status shouldBe SEE_OTHER
-          result.header("Location") shouldBe Some("/update-and-submit-income-tax-return/personal-income/2022/interest/taxed-uk-interest")
+          result.header("Location") shouldBe Some(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/taxed-uk-interest")
         }
       }
 
@@ -552,7 +550,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           }
 
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head.contains("/update-and-submit-income-tax-return/personal-income/2022/interest/check-interest") shouldBe true
+          result.headers("Location").head.contains(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/check-interest") shouldBe true
         }
 
         "redirect to the  page when accounts are missing" in {
@@ -568,7 +566,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           }
 
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head shouldBe "/update-and-submit-income-tax-return/personal-income/2022/interest/untaxed-uk-interest"
+          result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/untaxed-uk-interest"
         }
 
         "redirect to the overview page" when {
@@ -584,7 +582,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
             }
 
             result.status shouldBe SEE_OTHER
-            result.header("Location") shouldBe Some("http://localhost:11111/update-and-submit-income-tax-return/2022/view")
+            result.header("Location") shouldBe Some(s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view")
           }
         }
 
@@ -605,7 +603,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           }
 
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head.contains("/update-and-submit-income-tax-return/personal-income/2022/interest/taxed-uk-interest") shouldBe true
+          result.headers("Location").head.contains(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/taxed-uk-interest") shouldBe true
         }
       }
 
@@ -625,7 +623,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
 
           result.status shouldBe SEE_OTHER
           result.headers("Location").head should include(
-            "/update-and-submit-income-tax-return/personal-income/2022/interest/which-account-did-you-get-untaxed-interest-from")
+            s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/which-account-did-you-get-untaxed-interest-from")
         }
       }
 
@@ -715,7 +713,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
             }
 
             result.status shouldBe SEE_OTHER
-            result.headers("Location").head.contains("/update-and-submit-income-tax-return/personal-income/2022/interest/check-interest") shouldBe true
+            result.headers("Location").head.contains(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/check-interest") shouldBe true
           }
         }
       }
@@ -734,7 +732,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
         }
 
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe "/update-and-submit-income-tax-return/personal-income/2022/interest/taxed-uk-interest"
+        result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/taxed-uk-interest"
       }
 
       "redirect to the overview page" when {
@@ -749,7 +747,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           }
 
           result.status shouldBe SEE_OTHER
-          result.header("Location") shouldBe Some("http://localhost:11111/update-and-submit-income-tax-return/2022/view")
+          result.header("Location") shouldBe Some(s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view")
         }
       }
 
@@ -769,7 +767,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
 
           result.status shouldBe SEE_OTHER
           result.headers("Location").head should include(
-            "/update-and-submit-income-tax-return/personal-income/2022/interest/which-account-did-you-get-taxed-interest-from")
+            s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/which-account-did-you-get-taxed-interest-from")
         }
       }
 

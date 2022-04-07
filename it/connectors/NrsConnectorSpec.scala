@@ -45,12 +45,12 @@ class NrsConnectorSpec extends IntegrationTest {
     Some(true), Some(otherDividends)
   )
 
-  val oriorData = DividendsPriorSubmission(
+  val priorData: DividendsPriorSubmission = DividendsPriorSubmission(
     Some(ukDividends),
     Some(otherDividends)
   )
 
-  val decodedModel = DecodedDividendsSubmissionPayload(Some(dividendsCyaModel), Some(oriorData))
+  val decodedModel: DecodedDividendsSubmissionPayload = DecodedDividendsSubmissionPayload(Some(dividendsCyaModel), Some(priorData))
   val expectedHeaders = Seq(new HttpHeader("mtditid", mtditid))
 
   val url: String = s"/income-tax-nrs-proxy/$nino/itsa-personal-income-submission"

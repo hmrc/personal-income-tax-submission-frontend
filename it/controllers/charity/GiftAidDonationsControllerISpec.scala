@@ -27,7 +27,7 @@ import utils.CharityITHelper
 
 class GiftAidDonationsControllerISpec extends CharityITHelper {
 
-  def url: String = s"$appUrl/$year/charity/charity-donation-using-gift-aid"
+  def url: String = s"$appUrl/$taxYear/charity/charity-donation-using-gift-aid"
 
   object Selectors {
     val captionSelector = ".govuk-caption-l"
@@ -52,19 +52,19 @@ class GiftAidDonationsControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
-    val captionText = s"Donations to charity for 6 April ${year - 1} to 5 April $year"
+    val captionText = s"Donations to charity for 6 April $taxYearEOY to 5 April $taxYear"
     val yesText = "Yes"
     val noText = "No"
     val continueText = "Continue"
-    val continueLink = s"/update-and-submit-income-tax-return/personal-income/$year/charity/charity-donation-using-gift-aid"
+    val continueLink = s"/update-and-submit-income-tax-return/personal-income/$taxYear/charity/charity-donation-using-gift-aid"
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val captionText = s"Rhoddion i elusennau ar gyfer 6 Ebrill ${year - 1} i 5 Ebrill $year"
+    val captionText = s"Rhoddion i elusennau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val yesText = "Iawn"
     val noText = "Na"
     val continueText = "Yn eich blaen"
-    val continueLink = s"/update-and-submit-income-tax-return/personal-income/$year/charity/charity-donation-using-gift-aid"
+    val continueLink = s"/update-and-submit-income-tax-return/personal-income/$taxYear/charity/charity-donation-using-gift-aid"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -171,7 +171,7 @@ class GiftAidDonationsControllerISpec extends CharityITHelper {
 
       "redirect the user to the CYA page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(year)}"
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
       }
     }
 
@@ -216,7 +216,7 @@ class GiftAidDonationsControllerISpec extends CharityITHelper {
 
         "redirect the user to the CYA page" in {
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(year)}"
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
         }
 
         "update the cya data" in {
@@ -240,7 +240,7 @@ class GiftAidDonationsControllerISpec extends CharityITHelper {
 
         "redirect the user to the 'Add donations to this tax year' page" in {
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head shouldBe s"${controllers.charity.routes.DonationsToPreviousTaxYearController.show(year, year)}"
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear)}"
         }
 
         "update the cya data" in {
@@ -260,7 +260,7 @@ class GiftAidDonationsControllerISpec extends CharityITHelper {
 
       "redirect the user to the donated amount page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidDonatedAmountController.show(year)}"
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidDonatedAmountController.show(taxYear)}"
       }
 
       "update the cya data" in {

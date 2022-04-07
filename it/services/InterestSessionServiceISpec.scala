@@ -33,7 +33,7 @@ class InterestSessionServiceISpec extends IntegrationTest{
 
   "update" should{
     "return false when failing to decrypt the model" in {
-      val result = await(interestSessionServiceInvalidEncryption.updateSessionData(completeInterestCYAModel, year)(false)(true))
+      val result = await(interestSessionServiceInvalidEncryption.updateSessionData(completeInterestCYAModel, taxYear)(false)(true))
       result shouldBe false
     }
   }

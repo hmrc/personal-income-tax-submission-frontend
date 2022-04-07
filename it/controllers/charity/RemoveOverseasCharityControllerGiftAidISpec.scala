@@ -38,7 +38,7 @@ class RemoveOverseasCharityControllerGiftAidISpec extends CharityITHelper {
 
   private val charityNameModel = CharityNameModel("TestCharity")
 
-  def url: String = s"$appUrl/$year/charity/remove-overseas-charity-gift-aid/${charityNameModel.id}"
+  def url: String = s"$appUrl/$taxYear/charity/remove-overseas-charity-gift-aid/${charityNameModel.id}"
 
   trait CommonExpectedResults {
     val expectedTitle: String
@@ -57,7 +57,7 @@ class RemoveOverseasCharityControllerGiftAidISpec extends CharityITHelper {
     val expectedErrorTitle = "Select yes to remove this overseas charity"
     val expectedH1 = s"Are you sure you want to remove ${charityNameModel.name}?"
     val expectedContent = "This will remove all overseas charities."
-    val expectedCaption = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val expectedCaption = s"Donations to charity for 6 April $taxYearEOY to 5 April $taxYear"
     val noSelectionError = "Select yes to remove this overseas charity"
     val yesText = "Yes"
     val noText = "No"
@@ -69,7 +69,7 @@ class RemoveOverseasCharityControllerGiftAidISpec extends CharityITHelper {
     val expectedErrorTitle = "Dewiswch ‘Iawn’ i dynnu’r elusen o dramor hon"
     val expectedH1 = s"A ydych yn siŵr eich bod am dynnu ${charityNameModel.name}?"
     val expectedContent = "Bydd hyn yn tynnu pob elusen o dramor."
-    val expectedCaption = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
+    val expectedCaption = s"Rhoddion i elusennau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val noSelectionError = "Dewiswch ‘Iawn’ i dynnu’r elusen o dramor hon"
     val yesText = "Iawn"
     val noText = "Na"
@@ -158,7 +158,7 @@ class RemoveOverseasCharityControllerGiftAidISpec extends CharityITHelper {
 
           "redirect the user to the 'overseas charity name' page" in {
             result.status shouldBe SEE_OTHER
-            result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOverseasNameController.show(year, None)}"
+            result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOverseasNameController.show(taxYear, None)}"
           }
         }
 
@@ -168,7 +168,7 @@ class RemoveOverseasCharityControllerGiftAidISpec extends CharityITHelper {
 
           "redirect the user to the 'overseas charity summary' page" in {
             result.status shouldBe SEE_OTHER
-            result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasGiftAidSummaryController.show(year)}"
+            result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasGiftAidSummaryController.show(taxYear)}"
           }
         }
       }
@@ -206,7 +206,7 @@ class RemoveOverseasCharityControllerGiftAidISpec extends CharityITHelper {
 
           "redirect the user to the overview page" in {
             result.status shouldBe SEE_OTHER
-            result.headers("Location").head shouldBe s"${appConfig.incomeTaxSubmissionOverviewUrl(year)}"
+            result.headers("Location").head shouldBe s"${appConfig.incomeTaxSubmissionOverviewUrl(taxYear)}"
           }
         }
 
@@ -215,7 +215,7 @@ class RemoveOverseasCharityControllerGiftAidISpec extends CharityITHelper {
 
           "redirect the user to the 'Add donations to last tax year' page" in {
             result.status shouldBe SEE_OTHER
-            result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidLastTaxYearController.show(year)}"
+            result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear)}"
           }
           "update the cya data" in {
             findGiftAidDb shouldBe Some(requiredSessionModel.copy(
@@ -231,7 +231,7 @@ class RemoveOverseasCharityControllerGiftAidISpec extends CharityITHelper {
 
           "redirect the user to the 'overseas charity summary' page" in {
             result.status shouldBe SEE_OTHER
-            result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasGiftAidSummaryController.show(year)}"
+            result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasGiftAidSummaryController.show(taxYear)}"
           }
           "update the cya data" in {
             val giftAidCYAModel = findGiftAidDb.get
@@ -246,7 +246,7 @@ class RemoveOverseasCharityControllerGiftAidISpec extends CharityITHelper {
 
           "redirect the user to the 'overseas charity summary' page" in {
             result.status shouldBe SEE_OTHER
-            result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasGiftAidSummaryController.show(year)}"
+            result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasGiftAidSummaryController.show(taxYear)}"
           }
         }
       }

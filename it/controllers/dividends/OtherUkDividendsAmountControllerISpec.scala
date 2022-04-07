@@ -27,9 +27,6 @@ import utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 
 class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers with DividendsDatabaseHelper {
 
-
-  val taxYear: Int = 2022
-  val taxYearMinusOne: Int = taxYear - 1
   val amount: BigDecimal = 500
   val otherUkDividendsAmountUrl = s"$appUrl/$taxYear/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
 
@@ -85,7 +82,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
   object AllExpectedEnglish extends CommonExpectedResults {
     val continueText = "Continue"
     val expectedHintText = "For example, £193.52"
-    val captionExpected = s"Dividends for 6 April $taxYearMinusOne to 5 April $taxYear"
+    val captionExpected = s"Dividends for 6 April $taxYearEOY to 5 April $taxYear"
   }
 
   object IndividualExpectedWelsh extends SpecificExpectedResults {
@@ -114,7 +111,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
   object AllExpectedWelsh extends CommonExpectedResults {
     val continueText = "Yn eich blaen"
     val expectedHintText = "Er enghraifft, £193.52"
-    val captionExpected = s"Difidendau ar gyfer 6 Ebrill $taxYearMinusOne i 5 Ebrill $taxYear"
+    val captionExpected = s"Difidendau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
   }
 
   object Selectors {
@@ -350,7 +347,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
       }
 
       "have the correct redirect URL" in {
-        result.headers(HeaderNames.LOCATION).head shouldBe "http://localhost:11111/update-and-submit-income-tax-return/2022/view"
+        result.headers(HeaderNames.LOCATION).head shouldBe s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view"
       }
     }
 

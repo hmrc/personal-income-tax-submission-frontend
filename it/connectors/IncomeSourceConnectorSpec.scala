@@ -33,7 +33,6 @@ class IncomeSourceConnectorSpec extends IntegrationTest {
 
   implicit override val headerCarrier: HeaderCarrier = HeaderCarrier().withExtraHeaders("mtditid" -> mtditid, "X-Session-ID" -> sessionId)
 
-  private val taxYear: Int = 2022
   private val url: String = s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear"
   private val headers = Seq(new HttpHeader("X-Session-ID", sessionId), new HttpHeader("mtditid", mtditid))
   private val incomeSource = "some-income-source"

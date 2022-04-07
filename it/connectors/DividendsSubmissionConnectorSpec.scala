@@ -31,7 +31,7 @@ import scala.concurrent.duration.Duration
 
 class DividendsSubmissionConnectorSpec extends IntegrationTest{
 
-  lazy val connector = app.injector.instanceOf[DividendsSubmissionConnector]
+  lazy val connector: DividendsSubmissionConnector = app.injector.instanceOf[DividendsSubmissionConnector]
 
   lazy val httpClient: HttpClient = app.injector.instanceOf[HttpClient]
 
@@ -39,12 +39,10 @@ class DividendsSubmissionConnectorSpec extends IntegrationTest{
     override lazy val dividendsBaseUrl: String = s"http://$host:$wiremockPort/income-tax-dividends"
   }
 
-  val body =  DividendsSubmissionModel(
+  val body: DividendsSubmissionModel =  DividendsSubmissionModel(
     Some(10),
     Some(10)
   )
-
-  val taxYear = 2022
 
   val expectedHeaders = Seq(new HttpHeader("mtditid", mtditid))
 

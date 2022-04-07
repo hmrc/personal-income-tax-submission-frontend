@@ -27,7 +27,7 @@ import utils.CharityITHelper
 
 class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends CharityITHelper {
 
-  def url: String = s"$appUrl/$year/charity/donation-of-shares-securities-land-or-property-to-overseas-charities"
+  def url: String = s"$appUrl/$taxYear/charity/donation-of-shares-securities-land-or-property-to-overseas-charities"
 
   object Selectors {
     val captionSelector = ".govuk-caption-l"
@@ -62,7 +62,7 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Charity
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
-    val captionText = s"Donations to charity for 6 April ${year - 1} to 5 April $year"
+    val captionText = s"Donations to charity for 6 April $taxYearEOY to 5 April $taxYear"
     val yesText = "Yes"
     val noText = "No"
     val continueText = "Continue"
@@ -75,7 +75,7 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Charity
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val captionText = s"Rhoddion i elusennau ar gyfer 6 Ebrill ${year - 1} i 5 Ebrill $year"
+    val captionText = s"Rhoddion i elusennau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val yesText = "Iawn"
     val noText = "Na"
     val continueText = "Yn eich blaen"
@@ -219,7 +219,7 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Charity
 
       "redirects to the checkYourAnswers page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe cyaUrl(year)
+        result.headers("Location").head shouldBe cyaUrl(taxYear)
       }
     }
 
@@ -228,7 +228,7 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Charity
 
       "redirect to the LandOrProperty page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(year)}"
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(taxYear)}"
       }
     }
 
@@ -237,7 +237,7 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Charity
 
       "redirect to the LandOrPropertyAmount page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(year)}"
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(taxYear)}"
       }
     }
   }
@@ -283,7 +283,7 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Charity
 
       "redirect to the cya page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe cyaUrl(year)
+        result.headers("Location").head shouldBe cyaUrl(taxYear)
       }
 
       "update the cya data" in {
@@ -301,7 +301,7 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Charity
 
       "redirect to the 'overseas SSLP donations amount' page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe controllers.charity.routes.OverseasSharesSecuritiesLandPropertyAmountController.show(year).url
+        result.headers("Location").head shouldBe controllers.charity.routes.OverseasSharesSecuritiesLandPropertyAmountController.show(taxYear).url
       }
 
       "update the cya data" in {
@@ -333,7 +333,7 @@ class GiftAidSharesSecuritiesLandPropertyOverseasControllerISpec extends Charity
 
       "redirect to the cya page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe cyaUrl(year)
+        result.headers("Location").head shouldBe cyaUrl(taxYear)
       }
     }
   }

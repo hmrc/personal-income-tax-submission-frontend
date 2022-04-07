@@ -30,11 +30,8 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
   val testModel: GiftAidSubmissionModel =
     GiftAidSubmissionModel(Some(GiftAidPaymentsModel(None, Some(List("JaneDoe")), None, Some(150.00), None, None)),None)
 
-  def url: String = s"$appUrl/$year/charity/add-charity-donations-to-last-tax-year"
+  def url: String = s"$appUrl/$taxYear/charity/add-charity-donations-to-last-tax-year"
 
-  val currentTaxYear = 2022
-  val lastTaxYear = 2021
-  val yearBeforeLastTaxYear = 2020
 
   object Selectors {
     val continueSelector = "#continue"
@@ -58,40 +55,40 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
-    val expectedCaption: String = s"Donations to charity for 6 April $lastTaxYear to 5 April $currentTaxYear"
+    val expectedCaption: String = s"Donations to charity for 6 April $taxYearEOY to 5 April $taxYear"
     val yesText = "Yes"
     val noText = "No"
     val expectedContinue = "Continue"
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val expectedCaption: String = s"Rhoddion i elusennau ar gyfer 6 Ebrill $lastTaxYear i 5 Ebrill $currentTaxYear"
+    val expectedCaption: String = s"Rhoddion i elusennau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val yesText = "Iawn"
     val noText = "Na"
     val expectedContinue = "Yn eich blaen"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
-    val expectedTitle: String = s"Did you add any of your donations to the $yearBeforeLastTaxYear to $lastTaxYear tax year?"
-    val expectedH1: String = s"Did you add any of your donations to the $yearBeforeLastTaxYear to $lastTaxYear tax year?"
+    val expectedTitle: String = s"Did you add any of your donations to the ${taxYearEOY - 1} to $taxYearEOY tax year?"
+    val expectedH1: String = s"Did you add any of your donations to the ${taxYearEOY - 1} to $taxYearEOY tax year?"
     val expectedError: String = "Select yes to add any of your donations to the last tax year"
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
-    val expectedTitle: String = s"Did you add any of your client’s donations to the $yearBeforeLastTaxYear to $lastTaxYear tax year?"
-    val expectedH1: String = s"Did you add any of your client’s donations to the $yearBeforeLastTaxYear to $lastTaxYear tax year?"
+    val expectedTitle: String = s"Did you add any of your client’s donations to the ${taxYearEOY - 1} to $taxYearEOY tax year?"
+    val expectedH1: String = s"Did you add any of your client’s donations to the ${taxYearEOY - 1} to $taxYearEOY tax year?"
     val expectedError: String = "Select yes to add any of your client’s donations to the last tax year"
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val expectedTitle: String = s"A wnaethoch ychwanegu unrhyw rai o’ch cyfraniadau at flwyddyn dreth $yearBeforeLastTaxYear i $lastTaxYear?"
-    val expectedH1: String = s"A wnaethoch ychwanegu unrhyw rai o’ch cyfraniadau at flwyddyn dreth $yearBeforeLastTaxYear i $lastTaxYear?"
+    val expectedTitle: String = s"A wnaethoch ychwanegu unrhyw rai o’ch cyfraniadau at flwyddyn dreth ${taxYearEOY - 1} i $taxYearEOY?"
+    val expectedH1: String = s"A wnaethoch ychwanegu unrhyw rai o’ch cyfraniadau at flwyddyn dreth ${taxYearEOY - 1} i $taxYearEOY?"
     val expectedError: String = "Dewiswch ‘Iawn’ i ychwanegu unrhyw un o’ch rhoddion at y flwyddyn dreth ddiwethaf"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val expectedTitle: String = s"A wnaethoch ychwanegu unrhyw rai o gyfraniadau eich cleient at flwyddyn dreth $yearBeforeLastTaxYear i $lastTaxYear?"
-    val expectedH1: String = s"A wnaethoch ychwanegu unrhyw rai o gyfraniadau eich cleient at flwyddyn dreth $yearBeforeLastTaxYear i $lastTaxYear?"
+    val expectedTitle: String = s"A wnaethoch ychwanegu unrhyw rai o gyfraniadau eich cleient at flwyddyn dreth ${taxYearEOY - 1} i $taxYearEOY?"
+    val expectedH1: String = s"A wnaethoch ychwanegu unrhyw rai o gyfraniadau eich cleient at flwyddyn dreth ${taxYearEOY -1} i $taxYearEOY?"
     val expectedError: String = "Dewiswch ‘Iawn’ i ychwanegu unrhyw un o roddion eich cleient at y flwyddyn dreth ddiwethaf"
   }
 
@@ -102,7 +99,7 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
       UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY)))
   }
 
-  val requiredSessionModel = GiftAidCYAModel(donationsViaGiftAidAmount = Some(150.00), overseasDonationsViaGiftAid = Some(false))
+  val requiredSessionModel: GiftAidCYAModel = GiftAidCYAModel(donationsViaGiftAidAmount = Some(150.00), overseasDonationsViaGiftAid = Some(false))
   val requiredSessionData: Option[GiftAidCYAModel] = Some(requiredSessionModel)
 
   val requiredSessionModelPrefill: GiftAidCYAModel = GiftAidCYAModel(
@@ -111,7 +108,7 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
     addDonationToLastYear = Some(true)
   )
 
-  val requiredSessionDataPrefill = Some(requiredSessionModelPrefill)
+  val requiredSessionDataPrefill: Option[GiftAidCYAModel] = Some(requiredSessionModelPrefill)
 
   ".show" when {
 
@@ -187,7 +184,7 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
 
       "redirect to the cya page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(year)}"
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
       }
     }
 
@@ -203,7 +200,7 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
 
         "redirects to the gift aid overseas name page" in {
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head shouldBe controllers.charity.routes.GiftAidOverseasNameController.show(year, None).url
+          result.headers("Location").head shouldBe controllers.charity.routes.GiftAidOverseasNameController.show(taxYear, None).url
         }
       }
 
@@ -263,7 +260,7 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
 
       "redirect to the cya page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe cyaUrl(year)
+        result.headers("Location").head shouldBe cyaUrl(taxYear)
       }
     }
 
@@ -272,7 +269,7 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
 
       "redirect to the last tax year amount page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe controllers.charity.routes.LastTaxYearAmountController.show(year).url
+        result.headers("Location").head shouldBe controllers.charity.routes.LastTaxYearAmountController.show(taxYear).url
       }
 
       "updated the addDonationsToLastTaxYear field to true" in {
@@ -291,7 +288,7 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
 
         "redirect to the 'check your answers' page" in {
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head shouldBe cyaUrl(year)
+          result.headers("Location").head shouldBe cyaUrl(taxYear)
         }
 
         "updated the addDonationsToLastTaxYear field to false" in {
@@ -309,7 +306,7 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
 
         "redirect to the 'add donations to this tax year' page" in {
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head shouldBe controllers.charity.routes.DonationsToPreviousTaxYearController.show(year, year).url
+          result.headers("Location").head shouldBe controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear).url
         }
 
         "updated the addDonationsToLastTaxYear field to false" in {

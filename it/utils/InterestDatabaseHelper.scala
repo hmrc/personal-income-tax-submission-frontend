@@ -34,7 +34,7 @@ trait InterestDatabaseHelper { self: IntegrationTest =>
   //noinspection ScalaStyle
   def insertCyaData(
                      cya: Option[InterestCYAModel],
-                     taxYear: Int = 2022,
+                     taxYear: Int = taxYear,
                      overrideMtditid: Option[String] = None,
                      overrideNino: Option[String] = None
                    ): Boolean = {

@@ -33,8 +33,6 @@ class UserDataRepositoryISpec extends IntegrationTest with FutureAwaits with Def
 
   val dividendsInvalidRepo: DividendsUserDataRepository = appWithInvalidEncryptionKey.injector.instanceOf[DividendsUserDataRepository]
 
-  val taxYear = 2022
-
   private def count: Long = await(dividendsRepo.collection.countDocuments().toFuture())
 
   class EmptyDatabase {

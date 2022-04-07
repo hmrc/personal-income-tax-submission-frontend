@@ -42,8 +42,6 @@ class InterestSubmissionConnectorISpec extends IntegrationTest {
     InterestSubmissionModel(Some("ano'id"), "ano'name", None, Some(999.99))
   )
 
-  val taxYear = 2020
-
   val expectedHeaders = Seq(new HttpHeader("mtditid", mtditid))
 
   ".submit" should {

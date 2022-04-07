@@ -26,8 +26,6 @@ import play.api.libs.ws.WSResponse
 import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
 
 class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabaseHelper with ViewHelpers {
-  val taxYear = 2022
-  val taxYearMinusOne: Int = taxYear - 1
 
   object Selectors {
     val captionSelector = ".govuk-caption-l"
@@ -64,7 +62,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
-    val expectedCaption = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
+    val expectedCaption = s"Interest for 6 April $taxYearEOY to 5 April $taxYear"
     val forExampleText = "This could be interest from:"
     val trustFundsText = "trust funds"
     val companyBondsText = "company bonds"
@@ -77,7 +75,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val expectedCaption = s"Llog ar gyfer 6 Ebrill $taxYearMinusOne i 5 Ebrill $taxYear"
+    val expectedCaption = s"Llog ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val forExampleText = "Gallai hyn fod yn llog gan:"
     val trustFundsText = "cronfeydd ymddiriedolaeth"
     val companyBondsText = "bondiau cwmni"
@@ -204,7 +202,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
           "has an SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get should include(
-              "/update-and-submit-income-tax-return/personal-income/2022/interest/check-interest")
+              s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/check-interest")
           }
         }
 
@@ -220,7 +218,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
             s"has an SEE_OTHER($SEE_OTHER) status" in {
               result.status shouldBe SEE_OTHER
-              result.header("Location") shouldBe Some("http://localhost:11111/update-and-submit-income-tax-return/2022/view")
+              result.header("Location") shouldBe Some(s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view")
             }
           }
         }
@@ -274,7 +272,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
           s"returns an SEE_OTHER($SEE_OTHER) status" in {
             result.status shouldBe SEE_OTHER
-            result.header("Location").get shouldBe "/update-and-submit-income-tax-return/personal-income/2022/interest/check-interest"
+            result.header("Location").get shouldBe s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/check-interest"
           }
 
           "saves the record in the database" in {
@@ -299,7 +297,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
             s"returns an SEE_OTHER($SEE_OTHER) status" in {
               result.status shouldBe SEE_OTHER
-              result.header("Location").get.contains("/update-and-submit-income-tax-return/personal-income/2022/interest/which-account-did-you-get-taxed-interest-from") shouldBe true
+              result.header("Location").get.contains(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/which-account-did-you-get-taxed-interest-from") shouldBe true
             }
           }
         }
@@ -323,7 +321,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
           "has an SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get should include(
-              "/update-and-submit-income-tax-return/personal-income/2022/interest/check-interest")
+              s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/check-interest")
           }
         }
 
@@ -344,7 +342,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
             s"returns an SEE_OTHER($SEE_OTHER) status" in {
               result.status shouldBe SEE_OTHER
-              result.header("Location") shouldBe Some("/update-and-submit-income-tax-return/personal-income/2022/interest/check-interest")
+              result.header("Location") shouldBe Some(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/check-interest")
             }
           }
         }
@@ -394,7 +392,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
 
             s"has an SEE_OTHER($SEE_OTHER) status" in {
               result.status shouldBe SEE_OTHER
-              result.header("Location") shouldBe Some("http://localhost:11111/update-and-submit-income-tax-return/2022/view")
+              result.header("Location") shouldBe Some(s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view")
             }
           }
         }

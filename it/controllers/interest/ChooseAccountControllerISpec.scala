@@ -29,7 +29,6 @@ import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
 
 class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with InterestDatabaseHelper {
 
-  val taxYear: Int = 2022
   val UNTAXED: String = "untaxed"
   val TAXED: String = "taxed"
 
@@ -105,7 +104,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
     val nationwideAccount = "Nationwide"
     val barclayAccount = "Barclays"
     val addAccountText = "Add a new account"
-    val captionExpected = "Interest for 6 April 2021 to 5 April 2022"
+    val captionExpected = s"Interest for 6 April $taxYearEOY to 5 April $taxYear"
     val or = "or"
     val continueText = "Continue"
 
@@ -148,7 +147,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
     val nationwideAccount = "Nationwide"
     val barclayAccount = "Barclays"
     val addAccountText = "Ychwanegwch gyfrif newydd"
-    val captionExpected = "Llog ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
+    val captionExpected = s"Llog ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val or = "neu"
     val continueText = "Yn eich blaen"
 
@@ -599,7 +598,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
         "has a SEE_OTHER(303) status" in {
           result.status shouldBe SEE_OTHER
           result.header(HeaderNames.LOCATION).head should
-            include("/update-and-submit-income-tax-return/personal-income/2022/interest/add-taxed-uk-interest-account")
+            include(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/add-taxed-uk-interest-account")
         }
       }
 
@@ -618,7 +617,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
         "has a SEE_OTHER(303) status" in {
           result.status shouldBe SEE_OTHER
           result.header(HeaderNames.LOCATION).head should
-            include("/update-and-submit-income-tax-return/personal-income/2022/interest/add-untaxed-uk-interest-account")
+            include(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/add-untaxed-uk-interest-account")
         }
       }
 
@@ -637,7 +636,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
         "has a SEE_OTHER(303) status" in {
           result.status shouldBe SEE_OTHER
           result.header(HeaderNames.LOCATION).head should
-            include("/update-and-submit-income-tax-return/personal-income/2022/interest/change-taxed-uk-interest?accountId=session-id-1")
+            include(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/change-taxed-uk-interest?accountId=session-id-1")
         }
       }
 
@@ -657,7 +656,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
         "has a SEE_OTHER(303) status" in {
           result.status shouldBe SEE_OTHER
           result.header(HeaderNames.LOCATION).head should
-            include("/update-and-submit-income-tax-return/personal-income/2022/interest/change-untaxed-uk-interest?accountId=1")
+            include(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/change-untaxed-uk-interest?accountId=1")
         }
       }
 

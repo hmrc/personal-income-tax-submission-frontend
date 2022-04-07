@@ -36,7 +36,7 @@ trait GiftAidDatabaseHelper {
   //noinspection ScalaStyle
   def insertCyaData(
                      cya: Option[GiftAidCYAModel],
-                     taxYear: Int = 2022,
+                     taxYear: Int = taxYear,
                      overrideMtditid: Option[String] = None,
                      overrideNino: Option[String] = None
                    ): Boolean = {

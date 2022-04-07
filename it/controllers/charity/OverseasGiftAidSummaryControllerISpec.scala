@@ -33,7 +33,7 @@ class OverseasGiftAidSummaryControllerISpec extends CharityITHelper {
   val charity1 = "Pirate leg replacement fund"
   val charity2 = "Save the Rathalos foundation"
 
-  def url: String = s"$appUrl/$year/charity/overseas-charities-donated-to"
+  def url: String = s"$appUrl/$taxYear/charity/overseas-charities-donated-to"
 
   trait SpecificExpectedResults {
     val headingSingle: String
@@ -58,7 +58,7 @@ class OverseasGiftAidSummaryControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
-    val caption = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val caption = s"Donations to charity for 6 April $taxYearEOY to 5 April $taxYear"
     val question = "Do you need to add another overseas charity?"
     val yes = "Yes"
     val no = "No"
@@ -74,7 +74,7 @@ class OverseasGiftAidSummaryControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val caption = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
+    val caption = s"Rhoddion i elusennau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val question = "A oes angen i chi ychwanegu elusen arall o dramor?"
     val yes = "Iawn"
     val no = "Na"
@@ -168,7 +168,7 @@ class OverseasGiftAidSummaryControllerISpec extends CharityITHelper {
 
       "redirect the user to the overseas charity name page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOverseasNameController.show(year, None)}"
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOverseasNameController.show(taxYear, None)}"
       }
     }
   }
@@ -217,7 +217,7 @@ class OverseasGiftAidSummaryControllerISpec extends CharityITHelper {
 
       "redirect the user to the overseas charity name page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOverseasNameController.show(year, None)}"
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidOverseasNameController.show(taxYear, None)}"
       }
     }
 
@@ -229,7 +229,7 @@ class OverseasGiftAidSummaryControllerISpec extends CharityITHelper {
 
         "redirect the user to the 'check your answers' page" in {
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(year)}"
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
         }
       }
 
@@ -239,7 +239,7 @@ class OverseasGiftAidSummaryControllerISpec extends CharityITHelper {
 
         "redirect the user to the 'Add donation to last tax year' page" in {
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidLastTaxYearController.show(year)}"
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear)}"
         }
       }
     }

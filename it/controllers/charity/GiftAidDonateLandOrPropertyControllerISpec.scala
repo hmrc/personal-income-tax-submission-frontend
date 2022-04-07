@@ -27,7 +27,7 @@ import utils.CharityITHelper
 
 class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
 
-  def url: String = s"$appUrl/$year/charity/donation-of-land-or-property"
+  def url: String = s"$appUrl/$taxYear/charity/donation-of-land-or-property"
 
   object Selectors {
     val captionSelector = ".govuk-caption-l"
@@ -51,14 +51,14 @@ class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
-    val captionText = s"Donations to charity for 6 April ${year - 1} to 5 April $year"
+    val captionText = s"Donations to charity for 6 April $taxYearEOY to 5 April $taxYear"
     val yesText = "Yes"
     val noText = "No"
     val continueText = "Continue"
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val captionText = s"Rhoddion i elusennau ar gyfer 6 Ebrill ${year -1} i 5 Ebrill $year"
+    val captionText = s"Rhoddion i elusennau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val yesText = "Iawn"
     val noText = "Na"
     val continueText = "Yn eich blaen"
@@ -176,7 +176,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
 
       "redirect to the sharesOrSecurities page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(year)}"
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(taxYear)}"
       }
     }
 
@@ -186,7 +186,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
 
       "redirect to the sharesOrSecuritiesAmount page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(year)}"
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(taxYear)}"
       }
     }
 
@@ -203,7 +203,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
 
       "redirect to the checkYourAnswers page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(year)}"
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
       }
     }
   }
@@ -245,7 +245,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
       "redirect to the land and property amount" in {
         result.status shouldBe SEE_OTHER
         result.headers("Location").head shouldBe
-          controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(year).url
+          controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(taxYear).url
       }
 
       "update the cya data" in {
@@ -259,7 +259,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
 
         "redirect to the cya page" in {
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head shouldBe cyaUrl(year)
+          result.headers("Location").head shouldBe cyaUrl(taxYear)
         }
 
         "update the cya data" in {
@@ -276,7 +276,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
 
         "redirect to the cya page" in {
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head shouldBe cyaUrl(year)
+          result.headers("Location").head shouldBe cyaUrl(taxYear)
         }
       }
 
@@ -285,7 +285,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
 
         "redirect to the overseas shares,securities, land or property page" in {
           result.status shouldBe SEE_OTHER
-          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(year)}"
+          result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(taxYear)}"
         }
 
         "update the cya data" in {
@@ -316,7 +316,7 @@ class GiftAidDonateLandOrPropertyControllerISpec extends CharityITHelper {
 
       "redirect to the cya page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(year)}"
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
       }
     }
   }

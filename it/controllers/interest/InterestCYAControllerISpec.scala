@@ -26,8 +26,6 @@ import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
 
 class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHelper with ViewHelpers {
 
-  val taxYear: Int = 2022
-  val taxYearMinusOne: Int = taxYear - 1
   val amount: BigDecimal = 25
 
   val question2 = 2
@@ -88,7 +86,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
-    val captionExpected = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
+    val captionExpected = s"Interest for 6 April $taxYearEOY to 5 April $taxYear"
     val changeLinkExpected = "Change"
     val questionUntaxedInterestExpected = "Untaxed UK Interest"
     val questionUntaxedInterestDetailsExpected = "Untaxed UK interest accounts"
@@ -108,7 +106,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val captionExpected = s"Llog ar gyfer 6 Ebrill $taxYearMinusOne i 5 Ebrill $taxYear"
+    val captionExpected = s"Llog ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val changeLinkExpected = "Newid"
     val questionUntaxedInterestExpected = "Llog y DU sydd heb ei drethu"
     val questionUntaxedInterestDetailsExpected = "Cyfrifon llog y DU sydd heb ei drethu"
@@ -201,7 +199,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           s"then redirects and has an SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get shouldBe
-              "/update-and-submit-income-tax-return/personal-income/2022/interest/which-account-did-you-get-taxed-interest-from"
+              s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/which-account-did-you-get-taxed-interest-from"
           }
         }
 
@@ -257,7 +255,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           s"then redirects and has an SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get shouldBe
-              "/update-and-submit-income-tax-return/personal-income/2022/interest/taxed-uk-interest"
+              s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/taxed-uk-interest"
           }
         }
 
@@ -278,7 +276,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           s"then redirects and has an SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get shouldBe
-              "/update-and-submit-income-tax-return/personal-income/2022/interest/taxed-uk-interest"
+              s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/taxed-uk-interest"
           }
         }
 
@@ -298,7 +296,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           s"then redirects and has an SEE OTHER status" in {
             result.status shouldBe SEE_OTHER
             result.header("Location").get shouldBe
-              "/update-and-submit-income-tax-return/personal-income/2022/interest/which-account-did-you-get-untaxed-interest-from"
+              s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/which-account-did-you-get-untaxed-interest-from"
           }
         }
 
@@ -488,7 +486,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
 
           s"has an SEE_OTHER($SEE_OTHER) status" in {
             result.status shouldBe SEE_OTHER
-            result.header("Location").get shouldBe "http://localhost:11111/update-and-submit-income-tax-return/2022/view"
+            result.header("Location").get shouldBe s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view"
           }
         }
 

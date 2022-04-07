@@ -35,7 +35,7 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
   val testModel: GiftAidSubmissionModel = GiftAidSubmissionModel(None, Some(GiftsModel(None, Some(List("dupe")), None, None)))
 
   def url(changeCharityId: Option[String] = None): String =
-    s"$appUrl/$year/charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to" +
+    s"$appUrl/$taxYear/charity/name-of-overseas-charities-donated-shares-securities-land-or-property-to" +
       s"${if (changeCharityId.nonEmpty) s"?changeCharityId=${changeCharityId.get}" else ""}"
 
   object Selectors {
@@ -63,7 +63,7 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
-    val expectedCaption: String = "Donations to charity for 6 April 2021 to 5 April 2022"
+    val expectedCaption: String = s"Donations to charity for 6 April $taxYearEOY to 5 April $taxYear"
     val expectedInputName: String = "name"
     val expectedButtonText: String = "Continue"
     val expectedCharLimitError: String = "The name of the overseas charity must be 75 characters or fewer"
@@ -73,7 +73,7 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val expectedCaption: String = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
+    val expectedCaption: String = s"Rhoddion i elusennau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val expectedInputName: String = "name"
     val expectedButtonText: String = "Yn eich blaen"
     val expectedCharLimitError: String = "Mae’n rhaid i enw’r elusen o dramor fod yn 75 o gymeriadau neu’n llai"
@@ -169,7 +169,7 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
 
       "redirect to the OverseasSharesSecuritiesLandPropertyAmount page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasSharesSecuritiesLandPropertyAmountController.show(year)}"
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasSharesSecuritiesLandPropertyAmountController.show(taxYear)}"
       }
     }
 
@@ -187,7 +187,7 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
 
       "redirect to the OverseasSharesLandSummary page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasSharesLandSummaryController.show(year)}"
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasSharesLandSummaryController.show(taxYear)}"
       }
     }
 
@@ -319,7 +319,7 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
 
       "redirect the user to the 'overseas SSLP summary' page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasSharesLandSummaryController.show(year)}"
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasSharesLandSummaryController.show(taxYear)}"
       }
 
       "store the data" in {
@@ -339,7 +339,7 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
 
       "redirect the user to the 'overseas SSLP summary' page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasSharesLandSummaryController.show(year)}"
+        result.headers("Location").head shouldBe s"${controllers.charity.routes.OverseasSharesLandSummaryController.show(taxYear)}"
       }
 
       "store the data" in {

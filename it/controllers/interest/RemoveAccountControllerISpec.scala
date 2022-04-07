@@ -28,8 +28,6 @@ import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
 
 class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabaseHelper with ViewHelpers {
 
-  val taxYear: Int = 2022
-  val taxYearMinusOne: Int = taxYear - 1
   val amount: BigDecimal = 25
 
   object Selectors {
@@ -69,7 +67,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
     val expectedTitle = "Are you sure you want to remove this account?"
     val expectedErrorTitle = s"Error: $expectedTitle"
     val expectedH1 = "Are you sure you want to remove Monzo?"
-    val expectedCaption = s"Interest for 6 April $taxYearMinusOne to 5 April $taxYear"
+    val expectedCaption = s"Interest for 6 April $taxYearEOY to 5 April $taxYear"
     val thisWillTextUntaxed = "This will remove all untaxed UK interest."
     val thisWillTextTaxed = "This will remove all taxed UK interest."
     val yesText = "Yes"
@@ -83,7 +81,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
     val expectedTitle = "A ydych yn siŵr eich bod am ddileu’r cyfrif hwn?"
     val expectedErrorTitle = s"Gwall: $expectedTitle"
     val expectedH1 = "A ydych yn siŵr eich bod am dynnu Monzo?"
-    val expectedCaption = s"Llog ar gyfer 6 Ebrill $taxYearMinusOne i 5 Ebrill $taxYear"
+    val expectedCaption = s"Llog ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val thisWillTextUntaxed = "Bydd hyn yn dileu holl log y DU sydd heb ei drethu."
     val thisWillTextTaxed = "Bydd hyn yn dileu holl log y DU a drethwyd."
     val yesText = "Iawn"
@@ -106,11 +104,11 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
     )
   }
 
-  val untaxedInterestAccount = InterestAccountModel(Some("UntaxedId"), "Monzo", Some(9001.00))
-  val untaxedInterestAccount2 = InterestAccountModel(Some("UntaxedId2"), "Starling", Some(9001.00))
+  val untaxedInterestAccount: InterestAccountModel = InterestAccountModel(Some("UntaxedId"), "Monzo", Some(9001.00))
+  val untaxedInterestAccount2: InterestAccountModel = InterestAccountModel(Some("UntaxedId2"), "Starling", Some(9001.00))
 
-  val taxedInterestAccount = InterestAccountModel(Some("TaxedId"), "Monzo", None, Some(9001.00))
-  val taxedInterestAccount2 = InterestAccountModel(Some("TaxedId2"), "Starling", None, Some(9001.00))
+  val taxedInterestAccount: InterestAccountModel = InterestAccountModel(Some("TaxedId"), "Monzo", None, Some(9001.00))
+  val taxedInterestAccount2: InterestAccountModel = InterestAccountModel(Some("TaxedId2"), "Starling", None, Some(9001.00))
 
   ".show" when {
 
@@ -159,7 +157,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
               "The account is not the last account when they have prior data for untaxed" which {
                 lazy val result: WSResponse = {
                   dropInterestDB()
-                  userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel("firstAccountName", "Id", Some(123), Some(123)))), None), nino, taxYear)
+                  userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel("firstAccountName", "Id", Some(123),Some(123)))), None), nino, taxYear)
                   insertCyaData(Some(InterestCYAModel(
                     Some(true), Some(true), Seq(untaxedInterestAccount, taxedInterestAccount),
                   )))
@@ -257,7 +255,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             "redirects to the correct URL" in {
-              result.headers("Location").head shouldBe "http://localhost:11111/update-and-submit-income-tax-return/2022/view"
+              result.headers("Location").head shouldBe s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view"
             }
           }
 
@@ -277,7 +275,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             "redirects to the correct URL" in {
-              result.headers("Location").head shouldBe "/update-and-submit-income-tax-return/personal-income/2022/interest/untaxed-uk-interest"
+              result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/untaxed-uk-interest"
             }
           }
 
@@ -297,7 +295,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             "redirects to the correct URL" in {
-              result.headers("Location").head shouldBe "/update-and-submit-income-tax-return/personal-income/2022/interest/untaxed-uk-interest"
+              result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/untaxed-uk-interest"
             }
           }
           "there is no valid CYA account data in session for taxed" which {
@@ -316,7 +314,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             "redirects to the correct URL" in {
-              result.headers("Location").head shouldBe "/update-and-submit-income-tax-return/personal-income/2022/interest/taxed-uk-interest"
+              result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/taxed-uk-interest"
             }
           }
 
@@ -334,7 +332,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             "redirects to the correct URL" in {
-              result.headers("Location").head shouldBe "/update-and-submit-income-tax-return/personal-income/2022/interest/accounts-with-untaxed-uk-interest"
+              result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/accounts-with-untaxed-uk-interest"
             }
           }
 
@@ -352,7 +350,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             "redirects to the correct URL" in {
-              result.headers("Location").head shouldBe "/update-and-submit-income-tax-return/personal-income/2022/interest/accounts-with-taxed-uk-interest"
+              result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/accounts-with-taxed-uk-interest"
             }
           }
         }
@@ -451,7 +449,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             "redirects to the correct URL" in {
-              result.headers("Location").head shouldBe "http://localhost:11111/update-and-submit-income-tax-return/2022/view"
+              result.headers("Location").head shouldBe s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view"
             }
           }
         }
@@ -504,7 +502,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             result.status shouldBe SEE_OTHER
-            result.header("Location") shouldBe Some("/update-and-submit-income-tax-return/personal-income/2022/interest/check-interest")
+            result.header("Location") shouldBe Some(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/check-interest")
           }
           "there is CYA data in session and they have selected yes for taxed" in {
             lazy val result: WSResponse = {
@@ -525,7 +523,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             result.status shouldBe SEE_OTHER
-            result.header("Location") shouldBe Some("/update-and-submit-income-tax-return/personal-income/2022/interest/check-interest")
+            result.header("Location") shouldBe Some(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/check-interest")
           }
           "there is CYA data in session and they have selected yes for taxed when account has both amounts" in {
             lazy val result: WSResponse = {
@@ -546,7 +544,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             result.status shouldBe SEE_OTHER
-            result.header("Location") shouldBe Some("/update-and-submit-income-tax-return/personal-income/2022/interest/accounts-with-taxed-uk-interest")
+            result.header("Location") shouldBe Some(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/accounts-with-taxed-uk-interest")
           }
           "there is CYA data in session and they have selected yes for untaxed when account has both amounts" in {
             lazy val result: WSResponse = {
@@ -567,7 +565,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             result.status shouldBe SEE_OTHER
-            result.header("Location") shouldBe Some("/update-and-submit-income-tax-return/personal-income/2022/interest/accounts-with-untaxed-uk-interest")
+            result.header("Location") shouldBe Some(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/accounts-with-untaxed-uk-interest")
           }
         }
 
@@ -591,7 +589,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             result.status shouldBe SEE_OTHER
-            result.header("Location") shouldBe Some("/update-and-submit-income-tax-return/personal-income/2022/interest/accounts-with-untaxed-uk-interest")
+            result.header("Location") shouldBe Some(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/accounts-with-untaxed-uk-interest")
           }
           "there is no valid CYA data in session and they have selected yes" in {
             lazy val result: WSResponse = {
@@ -612,7 +610,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             result.status shouldBe SEE_OTHER
-            result.header("Location") shouldBe Some("/update-and-submit-income-tax-return/personal-income/2022/interest/untaxed-uk-interest")
+            result.header("Location") shouldBe Some(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/untaxed-uk-interest")
           }
         }
 
@@ -634,7 +632,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             result.status shouldBe SEE_OTHER
-            result.header("Location") shouldBe Some("http://localhost:11111/update-and-submit-income-tax-return/2022/view")
+            result.header("Location") shouldBe Some(s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view")
           }
         }
 
@@ -659,7 +657,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             "redirects to the correct URL" in {
-              result.headers("Location").head shouldBe "/update-and-submit-income-tax-return/personal-income/2022/interest/accounts-with-untaxed-uk-interest"
+              result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/accounts-with-untaxed-uk-interest"
             }
           }
         }
@@ -748,7 +746,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             }
 
             result.status shouldBe SEE_OTHER
-            result.header("Location") shouldBe Some("http://localhost:11111/update-and-submit-income-tax-return/2022/view")
+            result.header("Location") shouldBe Some(s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view")
           }
         }
 

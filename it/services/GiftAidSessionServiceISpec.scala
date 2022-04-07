@@ -33,14 +33,14 @@ class GiftAidSessionServiceISpec extends IntegrationTest{
 
   "create" should{
     "return false when failing to decrypt the model" in {
-      val result = await(giftAidSessionServiceInvalidEncryption.createSessionData(completeGiftAidCYAModel, year)(false)(true))
+      val result = await(giftAidSessionServiceInvalidEncryption.createSessionData(completeGiftAidCYAModel, taxYear)(false)(true))
       result shouldBe false
     }
     "return true when succesful and false when adding a duplicate" in {
       await(giftAidUserDataRepository.collection.drop().toFuture())
       await(giftAidUserDataRepository.ensureIndexes)
-      val initialResult = await(giftAidSessionService.createSessionData(completeGiftAidCYAModel, year)(false)(true))
-      val duplicateResult = await(giftAidSessionService.createSessionData(completeGiftAidCYAModel, year)(false)(true))
+      val initialResult = await(giftAidSessionService.createSessionData(completeGiftAidCYAModel, taxYear)(false)(true))
+      val duplicateResult = await(giftAidSessionService.createSessionData(completeGiftAidCYAModel, taxYear)(false)(true))
       initialResult shouldBe true
       duplicateResult shouldBe false
     }
@@ -48,7 +48,7 @@ class GiftAidSessionServiceISpec extends IntegrationTest{
 
   "update" should{
     "return false when failing to decrypt the model" in {
-      val result = await(giftAidSessionServiceInvalidEncryption.updateSessionData(completeGiftAidCYAModel, year)(false)(true))
+      val result = await(giftAidSessionServiceInvalidEncryption.updateSessionData(completeGiftAidCYAModel, taxYear)(false)(true))
       result shouldBe false
     }
   }
