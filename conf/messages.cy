@@ -289,6 +289,11 @@ interest.chooseAccount.error.noRadioSelected.taxed.individual = Dewiswch y cyfri
 interest.chooseAccount.error.noRadioSelected.untaxed.agent = Dewiswch y cyfrif a gafodd eich cleient log y DU sydd heb ei drethu
 interest.chooseAccount.error.noRadioSelected.untaxed.individual = Dewiswch y cyfrif a gawsoch log y DU sydd heb ei drethu
 
+interest.tailorGateway.title.individual = A gawsoch unrhyw log gan y DU?
+interest.tailorGateway.title.agent = A gafodd eich cleient unrhyw log gan y DU?
+interest.tailorGateway.noRadioSelected.individual = Dewiswch ‘Iawn’ os cawsoch log gan y DU
+interest.tailorGateway.noRadioSelected.agent = Dewiswch ‘Iawn’ os cafodd eich cleient log gan y DU
+
 # Gift Aid
 # ----------------------------------------------------------
 

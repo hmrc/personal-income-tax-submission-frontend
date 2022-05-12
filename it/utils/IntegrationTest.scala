@@ -168,7 +168,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "microservice.services.income-tax-nrs-proxy.url" -> s"http://$wiremockHost:$wiremockPort",
     "microservice.services.sign-in.url" -> s"/auth-login-stub/gg-sign-in"
   )
-  
+
   def config: Map[String, Any] = commonConfig ++ Map(
     "taxYearChangeResetsSession" -> false,
     "useEncryption" -> true,
@@ -190,7 +190,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     .in(Environment.simple(mode = Mode.Dev))
     .configure(config)
     .build
-  
+
   lazy val appWithTailoring: Application = new GuiceApplicationBuilder()
     .in(Environment.simple(mode = Mode.Dev))
     .configure(config ++ Map("feature-switch.tailoringEnabled" -> true))

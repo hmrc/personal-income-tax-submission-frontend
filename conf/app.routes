@@ -30,6 +30,9 @@ POST        /:taxYear/dividends/dividends-from-stocks-and-shares                
 
 # Interest routes
 
+GET         /:taxYear/interest/interest-from-UK                                                               controllers.interest.InterestGatewayController.show(taxYear: Int)
+POST        /:taxYear/interest/interest-from-UK                                                               controllers.interest.InterestGatewayController.submit(taxYear: Int)
+
 GET         /:taxYear/interest/untaxed-uk-interest                                                            controllers.interest.UntaxedInterestController.show(taxYear: Int)
 POST        /:taxYear/interest/untaxed-uk-interest                                                            controllers.interest.UntaxedInterestController.submit(taxYear: Int)
 

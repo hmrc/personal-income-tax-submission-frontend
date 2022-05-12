@@ -184,6 +184,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
 
         "has the untaxedUkInterest & taxedUkInterest question answered but with no accounts" which {
           val cyaModel = InterestCYAModel(
+            None,
             untaxedUkInterest = Some(false),
             taxedUkInterest = Some(true)
           )
@@ -241,6 +242,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
 
         "only has the untaxedUkInterest question answered with no" which {
           val cyaModel = InterestCYAModel(
+            None,
             untaxedUkInterest = Some(false)
           )
 
@@ -261,6 +263,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
 
         "only has the untaxedUkInterest questions answered" which {
           val cyaModel = InterestCYAModel(
+            None,
             untaxedUkInterest = Some(true),
             accounts = Seq(InterestAccountModel(Some("id"), "UntaxedBank1", Some(100.00)))
           )
@@ -282,6 +285,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
 
         "only has the untaxedUkInterest question answered" which {
           val cyaModel = InterestCYAModel(
+            None,
             untaxedUkInterest = Some(true)
           )
 
@@ -302,6 +306,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
 
         "renders a page with all the fields" which {
           val cyaModel = InterestCYAModel(
+            None,
             untaxedUkInterest = Some(true),
             taxedUkInterest = Some(true),
             accounts = Seq(
@@ -365,6 +370,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
 
           "the user has selected no to receiving taxed and untaxed interest" which {
             val cyaModel = InterestCYAModel(
+              None,
               untaxedUkInterest = Some(false),
               taxedUkInterest = Some(false)
             )
@@ -420,6 +426,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
             ))
 
             val cyaModel = InterestCYAModel(
+              None,
               untaxedUkInterest = Some(true),
               taxedUkInterest = Some(true),
               accounts = Seq(
@@ -521,7 +528,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
             dropInterestDB()
             emptyUserDataStub()
             insertCyaData(Some(InterestCYAModel(
-              Some(false), Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount)))
+              None, Some(false), Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount)))
             )), taxYear, Some(mtditid), None)
             authoriseIndividual()
             stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "")
@@ -551,6 +558,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
             dropInterestDB()
             emptyUserDataStub()
             insertCyaData(Some(InterestCYAModel(
+              None,
               Some(false),
               Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount)))
             )))
@@ -566,6 +574,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
             dropInterestDB()
             emptyUserDataStub()
             insertCyaData(Some(InterestCYAModel(
+              None,
               Some(false),
               Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount)))
             )))

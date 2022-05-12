@@ -194,6 +194,7 @@ class EncryptionService @Inject()(encryptionService: SecureGCMCipher, appConfig:
   private def encryptInterestCheckYourAnswersModel(interests: InterestCYAModel)
                                                    (implicit textAndKey: TextAndKey): EncryptedInterestCYAModel ={
     EncryptedInterestCYAModel(
+      interests.gateway.map(x => encryptionService.encrypt[Boolean](x)),
       interests.untaxedUkInterest.map(x => encryptionService.encrypt[Boolean](x)),
       interests.taxedUkInterest.map(x => encryptionService.encrypt[Boolean](x)),
       interests.accounts.map(encryptInterestAccountModel)
@@ -203,6 +204,7 @@ class EncryptionService @Inject()(encryptionService: SecureGCMCipher, appConfig:
   private def decryptInterestCheckYourAnswersModel(interests: EncryptedInterestCYAModel)
                                                    (implicit textAndKey: TextAndKey): InterestCYAModel ={
     InterestCYAModel(
+      interests.gateway.map(x => encryptionService.decrypt[Boolean](x.value, x.nonce)),
       interests.untaxedUkInterest.map(x => encryptionService.decrypt[Boolean](x.value, x.nonce)),
       interests.taxedUkInterest.map(x => encryptionService.decrypt[Boolean](x.value, x.nonce)),
       interests.accounts.map(decryptInterestAccountModel)

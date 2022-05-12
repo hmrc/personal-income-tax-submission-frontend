@@ -289,6 +289,11 @@ interest.chooseAccount.error.noRadioSelected.taxed.individual = Select the accou
 interest.chooseAccount.error.noRadioSelected.untaxed.agent = Select the account your client got untaxed UK interest from
 interest.chooseAccount.error.noRadioSelected.untaxed.individual = Select the account you got untaxed UK interest from
 
+interest.tailorGateway.title.individual = Did you get any interest from the UK?
+interest.tailorGateway.title.agent = Did your client get any interest from the UK?
+interest.tailorGateway.noRadioSelected.individual = Select yes if you got interest from the UK
+interest.tailorGateway.noRadioSelected.agent = Select yes if your client got interest from the UK
+
 # Gift Aid
 # ----------------------------------------------------------
 

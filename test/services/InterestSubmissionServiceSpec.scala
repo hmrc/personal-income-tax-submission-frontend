@@ -41,6 +41,7 @@ class InterestSubmissionServiceSpec extends UnitTest {
     "return a successful response" when {
 
       lazy val cyaModel = InterestCYAModel(
+        None,
         Some(true),
         Some(true),
         Seq(InterestAccountModel(Some("anId"), "dis account yo", Some(100.00), None, None),
@@ -75,7 +76,7 @@ class InterestSubmissionServiceSpec extends UnitTest {
                 Right(NO_CONTENT)
               )
 
-            await(service.submit(cyaModel.copy(Some(false), Some(false), Seq()), "AA123456A", taxYear, "1234567890"))
+            await(service.submit(cyaModel.copy(None, Some(false), Some(false), Seq()), "AA123456A", taxYear, "1234567890"))
           }
 
           result shouldBe Right(NO_CONTENT)
