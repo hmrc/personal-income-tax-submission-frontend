@@ -16,10 +16,11 @@
 
 package forms
 
+import filters.InputFilters
 import forms.validation.mappings.MappingUtil._
 import play.api.data.Form
 
-object AmountForm {
+object AmountForm extends InputFilters  {
 
   val amount = "amount"
 

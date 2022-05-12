@@ -16,13 +16,14 @@
 
 package forms.charity
 
+import filters.InputFilters
 import forms.validation.StringConstraints.{nonEmpty, validateChar, validateNotDuplicateGiftAidAccount, validateSize}
 import forms.validation.mappings.MappingUtil.trimmedText
 import forms.validation.utils.ConstraintUtil.ConstraintUtil
 import play.api.data.Form
 import play.api.data.validation.Constraint
 
-object GiftAidOverseasNameForm {
+object GiftAidOverseasNameForm extends InputFilters {
 
   val giftAidOverseasName: String = "name"
   val charLimit: Int = 75
