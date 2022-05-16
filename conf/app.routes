@@ -143,6 +143,9 @@ POST        /:taxYear/charity/remove-overseas-charity-shares-and-property/:chari
 GET         /:taxYear/charity/check-donations-to-charity                                                      controllers.charity.GiftAidCYAController.show(taxYear: Int)
 POST        /:taxYear/charity/check-donations-to-charity                                                      controllers.charity.GiftAidCYAController.submit(taxYear: Int)
 
+GET         /:taxYear/charity/charity-donations-to-charity                                                    controllers.charity.GiftAidGatewayController.show(taxYear: Int)
+POST        /:taxYear/charity/charity-donations-to-charity                                                    controllers.charity.GiftAidGatewayController.submit(taxYear: Int)
+
 # Error routes
 
 GET         /error/wrong-tax-year                                                                             controllers.TaxYearErrorController.show

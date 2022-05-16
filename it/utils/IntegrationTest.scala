@@ -77,6 +77,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
 
   val completeGiftAidCYAModel: GiftAidCYAModel = GiftAidCYAModel(
+    gateway = Some(true),
     donationsViaGiftAid = Some(true),
     donationsViaGiftAidAmount = Some(50.00),
     oneOffDonationsViaGiftAid = Some(true),

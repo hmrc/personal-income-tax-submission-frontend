@@ -20,6 +20,7 @@ import play.api.libs.json.{Json, OFormat}
 import utils.EncryptedValue
 
 case class GiftAidCYAModel(
+                            gateway: Option[Boolean] = None,
                             donationsViaGiftAid: Option[Boolean] = None,
                             donationsViaGiftAidAmount: Option[BigDecimal] = None,
                             oneOffDonationsViaGiftAid: Option[Boolean] = None,
@@ -50,6 +51,8 @@ case class GiftAidCYAModel(
 
   //noinspection ScalaStyle
   def isFinished: Boolean = {
+    val b_gateway = gateway.contains(true)
+
     val b_allRequiredYesNoFilledIn = hasAllRequiredAnswers
 
     val b_donationsViaGiftAid = falseOrTrueAndAmountPopulated(donationsViaGiftAid, donationsViaGiftAidAmount)
@@ -66,18 +69,23 @@ case class GiftAidCYAModel(
     val b_requiredNameFieldsExist = overseasDonationsViaGiftAid.forall(value => !value || (value && overseasCharityNames.nonEmpty)) &&
       overseasDonatedSharesSecuritiesLandOrProperty.forall(value => !value || (value && overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.nonEmpty))
 
-    Seq(
-      b_allRequiredYesNoFilledIn,
-      b_donationsViaGiftAid,
-      b_oneOffDonationsViaGiftAid,
-      b_overseasDonationsViaGiftAid,
-      b_addDonationToLastYear,
-      b_addDonationToThisYear,
-      b_donatedSharesOrSecurities,
-      b_donatedLandOrProperty,
-      b_overseasDonatedSharesSecurityLandOrProperty,
-      b_requiredNameFieldsExist
-    ).forall(_ == true)
+    if (b_gateway) {
+      Seq(
+        b_gateway,
+        b_allRequiredYesNoFilledIn,
+        b_donationsViaGiftAid,
+        b_oneOffDonationsViaGiftAid,
+        b_overseasDonationsViaGiftAid,
+        b_addDonationToLastYear,
+        b_addDonationToThisYear,
+        b_donatedSharesOrSecurities,
+        b_donatedLandOrProperty,
+        b_overseasDonatedSharesSecurityLandOrProperty,
+        b_requiredNameFieldsExist
+      ).forall(_ == true)
+    } else {
+      gateway.contains(false)
+    }
   }
 
   def hasAllRequiredAnswers: Boolean = addDonationToThisYear.nonEmpty &&
@@ -85,8 +93,8 @@ case class GiftAidCYAModel(
     donatedSharesOrSecuritiesCompleted
 
   def donatedSharesOrSecuritiesCompleted: Boolean = {
-      ((donatedSharesOrSecurities.contains(true) || donatedLandOrProperty.contains(true)) && overseasDonatedSharesSecuritiesLandOrProperty.nonEmpty) ||
-        (donatedSharesOrSecurities.contains(false) && donatedLandOrProperty.contains(false) && overseasDonatedSharesSecuritiesLandOrProperty.isEmpty)
+    ((donatedSharesOrSecurities.contains(true) || donatedLandOrProperty.contains(true)) && overseasDonatedSharesSecuritiesLandOrProperty.nonEmpty) ||
+      (donatedSharesOrSecurities.contains(false) && donatedLandOrProperty.contains(false) && overseasDonatedSharesSecuritiesLandOrProperty.isEmpty)
   }
 
   def donationsViaGiftAidCompleted: Boolean = {
@@ -112,6 +120,7 @@ object GiftAidCYAModel {
 }
 
 case class EncryptedGiftAidCYAModel(
+                                     gateway: Option[EncryptedValue] = None,
                                      donationsViaGiftAid: Option[EncryptedValue] = None,
                                      donationsViaGiftAidAmount: Option[EncryptedValue] = None,
                                      oneOffDonationsViaGiftAid: Option[EncryptedValue] = None,
@@ -130,7 +139,7 @@ case class EncryptedGiftAidCYAModel(
                                      overseasDonatedSharesSecuritiesLandOrProperty: Option[EncryptedValue] = None,
                                      overseasDonatedSharesSecuritiesLandOrPropertyAmount: Option[EncryptedValue] = None,
                                      overseasDonatedSharesSecuritiesLandOrPropertyCharityNames: Seq[EncryptedCharityNameModel] = Seq.empty
-                          )
+                                   )
 
 object EncryptedGiftAidCYAModel {
   implicit val formats: OFormat[EncryptedGiftAidCYAModel] = Json.format[EncryptedGiftAidCYAModel]

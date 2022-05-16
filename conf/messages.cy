@@ -542,3 +542,9 @@ charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.agent.hidde
 charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.amount.hidden = Newidiwch werth cyfranddaliadau, gwarantau, tir neu eiddo a roddir i elusennau tramor
 charity.shares-and-land-summary.title.multiple.individual.hidden = Newidiwch enwau elusennau tramor y gwnaethoch roi cyfranddaliadau, gwarantau, tir neu eiddo iddynt
 charity.shares-and-land-summary.title.multiple.agent.hidden = Newidiwch enwau elusennau tramor y rhoddodd eich cleient gyfranddaliadau, gwarantau, tir neu eiddo iddynt
+
+charity.gateway.heading.individual = A wnaethoch gyfrannu at elusen?
+charity.gateway.heading.agent = A wnaeth eich cleient gyfrannu at elusen?
+charity.gateway.hint = Mae hyn yn cynnwys rhoddion i elusennau tramor a rhoddion o dir, eiddo, cyfraniadau a gwarannau.
+charity.gateway.error.individual = Dewiswch ‘Iawn’ os gwnaethoch gyfrannu at elusen
+charity.gateway.error.agent = Dewiswch ‘Iawn’ os gwnaeth eich cleient gyfrannu at elusen

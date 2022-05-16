@@ -116,6 +116,7 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
   val amount: Int = 2000
 
   val requiredSessionModelPrefill: GiftAidCYAModel = GiftAidCYAModel(
+    gateway = Some(true),
     donatedSharesOrSecurities = Some(true),
     donatedSharesOrSecuritiesAmount = Some(amount)
   )

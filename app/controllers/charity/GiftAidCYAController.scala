@@ -130,6 +130,7 @@ class GiftAidCYAController @Inject()(
 
   private def generateCyaFromPrior(prior: GiftAidSubmissionModel): GiftAidCYAModel = {
     GiftAidCYAModel(
+      Some(true),
       Some(prior.giftAidPayments.exists(_.currentYear.nonEmpty)),
       prior.giftAidPayments.flatMap(_.currentYear),
       Some(prior.giftAidPayments.exists(_.oneOffCurrentYear.nonEmpty)),

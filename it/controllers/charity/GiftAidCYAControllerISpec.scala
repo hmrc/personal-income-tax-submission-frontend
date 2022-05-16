@@ -34,6 +34,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
   val url: String = s"$appUrl/$taxYear/charity/check-donations-to-charity"
 
   val cyaDataMax: GiftAidCYAModel = GiftAidCYAModel(
+    Some(true),
     Some(true), Some(100.00),
     Some(true), Some(100.00),
     Some(true), Some(100.00), Seq(CharityNameModel("Belgium Trust"), CharityNameModel("American Trust")),
@@ -44,6 +45,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
   )
 
   val cyaDataMin: GiftAidCYAModel = GiftAidCYAModel(
+    gateway = Some(false),
     donationsViaGiftAid =  Some(false),
     overseasCharityNames = Seq.empty,
     addDonationToThisYear = Some(false),
@@ -53,7 +55,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
   )
 
   val cyaDataIncomplete: GiftAidCYAModel = GiftAidCYAModel(
-    Some(false), None
+    Some(true), Some(false), None
   )
 
   override val priorDataMax: GiftAidSubmissionModel = GiftAidSubmissionModel(
