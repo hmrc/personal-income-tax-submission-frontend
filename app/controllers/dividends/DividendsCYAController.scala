@@ -52,7 +52,8 @@ class DividendsCYAController @Inject()(
 
   lazy val logger: Logger = Logger(this.getClass.getName)
   implicit val executionContext: ExecutionContext = mcc.executionContext
-
+  
+  //noinspection ScalaStyle
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
     lazy val futurePriorSubmissionData: Future[IncomeTaxUserDataResponse] = session.getPriorData(taxYear)
     session.getSessionData(taxYear).flatMap  {
@@ -71,6 +72,7 @@ class DividendsCYAController @Inject()(
             val otherDividendsValue: Option[BigDecimal] = priorityOrderOrNone(cyaData.otherUkDividendsAmount, priorData.otherUkDividends, otherDividendsExist)
 
             val cyaModel = DividendsCheckYourAnswersModel(
+              Some(ukDividendsExist || otherDividendsExist),
               Some(ukDividendsExist),
               ukDividendsValue,
               Some(otherDividendsExist),
@@ -78,10 +80,12 @@ class DividendsCYAController @Inject()(
             )
 
             Future.successful(Ok(dividendsCyaView(cyaModel, priorData, taxYear)))
-          case (Some(cyaData), Right(None)) if !cyaData.isFinished => Future.successful(handleUnfinishedRedirect(cyaData, taxYear))
+          case (Some(cyaData), Right(None)) if !cyaData.isFinished =>
+            Future.successful(handleUnfinishedRedirect(cyaData, taxYear))
           case (Some(cyaData), Right(None)) => Future.successful(Ok(dividendsCyaView(cyaData, taxYear = taxYear)))
           case (None, Right(Some(priorData))) =>
             val cyaModel = DividendsCheckYourAnswersModel(
+              Some(true),
               Some(priorData.ukDividends.nonEmpty),
               priorData.ukDividends,
               Some(priorData.otherUkDividends.nonEmpty),
@@ -155,10 +159,11 @@ class DividendsCYAController @Inject()(
   }
 
   private[dividends] def handleUnfinishedRedirect(cya: DividendsCheckYourAnswersModel, taxYear: Int): Result = {
-    DividendsCheckYourAnswersModel.unapply(cya).getOrElse(None, None, None, None) match {
-      case (Some(true), None, None, None) => Redirect(controllers.dividends.routes.UkDividendsAmountController.show(taxYear))
-      case (Some(false), None, None, None) => Redirect(controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear))
-      case (Some(true), Some(_), None, None) => Redirect(controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear))
+    DividendsCheckYourAnswersModel.unapply(cya).getOrElse(None, None, None, None, None) match {
+      case (None, _, _, _, _) if appConfig.tailoringEnabled => Redirect(controllers.dividends.routes.DividendsGatewayController.show(taxYear))
+      case (_, Some(true), None, None, None) => Redirect(controllers.dividends.routes.UkDividendsAmountController.show(taxYear))
+      case (_, Some(false), None, None, None) => Redirect(controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear))
+      case (_, Some(true), Some(_), None, None) => Redirect(controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear))
       case _ => Redirect(controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear))
     }
   }

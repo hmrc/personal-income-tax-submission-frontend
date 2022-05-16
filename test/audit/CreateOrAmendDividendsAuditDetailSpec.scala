@@ -23,6 +23,7 @@ import utils.UnitTest
 class CreateOrAmendDividendsAuditDetailSpec extends UnitTest {
 
   val body =  DividendsCheckYourAnswersModel(
+    None,
     Some(true),
     Some(856.23),
     Some(true),

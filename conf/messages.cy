@@ -157,6 +157,12 @@ dividends.cya.changeOtherDividends.agent = Newidiwch os cafodd eich cleient ddif
 dividends.cya.changeOtherDividendsAmount.individual = Newidiwch faint a gawsoch mewn difidendau gan ymddiriedolaethau neu gwmnïau buddsoddi penagored yn y DU
 dividends.cya.changeOtherDividendsAmount.agent = Newidiwch faint a gafodd eich cleient mewn difidendau gan ymddiriedolaethau neu gwmnïau buddsoddi penagored yn y DU
 
+dividends.gateway.heading.individual = A gawsoch ddifidendau o gyfranddaliadau?
+dividends.gateway.heading.agent = A gafodd eich cleient ddifidendau o gyfranddaliadau?
+dividends.gateway.hint = Er enghraifft, difidendau gan gwmnïau, ymddiriedolaethau unedol awdurdodedig neu gwmnïau buddsoddi penagored yn y DU.
+dividends.gateway.error.individual = Dewiswch ‘Iawn’ os cawsoch ddifidendau o gyfranddaliadau
+dividends.gateway.error.agent = Dewiswch ‘Iawn’ os cafodd eich cleient ddifidendau o gyfranddaliadau
+
 # Interest
 # ----------------------------------------------------------
 

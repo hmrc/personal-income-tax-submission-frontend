@@ -39,10 +39,11 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
 
   lazy val dividendsCyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(
+    None,
     Some(true), Some(ukDividends),
     Some(true), Some(otherDividends)
   )
-  lazy val dividendsNoModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(Some(false), None, Some(false))
+  lazy val dividendsNoModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(None, Some(false), None, Some(false))
 
   lazy val priorData: IncomeSourcesModel = IncomeSourcesModel(
     dividends = Some(DividendsPriorSubmission(
@@ -326,6 +327,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
             emptyUserDataStub()
             userDataStub(priorData, nino, taxYear)
             insertCyaData(Some(DividendsCheckYourAnswersModel(
+              None,
               Some(true), Some(ukDividends1),
               Some(true), Some(otherDividends1)
             )))
@@ -393,7 +395,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
             dropDividendsDB()
             emptyUserDataStub()
             insertCyaData(Some(DividendsCheckYourAnswersModel(
-              Some(true)
+              ukDividends = Some(true)
             )))
 
             urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie())
@@ -415,7 +417,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
             dropDividendsDB()
             emptyUserDataStub()
             insertCyaData(Some(DividendsCheckYourAnswersModel(
-              Some(false)
+              ukDividends = Some(false)
             )))
             urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie())
           }
@@ -437,7 +439,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           dropDividendsDB()
           emptyUserDataStub()
           insertCyaData(Some(DividendsCheckYourAnswersModel(
-            Some(true), Some(1000.43)
+            None, Some(true), Some(1000.43)
           )))
           urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie())
         }
@@ -458,7 +460,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           dropDividendsDB()
           emptyUserDataStub()
           insertCyaData(Some(DividendsCheckYourAnswersModel(
-            Some(true), Some(1000.43), Some(true)
+            None, Some(true), Some(1000.43), Some(true)
           )))
 
           urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie())
@@ -497,7 +499,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
         emptyUserDataStub()
         insertCyaData(
           Some(DividendsCheckYourAnswersModel(
-            Some(true), Some(1000.43), Some(true), Some(9983.21)
+            None, Some(true), Some(1000.43), Some(true), Some(9983.21)
           )))
         stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "")
         urlPost(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie(), body = "")
@@ -521,7 +523,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
         insertCyaData(
           Some(DividendsCheckYourAnswersModel(
-            Some(true), Some(1000.43), Some(true), Some(9983.21)
+            None, Some(true), Some(1000.43), Some(true), Some(9983.21)
           )))
         stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", INTERNAL_SERVER_ERROR, "")
         urlPost(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie(), body = "")
@@ -540,7 +542,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
         insertCyaData(
           Some(DividendsCheckYourAnswersModel(
-            Some(true), Some(1000.43), Some(true), Some(9983.21)
+            None, Some(true), Some(1000.43), Some(true), Some(9983.21)
           )))
         stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", SERVICE_UNAVAILABLE, "")
         urlPost(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie(), body = "")

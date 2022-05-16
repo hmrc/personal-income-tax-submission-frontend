@@ -42,7 +42,7 @@ class NrsServiceSpec extends UnitTest {
   val otherDividends: BigDecimal = 10.50
 
   val dividendsCyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(
-    Some(true), Some(ukDividends),
+    None, Some(true), Some(ukDividends),
     Some(true), Some(otherDividends)
   )
 

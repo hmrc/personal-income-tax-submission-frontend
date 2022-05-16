@@ -63,7 +63,6 @@ class ReceiveOtherUkDividendsController @Inject()(
   }
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, DIVIDENDS)).async { implicit user =>
-
       yesNoForm(user.isAgent).bindFromRequest().fold(
         {
           formWithErrors =>

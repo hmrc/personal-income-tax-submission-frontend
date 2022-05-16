@@ -154,7 +154,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   def await[T](awaitable: Awaitable[T]): T = Await.result(awaitable, Duration.Inf)
 
-  def config: Map[String, Any] = Map(
+  lazy val commonConfig: Map[String, Any] = Map(
     "auditing.enabled" -> false,
     "metrics.enabled" -> false,
     "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck",
@@ -166,25 +166,18 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "microservice.services.income-tax-interest.url" -> s"http://$wiremockHost:$wiremockPort",
     "microservice.services.income-tax-gift-aid.url" -> s"http://$wiremockHost:$wiremockPort",
     "microservice.services.income-tax-nrs-proxy.url" -> s"http://$wiremockHost:$wiremockPort",
-    "microservice.services.sign-in.url" -> s"/auth-login-stub/gg-sign-in",
+    "microservice.services.sign-in.url" -> s"/auth-login-stub/gg-sign-in"
+  )
+  
+  def config: Map[String, Any] = commonConfig ++ Map(
     "taxYearChangeResetsSession" -> false,
     "useEncryption" -> true,
-    "defaultTaxYear" -> taxYear
+    "defaultTaxYear" -> taxYear,
+    "useEncryption" -> true,
+    "feature-switch.tailoringEnabled" -> false
   )
 
-  def invalidEncryptionConfig: Map[String, Any] = Map(
-    "auditing.enabled" -> false,
-    "metrics.enabled" -> false,
-    "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck",
-    "microservice.services.income-tax-submission-frontend.url" -> s"http://$wiremockHost:$wiremockPort",
-    "microservice.services.income-tax-submission.url" -> s"http://$wiremockHost:$wiremockPort",
-    "microservice.services.auth.host" -> wiremockHost,
-    "microservice.services.auth.port" -> wiremockPort,
-    "microservice.services.income-tax-dividends.url" -> s"http://$wiremockHost:$wiremockPort",
-    "microservice.services.income-tax-interest.url" -> s"http://$wiremockHost:$wiremockPort",
-    "microservice.services.income-tax-gift-aid.url" -> s"http://$wiremockHost:$wiremockPort",
-    "microservice.services.income-tax-nrs-proxy.url" -> s"http://$wiremockHost:$wiremockPort",
-    "microservice.services.sign-in.url" -> s"/auth-login-stub/gg-sign-in",
+  def invalidEncryptionConfig: Map[String, Any] = commonConfig ++ Map(
     "taxYearChangeResetsSession" -> false,
     "useEncryption" -> true,
     "mongodb.encryption.key" -> "key",
@@ -197,6 +190,11 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     .in(Environment.simple(mode = Mode.Dev))
     .configure(config)
     .build
+  
+  lazy val appWithTailoring: Application = new GuiceApplicationBuilder()
+    .in(Environment.simple(mode = Mode.Dev))
+    .configure(config ++ Map("feature-switch.tailoringEnabled" -> true))
+    .build()
 
   lazy val appWithInvalidEncryptionKey: Application = GuiceApplicationBuilder()
     .configure(invalidEncryptionConfig)
