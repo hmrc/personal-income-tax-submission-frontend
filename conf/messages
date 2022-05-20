@@ -87,7 +87,8 @@ timeout.heading = For your security, we signed you out
 timeout.p1 = We did not save your answers.
 timeout.button = Sign in
 
-taxYear-error-template.paragraph.1 = You can only enter information for the 2021 to 2022 tax year.
+taxYear-error-template.paragraph.1 = You can only enter information for the tax years {0} to {1}.
+taxYear-error-template.paragraph.1.single = You can only enter information for a valid tax year.
 taxYear-error-template.paragraph.2 = Check that you’ve entered the correct web address.
 
 # Dividends
