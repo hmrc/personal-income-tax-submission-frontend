@@ -16,8 +16,11 @@
 
 package controllers.errors
 
+import common.SessionValues
+import helpers.PlaySessionCookieBaker
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import play.api.http.HeaderNames
 import play.api.http.Status.OK
 import play.api.libs.ws.WSResponse
 import utils.{IntegrationTest, ViewHelpers}
@@ -37,6 +40,7 @@ class TaxYearErrorControllerISpec extends IntegrationTest with ViewHelpers {
   trait CommonExpectedResults {
     val h1Expected: String
     val p1Expected: String
+    val p1ExpectedSingle: String
     val p2Expected: String
     val p3Expected: String
     val p3ExpectedLink: String
@@ -45,7 +49,8 @@ class TaxYearErrorControllerISpec extends IntegrationTest with ViewHelpers {
 
   object CommonExpectedEN extends CommonExpectedResults {
     val h1Expected = "Page not found"
-    val p1Expected = "You can only enter information for the 2021 to 2022 tax year."
+    val p1Expected = "You can only enter information for the tax years 2021 to 2023."
+    val p1ExpectedSingle = "You can only enter information for a valid tax year."
     val p2Expected = "Check that you’ve entered the correct web address."
     val p3Expected: String = "If the web address is correct or you selected a link or button, you can use Self Assessment: " +
       "general enquiries (opens in new tab) to speak to someone about your income tax."
@@ -55,7 +60,8 @@ class TaxYearErrorControllerISpec extends IntegrationTest with ViewHelpers {
 
   object CommonExpectedCY extends CommonExpectedResults {
     val h1Expected = "Heb ddod o hyd i’r dudalen"
-    val p1Expected = "Dim ond ar gyfer blwyddyn dreth 2021 i 2022 y gallwch nodi gwybodaeth."
+    val p1Expected = "Dim ond gwybodaeth ar gyfer y blynyddoedd treth 2021 i 2023 y gallwch ei nodi."
+    val p1ExpectedSingle = "Dim ond gwybodaeth ar gyfer blwyddyn dreth ddilys y gallwch ei nodi."
     val p2Expected = "Gwiriwch eich bod wedi nodi’r cyfeiriad gwe cywir."
     val p3Expected: String = "Os yw’r cyfeiriad gwe yn gywir neu os ydych wedi dewis cysylltiad neu fotwm, gallwch ddefnyddio" +
       " Hunanasesiad: ymholiadau cyffredinol (yn agor tab newydd) i siarad â rhywun am eich Treth Incwm."
@@ -74,11 +80,18 @@ class TaxYearErrorControllerISpec extends IntegrationTest with ViewHelpers {
     userScenarios.foreach { user =>
       s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
 
-        "render the page with the right content" which {
+        "render the page with the right content with multiple tax years in session" which {
+
+          lazy val playSessionCookie = PlaySessionCookieBaker.bakeSessionCookie(Map(
+            SessionValues.TAX_YEAR -> taxYear.toString,
+            SessionValues.VALID_TAX_YEARS -> validTaxYearList.mkString(",")
+          ))
+
+          val errorPageHeaders = Seq(HeaderNames.COOKIE -> playSessionCookie, "Csrf-Token" -> "nocheck") ++ Seq(xSessionId)
 
           implicit lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
-            urlGet(url, welsh = user.isWelsh)
+            urlGet(url, welsh = user.isWelsh, headers = errorPageHeaders)
           }
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
@@ -93,6 +106,36 @@ class TaxYearErrorControllerISpec extends IntegrationTest with ViewHelpers {
           welshToggleCheck(user.isWelsh)
           h1Check(h1Expected, "xl")
           textOnPageCheck(p1Expected,p1Selector)
+          textOnPageCheck(p2Expected,p2Selector)
+          textOnPageCheck(p3Expected,p3Selector)
+          linkCheck(p3ExpectedLinkText, linkSelector, p3ExpectedLink)
+        }
+        "render the page with the right content with a single tax years in session" which {
+
+          lazy val playSessionCookie = PlaySessionCookieBaker.bakeSessionCookie(Map(
+            SessionValues.TAX_YEAR -> taxYear.toString,
+            SessionValues.VALID_TAX_YEARS -> singleValidTaxYear.mkString(",")
+          ))
+
+          val errorPageHeaders = Seq(HeaderNames.COOKIE -> playSessionCookie, "Csrf-Token" -> "nocheck") ++ Seq(xSessionId)
+
+          implicit lazy val result: WSResponse = {
+            authoriseAgentOrIndividual(user.isAgent)
+            urlGet(url, welsh = user.isWelsh, headers = errorPageHeaders)
+          }
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          "has an OK status" in {
+            result.status shouldBe OK
+          }
+
+          import user.commonExpectedResults._
+
+          titleCheck(h1Expected, user.isWelsh)
+          welshToggleCheck(user.isWelsh)
+          h1Check(h1Expected, "xl")
+          textOnPageCheck(p1ExpectedSingle,p1Selector)
           textOnPageCheck(p2Expected,p2Selector)
           textOnPageCheck(p3Expected,p3Selector)
           linkCheck(p3ExpectedLinkText, linkSelector, p3ExpectedLink)

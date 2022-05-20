@@ -16,6 +16,8 @@
 
 package utils
 
+import java.time.LocalDate
+
 import akka.actor.ActorSystem
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import common.SessionValues
@@ -53,7 +55,17 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
 
 trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerPerSuite with WireMockHelper
-  with BeforeAndAfterAll with TaxYearHelper {
+  with BeforeAndAfterAll {
+
+  private val dateNow: LocalDate = LocalDate.now()
+  private val taxYearCutoffDate: LocalDate = LocalDate.parse(s"${dateNow.getYear}-04-05")
+
+  val taxYear: Int = if (dateNow.isAfter(taxYearCutoffDate)) LocalDate.now().getYear + 1 else LocalDate.now().getYear
+  val taxYearEOY: Int = taxYear - 1
+  val taxYearEndOfYearMinusOne: Int = taxYearEOY - 1
+
+  val validTaxYearList: Seq[Int] = Seq(taxYearEOY - 1, taxYearEOY, taxYear)
+  val singleValidTaxYear: Seq[Int] = Seq(taxYearEndOfYearMinusOne)
 
   val nino = "AA123456A"
   val mtditid = "1234567890"
@@ -229,15 +241,21 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     await(wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(newHeaders: _*).post(body))
   }
 
-  def playSessionCookie(agent: Boolean = false, extraData: Map[String, String] = Map.empty): Seq[(String, String)] = {
+  def playSessionCookie(agent: Boolean = false, extraData: Map[String, String] = Map.empty, validTaxYears:Seq[Int] = validTaxYearList): Seq[(String, String)] = {
     {
       if (agent) {
         Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(extraData ++ Map(
+          SessionValues.TAX_YEAR -> taxYear.toString,
+          SessionValues.VALID_TAX_YEARS -> validTaxYears.mkString(","),
           SessionValues.CLIENT_NINO -> "AA123456A",
           SessionValues.CLIENT_MTDITID -> mtditid))
         )
       } else {
-        Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(extraData), "mtditid" -> mtditid)
+        Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(extraData ++ Map(
+          SessionValues.TAX_YEAR -> taxYear.toString,
+          SessionValues.VALID_TAX_YEARS -> validTaxYears.mkString(","))),
+          "mtditid" -> mtditid
+        )
       }
     } ++
       Seq(xSessionId)

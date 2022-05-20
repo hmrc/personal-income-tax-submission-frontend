@@ -28,7 +28,7 @@ class JourneyFilterActionSpec extends UnitTest {
 
   lazy val mockAppConf: AppConfig = mock[AppConfig]
 
-  def taxYearAction(taxYear: Int): TaxYearAction = new TaxYearAction(taxYear)(mockAppConf, mockMessagesControllerComponents)
+  def taxYearAction(taxYear: Int, reset: Boolean = true): TaxYearAction = new TaxYearAction(taxYear, reset)(mockAppConf, mockMessagesControllerComponents)
 
   lazy val filter = new JourneyFilterAction(INTEREST, taxYear)(mockAppConf)
 

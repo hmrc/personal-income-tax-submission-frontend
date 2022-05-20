@@ -87,7 +87,8 @@ timeout.heading = Er eich diogelwch, gwnaethom eich allgofnodi
 timeout.p1 = Ni wnaethom gadw’ch atebion.
 timeout.button = Mewngofnodi
 
-taxYear-error-template.paragraph.1 = Dim ond ar gyfer blwyddyn dreth 2021 i 2022 y gallwch nodi gwybodaeth.
+taxYear-error-template.paragraph.1 = Dim ond gwybodaeth ar gyfer y blynyddoedd treth {0} i {1} y gallwch ei nodi.
+taxYear-error-template.paragraph.1.single = Dim ond gwybodaeth ar gyfer blwyddyn dreth ddilys y gallwch ei nodi.
 taxYear-error-template.paragraph.2 = Gwiriwch eich bod wedi nodi’r cyfeiriad gwe cywir.
 
 # Dividends

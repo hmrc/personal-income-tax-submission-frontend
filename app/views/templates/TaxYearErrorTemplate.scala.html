@@ -18,13 +18,17 @@
 @import views.html.templates.helpers.Heading
 
 @this(layout: Layout, heading: Heading)
-@()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(firstClientTaxYear: Int, latestClientTaxYear: Int, singleValidTaxYear: Boolean)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @layout(pageTitle = messages("not-found-template.title")) {
 @heading(messages("not-found-template.title"), None, "govuk-!-margin-bottom-5", "xl")
 
 <div class="govuk-body">
-    <p>@messages("taxYear-error-template.paragraph.1")</p>
+    @if(singleValidTaxYear)  {
+    <p>@messages("taxYear-error-template.paragraph.1.single")</p>
+    } else {
+    <p>@messages("taxYear-error-template.paragraph.1", firstClientTaxYear.toString, latestClientTaxYear.toString)</p>
+    }
     <p>@messages("taxYear-error-template.paragraph.2")</p>
 
     <p>
