@@ -80,7 +80,7 @@ class UserDataRepositoryISpec extends IntegrationTest with FutureAwaits with Def
 
       val newUserData: DividendsUserDataModel = initialData.copy(
         dividends = Some(DividendsCheckYourAnswersModel(
-          Some(true), Some(100.00)
+          None, Some(true), Some(100.00)
         ))
       )
 
@@ -131,7 +131,7 @@ class UserDataRepositoryISpec extends IntegrationTest with FutureAwaits with Def
         case Left(value) => None
       })
 
-      dataAfter.get.dividends mustBe Some(DividendsCheckYourAnswersModel(Some(true),Some(100.0)))
+      dataAfter.get.dividends mustBe Some(DividendsCheckYourAnswersModel(None, Some(true), Some(100.0)))
     }
 
     "return an dataNotFoundError" in{

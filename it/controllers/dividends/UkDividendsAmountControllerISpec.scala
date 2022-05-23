@@ -392,7 +392,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
         dropDividendsDB()
         emptyUserDataStub()
         userDataStub(priorData, nino, taxYear)
-        insertCyaData(Some(DividendsCheckYourAnswersModel(Some(true), Some(amount), Some(true), Some(amount))))
+        insertCyaData(Some(DividendsCheckYourAnswersModel(None, Some(true), Some(amount), Some(true), Some(amount))))
         urlPost(ukDividendsAmountUrl, follow = false, headers = playSessionCookie(), body = Map("amount" -> "123"))
       }
 

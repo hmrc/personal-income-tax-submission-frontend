@@ -34,10 +34,10 @@ class DividendsSubmissionService @Inject()(dividendsSubmissionConnector: Dividen
 
     lazy val logger: Logger = Logger(this.getClass.getName)
 
-    val nonOptBody: DividendsCheckYourAnswersModel = body.getOrElse(DividendsCheckYourAnswersModel(Some(false), None, Some(false), None))
+    val nonOptBody: DividendsCheckYourAnswersModel = body.getOrElse(DividendsCheckYourAnswersModel(None, Some(false), None, Some(false), None))
 
     nonOptBody match {
-      case DividendsCheckYourAnswersModel(Some(false), _, Some(false), _) =>
+      case DividendsCheckYourAnswersModel(_, Some(false), _, Some(false), _) =>
         logger.info("[DividendsSubmissionService][submitDividends] User has entered No & No to both dividends questions. " +
           "Not submitting data to DES.")
         Future(Right(DividendsResponseModel(NO_CONTENT)))

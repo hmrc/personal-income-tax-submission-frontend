@@ -41,6 +41,7 @@ class NrsConnectorSpec extends IntegrationTest {
   val otherDividends: BigDecimal = 10.50
 
   val dividendsCyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(
+    None,
     Some(true), Some(ukDividends),
     Some(true), Some(otherDividends)
   )

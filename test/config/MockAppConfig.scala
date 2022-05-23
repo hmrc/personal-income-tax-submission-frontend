@@ -76,6 +76,8 @@ class MockAppConfig extends AppConfig with MockFactory {
   override def mongoTTL: Long = 15
 
   override val nrsEnabled: Boolean = true
+
+  override val tailoringEnabled: Boolean = false
 }
 
 class MockAppConfigEncyrptionOff extends MockAppConfig {

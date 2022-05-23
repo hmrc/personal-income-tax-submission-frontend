@@ -105,6 +105,7 @@ class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig) extends AppCon
   def mongoTTL: Long = Duration(servicesConfig.getString("mongodb.timeToLive")).toMinutes.toInt
 
   lazy val nrsEnabled: Boolean = servicesConfig.getBoolean("feature-switch.nrsEnabled")
+  lazy val tailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoringEnabled")
 
 }
 
@@ -164,4 +165,5 @@ trait AppConfig {
   def mongoTTL: Long
 
   val nrsEnabled: Boolean
+  val tailoringEnabled: Boolean
 }

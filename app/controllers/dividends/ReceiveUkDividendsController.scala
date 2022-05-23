@@ -75,30 +75,32 @@ class ReceiveUkDividendsController @Inject()(
           dividendsSessionService.getSessionData(taxYear).map {
             case Left(_) => Future.successful(errorHandler.internalServerError())
             case Right(cya) =>
-            if (yesNoModel) {
-              val update = cya.nonEmpty
-              val cyaModel = {
-                cya.flatMap(_.dividends).getOrElse(DividendsCheckYourAnswersModel()).copy(ukDividends = Some(true))
-              }
+              val gateway = if (appConfig.tailoringEnabled) None else Some(true)
 
-              if(update) {
-                updateAndRedirect(cyaModel, taxYear, routes.UkDividendsAmountController.show(taxYear))
+              if (yesNoModel) {
+                val update = cya.nonEmpty
+                val cyaModel = {
+                  cya.flatMap(_.dividends).getOrElse(DividendsCheckYourAnswersModel(gateway = gateway)).copy(ukDividends = Some(true))
+                }
+
+                if (update) {
+                  updateAndRedirect(cyaModel, taxYear, routes.UkDividendsAmountController.show(taxYear))
+                } else {
+                  newAndRedirect(cyaModel, taxYear, routes.UkDividendsAmountController.show(taxYear))
+                }
               } else {
-                newAndRedirect(cyaModel, taxYear, routes.UkDividendsAmountController.show(taxYear))
+                cya.flatMap(_.dividends) match {
+                  case Some(model) if model.isFinished =>
+                    updateAndRedirect(model.copy(ukDividends = Some(false), ukDividendsAmount = None), taxYear, routes.DividendsCYAController.show(taxYear))
+                  case Some(model) =>
+                    updateAndRedirect(
+                      model.copy(ukDividends = Some(false), ukDividendsAmount = None), taxYear, routes.ReceiveOtherUkDividendsController.show(taxYear)
+                    )
+                  case _ =>
+                    newAndRedirect(DividendsCheckYourAnswersModel(gateway, Some(false)), taxYear, routes.ReceiveOtherUkDividendsController.show(taxYear))
+                }
               }
-            } else {
-              cya.flatMap(_.dividends) match {
-                case Some(model) if model.isFinished =>
-                  updateAndRedirect(model.copy(ukDividends = Some(false), ukDividendsAmount = None), taxYear, routes.DividendsCYAController.show(taxYear))
-                case Some(model) =>
-                  updateAndRedirect(
-                    model.copy(ukDividends = Some(false), ukDividendsAmount = None), taxYear, routes.ReceiveOtherUkDividendsController.show(taxYear)
-                  )
-                case _ =>
-                  newAndRedirect(DividendsCheckYourAnswersModel(Some(false)), taxYear, routes.ReceiveOtherUkDividendsController.show(taxYear))
-              }
-            }
-      }.flatten
+          }.flatten
       }
     )
   }

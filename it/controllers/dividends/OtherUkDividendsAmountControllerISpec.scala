@@ -357,7 +357,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
         authoriseIndividual()
         dropDividendsDB()
         emptyUserDataStub()
-        insertCyaData(Some(DividendsCheckYourAnswersModel(Some(true), Some(amount),Some(true))))
+        insertCyaData(Some(DividendsCheckYourAnswersModel(None, Some(true), Some(amount),Some(true))))
         urlPost(otherUkDividendsAmountUrl, follow=false, headers = playSessionCookie(), body = Map("amount" -> "123"))
       }
 

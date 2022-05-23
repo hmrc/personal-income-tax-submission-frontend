@@ -157,6 +157,12 @@ dividends.cya.changeOtherDividends.agent = Change if your client got dividends f
 dividends.cya.changeOtherDividendsAmount.individual = Change how much you got in dividends from trusts or open-ended investment companies based in the UK
 dividends.cya.changeOtherDividendsAmount.agent = Change how much your client got in dividends from trusts or open-ended investment companies based in the UK
 
+dividends.gateway.heading.individual = Did you get dividends from shares?
+dividends.gateway.heading.agent = Did your client get dividends from shares?
+dividends.gateway.hint = For example, dividends from UK companies, authorised unit trusts or open ended investment companies.
+dividends.gateway.error.individual = Select yes if you got dividends from shares
+dividends.gateway.error.agent = Select yes if your client got dividends from shares
+
 # Interest
 # ----------------------------------------------------------
 

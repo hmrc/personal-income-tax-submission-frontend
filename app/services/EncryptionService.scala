@@ -56,6 +56,7 @@ class EncryptionService @Inject()(encryptionService: SecureGCMCipher, appConfig:
   private def encryptDividendsCheckYourAnswersModel(dividends: DividendsCheckYourAnswersModel)
                                                    (implicit textAndKey: TextAndKey): EncryptedDividendsCheckYourAnswersModel ={
     EncryptedDividendsCheckYourAnswersModel(
+      dividends.gateway.map(x => encryptionService.encrypt[Boolean](x)),
       dividends.ukDividends.map(x => encryptionService.encrypt[Boolean](x)),
       dividends.ukDividendsAmount.map(x => encryptionService.encrypt[BigDecimal](x)),
       dividends.otherUkDividends.map(x => encryptionService.encrypt[Boolean](x)),
@@ -66,6 +67,7 @@ class EncryptionService @Inject()(encryptionService: SecureGCMCipher, appConfig:
   private def decryptDividendsCheckYourAnswersModel(dividends: EncryptedDividendsCheckYourAnswersModel)
                                                    (implicit textAndKey: TextAndKey): DividendsCheckYourAnswersModel ={
     DividendsCheckYourAnswersModel(
+      dividends.gateway.map(x => encryptionService.decrypt[Boolean](x.value, x.nonce)),
       dividends.ukDividends.map(x => encryptionService.decrypt[Boolean](x.value, x.nonce)),
       dividends.ukDividendsAmount.map(x => encryptionService.decrypt[BigDecimal](x.value,x.nonce)),
       dividends.otherUkDividends.map(x => encryptionService.decrypt[Boolean](x.value,x.nonce)),

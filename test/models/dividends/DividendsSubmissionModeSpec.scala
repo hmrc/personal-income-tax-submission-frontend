@@ -19,7 +19,7 @@ package models.dividends
 import play.api.libs.json.{JsObject, Json}
 import utils.UnitTest
 
-class DividendsSubmissionModelSpec extends UnitTest {
+class DividendsSubmissionModeSpec extends UnitTest {
 
   val validModel: DividendsSubmissionModel = DividendsSubmissionModel(
     ukDividends = Some(10),

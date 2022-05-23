@@ -17,12 +17,11 @@
 package controllers.predicates
 
 
-import controllers.dividends.routes.{OtherUkDividendsAmountController, ReceiveOtherUkDividendsController, ReceiveUkDividendsController, UkDividendsAmountController}
 import models.dividends.DividendsCheckYourAnswersModel
 import models.question.Question.{WithDependency, WithoutDependency}
 import models.question.{Question, QuestionsJourney}
-import play.api.mvc.{Call, Result}
 import play.api.mvc.Results.{Ok, Redirect}
+import play.api.mvc.{Call, Result}
 import play.api.test.DefaultAwaitTimeout
 import utils.UnitTest
 
@@ -30,19 +29,24 @@ class QuestionsJourneyValidatorTest extends UnitTest with DefaultAwaitTimeout {
 
   val questionsJourneyValidator = new QuestionsJourneyValidator(mockAppConfig)
 
-  "validateQuestion()" should {
+  private val receiveUkDividendsRoute = controllers.dividends.routes.ReceiveUkDividendsController
+  private val ukDividendsAmountRoute = controllers.dividends.routes.UkDividendsAmountController
+  private val receiveOtherDividendsRoute = controllers.dividends.routes.ReceiveOtherUkDividendsController
+  private val otherDividendsAmountRoute = controllers.dividends.routes.OtherUkDividendsAmountController
+  
+  "validateQuestion()" when {
 
     val taxYear = 2022
-    val receivedDividendsPage = ReceiveUkDividendsController.show(taxYear)
-    val dividendsAmountPage = UkDividendsAmountController.show(taxYear)
-    val receivedOtherDividendsPage = ReceiveOtherUkDividendsController.show(taxYear)
-    val otherDividendsAmountPage = OtherUkDividendsAmountController.show(taxYear)
+    val receivedDividendsPage = receiveUkDividendsRoute.show(taxYear)
+    val dividendsAmountPage = ukDividendsAmountRoute.show(taxYear)
+    val receivedOtherDividendsPage = receiveOtherDividendsRoute.show(taxYear)
+    val otherDividendsAmountPage = otherDividendsAmountRoute.show(taxYear)
 
     val expectedContent = "Some content"
 
     def block: Result = Ok(expectedContent)
 
-    implicit val journey = new QuestionsJourney[DividendsCheckYourAnswersModel] {
+    implicit val journey: QuestionsJourney[DividendsCheckYourAnswersModel] = new QuestionsJourney[DividendsCheckYourAnswersModel] {
       override def firstPage: Call = receivedDividendsPage
 
       override def questions(model: DividendsCheckYourAnswersModel): Set[Question] = Set(
@@ -73,7 +77,7 @@ class QuestionsJourneyValidatorTest extends UnitTest with DefaultAwaitTimeout {
     "CYA model is defined" should {
 
       "allow viewing the provided currentPage is a WithoutDependency page in the journey" in {
-        val model = DividendsCheckYourAnswersModel(Some(false), None)
+        val model = DividendsCheckYourAnswersModel(ukDividends = Some(false), ukDividendsAmount = None)
 
         val result: Result = questionsJourneyValidator.validate(receivedDividendsPage, Some(model), taxYear)(block)
 
@@ -81,7 +85,7 @@ class QuestionsJourneyValidatorTest extends UnitTest with DefaultAwaitTimeout {
       }
 
       "allow viewing the provided currentPage if it is a WithoutDependency page in the journey" in {
-        val model = DividendsCheckYourAnswersModel(Some(false), None)
+        val model = DividendsCheckYourAnswersModel(ukDividends = Some(false), ukDividendsAmount = None)
 
         val result: Result = questionsJourneyValidator.validate(receivedDividendsPage, Some(model), taxYear)(block)
 
@@ -89,7 +93,10 @@ class QuestionsJourneyValidatorTest extends UnitTest with DefaultAwaitTimeout {
       }
 
       "allow viewing the provided currentPage if it is a WithDependency page and the dependency is Some(true) in the journey" in {
-        val model = DividendsCheckYourAnswersModel(Some(true), None)
+        val model = DividendsCheckYourAnswersModel(
+          ukDividends = Some(true),
+          ukDividendsAmount = None
+        )
 
         val result: Result = questionsJourneyValidator.validate(dividendsAmountPage, Some(model), taxYear)(block)
 
@@ -98,7 +105,7 @@ class QuestionsJourneyValidatorTest extends UnitTest with DefaultAwaitTimeout {
 
       "Redirect to the redirectPage of the WithDependency if dependency is None" in {
         val currentPage = dividendsAmountPage
-        val model = DividendsCheckYourAnswersModel(None, None)
+        val model = DividendsCheckYourAnswersModel(ukDividends = None, ukDividendsAmount = None)
         val expectedRedirectPage = journey.questions(model).find(_.expectedPage == currentPage).get.asInstanceOf[WithDependency].redirectPage
 
         val result: Result = questionsJourneyValidator.validate(currentPage, Some(model), taxYear)(block)
@@ -108,7 +115,7 @@ class QuestionsJourneyValidatorTest extends UnitTest with DefaultAwaitTimeout {
 
       "Redirect to the redirectPage of the WithDependency if dependency is Some(false)" in {
         val currentPage = dividendsAmountPage
-        val model = DividendsCheckYourAnswersModel(Some(false), None)
+        val model = DividendsCheckYourAnswersModel(ukDividends = Some(false), ukDividendsAmount = None)
         val expectedRedirectPage = journey.questions(model).find(_.expectedPage == currentPage).get.asInstanceOf[WithDependency].redirectPage
 
         val result: Result = questionsJourneyValidator.validate(currentPage, Some(model), taxYear)(block)

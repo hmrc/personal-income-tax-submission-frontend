@@ -67,17 +67,21 @@ class MessagesISpec extends IntegrationTest with ViewHelpers {
 
   val defaults = allLanguages("default")
   val welsh = allLanguages("cy")
-
-
-
+  
   "the messages file must have welsh translations" should {
     "check all keys in the default file other than those in the exclusion list has a corresponding translation" in {
-      defaults.keys.foreach(
-        key =>
-          if (!exclusionKeys.contains(key)) {
-            welsh.keys should contain(key)
-          }
-      )
+      val filteredKeys = defaults.keys.filterNot(welsh.contains)
+      val filteredWelshKeys = welsh.keys.filterNot(defaults.contains)
+      
+      (filteredKeys.isEmpty, filteredWelshKeys.isEmpty) match {
+        case (true, true) => succeed
+        case (filteredEmpty, welshEmpty) =>
+          val filteredMessage = if(!filteredEmpty) Some("The Welsh language file is missing the following keys that are present in the English file: " + filteredKeys.mkString(", ")) else None
+          val filteredWelshMessage = if(!welshEmpty) Some("The English language file is missing the following keys that are present in the Welsh file: " + filteredWelshKeys.mkString(", ")) else None
+          val errorMessage = Seq(filteredMessage, filteredWelshMessage).flatten.mkString("\n")
+          
+          fail(errorMessage)
+      }
     }
   }
 

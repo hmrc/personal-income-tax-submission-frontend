@@ -38,6 +38,7 @@ class DividendsSubmissionServiceSpec extends UnitTest {
     "return the connector response" when {
 
       val cyaData = DividendsCheckYourAnswersModel(
+        None,
         ukDividends = Some(true),
         Some(10.00),
         otherUkDividends = Some(true),

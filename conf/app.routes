@@ -25,6 +25,9 @@ POST        /:taxYear/dividends/how-much-dividends-from-uk-trusts-and-open-ended
 GET         /:taxYear/dividends/check-income-from-dividends                                                   controllers.dividends.DividendsCYAController.show(taxYear: Int)
 POST        /:taxYear/dividends/check-income-from-dividends                                                   controllers.dividends.DividendsCYAController.submit(taxYear: Int)
 
+GET         /:taxYear/dividends/dividends-from-stocks-and-shares                                              controllers.dividends.DividendsGatewayController.show(taxYear: Int)
+POST        /:taxYear/dividends/dividends-from-stocks-and-shares                                              controllers.dividends.DividendsGatewayController.submit(taxYear: Int)
+
 # Interest routes
 
 GET         /:taxYear/interest/untaxed-uk-interest                                                            controllers.interest.UntaxedInterestController.show(taxYear: Int)
