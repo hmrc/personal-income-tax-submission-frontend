@@ -22,14 +22,14 @@ import utils.UnitTest
 
 class CreateOrAmendInterestAuditDetailSpec extends UnitTest {
 
-  val body = InterestCYAModel(
-    Some(true), Some(true), Seq(
+  val body: InterestCYAModel = InterestCYAModel(
+    None, Some(true), Some(true), Seq(
       InterestAccountModel(Some("azerty"), "Account 1", Some(100.01)),
       InterestAccountModel(Some("qwerty"), "Account 2", None, Some(9001.01))
     )
   )
 
-  val prior = InterestPriorSubmission(
+  val prior: InterestPriorSubmission = InterestPriorSubmission(
     hasUntaxed = true,
     hasTaxed = true,
     Seq(
@@ -87,7 +87,7 @@ class CreateOrAmendInterestAuditDetailSpec extends UnitTest {
              |	"taxYear": 2020
              |}""".stripMargin)
 
-          val model = CreateOrAmendInterestAuditDetail(Some(body), Some(prior), true, nino, mtditid, userType, taxYear)
+          val model = CreateOrAmendInterestAuditDetail(Some(body), Some(prior), isUpdate = true, nino, mtditid, userType, taxYear)
         Json.toJson(model) shouldBe json
         }
       }

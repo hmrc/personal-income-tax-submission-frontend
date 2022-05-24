@@ -16,7 +16,6 @@
 
 package services
 
-import config.ErrorHandler
 import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector}
 import repositories.InterestUserDataRepository
 import utils.IntegrationTest

@@ -29,6 +29,7 @@ class InterestCYAModelSpec extends UnitTest {
   )
 
   val modelMax: InterestCYAModel = InterestCYAModel(
+    None,
     untaxedUkInterest = Some(true),
     taxedUkInterest = Some(true),
     Seq(account)
@@ -128,6 +129,7 @@ class InterestCYAModelSpec extends UnitTest {
 
       "untaxed interest exist with accounts and taxed interest exist with no accounts" in {
         InterestCYAModel(
+          None,
           Some(true),
           Some(true),
           Seq(account.copy(taxedAmount = None))
@@ -136,6 +138,7 @@ class InterestCYAModelSpec extends UnitTest {
 
       "untaxed interest exist with no accounts and taxed interest exist with accounts" in {
         InterestCYAModel(
+          None,
           Some(true),
           Some(true),
           Seq(account.copy(untaxedAmount = None))
@@ -144,6 +147,7 @@ class InterestCYAModelSpec extends UnitTest {
 
       "untaxed and taxed interest exist, each with no accounts" in {
         InterestCYAModel(
+          None,
           Some(true),
           Some(true),
           Seq()
@@ -230,7 +234,7 @@ class InterestCYAModelSpec extends UnitTest {
 
       val cyaData = InterestCYAModel.getCyaModel(None, prior)
 
-      cyaData shouldBe Some(InterestCYAModel(Some(true), Some(false),
+      cyaData shouldBe Some(InterestCYAModel(Some(true), Some(true), Some(false),
         List(InterestAccountModel(Some("1"),
           "TSB Account",
           Some(500.0),
@@ -249,7 +253,7 @@ class InterestCYAModelSpec extends UnitTest {
 
       val cyaData = InterestCYAModel.getCyaModel(cyaModel, None)
 
-      cyaData shouldBe Some(InterestCYAModel(Some(false), Some(true),
+      cyaData shouldBe Some(InterestCYAModel(None, Some(false), Some(true),
         List(InterestAccountModel(Some("1"), "TSB Account", Some(500.0), None, None),
           InterestAccountModel(Some("2"), "Lloyds Savings", Some(3000.0), None, None),
           InterestAccountModel(Some("3"), "Account 1", None, Some(100.01), None),

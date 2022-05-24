@@ -28,6 +28,7 @@ class EncryptedInterestCYAModelSpec extends UnitTest {
   )
 
   val modelMax: EncryptedInterestCYAModel = EncryptedInterestCYAModel(
+    gateway = None,
     untaxedUkInterest = Some(EncryptedValue("true", "true-Nonce")),
     taxedUkInterest = Some(EncryptedValue("true", "true-Nonce")),
     Seq(account)

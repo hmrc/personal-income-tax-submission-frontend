@@ -144,6 +144,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
           "there is cyaData in session" which {
 
             val interestCYA = InterestCYAModel(
+              None,
               Some(false),
               Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00)))
             )
@@ -259,6 +260,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
         "update the CYA data when an existing account with taxed interest gets removed on the back of selecting no" which {
           lazy val result: WSResponse = {
             val interestCYA = InterestCYAModel(
+              None,
               Some(false),
               Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00)))
             )
@@ -276,7 +278,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
           }
 
           "saves the record in the database" in {
-            findInterestDb.get shouldBe InterestCYAModel(Some(false), Some(false))
+            findInterestDb.get shouldBe InterestCYAModel(None, Some(false), Some(false))
           }
         }
 
@@ -284,6 +286,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
           "there is CYA data in session and answer to yes/no is YES" which {
             lazy val result: WSResponse = {
               val interestCYA = InterestCYAModel(
+                None,
                 Some(false),
                 Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00)))
               )
@@ -329,6 +332,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
           "there is CYA data in session and answer to yes/no is NO" which {
             lazy val result: WSResponse = {
               val interestCYA = InterestCYAModel(
+                None,
                 Some(false),
                 Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00)))
               )
@@ -350,6 +354,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
         "return BAD_REQUEST and render correct errors" when {
           "the yes/no radio button has not been selected" which {
             val interestCYA = InterestCYAModel(
+              None,
               Some(false),
               Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00)))
             )
