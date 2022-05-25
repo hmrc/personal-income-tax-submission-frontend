@@ -81,7 +81,6 @@ class DividendsCYAController @Inject()(
 
             Future.successful(Ok(dividendsCyaView(cyaModel, priorData, taxYear)))
           case (Some(cyaData), Right(None)) if !cyaData.isFinished =>
-            println(Console.GREEN + "it' snot finished bruh\n\n" + cyaData + "\n\n" + Console.RESET)
             Future.successful(handleUnfinishedRedirect(cyaData, taxYear))
           case (Some(cyaData), Right(None)) => Future.successful(Ok(dividendsCyaView(cyaData, taxYear = taxYear)))
           case (None, Right(Some(priorData))) =>

@@ -16,7 +16,7 @@
 
 package controllers.charity
 
-import config.{AppConfig, DIVIDENDS, ErrorHandler}
+import config.{AppConfig, DIVIDENDS, ErrorHandler, GIFT_AID}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import forms.YesNoForm
@@ -50,10 +50,8 @@ class GiftAidGatewayController @Inject()(
 
   private def internalError(implicit user: User[_]): Result = errorHandler.internalServerError()
 
-  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
     if (appConfig.tailoringEnabled) {
-      implicit val questionsJourney: QuestionsJourney[DividendsCheckYourAnswersModel] = DividendsCheckYourAnswersModel.journey(taxYear)
-
       session.getSessionData(taxYear).map {
         case Left(_) => errorHandler.internalServerError()
         case Right(sessionData) =>
@@ -82,7 +80,7 @@ class GiftAidGatewayController @Inject()(
     }
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
+  def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
     if (appConfig.tailoringEnabled) {
       form(user.isAgent).bindFromRequest().fold(formWithErrors => {
         Future.successful(BadRequest(view(formWithErrors, taxYear)))
