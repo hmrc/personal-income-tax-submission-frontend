@@ -542,3 +542,9 @@ charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.agent.hidde
 charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.amount.hidden = Change the value of shares, securities, land or properties donated to overseas charities
 charity.shares-and-land-summary.title.multiple.individual.hidden = Change the names of overseas charities you donated shares, securities, land or property to
 charity.shares-and-land-summary.title.multiple.agent.hidden = Change the names of overseas charities your client donated shares, securities, land or property to
+
+charity.gateway.heading.individual = Did you make donations to charity?
+charity.gateway.heading.agent = Did your client make donations to charity?
+charity.gateway.hint = This includes donations to overseas charities and donations of land, property, shares and securities.
+charity.gateway.error.individual = Select yes if you made donations to charity
+charity.gateway.error.agent = Select yes if your client made donations to charity

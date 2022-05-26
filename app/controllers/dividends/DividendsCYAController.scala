@@ -52,7 +52,7 @@ class DividendsCYAController @Inject()(
 
   lazy val logger: Logger = Logger(this.getClass.getName)
   implicit val executionContext: ExecutionContext = mcc.executionContext
-  
+
   //noinspection ScalaStyle
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
     lazy val futurePriorSubmissionData: Future[IncomeTaxUserDataResponse] = session.getPriorData(taxYear)

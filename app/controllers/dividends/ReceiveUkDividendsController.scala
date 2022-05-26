@@ -75,12 +75,12 @@ class ReceiveUkDividendsController @Inject()(
           dividendsSessionService.getSessionData(taxYear).map {
             case Left(_) => Future.successful(errorHandler.internalServerError())
             case Right(cya) =>
-              val gateway = if (appConfig.tailoringEnabled) None else Some(true)
+              val gateway = if(appConfig.tailoringEnabled) None else Some(true)
 
-              if (yesNoModel) {
-                val update = cya.nonEmpty
-                val cyaModel = {
-                  cya.flatMap(_.dividends).getOrElse(DividendsCheckYourAnswersModel(gateway = gateway)).copy(ukDividends = Some(true))
+            if (yesNoModel) {
+              val update = cya.nonEmpty
+              val cyaModel = {
+                cya.flatMap(_.dividends).getOrElse(DividendsCheckYourAnswersModel(gateway = gateway)).copy(ukDividends = Some(true))
                 }
 
                 if (update) {

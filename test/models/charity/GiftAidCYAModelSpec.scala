@@ -26,6 +26,7 @@ class GiftAidCYAModelSpec extends UnitTest {
   private val americanTrustId: String = UUID().randomUUID
 
   val modelMax: GiftAidCYAModel = GiftAidCYAModel(
+    Some(true),
     Some(true), Some(100.00),
     Some(true), Some(100.00),
     Some(true), Some(100.00), Seq(CharityNameModel(belgianTrustId, "Belgian Trust"), CharityNameModel(americanTrustId, "American Trust")),
@@ -38,6 +39,7 @@ class GiftAidCYAModelSpec extends UnitTest {
   val modelMin: GiftAidCYAModel = GiftAidCYAModel()
 
   val jsonMax: JsObject = Json.obj(
+    "gateway" -> true,
     "donationsViaGiftAid" -> true,
     "donationsViaGiftAidAmount" -> 100,
     "oneOffDonationsViaGiftAid" -> true,
@@ -107,6 +109,7 @@ class GiftAidCYAModelSpec extends UnitTest {
 
       "all required values in the model are false" in {
         GiftAidCYAModel(
+          gateway = Some(false),
           donationsViaGiftAid = Some(false),
           addDonationToThisYear = Some(false),
           donatedSharesOrSecurities = Some(false),
@@ -116,6 +119,7 @@ class GiftAidCYAModelSpec extends UnitTest {
 
       "only donations via gift aid is true" in {
         GiftAidCYAModel(
+          gateway = Some(true),
           donationsViaGiftAid = Some(true), donationsViaGiftAidAmount = Some(100.00),
           oneOffDonationsViaGiftAid = Some(false),
           overseasDonationsViaGiftAid = Some(false),
@@ -128,11 +132,16 @@ class GiftAidCYAModelSpec extends UnitTest {
 
       "only add donations to this year is true" in {
         GiftAidCYAModel(
+          gateway = Some(true),
           donationsViaGiftAid = Some(false),
           addDonationToThisYear = Some(true), addDonationToThisYearAmount = Some(100.00),
           donatedSharesOrSecurities = Some(false),
           donatedLandOrProperty = Some(false)
         ).isFinished shouldBe true
+      }
+      
+      "the gateway question is set to false, and no other value is present" in {
+        GiftAidCYAModel(Some(false)).isFinished shouldBe true
       }
     }
 
@@ -140,6 +149,7 @@ class GiftAidCYAModelSpec extends UnitTest {
 
       "only donations via gift aid is true, but there is no amount value" in {
         GiftAidCYAModel(
+          gateway = Some(true),
           donationsViaGiftAid = Some(true),
           oneOffDonationsViaGiftAid = Some(false),
           overseasDonationsViaGiftAid = Some(false),
@@ -153,6 +163,7 @@ class GiftAidCYAModelSpec extends UnitTest {
 
       "only one off donations via gift aid is true, but there is no amount value" in {
         GiftAidCYAModel(
+          gateway = Some(true),
           donationsViaGiftAid = Some(false),
           oneOffDonationsViaGiftAid = Some(true),
           overseasDonationsViaGiftAid = Some(false),
@@ -168,6 +179,7 @@ class GiftAidCYAModelSpec extends UnitTest {
 
         "there is no amount of name values" in {
           GiftAidCYAModel(
+            gateway = Some(true),
             donationsViaGiftAid = Some(false),
             oneOffDonationsViaGiftAid = Some(false),
             overseasDonationsViaGiftAid = Some(true),
@@ -181,6 +193,7 @@ class GiftAidCYAModelSpec extends UnitTest {
 
         "there is no amount value" in {
           GiftAidCYAModel(
+            gateway = Some(true),
             donationsViaGiftAid = Some(false),
             oneOffDonationsViaGiftAid = Some(false),
             overseasDonationsViaGiftAid = Some(true),
@@ -195,6 +208,7 @@ class GiftAidCYAModelSpec extends UnitTest {
 
         "there is no charity names" in {
           GiftAidCYAModel(
+            gateway = Some(true),
             donationsViaGiftAid = Some(false),
             oneOffDonationsViaGiftAid = Some(false),
             overseasDonationsViaGiftAid = Some(true), overseasDonationsViaGiftAidAmount = Some(100.00),
@@ -209,6 +223,7 @@ class GiftAidCYAModelSpec extends UnitTest {
 
       "only add donations to last year is true, but there is no amount value" in {
         GiftAidCYAModel(
+          gateway = Some(true),
           donationsViaGiftAid = Some(false),
           oneOffDonationsViaGiftAid = Some(false),
           overseasDonationsViaGiftAid = Some(false),
@@ -221,6 +236,7 @@ class GiftAidCYAModelSpec extends UnitTest {
 
       "only add donations to this year is true, but there is no amount value" in {
         GiftAidCYAModel(
+          gateway = Some(true),
           donationsViaGiftAid = Some(false),
           addDonationToThisYear = Some(true),
           donatedSharesOrSecurities = Some(false),
@@ -232,6 +248,7 @@ class GiftAidCYAModelSpec extends UnitTest {
 
         "only donated shares or securities is true, but there is no amount value" in {
           GiftAidCYAModel(
+            gateway = Some(true),
             donationsViaGiftAid = Some(false),
             donatedSharesOrSecurities = Some(true),
             donatedLandOrProperty = Some(false)
@@ -245,11 +262,16 @@ class GiftAidCYAModelSpec extends UnitTest {
 
         "only donated land or property is true, but there is no amount value" in {
           GiftAidCYAModel(
+            gateway = Some(true),
             donationsViaGiftAid = Some(false),
             donatedSharesOrSecurities = Some(false),
             donatedLandOrProperty = Some(true)
           ).isFinished shouldBe false
         }
+      }
+      
+      "the gateway question is true, but no other field is filled in" in {
+        GiftAidCYAModel(Some(true)).isFinished shouldBe false
       }
 
     }

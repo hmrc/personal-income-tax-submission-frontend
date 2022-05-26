@@ -105,6 +105,7 @@ class EncryptionService @Inject()(encryptionService: SecureGCMCipher, appConfig:
   private def encryptGiftAidCheckYourAnswersModel(giftAid: GiftAidCYAModel)
                                                    (implicit textAndKey: TextAndKey): EncryptedGiftAidCYAModel ={
     EncryptedGiftAidCYAModel(
+      giftAid.gateway.map(x => encryptionService.encrypt[Boolean](x)),
       giftAid.donationsViaGiftAid.map(x => encryptionService.encrypt[Boolean](x)),
       giftAid.donationsViaGiftAidAmount.map(x => encryptionService.encrypt[BigDecimal](x)),
       giftAid.oneOffDonationsViaGiftAid.map(x => encryptionService.encrypt[Boolean](x)),
@@ -129,6 +130,7 @@ class EncryptionService @Inject()(encryptionService: SecureGCMCipher, appConfig:
   private def decryptGiftAidCheckYourAnswersModel(giftAid: EncryptedGiftAidCYAModel)
                                                    (implicit textAndKey: TextAndKey): GiftAidCYAModel ={
     GiftAidCYAModel(
+      giftAid.gateway.map(x => encryptionService.decrypt[Boolean](x.value, x.nonce)),
       giftAid.donationsViaGiftAid.map(x => encryptionService.decrypt[Boolean](x.value, x.nonce)),
       giftAid.donationsViaGiftAidAmount.map(x => encryptionService.decrypt[BigDecimal](x.value,x.nonce)),
       giftAid.oneOffDonationsViaGiftAid.map(x => encryptionService.decrypt[Boolean](x.value, x.nonce)),
