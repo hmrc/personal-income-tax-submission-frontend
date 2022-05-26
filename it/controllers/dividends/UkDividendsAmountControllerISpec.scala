@@ -122,7 +122,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
     val inputSelector = ".govuk-input"
     val continueButtonSelector = "#continue"
     val continueButtonFormSelector = "#main-content > div > div > form"
-    val youToldUsSelector = "#main-content > div > div > form > div > label > p"
+    val youToldUsSelector = "#p1"
     val expectedErrorLink = "#amount"
     val inputAmountField = "#amount"
   }

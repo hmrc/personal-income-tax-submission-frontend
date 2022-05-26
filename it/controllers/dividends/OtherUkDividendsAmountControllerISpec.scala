@@ -122,8 +122,8 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
     val continueButtonSelector = "#continue"
     val continueButtonFormSelector = "#main-content > div > div > form"
     val enterAmountSelector = "#amount"
-    val youToldUsSelector = "#main-content > div > div > form > div > label > p"
-    val tellUsTheValueSelector = "#main-content > div > div > form > div > label > p"
+    val youToldUsSelector = "#p1"
+    val tellUsTheValueSelector = "#p1"
     val amountSelector = "#amount"
   }
 
@@ -198,7 +198,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
           titleCheck(get.expectedTitle, us.isWelsh)
           h1Check(get.expectedH1 + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
-          textOnPageCheck(get.youToldUsPriorText, tellUsTheValueSelector)
+          textOnPageCheck(get.youToldUsPriorText, youToldUsSelector)
           hintTextCheck(expectedHintText)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
           inputFieldCheck(amountInputName, inputSelector)

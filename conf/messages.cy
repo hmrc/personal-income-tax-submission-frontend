@@ -112,7 +112,8 @@ dividends.uk-dividends.errors.noChoice.agent = Dewiswch ‘Iawn’ os cafodd eic
 
 dividends.uk-dividends-amount.title.individual = Faint a gawsoch mewn difidendau gan gwmnïau yn y DU?
 dividends.uk-dividends-amount.title.agent = Faint gafodd eich cleient mewn difidendau gan gwmnïau yn y DU?
-dividends.uk-dividends-amount.change-amount.prior.common.2 = mewn difidendau gan gwmnïau yn y DU y flwyddyn hon. Rhowch wybod i ni a yw hyn wedi newid.
+dividends.uk-dividends-amount.change-amount.individual.prior = Gwnaethoch ddweud wrthym cawsoch {0} mewn difidendau gan gwmnïau yn y DU y flwyddyn hon. Rhowch wybod i ni a yw hyn wedi newid.
+dividends.uk-dividends-amount.change-amount.agent.prior = Gwnaethoch ddweud wrthym cafodd eich cleient {0} mewn difidendau gan gwmnïau yn y DU y flwyddyn hon. Rhowch wybod i ni a yw hyn wedi newid.
 dividends.uk-dividends-amount.error.empty.individual = Nodwch faint a gawsoch mewn difidendau gan gwmnïau yn y DU
 dividends.uk-dividends-amount.error.empty.agent = Nodwch faint gafodd eich cleient mewn difidendau gan gwmnïau yn y DU
 dividends.uk-dividends-amount.error.amountMaxLimit = Mae’n rhaid i swm y difidendau gan gwmnïau yn y DU fod yn llai na £100,000,000,000
@@ -136,7 +137,8 @@ dividends.other-dividends.details2.paragraph.1 = Rhoddir taliadau cyfartaliad i 
 
 dividends.other-dividends-amount.title.individual = Faint a gawsoch mewn difidendau gan ymddiriedolaethau a chwmnïau buddsoddi penagored sydd wedi’u lleoli yn y DU?
 dividends.other-dividends-amount.title.agent = Faint wnaeth eich cleient gael mewn difidendau gan ymddiriedolaethau a chwmnïau buddsoddi penagored sydd wedi’u lleoli yn y DU?
-dividends.other-dividends-amount.change-amount.details = mewn difidendau gan ymddiriedolaethau yn y DU a chwmnïau buddsoddi penagored eleni. Rhowch wybod i ni a yw hyn wedi newid.
+dividends.other-dividends-amount.change-amount-individual.details = Gwnaethoch ddweud wrthym cawsoch {0} mewn difidendau gan ymddiriedolaethau yn y DU a chwmnïau buddsoddi penagored eleni. Rhowch wybod i ni a yw hyn wedi newid.
+dividends.other-dividends-amount.change-amount-agent.details = Gwnaethoch ddweud wrthym cafodd eich cleient {0} mewn difidendau gan ymddiriedolaethau yn y DU a chwmnïau buddsoddi penagored eleni. Rhowch wybod i ni a yw hyn wedi newid.
 dividends.other-dividends-amount.form.caption = Nodwch swm y difidendau fel y mae’n ymddangos ar eich taleb ddifidend.
 dividends.other-dividends-amount.error.empty.individual = Nodwch faint a gawsoch mewn difidendau gan ymddiriedolaethau a chwmnïau buddsoddi penagored
 dividends.other-dividends-amount.error.empty.agent = Nodwch faint a gafodd eich cleient gan ymddiriedolaethau a chwmnïau buddsoddi penagored
