@@ -19,10 +19,11 @@
 @import views.html.headerFooterTemplate.Layout
 @import play.api.i18n.Messages
 @import views.html.templates.helpers.ErrorSummary
-@import views.html.templates.helpers.InputText
+@import views.html.templates.helpers.InputTextAlt
 @import views.html.templates.helpers.InputRadio
 @import views.html.templates.helpers.Button
 @import views.html.templates.helpers.Heading
+@import views.html.templates.helpers.P
 @import utils.ViewUtils.bigDecimalCurrency
 
 @this(
@@ -30,9 +31,10 @@
         formWithCSRF: FormWithCSRF,
         errorSummary: ErrorSummary,
         button: Button,
-        inputText: InputText,
+        inputText: InputTextAlt,
         inputRadio: InputRadio,
-        heading: Heading
+        heading: Heading,
+        p: P
 )
 
 @(form: Form[BigDecimal], priorSubmission: Option[DividendsPriorSubmission], taxYear: Int, postAction: Call, preAmount: Option[BigDecimal] = None)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
@@ -41,25 +43,21 @@
     messages(s"dividends.other-dividends-amount.title.${if(user.isAgent) "agent" else "individual"}")
 }
 
+@headingForUse = @{(titleForUse)}
+
 @hintText = @{
-    Some(Html(messages("common.currency.hint")))
+    Some(messages("common.currency.hint"))
 }
 @currencyFormHtml(formInput: Form[BigDecimal]) = {
-
-@errorSummary(formInput.errors.distinct)
 
 @inputText(
         formInput,
         id = "amount",
         name = "amount",
-        heading = s"dividends.other-dividends-amount.title.${if(user.isAgent) "agent" else "individual"}",
-        content = Some(contentHtml),
-        labelClasses = Some("govuk-!-margin-bottom-4"),
-        isPageHeading = false,
+        label = headingForUse,
+        labelHidden = true,
         currency = true,
         hint = hintText,
-        subheading = Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)),
-        headingClasses = "govuk-!-margin-bottom-2"
     )
 }
 
@@ -75,22 +73,27 @@
     form.hasErrors
 }
 
-@contentHtml = {
-    @if(priorAmount.isDefined) {
-        <p>
-            @messages(s"common.youToldUs")
-            @messages(s"common.youGot.${if(user.isAgent) "agent" else "individual"}")
-            @bigDecimalCurrency(priorAmount.getOrElse(BigDecimal("0")).toString)
-            @messages("dividends.other-dividends-amount.change-amount.details")
-        </p>
-    } else {
-        <p>
-            @messages(s"dividends.common.change-amount.caption.${if(user.isAgent) "agent" else "individual"}")
-        </p>
+@contentHtml = @{
+    if(priorAmount.isDefined) {
+            p(Html(messages(s"dividends.other-dividends-amount.change-amount-${if(user.isAgent) "agent" else "individual"}.details", bigDecimalCurrency(priorAmount.getOrElse(BigDecimal("0")).toString))),
+                classes = "govuk-body govuk-!-margin-bottom-3",
+                id = Some("p1")
+            )
+         } else {
+            p(Html(messages(s"dividends.common.change-amount.caption.${if(user.isAgent) "agent" else "individual"}")),
+            classes = "govuk-body govuk-!-margin-bottom-3",
+            id = Some("p1")
+        )
     }
 }
 
 @layout(pageTitle = titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors, isAgent = user.isAgent) {
+
+    @errorSummary(form.errors)
+
+    @heading(headingForUse, Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
+
+    @contentHtml
 
     @formWithCSRF(action = postAction) {
         @currencyFormHtml(form)

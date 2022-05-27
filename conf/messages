@@ -112,7 +112,8 @@ dividends.uk-dividends.errors.noChoice.agent = Select yes if your client got div
 
 dividends.uk-dividends-amount.title.individual = How much did you get in dividends from UK-based companies?
 dividends.uk-dividends-amount.title.agent = How much did your client get in dividends from UK-based companies?
-dividends.uk-dividends-amount.change-amount.prior.common.2 = in dividends from UK-based companies this year. Tell us if this has changed.
+dividends.uk-dividends-amount.change-amount.individual.prior = You told us you got {0} in dividends from UK-based companies this year. Tell us if this has changed.
+dividends.uk-dividends-amount.change-amount.agent.prior = You told us your client got {0} in dividends from UK-based companies this year. Tell us if this has changed.
 dividends.uk-dividends-amount.error.empty.individual = Enter how much you got in dividends from UK-based companies
 dividends.uk-dividends-amount.error.empty.agent = Enter how much your client got in dividends from UK-based companies
 dividends.uk-dividends-amount.error.amountMaxLimit = The amount of dividends from UK-based companies must be less than £100,000,000,000
@@ -136,7 +137,8 @@ dividends.other-dividends.details2.paragraph.1 = Equalisation payments are given
 
 dividends.other-dividends-amount.title.individual = How much did you get in dividends from trusts and open-ended investment companies based in the UK?
 dividends.other-dividends-amount.title.agent = How much did your client get in dividends from trusts and open-ended investment companies based in the UK?
-dividends.other-dividends-amount.change-amount.details = in dividends from UK-based trusts and open-ended investment companies this year. Tell us if this has changed.
+dividends.other-dividends-amount.change-amount-individual.details = You told us you got {0} in dividends from UK-based trusts and open-ended investment companies this year. Tell us if this has changed.
+dividends.other-dividends-amount.change-amount-agent.details = You told us your client got {0} in dividends from UK-based trusts and open-ended investment companies this year. Tell us if this has changed.
 dividends.other-dividends-amount.form.caption = Enter the amount of dividends as shown on your dividend voucher.
 dividends.other-dividends-amount.error.empty.individual = Enter how much you got in dividends from trusts and open-ended investment companies
 dividends.other-dividends-amount.error.empty.agent = Enter how much your client got in dividends from trusts and open-ended investment companies
