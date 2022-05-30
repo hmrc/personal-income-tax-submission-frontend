@@ -44,11 +44,11 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
 
   object Selectors {
-    val youMustAlsoSelector = "#main-content > div > div > form > div > fieldset > legend > div:nth-child(2) > p"
+    val youMustAlsoSelector = "#p1"
 
-    def listContentSelector(i: Int): String = s"#main-content > div > div > form > div > fieldset > legend > ul > li:nth-child($i)"
+    def listContentSelector(i: Int): String = s"#main-content > div > div > ul > li:nth-child($i)"
 
-    val youDoNotNeedSelector = "#main-content > div > div > form > div > fieldset > legend > div:nth-child(4) > p"
+    val youDoNotNeedSelector = "#p2"
 
     def investmentTitleSelector(i: Int = 3): String = s"#main-content > div > div > form > details:nth-child($i) > summary > span"
 

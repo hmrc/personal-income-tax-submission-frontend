@@ -63,7 +63,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
     val errorSummaryTextSelector = ".govuk-error-summary__body"
     val newAmountInputSelector = "#amount"
     val amountInputName = "amount"
-    val youToldUsSelector = "#main-content > div > div > form > div > div > label > p"
+    val youToldUsSelector = "#p1"
   }
 
   trait SpecificExpectedResults {

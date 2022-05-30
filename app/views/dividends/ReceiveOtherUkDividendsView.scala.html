@@ -17,18 +17,20 @@
 @import views.html.headerFooterTemplate.Layout
 @import views.html.templates.helpers.Button
 @import views.html.templates.helpers.ErrorSummary
-@import views.html.templates.helpers.InputRadio
+@import views.html.templates.helpers.InputRadioAlt
 @import views.html.templates.helpers.Details
 @import views.html.templates.helpers.Heading
+@import views.html.templates.helpers.P
 
 @this(
     layout: Layout,
     formWithCsrf: FormWithCSRF,
     errorSummary: ErrorSummary,
     button: Button,
-    inputRadio: InputRadio,
+    inputRadio: InputRadioAlt,
     heading: Heading,
-    details: Details
+    details: Details,
+    p: P
 )
 
 @(form: Form[Boolean], taxYear: Int, checked: String = "")(implicit user: User[_], messages: Messages, appConfig: AppConfig)
@@ -39,20 +41,63 @@
 
 @hasFormErrors = @{form.hasErrors}
 
+@contentHtml = {
+
+    @p(Html(messages("dividends.other-dividends.paragraph.1")),
+        classes = "govuk-body govuk-!-margin-bottom-5",
+        id = Some("p1")
+    )
+    <ul class="govuk-body">
+        <li>@messages("dividends.other-dividends.bullet.1")</li>
+        <li>@messages("dividends.other-dividends.bullet.2")</li>
+        <li>@messages("dividends.other-dividends.bullet.3")</li>
+    </ul>
+
+    @p(Html(messages(s"dividends.other-dividends.paragraph.2.${if(user.isAgent) "agent" else "individual"}")),
+        classes = "govuk-body govuk-!-margin-bottom-5",
+        id = Some("p2")
+    )
+}
+
+@detailsHtml = {
+    @p(Html(messages("dividends.other-dividends.details.paragraph.1")),
+        classes = "govuk-body govuk-!-margin-bottom-5",
+        id = Some("p3")
+    )
+
+    @p(Html(messages("dividends.other-dividends.details.paragraph.2")),
+        classes = "govuk-body govuk-!-margin-bottom-5",
+        id = Some("p4")
+    )
+
+    @p(Html(messages("dividends.other-dividends.details.paragraph.3")),
+        classes = "govuk-body govuk-!-margin-bottom-5",
+        id = Some("p5")
+    )
+}
+
+@secondDetailsHtml = {
+    @p(Html(messages("dividends.other-dividends.details2.paragraph.1")),
+        classes = "govuk-body govuk-!-margin-bottom-5",
+        id = Some("p6")
+    )
+}
+
 @layout(pageTitle = titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors, isAgent = user.isAgent) {
 
     @errorSummary(form.errors.distinct)
+
+    @heading(headingForUse, Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-4")
+
+    @contentHtml
 
     @formWithCsrf(action = controllers.dividends.routes.ReceiveOtherUkDividendsController.submit(taxYear)) {
 
         @inputRadio(
             form = form,
-            heading = headingForUse,
-            hint = None,
-            inline = true,
-            classes = "govuk-!-margin-bottom-4",
-            subheading = Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)),
-            content = Some(contentHtml)
+            legendHeading = Some(Html(headingForUse)),
+            legendHidden = true,
+            inline = true
         )
         @details("dividends.other-dividends.details.title", detailsHtml)
         @details("dividends.other-dividends.details2.title", secondDetailsHtml)
@@ -60,30 +105,6 @@
 
     }
 
-}
-
-@contentHtml = {
-    <div class="govuk-body">
-    <p>@messages("dividends.other-dividends.paragraph.1")</p>
-    </div>
-    <ul>
-        <li>@messages("dividends.other-dividends.bullet.1")</li>
-        <li>@messages("dividends.other-dividends.bullet.2")</li>
-        <li>@messages("dividends.other-dividends.bullet.3")</li>
-    </ul>
-    <div class="govuk-body">
-    <p>@messages(s"dividends.other-dividends.paragraph.2.${if(user.isAgent) "agent" else "individual"}")</p>
-    </div>
-}
-
-@detailsHtml = {
-    <p>@messages("dividends.other-dividends.details.paragraph.1")</p>
-    <p>@messages("dividends.other-dividends.details.paragraph.2")</p>
-    <p>@messages("dividends.other-dividends.details.paragraph.3")</p>
-}
-
-@secondDetailsHtml = {
-    <p>@messages("dividends.other-dividends.details2.paragraph.1")</p>
 }
 
 @{

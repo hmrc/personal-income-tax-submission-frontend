@@ -15,7 +15,7 @@
  *@
 
 @import views.html.headerFooterTemplate.Layout
-@import views.html.templates.helpers.{Button, ErrorSummary, Heading, InputRadio, InputText}
+@import views.html.templates.helpers.{Button, ErrorSummary, Heading, InputRadio, InputTextAlt}
 @import models.interest.InterestAccountModel
 @import utils.ViewUtils.bigDecimalCurrency
 
@@ -26,15 +26,35 @@
    button: Button,
    heading: Heading,
    inputRadio: InputRadio,
-   inputText: InputText
+   inputText: InputTextAlt
 )
 @(form: Form[BigDecimal], postAction: Call, taxYear: Int, taxType: String, account: InterestAccountModel, preAmount:Option[BigDecimal] = None)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
+
+@hint = @{
+    Some(messages("common.currency.hint"))
+}
+
+@contentHtml = {
+
+@if(preAmount.isDefined) {
+    <p class="govuk-body" id="p1">
+        @messages("common.youToldUs")
+        @messages(s"common.youGot.${if(user.isAgent) "agent" else "individual"}")
+        @bigDecimalCurrency(preAmount.getOrElse(BigDecimal("0")).toString)
+        @messages(s"interest.change-account.${taxType.toLowerCase}-label.prior.common2")
+    </p>
+    }
+}
 
 @hasFormErrors = @{form.hasErrors}
 
 @layout(pageTitle = messages(s"interest.change-account.${taxType.toLowerCase}-title.${if(user.isAgent) "agent" else "individual"}"), taxYear = Some(taxYear), hasErrors = hasFormErrors, isAgent = user.isAgent) {
 
     @errorSummary(form.errors.distinct)
+
+    @heading(messages(s"interest.change-account.${taxType.toLowerCase}-heading.${if(user.isAgent) "agent" else "individual"}", account.accountName), Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
+
+    @contentHtml
 
     @formWithCSRF(action = postAction) {
 
@@ -44,31 +64,15 @@
                 form,
                 id = "amount",
                 name = "amount",
-                heading = messages(s"interest.change-account.${taxType.toLowerCase}-heading.${if(user.isAgent) "agent" else "individual"}", account.accountName),
-                content = Some(contentHtml),
-                labelClasses = Some("govuk-!-margin-bottom-4"),
-                isPageHeading = false,
                 currency = true,
-                hint = Some(Html(messages("common.currency.hint"))),
-                subheading = Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)),
-                headingClasses = "govuk-!-margin-bottom-2"
+                hint = hint,
+                label = messages(s"interest.change-account.${taxType.toLowerCase}-heading.${if(user.isAgent) "agent" else "individual"}", account.accountName),
+                labelHidden = true
             )
         </div>
 
 
         @button()
-    }
-}
-
-@contentHtml = {
-
-    @if(preAmount.isDefined) {
-        <p>
-            @messages("common.youToldUs")
-            @messages(s"common.youGot.${if(user.isAgent) "agent" else "individual"}")
-            @bigDecimalCurrency(preAmount.getOrElse(BigDecimal("0")).toString)
-            @messages(s"interest.change-account.${taxType.toLowerCase}-label.prior.common2")
-        </p>
     }
 }
 

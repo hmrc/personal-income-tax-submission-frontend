@@ -23,6 +23,7 @@
     name: String,
     label: String,
     labelHidden: Boolean = false,
+    labelClasses: Boolean = false,
     isPageHeading: Boolean = false,
     hint: Option[String] = None,
     classes: Option[String] = None,
@@ -38,7 +39,7 @@
     label = Label(
         content = Text(messages(label)),
         isPageHeading = isPageHeading,
-        classes = if(isPageHeading) "govuk-label--l" else if (labelHidden) "govuk-visually-hidden" else ""
+        classes = if(isPageHeading) "govuk-label--l" else if (labelHidden) "govuk-visually-hidden" else if(labelClasses) "govuk-label--m" else ""
     ),
     hint = hint.map(hintKey => Hint(
         content = HtmlContent(messages(hintKey))

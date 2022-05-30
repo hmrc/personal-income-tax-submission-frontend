@@ -36,7 +36,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
     otherUkDividends = Some(true), otherUkDividendsAmount = Some(amount))
 
   object Selectors {
-    val yourDividendsSelector = "#main-content > div > div > form > div > fieldset > legend > p"
+    val yourDividendsSelector = "#p1"
     val continueSelector = "#continue"
     val continueButtonFormSelector = "#main-content > div > div > form"
   }

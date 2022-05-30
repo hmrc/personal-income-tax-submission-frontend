@@ -18,61 +18,78 @@
 @import play.api.i18n.Messages
 @import play.api.mvc.Request
 @import views.html.headerFooterTemplate.Layout
-@import views.html.templates.helpers.{Button, ErrorSummary, InputText, Heading}
+@import views.html.templates.helpers.{Button, ErrorSummary, InputTextAlt, Heading, P}
 
 @this(
    layout: Layout,
    errorSummary: ErrorSummary,
    formWithCsrf: FormWithCSRF,
-   inputText: InputText,
+   inputText: InputTextAlt,
    button: Button,
-   heading: Heading
+   heading: Heading,
+   p: P
 )
 
 @(form: Form[UntaxedInterestModel], taxYear: Int, postAction: Call, isAgent: Boolean)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@contentHtml = {
-    <p class = "govuk-!-margin-top-1 govuk-!-margin-bottom-4">@messages("interest.common.sub-heading.2") </p>
+@contentHtml = @{
+    p(Html(messages("interest.common.sub-heading.2")),
+        classes = "govuk-!-margin-top-1 govuk-!-margin-bottom-4 govuk-body",
+        id = Some("p1")
+    )
 }
 
-@hint1 = {
-    @messages("interest.common.account.hint")
+@subheading = {
+    <div class="govuk-label--m">@messages("interest.common.sub-heading.1")</div>
 }
 
-@hint2 = {
-    @messages("common.currency.hint")
+@subheading2 = {
+    <div class="govuk-label--m">@messages("interest.untaxed-uk-interest.amount.interest.earned")</div>
+}
+
+@hint1 = @{
+    Some(messages("interest.common.account.hint"))
+}
+
+@hint2 = @{
+    Some(messages("common.currency.hint"))
 }
 
 @hasFormErrors = @{form.hasErrors}
 
 @layout(pageTitle = messages("interest.untaxed-uk-interest-details.title"), taxYear = Some(taxYear), hasErrors = hasFormErrors, isAgent = isAgent) {
-    @formWithCsrf(action = postAction) {
 
         @errorSummary(form.errors.distinct)
 
         @heading("interest.untaxed-uk-interest-details.title", Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 
+        @subheading
+
+        @contentHtml
+
+        @formWithCsrf(action = postAction) {
+
         @inputText(
             form,
             id = "untaxedAccountName",
             name = "untaxedAccountName",
-            heading = "interest.common.sub-heading.1",
-            isPageHeading = false,
-            classes = Some("govuk-input--width-20"),
-            headingClasses = "govuk-label--m",
-            content = Some(contentHtml),
-            hint = Some(hint1)
+            hint = hint1,
+            label = "interest.common.sub-heading.1",
+            labelHidden = true,
+            currency = false,
+            classes = Some("govuk-input--width-20")
         )
+
+        @subheading2
 
         @inputText(
             form,
             id = "untaxedAmount",
             name = "untaxedAmount",
-            heading = "interest.untaxed-uk-interest.amount.interest.earned",
-            isPageHeading = false,
-            labelClasses = Some("govuk-label--m"),
+            label = "interest.untaxed-uk-interest.amount.interest.earned",
+            labelHidden = true,
             currency = true,
-            hint = Some(hint2)
+            hint = hint2
         )
 
         @button()
