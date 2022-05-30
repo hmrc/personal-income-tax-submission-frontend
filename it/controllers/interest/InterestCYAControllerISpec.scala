@@ -192,7 +192,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           lazy val result = {
             dropInterestDB()
             emptyUserDataStub()
-            insertCyaData(Some(cyaModel))
+            insertInterestCyaData(Some(cyaModel))
             authoriseAgentOrIndividual(us.isAgent)
             urlGet(s"$appUrl/$taxYear/interest/check-interest", us.isWelsh, follow = false,  playSessionCookie(us.isAgent))
           }
@@ -249,7 +249,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           lazy val result = {
             dropInterestDB()
             emptyUserDataStub()
-            insertCyaData(Some(cyaModel))
+            insertInterestCyaData(Some(cyaModel))
             authoriseAgentOrIndividual(us.isAgent)
             urlGet(s"$appUrl/$taxYear/interest/check-interest", us.isWelsh, follow = false,  playSessionCookie(us.isAgent))
           }
@@ -271,7 +271,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           lazy val result = {
             dropInterestDB()
             emptyUserDataStub()
-            insertCyaData(Some(cyaModel))
+            insertInterestCyaData(Some(cyaModel))
             authoriseAgentOrIndividual(us.isAgent)
             urlGet(s"$appUrl/$taxYear/interest/check-interest", us.isWelsh, follow = false,  playSessionCookie(us.isAgent))
           }
@@ -292,7 +292,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           lazy val result = {
             dropInterestDB()
             emptyUserDataStub()
-            insertCyaData(Some(cyaModel))
+            insertInterestCyaData(Some(cyaModel))
             authoriseAgentOrIndividual(us.isAgent)
             urlGet(s"$appUrl/$taxYear/interest/check-interest", us.isWelsh, follow = false,  playSessionCookie(us.isAgent))
           }
@@ -319,7 +319,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           lazy val result = {
             dropInterestDB()
             emptyUserDataStub()
-            insertCyaData(Some(cyaModel))
+            insertInterestCyaData(Some(cyaModel))
 
             authoriseAgentOrIndividual(us.isAgent)
             urlGet(s"$appUrl/$taxYear/interest/check-interest", us.isWelsh, follow = false,  playSessionCookie(us.isAgent))
@@ -378,7 +378,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
             lazy val result = {
               dropInterestDB()
               emptyUserDataStub()
-              insertCyaData(Some(cyaModel))
+              insertInterestCyaData(Some(cyaModel))
 
               authoriseAgentOrIndividual(us.isAgent)
               urlGet(s"$appUrl/$taxYear/interest/check-interest", us.isWelsh, follow = true,  playSessionCookie(us.isAgent))
@@ -439,7 +439,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
               emptyUserDataStub()
 
               userDataStub(IncomeSourcesModel(interest = interestModel), nino, taxYear)
-              insertCyaData(Some(cyaModel))
+              insertInterestCyaData(Some(cyaModel))
 
               authoriseAgentOrIndividual(us.isAgent)
               urlGet(s"$appUrl/$taxYear/interest/check-interest", us.isWelsh, follow = true,  playSessionCookie(us.isAgent))
@@ -485,7 +485,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           lazy val result = {
             dropInterestDB()
             emptyUserDataStub()
-            insertCyaData(None, taxYear, Some("AA123456A"), None)
+            insertInterestCyaData(None, taxYear, Some("AA123456A"), None)
             authoriseAgentOrIndividual(us.isAgent)
 
             urlGet(s"$appUrl/$taxYear/interest/check-interest", us.isWelsh, follow = false,  playSessionCookie(us.isAgent))
@@ -527,7 +527,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           lazy val result = {
             dropInterestDB()
             emptyUserDataStub()
-            insertCyaData(Some(InterestCYAModel(
+            insertInterestCyaData(Some(InterestCYAModel(
               None, Some(false), Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount)))
             )), taxYear, Some(mtditid), None)
             authoriseIndividual()
@@ -544,7 +544,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           lazy val result = {
             dropInterestDB()
             emptyUserDataStub()
-            insertCyaData(None)
+            insertInterestCyaData(None)
             authoriseIndividual()
             stubPost(s"/income-tax-interest/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "", expectedHeaders)
             urlPost(s"$appUrl/$taxYear/interest/check-interest", "{}", us.isWelsh, follow = false, playSessionCookie(us.isAgent))
@@ -557,7 +557,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           lazy val result = {
             dropInterestDB()
             emptyUserDataStub()
-            insertCyaData(Some(InterestCYAModel(
+            insertInterestCyaData(Some(InterestCYAModel(
               None,
               Some(false),
               Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount)))
@@ -573,7 +573,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           lazy val result = {
             dropInterestDB()
             emptyUserDataStub()
-            insertCyaData(Some(InterestCYAModel(
+            insertInterestCyaData(Some(InterestCYAModel(
               None,
               Some(false),
               Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount)))

@@ -153,7 +153,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
             authoriseAgentOrIndividual(us.isAgent)
             dropDividendsDB()
             emptyUserDataStub()
-            insertCyaData(Some(cyaModel))
+            insertDividendsCyaData(Some(cyaModel))
             urlGet(ukDividendsAmountUrl, us.isWelsh, headers = playSessionCookie(us.isAgent))
           }
 
@@ -181,7 +181,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
             authoriseAgentOrIndividual(us.isAgent)
             dropDividendsDB()
             emptyUserDataStub()
-            insertCyaData(Some(cyaModelWithAmount))
+            insertDividendsCyaData(Some(cyaModelWithAmount))
             urlGet(ukDividendsAmountUrl, us.isWelsh, headers = playSessionCookie(us.isAgent))
           }
 
@@ -213,7 +213,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
         authoriseIndividual()
         dropDividendsDB()
         emptyUserDataStub()
-        insertCyaData(Some(cyaModelWithAmount))
+        insertDividendsCyaData(Some(cyaModelWithAmount))
         userDataStub(IncomeSourcesModel(
           dividends = Some(DividendsPriorSubmission(
             Some(1),
@@ -238,7 +238,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
         authoriseIndividual()
         dropDividendsDB()
         emptyUserDataStub()
-        insertCyaData(Some(cyaModelWithAmount))
+        insertDividendsCyaData(Some(cyaModelWithAmount))
         userDataStub(IncomeSourcesModel(
           dividends = Some(DividendsPriorSubmission(
             Some(amount),
@@ -280,7 +280,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
         userDataStub(IncomeSourcesModel(Some(
           DividendsPriorSubmission(ukDividends = Some(amount))
         )), nino, taxYear)
-        insertCyaData(None)
+        insertDividendsCyaData(None)
         stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", SEE_OTHER, "overview page content")
         urlGet(ukDividendsAmountUrl, follow = false, headers = playSessionCookie())
       }
@@ -376,7 +376,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
         authoriseIndividual()
         dropDividendsDB()
         emptyUserDataStub()
-        insertCyaData(Some(cyaModel))
+        insertDividendsCyaData(Some(cyaModel))
         urlPost(ukDividendsAmountUrl, follow = false, headers = playSessionCookie(), body = Map("amount" -> "123"))
       }
 
@@ -392,7 +392,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
         dropDividendsDB()
         emptyUserDataStub()
         userDataStub(priorData, nino, taxYear)
-        insertCyaData(Some(DividendsCheckYourAnswersModel(None, Some(true), Some(amount), Some(true), Some(amount))))
+        insertDividendsCyaData(Some(DividendsCheckYourAnswersModel(None, Some(true), Some(amount), Some(true), Some(amount))))
         urlPost(ukDividendsAmountUrl, follow = false, headers = playSessionCookie(), body = Map("amount" -> "123"))
       }
 

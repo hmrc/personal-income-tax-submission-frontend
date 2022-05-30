@@ -33,7 +33,7 @@ trait CharityITHelper extends IntegrationTest with ViewHelpers with GiftAidDatab
     if(priorData.isDefined) userDataStub(priorData.get, nino, taxYear) else emptyUserDataStub()
 
     dropGiftAidDB()
-    if (cyaData.isDefined) insertCyaData(cyaData)
+    if (cyaData.isDefined) insertGiftAidCyaData(cyaData)
 
     authoriseAgentOrIndividual(isAgent)
     urlGet(pageUrl, welsh, follow = false, playSessionCookie(isAgent))
@@ -52,7 +52,7 @@ trait CharityITHelper extends IntegrationTest with ViewHelpers with GiftAidDatab
     if(priorData.isDefined) userDataStub(priorData.get, nino, taxYear) else emptyUserDataStub()
 
     dropGiftAidDB()
-    if (cyaData.isDefined) insertCyaData(cyaData)
+    if (cyaData.isDefined) insertGiftAidCyaData(cyaData)
 
     authoriseAgentOrIndividual(isAgent)
     urlPost(pageUrl, input, welsh, follow = false, playSessionCookie(isAgent))

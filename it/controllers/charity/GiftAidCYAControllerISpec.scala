@@ -342,7 +342,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
     dropGiftAidDB()
 
     userDataStub(priorModel, nino, taxYear)
-    insertCyaData(cya)
+    insertGiftAidCyaData(cya)
 
     authoriseIndividual()
     await(wsClient.url(url).withFollowRedirects(false).withHttpHeaders(xSessionId, csrfContent).get())
@@ -664,7 +664,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
             lazy val result: WSResponse = {
 
               dropGiftAidDB()
-              insertCyaData(Some(cyaDataIncomplete))
+              insertGiftAidCyaData(Some(cyaDataIncomplete))
               userDataStub(IncomeSourcesModel(), nino, taxYear)
 
               authoriseAgentOrIndividual(user.isAgent)
@@ -681,7 +681,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
             lazy val result = {
 
               dropGiftAidDB()
-              insertCyaData(None)
+              insertGiftAidCyaData(None)
               userDataStub(IncomeSourcesModel(), nino, taxYear)
 
               authoriseAgentOrIndividual(user.isAgent)
@@ -728,7 +728,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
 
               wireMockServer.resetAll()
               dropGiftAidDB()
-              insertCyaData(Some(cyaDataMax))
+              insertGiftAidCyaData(Some(cyaDataMax))
               userDataStub(IncomeSourcesModel(), nino, taxYear)
               authoriseAgentOrIndividual(user.isAgent)
               stubPost(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
@@ -752,7 +752,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
 
               wireMockServer.resetAll()
               dropGiftAidDB()
-              insertCyaData(Some(cyaDataMax))
+              insertGiftAidCyaData(Some(cyaDataMax))
               userDataStub(IncomeSourcesModel(None, None, Some(unchangedPriorData)), nino, taxYear)
               authoriseAgentOrIndividual(user.isAgent)
               stubPost(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
@@ -779,7 +779,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
               wireMockServer.resetAll()
 
               dropGiftAidDB()
-              insertCyaData(Some(cyaDataMax))
+              insertGiftAidCyaData(Some(cyaDataMax))
               userDataStub(IncomeSourcesModel(), nino, taxYear)
 
               authoriseAgentOrIndividual(user.isAgent)

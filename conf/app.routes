@@ -146,6 +146,16 @@ POST        /:taxYear/charity/check-donations-to-charity                        
 GET         /:taxYear/charity/charity-donations-to-charity                                                    controllers.charity.GiftAidGatewayController.show(taxYear: Int)
 POST        /:taxYear/charity/charity-donations-to-charity                                                    controllers.charity.GiftAidGatewayController.submit(taxYear: Int)
 
+# Cross Journey Pages
+
+GET         /:taxYear/interest/change-information                                                             controllers.ZeroingWarningController.show(taxYear: Int, journeyKey =  "interest")
+GET         /:taxYear/dividends/change-information                                                            controllers.ZeroingWarningController.show(taxYear: Int, journeyKey =  "dividends")
+GET         /:taxYear/charity/change-information                                                              controllers.ZeroingWarningController.show(taxYear: Int, journeyKey =  "charity")
+
+POST        /:taxYear/interest/change-information                                                             controllers.ZeroingWarningController.submit(taxYear: Int, journeyKey =  "interest")
+POST        /:taxYear/dividends/change-information                                                            controllers.ZeroingWarningController.submit(taxYear: Int, journeyKey =  "dividends")
+POST        /:taxYear/charity/change-information                                                              controllers.ZeroingWarningController.submit(taxYear: Int, journeyKey =  "charity")
+
 # Error routes
 
 GET         /error/wrong-tax-year                                                                             controllers.TaxYearErrorController.show

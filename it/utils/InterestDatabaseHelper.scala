@@ -23,7 +23,7 @@ import services.EncryptionService
 trait InterestDatabaseHelper { self: IntegrationTest =>
 
   lazy val interestDatabase: InterestUserDataRepository = app.injector.instanceOf[InterestUserDataRepository]
-  val encryptionService = app.injector.instanceOf[EncryptionService]
+  val interestEncryptionService = app.injector.instanceOf[EncryptionService]
 
   //noinspection ScalaStyle
   def dropInterestDB() = {
@@ -32,7 +32,7 @@ trait InterestDatabaseHelper { self: IntegrationTest =>
   }
 
   //noinspection ScalaStyle
-  def insertCyaData(
+  def insertInterestCyaData(
                      cya: Option[InterestCYAModel],
                      taxYear: Int = taxYear,
                      overrideMtditid: Option[String] = None,
@@ -42,11 +42,11 @@ trait InterestDatabaseHelper { self: IntegrationTest =>
     await(interestDatabase.create(
       InterestUserDataModel(sessionId, overrideMtditid.fold(mtditid)(value => value), overrideNino.fold(nino)(value => value), taxYear, cya)
     )) match {
-      case Left(value) => false
-      case Right(value) => true
+      case Left(_) => false
+      case Right(value) => value
     }
 
   }
 
-  def findInterestDb: Option[InterestCYAModel] = encryptionService.decryptInterestUserData(await(interestDatabase.collection.find().toFuture()).head).interest
+  def findInterestDb: Option[InterestCYAModel] = interestEncryptionService.decryptInterestUserData(await(interestDatabase.collection.find().toFuture()).head).interest
 }

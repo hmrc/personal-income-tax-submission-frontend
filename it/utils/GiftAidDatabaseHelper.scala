@@ -25,7 +25,7 @@ trait GiftAidDatabaseHelper {
   self: IntegrationTest =>
 
   lazy val giftAidDatabase: GiftAidUserDataRepository = app.injector.instanceOf[GiftAidUserDataRepository]
-  val encryptionService = app.injector.instanceOf[EncryptionService]
+  val giftAidEncryptionService = app.injector.instanceOf[EncryptionService]
 
   //noinspection ScalaStyle
   def dropGiftAidDB() = {
@@ -34,7 +34,7 @@ trait GiftAidDatabaseHelper {
   }
 
   //noinspection ScalaStyle
-  def insertCyaData(
+  def insertGiftAidCyaData(
                      cya: Option[GiftAidCYAModel],
                      taxYear: Int = taxYear,
                      overrideMtditid: Option[String] = None,
@@ -44,13 +44,13 @@ trait GiftAidDatabaseHelper {
     await(giftAidDatabase.create(
       GiftAidUserDataModel(sessionId, overrideMtditid.fold(mtditid)(value => value), overrideNino.fold(nino)(value => value), taxYear, cya))
     ) match {
-      case Left(value) => false
+      case Left(_) => false
       case Right(value) => value
     }
 
   }
 
   //noinspection ScalaStyle
-  def findGiftAidDb: Option[GiftAidCYAModel] = encryptionService.decryptGiftAidUserData(await(giftAidDatabase.collection.find().toFuture()).head).giftAid
+  def findGiftAidDb: Option[GiftAidCYAModel] = giftAidEncryptionService.decryptGiftAidUserData(await(giftAidDatabase.collection.find().toFuture()).head).giftAid
 
 }

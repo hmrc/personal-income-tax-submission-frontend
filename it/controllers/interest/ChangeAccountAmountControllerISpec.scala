@@ -183,7 +183,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               lazy val result = {
 
                 dropInterestDB()
-                insertCyaData(Some(testCase._1))
+                insertInterestCyaData(Some(testCase._1))
                 userDataStub(IncomeSourcesModel(interest = Some(Seq(testCase._2))), nino, taxYear)
                 authoriseAgentOrIndividual(us.isAgent)
                 urlGet(url(id, if(testCase._3) "untaxed" else "taxed"), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
@@ -221,7 +221,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               lazy val result = {
 
                 dropInterestDB()
-                insertCyaData(Some(testCase._1))
+                insertInterestCyaData(Some(testCase._1))
                 userDataStub(IncomeSourcesModel(interest = Some(Seq(testCase._2))), nino, taxYear)
                 authoriseAgentOrIndividual(us.isAgent)
                 urlGet(url(id, if(testCase._3) "untaxed" else "taxed"), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
@@ -260,7 +260,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
               lazy val result = {
                 dropInterestDB()
-                insertCyaData(Some(testCase._1))
+                insertInterestCyaData(Some(testCase._1))
                 userDataStub(IncomeSourcesModel(interest = Some(Seq(testCase._2))), nino, taxYear)
                 authoriseAgentOrIndividual(us.isAgent)
                 urlGet(url(id, if(testCase._3) "untaxed" else "taxed"), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
@@ -289,7 +289,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
                 lazy val result = {
                   dropInterestDB()
-                  insertCyaData(Some(testCase._1))
+                  insertInterestCyaData(Some(testCase._1))
                   userDataStub(IncomeSourcesModel(interest = Some(Seq(testCase._2))), nino, taxYear)
                   authoriseAgentOrIndividual(us.isAgent)
                   urlGet(url(id, if (testCase._3) "untaxed" else "taxed"), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
@@ -317,7 +317,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
                 lazy val result = {
                   dropInterestDB()
-                  insertCyaData(None)
+                  insertInterestCyaData(None)
                   userDataStub(IncomeSourcesModel(interest = Some(Seq())), nino, taxYear)
                   authoriseAgentOrIndividual(us.isAgent)
                   urlGet(url(id, if (testCase) "untaxed" else "taxed"), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
@@ -347,7 +347,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
                 lazy val result = {
                   dropInterestDB()
-                  insertCyaData(Some(testCase._1))
+                  insertInterestCyaData(Some(testCase._1))
                   userDataStub(IncomeSourcesModel(interest = Some(Seq())), nino, taxYear)
                   authoriseAgentOrIndividual(us.isAgent)
                   urlGet(url(id, if (testCase._2) "untaxed" else "taxed"), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
@@ -384,7 +384,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               lazy val result = {
 
                 dropInterestDB()
-                insertCyaData(Some(testCase._1))
+                insertInterestCyaData(Some(testCase._1))
                 userDataStub(IncomeSourcesModel(interest = Some(Seq(testCase._2))), nino, taxYear)
                 authoriseAgentOrIndividual(us.isAgent)
                 urlPost(url(testCase._2.incomeSourceId, if (testCase._3) "untaxed" else "taxed"), Map("amount" -> ""),
@@ -415,7 +415,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               lazy val result = {
 
                 dropInterestDB()
-                insertCyaData(Some(testCase._1))
+                insertInterestCyaData(Some(testCase._1))
                 userDataStub(IncomeSourcesModel(interest = Some(Seq(testCase._2))), nino, taxYear)
                 authoriseAgentOrIndividual(us.isAgent)
                 urlPost(url(testCase._2.incomeSourceId, if (testCase._3) "untaxed" else "taxed"), Map("amount" -> "45645.99"),
@@ -445,7 +445,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
               lazy val result = {
 
                 dropInterestDB()
-                insertCyaData(Some(testCase._1))
+                insertInterestCyaData(Some(testCase._1))
                 userDataStub(IncomeSourcesModel(interest = Some(Seq(testCase._2))), nino, taxYear)
                 authoriseAgentOrIndividual(us.isAgent)
                 urlPost(url(testCase._2.incomeSourceId, if (testCase._3) "untaxed" else "taxed"), Map("amount" -> "45645.99"),
@@ -476,7 +476,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
                 dropInterestDB()
                 authoriseAgentOrIndividual(us.isAgent)
-                insertCyaData(Some(testCase._1))
+                insertInterestCyaData(Some(testCase._1))
                 userDataStub(IncomeSourcesModel(interest = Some(Seq(testCase._2))), nino, taxYear)
                 urlPost(url(testCase._2.incomeSourceId, if (testCase._3) "untaxed" else "taxed"), Map("amount" -> "|"),
                   us.isWelsh, follow = false, playSessionCookie(us.isAgent))
@@ -503,7 +503,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
                 dropInterestDB()
                 authoriseAgentOrIndividual(us.isAgent)
-                insertCyaData(Some(testCase._1))
+                insertInterestCyaData(Some(testCase._1))
                 userDataStub(IncomeSourcesModel(interest = Some(Seq(testCase._2))), nino, taxYear)
                 urlPost(url(testCase._2.incomeSourceId, if (testCase._3) "untaxed" else "taxed"), Map("amount" -> "99999999999999999999999999999999999999999"),
                   us.isWelsh, follow = false, playSessionCookie(us.isAgent))
@@ -530,7 +530,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
                 dropInterestDB()
                 authoriseAgentOrIndividual(us.isAgent)
-                insertCyaData(Some(testCase._1))
+                insertInterestCyaData(Some(testCase._1))
                 userDataStub(IncomeSourcesModel(interest = None), nino, taxYear)
                 urlPost(url(testCase._1.accounts.head.id.get, if (testCase._2) "untaxed" else "taxed"),
                   Map("" -> ""),
@@ -555,7 +555,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
                 dropInterestDB()
                 authoriseAgentOrIndividual(us.isAgent)
-                insertCyaData(None)
+                insertInterestCyaData(None)
                 emptyUserDataStub()
                 urlPost(url("randomid", if (testCase) "untaxed" else "taxed"),
                   Map("" -> ""),

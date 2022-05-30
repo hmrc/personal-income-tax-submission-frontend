@@ -188,7 +188,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
             authoriseAgentOrIndividual(us.isAgent)
             dropDividendsDB()
             emptyUserDataStub()
-            insertCyaData(Some(dividendsCyaModel))
+            insertDividendsCyaData(Some(dividendsCyaModel))
             urlGet(dividendsCheckYourAnswersUrl, us.isWelsh, false, headers =
               playSessionCookie(us.isAgent))
           }
@@ -282,7 +282,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
             authoriseAgentOrIndividual(us.isAgent)
             dropDividendsDB()
             emptyUserDataStub()
-            insertCyaData(Some(dividendsNoModel))
+            insertDividendsCyaData(Some(dividendsNoModel))
             urlGet(dividendsCheckYourAnswersUrl, us.isWelsh, headers =
               playSessionCookie(us.isAgent))
           }
@@ -326,7 +326,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
             dropDividendsDB()
             emptyUserDataStub()
             userDataStub(priorData, nino, taxYear)
-            insertCyaData(Some(DividendsCheckYourAnswersModel(
+            insertDividendsCyaData(Some(DividendsCheckYourAnswersModel(
               None,
               Some(true), Some(ukDividends1),
               Some(true), Some(otherDividends1)
@@ -394,7 +394,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
             authoriseIndividual()
             dropDividendsDB()
             emptyUserDataStub()
-            insertCyaData(Some(DividendsCheckYourAnswersModel(
+            insertDividendsCyaData(Some(DividendsCheckYourAnswersModel(
               ukDividends = Some(true)
             )))
 
@@ -416,7 +416,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
             authoriseIndividual()
             dropDividendsDB()
             emptyUserDataStub()
-            insertCyaData(Some(DividendsCheckYourAnswersModel(
+            insertDividendsCyaData(Some(DividendsCheckYourAnswersModel(
               ukDividends = Some(false)
             )))
             urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie())
@@ -438,7 +438,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           authoriseIndividual()
           dropDividendsDB()
           emptyUserDataStub()
-          insertCyaData(Some(DividendsCheckYourAnswersModel(
+          insertDividendsCyaData(Some(DividendsCheckYourAnswersModel(
             None, Some(true), Some(1000.43)
           )))
           urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie())
@@ -459,7 +459,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           authoriseIndividual()
           dropDividendsDB()
           emptyUserDataStub()
-          insertCyaData(Some(DividendsCheckYourAnswersModel(
+          insertDividendsCyaData(Some(DividendsCheckYourAnswersModel(
             None, Some(true), Some(1000.43), Some(true)
           )))
 
@@ -497,7 +497,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
         authoriseIndividual()
         dropDividendsDB()
         emptyUserDataStub()
-        insertCyaData(
+        insertDividendsCyaData(
           Some(DividendsCheckYourAnswersModel(
             None, Some(true), Some(1000.43), Some(true), Some(9983.21)
           )))
@@ -521,7 +521,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
         dropDividendsDB()
         emptyUserDataStub()
 
-        insertCyaData(
+        insertDividendsCyaData(
           Some(DividendsCheckYourAnswersModel(
             None, Some(true), Some(1000.43), Some(true), Some(9983.21)
           )))
@@ -540,7 +540,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
         dropDividendsDB()
         emptyUserDataStub()
 
-        insertCyaData(
+        insertDividendsCyaData(
           Some(DividendsCheckYourAnswersModel(
             None, Some(true), Some(1000.43), Some(true), Some(9983.21)
           )))

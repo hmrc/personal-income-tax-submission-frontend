@@ -24,6 +24,8 @@ common.account = cyfrif
 common.account-details = manylion y cyfrif
 common.opensInNewWindowOrTab = (yn agor tab newydd)
 common.help.getHelpWithThisPage = Help gyda’r dudalen hon
+common.confirm = Cadarnhau
+common.cancel = Canslo
 
 common.youToldUs = Gwnaethoch ddweud wrthym
 common.youGot.individual = cawsoch
@@ -550,3 +552,12 @@ charity.gateway.heading.agent = A wnaeth eich cleient gyfrannu at elusen?
 charity.gateway.hint = Mae hyn yn cynnwys rhoddion i elusennau tramor a rhoddion o dir, eiddo, cyfraniadau a gwarannau.
 charity.gateway.error.individual = Dewiswch ‘Iawn’ os gwnaethoch gyfrannu at elusen
 charity.gateway.error.agent = Dewiswch ‘Iawn’ os gwnaeth eich cleient gyfrannu at elusen
+
+# Cross Journey
+# ----------------------------------------------------------
+
+zeroing.title.individual = Bydd hyn yn newid yr wybodaeth ar eich Ffurflen Dreth Incwm
+zeroing.title.agent = Bydd hyn yn newid yr wybodaeth ar Ffurflen Dreth Incwm eich cleient
+zeroing.p.1.individual = Ni allwn dynnu’r holl wybodaeth oherwydd rhesymau technegol. Byddwn yn newid eich gwybodaeth gyfredol fel na fydd yr adran hon yn effeithio ar eich Ffurflen Dreth.
+zeroing.p.1.agent = Ni allwn dynnu’r holl wybodaeth oherwydd rhesymau technegol. Byddwn yn newid gwybodaeth gyfredol eich cleient fel na fydd yr adran hon yn effeithio ar ei Ffurflen Dreth.
+zeroing.p.2 = Byddwch yn dal i weld rhywfaint o wybodaeth flaenorol, ond bydd yr holl symiau’n cael eu gosod i £0.

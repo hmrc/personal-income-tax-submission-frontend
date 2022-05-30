@@ -155,7 +155,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
             authoriseAgentOrIndividual(us.isAgent)
             dropDividendsDB()
             emptyUserDataStub()
-            insertCyaData(Some(validCyaModel))
+            insertDividendsCyaData(Some(validCyaModel))
             urlGet(otherUkDividendsAmountUrl, us.isWelsh, headers = playSessionCookie(us.isAgent))
           }
 
@@ -184,7 +184,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
             authoriseAgentOrIndividual(us.isAgent)
             dropDividendsDB()
             emptyUserDataStub()
-            insertCyaData(Some(validCyaModelWithAmount))
+            insertDividendsCyaData(Some(validCyaModelWithAmount))
             urlGet(otherUkDividendsAmountUrl, us.isWelsh,
               headers = playSessionCookie(us.isAgent))
           }
@@ -235,7 +235,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
         authoriseIndividual()
         dropDividendsDB()
         emptyUserDataStub()
-        insertCyaData(Some(validCyaModelWithAmount))
+        insertDividendsCyaData(Some(validCyaModelWithAmount))
         userDataStub(IncomeSourcesModel(
           dividends = Some(DividendsPriorSubmission(
             None,
@@ -260,7 +260,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
         authoriseIndividual()
         dropDividendsDB()
         emptyUserDataStub()
-        insertCyaData(Some(validCyaModel))
+        insertDividendsCyaData(Some(validCyaModel))
         userDataStub(IncomeSourcesModel(
           dividends = Some(DividendsPriorSubmission(
             None,
@@ -357,7 +357,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
         authoriseIndividual()
         dropDividendsDB()
         emptyUserDataStub()
-        insertCyaData(Some(DividendsCheckYourAnswersModel(None, Some(true), Some(amount),Some(true))))
+        insertDividendsCyaData(Some(DividendsCheckYourAnswersModel(None, Some(true), Some(amount),Some(true))))
         urlPost(otherUkDividendsAmountUrl, follow=false, headers = playSessionCookie(), body = Map("amount" -> "123"))
       }
 

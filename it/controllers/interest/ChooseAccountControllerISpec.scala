@@ -195,7 +195,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
             authoriseAgentOrIndividual(us.isAgent)
             dropInterestDB()
             emptyUserDataStub()
-            insertCyaData(Some(InterestCYAModel(taxedUkInterest = Some(true))))
+            insertInterestCyaData(Some(InterestCYAModel(taxedUkInterest = Some(true))))
             userDataStub(IncomeSourcesModel(interest = Some(accounts)), nino, taxYear)
             urlGet(chooseAccountUrl(TAXED), us.isWelsh, headers = playSessionCookie(us.isAgent))
           }
@@ -228,7 +228,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
             dropInterestDB()
             emptyUserDataStub()
             userDataStub(IncomeSourcesModel(interest = Some(accounts)), nino, taxYear)
-            insertCyaData(Some(InterestCYAModel(accounts = accounts2, taxedUkInterest = Some(true))))
+            insertInterestCyaData(Some(InterestCYAModel(accounts = accounts2, taxedUkInterest = Some(true))))
             urlGet(chooseAccountUrl(TAXED), us.isWelsh, headers = playSessionCookie(us.isAgent))
           }
 
@@ -262,7 +262,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
             authoriseAgentOrIndividual(us.isAgent)
             dropInterestDB()
             emptyUserDataStub()
-            insertCyaData(Some(InterestCYAModel(untaxedUkInterest = Some(true))))
+            insertInterestCyaData(Some(InterestCYAModel(untaxedUkInterest = Some(true))))
             userDataStub(IncomeSourcesModel(interest = Some(accounts)), nino, taxYear)
             urlGet(chooseAccountUrl(UNTAXED), us.isWelsh, headers = playSessionCookie(us.isAgent))
           }
@@ -296,7 +296,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
             dropInterestDB()
             emptyUserDataStub()
             userDataStub(IncomeSourcesModel(interest = Some(accounts)), nino, taxYear)
-            insertCyaData(Some(InterestCYAModel(accounts = accounts2, untaxedUkInterest = Some(true))))
+            insertInterestCyaData(Some(InterestCYAModel(accounts = accounts2, untaxedUkInterest = Some(true))))
             urlGet(chooseAccountUrl(UNTAXED), us.isWelsh, headers = playSessionCookie(us.isAgent))
           }
 
@@ -335,7 +335,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
         authoriseIndividual()
         dropInterestDB()
         emptyUserDataStub()
-        insertCyaData(Some(InterestCYAModel(taxedUkInterest = Some(true))))
+        insertInterestCyaData(Some(InterestCYAModel(taxedUkInterest = Some(true))))
         userDataStub(IncomeSourcesModel(interest = Some(accounts3)), nino, taxYear)
         urlGet(chooseAccountUrl(TAXED), follow = false, headers = playSessionCookie())
       }
@@ -350,7 +350,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
         authoriseIndividual()
         dropInterestDB()
         emptyUserDataStub()
-        insertCyaData(Some(InterestCYAModel(untaxedUkInterest = Some(true))))
+        insertInterestCyaData(Some(InterestCYAModel(untaxedUkInterest = Some(true))))
         userDataStub(IncomeSourcesModel(interest = Some(accounts4)), nino, taxYear)
         urlGet(chooseAccountUrl(UNTAXED), follow = false, headers = playSessionCookie())
       }
@@ -365,7 +365,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
         authoriseIndividual()
         dropInterestDB()
         emptyUserDataStub()
-        insertCyaData(Some(InterestCYAModel(taxedUkInterest = Some(true))))
+        insertInterestCyaData(Some(InterestCYAModel(taxedUkInterest = Some(true))))
         urlGet(chooseAccountUrl(TAXED), follow = false, headers = playSessionCookie())
       }
 
@@ -379,7 +379,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
         authoriseIndividual()
         dropInterestDB()
         emptyUserDataStub()
-        insertCyaData(Some(InterestCYAModel(untaxedUkInterest = Some(true))))
+        insertInterestCyaData(Some(InterestCYAModel(untaxedUkInterest = Some(true))))
         urlGet(chooseAccountUrl(UNTAXED), follow = false, headers = playSessionCookie())
       }
 
@@ -393,7 +393,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
         authoriseIndividual()
         dropInterestDB()
         emptyUserDataStub()
-        insertCyaData(Some(InterestCYAModel(untaxedUkInterest = Some(true), taxedUkInterest = Some(false))))
+        insertInterestCyaData(Some(InterestCYAModel(untaxedUkInterest = Some(true), taxedUkInterest = Some(false))))
         userDataStub(IncomeSourcesModel(interest = Some(accounts3)), nino, taxYear)
         urlGet(chooseAccountUrl(TAXED), follow = false, headers = playSessionCookie())
       }
@@ -408,7 +408,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
         authoriseIndividual()
         dropInterestDB()
         emptyUserDataStub()
-        insertCyaData(Some(InterestCYAModel(untaxedUkInterest = Some(false), taxedUkInterest = Some(true))))
+        insertInterestCyaData(Some(InterestCYAModel(untaxedUkInterest = Some(false), taxedUkInterest = Some(true))))
         userDataStub(IncomeSourcesModel(interest = Some(accounts4)), nino, taxYear)
         urlGet(chooseAccountUrl(UNTAXED), follow = false, headers = playSessionCookie())
       }
@@ -423,7 +423,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
         authoriseIndividual()
         dropInterestDB()
         emptyUserDataStub()
-        insertCyaData(Some(InterestCYAModel(untaxedUkInterest = Some(true), taxedUkInterest = None)))
+        insertInterestCyaData(Some(InterestCYAModel(untaxedUkInterest = Some(true), taxedUkInterest = None)))
         userDataStub(IncomeSourcesModel(interest = Some(accounts3)), nino, taxYear)
         urlGet(chooseAccountUrl(TAXED), follow = false, headers = playSessionCookie())
       }
@@ -438,7 +438,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
         authoriseIndividual()
         dropInterestDB()
         emptyUserDataStub()
-        insertCyaData(Some(InterestCYAModel(untaxedUkInterest = None, taxedUkInterest = Some(true))))
+        insertInterestCyaData(Some(InterestCYAModel(untaxedUkInterest = None, taxedUkInterest = Some(true))))
         userDataStub(IncomeSourcesModel(interest = Some(accounts4)), nino, taxYear)
         urlGet(chooseAccountUrl(UNTAXED), follow = false, headers = playSessionCookie())
       }
@@ -525,7 +525,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
               dropInterestDB()
               emptyUserDataStub()
               userDataStub(IncomeSourcesModel(interest = Some(accounts)), nino, taxYear)
-              insertCyaData(Some(InterestCYAModel(accounts = accounts2, taxedUkInterest = Some(true))))
+              insertInterestCyaData(Some(InterestCYAModel(accounts = accounts2, taxedUkInterest = Some(true))))
               urlPost(chooseAccountUrl(TAXED), body = Map[String, String](), us.isWelsh, headers = playSessionCookie(us.isAgent))
             }
 
@@ -555,7 +555,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
               dropInterestDB()
               emptyUserDataStub()
               userDataStub(IncomeSourcesModel(interest = Some(accounts)), nino, taxYear)
-              insertCyaData(Some(InterestCYAModel(accounts = accounts2, untaxedUkInterest = Some(true))))
+              insertInterestCyaData(Some(InterestCYAModel(accounts = accounts2, untaxedUkInterest = Some(true))))
               urlPost(chooseAccountUrl(UNTAXED), body = Map[String, String](), us.isWelsh, headers = playSessionCookie(us.isAgent))
             }
 
@@ -590,7 +590,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
           dropInterestDB()
           emptyUserDataStub()
           userDataStub(IncomeSourcesModel(interest = Some(accounts)), nino, taxYear)
-          insertCyaData(Some(InterestCYAModel(accounts = accounts2, taxedUkInterest = Some(true))))
+          insertInterestCyaData(Some(InterestCYAModel(accounts = accounts2, taxedUkInterest = Some(true))))
           urlPost(chooseAccountUrl(TAXED), follow = false, body =
             Map(AccountList.accountName -> SessionValues.ADD_A_NEW_ACCOUNT), headers = playSessionCookie())
         }
@@ -609,7 +609,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
           dropInterestDB()
           emptyUserDataStub()
           userDataStub(IncomeSourcesModel(interest = Some(accounts)), nino, taxYear)
-          insertCyaData(Some(InterestCYAModel(accounts = accounts2, untaxedUkInterest = Some(true))))
+          insertInterestCyaData(Some(InterestCYAModel(accounts = accounts2, untaxedUkInterest = Some(true))))
           urlPost(chooseAccountUrl(UNTAXED), follow = false, body =
             Map(AccountList.accountName -> SessionValues.ADD_A_NEW_ACCOUNT), headers = playSessionCookie())
         }
@@ -628,7 +628,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
           dropInterestDB()
           emptyUserDataStub()
           userDataStub(IncomeSourcesModel(interest = Some(accounts)), nino, taxYear)
-          insertCyaData(Some(InterestCYAModel(accounts = accounts2, taxedUkInterest = Some(true))))
+          insertInterestCyaData(Some(InterestCYAModel(accounts = accounts2, taxedUkInterest = Some(true))))
           urlPost(chooseAccountUrl(TAXED), follow = false, body =
             Map(AccountList.accountName -> sessionId1), headers = playSessionCookie())
         }
@@ -648,7 +648,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
           dropInterestDB()
           emptyUserDataStub()
           userDataStub(IncomeSourcesModel(interest = Some(accounts)), nino, taxYear)
-          insertCyaData(Some(InterestCYAModel(accounts = accounts2, untaxedUkInterest = Some(true))))
+          insertInterestCyaData(Some(InterestCYAModel(accounts = accounts2, untaxedUkInterest = Some(true))))
           urlPost(chooseAccountUrl(UNTAXED), follow = false, body =
             Map(AccountList.accountName -> "1"), headers = playSessionCookie())
         }
@@ -666,7 +666,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
           authoriseIndividual()
           dropInterestDB()
           emptyUserDataStub()
-          insertCyaData(Some(InterestCYAModel(untaxedUkInterest = Some(true), taxedUkInterest = Some(false))))
+          insertInterestCyaData(Some(InterestCYAModel(untaxedUkInterest = Some(true), taxedUkInterest = Some(false))))
           userDataStub(IncomeSourcesModel(interest = Some(accounts3)), nino, taxYear)
           urlGet(chooseAccountUrl(TAXED), follow = false, headers = playSessionCookie())
         }
@@ -681,7 +681,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
           authoriseIndividual()
           dropInterestDB()
           emptyUserDataStub()
-          insertCyaData(Some(InterestCYAModel(untaxedUkInterest = Some(false), taxedUkInterest = Some(true))))
+          insertInterestCyaData(Some(InterestCYAModel(untaxedUkInterest = Some(false), taxedUkInterest = Some(true))))
           userDataStub(IncomeSourcesModel(interest = Some(accounts4)), nino, taxYear)
           urlGet(chooseAccountUrl(UNTAXED), follow = false, headers = playSessionCookie())
         }
@@ -696,7 +696,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
           authoriseIndividual()
           dropInterestDB()
           emptyUserDataStub()
-          insertCyaData(Some(InterestCYAModel(untaxedUkInterest = Some(true), taxedUkInterest = None)))
+          insertInterestCyaData(Some(InterestCYAModel(untaxedUkInterest = Some(true), taxedUkInterest = None)))
           userDataStub(IncomeSourcesModel(interest = Some(accounts3)), nino, taxYear)
           urlGet(chooseAccountUrl(TAXED), follow = false, headers = playSessionCookie())
         }
@@ -711,7 +711,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
           authoriseIndividual()
           dropInterestDB()
           emptyUserDataStub()
-          insertCyaData(Some(InterestCYAModel(untaxedUkInterest = None, taxedUkInterest = Some(true))))
+          insertInterestCyaData(Some(InterestCYAModel(untaxedUkInterest = None, taxedUkInterest = Some(true))))
           userDataStub(IncomeSourcesModel(interest = Some(accounts4)), nino, taxYear)
           urlGet(chooseAccountUrl(UNTAXED), follow = false, headers = playSessionCookie())
         }
