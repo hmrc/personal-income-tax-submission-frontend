@@ -24,6 +24,8 @@ common.account = account
 common.account-details = account details
 common.opensInNewWindowOrTab = (opens in new tab)
 common.help.getHelpWithThisPage = Get help with this page
+common.confirm = Confirm
+common.cancel = Cancel
 
 common.youToldUs = You told us
 common.youGot.individual = you got
@@ -550,3 +552,12 @@ charity.gateway.heading.agent = Did your client make donations to charity?
 charity.gateway.hint = This includes donations to overseas charities and donations of land, property, shares and securities.
 charity.gateway.error.individual = Select yes if you made donations to charity
 charity.gateway.error.agent = Select yes if your client made donations to charity
+
+# Cross Journey
+# ----------------------------------------------------------
+
+zeroing.title.individual = This will change information on your Income Tax Return
+zeroing.title.agent = This will change information on your client’s Income Tax Return
+zeroing.p.1.individual = We cannot remove all the information due to technical reasons. We will change your current information so that this section will not affect your return.
+zeroing.p.1.agent = We cannot remove all the information due to technical reasons. We will change the current information so that this section will not affect your client’s return.
+zeroing.p.2 = You will still see some previous information but all the amounts will be set to £0.

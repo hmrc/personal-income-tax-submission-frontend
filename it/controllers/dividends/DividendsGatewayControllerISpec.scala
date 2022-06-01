@@ -205,7 +205,7 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
             lazy val result = {
               authoriseAgentOrIndividual(scenario.isAgent)
               dropDividendsDB()
-              insertCyaData(Some(DividendsCheckYourAnswersModel(
+              insertDividendsCyaData(Some(DividendsCheckYourAnswersModel(
                 gateway = Some(false)
               )))
               emptyUserDataStub()

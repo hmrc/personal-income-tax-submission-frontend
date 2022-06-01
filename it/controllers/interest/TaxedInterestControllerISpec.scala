@@ -152,7 +152,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
             lazy val result: WSResponse = {
               dropInterestDB()
               emptyUserDataStub()
-              insertCyaData(Some(interestCYA))
+              insertInterestCyaData(Some(interestCYA))
 
               authoriseAgentOrIndividual(us.isAgent)
               urlGet(url, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
@@ -194,7 +194,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
                 )
               )
             )), nino, taxYear)
-            insertCyaData(None)
+            insertInterestCyaData(None)
 
             authoriseAgentOrIndividual(us.isAgent)
             urlGet(url, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
@@ -228,7 +228,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
           lazy val result: WSResponse = {
             dropInterestDB()
             emptyUserDataStub()
-            insertCyaData(None)
+            insertInterestCyaData(None)
 
             unauthorisedAgentOrIndividual(us.isAgent)
             urlGet(url, us.isWelsh, follow = true, playSessionCookie(us.isAgent))
@@ -266,7 +266,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
             )
 
             dropInterestDB()
-            insertCyaData(Some(interestCYA))
+            insertInterestCyaData(Some(interestCYA))
             emptyUserDataStub()
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(url, yesNoFormNo, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
@@ -292,7 +292,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
               )
 
               dropInterestDB()
-              insertCyaData(Some(interestCYA))
+              insertInterestCyaData(Some(interestCYA))
               emptyUserDataStub()
               authoriseAgentOrIndividual(us.isAgent)
               urlPost(url, yesNoFormYes, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
@@ -315,7 +315,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
                 )
               )
             )), nino, taxYear)
-            insertCyaData(None)
+            insertInterestCyaData(None)
 
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(url, yesNoFormYes, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
@@ -338,7 +338,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
               )
 
               dropInterestDB()
-              insertCyaData(Some(interestCYA))
+              insertInterestCyaData(Some(interestCYA))
 
               authoriseAgentOrIndividual(us.isAgent)
               urlPost(url, yesNoFormNo, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
@@ -362,7 +362,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
             lazy val result: WSResponse = {
               dropInterestDB()
               emptyUserDataStub()
-              insertCyaData(Some(interestCYA))
+              insertInterestCyaData(Some(interestCYA))
 
               authoriseAgentOrIndividual(us.isAgent)
               urlPost(url, yesNoFormEmpty, us.isWelsh, follow = false, playSessionCookie(us.isAgent))
@@ -406,7 +406,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
           lazy val result: WSResponse = {
             dropInterestDB()
             emptyUserDataStub()
-            insertCyaData(None)
+            insertInterestCyaData(None)
 
             unauthorisedAgentOrIndividual(us.isAgent)
             urlPost(url, yesNoFormYes, us.isWelsh, follow = true, playSessionCookie(us.isAgent))

@@ -149,7 +149,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           lazy val result = {
             dropInterestDB()
             emptyUserDataStub()
-            insertCyaData(Some(InterestCYAModel(
+            insertInterestCyaData(Some(InterestCYAModel(
               None, Some(false), Some(true), Seq(
                 InterestAccountModel(Some("differentId"), firstAccountName, taxedAmount = Some(amount)),
                 InterestAccountModel(None, secondAccountName, taxedAmount = Some(amount), uniqueSessionId = Some(id))
@@ -186,7 +186,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           lazy val result = {
             dropInterestDB()
             emptyUserDataStub()
-            insertCyaData(Some(InterestCYAModel(None, Some(false), Some(true))))
+            insertInterestCyaData(Some(InterestCYAModel(None, Some(false), Some(true))))
             authoriseAgentOrIndividual(us.isAgent)
             urlGet(url("id"), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
           }
@@ -204,7 +204,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
             lazy val result = {
               dropInterestDB()
               userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel(firstAccountName, id, None, Some(amount)))), None), nino, taxYear)
-              insertCyaData(Some(InterestCYAModel(
+              insertInterestCyaData(Some(InterestCYAModel(
                 None, Some(false), Some(true),
                 Seq(InterestAccountModel(Some(id), firstAccountName, taxedAmount = Some(amount), uniqueSessionId= Some(id)))
               )), taxYear, None, Some(nino))
@@ -227,7 +227,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
             lazy val result = {
               dropInterestDB()
               emptyUserDataStub()
-              insertCyaData(None)
+              insertInterestCyaData(None)
               authoriseAgentOrIndividual(us.isAgent)
               urlGet(url(id), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
             }
@@ -245,7 +245,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           lazy val result = {
             dropInterestDB()
             emptyUserDataStub()
-            insertCyaData(None)
+            insertInterestCyaData(None)
             unauthorisedAgentOrIndividual(us.isAgent)
             urlGet(url(id), us.isWelsh, follow = true, playSessionCookie(us.isAgent))
           }
@@ -271,7 +271,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
         def response(formMap: Map[String, String]): WSResponse = {
           dropInterestDB()
           emptyUserDataStub()
-          insertCyaData(Some(InterestCYAModel(
+          insertInterestCyaData(Some(InterestCYAModel(
             None, Some(false), Some(true), Seq(
               InterestAccountModel(Some("differentId"), firstAccountName, taxedAmount =  Some(amount)),
               InterestAccountModel(None, secondAccountName, taxedAmount = Some(amount), uniqueSessionId = Some(id))
@@ -385,7 +385,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           lazy val result: WSResponse = {
             dropInterestDB()
             emptyUserDataStub()
-            insertCyaData(Some(InterestCYAModel(
+            insertInterestCyaData(Some(InterestCYAModel(
               None, Some(false), Some(true), Seq(
                 InterestAccountModel(Some("differentId"), firstAccountName, taxedAmount = Some(amount)),
                 InterestAccountModel(None, secondAccountName, taxedAmount = Some(amount), uniqueSessionId = Some(id))
@@ -417,7 +417,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           lazy val result: WSResponse = {
             dropInterestDB()
             userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel(firstAccountName, id, None, None))), None), nino, taxYear)
-            insertCyaData(None)
+            insertInterestCyaData(None)
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(url(id), Map(
               TaxedInterestAmountForm.taxedAmount -> "12,344.98",
@@ -437,7 +437,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           lazy val result: WSResponse = {
             dropInterestDB()
             userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel(firstAccountName, id, None, None))), None), nino, taxYear)
-            insertCyaData(Some(InterestCYAModel(None, None, Some(true), Seq(
+            insertInterestCyaData(Some(InterestCYAModel(None, None, Some(true), Seq(
               InterestAccountModel(None,"name",taxedAmount = Some(1234),uniqueSessionId = Some("1234567890"))
             ))))
             authoriseAgentOrIndividual(us.isAgent)
@@ -459,7 +459,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           lazy val result: WSResponse = {
             dropInterestDB()
             emptyUserDataStub()
-            insertCyaData(Some(InterestCYAModel(None, None, Some(true), Seq(
+            insertInterestCyaData(Some(InterestCYAModel(None, None, Some(true), Seq(
               InterestAccountModel(None,"name",Some(1234),Some(1234),uniqueSessionId = Some("1234567890"))
             ))))
             authoriseAgentOrIndividual(us.isAgent)
@@ -487,7 +487,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           lazy val result: WSResponse = {
             dropInterestDB()
             emptyUserDataStub()
-            insertCyaData(Some(InterestCYAModel(None, None, Some(true))))
+            insertInterestCyaData(Some(InterestCYAModel(None, None, Some(true))))
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(url(id), Map(
               TaxedInterestAmountForm.taxedAmount -> "12,344.98",
@@ -512,7 +512,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           lazy val result: WSResponse = {
             dropInterestDB()
             userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel(firstAccountName, id, None, None))), None), nino, taxYear)
-            insertCyaData(Some(InterestCYAModel(None, None, Some(true))))
+            insertInterestCyaData(Some(InterestCYAModel(None, None, Some(true))))
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(url("id"), Map(
               TaxedInterestAmountForm.taxedAmount -> "12,344.98",

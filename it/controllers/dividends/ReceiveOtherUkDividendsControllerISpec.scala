@@ -193,7 +193,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
             authoriseAgentOrIndividual(us.isAgent)
             dropDividendsDB()
             emptyUserDataStub()
-            insertCyaData(Some(cyaModel))
+            insertDividendsCyaData(Some(cyaModel))
             urlGet(receivedOtherDividendsUrl, us.isWelsh, headers = playSessionCookie(us.isAgent))
           }
 
@@ -351,7 +351,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
         authoriseIndividual()
         dropDividendsDB()
         emptyUserDataStub()
-        insertCyaData(Some(DividendsCheckYourAnswersModel(
+        insertDividendsCyaData(Some(DividendsCheckYourAnswersModel(
           ukDividends = Some(true), ukDividendsAmount = Some(amount)
         )))
         urlPost(receivedOtherDividendsUrl, follow = false, headers = playSessionCookie(), body = Map(YesNoForm.yesNo -> YesNoForm.yes)
@@ -369,7 +369,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
         authoriseIndividual()
         dropDividendsDB()
         emptyUserDataStub()
-        insertCyaData(Some(DividendsCheckYourAnswersModel(
+        insertDividendsCyaData(Some(DividendsCheckYourAnswersModel(
           ukDividends = Some(true), ukDividendsAmount = Some(amount)
         )))
         urlPost(receivedOtherDividendsUrl, follow = false, headers = playSessionCookie(), body = Map(YesNoForm.yesNo -> YesNoForm.no))

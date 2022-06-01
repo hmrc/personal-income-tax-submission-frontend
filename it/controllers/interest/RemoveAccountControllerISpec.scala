@@ -131,7 +131,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
                 lazy val result: WSResponse = {
                   dropInterestDB()
                   emptyUserDataStub()
-                  insertCyaData(Some(InterestCYAModel(
+                  insertInterestCyaData(Some(InterestCYAModel(
                     None, Some(true), Some(false), Seq(untaxedInterestAccount, untaxedInterestAccount2),
                   )))
                   authoriseAgentOrIndividual(us.isAgent)
@@ -158,7 +158,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
                 lazy val result: WSResponse = {
                   dropInterestDB()
                   userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel("firstAccountName", "Id", Some(123),Some(123)))), None), nino, taxYear)
-                  insertCyaData(Some(InterestCYAModel(
+                  insertInterestCyaData(Some(InterestCYAModel(
                     None, Some(true), Some(true), Seq(untaxedInterestAccount, taxedInterestAccount),
                   )))
                   authoriseAgentOrIndividual(us.isAgent)
@@ -185,7 +185,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
                 lazy val result: WSResponse = {
                   dropInterestDB()
                   userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel("firstAccountName", "Id", Some(123), Some(123)))), None), nino, taxYear)
-                  insertCyaData(Some(InterestCYAModel(
+                  insertInterestCyaData(Some(InterestCYAModel(
                     None, Some(true), Some(true), Seq(untaxedInterestAccount, taxedInterestAccount),
                   )))
                   authoriseAgentOrIndividual(us.isAgent)
@@ -212,7 +212,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
                 lazy val result: WSResponse = {
                   dropInterestDB()
                   emptyUserDataStub()
-                  insertCyaData(Some(InterestCYAModel(None,
+                  insertInterestCyaData(Some(InterestCYAModel(None,
                     Some(true), Some(false), Seq(untaxedInterestAccount)
                   )))
                   authoriseAgentOrIndividual(us.isAgent)
@@ -245,7 +245,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             lazy val result = {
               dropInterestDB()
               emptyUserDataStub()
-              insertCyaData(None)
+              insertInterestCyaData(None)
               authoriseAgentOrIndividual(us.isAgent)
               urlGet(s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId", us.isWelsh, follow = false, playSessionCookie(us.isAgent))
             }
@@ -263,7 +263,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             lazy val result = {
               dropInterestDB()
               emptyUserDataStub()
-              insertCyaData(Some(InterestCYAModel(None,
+              insertInterestCyaData(Some(InterestCYAModel(None,
                 Some(true), Some(false), Seq(taxedInterestAccount)
               )))
               authoriseAgentOrIndividual(us.isAgent)
@@ -283,7 +283,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             lazy val result = {
               dropInterestDB()
               emptyUserDataStub()
-              insertCyaData(Some(InterestCYAModel(None,
+              insertInterestCyaData(Some(InterestCYAModel(None,
                 Some(true), Some(false), Seq(untaxedInterestAccount)
               )))
               authoriseAgentOrIndividual(us.isAgent)
@@ -302,7 +302,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             lazy val result = {
               dropInterestDB()
               emptyUserDataStub()
-              insertCyaData(Some(InterestCYAModel(None,
+              insertInterestCyaData(Some(InterestCYAModel(None,
                 Some(false), Some(true), Seq(untaxedInterestAccount)
               )))
               authoriseAgentOrIndividual(us.isAgent)
@@ -322,7 +322,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             lazy val result = {
               dropInterestDB()
               userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel("firstAccountName", "UntaxedId", Some(123), Some(123)))), None), nino, taxYear)
-              insertCyaData(None)
+              insertInterestCyaData(None)
               authoriseAgentOrIndividual(us.isAgent)
               urlGet(s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId", us.isWelsh, follow = false, playSessionCookie(us.isAgent))
             }
@@ -340,7 +340,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             lazy val result = {
               dropInterestDB()
               userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel("firstAccountName", "TaxedId", Some(123), Some(123)))), None), nino, taxYear)
-              insertCyaData(None)
+              insertInterestCyaData(None)
               authoriseAgentOrIndividual(us.isAgent)
               urlGet(s"$appUrl/$taxYear/interest/remove-taxed-interest-account?accountId=TaxedId", us.isWelsh, follow = false, playSessionCookie(us.isAgent))
             }
@@ -378,7 +378,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
                 lazy val result: WSResponse = {
                   dropInterestDB()
                   emptyUserDataStub()
-                  insertCyaData(Some(InterestCYAModel(
+                  insertInterestCyaData(Some(InterestCYAModel(
                     None, Some(false), Some(true), Seq(taxedInterestAccount, taxedInterestAccount2),
                   )))
                   authoriseAgentOrIndividual(us.isAgent)
@@ -405,7 +405,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
                 lazy val result: WSResponse = {
                   dropInterestDB()
                   emptyUserDataStub()
-                  insertCyaData(Some(InterestCYAModel(None,
+                  insertInterestCyaData(Some(InterestCYAModel(None,
                     Some(false), Some(true), Seq(taxedInterestAccount),
                   )))
                   authoriseAgentOrIndividual(us.isAgent)
@@ -439,7 +439,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             lazy val result = {
               dropInterestDB()
               emptyUserDataStub()
-              insertCyaData(None)
+              insertInterestCyaData(None)
               authoriseAgentOrIndividual(us.isAgent)
               urlGet(s"$appUrl/$taxYear/interest/remove-taxed-interest-account?accountId=UntaxedId", us.isWelsh, follow = false, playSessionCookie(us.isAgent))
             }
@@ -487,7 +487,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             lazy val result: WSResponse = {
               dropInterestDB()
               emptyUserDataStub()
-              insertCyaData(Some(InterestCYAModel(
+              insertInterestCyaData(Some(InterestCYAModel(
                 None, Some(true), Some(true), Seq(untaxedInterestAccount,taxedInterestAccount),
               )))
               authoriseAgentOrIndividual(us.isAgent)
@@ -508,7 +508,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             lazy val result: WSResponse = {
               dropInterestDB()
               emptyUserDataStub()
-              insertCyaData(Some(InterestCYAModel(
+              insertInterestCyaData(Some(InterestCYAModel(
                 None, Some(true), Some(true), Seq(untaxedInterestAccount,taxedInterestAccount),
               )))
               authoriseAgentOrIndividual(us.isAgent)
@@ -529,7 +529,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             lazy val result: WSResponse = {
               dropInterestDB()
               emptyUserDataStub()
-              insertCyaData(Some(InterestCYAModel(None,
+              insertInterestCyaData(Some(InterestCYAModel(None,
                 Some(true), Some(true), Seq(untaxedInterestAccount.copy(taxedAmount = Some(55)),taxedInterestAccount.copy(untaxedAmount = Some(55))),
               )))
               authoriseAgentOrIndividual(us.isAgent)
@@ -550,7 +550,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             lazy val result: WSResponse = {
               dropInterestDB()
               emptyUserDataStub()
-              insertCyaData(Some(InterestCYAModel(None,
+              insertInterestCyaData(Some(InterestCYAModel(None,
                 Some(true), Some(true), Seq(untaxedInterestAccount.copy(taxedAmount = Some(55)),taxedInterestAccount.copy(untaxedAmount = Some(55))),
               )))
               authoriseAgentOrIndividual(us.isAgent)
@@ -574,7 +574,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             lazy val result: WSResponse = {
               dropInterestDB()
               emptyUserDataStub()
-              insertCyaData(Some(InterestCYAModel(
+              insertInterestCyaData(Some(InterestCYAModel(
                 None, Some(true), Some(true), Seq(untaxedInterestAccount,taxedInterestAccount),
               )))
               authoriseAgentOrIndividual(us.isAgent)
@@ -595,7 +595,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             lazy val result: WSResponse = {
               dropInterestDB()
               emptyUserDataStub()
-              insertCyaData(Some(InterestCYAModel(
+              insertInterestCyaData(Some(InterestCYAModel(
                 None, Some(true), Some(true), Seq(taxedInterestAccount),
               )))
               authoriseAgentOrIndividual(us.isAgent)
@@ -619,7 +619,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             lazy val result: WSResponse = {
               dropInterestDB()
               emptyUserDataStub()
-              insertCyaData(None)
+              insertInterestCyaData(None)
               authoriseAgentOrIndividual(us.isAgent)
 
               urlPost(
@@ -641,7 +641,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             lazy val result = {
               dropInterestDB()
               userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel("firstAccountName", "UntaxedId", Some(123), Some(123)))), None), nino, taxYear)
-              insertCyaData(None)
+              insertInterestCyaData(None)
               authoriseAgentOrIndividual(us.isAgent)
               urlPost(
                 s"$appUrl/$taxYear/interest/remove-untaxed-interest-account?accountId=UntaxedId",
@@ -667,7 +667,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             lazy val result = {
               dropInterestDB()
               emptyUserDataStub()
-              insertCyaData(Some(InterestCYAModel(
+              insertInterestCyaData(Some(InterestCYAModel(
                 None,
                 Some(true),
                 Some(true), Seq(taxedInterestAccount, untaxedInterestAccount)
@@ -734,7 +734,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             lazy val result: WSResponse = {
               dropInterestDB()
               emptyUserDataStub()
-              insertCyaData(None)
+              insertInterestCyaData(None)
               authoriseAgentOrIndividual(us.isAgent)
 
               urlPost(
@@ -756,7 +756,7 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
             lazy val result = {
               dropInterestDB()
               emptyUserDataStub()
-              insertCyaData(Some(InterestCYAModel(
+              insertInterestCyaData(Some(InterestCYAModel(
                 None,
                 Some(true),
                 Some(true), Seq(untaxedInterestAccount, taxedInterestAccount)

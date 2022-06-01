@@ -205,7 +205,7 @@ class GiftAidGatewayControllerISpec extends IntegrationTest with ViewHelpers wit
             lazy val result = {
               authoriseAgentOrIndividual(scenario.isAgent)
               dropGiftAidDB()
-              insertCyaData(Some(GiftAidCYAModel(
+              insertGiftAidCyaData(Some(GiftAidCYAModel(
                 gateway = Some(false)
               )))
               emptyUserDataStub()

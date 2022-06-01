@@ -170,12 +170,12 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "microservice.services.sign-in.url" -> s"/auth-login-stub/gg-sign-in"
   )
 
-  def config: Map[String, Any] = commonConfig ++ Map(
+  def config(tailoring: Boolean = false): Map[String, Any] = commonConfig ++ Map(
     "taxYearChangeResetsSession" -> false,
     "useEncryption" -> true,
     "defaultTaxYear" -> taxYear,
     "useEncryption" -> true,
-    "feature-switch.tailoringEnabled" -> false
+    "feature-switch.tailoringEnabled" -> tailoring
   )
 
   def invalidEncryptionConfig: Map[String, Any] = commonConfig ++ Map(
@@ -189,12 +189,12 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
     .in(Environment.simple(mode = Mode.Dev))
-    .configure(config)
+    .configure(config())
     .build
 
   lazy val appWithTailoring: Application = new GuiceApplicationBuilder()
     .in(Environment.simple(mode = Mode.Dev))
-    .configure(config ++ Map("feature-switch.tailoringEnabled" -> true))
+    .configure(config(true))
     .build()
 
   lazy val appWithInvalidEncryptionKey: Application = GuiceApplicationBuilder()
@@ -240,18 +240,19 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     await(wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(newHeaders: _*).post(body))
   }
 
-  def playSessionCookie(agent: Boolean = false, extraData: Map[String, String] = Map.empty, validTaxYears:Seq[Int] = validTaxYearList): Seq[(String, String)] = {
+  //noinspection ScalaStyle
+  def playSessionCookie(agent: Boolean = false, extraData: Map[String, String] = Map.empty, validTaxYears:Seq[Int] = validTaxYearList, isEoy: Boolean = false): Seq[(String, String)] = {
     {
       if (agent) {
         Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(extraData ++ Map(
-          SessionValues.TAX_YEAR -> taxYear.toString,
+          SessionValues.TAX_YEAR -> (if(isEoy) taxYearEOY else taxYear).toString,
           SessionValues.VALID_TAX_YEARS -> validTaxYears.mkString(","),
           SessionValues.CLIENT_NINO -> "AA123456A",
           SessionValues.CLIENT_MTDITID -> mtditid))
         )
       } else {
         Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(extraData ++ Map(
-          SessionValues.TAX_YEAR -> taxYear.toString,
+          SessionValues.TAX_YEAR -> (if(isEoy) taxYearEOY else taxYear).toString,
           SessionValues.VALID_TAX_YEARS -> validTaxYears.mkString(","))),
           "mtditid" -> mtditid
         )
@@ -260,7 +261,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
       Seq(xSessionId)
   }
 
-  val defaultAcceptedConfidenceLevels = Seq(
+  val defaultAcceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq(
     ConfidenceLevel.L200,
     ConfidenceLevel.L500
   )

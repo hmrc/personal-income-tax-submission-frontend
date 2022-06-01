@@ -252,7 +252,7 @@ class InterestGatewayControllerISpec extends IntegrationTest with InterestDataba
           lazy val result = {
             authoriseAgentOrIndividual(user.isAgent)
             dropInterestDB()
-            insertCyaData(Some(InterestCYAModel(gateway = Some(false))))
+            insertInterestCyaData(Some(InterestCYAModel(gateway = Some(false))))
             emptyUserDataStub()
             route(appWithTailoring, request, Json.obj("value" -> true)).get
           }

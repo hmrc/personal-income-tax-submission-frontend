@@ -32,7 +32,7 @@ trait DividendsDatabaseHelper {
   }
 
   //noinspection ScalaStyle
-  def insertCyaData(
+  def insertDividendsCyaData(
                      cya: Option[DividendsCheckYourAnswersModel],
                      taxYear: Int = taxYear,
                      overrideMtditid: Option[String] = None,
@@ -43,7 +43,7 @@ trait DividendsDatabaseHelper {
       DividendsUserDataModel(sessionId, overrideMtditid.fold(mtditid)(value => value), overrideNino.fold(nino)(value => value), taxYear, cya)
     )) match {
       case Right(value) => value
-      case Left(value) => false
+      case Left(_) => false
     }
   }
 
