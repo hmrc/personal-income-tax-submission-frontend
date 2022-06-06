@@ -41,10 +41,10 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
     " lacinia maximus. Nullam facilisis nunc vel sapien facilisis tincidunt. Sed odio."
 
   object Selectors {
-    val accountName: String = "#main-content > div > div > form > div:nth-child(3) > label > div"
-    val interestEarned: String = "#main-content > div > div > form > div:nth-child(4) > label > div"
+    val accountName: String = "#main-content > div > div > div.govuk-label--m"
+    val interestEarned: String = "#main-content > div > div > form > div.govuk-label--m"
     val accountNameInput: String = "#taxedAccountName"
-    val eachAccount = "#main-content > div > div > form > div:nth-child(3) > label > p"
+    val eachAccount = "#p1"
     val amountInput: String = "#taxedAmount"
 
     val errorSummary: String = "#error-summary-title"

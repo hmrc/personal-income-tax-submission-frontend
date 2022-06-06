@@ -35,11 +35,11 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
   object Selectors {
     val captionSelector = ".govuk-caption-l"
-    val forExampleSelector = "#main-content > div > div > form > div > fieldset > legend > p:nth-child(2)"
-    val bulletPointSelector1 = "#main-content > div > div > form > div > fieldset > legend > ul > li:nth-child(1)"
-    val bulletPointSelector2 = "#main-content > div > div > form > div > fieldset > legend > ul > li:nth-child(2)"
-    val bulletPointSelector3 = "#main-content > div > div > form > div > fieldset > legend > ul > li:nth-child(3)"
-    val doNotIncludeSelector = "#main-content > div > div > form > div > fieldset > legend > p:nth-child(4)"
+    val forExampleSelector = "#p1"
+    val bulletPointSelector1 = "#main-content > div > div > ul > li:nth-child(1)"
+    val bulletPointSelector2 = "#main-content > div > div > ul > li:nth-child(2)"
+    val bulletPointSelector3 = "#main-content > div > div > ul > li:nth-child(3)"
+    val doNotIncludeSelector = "#p2"
     val continueSelector = "#continue"
     val continueFormSelector = "#main-content > div > div > form"
     val errorSummaryHref = "#value"
