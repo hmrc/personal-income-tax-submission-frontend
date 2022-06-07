@@ -21,15 +21,22 @@ import models.interest.{InterestAccountModel, InterestCYAModel}
 import models.priorDataModels.{IncomeSourcesModel, InterestModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import play.api.http.HeaderNames
 import play.api.http.Status._
+import play.api.test.FakeRequest
+import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
 import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
 
 class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHelper with ViewHelpers {
 
   val amount: BigDecimal = 25
 
+  val relativeUrl: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/check-interest"
+
   val question2 = 2
+  val question3 = 3
   val question4 = 4
+  val question5 = 5
 
   val account1 = 1
   val account2 = 2
@@ -58,6 +65,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
     val h1Expected: String
     val titleExpected: String
 
+    val changeUKInterestHiddenText: String
     val changeUntaxedInterestHiddenText: String
     val changeUntaxedDetailsHiddenText: String
     val changeTaxedInterestHiddenText: String
@@ -68,13 +76,16 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
   trait CommonExpectedResults {
     val captionExpected: String
     val changeLinkExpected: String
+    val questionUKInterestExpected: String
     val questionUntaxedInterestExpected: String
     val questionUntaxedInterestDetailsExpected: String
     val questionTaxedInterestExpected: String
     val question4TaxedInterestDetailExpected: String
+    val question5TaxedInterestDetailExpected: String
     val untaxedInterestAccount1ExpectedTest: String
     val taxedInterestAccount1ExpectedTest: String
     val taxedInterestAccount2ExpectedTest: String
+    val changeUKInterestHref: String
     val changeUntaxedInterestHref: String
     val changeUntaxedInterestAmountHref: String
     val changeTaxedInterestHref: String
@@ -88,13 +99,16 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
   object CommonExpectedEN extends CommonExpectedResults {
     val captionExpected = s"Interest for 6 April $taxYearEOY to 5 April $taxYear"
     val changeLinkExpected = "Change"
+    val questionUKInterestExpected = "Interest from the UK"
     val questionUntaxedInterestExpected = "Untaxed UK Interest"
     val questionUntaxedInterestDetailsExpected = "Untaxed UK interest accounts"
     val questionTaxedInterestExpected = "Taxed UK Interest"
     val question4TaxedInterestDetailExpected = "Taxed UK interest accounts"
+    val question5TaxedInterestDetailExpected = "Taxed UK interest accounts"
     val untaxedInterestAccount1ExpectedTest = "UntaxedBank1 : £100"
     val taxedInterestAccount1ExpectedTest = "TaxedBank1 : £200"
     val taxedInterestAccount2ExpectedTest = "TaxedBank2 : £400"
+    val changeUKInterestHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/interest-from-UK"
     val changeUntaxedInterestHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/untaxed-uk-interest"
     val changeUntaxedInterestAmountHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/accounts-with-untaxed-uk-interest"
     val changeTaxedInterestHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/taxed-uk-interest"
@@ -108,13 +122,16 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
   object CommonExpectedCY extends CommonExpectedResults {
     val captionExpected = s"Llog ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val changeLinkExpected = "Newid"
+    val questionUKInterestExpected = "Llog o’r DU"
     val questionUntaxedInterestExpected = "Llog y DU sydd heb ei drethu"
     val questionUntaxedInterestDetailsExpected = "Cyfrifon llog y DU sydd heb ei drethu"
     val questionTaxedInterestExpected = "Llog y DU a drethwyd"
     val question4TaxedInterestDetailExpected = "Cyfrifon llog y DU a drethwyd"
+    val question5TaxedInterestDetailExpected = "Cyfrifon llog y DU a drethwyd"
     val untaxedInterestAccount1ExpectedTest = "UntaxedBank1 : £100"
     val taxedInterestAccount1ExpectedTest = "TaxedBank1 : £200"
     val taxedInterestAccount2ExpectedTest = "TaxedBank2 : £400"
+    val changeUKInterestHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/interest-from-UK"
     val changeUntaxedInterestHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/untaxed-uk-interest"
     val changeUntaxedInterestAmountHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/accounts-with-untaxed-uk-interest"
     val changeTaxedInterestHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/taxed-uk-interest"
@@ -129,6 +146,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
     val h1Expected = "Check your UK interest"
     val titleExpected = "Check your UK interest"
 
+    val changeUKInterestHiddenText = "Change interest from the UK"
     val changeUntaxedInterestHiddenText = "Change if you got untaxed UK interest"
     val changeUntaxedDetailsHiddenText = "Change the details of your account with untaxed UK interest"
     val changeTaxedInterestHiddenText = "Change if you got taxed UK interest"
@@ -139,6 +157,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
     val h1Expected = "Check your client’s UK interest"
     val titleExpected= "Check your client’s UK interest"
 
+    val changeUKInterestHiddenText = "Change interest from the UK"
     val changeUntaxedInterestHiddenText = "Change if your client got untaxed UK interest"
     val changeUntaxedDetailsHiddenText = "Change the details of your client’s account with untaxed UK interest"
     val changeTaxedInterestHiddenText = "Change if your client got taxed UK interest"
@@ -149,6 +168,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
     val h1Expected = "Gwiriwch eich llog y DU"
     val titleExpected = "Gwiriwch eich llog y DU"
 
+    val changeUKInterestHiddenText = "Newid llog o’r DU"
     val changeUntaxedInterestHiddenText = "Newidiwch os cawsoch gyfrifon llog y DU a drethwyd"
     val changeUntaxedDetailsHiddenText = "Newidiwch manylion eich cyfrif sydd â llog y DU sydd heb ei drethu"
     val changeTaxedInterestHiddenText = "Newidiwch os cawsoch log y DU a drethwyd"
@@ -159,6 +179,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
     val h1Expected = "Gwiriwch log y DU eich cleient"
     val titleExpected = "Gwiriwch log y DU eich cleient"
 
+    val changeUKInterestHiddenText = "Newid llog o’r DU"
     val changeUntaxedInterestHiddenText = "Newidiwch os cafodd eich cleient cyfrifon llog y DU sydd heb ei drethu"
     val changeUntaxedDetailsHiddenText = "Newidiwch manylion cyfrif eich cleient sydd â llog y DU sydd heb ei drethu"
     val changeTaxedInterestHiddenText = "Newidiwch os cafodd eich cleient llog y DU a drethwyd"
@@ -306,7 +327,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
 
         "renders a page with all the fields" which {
           val cyaModel = InterestCYAModel(
-            None,
+            gateway = Some(true),
             untaxedUkInterest = Some(true),
             taxedUkInterest = Some(true),
             accounts = Seq(
@@ -316,20 +337,23 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
             )
           )
 
+          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
           lazy val result = {
             dropInterestDB()
             emptyUserDataStub()
             insertInterestCyaData(Some(cyaModel))
 
             authoriseAgentOrIndividual(us.isAgent)
-            urlGet(s"$appUrl/$taxYear/interest/check-interest", us.isWelsh, follow = false,  playSessionCookie(us.isAgent))
+            route(appWithTailoring, request, "{}").get
           }
 
           s"has an OK($OK) status" in {
-            result.status shouldBe OK
+            status(result) shouldBe OK
           }
 
-          implicit def document: () => Document = () => Jsoup.parse(result.body)
+          implicit def document: () => Document = () => Jsoup.parse(contentAsString(result))
 
           titleCheck(specific.titleExpected, us.isWelsh)
           welshToggleCheck(us.isWelsh)
@@ -340,28 +364,34 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           formPostLinkCheck(submitLink, submitButtonForm)
 
           "has an area for question 1" which {
-            textOnPageCheck(questionUntaxedInterestExpected, questionSelector(1))
+            textOnPageCheck(questionUKInterestExpected, questionSelector(1))
             textOnPageCheck(Yes, yesNoQuestionAnswer(1))
-            linkCheck(s"$changeLinkExpected ${specific.changeUntaxedInterestHiddenText}", questionChangeLinkSelector(1), changeUntaxedInterestHref)
+            linkCheck(s"$changeLinkExpected ${specific.changeUKInterestHiddenText}", questionChangeLinkSelector(1), changeUKInterestHref)
           }
 
           "has an area for question 2" which {
-            textOnPageCheck(questionUntaxedInterestDetailsExpected, questionSelector(2))
-            textOnPageCheck(untaxedInterestAccount1ExpectedTest, questionAccountSelector(question2, account1, 1))
-            linkCheck(s"$changeLinkExpected ${specific.changeUntaxedDetailsHiddenText}", questionChangeLinkSelector(2), changeUntaxedInterestAmountHref)
+            textOnPageCheck(questionUntaxedInterestExpected, questionSelector(2))
+            textOnPageCheck(Yes, yesNoQuestionAnswer(2))
+            linkCheck(s"$changeLinkExpected ${specific.changeUntaxedInterestHiddenText}", questionChangeLinkSelector(2), changeUntaxedInterestHref)
           }
 
           "has an area for question 3" which {
-            textOnPageCheck(questionTaxedInterestExpected, questionSelector(3))
-            textOnPageCheck(Yes, yesNoQuestionAnswer(3))
-            linkCheck(s"$changeLinkExpected ${specific.changeTaxedInterestHiddenText}", questionChangeLinkSelector(3), changeTaxedInterestHref)
+            textOnPageCheck(questionUntaxedInterestDetailsExpected, questionSelector(3))
+            textOnPageCheck(untaxedInterestAccount1ExpectedTest, questionAccountSelector(question2, account1, 1))
+            linkCheck(s"$changeLinkExpected ${specific.changeUntaxedDetailsHiddenText}", questionChangeLinkSelector(3), changeUntaxedInterestAmountHref)
           }
 
           "has an area for question 4" which {
-            textOnPageCheck(question4TaxedInterestDetailExpected, questionSelector(question4))
+            textOnPageCheck(questionTaxedInterestExpected, questionSelector(4))
+            textOnPageCheck(Yes, yesNoQuestionAnswer(4))
+            linkCheck(s"$changeLinkExpected ${specific.changeTaxedInterestHiddenText}", questionChangeLinkSelector(4), changeTaxedInterestHref)
+          }
+
+          "has an area for question 5" which {
+            textOnPageCheck(question4TaxedInterestDetailExpected, questionSelector(question5))
             textOnPageCheck(taxedInterestAccount1ExpectedTest, questionAccountSelector(question4, account1, 1))
             textOnPageCheck(taxedInterestAccount2ExpectedTest, questionAccountSelector(question4, account2, 2))
-            linkCheck(s"$changeLinkExpected ${specific.changeTaxedDetailsHiddenText}", questionChangeLinkSelector(question4), changeTaxedInterestAmountHref)
+            linkCheck(s"$changeLinkExpected ${specific.changeTaxedDetailsHiddenText}", questionChangeLinkSelector(question5), changeTaxedInterestAmountHref)
           }
 
         }
@@ -370,10 +400,13 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
 
           "the user has selected no to receiving taxed and untaxed interest" which {
             val cyaModel = InterestCYAModel(
-              None,
+              Some(false),
               untaxedUkInterest = Some(false),
               taxedUkInterest = Some(false)
             )
+
+            lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+            lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
 
             lazy val result = {
               dropInterestDB()
@@ -381,14 +414,14 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
               insertInterestCyaData(Some(cyaModel))
 
               authoriseAgentOrIndividual(us.isAgent)
-              urlGet(s"$appUrl/$taxYear/interest/check-interest", us.isWelsh, follow = true,  playSessionCookie(us.isAgent))
+              route(appWithTailoring, request, "{}").get
             }
 
             s"has an OK($OK) status" in {
-              result.status shouldBe OK
+              status(result) shouldBe OK
             }
 
-            implicit def document: () => Document = () => Jsoup.parse(result.body)
+            implicit def document: () => Document = () => Jsoup.parse(contentAsString(result))
 
             titleCheck(specific.titleExpected, us.isWelsh)
             welshToggleCheck(us.isWelsh)
@@ -399,22 +432,28 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
             formPostLinkCheck(submitLink, submitButtonForm)
 
             "has an area for question 1" which {
-              textOnPageCheck(questionUntaxedInterestExpected, questionTextSelector(1))
+              textOnPageCheck(questionUKInterestExpected, questionTextSelector(1))
               textOnPageCheck(No, yesNoQuestionAnswer(1))
-              linkCheck(s"$changeLinkExpected ${specific.changeUntaxedInterestHiddenText}", questionChangeLinkSelector(1), changeUntaxedInterestHref)
+              linkCheck(s"$changeLinkExpected ${specific.changeUKInterestHiddenText}", questionChangeLinkSelector(1), changeUKInterestHref)
             }
 
             "has an area for question 2" which {
-              textOnPageCheck(questionTaxedInterestExpected, questionTextSelector(2))
+              textOnPageCheck(questionUntaxedInterestExpected, questionTextSelector(2))
               textOnPageCheck(No, yesNoQuestionAnswer(2))
-              linkCheck(s"$changeLinkExpected ${specific.changeTaxedInterestHiddenText}", questionChangeLinkSelector(2), changeTaxedInterestHref)
+              linkCheck(s"$changeLinkExpected ${specific.changeUntaxedInterestHiddenText}", questionChangeLinkSelector(2), changeUntaxedInterestHref)
             }
 
-            "there is no question 3" in {
-              elementExist(questionSelector(3)) shouldBe false
+            "has an area for question 3" which {
+              textOnPageCheck(questionTaxedInterestExpected, questionTextSelector(3))
+              textOnPageCheck(No, yesNoQuestionAnswer(3))
+              linkCheck(s"$changeLinkExpected ${specific.changeTaxedInterestHiddenText}", questionChangeLinkSelector(3), changeTaxedInterestHref)
             }
 
             "there is no question 4" in {
+              elementExist(questionSelector(4)) shouldBe false
+            }
+
+            "there is no question 5" in {
               elementExist(questionSelector(question4)) shouldBe false
             }
           }

@@ -148,10 +148,13 @@ dividends.other-dividends-amount.error.amountMaxLimit = Mae’n rhaid i swm y di
 
 dividends.cya.title.individual = Gwiriwch eich incwm o ddifidendau
 dividends.cya.title.agent = Gwiriwch incwm eich cleient o ddifidendau
-dividends.cya.questions.1 = Difidendau o gwmnïau yn y DU
-dividends.cya.questions.2 = Swm difidendau o gwmnïau yn y DU
-dividends.cya.questions.3 = Difidendau gan ymddiriedolaethau unedol yn y DU neu gwmnïau buddsoddi penagored
-dividends.cya.questions.4 = Swm difidendau gan ymddiriedolaethau unedol yn y DU neu gwmnïau buddsoddi penagored
+dividends.cya.questions.1 = Difidendau o gyfranddaliadau
+dividends.cya.questions.2 = Difidendau o gwmnïau yn y DU
+dividends.cya.questions.3 = Swm difidendau o gwmnïau yn y DU
+dividends.cya.questions.4 = Difidendau gan ymddiriedolaethau unedol yn y DU neu gwmnïau buddsoddi penagored
+dividends.cya.questions.5 = Swm difidendau gan ymddiriedolaethau unedol yn y DU neu gwmnïau buddsoddi penagored
+dividends.cya.gateway.individual = Newid difidendau o gyfranddaliadau
+dividends.cya.gateway.agent = Newid difidendau o gyfranddaliadau
 dividends.cya.changeUkDividends.individual = Newidiwch os cawsoch ddifidendau gan gwmnïau yn y DU
 dividends.cya.changeUkDividends.agent = Newidiwch os cafodd eich cleient ddifidendau gan gwmnïau yn y DU
 dividends.cya.changeUkDividendsAmount.individual = Newidiwch faint a gawsoch gan gwmnïau yn y DU
@@ -243,11 +246,14 @@ interest.accounts.error.noRadioSelected = Dewiswch ‘Iawn’ er mwyn ychwanegu 
 
 interest.cya.title.individual = Gwiriwch eich llog y DU
 interest.cya.title.agent = Gwiriwch log y DU eich cleient
-interest.cya.questions.1 = Llog y DU sydd heb ei drethu
-interest.cya.questions.2 = Cyfrifon llog y DU sydd heb ei drethu
-interest.cya.questions.3 = Llog y DU a drethwyd
-interest.cya.questions.4 = Cyfrifon llog y DU a drethwyd
+interest.cya.questions.1 = Llog o’r DU
+interest.cya.questions.2 = Llog y DU sydd heb ei drethu
+interest.cya.questions.3 = Cyfrifon llog y DU sydd heb ei drethu
+interest.cya.questions.4 = Llog y DU a drethwyd
+interest.cya.questions.5 = Cyfrifon llog y DU a drethwyd
 
+interest.cya.uk-interest.hiddenChange.individual = Newid llog o’r DU
+interest.cya.uk-interest.hiddenChange.agent = Newid llog o’r DU
 interest.cya.untaxed-uk-interest-accounts.hiddenChange.individual = Newidiwch os cawsoch gyfrifon llog y DU a drethwyd
 interest.cya.untaxed-uk-interest-accounts.hiddenChange.agent = Newidiwch os cafodd eich cleient cyfrifon llog y DU sydd heb ei drethu
 interest.cya.taxed-uk-interest-accounts.hiddenChange.individual = Newidiwch os cawsoch log y DU a drethwyd
@@ -495,6 +501,7 @@ charity.shares-and-land-summary.hint.agent = Mae’n rhaid i chi roi gwybod i ni
 
 charity.cya.title-heading.individual = Gwiriwch eich rhoddion i elusen
 charity.cya.title-heading.agent = Gwiriwch roddion eich cleient i elusen
+charity.cya.questions.gateway = Gwnaeth gyfraniadau at elusennau
 charity.cya.questions.donatedViaGiftAid = Rhoddion i elusen drwy ddefnyddio Rhodd Cymorth
 charity.cya.questions.donatedViaGiftAid.amount = Swm a roddwyd i elusen drwy ddefnyddio Rhodd Cymorth
 charity.cya.questions.oneOffDonationsViaGiftAid = Rhoddion untro i elusen drwy ddefnyddio Rhodd Cymorth
@@ -515,6 +522,8 @@ charity.cya.questions.donateLandOrProperties.amount = Swm y tir neu eiddo
 charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties = Rhoi cyfranddaliadau, gwarantau, tir neu eiddo i elusennau tramor
 charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.amount = Swm y cyfranddaliadau, gwarantau, tir neu eiddo i elusennau tramor
 
+charity.cya.questions.gateway.individual.hidden = Newid cyfraniadau at elusennau
+charity.cya.questions.gateway.agent.hidden = Newid cyfraniadau at elusennau
 charity.cya.questions.donatedViaGiftAid.individual.hidden = Newidiwch os gwnaethoch rhoi rodd i elusen drwy ddefnyddio Rhodd Cymorth
 charity.cya.questions.donatedViaGiftAid.agent.hidden = Newidiwch os gwnaeth eich cleient rhoi rhodd i elusen drwy ddefnyddio Rhodd Cymorth
 charity.cya.questions.donatedViaGiftAid.amount.hidden = Newidiwch y swm a roddir i elusen drwy ddefnyddio Rhodd Cymorth

@@ -22,6 +22,9 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
 import play.api.libs.ws.WSResponse
+import play.api.test.FakeRequest
+import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
+import play.api.http.HeaderNames
 import utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 
 
@@ -29,8 +32,12 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
   val ukDividends: BigDecimal = 10
   val otherDividends: BigDecimal = 10.50
+
+  val relativeUrl: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends"
+
   val dividendsCheckYourAnswersUrl = s"$appUrl/$taxYear/dividends/check-income-from-dividends"
 
+  val changeShareDividendsHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/dividends-from-stocks-and-shares"
   val changeUkDividendsHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/dividends-from-uk-companies"
   val changeUkDividendsAmountHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-companies"
   val changeOtherDividendsHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
@@ -39,11 +46,11 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
 
   lazy val dividendsCyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(
-    None,
+    Some(true),
     Some(true), Some(ukDividends),
     Some(true), Some(otherDividends)
   )
-  lazy val dividendsNoModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(None, Some(false), None, Some(false))
+  lazy val dividendsNoModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(Some(false), Some(false), None, Some(false))
 
   lazy val priorData: IncomeSourcesModel = IncomeSourcesModel(
     dividends = Some(DividendsPriorSubmission(
@@ -70,6 +77,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
     val h1Expected: String
     val expectedErrorTitle: String
 
+    val changeShareDividendsHiddenText: String
     val changeUkDividendsHiddenText: String
     val changeUkDividendsAmountHiddenText: String
     val changeOtherDividendsHiddenText: String
@@ -84,6 +92,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
     val continueButtonText: String
     val continueButtonLink: String
     val changeLinkExpected: String
+    val shareDividendsText: String
     val UkDividendsText: String
     val ukDividendsAmountText: String
     val otherDividendsText: String
@@ -96,6 +105,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
     val h1Expected = "Check your income from dividends"
     val expectedErrorTitle = s"Error: $titleExpected"
 
+    val changeShareDividendsHiddenText = "Change dividends from shares"
     val changeUkDividendsHiddenText = "Change if you got dividends from UK-based companies"
     val changeUkDividendsAmountHiddenText = "Change how much you got from UK-based companies"
     val changeOtherDividendsHiddenText = "Change if you got dividends from trusts or open-ended investment companies based in the UK"
@@ -107,6 +117,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
     val h1Expected = "Check your client’s income from dividends"
     val expectedErrorTitle = s"Error: $titleExpected"
 
+    val changeShareDividendsHiddenText = "Change dividends from shares"
     val changeUkDividendsHiddenText = "Change if your client got dividends from UK-based companies"
     val changeUkDividendsAmountHiddenText = "Change how much your client got from UK-based companies"
     val changeOtherDividendsHiddenText = "Change if your client got dividends from trusts or open-ended investment companies based in the UK"
@@ -121,6 +132,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
     val continueButtonText = "Save and continue"
     val continueButtonLink = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends"
     val changeLinkExpected = "Change"
+    val shareDividendsText = "Dividends from shares"
     val UkDividendsText = "Dividends from UK-based companies"
     val ukDividendsAmountText = "Value of dividends from UK-based companies"
     val otherDividendsText = "Dividends from UK-based unit trusts or open-ended investment companies"
@@ -132,6 +144,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
     val h1Expected = "Gwiriwch eich incwm o ddifidendau"
     val expectedErrorTitle = s"Error: $titleExpected"
 
+    val changeShareDividendsHiddenText = "Newid difidendau o gyfranddaliadau"
     val changeUkDividendsHiddenText = "Newidiwch os cawsoch ddifidendau gan gwmnïau yn y DU"
     val changeUkDividendsAmountHiddenText = "Newidiwch faint a gawsoch gan gwmnïau yn y DU"
     val changeOtherDividendsHiddenText = "Newidiwch os cawsoch ddifidendau gan ymddiriedolaethau neu gwmnïau buddsoddi penagored yn y DU"
@@ -143,6 +156,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
     val h1Expected = "Gwiriwch incwm eich cleient o ddifidendau"
     val expectedErrorTitle = s"Error: $titleExpected"
 
+    val changeShareDividendsHiddenText = "Newid difidendau o gyfranddaliadau"
     val changeUkDividendsHiddenText = "Newidiwch os cafodd eich cleient ddifidendau gan gwmnïau yn y DU"
     val changeUkDividendsAmountHiddenText = "Newidiwch faint gafodd eich cleient gan gwmnïau yn y DU"
     val changeOtherDividendsHiddenText = "Newidiwch os cafodd eich cleient ddifidendau gan ymddiriedolaethau neu gwmnïau buddsoddi penagored yn y DU"
@@ -157,6 +171,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
     val continueButtonText = "Cadw ac yn eich blaen"
     val continueButtonLink = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends"
     val changeLinkExpected = "Newid"
+    val shareDividendsText = "Difidendau o gyfranddaliadau"
     val UkDividendsText = "Difidendau o gwmnïau yn y DU"
     val ukDividendsAmountText = "Swm difidendau o gwmnïau yn y DU"
     val otherDividendsText = "Difidendau gan ymddiriedolaethau unedol yn y DU neu gwmnïau buddsoddi penagored"
@@ -184,49 +199,56 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
         " renders CYA page with correct content when there is data in session" which {
 
+          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
           lazy val result = {
             authoriseAgentOrIndividual(us.isAgent)
             dropDividendsDB()
             emptyUserDataStub()
             insertDividendsCyaData(Some(dividendsCyaModel))
-            urlGet(dividendsCheckYourAnswersUrl, us.isWelsh, false, headers =
-              playSessionCookie(us.isAgent))
+            route(appWithTailoring, request, "{}").get
           }
 
-          s"has an OK($OK) status" in {
-            result.status shouldBe OK
+          "has an OK(200) status" in {
+            status(result) shouldBe OK
           }
 
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
-
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
 
           titleCheck(get.titleExpected, us.isWelsh)
           h1Check(get.h1Expected + " " + captionExpected)
           textOnPageCheck(captionExpected, Selectors.captionSelector)
           "has an area for section 1" which {
-            textOnPageCheck(UkDividendsText, Selectors.cyaTitle(1))
+            textOnPageCheck(shareDividendsText, Selectors.cyaTitle(1))
             textOnPageCheck(yesNoExpectedAnswer(true), Selectors.cyaValue(1))
-            linkCheck(s"${changeLinkExpected} ${get.changeUkDividendsHiddenText}"
-              , cyaChangeLink(1), changeUkDividendsHref)
+            linkCheck(s"${changeLinkExpected} ${get.changeShareDividendsHiddenText}"
+              , cyaChangeLink(1), changeShareDividendsHref)
           }
           "has an area for section 2" which {
-            textOnPageCheck(ukDividendsAmountText, cyaTitle(2))
-            textOnPageCheck(ukDividendsAmount, cyaValue(2))
-            linkCheck(s"${changeLinkExpected} ${get.changeUkDividendsAmountHiddenText}",
-              cyaChangeLink(2), changeUkDividendsAmountHref)
+            textOnPageCheck(UkDividendsText, Selectors.cyaTitle(2))
+            textOnPageCheck(yesNoExpectedAnswer(true), Selectors.cyaValue(2))
+            linkCheck(s"${changeLinkExpected} ${get.changeUkDividendsHiddenText}"
+              , cyaChangeLink(2), changeUkDividendsHref)
           }
           "has an area for section 3" which {
-            textOnPageCheck(otherDividendsText, cyaTitle(3))
-            textOnPageCheck(yesNoExpectedAnswer(true), cyaValue(3))
+            textOnPageCheck(ukDividendsAmountText, cyaTitle(3))
+            textOnPageCheck(ukDividendsAmount, cyaValue(3))
+            linkCheck(s"${changeLinkExpected} ${get.changeUkDividendsAmountHiddenText}",
+              cyaChangeLink(3), changeUkDividendsAmountHref)
+          }
+          "has an area for section 4" which {
+            textOnPageCheck(otherDividendsText, cyaTitle(4))
+            textOnPageCheck(yesNoExpectedAnswer(true), cyaValue(4))
             linkCheck(s"${changeLinkExpected} ${get.changeOtherDividendsHiddenText}",
-              cyaChangeLink(3), changeOtherDividendsHref)
+              cyaChangeLink(4), changeOtherDividendsHref)
           }
           //noinspection ScalaStyle
-          "has an area for section 4" which {
-            textOnPageCheck(otherDividendsAmountText, cyaTitle(4))
-            textOnPageCheck(otherDividendsAmount, cyaValue(4))
+          "has an area for section 5" which {
+            textOnPageCheck(otherDividendsAmountText, cyaTitle(5))
+            textOnPageCheck(otherDividendsAmount, cyaValue(5))
             linkCheck(s"${changeLinkExpected} ${get.changeOtherDividendsAmountHiddenText}",
-              cyaChangeLink(4), changeOtherDividendsAmountHref)
+              cyaChangeLink(5), changeOtherDividendsAmountHref)
           }
 
           buttonCheck(continueButtonText, continueButtonSelector)
@@ -239,35 +261,43 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
         "renders CYA page without yesNo Content when there is a prior submission" which {
 
+          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
           lazy val result = {
             authoriseAgentOrIndividual(us.isAgent)
             dropDividendsDB()
             emptyUserDataStub()
             userDataStub(priorData, nino, taxYear)
-            urlGet(dividendsCheckYourAnswersUrl, us.isWelsh, headers =
-              playSessionCookie(us.isAgent))
+            route(appWithTailoring, request, "{}").get
           }
 
-          s"has an OK($OK) status" in {
-            result.status shouldBe OK
+          "has an OK (200) status" in {
+            status(result) shouldBe OK
           }
 
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
 
           titleCheck(get.titleExpected, us.isWelsh)
           h1Check(get.h1Expected + " " + captionExpected)
           textOnPageCheck(captionExpected, Selectors.captionSelector)
           "has an area for section 1" which {
-            textOnPageCheck(ukDividendsAmountText, cyaTitle(1))
-            textOnPageCheck(ukDividendsAmount, cyaValue(1))
-            linkCheck(s"${changeLinkExpected} ${get.changeUkDividendsAmountHiddenText}",
-              cyaChangeLink(1), changeUkDividendsAmountHref)
+            textOnPageCheck(shareDividendsText, cyaTitle(1))
+            textOnPageCheck(yesNoExpectedAnswer(true), Selectors.cyaValue(1))
+            linkCheck(s"${changeLinkExpected} ${get.changeShareDividendsHiddenText}",
+              cyaChangeLink(1), changeShareDividendsHref)
           }
           "has an area for section 2" which {
-            textOnPageCheck(otherDividendsAmountText, cyaTitle(2))
-            textOnPageCheck(otherDividendsAmount, cyaValue(2))
+            textOnPageCheck(ukDividendsAmountText, cyaTitle(2))
+            textOnPageCheck(ukDividendsAmount, cyaValue(2))
+            linkCheck(s"${changeLinkExpected} ${get.changeUkDividendsAmountHiddenText}",
+              cyaChangeLink(2), changeUkDividendsAmountHref)
+          }
+          "has an area for section 3" which {
+            textOnPageCheck(otherDividendsAmountText, cyaTitle(3))
+            textOnPageCheck(otherDividendsAmount, cyaValue(3))
             linkCheck(s"${changeLinkExpected} ${get.changeOtherDividendsAmountHiddenText}",
-              cyaChangeLink(2), changeOtherDividendsAmountHref)
+              cyaChangeLink(3), changeOtherDividendsAmountHref)
           }
 
           buttonCheck(continueButtonText, continueButtonSelector)
@@ -278,36 +308,43 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
         "renders CYA page without amount when cyaModels boolean answers are false" which {
 
+          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
           lazy val result = {
             authoriseAgentOrIndividual(us.isAgent)
             dropDividendsDB()
             emptyUserDataStub()
             insertDividendsCyaData(Some(dividendsNoModel))
-            urlGet(dividendsCheckYourAnswersUrl, us.isWelsh, headers =
-              playSessionCookie(us.isAgent))
+            route(appWithTailoring, request, "{}").get
           }
 
-
-          s"has an OK($OK) status" in {
-            result.status shouldBe OK
+          "has an OK (200) status" in {
+            status(result) shouldBe OK
           }
 
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
 
           titleCheck(get.titleExpected, us.isWelsh)
           h1Check(get.h1Expected + " " + captionExpected)
           textOnPageCheck(captionExpected, Selectors.captionSelector)
           "has an area for section 1" which {
-            textOnPageCheck(UkDividendsText, cyaTitle(1))
+            textOnPageCheck(shareDividendsText, cyaTitle(1))
             textOnPageCheck(yesNoExpectedAnswer(false), cyaValue(1))
-            linkCheck(s"${changeLinkExpected} ${get.changeUkDividendsHiddenText}",
-              cyaChangeLink(1), changeUkDividendsHref)
+            linkCheck(s"${changeLinkExpected} ${get.changeShareDividendsHiddenText}",
+              cyaChangeLink(1), changeShareDividendsHref)
           }
           "has an area for section 2" which {
-            textOnPageCheck(otherDividendsText, cyaTitle(2))
+            textOnPageCheck(UkDividendsText, cyaTitle(2))
             textOnPageCheck(yesNoExpectedAnswer(false), cyaValue(2))
+            linkCheck(s"${changeLinkExpected} ${get.changeUkDividendsHiddenText}",
+              cyaChangeLink(2), changeUkDividendsHref)
+          }
+          "has an area for section 3" which {
+            textOnPageCheck(otherDividendsText, cyaTitle(3))
+            textOnPageCheck(yesNoExpectedAnswer(false), cyaValue(3))
             linkCheck(s"${changeLinkExpected} ${get.changeOtherDividendsHiddenText}",
-              cyaChangeLink(2), changeOtherDividendsHref)
+              cyaChangeLink(3), changeOtherDividendsHref)
           }
 
           buttonCheck(continueButtonText, continueButtonSelector)
@@ -321,7 +358,10 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           val ukDividends1 = 100
           val otherDividends1 = 200
 
-          lazy val result: WSResponse = {
+          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
+          lazy val result = {
             authoriseAgentOrIndividual(us.isAgent)
             dropDividendsDB()
             emptyUserDataStub()
@@ -331,30 +371,35 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
               Some(true), Some(ukDividends1),
               Some(true), Some(otherDividends1)
             )))
-            urlGet(dividendsCheckYourAnswersUrl, us.isWelsh, headers =
-              playSessionCookie(us.isAgent))
+            route(appWithTailoring, request, "{}").get
           }
 
-          s"has an OK($OK) status" in {
-            result.status shouldBe OK
+          "has an OK (200) status" in {
+            status(result) shouldBe OK
           }
 
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
 
           titleCheck(get.titleExpected, us.isWelsh)
           h1Check(get.h1Expected + " " + captionExpected)
           textOnPageCheck(captionExpected, Selectors.captionSelector)
           "has an area for section 1" which {
-            textOnPageCheck(ukDividendsAmountText, cyaTitle(1))
-            textOnPageCheck("£100", cyaValue(1))
-            linkCheck(s"${changeLinkExpected} ${get.changeUkDividendsAmountHiddenText}",
-              cyaChangeLink(1), changeUkDividendsAmountHref)
+            textOnPageCheck(shareDividendsText, cyaTitle(1))
+            textOnPageCheck(yesNoExpectedAnswer(true), Selectors.cyaValue(1))
+            linkCheck(s"${changeLinkExpected} ${get.changeShareDividendsHiddenText}",
+              cyaChangeLink(1), changeShareDividendsHref)
           }
           "has an area for section 2" which {
-            textOnPageCheck(otherDividendsAmountText, cyaTitle(2))
-            textOnPageCheck("£200", cyaValue(2))
+            textOnPageCheck(ukDividendsAmountText, cyaTitle(2))
+            textOnPageCheck("£100", cyaValue(2))
+            linkCheck(s"${changeLinkExpected} ${get.changeUkDividendsAmountHiddenText}",
+              cyaChangeLink(2), changeUkDividendsAmountHref)
+          }
+          "has an area for section 3" which {
+            textOnPageCheck(otherDividendsAmountText, cyaTitle(3))
+            textOnPageCheck("£200", cyaValue(3))
             linkCheck(s"${changeLinkExpected} ${get.changeOtherDividendsAmountHiddenText}",
-              cyaChangeLink(2), changeOtherDividendsAmountHref)
+              cyaChangeLink(3), changeOtherDividendsAmountHref)
           }
 
           buttonCheck(continueButtonText, continueButtonSelector)

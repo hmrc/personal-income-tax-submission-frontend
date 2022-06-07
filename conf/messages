@@ -148,10 +148,13 @@ dividends.other-dividends-amount.error.amountMaxLimit = The amount of dividends 
 
 dividends.cya.title.individual = Check your income from dividends
 dividends.cya.title.agent = Check your client’s income from dividends
-dividends.cya.questions.1 = Dividends from UK-based companies
-dividends.cya.questions.2 = Value of dividends from UK-based companies
-dividends.cya.questions.3 = Dividends from UK-based unit trusts or open-ended investment companies
-dividends.cya.questions.4 = Value of dividends from UK-based unit trusts or open-ended investment companies
+dividends.cya.questions.1 = Dividends from shares
+dividends.cya.questions.2 = Dividends from UK-based companies
+dividends.cya.questions.3 = Value of dividends from UK-based companies
+dividends.cya.questions.4 = Dividends from UK-based unit trusts or open-ended investment companies
+dividends.cya.questions.5 = Value of dividends from UK-based unit trusts or open-ended investment companies
+dividends.cya.gateway.individual = Change dividends from shares
+dividends.cya.gateway.agent = Change dividends from shares
 dividends.cya.changeUkDividends.individual = Change if you got dividends from UK-based companies
 dividends.cya.changeUkDividends.agent = Change if your client got dividends from UK-based companies
 dividends.cya.changeUkDividendsAmount.individual = Change how much you got from UK-based companies
@@ -243,11 +246,14 @@ interest.accounts.error.noRadioSelected = Select yes to add another account
 
 interest.cya.title.individual = Check your UK interest
 interest.cya.title.agent = Check your client’s UK interest
-interest.cya.questions.1 = Untaxed UK Interest
-interest.cya.questions.2 = Untaxed UK interest accounts
-interest.cya.questions.3 = Taxed UK Interest
-interest.cya.questions.4 = Taxed UK interest accounts
+interest.cya.questions.1 = Interest from the UK
+interest.cya.questions.2 = Untaxed UK Interest
+interest.cya.questions.3 = Untaxed UK interest accounts
+interest.cya.questions.4 = Taxed UK Interest
+interest.cya.questions.5 = Taxed UK interest accounts
 
+interest.cya.uk-interest.hiddenChange.individual = Change interest from the UK
+interest.cya.uk-interest.hiddenChange.agent = Change interest from the UK
 interest.cya.untaxed-uk-interest-accounts.hiddenChange.individual = Change if you got untaxed UK interest
 interest.cya.untaxed-uk-interest-accounts.hiddenChange.agent = Change if your client got untaxed UK interest
 interest.cya.taxed-uk-interest-accounts.hiddenChange.individual = Change if you got taxed UK interest
@@ -495,6 +501,7 @@ charity.shares-and-land-summary.hint.agent = You must tell us about all the over
 
 charity.cya.title-heading.individual = Check your donations to charity
 charity.cya.title-heading.agent = Check your client’s donations to charity
+charity.cya.questions.gateway = Made donations to charity
 charity.cya.questions.donatedViaGiftAid = Donation to charity using Gift Aid
 charity.cya.questions.donatedViaGiftAid.amount = Amount donated to charity using Gift Aid
 charity.cya.questions.oneOffDonationsViaGiftAid = One-off donations to charity using Gift Aid
@@ -515,6 +522,8 @@ charity.cya.questions.donateLandOrProperties.amount = Value of land or property
 charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties = Donation of shares, securities, land or property to overseas charities
 charity.cya.questions.overseasDonateSharesSecuritiesLandOrProperties.amount = Value of shares, securities, land or property to overseas charities
 
+charity.cya.questions.gateway.individual.hidden = Change donations to charity
+charity.cya.questions.gateway.agent.hidden = Change donations to charity
 charity.cya.questions.donatedViaGiftAid.individual.hidden = Change if you made a donation to charity by using Gift Aid
 charity.cya.questions.donatedViaGiftAid.agent.hidden = Change if your client made a donation to charity by using Gift Aid
 charity.cya.questions.donatedViaGiftAid.amount.hidden = Change the amount donated to charity by using Gift Aid
