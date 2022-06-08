@@ -45,7 +45,14 @@ class MessagesISpec extends IntegrationTest with ViewHelpers {
     "betaBar.banner.message.2",
     "betaBar.banner.message.3",
     "radios.yesnoitems.yes",
-    "radios.yesnoitems.no"
+    "radios.yesnoitems.no",
+    "interest.cya.uk-interest.hiddenChange.agent",
+    "dividends.cya.gateway.individual",
+    "dividends.cya.gateway.agent",
+    "charity.cya.questions.gateway.agent.hidden",
+    "interest.cya.uk-interest.hiddenChange.individual",
+    "charity.cya.questions.gateway.individual.hidden",
+    "charity.cya.questions.gateway.amount.hidden"
   )
   val welshDuplicated = Set(
     "charity.overseas-gift-aid-summary.title.single.individual",

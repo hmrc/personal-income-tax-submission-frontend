@@ -61,7 +61,8 @@
 }
 
 @summaryRows = @{
-    (Nil :+ rowWithContent("charity.cya.questions.donatedViaGiftAid", cya.donationsViaGiftAid.getOrElse(false), priorData.flatMap(_.giftAidPayments).forall(_.currentYear.isEmpty), changeLink = controllers.charity.routes.GiftAidDonationsController.show(taxYear), hiddenIsAgent = Some(user.isAgent))) :+
+    (Nil :+ rowWithContent("charity.cya.questions.gateway", cya.gateway.getOrElse(false), appConfig.tailoringEnabled, changeLink = controllers.charity.routes.GiftAidGatewayController.show(taxYear), hiddenIsAgent = Some(user.isAgent)) :+
+            rowWithContent("charity.cya.questions.donatedViaGiftAid", cya.donationsViaGiftAid.getOrElse(false), priorData.flatMap(_.giftAidPayments).forall(_.currentYear.isEmpty), changeLink = controllers.charity.routes.GiftAidDonationsController.show(taxYear), hiddenIsAgent = Some(user.isAgent))) :+
             amountRow("charity.cya.questions.donatedViaGiftAid.amount", cya.donationsViaGiftAidAmount, cya.donationsViaGiftAid.contains(true), changeLink = controllers.charity.routes.GiftAidDonatedAmountController.show(taxYear)) :+
             rowWithContent("charity.cya.questions.oneOffDonationsViaGiftAid", cya.oneOffDonationsViaGiftAid.getOrElse(false), cya.donationsViaGiftAid.contains(true) && priorData.flatMap(_.giftAidPayments).forall(_.oneOffCurrentYear.isEmpty), changeLink = controllers.charity.routes.GiftAidOneOffController.show(taxYear), hiddenIsAgent = Some(user.isAgent)) :+
             amountRow("charity.cya.questions.oneOffDonationsViaGiftAid.amount", cya.oneOffDonationsViaGiftAidAmount, cya.oneOffDonationsViaGiftAid.contains(true), changeLink = controllers.charity.routes.GiftAidOneOffAmountController.show(taxYear)) :+
