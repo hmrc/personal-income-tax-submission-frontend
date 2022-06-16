@@ -29,6 +29,7 @@ This service runs on port: `localhost:9308`
 | NRS | Local |
 | Tax Year Error | Production |
 | Welsh | Local, QA, Staging |
+| Tailoring | Local |
 
 ## How to access this service
 Each of the journeys contained in this service can be access through [income-tax-submission-frontend](https://github.com/hmrc/income-tax-submission-frontend).
@@ -173,9 +174,14 @@ Each journey allows a user to submit new data or append previously submitted dat
 </details>
 
 ## Nino containing previous data
-| Nino |
-| --- |
-| AA123459A |
+| Nino | Income sources data |
+| --- | --- |
+| AA123459A | User with data for dividends, interest and gift-aid income sources |
+| AA000001A | User with dividends data |
+| AA000003A | User with dividends and interest data with multiple accounts|
+| AA000002A | User with interest data end of year with multiple accounts|
+| AA637489D | User with gift-aid data |
+
 
 ### License
 
