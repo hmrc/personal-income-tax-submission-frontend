@@ -21,10 +21,13 @@ import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
-import play.api.libs.ws.WSResponse
+import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
 import play.api.http.HeaderNames
+import play.api.libs.json.Json
+import play.api.mvc.Headers
+import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel}
 import utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 
 
@@ -269,6 +272,10 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
             dropDividendsDB()
             emptyUserDataStub()
             userDataStub(priorData, nino, taxYear)
+
+            insertDividendsCyaData(Some(dividendsCyaModel))
+            stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "")
+            urlPost(s"$appUrl/$taxYear/dividends/dividends-from-stocks-and-shares", "{}", us.isWelsh, follow = true, playSessionCookie(us.isAgent))
             route(appWithTailoring, request, "{}").get
           }
 
@@ -333,18 +340,6 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
             textOnPageCheck(yesNoExpectedAnswer(false), cyaValue(1))
             linkCheck(s"${changeLinkExpected} ${get.changeShareDividendsHiddenText}",
               cyaChangeLink(1), changeShareDividendsHref)
-          }
-          "has an area for section 2" which {
-            textOnPageCheck(UkDividendsText, cyaTitle(2))
-            textOnPageCheck(yesNoExpectedAnswer(false), cyaValue(2))
-            linkCheck(s"${changeLinkExpected} ${get.changeUkDividendsHiddenText}",
-              cyaChangeLink(2), changeUkDividendsHref)
-          }
-          "has an area for section 3" which {
-            textOnPageCheck(otherDividendsText, cyaTitle(3))
-            textOnPageCheck(yesNoExpectedAnswer(false), cyaValue(3))
-            linkCheck(s"${changeLinkExpected} ${get.changeOtherDividendsHiddenText}",
-              cyaChangeLink(3), changeOtherDividendsHref)
           }
 
           buttonCheck(continueButtonText, continueButtonSelector)
@@ -413,6 +408,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
   ".show" should {
 
+
     "redirect to the overview page" when {
       "there is no session data" in {
 
@@ -451,7 +447,8 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           }
 
           "has the correct title" in {
-            result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-companies"
+            result.headers("Location").head shouldBe
+              s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-companies"
           }
         }
 
@@ -499,6 +496,28 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
         }
       }
 
+
+      "redirect the user to dividends gateway page if cya data is empty" which {
+        lazy val result = {
+          dropDividendsDB()
+          emptyUserDataStub()
+          insertDividendsCyaData(Some(DividendsCheckYourAnswersModel()))
+          authoriseIndividual()
+          val request = FakeRequest("GET", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends",
+            Headers.apply(playSessionCookie(): _*), "{}")
+
+          await(route(appWithTailoring, request, "{}").get)
+        }
+
+        "has a status of SEE_OTHER(303)" in {
+          result.header.status shouldBe SEE_OTHER
+        }
+
+        "has the redirect location of the overview page" in {
+          result.header.headers("Location") shouldBe controllers.dividends.routes.DividendsGatewayController.show(taxYear).url
+        }
+      }
+
       "redirect to How much did you receive in other dividends if Did you receive other dividends has been answered yes" which {
         lazy val result: WSResponse = {
           authoriseIndividual()
@@ -536,7 +555,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
   ".submit" should {
 
-    "redirect to the overview page when there is valid session data" when {
+    s"redirect to the overview page when there is valid session data " when {
 
       lazy val result: WSResponse = {
         authoriseIndividual()
@@ -559,7 +578,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
       }
     }
 
-    "redirect to the 500 unauthorised error template page when there is a problem posting data" should {
+    s"redirect to the 500 unauthorised error template page when there is a problem posting data" when {
 
       lazy val result: WSResponse = {
         authoriseIndividual()
@@ -579,7 +598,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
       }
     }
 
-    "redirect to the 503 service unavailable page when the service is unavailable" which {
+    s"redirect to the 503 service unavailable page when the service is unavailable" when {
       lazy val result: WSResponse = {
         authoriseIndividual()
         dropDividendsDB()
@@ -595,6 +614,86 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
       "has a status of 503" in {
         result.status shouldBe SERVICE_UNAVAILABLE
+      }
+    }
+
+    s"redirect to the overview page" when {
+
+      "tailoring is on, and the gateway question is false" which {
+        lazy val result = {
+          dropDividendsDB()
+          emptyUserDataStub()
+          insertDividendsCyaData(Some(dividendsCyaModel.copy(gateway = Some(false))), taxYear, Some(mtditid), None)
+          authoriseIndividual()
+          stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "")
+          stubPost(s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear", NO_CONTENT, "{}")
+          stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
+
+          val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends", Headers.apply(
+            (playSessionCookie() :+ ("Csrf-Token" -> "nocheck")): _*
+          ), "{}")
+
+          await(route(appWithTailoring, request, "{}").get)
+        }
+
+        "has a status of SEE_OTHER(303)" in {
+          result.header.status shouldBe SEE_OTHER
+        }
+
+        "has the redirect location of the overview page" in {
+          result.header.headers("Location") shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+        }
+      }
+
+    }
+    s"return a INTERNAL_SERVER_ERROR" when {
+
+      "there is no cyaData" which {
+        lazy val result = {
+          dropDividendsDB()
+          emptyUserDataStub()
+          authoriseIndividual()
+          stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "")
+          stubPost(s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear", NO_CONTENT, "{}")
+          stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
+
+          val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends", Headers.apply(
+            (playSessionCookie() :+ ("Csrf-Token" -> "nocheck")): _*
+          ), "{}")
+
+          await(route(appWithTailoring, request, "{}").get)
+        }
+
+        "has a status of SEE_OTHER(303)" in {
+          result.header.status shouldBe INTERNAL_SERVER_ERROR
+        }
+      }
+
+    }
+
+    s"return an internal server error" when {
+
+      "the tailoring feature switch is on, but the exclude journey call fails" which {
+        lazy val result = {
+          dropDividendsDB()
+          emptyUserDataStub()
+          insertDividendsCyaData(
+            Some(DividendsCheckYourAnswersModel(
+              Some(false), Some(true), Some(1000.43), Some(true), Some(9983.21)
+            )))
+          authoriseIndividual()
+          stubPost(s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear", INTERNAL_SERVER_ERROR,
+            Json.stringify(Json.obj("code" -> "failed", "reason" -> "I made it fail"))
+          )
+          val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends",
+            Headers.apply((playSessionCookie() :+ ("Csrf-Token" -> "nocheck")): _*), "{}")
+
+          await(route(appWithTailoring, request, "{}").get)
+        }
+
+        "has a status of 500" in {
+          result.header.status shouldBe INTERNAL_SERVER_ERROR
+        }
       }
     }
   }

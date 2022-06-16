@@ -41,6 +41,10 @@ class DividendsSubmissionService @Inject()(dividendsSubmissionConnector: Dividen
         logger.info("[DividendsSubmissionService][submitDividends] User has entered No & No to both dividends questions. " +
           "Not submitting data to DES.")
         Future(Right(DividendsResponseModel(NO_CONTENT)))
+      case DividendsCheckYourAnswersModel(Some(false), None, None, None, None) =>
+        logger.info("[DividendsSubmissionService][submitDividends] User has entered No to gateway quest and no CheckYourAnswer data " +
+          "Not submitting data to DES.")
+        Future(Right(DividendsResponseModel(NO_CONTENT)))
       case _ =>
         val newBody = new DividendsSubmissionModel(nonOptBody.ukDividendsAmount, nonOptBody.otherUkDividendsAmount)
         dividendsSubmissionConnector.submitDividends(newBody, nino, taxYear)(hc.withExtraHeaders("mtditid" -> mtditid))

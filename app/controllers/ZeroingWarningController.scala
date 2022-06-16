@@ -22,6 +22,7 @@ import controllers.predicates.CommonPredicates.commonPredicates
 import forms.interest.TaxedInterestAmountForm.taxedAmount
 import forms.interest.UntaxedInterestAmountForm.untaxedAmount
 import models.User
+import models.dividends.DividendsCheckYourAnswersModel
 import models.interest.InterestCYAModel
 import play.api.i18n.I18nSupport
 import play.api.mvc._
@@ -48,7 +49,10 @@ class ZeroingWarningController @Inject()(
   private def page(taxYear: Int, journeyKey: String)(implicit user: User[_]) = {
     val (continueCall, cancelHref): (Call, String) = {
       journeyKey match {
-        case "dividends" => (Call("GET", "#"), controllers.dividends.routes.DividendsGatewayController.show(taxYear).url)
+        case "dividends" => (
+          controllers.routes.ZeroingWarningController.submit(taxYear, DIVIDENDS.stringify),
+          controllers.dividends.routes.DividendsGatewayController.show(taxYear).url
+        )
         case "interest" =>
           (
             controllers.routes.ZeroingWarningController.submit(taxYear, INTEREST.stringify),
@@ -72,7 +76,7 @@ class ZeroingWarningController @Inject()(
   }
 
   def show(taxYear: Int, journeyKey: String): Action[AnyContent] = zeroingPredicates(taxYear, journeyKey).apply { implicit user =>
-    if (appConfig.tailoringEnabled || appConfig.interestTailoringEnabled) {
+    if (appConfig.tailoringEnabled || appConfig.interestTailoringEnabled || appConfig.dividendsTailoringEnabled) {
       page(taxYear, journeyKey)
     } else {
       Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
@@ -80,14 +84,13 @@ class ZeroingWarningController @Inject()(
   }
 
   def submit(taxYear: Int, journeyKey: String): Action[AnyContent] = zeroingPredicates(taxYear, journeyKey).async { implicit user =>
-    if (appConfig.tailoringEnabled || appConfig.interestTailoringEnabled) {
+    if (appConfig.tailoringEnabled || appConfig.interestTailoringEnabled || appConfig.dividendsTailoringEnabled) {
       def onSuccess(key: String): Result = {
         Redirect(s"/$key")
       }
 
       journeyKey match {
-        case key@"dividends" =>
-          dividendsSession.clear(taxYear)(errorHandler.internalServerError())(onSuccess(key))
+        case key@"dividends" => handleDividends(taxYear)
         case "interest" => handleInterest(taxYear)
         case key@"charity" =>
           dividendsSession.clear(taxYear)(errorHandler.internalServerError())(onSuccess(key))
@@ -95,6 +98,25 @@ class ZeroingWarningController @Inject()(
     } else {
       Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
     }
+  }
+
+  private[controllers] def handleDividends(taxYear:Int)(implicit user: User[_]): Future[Result] = {
+    dividendsSession.getAndHandle(taxYear)(errorHandler.internalServerError()) { case (cya, prior) =>
+      cya match {
+        case Some(cyaData) =>
+          val newSessionData = zeroDividendsData(cyaData)
+          dividendsSession.updateSessionData(newSessionData, taxYear)(errorHandler.internalServerError()) {
+            Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))
+          }
+        case _ => Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+      }
+    }
+  }
+
+  private[controllers] def zeroDividendsData(cyaData: DividendsCheckYourAnswersModel): DividendsCheckYourAnswersModel = {
+    cyaData.copy(
+      ukDividendsAmount = if (cyaData.ukDividends.contains(true)) Some(0) else None,
+      otherUkDividendsAmount = if (cyaData.ukDividends.contains(true)) Some(0) else None)
   }
 
   private[controllers] def handleInterest(taxYear: Int)(implicit user: User[_]): Future[Result] = {
@@ -123,5 +145,4 @@ class ZeroingWarningController @Inject()(
       taxedUkInterest = Some(zeroedData.accounts.flatMap(_.taxedAmount).nonEmpty)
     )
   }
-
 }

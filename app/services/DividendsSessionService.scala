@@ -70,7 +70,7 @@ class DividendsSessionService @Inject()(
     }
   }
 
-  def updateSessionData[A](cyaModel: DividendsCheckYourAnswersModel, taxYear: Int)(onFail: A)(onSuccess: A)
+  def updateSessionData[A](cyaModel: DividendsCheckYourAnswersModel, taxYear: Int, needsCreating: Boolean = false)(onFail: A)(onSuccess: A)
                           (implicit user: User[_], ec: ExecutionContext): Future[A] = {
 
     val userData = DividendsUserDataModel(
@@ -82,28 +82,34 @@ class DividendsSessionService @Inject()(
       DateTime.now(DateTimeZone.UTC)
     )
 
-    dividendsUserDataRepository.update(userData).map {
-      case Right(_) => onSuccess
-      case Left(_) =>
-        logger.error("[DividendsSessionService][createSessionData] Could not update user session.")
-        onFail
+    if (needsCreating) {
+      dividendsUserDataRepository.create(userData).map {
+        case Right(_) => onSuccess
+        case Left(_) => onFail
+      }
+    } else {
+      dividendsUserDataRepository.update(userData).map {
+        case Right(_) => onSuccess
+        case Left(_) => onFail
+      }
     }
   }
 
-  def getAndHandle[R](taxYear: Int)(onFail: R)(block: (Option[DividendsCheckYourAnswersModel], Option[DividendsPriorSubmission]) => R)
+  def getAndHandle[R](taxYear: Int)(onFail: R)(block: (Option[DividendsCheckYourAnswersModel], Option[DividendsPriorSubmission]) => Future[R])
                      (implicit executionContext: ExecutionContext, user: User[_], hc: HeaderCarrier): Future[R] = {
-    for {
+    val result = for {
       optionalCya <- getSessionData(taxYear)
       priorDataResponse <- getPriorData(taxYear)
     } yield {
       priorDataResponse.map(_.dividends) match {
         case Right(prior) => optionalCya match {
-          case Left(_) => onFail
+          case Left(_) =>  Future(onFail)
           case Right(cyaData) => block(cyaData.flatMap(_.dividends), prior)
         }
-        case Left(_) => onFail
+        case Left(_) =>  Future(onFail)
       }
     }
+    result.flatten
   }
 
   def clear[R](taxYear: Int)(onFail: R)(onSuccess: R)(implicit user: User[_], ec: ExecutionContext, hc: HeaderCarrier): Future[R] = {

@@ -52,13 +52,13 @@ class ReceiveUkDividendsController @Inject()(
     implicit val questionsJourney: QuestionsJourney[DividendsCheckYourAnswersModel] = DividendsCheckYourAnswersModel.journey(taxYear)
 
     dividendsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
-      prior match {
+      Future(prior match {
         case Some(prior) if prior.ukDividends.nonEmpty => Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))
         case _ =>
           questionHelper.validate(routes.ReceiveUkDividendsController.show(taxYear), cya, taxYear) {
             Ok(receiveUkDividendsView(cya.flatMap(_.ukDividends).fold(yesNoForm(user.isAgent))(yesNoForm(user.isAgent).fill), taxYear))
           }
-      }
+      })
     }
   }
 
@@ -75,7 +75,7 @@ class ReceiveUkDividendsController @Inject()(
           dividendsSessionService.getSessionData(taxYear).map {
             case Left(_) => Future.successful(errorHandler.internalServerError())
             case Right(cya) =>
-              val gateway = if(appConfig.tailoringEnabled) None else Some(true)
+              val gateway = if(appConfig.dividendsTailoringEnabled) None else Some(true)
 
             if (yesNoModel) {
               val update = cya.nonEmpty
@@ -106,7 +106,7 @@ class ReceiveUkDividendsController @Inject()(
   }
 
   private def newAndRedirect(cyaModel: DividendsCheckYourAnswersModel, taxYear: Int, redirectCall: Call)(implicit user: User[_]): Future[Result] = {
-    dividendsSessionService.createSessionData(cyaModel, taxYear)(
+    dividendsSessionService.updateSessionData(cyaModel, taxYear, true)(
       InternalServerError(errorHandler.internalServerErrorTemplate)
     )(
       Redirect(redirectCall)
