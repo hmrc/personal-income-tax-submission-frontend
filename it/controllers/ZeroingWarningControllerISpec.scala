@@ -16,6 +16,8 @@
 
 package controllers
 
+import common.PageLocations.Interest
+import models.interest.{InterestAccountModel, InterestCYAModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
@@ -210,31 +212,9 @@ class ZeroingWarningControllerISpec extends IntegrationTest
 
   ".submit" should {
 
-    "redirect to the overview page if the feature switch is off" which {
-      lazy val result = {
-        dropDividendsDB()
-        dropInterestDB()
-        dropGiftAidDB()
+    "redirect to the overview page" when {
 
-        authoriseIndividual()
-
-        urlGet(url("interest"), follow = false, headers = playSessionCookie())
-      }
-
-      "has a status of SEE_OTHER(303)" in {
-        result.status shouldBe SEE_OTHER
-      }
-
-      "has the correct redirect location" in {
-        result.headers("Location").head shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY)
-      }
-    }
-
-    //TODO Depending on implementation, this will likely become a single test when the remove tailoring functionality is complete
-    //TODO When that is done, check that the session data is getting cleared
-    Seq("dividends", "interest", "charity").foreach { journeyKey =>
-
-      s"redirect to the tailoring removal url for the $journeyKey journey" which {
+      "the feature switch is off" which {
         lazy val result = {
           dropDividendsDB()
           dropInterestDB()
@@ -242,23 +222,107 @@ class ZeroingWarningControllerISpec extends IntegrationTest
 
           authoriseIndividual()
 
-          val request: FakeRequest[String] = FakeRequest("POST", url(journeyKey, needExplicit = false)).withBody("{}").withHeaders(
-            playSessionCookie(isEoy = true) ++ Seq("Csrf-Token" -> "nocheck"): _*
-          )
-
-          route(appWithTailoring, request).get
+          urlGet(url("interest"), follow = false, headers = playSessionCookie())
         }
 
-        "has a status of SEE_OTHER(303" in {
-          status(result) shouldBe SEE_OTHER
+        "has a status of SEE_OTHER(303)" in {
+          result.status shouldBe SEE_OTHER
         }
 
         "has the correct redirect location" in {
-          await(result).header.headers("Location") shouldBe s"/$journeyKey"
+          result.headers("Location").head shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY)
         }
-
       }
 
+      "there is no CYA data" which {
+        lazy val result = {
+          dropInterestDB()
+          emptyUserDataStub(taxYear = taxYearEOY)
+          authoriseIndividual()
+
+          val request = FakeRequest(
+            "POST",
+            url("interest", needExplicit = false)
+          ).withHeaders((playSessionCookie(isEoy = true) ++ Seq("Csrf-Token" -> "nocheck")): _*)
+
+          route(appWithTailoring, request, "{}").get
+        }
+
+        "has a status of SEE_OTHER(303)" in {
+          status(result) shouldBe SEE_OTHER
+        }
+
+        "has a redirect URL for the overview page" in {
+          await(result).header.headers("Location") shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY)
+        }
+      }
+
+    }
+
+    "redirect to the interest CYA page" when {
+
+      "the feature switch is on and session data exists" which {
+        lazy val result = {
+          dropInterestDB()
+          insertInterestCyaData(Some(InterestCYAModel(
+            gateway = Some(false)
+          )), taxYearEOY)
+          emptyUserDataStub(taxYear = taxYearEOY)
+
+          authoriseIndividual()
+
+          val request = FakeRequest(
+            "POST",
+            url("interest", needExplicit = false)
+          ).withHeaders((playSessionCookie(isEoy = true) ++ Seq("Csrf-Token" -> "nocheck")): _*)
+
+          route(appWithTailoring, request, "{}").get
+        }
+
+        "has a status of SEE_OTHER(303)" in {
+          status(result) shouldBe SEE_OTHER
+        }
+
+        "has a redirect location set to the interest cya page" in {
+          await(result).header.headers("Location") shouldBe "/update-and-submit-income-tax-return/personal-income/2022/interest/check-interest"
+        }
+      }
+
+    }
+  }
+
+  ".zeroInterestData" should {
+    lazy val controller = app.injector.instanceOf[ZeroingWarningController]
+
+    "zero data that exists in prior, and remove that which doesn't" in {
+      val defaultAmount = 100000
+
+      val cya = InterestCYAModel(Some(false), Some(true), Some(true), Seq(
+        InterestAccountModel(Some("anId"), "This is an account", taxedAmount = Some(defaultAmount)),
+        InterestAccountModel(Some("anId2"), "This is an account", untaxedAmount = Some(defaultAmount)),
+        InterestAccountModel(None, "This is an account", taxedAmount = Some(defaultAmount), uniqueSessionId = Some("anId3"))
+      ))
+
+      val expectedCya = InterestCYAModel(Some(false), Some(true), Some(true), Seq(
+        InterestAccountModel(Some("anId"), "This is an account", taxedAmount = Some(0)),
+        InterestAccountModel(Some("anId2"), "This is an account", untaxedAmount = Some(0))
+      ))
+
+      controller.zeroInterestData(cya, Seq("anId", "anId2")) shouldBe expectedCya
+    }
+
+    "set the 'do you have' fields to false if no more accounts remain for them" in {
+      val defaultAmount = 100000
+
+      val cya = InterestCYAModel(Some(false), Some(true), Some(true), Seq(
+        InterestAccountModel(None, "This is an account", taxedAmount = Some(defaultAmount), uniqueSessionId = Some("anId")),
+        InterestAccountModel(None, "This is an account", untaxedAmount = Some(defaultAmount), uniqueSessionId = Some("anId2")),
+        InterestAccountModel(None, "This is an account", taxedAmount = Some(defaultAmount), uniqueSessionId = Some("anId3"))
+      ))
+
+      val expectedCya = InterestCYAModel(Some(false), Some(false), Some(false), Seq())
+
+      controller.zeroInterestData(cya, Seq("anId", "anId2")) shouldBe expectedCya
     }
 
   }

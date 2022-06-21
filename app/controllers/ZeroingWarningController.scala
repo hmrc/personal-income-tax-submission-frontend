@@ -16,12 +16,15 @@
 
 package controllers
 
-import config.{AppConfig, DIVIDENDS, ErrorHandler, GIFT_AID, INTEREST}
+import config._
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
+import forms.interest.TaxedInterestAmountForm.taxedAmount
+import forms.interest.UntaxedInterestAmountForm.untaxedAmount
 import models.User
-import play.api.i18n.{I18nSupport, Messages}
-import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}
+import models.interest.InterestCYAModel
+import play.api.i18n.I18nSupport
+import play.api.mvc._
 import services.{DividendsSessionService, GiftAidSessionService, InterestSessionService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.ZeroingWarningView
@@ -46,7 +49,11 @@ class ZeroingWarningController @Inject()(
     val (continueCall, cancelHref): (Call, String) = {
       journeyKey match {
         case "dividends" => (Call("GET", "#"), controllers.dividends.routes.DividendsGatewayController.show(taxYear).url)
-        case "interest" => (Call("GET", "#"), controllers.interest.routes.InterestGatewayController.show(taxYear).url)
+        case "interest" =>
+          (
+            controllers.routes.ZeroingWarningController.submit(taxYear, INTEREST.stringify),
+            controllers.interest.routes.InterestGatewayController.show(taxYear).url
+          )
         case "charity" => (Call("GET", "#"), controllers.charity.routes.GiftAidGatewayController.show(taxYear).url)
       }
     }
@@ -54,7 +61,7 @@ class ZeroingWarningController @Inject()(
     Ok(view(taxYear, journeyKey, continueCall, cancelHref))
   }
 
-  private def zeroingPredicates(taxYear: Int, journeyKey: String) = {
+  private def zeroingPredicates(taxYear: Int, journeyKey: String): ActionBuilder[User, AnyContent] = {
     commonPredicates(taxYear, {
       journeyKey match {
         case "dividends" => DIVIDENDS
@@ -73,22 +80,48 @@ class ZeroingWarningController @Inject()(
   }
 
   def submit(taxYear: Int, journeyKey: String): Action[AnyContent] = zeroingPredicates(taxYear, journeyKey).async { implicit user =>
-    if(appConfig.tailoringEnabled) {
+    if (appConfig.tailoringEnabled) {
       def onSuccess(key: String): Result = {
-        Redirect(s"/$key") //TODO Update once the endpoint on income tax submission frontend is complete
+        Redirect(s"/$key")
       }
 
       journeyKey match {
         case key@"dividends" =>
           dividendsSession.clear(taxYear)(errorHandler.internalServerError())(onSuccess(key))
-        case key@"interest" =>
-          interestSession.clear(taxYear)(errorHandler.internalServerError())(onSuccess(key))
+        case "interest" => handleInterest(taxYear)
         case key@"charity" =>
           dividendsSession.clear(taxYear)(errorHandler.internalServerError())(onSuccess(key))
       }
     } else {
       Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
     }
+  }
+
+  private[controllers] def handleInterest(taxYear: Int)(implicit user: User[_]): Future[Result] = {
+    interestSession.getAndHandle(taxYear)(errorHandler.internalServerError()) { case (cya, prior) =>
+      cya match {
+        case Some(cyaData) =>
+          val newSessionData = zeroInterestData(cyaData, prior.map(_.submissions.flatMap(_.id)).getOrElse(Seq.empty[String]))
+          interestSession.updateSessionData(newSessionData, taxYear)(errorHandler.internalServerError()) {
+            Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
+          }
+        case _ => Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+      }
+    }
+  }
+
+  private[controllers] def zeroInterestData(data: InterestCYAModel, priorIds: Seq[String]): InterestCYAModel = {
+    val zeroedData = data.copy(accounts = data.accounts.filter(account => account.id.fold(false)(priorIds.contains)).map { account =>
+      account.copy(
+        untaxedAmount = account.untaxedAmount.map(_ => 0),
+        taxedAmount = account.taxedAmount.map(_ => 0)
+      )
+    })
+
+    zeroedData.copy(
+      untaxedUkInterest = Some(zeroedData.accounts.flatMap(_.untaxedAmount).nonEmpty),
+      taxedUkInterest = Some(zeroedData.accounts.flatMap(_.taxedAmount).nonEmpty)
+    )
   }
 
 }

@@ -23,6 +23,8 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status._
+import play.api.libs.json.Json
+import play.api.mvc.Headers
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
 import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
@@ -436,26 +438,6 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
               textOnPageCheck(No, yesNoQuestionAnswer(1))
               linkCheck(s"$changeLinkExpected ${specific.changeUKInterestHiddenText}", questionChangeLinkSelector(1), changeUKInterestHref)
             }
-
-            "has an area for question 2" which {
-              textOnPageCheck(questionUntaxedInterestExpected, questionTextSelector(2))
-              textOnPageCheck(No, yesNoQuestionAnswer(2))
-              linkCheck(s"$changeLinkExpected ${specific.changeUntaxedInterestHiddenText}", questionChangeLinkSelector(2), changeUntaxedInterestHref)
-            }
-
-            "has an area for question 3" which {
-              textOnPageCheck(questionTaxedInterestExpected, questionTextSelector(3))
-              textOnPageCheck(No, yesNoQuestionAnswer(3))
-              linkCheck(s"$changeLinkExpected ${specific.changeTaxedInterestHiddenText}", questionChangeLinkSelector(3), changeTaxedInterestHref)
-            }
-
-            "there is no question 4" in {
-              elementExist(questionSelector(4)) shouldBe false
-            }
-
-            "there is no question 5" in {
-              elementExist(questionSelector(question4)) shouldBe false
-            }
           }
 
           "the user has both tax types prior" which {
@@ -624,6 +606,63 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           result.status shouldBe UNAUTHORIZED
 
         }
+      }
+
+      s"redirect to the overview page - ${welshTest(us.isWelsh)} - ${agentTest(us.isAgent)}" when {
+
+        "tailoring is on, and the gateway question is false" which {
+          lazy val result = {
+            dropInterestDB()
+            emptyUserDataStub()
+            insertInterestCyaData(Some(InterestCYAModel(
+              Some(false), Some(false), Some(false), Seq()
+            )), taxYear, Some(mtditid), None)
+            authoriseIndividual()
+            stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "")
+            stubPost(s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear", NO_CONTENT, "{}")
+            stubPost(s"/income-tax-interest/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
+
+            val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/check-interest", Headers.apply(
+              (playSessionCookie(us.isAgent) :+ ("Csrf-Token" -> "nocheck")): _*
+            ), "{}")
+
+            await(route(appWithTailoring, request, "{}").get)
+          }
+
+          "has a status of SEE_OTHER(303)" in {
+            result.header.status shouldBe SEE_OTHER
+          }
+
+          "has the redirect location of the overview page" in {
+            result.header.headers("Location") shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+          }
+        }
+
+      }
+
+      s"return an internal server error - ${welshTest(us.isWelsh)} - ${agentTest(us.isAgent)}}" when {
+
+        "the tailoring feature switch is on, but the exclude journey call fails" which {
+          lazy val result = {
+            dropInterestDB()
+            emptyUserDataStub()
+            insertInterestCyaData(Some(InterestCYAModel(
+              Some(false), Some(false), Some(false), Seq()
+            )), taxYear, Some(mtditid), None)
+            authoriseIndividual()
+            stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "")
+            stubPost(s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear", INTERNAL_SERVER_ERROR,
+              Json.stringify(Json.obj("code" -> "failed", "reason" -> "I made it fail"))
+            )
+
+            val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/check-interest", Headers.apply(
+              (playSessionCookie(us.isAgent) :+ ("Csrf-Token" -> "nocheck")): _*
+            ), "{}")
+
+            await(route(appWithTailoring, request, "{}").get)
+          }
+        }
+
       }
     }
   }

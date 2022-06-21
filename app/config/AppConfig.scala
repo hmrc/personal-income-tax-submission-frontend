@@ -104,6 +104,9 @@ class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig) extends AppCon
   lazy val encryptionKey: String = servicesConfig.getString("mongodb.encryption.key")
   def mongoTTL: Long = Duration(servicesConfig.getString("mongodb.timeToLive")).toMinutes.toInt
 
+  def excludeJourneyUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear +
+    servicesConfig.getString("microservice.services.income-tax-submission-frontend.exclude")
+
   lazy val nrsEnabled: Boolean = servicesConfig.getBoolean("feature-switch.nrsEnabled")
   lazy val tailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoringEnabled")
 
@@ -163,6 +166,8 @@ trait AppConfig {
   val encryptionKey: String
 
   def mongoTTL: Long
+
+  def excludeJourneyUrl(taxYear: Int): String
 
   val nrsEnabled: Boolean
   val tailoringEnabled: Boolean
