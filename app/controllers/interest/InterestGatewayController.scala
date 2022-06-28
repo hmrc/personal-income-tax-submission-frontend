@@ -53,7 +53,7 @@ class InterestGatewayController @Inject()(
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
 
-    if (appConfig.tailoringEnabled) {
+    if (appConfig.interestTailoringEnabled) {
 
       implicit val journey: QuestionsJourney[InterestCYAModel] = InterestCYAModel.interestJourney(taxYear, None)
 
@@ -83,7 +83,9 @@ class InterestGatewayController @Inject()(
   //noinspection ScalaStyle
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
 
-    if (appConfig.tailoringEnabled) {
+    println(Console.GREEN + appConfig.interestTailoringEnabled + Console.RESET)
+
+    if (appConfig.interestTailoringEnabled) {
 
       val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(
         missingInputError = s"interest.tailorGateway.noRadioSelected.${if (user.isAgent) "agent" else "individual"}"

@@ -61,7 +61,7 @@
 
         @{
             govukSummaryList(SummaryList(Seq(
-                if(appConfig.tailoringEnabled) {
+                if(appConfig.interestTailoringEnabled) {
                     Some(summaryListRow(
                         HtmlContent(messages("interest.cya.questions.1")),
                         HtmlContent(trueFalseToYesNo(cyaModel.gateway.getOrElse(false))),
@@ -69,7 +69,7 @@
                     ))
                 } else { None },
                 if(!priorSubmission.exists(_.hasUntaxed)) {
-                    if(!appConfig.tailoringEnabled || (appConfig.tailoringEnabled && cyaModel.gateway.contains(true))) {
+                    if(!appConfig.interestTailoringEnabled || (appConfig.interestTailoringEnabled && cyaModel.gateway.contains(true))) {
                         Some(summaryListRow(
                             HtmlContent(messages("interest.cya.questions.2")),
                             HtmlContent(trueFalseToYesNo(cyaModel.untaxedUkInterest.getOrElse(false))),
@@ -86,7 +86,7 @@
                     ))
                 } else { None },
                 if(!priorSubmission.exists(_.hasTaxed)) {
-                    if(!appConfig.tailoringEnabled || (appConfig.tailoringEnabled && cyaModel.gateway.contains(true))) {
+                    if(!appConfig.interestTailoringEnabled || (appConfig.interestTailoringEnabled && cyaModel.gateway.contains(true))) {
                         Some(summaryListRow(
                             HtmlContent(messages("interest.cya.questions.4")),
                             HtmlContent(trueFalseToYesNo(cyaModel.taxedUkInterest.getOrElse(false))),

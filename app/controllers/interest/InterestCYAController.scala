@@ -124,7 +124,8 @@ class InterestCYAController @Inject()(
   private def handleUnfinishedRedirect(cya: InterestCYAModel, taxYear: Int): Future[Result] = {
     Future(
       cya match {
-        case InterestCYAModel(None, _, _, _) if appConfig.tailoringEnabled => Redirect(controllers.interest.routes.InterestGatewayController.show(taxYear))
+        case InterestCYAModel(None, _, _, _) if appConfig.interestTailoringEnabled =>
+          Redirect(controllers.interest.routes.InterestGatewayController.show(taxYear))
         case InterestCYAModel(_, Some(true), None, Seq()) => Redirect(controllers.interest.routes.ChooseAccountController.show(taxYear, UNTAXED))
         case InterestCYAModel(_, Some(false), None, Seq()) => Redirect(controllers.interest.routes.TaxedInterestController.show(taxYear))
         case InterestCYAModel(_, Some(true), None, accounts) if accounts.exists(_.hasUntaxed) =>

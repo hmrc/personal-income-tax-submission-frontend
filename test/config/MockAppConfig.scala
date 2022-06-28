@@ -78,6 +78,7 @@ class MockAppConfig extends AppConfig with MockFactory {
   override val nrsEnabled: Boolean = true
 
   override val tailoringEnabled: Boolean = false
+  override val interestTailoringEnabled: Boolean = false
 
   override def excludeJourneyUrl(taxYear: Int): String = "/exclude"
 }

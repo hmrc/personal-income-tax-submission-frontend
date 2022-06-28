@@ -172,4 +172,5 @@ trait AppConfig {
 
   val nrsEnabled: Boolean
   val tailoringEnabled: Boolean
+  val interestTailoringEnabled: Boolean
 }
