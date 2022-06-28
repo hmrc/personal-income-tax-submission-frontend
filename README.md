@@ -2,7 +2,7 @@
 # personal-income-tax-submission-fronted
 This is where users can review and make changes to the dividends, Interest and gift aid sections of their income tax return.
 
-## Running the service locally
+## Running the service locally WITH BEANS
 
 You will need to have the following:
 - Installed [MongoDB](https://docs.mongodb.com/manual/installation/)
