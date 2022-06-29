@@ -44,7 +44,7 @@ case class InterestCYAModel(gateway: Option[Boolean] = None,
       case false => true
     }
 
-    if (appConfig.tailoringEnabled) {
+    if (appConfig.interestTailoringEnabled) {
       gateway.contains(false) || (gateway.contains(true) && untaxedInterestFinished && taxedInterestFinished)
     } else {
       untaxedInterestFinished && taxedInterestFinished
@@ -75,14 +75,14 @@ object InterestCYAModel {
   def interestJourney(taxYear: Int, idOpt: Option[String])
                      (implicit appConfig: AppConfig): QuestionsJourney[InterestCYAModel] = new QuestionsJourney[InterestCYAModel] {
     override val firstPage: Call =
-      if (appConfig.tailoringEnabled) {
+      if (appConfig.interestTailoringEnabled) {
         controllers.interest.routes.InterestGatewayController.show(taxYear)
       } else {
         controllers.interest.routes.UntaxedInterestController.show(taxYear)
       }
 
     val gatewayQuestion: InterestCYAModel => Option[Question] = model =>
-      if (appConfig.tailoringEnabled) {
+      if (appConfig.interestTailoringEnabled) {
         Some(WithoutDependency(model.gateway, controllers.interest.routes.InterestGatewayController.show(taxYear)))
       } else {
         None
@@ -90,7 +90,7 @@ object InterestCYAModel {
 
     val untaxedUkInterestQuestion: InterestCYAModel => Option[Question] = model =>
 
-      if (appConfig.tailoringEnabled) {
+      if (appConfig.interestTailoringEnabled) {
         Some(WithDependency(model.untaxedUkInterest, model.gateway, controllers.interest.routes.UntaxedInterestController.show(taxYear),
           controllers.interest.routes.InterestGatewayController.show(taxYear)))
       } else {

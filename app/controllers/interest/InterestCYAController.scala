@@ -21,19 +21,20 @@ import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
-import models.interest.{DecodedInterestSubmissionPayload, InterestCYAModel}
-import models.{APIErrorBodyModel, APIErrorModel}
+import models.interest.{DecodedInterestSubmissionPayload, InterestCYAModel, InterestPriorSubmission}
+import models.{APIErrorBodyModel, APIErrorModel, User}
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import services.{InterestSessionService, InterestSubmissionService, NrsService}
+import services.{ExcludeJourneyService, InterestSessionService, InterestSubmissionService, NrsService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.interest.InterestCYAView
-
 import common.InterestTaxTypes.{TAXED, UNTAXED}
+import common.PageLocations.Interest.cya
+import views.html.defaultpages.error
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -44,7 +45,8 @@ class InterestCYAController @Inject()(
                                        auditService: AuditService,
                                        errorHandler: ErrorHandler,
                                        interestSessionService: InterestSessionService,
-                                       nrsService: NrsService
+                                       nrsService: NrsService,
+                                       excludeJourneyService: ExcludeJourneyService
                                      )
                                      (
                                        implicit appConfig: AppConfig,
@@ -71,33 +73,45 @@ class InterestCYAController @Inject()(
   }
 
   def submit(taxYear: Int): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
-    interestSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
-      Future((cya match {
-        case Some(cyaData) => interestSubmissionService.submit(cyaData, user.nino, taxYear, user.mtditid).map {
-          case response@Right(_) =>
-            val model = CreateOrAmendInterestAuditDetail(
-              Some(cyaData), prior, prior.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase, taxYear
-            )
-            auditSubmission(model)
-
-            if (appConfig.nrsEnabled) {
-              nrsService.submit(user.nino, new DecodedInterestSubmissionPayload(Some(cyaData), prior), user.mtditid)
-            }
-
-            response
-          case response => response
+    interestSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
+      if(appConfig.tailoringEnabled && cya.flatMap(_.gateway).contains(false)) {
+        excludeJourneyService.excludeJourney(INTEREST.stringify, taxYear, user.nino).flatMap {
+          case Right(_) => performSubmission(taxYear, cya, prior)
+          case Left(_) => errorHandler.futureInternalServerError()
         }
-        case _ =>
-          logger.info("[InterestCYAController][submit] CYA data or NINO missing from session.")
-          Future.successful(Left(APIErrorModel(BAD_REQUEST, APIErrorBodyModel("MISSING_DATA", "CYA data or NINO missing from session."))))
-      }).flatMap {
-        case Right(_) =>
-          interestSessionService.clear(taxYear)(errorHandler.internalServerError())(
-            Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+      } else {
+        performSubmission(taxYear, cya, prior)
+      }
+    }
+  }
+
+  private[controllers] def performSubmission(taxYear: Int, cya: Option[InterestCYAModel], prior: Option[InterestPriorSubmission])
+                                            (implicit user: User[_], hc: HeaderCarrier): Future[Result] = {
+    (cya match {
+      case Some(cyaData) => interestSubmissionService.submit(cyaData, user.nino, taxYear, user.mtditid).map {
+        case response@Right(_) =>
+          val model = CreateOrAmendInterestAuditDetail(
+            Some(cyaData), prior, prior.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase, taxYear
           )
-        case Left(error) => Future.successful(errorHandler.handleError(error.status))
-      })
-    }.flatten
+          auditSubmission(model)
+
+          if (appConfig.nrsEnabled) {
+            nrsService.submit(user.nino, new DecodedInterestSubmissionPayload(Some(cyaData), prior), user.mtditid)
+          }
+
+          response
+        case response => response
+      }
+      case _ =>
+        logger.info("[InterestCYAController][submit] CYA data or NINO missing from session.")
+        Future.successful(Left(APIErrorModel(BAD_REQUEST, APIErrorBodyModel("MISSING_DATA", "CYA data or NINO missing from session."))))
+    }).flatMap {
+      case Right(_) =>
+        interestSessionService.clear(taxYear)(errorHandler.internalServerError())(
+          Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+        )
+      case Left(error) => Future.successful(errorHandler.handleError(error.status))
+    }
   }
 
   private def auditSubmission(details: CreateOrAmendInterestAuditDetail)
@@ -110,7 +124,8 @@ class InterestCYAController @Inject()(
   private def handleUnfinishedRedirect(cya: InterestCYAModel, taxYear: Int): Future[Result] = {
     Future(
       cya match {
-        case InterestCYAModel(None, _, _, _) if appConfig.tailoringEnabled => Redirect(controllers.interest.routes.InterestGatewayController.show(taxYear))
+        case InterestCYAModel(None, _, _, _) if appConfig.interestTailoringEnabled =>
+          Redirect(controllers.interest.routes.InterestGatewayController.show(taxYear))
         case InterestCYAModel(_, Some(true), None, Seq()) => Redirect(controllers.interest.routes.ChooseAccountController.show(taxYear, UNTAXED))
         case InterestCYAModel(_, Some(false), None, Seq()) => Redirect(controllers.interest.routes.TaxedInterestController.show(taxYear))
         case InterestCYAModel(_, Some(true), None, accounts) if accounts.exists(_.hasUntaxed) =>

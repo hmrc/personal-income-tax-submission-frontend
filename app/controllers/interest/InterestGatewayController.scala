@@ -17,6 +17,7 @@
 package controllers.interest
 
 import config.{AppConfig, ErrorHandler, INTEREST}
+import connectors.ExcludeJourneyConnector
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.YesNoForm
@@ -27,11 +28,12 @@ import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.InterestSessionService
+import services.{ExcludeJourneyService, InterestSessionService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.interest.InterestGatewayView
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
+import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,7 +42,8 @@ class InterestGatewayController @Inject()(
                                            interestSessionService: InterestSessionService,
                                            tailoringGatewayView: InterestGatewayView,
                                            questionsJourneyValidator: QuestionsJourneyValidator,
-                                           errorHandler: ErrorHandler
+                                           errorHandler: ErrorHandler,
+                                           excludeJourneyService: ExcludeJourneyService
                                          )(
                                            implicit appConfig: AppConfig,
                                            authAction: AuthorisedAction,
@@ -50,7 +53,7 @@ class InterestGatewayController @Inject()(
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
 
-    if (appConfig.tailoringEnabled) {
+    if (appConfig.interestTailoringEnabled) {
 
       implicit val journey: QuestionsJourney[InterestCYAModel] = InterestCYAModel.interestJourney(taxYear, None)
 
@@ -77,9 +80,10 @@ class InterestGatewayController @Inject()(
     }
   }
 
+  //noinspection ScalaStyle
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
 
-    if (appConfig.tailoringEnabled) {
+    if (appConfig.interestTailoringEnabled) {
 
       val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(
         missingInputError = s"interest.tailorGateway.noRadioSelected.${if (user.isAgent) "agent" else "individual"}"
@@ -95,18 +99,31 @@ class InterestGatewayController @Inject()(
               val interestCya = sessionData.flatMap(_.interest).getOrElse(InterestCYAModel()).copy(gateway = Some(yesNoValue))
               val updated: Boolean = sessionData.nonEmpty
 
-              if (yesNoValue) {
-                createOrUpdateInterestData(interestCya, taxYear, updated)(
-                  if (interestCya.isFinished) {
+              createOrUpdateInterestData(interestCya, taxYear, updated)(
+                if (interestCya.isFinished) {
+                  if(!appConfig.interestTailoringEnabled || (appConfig.interestTailoringEnabled && sessionData.isEmpty)) {
                     Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
                   } else {
-                    Redirect(controllers.interest.routes.UntaxedInterestController.show(taxYear))
-                  }
-                )
-              } else {
-                Future.successful(Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))) // TODO - Redirect to zero warning page when built
+                    val hasNonZeroData: Boolean = {
+                      interestCya.accounts.foldLeft(false) { (check, model) =>
+                        if(check) {
+                          check
+                        } else {
+                          model.taxedAmount.exists(_ != 0) || model.untaxedAmount.exists(_ != 0)
+                        }
+                      }
+                    }
 
-              }
+                    if(!yesNoValue && hasNonZeroData) {
+                      Redirect(controllers.routes.ZeroingWarningController.show(taxYear, INTEREST.stringify))
+                    } else {
+                      Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
+                    }
+                  }
+                } else {
+                  Redirect(controllers.interest.routes.UntaxedInterestController.show(taxYear))
+                }
+              )
           }
       })
 

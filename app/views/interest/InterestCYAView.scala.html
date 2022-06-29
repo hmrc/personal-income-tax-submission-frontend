@@ -61,7 +61,7 @@
 
         @{
             govukSummaryList(SummaryList(Seq(
-                if(appConfig.tailoringEnabled) {
+                if(appConfig.interestTailoringEnabled) {
                     Some(summaryListRow(
                         HtmlContent(messages("interest.cya.questions.1")),
                         HtmlContent(trueFalseToYesNo(cyaModel.gateway.getOrElse(false))),
@@ -69,13 +69,15 @@
                     ))
                 } else { None },
                 if(!priorSubmission.exists(_.hasUntaxed)) {
-                    Some(summaryListRow(
-                        HtmlContent(messages("interest.cya.questions.2")),
-                        HtmlContent(trueFalseToYesNo(cyaModel.untaxedUkInterest.getOrElse(false))),
-                        actions = Seq((controllers.interest.routes.UntaxedInterestController.show(taxYear), messages("common.change"), Some(messages(s"interest.cya.untaxed-uk-interest-accounts.hiddenChange.${if(user.isAgent) "agent" else "individual"}"))))
-                    ))
+                    if(!appConfig.interestTailoringEnabled || (appConfig.interestTailoringEnabled && cyaModel.gateway.contains(true))) {
+                        Some(summaryListRow(
+                            HtmlContent(messages("interest.cya.questions.2")),
+                            HtmlContent(trueFalseToYesNo(cyaModel.untaxedUkInterest.getOrElse(false))),
+                            actions = Seq((controllers.interest.routes.UntaxedInterestController.show(taxYear), messages("common.change"), Some(messages(s"interest.cya.untaxed-uk-interest-accounts.hiddenChange.${if(user.isAgent) "agent" else "individual"}"))))
+                        ))
+                    } else None
                 } else { None },
-                if(cyaModel.untaxedUkInterest.getOrElse(false)) {
+                if(cyaModel.untaxedUkInterest.contains(true)) {
                     val accounts = cyaModel.accounts.filter(_.hasUntaxed)
                     Some(summaryListRow(
                         HtmlContent(messages("interest.cya.questions.3")),
@@ -84,13 +86,15 @@
                     ))
                 } else { None },
                 if(!priorSubmission.exists(_.hasTaxed)) {
-                    Some(summaryListRow(
-                        HtmlContent(messages("interest.cya.questions.4")),
-                        HtmlContent(trueFalseToYesNo(cyaModel.taxedUkInterest.getOrElse(false))),
-                        actions = Seq((controllers.interest.routes.TaxedInterestController.show(taxYear), messages("common.change"), Some(messages(s"interest.cya.taxed-uk-interest-accounts.hiddenChange.${if(user.isAgent) "agent" else "individual"}"))))
-                    ))
+                    if(!appConfig.interestTailoringEnabled || (appConfig.interestTailoringEnabled && cyaModel.gateway.contains(true))) {
+                        Some(summaryListRow(
+                            HtmlContent(messages("interest.cya.questions.4")),
+                            HtmlContent(trueFalseToYesNo(cyaModel.taxedUkInterest.getOrElse(false))),
+                            actions = Seq((controllers.interest.routes.TaxedInterestController.show(taxYear), messages("common.change"), Some(messages(s"interest.cya.taxed-uk-interest-accounts.hiddenChange.${if(user.isAgent) "agent" else "individual"}"))))
+                        ))
+                    } else None
                 } else { None },
-                if(cyaModel.taxedUkInterest.getOrElse(false)) {
+                if(cyaModel.taxedUkInterest.contains(true)) {
                     val accounts = cyaModel.accounts.filter(_.hasTaxed)
                     Some(summaryListRow(
                         HtmlContent(messages("interest.cya.questions.5")),

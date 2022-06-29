@@ -167,15 +167,17 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "microservice.services.income-tax-interest.url" -> s"http://$wiremockHost:$wiremockPort",
     "microservice.services.income-tax-gift-aid.url" -> s"http://$wiremockHost:$wiremockPort",
     "microservice.services.income-tax-nrs-proxy.url" -> s"http://$wiremockHost:$wiremockPort",
+    "microservice.services.income-tax-nrs-proxy.url" -> s"http://$wiremockHost:$wiremockPort",
     "microservice.services.sign-in.url" -> s"/auth-login-stub/gg-sign-in"
   )
 
-  def config(tailoring: Boolean = false): Map[String, Any] = commonConfig ++ Map(
+  def config(tailoring: Boolean = false, interestTailoring: Boolean = false): Map[String, Any] = commonConfig ++ Map(
     "taxYearChangeResetsSession" -> false,
     "useEncryption" -> true,
     "defaultTaxYear" -> taxYear,
     "useEncryption" -> true,
-    "feature-switch.tailoringEnabled" -> tailoring
+    "feature-switch.tailoringEnabled" -> tailoring,
+    "feature-switch.tailoring.interest" -> interestTailoring
   )
 
   def invalidEncryptionConfig: Map[String, Any] = commonConfig ++ Map(
@@ -194,7 +196,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   lazy val appWithTailoring: Application = new GuiceApplicationBuilder()
     .in(Environment.simple(mode = Mode.Dev))
-    .configure(config(true))
+    .configure(config(tailoring = true, interestTailoring = true))
     .build()
 
   lazy val appWithInvalidEncryptionKey: Application = GuiceApplicationBuilder()
