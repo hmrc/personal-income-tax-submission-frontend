@@ -106,17 +106,17 @@ class InterestGatewayController @Inject()(
                   if(!appConfig.tailoringEnabled || (appConfig.tailoringEnabled && sessionData.isEmpty)) {
                     Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
                   } else {
-                    val zeroedData: Boolean = {
-                      interestCya.accounts.foldRight(true) { case (model, rollingResult) =>
-                        if(!rollingResult) {
-                          rollingResult
+                    val hasNonZeroData: Boolean = {
+                      interestCya.accounts.foldLeft(false) { (check, model) =>
+                        if(check) {
+                          check
                         } else {
-                          model.taxedAmount.forall(_ == 0) && model.untaxedAmount.forall(_ == 0)
+                          model.taxedAmount.exists(_ != 0) || model.untaxedAmount.exists(_ != 0)
                         }
                       }
                     }
 
-                    if(interestCya.gateway.forall(_ == false) && !zeroedData) {
+                    if(interestCya.gateway.forall(_ == false) && hasNonZeroData) {
                       Redirect(controllers.routes.ZeroingWarningController.show(taxYear, INTEREST.stringify))
                     } else {
                       Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
