@@ -83,8 +83,6 @@ class InterestGatewayController @Inject()(
   //noinspection ScalaStyle
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
 
-    println(Console.GREEN + appConfig.interestTailoringEnabled + Console.RESET)
-
     if (appConfig.interestTailoringEnabled) {
 
       val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm(
@@ -103,7 +101,7 @@ class InterestGatewayController @Inject()(
 
               createOrUpdateInterestData(interestCya, taxYear, updated)(
                 if (interestCya.isFinished) {
-                  if(!appConfig.tailoringEnabled || (appConfig.tailoringEnabled && sessionData.isEmpty)) {
+                  if(!appConfig.interestTailoringEnabled || (appConfig.interestTailoringEnabled && sessionData.isEmpty)) {
                     Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
                   } else {
                     val hasNonZeroData: Boolean = {
@@ -116,7 +114,7 @@ class InterestGatewayController @Inject()(
                       }
                     }
 
-                    if(interestCya.gateway.forall(_ == false) && hasNonZeroData) {
+                    if(!yesNoValue && hasNonZeroData) {
                       Redirect(controllers.routes.ZeroingWarningController.show(taxYear, INTEREST.stringify))
                     } else {
                       Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))

@@ -72,7 +72,7 @@ class ZeroingWarningController @Inject()(
   }
 
   def show(taxYear: Int, journeyKey: String): Action[AnyContent] = zeroingPredicates(taxYear, journeyKey).apply { implicit user =>
-    if (appConfig.tailoringEnabled) {
+    if (appConfig.tailoringEnabled || appConfig.interestTailoringEnabled) {
       page(taxYear, journeyKey)
     } else {
       Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
@@ -80,7 +80,7 @@ class ZeroingWarningController @Inject()(
   }
 
   def submit(taxYear: Int, journeyKey: String): Action[AnyContent] = zeroingPredicates(taxYear, journeyKey).async { implicit user =>
-    if (appConfig.tailoringEnabled) {
+    if (appConfig.tailoringEnabled || appConfig.interestTailoringEnabled) {
       def onSuccess(key: String): Result = {
         Redirect(s"/$key")
       }
