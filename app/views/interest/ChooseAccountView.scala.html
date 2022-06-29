@@ -44,38 +44,33 @@ govukRadios : GovukRadios
 
 @layout(titleText, taxYear = Some(taxYear), hasErrors = hasFormErrors) {
 
-@errorSummary(form.errors.distinct)
+    @errorSummary(form.errors.distinct)
 
-@heading(titleText, Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
+    @heading(titleText, Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 
-@formWithCSRF(controllers.interest.routes.ChooseAccountController.submit(taxYear, taxType)){
+    @formWithCSRF(controllers.interest.routes.ChooseAccountController.submit(taxYear, taxType)){
 
-@govukRadios(Radios(
-
-                name = "value",
-                errorMessage = form("value").error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*)))),
-                items = accounts.map { account =>
-                    RadioItem(
-                    content = Text(account.accountName),
-                    value = if(account.id.isDefined) account.id else account.uniqueSessionId,
-                    checked = form("value").value.contains(if(account.id.isDefined) account.id else account.uniqueSessionId))
-                } ++ Seq(RadioItem(
-                    divider = Some(messages("common.or"))
-                    ),
-                    RadioItem(
-                    content = Text(messages("interest.chooseAccount.addANewAccount")),
-                    value = Some(SessionValues.ADD_A_NEW_ACCOUNT),
-                    checked = form("value").value.contains(Some(SessionValues.ADD_A_NEW_ACCOUNT))
-                    )
-
-                )))
-
-
-
-@button()
+        @govukRadios(Radios(
+            name = "value",
+            errorMessage = form("value").error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*)))),
+            items = accounts.map { account =>
+                RadioItem(
+                content = Text(account.accountName),
+                value = if(account.id.isDefined) account.id else account.uniqueSessionId,
+                checked = form("value").value.contains(if(account.id.isDefined) account.id else account.uniqueSessionId))
+            } ++ Seq(RadioItem(
+                divider = Some(messages("common.or"))
+                ),
+                RadioItem(
+                content = Text(messages("interest.chooseAccount.addANewAccount")),
+                value = Some(SessionValues.ADD_A_NEW_ACCOUNT),
+                checked = form("value").value.contains(Some(SessionValues.ADD_A_NEW_ACCOUNT))
+                )
+            )
+        ))
+        @button()
+    }
 }
-}
-
 
 @{
 // $COVERAGE-OFF$

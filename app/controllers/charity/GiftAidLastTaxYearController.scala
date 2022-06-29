@@ -110,7 +110,7 @@ class GiftAidLastTaxYearController @Inject()(
                 )
 
                 val redirectLocation = (yesNoForm, updatedCya.isFinished) match {
-                  case (true, _) => Redirect(controllers.charity.routes.LastTaxYearAmountController.show(taxYear))
+                  case (true, _) => Redirect(controllers.charity.routes.GiftAidLastTaxYearAmountController.show(taxYear))
                   case (_, true) => redirectToCya(taxYear)
                   case _ => Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear))
                 }

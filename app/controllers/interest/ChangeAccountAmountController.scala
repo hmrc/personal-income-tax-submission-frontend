@@ -62,7 +62,7 @@ class ChangeAccountAmountController @Inject()(
            preAmount: Option[BigDecimal] = None)(implicit user: User[AnyContent]): Html = {
 
     changeAccountAmountView(
-      form = formInput,
+      form = preAmount.fold(formInput)(formInput.fill),
       postAction = controllers.interest.routes.ChangeAccountAmountController.submit(taxYear, taxType, accountId),
       taxYear = taxYear,
       taxType = taxType,

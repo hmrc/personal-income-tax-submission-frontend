@@ -48,17 +48,16 @@ class GiftAidDonatedAmountController @Inject()(
   override def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, prior: Option[GiftAidSubmissionModel], fromShow:Boolean)
                              (implicit user: User[AnyContent]): Result = {
 
-    val priorDonatedAmount: Option[BigDecimal] = prior.flatMap(_.giftAidPayments.flatMap(_.currentYear))
     val cyaDonatedAmount: Option[BigDecimal] = cya.donationsViaGiftAidAmount
 
-    val amountForm = (priorDonatedAmount, cyaDonatedAmount) match {
-      case (priorValueOpt, Some(cyaValue)) if !priorValueOpt.contains(cyaValue) => form(user.isAgent, taxYear).fill(cyaValue)
+    val amountForm = cyaDonatedAmount match {
+      case Some(cyaValue) => form(user.isAgent, taxYear).fill(cyaValue)
       case _ => form(user.isAgent, taxYear)
     }
 
     cya.donationsViaGiftAid match {
       case Some(true) => determineResult(
-        Ok(view(taxYear, amountForm, cyaDonatedAmount.map(_.toString()), priorDonatedAmount)),
+        Ok(view(taxYear, amountForm, cyaDonatedAmount.map(_.toString()))),
         Redirect(controllers.charity.routes.GiftAidDonatedAmountController.show(taxYear)),
         fromShow)
       case _ => Redirect(controllers.charity.routes.GiftAidDonationsController.show(taxYear))
@@ -89,7 +88,7 @@ class GiftAidDonatedAmountController @Inject()(
 
     form(user.isAgent, taxYear).bindFromRequest().fold(
       {
-        formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors, None, None)))
+        formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors, None)))
       },
       {
         formAmount =>

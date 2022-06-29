@@ -269,7 +269,7 @@ class GiftAidLastTaxYearControllerISpec extends CharityITHelper {
 
       "redirect to the last tax year amount page" in {
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe controllers.charity.routes.LastTaxYearAmountController.show(taxYear).url
+        result.headers("Location").head shouldBe controllers.charity.routes.GiftAidLastTaxYearAmountController.show(taxYear).url
       }
 
       "updated the addDonationsToLastTaxYear field to true" in {

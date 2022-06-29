@@ -33,16 +33,13 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
     val captionSelector = ".govuk-caption-l"
     val inputFieldSelector = "#amount"
     val buttonSelector = ".govuk-button"
-    val p1Selector = "#p1"
-    val inputLabelSelector = "#p2"
+    val inputLabelSelector = "#p1"
     val inputHintTextSelector = "#amount-hint"
   }
 
   val invalidAmount = "1000000000000"
 
   trait SpecificExpectedResults {
-    val expectedPriorP1: String
-    val expectedCyaP1: String
     val expectedErrorEmpty: String
     val expectedErrorInvalid: String
     val expectedErrorOverMax: String
@@ -79,32 +76,24 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
-    val expectedPriorP1 = "You told us you donated £888 in land or property to charity this year. Tell us if this has changed."
-    val expectedCyaP1 = "You told us you donated £50 in land or property to charity this year. Tell us if this has changed."
     val expectedErrorEmpty = "Enter the value of land or property you donated to charity"
     val expectedErrorInvalid = "Enter the value of land or property you donated to charity in the correct format"
     val expectedErrorOverMax = "The value of your land or property must be less than £100,000,000,000"
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
-    val expectedPriorP1 = "You told us your client donated £888 in land or property to charity this year. Tell us if this has changed."
-    val expectedCyaP1 = "You told us your client donated £50 in land or property to charity this year. Tell us if this has changed."
     val expectedErrorEmpty = "Enter the value of land or property your client donated to charity"
     val expectedErrorInvalid = "Enter the value of land or property your client donated to charity in the correct format"
     val expectedErrorOverMax = "The value of your client’s land or property must be less than £100,000,000,000"
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val expectedPriorP1 = "Gwnaethoch roi gwybod i ni eich bod wedi rhoi £888 mewn tir neu eiddo i elusen eleni. Rhowch wybod i ni os yw hyn wedi newid."
-    val expectedCyaP1 = "Gwnaethoch roi gwybod i ni eich bod wedi rhoi £50 mewn tir neu eiddo i elusen eleni. Rhowch wybod i ni os yw hyn wedi newid."
     val expectedErrorEmpty = "Nodwch werth y tir neu eiddo a roddwyd gennych i elusen"
     val expectedErrorInvalid = "Nodwch werth y tir neu eiddo a roddwyd gennych i elusen yn y fformat cywir"
     val expectedErrorOverMax = "Mae’n rhaid i werth eich tir neu eiddo fod yn llai na £100,000,000,000"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val expectedPriorP1 = "Gwnaethoch roi gwybod i ni fod eich cleient wedi rhoi £888 mewn tir neu eiddo i elusen eleni. Rhowch wybod i ni os yw hyn wedi newid."
-    val expectedCyaP1 = "Gwnaethoch roi gwybod i ni fod eich cleient wedi rhoi £50 mewn tir neu eiddo i elusen eleni. Rhowch wybod i ni os yw hyn wedi newid."
     val expectedErrorEmpty = "Nodwch werth y tir neu eiddo a roddwyd gan eich cleient i elusen"
     val expectedErrorInvalid = "Nodwch werth y tir neu eiddo a roddwyd gan eich cleient i elusen yn y fformat cywir"
     val expectedErrorOverMax = "Mae’n rhaid i werth tir neu eiddo eich cleient fod yn llai na £100,000,000,000"
@@ -195,7 +184,6 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
 
           inputFieldCheck(expectedInputName, Selectors.inputFieldSelector)
           inputFieldValueCheck("", Selectors.inputFieldSelector)
-          textOnPageCheck(user.specificExpectedResults.get.expectedPriorP1, Selectors.p1Selector)
         }
 
         "display the correct cya amount when returning before resubmitting" which {
@@ -211,7 +199,6 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
 
           inputFieldCheck(expectedInputName, Selectors.inputFieldSelector)
           inputFieldValueCheck("50", Selectors.inputFieldSelector)
-          textOnPageCheck(user.specificExpectedResults.get.expectedCyaP1, Selectors.p1Selector)
         }
       }
     }

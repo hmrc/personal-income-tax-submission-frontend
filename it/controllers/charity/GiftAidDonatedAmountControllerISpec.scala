@@ -43,8 +43,6 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
     val expectedTitle: String
     val expectedH1: String
     val expectedParagraph: String
-    val expectedPriorP1: String
-    val expectedCyaP1: String
     val expectedErrorEmpty: String
     val expectedErrorOverMax: String
     val expectedErrorBadFormat: String
@@ -79,8 +77,6 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
     val expectedTitle = "How much did you donate to charity by using Gift Aid?"
     val expectedH1 = "How much did you donate to charity by using Gift Aid?"
     val expectedParagraph = "Do not include the Gift Aid that was added to your donation."
-    val expectedPriorP1 = "You told us you used Gift Aid to donate £1,222 to charity. Tell us if this has changed."
-    val expectedCyaP1 = "You told us you used Gift Aid to donate £50 to charity. Tell us if this has changed."
     val expectedErrorEmpty = "Enter the amount you donated to charity by using Gift Aid"
     val expectedErrorOverMax = "The amount you donated to charity must be less than £100,000,000,000"
     val expectedErrorBadFormat = "Enter the amount you donated to charity in the correct format"
@@ -91,8 +87,6 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
     val expectedTitle = "How much did your client donate to charity by using Gift Aid?"
     val expectedH1 = "How much did your client donate to charity by using Gift Aid?"
     val expectedParagraph = "Do not include the Gift Aid that was added to your client’s donation."
-    val expectedPriorP1 = "You told us your client used Gift Aid to donate £1,222 to charity. Tell us if this has changed."
-    val expectedCyaP1 = "You told us your client used Gift Aid to donate £50 to charity. Tell us if this has changed."
     val expectedErrorEmpty = "Enter the amount your client donated to charity by using Gift Aid"
     val expectedErrorOverMax = "The amount your client donated to charity must be less than £100,000,000,000"
     val expectedErrorBadFormat = "Enter the amount your client donated to charity in the correct format"
@@ -103,8 +97,6 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
     val expectedTitle = "Faint wnaethoch ei roi i elusen drwy ddefnyddio Rhodd Cymorth?"
     val expectedH1 = "Faint wnaethoch ei roi i elusen drwy ddefnyddio Rhodd Cymorth?"
     val expectedParagraph = "Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at eich rhodd."
-    val expectedPriorP1 = "Gwnaethoch roi gwybod i ni eich bod wedi defnyddio Rhodd Cymorth i roi £1,222 i elusen. Rhowch wybod i ni os yw hyn wedi newid."
-    val expectedCyaP1 = "Gwnaethoch roi gwybod i ni eich bod wedi defnyddio Rhodd Cymorth i roi £50 i elusen. Rhowch wybod i ni os yw hyn wedi newid."
     val expectedErrorEmpty = "Nodwch y swm a roesoch i elusen drwy ddefnyddio Rhodd Cymorth"
     val expectedErrorOverMax = "Mae’n rhaid i’r swm a roesoch i elusen fod yn llai na £100,000,000,000"
     val expectedErrorBadFormat = "Nodwch y swm a roesoch i elusen yn y fformat cywir"
@@ -115,8 +107,6 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
     val expectedTitle = "Faint wnaeth eich cleient ei roi i elusen drwy ddefnyddio Rhodd Cymorth?"
     val expectedH1 = "Faint wnaeth eich cleient ei roi i elusen drwy ddefnyddio Rhodd Cymorth?"
     val expectedParagraph = "Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at rodd eich cleient."
-    val expectedPriorP1 = "Gwnaethoch roi gwybod i ni fod eich cleient wedi defnyddio Rhodd Cymorth i roi £1,222 i elusen. Rhowch wybod i ni os yw hyn wedi newid."
-    val expectedCyaP1 = "Gwnaethoch roi gwybod i ni fod eich cleient wedi defnyddio Rhodd Cymorth i roi £50 i elusen. Rhowch wybod i ni os yw hyn wedi newid."
     val expectedErrorEmpty = "Nodwch y swm a roddodd eich cleient i elusen drwy ddefnyddio Rhodd Cymorth"
     val expectedErrorOverMax = "Mae’n rhaid i’r swm a roddodd eich cleient i elusen fod yn llai na £100,000,000,000"
     val expectedErrorBadFormat = "Nodwch y swm a roddodd eich cleient i elusen yn y fformat cywir"
@@ -184,7 +174,6 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
           titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
           h1Check(user.specificExpectedResults.get.expectedH1 + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
-          textOnPageCheck(user.specificExpectedResults.get.expectedCyaP1, paragraphSelector)
           textOnPageCheck(expectedInputLabelText, inputLabelSelector)
           textOnPageCheck(expectedInputHintText, inputHintTextSelector)
           inputFieldCheck(expectedInputName, inputFieldSelector)
@@ -205,7 +194,6 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
 
           inputFieldCheck(expectedInputName, Selectors.inputFieldSelector)
           inputFieldValueCheck("", Selectors.inputFieldSelector)
-          textOnPageCheck(user.specificExpectedResults.get.expectedPriorP1, Selectors.paragraphSelector)
         }
 
         "display the correct cya amount when returning before resubmitting" which {
@@ -221,7 +209,6 @@ class GiftAidDonatedAmountControllerISpec extends CharityITHelper {
 
           inputFieldCheck(expectedInputName, Selectors.inputFieldSelector)
           inputFieldValueCheck("50", Selectors.inputFieldSelector)
-          textOnPageCheck(user.specificExpectedResults.get.expectedCyaP1, Selectors.paragraphSelector)
         }
       }
     }

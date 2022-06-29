@@ -58,14 +58,12 @@ class UkDividendsAmountController @Inject()(
 
   def view(
             formInput: Form[BigDecimal],
-            priorSubmission: Option[DividendsPriorSubmission] = None,
             taxYear: Int,
             preAmount: Option[BigDecimal] = None
           )(implicit user: User[AnyContent]): Html = {
 
     ukDividendsAmountView(
-      form = formInput,
-      priorSubmission = priorSubmission,
+      form = preAmount.fold(formInput)(formInput.fill),
       taxYear = taxYear,
       postAction = controllers.dividends.routes.UkDividendsAmountController.submit(taxYear),
       preAmount = preAmount
@@ -73,25 +71,20 @@ class UkDividendsAmountController @Inject()(
 
   }
 
-
-
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
     implicit val questionsJourney: QuestionsJourney[DividendsCheckYourAnswersModel] = DividendsCheckYourAnswersModel.journey(taxYear)
 
     dividendsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (optionalCya, optionalPrior) =>
       questionHelper.validate(controllers.dividends.routes.UkDividendsAmountController.show(taxYear), optionalCya, taxYear) {
-        val priorUkDividendAmount: Option[BigDecimal] = optionalPrior.flatMap(_.ukDividends)
         val cyaUkDividendAmount: Option[BigDecimal] = optionalCya.flatMap(_.ukDividendsAmount)
 
-        val amountForm = (priorUkDividendAmount, cyaUkDividendAmount) match {
-          case (priorAmountOpt, Some(cyaAmount)) if !priorAmountOpt.contains(cyaAmount) => form(user.isAgent, taxYear).fill(cyaAmount)
-          case (None, Some(cyaAmount)) => form(user.isAgent, taxYear).fill(cyaAmount)
+        val amountForm = cyaUkDividendAmount match {
+          case Some(cyaAmount) => form(user.isAgent, taxYear).fill(cyaAmount)
           case _ => form(user.isAgent, taxYear)
         }
 
-        (optionalPrior, optionalCya) match {
-          case (Some(submission: DividendsPriorSubmission), _) => Ok(view(amountForm, Some(submission), taxYear, cyaUkDividendAmount))
-          case (None, Some(cya)) => Ok(view(amountForm, taxYear = taxYear, preAmount = cya.ukDividendsAmount))
+        optionalCya match {
+          case Some(cya) => Ok(view(amountForm, taxYear = taxYear, preAmount = cya.ukDividendsAmount))
           case _ => Ok(view(form(user.isAgent, taxYear), taxYear = taxYear))
         }
       }
@@ -105,7 +98,7 @@ class UkDividendsAmountController @Inject()(
       form(user.isAgent, taxYear).bindFromRequest().fold(
         {
           formWithErrors => Future.successful(BadRequest(view(
-            formWithErrors, priorSubmission = optionalPrior, taxYear = taxYear, preAmount = optionalCya.flatMap(_.ukDividendsAmount)
+            formWithErrors, taxYear = taxYear, preAmount = optionalCya.flatMap(_.ukDividendsAmount)
           )))
         },
         {

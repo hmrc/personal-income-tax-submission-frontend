@@ -41,8 +41,6 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
   trait SpecificExpectedResults {
     val heading: String
-    val priorP1: String
-    val cyaP1: String
     val tooLongError: String
     val emptyFieldError: String
     val incorrectFormatError: String
@@ -60,7 +58,6 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
     val titleSelector = "title"
     val inputField = ".govuk-input"
     val errorHref = "#amount"
-    val p1Selector = "#p1"
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
@@ -81,8 +78,6 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
     val heading: String = s"How much of the donations you made after 5 April $taxYear do you want to add to this tax year?"
-    val priorP1: String = s"You told us you want to add £444 of the donations you made after 5 April $taxYear to this tax year. Tell us if this has changed."
-    val cyaP1: String = s"You told us you want to add £50 of the donations you made after 5 April $taxYear to this tax year. Tell us if this has changed."
     val tooLongError: String = s"The amount of your donation made after 5 April $taxYear you add to the last tax year must be less than £100,000,000,000"
     val emptyFieldError: String = s"Enter the amount of your donation made after 5 April $taxYear you want to add to this tax year"
     val incorrectFormatError: String = "Enter the amount you want to add to this tax year in the correct format"
@@ -90,8 +85,6 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
   object ExpectedAgentEN extends SpecificExpectedResults {
     val heading: String = s"How much of the donations your client made after 5 April $taxYear do you want to add to this tax year?"
-    val priorP1: String = s"You told us you want to add £444 of the donations your client made after 5 April $taxYear to this tax year. Tell us if this has changed."
-    val cyaP1: String = s"You told us you want to add £50 of the donations your client made after 5 April $taxYear to this tax year. Tell us if this has changed."
     val tooLongError: String = s"The amount of your client’s donation made after 5 April $taxYear you add to the last tax year must be less than £100,000,000,000"
     val emptyFieldError: String = s"Enter the amount of your client’s donation made after 5 April $taxYear you want to add to this tax year"
     val incorrectFormatError: String = "Enter the amount you want to add to this tax year in the correct format"
@@ -99,8 +92,6 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
     val heading: String = s"Faint o’r rhoddion a wnaethoch ar ôl 5 Ebrill $taxYear ydych am eu hychwanegu at y flwyddyn dreth hon?"
-    val priorP1: String = s"Gwnaethoch roi gwybod i ni eich bod am ychwanegu £444 o’r rhoddion a wnaethoch ar ôl 5 Ebrill $taxYear at y flwyddyn dreth hon. Rhowch wybod i ni os yw hyn wedi newid."
-    val cyaP1: String = s"Gwnaethoch roi gwybod i ni eich bod am ychwanegu £50 o’r rhoddion a wnaethoch ar ôl 5 Ebrill $taxYear at y flwyddyn dreth hon. Rhowch wybod i ni os yw hyn wedi newid."
     val tooLongError: String = s"Mae’n rhaid i swm eich rhodd a wnaed ar ôl 5 Ebrill $taxYear a ychwanegwch at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000"
     val emptyFieldError: String = s"Nodwch swm eich rhodd a wnaed ar ôl 5 Ebrill $taxYear rydych am ei ychwanegu at y flwyddyn dreth hon"
     val incorrectFormatError: String = "Nodwch y swm rydych am ei ychwanegu at y flwyddyn dreth hon yn y fformat cywir"
@@ -108,8 +99,6 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
   object ExpectedAgentCY extends SpecificExpectedResults {
     val heading: String = s"Faint o’r rhoddion a wnaeth eich cleient ar ôl 5 Ebrill $taxYear ydych am eu hychwanegu at y flwyddyn dreth hon?"
-    val priorP1: String = s"Gwnaethoch roi gwybod i ni eich bod am ychwanegu £444 o’r rhoddion a wnaeth eich cleient ar ôl 5 Ebrill $taxYear at y flwyddyn dreth hon. Rhowch wybod i ni os yw hyn wedi newid."
-    val cyaP1: String = s"Gwnaethoch roi gwybod i ni eich bod am ychwanegu £50 o’r rhoddion a wnaeth eich cleient ar ôl 5 Ebrill $taxYear at y flwyddyn dreth hon. Rhowch wybod i ni os yw hyn wedi newid."
     val tooLongError: String = s"Mae’n rhaid i swm rhodd eich cleient a wnaed ar ôl 5 Ebrill $taxYear a ychwanegwch at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000"
     val emptyFieldError: String = s"Nodwch swm rhodd eich cleient a wnaed ar ôl 5 Ebrill $taxYear rydych am ei ychwanegu at y flwyddyn dreth hon"
     val incorrectFormatError: String = "Nodwch y swm rydych am ei ychwanegu at y flwyddyn dreth hon yn y fformat cywir"
@@ -198,7 +187,6 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
           inputFieldCheck(inputName, Selectors.inputField)
           inputFieldValueCheck("", Selectors.inputField)
-          textOnPageCheck(user.specificExpectedResults.get.priorP1, Selectors.p1Selector)
         }
 
         "display the correct cya amount when returning before resubmitting" which {
@@ -214,7 +202,6 @@ class GiftAidAppendNextYearTaxAmountControllerSpec extends CharityITHelper {
 
           inputFieldCheck(inputName, Selectors.inputField)
           inputFieldValueCheck("50", Selectors.inputField)
-          textOnPageCheck(user.specificExpectedResults.get.cyaP1, Selectors.p1Selector)
         }
       }
     }

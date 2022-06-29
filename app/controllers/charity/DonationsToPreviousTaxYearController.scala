@@ -42,7 +42,7 @@ class DonationsToPreviousTaxYearController @Inject()(
                                                       donationsToPreviousTaxYearView: DonationsToPreviousTaxYearView,
                                                       giftAidSessionService: GiftAidSessionService,
                                                       giftAidLastTaxYearController: GiftAidLastTaxYearController,
-                                                      giftAidLastTaxYearAmountController: LastTaxYearAmountController,
+                                                      giftAidLastTaxYearAmountController: GiftAidLastTaxYearAmountController,
                                                       errorHandler: ErrorHandler,
                                                       implicit val appConfig: AppConfig
                                                     ) extends FrontendController(cc) with I18nSupport with SessionHelper with CharityJourney {

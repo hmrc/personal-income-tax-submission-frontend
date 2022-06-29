@@ -236,7 +236,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper with Gif
         }
 
         "have the correct redirect url" in {
-          result.headers("Location").head shouldBe controllers.charity.routes.LastTaxYearAmountController.show(taxYear).url
+          result.headers("Location").head shouldBe controllers.charity.routes.GiftAidLastTaxYearAmountController.show(taxYear).url
         }
       }
     }

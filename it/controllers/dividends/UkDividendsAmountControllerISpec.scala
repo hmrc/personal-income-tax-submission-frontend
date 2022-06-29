@@ -46,7 +46,6 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
     val expectedTitle: String
     val expectedErrorTitle: String
     val tellUsTheValue: String
-    val youToldUsPriorText: String
     val expectedErrorEmpty: String
     val expectedErrorOverMax: String
     val expectedErrorInvalid: String
@@ -64,7 +63,6 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
     val expectedTitle = "How much did you get in dividends from UK-based companies?"
     val expectedErrorTitle = s"Error: $expectedTitle"
     val tellUsTheValue = "Tell us the value of the dividends you got, in pounds. You can find this information in your dividend voucher."
-    val youToldUsPriorText = s"You told us you got £$amount in dividends from UK-based companies this year. Tell us if this has changed."
     val expectedErrorEmpty = "Enter how much you got in dividends from UK-based companies"
     val expectedErrorOverMax = "The amount of dividends from UK-based companies must be less than £100,000,000,000"
     val expectedErrorInvalid = "Enter how much you got in dividends in the correct format"
@@ -75,7 +73,6 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
     val expectedTitle = "How much did your client get in dividends from UK-based companies?"
     val expectedErrorTitle = s"Error: $expectedTitle"
     val tellUsTheValue = "Tell us the value of the dividends your client got, in pounds. You can find this information in their dividend voucher."
-    val youToldUsPriorText = s"You told us your client got £$amount in dividends from UK-based companies this year. Tell us if this has changed."
     val expectedErrorEmpty = "Enter how much your client got in dividends from UK-based companies"
     val expectedErrorOverMax = "The amount of dividends from UK-based companies must be less than £100,000,000,000"
     val expectedErrorInvalid = "Enter how much your client got in dividends in the correct format"
@@ -92,7 +89,6 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
     val expectedTitle = "Faint a gawsoch mewn difidendau gan gwmnïau yn y DU?"
     val expectedErrorTitle = s"Gwall: $expectedTitle"
     val tellUsTheValue = "Rhowch wybod i ni beth yw gwerth y difidendau a gawsoch, mewn punnoedd. Gallwch ddod o hyd i’r wybodaeth hon yn eich taleb ddifidend."
-    val youToldUsPriorText = s"Gwnaethoch ddweud wrthym cawsoch £$amount mewn difidendau gan gwmnïau yn y DU y flwyddyn hon. Rhowch wybod i ni a yw hyn wedi newid."
     val expectedErrorEmpty = "Nodwch faint a gawsoch mewn difidendau gan gwmnïau yn y DU"
     val expectedErrorOverMax = "Mae’n rhaid i swm y difidendau gan gwmnïau yn y DU fod yn llai na £100,000,000,000"
     val expectedErrorInvalid = "Nodwch faint a gawsoch mewn difidendau yn y fformat cywir"
@@ -103,7 +99,6 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
     val expectedTitle = "Faint gafodd eich cleient mewn difidendau gan gwmnïau yn y DU?"
     val expectedErrorTitle = s"Gwall: $expectedTitle"
     val tellUsTheValue = "Rhowch wybod i ni beth yw gwerth y difidendau a gafodd eich cleient, mewn punnoedd. Gallwch ddod o hyd i’r wybodaeth hon yn eu taleb ddifidend."
-    val youToldUsPriorText = s"Gwnaethoch ddweud wrthym cafodd eich cleient £$amount mewn difidendau gan gwmnïau yn y DU y flwyddyn hon. Rhowch wybod i ni a yw hyn wedi newid."
     val expectedErrorEmpty = "Nodwch faint gafodd eich cleient mewn difidendau gan gwmnïau yn y DU"
     val expectedErrorOverMax = "Mae’n rhaid i swm y difidendau gan gwmnïau yn y DU fod yn llai na £100,000,000,000"
     val expectedErrorInvalid = "Nodwch faint gafodd eich cleient mewn difidendau yn y fformat cywir"
@@ -122,7 +117,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
     val inputSelector = ".govuk-input"
     val continueButtonSelector = "#continue"
     val continueButtonFormSelector = "#main-content > div > div > form"
-    val youToldUsSelector = "#p1"
+    val tellUsTheValueSelector = "#p1"
     val expectedErrorLink = "#amount"
     val inputAmountField = "#amount"
   }
@@ -166,7 +161,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
           titleCheck(get.expectedTitle, us.isWelsh)
           h1Check(get.expectedH1 + " " + captionExpected)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
-          textOnPageCheck(get.tellUsTheValue, youToldUsSelector)
+          textOnPageCheck(get.tellUsTheValue, tellUsTheValueSelector)
           inputFieldCheck(amountInputName, inputSelector)
           inputFieldValueCheck("", inputAmountField)
           buttonCheck(continueText, continueButtonSelector)
@@ -194,7 +189,6 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
           titleCheck(get.expectedTitle, us.isWelsh)
           h1Check(get.expectedH1 + " " + captionExpected)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
-          textOnPageCheck(get.youToldUsPriorText, youToldUsSelector)
           inputFieldCheck(amountInputName, inputSelector)
           inputFieldValueCheck(amount.toString(), inputAmountField)
           buttonCheck(continueText, continueButtonSelector)
@@ -230,31 +224,6 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
       implicit val document: () => Document = () => Jsoup.parse(result.body)
 
       inputFieldValueCheck(amount.toString(), "#amount")
-    }
-
-    "returns uk dividends with empty amount field when priorSubmissionData and cyaData amounts are equal" which {
-
-      lazy val result: WSResponse = {
-        authoriseIndividual()
-        dropDividendsDB()
-        emptyUserDataStub()
-        insertDividendsCyaData(Some(cyaModelWithAmount))
-        userDataStub(IncomeSourcesModel(
-          dividends = Some(DividendsPriorSubmission(
-            Some(amount),
-            None
-          ))), nino, taxYear)
-        urlGet(ukDividendsAmountUrl, headers = playSessionCookie())
-      }
-
-      "has an OK(200) status" in {
-        result.status shouldBe OK
-      }
-
-      implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-      inputFieldValueCheck("", "#amount")
-
     }
 
     "redirects user to overview page when there is no data in session" which {

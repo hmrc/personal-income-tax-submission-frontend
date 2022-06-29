@@ -17,7 +17,6 @@
 @import views.html.headerFooterTemplate.Layout
 @import views.html.templates.helpers.{Button, ErrorSummary, Heading, InputRadio, InputTextAlt}
 @import models.interest.InterestAccountModel
-@import utils.ViewUtils.bigDecimalCurrency
 
 @this(
    layout: Layout,
@@ -34,18 +33,6 @@
     Some(messages("common.currency.hint"))
 }
 
-@contentHtml = {
-
-@if(preAmount.isDefined) {
-    <p class="govuk-body" id="p1">
-        @messages("common.youToldUs")
-        @messages(s"common.youGot.${if(user.isAgent) "agent" else "individual"}")
-        @bigDecimalCurrency(preAmount.getOrElse(BigDecimal("0")).toString)
-        @messages(s"interest.change-account.${taxType.toLowerCase}-label.prior.common2")
-    </p>
-    }
-}
-
 @hasFormErrors = @{form.hasErrors}
 
 @layout(pageTitle = messages(s"interest.change-account.${taxType.toLowerCase}-title.${if(user.isAgent) "agent" else "individual"}"), taxYear = Some(taxYear), hasErrors = hasFormErrors, isAgent = user.isAgent) {
@@ -53,8 +40,6 @@
     @errorSummary(form.errors.distinct)
 
     @heading(messages(s"interest.change-account.${taxType.toLowerCase}-heading.${if(user.isAgent) "agent" else "individual"}", account.accountName), Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
-
-    @contentHtml
 
     @formWithCSRF(action = postAction) {
 
@@ -70,7 +55,6 @@
                 labelHidden = true
             )
         </div>
-
 
         @button()
     }

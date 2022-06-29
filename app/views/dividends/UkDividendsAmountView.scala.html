@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import models.dividends.DividendsPriorSubmission
 @import play.api.data.Form
 @import views.html.headerFooterTemplate.Layout
 @import play.api.i18n.Messages
@@ -24,7 +23,6 @@
 @import views.html.templates.helpers.InputTextAlt
 @import views.html.templates.helpers.Heading
 @import views.html.templates.helpers.P
-@import utils.ViewUtils.bigDecimalCurrency
 
 @this(
      layout: Layout,
@@ -37,7 +35,7 @@
      p: P
 )
 
-@(form: Form[BigDecimal], priorSubmission: Option[DividendsPriorSubmission], taxYear: Int, postAction: Call, preAmount: Option[BigDecimal] = None)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
+@(form: Form[BigDecimal], taxYear: Int, postAction: Call, preAmount: Option[BigDecimal] = None)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @hintText = @{
     Some(messages("common.currency.hint"))
@@ -62,28 +60,15 @@
    )
 }
 
-@priorAmount() = @{
-    if(preAmount.isDefined) {
-        preAmount
-    } else {
-        priorSubmission.flatMap(_.ukDividends)
-    }
-}
-
 @hasFormErrors = @{
     form.hasErrors
 }
 
 @contentHtml = @{
-    if(priorAmount.isDefined) {
-            p(Html(messages(s"dividends.uk-dividends-amount.change-amount.${if(user.isAgent) "agent" else "individual"}.prior", bigDecimalCurrency(priorAmount.get.toString))),
-                classes = "govuk-body govuk-!-margin-bottom-3",
-                id = Some("p1")
-            )
-        } else {
-            p(Html(messages(s"dividends.common.change-amount.caption.${if(user.isAgent) "agent" else "individual"}")),
-                classes = "govuk-body govuk-!-margin-bottom-3",
-                id = Some("p1")
+    if(!preAmount.isDefined) {
+        p(Html(messages(s"dividends.common.change-amount.caption.${if(user.isAgent) "agent" else "individual"}")),
+            classes = "govuk-body govuk-!-margin-bottom-3",
+            id = Some("p1")
         )
     }
 }
