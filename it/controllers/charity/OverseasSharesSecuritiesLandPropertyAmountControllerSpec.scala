@@ -30,15 +30,12 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
     val titleSelector = "title"
     val inputField = ".govuk-input"
     val errorHref = "#amount"
-    val p1Selector = "#p1"
-    val inputLabel = "#p2"
+    val inputLabel = "#p1"
   }
 
   def url: String = s"$appUrl/$taxYear/charity/value-of-shares-securities-land-or-property-to-overseas-charities"
 
   trait SpecificExpectedResults {
-    val expectedPriorP1: String
-    val expectedCyaP1: String
     val tooLong: String
     val emptyField: String
     val incorrectFormat: String
@@ -77,32 +74,24 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
-    val expectedPriorP1 = "You told us you donated £666 in shares, securities, land or property to overseas charities this year. Tell us if this has changed."
-    val expectedCyaP1 = "You told us you donated £50 in shares, securities, land or property to overseas charities this year. Tell us if this has changed."
     val tooLong = "The value of your shares, securities, land or property must be less than £100,000,000,000"
     val emptyField = "Enter the value of shares, securities, land or property you donated to overseas charities"
     val incorrectFormat = "Enter the value of shares, securities, land or property you donated to overseas charities in the correct format"
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
-    val expectedPriorP1 = "You told us your client donated £666 in shares, securities, land or property to overseas charities this year. Tell us if this has changed."
-    val expectedCyaP1 = "You told us your client donated £50 in shares, securities, land or property to overseas charities this year. Tell us if this has changed."
     val tooLong = "The value of your client’s shares, securities, land or property must be less than £100,000,000,000"
     val emptyField = "Enter the value of shares, securities, land or property your client donated to overseas charities"
     val incorrectFormat = "Enter the value of shares, securities, land or property your client donated to overseas charities in the correct format"
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val expectedPriorP1 = "Gwnaethoch roi gwybod i ni eich bod wedi rhoi £666 mewn cyfranddaliadau, gwarantau, tir neu eiddo i elusennau tramor eleni. Rhowch wybod i ni os yw hyn wedi newid."
-    val expectedCyaP1 = "Gwnaethoch roi gwybod i ni eich bod wedi rhoi £50 mewn cyfranddaliadau, gwarantau, tir neu eiddo i elusennau tramor eleni. Rhowch wybod i ni os yw hyn wedi newid."
     val tooLong = "Mae’n rhaid i werth eich cyfranddaliadau, gwarantau, tir neu eiddo fod yn llai na £100,000,000,000"
     val emptyField = "Nodwch werth cyfranddaliadau cymwys, gwarantau, tir neu eiddo a roesoch i elusennau tramor"
     val incorrectFormat = "Nodwch werth cyfranddaliadau, gwarantau, tir neu eiddo a roddwyd gennych i elusennau tramor yn y fformat cywir"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val expectedPriorP1 = "Gwnaethoch roi gwybod i ni fod eich cleient wedi rhoi £666 mewn cyfranddaliadau, gwarantau, tir neu eiddo i elusennau tramor eleni. Rhowch wybod i ni os yw hyn wedi newid."
-    val expectedCyaP1 = "Gwnaethoch roi gwybod i ni fod eich cleient wedi rhoi £50 mewn cyfranddaliadau, gwarantau, tir neu eiddo i elusennau tramor eleni. Rhowch wybod i ni os yw hyn wedi newid."
     val tooLong = "Mae’n rhaid i werth cyfranddaliadau, gwarantau, tir neu eiddo eich cleient fod yn llai na £100,000,000,000"
     val emptyField = "Nodwch werth cyfranddaliadau, gwarantau, tir neu eiddo a roddwyd gan eich cleient i elusennau tramor"
     val incorrectFormat = "Nodwch werth cyfranddaliadau, gwarantau, tir neu eiddo a roddwyd gan eich cleient i elusennau tramor yn y fformat cywir"
@@ -194,7 +183,6 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
 
           inputFieldCheck(inputName, Selectors.inputField)
           inputFieldValueCheck("", Selectors.inputField)
-          textOnPageCheck(user.specificExpectedResults.get.expectedPriorP1, Selectors.p1Selector)
         }
 
         "display the correct cya amount when returning before resubmitting" which {
@@ -211,7 +199,6 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
 
           inputFieldCheck(inputName, Selectors.inputField)
           inputFieldValueCheck("50", Selectors.inputField)
-          textOnPageCheck(user.specificExpectedResults.get.expectedCyaP1, Selectors.p1Selector)
         }
       }
     }

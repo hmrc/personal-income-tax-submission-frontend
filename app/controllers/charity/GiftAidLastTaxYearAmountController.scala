@@ -31,15 +31,15 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.GiftAidSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import views.html.charity.LastTaxYearAmountView
+import views.html.charity.GiftAidLastTaxYearAmountView
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 @Singleton
-class LastTaxYearAmountController @Inject()(
-                                             view: LastTaxYearAmountView
+class GiftAidLastTaxYearAmountController @Inject()(
+                                             view: GiftAidLastTaxYearAmountView
                                            )(
                                              implicit cc: MessagesControllerComponents,
                                              authAction: AuthorisedAction,
@@ -58,20 +58,19 @@ class LastTaxYearAmountController @Inject()(
                                fromShow: Boolean = false
                              )(implicit user: User[AnyContent]): Result = {
 
-    val priorAmount: Option[BigDecimal] = prior.flatMap(_.giftAidPayments.flatMap(_.currentYearTreatedAsPreviousYear))
     val cyaAmount: Option[BigDecimal] = cya.addDonationToLastYearAmount
 
     (cya.addDonationToLastYear, cya.donationsViaGiftAidAmount) match {
       case (Some(true), Some(totalDonation)) =>
-        val amountForm = (priorAmount, cyaAmount) match {
-          case (priorAmountOpt, Some(cyaValue)) if !priorAmountOpt.contains(cyaValue) => form(user.isAgent, taxYear, totalDonation).fill(cyaValue)
+        val amountForm = cyaAmount match {
+          case Some(cyaValue) => form(user.isAgent, taxYear, totalDonation).fill(cyaValue)
           case _ => form(user.isAgent, taxYear, totalDonation)
         }
-        val page = Ok(view(taxYear, amountForm, cyaAmount.map(_.toString()), priorAmount))
+        val page = Ok(view(taxYear, amountForm, cyaAmount.map(_.toString())))
         if (fromShow){
           page
         } else {
-          Redirect(controllers.charity.routes.LastTaxYearAmountController.show(taxYear))
+          Redirect(controllers.charity.routes.GiftAidLastTaxYearAmountController.show(taxYear))
         }
       case (Some(false), _) => Redirect(controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear))
       case _ => previousPage.handleRedirect(taxYear, cya, prior)
@@ -112,7 +111,7 @@ class LastTaxYearAmountController @Inject()(
             form(user.isAgent, taxYear, totalDonatedAmount).bindFromRequest().fold(
               {
                 formWithErrors =>
-                  Future.successful(BadRequest(view(taxYear, formWithErrors, None, None)))
+                  Future.successful(BadRequest(view(taxYear, formWithErrors, None)))
               }, {
                 submittedAmount =>
                   val updatedCyaData: GiftAidCYAModel = cyaData.copy(addDonationToLastYearAmount = Some(submittedAmount))

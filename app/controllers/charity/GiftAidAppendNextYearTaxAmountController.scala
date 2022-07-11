@@ -51,17 +51,16 @@ class GiftAidAppendNextYearTaxAmountController @Inject()(
                                fromShow: Boolean = false
                              )(implicit user: User[AnyContent]): Result = {
 
-    val priorAmount: Option[BigDecimal] = prior.flatMap(_.giftAidPayments.flatMap(_.nextYearTreatedAsCurrentYear))
     val cyaAmount: Option[BigDecimal] = cya.addDonationToThisYearAmount
 
-    val amountForm = (priorAmount, cyaAmount) match {
-      case (priorValueOpt, Some(cyaValue)) if !priorValueOpt.contains(cyaValue) => form(user.isAgent, taxYear).fill(cyaValue)
+    val amountForm = cyaAmount match {
+      case Some(cyaValue) => form(user.isAgent, taxYear).fill(cyaValue)
       case _ => form(user.isAgent, taxYear)
     }
 
     cya.addDonationToThisYear match {
       case Some(true) => if (fromShow) {
-        Ok(view(taxYear, amountForm, cyaAmount.map(_.toString()), priorAmount))
+        Ok(view(taxYear, amountForm))
       } else {
         Redirect(controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(taxYear, taxYear))
       }
@@ -97,7 +96,7 @@ class GiftAidAppendNextYearTaxAmountController @Inject()(
     if (taxYear == someTaxYear) {
       form(user.isAgent, taxYear).bindFromRequest.fold(
         {
-          formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors, None, None)))
+          formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors)))
         },
         {
           formAmount =>

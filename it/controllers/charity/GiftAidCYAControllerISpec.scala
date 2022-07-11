@@ -421,7 +421,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
             cyaRowCheck(user.specificExpectedResults.get.overseasDonationNames, overseasDonationNamesValue, controllers.charity.routes.OverseasGiftAidSummaryController.show(taxYear).url, overseasDonationNamesHidden, 8)
 
             cyaRowCheck(lastYear, yes, controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear).url, user.specificExpectedResults.get.lastYearHidden, 9)
-            cyaRowCheck(lastYearAmount, amount, controllers.charity.routes.LastTaxYearAmountController.show(taxYear).url, user.specificExpectedResults.get.lastYearAmountHidden, 10)
+            cyaRowCheck(lastYearAmount, amount, controllers.charity.routes.GiftAidLastTaxYearAmountController.show(taxYear).url, user.specificExpectedResults.get.lastYearAmountHidden, 10)
 
             cyaRowCheck(thisYear, yes, controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear).url, thisYearHidden, 11)
             cyaRowCheck(thisYearAmount, amount, controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(taxYear, taxYear).url, user.specificExpectedResults.get.thisYearAmountHidden, 12)
@@ -619,7 +619,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
               cyaRowCheck(oneOffDonationAmount, amount, controllers.charity.routes.GiftAidOneOffAmountController.show(taxYear).url, oneOffDonationAmountHidden, 3)
               cyaRowCheck(overseasDonationAmount, amount, controllers.charity.routes.GiftAidOverseasAmountController.show(taxYear).url, overseasDonationAmountHidden, 4)
               cyaRowCheck(user.specificExpectedResults.get.overseasDonationNames, priorDonationNames, controllers.charity.routes.OverseasGiftAidSummaryController.show(taxYear).url, overseasDonationNamesHidden, 5)
-              cyaRowCheck(lastYearAmount, amount, controllers.charity.routes.LastTaxYearAmountController.show(taxYear).url, user.specificExpectedResults.get.lastYearAmountHidden, 6)
+              cyaRowCheck(lastYearAmount, amount, controllers.charity.routes.GiftAidLastTaxYearAmountController.show(taxYear).url, user.specificExpectedResults.get.lastYearAmountHidden, 6)
               cyaRowCheck(thisYearAmount, amount, controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(taxYear, taxYear).url, user.specificExpectedResults.get.thisYearAmountHidden, 7)
               cyaRowCheck(sharesSecuritiesAmount, amount, controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(taxYear).url, sharesSecuritiesAmountHidden, 8)
               cyaRowCheck(landPropertyAmount, amount, controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(taxYear).url, user.specificExpectedResults.get.landPropertyAmountHidden, 9)
@@ -655,7 +655,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
               cyaRowCheck(oneOffDonationAmount, amount, controllers.charity.routes.GiftAidOneOffAmountController.show(taxYear).url, oneOffDonationAmountHidden, 3)
               cyaRowCheck(overseasDonationAmount, amount, controllers.charity.routes.GiftAidOverseasAmountController.show(taxYear).url, overseasDonationAmountHidden, 4)
               cyaRowCheck(user.specificExpectedResults.get.overseasDonationNames, overseasDonationNamesValue, controllers.charity.routes.OverseasGiftAidSummaryController.show(taxYear).url, overseasDonationNamesHidden, 5)
-              cyaRowCheck(lastYearAmount, amount, controllers.charity.routes.LastTaxYearAmountController.show(taxYear).url, user.specificExpectedResults.get.lastYearAmountHidden, 6)
+              cyaRowCheck(lastYearAmount, amount, controllers.charity.routes.GiftAidLastTaxYearAmountController.show(taxYear).url, user.specificExpectedResults.get.lastYearAmountHidden, 6)
               cyaRowCheck(thisYearAmount, amount, controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(taxYear, taxYear).url, user.specificExpectedResults.get.thisYearAmountHidden, 7)
               cyaRowCheck(sharesSecuritiesAmount, amount, controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(taxYear).url, sharesSecuritiesAmountHidden, 8)
               cyaRowCheck(landPropertyAmount, amount, controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(taxYear).url, user.specificExpectedResults.get.landPropertyAmountHidden, 9)

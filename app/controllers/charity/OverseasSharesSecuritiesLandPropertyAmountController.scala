@@ -52,21 +52,20 @@ class OverseasSharesSecuritiesLandPropertyAmountController @Inject()(
   override def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, prior: Option[GiftAidSubmissionModel], fromShow: Boolean)
                              (implicit user: User[AnyContent]): Result = {
 
-    val priorAmount: Option[BigDecimal] = prior.flatMap(_.gifts.flatMap(_.investmentsNonUkCharities))
     val cyaAmount: Option[BigDecimal] = cya.overseasDonatedSharesSecuritiesLandOrPropertyAmount
 
     val donatedSSLP: BigDecimal =
       cya.donatedLandOrPropertyAmount.getOrElse(BigDecimal(0)) +
         cya.donatedSharesOrSecuritiesAmount.getOrElse(BigDecimal(0))
 
-    val amountForm = (priorAmount, cyaAmount) match {
-      case (priorValueOpt, Some(cyaValue)) if !priorValueOpt.contains(cyaValue) => form(user.isAgent, donatedSSLP).fill(cyaValue)
+    val amountForm = cyaAmount match {
+      case Some(cyaValue) => form(user.isAgent, donatedSSLP).fill(cyaValue)
       case _ => form(user.isAgent, donatedSSLP)
     }
 
     cya.overseasDonatedSharesSecuritiesLandOrProperty match {
       case Some(true) if donatedSSLP == BigDecimal(0) => giftAidQualifyingSharesSecuritiesController.handleRedirect(taxYear, cya, prior)
-      case Some(true) => determineResult(Ok(view(taxYear, amountForm, cyaAmount.map(_.toString()), priorAmount)),
+      case Some(true) => determineResult(Ok(view(taxYear, amountForm)),
         Redirect(controllers.charity.routes.OverseasSharesSecuritiesLandPropertyAmountController.show(taxYear)),
         fromShow)
       case _ => giftAidSharesSecuritiesLandPropertyOverseasController.handleRedirect(taxYear, cya, prior)
@@ -110,7 +109,7 @@ class OverseasSharesSecuritiesLandPropertyAmountController @Inject()(
                 Future.successful(redirectToOverview(taxYear))
               case total =>
                 form(user.isAgent, total).bindFromRequest().fold({
-                  formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors, None, None)))
+                  formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors)))
                 }, {
                   amount =>
                     val updatedCya = cyaData.copy(overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(amount))

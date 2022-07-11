@@ -41,7 +41,6 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
     val expectedTitle: String
     val expectedErrorTitle: String
     val tellUsTheValue: String
-    val youToldUsPriorText: String
     val expectedErrorEmpty: String
     val expectedErrorOverMax: String
     val expectedErrorInvalid: String
@@ -59,8 +58,6 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
     val expectedTitle = "How much did you get in dividends from trusts and open-ended investment companies based in the UK?"
     val expectedErrorTitle = s"Error: $expectedTitle"
     val tellUsTheValue = "Tell us the value of the dividends you got, in pounds. You can find this information in your dividend voucher."
-    val youToldUsPriorText: String = s"You told us you got £$amount in dividends from UK-based trusts and open-ended investment companies this year. " +
-      s"Tell us if this has changed."
     val expectedErrorEmpty = "Enter how much you got in dividends from trusts and open-ended investment companies"
     val expectedErrorInvalid = "Enter how much you got in dividends in the correct format"
     val expectedErrorOverMax = "The amount of dividends from trusts and open-ended investment companies based in the UK must be less than £100,000,000,000"
@@ -71,8 +68,6 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
     val expectedTitle = "How much did your client get in dividends from trusts and open-ended investment companies based in the UK?"
     val expectedErrorTitleAgent = s"Error: $expectedTitle"
     val tellUsTheValue = "Tell us the value of the dividends your client got, in pounds. You can find this information in their dividend voucher."
-    val youToldUsPriorText: String = s"You told us your client got £$amount in dividends from UK-based trusts and open-ended investment companies this year. " +
-      s"Tell us if this has changed."
     val expectedErrorEmpty = "Enter how much your client got in dividends from trusts and open-ended investment companies"
     val expectedErrorInvalid = "Enter how much your client got in dividends in the correct format"
     val expectedErrorOverMax = "The amount of dividends from trusts and open-ended investment companies based in the UK must be less than £100,000,000,000"
@@ -90,7 +85,6 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
     val expectedTitle = "Faint a gawsoch mewn difidendau gan ymddiriedolaethau a chwmnïau buddsoddi penagored sydd wedi’u lleoli yn y DU?"
     val expectedErrorTitle = s"Gwall: $expectedTitle"
     val tellUsTheValue = "Rhowch wybod i ni beth yw gwerth y difidendau a gawsoch, mewn punnoedd. Gallwch ddod o hyd i’r wybodaeth hon yn eich taleb ddifidend."
-    val youToldUsPriorText: String = s"Gwnaethoch ddweud wrthym cawsoch £$amount mewn difidendau gan ymddiriedolaethau yn y DU a chwmnïau buddsoddi penagored eleni. Rhowch wybod i ni a yw hyn wedi newid."
     val expectedErrorEmpty = "Nodwch faint a gawsoch mewn difidendau gan ymddiriedolaethau a chwmnïau buddsoddi penagored"
     val expectedErrorInvalid = "Nodwch faint a gawsoch mewn difidendau yn y fformat cywir"
     val expectedErrorOverMax = "Mae’n rhaid i swm y difidendau gan ymddiriedolaethau a chwmnïau buddsoddi penagored sydd wedi’u lleoli yn y DU fod yn llai na £100,000,000,000"
@@ -101,7 +95,6 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
     val expectedTitle = "Faint wnaeth eich cleient gael mewn difidendau gan ymddiriedolaethau a chwmnïau buddsoddi penagored sydd wedi’u lleoli yn y DU?"
     val expectedErrorTitleAgent = s"Gwall: $expectedTitle"
     val tellUsTheValue = "Rhowch wybod i ni beth yw gwerth y difidendau a gafodd eich cleient, mewn punnoedd. Gallwch ddod o hyd i’r wybodaeth hon yn eu taleb ddifidend."
-    val youToldUsPriorText: String = s"Gwnaethoch ddweud wrthym cafodd eich cleient £$amount mewn difidendau gan ymddiriedolaethau yn y DU a chwmnïau buddsoddi penagored eleni. Rhowch wybod i ni a yw hyn wedi newid."
     val expectedErrorEmpty = "Nodwch faint a gafodd eich cleient gan ymddiriedolaethau a chwmnïau buddsoddi penagored"
     val expectedErrorInvalid = "Nodwch faint gafodd eich cleient mewn difidendau yn y fformat cywir"
     val expectedErrorOverMax = "Mae’n rhaid i swm y difidendau gan ymddiriedolaethau a chwmnïau buddsoddi penagored sydd wedi’u lleoli yn y DU fod yn llai na £100,000,000,000"
@@ -122,7 +115,6 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
     val continueButtonSelector = "#continue"
     val continueButtonFormSelector = "#main-content > div > div > form"
     val enterAmountSelector = "#amount"
-    val youToldUsSelector = "#p1"
     val tellUsTheValueSelector = "#p1"
     val amountSelector = "#amount"
   }
@@ -198,7 +190,6 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
           titleCheck(get.expectedTitle, us.isWelsh)
           h1Check(get.expectedH1 + " " + captionExpected)
           textOnPageCheck(captionExpected, captionSelector)
-          textOnPageCheck(get.youToldUsPriorText, youToldUsSelector)
           hintTextCheck(expectedHintText)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
           inputFieldCheck(amountInputName, inputSelector)

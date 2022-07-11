@@ -24,7 +24,7 @@ import org.jsoup.nodes.Document
 import play.api.http.Status.{OK, SEE_OTHER}
 import utils.CharityITHelper
 
-class LastTaxYearAmountControllerISpec extends CharityITHelper {
+class GiftAidLastTaxYearAmountControllerISpec extends CharityITHelper {
 
   object Selectors {
     val paragraph = "#p1"
@@ -39,8 +39,6 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
   trait SpecificExpectedResults {
     val heading: String
     val paragraph: String
-    val expectedPriorP1: String
-    val expectedCyaP1: String
     val noSelectionError: String
     val tooLongError: String
     val invalidFormatError: String
@@ -71,8 +69,6 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
   object ExpectedIndividualEN extends SpecificExpectedResults {
     val heading = s"How much of your donation did you add to the ${taxYearEOY - 1} to $taxYearEOY tax year?"
     val paragraph = "Do not include the Gift Aid added to your donation."
-    val expectedPriorP1 = s"You told us you want to add £333 of your donations to charity to the 6 April ${taxYearEOY - 1} to 5 April $taxYearEOY tax year. Tell us if this has changed."
-    val expectedCyaP1 = s"You told us you want to add £50 of your donations to charity to the 6 April ${taxYearEOY - 1} to 5 April $taxYearEOY tax year. Tell us if this has changed."
     val noSelectionError = "Enter the amount of your donation you want to add to the last tax year"
     val tooLongError = "The amount of your donation you add to the last tax year must be less than £100,000,000,000"
     val invalidFormatError = "Enter the amount you want to add to the last tax year in the correct format"
@@ -83,8 +79,6 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
   object ExpectedAgentEN extends SpecificExpectedResults {
     val heading = s"How much of your client’s donation did you add to the ${taxYearEOY -1} to $taxYearEOY tax year?"
     val paragraph = "Do not include the Gift Aid added to your client’s donation."
-    val expectedPriorP1 = s"You told us you want to add £333 of your client’s donations to charity to the 6 April ${taxYearEOY - 1} to 5 April $taxYearEOY tax year. Tell us if this has changed."
-    val expectedCyaP1 = s"You told us you want to add £50 of your client’s donations to charity to the 6 April ${taxYearEOY - 1} to 5 April $taxYearEOY tax year. Tell us if this has changed."
     val noSelectionError = "Enter the amount of your client’s donation you want to add to the last tax year"
     val tooLongError = "The amount of your client’s donation you add to the last tax year must be less than £100,000,000,000"
     val invalidFormatError = "Enter the amount you want to add to the last tax year in the correct format"
@@ -95,8 +89,6 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
   object ExpectedIndividualCY extends SpecificExpectedResults {
     val heading = s"Faint o’ch cyfraniad y gwnaethoch ei ychwanegu at flwyddyn dreth ${taxYearEOY - 1} i $taxYearEOY?"
     val paragraph = "Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at eich rhodd."
-    val expectedPriorP1 = s"Gwnaethoch roi gwybod i ni eich bod am ychwanegu £333 o’ch rhoddion i elusen at flwyddyn dreth 6 Ebrill ${taxYearEOY - 1} i 5 Ebrill $taxYearEOY. Rhowch wybod i ni os yw hyn wedi newid."
-    val expectedCyaP1 = s"Gwnaethoch roi gwybod i ni eich bod am ychwanegu £50 o’ch rhoddion i elusen at flwyddyn dreth 6 Ebrill ${taxYearEOY - 1} i 5 Ebrill $taxYearEOY. Rhowch wybod i ni os yw hyn wedi newid."
     val noSelectionError = "Nodwch faint o’ch rhodd rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf"
     val tooLongError = "Mae’n rhaid i swm eich rhodd yr ydych yn ychwanegu at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000"
     val invalidFormatError = "Nodwch y maint rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf yn y fformat cywir"
@@ -107,8 +99,6 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
   object ExpectedAgentCY extends SpecificExpectedResults {
     val heading = s"Faint o gyfraniad eich cleient y gwnaethoch ei ychwanegu at flwyddyn dreth ${taxYearEOY - 1} i $taxYearEOY?"
     val paragraph = "Peidiwch â chynnwys y Rhodd Cymorth a ychwanegwyd at rodd eich cleient."
-    val expectedPriorP1 = s"Gwnaethoch roi gwybod i ni eich bod am ychwanegu £333 o roddion eich cleient i elusen at flwyddyn dreth 6 Ebrill ${taxYearEOY - 1} i 5 Ebrill $taxYearEOY. Rhowch wybod i ni os yw hyn wedi newid."
-    val expectedCyaP1 = s"Gwnaethoch roi gwybod i ni eich bod am ychwanegu £50 o roddion eich cleient i elusen at flwyddyn dreth 6 Ebrill ${taxYearEOY - 1} i 5 Ebrill $taxYearEOY. Rhowch wybod i ni os yw hyn wedi newid."
     val noSelectionError = "Nodwch faint o rodd eich cleient rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf"
     val tooLongError =  "Mae’n rhaid i swm rhodd eich cleient yr ydych yn ychwanegu at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000"
     val invalidFormatError = "Nodwch y maint rydych am ei ychwanegu at y flwyddyn dreth ddiwethaf yn y fformat cywir"
@@ -181,7 +171,6 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
           titleCheck(user.specificExpectedResults.get.heading, user.isWelsh)
           h1Check(user.specificExpectedResults.get.heading + " " + caption)
-          textOnPageCheck(user.specificExpectedResults.get.expectedCyaP1, paragraph)
           inputFieldCheck("amount", ".govuk-input")
           hintTextCheck(hint)
           captionCheck(caption)
@@ -206,7 +195,6 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
           inputFieldCheck(inputName, Selectors.amount)
           inputFieldValueCheck("", Selectors.amount)
-          textOnPageCheck(user.specificExpectedResults.get.expectedPriorP1, Selectors.paragraph)
         }
 
         "display the correct cya amount when returning before resubmitting" which {
@@ -222,7 +210,6 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
           inputFieldCheck(inputName, Selectors.amount)
           inputFieldValueCheck("50", Selectors.amount)
-          textOnPageCheck(user.specificExpectedResults.get.expectedCyaP1, Selectors.paragraph)
         }
       }
     }
@@ -267,7 +254,7 @@ class LastTaxYearAmountControllerISpec extends CharityITHelper {
 
     "there is prior data for currentYearTreatedAsPreviousYear" should {
 
-      "display the LastTaxYearAmount page when the 'Change' link is clicked on the CYA page" which {
+      "display the GiftAidLastTaxYearAmount page when the 'Change' link is clicked on the CYA page" which {
 
         val priorData = IncomeSourcesModel(None, None,
           giftAid = Some(GiftAidSubmissionModel(Some(GiftAidPaymentsModel(nextYearTreatedAsCurrentYear = Some(1000.56)))))

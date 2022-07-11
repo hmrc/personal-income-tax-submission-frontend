@@ -104,8 +104,8 @@ POST        /:taxYear/charity/remove-overseas-charity-gift-aid/:charityNameId   
 GET         /:taxYear/charity/add-charity-donations-to-last-tax-year                                          controllers.charity.GiftAidLastTaxYearController.show(taxYear: Int)
 POST        /:taxYear/charity/add-charity-donations-to-last-tax-year                                          controllers.charity.GiftAidLastTaxYearController.submit(taxYear: Int)
 
-GET         /:taxYear/charity/amount-added-to-last-tax-year                                                   controllers.charity.LastTaxYearAmountController.show(taxYear: Int)
-POST        /:taxYear/charity/amount-added-to-last-tax-year                                                   controllers.charity.LastTaxYearAmountController.submit(taxYear: Int)
+GET         /:taxYear/charity/amount-added-to-last-tax-year                                                   controllers.charity.GiftAidLastTaxYearAmountController.show(taxYear: Int)
+POST        /:taxYear/charity/amount-added-to-last-tax-year                                                   controllers.charity.GiftAidLastTaxYearAmountController.submit(taxYear: Int)
 
 GET         /:taxYear/charity/donations-after-5-april-:otherTaxYear                                           controllers.charity.DonationsToPreviousTaxYearController.show(taxYear: Int, otherTaxYear: Int)
 POST        /:taxYear/charity/donations-after-5-april-:otherTaxYear                                           controllers.charity.DonationsToPreviousTaxYearController.submit(taxYear: Int, otherTaxYear: Int)

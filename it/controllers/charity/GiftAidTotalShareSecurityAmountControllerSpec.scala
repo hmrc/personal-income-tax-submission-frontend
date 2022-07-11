@@ -30,15 +30,12 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
     val titleSelector = "title"
     val inputField = ".govuk-input"
     val errorHref = "#amount"
-    val p1Selector = "#p1"
-    val inputLabel = "#p2"
+    val inputLabel = "#p1"
   }
 
   def url: String = s"$appUrl/$taxYear/charity/value-of-shares-or-securities"
 
   trait SpecificExpectedResults {
-    val expectedPriorP1: String
-    val expectedCyaP1: String
     val tooLong: String
     val emptyField: String
     val incorrectFormat: String
@@ -72,32 +69,24 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
-    val expectedPriorP1 = "You told us you donated £777 in shares and securities to charity this year. Tell us if this has changed."
-    val expectedCyaP1 = "You told us you donated £50 in shares and securities to charity this year. Tell us if this has changed."
     val tooLong = "The value of your shares or securities must be less than £100,000,000,000"
     val emptyField = "Enter the value of shares or securities you donated to charity"
     val incorrectFormat = "Enter the value of shares or securities you donated to charity in the correct format"
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
-    val expectedPriorP1 = "You told us your client donated £777 in shares and securities to charity this year. Tell us if this has changed."
-    val expectedCyaP1 = "You told us your client donated £50 in shares and securities to charity this year. Tell us if this has changed."
     val tooLong = "The value of your client’s shares or securities must be less than £100,000,000,000"
     val emptyField = "Enter the value of shares or securities your client donated to charity"
     val incorrectFormat = "Enter the value of shares or securities your client donated to charity in the correct format"
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val expectedPriorP1 = "Gwnaethoch roi gwybod i ni eich bod wedi rhoi £777 mewn cyfranddaliadau a gwarantau i elusen eleni. Rhowch wybod i ni os yw hyn wedi newid."
-    val expectedCyaP1 = "Gwnaethoch roi gwybod i ni eich bod wedi rhoi £50 mewn cyfranddaliadau a gwarantau i elusen eleni. Rhowch wybod i ni os yw hyn wedi newid."
     val tooLong = "Mae’n rhaid i werth eich cyfranddaliadau neu warantau fod yn llai na £100,000,000,000"
     val emptyField = "Nodwch werth cyfranddaliadau neu warantau a roddwyd gennych i elusen"
     val incorrectFormat = "Nodwch werth cyfranddaliadau neu warantau a roesoch i elusen yn y fformat cywir"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val expectedPriorP1 = "Gwnaethoch roi gwybod i ni fod eich cleient wedi rhoi £777 mewn cyfranddaliadau a gwarantau i elusen eleni. Rhowch wybod i ni os yw hyn wedi newid."
-    val expectedCyaP1 = "Gwnaethoch roi gwybod i ni fod eich cleient wedi rhoi £50 mewn cyfranddaliadau a gwarantau i elusen eleni. Rhowch wybod i ni os yw hyn wedi newid."
     val tooLong = "Mae’n rhaid i werth cyfranddaliadau neu warantau eich cleient fod yn llai na £100,000,000,000"
     val emptyField = "Nodwch werth cyfranddaliadau neu warantau a roddwyd gan eich cleient i elusen"
     val incorrectFormat = "Nodwch werth cyfranddaliadau neu warantau a roddwyd gan eich cleient i elusen yn y fformat cywir"
@@ -187,7 +176,6 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
 
           inputFieldCheck(inputName, Selectors.inputField)
           inputFieldValueCheck("", Selectors.inputField)
-          textOnPageCheck(user.specificExpectedResults.get.expectedPriorP1, Selectors.p1Selector)
         }
 
         "display the correct cya amount when returning before resubmitting" which {
@@ -205,7 +193,6 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
           h1Check(heading + " " + caption)
           inputFieldCheck(inputName, Selectors.inputField)
           inputFieldValueCheck("50", Selectors.inputField)
-          textOnPageCheck(user.specificExpectedResults.get.expectedCyaP1, Selectors.p1Selector)
         }
       }
     }

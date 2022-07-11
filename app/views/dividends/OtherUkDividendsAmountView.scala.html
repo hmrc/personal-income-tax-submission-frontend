@@ -24,7 +24,6 @@
 @import views.html.templates.helpers.Button
 @import views.html.templates.helpers.Heading
 @import views.html.templates.helpers.P
-@import utils.ViewUtils.bigDecimalCurrency
 
 @this(
         layout: Layout,
@@ -37,7 +36,7 @@
         p: P
 )
 
-@(form: Form[BigDecimal], priorSubmission: Option[DividendsPriorSubmission], taxYear: Int, postAction: Call, preAmount: Option[BigDecimal] = None)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
+@(form: Form[BigDecimal], taxYear: Int, postAction: Call, preAmount: Option[BigDecimal] = None)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @titleForUse = @{
     messages(s"dividends.other-dividends-amount.title.${if(user.isAgent) "agent" else "individual"}")
@@ -48,25 +47,17 @@
 @hintText = @{
     Some(messages("common.currency.hint"))
 }
-@currencyFormHtml(formInput: Form[BigDecimal]) = {
 
-@inputText(
+@currencyFormHtml(formInput: Form[BigDecimal]) = {
+    @inputText(
         formInput,
         id = "amount",
         name = "amount",
         label = headingForUse,
         labelHidden = true,
         currency = true,
-        hint = hintText,
+        hint = hintText
     )
-}
-
-@priorAmount() = @{
-    if(preAmount.isDefined) {
-        preAmount
-    } else {
-        priorSubmission.flatMap(_.otherUkDividends)
-    }
 }
 
 @hasFormErrors = @{
@@ -74,15 +65,10 @@
 }
 
 @contentHtml = @{
-    if(priorAmount.isDefined) {
-            p(Html(messages(s"dividends.other-dividends-amount.change-amount-${if(user.isAgent) "agent" else "individual"}.details", bigDecimalCurrency(priorAmount.getOrElse(BigDecimal("0")).toString))),
-                classes = "govuk-body govuk-!-margin-bottom-3",
-                id = Some("p1")
-            )
-         } else {
-            p(Html(messages(s"dividends.common.change-amount.caption.${if(user.isAgent) "agent" else "individual"}")),
-            classes = "govuk-body govuk-!-margin-bottom-3",
-            id = Some("p1")
+    if(!preAmount.isDefined) {
+        p(Html(messages(s"dividends.common.change-amount.caption.${if(user.isAgent) "agent" else "individual"}")),
+        classes = "govuk-body govuk-!-margin-bottom-3",
+        id = Some("p1")
         )
     }
 }
