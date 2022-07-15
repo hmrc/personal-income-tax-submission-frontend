@@ -83,7 +83,7 @@ object DividendsCheckYourAnswersModel {
         val otherDividendsValue: Option[BigDecimal] = priorityOrderOrNone(cyaData.otherUkDividendsAmount, priorData.otherUkDividends, otherDividendsExist)
 
         Some(DividendsCheckYourAnswersModel(
-          Some(ukDividendsExist || otherDividendsExist),
+          cyaData.gateway,
           Some(ukDividendsExist),
           ukDividendsValue,
           Some(otherDividendsExist),

@@ -362,7 +362,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
             emptyUserDataStub()
             userDataStub(priorData, nino, taxYear)
             insertDividendsCyaData(Some(DividendsCheckYourAnswersModel(
-              None,
+              Some(true),
               Some(true), Some(ukDividends1),
               Some(true), Some(otherDividends1)
             )))

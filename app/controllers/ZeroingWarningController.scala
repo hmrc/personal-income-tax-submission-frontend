@@ -76,7 +76,7 @@ class ZeroingWarningController @Inject()(
   }
 
   def show(taxYear: Int, journeyKey: String): Action[AnyContent] = zeroingPredicates(taxYear, journeyKey).apply { implicit user =>
-    if (appConfig.tailoringEnabled || appConfig.interestTailoringEnabled || appConfig.dividendsTailoringEnabled) {
+    if (appConfig.interestTailoringEnabled || appConfig.dividendsTailoringEnabled) {
       page(taxYear, journeyKey)
     } else {
       Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
@@ -84,7 +84,7 @@ class ZeroingWarningController @Inject()(
   }
 
   def submit(taxYear: Int, journeyKey: String): Action[AnyContent] = zeroingPredicates(taxYear, journeyKey).async { implicit user =>
-    if (appConfig.tailoringEnabled || appConfig.interestTailoringEnabled || appConfig.dividendsTailoringEnabled) {
+    if (appConfig.interestTailoringEnabled || appConfig.dividendsTailoringEnabled) {
       def onSuccess(key: String): Result = {
         Redirect(s"/$key")
       }
@@ -116,7 +116,7 @@ class ZeroingWarningController @Inject()(
   private[controllers] def zeroDividendsData(cyaData: DividendsCheckYourAnswersModel): DividendsCheckYourAnswersModel = {
     cyaData.copy(
       ukDividendsAmount = if (cyaData.ukDividends.contains(true)) Some(0) else None,
-      otherUkDividendsAmount = if (cyaData.ukDividends.contains(true)) Some(0) else None)
+      otherUkDividendsAmount = if (cyaData.otherUkDividends.contains(true)) Some(0) else None)
   }
 
   private[controllers] def handleInterest(taxYear: Int)(implicit user: User[_]): Future[Result] = {

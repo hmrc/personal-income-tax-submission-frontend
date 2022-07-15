@@ -111,6 +111,7 @@ class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig) extends AppCon
   lazy val tailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoringEnabled")
   lazy val interestTailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoring.interest")
   lazy val dividendsTailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoring.dividends")
+  lazy val charityTailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoring.charity")
 }
 
 @ImplementedBy(classOf[FrontendAppConfig])
@@ -174,4 +175,5 @@ trait AppConfig {
   val tailoringEnabled: Boolean
   val interestTailoringEnabled: Boolean
   val dividendsTailoringEnabled: Boolean
+  val charityTailoringEnabled: Boolean
 }
