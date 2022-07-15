@@ -17,13 +17,16 @@
 package models.interest
 
 import play.api.libs.json._
-import utils.EncryptedValue
+import utils.{Clock, EncryptedValue}
+
+import java.time.LocalDateTime
 
 case class InterestAccountModel(id: Option[String],
                                 accountName: String,
                                 untaxedAmount: Option[BigDecimal] = None,
                                 taxedAmount: Option[BigDecimal] = None,
-                                uniqueSessionId: Option[String] = None) {
+                                uniqueSessionId: Option[String] = None,
+                                createdAt: LocalDateTime) {
 
   def getPrimaryId(): Option[String] = {
     if(id.nonEmpty) id else uniqueSessionId
@@ -33,6 +36,8 @@ case class InterestAccountModel(id: Option[String],
 }
 
 object InterestAccountModel {
+  implicit val createdAtOrdering: Ordering[InterestAccountModel] = _.createdAt compareTo _.createdAt
+
   implicit val reads: Reads[InterestAccountModel] = Json.reads[InterestAccountModel]
   implicit val writes: Writes[InterestAccountModel] = Writes[InterestAccountModel] { model =>
     JsObject(Json.obj(
@@ -40,7 +45,8 @@ object InterestAccountModel {
       "accountName" -> model.accountName,
       "untaxedAmount" -> model.untaxedAmount,
       "taxedAmount" -> model.taxedAmount,
-      "uniqueSessionId" -> model.uniqueSessionId
+      "uniqueSessionId" -> model.uniqueSessionId,
+      "createdAt" -> model.createdAt
     ).fields.filterNot(_._2 == JsNull))
   }
 
@@ -50,7 +56,16 @@ object InterestAccountModel {
     untaxedAmount <- (__ \ "untaxedUkInterest").readNullable[BigDecimal]
     taxedAmount <- (__ \ "taxedUkInterest").readNullable[BigDecimal]
   } yield {
-    InterestAccountModel(Some(uniqueId), accountName, untaxedAmount, taxedAmount, None)
+    InterestAccountModel(Some(uniqueId), accountName, untaxedAmount, taxedAmount, None, createdAt = Clock.localDateTimeNow())
+  }
+  val priorSubmissionWrites: Writes[InterestAccountModel] = Writes[InterestAccountModel] { model =>
+    JsObject(Json.obj(
+      "id" -> model.id,
+      "accountName" -> model.accountName,
+      "untaxedAmount" -> model.untaxedAmount,
+      "taxedAmount" -> model.taxedAmount,
+      "uniqueSessionId" -> model.uniqueSessionId
+    ).fields.filterNot(_._2 == JsNull))
   }
 }
 
@@ -58,7 +73,8 @@ case class EncryptedInterestAccountModel(id: Option[EncryptedValue],
                                 accountName: EncryptedValue,
                                 untaxedAmount: Option[EncryptedValue] = None,
                                 taxedAmount: Option[EncryptedValue] = None,
-                                uniqueSessionId: Option[EncryptedValue] = None)
+                                uniqueSessionId: Option[EncryptedValue] = None,
+                                createdAt: EncryptedValue)
 
 object EncryptedInterestAccountModel {
   implicit val formats: OFormat[EncryptedInterestAccountModel] = Json.format[EncryptedInterestAccountModel]

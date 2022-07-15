@@ -18,7 +18,7 @@ package services
 
 import common.InterestTaxTypes
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
-import utils.UnitTest
+import utils.{StubClock, UnitTest}
 
 class RemoveAccountServiceSpec extends UnitTest {
 
@@ -28,20 +28,26 @@ class RemoveAccountServiceSpec extends UnitTest {
     InterestAccountModel(
       Some("3"),
       "Account 1",
-      taxedAmount = Some(100.01))
+      taxedAmount = Some(100.01),
+      createdAt = StubClock.localDateTimeNow()
+    )
 
   val accountWithUniqueSessionId =
     InterestAccountModel(
       None,
       "Account 1",
       taxedAmount = Some(100.01),
-      uniqueSessionId = Some("3"))
+      uniqueSessionId = Some("3"),
+      createdAt = StubClock.localDateTimeNow()
+    )
 
   val accountWithNoIds =
     InterestAccountModel(
       None,
       "Account 1",
-      taxedAmount = Some(100.01))
+      taxedAmount = Some(100.01),
+      createdAt = StubClock.localDateTimeNow()
+    )
 
   "accountLookup" should {
     "return true if account id matches given id" in {
@@ -85,14 +91,14 @@ class RemoveAccountServiceSpec extends UnitTest {
     "return accounts containing updated account if account to update has untaxed amount defined" in {
       val cyaData = InterestCYAModel(
         untaxedUkInterest = Some(true), taxedUkInterest = Some(true), accounts = Seq(
-          InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01)),
-          InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = Some(50), taxedAmount = Some(9001.01))
+          InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01), createdAt = StubClock.localDateTimeNow()),
+          InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = Some(50), taxedAmount = Some(9001.01), createdAt = StubClock.localDateTimeNow())
         )
       )
 
       val accounts = Seq(
-        InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01)),
-        InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = Some(50), taxedAmount = Some(9001.01))
+        InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01), createdAt = StubClock.localDateTimeNow()),
+        InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = Some(50), taxedAmount = Some(9001.01), createdAt = StubClock.localDateTimeNow())
       )
 
       val untaxedUpdate = service.calculateTaxedUpdate(cyaData, accounts, "qwerty")
@@ -101,14 +107,14 @@ class RemoveAccountServiceSpec extends UnitTest {
       val updatedAccounts = untaxedUpdate._2
 
       updatedAccounts shouldBe Seq(
-        InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01)),
-        InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = Some(50), taxedAmount = None)
+        InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01), createdAt = StubClock.localDateTimeNow()),
+        InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = Some(50), taxedAmount = None, createdAt = StubClock.localDateTimeNow())
       )
 
       updatedCyaData shouldBe InterestCYAModel(
         untaxedUkInterest = Some(true), taxedUkInterest = Some(false), accounts = Seq(
-          InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01)),
-          InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = Some(50), taxedAmount = None)
+          InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01), createdAt = StubClock.localDateTimeNow()),
+          InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = Some(50), taxedAmount = None, createdAt = StubClock.localDateTimeNow())
         )
       )
     }
@@ -116,13 +122,13 @@ class RemoveAccountServiceSpec extends UnitTest {
     "return accounts excluding account if account to update doesn't have untaxed amount defined" in {
       val cyaData = InterestCYAModel(
         untaxedUkInterest = Some(true), taxedUkInterest = Some(true), accounts = Seq(
-          InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01)),
-          InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = None, taxedAmount = None))
+          InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01), createdAt = StubClock.localDateTimeNow()),
+          InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = None, taxedAmount = None, createdAt = StubClock.localDateTimeNow()))
       )
 
       val accounts = Seq(
-        InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01), taxedAmount = Some(100.01)),
-        InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = None, taxedAmount = None)
+        InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01), taxedAmount = Some(100.01), createdAt = StubClock.localDateTimeNow()),
+        InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = None, taxedAmount = None, createdAt = StubClock.localDateTimeNow())
       )
 
       val untaxedUpdate = service.calculateTaxedUpdate(cyaData, accounts, "qwerty")
@@ -131,12 +137,12 @@ class RemoveAccountServiceSpec extends UnitTest {
       val updatedAccounts = untaxedUpdate._2
 
       updatedAccounts shouldBe Seq(
-        InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01), taxedAmount = Some(100.01)),
+        InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01), taxedAmount = Some(100.01), createdAt = StubClock.localDateTimeNow()),
       )
 
       updatedCyaData shouldBe InterestCYAModel(
         untaxedUkInterest = Some(true), taxedUkInterest = Some(true), accounts = Seq(
-          InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01), taxedAmount = Some(100.01))
+          InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01), taxedAmount = Some(100.01), createdAt = StubClock.localDateTimeNow())
         )
       )
     }
@@ -146,14 +152,14 @@ class RemoveAccountServiceSpec extends UnitTest {
     "return accounts containing updated account if account to update has taxed amount defined" in {
       val cyaData = InterestCYAModel(
         untaxedUkInterest = Some(true), taxedUkInterest = Some(true), accounts = Seq(
-          InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01)),
-          InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = Some(50), taxedAmount = Some(9001.01))
+          InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01), createdAt = StubClock.localDateTimeNow()),
+          InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = Some(50), taxedAmount = Some(9001.01), createdAt = StubClock.localDateTimeNow())
         )
       )
 
       val accounts = Seq(
-        InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01)),
-        InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = Some(50), taxedAmount = Some(9001.01))
+        InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01), createdAt = StubClock.localDateTimeNow()),
+        InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = Some(50), taxedAmount = Some(9001.01), createdAt = StubClock.localDateTimeNow())
       )
 
       val untaxedUpdate = service.calculateUntaxedUpdate(cyaData, accounts, "qwerty")
@@ -162,14 +168,14 @@ class RemoveAccountServiceSpec extends UnitTest {
       val updatedAccounts = untaxedUpdate._2
 
       updatedAccounts shouldBe Seq(
-        InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01)),
-        InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = None, taxedAmount = Some(9001.01))
+        InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01), createdAt = StubClock.localDateTimeNow()),
+        InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = None, taxedAmount = Some(9001.01), createdAt = StubClock.localDateTimeNow())
       )
 
       updatedCyaData shouldBe InterestCYAModel(
         untaxedUkInterest = Some(true), taxedUkInterest = Some(true), accounts = Seq(
-          InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01)),
-          InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = None, taxedAmount = Some(9001.01))
+          InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01), createdAt = StubClock.localDateTimeNow()),
+          InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = None, taxedAmount = Some(9001.01), createdAt = StubClock.localDateTimeNow())
         )
       )
     }
@@ -177,14 +183,14 @@ class RemoveAccountServiceSpec extends UnitTest {
     "return accounts excluding account if account to update doesn't have taxed amount defined" in {
       val cyaData = InterestCYAModel(
         untaxedUkInterest = Some(true), taxedUkInterest = Some(true), accounts = Seq(
-          InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01)),
-          InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = Some(50), taxedAmount = None)
+          InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01), createdAt = StubClock.localDateTimeNow()),
+          InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = Some(50), taxedAmount = None, createdAt = StubClock.localDateTimeNow())
         )
       )
 
       val accounts = Seq(
-        InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01)),
-        InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = Some(50), taxedAmount = None)
+        InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01), createdAt = StubClock.localDateTimeNow()),
+        InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = Some(50), taxedAmount = None, createdAt = StubClock.localDateTimeNow())
       )
 
       val untaxedUpdate = service.calculateUntaxedUpdate(cyaData, accounts, "qwerty")
@@ -193,12 +199,12 @@ class RemoveAccountServiceSpec extends UnitTest {
       val updatedAccounts = untaxedUpdate._2
 
       updatedAccounts shouldBe Seq(
-        InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01)),
+        InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01), createdAt = StubClock.localDateTimeNow()),
       )
 
       updatedCyaData shouldBe InterestCYAModel(
         untaxedUkInterest = Some(true), taxedUkInterest = Some(true), accounts = Seq(
-          InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01))
+          InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01), createdAt = StubClock.localDateTimeNow())
         )
       )
     }
@@ -210,7 +216,7 @@ class RemoveAccountServiceSpec extends UnitTest {
 
       val priorSubmission = Some(InterestPriorSubmission(hasTaxed = false, hasUntaxed = true, submissions = Seq.empty))
 
-      val isLastAccount = service.isLastAccount(taxType, priorSubmission, Seq(InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01))))
+      val isLastAccount = service.isLastAccount(taxType, priorSubmission, Seq(InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01), createdAt = StubClock.localDateTimeNow())))
 
       isLastAccount shouldBe true
     }
@@ -240,7 +246,7 @@ class RemoveAccountServiceSpec extends UnitTest {
 
       val priorSubmission = Some(InterestPriorSubmission(hasTaxed = false, hasUntaxed = false, submissions = Seq.empty))
 
-      val isLastAccount = service.isLastAccount(taxType, priorSubmission, Seq(InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01))))
+      val isLastAccount = service.isLastAccount(taxType, priorSubmission, Seq(InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01), createdAt = StubClock.localDateTimeNow())))
 
       isLastAccount shouldBe true
     }

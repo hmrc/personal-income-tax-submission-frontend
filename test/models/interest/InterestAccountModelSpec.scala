@@ -17,7 +17,9 @@
 package models.interest
 
 import play.api.libs.json.{JsObject, JsResultException, Json}
-import utils.UnitTest
+import utils.{StubClock, UnitTest}
+
+import java.time.{LocalDate, LocalDateTime, LocalTime}
 
 class InterestAccountModelSpec extends UnitTest {
 
@@ -26,7 +28,8 @@ class InterestAccountModelSpec extends UnitTest {
     "accountName" -> "TSB",
     "untaxedAmount" -> 500,
     "taxedAmount" -> 500,
-    "uniqueSessionId" -> "ytrewq"
+    "uniqueSessionId" -> "ytrewq",
+    "createdAt" -> "2021-01-01T10:10:10.00000001"
   )
 
   val validModelStandardReadsMax: InterestAccountModel = InterestAccountModel(
@@ -34,11 +37,13 @@ class InterestAccountModelSpec extends UnitTest {
     "TSB",
     Some(500.00),
     Some(500.00),
-    Some("ytrewq")
+    Some("ytrewq"),
+    createdAt = StubClock.localDateTimeNow()
   )
 
   val validJsonStandardReadsMin: JsObject = Json.obj(
-    "accountName" -> "TSB"
+    "accountName" -> "TSB",
+    "createdAt" -> "2021-01-01T10:10:10.00000001"
   )
 
   val validModelStandardReadsMin: InterestAccountModel = InterestAccountModel(
@@ -46,7 +51,8 @@ class InterestAccountModelSpec extends UnitTest {
     "TSB",
     None,
     None,
-    None
+    None,
+    StubClock.localDateTimeNow()
   )
 
   "using the normal json parsing" should {
@@ -92,13 +98,15 @@ class InterestAccountModelSpec extends UnitTest {
   val validUntaxedModel: InterestAccountModel = InterestAccountModel(
     Some("qwerty"),
     "TSB",
-    Some(500.00)
+    Some(500.00),
+    createdAt = StubClock.localDateTimeNow()
   )
 
   val validTaxedModel: InterestAccountModel = InterestAccountModel(
     Some("azerty"),
     "Lloyds",
-    taxedAmount = Some(300.00)
+    taxedAmount = Some(300.00),
+    createdAt = StubClock.localDateTimeNow()
   )
 
   "using alternative json reads" should {
@@ -139,4 +147,47 @@ class InterestAccountModelSpec extends UnitTest {
 
   }
 
+  "sorting seq of accounts using .sorted" should {
+    "return accounts in ascending order by date created" in {
+
+      val account1 = InterestAccountModel(
+        Some("account 1"),
+        "TSB",
+        Some(500.00),
+        createdAt = LocalDateTime.of(LocalDate.of(2022, 5, 1), LocalTime.of(10, 10, 10, 9))
+      )
+
+      val account2 = InterestAccountModel(
+        Some("account 2"),
+        "Lloyds",
+        taxedAmount = Some(300.00),
+        createdAt = LocalDateTime.of(LocalDate.of(2022, 5, 1), LocalTime.of(23, 0, 0, 2))
+      )
+
+      val account3 = InterestAccountModel(
+        Some("account 3"),
+        "Barclays",
+        taxedAmount = Some(300.00),
+        createdAt = LocalDateTime.of(LocalDate.of(2022, 4, 4), LocalTime.of(10, 10, 10, 10))
+      )
+
+      val account4 = InterestAccountModel(
+        Some("account 4"),
+        "NatWest",
+        taxedAmount = Some(300.00),
+        createdAt = LocalDateTime.of(LocalDate.of(2022, 5, 1), LocalTime.of(23, 0, 0, 0))
+      )
+
+      val account5 = InterestAccountModel(
+        Some("account 5"),
+        "Nationwide",
+        taxedAmount = Some(300.00),
+        createdAt = LocalDateTime.of(LocalDate.of(2022, 4, 4), LocalTime.of(9, 15, 0, 0))
+      )
+
+      val accounts = Seq(account1, account2, account3, account4, account5)
+
+      accounts.sorted shouldBe Seq(account5, account3, account1, account4, account2)
+    }
+  }
 }

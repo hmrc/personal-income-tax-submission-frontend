@@ -158,7 +158,7 @@ val identifier = account.id.getOrElse(account.uniqueSessionId.getOrElse(""))
 @if(accounts.nonEmpty) {
     <div class="govuk-form-group">
         <ul class="hmrc-add-to-a-list hmrc-add-to-a-list--short">
-            @accounts.map { account =>
+            @accounts.sorted.map { account =>
                 @accountRow(account, accountChangeCall(account), accountRemoveCall(account))
             }
         </ul>

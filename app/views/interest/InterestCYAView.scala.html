@@ -42,7 +42,7 @@
     }
 
     @accountsInfo(questionNumber: Int, accounts: Seq[InterestAccountModel], untaxed: Boolean) = {
-    @accounts.zipWithIndex.map { case (account, id) =>
+    @accounts.sorted.zipWithIndex.map { case (account, id) =>
 
         @{untaxed match {
             case true => account.untaxedAmount.map{ amount =>

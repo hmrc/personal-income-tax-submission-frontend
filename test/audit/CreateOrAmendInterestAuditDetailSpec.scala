@@ -18,14 +18,14 @@ package audit
 
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
 import play.api.libs.json.Json
-import utils.UnitTest
+import utils.{StubClock, UnitTest}
 
 class CreateOrAmendInterestAuditDetailSpec extends UnitTest {
 
   val body: InterestCYAModel = InterestCYAModel(
     None, Some(true), Some(true), Seq(
-      InterestAccountModel(Some("azerty"), "Account 1", Some(100.01)),
-      InterestAccountModel(Some("qwerty"), "Account 2", None, Some(9001.01))
+      InterestAccountModel(Some("azerty"), "Account 1", Some(100.01), createdAt = StubClock.localDateTimeNow()),
+      InterestAccountModel(Some("qwerty"), "Account 2", None, Some(9001.01), createdAt = StubClock.localDateTimeNow())
     )
   )
 
@@ -36,12 +36,14 @@ class CreateOrAmendInterestAuditDetailSpec extends UnitTest {
       InterestAccountModel(
         Some("UntaxedId1"),
         "Untaxed Account",
-        untaxedAmount = Some(100.01)
+        untaxedAmount = Some(100.01),
+        createdAt = StubClock.localDateTimeNow()
       ),
       InterestAccountModel(
         Some("TaxedId1"),
         "Taxed Account",
-        taxedAmount = Some(9001.01)
+        taxedAmount = Some(9001.01),
+        createdAt = StubClock.localDateTimeNow()
       )
     )
   )

@@ -23,6 +23,7 @@ import models.interest.{EncryptedInterestAccountModel, EncryptedInterestCYAModel
 import models.mongo._
 import utils.SecureGCMCipher
 
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 class EncryptionService @Inject()(encryptionService: SecureGCMCipher, appConfig: AppConfig) {
@@ -220,7 +221,8 @@ class EncryptionService @Inject()(encryptionService: SecureGCMCipher, appConfig:
       encryptionService.encrypt[String](interestAccount.accountName),
       interestAccount.untaxedAmount.map(x => encryptionService.encrypt[BigDecimal](x)),
       interestAccount.taxedAmount.map(x => encryptionService.encrypt[BigDecimal](x)),
-      interestAccount.uniqueSessionId.map(x => encryptionService.encrypt[String](x))
+      interestAccount.uniqueSessionId.map(x => encryptionService.encrypt[String](x)),
+      encryptionService.encrypt[LocalDateTime](interestAccount.createdAt)
     )
   }
   private def decryptInterestAccountModel(interestAccount: EncryptedInterestAccountModel)
@@ -230,7 +232,8 @@ class EncryptionService @Inject()(encryptionService: SecureGCMCipher, appConfig:
       encryptionService.decrypt[String](interestAccount.accountName.value, interestAccount.accountName.nonce),
       interestAccount.untaxedAmount.map(x => encryptionService.decrypt[BigDecimal](x.value, x.nonce)),
       interestAccount.taxedAmount.map(x => encryptionService.decrypt[BigDecimal](x.value, x.nonce)),
-      interestAccount.uniqueSessionId.map(x => encryptionService.decrypt[String](x.value, x.nonce))
+      interestAccount.uniqueSessionId.map(x => encryptionService.decrypt[String](x.value, x.nonce)),
+      encryptionService.decrypt[LocalDateTime](interestAccount.createdAt.value, interestAccount.createdAt.nonce)
     )
   }
 

@@ -18,17 +18,6 @@ package utils
 
 import java.time.LocalDateTime
 
-object TypeCaster {
-
-  trait Converter[T] { self =>
-    def convert(v: String): T
-  }
-
-  object Converter {
-    implicit val stringLoader: Converter[String] = (v: String) => v
-    implicit val intLoader: Converter[Int] = (v: String) => v.toInt
-    implicit val booleanLoader: Converter[Boolean] = (v: String) => v.toBoolean
-    implicit val bigDecimalLoader: Converter[BigDecimal] = (v: String) => BigDecimal(v)
-    implicit val localDateTimeLoader: Converter[LocalDateTime] = (v: String) => LocalDateTime.parse(v)
-  }
+object StubClock extends Clock {
+  override def localDateTimeNow(): LocalDateTime = LocalDateTime.of(2021, 1, 1, 10, 10, 10, 10)
 }

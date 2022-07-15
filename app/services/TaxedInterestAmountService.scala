@@ -17,18 +17,19 @@
 package services
 
 import models.interest.{InterestAccountModel, TaxedInterestModel}
+import utils.Clock
 
 import java.util.UUID
 import javax.inject.Inject
 
-class TaxedInterestAmountService @Inject() () {
+class TaxedInterestAmountService @Inject() (clock: Clock) {
   def createNewAccountsList(completeForm: TaxedInterestModel,
                             existingAccountWithName: Option[InterestAccountModel],
                             accounts: Seq[InterestAccountModel],
                             id: String): Seq[InterestAccountModel] = {
 
     def createNewAccount(overrideId: Option[String] = None): InterestAccountModel = {
-      InterestAccountModel(None, completeForm.taxedAccountName, None, Some(completeForm.taxedAmount), Some(overrideId.getOrElse(id)))
+      InterestAccountModel(None, completeForm.taxedAccountName, None, Some(completeForm.taxedAmount), Some(overrideId.getOrElse(id)), clock.localDateTimeNow())
     }
 
     if(existingAccountWithName.isDefined){

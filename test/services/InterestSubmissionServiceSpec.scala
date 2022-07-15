@@ -23,7 +23,7 @@ import models.{APIErrorBodyModel, APIErrorModel}
 import play.api.http.Status._
 import play.api.test.Helpers.NO_CONTENT
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.UnitTest
+import utils.{StubClock, UnitTest}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -44,8 +44,8 @@ class InterestSubmissionServiceSpec extends UnitTest {
         None,
         Some(true),
         Some(true),
-        Seq(InterestAccountModel(Some("anId"), "dis account yo", Some(100.00), None, None),
-          InterestAccountModel(Some("anotherId"), "a bank thing", None, Some(200.00), None))
+        Seq(InterestAccountModel(Some("anId"), "dis account yo", Some(100.00), None, None, createdAt = StubClock.localDateTimeNow()),
+          InterestAccountModel(Some("anotherId"), "a bank thing", None, Some(200.00), None, createdAt = StubClock.localDateTimeNow()))
       )
 
       lazy val accounts: Seq[InterestSubmissionModel] = Seq(

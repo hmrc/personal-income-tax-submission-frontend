@@ -18,7 +18,7 @@ package services
 
 import common.InterestTaxTypes
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
-import utils.UnitTest
+import utils.{StubClock, UnitTest}
 
 class ChooseAccountServiceSpec extends UnitTest {
 
@@ -28,17 +28,21 @@ class ChooseAccountServiceSpec extends UnitTest {
     InterestAccountModel(
       Some("1"),
       "TSB Account",
-      untaxedAmount = Some(500.00)
+      untaxedAmount = Some(500.00),
+      createdAt = StubClock.localDateTimeNow()
     ),
     InterestAccountModel(
       Some("2"),
       "Lloyds Savings",
-      untaxedAmount = Some(3000.00)
+      untaxedAmount = Some(3000.00),
+      createdAt = StubClock.localDateTimeNow()
     ),
     InterestAccountModel(
       Some("3"),
       "Account 1",
-      taxedAmount = Some(100.01))
+      taxedAmount = Some(100.01),
+      createdAt = StubClock.localDateTimeNow()
+    )
   )
 
   "accountsIgnoringAmounts" should {
@@ -50,19 +54,23 @@ class ChooseAccountServiceSpec extends UnitTest {
           Some("1"),
           "TSB Account",
           untaxedAmount = None,
-          taxedAmount = None
+          taxedAmount = None,
+          createdAt = StubClock.localDateTimeNow()
         ),
         InterestAccountModel(
           Some("2"),
           "Lloyds Savings",
           untaxedAmount = None,
-          taxedAmount = None
+          taxedAmount = None,
+          createdAt = StubClock.localDateTimeNow()
         ),
         InterestAccountModel(
           Some("3"),
           "Account 1",
           untaxedAmount = None,
-          taxedAmount = None)
+          taxedAmount = None,
+          createdAt = StubClock.localDateTimeNow()
+        )
       )
     }
   }
@@ -79,7 +87,7 @@ class ChooseAccountServiceSpec extends UnitTest {
 
       val previousAccounts = service.getPreviousAccounts(cyaModel, prior, InterestTaxTypes.UNTAXED)
 
-      previousAccounts shouldBe Set(InterestAccountModel(Some("3"), "Account 1", None, None, None))
+      previousAccounts shouldBe Set(InterestAccountModel(Some("3"), "Account 1", None, None, None, createdAt = StubClock.localDateTimeNow()))
     }
 
     "return accounts which have untaxed defined if tax type 'TAXED' is specified" in {
@@ -93,7 +101,7 @@ class ChooseAccountServiceSpec extends UnitTest {
 
       val newAccounts = service.getPreviousAccounts(cyaModel, prior, InterestTaxTypes.TAXED)
 
-      newAccounts shouldBe Set(InterestAccountModel(Some("1"), "TSB Account", None, None, None), InterestAccountModel(Some("2"), "Lloyds Savings", None, None, None))
+      newAccounts shouldBe Set(InterestAccountModel(Some("1"), "TSB Account", None, None, None, createdAt = StubClock.localDateTimeNow()), InterestAccountModel(Some("2"), "Lloyds Savings", None, None, None, createdAt = StubClock.localDateTimeNow()))
     }
 
     "return no accounts if there are no accounts or submissions defined" in {

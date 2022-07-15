@@ -17,44 +17,52 @@
 package services
 
 import models.interest.{InterestAccountModel, TaxedInterestModel}
-import utils.UnitTest
+import utils.{StubClock, UnitTest}
 
 class TaxedInterestAmountServiceSpec extends UnitTest {
 
-  val service = new TaxedInterestAmountService()
+  val service = new TaxedInterestAmountService(StubClock)
 
   val taxedAccounts: Seq[InterestAccountModel] = Seq(
     InterestAccountModel(
       Some("1"),
       "TSB Account",
-      taxedAmount = Some(500.00)
+      taxedAmount = Some(500.00),
+      createdAt = StubClock.localDateTimeNow()
     ),
     InterestAccountModel(
       Some("2"),
       "Lloyds Savings",
-      taxedAmount = Some(3000.00)
+      taxedAmount = Some(3000.00),
+      createdAt = StubClock.localDateTimeNow()
     ),
     InterestAccountModel(
       Some("3"),
       "Account 1",
-      taxedAmount = Some(100.01))
+      taxedAmount = Some(100.01),
+      createdAt = StubClock.localDateTimeNow()
+    )
   )
 
   val untaxedAccounts: Seq[InterestAccountModel] = Seq(
     InterestAccountModel(
       Some("1"),
       "TSB Account",
-      untaxedAmount = Some(500.00)
+      untaxedAmount = Some(500.00),
+      createdAt = StubClock.localDateTimeNow()
     ),
     InterestAccountModel(
       Some("2"),
       "Lloyds Savings",
-      untaxedAmount = Some(3000.00)
+      untaxedAmount = Some(3000.00),
+      createdAt = StubClock.localDateTimeNow()
     ),
     InterestAccountModel(
       Some("3"),
       "Account 1",
-      untaxedAmount = Some(100.01))
+      untaxedAmount = Some(100.01),
+      createdAt = StubClock.localDateTimeNow()
+    )
   )
 
   "createNewAccountsList" should {
@@ -68,7 +76,7 @@ class TaxedInterestAmountServiceSpec extends UnitTest {
       newAccounts.length shouldBe 3
       newAccounts.head shouldBe taxedAccounts.head
       newAccounts(1) shouldBe taxedAccounts.last
-      newAccounts.last shouldBe InterestAccountModel(Some("2"), "Lloyds Savings", taxedAmount = Some(5000.00))
+      newAccounts.last shouldBe InterestAccountModel(Some("2"), "Lloyds Savings", taxedAmount = Some(5000.00), createdAt = StubClock.localDateTimeNow())
     }
 
     "return new accounts list containing updated account if existing account with name and tax amount specified" in {
@@ -81,7 +89,7 @@ class TaxedInterestAmountServiceSpec extends UnitTest {
       newAccounts.length shouldBe 4
       newAccounts.head shouldBe untaxedAccounts(1)
       newAccounts(1) shouldBe untaxedAccounts(2)
-      newAccounts(2) shouldBe InterestAccountModel(Some("2"), "Lloyds Savings", taxedAmount = Some(5000.00), untaxedAmount = Some(300.00))
+      newAccounts(2) shouldBe InterestAccountModel(Some("2"), "Lloyds Savings", taxedAmount = Some(5000.00), untaxedAmount = Some(300.00), createdAt = StubClock.localDateTimeNow())
       newAccounts.last shouldBe untaxedAccounts.head
     }
 
@@ -95,7 +103,7 @@ class TaxedInterestAmountServiceSpec extends UnitTest {
       newAccounts(1) shouldBe untaxedAccounts.last
       newAccounts(2).accountName shouldBe formModel.taxedAccountName
       newAccounts(2).taxedAmount shouldBe Some(formModel.taxedAmount)
-      newAccounts.last shouldBe InterestAccountModel(Some("2"), "Lloyds Savings", untaxedAmount = Some(3000.0))
+      newAccounts.last shouldBe InterestAccountModel(Some("2"), "Lloyds Savings", untaxedAmount = Some(3000.0), createdAt = StubClock.localDateTimeNow())
     }
 
     "return new accounts list containing updated account if existing account with name specified is untaxed and in accounts list" in {
@@ -106,7 +114,7 @@ class TaxedInterestAmountServiceSpec extends UnitTest {
       newAccounts.length shouldBe 3
       newAccounts.head shouldBe taxedAccounts.head
       newAccounts(1) shouldBe taxedAccounts(1)
-      newAccounts.last shouldBe InterestAccountModel(Some("3"), "New Name", None, Some(5000.0), None)
+      newAccounts.last shouldBe InterestAccountModel(Some("3"), "New Name", None, Some(5000.0), None, createdAt = StubClock.localDateTimeNow())
     }
 
     "return new accounts list containing new account if existing account with name specified is untaxed and in accounts list" in {
@@ -118,7 +126,7 @@ class TaxedInterestAmountServiceSpec extends UnitTest {
       newAccounts.head shouldBe taxedAccounts.head
       newAccounts(1) shouldBe taxedAccounts(1)
       newAccounts(2) shouldBe taxedAccounts.last
-      newAccounts.last shouldBe InterestAccountModel(None, formModel.taxedAccountName, None, Some(formModel.taxedAmount), Some("4"))
+      newAccounts.last shouldBe InterestAccountModel(None, formModel.taxedAccountName, None, Some(formModel.taxedAmount), Some("4"), createdAt = StubClock.localDateTimeNow())
     }
   }
 }

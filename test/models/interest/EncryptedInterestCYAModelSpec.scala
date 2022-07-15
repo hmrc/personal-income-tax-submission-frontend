@@ -17,14 +17,15 @@
 package models.interest
 
 import play.api.libs.json.{JsObject, Json}
-import utils.{EncryptedValue, UnitTest}
+import utils.{EncryptedValue, StubClock, UnitTest}
 
 class EncryptedInterestCYAModelSpec extends UnitTest {
   val account = EncryptedInterestAccountModel(
     id = Some(EncryptedValue("someId", "someId-Nonce")),
     accountName = EncryptedValue("someName", "someName-Nonce"),
     Some(EncryptedValue("100.00", "100.00-Nonce")),
-    Some(EncryptedValue("100.00", "100.00-Nonce"))
+    Some(EncryptedValue("100.00", "100.00-Nonce")),
+    createdAt = EncryptedValue(StubClock.localDateTimeNow().toString, StubClock.localDateTimeNow().toString + "-Nonce")
   )
 
   val modelMax: EncryptedInterestCYAModel = EncryptedInterestCYAModel(
@@ -60,6 +61,10 @@ class EncryptedInterestCYAModelSpec extends UnitTest {
         "taxedAmount" -> Json.obj(
           "value" -> "100.00",
           "nonce" -> "100.00-Nonce"
+        ),
+        "createdAt" -> Json.obj(
+          "value" -> "2021-01-01T10:10:10.000000010",
+          "nonce" -> "2021-01-01T10:10:10.000000010-Nonce"
         )
       )
     )

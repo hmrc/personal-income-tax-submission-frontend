@@ -23,7 +23,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
 import play.api.libs.ws.WSResponse
-import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
+import utils.{IntegrationTest, Clock, InterestDatabaseHelper, ViewHelpers}
 
 class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabaseHelper with ViewHelpers {
 
@@ -146,7 +146,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
             val interestCYA = InterestCYAModel(
               None,
               Some(false),
-              Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00)))
+              Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00), createdAt = clock.localDateTimeNow()))
             )
 
             lazy val result: WSResponse = {
@@ -262,7 +262,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
             val interestCYA = InterestCYAModel(
               None,
               Some(false),
-              Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00)))
+              Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00), createdAt = clock.localDateTimeNow()))
             )
 
             dropInterestDB()
@@ -288,7 +288,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
               val interestCYA = InterestCYAModel(
                 None,
                 Some(false),
-                Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00)))
+                Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00), createdAt = clock.localDateTimeNow()))
               )
 
               dropInterestDB()
@@ -334,7 +334,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
               val interestCYA = InterestCYAModel(
                 None,
                 Some(false),
-                Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00)))
+                Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00), createdAt = clock.localDateTimeNow()))
               )
 
               dropInterestDB()
@@ -356,7 +356,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
             val interestCYA = InterestCYAModel(
               None,
               Some(false),
-              Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00)))
+              Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00), createdAt = clock.localDateTimeNow()))
             )
 
             lazy val result: WSResponse = {

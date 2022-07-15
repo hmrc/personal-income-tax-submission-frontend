@@ -17,13 +17,12 @@
 package controllers.interest
 
 import java.util.UUID
-
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import models.priorDataModels.{IncomeSourcesModel, InterestModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
-import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
+import utils.{IntegrationTest, Clock, InterestDatabaseHelper, ViewHelpers}
 
 class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelpers with InterestDatabaseHelper{
 
@@ -39,19 +38,19 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
   lazy val id: String = UUID.randomUUID().toString
 
   val untaxedInterestCyaModel: InterestCYAModel = InterestCYAModel(
-    None, Some(true), Some(false), Seq(InterestAccountModel(Some(id), accountName, Some(amount), None))
+    None, Some(true), Some(false), Seq(InterestAccountModel(Some(id), accountName, Some(amount), None, createdAt = clock.localDateTimeNow()))
   )
 
   val taxedInterestCyaModel: InterestCYAModel = InterestCYAModel(
-    None, Some(false), Some(true), Seq(InterestAccountModel(Some(id), accountName, None, Some(amount)))
+    None, Some(false), Some(true), Seq(InterestAccountModel(Some(id), accountName, None, Some(amount), createdAt = clock.localDateTimeNow()))
   )
 
   val taxedCyaSubmitModel: InterestCYAModel = InterestCYAModel(
-    None, Some(false), Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount)))
+    None, Some(false), Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount), createdAt = clock.localDateTimeNow()))
   )
 
   val untaxedCyaSubmitModel: InterestCYAModel = InterestCYAModel(
-    None, Some(true), Some(false), Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount))),
+    None, Some(true), Some(false), Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount), createdAt = clock.localDateTimeNow())),
   )
 
   object Selectors {
@@ -198,10 +197,10 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
         Seq(
           (InterestCYAModel(
-            None, Some(true), Some(false), Seq(InterestAccountModel(Some(id), accountName, None, None))
+            None, Some(true), Some(false), Seq(InterestAccountModel(Some(id), accountName, None, None, createdAt = clock.localDateTimeNow()))
           ), InterestModel(accountName, id, None, Some(amount)), /*untaxed =*/ true),
           (InterestCYAModel(
-            None, Some(false), Some(true), Seq(InterestAccountModel(Some(id), accountName, None, None))
+            None, Some(false), Some(true), Seq(InterestAccountModel(Some(id), accountName, None, None, createdAt = clock.localDateTimeNow()))
           ), InterestModel(accountName, id, Some(amount), None), /*untaxed =*/ false)
         ) foreach {
           testCase =>
@@ -235,10 +234,10 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
         Seq(
           (InterestCYAModel(
-            None, Some(true), Some(false), Seq(InterestAccountModel(Some(id), accountName, Some(differentAmount)))
+            None, Some(true), Some(false), Seq(InterestAccountModel(Some(id), accountName, Some(differentAmount), createdAt = clock.localDateTimeNow()))
           ),InterestModel(accountName, id, None, Some(amount)),/*untaxed =*/true),
           (InterestCYAModel(
-            None, Some(false), Some(true), Seq(InterestAccountModel(Some(id), accountName, None, Some(differentAmount)))
+            None, Some(false), Some(true), Seq(InterestAccountModel(Some(id), accountName, None, Some(differentAmount), createdAt = clock.localDateTimeNow()))
           ),InterestModel(accountName, id, Some(amount), None),/*untaxed =*/false)
         ) foreach {
           testCase =>
@@ -262,10 +261,10 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
         Seq(
           (InterestCYAModel(
-            None, Some(true), Some(false), Seq(InterestAccountModel(Some(id), accountName))
+            None, Some(true), Some(false), Seq(InterestAccountModel(Some(id), accountName, createdAt = clock.localDateTimeNow()))
           ),InterestModel(accountName, id, None, None),/*untaxed =*/true),
           (InterestCYAModel(
-            None, Some(false), Some(true), Seq(InterestAccountModel(Some(id), accountName))
+            None, Some(false), Some(true), Seq(InterestAccountModel(Some(id), accountName, createdAt = clock.localDateTimeNow()))
           ),InterestModel(accountName, id, None, None),/*untaxed =*/false)
         ) foreach {
           testCase =>
@@ -319,10 +318,10 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
         Seq(
           (InterestCYAModel(
-            None, Some(true), Some(false), Seq(InterestAccountModel(Some(id), accountName, Some(amount)))
+            None, Some(true), Some(false), Seq(InterestAccountModel(Some(id), accountName, Some(amount), createdAt = clock.localDateTimeNow()))
           ),/*untaxed =*/true),
           (InterestCYAModel(
-            None, Some(false), Some(true), Seq(InterestAccountModel(Some(id), accountName, None, Some(amount)))
+            None, Some(false), Some(true), Seq(InterestAccountModel(Some(id), accountName, None, Some(amount), createdAt = clock.localDateTimeNow()))
           ),/*untaxed =*/false)
         ) foreach {
           testCase =>
@@ -390,10 +389,10 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
         Seq(
           (InterestCYAModel(
-            None, Some(true), Some(true), Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount),Some(amount)))
+            None, Some(true), Some(true), Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount),Some(amount), createdAt = clock.localDateTimeNow()))
           ), InterestModel(accountName, "UntaxedId",  Some(amount), Some(amount)), /*untaxed =*/ true),
           (InterestCYAModel(
-            None, Some(true), Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", Some(amount),Some(amount))),
+            None, Some(true), Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", Some(amount),Some(amount), createdAt = clock.localDateTimeNow())),
           ), InterestModel(accountName, "TaxedId", Some(amount),  Some(amount)), /*untaxed =*/ false)
         ) foreach {
           testCase =>
@@ -417,7 +416,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
                     InterestAccountModel(Some(if (testCase._3) "UntaxedId" else "TaxedId"),
                       s"${if (testCase._3) "Untaxed" else "Taxed"} Account",
                       if (testCase._3) Some(45645.99) else Some(25),
-                      if (!testCase._3) Some(45645.99) else Some(25)))))
+                      if (!testCase._3) Some(45645.99) else Some(25), createdAt = clock.localDateTimeNow()))))
               }
             }
         }
@@ -447,7 +446,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
                     InterestAccountModel(Some(if (testCase._3) "UntaxedId" else "TaxedId"),
                       accountName,
                       if (testCase._3) Some(45645.99) else Some(25),
-                      if (!testCase._3) Some(45645.99) else Some(25)))))
+                      if (!testCase._3) Some(45645.99) else Some(25), createdAt = clock.localDateTimeNow()))))
               }
             }
         }

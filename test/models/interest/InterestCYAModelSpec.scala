@@ -18,14 +18,16 @@ package models.interest
 
 import common.InterestTaxTypes
 import play.api.libs.json.{JsObject, Json}
-import utils.UnitTest
+import utils.{StubClock, UnitTest}
 
 class InterestCYAModelSpec extends UnitTest {
+
   val account = InterestAccountModel(
     id = Some("someId"),
     accountName = "someName",
     Some(100.00),
-    Some(100.00)
+    Some(100.00),
+    createdAt = StubClock.localDateTimeNow()
   )
 
   val modelMax: InterestCYAModel = InterestCYAModel(
@@ -43,7 +45,8 @@ class InterestCYAModelSpec extends UnitTest {
         "id" -> "someId",
         "accountName" -> "someName",
         "untaxedAmount" -> 100.00,
-        "taxedAmount" -> 100.00
+        "taxedAmount" -> 100.00,
+        "createdAt" -> "2021-01-01T10:10:10.00000001"
       )
     )
   )
@@ -70,22 +73,26 @@ class InterestCYAModelSpec extends UnitTest {
     InterestAccountModel(
       Some("1"),
       "TSB Account",
-      untaxedAmount = Some(500.00)
+      untaxedAmount = Some(500.00),
+      createdAt = StubClock.localDateTimeNow()
     ),
     InterestAccountModel(
       Some("2"),
       "Lloyds Savings",
-      untaxedAmount = Some(3000.00)
+      untaxedAmount = Some(3000.00),
+      createdAt = StubClock.localDateTimeNow()
     ),
     InterestAccountModel(
       Some("3"),
       "Account 1",
-      taxedAmount = Some(100.01)
+      taxedAmount = Some(100.01),
+      createdAt = StubClock.localDateTimeNow()
     ),
     InterestAccountModel(
       Some("4"),
       "New Account",
-      taxedAmount = Some(50.0)
+      taxedAmount = Some(50.0),
+      createdAt = StubClock.localDateTimeNow()
     )
   )
 
@@ -238,10 +245,10 @@ class InterestCYAModelSpec extends UnitTest {
         List(InterestAccountModel(Some("1"),
           "TSB Account",
           Some(500.0),
-          None, None),
-          InterestAccountModel(Some("2"), "Lloyds Savings", Some(3000.0), None, None),
-          InterestAccountModel(Some("3"), "Account 1", None, Some(100.01), None),
-          InterestAccountModel(Some("4"), "New Account", None, Some(50.0), None))))
+          None, None, createdAt = StubClock.localDateTimeNow()),
+          InterestAccountModel(Some("2"), "Lloyds Savings", Some(3000.0), None, None, createdAt = StubClock.localDateTimeNow()),
+          InterestAccountModel(Some("3"), "Account 1", None, Some(100.01), None, createdAt = StubClock.localDateTimeNow()),
+          InterestAccountModel(Some("4"), "New Account", None, Some(50.0), None, createdAt = StubClock.localDateTimeNow()))))
     }
 
     "return cya data if cya model is defined and prior isn't defined " in {
@@ -254,10 +261,10 @@ class InterestCYAModelSpec extends UnitTest {
       val cyaData = InterestCYAModel.getCyaModel(cyaModel, None)
 
       cyaData shouldBe Some(InterestCYAModel(None, Some(false), Some(true),
-        List(InterestAccountModel(Some("1"), "TSB Account", Some(500.0), None, None),
-          InterestAccountModel(Some("2"), "Lloyds Savings", Some(3000.0), None, None),
-          InterestAccountModel(Some("3"), "Account 1", None, Some(100.01), None),
-          InterestAccountModel(Some("4"), "New Account", None, Some(50.0), None))))
+        List(InterestAccountModel(Some("1"), "TSB Account", Some(500.0), None, None, createdAt = StubClock.localDateTimeNow()),
+          InterestAccountModel(Some("2"), "Lloyds Savings", Some(3000.0), None, None, createdAt = StubClock.localDateTimeNow()),
+          InterestAccountModel(Some("3"), "Account 1", None, Some(100.01), None, createdAt = StubClock.localDateTimeNow()),
+          InterestAccountModel(Some("4"), "New Account", None, Some(50.0), None, createdAt = StubClock.localDateTimeNow()))))
     }
 
     "return None if cya model isn't defined and prior isn't defined " in {
