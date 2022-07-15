@@ -24,7 +24,7 @@ case class InterestPriorSubmission(hasUntaxed: Boolean, hasTaxed: Boolean, submi
 object InterestPriorSubmission {
   implicit val writes: OWrites[InterestPriorSubmission] = OWrites[InterestPriorSubmission] { model =>
     if(model.submissions.nonEmpty) {
-      Json.obj("submissions" -> Json.toJson(model.submissions))
+      Json.obj("submissions" -> Json.toJson(model.submissions)(Writes.iterableWrites2[InterestAccountModel, Seq[InterestAccountModel]](implicitly, InterestAccountModel.priorSubmissionWrites)))
     } else {
       Json.obj()
     }

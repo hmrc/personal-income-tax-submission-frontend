@@ -28,6 +28,7 @@ import org.joda.time.{DateTime, DateTimeZone}
 import play.api.i18n.Lang.logger
 import repositories.InterestUserDataRepository
 import uk.gov.hmrc.http.HeaderCarrier
+import utils.Clock
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -35,7 +36,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class InterestSessionService @Inject()(
                                         interestUserDataRepository: InterestUserDataRepository,
                                         incomeTaxUserDataConnector: IncomeTaxUserDataConnector,
-                                        incomeSourceConnector: IncomeSourceConnector
+                                        incomeSourceConnector: IncomeSourceConnector,
+                                        clock: Clock
                                       ) {
 
   private def getPriorData(taxYear: Int)(implicit user: User[_], hc: HeaderCarrier): Future[IncomeTaxUserDataResponse] = {
@@ -86,7 +88,8 @@ class InterestSessionService @Inject()(
       Some(input.incomeSourceId),
       input.accountName,
       input.untaxedUkInterest,
-      input.taxedUkInterest
+      input.taxedUkInterest,
+      createdAt = clock.localDateTimeNow()
     )
   }
 

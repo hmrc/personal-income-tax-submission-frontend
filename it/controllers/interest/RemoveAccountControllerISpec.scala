@@ -24,7 +24,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER, UNAUTHORIZED}
 import play.api.libs.ws.WSResponse
-import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
+import utils.{IntegrationTest, Clock, InterestDatabaseHelper, ViewHelpers}
 
 class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabaseHelper with ViewHelpers {
 
@@ -104,19 +104,19 @@ class RemoveAccountControllerISpec extends IntegrationTest with InterestDatabase
     )
   }
 
-  val untaxedInterestAccount: InterestAccountModel = InterestAccountModel(Some("UntaxedId"), "Monzo", Some(9001.00))
-  val untaxedInterestAccount2: InterestAccountModel = InterestAccountModel(Some("UntaxedId2"), "Starling", Some(9001.00))
+  val untaxedInterestAccount: InterestAccountModel = InterestAccountModel(Some("UntaxedId"), "Monzo", Some(9001.00), createdAt = clock.localDateTimeNow())
+  val untaxedInterestAccount2: InterestAccountModel = InterestAccountModel(Some("UntaxedId2"), "Starling", Some(9001.00), createdAt = clock.localDateTimeNow())
 
-  val taxedInterestAccount: InterestAccountModel = InterestAccountModel(Some("TaxedId"), "Monzo", None, Some(9001.00))
-  val taxedInterestAccount2: InterestAccountModel = InterestAccountModel(Some("TaxedId2"), "Starling", None, Some(9001.00))
+  val taxedInterestAccount: InterestAccountModel = InterestAccountModel(Some("TaxedId"), "Monzo", None, Some(9001.00), createdAt = clock.localDateTimeNow())
+  val taxedInterestAccount2: InterestAccountModel = InterestAccountModel(Some("TaxedId2"), "Starling", None, Some(9001.00), createdAt = clock.localDateTimeNow())
 
   ".show" when {
 
-    val untaxedInterestAccount = InterestAccountModel(Some("UntaxedId"), "Monzo", Some(9001.00))
-    val untaxedInterestAccount2 = InterestAccountModel(Some("UntaxedId2"), "Starling", Some(9001.00))
+    val untaxedInterestAccount = InterestAccountModel(Some("UntaxedId"), "Monzo", Some(9001.00), createdAt = clock.localDateTimeNow())
+    val untaxedInterestAccount2 = InterestAccountModel(Some("UntaxedId2"), "Starling", Some(9001.00), createdAt = clock.localDateTimeNow())
 
-    val taxedInterestAccount = InterestAccountModel(Some("TaxedId"), "Monzo", None, Some(9001.00))
-    val taxedInterestAccount2 = InterestAccountModel(Some("TaxedId2"), "Starling", None, Some(9001.00))
+    val taxedInterestAccount = InterestAccountModel(Some("TaxedId"), "Monzo", None, Some(9001.00), createdAt = clock.localDateTimeNow())
+    val taxedInterestAccount2 = InterestAccountModel(Some("TaxedId2"), "Starling", None, Some(9001.00), createdAt = clock.localDateTimeNow())
 
     userScenarios.foreach { us =>
 

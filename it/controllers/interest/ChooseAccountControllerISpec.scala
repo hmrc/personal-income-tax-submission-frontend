@@ -25,7 +25,7 @@ import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.WSResponse
-import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
+import utils.{IntegrationTest, Clock, InterestDatabaseHelper, ViewHelpers}
 
 class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with InterestDatabaseHelper {
 
@@ -163,9 +163,9 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
   val accounts = Seq(InterestModel("Natwest", "1", taxedUkInterest = Some(amount), untaxedUkInterest = None),
     InterestModel("Halifax", "2", taxedUkInterest = None, untaxedUkInterest = Some(amount)))
 
-  val accounts2 = Seq(InterestAccountModel(None, "Santander", untaxedAmount = Some(amount), taxedAmount = None, Some(sessionId1)),
-    InterestAccountModel(None, "Nationwide", untaxedAmount = None, taxedAmount = Some(amount)),
-    InterestAccountModel(None, "Barclays", untaxedAmount = Some(amount), taxedAmount = Some(amount)))
+  val accounts2 = Seq(InterestAccountModel(None, "Santander", untaxedAmount = Some(amount), taxedAmount = None, Some(sessionId1), createdAt = clock.localDateTimeNow()),
+    InterestAccountModel(None, "Nationwide", untaxedAmount = None, taxedAmount = Some(amount), createdAt = clock.localDateTimeNow()),
+    InterestAccountModel(None, "Barclays", untaxedAmount = Some(amount), taxedAmount = Some(amount), createdAt = clock.localDateTimeNow()))
 
   val accounts3 = Seq(InterestModel("Natwest", "1", taxedUkInterest = Some(amount), untaxedUkInterest = Some(amount)),
     InterestModel("Halifax", "2", taxedUkInterest = Some(amount), untaxedUkInterest = None))
@@ -508,252 +508,251 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
   }
 
 
-    ".submit" should {
+  ".submit" should {
 
-      userScenarios.foreach { us =>
+    userScenarios.foreach { us =>
 
-        s"language is ${welshTest(us.isWelsh)} and request is from an ${agentTest(us.isAgent)}" should {
+      s"language is ${welshTest(us.isWelsh)} and request is from an ${agentTest(us.isAgent)}" should {
 
-          import Selectors._
-          import us.commonExpectedResults._
-          import us.specificExpectedResults._
+        import Selectors._
+        import us.commonExpectedResults._
+        import us.specificExpectedResults._
 
-          s"render a $TAXED page with errors when no radio button is selected" when {
+        s"render a $TAXED page with errors when no radio button is selected" when {
 
-            lazy val result: WSResponse = {
-              authoriseAgentOrIndividual(us.isAgent)
-              dropInterestDB()
-              emptyUserDataStub()
-              userDataStub(IncomeSourcesModel(interest = Some(accounts)), nino, taxYear)
-              insertInterestCyaData(Some(InterestCYAModel(accounts = accounts2, taxedUkInterest = Some(true))))
-              urlPost(chooseAccountUrl(TAXED), body = Map[String, String](), us.isWelsh, headers = playSessionCookie(us.isAgent))
-            }
-
-            "has an BAD_REQUEST(400) status" in {
-              result.status shouldBe BAD_REQUEST
-            }
-
-            implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-            h1Check(get.expectedH1Taxed + " " + captionExpected)
-            radioButtonCheck(santanderAccount, 1)
-            radioButtonCheck(halifaxAccount, 2)
-            radioButtonCheck(addAccountText, 3)
-            textOnPageCheck(or, radioDivider)
-            buttonCheck(continueText, continueSelector)
-            formPostLinkCheck(continueLink(TAXED), continueButtonFormSelector)
-
-            errorSummaryCheck(get.expectedErrorTextTaxed, errorSummaryHref, us.isWelsh)
-
-            welshToggleCheck(us.isWelsh)
+          lazy val result: WSResponse = {
+            authoriseAgentOrIndividual(us.isAgent)
+            dropInterestDB()
+            emptyUserDataStub()
+            userDataStub(IncomeSourcesModel(interest = Some(accounts)), nino, taxYear)
+            insertInterestCyaData(Some(InterestCYAModel(accounts = accounts2, taxedUkInterest = Some(true))))
+            urlPost(chooseAccountUrl(TAXED), body = Map[String, String](), us.isWelsh, headers = playSessionCookie(us.isAgent))
           }
 
-          s"render a $UNTAXED page with errors when no radio button is selected" when {
-
-            lazy val result: WSResponse = {
-              authoriseAgentOrIndividual(us.isAgent)
-              dropInterestDB()
-              emptyUserDataStub()
-              userDataStub(IncomeSourcesModel(interest = Some(accounts)), nino, taxYear)
-              insertInterestCyaData(Some(InterestCYAModel(accounts = accounts2, untaxedUkInterest = Some(true))))
-              urlPost(chooseAccountUrl(UNTAXED), body = Map[String, String](), us.isWelsh, headers = playSessionCookie(us.isAgent))
-            }
-
-            "has an BAD_REQUEST(400) status" in {
-              result.status shouldBe BAD_REQUEST
-            }
-
-            implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-            h1Check(get.expectedH1Untaxed + " " + captionExpected)
-            radioButtonCheck(nationwideAccount, 1)
-            radioButtonCheck(natwestAccount, 2)
-            radioButtonCheck(addAccountText, 3)
-            textOnPageCheck(or, radioDivider)
-            buttonCheck(continueText, continueSelector)
-            formPostLinkCheck(continueLink(UNTAXED), continueButtonFormSelector)
-
-            errorSummaryCheck(get.expectedErrorTextUntaxed, errorSummaryHref, us.isWelsh)
-
-            welshToggleCheck(us.isWelsh)
+          "has an BAD_REQUEST(400) status" in {
+            result.status shouldBe BAD_REQUEST
           }
+
+          implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+          h1Check(get.expectedH1Taxed + " " + captionExpected)
+          radioButtonCheck(santanderAccount, 1)
+          radioButtonCheck(halifaxAccount, 2)
+          radioButtonCheck(addAccountText, 3)
+          textOnPageCheck(or, radioDivider)
+          buttonCheck(continueText, continueSelector)
+          formPostLinkCheck(continueLink(TAXED), continueButtonFormSelector)
+
+          errorSummaryCheck(get.expectedErrorTextTaxed, errorSummaryHref, us.isWelsh)
+
+          welshToggleCheck(us.isWelsh)
+        }
+
+        s"render a $UNTAXED page with errors when no radio button is selected" when {
+
+          lazy val result: WSResponse = {
+            authoriseAgentOrIndividual(us.isAgent)
+            dropInterestDB()
+            emptyUserDataStub()
+            userDataStub(IncomeSourcesModel(interest = Some(accounts)), nino, taxYear)
+            insertInterestCyaData(Some(InterestCYAModel(accounts = accounts2, untaxedUkInterest = Some(true))))
+            urlPost(chooseAccountUrl(UNTAXED), body = Map[String, String](), us.isWelsh, headers = playSessionCookie(us.isAgent))
+          }
+
+          "has an BAD_REQUEST(400) status" in {
+            result.status shouldBe BAD_REQUEST
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(result.body)
+
+          h1Check(get.expectedH1Untaxed + " " + captionExpected)
+          radioButtonCheck(nationwideAccount, 1)
+          radioButtonCheck(natwestAccount, 2)
+          radioButtonCheck(addAccountText, 3)
+          textOnPageCheck(or, radioDivider)
+          buttonCheck(continueText, continueSelector)
+          formPostLinkCheck(continueLink(UNTAXED), continueButtonFormSelector)
+
+          errorSummaryCheck(get.expectedErrorTextUntaxed, errorSummaryHref, us.isWelsh)
+
+          welshToggleCheck(us.isWelsh)
         }
       }
-    }
-
-    ".submit" should {
-
-      s"redirect user to Taxed Interest Amount page when Add another account radio is clicked on $TAXED choose account page" when {
-
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          dropInterestDB()
-          emptyUserDataStub()
-          userDataStub(IncomeSourcesModel(interest = Some(accounts)), nino, taxYear)
-          insertInterestCyaData(Some(InterestCYAModel(accounts = accounts2, taxedUkInterest = Some(true))))
-          urlPost(chooseAccountUrl(TAXED), follow = false, body =
-            Map(AccountList.accountName -> SessionValues.ADD_A_NEW_ACCOUNT), headers = playSessionCookie())
-        }
-
-        "has a SEE_OTHER(303) status" in {
-          result.status shouldBe SEE_OTHER
-          result.header(HeaderNames.LOCATION).head should
-            include(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/add-taxed-uk-interest-account")
-        }
-      }
-
-      s"redirect user to Untaxed Interest Amount page when Add another account radio is clicked on $UNTAXED choose account page" when {
-
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          dropInterestDB()
-          emptyUserDataStub()
-          userDataStub(IncomeSourcesModel(interest = Some(accounts)), nino, taxYear)
-          insertInterestCyaData(Some(InterestCYAModel(accounts = accounts2, untaxedUkInterest = Some(true))))
-          urlPost(chooseAccountUrl(UNTAXED), follow = false, body =
-            Map(AccountList.accountName -> SessionValues.ADD_A_NEW_ACCOUNT), headers = playSessionCookie())
-        }
-
-        "has a SEE_OTHER(303) status" in {
-          result.status shouldBe SEE_OTHER
-          result.header(HeaderNames.LOCATION).head should
-            include(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/add-untaxed-uk-interest-account")
-        }
-      }
-
-      s"redirect user to how-much-taxed-uk-interest did you get from[account Name] page when specific account is selected on $TAXED choose account page" when {
-
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          dropInterestDB()
-          emptyUserDataStub()
-          userDataStub(IncomeSourcesModel(interest = Some(accounts)), nino, taxYear)
-          insertInterestCyaData(Some(InterestCYAModel(accounts = accounts2, taxedUkInterest = Some(true))))
-          urlPost(chooseAccountUrl(TAXED), follow = false, body =
-            Map(AccountList.accountName -> sessionId1), headers = playSessionCookie())
-        }
-
-        "has a SEE_OTHER(303) status" in {
-          result.status shouldBe SEE_OTHER
-          result.header(HeaderNames.LOCATION).head should
-            include(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/change-taxed-uk-interest?accountId=session-id-1")
-        }
-      }
-
-      s"redirect user to how-much-untaxed-uk-interest did you get from[account Name]" +
-        s"page when specific account is selected on $UNTAXED choose account page" when {
-
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          dropInterestDB()
-          emptyUserDataStub()
-          userDataStub(IncomeSourcesModel(interest = Some(accounts)), nino, taxYear)
-          insertInterestCyaData(Some(InterestCYAModel(accounts = accounts2, untaxedUkInterest = Some(true))))
-          urlPost(chooseAccountUrl(UNTAXED), follow = false, body =
-            Map(AccountList.accountName -> "1"), headers = playSessionCookie())
-        }
-
-        "has a SEE_OTHER(303) status" in {
-          result.status shouldBe SEE_OTHER
-          result.header(HeaderNames.LOCATION).head should
-            include(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/change-untaxed-uk-interest?accountId=1")
-        }
-      }
-
-
-      s"redirect from $TAXED page to Did you get untaxed interest page? when the is the preceding question has been answered no" when {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          dropInterestDB()
-          emptyUserDataStub()
-          insertInterestCyaData(Some(InterestCYAModel(untaxedUkInterest = Some(true), taxedUkInterest = Some(false))))
-          userDataStub(IncomeSourcesModel(interest = Some(accounts3)), nino, taxYear)
-          urlGet(chooseAccountUrl(TAXED), follow = false, headers = playSessionCookie())
-        }
-
-        "has an SEE_OTHER(303) status" in {
-          result.status shouldBe SEE_OTHER
-        }
-      }
-
-      s"redirect from $UNTAXED page to Did you get untaxed interest page? when the is the preceding question has been answered no" when {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          dropInterestDB()
-          emptyUserDataStub()
-          insertInterestCyaData(Some(InterestCYAModel(untaxedUkInterest = Some(false), taxedUkInterest = Some(true))))
-          userDataStub(IncomeSourcesModel(interest = Some(accounts4)), nino, taxYear)
-          urlGet(chooseAccountUrl(UNTAXED), follow = false, headers = playSessionCookie())
-        }
-
-        "has an SEE_OTHER(303) status" in {
-          result.status shouldBe SEE_OTHER
-        }
-      }
-
-      s"redirect from $TAXED page to Did you get untaxed interest page? when the is the preceding question hasn't been answered" when {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          dropInterestDB()
-          emptyUserDataStub()
-          insertInterestCyaData(Some(InterestCYAModel(untaxedUkInterest = Some(true), taxedUkInterest = None)))
-          userDataStub(IncomeSourcesModel(interest = Some(accounts3)), nino, taxYear)
-          urlGet(chooseAccountUrl(TAXED), follow = false, headers = playSessionCookie())
-        }
-
-        "has an SEE_OTHER(303) status" in {
-          result.status shouldBe SEE_OTHER
-        }
-      }
-
-      s"redirect from $UNTAXED page to Did you get untaxed interest page? when the is the preceding question hasn't been answered" when {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          dropInterestDB()
-          emptyUserDataStub()
-          insertInterestCyaData(Some(InterestCYAModel(untaxedUkInterest = None, taxedUkInterest = Some(true))))
-          userDataStub(IncomeSourcesModel(interest = Some(accounts4)), nino, taxYear)
-          urlGet(chooseAccountUrl(UNTAXED), follow = false, headers = playSessionCookie())
-        }
-
-        "has an SEE_OTHER(303) status" in {
-          result.status shouldBe SEE_OTHER
-        }
-      }
-
-      s"redirect from $TAXED page to overview page when there is no cya data" when {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          dropInterestDB()
-          emptyUserDataStub()
-          userDataStub(IncomeSourcesModel(interest = Some(accounts3)), nino, taxYear)
-          stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "overview page content")
-          urlGet(chooseAccountUrl(TAXED), headers = playSessionCookie())
-        }
-
-        "has an OK(200) status" in {
-          result.status shouldBe OK
-          result.body shouldBe "overview page content"
-        }
-      }
-
-
-      s"redirect from $UNTAXED page to overview page when there is no cya dat" when {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          dropInterestDB()
-          emptyUserDataStub()
-          userDataStub(IncomeSourcesModel(interest = Some(accounts4)), nino, taxYear)
-          stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "overview page content")
-          urlGet(chooseAccountUrl(UNTAXED), headers = playSessionCookie())
-        }
-
-        "has an OK(200) status" in {
-          result.status shouldBe OK
-          result.body shouldBe "overview page content"
-        }
-      }
-
     }
   }
 
+  ".submit" should {
+
+    s"redirect user to Taxed Interest Amount page when Add another account radio is clicked on $TAXED choose account page" when {
+
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        dropInterestDB()
+        emptyUserDataStub()
+        userDataStub(IncomeSourcesModel(interest = Some(accounts)), nino, taxYear)
+        insertInterestCyaData(Some(InterestCYAModel(accounts = accounts2, taxedUkInterest = Some(true))))
+        urlPost(chooseAccountUrl(TAXED), follow = false, body =
+          Map(AccountList.accountName -> SessionValues.ADD_A_NEW_ACCOUNT), headers = playSessionCookie())
+      }
+
+      "has a SEE_OTHER(303) status" in {
+        result.status shouldBe SEE_OTHER
+        result.header(HeaderNames.LOCATION).head should
+          include(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/add-taxed-uk-interest-account")
+      }
+    }
+
+    s"redirect user to Untaxed Interest Amount page when Add another account radio is clicked on $UNTAXED choose account page" when {
+
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        dropInterestDB()
+        emptyUserDataStub()
+        userDataStub(IncomeSourcesModel(interest = Some(accounts)), nino, taxYear)
+        insertInterestCyaData(Some(InterestCYAModel(accounts = accounts2, untaxedUkInterest = Some(true))))
+        urlPost(chooseAccountUrl(UNTAXED), follow = false, body =
+          Map(AccountList.accountName -> SessionValues.ADD_A_NEW_ACCOUNT), headers = playSessionCookie())
+      }
+
+      "has a SEE_OTHER(303) status" in {
+        result.status shouldBe SEE_OTHER
+        result.header(HeaderNames.LOCATION).head should
+          include(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/add-untaxed-uk-interest-account")
+      }
+    }
+
+    s"redirect user to how-much-taxed-uk-interest did you get from[account Name] page when specific account is selected on $TAXED choose account page" when {
+
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        dropInterestDB()
+        emptyUserDataStub()
+        userDataStub(IncomeSourcesModel(interest = Some(accounts)), nino, taxYear)
+        insertInterestCyaData(Some(InterestCYAModel(accounts = accounts2, taxedUkInterest = Some(true))))
+        urlPost(chooseAccountUrl(TAXED), follow = false, body =
+          Map(AccountList.accountName -> sessionId1), headers = playSessionCookie())
+      }
+
+      "has a SEE_OTHER(303) status" in {
+        result.status shouldBe SEE_OTHER
+        result.header(HeaderNames.LOCATION).head should
+          include(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/change-taxed-uk-interest?accountId=session-id-1")
+      }
+    }
+
+    s"redirect user to how-much-untaxed-uk-interest did you get from[account Name]" +
+      s"page when specific account is selected on $UNTAXED choose account page" when {
+
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        dropInterestDB()
+        emptyUserDataStub()
+        userDataStub(IncomeSourcesModel(interest = Some(accounts)), nino, taxYear)
+        insertInterestCyaData(Some(InterestCYAModel(accounts = accounts2, untaxedUkInterest = Some(true))))
+        urlPost(chooseAccountUrl(UNTAXED), follow = false, body =
+          Map(AccountList.accountName -> "1"), headers = playSessionCookie())
+      }
+
+      "has a SEE_OTHER(303) status" in {
+        result.status shouldBe SEE_OTHER
+        result.header(HeaderNames.LOCATION).head should
+          include(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/change-untaxed-uk-interest?accountId=1")
+      }
+    }
+
+
+    s"redirect from $TAXED page to Did you get untaxed interest page? when the is the preceding question has been answered no" when {
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        dropInterestDB()
+        emptyUserDataStub()
+        insertInterestCyaData(Some(InterestCYAModel(untaxedUkInterest = Some(true), taxedUkInterest = Some(false))))
+        userDataStub(IncomeSourcesModel(interest = Some(accounts3)), nino, taxYear)
+        urlGet(chooseAccountUrl(TAXED), follow = false, headers = playSessionCookie())
+      }
+
+      "has an SEE_OTHER(303) status" in {
+        result.status shouldBe SEE_OTHER
+      }
+    }
+
+    s"redirect from $UNTAXED page to Did you get untaxed interest page? when the is the preceding question has been answered no" when {
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        dropInterestDB()
+        emptyUserDataStub()
+        insertInterestCyaData(Some(InterestCYAModel(untaxedUkInterest = Some(false), taxedUkInterest = Some(true))))
+        userDataStub(IncomeSourcesModel(interest = Some(accounts4)), nino, taxYear)
+        urlGet(chooseAccountUrl(UNTAXED), follow = false, headers = playSessionCookie())
+      }
+
+      "has an SEE_OTHER(303) status" in {
+        result.status shouldBe SEE_OTHER
+      }
+    }
+
+    s"redirect from $TAXED page to Did you get untaxed interest page? when the is the preceding question hasn't been answered" when {
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        dropInterestDB()
+        emptyUserDataStub()
+        insertInterestCyaData(Some(InterestCYAModel(untaxedUkInterest = Some(true), taxedUkInterest = None)))
+        userDataStub(IncomeSourcesModel(interest = Some(accounts3)), nino, taxYear)
+        urlGet(chooseAccountUrl(TAXED), follow = false, headers = playSessionCookie())
+      }
+
+      "has an SEE_OTHER(303) status" in {
+        result.status shouldBe SEE_OTHER
+      }
+    }
+
+    s"redirect from $UNTAXED page to Did you get untaxed interest page? when the is the preceding question hasn't been answered" when {
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        dropInterestDB()
+        emptyUserDataStub()
+        insertInterestCyaData(Some(InterestCYAModel(untaxedUkInterest = None, taxedUkInterest = Some(true))))
+        userDataStub(IncomeSourcesModel(interest = Some(accounts4)), nino, taxYear)
+        urlGet(chooseAccountUrl(UNTAXED), follow = false, headers = playSessionCookie())
+      }
+
+      "has an SEE_OTHER(303) status" in {
+        result.status shouldBe SEE_OTHER
+      }
+    }
+
+    s"redirect from $TAXED page to overview page when there is no cya data" when {
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        dropInterestDB()
+        emptyUserDataStub()
+        userDataStub(IncomeSourcesModel(interest = Some(accounts3)), nino, taxYear)
+        stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "overview page content")
+        urlGet(chooseAccountUrl(TAXED), headers = playSessionCookie())
+      }
+
+      "has an OK(200) status" in {
+        result.status shouldBe OK
+        result.body shouldBe "overview page content"
+      }
+    }
+
+
+    s"redirect from $UNTAXED page to overview page when there is no cya dat" when {
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        dropInterestDB()
+        emptyUserDataStub()
+        userDataStub(IncomeSourcesModel(interest = Some(accounts4)), nino, taxYear)
+        stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "overview page content")
+        urlGet(chooseAccountUrl(UNTAXED), headers = playSessionCookie())
+      }
+
+      "has an OK(200) status" in {
+        result.status shouldBe OK
+        result.body shouldBe "overview page content"
+      }
+    }
+
+  }
+}

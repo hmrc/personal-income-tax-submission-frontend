@@ -18,7 +18,9 @@ package services
 
 import common.InterestTaxTypes
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
-import utils.UnitTest
+import utils.{StubClock, UnitTest}
+
+import java.time.{LocalDate, LocalDateTime, LocalTime}
 
 class ChangeAccountAmountServiceSpec extends UnitTest {
 
@@ -28,17 +30,21 @@ class ChangeAccountAmountServiceSpec extends UnitTest {
     InterestAccountModel(
       Some("1"),
       "TSB Account",
-      untaxedAmount = Some(500.00)
+      untaxedAmount = Some(500.00),
+      createdAt = StubClock.localDateTimeNow()
     ),
     InterestAccountModel(
       Some("2"),
       "Lloyds Savings",
-      untaxedAmount = Some(3000.00)
+      untaxedAmount = Some(3000.00),
+      createdAt = StubClock.localDateTimeNow()
     ),
     InterestAccountModel(
       Some("3"),
       "Account 1",
-      taxedAmount = Some(100.01))
+      taxedAmount = Some(100.01),
+      createdAt = StubClock.localDateTimeNow()
+    )
   )
 
   "priorAmount" should {
@@ -71,7 +77,7 @@ class ChangeAccountAmountServiceSpec extends UnitTest {
 
       val account: Option[InterestAccountModel] = service.getSingleAccount("1", prior, cyaModel)
 
-      account shouldBe Some(InterestAccountModel(Some("1"), "TSB Account", Some(500.0), None, None))
+      account shouldBe Some(InterestAccountModel(Some("1"), "TSB Account", Some(500.0), None, None, createdAt = StubClock.localDateTimeNow()))
     }
 
     "return None if account doesn't exist in prior or cya model data with given account id" in {
@@ -133,9 +139,9 @@ class ChangeAccountAmountServiceSpec extends UnitTest {
 
       val updatedAccounts = service.updateAccounts(InterestTaxTypes.TAXED, cyaModel, prior, "1", 3000)
 
-      updatedAccounts shouldBe Seq(InterestAccountModel(Some("2"),"Lloyds Savings",Some(3000.0),None,None),
-        InterestAccountModel(Some("3"),"Account 1",None,Some(100.01),None),
-        InterestAccountModel(Some("1"), "TSB Account", Some(500.0), Some(3000), None))
+      updatedAccounts shouldBe Seq(InterestAccountModel(Some("2"),"Lloyds Savings",Some(3000.0),None,None,createdAt = StubClock.localDateTimeNow()),
+        InterestAccountModel(Some("3"),"Account 1",None,Some(100.01),None,createdAt = StubClock.localDateTimeNow()),
+        InterestAccountModel(Some("1"), "TSB Account", Some(500.0), Some(3000), None,createdAt = StubClock.localDateTimeNow()))
     }
 
     "return accounts with updated account for given account id and if tax type specified is 'UNTAXED' and if account is only in cya data" in {
@@ -145,9 +151,9 @@ class ChangeAccountAmountServiceSpec extends UnitTest {
 
       val updatedAccounts = service.updateAccounts(InterestTaxTypes.UNTAXED, cyaModel, prior, "1", 3000)
 
-      updatedAccounts shouldBe List(InterestAccountModel(Some("2"), "Lloyds Savings", Some(3000.0), None, None),
-        InterestAccountModel(Some("3"), "Account 1", None, Some(100.01), None),
-        InterestAccountModel(Some("1"), "TSB Account", Some(3000), None, None))
+      updatedAccounts shouldBe List(InterestAccountModel(Some("2"), "Lloyds Savings", Some(3000.0), None, None,createdAt = StubClock.localDateTimeNow()),
+        InterestAccountModel(Some("3"), "Account 1", None, Some(100.01), None,createdAt = StubClock.localDateTimeNow()),
+        InterestAccountModel(Some("1"), "TSB Account", Some(3000), None, None,createdAt = StubClock.localDateTimeNow()))
     }
 
     "return accounts with updated account for given account id and if tax type specified is 'TAXED' and if account is only in prior data" in {
@@ -157,7 +163,7 @@ class ChangeAccountAmountServiceSpec extends UnitTest {
 
       val updatedAccounts = service.updateAccounts(InterestTaxTypes.TAXED, cyaModel, prior, "1", 3000)
 
-      updatedAccounts shouldBe Seq(InterestAccountModel(Some("1"), "TSB Account", Some(500.0), Some(3000), None))
+      updatedAccounts shouldBe Seq(InterestAccountModel(Some("1"), "TSB Account", Some(500.0), Some(3000), None, createdAt = StubClock.localDateTimeNow()))
     }
 
     "return accounts with updated account for given account id and if tax type specified is 'UNTAXED' and if account is only in prior data" in {
@@ -167,7 +173,7 @@ class ChangeAccountAmountServiceSpec extends UnitTest {
 
       val updatedAccounts = service.updateAccounts(InterestTaxTypes.UNTAXED, cyaModel, prior, "1", 3000)
 
-      updatedAccounts shouldBe Seq(InterestAccountModel(Some("1"), "TSB Account", Some(3000), None, None))
+      updatedAccounts shouldBe Seq(InterestAccountModel(Some("1"), "TSB Account", Some(3000), None, None, createdAt = StubClock.localDateTimeNow()))
     }
 
     "return empty accounts if tax type specified is 'TAXED' and no account exists with given account id in prior data or cya data" in {

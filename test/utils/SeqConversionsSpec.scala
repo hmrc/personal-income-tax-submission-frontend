@@ -26,17 +26,21 @@ class SeqConversionsSpec extends UnitTest {
     InterestAccountModel(
       Some("1"),
       "TSB Account",
-      taxedAmount = Some(500.00)
+      taxedAmount = Some(500.00),
+      createdAt = StubClock.localDateTimeNow()
     ),
     InterestAccountModel(
       Some("2"),
       "Lloyds Savings",
-      untaxedAmount = Some(3000.00)
+      untaxedAmount = Some(3000.00),
+      createdAt = StubClock.localDateTimeNow()
     ),
     InterestAccountModel(
       Some("3"),
       "Account 1",
-      untaxedAmount = Some(100.01))
+      untaxedAmount = Some(100.01),
+      createdAt = StubClock.localDateTimeNow()
+    )
   )
 
   "SeqInterestAccountModel" when {

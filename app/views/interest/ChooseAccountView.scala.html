@@ -53,7 +53,7 @@ govukRadios : GovukRadios
         @govukRadios(Radios(
             name = "value",
             errorMessage = form("value").error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*)))),
-            items = accounts.map { account =>
+            items = accounts.sorted.map { account =>
                 RadioItem(
                 content = Text(account.accountName),
                 value = if(account.id.isDefined) account.id else account.uniqueSessionId,

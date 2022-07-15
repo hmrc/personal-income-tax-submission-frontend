@@ -53,6 +53,8 @@ import views.html.authErrorPages.AgentAuthErrorPageView
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
 
+import play.api.inject.bind
+
 trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerPerSuite with WireMockHelper
   with BeforeAndAfterAll {
 
@@ -113,7 +115,8 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
       accountName = "accountName",
       untaxedAmount = Some(50.00),
       taxedAmount = Some(50.00),
-      uniqueSessionId = None
+      uniqueSessionId = None,
+      clock.localDateTimeNow()
     ))
   )
 
@@ -193,20 +196,25 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   lazy val agentAuthErrorPage: AgentAuthErrorPageView = app.injector.instanceOf[AgentAuthErrorPageView]
 
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
+    .overrides(bind[Clock].to(StubClock))
     .in(Environment.simple(mode = Mode.Dev))
     .configure(config())
     .build
 
   lazy val appWithTailoring: Application = new GuiceApplicationBuilder()
+    .overrides(bind[Clock].to(StubClock))
     .in(Environment.simple(mode = Mode.Dev))
     .configure(config(tailoring = true, interestTailoring = true, dividendsTailoring = true, charityTailoringEnabled = true))
     .build()
 
   lazy val appWithInvalidEncryptionKey: Application = GuiceApplicationBuilder()
+    .overrides(bind[Clock].to(StubClock))
     .configure(invalidEncryptionConfig)
-    .build
+    .build()
 
   implicit lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
+
+  def clock = StubClock
 
   override def beforeAll(): Unit = {
     super.beforeAll()

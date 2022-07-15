@@ -17,7 +17,7 @@
 package models.interest
 
 import common.InterestTaxTypes
-import utils.UnitTest
+import utils.{StubClock, UnitTest}
 
 class AccountAmountModelSpec extends UnitTest {
   val accounts: Seq[InterestAccountModel] = Seq(
@@ -25,19 +25,22 @@ class AccountAmountModelSpec extends UnitTest {
       None,
       "TSB Account",
       untaxedAmount = Some(500.00),
-      uniqueSessionId = Some("1")
+      uniqueSessionId = Some("1"),
+      createdAt = StubClock.localDateTimeNow()
     ),
     InterestAccountModel(
       None,
       "Lloyds Savings",
       untaxedAmount = Some(3000.00),
-      uniqueSessionId = Some("2")
+      uniqueSessionId = Some("2"),
+      createdAt = StubClock.localDateTimeNow()
     ),
     InterestAccountModel(
       None,
       "Account 1",
       taxedAmount = Some(100.01),
-      uniqueSessionId = Some("3")
+      uniqueSessionId = Some("3"),
+      createdAt = StubClock.localDateTimeNow()
     )
   )
 

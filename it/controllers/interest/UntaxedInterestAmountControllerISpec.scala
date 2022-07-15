@@ -17,7 +17,6 @@
 package controllers.interest
 
 import java.util.UUID
-
 import forms.interest.UntaxedInterestAmountForm
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import models.priorDataModels.{IncomeSourcesModel, InterestModel}
@@ -25,7 +24,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER, UNAUTHORIZED}
 import play.api.libs.ws.WSResponse
-import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
+import utils.{IntegrationTest, InterestDatabaseHelper, Clock, ViewHelpers}
 
 class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelpers with InterestDatabaseHelper {
 
@@ -151,8 +150,8 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
             emptyUserDataStub()
             insertInterestCyaData(Some(InterestCYAModel(
               None, Some(true), Some(false), Seq(
-                InterestAccountModel(Some("differentId"), firstAccountName, Some(amount)),
-                InterestAccountModel(None, secondAccountName, Some(amount), uniqueSessionId = Some(id))
+                InterestAccountModel(Some("differentId"), firstAccountName, Some(amount), createdAt = clock.localDateTimeNow()),
+                InterestAccountModel(None, secondAccountName, Some(amount), uniqueSessionId = Some(id), createdAt = clock.localDateTimeNow())
               ))
             ))
             authoriseAgentOrIndividual(us.isAgent)
@@ -206,7 +205,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
               userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel(firstAccountName, id, None, Some(amount)))), None), nino, taxYear)
               insertInterestCyaData(Some(InterestCYAModel(
                 None, Some(true), Some(false),
-                Seq(InterestAccountModel(Some(id), firstAccountName, Some(amount), None, Some(id)))
+                Seq(InterestAccountModel(Some(id), firstAccountName, Some(amount), None, Some(id), createdAt = clock.localDateTimeNow()))
               )), taxYear, None, Some(nino))
               authoriseAgentOrIndividual(us.isAgent)
               urlGet(url(id), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
@@ -273,8 +272,8 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
           emptyUserDataStub()
           insertInterestCyaData(Some(InterestCYAModel(
             None, Some(true), Some(false), Seq(
-              InterestAccountModel(Some("differentId"), firstAccountName, Some(amount)),
-              InterestAccountModel(None, secondAccountName, Some(amount), uniqueSessionId = Some(id))
+              InterestAccountModel(Some("differentId"), firstAccountName, Some(amount), createdAt = clock.localDateTimeNow()),
+              InterestAccountModel(None, secondAccountName, Some(amount), uniqueSessionId = Some(id), createdAt = clock.localDateTimeNow())
             ))
           ))
           authoriseAgentOrIndividual(us.isAgent)
@@ -387,8 +386,8 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
             emptyUserDataStub()
             insertInterestCyaData(Some(InterestCYAModel(
               None, Some(true), Some(false), Seq(
-                InterestAccountModel(Some("differentId"), firstAccountName, Some(amount)),
-                InterestAccountModel(None, secondAccountName, Some(amount), uniqueSessionId = Some(id))
+                InterestAccountModel(Some("differentId"), firstAccountName, Some(amount), createdAt = clock.localDateTimeNow()),
+                InterestAccountModel(None, secondAccountName, Some(amount), uniqueSessionId = Some(id), createdAt = clock.localDateTimeNow())
               ))
             ))
             authoriseAgentOrIndividual(us.isAgent)
@@ -438,7 +437,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
             dropInterestDB()
             userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel(firstAccountName, id, None, None))), None), nino, taxYear)
             insertInterestCyaData(Some(InterestCYAModel(None, Some(true),None,Seq(
-              InterestAccountModel(None,"name",Some(1234),uniqueSessionId = Some("1234567890"))
+              InterestAccountModel(None,"name",Some(1234),uniqueSessionId = Some("1234567890"), createdAt = clock.localDateTimeNow())
             ))))
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(url("1234567890"), Map(
@@ -460,7 +459,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
             dropInterestDB()
             emptyUserDataStub()
             insertInterestCyaData(Some(InterestCYAModel(None, Some(true),None,Seq(
-              InterestAccountModel(None,"name",Some(1234),Some(1234),uniqueSessionId = Some("1234567890"))
+              InterestAccountModel(None,"name",Some(1234),Some(1234),uniqueSessionId = Some("1234567890"), createdAt = clock.localDateTimeNow())
             ))))
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(url("1234567890"), Map(
@@ -476,8 +475,8 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
             val data = findInterestDb
             data.head shouldBe InterestCYAModel(None, Some(true),None,List(
-              InterestAccountModel(None,firstAccountName,Some(12344.98),uniqueSessionId = data.head.accounts.head.uniqueSessionId),
-              InterestAccountModel(None,"name",None,Some(1234),uniqueSessionId = Some("1234567890"))
+              InterestAccountModel(None,firstAccountName,Some(12344.98),uniqueSessionId = data.head.accounts.head.uniqueSessionId, createdAt = clock.localDateTimeNow()),
+              InterestAccountModel(None,"name",None,Some(1234),uniqueSessionId = Some("1234567890"), createdAt = clock.localDateTimeNow())
             ))
           }
         }
@@ -502,7 +501,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
             val data = findInterestDb
             data shouldBe Some(InterestCYAModel(None, Some(true),None,Seq(
-              InterestAccountModel(None,firstAccountName,Some(12344.98),uniqueSessionId = data.head.accounts.head.uniqueSessionId)
+              InterestAccountModel(None,firstAccountName,Some(12344.98),uniqueSessionId = data.head.accounts.head.uniqueSessionId, createdAt = clock.localDateTimeNow())
             )))
           }
         }

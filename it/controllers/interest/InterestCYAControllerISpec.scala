@@ -27,7 +27,7 @@ import play.api.libs.json.Json
 import play.api.mvc.Headers
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
-import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
+import utils.{IntegrationTest, Clock, InterestDatabaseHelper, ViewHelpers}
 
 class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHelper with ViewHelpers {
 
@@ -288,7 +288,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           val cyaModel = InterestCYAModel(
             None,
             untaxedUkInterest = Some(true),
-            accounts = Seq(InterestAccountModel(Some("id"), "UntaxedBank1", Some(100.00)))
+            accounts = Seq(InterestAccountModel(Some("id"), "UntaxedBank1", Some(100.00), createdAt = clock.localDateTimeNow()))
           )
 
           lazy val result = {
@@ -333,9 +333,9 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
             untaxedUkInterest = Some(true),
             taxedUkInterest = Some(true),
             accounts = Seq(
-              InterestAccountModel(Some("id"), "UntaxedBank1", Some(100.00)),
-              InterestAccountModel(Some("id2"), "TaxedBank1", None, Some(200.00)),
-              InterestAccountModel(Some("id3"), "TaxedBank2", None, Some(400.00))
+              InterestAccountModel(Some("id"), "UntaxedBank1", Some(100.00), createdAt = clock.localDateTimeNow()),
+              InterestAccountModel(Some("id2"), "TaxedBank1", None, Some(200.00), createdAt = clock.localDateTimeNow()),
+              InterestAccountModel(Some("id3"), "TaxedBank2", None, Some(400.00), createdAt = clock.localDateTimeNow())
             )
           )
 
@@ -451,8 +451,8 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
               untaxedUkInterest = Some(true),
               taxedUkInterest = Some(true),
               accounts = Seq(
-                InterestAccountModel(Some("qwerty"), "TSB", Some(100.00)),
-                InterestAccountModel(Some("azerty"), "TSB Account", None, Some(100.00)))
+                InterestAccountModel(Some("qwerty"), "TSB", Some(100.00), createdAt = clock.localDateTimeNow()),
+                InterestAccountModel(Some("azerty"), "TSB Account", None, Some(100.00), createdAt = clock.localDateTimeNow()))
             )
 
             lazy val result = {
@@ -549,7 +549,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
             dropInterestDB()
             emptyUserDataStub()
             insertInterestCyaData(Some(InterestCYAModel(
-              None, Some(false), Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount)))
+              None, Some(false), Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount), createdAt = clock.localDateTimeNow()))
             )), taxYear, Some(mtditid), None)
             authoriseIndividual()
             stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "")
@@ -581,7 +581,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
             insertInterestCyaData(Some(InterestCYAModel(
               None,
               Some(false),
-              Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount)))
+              Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount), createdAt = clock.localDateTimeNow()))
             )))
             authoriseIndividual(None)
             urlPost(s"$appUrl/$taxYear/interest/check-interest", "{}", us.isWelsh, follow = false, playSessionCookie(us.isAgent))
@@ -597,7 +597,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
             insertInterestCyaData(Some(InterestCYAModel(
               None,
               Some(false),
-              Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount)))
+              Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount), createdAt = clock.localDateTimeNow()))
             )))
             authoriseIndividualUnauthorized()
             urlPost(s"$appUrl/$taxYear/interest/check-interest", "{}", us.isWelsh, follow = true, playSessionCookie(us.isAgent))

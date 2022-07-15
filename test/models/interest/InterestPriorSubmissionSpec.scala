@@ -16,11 +16,8 @@
 
 package models.interest
 
-import common.{InterestTaxTypes, SessionValues}
-import models.User
 import play.api.libs.json.{JsArray, JsObject, Json}
-import play.api.mvc.AnyContent
-import utils.UnitTest
+import utils.{StubClock, UnitTest}
 
 class InterestPriorSubmissionSpec extends UnitTest {
 
@@ -75,12 +72,14 @@ class InterestPriorSubmissionSpec extends UnitTest {
       InterestAccountModel(
         Some("qwerty"),
         "TSB Account",
-        taxedAmount = Some(500.00)
+        taxedAmount = Some(500.00),
+        createdAt = StubClock.localDateTimeNow()
       ),
       InterestAccountModel(
         Some("azerty"),
         "Lloyds Savings",
-        untaxedAmount = Some(3000.00)
+        untaxedAmount = Some(3000.00),
+        createdAt = StubClock.localDateTimeNow()
       )
     )
   )
@@ -92,7 +91,8 @@ class InterestPriorSubmissionSpec extends UnitTest {
       InterestAccountModel(
         Some("azerty"),
         "Lloyds Savings",
-        untaxedAmount = Some(3000.00)
+        untaxedAmount = Some(3000.00),
+        createdAt = StubClock.localDateTimeNow()
       )
     )
   )
@@ -104,7 +104,8 @@ class InterestPriorSubmissionSpec extends UnitTest {
       InterestAccountModel(
         Some("qwerty"),
         "TSB Account",
-        taxedAmount = Some(500.00)
+        taxedAmount = Some(500.00),
+        createdAt = StubClock.localDateTimeNow()
       )
     )
   )

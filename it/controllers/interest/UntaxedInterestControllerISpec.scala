@@ -17,7 +17,6 @@
 package controllers.interest
 
 import java.util.UUID
-
 import forms.YesNoForm
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import models.priorDataModels.{IncomeSourcesModel, InterestModel}
@@ -25,7 +24,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
 import play.api.libs.ws.WSResponse
-import utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
+import utils.{IntegrationTest, Clock, InterestDatabaseHelper, ViewHelpers}
 
 class UntaxedInterestControllerISpec extends IntegrationTest with InterestDatabaseHelper with ViewHelpers {
 
@@ -182,7 +181,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
             val interestCYA = InterestCYAModel(
               None,
               Some(true),
-              Some(false),Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(25.00)))
+              Some(false),Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(25.00), createdAt = clock.localDateTimeNow()))
             )
 
             lazy val result = {
@@ -371,7 +370,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
             "redirects to INTEREST CYA page when the cya model is finished" when {
               lazy val interestCYA = InterestCYAModel(
-                None, Some(true), Some(false), Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount)))
+                None, Some(true), Some(false), Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount), createdAt = clock.localDateTimeNow()))
               )
 
               lazy val result: WSResponse = {
@@ -434,7 +433,7 @@ class UntaxedInterestControllerISpec extends IntegrationTest with InterestDataba
 
             "redirects to INTEREST CYA page when the cya model is finished" when {
               lazy val interestCYA = InterestCYAModel(
-                None, Some(true), Some(false), Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount)))
+                None, Some(true), Some(false), Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount), createdAt = clock.localDateTimeNow()))
               )
 
               lazy val result: WSResponse = {

@@ -16,19 +16,10 @@
 
 package utils
 
-import java.time.LocalDateTime
+import java.time.{LocalDateTime, ZoneOffset}
 
-object TypeCaster {
-
-  trait Converter[T] { self =>
-    def convert(v: String): T
-  }
-
-  object Converter {
-    implicit val stringLoader: Converter[String] = (v: String) => v
-    implicit val intLoader: Converter[Int] = (v: String) => v.toInt
-    implicit val booleanLoader: Converter[Boolean] = (v: String) => v.toBoolean
-    implicit val bigDecimalLoader: Converter[BigDecimal] = (v: String) => BigDecimal(v)
-    implicit val localDateTimeLoader: Converter[LocalDateTime] = (v: String) => LocalDateTime.parse(v)
-  }
+trait Clock {
+  def localDateTimeNow(): LocalDateTime = LocalDateTime.now(ZoneOffset.UTC)
 }
+
+object Clock extends Clock

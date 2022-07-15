@@ -16,17 +16,22 @@
 
 package audit
 
-import models.interest.{InterestCYAModel, InterestPriorSubmission}
-import play.api.libs.json.{Json, OWrites}
+import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
+import play.api.libs.json.{Json, OWrites, Writes}
+import utils.JsonUtils.jsonObjNoNulls
 
-case class CreateOrAmendInterestAuditDetail(body: Option[InterestCYAModel],
-                                            prior: Option[InterestPriorSubmission],
-                                            isUpdate: Boolean,
-                                            nino: String,
-                                            mtditid: String,
-                                            userType: String,
-                                            taxYear: Int)
+case class CreateOrAmendInterestAuditDetail(body: Option[InterestCYAModel], prior: Option[InterestPriorSubmission], isUpdate: Boolean, nino: String, mtditid: String, userType: String, taxYear: Int)
 
 object CreateOrAmendInterestAuditDetail {
-  implicit def writes: OWrites[CreateOrAmendInterestAuditDetail] = Json.writes[CreateOrAmendInterestAuditDetail]
+  implicit val writes: OWrites[CreateOrAmendInterestAuditDetail] = OWrites[CreateOrAmendInterestAuditDetail] { model =>
+    (if (model.body.nonEmpty) {
+      Json.obj("body" -> jsonObjNoNulls("gateway" -> model.body.get.gateway).++(Json.obj("untaxedUkInterest" -> model.body.get.untaxedUkInterest, "taxedUkInterest" -> model.body.get.taxedUkInterest, "accounts" -> (if (model.body.get.accounts.nonEmpty) Json.toJson(model.body.get.accounts)(Writes.iterableWrites2[InterestAccountModel, Seq[InterestAccountModel]](implicitly, InterestAccountModel.priorSubmissionWrites)) else Json.obj()))))
+    } else {
+      Json.obj()
+    }).++(if (model.prior.nonEmpty) {
+      Json.obj("prior" -> Json.obj("submissions" -> Json.toJson(model.prior.get.submissions)(Writes.iterableWrites2[InterestAccountModel, Seq[InterestAccountModel]](implicitly, InterestAccountModel.priorSubmissionWrites))))
+    } else {
+      Json.obj()
+    }).++(Json.obj("isUpdate" -> model.isUpdate, "nino" -> model.nino, "mtditid" -> model.mtditid, "userType" -> model.userType, "taxYear" -> model.taxYear))
+  }
 }
