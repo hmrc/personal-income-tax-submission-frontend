@@ -43,7 +43,7 @@ case class DividendsCheckYourAnswersModel(
       case false => true
     }
 
-    if(appConfig.tailoringEnabled) {
+    if(appConfig.dividendsTailoringEnabled) {
       gateway.contains(false) || (gateway.contains(true) && ukDividendsFinished && otherUkDividendsFinished)
     } else {
       ukDividendsFinished && otherUkDividendsFinished
@@ -61,17 +61,60 @@ object DividendsCheckYourAnswersModel {
   
   implicit val formats: OFormat[DividendsCheckYourAnswersModel] = Json.format[DividendsCheckYourAnswersModel]
 
+  private[dividends] def priorityOrderOrNone(priority: Option[BigDecimal], other: Option[BigDecimal], yesNoResult: Boolean): Option[BigDecimal] = {
+    if (yesNoResult) {
+      (priority, other) match {
+        case (Some(priorityValue), _) => Some(priorityValue)
+        case (None, Some(otherValue)) => Some(otherValue)
+        case _ => None
+      }
+    } else {
+      None
+    }
+  }
+
+  def getCyaModel(cya: Option[DividendsCheckYourAnswersModel], prior: Option[DividendsPriorSubmission]): Option[DividendsCheckYourAnswersModel] = {
+    (cya, prior) match {
+      case (Some(cyaData), Some(priorData)) =>
+        val ukDividendsExist = cyaData.ukDividends.getOrElse(priorData.ukDividends.nonEmpty)
+        val otherDividendsExist = cyaData.otherUkDividends.getOrElse(priorData.otherUkDividends.nonEmpty)
+
+        val ukDividendsValue: Option[BigDecimal] = priorityOrderOrNone(cyaData.ukDividendsAmount, priorData.ukDividends, ukDividendsExist)
+        val otherDividendsValue: Option[BigDecimal] = priorityOrderOrNone(cyaData.otherUkDividendsAmount, priorData.otherUkDividends, otherDividendsExist)
+
+        Some(DividendsCheckYourAnswersModel(
+          cyaData.gateway,
+          Some(ukDividendsExist),
+          ukDividendsValue,
+          Some(otherDividendsExist),
+          otherDividendsValue
+        ))
+      case (Some(cyaData), _) => Some(cyaData)
+      case (None, Some(priorData)) =>
+        Some(DividendsCheckYourAnswersModel(
+          Some(true),
+          Some(priorData.ukDividends.nonEmpty),
+          priorData.ukDividends,
+          Some(priorData.otherUkDividends.nonEmpty),
+          priorData.otherUkDividends
+        ))
+      case _ => None
+
+
+    }
+  }
+
   def journey(taxYear: Int)
              (implicit appConfig: AppConfig): QuestionsJourney[DividendsCheckYourAnswersModel] = new QuestionsJourney[DividendsCheckYourAnswersModel] {
     
-    override def firstPage: Call = if(appConfig.tailoringEnabled) gatewayControllerRoute.show(taxYear) else receiveUkDividendsControllerRoute.show(taxYear)
+    override def firstPage: Call = if(appConfig.dividendsTailoringEnabled) gatewayControllerRoute.show(taxYear) else receiveUkDividendsControllerRoute.show(taxYear)
     
-    val gatewayQuestion: DividendsCheckYourAnswersModel => Option[Question] = model => if(appConfig.tailoringEnabled) {
+    val gatewayQuestion: DividendsCheckYourAnswersModel => Option[Question] = model => if(appConfig.dividendsTailoringEnabled) {
       Some(WithoutDependency(model.gateway, gatewayControllerRoute.show(taxYear)))
     } else {
       None
     }
-    val receiveUkDividendsQuestion: DividendsCheckYourAnswersModel => Option[Question] = model => if(appConfig.tailoringEnabled) {
+    val receiveUkDividendsQuestion: DividendsCheckYourAnswersModel => Option[Question] = model => if(appConfig.dividendsTailoringEnabled) {
       Some(WithDependency(
         model.ukDividends,
         model.gateway, receiveUkDividendsControllerRoute.show(taxYear),

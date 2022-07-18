@@ -74,7 +74,7 @@ class InterestCYAController @Inject()(
 
   def submit(taxYear: Int): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
     interestSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
-      if(appConfig.tailoringEnabled && cya.flatMap(_.gateway).contains(false)) {
+      if(appConfig.interestTailoringEnabled && cya.flatMap(_.gateway).contains(false)) {
         excludeJourneyService.excludeJourney(INTEREST.stringify, taxYear, user.nino).flatMap {
           case Right(_) => performSubmission(taxYear, cya, prior)
           case Left(_) => errorHandler.futureInternalServerError()

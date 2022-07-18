@@ -16,7 +16,8 @@
 
 package controllers.dividends
 
-import config.{AppConfig, DIVIDENDS, ErrorHandler}
+import common.IncomeSources
+import config.{AppConfig, DIVIDENDS, ErrorHandler, INTEREST}
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.YesNoForm
@@ -25,6 +26,7 @@ import models.dividends.DividendsCheckYourAnswersModel
 import models.question.QuestionsJourney
 import play.api.data.Form
 import play.api.i18n.I18nSupport
+import play.api.i18n.Lang.logger
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.DividendsSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -51,7 +53,7 @@ class DividendsGatewayController @Inject()(
   private def internalError(implicit user: User[_]): Result = errorHandler.internalServerError()
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
-    if(appConfig.tailoringEnabled) {
+    if(appConfig.dividendsTailoringEnabled) {
       implicit val questionsJourney: QuestionsJourney[DividendsCheckYourAnswersModel] = DividendsCheckYourAnswersModel.journey(taxYear)
 
       session.getSessionData(taxYear).map {
@@ -72,48 +74,39 @@ class DividendsGatewayController @Inject()(
     }
   }
 
-  def createOrUpdateDividendsData(
-                                   dividendsCyaModel: DividendsCheckYourAnswersModel,
-                                   taxYear: Int,
-                                   isUpdate: Boolean
-                                 )(redirect: Result)(implicit user: User[_]): Future[Result] = {
-    if (isUpdate) {
-      session.updateSessionData(dividendsCyaModel, taxYear)(internalError)(redirect)
-    } else {
-      session.createSessionData(dividendsCyaModel, taxYear)(internalError)(redirect)
-    }
-  }
-
+  //noinspection ScalaStyle
   def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
-    if(appConfig.tailoringEnabled) {
+    if(appConfig.dividendsTailoringEnabled) {
       form(user.isAgent).bindFromRequest().fold(formWithErrors => {
         Future.successful(BadRequest(view(formWithErrors, taxYear)))
       }, {
         yesNoValue =>
-
           session.getSessionData(taxYear).flatMap {
             case Left(_) => Future.successful(internalError)
             case Right(sessionData) =>
-              val update = sessionData.nonEmpty
               val dividendsCya = sessionData.flatMap(_.dividends).getOrElse(DividendsCheckYourAnswersModel()).copy(gateway = Some(yesNoValue))
+              val update = sessionData.fold(true)(data => data.dividends.isEmpty)
 
-              if (yesNoValue) {
-                createOrUpdateDividendsData(dividendsCya, taxYear, update)(
-                  if(dividendsCya.isFinished) {
-                    Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))
+              session.updateSessionData(dividendsCya, taxYear, update)(internalError)(
+                if (dividendsCya.isFinished) {
+                  if(!appConfig.dividendsTailoringEnabled || (appConfig.dividendsTailoringEnabled && sessionData.isEmpty)) {
+                  Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))
                   } else {
-                    Redirect(controllers.dividends.routes.ReceiveUkDividendsController.show(taxYear))
+                    val hasNonZeroData: Boolean = (dividendsCya.ukDividendsAmount.exists(_ != 0) || dividendsCya.otherUkDividendsAmount.exists(_ != 0))
+                    if (!yesNoValue && hasNonZeroData) {
+                      Redirect(controllers.routes.ZeroingWarningController.show(taxYear, DIVIDENDS.stringify))
+                    } else {
+                      Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))
+                    }
                   }
-                )
-              } else {
-                Future.successful(Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))) //TODO Redirect to the 0ing warning page when ready
-              }
+                } else {
+                  Redirect(controllers.dividends.routes.ReceiveUkDividendsController.show(taxYear))
+                }
+              )
           }
-
       })
     } else {
       Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
     }
-
   }
 }

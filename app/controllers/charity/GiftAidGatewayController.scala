@@ -51,7 +51,7 @@ class GiftAidGatewayController @Inject()(
   private def internalError(implicit user: User[_]): Result = errorHandler.internalServerError()
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
-    if (appConfig.tailoringEnabled) {
+    if (appConfig.charityTailoringEnabled) {
       session.getSessionData(taxYear).map {
         case Left(_) => errorHandler.internalServerError()
         case Right(sessionData) =>
@@ -81,7 +81,7 @@ class GiftAidGatewayController @Inject()(
   }
 
   def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
-    if (appConfig.tailoringEnabled) {
+    if (appConfig.charityTailoringEnabled) {
       form(user.isAgent).bindFromRequest().fold(formWithErrors => {
         Future.successful(BadRequest(view(formWithErrors, taxYear)))
       }, {

@@ -113,7 +113,6 @@ class InterestGatewayController @Inject()(
                         }
                       }
                     }
-
                     if(!yesNoValue && hasNonZeroData) {
                       Redirect(controllers.routes.ZeroingWarningController.show(taxYear, INTEREST.stringify))
                     } else {

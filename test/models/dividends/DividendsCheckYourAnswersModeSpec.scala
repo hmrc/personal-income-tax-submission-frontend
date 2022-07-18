@@ -32,6 +32,7 @@ class DividendsCheckYourAnswersModeSpec extends UnitTest {
   object TailoringAppConfig extends MockAppConfig {
     override val tailoringEnabled: Boolean = true
     override val interestTailoringEnabled: Boolean = true
+    override val dividendsTailoringEnabled: Boolean = true
   }
   
   val jsonMax: JsObject = Json.obj(

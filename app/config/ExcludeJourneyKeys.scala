@@ -19,5 +19,6 @@ package config
 object ExcludeJourneyKeys {
 
   val INTEREST = "interest"
+  val DIVIDENDS = "dividends"
 
 }

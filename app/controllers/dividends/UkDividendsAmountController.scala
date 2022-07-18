@@ -75,6 +75,7 @@ class UkDividendsAmountController @Inject()(
     implicit val questionsJourney: QuestionsJourney[DividendsCheckYourAnswersModel] = DividendsCheckYourAnswersModel.journey(taxYear)
 
     dividendsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (optionalCya, optionalPrior) =>
+      Future(
       questionHelper.validate(controllers.dividends.routes.UkDividendsAmountController.show(taxYear), optionalCya, taxYear) {
         val cyaUkDividendAmount: Option[BigDecimal] = optionalCya.flatMap(_.ukDividendsAmount)
 
@@ -88,14 +89,14 @@ class UkDividendsAmountController @Inject()(
           case _ => Ok(view(form(user.isAgent, taxYear), taxYear = taxYear))
         }
       }
-
+      )
     }
   }
 
   def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, DIVIDENDS)).async { implicit user =>
 
     dividendsSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (optionalCya, optionalPrior) =>
-      form(user.isAgent, taxYear).bindFromRequest().fold(
+      Future(form(user.isAgent, taxYear).bindFromRequest().fold(
         {
           formWithErrors => Future.successful(BadRequest(view(
             formWithErrors, taxYear = taxYear, preAmount = optionalCya.flatMap(_.ukDividendsAmount)
@@ -114,7 +115,7 @@ class UkDividendsAmountController @Inject()(
                 )
             }
         }
-      )
+      ))
     }.flatten
   }
 

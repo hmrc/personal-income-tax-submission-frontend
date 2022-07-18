@@ -74,8 +74,10 @@ class OtherUkDividendsAmountController @Inject()(
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
     implicit val questionsJourney: QuestionsJourney[DividendsCheckYourAnswersModel] = DividendsCheckYourAnswersModel.journey(taxYear)
 
+
+
     dividendsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
-      questionHelper.validate(controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear), cya, taxYear) {
+      Future.successful(questionHelper.validate(controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear), cya, taxYear) {
         val cyaOtherDividendAmount: Option[BigDecimal] = cya.flatMap(_.otherUkDividendsAmount)
 
         val amountForm = cyaOtherDividendAmount match {
@@ -87,7 +89,7 @@ class OtherUkDividendsAmountController @Inject()(
           case Some(cya) => Ok(view(amountForm, taxYear = taxYear, preAmount = cya.otherUkDividendsAmount))
           case _ => Ok(view(form(user.isAgent, taxYear), taxYear = taxYear))
         }
-      }
+      })
     }
   }
 
@@ -97,19 +99,19 @@ class OtherUkDividendsAmountController @Inject()(
 
       form(user.isAgent, taxYear).bindFromRequest().fold(
         {
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, taxYear = taxYear,
-            preAmount = previousAmount)))
+          formWithErrors => Future.successful(Future.successful(BadRequest(view(formWithErrors, taxYear = taxYear,
+            preAmount = previousAmount))))
         },
         {
           bigDecimal =>
             cya.fold {
-              Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+              Future.successful(Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))))
             } {
               cyaModel =>
                 dividendsSessionService.updateSessionData(cyaModel.copy(otherUkDividendsAmount = Some(bigDecimal)), taxYear)(
-                  InternalServerError(errorHandler.internalServerErrorTemplate)
+                  Future.successful(InternalServerError(errorHandler.internalServerErrorTemplate))
                 )(
-                  Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))
+                  Future.successful(Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear)))
                 )
             }
         }
