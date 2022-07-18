@@ -74,7 +74,7 @@ class GiftAidDonationsController @Inject()(
       {
         yesNoForm =>
           giftAidSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
-            val defaultGateWayValue = if(appConfig.tailoringEnabled) None else Some(true)
+            val defaultGateWayValue = if(appConfig.charityTailoringEnabled) None else Some(true)
 
             val priorData: Option[BigDecimal] = prior.flatMap(_.giftAidPayments.flatMap(_.currentYear))
             val updatedModel: GiftAidCYAModel = cya.getOrElse(GiftAidCYAModel(gateway = defaultGateWayValue)).copy(donationsViaGiftAid = Some(yesNoForm))

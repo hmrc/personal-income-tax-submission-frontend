@@ -50,6 +50,7 @@ class ReceiveOtherUkDividendsController @Inject()(
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
     dividendsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
+      Future(
       prior match {
         case Some(prior) if prior.otherUkDividends.nonEmpty => Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))
         case _ =>
@@ -59,6 +60,7 @@ class ReceiveOtherUkDividendsController @Inject()(
             Ok(receiveOtherDividendsView(cya.flatMap(_.otherUkDividends).fold(yesNoForm(user.isAgent))(yesNoForm(user.isAgent).fill), taxYear))
           }
       }
+      )
     }
   }
 

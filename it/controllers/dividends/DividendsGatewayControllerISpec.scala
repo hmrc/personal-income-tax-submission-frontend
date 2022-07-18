@@ -16,7 +16,8 @@
 
 package controllers.dividends
 
-import models.dividends.DividendsCheckYourAnswersModel
+import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
+import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
@@ -50,6 +51,8 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
 
     val yesRedirectUrl = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/dividends-from-uk-companies"
     val noRedirectUrl = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends"
+    val zeroWarningUrl = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/change-information"
+
   }
 
   object CommonExpectedResultsEN extends CommonExpectedResults {
@@ -183,7 +186,10 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
               authoriseAgentOrIndividual(scenario.isAgent)
               dropDividendsDB()
               emptyUserDataStub()
-              route(appWithTailoring, request, Json.obj("value" -> "true")).get
+              insertDividendsCyaData(Some(DividendsCheckYourAnswersModel(
+                gateway = Some(true)
+              )))
+              route(appWithTailoring, request, Json.obj("value" -> true)).get
             }
 
             "has a status of SEE_OTHER(303)" in {
@@ -191,7 +197,7 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
             }
 
             "has the correct redirect location" in {
-              await(result).header.headers("Location") shouldBe yesRedirectUrl
+              await(result).header.headers("location") shouldBe yesRedirectUrl
             }
 
           }
@@ -226,11 +232,15 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
 
         "the user submits a no" should {
 
-          "redirect the user to the CYA page" which { //TODO this will need updating once the 0ing page and flow is implemented
+          "redirect the user to the zero warning page" which { //needs to redirect to the zero warning page when it is built
             lazy val result = {
               authoriseAgentOrIndividual(scenario.isAgent)
               dropDividendsDB()
-              emptyUserDataStub()
+              insertDividendsCyaData(
+                Some(DividendsCheckYourAnswersModel(
+                  ukDividends = Some(true),
+                  ukDividendsAmount = Some(100),
+                  gateway = Some(true))))
               route(appWithTailoring, request, Json.obj("value" -> "false")).get
             }
 
@@ -239,7 +249,7 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
             }
 
             "has the correct redirect location" in {
-              await(result).header.headers("Location") shouldBe noRedirectUrl
+              await(result).header.headers("Location") shouldBe zeroWarningUrl
             }
           }
 

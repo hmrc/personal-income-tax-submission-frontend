@@ -660,6 +660,10 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
             ), "{}")
 
             await(route(appWithTailoring, request, "{}").get)
+
+          }
+          "has a status of 500" in {
+            result.header.status shouldBe INTERNAL_SERVER_ERROR
           }
         }
 
