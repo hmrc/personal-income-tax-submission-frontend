@@ -46,7 +46,7 @@ class ErrorHandlerISpec extends IntegrationTest with ViewHelpers {
 
     "return a ServiceUnavailable when passed a SERVICE_UNAVAILABLE 503" in {
 
-
+      
       val result: Future[Result] = Future.successful(errorHandler.handleError(503)(FakeRequest()))
 
       bodyOf(result) should include("Sorry, the service is unavailable")

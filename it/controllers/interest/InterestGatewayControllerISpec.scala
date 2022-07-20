@@ -20,7 +20,6 @@ import models.interest.InterestCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
-import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
 import play.mvc.Http.HeaderNames
@@ -196,7 +195,7 @@ class InterestGatewayControllerISpec extends IntegrationTest with InterestDataba
               authoriseAgentOrIndividual(us.isAgent)
               dropInterestDB()
               emptyUserDataStub()
-              route(appWithTailoring, request, Json.obj("value" -> "error")).get
+              route(appWithTailoring, request, Map("value" -> Seq("error"))).get
             }
 
             implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
@@ -233,7 +232,7 @@ class InterestGatewayControllerISpec extends IntegrationTest with InterestDataba
           authoriseAgentOrIndividual(user.isAgent)
           dropInterestDB()
           emptyUserDataStub()
-          route(appWithTailoring, request, Json.obj("value" -> true)).get
+          route(appWithTailoring, request, Map("value" -> Seq("true"))).get
         }
 
         "has the status SEE_OTHER (303)" in {
@@ -254,7 +253,7 @@ class InterestGatewayControllerISpec extends IntegrationTest with InterestDataba
             dropInterestDB()
             insertInterestCyaData(Some(InterestCYAModel(gateway = Some(false))))
             emptyUserDataStub()
-            route(appWithTailoring, request, Json.obj("value" -> true)).get
+            route(appWithTailoring, request, Map("value" -> Seq("true"))).get
           }
 
           "has a status of SEE_OTHER (303" in {
@@ -275,7 +274,7 @@ class InterestGatewayControllerISpec extends IntegrationTest with InterestDataba
             authoriseAgentOrIndividual(user.isAgent)
             dropInterestDB()
             emptyUserDataStub()
-            route(appWithTailoring, request, Json.obj("value" -> false)).get
+            route(appWithTailoring, request, Map("value" -> Seq("false"))).get
           }
 
           "has a status of SEE_OTHER (303)" in {

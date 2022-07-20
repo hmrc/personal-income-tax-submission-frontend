@@ -16,7 +16,6 @@
 
 package controllers
 
-import common.PageLocations.Interest
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -243,7 +242,7 @@ class ZeroingWarningControllerISpec extends IntegrationTest
           val request = FakeRequest(
             "POST",
             url("interest", needExplicit = false)
-          ).withHeaders((playSessionCookie(isEoy = true) ++ Seq("Csrf-Token" -> "nocheck")): _*)
+          ).withHeaders(playSessionCookie(isEoy = true) ++ Seq("Csrf-Token" -> "nocheck"): _*)
 
           route(appWithTailoring, request, "{}").get
         }
@@ -274,7 +273,7 @@ class ZeroingWarningControllerISpec extends IntegrationTest
           val request = FakeRequest(
             "POST",
             url("interest", needExplicit = false)
-          ).withHeaders((playSessionCookie(isEoy = true) ++ Seq("Csrf-Token" -> "nocheck")): _*)
+          ).withHeaders(playSessionCookie(isEoy = true) ++ Seq("Csrf-Token" -> "nocheck"): _*)
 
           route(appWithTailoring, request, "{}").get
         }
