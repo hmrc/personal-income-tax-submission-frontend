@@ -16,8 +16,7 @@
 
 package controllers.dividends
 
-import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
-import models.priorDataModels.IncomeSourcesModel
+import models.dividends.DividendsCheckYourAnswersModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
@@ -96,7 +95,7 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
     override val errorText: String = "Dewiswch ‘Iawn’ os cafodd eich cleient ddifidendau o gyfranddaliadau"
   }
 
-  val userScenarios = Seq(
+  private val userScenarios = Seq(
     UserScenario(isWelsh = false, isAgent = false, commonExpectedResults = CommonExpectedResultsEN, Some(IndividualResultsEN)),
     UserScenario(isWelsh = false, isAgent = true, commonExpectedResults = CommonExpectedResultsEN, Some(AgentResultsEN)),
     UserScenario(isWelsh = true, isAgent = false, commonExpectedResults = CommonExpectedResultsCY, Some(IndividualResultsCY)),
@@ -189,7 +188,7 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
               insertDividendsCyaData(Some(DividendsCheckYourAnswersModel(
                 gateway = Some(true)
               )))
-              route(appWithTailoring, request, Json.obj("value" -> true)).get
+              route(appWithTailoring, request, Map("value" -> Seq("true"))).get
             }
 
             "has a status of SEE_OTHER(303)" in {
@@ -215,7 +214,7 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
                 gateway = Some(false)
               )))
               emptyUserDataStub()
-              route(appWithTailoring, request, Json.obj("value" -> "true")).get
+              route(appWithTailoring, request, Map("value" -> Seq("true"))).get
             }
 
             "has a status of SEE_OTHER(303)" in {
@@ -241,7 +240,7 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
                   ukDividends = Some(true),
                   ukDividendsAmount = Some(100),
                   gateway = Some(true))))
-              route(appWithTailoring, request, Json.obj("value" -> "false")).get
+              route(appWithTailoring, request, Map("value" -> Seq("false"))).get
             }
 
             "has a status of SEE_OTHER(303)" in {

@@ -370,21 +370,6 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
     }
   }
 
-  def response(
-                cya: Option[GiftAidCYAModel] = None,
-                prior: Option[GiftAidSubmissionModel] = None
-              ): WSResponse = {
-    val priorModel = IncomeSourcesModel(giftAid = prior)
-
-    dropGiftAidDB()
-
-    userDataStub(priorModel, nino, taxYear)
-    insertGiftAidCyaData(cya)
-
-    authoriseIndividual()
-    await(wsClient.url(url).withFollowRedirects(false).withHttpHeaders(xSessionId, csrfContent).get())
-  }
-
   ".show" when {
 
     userScenarios.foreach { user =>

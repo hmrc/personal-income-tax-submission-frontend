@@ -93,7 +93,7 @@ class GiftAidGatewayControllerISpec extends IntegrationTest with ViewHelpers wit
     override val errorText: String = "Dewiswch ‘Iawn’ os gwnaeth eich cleient gyfrannu at elusen"
   }
 
-  val userScenarios = Seq(
+  private val userScenarios = Seq(
     UserScenario(isWelsh = false, isAgent = false, commonExpectedResults = CommonExpectedResultsEN, Some(IndividualResultsEN)),
     UserScenario(isWelsh = false, isAgent = true, commonExpectedResults = CommonExpectedResultsEN, Some(AgentResultsEN)),
     UserScenario(isWelsh = true, isAgent = false, commonExpectedResults = CommonExpectedResultsCY, Some(IndividualResultsCY)),
@@ -183,7 +183,7 @@ class GiftAidGatewayControllerISpec extends IntegrationTest with ViewHelpers wit
               authoriseAgentOrIndividual(scenario.isAgent)
               dropGiftAidDB()
               emptyUserDataStub()
-              route(appWithTailoring, request, Json.obj("value" -> "true")).get
+              route(appWithTailoring, request, Map("value" -> Seq("true"))).get
             }
 
             "has a status of SEE_OTHER(303)" in {
@@ -209,7 +209,7 @@ class GiftAidGatewayControllerISpec extends IntegrationTest with ViewHelpers wit
                 gateway = Some(false)
               )))
               emptyUserDataStub()
-              route(appWithTailoring, request, Json.obj("value" -> "true")).get
+              route(appWithTailoring, request, Map("value" -> Seq("true"))).get
             }
 
             "has a status of SEE_OTHER(303)" in {
@@ -231,7 +231,7 @@ class GiftAidGatewayControllerISpec extends IntegrationTest with ViewHelpers wit
               authoriseAgentOrIndividual(scenario.isAgent)
               dropGiftAidDB()
               emptyUserDataStub()
-              route(appWithTailoring, request, Json.obj("value" -> "false")).get
+              route(appWithTailoring, request, Map("value" -> Seq("false"))).get
             }
 
             "has a status of SEE_OTHER(303)" in {

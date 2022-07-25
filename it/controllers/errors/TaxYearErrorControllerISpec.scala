@@ -23,6 +23,7 @@ import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status.OK
 import play.api.libs.ws.WSResponse
+import uk.gov.hmrc.http.SessionKeys
 import utils.{IntegrationTest, ViewHelpers}
 
 class TaxYearErrorControllerISpec extends IntegrationTest with ViewHelpers {
@@ -83,6 +84,7 @@ class TaxYearErrorControllerISpec extends IntegrationTest with ViewHelpers {
         "render the page with the right content with multiple tax years in session" which {
 
           lazy val playSessionCookie = PlaySessionCookieBaker.bakeSessionCookie(Map(
+            SessionKeys.authToken -> "mock-bearer-token",
             SessionValues.TAX_YEAR -> taxYear.toString,
             SessionValues.VALID_TAX_YEARS -> validTaxYearList.mkString(",")
           ))
@@ -113,6 +115,7 @@ class TaxYearErrorControllerISpec extends IntegrationTest with ViewHelpers {
         "render the page with the right content with a single tax years in session" which {
 
           lazy val playSessionCookie = PlaySessionCookieBaker.bakeSessionCookie(Map(
+            SessionKeys.authToken -> "mock-bearer-token",
             SessionValues.TAX_YEAR -> taxYear.toString,
             SessionValues.VALID_TAX_YEARS -> singleValidTaxYear.mkString(",")
           ))

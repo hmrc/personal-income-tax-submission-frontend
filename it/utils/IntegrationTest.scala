@@ -17,7 +17,6 @@
 package utils
 
 import java.time.LocalDate
-
 import akka.actor.ActorSystem
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import common.SessionValues
@@ -48,7 +47,7 @@ import services.AuthService
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import views.html.authErrorPages.AgentAuthErrorPageView
 
 import scala.concurrent.duration.Duration
@@ -57,6 +56,7 @@ import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
 trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerPerSuite with WireMockHelper
   with BeforeAndAfterAll {
 
+  val authorizationHeader: (String, String) = HeaderNames.AUTHORIZATION -> "mock-bearer-token"
   private val dateNow: LocalDate = LocalDate.now()
   private val taxYearCutoffDate: LocalDate = LocalDate.parse(s"${dateNow.getYear}-04-05")
 
@@ -171,7 +171,8 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "microservice.services.sign-in.url" -> s"/auth-login-stub/gg-sign-in"
   )
 
-  def config(tailoring: Boolean = false, interestTailoring: Boolean = false, dividendsTailoring: Boolean = false, charityTailoringEnabled:Boolean = false): Map[String, Any] = commonConfig ++ Map(
+  def config(tailoring: Boolean = false, interestTailoring: Boolean = false, dividendsTailoring: Boolean = false,
+             charityTailoringEnabled:Boolean = false): Map[String, Any] = commonConfig ++ Map(
     "taxYearChangeResetsSession" -> false,
     "useEncryption" -> true,
     "defaultTaxYear" -> taxYear,
@@ -249,6 +250,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     {
       if (agent) {
         Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(extraData ++ Map(
+          SessionKeys.authToken -> "mock-bearer-token",
           SessionValues.TAX_YEAR -> (if(isEoy) taxYearEOY else taxYear).toString,
           SessionValues.VALID_TAX_YEARS -> validTaxYears.mkString(","),
           SessionValues.CLIENT_NINO -> "AA123456A",
@@ -256,6 +258,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
         )
       } else {
         Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(extraData ++ Map(
+          SessionKeys.authToken -> "mock-bearer-token",
           SessionValues.TAX_YEAR -> (if(isEoy) taxYearEOY else taxYear).toString,
           SessionValues.VALID_TAX_YEARS -> validTaxYears.mkString(","))),
           "mtditid" -> mtditid
