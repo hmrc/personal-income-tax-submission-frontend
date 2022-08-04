@@ -27,7 +27,7 @@ import scala.concurrent.Future
 class ExcludeJourneyService @Inject()(connector: ExcludeJourneyConnector) {
 
   def excludeJourney(journeyKey: String, taxYear: Int, nino: String)(implicit user: User[_], hc: HeaderCarrier): Future[ExcludeJourneyResponse] = {
-    connector.excludeJourney(journeyKey, taxYear, nino)(hc.withExtraHeaders("mtditid" -> user.mtditid))
+    connector.excludeJourney(journeyKey, taxYear, nino)(hc.withExtraHeaders("mtditid" -> user.mtditid)) //test test
   }
 
 }
