@@ -29,7 +29,7 @@ object ExcludeJourneyHttpParser extends APIParser {
   override val parserName: String = "ExcludeJourneyHttpParser"
   override val service: String = "income-tax-submission"
 
-  implicit object GiftAidSubmissionResponseReads extends HttpReads[ExcludeJourneyResponse] {
+  implicit object ExcludeJourneyResponseReads extends HttpReads[ExcludeJourneyResponse] {
     override def read(method: String, url: String, response: HttpResponse): ExcludeJourneyResponse = {
       response.status match  {
         case NO_CONTENT => Right(NO_CONTENT)
