@@ -25,7 +25,7 @@ import models.charity.{CharityNameModel, DecodedGiftAidSubmissionPayload, GiftAi
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.{GiftAidSessionService, GiftAidSubmissionService, NrsService}
+import services.{ExcludeJourneyService, GiftAidSessionService, GiftAidSubmissionService, NrsService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -35,8 +35,7 @@ import views.html.charity.GiftAidCYAView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class GiftAidCYAController @Inject()(
-                                      implicit mcc: MessagesControllerComponents,
+class GiftAidCYAController @Inject()(implicit mcc: MessagesControllerComponents,
                                       authorisedAction: AuthorisedAction,
                                       auditService: AuditService,
                                       appConfig: AppConfig,
@@ -44,7 +43,8 @@ class GiftAidCYAController @Inject()(
                                       giftAidSubmissionService: GiftAidSubmissionService,
                                       errorHandler: ErrorHandler,
                                       giftAidSessionService: GiftAidSessionService,
-                                      nrsService: NrsService
+                                      nrsService: NrsService,
+                                      excludeJourneyService: ExcludeJourneyService
                                     ) extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
   lazy val logger: Logger = Logger(this.getClass.getName)
@@ -73,26 +73,10 @@ class GiftAidCYAController @Inject()(
       cya.fold(
         Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
       ) { model =>
-        val submissionModel = GiftAidSubmissionModel(
-          Some(GiftAidPaymentsModel(
-            model.overseasDonationsViaGiftAidAmount,
-            if (model.overseasCharityNames.isEmpty) None else Some(model.overseasCharityNames.map(_.name).toList),
-            model.donationsViaGiftAidAmount,
-            model.addDonationToLastYearAmount,
-            model.addDonationToThisYearAmount,
-            model.oneOffDonationsViaGiftAidAmount
-          )),
-          Some(GiftsModel(
-            model.overseasDonatedSharesSecuritiesLandOrPropertyAmount,
-            if (model.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.isEmpty) {
-              None
-            } else {
-              Some(model.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.toList.map(_.name))
-            },
-            model.donatedSharesOrSecuritiesAmount, model.donatedLandOrPropertyAmount
-          ))
-        )
-
+        if (appConfig.charityTailoringEnabled && model.gateway.contains(false)) {
+          excludeJourneyService.excludeJourney(GIFT_AID.stringify, taxYear, user.nino)
+        }
+        val submissionModel = createNewSubmissionModel(model)
         if (comparePriorData(model, prior)) {
           logger.info("[GiftAidCYAController][submit] User has made Gift Aid Data Changes, " +
             "Submitting data to DES.")
@@ -119,6 +103,28 @@ class GiftAidCYAController @Inject()(
         }
       }
     }.flatten
+  }
+
+  private def createNewSubmissionModel(model: GiftAidCYAModel): GiftAidSubmissionModel ={
+    GiftAidSubmissionModel(
+      Some(GiftAidPaymentsModel(
+        model.overseasDonationsViaGiftAidAmount,
+        if (model.overseasCharityNames.isEmpty) None else Some(model.overseasCharityNames.map(_.name).toList),
+        model.donationsViaGiftAidAmount,
+        model.addDonationToLastYearAmount,
+        model.addDonationToThisYearAmount,
+        model.oneOffDonationsViaGiftAidAmount
+      )),
+      Some(GiftsModel(
+        model.overseasDonatedSharesSecuritiesLandOrPropertyAmount,
+        if (model.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.isEmpty) {
+          None
+        } else {
+          Some(model.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.toList.map(_.name))
+        },
+        model.donatedSharesOrSecuritiesAmount, model.donatedLandOrPropertyAmount
+      ))
+    )
   }
 
   private def auditSubmission(details: CreateOrAmendGiftAidAuditDetail)
@@ -155,7 +161,21 @@ class GiftAidCYAController @Inject()(
   private def comparePriorData(cyaData: GiftAidCYAModel, priorData: Option[GiftAidSubmissionModel]): Boolean = {
     priorData match {
       case None => true
-      case Some(prior) => !cyaData.equals(generateCyaFromPrior(prior))
+      case Some(prior) =>
+        val cyaFromPrior = generateCyaFromPrior(prior)
+
+        val comparisonCyaData = cyaData.copy(
+          overseasCharityNames = cyaData.overseasCharityNames.map(names => names.copy(id = "")),
+          overseasDonatedSharesSecuritiesLandOrPropertyCharityNames =
+            cyaData.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.map(names => names.copy(id = ""))
+        )
+
+        val comparisonCyaFromPrior = cyaFromPrior.copy(
+          overseasCharityNames = cyaFromPrior.overseasCharityNames.map(names => names.copy(id = "")),
+          overseasDonatedSharesSecuritiesLandOrPropertyCharityNames =
+            cyaFromPrior.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames.map(names => names.copy(id = ""))
+        )
+        !comparisonCyaData.equals(comparisonCyaFromPrior)
     }
   }
 

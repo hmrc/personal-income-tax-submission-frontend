@@ -32,9 +32,13 @@
     if(user.isAgent) ".agent" else ".individual"
 }
 
+@caption = @{
+    if(journeyKey.equals("gift-aid")) "charity" else s"$journeyKey"
+}
+
 @layout(messages("zeroing.title" + agentOrIndividual)) {
 
-    @heading(messages("zeroing.title" + agentOrIndividual), Some(messages(s"$journeyKey.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
+    @heading(messages("zeroing.title" + agentOrIndividual), Some(messages(caption + ".caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
 
     @p(Html(messages("zeroing.p.1" + agentOrIndividual)), "govuk-body")
     @p(Html(messages("zeroing.p.2")), "govuk-body govuk-!-margin-bottom-8")

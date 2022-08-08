@@ -248,7 +248,6 @@ class GiftAidDonationsControllerISpec extends CharityITHelper {
         "update the cya data" in {
           findGiftAidDb shouldBe
             Some(GiftAidCYAModel(
-              gateway = Some(true),
               donationsViaGiftAid = Some(false),
               oneOffDonationsViaGiftAid = None,
               overseasDonationsViaGiftAid = None,
@@ -267,7 +266,7 @@ class GiftAidDonationsControllerISpec extends CharityITHelper {
       }
 
       "update the cya data" in {
-        findGiftAidDb shouldBe Some(GiftAidCYAModel(gateway = Some(true), donationsViaGiftAid = Some(true)))
+        findGiftAidDb shouldBe Some(GiftAidCYAModel( donationsViaGiftAid = Some(true)))
       }
     }
   }

@@ -54,7 +54,6 @@ class GiftAidDonatedAmountController @Inject()(
       case Some(cyaValue) => form(user.isAgent, taxYear).fill(cyaValue)
       case _ => form(user.isAgent, taxYear)
     }
-    println("handled redirect")
 
     cya.donationsViaGiftAid match {
       case Some(true) => determineResult(
@@ -81,7 +80,6 @@ class GiftAidDonatedAmountController @Inject()(
       cya match {
         case Some(cyaData) => handleRedirect(taxYear, cyaData, prior, fromShow = true)
         case _ =>
-          println("redirected in show function")
           redirectToOverview(taxYear)
       }
     }

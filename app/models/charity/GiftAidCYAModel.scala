@@ -16,6 +16,7 @@
 
 package models.charity
 
+import models.charity.prior.GiftAidSubmissionModel
 import play.api.libs.json.{Json, OFormat}
 import utils.EncryptedValue
 
@@ -86,6 +87,19 @@ case class GiftAidCYAModel(
     } else {
       gateway.contains(false)
     }
+  }
+
+  def zeroData: GiftAidCYAModel = {
+    this.copy(
+      donationsViaGiftAidAmount = donationsViaGiftAidAmount.map(_ => 0),
+      oneOffDonationsViaGiftAidAmount = oneOffDonationsViaGiftAidAmount.map(_ => 0),
+      overseasDonationsViaGiftAidAmount = overseasDonationsViaGiftAidAmount.map(_ => 0),
+      addDonationToLastYearAmount = addDonationToLastYearAmount.map(_ => 0),
+      addDonationToThisYearAmount = addDonationToThisYearAmount.map(_ => 0),
+      donatedSharesOrSecuritiesAmount = donatedSharesOrSecuritiesAmount.map(_ => 0),
+      donatedLandOrPropertyAmount = donatedLandOrPropertyAmount.map(_ => 0),
+      overseasDonatedSharesSecuritiesLandOrPropertyAmount = overseasDonatedSharesSecuritiesLandOrPropertyAmount.map(_ => 0)
+    )
   }
 
   def hasAllRequiredAnswers: Boolean = addDonationToThisYear.nonEmpty &&

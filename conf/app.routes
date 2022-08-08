@@ -150,11 +150,11 @@ POST        /:taxYear/charity/charity-donations-to-charity                      
 
 GET         /:taxYear/interest/change-information                                                             controllers.ZeroingWarningController.show(taxYear: Int, journeyKey =  "interest")
 GET         /:taxYear/dividends/change-information                                                            controllers.ZeroingWarningController.show(taxYear: Int, journeyKey =  "dividends")
-GET         /:taxYear/charity/change-information                                                              controllers.ZeroingWarningController.show(taxYear: Int, journeyKey =  "charity")
+GET         /:taxYear/charity/change-information                                                              controllers.ZeroingWarningController.show(taxYear: Int, journeyKey =  "gift-aid")
 
 POST        /:taxYear/interest/change-information                                                             controllers.ZeroingWarningController.submit(taxYear: Int, journeyKey =  "interest")
 POST        /:taxYear/dividends/change-information                                                            controllers.ZeroingWarningController.submit(taxYear: Int, journeyKey =  "dividends")
-POST        /:taxYear/charity/change-information                                                              controllers.ZeroingWarningController.submit(taxYear: Int, journeyKey =  "charity")
+POST        /:taxYear/charity/change-information                                                              controllers.ZeroingWarningController.submit(taxYear: Int, journeyKey =  "gift-aid")
 
 # Error routes
 
