@@ -16,7 +16,7 @@
 
 package controllers.interest
 
-import audit.{AuditModel, AuditService, CreateOrAmendInterestAuditDetail}
+import audit.{AuditModel, AuditService, CreateOrAmendInterestAuditDetail, TailorRemoveIncomeSourcesAuditDetail, TailorRemoveIncomeSourcesBody}
 import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
@@ -75,6 +75,13 @@ class InterestCYAController @Inject()(
   def submit(taxYear: Int): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
     interestSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
       if(appConfig.interestTailoringEnabled && cya.flatMap(_.gateway).contains(false)) {
+        auditTailorRemoveIncomeSources(TailorRemoveIncomeSourcesAuditDetail(
+          nino = user.nino,
+          mtditid = user.mtditid,
+          userType = user.affinityGroup.toLowerCase,
+          taxYear = taxYear,
+          body = TailorRemoveIncomeSourcesBody(Seq(INTEREST.stringify))
+        ))
         excludeJourneyService.excludeJourney(INTEREST.stringify, taxYear, user.nino).flatMap {
           case Right(_) => performSubmission(taxYear, cya, prior)
           case Left(_) => errorHandler.futureInternalServerError()
@@ -118,6 +125,13 @@ class InterestCYAController @Inject()(
                              (implicit hc: HeaderCarrier,
                               executionContext: ExecutionContext): Future[AuditResult] = {
     val event = AuditModel("CreateOrAmendInterestUpdate", "createOrAmendInterestUpdate", details)
+    auditService.auditModel(event)
+  }
+
+  private def auditTailorRemoveIncomeSources(details: TailorRemoveIncomeSourcesAuditDetail)
+                             (implicit hc: HeaderCarrier,
+                              executionContext: ExecutionContext): Future[AuditResult] = {
+    val event = AuditModel("TailorRemoveIncomeSources", "tailorRemoveIncomeSources", details)
     auditService.auditModel(event)
   }
 

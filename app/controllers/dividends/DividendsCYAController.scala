@@ -16,7 +16,7 @@
 
 package controllers.dividends
 
-import audit.{AuditModel, AuditService, CreateOrAmendDividendsAuditDetail, CreateOrAmendInterestAuditDetail}
+import audit.{AuditModel, AuditService, CreateOrAmendDividendsAuditDetail, CreateOrAmendInterestAuditDetail, TailorRemoveIncomeSourcesAuditDetail, TailorRemoveIncomeSourcesBody}
 import config.{AppConfig, DIVIDENDS, ErrorHandler}
 import connectors.httpParsers.IncomeTaxUserDataHttpParser.IncomeTaxUserDataResponse
 import controllers.predicates.AuthorisedAction
@@ -76,6 +76,13 @@ class DividendsCYAController @Inject()(
   def submit(taxYear: Int): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, DIVIDENDS)).async { implicit user =>
       session.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cyaData, priorData) =>
           if (appConfig.dividendsTailoringEnabled && cyaData.flatMap(_.gateway).contains(false)) {
+            auditTailorRemoveIncomeSources(TailorRemoveIncomeSourcesAuditDetail(
+              nino = user.nino,
+              mtditid = user.mtditid,
+              userType = user.affinityGroup.toLowerCase,
+              taxYear = taxYear,
+              body = TailorRemoveIncomeSourcesBody(Seq(DIVIDENDS.stringify))
+            ))
             excludeJourneyService.excludeJourney(DIVIDENDS.stringify, taxYear, user.nino).flatMap {
               case Right(_) => performSubmission(taxYear, cyaData, priorData)
               case Left(_) => errorHandler.futureInternalServerError()
@@ -120,6 +127,13 @@ class DividendsCYAController @Inject()(
                              (implicit hc: HeaderCarrier,
                               executionContext: ExecutionContext): Future[AuditResult] = {
     val event = AuditModel("CreateOrAmendDividendsUpdate", "createOrAmendDividendsUpdate", details)
+    auditService.auditModel(event)
+  }
+
+  private def auditTailorRemoveIncomeSources(details: TailorRemoveIncomeSourcesAuditDetail)
+                                            (implicit hc: HeaderCarrier,
+                                             executionContext: ExecutionContext): Future[AuditResult] = {
+    val event = AuditModel("TailorRemoveIncomeSources", "tailorRemoveIncomeSources", details)
     auditService.auditModel(event)
   }
 
