@@ -16,7 +16,7 @@
 
 package controllers.charity
 
-import audit.{AuditModel, AuditService, CreateOrAmendGiftAidAuditDetail}
+import audit.{AuditModel, AuditService, CreateOrAmendGiftAidAuditDetail, TailorRemoveIncomeSourcesAuditDetail, TailorRemoveIncomeSourcesBody}
 import config.{AppConfig, ErrorHandler, GIFT_AID}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
@@ -74,6 +74,13 @@ class GiftAidCYAController @Inject()(implicit mcc: MessagesControllerComponents,
         Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
       ) { model =>
         if (appConfig.charityTailoringEnabled && model.gateway.contains(false)) {
+          auditTailorRemoveIncomeSources(TailorRemoveIncomeSourcesAuditDetail(
+            nino = user.nino,
+            mtditid = user.mtditid,
+            userType = user.affinityGroup.toLowerCase,
+            taxYear = taxYear,
+            body = TailorRemoveIncomeSourcesBody(Seq(GIFT_AID.stringify))
+          ))
           excludeJourneyService.excludeJourney(GIFT_AID.stringify, taxYear, user.nino)
         }
         val submissionModel = createNewSubmissionModel(model)
@@ -131,6 +138,13 @@ class GiftAidCYAController @Inject()(implicit mcc: MessagesControllerComponents,
                              (implicit hc: HeaderCarrier,
                               executionContext: ExecutionContext): Future[AuditResult] = {
     val event = AuditModel("CreateOrAmendGiftAidUpdate", "CreateOrAmendGiftAidUpdate", details)
+    auditService.auditModel(event)
+  }
+
+  private def auditTailorRemoveIncomeSources(details: TailorRemoveIncomeSourcesAuditDetail)
+                                            (implicit hc: HeaderCarrier,
+                                             executionContext: ExecutionContext): Future[AuditResult] = {
+    val event = AuditModel("TailorRemoveIncomeSources", "tailorRemoveIncomeSources", details)
     auditService.auditModel(event)
   }
 
