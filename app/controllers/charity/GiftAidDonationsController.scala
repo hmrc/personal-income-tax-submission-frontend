@@ -74,10 +74,9 @@ class GiftAidDonationsController @Inject()(
       {
         yesNoForm =>
           giftAidSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
-            val defaultGateWayValue = if(appConfig.charityTailoringEnabled) None else Some(true)
 
             val priorData: Option[BigDecimal] = prior.flatMap(_.giftAidPayments.flatMap(_.currentYear))
-            val updatedModel: GiftAidCYAModel = cya.getOrElse(GiftAidCYAModel(gateway = defaultGateWayValue)).copy(donationsViaGiftAid = Some(yesNoForm))
+            val updatedModel: GiftAidCYAModel = cya.getOrElse(GiftAidCYAModel()).copy(donationsViaGiftAid = Some(yesNoForm))
 
             if (priorData.isDefined) {
               Future.successful(Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear)))
@@ -87,7 +86,6 @@ class GiftAidDonationsController @Inject()(
                   updatedModel
                 } else {
                   updatedModel.copy(
-                    gateway = defaultGateWayValue,
                     donationsViaGiftAidAmount = None,
                     oneOffDonationsViaGiftAid = None,
                     oneOffDonationsViaGiftAidAmount = None,

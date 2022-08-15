@@ -656,9 +656,9 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
 
         "return a minimal CYA view" when {
 
-          "the CYA model contains all false values" which {
+          "the CYA model contains all false values not gateway" which {
 
-            lazy val result = getResultAsFuture(relativeUrl, Some(cyaDataMin), None, user.isAgent, user.isWelsh)
+            lazy val result = getResultAsFuture(relativeUrl, Some(cyaDataMin.copy(gateway = Some(true))), None, user.isAgent, user.isWelsh)
 
             implicit def document: () => Document = () => Jsoup.parse(contentAsString(result))
 
@@ -674,7 +674,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
 
             //noinspection ScalaStyle
             {
-              cyaRowCheck(madeDonationsToCharity, user.commonExpectedResults.no, controllers.charity.routes.GiftAidGatewayController.show(taxYear).url, user.specificExpectedResults.get.madeDonationsToCharityHidden, 1)
+              cyaRowCheck(madeDonationsToCharity, user.commonExpectedResults.yes, controllers.charity.routes.GiftAidGatewayController.show(taxYear).url, user.specificExpectedResults.get.madeDonationsToCharityHidden, 1)
               cyaRowCheck(donationViaGiftAid, user.commonExpectedResults.no, controllers.charity.routes.GiftAidDonationsController.show(taxYear).url, user.specificExpectedResults.get.donationViaGiftAidHidden, 2)
               cyaRowCheck(thisYear, user.commonExpectedResults.no, controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear).url, thisYearHidden, 3)
               cyaRowCheck(sharesSecurities, user.commonExpectedResults.no, controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(taxYear).url, user.specificExpectedResults.get.sharesSecuritiesHidden, 4)

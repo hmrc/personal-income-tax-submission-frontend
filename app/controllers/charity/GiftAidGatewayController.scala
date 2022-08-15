@@ -86,26 +86,30 @@ class GiftAidGatewayController @Inject()(
         Future.successful(BadRequest(view(formWithErrors, taxYear)))
       }, {
         yesNoValue =>
-
-          session.getSessionData(taxYear).flatMap {
-            case Left(_) => Future.successful(internalError)
-            case Right(sessionData) =>
+          session.getAndHandle(taxYear)(Future.successful(errorHandler.internalServerError())) {
+            case (sessionData, prior) =>
               val update = sessionData.nonEmpty
-              val giftAidCya = sessionData.flatMap(_.giftAid).getOrElse(GiftAidCYAModel()).copy(gateway = Some(yesNoValue))
-
-              if (yesNoValue) {
-                createOrUpdateGiftAidData(giftAidCya, taxYear, update)(
-                  if (giftAidCya.isFinished) {
-                    Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
-                  } else {
-                    Redirect(controllers.charity.routes.GiftAidDonationsController.show(taxYear))
-                  }
-                )
-              } else {
-                Future.successful(Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))) //TODO Redirect to the 0ing warning page when ready
+              val giftAidCya = { if (prior.isEmpty && !yesNoValue) {GiftAidCYAModel().copy(gateway = Some(yesNoValue))}
+                else {sessionData.getOrElse(GiftAidCYAModel()).copy(gateway = Some(yesNoValue))}
               }
-          }
-
+              createOrUpdateGiftAidData(giftAidCya, taxYear, update)(
+                if (giftAidCya.isFinished) {
+                  if (!appConfig.charityTailoringEnabled || (appConfig.charityTailoringEnabled && sessionData.isEmpty)) {
+                    Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
+                  }
+                  else {
+                    if (giftAidCya == giftAidCya.zeroData) {
+                      Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
+                    }
+                    else {
+                      Redirect(controllers.routes.ZeroingWarningController.show(taxYear, GIFT_AID.stringify))
+                    }
+                  }
+                } else {
+                  Redirect(controllers.charity.routes.GiftAidDonationsController.show(taxYear))
+                }
+              )
+          }.flatten
       })
     } else {
       Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))

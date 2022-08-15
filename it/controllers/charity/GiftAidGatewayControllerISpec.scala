@@ -17,6 +17,8 @@
 package controllers.charity
 
 import models.charity.GiftAidCYAModel
+import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
+import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
@@ -67,6 +69,23 @@ class GiftAidGatewayControllerISpec extends IntegrationTest with ViewHelpers wit
     override val noText: String = "Na"
     override val caption: String = s"Rhoddion i elusennau ar gyfer 6 Ebrill ${(taxYear - 1).toString} i 5 Ebrill ${taxYear.toString}"
   }
+
+  val priorData: GiftAidSubmissionModel = GiftAidSubmissionModel(
+    Some(GiftAidPaymentsModel(
+      Some(100.00),
+      Some(List("Jello Corporation")),
+      Some(100.00),
+      Some(100.00),
+      Some(100.00),
+      Some(100.00)
+    )),
+    Some(GiftsModel(
+      Some(100.00),
+      Some(List("Simbas College Fund")),
+      Some(100.00),
+      Some(100.00)
+    ))
+  )
 
   trait SpecificUserTypeResults {
     val heading: String
@@ -224,9 +243,56 @@ class GiftAidGatewayControllerISpec extends IntegrationTest with ViewHelpers wit
 
         }
 
-        "the user submits a no" should {
+        "the user submits a no with prior data but incomplete cya data" should {
 
-          "redirect the user to the CYA page" which { //TODO this will need updating once the 0ing page and flow is implemented
+          "redirect the user to the first charity page" which {
+
+            lazy val result = {
+              authoriseAgentOrIndividual(scenario.isAgent)
+              dropGiftAidDB()
+              emptyUserDataStub()
+              userDataStub(IncomeSourcesModel(None, None, Some(priorData)), nino, taxYear)
+              insertGiftAidCyaData(Some(GiftAidCYAModel(donationsViaGiftAid = Some(true))))
+              route(appWithTailoring, request, Map("value" -> Seq("false"))).get
+            }
+
+            "has a status of SEE_OTHER(303)" in {
+              status(result) shouldBe SEE_OTHER
+            }
+
+            "has the correct redirect location" in {
+              await(result).header.headers("Location") shouldBe controllers.charity.routes.GiftAidCYAController.show(taxYear).url
+            }
+          }
+
+        }
+        "the user submits a no with prior data" should {
+
+          "redirect the user to the zeroWarning page" which {
+
+            lazy val result = {
+              authoriseAgentOrIndividual(scenario.isAgent)
+              dropGiftAidDB()
+              emptyUserDataStub()
+              userDataStub(IncomeSourcesModel(None, None, Some(priorData)), nino, taxYear)
+              insertGiftAidCyaData(Some(completeGiftAidCYAModel))
+              route(appWithTailoring, request, Map("value" -> Seq("false"))).get
+            }
+
+            "has a status of SEE_OTHER(303)" in {
+              status(result) shouldBe SEE_OTHER
+            }
+
+            "has the correct redirect location" in {
+              await(result).header.headers("Location") shouldBe controllers.routes.ZeroingWarningController.show(taxYear, "gift-aid").url
+            }
+          }
+
+        }
+        "the user submits a no without prior data" should {
+
+          "redirect the user to the cyaPage" which {
+
             lazy val result = {
               authoriseAgentOrIndividual(scenario.isAgent)
               dropGiftAidDB()
@@ -239,7 +305,7 @@ class GiftAidGatewayControllerISpec extends IntegrationTest with ViewHelpers wit
             }
 
             "has the correct redirect location" in {
-              await(result).header.headers("Location") shouldBe noRedirectUrl
+              await(result).header.headers("Location") shouldBe controllers.charity.routes.GiftAidCYAController.show(taxYear).url
             }
           }
 

@@ -24,6 +24,7 @@ import forms.interest.UntaxedInterestAmountForm.untaxedAmount
 import models.User
 import models.dividends.DividendsCheckYourAnswersModel
 import models.interest.InterestCYAModel
+import models.charity.GiftAidCYAModel
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import services.{DividendsSessionService, GiftAidSessionService, InterestSessionService}
@@ -58,7 +59,9 @@ class ZeroingWarningController @Inject()(
             controllers.routes.ZeroingWarningController.submit(taxYear, INTEREST.stringify),
             controllers.interest.routes.InterestGatewayController.show(taxYear).url
           )
-        case "charity" => (Call("GET", "#"), controllers.charity.routes.GiftAidGatewayController.show(taxYear).url)
+        case "gift-aid" => (
+          controllers.routes.ZeroingWarningController.submit(taxYear, GIFT_AID.stringify),
+          controllers.charity.routes.GiftAidGatewayController.show(taxYear).url)
       }
     }
 
@@ -70,13 +73,13 @@ class ZeroingWarningController @Inject()(
       journeyKey match {
         case "dividends" => DIVIDENDS
         case "interest" => INTEREST
-        case "charity" => GIFT_AID
+        case "gift-aid" => GIFT_AID
       }
     })
   }
 
   def show(taxYear: Int, journeyKey: String): Action[AnyContent] = zeroingPredicates(taxYear, journeyKey).apply { implicit user =>
-    if (appConfig.interestTailoringEnabled || appConfig.dividendsTailoringEnabled) {
+    if (appConfig.interestTailoringEnabled || appConfig.dividendsTailoringEnabled || appConfig.charityTailoringEnabled) {
       page(taxYear, journeyKey)
     } else {
       Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
@@ -92,8 +95,7 @@ class ZeroingWarningController @Inject()(
       journeyKey match {
         case key@"dividends" => handleDividends(taxYear)
         case "interest" => handleInterest(taxYear)
-        case key@"charity" =>
-          dividendsSession.clear(taxYear)(errorHandler.internalServerError())(onSuccess(key))
+        case key@"gift-aid" => handleCharity(taxYear)
       }
     } else {
       Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
@@ -144,5 +146,22 @@ class ZeroingWarningController @Inject()(
       untaxedUkInterest = Some(zeroedData.accounts.flatMap(_.untaxedAmount).nonEmpty),
       taxedUkInterest = Some(zeroedData.accounts.flatMap(_.taxedAmount).nonEmpty)
     )
+  }
+
+  private[controllers] def handleCharity(taxYear: Int)(implicit user: User[_]): Future[Result] = {
+    giftAidSession.getSessionData(taxYear).flatMap {
+        case Right(userDataModel) =>
+          userDataModel.map(_.giftAid) match {
+            case Some(cyaData) =>
+              cyaData match {
+                case Some(data) => giftAidSession.updateSessionData(data.zeroData, taxYear)(errorHandler.internalServerError()) {
+                  Redirect(controllers.charity.routes.GiftAidCYAController.show(taxYear))
+                }
+                case None => Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+              }
+            case None => Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+          }
+        case _ => Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+      }
   }
 }
