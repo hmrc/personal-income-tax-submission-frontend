@@ -82,6 +82,9 @@ class InterestCYAController @Inject()(
           taxYear = taxYear,
           body = TailorRemoveIncomeSourcesBody(Seq(INTEREST.stringify))
         ))
+        if (appConfig.nrsEnabled) {
+          nrsService.submit(user.nino, TailorRemoveIncomeSourcesBody(Seq(INTEREST.stringify)), user.mtditid)
+        }
         excludeJourneyService.excludeJourney(INTEREST.stringify, taxYear, user.nino).flatMap {
           case Right(_) => performSubmission(taxYear, cya, prior)
           case Left(_) => errorHandler.futureInternalServerError()

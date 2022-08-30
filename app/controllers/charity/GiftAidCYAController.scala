@@ -81,6 +81,9 @@ class GiftAidCYAController @Inject()(implicit mcc: MessagesControllerComponents,
             taxYear = taxYear,
             body = TailorRemoveIncomeSourcesBody(Seq(GIFT_AID.stringify))
           ))
+          if (appConfig.nrsEnabled) {
+            nrsService.submit(user.nino, TailorRemoveIncomeSourcesBody(Seq(GIFT_AID.stringify)), user.mtditid)
+          }
           excludeJourneyService.excludeJourney(GIFT_AID.stringify, taxYear, user.nino)
         }
         val submissionModel = createNewSubmissionModel(model)
