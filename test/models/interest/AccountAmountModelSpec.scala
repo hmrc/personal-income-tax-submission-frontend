@@ -20,23 +20,26 @@ import common.InterestTaxTypes
 import utils.UnitTest
 
 class AccountAmountModelSpec extends UnitTest {
-  val accounts: Seq[InterestAccountModel] = Seq(
+  val untaxedAccounts: Seq[InterestAccountModel] = Seq(
     InterestAccountModel(
       None,
       "TSB Account",
-      untaxedAmount = Some(500.00),
+      amount = Some(500.00),
       uniqueSessionId = Some("1")
     ),
     InterestAccountModel(
       None,
       "Lloyds Savings",
-      untaxedAmount = Some(3000.00),
+      amount = Some(3000.00),
       uniqueSessionId = Some("2")
-    ),
+    )
+  )
+
+  val taxedAccounts: Seq[InterestAccountModel] = Seq(
     InterestAccountModel(
       None,
       "Account 1",
-      taxedAmount = Some(100.01),
+      amount = Some(100.01),
       uniqueSessionId = Some("3")
     )
   )
@@ -46,7 +49,8 @@ class AccountAmountModelSpec extends UnitTest {
       val cyaModel = Some(InterestCYAModel(
         untaxedUkInterest = Some(false),
         taxedUkInterest = Some(true),
-        accounts = accounts
+        untaxedAccounts = untaxedAccounts,
+        taxedAccounts = taxedAccounts
       ))
 
       val accountAmountModel = AccountAmountModel.apply(cyaModel, "3", InterestTaxTypes.TAXED)
@@ -58,7 +62,8 @@ class AccountAmountModelSpec extends UnitTest {
       val cyaModel = Some(InterestCYAModel(
         untaxedUkInterest = Some(false),
         taxedUkInterest = Some(true),
-        accounts = accounts
+        untaxedAccounts = untaxedAccounts,
+        taxedAccounts = taxedAccounts
       ))
 
       val accountAmountModel = AccountAmountModel.apply(cyaModel, "1", InterestTaxTypes.UNTAXED)
@@ -70,7 +75,8 @@ class AccountAmountModelSpec extends UnitTest {
       val cyaModel = Some(InterestCYAModel(
         untaxedUkInterest = Some(false),
         taxedUkInterest = Some(true),
-        accounts = accounts
+        untaxedAccounts = untaxedAccounts,
+        taxedAccounts = taxedAccounts
       ))
 
       val accountAmountModel = AccountAmountModel.apply(cyaModel, "4", InterestTaxTypes.UNTAXED)
@@ -82,7 +88,8 @@ class AccountAmountModelSpec extends UnitTest {
       val cyaModel = Some(InterestCYAModel(
         untaxedUkInterest = Some(false),
         taxedUkInterest = Some(true),
-        accounts = accounts
+        untaxedAccounts = untaxedAccounts,
+        taxedAccounts = taxedAccounts
       ))
 
       val accountAmountModel = AccountAmountModel.apply(cyaModel, "1", InterestTaxTypes.TAXED)
@@ -94,7 +101,8 @@ class AccountAmountModelSpec extends UnitTest {
       val cyaModel = Some(InterestCYAModel(
         untaxedUkInterest = Some(false),
         taxedUkInterest = Some(true),
-        accounts = accounts
+        untaxedAccounts = untaxedAccounts,
+        taxedAccounts = taxedAccounts
       ))
 
       val accountAmountModel = AccountAmountModel.apply(cyaModel, "3", InterestTaxTypes.UNTAXED)

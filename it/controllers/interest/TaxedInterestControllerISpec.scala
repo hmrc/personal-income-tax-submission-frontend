@@ -146,7 +146,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
             val interestCYA = InterestCYAModel(
               None,
               Some(false),
-              Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00)))
+              Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", Some(25.00)))
             )
 
             lazy val result: WSResponse = {
@@ -262,7 +262,9 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
             val interestCYA = InterestCYAModel(
               None,
               Some(false),
-              Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00)))
+              Some(true),
+              untaxedAccounts = Seq.empty,
+              taxedAccounts = Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", Some(25.00)))
             )
 
             dropInterestDB()
@@ -278,7 +280,13 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
           }
 
           "saves the record in the database" in {
-            findInterestDb.get shouldBe InterestCYAModel(None, Some(false), Some(false))
+            findInterestDb.get shouldBe InterestCYAModel(
+              None,
+              Some(false),
+              Some(false),
+              untaxedAccounts = Seq.empty,
+              taxedAccounts = Seq.empty
+            )
           }
         }
 
@@ -288,7 +296,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
               val interestCYA = InterestCYAModel(
                 None,
                 Some(false),
-                Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00)))
+                Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", Some(25.00)))
               )
 
               dropInterestDB()
@@ -334,7 +342,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
               val interestCYA = InterestCYAModel(
                 None,
                 Some(false),
-                Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00)))
+                Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", Some(25.00)))
               )
 
               dropInterestDB()
@@ -356,7 +364,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
             val interestCYA = InterestCYAModel(
               None,
               Some(false),
-              Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00)))
+              Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", Some(25.00)))
             )
 
             lazy val result: WSResponse = {

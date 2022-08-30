@@ -33,8 +33,6 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.interest.InterestCYAView
 import common.InterestTaxTypes.{TAXED, UNTAXED}
-import common.PageLocations.Interest.cya
-import views.html.defaultpages.error
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -141,12 +139,14 @@ class InterestCYAController @Inject()(
   private def handleUnfinishedRedirect(cya: InterestCYAModel, taxYear: Int): Future[Result] = {
     Future(
       cya match {
-        case InterestCYAModel(None, _, _, _) if appConfig.interestTailoringEnabled =>
+        case InterestCYAModel(None, _, _, _, _) if appConfig.interestTailoringEnabled =>
           Redirect(controllers.interest.routes.InterestGatewayController.show(taxYear))
-        case InterestCYAModel(_, Some(true), None, Seq()) => Redirect(controllers.interest.routes.ChooseAccountController.show(taxYear, UNTAXED))
-        case InterestCYAModel(_, Some(false), None, Seq()) => Redirect(controllers.interest.routes.TaxedInterestController.show(taxYear))
-        case InterestCYAModel(_, Some(true), None, accounts) if accounts.exists(_.hasUntaxed) =>
+        case InterestCYAModel(_, Some(true), None, Seq(), Seq()) => Redirect(controllers.interest.routes.ChooseAccountController.show(taxYear, UNTAXED))
+        case InterestCYAModel(_, Some(false), None, Seq(), Seq()) => Redirect(controllers.interest.routes.TaxedInterestController.show(taxYear))
+        case InterestCYAModel(_, Some(true), None, untaxedAccounts, _) if untaxedAccounts.exists(_.amount.isDefined) =>
           Redirect(controllers.interest.routes.TaxedInterestController.show(taxYear))
+        case InterestCYAModel(_, Some(true), None, _, taxedAccounts) if taxedAccounts.exists(_.amount.isDefined) =>
+          Redirect(controllers.interest.routes.UntaxedInterestController.show(taxYear))
         case _ => Redirect(controllers.interest.routes.ChooseAccountController.show(taxYear, TAXED))
       }
     )

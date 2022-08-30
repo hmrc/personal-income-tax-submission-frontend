@@ -83,15 +83,15 @@ class ChangeAccountAmountController @Inject()(
           val priorValue: Option[BigDecimal] = {
             if(previousCYAAmount.isDefined){
               previousCYAAmount
-            } else if (changeAccountAmountService.priorAmount(accountModel, taxType).isDefined){
-              changeAccountAmountService.priorAmount(accountModel, taxType)
+            } else if (accountModel.amount.isDefined){
+              accountModel.amount
             } else {
               None
             }
           }
 
           val form: Form[BigDecimal] = {
-            if (previousCYAAmount == changeAccountAmountService.priorAmount(accountModel, taxType)) {
+            if (previousCYAAmount == accountModel.amount) {
               changeAmountForm(user.isAgent, taxType)
             } else {
               priorValue.fold(changeAmountForm(user.isAgent, taxType))(changeAmountForm(user.isAgent, taxType).fill(_))
@@ -122,6 +122,7 @@ class ChangeAccountAmountController @Inject()(
                 },
                 formAmount => {
                   val updatedAccounts = changeAccountAmountService.updateAccounts(taxType, cyaData, prior, accountId, formAmount)
+
                   val updatedCYA = changeAccountAmountService.replaceAccounts(taxType, cyaData, updatedAccounts)
 
                   interestSessionService.updateSessionData(updatedCYA, taxYear)(errorHandler.internalServerError())(
@@ -129,9 +130,11 @@ class ChangeAccountAmountController @Inject()(
                   )
                 }
               )
-            case _ => Future(Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)))
+            case _ =>
+              Future(Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)))
           }
-        case _ => Future(Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)))
+        case _ =>
+          Future(Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)))
       }
     }
   }

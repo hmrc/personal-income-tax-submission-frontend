@@ -28,43 +28,48 @@ class TaxedInterestAmountService @Inject() () {
                             id: String): Seq[InterestAccountModel] = {
 
     def createNewAccount(overrideId: Option[String] = None): InterestAccountModel = {
-      InterestAccountModel(None, completeForm.taxedAccountName, None, Some(completeForm.taxedAmount), Some(overrideId.getOrElse(id)))
+      InterestAccountModel(None, completeForm.taxedAccountName, Some(completeForm.taxedAmount), Some(overrideId.getOrElse(id)))
     }
 
     if(existingAccountWithName.isDefined){
-      val updatedAccount: InterestAccountModel = existingAccountWithName.get.copy(taxedAmount = Some(completeForm.taxedAmount))
-      val existingAccount: Option[InterestAccountModel] = accounts.find(_.getPrimaryId().exists(_ == id)).map(_.copy(taxedAmount = None))
-      val existingAccountNeedsRemoving: Boolean = existingAccount.exists(account => !account.hasUntaxed)
+      val updatedAccount: InterestAccountModel = existingAccountWithName.get.copy(amount = Some(completeForm.taxedAmount))
+      val existingAccount: Option[InterestAccountModel] = accounts.find(_.getPrimaryId().exists(_ == id)).map(_.copy(amount = None))
+      val existingAccountNeedsRemoving: Boolean = existingAccount.exists(account => account.amount.isEmpty)
 
       val accountsExcludingImpactedAccounts: Seq[InterestAccountModel]  = {
         accounts.filterNot(account => account.accountName == completeForm.taxedAccountName || account.getPrimaryId().contains(id))
       }
 
       if(existingAccountNeedsRemoving){
-        accountsExcludingImpactedAccounts :+ updatedAccount
+        updatedAccount +: accountsExcludingImpactedAccounts
       } else {
-        accountsExcludingImpactedAccounts ++ Seq(Some(updatedAccount), existingAccount).flatten
+        Seq(Some(updatedAccount), existingAccount).flatten ++ accountsExcludingImpactedAccounts
       }
     } else {
 
       val existingAccount: Option[InterestAccountModel] = accounts.find(_.getPrimaryId().exists(_ == id))
       val accountAlreadyExistsWithUntaxedAmountAndNameChanged = existingAccount.exists{
-        account => account.hasUntaxed && (account.accountName != completeForm.taxedAccountName)
+        account => account.amount.isDefined && (account.accountName != completeForm.taxedAccountName)
       }
 
       //if the name has been updated only update the name for the taxed account and keep the existing untaxed account as is
       if(accountAlreadyExistsWithUntaxedAmountAndNameChanged){
-        val removedAmountFromExistingAccount: InterestAccountModel = existingAccount.get.copy(taxedAmount = None)
+        val removedAmountFromExistingAccount: InterestAccountModel = existingAccount.get.copy(amount = None)
         val newAccount: InterestAccountModel = createNewAccount(Some(UUID.randomUUID().toString))
 
         accounts.filterNot(_.getPrimaryId().contains(id)) ++ Seq(newAccount, removedAmountFromExistingAccount)
       } else {
         val newAccount = accounts.find(_.getPrimaryId().exists(_ == id)).map(_.copy(
-          accountName = completeForm.taxedAccountName, taxedAmount = Some(completeForm.taxedAmount)
+          accountName = completeForm.taxedAccountName, amount = Some(completeForm.taxedAmount)
         )).getOrElse(createNewAccount())
 
         if (newAccount.getPrimaryId().nonEmpty && accounts.exists(_.getPrimaryId() == newAccount.getPrimaryId())) {
-          accounts.map(account => if (account.getPrimaryId() == newAccount.getPrimaryId()) newAccount else account)
+
+          val updatedAccounts = accounts.filter(account => account.getPrimaryId() == newAccount.getPrimaryId())
+
+          val otherAccounts = accounts.filterNot(account => account.getPrimaryId() == newAccount.getPrimaryId())
+
+          updatedAccounts ++ otherAccounts
         } else {
           accounts :+ newAccount
         }

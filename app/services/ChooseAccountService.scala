@@ -17,36 +17,55 @@
 package services
 
 import common.InterestTaxTypes.UNTAXED
-import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
+import models.interest.{InterestAccountModel, InterestAccountSourceModel, InterestCYAModel, InterestPriorSubmission}
 
 import javax.inject.Inject
 
 class ChooseAccountService @Inject() () {
   def accountsIgnoringAmounts(accounts: Seq[InterestAccountModel]): Set[InterestAccountModel] = {
-    accounts.map(_.copy(untaxedAmount = None, taxedAmount = None)).toSet
+    accounts.map(_.copy(amount = None)).toSet
   }
 
   def getPreviousAccounts(cya: Option[InterestCYAModel], prior: Option[InterestPriorSubmission], taxType: String): Set[InterestAccountModel] = {
 
-    val accountsInSession: Seq[InterestAccountModel] = cya.map(_.accounts).getOrElse(Seq())
-    val priorAccounts: Seq[InterestAccountModel] = prior.map(_.submissions).getOrElse(Seq())
+    val priorAccounts: Seq[InterestAccountSourceModel] = prior.map(_.submissions).getOrElse(Seq())
 
     if (taxType.equals(UNTAXED)) {
 
-      val inSessionAccountsToDisplay = accountsInSession.filter(!_.hasUntaxed)
-      val inSessionIdsToExclude: Seq[String] = accountsInSession.filter(_.hasUntaxed).flatMap(_.id)
+      val accountsInSession: Seq[InterestAccountModel] = cya.map(_.untaxedAccounts).getOrElse(Seq()) ++ cya.map(_.taxedAccounts).getOrElse(Seq())
 
-      val priorAccountsToDisplay: Seq[InterestAccountModel] = priorAccounts.filter(!_.hasUntaxed).filterNot(_.id.exists(inSessionIdsToExclude.contains))
+      val taxedAccounts = cya.map(_.taxedAccounts).getOrElse(Seq())
+      val untaxedAccounts = cya.map(_.untaxedAccounts).getOrElse(Seq())
 
-      accountsIgnoringAmounts(inSessionAccountsToDisplay ++ priorAccountsToDisplay)
+      val diffedAccounts = accountsInSession.filterNot(x => untaxedAccounts.exists(y => x.accountName == y.accountName))
+
+      val inSessionAccountsToDisplay = diffedAccounts
+
+      val inSessionIdsToExclude: Seq[String] = accountsInSession.filter(_.amount.isDefined).flatMap(_.id).filter(untaxedAccounts.map(x => x.id).contains)
+
+      val priorAccountsToDisplay: Seq[InterestAccountSourceModel] = priorAccounts.filter(!_.hasUntaxed).filterNot(_.id.exists(inSessionIdsToExclude.contains))
+
+      val returning = accountsIgnoringAmounts(inSessionAccountsToDisplay ++ priorAccountsToDisplay.map(x => InterestAccountModel(x.id, x.accountName, x.taxedAmount, x.uniqueSessionId)))
+
+      returning
 
     } else {
-      val inSessionAccountsToDisplay = accountsInSession.filter(!_.hasTaxed)
-      val inSessionIdsToExclude: Seq[String] = accountsInSession.filter(_.hasTaxed).flatMap(_.id)
+      val accountsInSession: Seq[InterestAccountModel] = cya.map(_.untaxedAccounts).getOrElse(Seq()) ++ cya.map(_.taxedAccounts).getOrElse(Seq())
 
-      val priorAccountsToDisplay: Seq[InterestAccountModel] = priorAccounts.filter(!_.hasTaxed).filterNot(_.id.exists(inSessionIdsToExclude.contains))
+      val taxedAccounts = cya.map(_.taxedAccounts).getOrElse(Seq())
+      val untaxedAccounts = cya.map(_.untaxedAccounts).getOrElse(Seq())
 
-      accountsIgnoringAmounts(inSessionAccountsToDisplay ++ priorAccountsToDisplay)
+      val diffedAccounts = accountsInSession.filterNot(x => taxedAccounts.exists(y => x.accountName == y.accountName))
+
+      val inSessionAccountsToDisplay = diffedAccounts
+
+      val inSessionIdsToExclude: Seq[String] = accountsInSession.filter(_.amount.isDefined).flatMap(_.id).filter(taxedAccounts.map(x => x.id).contains)
+
+      val priorAccountsToDisplay: Seq[InterestAccountSourceModel] = priorAccounts.filter(!_.hasTaxed).filterNot(_.id.exists(inSessionIdsToExclude.contains))
+
+      val returning = accountsIgnoringAmounts(inSessionAccountsToDisplay ++ priorAccountsToDisplay.map(x => InterestAccountModel(x.id, x.accountName, x.untaxedAmount, x.uniqueSessionId)))
+
+      returning
     }
   }
 }

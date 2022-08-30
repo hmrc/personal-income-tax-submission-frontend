@@ -23,15 +23,15 @@ class EncryptedInterestCYAModelSpec extends UnitTest {
   val account = EncryptedInterestAccountModel(
     id = Some(EncryptedValue("someId", "someId-Nonce")),
     accountName = EncryptedValue("someName", "someName-Nonce"),
-    Some(EncryptedValue("100.00", "100.00-Nonce")),
-    Some(EncryptedValue("100.00", "100.00-Nonce"))
+    amount = Some(EncryptedValue("100.00", "100.00-Nonce"))
   )
 
   val modelMax: EncryptedInterestCYAModel = EncryptedInterestCYAModel(
     gateway = None,
     untaxedUkInterest = Some(EncryptedValue("true", "true-Nonce")),
     taxedUkInterest = Some(EncryptedValue("true", "true-Nonce")),
-    Seq(account)
+    untaxedAccounts = Seq(account),
+    taxedAccounts = Seq(account)
   )
 
   val jsonMax: JsObject = Json.obj(
@@ -43,7 +43,7 @@ class EncryptedInterestCYAModelSpec extends UnitTest {
       "value" -> "true",
       "nonce" -> "true-Nonce"
     ),
-    "accounts" -> Json.arr(
+    "untaxedAccounts" -> Json.arr(
       Json.obj(
         "id" -> Json.obj(
           "value" -> "someId",
@@ -53,11 +53,23 @@ class EncryptedInterestCYAModelSpec extends UnitTest {
           "value" -> "someName",
           "nonce" -> "someName-Nonce"
         ),
-        "untaxedAmount" -> Json.obj(
+        "amount" -> Json.obj(
           "value" -> "100.00",
           "nonce" -> "100.00-Nonce"
+        )
+      )
+    ),
+    "taxedAccounts" -> Json.arr(
+      Json.obj(
+        "id" -> Json.obj(
+          "value" -> "someId",
+          "nonce" -> "someId-Nonce"
         ),
-        "taxedAmount" -> Json.obj(
+        "accountName" -> Json.obj(
+          "value" -> "someName",
+          "nonce" -> "someName-Nonce"
+        ),
+        "amount" -> Json.obj(
           "value" -> "100.00",
           "nonce" -> "100.00-Nonce"
         )
@@ -79,7 +91,8 @@ class EncryptedInterestCYAModelSpec extends UnitTest {
   val modelMin: EncryptedInterestCYAModel = EncryptedInterestCYAModel(
     untaxedUkInterest = None,
     taxedUkInterest = None,
-    accounts = Seq()
+    untaxedAccounts = Seq.empty,
+    taxedAccounts = Seq.empty
   )
 
   val modelNoAccounts: EncryptedInterestCYAModel = EncryptedInterestCYAModel(

@@ -19,12 +19,9 @@ package controllers
 import config._
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
-import forms.interest.TaxedInterestAmountForm.taxedAmount
-import forms.interest.UntaxedInterestAmountForm.untaxedAmount
 import models.User
 import models.dividends.DividendsCheckYourAnswersModel
 import models.interest.InterestCYAModel
-import models.charity.GiftAidCYAModel
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import services.{DividendsSessionService, GiftAidSessionService, InterestSessionService}
@@ -135,16 +132,23 @@ class ZeroingWarningController @Inject()(
   }
 
   private[controllers] def zeroInterestData(data: InterestCYAModel, priorIds: Seq[String]): InterestCYAModel = {
-    val zeroedData = data.copy(accounts = data.accounts.filter(account => account.id.fold(false)(priorIds.contains)).map { account =>
+    val newUntaxedAccounts = data.untaxedAccounts.filter(account => account.id.fold(false)(priorIds.contains)).map { account =>
       account.copy(
-        untaxedAmount = account.untaxedAmount.map(_ => 0),
-        taxedAmount = account.taxedAmount.map(_ => 0)
+        amount = account.amount.map(_ => 0)
       )
-    })
+    }
+
+    val newTaxedAccounts = data.taxedAccounts.filter(account => account.id.fold(false)(priorIds.contains)).map { account =>
+      account.copy(
+        amount = account.amount.map(_ => 0)
+      )
+    }
+
+    val zeroedData = data.copy(untaxedAccounts = newUntaxedAccounts, taxedAccounts = newTaxedAccounts)
 
     zeroedData.copy(
-      untaxedUkInterest = Some(zeroedData.accounts.flatMap(_.untaxedAmount).nonEmpty),
-      taxedUkInterest = Some(zeroedData.accounts.flatMap(_.taxedAmount).nonEmpty)
+      untaxedUkInterest = Some(zeroedData.untaxedAccounts.flatMap(_.amount).nonEmpty),
+      taxedUkInterest = Some(zeroedData.taxedAccounts.flatMap(_.amount).nonEmpty)
     )
   }
 

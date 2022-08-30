@@ -182,7 +182,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
             emptyUserDataStub()
             insertInterestCyaData(
               Some(InterestCYAModel(None,
-                Some(true), Some(false), Seq(InterestAccountModel(None, "Bank of UK", untaxedAmount = Some(9001.00), None, Some("qwerty")))
+                Some(true), Some(false), Seq(InterestAccountModel(None, "Bank of UK", amount = Some(9001.00), Some("qwerty")))
               )),taxYear, Some(mtditid), Some(nino)
             )
 
@@ -243,7 +243,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
             insertInterestCyaData(
               Some(InterestCYAModel(None,
                 Some(true), Some(false), Seq(
-                  InterestAccountModel(None, "Bank of UK", Some(9000.01), None, Some("qwerty")),
+                  InterestAccountModel(None, "Bank of UK", Some(9000.01), Some("qwerty")),
                   InterestAccountModel(Some("azerty"), "Bank of EU",  Some(1234.56), None)
                 )
               )),taxYear, Some(mtditid), Some(nino)
@@ -360,7 +360,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
             dropInterestDB()
             insertInterestCyaData(
               Some(InterestCYAModel(None,
-                Some(false), Some(true), Seq(InterestAccountModel(None, "Bank of UK", None, Some(9001.00), Some("qwerty")))
+                Some(false), Some(true), untaxedAccounts = Seq.empty, taxedAccounts = Seq(InterestAccountModel(None, "Bank of UK", Some(9001.00), Some("qwerty")))
               )),taxYear, Some(mtditid), Some(nino)
             )
             emptyUserDataStub()
@@ -420,9 +420,9 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
             userDataStub(IncomeSourcesModel(None,Some(Seq(InterestModel("Bank of EU","azerty",Some(1234.56),None)))) ,nino, taxYear)
             insertInterestCyaData(
               Some(InterestCYAModel(None,
-                Some(false), Some(true), Seq(
-                  InterestAccountModel(None, "Bank of UK", None, Some(9000.01), Some("qwerty")),
-                  InterestAccountModel(Some("azerty"), "Bank of EU", None, Some(1234.56))
+                Some(false), Some(true), untaxedAccounts = Seq.empty, taxedAccounts = Seq(
+                  InterestAccountModel(None, "Bank of UK", Some(9000.01), Some("qwerty")),
+                  InterestAccountModel(Some("azerty"), "Bank of EU", Some(1234.56))
                 )
               )),taxYear, Some(mtditid), Some(nino)
             )
@@ -614,7 +614,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
             dropInterestDB()
             emptyUserDataStub()
             insertInterestCyaData(Some(InterestCYAModel(None,
-              Some(true),  Some(false), Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount))),
+              Some(true),  Some(false), untaxedAccounts = Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount))), taxedAccounts = Seq.empty,
             )), overrideNino = Some(nino))
 
             authoriseAgentOrIndividual(us.isAgent)
@@ -635,7 +635,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
             emptyUserDataStub()
             insertInterestCyaData(
               Some(InterestCYAModel(None,
-                Some(true), Some(false), Seq(InterestAccountModel(None, "Untaxed Account", Some(9001.00), None, Some("qwerty")))
+                Some(true), Some(false), Seq(InterestAccountModel(None, "Untaxed Account", Some(9001.00), Some("qwerty")))
               )),taxYear, Some(mtditid), Some(nino)
             )
 
@@ -703,8 +703,8 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
               emptyUserDataStub()
               insertInterestCyaData(
                 Some(InterestCYAModel(
-                  None, Some(false), Some(true),
-                  Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount)))
+                  None, Some(false), Some(true), untaxedAccounts = Seq.empty,
+                  taxedAccounts = Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", Some(amount)))
                 )),taxYear, Some(mtditid), Some(nino)
               )
 
@@ -759,7 +759,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
             insertInterestCyaData(Some(InterestCYAModel(
               None,
               Some(false),
-              Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount)))
+              Some(true), untaxedAccounts = Seq.empty, taxedAccounts = Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", Some(amount)))
             )), overrideNino = Some(nino))
 
             authoriseAgentOrIndividual(us.isAgent)
@@ -782,7 +782,7 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
               Some(InterestCYAModel(
                 None,
                 Some(false),
-                Some(true), Seq(InterestAccountModel(None, "Taxed Account", None, Some(amount), Some("qwerty")))
+                Some(true), untaxedAccounts = Seq.empty, taxedAccounts = Seq(InterestAccountModel(None, "Taxed Account", Some(amount), Some("qwerty")))
               )),taxYear, Some(mtditid), Some(nino)
             )
             authoriseAgentOrIndividual(us.isAgent)

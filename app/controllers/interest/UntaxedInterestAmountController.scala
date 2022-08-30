@@ -98,16 +98,19 @@ class UntaxedInterestAmountController @Inject()(
       }, {
         completeForm =>
 
+          val untaxedAccounts = cya.map(_.untaxedAccounts).getOrElse(Seq())
+          val taxedAccounts = cya.map(_.taxedAccounts).getOrElse(Seq())
+
           val accountsAbleToReuse: Seq[InterestAccountModel] = {
-            cya.map(_.accounts.filter(!_.hasUntaxed)).getOrElse(Seq()) ++
-            prior.map(_.submissions.filter(!_.hasUntaxed)).getOrElse(Seq())
+            (untaxedAccounts ++ taxedAccounts) ++
+            prior.map(_.submissions.filter(!_.hasUntaxed)).getOrElse(Seq()).map(account => InterestAccountModel(account.id, account.accountName, account.taxedAmount, account.uniqueSessionId))
           }
 
           cya match {
             case Some(cyaData) =>
               val existingAccountWithName: Option[InterestAccountModel] = accountsAbleToReuse.find(_.accountName == completeForm.untaxedAccountName)
-              val newAccountList = untaxedInterestAmountService.createNewAccountsList(completeForm, existingAccountWithName, cyaData.accounts, id)
-              val updatedCyaModel = cyaData.copy(accounts = newAccountList)
+              val newAccountList = untaxedInterestAmountService.createNewAccountsList(completeForm, existingAccountWithName, cyaData.untaxedAccounts, id)
+              val updatedCyaModel = cyaData.copy(untaxedAccounts = newAccountList)
 
               interestSessionService.updateSessionData(updatedCyaModel, taxYear)(InternalServerError(errorHandler.internalServerErrorTemplate))(
                 Redirect(controllers.interest.routes.AccountsController.show(taxYear, InterestTaxTypes.UNTAXED))

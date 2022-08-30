@@ -17,52 +17,55 @@
 package services
 
 import common.InterestTaxTypes
-import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
+import models.interest.{InterestAccountModel, InterestAccountSourceModel, InterestCYAModel, InterestPriorSubmission}
 import utils.UnitTest
 
 class ChooseAccountServiceSpec extends UnitTest {
 
   val service = new ChooseAccountService()
 
-  val accounts: Seq[InterestAccountModel] = Seq(
+  val untaxedAccounts = Seq(
     InterestAccountModel(
       Some("1"),
       "TSB Account",
-      untaxedAmount = Some(500.00)
+      amount = Some(500.00)
     ),
     InterestAccountModel(
       Some("2"),
       "Lloyds Savings",
-      untaxedAmount = Some(3000.00)
-    ),
+      amount = Some(3000.00)
+    )
+  )
+
+  val taxedAccounts: Seq[InterestAccountModel] = Seq(
     InterestAccountModel(
       Some("3"),
       "Account 1",
-      taxedAmount = Some(100.01))
+      amount = Some(100.01))
   )
+
+  val allAccounts = untaxedAccounts ++ taxedAccounts
 
   "accountsIgnoringAmounts" should {
     "return set of accounts where each account has untaxed and taxed amounts set to None" in {
-      val accountsIgnorningAmounts = service.accountsIgnoringAmounts(accounts)
+      val accountsIgnorningAmounts = service.accountsIgnoringAmounts(allAccounts)
 
       accountsIgnorningAmounts shouldBe Set(
         InterestAccountModel(
           Some("1"),
           "TSB Account",
-          untaxedAmount = None,
-          taxedAmount = None
+          amount = None
         ),
         InterestAccountModel(
           Some("2"),
           "Lloyds Savings",
-          untaxedAmount = None,
-          taxedAmount = None
+          amount = None
         ),
         InterestAccountModel(
           Some("3"),
           "Account 1",
-          untaxedAmount = None,
-          taxedAmount = None)
+          amount = None
+        )
       )
     }
   }
@@ -72,28 +75,28 @@ class ChooseAccountServiceSpec extends UnitTest {
       val cyaModel = Some(InterestCYAModel(
         untaxedUkInterest = Some(false),
         taxedUkInterest = Some(true),
-        accounts = accounts
+        taxedAccounts = taxedAccounts
       ))
 
-      val prior = Some(InterestPriorSubmission(true, false, submissions = accounts))
+      val prior = Some(InterestPriorSubmission(true, false, submissions = taxedAccounts.map(x => InterestAccountSourceModel(x.id, x.accountName, None, x.amount, x.uniqueSessionId))))
 
       val previousAccounts = service.getPreviousAccounts(cyaModel, prior, InterestTaxTypes.UNTAXED)
 
-      previousAccounts shouldBe Set(InterestAccountModel(Some("3"), "Account 1", None, None, None))
+      previousAccounts shouldBe Set(InterestAccountModel(Some("3"), "Account 1", None, None))
     }
 
     "return accounts which have untaxed defined if tax type 'TAXED' is specified" in {
       val cyaModel = Some(InterestCYAModel(
         untaxedUkInterest = Some(false),
         taxedUkInterest = Some(true),
-        accounts = accounts
+        untaxedAccounts = untaxedAccounts
       ))
 
-      val prior = Some(InterestPriorSubmission(true, false, submissions = accounts))
+      val prior = Some(InterestPriorSubmission(true, false, submissions = untaxedAccounts.map(x => InterestAccountSourceModel(x.id, x.accountName, None, x.amount, x.uniqueSessionId))))
 
       val newAccounts = service.getPreviousAccounts(cyaModel, prior, InterestTaxTypes.TAXED)
 
-      newAccounts shouldBe Set(InterestAccountModel(Some("1"), "TSB Account", None, None, None), InterestAccountModel(Some("2"), "Lloyds Savings", None, None, None))
+      newAccounts shouldBe Set(InterestAccountModel(Some("1"), "TSB Account", None, None), InterestAccountModel(Some("2"), "Lloyds Savings", None, None))
     }
 
     "return no accounts if there are no accounts or submissions defined" in {

@@ -28,20 +28,20 @@ class RemoveAccountServiceSpec extends UnitTest {
     InterestAccountModel(
       Some("3"),
       "Account 1",
-      taxedAmount = Some(100.01))
+      amount = Some(100.01))
 
   val accountWithUniqueSessionId =
     InterestAccountModel(
       None,
       "Account 1",
-      taxedAmount = Some(100.01),
+      amount = Some(100.01),
       uniqueSessionId = Some("3"))
 
   val accountWithNoIds =
     InterestAccountModel(
       None,
       "Account 1",
-      taxedAmount = Some(100.01))
+      amount = Some(100.01))
 
   "accountLookup" should {
     "return true if account id matches given id" in {
@@ -82,17 +82,12 @@ class RemoveAccountServiceSpec extends UnitTest {
   }
 
   "calculateTaxedUpdate" should {
-    "return accounts containing updated account if account to update has untaxed amount defined" in {
-      val cyaData = InterestCYAModel(
-        untaxedUkInterest = Some(true), taxedUkInterest = Some(true), accounts = Seq(
-          InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01)),
-          InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = Some(50), taxedAmount = Some(9001.01))
-        )
-      )
+    "return defined taxedUkInterest if account exists with amount specified and accounts excluding account specified" in {
+      val cyaData = InterestCYAModel(untaxedUkInterest = Some(false), taxedUkInterest = Some(false))
 
       val accounts = Seq(
-        InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01)),
-        InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = Some(50), taxedAmount = Some(9001.01))
+        InterestAccountModel(Some("azerty"), "Account 1", amount = Some(100.01)),
+        InterestAccountModel(Some("qwerty"), "Account 2", amount = Some(50))
       )
 
       val untaxedUpdate = service.calculateTaxedUpdate(cyaData, accounts, "qwerty")
@@ -100,29 +95,19 @@ class RemoveAccountServiceSpec extends UnitTest {
       val updatedCyaData = untaxedUpdate._1
       val updatedAccounts = untaxedUpdate._2
 
-      updatedAccounts shouldBe Seq(
-        InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01)),
-        InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = Some(50), taxedAmount = None)
-      )
+      updatedAccounts shouldBe Seq(accounts.head)
 
       updatedCyaData shouldBe InterestCYAModel(
-        untaxedUkInterest = Some(true), taxedUkInterest = Some(false), accounts = Seq(
-          InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01)),
-          InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = Some(50), taxedAmount = None)
-        )
+        untaxedUkInterest = Some(false), taxedUkInterest = Some(true), taxedAccounts = updatedAccounts
       )
     }
 
-    "return accounts excluding account if account to update doesn't have untaxed amount defined" in {
-      val cyaData = InterestCYAModel(
-        untaxedUkInterest = Some(true), taxedUkInterest = Some(true), accounts = Seq(
-          InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01)),
-          InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = None, taxedAmount = None))
-      )
+    "return undefined taxedUkInterest if account doesn't exist with amount specified and accounts excluding account specified" in {
+      val cyaData = InterestCYAModel(untaxedUkInterest = Some(false), taxedUkInterest = Some(true))
 
       val accounts = Seq(
-        InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01), taxedAmount = Some(100.01)),
-        InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = None, taxedAmount = None)
+        InterestAccountModel(Some("azerty"), "Account 1", None),
+        InterestAccountModel(Some("qwerty"), "Account 2", None)
       )
 
       val untaxedUpdate = service.calculateTaxedUpdate(cyaData, accounts, "qwerty")
@@ -130,30 +115,21 @@ class RemoveAccountServiceSpec extends UnitTest {
       val updatedCyaData = untaxedUpdate._1
       val updatedAccounts = untaxedUpdate._2
 
-      updatedAccounts shouldBe Seq(
-        InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01), taxedAmount = Some(100.01)),
-      )
+      updatedAccounts shouldBe Seq(accounts.head)
 
       updatedCyaData shouldBe InterestCYAModel(
-        untaxedUkInterest = Some(true), taxedUkInterest = Some(true), accounts = Seq(
-          InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01), taxedAmount = Some(100.01))
-        )
+        untaxedUkInterest = Some(false), taxedUkInterest = Some(false), taxedAccounts = updatedAccounts
       )
     }
   }
 
   "calculateUntaxedUpdate" should {
-    "return accounts containing updated account if account to update has taxed amount defined" in {
-      val cyaData = InterestCYAModel(
-        untaxedUkInterest = Some(true), taxedUkInterest = Some(true), accounts = Seq(
-          InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01)),
-          InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = Some(50), taxedAmount = Some(9001.01))
-        )
-      )
+    "return defined untaxedUkInterest if account exists with amount specified and accounts excluding account specified" in {
+      val cyaData = InterestCYAModel(untaxedUkInterest = Some(false), taxedUkInterest = Some(true))
 
       val accounts = Seq(
-        InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01)),
-        InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = Some(50), taxedAmount = Some(9001.01))
+        InterestAccountModel(Some("azerty"), "Account 1", amount = Some(100.01)),
+        InterestAccountModel(Some("qwerty"), "Account 2", amount = Some(50))
       )
 
       val untaxedUpdate = service.calculateUntaxedUpdate(cyaData, accounts, "qwerty")
@@ -161,47 +137,32 @@ class RemoveAccountServiceSpec extends UnitTest {
       val updatedCyaData = untaxedUpdate._1
       val updatedAccounts = untaxedUpdate._2
 
-      updatedAccounts shouldBe Seq(
-        InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01)),
-        InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = None, taxedAmount = Some(9001.01))
-      )
+      updatedAccounts shouldBe Seq(accounts.head)
 
       updatedCyaData shouldBe InterestCYAModel(
-        untaxedUkInterest = Some(true), taxedUkInterest = Some(true), accounts = Seq(
-          InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01)),
-          InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = None, taxedAmount = Some(9001.01))
-        )
+        untaxedUkInterest = Some(true), taxedUkInterest = Some(true), untaxedAccounts = updatedAccounts
       )
     }
+  }
 
-    "return accounts excluding account if account to update doesn't have taxed amount defined" in {
-      val cyaData = InterestCYAModel(
-        untaxedUkInterest = Some(true), taxedUkInterest = Some(true), accounts = Seq(
-          InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01)),
-          InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = Some(50), taxedAmount = None)
-        )
-      )
+  "return undefined untaxedUkInterest if account doesn't exist with amount specified and accounts excluding account specified" in {
+    val cyaData = InterestCYAModel(untaxedUkInterest = Some(false), taxedUkInterest = Some(false))
 
-      val accounts = Seq(
-        InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01)),
-        InterestAccountModel(Some("qwerty"), "Account 2", untaxedAmount = Some(50), taxedAmount = None)
-      )
+    val accounts = Seq(
+      InterestAccountModel(Some("azerty"), "Account 1", None),
+      InterestAccountModel(Some("qwerty"), "Account 2", None)
+    )
 
-      val untaxedUpdate = service.calculateUntaxedUpdate(cyaData, accounts, "qwerty")
+    val untaxedUpdate = service.calculateUntaxedUpdate(cyaData, accounts, "qwerty")
 
-      val updatedCyaData = untaxedUpdate._1
-      val updatedAccounts = untaxedUpdate._2
+    val updatedCyaData = untaxedUpdate._1
+    val updatedAccounts = untaxedUpdate._2
 
-      updatedAccounts shouldBe Seq(
-        InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01)),
-      )
+    updatedAccounts shouldBe Seq(accounts.head)
 
-      updatedCyaData shouldBe InterestCYAModel(
-        untaxedUkInterest = Some(true), taxedUkInterest = Some(true), accounts = Seq(
-          InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01))
-        )
-      )
-    }
+    updatedCyaData shouldBe InterestCYAModel(
+      untaxedUkInterest = Some(false), taxedUkInterest = Some(false), untaxedAccounts = updatedAccounts
+    )
   }
 
   "isLastAccount" should {
@@ -210,7 +171,7 @@ class RemoveAccountServiceSpec extends UnitTest {
 
       val priorSubmission = Some(InterestPriorSubmission(hasTaxed = false, hasUntaxed = true, submissions = Seq.empty))
 
-      val isLastAccount = service.isLastAccount(taxType, priorSubmission, Seq(InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01))))
+      val isLastAccount = service.isLastAccount(taxType, priorSubmission, Seq(InterestAccountModel(Some("azerty"), "Account 1", amount = Some(100.01))))
 
       isLastAccount shouldBe true
     }
@@ -240,7 +201,7 @@ class RemoveAccountServiceSpec extends UnitTest {
 
       val priorSubmission = Some(InterestPriorSubmission(hasTaxed = false, hasUntaxed = false, submissions = Seq.empty))
 
-      val isLastAccount = service.isLastAccount(taxType, priorSubmission, Seq(InterestAccountModel(Some("azerty"), "Account 1", untaxedAmount = Some(100.01))))
+      val isLastAccount = service.isLastAccount(taxType, priorSubmission, Seq(InterestAccountModel(Some("azerty"), "Account 1", amount = Some(100.01))))
 
       isLastAccount shouldBe true
     }

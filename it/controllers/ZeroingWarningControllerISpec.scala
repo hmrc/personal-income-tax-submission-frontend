@@ -297,14 +297,14 @@ class ZeroingWarningControllerISpec extends IntegrationTest
       val defaultAmount = 100000
 
       val cya = InterestCYAModel(Some(false), Some(true), Some(true), Seq(
-        InterestAccountModel(Some("anId"), "This is an account", taxedAmount = Some(defaultAmount)),
-        InterestAccountModel(Some("anId2"), "This is an account", untaxedAmount = Some(defaultAmount)),
-        InterestAccountModel(None, "This is an account", taxedAmount = Some(defaultAmount), uniqueSessionId = Some("anId3"))
+        InterestAccountModel(Some("anId"), "This is an account", amount = Some(defaultAmount)),
+        InterestAccountModel(Some("anId2"), "This is an account", amount = Some(defaultAmount)),
+        InterestAccountModel(None, "This is an account", amount = Some(defaultAmount), uniqueSessionId = Some("anId3"))
       ))
 
-      val expectedCya = InterestCYAModel(Some(false), Some(true), Some(true), Seq(
-        InterestAccountModel(Some("anId"), "This is an account", taxedAmount = Some(0)),
-        InterestAccountModel(Some("anId2"), "This is an account", untaxedAmount = Some(0))
+      val expectedCya = InterestCYAModel(Some(false), Some(true), Some(false), Seq(
+        InterestAccountModel(Some("anId"), "This is an account", amount = Some(0)),
+        InterestAccountModel(Some("anId2"), "This is an account", amount = Some(0))
       ))
 
       controller.zeroInterestData(cya, Seq("anId", "anId2")) shouldBe expectedCya
@@ -314,9 +314,9 @@ class ZeroingWarningControllerISpec extends IntegrationTest
       val defaultAmount = 100000
 
       val cya = InterestCYAModel(Some(false), Some(true), Some(true), Seq(
-        InterestAccountModel(None, "This is an account", taxedAmount = Some(defaultAmount), uniqueSessionId = Some("anId")),
-        InterestAccountModel(None, "This is an account", untaxedAmount = Some(defaultAmount), uniqueSessionId = Some("anId2")),
-        InterestAccountModel(None, "This is an account", taxedAmount = Some(defaultAmount), uniqueSessionId = Some("anId3"))
+        InterestAccountModel(None, "This is an account", amount = Some(defaultAmount), uniqueSessionId = Some("anId")),
+        InterestAccountModel(None, "This is an account", amount = Some(defaultAmount), uniqueSessionId = Some("anId2")),
+        InterestAccountModel(None, "This is an account", amount = Some(defaultAmount), uniqueSessionId = Some("anId3"))
       ))
 
       val expectedCya = InterestCYAModel(Some(false), Some(false), Some(false), Seq())

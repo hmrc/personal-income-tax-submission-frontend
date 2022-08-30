@@ -19,7 +19,7 @@ package models.interest
 import common.InterestTaxTypes.{TAXED, UNTAXED}
 import play.api.libs.json._
 
-case class InterestPriorSubmission(hasUntaxed: Boolean, hasTaxed: Boolean, submissions: Seq[InterestAccountModel] = Seq.empty)
+case class InterestPriorSubmission(hasUntaxed: Boolean, hasTaxed: Boolean, submissions: Seq[InterestAccountSourceModel] = Seq.empty)
 
 object InterestPriorSubmission {
   implicit val writes: OWrites[InterestPriorSubmission] = OWrites[InterestPriorSubmission] { model =>
@@ -30,7 +30,7 @@ object InterestPriorSubmission {
     }
   }
 
-  def foundPriorSubmission(prior: Option[InterestPriorSubmission], accountId: String): Option[InterestAccountModel] = {
+  def foundPriorSubmission(prior: Option[InterestPriorSubmission], accountId: String): Option[InterestAccountSourceModel] = {
     prior.flatMap(_.submissions.find(_.id.contains(accountId)))
   }
 

@@ -16,8 +16,9 @@
 
 package audit
 
-import models.interest.{InterestCYAModel, InterestPriorSubmission}
-import play.api.libs.json.{Json, OWrites}
+import models.interest.{InterestAccountSourceModel, InterestCYAModel, InterestPriorSubmission, InterestSubmissionModel}
+import play.api.libs.json.{JsNull, JsObject, Json, OWrites, Writes}
+import utils.JsonUtils.jsonObjNoNulls
 
 case class CreateOrAmendInterestAuditDetail(body: Option[InterestCYAModel],
                                             prior: Option[InterestPriorSubmission],
@@ -28,5 +29,57 @@ case class CreateOrAmendInterestAuditDetail(body: Option[InterestCYAModel],
                                             taxYear: Int)
 
 object CreateOrAmendInterestAuditDetail {
-  implicit def writes: OWrites[CreateOrAmendInterestAuditDetail] = Json.writes[CreateOrAmendInterestAuditDetail]
+  implicit def writes: Writes[CreateOrAmendInterestAuditDetail] = (audit: CreateOrAmendInterestAuditDetail) => {
+    val body = audit.body
+
+    jsonObjNoNulls(
+      "body" -> {
+        if (body.isEmpty) {
+          JsNull
+        } else {
+          val cyaData = body.get
+          jsonObjNoNulls(
+            "gateway" -> cyaData.gateway,
+            "untaxedUkInterest" -> body.get.untaxedUkInterest,
+            "taxedUkInterest" -> body.get.taxedUkInterest,
+            "accounts" -> {
+              val taxedAccounts = cyaData.taxedAccounts
+              val untaxedAccounts = cyaData.untaxedAccounts
+
+              val m1: Map[String, Option[BigDecimal]] = untaxedAccounts.foldLeft(Map.empty[String, Option[BigDecimal]]) {
+                case (key, value) =>
+                  key + (value.accountName -> value.amount)
+              }
+              val m2: Map[String, Option[BigDecimal]] = taxedAccounts.foldLeft(Map.empty[String, Option[BigDecimal]]) {
+                case (key, value) =>
+                  key + (value.accountName -> value.amount)
+              }
+
+              val accounts: Seq[InterestAccountSourceModel] = (m1.keySet ++ m2.keySet).foldLeft(Map.empty[String, InterestAccountSourceModel]) {
+                case (m: Map[String, InterestAccountSourceModel], key: String) =>
+                  val untaxedAccountId = untaxedAccounts.find(_.accountName == key).flatMap(_.id)
+                  val taxedAccountId = taxedAccounts.find(_.accountName == key).flatMap(_.id)
+
+                  m + (key -> InterestAccountSourceModel(
+                    if (untaxedAccountId.isDefined) untaxedAccountId else taxedAccountId,
+                    key,
+                    m1.get(key).flatten,
+                    m2.get(key).flatten))
+              }.values.to[Seq]
+
+              if (accounts.isEmpty) JsNull else accounts
+            }
+          )
+        }
+      }
+    ).++(Json.obj(
+      "prior" -> audit.prior,
+      "isUpdate" -> audit.isUpdate,
+      "nino" -> audit.nino,
+      "mtditid" -> audit.mtditid,
+      "userType" -> audit.userType,
+      "taxYear" -> audit.taxYear
+    ))
+  }
+
 }

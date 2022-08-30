@@ -85,8 +85,8 @@ class TaxedInterestController @Inject()(
                 },
                 {
                   yesNoModel =>
-                    val updatedCya = cyaData.copy(taxedUkInterest = Some(yesNoModel), accounts = if (yesNoModel) {
-                      cyaData.accounts
+                    val updatedCya = cyaData.copy(taxedUkInterest = Some(yesNoModel), taxedAccounts = if (yesNoModel) {
+                      cyaData.taxedAccounts
                     } else {
                       clearNewEmptyAccounts(cyaData, false)
                     })

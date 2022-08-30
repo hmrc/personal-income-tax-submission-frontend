@@ -108,11 +108,16 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   val completeInterestCYAModel: InterestCYAModel = InterestCYAModel(
     untaxedUkInterest = Some(true),
     taxedUkInterest = Some(true),
-    accounts = Seq(InterestAccountModel(
+    untaxedAccounts = Seq(InterestAccountModel(
       id = Some("id"),
       accountName = "accountName",
-      untaxedAmount = Some(50.00),
-      taxedAmount = Some(50.00),
+      amount = Some(50.00),
+      uniqueSessionId = None
+    )),
+    taxedAccounts = Seq(InterestAccountModel(
+      id = Some("id"),
+      accountName = "accountName",
+      amount = Some(50.00),
       uniqueSessionId = None
     ))
   )

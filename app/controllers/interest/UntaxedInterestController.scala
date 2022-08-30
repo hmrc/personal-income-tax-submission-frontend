@@ -91,11 +91,17 @@ class UntaxedInterestController @Inject()(
             {
               yesNoModel =>
                 val baseCya = cya.getOrElse(InterestCYAModel(None, None))
-                val updatedCya = baseCya.copy(untaxedUkInterest = Some(yesNoModel), accounts = if (yesNoModel) {
-                  baseCya.accounts
+                val updatedCya = baseCya.copy(untaxedUkInterest = Some(yesNoModel), untaxedAccounts = if (yesNoModel) {
+                  baseCya.untaxedAccounts
                 } else {
                   clearNewEmptyAccounts(baseCya, true)
-                })
+                },
+                  taxedAccounts = if (yesNoModel) {
+                    baseCya.taxedAccounts
+                  } else {
+                    clearNewEmptyAccounts(baseCya, true)
+                  }
+                )
 
                 (yesNoModel, updatedCya.isFinished) match {
                   case (true, false) =>

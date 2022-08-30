@@ -16,16 +16,19 @@
 
 package audit
 
-import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
+import models.interest.{InterestAccountModel, InterestAccountSourceModel, InterestCYAModel, InterestPriorSubmission}
 import play.api.libs.json.Json
 import utils.UnitTest
 
 class CreateOrAmendInterestAuditDetailSpec extends UnitTest {
 
   val body: InterestCYAModel = InterestCYAModel(
-    None, Some(true), Some(true), Seq(
-      InterestAccountModel(Some("azerty"), "Account 1", Some(100.01)),
-      InterestAccountModel(Some("qwerty"), "Account 2", None, Some(9001.01))
+    None, Some(true), Some(true),
+    untaxedAccounts = Seq(
+      InterestAccountModel(Some("azerty"), "Account 1", Some(100.01))
+    ),
+    taxedAccounts = Seq(
+      InterestAccountModel(Some("qwerty"), "Account 2", Some(9001.01))
     )
   )
 
@@ -33,12 +36,12 @@ class CreateOrAmendInterestAuditDetailSpec extends UnitTest {
     hasUntaxed = true,
     hasTaxed = true,
     Seq(
-      InterestAccountModel(
+      InterestAccountSourceModel(
         Some("UntaxedId1"),
         "Untaxed Account",
         untaxedAmount = Some(100.01)
       ),
-      InterestAccountModel(
+      InterestAccountSourceModel(
         Some("TaxedId1"),
         "Taxed Account",
         taxedAmount = Some(9001.01)
@@ -88,7 +91,7 @@ class CreateOrAmendInterestAuditDetailSpec extends UnitTest {
              |}""".stripMargin)
 
           val model = CreateOrAmendInterestAuditDetail(Some(body), Some(prior), isUpdate = true, nino, mtditid, userType, taxYear)
-        Json.toJson(model) shouldBe json
+          Json.toJson(model) shouldBe json
         }
       }
     }

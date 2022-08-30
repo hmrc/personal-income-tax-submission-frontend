@@ -72,12 +72,12 @@ class InterestPriorSubmissionSpec extends UnitTest {
     hasUntaxed = true,
     hasTaxed = true,
     Seq(
-      InterestAccountModel(
+      InterestAccountSourceModel(
         Some("qwerty"),
         "TSB Account",
         taxedAmount = Some(500.00)
       ),
-      InterestAccountModel(
+      InterestAccountSourceModel(
         Some("azerty"),
         "Lloyds Savings",
         untaxedAmount = Some(3000.00)
@@ -89,7 +89,7 @@ class InterestPriorSubmissionSpec extends UnitTest {
     hasUntaxed = true,
     hasTaxed = false,
     Seq(
-      InterestAccountModel(
+      InterestAccountSourceModel(
         Some("azerty"),
         "Lloyds Savings",
         untaxedAmount = Some(3000.00)
@@ -101,7 +101,7 @@ class InterestPriorSubmissionSpec extends UnitTest {
     hasUntaxed = false,
     hasTaxed = true,
     Seq(
-      InterestAccountModel(
+      InterestAccountSourceModel(
         Some("qwerty"),
         "TSB Account",
         taxedAmount = Some(500.00)

@@ -32,18 +32,13 @@ class RemoveAccountService @Inject() () {
                                              accountId: String)
                                             (implicit user: User[_]): (InterestCYAModel, Seq[InterestAccountModel]) = {
 
-    val accountToUpdate: Option[InterestAccountModel] = accounts.find(account => accountLookup(account, accountId))
     val accountsWithoutCurrentAccount: Seq[InterestAccountModel] = accounts.filterNot(account => accountLookup(account, accountId))
 
-    val updatedAccounts = if(accountToUpdate.exists(_.hasUntaxed)){
-      accountsWithoutCurrentAccount ++ Seq(accountToUpdate.map(_.copy(taxedAmount = None))).flatten
-    } else {
-      accountsWithoutCurrentAccount
-    }
+    val updatedAccounts = accountsWithoutCurrentAccount
 
     val updatedCyaData = cyaData.copy(
-      taxedUkInterest = Some(updatedAccounts.exists(_.hasTaxed)),
-      accounts = updatedAccounts
+      taxedUkInterest = Some(updatedAccounts.exists(_.amount.isDefined)),
+      taxedAccounts = updatedAccounts
     )
 
     (updatedCyaData, updatedAccounts)
@@ -54,18 +49,13 @@ class RemoveAccountService @Inject() () {
                                                accountId: String)
                                               (implicit user: User[_]): (InterestCYAModel, Seq[InterestAccountModel]) = {
 
-    val accountToUpdate: Option[InterestAccountModel] = accounts.find(account => accountLookup(account, accountId))
     val accountsWithoutCurrentAccount: Seq[InterestAccountModel] = accounts.filterNot(account => accountLookup(account, accountId))
 
-    val updatedAccounts = if(accountToUpdate.exists(_.hasTaxed)){
-      accountsWithoutCurrentAccount ++ Seq(accountToUpdate.map(_.copy(untaxedAmount = None))).flatten
-    } else {
-      accountsWithoutCurrentAccount
-    }
+    val updatedAccounts = accountsWithoutCurrentAccount
 
     val updatedCyaData = cyaData.copy(
-      untaxedUkInterest = Some(updatedAccounts.exists(_.hasUntaxed)),
-      accounts = updatedAccounts
+      untaxedUkInterest = Some(updatedAccounts.exists(_.amount.isDefined)),
+      untaxedAccounts = updatedAccounts
     )
 
     (updatedCyaData, updatedAccounts)

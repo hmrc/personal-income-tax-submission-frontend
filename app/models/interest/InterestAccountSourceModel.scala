@@ -17,36 +17,29 @@
 package models.interest
 
 import play.api.libs.json._
-import utils.EncryptedValue
 
-case class InterestAccountModel(id: Option[String],
+case class InterestAccountSourceModel(id: Option[String],
                                 accountName: String,
-                                amount: Option[BigDecimal] = None,
+                                untaxedAmount: Option[BigDecimal] = None,
+                                taxedAmount: Option[BigDecimal] = None,
                                 uniqueSessionId: Option[String] = None) {
 
   def getPrimaryId(): Option[String] = {
     if(id.nonEmpty) id else uniqueSessionId
   }
+  def hasTaxed: Boolean = taxedAmount.isDefined
+  def hasUntaxed: Boolean = untaxedAmount.isDefined
 }
 
-object InterestAccountModel {
-  implicit val reads: Reads[InterestAccountModel] = Json.reads[InterestAccountModel]
-  implicit val writes: Writes[InterestAccountModel] = Writes[InterestAccountModel] { model =>
+object InterestAccountSourceModel {
+  implicit val reads: Reads[InterestAccountSourceModel] = Json.reads[InterestAccountSourceModel]
+  implicit val writes: Writes[InterestAccountSourceModel] = Writes[InterestAccountSourceModel] { model =>
     JsObject(Json.obj(
       "id" -> model.id,
       "accountName" -> model.accountName,
-      "amount" -> model.amount,
+      "untaxedAmount" -> model.untaxedAmount,
+      "taxedAmount" -> model.taxedAmount,
       "uniqueSessionId" -> model.uniqueSessionId
     ).fields.filterNot(_._2 == JsNull))
   }
-}
-
-case class EncryptedInterestAccountModel(id: Option[EncryptedValue],
-                                accountName: EncryptedValue,
-                                amount: Option[EncryptedValue] = None,
-                                uniqueSessionId: Option[EncryptedValue] = None)
-
-object EncryptedInterestAccountModel {
-  implicit val formats: OFormat[EncryptedInterestAccountModel] = Json.format[EncryptedInterestAccountModel]
-
 }

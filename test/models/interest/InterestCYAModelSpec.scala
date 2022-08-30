@@ -24,7 +24,6 @@ class InterestCYAModelSpec extends UnitTest {
   val account = InterestAccountModel(
     id = Some("someId"),
     accountName = "someName",
-    Some(100.00),
     Some(100.00)
   )
 
@@ -32,18 +31,17 @@ class InterestCYAModelSpec extends UnitTest {
     None,
     untaxedUkInterest = Some(true),
     taxedUkInterest = Some(true),
-    Seq(account)
+    untaxedAccounts = Seq(account)
   )
 
   val jsonMax: JsObject = Json.obj(
     "untaxedUkInterest" -> true,
     "taxedUkInterest" -> true,
-    "accounts" -> Json.arr(
+    "untaxedAccounts" -> Json.arr(
       Json.obj(
         "id" -> "someId",
         "accountName" -> "someName",
-        "untaxedAmount" -> 100.00,
-        "taxedAmount" -> 100.00
+        "amount" -> 100.00
       )
     )
   )
@@ -56,7 +54,8 @@ class InterestCYAModelSpec extends UnitTest {
   val modelMin: InterestCYAModel = InterestCYAModel(
     untaxedUkInterest = None,
     taxedUkInterest = None,
-    accounts = Seq()
+    untaxedAccounts = Seq.empty,
+    taxedAccounts = Seq.empty
   )
 
   val modelNoAccounts: InterestCYAModel = InterestCYAModel(
@@ -70,22 +69,22 @@ class InterestCYAModelSpec extends UnitTest {
     InterestAccountModel(
       Some("1"),
       "TSB Account",
-      untaxedAmount = Some(500.00)
+      amount = Some(500.00)
     ),
     InterestAccountModel(
       Some("2"),
       "Lloyds Savings",
-      untaxedAmount = Some(3000.00)
+      amount = Some(3000.00)
     ),
     InterestAccountModel(
       Some("3"),
       "Account 1",
-      taxedAmount = Some(100.01)
+      amount = Some(100.01)
     ),
     InterestAccountModel(
       Some("4"),
       "New Account",
-      taxedAmount = Some(50.0)
+      amount = Some(50.0)
     )
   )
 
@@ -132,7 +131,8 @@ class InterestCYAModelSpec extends UnitTest {
           None,
           Some(true),
           Some(true),
-          Seq(account.copy(taxedAmount = None))
+          untaxedAccounts = Seq.empty,
+          taxedAccounts = Seq(account.copy(amount = None))
         ).isFinished shouldBe false
       }
 
@@ -141,7 +141,8 @@ class InterestCYAModelSpec extends UnitTest {
           None,
           Some(true),
           Some(true),
-          Seq(account.copy(untaxedAmount = None))
+          untaxedAccounts = Seq.empty,
+          taxedAccounts = Seq(account.copy(amount = None))
         ).isFinished shouldBe false
       }
 
@@ -150,7 +151,8 @@ class InterestCYAModelSpec extends UnitTest {
           None,
           Some(true),
           Some(true),
-          Seq()
+          untaxedAccounts = Seq.empty,
+          taxedAccounts = Seq.empty
         ).isFinished shouldBe false
       }
 
@@ -158,7 +160,8 @@ class InterestCYAModelSpec extends UnitTest {
         InterestCYAModel(
           untaxedUkInterest = Some(true),
           taxedUkInterest = None,
-          accounts = Seq(account.copy(taxedAmount = None))
+          untaxedAccounts = Seq.empty,
+          taxedAccounts = Seq(account.copy(amount = None))
         ).isFinished shouldBe false
       }
 
@@ -166,7 +169,8 @@ class InterestCYAModelSpec extends UnitTest {
         InterestCYAModel(
           untaxedUkInterest = None,
           taxedUkInterest = Some(true),
-          accounts = Seq(account.copy(untaxedAmount = None))
+          untaxedAccounts = Seq.empty,
+          taxedAccounts = Seq(account.copy(amount = None))
         ).isFinished shouldBe false
       }
 
@@ -174,19 +178,27 @@ class InterestCYAModelSpec extends UnitTest {
 
     "return true" when {
 
-        "untaxed interest is true with accounts and taxed interest is false" in {
-          InterestCYAModel(
-            untaxedUkInterest = Some(true),
-            taxedUkInterest = Some(false),
-            accounts = Seq(account.copy(taxedAmount = None))
-          ).isFinished shouldBe true
-        }
+      "gateway is false and untaxed interest is false and taxed interest is false" in {
+        InterestCYAModel(
+          gateway = Some(true),
+          untaxedUkInterest = Some(false),
+          taxedUkInterest = Some(false)
+        ).isFinished shouldBe true
+      }
 
-      "taxed interest is true with accounts and untaxed interest is false" in {
+      "untaxed interest is false and taxed interest is false" in {
         InterestCYAModel(
           untaxedUkInterest = Some(false),
+          taxedUkInterest = Some(false)
+        ).isFinished shouldBe true
+      }
+
+      "taxed interest is true with accounts and untaxed interest is true" in {
+        InterestCYAModel(
+          untaxedUkInterest = Some(true),
           taxedUkInterest = Some(true),
-          accounts = Seq(account.copy(untaxedAmount = None))
+          untaxedAccounts = Seq(account.copy(amount = Some(300))),
+          taxedAccounts = Seq(account.copy(amount = Some(300)))
         ).isFinished shouldBe true
       }
     }
@@ -198,26 +210,28 @@ class InterestCYAModelSpec extends UnitTest {
       val cyaModel = Some(InterestCYAModel(
         untaxedUkInterest = Some(false),
         taxedUkInterest = Some(true),
-        accounts = accounts
+        untaxedAccounts = accounts,
+        taxedAccounts = accounts
       ))
 
       val accountNames = InterestCYAModel.disallowedDuplicateNames(cyaModel, "2", InterestTaxTypes.TAXED)
 
-      accountNames.length shouldBe 2
-      accountNames shouldBe Seq("Account 1", "New Account")
+      accountNames.length shouldBe 6
+      accountNames shouldBe Seq("TSB Account", "Account 1", "New Account", "TSB Account", "Account 1", "New Account")
     }
 
     "return names of specified accounts where accounts only have untaxed amount defined and if tax type specified is 'UNTAXED'" in {
       val cyaModel = Some(InterestCYAModel(
         untaxedUkInterest = Some(false),
         taxedUkInterest = Some(true),
-        accounts = accounts
+        untaxedAccounts = accounts,
+        taxedAccounts = accounts
       ))
 
       val accountNames = InterestCYAModel.disallowedDuplicateNames(cyaModel, "4", InterestTaxTypes.UNTAXED)
 
-      accountNames.length shouldBe 2
-      accountNames shouldBe Seq("TSB Account", "Lloyds Savings")
+      accountNames.length shouldBe 6
+      accountNames shouldBe Seq("TSB Account", "Lloyds Savings", "Account 1", "TSB Account", "Lloyds Savings", "Account 1")
     }
 
     "return empty list if cya model is None" in {
@@ -230,34 +244,33 @@ class InterestCYAModelSpec extends UnitTest {
   ".getCyaModel" should {
 
     "return cya data if prior is defined " in {
-      val prior = Some(InterestPriorSubmission(true, false, submissions = accounts))
+      val prior = Some(InterestPriorSubmission(true, false, submissions = accounts.map(x => InterestAccountSourceModel(x.id, x.accountName, x.amount, None, x.uniqueSessionId))))
 
       val cyaData = InterestCYAModel.getCyaModel(None, prior)
 
       cyaData shouldBe Some(InterestCYAModel(Some(true), Some(true), Some(false),
         List(InterestAccountModel(Some("1"),
           "TSB Account",
-          Some(500.0),
-          None, None),
-          InterestAccountModel(Some("2"), "Lloyds Savings", Some(3000.0), None, None),
-          InterestAccountModel(Some("3"), "Account 1", None, Some(100.01), None),
-          InterestAccountModel(Some("4"), "New Account", None, Some(50.0), None))))
+          Some(500.0)),
+          InterestAccountModel(Some("2"), "Lloyds Savings", Some(3000.0), None),
+          InterestAccountModel(Some("3"), "Account 1", Some(100.01), None),
+          InterestAccountModel(Some("4"), "New Account", Some(50.0), None))))
     }
 
     "return cya data if cya model is defined and prior isn't defined " in {
       val cyaModel = Some(InterestCYAModel(
         untaxedUkInterest = Some(false),
         taxedUkInterest = Some(true),
-        accounts = accounts
+        untaxedAccounts = accounts
       ))
 
       val cyaData = InterestCYAModel.getCyaModel(cyaModel, None)
 
       cyaData shouldBe Some(InterestCYAModel(None, Some(false), Some(true),
-        List(InterestAccountModel(Some("1"), "TSB Account", Some(500.0), None, None),
-          InterestAccountModel(Some("2"), "Lloyds Savings", Some(3000.0), None, None),
-          InterestAccountModel(Some("3"), "Account 1", None, Some(100.01), None),
-          InterestAccountModel(Some("4"), "New Account", None, Some(50.0), None))))
+        List(InterestAccountModel(Some("1"), "TSB Account", Some(500.0), None),
+          InterestAccountModel(Some("2"), "Lloyds Savings", Some(3000.0), None),
+          InterestAccountModel(Some("3"), "Account 1", Some(100.01), None),
+          InterestAccountModel(Some("4"), "New Account", Some(50.0), None))))
     }
 
     "return None if cya model isn't defined and prior isn't defined " in {

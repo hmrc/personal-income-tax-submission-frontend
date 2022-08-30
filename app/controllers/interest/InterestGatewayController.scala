@@ -17,7 +17,6 @@
 package controllers.interest
 
 import config.{AppConfig, ErrorHandler, INTEREST}
-import connectors.ExcludeJourneyConnector
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.YesNoForm
@@ -33,7 +32,6 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.interest.InterestGatewayView
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
-import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -104,16 +102,27 @@ class InterestGatewayController @Inject()(
                   if(!appConfig.interestTailoringEnabled || (appConfig.interestTailoringEnabled && sessionData.isEmpty)) {
                     Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
                   } else {
-                    val hasNonZeroData: Boolean = {
-                      interestCya.accounts.foldLeft(false) { (check, model) =>
+                    val untaxedAccountsHasNonZeroData: Boolean = {
+                      interestCya.untaxedAccounts.foldLeft(false) { (check, model) =>
                         if(check) {
                           check
                         } else {
-                          model.taxedAmount.exists(_ != 0) || model.untaxedAmount.exists(_ != 0)
+                          model.amount.exists(_ != 0)
                         }
                       }
                     }
-                    if(!yesNoValue && hasNonZeroData) {
+
+                    val taxedAccountsHasNonZeroData: Boolean = {
+                      interestCya.taxedAccounts.foldLeft(false) { (check, model) =>
+                        if (check) {
+                          check
+                        } else {
+                          model.amount.exists(_ != 0)
+                        }
+                      }
+                    }
+
+                    if(!yesNoValue && untaxedAccountsHasNonZeroData && taxedAccountsHasNonZeroData) {
                       Redirect(controllers.routes.ZeroingWarningController.show(taxYear, INTEREST.stringify))
                     } else {
                       Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))

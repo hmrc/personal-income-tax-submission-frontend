@@ -33,9 +33,29 @@ class InterestSubmissionService @Inject()(interestSubmissionConnector: InterestS
   def submit(cyaData: InterestCYAModel, nino: String, taxYear: Int, mtditid: String)
             (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[InterestSubmissionsResponse] = {
 
-    val accounts: Seq[InterestSubmissionModel] = cyaData.accounts.map { account =>
-      InterestSubmissionModel(account.id, account.accountName, account.untaxedAmount, account.taxedAmount)
+    val taxedAccounts = cyaData.taxedAccounts
+    val untaxedAccounts = cyaData.untaxedAccounts
+
+    val m1: Map[String, Option[BigDecimal]] = untaxedAccounts.foldLeft(Map.empty[String, Option[BigDecimal]]) {
+      case (key, value) =>
+        key + (value.accountName -> value.amount)
     }
+    val m2: Map[String, Option[BigDecimal]] = taxedAccounts.foldLeft(Map.empty[String, Option[BigDecimal]]) {
+      case (key, value) =>
+        key + (value.accountName -> value.amount)
+    }
+
+    val accounts: Seq[InterestSubmissionModel] = (m1.keySet ++ m2.keySet).foldLeft(Map.empty[String, InterestSubmissionModel]) {
+      case (m: Map[String, InterestSubmissionModel], key: String) =>
+        val untaxedAccountId = untaxedAccounts.find(_.accountName == key).flatMap(_.id)
+        val taxedAccountId = taxedAccounts.find(_.accountName == key).flatMap(_.id)
+
+        m + (key -> InterestSubmissionModel(
+          if (taxedAccountId.isDefined) taxedAccountId else untaxedAccountId,
+          key,
+          m1.get(key).flatten,
+          m2.get(key).flatten))
+    }.values.to[Seq]
 
     if(accounts.isEmpty){
       logger.info("[InterestSubmissionService][submit] User has entered No & No to both interest questions. Not submitting data to DES.")

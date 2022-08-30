@@ -45,10 +45,10 @@
     @accounts.zipWithIndex.map { case (account, id) =>
 
         @{untaxed match {
-            case true => account.untaxedAmount.map{ amount =>
+            case true => account.amount.map{ amount =>
                 details(questionNumber, id, account, amount)
             }
-            case false => account.taxedAmount.map{ amount =>
+            case false => account.amount.map{ amount =>
                 details(questionNumber, id, account, amount)
             }
         }}
@@ -78,7 +78,7 @@
                     } else None
                 } else { None },
                 if(cyaModel.untaxedUkInterest.contains(true)) {
-                    val accounts = cyaModel.accounts.filter(_.hasUntaxed)
+                    val accounts = cyaModel.untaxedAccounts
                     Some(summaryListRow(
                         HtmlContent(messages("interest.cya.questions.3")),
                         HtmlContent(accountsInfo(2, accounts, true)),
@@ -95,7 +95,7 @@
                     } else None
                 } else { None },
                 if(cyaModel.taxedUkInterest.contains(true)) {
-                    val accounts = cyaModel.accounts.filter(_.hasTaxed)
+                    val accounts = cyaModel.taxedAccounts
                     Some(summaryListRow(
                         HtmlContent(messages("interest.cya.questions.5")),
                         HtmlContent(accountsInfo(4, accounts, false)),

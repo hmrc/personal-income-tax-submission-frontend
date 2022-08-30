@@ -39,19 +39,19 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
   lazy val id: String = UUID.randomUUID().toString
 
   val untaxedInterestCyaModel: InterestCYAModel = InterestCYAModel(
-    None, Some(true), Some(false), Seq(InterestAccountModel(Some(id), accountName, Some(amount), None))
+    None, Some(true), Some(false), untaxedAccounts = Seq(InterestAccountModel(Some(id), accountName, Some(amount), None))
   )
 
   val taxedInterestCyaModel: InterestCYAModel = InterestCYAModel(
-    None, Some(false), Some(true), Seq(InterestAccountModel(Some(id), accountName, None, Some(amount)))
+    None, Some(false), Some(true), untaxedAccounts = Seq.empty, taxedAccounts = Seq(InterestAccountModel(Some(id), accountName, Some(amount)))
   )
 
   val taxedCyaSubmitModel: InterestCYAModel = InterestCYAModel(
-    None, Some(false), Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(amount)))
+    None, Some(false), Some(true), untaxedAccounts = Seq.empty, taxedAccounts = Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", Some(amount)))
   )
 
   val untaxedCyaSubmitModel: InterestCYAModel = InterestCYAModel(
-    None, Some(true), Some(false), Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount))),
+    None, Some(true), Some(false), untaxedAccounts = Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount))), taxedAccounts = Seq.empty
   )
 
   object Selectors {
@@ -235,10 +235,10 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
         Seq(
           (InterestCYAModel(
-            None, Some(true), Some(false), Seq(InterestAccountModel(Some(id), accountName, Some(differentAmount)))
+            None, Some(true), Some(false), untaxedAccounts = Seq(InterestAccountModel(Some(id), accountName, Some(differentAmount))), taxedAccounts = Seq.empty
           ),InterestModel(accountName, id, None, Some(amount)),/*untaxed =*/true),
           (InterestCYAModel(
-            None, Some(false), Some(true), Seq(InterestAccountModel(Some(id), accountName, None, Some(differentAmount)))
+            None, Some(false), Some(true), untaxedAccounts = Seq.empty, taxedAccounts = Seq(InterestAccountModel(Some(id), accountName, Some(differentAmount)))
           ),InterestModel(accountName, id, Some(amount), None),/*untaxed =*/false)
         ) foreach {
           testCase =>
@@ -322,7 +322,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
             None, Some(true), Some(false), Seq(InterestAccountModel(Some(id), accountName, Some(amount)))
           ),/*untaxed =*/true),
           (InterestCYAModel(
-            None, Some(false), Some(true), Seq(InterestAccountModel(Some(id), accountName, None, Some(amount)))
+            None, Some(false), Some(true), Seq(InterestAccountModel(Some(id), accountName, Some(amount)))
           ),/*untaxed =*/false)
         ) foreach {
           testCase =>
@@ -390,11 +390,11 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
 
         Seq(
           (InterestCYAModel(
-            None, Some(true), Some(true), Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount),Some(amount)))
-          ), InterestModel(accountName, "UntaxedId",  Some(amount), Some(amount)), /*untaxed =*/ true),
+            None, Some(true), Some(true), untaxedAccounts = Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(amount))), taxedAccounts = Seq.empty
+          ), InterestModel(accountName, "UntaxedId", Some(amount), Some(amount)), /*untaxed =*/ true),
           (InterestCYAModel(
-            None, Some(true), Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", Some(amount),Some(amount))),
-          ), InterestModel(accountName, "TaxedId", Some(amount),  Some(amount)), /*untaxed =*/ false)
+            None, Some(true), Some(true), untaxedAccounts = Seq.empty, taxedAccounts = Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", Some(amount))),
+          ), InterestModel(accountName, "TaxedId", Some(amount), Some(amount)), /*untaxed =*/ false)
         ) foreach {
           testCase =>
             s"there is both CYA data and prior in session and input is valid for a ${if (testCase._3) "untaxed" else "taxed"} submission" should {
@@ -412,12 +412,12 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
                 result.status shouldBe SEE_OTHER
                 result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/$taxYear/" +
                   s"interest/accounts-with-${if (testCase._3) "untaxed" else "taxed"}-uk-interest"
+
+                val untaxedAccounts = if (testCase._3) Seq(InterestAccountModel(Some("UntaxedId"), "Untaxed Account", Some(45645.99))) else Seq.empty
+                val taxedAccounts = if (testCase._3) Seq.empty else Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", Some(45645.99)))
+
                 findInterestDb shouldBe Some(InterestCYAModel(
-                  None, Some(true),Some(true),Seq(
-                    InterestAccountModel(Some(if (testCase._3) "UntaxedId" else "TaxedId"),
-                      s"${if (testCase._3) "Untaxed" else "Taxed"} Account",
-                      if (testCase._3) Some(45645.99) else Some(25),
-                      if (!testCase._3) Some(45645.99) else Some(25)))))
+                  None, Some(true), Some(true), untaxedAccounts, taxedAccounts))
               }
             }
         }
@@ -442,12 +442,13 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
                 result.status shouldBe SEE_OTHER
                 result.headers("Location").head shouldBe s"/update-and-submit-income-tax-return/personal-income/$taxYear/" +
                   s"interest/accounts-with-${if (testCase._3) "untaxed" else "taxed"}-uk-interest"
+
+                val untaxedAccounts = if (testCase._3) Seq(InterestAccountModel(Some("UntaxedId"), accountName, Some(45645.99))) else Seq.empty
+
+                val taxedAccounts = if (testCase._3) Seq.empty else Seq(InterestAccountModel(Some("TaxedId"), accountName, Some(45645.99)))
+
                 findInterestDb shouldBe Some(InterestCYAModel(
-                  None, Some(true),Some(true),Seq(
-                    InterestAccountModel(Some(if (testCase._3) "UntaxedId" else "TaxedId"),
-                      accountName,
-                      if (testCase._3) Some(45645.99) else Some(25),
-                      if (!testCase._3) Some(45645.99) else Some(25)))))
+                  None, Some(true),Some(true), untaxedAccounts, taxedAccounts))
               }
             }
         }
@@ -518,7 +519,7 @@ class ChangeAccountAmountControllerISpec extends IntegrationTest with ViewHelper
                 authoriseAgentOrIndividual(us.isAgent)
                 insertInterestCyaData(Some(testCase._1))
                 userDataStub(IncomeSourcesModel(interest = None), nino, taxYear)
-                urlPost(url(testCase._1.accounts.head.id.get, if (testCase._2) "untaxed" else "taxed"),
+                urlPost(url(if (testCase._2) testCase._1.untaxedAccounts.head.id.get else testCase._1.taxedAccounts.head.id.get, if (testCase._2) "untaxed" else "taxed"),
                   Map("" -> ""),
                   us.isWelsh, follow = false, playSessionCookie(us.isAgent))
               }

@@ -30,7 +30,6 @@ import play.api.i18n.I18nSupport
 import play.api.mvc._
 import services.{InterestSessionService, RemoveAccountService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SeqConversions.SeqInterestAccountModel
 import views.html.interest.RemoveAccountView
 
 import javax.inject.Inject
@@ -67,15 +66,16 @@ class RemoveAccountController @Inject()(
                  prior: Option[InterestPriorSubmission], errorForm: Option[Form[Boolean]] = None)(implicit user: User[_]): Result = {
     cya match {
       case Some(cyaData) =>
-        cyaData.accounts match {
-          case taxAccounts if taxAccounts.filterByTaxType(taxType).nonEmpty =>
-            val accounts = taxAccounts.filterByTaxType(taxType)
+        val accounts = if (taxType == TAXED) cyaData.taxedAccounts else cyaData.untaxedAccounts
+
+        accounts match {
+          case Nil => missingAccountsRedirect(taxType, taxYear)
+          case _ =>
             useAccount(accounts, accountId, taxType, taxYear) { account =>
               errorForm.fold(Ok(view(yesNoForm, taxYear, taxType, account, removeAccountService.isLastAccount(taxType, prior, accounts)))){
                 formWithErrors => BadRequest(view(formWithErrors, taxYear, taxType, account, removeAccountService.isLastAccount(taxType, prior, accounts)))
               }
             }
-          case _ => missingAccountsRedirect(taxType, taxYear)
         }
       case _ => overviewRedirect(taxYear)
     }
@@ -118,30 +118,35 @@ class RemoveAccountController @Inject()(
                                       yesNoModel: Boolean,
                                       cyaData: InterestCYAModel
                                      )(implicit user: User[_]): Future[Result] = {
-    cyaData.accounts match {
-      case taxAccounts if taxAccounts.filterByTaxType(taxType).nonEmpty =>
-        if (yesNoModel) {
-          if (taxType == UNTAXED) {
-            val (updatedCyaData, updatedAccounts) = removeAccountService.calculateUntaxedUpdate(cyaData, taxAccounts, accountId)
+    val untaxedAccounts = cyaData.untaxedAccounts
+    val taxedAccounts = cyaData.taxedAccounts
 
-            if (updatedAccounts.exists(_.hasUntaxed)) {
-              updateAndRedirect(updatedCyaData, taxYear)(Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)))
-            } else {
-              updateAndRedirect(updatedCyaData, taxYear)(Redirect(controllers.interest.routes.InterestCYAController.show(taxYear)))
-            }
+    val accounts = if (taxType == TAXED) taxedAccounts else untaxedAccounts
+
+    if (accounts.nonEmpty) {
+      if (yesNoModel) {
+        if (taxType == UNTAXED) {
+          val (updatedCyaData, updatedAccounts) = removeAccountService.calculateUntaxedUpdate(cyaData, accounts, accountId)
+
+          if (updatedAccounts.exists(_.amount.isDefined)) {
+            updateAndRedirect(updatedCyaData, taxYear)(Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)))
           } else {
-            val (updatedCyaData, updatedAccounts) = removeAccountService.calculateTaxedUpdate(cyaData, taxAccounts, accountId)
-
-            if (updatedAccounts.exists(_.hasTaxed)) {
-              updateAndRedirect(updatedCyaData, taxYear)(Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)))
-            } else {
-              updateAndRedirect(updatedCyaData, taxYear)(Redirect(controllers.interest.routes.InterestCYAController.show(taxYear)))
-            }
+            updateAndRedirect(updatedCyaData, taxYear)(Redirect(controllers.interest.routes.InterestCYAController.show(taxYear)))
           }
         } else {
-          Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)).withSession(user.session)
+          val (updatedCyaData, updatedAccounts) = removeAccountService.calculateTaxedUpdate(cyaData, accounts, accountId)
+
+          if (updatedAccounts.exists(_.amount.isDefined)) {
+            updateAndRedirect(updatedCyaData, taxYear)(Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)))
+          } else {
+            updateAndRedirect(updatedCyaData, taxYear)(Redirect(controllers.interest.routes.InterestCYAController.show(taxYear)))
+          }
         }
-      case _ => missingAccountsRedirect(taxType, taxYear)
+      } else {
+        Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType)).withSession(user.session)
+      }
+    } else {
+      missingAccountsRedirect(taxType, taxYear)
     }
   }
 

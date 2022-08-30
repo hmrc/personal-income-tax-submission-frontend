@@ -206,7 +206,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
               userDataStub(IncomeSourcesModel(None, Some(Seq(InterestModel(firstAccountName, id, None, Some(amount)))), None), nino, taxYear)
               insertInterestCyaData(Some(InterestCYAModel(
                 None, Some(true), Some(false),
-                Seq(InterestAccountModel(Some(id), firstAccountName, Some(amount), None, Some(id)))
+                Seq(InterestAccountModel(Some(id), firstAccountName, Some(amount), Some(id)))
               )), taxYear, None, Some(nino))
               authoriseAgentOrIndividual(us.isAgent)
               urlGet(url(id), us.isWelsh, follow = false, playSessionCookie(us.isAgent))
@@ -459,9 +459,14 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
           lazy val result: WSResponse = {
             dropInterestDB()
             emptyUserDataStub()
-            insertInterestCyaData(Some(InterestCYAModel(None, Some(true),None,Seq(
-              InterestAccountModel(None,"name",Some(1234),Some(1234),uniqueSessionId = Some("1234567890"))
-            ))))
+            insertInterestCyaData(Some(InterestCYAModel(None, Some(true), None,
+              untaxedAccounts = Seq(
+                InterestAccountModel(None, "name", Some(1234), uniqueSessionId = Some("1234567890"))
+              ),
+              taxedAccounts = Seq(
+                InterestAccountModel(None, "name", Some(1234), uniqueSessionId = Some("1234567890"))
+              )
+            )))
             authoriseAgentOrIndividual(us.isAgent)
             urlPost(url("1234567890"), Map(
               UntaxedInterestAmountForm.untaxedAmount -> "12,344.98",
@@ -475,10 +480,15 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
               s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/accounts-with-untaxed-uk-interest")
 
             val data = findInterestDb
-            data.head shouldBe InterestCYAModel(None, Some(true),None,List(
-              InterestAccountModel(None,firstAccountName,Some(12344.98),uniqueSessionId = data.head.accounts.head.uniqueSessionId),
-              InterestAccountModel(None,"name",None,Some(1234),uniqueSessionId = Some("1234567890"))
-            ))
+            data.head shouldBe InterestCYAModel(None, Some(true),None,
+              untaxedAccounts = Vector(
+                InterestAccountModel(None,firstAccountName,Some(12344.98),uniqueSessionId = data.head.untaxedAccounts.head.uniqueSessionId),
+                InterestAccountModel(None,"name",None,uniqueSessionId = Some("1234567890"))
+              ),
+              taxedAccounts = Vector(
+                InterestAccountModel(None,"name",Some(1234),uniqueSessionId = Some("1234567890"))
+              )
+            )
           }
         }
 
@@ -502,7 +512,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
             val data = findInterestDb
             data shouldBe Some(InterestCYAModel(None, Some(true),None,Seq(
-              InterestAccountModel(None,firstAccountName,Some(12344.98),uniqueSessionId = data.head.accounts.head.uniqueSessionId)
+              InterestAccountModel(None,firstAccountName,Some(12344.98),uniqueSessionId = data.head.untaxedAccounts.head.uniqueSessionId)
             )))
           }
         }

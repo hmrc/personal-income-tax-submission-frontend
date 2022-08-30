@@ -17,11 +17,10 @@
 package services
 
 import common.IncomeSources
-import config.ErrorHandler
 import connectors.httpParsers.IncomeTaxUserDataHttpParser.IncomeTaxUserDataResponse
 import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector}
 import models.User
-import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
+import models.interest.{InterestAccountSourceModel, InterestCYAModel, InterestPriorSubmission}
 import models.mongo.{DatabaseError, InterestUserDataModel}
 import models.priorDataModels.InterestModel
 import org.joda.time.{DateTime, DateTimeZone}
@@ -80,9 +79,9 @@ class InterestSessionService @Inject()(
 
   }
 
-  private[services] def interestModelToInterestAccount(input: InterestModel): InterestAccountModel = {
+  private[services] def interestModelToInterestSourceAccount(input: InterestModel): InterestAccountSourceModel = {
 
-    InterestAccountModel(
+    InterestAccountSourceModel(
       Some(input.incomeSourceId),
       input.accountName,
       input.untaxedUkInterest,
@@ -99,7 +98,7 @@ class InterestSessionService @Inject()(
 
       val interestAccountsResponse = priorDataResponse.map(_.interest).map {
         priorSubmission =>
-          priorSubmission.getOrElse(Seq.empty[InterestModel]).map(interestModelToInterestAccount)
+          priorSubmission.getOrElse(Seq.empty[InterestModel]).map(interestModelToInterestSourceAccount)
       }
 
       interestAccountsResponse match {

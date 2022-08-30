@@ -16,31 +16,31 @@
 
 package models.interest
 
-import common.InterestTaxTypes
 import config.AppConfig
 import models.question.Question.{WithDependency, WithoutDependency}
 import models.question.{Question, QuestionsJourney}
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
-import play.api.libs.json.{JsNull, JsObject, JsPath, Json, OFormat, Reads, Writes}
+import play.api.libs.json.{JsNull, JsObject, JsPath, Json, Reads, Writes}
 import play.api.mvc.Call
 import utils.EncryptedValue
 
 case class InterestCYAModel(gateway: Option[Boolean] = None,
                             untaxedUkInterest: Option[Boolean] = None,
                             taxedUkInterest: Option[Boolean] = None,
-                            accounts: Seq[InterestAccountModel] = Seq.empty) {
+                            untaxedAccounts: Seq[InterestAccountModel] = Seq.empty,
+                            taxedAccounts: Seq[InterestAccountModel] = Seq.empty) {
 
   def asJsonString: String = Json.toJson(this).toString()
 
   def isFinished (implicit appConfig: AppConfig): Boolean = {
 
     val untaxedInterestFinished: Boolean = untaxedUkInterest.exists {
-      case true => accounts.exists(_.untaxedAmount.isDefined)
+      case true => untaxedAccounts.exists(_.amount.isDefined)
       case false => true
     }
 
     val taxedInterestFinished: Boolean = taxedUkInterest.exists {
-      case true => accounts.exists(_.taxedAmount.isDefined)
+      case true => taxedAccounts.exists(_.amount.isDefined)
       case false => true
     }
 
@@ -58,7 +58,8 @@ object InterestCYAModel {
     (JsPath \ "gateway").readNullable[Boolean] and
     (JsPath \ "untaxedUkInterest").readNullable[Boolean] and
       (JsPath \ "taxedUkInterest").readNullable[Boolean] and
-      (JsPath \ "accounts").readNullable[Seq[InterestAccountModel]].map(_.getOrElse(Seq()))
+      (JsPath \ "untaxedAccounts").readNullable[Seq[InterestAccountModel]].map(_.getOrElse(Seq())) and
+      (JsPath \ "taxedAccounts").readNullable[Seq[InterestAccountModel]].map(_.getOrElse(Seq()))
     ) (InterestCYAModel.apply _)
 
   implicit val writes: Writes[InterestCYAModel] = (model: InterestCYAModel) => {
@@ -66,8 +67,11 @@ object InterestCYAModel {
       "gateway" -> model.gateway,
       "untaxedUkInterest" -> model.untaxedUkInterest,
       "taxedUkInterest" -> model.taxedUkInterest,
-      "accounts" -> {
-        if (model.accounts.isEmpty) JsNull else model.accounts
+      "untaxedAccounts" -> {
+        if (model.untaxedAccounts.isEmpty) JsNull else model.untaxedAccounts
+      },
+      "taxedAccounts" -> {
+        if (model.taxedAccounts.isEmpty) JsNull else model.taxedAccounts
       }
     ).fields.filterNot(_._2 == JsNull))
   }
@@ -100,9 +104,9 @@ object InterestCYAModel {
     override def questions(model: InterestCYAModel): Set[Question] = {
       val questionsUsingId = idOpt.map { id =>
         Set(
-          WithDependency(Option(model.accounts.filter(_.untaxedAmount.isDefined)).filterNot(_.isEmpty), model.untaxedUkInterest,
+          WithDependency(Option(model.untaxedAccounts.filter(_.amount.isDefined)).filterNot(_.isEmpty), model.untaxedUkInterest,
             controllers.interest.routes.UntaxedInterestAmountController.show(taxYear, id), controllers.interest.routes.UntaxedInterestController.show(taxYear)),
-          WithDependency(Option(model.accounts.filter(_.taxedAmount.isDefined)).filterNot(_.isEmpty), model.taxedUkInterest,
+          WithDependency(Option(model.taxedAccounts.filter(_.amount.isDefined)).filterNot(_.isEmpty), model.taxedUkInterest,
             controllers.interest.routes.TaxedInterestAmountController.show(taxYear, id), controllers.interest.routes.TaxedInterestController.show(taxYear))
         )
       }.getOrElse(Seq.empty[Question])
@@ -117,9 +121,9 @@ object InterestCYAModel {
 
   def disallowedDuplicateNames(optionalCyaData: Option[InterestCYAModel], id: String, taxType: String): Seq[String] = {
     optionalCyaData.map {
-      _.accounts
-        .filter(if (taxType == InterestTaxTypes.TAXED) _.hasTaxed else _.hasUntaxed)
-        .filterNot(_.getPrimaryId().contains(id))
+      cyaModel: InterestCYAModel =>
+        val accounts = cyaModel.untaxedAccounts ++ cyaModel.taxedAccounts
+        accounts.filter(_.amount.isDefined).filterNot(_.getPrimaryId().contains(id))
     }.getOrElse(Seq()).map(_.accountName)
   }
 
@@ -130,7 +134,8 @@ object InterestCYAModel {
           Some(priorData.hasTaxed || priorData.hasUntaxed),
           Some(priorData.hasUntaxed),
           Some(priorData.hasTaxed),
-          priorData.submissions.filter(x => x.hasTaxed || x.hasUntaxed)
+          untaxedAccounts = priorData.submissions.filter(accountSourceModel => accountSourceModel.hasUntaxed).map(accountSourceModel => InterestAccountModel(accountSourceModel.id, accountSourceModel.accountName, accountSourceModel.untaxedAmount, accountSourceModel.uniqueSessionId)),
+          taxedAccounts = priorData.submissions.filter(x => x.hasTaxed).map(x => InterestAccountModel(x.id, x.accountName, x.taxedAmount, x.uniqueSessionId))
         ))
       case (Some(cyaData), _) => Some(cyaData)
       case _ => None
@@ -141,7 +146,8 @@ object InterestCYAModel {
 case class EncryptedInterestCYAModel(gateway: Option[EncryptedValue] = None,
                                      untaxedUkInterest: Option[EncryptedValue] = None,
                                      taxedUkInterest: Option[EncryptedValue] = None,
-                                     accounts: Seq[EncryptedInterestAccountModel] = Seq.empty)
+                                     untaxedAccounts: Seq[EncryptedInterestAccountModel] = Seq.empty,
+                                     taxedAccounts: Seq[EncryptedInterestAccountModel] = Seq.empty)
 
 object EncryptedInterestCYAModel {
 
@@ -149,7 +155,8 @@ object EncryptedInterestCYAModel {
     (JsPath \ "gateway").readNullable[EncryptedValue] and
     (JsPath \ "untaxedUkInterest").readNullable[EncryptedValue] and
       (JsPath \ "taxedUkInterest").readNullable[EncryptedValue] and
-      (JsPath \ "accounts").readNullable[Seq[EncryptedInterestAccountModel]].map(_.getOrElse(Seq()))
+      (JsPath \ "untaxedAccounts").readNullable[Seq[EncryptedInterestAccountModel]].map(_.getOrElse(Seq())) and
+      (JsPath \ "taxedAccounts").readNullable[Seq[EncryptedInterestAccountModel]].map(_.getOrElse(Seq()))
     ) (EncryptedInterestCYAModel.apply _)
 
   implicit val writes: Writes[EncryptedInterestCYAModel] = (model: EncryptedInterestCYAModel) => {
@@ -157,8 +164,11 @@ object EncryptedInterestCYAModel {
       "gateway" -> model.gateway,
       "untaxedUkInterest" -> model.untaxedUkInterest,
       "taxedUkInterest" -> model.taxedUkInterest,
-      "accounts" -> {
-        if (model.accounts.isEmpty) JsNull else model.accounts
+      "untaxedAccounts" -> {
+        if (model.untaxedAccounts.isEmpty) JsNull else model.untaxedAccounts
+      },
+      "taxedAccounts" -> {
+        if (model.taxedAccounts.isEmpty) JsNull else model.taxedAccounts
       }
     ).fields.filterNot(_._2 == JsNull))
   }

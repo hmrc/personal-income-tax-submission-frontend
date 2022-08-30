@@ -199,7 +199,8 @@ class EncryptionService @Inject()(encryptionService: SecureGCMCipher, appConfig:
       interests.gateway.map(x => encryptionService.encrypt[Boolean](x)),
       interests.untaxedUkInterest.map(x => encryptionService.encrypt[Boolean](x)),
       interests.taxedUkInterest.map(x => encryptionService.encrypt[Boolean](x)),
-      interests.accounts.map(encryptInterestAccountModel)
+      interests.untaxedAccounts.map(encryptInterestAccountModel),
+      interests.taxedAccounts.map(encryptInterestAccountModel)
     )
   }
 
@@ -209,7 +210,8 @@ class EncryptionService @Inject()(encryptionService: SecureGCMCipher, appConfig:
       interests.gateway.map(x => encryptionService.decrypt[Boolean](x.value, x.nonce)),
       interests.untaxedUkInterest.map(x => encryptionService.decrypt[Boolean](x.value, x.nonce)),
       interests.taxedUkInterest.map(x => encryptionService.decrypt[Boolean](x.value, x.nonce)),
-      interests.accounts.map(decryptInterestAccountModel)
+      interests.untaxedAccounts.map(decryptInterestAccountModel),
+      interests.taxedAccounts.map(decryptInterestAccountModel)
     )
   }
 
@@ -218,8 +220,7 @@ class EncryptionService @Inject()(encryptionService: SecureGCMCipher, appConfig:
     EncryptedInterestAccountModel(
       interestAccount.id.map(x => encryptionService.encrypt[String](x)),
       encryptionService.encrypt[String](interestAccount.accountName),
-      interestAccount.untaxedAmount.map(x => encryptionService.encrypt[BigDecimal](x)),
-      interestAccount.taxedAmount.map(x => encryptionService.encrypt[BigDecimal](x)),
+      interestAccount.amount.map(x => encryptionService.encrypt[BigDecimal](x)),
       interestAccount.uniqueSessionId.map(x => encryptionService.encrypt[String](x))
     )
   }
@@ -228,8 +229,7 @@ class EncryptionService @Inject()(encryptionService: SecureGCMCipher, appConfig:
     InterestAccountModel(
       interestAccount.id.map(x => encryptionService.decrypt[String](x.value, x.nonce)),
       encryptionService.decrypt[String](interestAccount.accountName.value, interestAccount.accountName.nonce),
-      interestAccount.untaxedAmount.map(x => encryptionService.decrypt[BigDecimal](x.value, x.nonce)),
-      interestAccount.taxedAmount.map(x => encryptionService.decrypt[BigDecimal](x.value, x.nonce)),
+      interestAccount.amount.map(x => encryptionService.decrypt[BigDecimal](x.value, x.nonce)),
       interestAccount.uniqueSessionId.map(x => encryptionService.decrypt[String](x.value, x.nonce))
     )
   }

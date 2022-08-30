@@ -22,10 +22,14 @@ case class AccountAmountModel(accountName: String, accountAmount: BigDecimal)
 
 object AccountAmountModel {
   def apply(cya: Option[InterestCYAModel], uniqueSessionId: String, taxType: String): Option[AccountAmountModel] = {
-    val account: Option[InterestAccountModel] = cya.flatMap(_.accounts.find(_.uniqueSessionId.contains(uniqueSessionId)))
+    val account: Option[InterestAccountModel] = if (taxType == TAXED) {
+      cya.flatMap(_.taxedAccounts.find(_.uniqueSessionId.contains(uniqueSessionId)))
+    } else {
+      cya.flatMap(_.untaxedAccounts.find(_.uniqueSessionId.contains(uniqueSessionId)))
+    }
 
     val accountName: Option[String] = account.map(_.accountName)
-    val accountAmount: Option[BigDecimal] = if (taxType == TAXED) account.flatMap(_.taxedAmount) else account.flatMap(_.untaxedAmount)
+    val accountAmount: Option[BigDecimal] = account.flatMap(_.amount)
 
     val model: Option[AccountAmountModel] = (accountName, accountAmount) match {
       case (Some(name), Some(amount)) => Some(AccountAmountModel(name, amount))

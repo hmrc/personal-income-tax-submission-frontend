@@ -24,15 +24,13 @@ class InterestAccountModelSpec extends UnitTest {
   val validJsonStandardReadsMax: JsObject = Json.obj(
     "id" -> "qwerty",
     "accountName" -> "TSB",
-    "untaxedAmount" -> 500,
-    "taxedAmount" -> 500,
+    "amount" -> 500,
     "uniqueSessionId" -> "ytrewq"
   )
 
   val validModelStandardReadsMax: InterestAccountModel = InterestAccountModel(
     Some("qwerty"),
     "TSB",
-    Some(500.00),
     Some(500.00),
     Some("ytrewq")
   )
@@ -44,7 +42,6 @@ class InterestAccountModelSpec extends UnitTest {
   val validModelStandardReadsMin: InterestAccountModel = InterestAccountModel(
     None,
     "TSB",
-    None,
     None,
     None
   )
@@ -98,41 +95,19 @@ class InterestAccountModelSpec extends UnitTest {
   val validTaxedModel: InterestAccountModel = InterestAccountModel(
     Some("azerty"),
     "Lloyds",
-    taxedAmount = Some(300.00)
+    amount = Some(300.00)
   )
 
-  "using alternative json reads" should {
+  "using json reads" should {
 
     "correctly read json into model" when {
 
       "the json is a valid untaxed submission" in {
-        validJsonAlternativeUntaxed.as[InterestAccountModel](InterestAccountModel.priorSubmissionReads)
+        validJsonAlternativeUntaxed.as[InterestAccountModel]
       }
 
       "the json is a valid taxed submission" in {
-        validJsonAlternativeTaxed.as[InterestAccountModel](InterestAccountModel.priorSubmissionReads)
-      }
-
-    }
-
-    "return a json read exception" when {
-
-      "the unique id is missing" in {
-        intercept[JsResultException](
-          Json.obj(
-            "accountName" -> "Lloyds",
-            "untaxedUkInterest" -> 300.00
-          ).as[InterestAccountModel](InterestAccountModel.priorSubmissionReads)
-        )
-      }
-
-      "the account name is missing" in {
-        intercept[JsResultException](
-          Json.obj(
-            "incomeSourceId" -> "qwerty",
-            "untaxedUkInterest" -> 300.00
-          ).as[InterestAccountModel](InterestAccountModel.priorSubmissionReads)
-        )
+        validJsonAlternativeTaxed.as[InterestAccountModel]
       }
 
     }

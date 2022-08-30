@@ -26,7 +26,7 @@ import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.interest.TaxedInterestAmountForm
 
 import javax.inject.Inject
-import models.interest.{InterestAccountModel, InterestCYAModel, TaxedInterestModel, AccountAmountModel}
+import models.interest.{AccountAmountModel, InterestAccountModel, InterestCYAModel, TaxedInterestModel}
 import models.question.QuestionsJourney
 import play.api.Logging
 import play.api.data.Form
@@ -95,17 +95,20 @@ class TaxedInterestAmountController @Inject()(
       }, {
         completeForm =>
 
+          val untaxedAccounts = cya.map(_.untaxedAccounts).getOrElse(Seq())
+          val taxedAccounts = cya.map(_.taxedAccounts).getOrElse(Seq())
+
           val accountsAbleToReuse: Seq[InterestAccountModel] = {
-            cya.map(_.accounts.filter(!_.hasTaxed)).getOrElse(Seq()) ++
-            prior.map(_.submissions.filter(!_.hasTaxed)).getOrElse(Seq())
+            (untaxedAccounts ++ taxedAccounts) ++
+            prior.map(_.submissions.filter(!_.hasTaxed)).getOrElse(Seq()).map(account => InterestAccountModel(account.id, account.accountName, account.untaxedAmount, account.uniqueSessionId))
           }
 
           cya match {
             case Some(cyaData) =>
 
               val existingAccountWithName: Option[InterestAccountModel] = accountsAbleToReuse.find(_.accountName == completeForm.taxedAccountName)
-              val newAccountList = taxedInterestAmountService.createNewAccountsList(completeForm, existingAccountWithName, cyaData.accounts, id)
-              val updatedCyaModel = cyaData.copy(accounts = newAccountList)
+              val newAccountList = taxedInterestAmountService.createNewAccountsList(completeForm, existingAccountWithName, cyaData.taxedAccounts, id)
+              val updatedCyaModel = cyaData.copy(taxedAccounts = newAccountList)
 
               interestSessionService.updateSessionData(updatedCyaModel, taxYear)(errorHandler.internalServerError())(
                 Redirect(controllers.interest.routes.AccountsController.show(taxYear, InterestTaxTypes.TAXED))

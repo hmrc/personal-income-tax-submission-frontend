@@ -56,7 +56,8 @@ class AccountsController @Inject()(view: InterestAccountsView,
           Future(getTaxAccounts(taxType, cyaData) match {
             case taxAccounts: Seq[InterestAccountModel] if taxAccounts.nonEmpty =>
               Ok(view(yesNoForm, taxYear, taxAccounts, taxType, isAgent = user.isAgent, priorSubmission))
-            case _ => missingAccountsRedirect(taxType, taxYear)
+            case _ =>
+              missingAccountsRedirect(taxType, taxYear)
           })
         case _ =>
           logger.info("[AccountsController][show] No CYA data in session. Redirecting to the overview page.")
@@ -113,8 +114,8 @@ class AccountsController @Inject()(view: InterestAccountsView,
 
   private[interest] def getTaxAccounts(taxType: String, cyaData: InterestCYAModel): Seq[InterestAccountModel] = {
     taxType match {
-      case `TAXED` => cyaData.accounts.filter(_.hasTaxed)
-      case `UNTAXED` => cyaData.accounts.filter(_.hasUntaxed)
+      case `TAXED` => cyaData.taxedAccounts.filter(_.amount.isDefined)
+      case `UNTAXED` => cyaData.untaxedAccounts.filter(_.amount.isDefined)
     }
   }
 

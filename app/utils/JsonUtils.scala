@@ -16,17 +16,9 @@
 
 package utils
 
-import common.InterestTaxTypes.TAXED
-import models.interest.InterestAccountModel
+import play.api.libs.json.{JsNull, JsObject, Json}
 
-object SeqConversions {
-  implicit class SeqInterestAccountModel(accounts: Seq[InterestAccountModel]) {
-    def filterByTaxType(taxType: String): Seq[InterestAccountModel] = {
-      if (taxType == TAXED) {
-        accounts.filter(_.hasTaxed)
-      } else {
-        accounts.filter(_.hasUntaxed)
-      }
-    }
-  }
+object JsonUtils {
+  def jsonObjNoNulls(fields: (String, Json.JsValueWrapper)*): JsObject =
+    JsObject(Json.obj(fields:_*).fields.filterNot(_._2 == JsNull).filterNot(_._2 == Json.obj()))
 }
