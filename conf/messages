@@ -202,7 +202,7 @@ interest.untaxed-uk-interest-amount.error.empty.agent = Enter the amount of unta
 interest.untaxed-uk-interest-amount.error.invalid-numeric = Enter the amount of untaxed UK interest in the correct format
 interest.untaxed-uk-interest-amount.error.max-amount = The amount of untaxed UK interest must be less than £100,000,000,000
 
-interest.untaxed-uk-interest-details.error.invalidChars = Name of account with untaxed UK interest must only include numbers 0-9, letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets, and the special characters &, @, £, *
+interest.untaxed-uk-interest-details.error.invalidChars = Name of account with untaxed UK interest must only include numbers 0-9, letters a to z, hyphens, spaces, apostrophes, commas, full stops and ampersands
 
 interest.untaxed-uk-interest-accounts.title = Accounts with untaxed UK interest
 interest.untaxed-uk-interest-accounts.account.tell-us-about-all.individual = You must tell us about all your accounts with untaxed UK interest.
@@ -219,7 +219,7 @@ interest.taxed-uk-interest.errors.noRadioSelected.individual = Select yes if you
 interest.taxed-uk-interest.errors.noRadioSelected.agent = Select yes if your client got taxed UK interest
 
 interest.taxed-uk-interest-details.title = Add an account with taxed UK interest
-interest.taxed-uk-interest-amount.error.invalidChars = Name of account with taxed UK interest must only include numbers 0-9, letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets, and the special characters &, @, £, *
+interest.taxed-uk-interest-amount.error.invalidChars = Name of account with taxed UK interest must only include numbers 0-9, letters a to z, hyphens, spaces, apostrophes, commas, full stops and ampersands
 interest.taxed-uk-interest.amount.interest.earned = Amount of taxed UK interest
 interest.taxed-uk-interest-amount.error.empty.individual = Enter the amount of taxed UK interest you got
 interest.taxed-uk-interest-amount.error.empty.agent = Enter the amount of taxed UK interest your client got

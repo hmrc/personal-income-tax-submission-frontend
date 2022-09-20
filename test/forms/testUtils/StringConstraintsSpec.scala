@@ -31,6 +31,8 @@ class StringConstraintsSpec extends Constraints with AnyWordSpecLike with Matche
   val errMsgNoLeadingSpace = "there are leading spaces"
   val errMsgInvalidInt = "contains non numerical chars"
 
+  val desIncomeSourceNameRegex = "^[A-Za-z0-9 \\-,.&']{1,105}$".r
+
   "The StringConstraints.nonEmpty method" when {
 
     "supplied with empty value" should {
@@ -60,7 +62,7 @@ class StringConstraintsSpec extends Constraints with AnyWordSpecLike with Matche
           val lowerCaseAlphabet = ('a' to 'z').mkString
           val upperCaseAlphabet = lowerCaseAlphabet.toUpperCase()
           val oneToNine = (1 to 9).mkString
-          val otherChar = "&@£/()*.,-"
+          val otherChar = "&.,-"
           val space = ""
 
           StringConstraints.validateChar(errMsgInvalidChar)(lowerCaseAlphabet + upperCaseAlphabet + space + oneToNine + otherChar + space) shouldBe Valid
@@ -84,20 +86,26 @@ class StringConstraintsSpec extends Constraints with AnyWordSpecLike with Matche
           val lowerCaseAlphabet = ('a' to 'z').mkString
           val upperCaseAlphabet = lowerCaseAlphabet.toUpperCase()
           val oneToNine = (1 to 9).mkString
-          val otherChar = "&@£()*.,'-"
+          val otherChar = "&.,'-"
           val space = ""
+
+          val regexList = lowerCaseAlphabet + upperCaseAlphabet + space + oneToNine + otherChar + space
+
+          desIncomeSourceNameRegex.pattern.matcher(regexList).matches shouldBe true
 
           StringConstraints.validateChar(
             errMsgInvalidChar,
             charRegexInterest
-          )(lowerCaseAlphabet + upperCaseAlphabet + space + oneToNine + otherChar + space) shouldBe Valid
+          )(regexList) shouldBe Valid
         }
       }
 
       "supplied with a string which contains invalid characters" should {
 
         "return invalid" in {
-          StringConstraints.validateChar(errMsgInvalidChar, charRegexInterest)("!()+{}?^~/") shouldBe Invalid(errMsgInvalidChar)
+          val regexList = "!()+{}?^~/"
+          desIncomeSourceNameRegex.pattern.matcher(regexList).matches shouldBe false
+          StringConstraints.validateChar(errMsgInvalidChar, charRegexInterest)(regexList) shouldBe Invalid(errMsgInvalidChar)
         }
       }
       
