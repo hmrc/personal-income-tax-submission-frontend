@@ -84,7 +84,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
     val button: String = "Continue"
     val noNameEntryError: String = "Enter a name for this account"
     val invalidCharEntry: String = "Name of account with taxed UK interest must only include numbers 0-9, " +
-      "letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets, and the special characters &, @, £, *"
+      "letters a to z, hyphens, spaces, apostrophes, commas, full stops and ampersands"
     val nameTooLongError: String = "The name of the account must be 32 characters or fewer"
     val duplicateNameError: String = "You cannot add 2 accounts with the same name"
     val tooMuchMoneyError = "The amount of taxed UK interest must be less than £100,000,000,000"
@@ -101,8 +101,8 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
     val hint: String = "Er enghraifft, ‘cyfrif cynilo HSBC’. " + "Er enghraifft, £193.52"
     val button: String = "Yn eich blaen"
     val noNameEntryError: String = "Nodwch enw ar gyfer y cyfrif hwn"
-    val invalidCharEntry: String = "Mae’n rhaid i enw’r cyfrif sydd â llog y DU a drethwyd cynnwys rhifau 0-9, " +
-      "llythrennau a i z, cysylltnodau, bylchau, collnodau, comas, atalnodau llawn, cromfachau crwn, a’r cymeriadau arbennig &, @, £, * yn unig"
+    val invalidCharEntry: String = "Rhaid i enw’r cyfrif, sydd â llog y DU a drethwyd, gynnwys y rhifau 0-9, " +
+      "llythrennau a i z, cysylltnodau, bylchau, collnodau, atalnodau, atalnodau llawn ac ampersands yn unig"
     val nameTooLongError: String = "Mae’n rhaid i enw’r cyfrif fod yn 32 o gymeriadau neu lai"
     val duplicateNameError: String = "Ni allwch ychwanegu 2 gyfrif gyda’r un enw"
     val tooMuchMoneyError = "Mae’n rhaid i swm y llog y DU a drethwyd fod yn llai na £100,000,000,000"
@@ -328,6 +328,78 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
         "invalid characters are entered into the fields" should {
           lazy val result = response(Map(TaxedInterestAmountForm.taxedAmount -> "money",
             TaxedInterestAmountForm.taxedAccountName -> "$uper"))
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          s"return a 400(BadRequest) status" in {
+            result.status shouldBe BAD_REQUEST
+          }
+
+          multipleErrorCheck(
+            List(
+              (invalidCharEntry, Selectors.accountNameInput),
+              (incorrectFormatError, Selectors.amountInput)
+            ), us.isWelsh
+          )
+        }
+
+        "round brackets are entered into the account name field" should {
+          lazy val result = response(Map(TaxedInterestAmountForm.taxedAmount -> "money",
+            TaxedInterestAmountForm.taxedAccountName -> "Account (taxed)"))
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          s"return a 400(BadRequest) status" in {
+            result.status shouldBe BAD_REQUEST
+          }
+
+          multipleErrorCheck(
+            List(
+              (invalidCharEntry, Selectors.accountNameInput),
+              (incorrectFormatError, Selectors.amountInput)
+            ), us.isWelsh
+          )
+        }
+
+        "at sign is entered into the account name field" should {
+          lazy val result = response(Map(TaxedInterestAmountForm.taxedAmount -> "money",
+            TaxedInterestAmountForm.taxedAccountName -> "Account @"))
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          s"return a 400(BadRequest) status" in {
+            result.status shouldBe BAD_REQUEST
+          }
+
+          multipleErrorCheck(
+            List(
+              (invalidCharEntry, Selectors.accountNameInput),
+              (incorrectFormatError, Selectors.amountInput)
+            ), us.isWelsh
+          )
+        }
+
+        "pound symbol is entered into the account name field" should {
+          lazy val result = response(Map(TaxedInterestAmountForm.taxedAmount -> "money",
+            TaxedInterestAmountForm.taxedAccountName -> "Account £"))
+
+          implicit def document: () => Document = () => Jsoup.parse(result.body)
+
+          s"return a 400(BadRequest) status" in {
+            result.status shouldBe BAD_REQUEST
+          }
+
+          multipleErrorCheck(
+            List(
+              (invalidCharEntry, Selectors.accountNameInput),
+              (incorrectFormatError, Selectors.amountInput)
+            ), us.isWelsh
+          )
+        }
+
+        "asterisk symbol is entered into the account name field" should {
+          lazy val result = response(Map(TaxedInterestAmountForm.taxedAmount -> "money",
+            TaxedInterestAmountForm.taxedAccountName -> "Account *"))
 
           implicit def document: () => Document = () => Jsoup.parse(result.body)
 
