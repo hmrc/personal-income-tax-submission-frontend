@@ -14,6 +14,7 @@
  * limitations under the License.
  *@
 
+@import views.html.helper.CSPNonce
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardFooter
 @import views.html.templates.helpers.Link
 @import uk.gov.hmrc.govukfrontend.views.html.components._
@@ -21,8 +22,8 @@
 
 @this(
         govukLayout: GovukLayout,
-        head: Head,
-        beforeBodyContent: BeforeBodyContent,
+beforeBodyContent: BeforeBodyContent,
+head: Head,
         hmrcStandardFooter: HmrcStandardFooter,
         getHelpLink: Link,
         hmrcHeader: HmrcStandardHeader,
@@ -58,12 +59,11 @@
 
 @footerBlock = {
     @hmrcStandardFooter()
-
-    <script src='@controllers.routes.Assets.versioned("lib/govuk-frontend/govuk/all.js")'></script>
-    <script src='@controllers.routes.Assets.versioned("lib/hmrc-frontend/hmrc/all.js")'></script>
-    <script src='@controllers.routes.Assets.versioned("javascripts/application.min.js")'></script>
-    <script>window.GOVUKFrontend.initAll();</script>
-    <script>window.HMRCFrontend.initAll();</script>
+    <script @{CSPNonce.attr} src='@controllers.routes.Assets.versioned("lib/govuk-frontend/govuk/all.js")'></script>
+    <script @{CSPNonce.attr} src='@controllers.routes.Assets.versioned("lib/hmrc-frontend/hmrc/all.js")'></script>
+    <script @{CSPNonce.attr} src='@controllers.routes.Assets.versioned("javascripts/application.js")'></script>
+    <script @{CSPNonce.attr}>window.GOVUKFrontend.initAll();</script>
+    <script @{CSPNonce.attr}>window.HMRCFrontend.initAll();</script>
     @scriptsBlock.map(x => x)
 }
 
@@ -73,7 +73,8 @@
     headerBlock = Some(headerBlock),
     scriptsBlock = None,
     beforeContentBlock = Some(beforeBodyContent(backLink, isAgent)),
-    footerBlock = Some(footerBlock)
+    footerBlock = Some(footerBlock),
+    cspNonce = CSPNonce.get
 )(content)
 
 
