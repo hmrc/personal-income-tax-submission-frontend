@@ -1,6 +1,12 @@
 # Common Service Messages
 # ----------------------------------------------------------
 
+helloWorldPage.title.individual = Hello World
+helloWorldPage.title.agent = Hello World
+helloWorldPage.caption = Hello World page for 6 April {0} to 5 April {1}
+helloWorldPage.error.individual = Select yes if you (individual)
+helloWorldPage.error.agent = Select yes if your client (agent)
+
 service.name = Update and submit an Income Tax Return
 service.govUkExtension = GOV.UK
 

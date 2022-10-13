@@ -1,6 +1,12 @@
 # Common Service Messages
 # ----------------------------------------------------------
 
+helloWorldPage.title.individual = Helo Byd
+helloWorldPage.title.agent = Helo Byd
+helloWorldPage.caption = Tudalen Hello World ar gyfer 6 Ebrill {0} i 5 Ebrill {1}
+helloWorldPage.error.individual = Dewiswch ie os ydych chi (unigol)...
+helloWorldPage.error.agent = Dewiswch ie os yw'ch cleient (asiant) ...
+
 service.name = Diweddaru a chyflwyno Ffurflen Dreth Incwm
 service.govUkExtension = GOV.UK
 

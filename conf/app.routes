@@ -2,6 +2,9 @@
 
 ->          /hmrc-frontend                                                                                    hmrcfrontend.Routes
 
+GET         /:taxYear/hello-world                                                                             controllers.HelloWorldPageController.show(taxYear: Int)
+POST        /:taxYear/hello-world                                                                             controllers.HelloWorldPageController.submit(taxYear: Int)
+
 GET         /sign-out                                                                                         controllers.SignOutController.signOut(isAgent: Boolean)
 GET         /keep-alive                                                                                       controllers.SessionExpiredController.keepAlive
 GET         /timeout                                                                                          controllers.SessionExpiredController.timeout
