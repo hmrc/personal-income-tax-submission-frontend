@@ -549,9 +549,6 @@ savings.interest-amount.error.maximum = Amount of interest must be less than Â£1
 savings.interest-amount.error.wrong-format = Amount of interest must be a number, like 600 or 193.54
 savings.interest-amount.error.too-many-decimals = Amount of interest can only include pounds and pence, like 600 or 193.54
 
-# Interest from gilt-edged or accrued income securities pages
-# -----------------------------------------------------------
-
 savings.gateway.heading = Interest from gilt-edged or accrued income securities
 savings.gateway.radio.heading.individual = Did you get any interest from gilt-edged or accrued income securities?
 savings.gateway.radio.heading.agent = Did your client get any interest from gilt-edged or accrued income securities?
@@ -576,6 +573,15 @@ savings.tax-taken-off-interest.error.maximum = Amount of tax must be less than Â
 savings.tax-taken-off-interest.error.wrong-format = Amount of tax must be a number, like 600 or 193.54
 savings.tax-taken-off-interest.error.too-many-decimals = Amount of tax can only include pounds and pence, like 600 or 193.54
 
+interest.securities.cya.title.individual = Check your interest from gilt-edged or accrued income securities
+interest.securities.cya.title.agent = Check your client''s interest from gilt-edged or accrued income securities
+interest.securities.cya.questions.1.hiddenChange = Change interest from gilt-edged or accrued income securities
+interest.securities.cya.questions.2 = Amount of interest
+interest.securities.cya.questions.2.hiddenChange = Change amount of interest
+interest.securities.cya.questions.3 = Tax taken off
+interest.securities.cya.questions.3.hiddenChange = Change tax taken off
+interest.securities.cya.questions.4 = Amount of tax taken off
+interest.securities.cya.questions.4.hiddenChange = Change amount of tax taken off
 
 # Cross Journey
 # ----------------------------------------------------------
