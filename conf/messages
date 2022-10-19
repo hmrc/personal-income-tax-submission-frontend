@@ -32,6 +32,7 @@ common.currency.hint = For example, £193.52
 dividends.caption = Dividends for 6 April {0} to 5 April {1}
 interest.caption = Interest for 6 April {0} to 5 April {1}
 charity.caption = Donations to charity for 6 April {0} to 5 April {1}
+savings.caption = Interest from gilt-edged or accrued income securities for 6 April {0} to 5 April {1}
 
 # Common Error Messages
 # ----------------------------------------------------------
@@ -535,6 +536,21 @@ charity.gateway.heading.agent = Did your client make donations to charity?
 charity.gateway.hint = This includes donations to overseas charities and donations of land, property, shares and securities.
 charity.gateway.error.individual = Select yes if you made donations to charity
 charity.gateway.error.agent = Select yes if your client made donations to charity
+
+# Savings Journey
+# ----------------------------------------------------------
+savings.gateway.heading = Interest from gilt-edged or accrued income securities
+savings.gateway.radio.heading.individual = Did you get any interest from gilt-edged or accrued income securities?
+savings.gateway.radio.heading.agent = Did your client get any interest from gilt-edged or accrued income securities?
+savings.gateway.insetText.individual = Do not include interest you got from an Individual Savings Account or Personal Equity Plan.
+savings.gateway.insetText.agent = Do not include interest your client got from an Individual Savings Account or Personal Equity Plan.
+savings.gateway.bullet.head = This could be disguised interest or interest from:
+savings.gateway.bullet.1 = gilt-edged or deeply discounted securities
+savings.gateway.bullet.2 = accrued income profit
+savings.gateway.bullet.3 = agreements (known as loan notes), between UK borrowers and lenders, to repay debt
+savings.gateway.bullet.4 = UK peer-to-peer loans
+savings.gateway.error.individual = Select yes if you got any interest from gilt-edged or accrued income securities
+savings.gateway.error.agent = Select yes if your client got any interest from gilt-edged or accrued income securities
 
 # Cross Journey
 # ----------------------------------------------------------

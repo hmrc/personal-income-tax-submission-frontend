@@ -32,6 +32,7 @@ common.currency.hint = Er enghraifft, £193.52
 dividends.caption = Difidendau ar gyfer 6 Ebrill {0} i 5 Ebrill {1}
 interest.caption = Llog ar gyfer 6 Ebrill {0} i 5 Ebrill {1}
 charity.caption = Rhoddion i elusennau ar gyfer 6 Ebrill {0} i 5 Ebrill {1}
+savings.caption = Llog o warantau gilt neu warantau incwm cronedig ar gyfer 6 Ebrill {0} i 5 Ebrill {1}
 
 # Common Error Messages
 # ----------------------------------------------------------
@@ -535,6 +536,22 @@ charity.gateway.heading.agent = A wnaeth eich cleient gyfrannu at elusen?
 charity.gateway.hint = Mae hyn yn cynnwys rhoddion i elusennau tramor a rhoddion o dir, eiddo, cyfraniadau a gwarannau.
 charity.gateway.error.individual = Dewiswch ‘Iawn’ os gwnaethoch gyfrannu at elusen
 charity.gateway.error.agent = Dewiswch ‘Iawn’ os gwnaeth eich cleient gyfrannu at elusen
+
+# Savings Journey
+# ----------------------------------------------------------
+savings.gateway.heading = Llog o warantau gilt neu warantau incwm cronedig
+savings.gateway.radio.heading.individual = A gawsoch unrhyw log o warantau gilt neu warantau incwm cronedig?
+savings.gateway.radio.heading.agent = A gafodd eich cleient unrhyw log o warantau gilt neu warantau incwm cronedig?
+savings.gateway.insetText.individual = Peidiwch â chynnwys llog a gawsoch o Gyfrif Cynilo Unigol neu Gynllun Ecwiti Personol.
+savings.gateway.insetText.agent = Peidiwch â chynnwys llog a gafodd eich cleient o Gyfrif Cynilo Unigol neu Gynllun Ecwiti Personol.
+savings.gateway.bullet.head = Gallai hyn fod yn llog cuddiedig neu’n llog o:
+savings.gateway.bullet.1 = gwarantau gilt neu warantau â chryn ddisgownt
+savings.gateway.bullet.2 = elw incwm cronedig
+savings.gateway.bullet.3 = cytundebau (a elwir yn nodiadau benthyciad), rhwng benthycwyr a derbynwyr benthyciadau yn y DU, i ad-dalu dyled
+savings.gateway.bullet.4 = benthyciadau cymar-i-gymar yn y DU
+savings.gateway.error.individual = Dewiswch ‘Iawn’ os cawsoch unrhyw log o warantau gilt neu warantau incwm cronedig
+savings.gateway.error.agent = Dewiswch ‘Iawn’ os cafodd eich cleient unrhyw log o warantau gilt neu warantau incwm cronedig
+
 
 # Cross Journey
 # ----------------------------------------------------------

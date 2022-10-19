@@ -16,8 +16,7 @@
 
 package controllers.dividends
 
-import common.IncomeSources
-import config.{AppConfig, DIVIDENDS, ErrorHandler, INTEREST}
+import config.{AppConfig, DIVIDENDS, ErrorHandler}
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.YesNoForm
@@ -26,7 +25,6 @@ import models.dividends.DividendsCheckYourAnswersModel
 import models.question.QuestionsJourney
 import play.api.data.Form
 import play.api.i18n.I18nSupport
-import play.api.i18n.Lang.logger
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.DividendsSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
