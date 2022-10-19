@@ -21,40 +21,38 @@
 @import views.html.templates.helpers.Heading
 
 @this(
-layout: Layout,
-inputRadio: InputRadio,
-heading: Heading,
-formWithCsrf: FormWithCSRF,
-errorSummary: ErrorSummary,
-button: Button
+        layout: Layout,
+        inputRadio: InputRadio,
+        heading: Heading,
+        formWithCsrf: FormWithCSRF,
+        errorSummary: ErrorSummary,
+        button: Button
 )
 
 @(form: Form[Boolean], taxYear: Int)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @titleForUse = @{messages(s"savings.tax-taken-from-interest.radio.heading.${if(user.isAgent) "agent" else "individual"}")}
 
-<!--@headingForUse = @{(titleForUse)}-->
-
 @hasFormErrors = @{form.hasErrors}
 
 @layout(pageTitle = titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors, isAgent = user.isAgent) {
 
-@errorSummary(form.errors.distinct)
+    @errorSummary(form.errors.distinct)
 
-@heading(headingForUse, Some(messages("savings.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-3")
+    @heading(headingForUse, Some(messages("savings.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-3")
 
-@formWithCsrf(action = controllers.savings.routes.TaxTakenFromInterestController.submit(taxYear)){
+    @formWithCsrf(action = controllers.savings.routes.TaxTakenFromInterestController.submit(taxYear)){
 
-@inputRadio(
-form = form,
-heading = "",
-classes = "govuk-fieldset__legend--m",
-inline = true
-)
+        @inputRadio(
+            form = form,
+            heading = "",
+            classes = "govuk-fieldset__legend--m",
+            inline = true
+        )
 
-@button()
+        @button()
 
-}
+   }
 }
 
 @{
