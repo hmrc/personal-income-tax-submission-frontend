@@ -72,7 +72,7 @@ POST        /:taxYear/interest/check-interest                                   
 GET         /:taxYear/interest/which-account-did-you-get-taxed-interest-from                                  controllers.interest.ChooseAccountController.show(taxYear:Int, taxType="taxed")
 POST        /:taxYear/interest/which-account-did-you-get-taxed-interest-from                                  controllers.interest.ChooseAccountController.submit(taxYear:Int, taxType="taxed")
 
-# Savings routes
+# Interest from gilt-edged or accrued income securities routes
 
 GET         /:taxYear/interest/tax-taken-from-interest                                                        controllers.savings.TaxTakenFromInterestController.show(taxYear: Int)
 POST        /:taxYear/interest/tax-taken-from-interest                                                        controllers.savings.TaxTakenFromInterestController.submit(taxYear: Int)

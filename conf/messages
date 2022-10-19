@@ -537,14 +537,11 @@ charity.gateway.hint = This includes donations to overseas charities and donatio
 charity.gateway.error.individual = Select yes if you made donations to charity
 charity.gateway.error.agent = Select yes if your client made donations to charity
 
-# Savings Journey
-# ----------------------------------------------------------
+# Interest from gilt-edged or accrued income securities pages
+# -----------------------------------------------------------
 savings.tax-taken-from-interest.radio.heading.individual = Was tax taken off your interest?
 savings.tax-taken-from-interest.radio.heading.agent = Was tax taken off your client’s interest?
 savings.tax-taken-from-interest.error = Select yes if tax was taken off the interest
-
-# Savings Journey
-# ----------------------------------------------------------
 savings.gateway.heading = Interest from gilt-edged or accrued income securities
 savings.gateway.radio.heading.individual = Did you get any interest from gilt-edged or accrued income securities?
 savings.gateway.radio.heading.agent = Did your client get any interest from gilt-edged or accrued income securities?

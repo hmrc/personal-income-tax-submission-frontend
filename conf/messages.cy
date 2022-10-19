@@ -537,14 +537,11 @@ charity.gateway.hint = Mae hyn yn cynnwys rhoddion i elusennau tramor a rhoddion
 charity.gateway.error.individual = Dewiswch ‘Iawn’ os gwnaethoch gyfrannu at elusen
 charity.gateway.error.agent = Dewiswch ‘Iawn’ os gwnaeth eich cleient gyfrannu at elusen
 
-# Savings Journey
-# ----------------------------------------------------------
+# Interest from gilt-edged or accrued income securities pages
+# -----------------------------------------------------------
 savings.tax-taken-from-interest.radio.heading.individual = A gafodd treth ei didynnu oddi wrth eich llog?
 savings.tax-taken-from-interest.radio.heading.agent = A gafodd treth ei didynnu oddi wrth log eich cleient?
 savings.tax-taken-from-interest.error = Dewiswch ‘Iawn’ os cafodd treth ei didynnu oddi wrth y llog
-
-# Savings Journey
-# ----------------------------------------------------------
 savings.gateway.heading = Llog o warantau gilt neu warantau incwm cronedig
 savings.gateway.radio.heading.individual = A gawsoch unrhyw log o warantau gilt neu warantau incwm cronedig?
 savings.gateway.radio.heading.agent = A gafodd eich cleient unrhyw log o warantau gilt neu warantau incwm cronedig?
