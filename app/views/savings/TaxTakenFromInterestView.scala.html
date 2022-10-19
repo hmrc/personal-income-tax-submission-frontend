@@ -33,6 +33,8 @@
 
 @titleForUse = @{messages(s"savings.tax-taken-from-interest.radio.heading.${if(user.isAgent) "agent" else "individual"}")}
 
+@headingForUse = @{(titleForUse)}
+
 @hasFormErrors = @{form.hasErrors}
 
 @layout(pageTitle = titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors, isAgent = user.isAgent) {
