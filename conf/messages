@@ -539,6 +539,19 @@ charity.gateway.error.agent = Select yes if your client made donations to charit
 
 # Interest from gilt-edged or accrued income securities pages
 # -----------------------------------------------------------
+
+savings.interest-amount.heading.individual = How much interest did you get?
+savings.interest-amount.heading.agent = How much interest did your client get?
+savings.interest-amount.head.individual = Enter the amount before any deductions. Only tell us your share if you have joint income.
+savings.interest-amount.head.agent = Enter the amount before any deductions. Only tell us your client’s share if they have joint income.
+savings.interest-amount.errors.no-entry = Enter the amount of interest received
+savings.interest-amount.error.maximum = Amount of interest must be less than £100,000,000,000
+savings.interest-amount.error.wrong-format = Amount of interest must be a number, like 600 or 193.54
+savings.interest-amount.error.too-many-decimals = Amount of interest can only include pounds and pence, like 600 or 193.54
+
+# Interest from gilt-edged or accrued income securities pages
+# -----------------------------------------------------------
+
 savings.gateway.heading = Interest from gilt-edged or accrued income securities
 savings.gateway.radio.heading.individual = Did you get any interest from gilt-edged or accrued income securities?
 savings.gateway.radio.heading.agent = Did your client get any interest from gilt-edged or accrued income securities?
@@ -556,8 +569,8 @@ savings.tax-taken-from-interest.radio.heading.individual = Was tax taken off you
 savings.tax-taken-from-interest.radio.heading.agent = Was tax taken off your client’s interest?
 savings.tax-taken-from-interest.error = Select yes if tax was taken off the interest
 
-savings.gateway.heading.individual = How much tax was taken off your interest?
-savings.gateway.heading.agent = How much tax was taken off your client’s interest?
+savings.tax-taken-off-interest.heading.individual = How much tax was taken off your interest?
+savings.tax-taken-off-interest.heading.agent = How much tax was taken off your client’s interest?
 savings.tax-taken-off-interest.error.empty = Enter the amount of tax taken off the interest
 savings.tax-taken-off-interest.error.maximum = Amount of tax must be less than £100,000,000,000
 savings.tax-taken-off-interest.error.wrong-format = Amount of tax must be a number, like 600 or 193.54

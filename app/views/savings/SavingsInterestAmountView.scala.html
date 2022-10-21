@@ -14,62 +14,77 @@
  * limitations under the License.
  *@
 
+@import models.dividends.DividendsPriorSubmission
 @import play.api.data.Form
 @import views.html.headerFooterTemplate.Layout
+@import play.api.i18n.Messages
 @import views.html.templates.helpers.ErrorSummary
-@import views.html.templates.helpers.Button
-@import views.html.templates.helpers.InputRadio
-@import views.html.templates.helpers.Heading
 @import views.html.templates.helpers.InputTextAlt
+@import views.html.templates.helpers.InputRadio
+@import views.html.templates.helpers.Button
+@import views.html.templates.helpers.Heading
 @import views.html.templates.helpers.P
-@import views.html.templates.helpers.Details
 
 @this(
-    layout: Layout,
-    heading: Heading,
-    formWithCsrf: FormWithCSRF,
-    errorSummary: ErrorSummary,
-    button: Button,
-    details: Details,
-    inputRadio: InputRadio,
-    inputText: InputTextAlt
+        layout: Layout,
+        formWithCSRF: FormWithCSRF,
+        errorSummary: ErrorSummary,
+        button: Button,
+        inputText: InputTextAlt,
+        inputRadio: InputRadio,
+        heading: Heading,
+        p: P
 )
 
 @(form: Form[BigDecimal], taxYear: Int)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
+
+@titleForUse = @{
+    messages(s"savings.interest-amount.heading.${if(user.isAgent) "agent" else "individual"}")
+}
+
+@headingForUse = @{(titleForUse)}
 
 @hintText = @{
     Some(messages("common.currency.hint"))
 }
 
 @currencyFormHtml(formInput: Form[BigDecimal]) = {
-
     @inputText(
         formInput,
         id = "amount",
         name = "amount",
         label = headingForUse,
         labelHidden = true,
-        hint = hintText,
-        currency = true
-        )
+        currency = true,
+        hint = hintText
+    )
 }
 
-@titleForUse = @{messages(s"savings.tax-taken-off-interest.heading.${if(user.isAgent)"agent"else"individual"}")}
+@hasFormErrors = @{
+    form.hasErrors
+}
 
-@headingForUse = @{(titleForUse)}
+@contentHtml = @{
 
-@hasFormErrors = @{form.hasErrors}
+
+}
 
 @layout(pageTitle = titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors, isAgent = user.isAgent) {
 
-@errorSummary(form.errors.distinct)
+    @errorSummary(form.errors)
 
-@heading(headingForUse, Some(messages("savings.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-3")
+    @heading(headingForUse, Some(messages("savings.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
+    @p(Html(messages(s"savings.interest-amount.head.${if(user.isAgent) "agent" else "individual"}")),
+        classes = "govuk-body govuk-!-margin-bottom-5")
 
-@formWithCsrf(action = controllers.savings.routes.TaxTakenOffInterestController.submit(taxYear)){
+
+
+    @contentHtml
+
+    @formWithCSRF(action = controllers.savings.routes.SavingsInterestAmountController.submit(taxYear)) {
         @currencyFormHtml(form)
         @button()
-}
+    }
 }
 
 @{
