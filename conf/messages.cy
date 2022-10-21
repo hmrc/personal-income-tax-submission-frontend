@@ -539,6 +539,19 @@ charity.gateway.error.agent = Dewiswch ‘Iawn’ os gwnaeth eich cleient gyfran
 
 # Interest from gilt-edged or accrued income securities pages
 # -----------------------------------------------------------
+
+savings.interest-amount.heading.individual = Faint o log a gawsoch?
+savings.interest-amount.heading.agent = Faint o log a gafodd eich cleient?
+savings.interest-amount.head.individual = Nodwch y swm cyn unrhyw ddidyniadau. Dim ond os oes gennych incwm ar y cyd y dylech roi gwybod i ni beth yw’ch cyfran.
+savings.interest-amount.head.agent = Nodwch y swm cyn unrhyw ddidyniadau. Dim ond os oes ganddo incwm ar y cyd y dylech roi gwybod i ni beth yw cyfran eich cleient.
+savings.interest-amount.errors.no-entry = Nodwch swm y llog a gafwyd
+savings.interest-amount.error.maximum = Rhaid i swm y llog fod yn llai na £100,000,000,000
+savings.interest-amount.error.wrong-format = Rhaid i swm y llog fod yn rhif, megis 600 neu 193.54
+savings.interest-amount.error.too-many-decimals = Dim ond punnoedd a cheiniogau y gellir eu cynnwys yn swm y llog, megis 600 neu 193.45
+
+# Interest from gilt-edged or accrued income securities pages
+# -----------------------------------------------------------
+
 savings.gateway.heading = Llog o warantau gilt neu warantau incwm cronedig
 savings.gateway.radio.heading.individual = A gawsoch unrhyw log o warantau gilt neu warantau incwm cronedig?
 savings.gateway.radio.heading.agent = A gafodd eich cleient unrhyw log o warantau gilt neu warantau incwm cronedig?
@@ -556,8 +569,8 @@ savings.tax-taken-from-interest.radio.heading.individual = A gafodd treth ei did
 savings.tax-taken-from-interest.radio.heading.agent = A gafodd treth ei didynnu oddi wrth log eich cleient?
 savings.tax-taken-from-interest.error = Dewiswch ‘Iawn’ os cafodd treth ei didynnu oddi wrth y llog
 
-savings.gateway.heading.individual = Faint o dreth a ddidynnwyd o’ch llog?
-savings.gateway.heading.agent = Faint o dreth a ddidynnwyd o log eich cleient?
+savings.tax-taken-off-interest.heading.individual = Faint o dreth a ddidynnwyd o’ch llog?
+savings.tax-taken-off-interest.heading.agent = Faint o dreth a ddidynnwyd o log eich cleient?
 savings.tax-taken-off-interest.error.empty = Nodwch swm y dreth a ddidynnwyd o’r llog
 savings.tax-taken-off-interest.error.maximum = Rhaid i swm y dreth fod yn llai na £100,000,000,000
 savings.tax-taken-off-interest.error.wrong-format = Rhaid i swm y dreth fod yn rhif, megis 600 neu 193.54

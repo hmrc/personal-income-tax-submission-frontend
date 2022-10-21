@@ -147,6 +147,8 @@ GET         /:taxYear/charity/charity-donations-to-charity                      
 POST        /:taxYear/charity/charity-donations-to-charity                                                    controllers.charity.GiftAidGatewayController.submit(taxYear: Int)
 
 # Interest from gilt-edged or accrued income securities pages
+GET         /:taxYear/interest/securities-gilt-edged-interest-amount                                          controllers.savings.SavingsInterestAmountController.show(taxYear:Int)
+POST        /:taxYear/interest/securities-gilt-edged-interest-amount                                          controllers.savings.SavingsInterestAmountController.submit(taxYear:Int)
 
 GET         /:taxYear/interest/interest-from-securities                                                       controllers.savings.SavingsGatewayController.show(taxYear:Int)
 POST        /:taxYear/interest/interest-from-securities                                                       controllers.savings.SavingsGatewayController.submit(taxYear:Int)
@@ -154,8 +156,8 @@ POST        /:taxYear/interest/interest-from-securities                         
 GET         /:taxYear/interest/tax-taken-from-interest                                                        controllers.savings.TaxTakenFromInterestController.show(taxYear: Int)
 POST        /:taxYear/interest/tax-taken-from-interest                                                        controllers.savings.TaxTakenFromInterestController.submit(taxYear: Int)
 
-GET         /:taxYear/interest/how-much-tax-taken-off-interest                                                 controllers.savings.TaxTakenOffInterestController.show(taxYear: Int)
-POST        /:taxYear/interest/how-much-tax-taken-off-interest                                                 controllers.savings.TaxTakenOffInterestController.submit(taxYear: Int)
+GET         /:taxYear/interest/how-much-tax-taken-off-interest                                                controllers.savings.TaxTakenOffInterestController.show(taxYear: Int)
+POST        /:taxYear/interest/how-much-tax-taken-off-interest                                                controllers.savings.TaxTakenOffInterestController.submit(taxYear: Int)
 
 # Cross Journey Pages
 
