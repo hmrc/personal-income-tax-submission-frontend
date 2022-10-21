@@ -549,9 +549,6 @@ savings.interest-amount.error.maximum = Rhaid i swm y llog fod yn llai na £100,
 savings.interest-amount.error.wrong-format = Rhaid i swm y llog fod yn rhif, megis 600 neu 193.54
 savings.interest-amount.error.too-many-decimals = Dim ond punnoedd a cheiniogau y gellir eu cynnwys yn swm y llog, megis 600 neu 193.45
 
-# Interest from gilt-edged or accrued income securities pages
-# -----------------------------------------------------------
-
 savings.gateway.heading = Llog o warantau gilt neu warantau incwm cronedig
 savings.gateway.radio.heading.individual = A gawsoch unrhyw log o warantau gilt neu warantau incwm cronedig?
 savings.gateway.radio.heading.agent = A gafodd eich cleient unrhyw log o warantau gilt neu warantau incwm cronedig?
@@ -575,6 +572,16 @@ savings.tax-taken-off-interest.error.empty = Nodwch swm y dreth a ddidynnwyd o�
 savings.tax-taken-off-interest.error.maximum = Rhaid i swm y dreth fod yn llai na £100,000,000,000
 savings.tax-taken-off-interest.error.wrong-format = Rhaid i swm y dreth fod yn rhif, megis 600 neu 193.54
 savings.tax-taken-off-interest.error.too-many-decimals = Dim ond punnoedd a cheiniogau y gellir eu cynnwys yn swm y dreth, megis 600 neu 193.45
+
+interest.securities.cya.title.individual = Gwiriwch eich llog o warantau gilt neu warantau incwm cronedig
+interest.securities.cya.title.agent = Gwiriwch log eich cleient o warantau gilt neu warantau incwm cronedig
+interest.securities.cya.questions.1.hiddenChange = Newid llog o warantau gilt neu warantau incwm cronedig
+interest.securities.cya.questions.2 = Swm y llog
+interest.securities.cya.questions.2.hiddenChange = Newid swm y llog
+interest.securities.cya.questions.3 = Treth a ddidynnwyd
+interest.securities.cya.questions.3.hiddenChange = Newid treth a ddidynnwyd
+interest.securities.cya.questions.4 = Swm y dreth a ddidynnwyd
+interest.securities.cya.questions.4.hiddenChange = Newid swm y dreth a ddidynnwyd
 
 # Cross Journey
 # ----------------------------------------------------------

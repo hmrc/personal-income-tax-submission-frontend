@@ -147,6 +147,7 @@ GET         /:taxYear/charity/charity-donations-to-charity                      
 POST        /:taxYear/charity/charity-donations-to-charity                                                    controllers.charity.GiftAidGatewayController.submit(taxYear: Int)
 
 # Interest from gilt-edged or accrued income securities pages
+
 GET         /:taxYear/interest/securities-gilt-edged-interest-amount                                          controllers.savings.SavingsInterestAmountController.show(taxYear:Int)
 POST        /:taxYear/interest/securities-gilt-edged-interest-amount                                          controllers.savings.SavingsInterestAmountController.submit(taxYear:Int)
 
@@ -158,6 +159,9 @@ POST        /:taxYear/interest/tax-taken-from-interest                          
 
 GET         /:taxYear/interest/how-much-tax-taken-off-interest                                                controllers.savings.TaxTakenOffInterestController.show(taxYear: Int)
 POST        /:taxYear/interest/how-much-tax-taken-off-interest                                                controllers.savings.TaxTakenOffInterestController.submit(taxYear: Int)
+
+GET         /:taxYear/interest/check-interest-from-securities                                                 controllers.interest.InterestSecuritiesCYAController.show(taxYear: Int)
+POST        /:taxYear/interest/check-interest-from-securities                                                 controllers.interest.InterestSecuritiesCYAController.submit(taxYear: Int)
 
 # Cross Journey Pages
 
