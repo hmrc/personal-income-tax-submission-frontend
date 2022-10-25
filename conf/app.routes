@@ -163,6 +163,8 @@ POST        /:taxYear/interest/how-much-tax-taken-off-interest                  
 GET         /:taxYear/interest/check-interest-from-securities                                                 controllers.interest.InterestSecuritiesCYAController.show(taxYear: Int)
 POST        /:taxYear/interest/check-interest-from-securities                                                 controllers.interest.InterestSecuritiesCYAController.submit(taxYear: Int)
 
+GET         /:taxYear/interest/interest-summary                                                               controllers.interest.InterestFromSavingsAndSecuritiesSummaryController.show(taxYear: Int)
+
 # Cross Journey Pages
 
 GET         /:taxYear/interest/change-information                                                             controllers.ZeroingWarningController.show(taxYear: Int, journeyKey =  "interest")

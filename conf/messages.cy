@@ -26,6 +26,9 @@ common.opensInNewWindowOrTab = (yn agor tab newydd)
 common.help.getHelpWithThisPage = Help gyda’r dudalen hon
 common.confirm = Cadarnhau
 common.cancel = Canslo
+common.return.to.overview = Yn ôl i’r trosolwg
+common.not-started = Heb ddechrau
+common.uk-interest = llog y DU
 
 common.currency.hint = Er enghraifft, £193.52
 
@@ -210,6 +213,10 @@ interest.untaxed-uk-interest-accounts.account.tell-us-about-all.individual = Mae
 interest.untaxed-uk-interest-accounts.account.tell-us-about-all.agent = Mae’n rhaid i chi roi gwybod i ni am holl gyfrifon eich cleient sydd â llog y DU sydd heb ei drethu.
 
 interest.taxed-uk-interest.accounts.summary = Crynodeb o’r cyfrif wedi’i drethu
+
+interest.savings-and-securities.heading = Llog o gynilion a gwarantau
+interest.savings-and-securities.head.individual = Dim ond yr adrannau sy’n berthnasol i chi y mae angen i chi eu llenwi.
+interest.savings-and-securities.head.agent = Dim ond yr adrannau sy’n berthnasol i’ch cleient y mae angen i chi eu llenwi.
 
 interest.taxed-uk-interest.title.individual = A gawsoch log y DU a drethwyd?
 interest.taxed-uk-interest.title.agent = A gafodd eich cleient llog y DU a drethwyd?
