@@ -250,6 +250,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     {
       if (agent) {
         Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(extraData ++ Map(
+          SessionKeys.sessionId -> sessionId,
           SessionKeys.authToken -> "mock-bearer-token",
           SessionValues.TAX_YEAR -> (if(isEoy) taxYearEOY else taxYear).toString,
           SessionValues.VALID_TAX_YEARS -> validTaxYears.mkString(","),
@@ -258,6 +259,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
         )
       } else {
         Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(extraData ++ Map(
+          SessionKeys.sessionId -> sessionId,
           SessionKeys.authToken -> "mock-bearer-token",
           SessionValues.TAX_YEAR -> (if(isEoy) taxYearEOY else taxYear).toString,
           SessionValues.VALID_TAX_YEARS -> validTaxYears.mkString(","))),

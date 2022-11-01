@@ -19,6 +19,7 @@ package utils
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import helpers.WireMockHelper
 import org.jsoup.nodes.{Document, Element}
+import org.jsoup.select.Elements
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.http.HeaderNames
@@ -90,7 +91,10 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
 
   def h1Check(header: String, size: String = "l")(implicit document: () => Document): Unit = {
     s"have a page heading of '$header'" in {
-      document().select(s".govuk-heading-$size").text() shouldBe header
+      val heading = document().select(s"h1.govuk-heading-$size").first.ownText
+      val caption = document().select(s"h1 > span.govuk-caption-${size}").text
+
+      s"$heading $caption".trim shouldBe header
     }
   }
 
