@@ -271,7 +271,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   }
 
   val defaultAcceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq(
-    ConfidenceLevel.L200,
+    ConfidenceLevel.L250,
     ConfidenceLevel.L500
   )
 
@@ -298,7 +298,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     Enrolments(Set(
       Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "1234567890")), "Activated", None),
       Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
-    )) and Some(AffinityGroup.Individual) and ConfidenceLevel.L200
+    )) and Some(AffinityGroup.Individual) and ConfidenceLevel.L250
   )
 
   def insufficientConfidenceRetrieval: Future[Enrolments ~ Some[AffinityGroup] ~ ConfidenceLevel] = Future.successful(
@@ -312,7 +312,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     Enrolments(Set(
       Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("UTR", "1234567890")), "Activated", None),
       Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
-    )) and Some(AffinityGroup.Individual) and ConfidenceLevel.L200
+    )) and Some(AffinityGroup.Individual) and ConfidenceLevel.L250
   )
 
   def userDataStub(userData: IncomeSourcesModel, nino: String, taxYear: Int): StubMapping = {
