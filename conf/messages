@@ -539,9 +539,6 @@ charity.gateway.error.agent = Select yes if your client made donations to charit
 
 # Interest from gilt-edged or accrued income securities pages
 # -----------------------------------------------------------
-savings.tax-taken-from-interest.radio.heading.individual = Was tax taken off your interest?
-savings.tax-taken-from-interest.radio.heading.agent = Was tax taken off your client’s interest?
-savings.tax-taken-from-interest.error = Select yes if tax was taken off the interest
 savings.gateway.heading = Interest from gilt-edged or accrued income securities
 savings.gateway.radio.heading.individual = Did you get any interest from gilt-edged or accrued income securities?
 savings.gateway.radio.heading.agent = Did your client get any interest from gilt-edged or accrued income securities?
@@ -554,6 +551,18 @@ savings.gateway.bullet.3 = agreements (known as loan notes), between UK borrower
 savings.gateway.bullet.4 = UK peer-to-peer loans
 savings.gateway.error.individual = Select yes if you got any interest from gilt-edged or accrued income securities
 savings.gateway.error.agent = Select yes if your client got any interest from gilt-edged or accrued income securities
+
+savings.tax-taken-from-interest.radio.heading.individual = Was tax taken off your interest?
+savings.tax-taken-from-interest.radio.heading.agent = Was tax taken off your client’s interest?
+savings.tax-taken-from-interest.error = Select yes if tax was taken off the interest
+
+savings.gateway.heading.individual = How much tax was taken off your interest?
+savings.gateway.heading.agent = How much tax was taken off your client’s interest?
+savings.tax-taken-off-interest.error.empty = Enter the amount of tax taken off the interest
+savings.tax-taken-off-interest.error.maximum = Amount of tax must be less than £100,000,000,000
+savings.tax-taken-off-interest.error.wrong-format = Amount of tax must be a number, like 600 or 193.54
+savings.tax-taken-off-interest.error.too-many-decimals = Amount of tax can only include pounds and pence, like 600 or 193.54
+
 
 # Cross Journey
 # ----------------------------------------------------------

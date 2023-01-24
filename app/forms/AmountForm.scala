@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,11 +27,12 @@ object AmountForm {
                   emptyFieldKey: String,
                   wrongFormatKey: String = "common.error.invalid_currency_format",
                   exceedsMaxAmountKey: String = "common.error.amountMaxLimit",
+                  tooManyDecimalsKey: Option[String] = None,
                   emptyFieldArguments: Seq[String] = Seq.empty[String]
                 ): Form[BigDecimal] = Form(
     amount -> currency(
       requiredKey = emptyFieldKey,
-      invalidNumeric = wrongFormatKey,
+      invalidNumeric = tooManyDecimalsKey.getOrElse(wrongFormatKey),
       nonNumericKey = wrongFormatKey,
       maxAmountKey = exceedsMaxAmountKey,
       args = emptyFieldArguments

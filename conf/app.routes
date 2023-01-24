@@ -72,13 +72,6 @@ POST        /:taxYear/interest/check-interest                                   
 GET         /:taxYear/interest/which-account-did-you-get-taxed-interest-from                                  controllers.interest.ChooseAccountController.show(taxYear:Int, taxType="taxed")
 POST        /:taxYear/interest/which-account-did-you-get-taxed-interest-from                                  controllers.interest.ChooseAccountController.submit(taxYear:Int, taxType="taxed")
 
-# Interest from gilt-edged or accrued income securities routes
-
-GET         /:taxYear/interest/tax-taken-from-interest                                                        controllers.savings.TaxTakenFromInterestController.show(taxYear: Int)
-POST        /:taxYear/interest/tax-taken-from-interest                                                        controllers.savings.TaxTakenFromInterestController.submit(taxYear: Int)
-GET         /:taxYear/interest/interest-from-securities                                                       controllers.savings.SavingsGatewayController.show(taxYear:Int)
-POST        /:taxYear/interest/interest-from-securities                                                       controllers.savings.SavingsGatewayController.submit(taxYear:Int)
-
 # Donations to Charity routes
 
 GET         /:taxYear/charity/charity-donation-using-gift-aid                                                 controllers.charity.GiftAidDonationsController.show(taxYear: Int)
@@ -152,6 +145,17 @@ POST        /:taxYear/charity/check-donations-to-charity                        
 
 GET         /:taxYear/charity/charity-donations-to-charity                                                    controllers.charity.GiftAidGatewayController.show(taxYear: Int)
 POST        /:taxYear/charity/charity-donations-to-charity                                                    controllers.charity.GiftAidGatewayController.submit(taxYear: Int)
+
+# Interest from gilt-edged or accrued income securities pages
+
+GET         /:taxYear/interest/interest-from-securities                                                       controllers.savings.SavingsGatewayController.show(taxYear:Int)
+POST        /:taxYear/interest/interest-from-securities                                                       controllers.savings.SavingsGatewayController.submit(taxYear:Int)
+
+GET         /:taxYear/interest/tax-taken-from-interest                                                        controllers.savings.TaxTakenFromInterestController.show(taxYear: Int)
+POST        /:taxYear/interest/tax-taken-from-interest                                                        controllers.savings.TaxTakenFromInterestController.submit(taxYear: Int)
+
+GET         /:taxYear/interest/how-much-tax-taken-off-interest                                                 controllers.savings.TaxTakenOffInterestController.show(taxYear: Int)
+POST        /:taxYear/interest/how-much-tax-taken-off-interest                                                 controllers.savings.TaxTakenOffInterestController.submit(taxYear: Int)
 
 # Cross Journey Pages
 

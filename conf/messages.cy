@@ -539,9 +539,6 @@ charity.gateway.error.agent = Dewiswch ‘Iawn’ os gwnaeth eich cleient gyfran
 
 # Interest from gilt-edged or accrued income securities pages
 # -----------------------------------------------------------
-savings.tax-taken-from-interest.radio.heading.individual = A gafodd treth ei didynnu oddi wrth eich llog?
-savings.tax-taken-from-interest.radio.heading.agent = A gafodd treth ei didynnu oddi wrth log eich cleient?
-savings.tax-taken-from-interest.error = Dewiswch ‘Iawn’ os cafodd treth ei didynnu oddi wrth y llog
 savings.gateway.heading = Llog o warantau gilt neu warantau incwm cronedig
 savings.gateway.radio.heading.individual = A gawsoch unrhyw log o warantau gilt neu warantau incwm cronedig?
 savings.gateway.radio.heading.agent = A gafodd eich cleient unrhyw log o warantau gilt neu warantau incwm cronedig?
@@ -555,6 +552,16 @@ savings.gateway.bullet.4 = benthyciadau cymar-i-gymar yn y DU
 savings.gateway.error.individual = Dewiswch ‘Iawn’ os cawsoch unrhyw log o warantau gilt neu warantau incwm cronedig
 savings.gateway.error.agent = Dewiswch ‘Iawn’ os cafodd eich cleient unrhyw log o warantau gilt neu warantau incwm cronedig
 
+savings.tax-taken-from-interest.radio.heading.individual = A gafodd treth ei didynnu oddi wrth eich llog?
+savings.tax-taken-from-interest.radio.heading.agent = A gafodd treth ei didynnu oddi wrth log eich cleient?
+savings.tax-taken-from-interest.error = Dewiswch ‘Iawn’ os cafodd treth ei didynnu oddi wrth y llog
+
+savings.gateway.heading.individual = Faint o dreth a ddidynnwyd o’ch llog?
+savings.gateway.heading.agent = Faint o dreth a ddidynnwyd o log eich cleient?
+savings.tax-taken-off-interest.error.empty = Nodwch swm y dreth a ddidynnwyd o’r llog
+savings.tax-taken-off-interest.error.maximum = Rhaid i swm y dreth fod yn llai na £100,000,000,000
+savings.tax-taken-off-interest.error.wrong-format = Rhaid i swm y dreth fod yn rhif, megis 600 neu 193.54
+savings.tax-taken-off-interest.error.too-many-decimals = Dim ond punnoedd a cheiniogau y gellir eu cynnwys yn swm y dreth, megis 600 neu 193.45
 
 # Cross Journey
 # ----------------------------------------------------------
