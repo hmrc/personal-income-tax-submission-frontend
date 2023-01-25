@@ -17,7 +17,6 @@
 package models.mongo
 
 import models.charity.{EncryptedGiftAidCYAModel, GiftAidCYAModel}
-import models.mongo.DividendsUserDataModel.dateTimeFormat
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json._
 import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats

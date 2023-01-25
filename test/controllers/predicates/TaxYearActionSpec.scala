@@ -21,6 +21,7 @@ import config.{AppConfig, ErrorHandler}
 import models.User
 import play.api.http.Status.SEE_OTHER
 import play.api.i18n.MessagesApi
+import play.api.test.FakeRequest
 import play.api.test.Helpers.stubMessagesControllerComponents
 import utils.UnitTest
 
@@ -33,7 +34,7 @@ class TaxYearActionSpec extends UnitTest {
   implicit lazy val cc: MessagesApi = mockControllerComponents.messagesApi
   implicit lazy val mockedErrorHandler: ErrorHandler = mock[ErrorHandler]
 
-  def taxYearAction(taxYear: Int, reset: Boolean = true): TaxYearAction = new TaxYearAction(taxYear, reset)(mockedConfig, stubMessagesControllerComponents)
+  def taxYearAction(taxYear: Int, reset: Boolean = true): TaxYearAction = new TaxYearAction(taxYear, reset)(mockedConfig, stubMessagesControllerComponents())
 
   "TaxYearAction.refine" should {
 
@@ -45,7 +46,7 @@ class TaxYearActionSpec extends UnitTest {
         )
 
         lazy val result = {
-          (mockedConfig.taxYearErrorFeature _).expects().returning(true)
+          (() => mockedConfig.taxYearErrorFeature).expects().returning(true)
 
           await(taxYearAction(validTaxYear).refine(userRequest))
         }
@@ -59,7 +60,7 @@ class TaxYearActionSpec extends UnitTest {
         )
 
         lazy val result = {
-          (mockedConfig.taxYearErrorFeature _).expects().returning(false)
+          (() => mockedConfig.taxYearErrorFeature).expects().returning(false)
 
           await(taxYearAction(validTaxYear + 1).refine(userRequest))
         }
@@ -73,7 +74,7 @@ class TaxYearActionSpec extends UnitTest {
         )
 
         lazy val result = {
-          (mockedConfig.taxYearErrorFeature _).expects().returning(false)
+          (() => mockedConfig.taxYearErrorFeature).expects().returning(false)
 
           await(taxYearAction(validTaxYear + -1, reset = false).refine(userRequest))
         }
@@ -91,7 +92,7 @@ class TaxYearActionSpec extends UnitTest {
         )
 
         lazy val result = {
-          (mockedConfig.taxYearErrorFeature _).expects().returning(false)
+          (() => mockedConfig.taxYearErrorFeature).expects().returning(false)
           mockedConfig.incomeTaxSubmissionOverviewUrl _ expects * returning "/overview"
 
           taxYearAction(validTaxYear + 1).refine(userRequest)
@@ -116,7 +117,7 @@ class TaxYearActionSpec extends UnitTest {
         )
 
         lazy val result = {
-          (mockedConfig.taxYearErrorFeature _).expects().returning(true)
+          (() => mockedConfig.taxYearErrorFeature).expects().returning(true)
 
           taxYearAction(validTaxYear + 4).refine(userRequest)
         }
@@ -161,7 +162,7 @@ class TaxYearActionSpec extends UnitTest {
         )
 
         lazy val result = {
-          (mockedConfig.taxYearErrorFeature _).expects().returning(true)
+          (() => mockedConfig.taxYearErrorFeature).expects().returning(true)
 
           taxYearAction(invalidTaxYear).refine(userRequest)
         }
@@ -181,7 +182,7 @@ class TaxYearActionSpec extends UnitTest {
         )
 
         lazy val result = {
-          (mockedConfig.taxYearErrorFeature _).expects().returning(true)
+          (() => mockedConfig.taxYearErrorFeature).expects().returning(true)
           mockedConfig.incomeTaxSubmissionOverviewUrl _ expects * returning "/overview"
 
           taxYearAction(validTaxYear - 1).refine(userRequest)

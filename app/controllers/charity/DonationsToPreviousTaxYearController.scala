@@ -37,14 +37,14 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 
 class DonationsToPreviousTaxYearController @Inject()(
-                                                      implicit val cc: MessagesControllerComponents,
+                                                      implicit cc: MessagesControllerComponents,
                                                       authAction: AuthorisedAction,
                                                       donationsToPreviousTaxYearView: DonationsToPreviousTaxYearView,
                                                       giftAidSessionService: GiftAidSessionService,
                                                       giftAidLastTaxYearController: GiftAidLastTaxYearController,
                                                       giftAidLastTaxYearAmountController: GiftAidLastTaxYearAmountController,
                                                       errorHandler: ErrorHandler,
-                                                      implicit val appConfig: AppConfig,
+                                                      appConfig: AppConfig,
                                                       ec: ExecutionContext
                                                     ) extends FrontendController(cc) with I18nSupport with SessionHelper with CharityJourney {
 

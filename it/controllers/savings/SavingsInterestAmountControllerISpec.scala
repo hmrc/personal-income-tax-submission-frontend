@@ -22,12 +22,9 @@ import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status.{BAD_REQUEST, _}
 import play.api.test.FakeRequest
-import play.api.libs.ws.WSResponse
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
-import play.api.test.FakeRequest
 import utils.{IntegrationTest, ViewHelpers}
 
-import scala.collection.immutable.Map
 import play.api.libs.ws.DefaultBodyWritables
 
 
@@ -137,7 +134,6 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
 
     import scenario.commonExpectedResults._
-    import scenario.specificExpectedResults._
     import uniqueResults._
 
     val testNameWelsh = if (scenario.isWelsh) "in Welsh" else "in English"
@@ -145,7 +141,7 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
     s".show when $testNameWelsh and the user is $testNameAgent" should {
 
-        "display the interest amount page" which {
+      "display the interest amount page" which {
 
         lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
         lazy val request = FakeRequest("GET", savingsInterestAmountUrl).withHeaders(headers: _*)
@@ -176,9 +172,6 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
       "return a 200 status" in {
 
-        lazy val headers = playSessionCookie(scenario.isAgent) ++ Map(csrfContent) ++
-          (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-
         lazy val result = {
           authoriseAgentOrIndividual(scenario.isAgent)
           urlPost(postURL, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> "123"))
@@ -190,33 +183,27 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
       }
       "return a error" when {
 
-      "the form is empty" which {
+        "the form is empty" which {
 
-        lazy val headers = playSessionCookie(scenario.isAgent) ++ Map(csrfContent) ++
-        (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val result = {
+            authoriseAgentOrIndividual(scenario.isAgent)
+            urlPost(postURL, welsh = scenario.isWelsh, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> ""))
+          }
+          implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-        lazy val result = {
-        authoriseAgentOrIndividual(scenario.isAgent)
-        urlPost(postURL,welsh = scenario.isWelsh, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> ""))
-      }
-        implicit val document: () => Document = () => Jsoup.parse(result.body)
+          "has a 400 BAD_REQUEST status " in {
+            result.status shouldBe BAD_REQUEST
+          }
 
-        "has a 400 BAD_REQUEST status " in {
-        result.status shouldBe BAD_REQUEST
-      }
-
-        titleCheck(errorPrefix(scenario.isWelsh) + expectedTitle, scenario.isWelsh)
-        errorAboveElementCheck(expectedErrorEmpty)
-        errorSummaryCheck(expectedErrorEmpty, errorSummaryHref, scenario.isWelsh)
+          titleCheck(errorPrefix(scenario.isWelsh) + expectedTitle, scenario.isWelsh)
+          errorAboveElementCheck(expectedErrorEmpty)
+          errorSummaryCheck(expectedErrorEmpty, errorSummaryHref, scenario.isWelsh)
 
 
-      }
+        }
 
 
         "the form is invalid" which {
-
-          lazy val headers = playSessionCookie(scenario.isAgent) ++ Map(csrfContent) ++
-            (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
 
           lazy val result = {
             authoriseAgentOrIndividual(scenario.isAgent)
@@ -238,12 +225,13 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
         "the form is overmax" which {
 
-          lazy val headers = playSessionCookie(scenario.isAgent) ++ Map(csrfContent) ++
-            (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-
           lazy val result = {
             authoriseAgentOrIndividual(scenario.isAgent)
-            urlPost(postURL, welsh = scenario.isWelsh, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> "103242424234242342423423"))
+            urlPost(postURL,
+              welsh = scenario.isWelsh,
+              follow = false,
+              headers = playSessionCookie(scenario.isAgent),
+              body = Map("amount" -> "103242424234242342423423"))
           }
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
@@ -259,9 +247,6 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
 
         "the form has too many decimals" which {
-
-          lazy val headers = playSessionCookie(scenario.isAgent) ++ Map(csrfContent) ++
-            (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
 
           lazy val result = {
             authoriseAgentOrIndividual(scenario.isAgent)

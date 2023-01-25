@@ -35,7 +35,7 @@ class InterestUserDataRepository @Inject()(
   mongoComponent = mongo,
   collectionName = "interestUserData",
   domainFormat = EncryptedInterestUserDataModel.formats,
-  indexes = RepositoryIndexes.indexes
+  indexes = RepositoryIndexes.indexes()
 ) with UserDataRepository[EncryptedInterestUserDataModel]{
   override val repoName = "interestUserData"
   override type UserData = InterestUserDataModel

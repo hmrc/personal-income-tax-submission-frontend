@@ -35,7 +35,7 @@ class GiftAidUserDataRepository @Inject()(
   mongoComponent = mongo,
   collectionName = "giftAidUserData",
   domainFormat = EncryptedGiftAidUserDataModel.formats,
-  indexes = RepositoryIndexes.indexes
+  indexes = RepositoryIndexes.indexes()
 ) with UserDataRepository[EncryptedGiftAidUserDataModel]{
   override val repoName = "giftAidUserData"
   override type UserData = GiftAidUserDataModel

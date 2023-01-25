@@ -27,7 +27,6 @@ import org.mongodb.scala.model.{FindOneAndReplaceOptions, FindOneAndUpdateOption
 import uk.gov.hmrc.mongo.play.json.Codecs.{logger, toBson}
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
-import utils.EncryptionDecryptionException
 import utils.PagerDutyHelper.PagerDutyKeys.{ENCRYPTION_DECRYPTION_ERROR, FAILED_TO_CREATE_DATA, FAILED_TO_FIND_DATA, FAILED_TO_UPDATE_DATA}
 import utils.PagerDutyHelper.pagerDutyLog
 
@@ -45,7 +44,7 @@ trait UserDataRepository[C <: UserDataTemplate] {
 
   def decryptionMethod: C => UserData
 
-  def create[T](userData: UserData)(implicit user: User[T]): Future[Either[DatabaseError, Boolean]] = {
+  def create[T](userData: UserData)(): Future[Either[DatabaseError, Boolean]] = {
     lazy val start = s"[$repoName][create]"
     Try {
       encryptionMethod(userData)
@@ -86,7 +85,7 @@ trait UserDataRepository[C <: UserDataTemplate] {
         Try {
           data.map(decryptionMethod)
         }.toEither match {
-          case Left(value) => handleEncryptionDecryptionException(value, start)
+          case Left(value) => handleEncryptionDecryptionException(value.asInstanceOf[Exception], start)
           case Right(value) => Right(value)
         }
     }
@@ -126,14 +125,9 @@ trait UserDataRepository[C <: UserDataTemplate] {
     equal("taxYear", toBson(taxYear))
   )
 
-  def handleEncryptionDecryptionException[T](exception: Throwable, startOfMessage: String): Left[DatabaseError, T] = {
-    val message: String = exception match {
-      case exception: EncryptionDecryptionException => s"${exception.failureReason} ${exception.failureMessage}"
-      case _ => exception.getMessage
-    }
-
-    pagerDutyLog(ENCRYPTION_DECRYPTION_ERROR, Some(s"$startOfMessage $message"))
-    Left(EncryptionDecryptionError(message))
+  private def handleEncryptionDecryptionException[T](exception: Exception, startOfMessage: String): Left[DatabaseError, T] = {
+    pagerDutyLog(ENCRYPTION_DECRYPTION_ERROR, Some(s"$startOfMessage ${exception.getMessage}"))
+    Left(EncryptionDecryptionError(exception.getMessage))
   }
 
 

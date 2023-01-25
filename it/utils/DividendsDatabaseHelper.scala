@@ -41,7 +41,7 @@ trait DividendsDatabaseHelper {
 
     await(dividendsDatabase.create(
       DividendsUserDataModel(sessionId, overrideMtditid.fold(mtditid)(value => value), overrideNino.fold(nino)(value => value), taxYear, cya)
-    )) match {
+    )()) match {
       case Right(value) => value
       case Left(_) => false
     }

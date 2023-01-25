@@ -16,14 +16,12 @@
 
 package controllers.charity
 
-import config.{AppConfig, DIVIDENDS, ErrorHandler, GIFT_AID}
+import config.{AppConfig, ErrorHandler, GIFT_AID}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import forms.YesNoForm
 import models.User
 import models.charity.GiftAidCYAModel
-import models.dividends.DividendsCheckYourAnswersModel
-import models.question.QuestionsJourney
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}

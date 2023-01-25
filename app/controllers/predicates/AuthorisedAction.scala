@@ -66,7 +66,7 @@ class AuthorisedAction @Inject()(
 
     implicit lazy val headerCarrier: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    authService.authorised.retrieve(affinityGroup) {
+    authService.authorised().retrieve(affinityGroup) {
       case Some(AffinityGroup.Agent) => agentAuthentication(block)(request, headerCarrier)
       case Some(individualUser) => individualAuthentication(block, individualUser)(request, headerCarrier)
     } recover {
@@ -81,7 +81,7 @@ class AuthorisedAction @Inject()(
 
   def individualAuthentication[A](block: User[A] => Future[Result], individualUser: AffinityGroup)
                                  (implicit request: Request[A], hc: HeaderCarrier): Future[Result] = {
-    authService.authorised.retrieve(allEnrolments and confidenceLevel) {
+    authService.authorised().retrieve(allEnrolments and confidenceLevel) {
       case enrolments ~ userConfidence if userConfidence.level >= minimumConfidenceLevel =>
         val optionalMtdItId: Option[String] = enrolmentGetIdentifierValue(EnrolmentKeys.Individual, EnrolmentIdentifiers.individualId, enrolments)
         val optionalNino: Option[String] = enrolmentGetIdentifierValue(EnrolmentKeys.nino, EnrolmentIdentifiers.nino, enrolments)

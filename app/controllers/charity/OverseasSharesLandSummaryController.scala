@@ -33,7 +33,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.charity.OverseasSharesLandSummaryView
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class OverseasSharesLandSummaryController @Inject()(overseasSharesLandSummaryView: OverseasSharesLandSummaryView)(
   implicit cc: MessagesControllerComponents,

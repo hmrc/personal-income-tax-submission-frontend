@@ -15,6 +15,7 @@
  */
 
 package forms.validation.mappings
+
 import play.api.data.format.Formatter
 import play.api.data.FormError
 
@@ -52,50 +53,50 @@ trait Formatters {
       override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], BigDecimal] =
         baseFormatter
           .bind(key, data)
-          .right.map(_.replace(",", ""))
-          .right.map(_.replace("£", ""))
-          .right.map(_.replaceAll("""\s""", ""))
-          .right.flatMap {
-          case s if s.isEmpty =>
-            Left(Seq(FormError(key, requiredKey, args)))
-          case s if !s.matches(validNumeric) =>
-            Left(Seq(FormError(key, nonNumericKey, args)))
-          case s if !s.matches(is2dp) =>
-            Left(Seq(FormError(key, invalidNumericKey, args)))
-          case s =>
+          .map(_.replace(",", ""))
+          .map(_.replace("£", ""))
+          .map(_.replaceAll("""\s""", ""))
+          .flatMap {
+            case s if s.isEmpty =>
+              Left(Seq(FormError(key, requiredKey, args)))
+            case s if !s.matches(validNumeric) =>
+              Left(Seq(FormError(key, nonNumericKey, args)))
+            case s if !s.matches(is2dp) =>
+              Left(Seq(FormError(key, invalidNumericKey, args)))
+            case s =>
 
-            val validBigDecimalOrErrors: Either[Seq[FormError], BigDecimal] = {
-              nonFatalCatch
-                .either(BigDecimal(s.replaceAll("£", "")))
-                .left.map(_ => Seq(FormError(key, nonNumericKey, args)))
-            }
+              val validBigDecimalOrErrors: Either[Seq[FormError], BigDecimal] = {
+                nonFatalCatch
+                  .either(BigDecimal(s.replaceAll("£", "")))
+                  .left.map(_ => Seq(FormError(key, nonNumericKey, args)))
+              }
 
-            validBigDecimalOrErrors match {
-              case Right(bigDecimal: BigDecimal) =>
-                if (bigDecimal < BigDecimal("100000000000")) Right(bigDecimal) else Left(Seq(FormError(key, maxAmountKey, args)))
-              case errors => errors
-            }
-        }
+              validBigDecimalOrErrors match {
+                case Right(bigDecimal: BigDecimal) =>
+                  if (bigDecimal < BigDecimal("100000000000")) Right(bigDecimal) else Left(Seq(FormError(key, maxAmountKey, args)))
+                case errors => errors
+              }
+          }
 
       override def unbind(key: String, value: BigDecimal): Map[String, String] =
         baseFormatter.unbind(key, value.toString)
     }
 
   private[mappings] def currencyExceedFormatter(requiredKey: String,
-                                       invalidNumericKey: String,
-                                       nonNumericKey: String,
-                                       maxAmountKey: String,
-                                       exceedAmountKey: String,
-                                       exceedAmount: BigDecimal,
-                                       args: Seq[String] = Seq.empty): Formatter[BigDecimal] = new Formatter[BigDecimal] {
+                                                invalidNumericKey: String,
+                                                nonNumericKey: String,
+                                                maxAmountKey: String,
+                                                exceedAmountKey: String,
+                                                exceedAmount: BigDecimal,
+                                                args: Seq[String] = Seq.empty): Formatter[BigDecimal] = new Formatter[BigDecimal] {
 
     private val baseFormatter = currencyFormatter(requiredKey, invalidNumericKey, nonNumericKey, maxAmountKey, args)
 
     override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], BigDecimal] =
       baseFormatter
-        .bind(key, data).right.flatMap {
-          case x if x > exceedAmount => Left(Seq(FormError(key, exceedAmountKey, args)))
-          case x => Right(x)
+        .bind(key, data).flatMap {
+        case x if x > exceedAmount => Left(Seq(FormError(key, exceedAmountKey, args)))
+        case x => Right(x)
       }
 
     override def unbind(key: String, value: BigDecimal): Map[String, String] =

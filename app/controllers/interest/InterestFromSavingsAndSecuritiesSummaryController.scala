@@ -28,16 +28,16 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class InterestFromSavingsAndSecuritiesSummaryController @Inject()(
-                                          view: InterestFromSavingsAndSecuritiesSummaryView
-                                        )
+                                                                   view: InterestFromSavingsAndSecuritiesSummaryView
+                                                                 )
                                                                  (
-                                          implicit appConfig: AppConfig,
-                                          mcc: MessagesControllerComponents,
-                                          ec: ExecutionContext,
-                                          authorisedAction: AuthorisedAction
-                                        ) extends FrontendController(mcc) with I18nSupport {
+                                                                   implicit appConfig: AppConfig,
+                                                                   ec: ExecutionContext,
+                                                                   mcc: MessagesControllerComponents,
+                                                                   authorisedAction: AuthorisedAction
+                                                                 ) extends FrontendController(mcc) with I18nSupport {
 
-      def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear,INTEREST).async { implicit user =>
-        Future.successful(Ok(view(taxYear)))
-      }
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
+    Future.successful(Ok(view(taxYear)))
+  }
 }

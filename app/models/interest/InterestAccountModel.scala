@@ -17,8 +17,7 @@
 package models.interest
 
 import play.api.libs.json._
-import utils.EncryptedValue
-
+import uk.gov.hmrc.crypto.EncryptedValue
 case class InterestAccountModel(id: Option[String],
                                 accountName: String,
                                 untaxedAmount: Option[BigDecimal] = None,
@@ -61,6 +60,8 @@ case class EncryptedInterestAccountModel(id: Option[EncryptedValue],
                                 uniqueSessionId: Option[EncryptedValue] = None)
 
 object EncryptedInterestAccountModel {
-  implicit val formats: OFormat[EncryptedInterestAccountModel] = Json.format[EncryptedInterestAccountModel]
+  implicit lazy val encryptedValueOFormat: OFormat[EncryptedValue] = Json.format[EncryptedValue]
+
+  implicit val formats: Format[EncryptedInterestAccountModel] = Json.format[EncryptedInterestAccountModel]
 
 }

@@ -23,8 +23,7 @@ import models.question.{Question, QuestionsJourney}
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.json.{JsNull, JsObject, JsPath, Json, OFormat, Reads, Writes}
 import play.api.mvc.Call
-import utils.EncryptedValue
-
+import uk.gov.hmrc.crypto.EncryptedValue
 case class InterestCYAModel(gateway: Option[Boolean] = None,
                             untaxedUkInterest: Option[Boolean] = None,
                             taxedUkInterest: Option[Boolean] = None,
@@ -144,6 +143,8 @@ case class EncryptedInterestCYAModel(gateway: Option[EncryptedValue] = None,
                                      accounts: Seq[EncryptedInterestAccountModel] = Seq.empty)
 
 object EncryptedInterestCYAModel {
+
+  implicit lazy val encryptedValueOFormat: OFormat[EncryptedValue] = Json.format[EncryptedValue]
 
   implicit val reads: Reads[EncryptedInterestCYAModel] = (
     (JsPath \ "gateway").readNullable[EncryptedValue] and

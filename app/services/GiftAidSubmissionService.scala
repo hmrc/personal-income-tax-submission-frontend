@@ -27,10 +27,12 @@ import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-class GiftAidSubmissionService @Inject()(giftAidSubmissionConnector: GiftAidSubmissionConnector) {
+class GiftAidSubmissionService @Inject()(giftAidSubmissionConnector: GiftAidSubmissionConnector)(
+  implicit val ec: ExecutionContext
+) {
 
   def submitGiftAid(body: Option[GiftAidSubmissionModel], nino: String, mtditid: String, taxYear: Int)
-                   (implicit hc: HeaderCarrier, executionContext: ExecutionContext): Future[GiftAidSubmissionsResponse] = {
+                   (implicit hc: HeaderCarrier): Future[GiftAidSubmissionsResponse] = {
 
     lazy val logger: Logger = Logger(this.getClass.getName)
 

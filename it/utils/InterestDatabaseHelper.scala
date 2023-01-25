@@ -41,7 +41,7 @@ trait InterestDatabaseHelper { self: IntegrationTest =>
 
     await(interestDatabase.create(
       InterestUserDataModel(sessionId, overrideMtditid.fold(mtditid)(value => value), overrideNino.fold(nino)(value => value), taxYear, cya)
-    )) match {
+    )()) match {
       case Left(_) => false
       case Right(value) => value
     }
