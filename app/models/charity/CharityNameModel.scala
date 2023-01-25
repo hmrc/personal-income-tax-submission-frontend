@@ -18,7 +18,7 @@ package models.charity
 
 import common.UUID
 import play.api.libs.json.{Json, OFormat}
-import utils.EncryptedValue
+import uk.gov.hmrc.crypto.EncryptedValue
 
 case class CharityNameModel(id: String, name: String)
 
@@ -33,6 +33,7 @@ object CharityNameModel {
 case class EncryptedCharityNameModel(id: EncryptedValue, name: EncryptedValue)
 
 object EncryptedCharityNameModel {
+  implicit lazy val encryptedValueOFormat: OFormat[EncryptedValue] = Json.format[EncryptedValue]
 
   implicit val formats: OFormat[EncryptedCharityNameModel] = Json.format[EncryptedCharityNameModel]
 

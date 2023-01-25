@@ -16,18 +16,14 @@
 
 package controllers.savings
 
-import models.dividends.DividendsCheckYourAnswersModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
-import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
-import play.api.libs.json.Json
-import play.api.libs.ws.WSClient
+import play.api.http.Status.{BAD_REQUEST, OK}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
-import utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
+import utils.{IntegrationTest, ViewHelpers}
 
-import scala.collection.immutable.Map
 
 class SavingsGatewayControllerISpec extends IntegrationTest with ViewHelpers{
 

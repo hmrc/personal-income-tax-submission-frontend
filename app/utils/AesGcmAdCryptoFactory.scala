@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,17 +12,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import uk.gov.hmrc.govukfrontend.views.html.components._
+package utils
 
-@this(govukButton : GovukButton)
+import config.AppConfig
+import uk.gov.hmrc.crypto.{AdDecrypter, AdEncrypter, SymmetricCryptoFactory}
 
-@(alternativeText: String = "common.continue", classes: Option[String] = None)(implicit messages: Messages)
+import javax.inject.{Inject, Singleton}
 
-@govukButton(Button(
-    attributes = Map("id" -> "continue"),
-    preventDoubleClick = Some(true),
-    content = Text(messages(alternativeText)),
-    classes = classes.getOrElse("")
-))
+@Singleton
+class AesGcmAdCryptoFactory @Inject()(appConfig: AppConfig) {
+
+  private lazy val aesGcmAdCrypto = SymmetricCryptoFactory.aesGcmAdCrypto(appConfig.encryptionKey)
+
+  def instance(): AdEncrypter with AdDecrypter = aesGcmAdCrypto
+}

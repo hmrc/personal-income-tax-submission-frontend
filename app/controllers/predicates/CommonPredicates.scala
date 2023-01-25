@@ -35,5 +35,5 @@ class CommonPredicates(taxYear: Int, journeyKey: JourneyKey) {
 object CommonPredicates {
   def commonPredicates(taxYear: Int, journeyKey: JourneyKey)(
     implicit authAction: AuthorisedAction, executionContext: ExecutionContext, appConfig: AppConfig, mcc: MessagesControllerComponents
-  ): ActionBuilder[User, AnyContent] = new CommonPredicates(taxYear, journeyKey).predicateList
+  ): ActionBuilder[User, AnyContent] = new CommonPredicates(taxYear, journeyKey).predicateList()
 }

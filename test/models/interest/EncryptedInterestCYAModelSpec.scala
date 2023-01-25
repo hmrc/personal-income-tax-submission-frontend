@@ -17,7 +17,8 @@
 package models.interest
 
 import play.api.libs.json.{JsObject, Json}
-import utils.{EncryptedValue, UnitTest}
+import uk.gov.hmrc.crypto.EncryptedValue
+import utils.UnitTest
 
 class EncryptedInterestCYAModelSpec extends UnitTest {
   val account = EncryptedInterestAccountModel(

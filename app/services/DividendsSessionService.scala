@@ -54,7 +54,7 @@ class DividendsSessionService @Inject()(
       DateTime.now(DateTimeZone.UTC)
     )
 
-    dividendsUserDataRepository.create(userData).map {
+    dividendsUserDataRepository.create(userData)().map {
       case Right(_) => onSuccess
       case Left(_) => onFail
     }
@@ -83,7 +83,7 @@ class DividendsSessionService @Inject()(
     )
 
     if (needsCreating) {
-      dividendsUserDataRepository.create(userData).map {
+      dividendsUserDataRepository.create(userData)().map {
         case Right(_) => onSuccess
         case Left(_) => onFail
       }

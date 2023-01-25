@@ -33,8 +33,6 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.interest.InterestCYAView
 import common.InterestTaxTypes.{TAXED, UNTAXED}
-import common.PageLocations.Interest.cya
-import views.html.defaultpages.error
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

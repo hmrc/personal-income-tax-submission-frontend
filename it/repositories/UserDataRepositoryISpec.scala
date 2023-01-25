@@ -53,14 +53,14 @@ class UserDataRepositoryISpec extends IntegrationTest with FutureAwaits with Def
   "create" should {
     "add a document to the collection" in new EmptyDatabase {
       count mustBe 0
-      val result: Either[DatabaseError, Boolean] = await(dividendsRepo.create(dividendsUserData))
+      val result: Either[DatabaseError, Boolean] = await(dividendsRepo.create(dividendsUserData)())
       result mustBe Right(true)
       count mustBe 1
     }
     "fail to add a document to the collection when it already exists" in new EmptyDatabase {
       count mustBe 0
-      await(dividendsRepo.create(dividendsUserData))
-      val result: Either[DatabaseError, Boolean] = await(dividendsRepo.create(dividendsUserData))
+      await(dividendsRepo.create(dividendsUserData)())
+      val result: Either[DatabaseError, Boolean] = await(dividendsRepo.create(dividendsUserData)())
       result mustBe Left(DataNotUpdated)
       count mustBe 1
     }
@@ -84,7 +84,7 @@ class UserDataRepositoryISpec extends IntegrationTest with FutureAwaits with Def
         ))
       )
 
-      await(dividendsRepo.create(initialData))
+      await(dividendsRepo.create(initialData)())
       count mustBe 1
 
       val res: Boolean = await(dividendsRepo.update(newUserData).map {
@@ -136,7 +136,7 @@ class UserDataRepositoryISpec extends IntegrationTest with FutureAwaits with Def
 
     "return an dataNotFoundError" in{
       await(dividendsInvalidRepo.find(taxYear)(testUser)) mustBe
-        Left(EncryptionDecryptionError("Key being used is not valid. It could be due to invalid encoding, wrong length or uninitialized for decrypt Invalid AES key length: 2 bytes"))
+        Left(EncryptionDecryptionError("Failed encrypting data"))
     }
   }
 
@@ -151,7 +151,7 @@ class UserDataRepositoryISpec extends IntegrationTest with FutureAwaits with Def
         case e: Exception => Left(e)
       }
       result.isLeft mustBe true
-      result.left.get.getMessage must include(
+      result.left.e.swap.getOrElse(new Exception("wrong message")).getMessage must include(
         "E11000 duplicate key error collection: personal-income-tax-submission-frontend.dividendsUserData index: UserDataLookupIndex dup key:")
     }
 
@@ -161,7 +161,7 @@ class UserDataRepositoryISpec extends IntegrationTest with FutureAwaits with Def
 
     "clear the document for the current user" in {
       count shouldBe 1
-      await(dividendsRepo.create(DividendsUserDataModel(sessionId, "7788990066", nino, taxYear)))
+      await(dividendsRepo.create(DividendsUserDataModel(sessionId, "7788990066", nino, taxYear))())
       count shouldBe 2
       await(dividendsRepo.clear(taxYear))
       count shouldBe 1

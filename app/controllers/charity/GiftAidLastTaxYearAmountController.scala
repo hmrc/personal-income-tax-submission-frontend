@@ -41,7 +41,7 @@ import scala.concurrent.Future
 class GiftAidLastTaxYearAmountController @Inject()(
                                              view: GiftAidLastTaxYearAmountView
                                            )(
-                                             implicit cc: MessagesControllerComponents,
+                                             implicit val cc: MessagesControllerComponents,
                                              authAction: AuthorisedAction,
                                              errorHandler: ErrorHandler,
                                              giftAidSessionService: GiftAidSessionService,

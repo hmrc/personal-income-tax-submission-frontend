@@ -17,7 +17,6 @@
 package services
 
 import common.IncomeSources
-import config.ErrorHandler
 import connectors.httpParsers.IncomeTaxUserDataHttpParser.IncomeTaxUserDataResponse
 import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector}
 import models.User
@@ -65,7 +64,7 @@ class InterestSessionService @Inject()(
     )
 
     if (needsCreating) {
-      interestUserDataRepository.create(userData).map {
+      interestUserDataRepository.create(userData)().map {
         case Right(_) => onSuccess
         case Left(_) => onFail
       }

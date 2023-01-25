@@ -17,7 +17,6 @@
 package services
 
 import common.IncomeSources
-import config.ErrorHandler
 import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector}
 import connectors.httpParsers.IncomeTaxUserDataHttpParser.IncomeTaxUserDataResponse
 import models.User
@@ -54,7 +53,7 @@ class GiftAidSessionService @Inject()(
       DateTime.now(DateTimeZone.UTC)
     )
 
-    giftAidUserDataRepository.create(userData).map {
+    giftAidUserDataRepository.create(userData)().map {
       case Right(_) => onSuccess
       case Left(_) => onFail
 

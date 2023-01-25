@@ -22,7 +22,7 @@ import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.AmountForm
 import models.User
-import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
+import models.dividends.DividendsCheckYourAnswersModel
 import models.question.QuestionsJourney
 import play.api.data.Form
 import play.api.i18n.I18nSupport

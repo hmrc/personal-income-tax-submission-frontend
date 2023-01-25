@@ -27,10 +27,12 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import play.api.http.Status.NO_CONTENT
 
-class DividendsSubmissionService @Inject()(dividendsSubmissionConnector: DividendsSubmissionConnector){
+class DividendsSubmissionService @Inject()(dividendsSubmissionConnector: DividendsSubmissionConnector)(
+  implicit val ec: ExecutionContext
+) {
 
   def submitDividends(body: Option[DividendsCheckYourAnswersModel], nino: String, mtditid: String, taxYear: Int)
-                     (implicit hc: HeaderCarrier, executionContext: ExecutionContext): Future[DividendsSubmissionsResponse] = {
+                     (implicit hc: HeaderCarrier): Future[DividendsSubmissionsResponse] = {
 
     lazy val logger: Logger = Logger(this.getClass.getName)
 

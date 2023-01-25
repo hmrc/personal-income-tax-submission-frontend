@@ -17,12 +17,12 @@
 package services
 
 import models.mongo.{EncryptedDividendsUserDataModel, EncryptedGiftAidUserDataModel, EncryptedInterestUserDataModel}
-import utils.{IntegrationTest, SecureGCMCipher}
+import utils.{AesGcmAdCrypto, IntegrationTest}
 
 class EncryptionServiceISpec extends IntegrationTest{
 
   val service: EncryptionService = app.injector.instanceOf[EncryptionService]
-  val encryption: SecureGCMCipher = app.injector.instanceOf[SecureGCMCipher]
+  val encryption: AesGcmAdCrypto = app.injector.instanceOf[AesGcmAdCrypto]
 
   "encryptDividendsUserData" should {
 

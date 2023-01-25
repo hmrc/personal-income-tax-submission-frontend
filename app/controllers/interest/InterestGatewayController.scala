@@ -137,7 +137,7 @@ class InterestGatewayController @Inject()(
     if (isUpdate) {
       interestSessionService.updateSessionData(interestCYAModel, taxYear)(errorHandler.internalServerError)(redirect)
     } else {
-      interestSessionService.updateSessionData(interestCYAModel, taxYear, true)(errorHandler.internalServerError)(redirect)
+      interestSessionService.updateSessionData(interestCYAModel, taxYear, needsCreating = true)(errorHandler.internalServerError)(redirect)
     }
   }
 

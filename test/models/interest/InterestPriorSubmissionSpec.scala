@@ -16,10 +16,7 @@
 
 package models.interest
 
-import common.{InterestTaxTypes, SessionValues}
-import models.User
 import play.api.libs.json.{JsArray, JsObject, Json}
-import play.api.mvc.AnyContent
 import utils.UnitTest
 
 class InterestPriorSubmissionSpec extends UnitTest {

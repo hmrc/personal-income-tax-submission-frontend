@@ -20,7 +20,6 @@ import connectors.NrsConnector
 import connectors.httpParsers.NrsSubmissionHttpParser.NrsSubmissionResponse
 import models.dividends.{DecodedDividendsSubmissionPayload, DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import play.api.libs.json.{JsString, Writes}
-import play.api.mvc.Request
 import play.api.test.FakeRequest
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 import utils.UnitTest

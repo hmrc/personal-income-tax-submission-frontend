@@ -16,15 +16,13 @@
 
 package controllers.dividends
 
-import audit.{AuditModel, AuditService, CreateOrAmendDividendsAuditDetail, CreateOrAmendInterestAuditDetail, TailorRemoveIncomeSourcesAuditDetail, TailorRemoveIncomeSourcesBody}
+import audit.{AuditModel, AuditService, CreateOrAmendDividendsAuditDetail, TailorRemoveIncomeSourcesAuditDetail, TailorRemoveIncomeSourcesBody}
 import config.{AppConfig, DIVIDENDS, ErrorHandler}
-import connectors.httpParsers.IncomeTaxUserDataHttpParser.IncomeTaxUserDataResponse
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import models.{APIErrorBodyModel, APIErrorModel, User}
-import models.dividends.{DecodedDividendsSubmissionPayload, DividendsCheckYourAnswersModel, DividendsPriorSubmission, DividendsResponseModel}
-import models.interest.InterestCYAModel
+import models.dividends.{DecodedDividendsSubmissionPayload, DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -141,7 +139,7 @@ class DividendsCYAController @Inject()(
   }
 
   private[dividends] def handleUnfinishedRedirect(cya: DividendsCheckYourAnswersModel, taxYear: Int): Result = {
-    DividendsCheckYourAnswersModel.unapply(cya).getOrElse(None, None, None, None, None) match {
+    DividendsCheckYourAnswersModel.unapply(cya).getOrElse((None, None, None, None, None)) match {
       case (None, _, _, _, _) if appConfig.dividendsTailoringEnabled => Redirect(controllers.dividends.routes.DividendsGatewayController.show(taxYear))
       case (_, Some(true), None, None, None) => Redirect(controllers.dividends.routes.UkDividendsAmountController.show(taxYear))
       case (_, Some(false), None, None, None) => Redirect(controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear))

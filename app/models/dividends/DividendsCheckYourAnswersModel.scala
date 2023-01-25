@@ -19,9 +19,9 @@ package models.dividends
 import config.AppConfig
 import models.question.Question.{WithDependency, WithoutDependency}
 import models.question.{Question, QuestionsJourney}
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{Format, Json, OFormat}
 import play.api.mvc.Call
-import utils.EncryptedValue
+import uk.gov.hmrc.crypto.EncryptedValue
 
 case class DividendsCheckYourAnswersModel(
                                            gateway: Option[Boolean] = None,
@@ -147,7 +147,8 @@ case class EncryptedDividendsCheckYourAnswersModel(
                                                   )
 
 object EncryptedDividendsCheckYourAnswersModel {
+  implicit lazy val encryptedValueOFormat: OFormat[EncryptedValue] = Json.format[EncryptedValue]
 
-  implicit val formats: OFormat[EncryptedDividendsCheckYourAnswersModel] = Json.format[EncryptedDividendsCheckYourAnswersModel]
+  implicit val formats: Format[EncryptedDividendsCheckYourAnswersModel] = Json.format[EncryptedDividendsCheckYourAnswersModel]
 
 }

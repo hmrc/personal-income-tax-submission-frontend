@@ -16,9 +16,8 @@
 
 package models.charity
 
-import models.charity.prior.GiftAidSubmissionModel
-import play.api.libs.json.{Json, OFormat}
-import utils.EncryptedValue
+import play.api.libs.json.{Format, Json, OFormat}
+import uk.gov.hmrc.crypto.EncryptedValue
 
 case class GiftAidCYAModel(
                             gateway: Option[Boolean] = None,
@@ -156,5 +155,7 @@ case class EncryptedGiftAidCYAModel(
                                    )
 
 object EncryptedGiftAidCYAModel {
-  implicit val formats: OFormat[EncryptedGiftAidCYAModel] = Json.format[EncryptedGiftAidCYAModel]
+  implicit lazy val encryptedValueOFormat: OFormat[EncryptedValue] = Json.format[EncryptedValue]
+
+  implicit val formats: Format[EncryptedGiftAidCYAModel] = Json.format[EncryptedGiftAidCYAModel]
 }

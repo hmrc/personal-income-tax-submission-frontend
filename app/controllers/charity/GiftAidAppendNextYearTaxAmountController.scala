@@ -35,7 +35,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 class GiftAidAppendNextYearTaxAmountController @Inject()(
-                                                          implicit cc: MessagesControllerComponents,
+                                                          implicit val cc: MessagesControllerComponents,
                                                           view: GiftAidAppendNextYearTaxAmountView,
                                                           authorisedAction: AuthorisedAction,
                                                           appConfig: AppConfig,
@@ -95,7 +95,7 @@ class GiftAidAppendNextYearTaxAmountController @Inject()(
 
   def submit(taxYear: Int, someTaxYear: Int): Action[AnyContent] = commonPredicates(taxYear, GIFT_AID).async { implicit user =>
     if (taxYear == someTaxYear) {
-      form(user.isAgent, taxYear).bindFromRequest.fold(
+      form(user.isAgent, taxYear).bindFromRequest().fold(
         {
           formWithErrors => Future.successful(BadRequest(view(taxYear, formWithErrors)))
         },

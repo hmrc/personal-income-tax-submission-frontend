@@ -42,7 +42,7 @@ trait GiftAidDatabaseHelper {
                    ): Boolean = {
 
     await(giftAidDatabase.create(
-      GiftAidUserDataModel(sessionId, overrideMtditid.fold(mtditid)(value => value), overrideNino.fold(nino)(value => value), taxYear, cya))
+      GiftAidUserDataModel(sessionId, overrideMtditid.fold(mtditid)(value => value), overrideNino.fold(nino)(value => value), taxYear, cya))()
     ) match {
       case Left(_) => false
       case Right(value) => value
