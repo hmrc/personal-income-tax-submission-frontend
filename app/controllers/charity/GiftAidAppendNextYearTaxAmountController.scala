@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.charity.GiftAidAppendNextYearTaxAmountView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 class GiftAidAppendNextYearTaxAmountController @Inject()(
@@ -41,7 +41,8 @@ class GiftAidAppendNextYearTaxAmountController @Inject()(
                                                           appConfig: AppConfig,
                                                           giftAidSessionService: GiftAidSessionService,
                                                           errorHandler: ErrorHandler,
-                                                          previousPage: DonationsToPreviousTaxYearController
+                                                          previousPage: DonationsToPreviousTaxYearController,
+                                                          ec: ExecutionContext
                                                         ) extends FrontendController(cc) with I18nSupport with CharityJourney {
 
   override def handleRedirect(

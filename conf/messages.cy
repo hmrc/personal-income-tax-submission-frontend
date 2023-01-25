@@ -569,6 +569,20 @@ savings.gateway.bullet.4 = benthyciadau cymar-i-gymar yn y DU
 savings.gateway.error.individual = Dewiswch ‘Iawn’ os cawsoch unrhyw log o warantau gilt neu warantau incwm cronedig
 savings.gateway.error.agent = Dewiswch ‘Iawn’ os cafodd eich cleient unrhyw log o warantau gilt neu warantau incwm cronedig
 
+savings.gateway.details.title = More help about interest from gilt-edged securities
+savings.gateway.details.1.text = This is also known as 'disguised interest'. HMRC tax this differently from other types of interest. It’ll only apply to financial arrangements you enter into from 6 April 2021.
+savings.gateway.details.2.text = For more information on Accrued Income Schemes see
+savings.gateway.details.2.link = HS343 Accrued Income Scheme (2022) (opens in a new window)
+savings.gateway.details.3.text = For more information on Peer to peer loans see
+savings.gateway.details.3.link = Peer to peer lending guidance (opens in a new window)
+
+savings.gateway.details.title = Rhagor o help am log o warantau gilt
+savings.gateway.details.1.text = Enw arall ar hyn yw ‘llog cuddiedig’. Mae CThEF yn trethu hyn yn wahanol i fathau eraill o log. Bydd ond yn gymwys i drefniadau ariannol y gwnaethoch ymrwymo iddynt o 6 Ebrill 2021 ymlaen.
+savings.gateway.details.2.text = I gael rhagor o wybodaeth am Gynlluniau Incwm Cronedig, gweler taflen
+savings.gateway.details.2.link = HS343 Accrued Income Scheme (2022) (yn agor ffenestr newydd)
+savings.gateway.details.3.text = I gael rhagor o wybodaeth am fenthyciadau cymar-i-gymar, gweler
+savings.gateway.details.3.link =  yr arweiniad (yn agor ffenestr newydd)
+
 savings.tax-taken-from-interest.radio.heading.individual = A gafodd treth ei didynnu oddi wrth eich llog?
 savings.tax-taken-from-interest.radio.heading.agent = A gafodd treth ei didynnu oddi wrth log eich cleient?
 savings.tax-taken-from-interest.error = Dewiswch ‘Iawn’ os cafodd treth ei didynnu oddi wrth y llog

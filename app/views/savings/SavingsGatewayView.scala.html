@@ -1,5 +1,5 @@
 @*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,6 +60,21 @@
     </ul>
 
     @insetText(messages(s"savings.gateway.insetText.${if(user.isAgent)"agent"else"individual"}"))
+
+    <details class="govuk-details" data-module="govuk-details">
+        <summary class="govuk-details__summary">
+        <span id="details" class="govuk-details__summary-text">
+            @messages("savings.gateway.details.title")
+        </span>
+        </summary>
+        <div class="govuk-details__text">
+            <p id="details1Text"> @messages("savings.gateway.details.1.text")</p>
+            <p id="details2Text"> @messages("savings.gateway.details.2.text")
+                <a href="https://www.gov.uk/government/publications/accrued-income-scheme-hs343-self-assessment-helpsheet/hs343-accrued-income-scheme-2022" target="_blank">@messages("savings.gateway.details.2.link") </a>  </p>
+            <p id="details3Text"> @messages("savings.gateway.details.3.text")
+                <a href="https://www.gov.uk/guidance/peer-to-peer-lending" target="_blank">@messages("savings.gateway.details.3.link") </a> </p>
+        </div>
+    </details>
 
     @formWithCsrf(action = controllers.savings.routes.SavingsGatewayController.submit(taxYear)){
 

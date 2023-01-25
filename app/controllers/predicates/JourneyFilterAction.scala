@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,10 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class JourneyFilterAction @Inject()(journeyKey: JourneyKey, taxYear: Int)(
-                                     appConfig: AppConfig
+                                     appConfig: AppConfig,
+                                     implicit val executionContext: ExecutionContext
                                    ) extends ActionRefiner[User, User] {
 
-  override protected def executionContext: ExecutionContext = ExecutionContext.Implicits.global
 
   override def refine[A](request: User[A]): Future[Either[Result, User[A]]] = {
     if(appConfig.isJourneyAvailable(journeyKey)) {
@@ -40,7 +40,7 @@ class JourneyFilterAction @Inject()(journeyKey: JourneyKey, taxYear: Int)(
 }
 
 object JourneyFilterAction {
-  def journeyFilterAction(taxYear: Int, journeyKey: JourneyKey)(implicit appConfig: AppConfig): JourneyFilterAction = {
-    new JourneyFilterAction(journeyKey, taxYear)(appConfig)
+  def journeyFilterAction(taxYear: Int, journeyKey: JourneyKey)(implicit appConfig: AppConfig, executionContext: ExecutionContext): JourneyFilterAction = {
+    new JourneyFilterAction(journeyKey, taxYear)(appConfig, executionContext)
   }
 }

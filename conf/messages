@@ -569,6 +569,13 @@ savings.gateway.bullet.4 = UK peer-to-peer loans
 savings.gateway.error.individual = Select yes if you got any interest from gilt-edged or accrued income securities
 savings.gateway.error.agent = Select yes if your client got any interest from gilt-edged or accrued income securities
 
+savings.gateway.details.title = More help about interest from gilt-edged securities
+savings.gateway.details.1.text = This is also known as 'disguised interest'. HMRC tax this differently from other types of interest. It’ll only apply to financial arrangements you enter into from 6 April 2021.
+savings.gateway.details.2.text = For more information on Accrued Income Schemes see
+savings.gateway.details.2.link = HS343 Accrued Income Scheme (2022) (opens in a new window)
+savings.gateway.details.3.text = For more information on Peer to peer loans see
+savings.gateway.details.3.link = Peer to peer lending guidance (opens in a new window)
+
 savings.tax-taken-from-interest.radio.heading.individual = Was tax taken off your interest?
 savings.tax-taken-from-interest.radio.heading.agent = Was tax taken off your client’s interest?
 savings.tax-taken-from-interest.error = Select yes if tax was taken off the interest

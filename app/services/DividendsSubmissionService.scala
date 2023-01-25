@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,13 @@ import play.api.Logger
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext
 import play.api.http.Status.NO_CONTENT
 
 class DividendsSubmissionService @Inject()(dividendsSubmissionConnector: DividendsSubmissionConnector){
 
   def submitDividends(body: Option[DividendsCheckYourAnswersModel], nino: String, mtditid: String, taxYear: Int)
-                     (implicit hc: HeaderCarrier): Future[DividendsSubmissionsResponse] = {
+                     (implicit hc: HeaderCarrier, executionContext: ExecutionContext): Future[DividendsSubmissionsResponse] = {
 
     lazy val logger: Logger = Logger(this.getClass.getName)
 
