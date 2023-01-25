@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ class AuthorisedAction @Inject()(
 
   override def parser: BodyParser[AnyContent] = mcc.parsers.default
 
-  val minimumConfidenceLevel: Int = ConfidenceLevel.L200.level
+  val minimumConfidenceLevel: Int = ConfidenceLevel.L250.level
 
   def getSessionId(implicit request: Request[_], hc: HeaderCarrier): Option[String] = {
     lazy val key = "sessionId"
@@ -104,7 +104,7 @@ class AuthorisedAction @Inject()(
         }
 
       case _ =>
-        logger.info("[AuthorisedAction][individualAuthentication] User has confidence level below 200, routing user to IV uplift.")
+        logger.info("[AuthorisedAction][individualAuthentication] User has confidence level below 250, routing user to IV uplift.")
         Future(Redirect(appConfig.incomeTaxSubmissionIvRedirect))
     }
   }

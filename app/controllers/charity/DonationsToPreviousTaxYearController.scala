@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import views.html.charity.DonationsToPreviousTaxYearView
 
 import javax.inject.Inject
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext
 
 class DonationsToPreviousTaxYearController @Inject()(
                                                       implicit val cc: MessagesControllerComponents,
@@ -44,7 +44,8 @@ class DonationsToPreviousTaxYearController @Inject()(
                                                       giftAidLastTaxYearController: GiftAidLastTaxYearController,
                                                       giftAidLastTaxYearAmountController: GiftAidLastTaxYearAmountController,
                                                       errorHandler: ErrorHandler,
-                                                      implicit val appConfig: AppConfig
+                                                      implicit val appConfig: AppConfig,
+                                                      ec: ExecutionContext
                                                     ) extends FrontendController(cc) with I18nSupport with SessionHelper with CharityJourney {
 
   override def handleRedirect(

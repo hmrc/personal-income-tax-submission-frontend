@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,10 @@ class SavingsGatewayControllerISpec extends IntegrationTest with ViewHelpers{
     val bullet4 = "#main-content > div > div > ul > li:nth-child(4)"
     val insetSelector = "#main-content > div > div > div.govuk-inset-text"
     val radioHeadSelector = "#main-content > div > div > form > div > fieldset > legend"
+    val detailsTitle = "#details"
+    val detailsText1 = "#details1Text"
+    val detailsText2 = "#details2Text"
+    val detailsText3 = "#details3Text"
   }
 
   trait CommonExpectedResults {
@@ -59,6 +63,10 @@ class SavingsGatewayControllerISpec extends IntegrationTest with ViewHelpers{
     val yesText: String
     val noText: String
     val continueText: String
+    val detailsTitle: String
+    val detailsText1: String
+    val detailsText2: String
+    val detailsText3: String
   }
 
   object CommonExpectedResultsEN extends CommonExpectedResults {
@@ -69,11 +77,15 @@ class SavingsGatewayControllerISpec extends IntegrationTest with ViewHelpers{
     override val bullet2: String = "accrued income profit"
     override val bullet3: String = "agreements (known as loan notes), between UK borrowers and lenders, to repay debt"
     override val bullet4: String = "UK peer-to-peer loans"
+    override val detailsTitle: String  = "More help about interest from gilt-edged securities"
+    override val detailsText1: String = "This is also known as disguised interest. HMRC tax this differently from other types of interest. It’ll only apply to financial arrangements you enter into from 6 April 2021."
+    override val detailsText2: String= "For more information on Accrued Income Schemes see HS343 Accrued Income Scheme (2022) (opens in a new window)"
+    override val detailsText3: String= "For more information on Peer to peer loans see Peer to peer lending guidance (opens in a new window)"
+
     override val yesText: String = "Yes"
     override val noText: String = "No"
     override val continueText: String = "Continue"
   }
-
   object CommonExpectedResultsCY extends CommonExpectedResults {
     override val title: String = "Llog o warantau gilt neu warantau incwm cronedig"
     override val caption: String = s"Llog o warantau gilt neu warantau incwm cronedig ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
@@ -85,6 +97,10 @@ class SavingsGatewayControllerISpec extends IntegrationTest with ViewHelpers{
     override val yesText: String = "Iawn"
     override val noText: String = "Na"
     override val continueText: String = "Yn eich blaen"
+    override val detailsTitle: String = "Rhagor o help am log o warantau gilt"
+    override val detailsText1: String = "Enw arall ar hyn yw ‘llog cuddiedig’. Mae CThEF yn trethu hyn yn wahanol i fathau eraill o log. Bydd ond yn gymwys i drefniadau ariannol y gwnaethoch ymrwymo iddynt o 6 Ebrill 2021 ymlaen."
+    override val detailsText2: String = "I gael rhagor o wybodaeth am Gynlluniau Incwm Cronedig, gweler taflen HS343 Accrued Income Scheme (2022) (yn agor ffenestr newydd)"
+    override val detailsText3: String = "I gael rhagor o wybodaeth am fenthyciadau cymar-i-gymar, gweler yr arweiniad (yn agor ffenestr newydd)"
   }
 
   trait SpecificUserTypeResults {
@@ -166,6 +182,10 @@ class SavingsGatewayControllerISpec extends IntegrationTest with ViewHelpers{
           radioButtonCheck(noText,2)
           formPostLinkCheck(relativeUrl, Selectors.formSelector)
           buttonCheck(continueText)
+          textOnPageCheck(detailsTitle, Selectors.detailsTitle)
+          textOnPageCheck(detailsText1, Selectors.detailsText1)
+          textOnPageCheck(detailsText2, Selectors.detailsText2)
+          textOnPageCheck(detailsText3, Selectors.detailsText3)
         }
 
     }

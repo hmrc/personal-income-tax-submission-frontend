@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ import utils.SessionHelper
 import views.html.charity.GiftAidLastTaxYearView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 class GiftAidLastTaxYearController @Inject()(
@@ -45,7 +45,8 @@ class GiftAidLastTaxYearController @Inject()(
                                               giftAidLastTaxYearView: GiftAidLastTaxYearView,
                                               val appConfig: AppConfig,
                                               giftAidSessionService: GiftAidSessionService,
-                                              errorHandler: ErrorHandler
+                                              errorHandler: ErrorHandler,
+                                              ec: ExecutionContext
                                             ) extends FrontendController(cc) with I18nSupport with SessionHelper with CharityJourney {
 
   lazy val logger: slf4j.Logger = Logger(this.getClass).logger

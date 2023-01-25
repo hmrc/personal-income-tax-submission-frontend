@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,11 @@ import controllers.predicates.TaxYearAction.taxYearAction
 import models.User
 import play.api.mvc.{ActionBuilder, AnyContent, MessagesControllerComponents}
 
+import scala.concurrent.ExecutionContext
+
 class CommonPredicates(taxYear: Int, journeyKey: JourneyKey) {
   def predicateList()
-                   (implicit authorisedAction: AuthorisedAction, appConfig: AppConfig, mcc: MessagesControllerComponents): ActionBuilder[User, AnyContent] =
+                   (implicit authorisedAction: AuthorisedAction,executionContext: ExecutionContext,  appConfig: AppConfig, mcc: MessagesControllerComponents): ActionBuilder[User, AnyContent] =
     authorisedAction andThen
       taxYearAction(taxYear) andThen
       journeyFilterAction(taxYear, journeyKey)
@@ -32,6 +34,6 @@ class CommonPredicates(taxYear: Int, journeyKey: JourneyKey) {
 
 object CommonPredicates {
   def commonPredicates(taxYear: Int, journeyKey: JourneyKey)(
-    implicit authAction: AuthorisedAction, appConfig: AppConfig, mcc: MessagesControllerComponents
+    implicit authAction: AuthorisedAction, executionContext: ExecutionContext, appConfig: AppConfig, mcc: MessagesControllerComponents
   ): ActionBuilder[User, AnyContent] = new CommonPredicates(taxYear, journeyKey).predicateList
 }

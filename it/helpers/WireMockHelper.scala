@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -186,25 +186,25 @@ trait WireMockHelper {
   def authoriseIndividual(nino: Option[String] = Some("AA123456A")): StubMapping = {
     val ninoSeq: Seq[JsObject] = nino.fold(Seq.empty[JsObject])(unwrappedNino => Seq(ninoEnrolment(unwrappedNino)))
 
-    stubPost(authoriseUri, OK, Json.prettyPrint(successfulAuthResponse(Some(AffinityGroup.Individual), ConfidenceLevel.L200,
+    stubPost(authoriseUri, OK, Json.prettyPrint(successfulAuthResponse(Some(AffinityGroup.Individual), ConfidenceLevel.L250,
       enrolments = Seq(mtditEnrolment) ++ ninoSeq: _*)))
   }
 
   def authoriseIndividualUnauthorized(): StubMapping = {
     stubPost(authoriseUri, UNAUTHORIZED, Json.prettyPrint(
-      successfulAuthResponse(Some(AffinityGroup.Individual), ConfidenceLevel.L200, Seq(mtditEnrolment, ninoEnrolment()): _*)
+      successfulAuthResponse(Some(AffinityGroup.Individual), ConfidenceLevel.L250, Seq(mtditEnrolment, ninoEnrolment()): _*)
     ))
   }
 
   def authoriseAgent(): StubMapping = {
     stubPost(authoriseUri, OK, Json.prettyPrint(
-      successfulAuthResponse(Some(AffinityGroup.Agent), ConfidenceLevel.L200, Seq(asAgentEnrolment, mtditEnrolment): _*)
+      successfulAuthResponse(Some(AffinityGroup.Agent), ConfidenceLevel.L250, Seq(asAgentEnrolment, mtditEnrolment): _*)
     ))
   }
 
   def authoriseAgentUnauthorized(): StubMapping = {
     stubPost(authoriseUri, UNAUTHORIZED, Json.prettyPrint(
-      successfulAuthResponse(Some(AffinityGroup.Agent), ConfidenceLevel.L200, Seq(asAgentEnrolment, mtditEnrolment): _*)
+      successfulAuthResponse(Some(AffinityGroup.Agent), ConfidenceLevel.L250, Seq(asAgentEnrolment, mtditEnrolment): _*)
     ))
   }
 

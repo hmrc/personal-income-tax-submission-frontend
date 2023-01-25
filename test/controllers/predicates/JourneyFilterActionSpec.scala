@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ class JourneyFilterActionSpec extends UnitTest {
 
   def taxYearAction(taxYear: Int, reset: Boolean = true): TaxYearAction = new TaxYearAction(taxYear, reset)(mockAppConf, mockMessagesControllerComponents)
 
-  lazy val filter = new JourneyFilterAction(INTEREST, taxYear)(mockAppConf)
+  lazy val filter = new JourneyFilterAction(INTEREST, taxYear)(mockAppConf, mockExecutionContext)
 
   "JourneyFilterAction.refine" should {
 
