@@ -546,15 +546,25 @@ charity.gateway.error.agent = Select yes if your client made donations to charit
 
 # Interest from gilt-edged or accrued income securities pages
 # -----------------------------------------------------------
+savings.interest-amount.heading = Total interest
+savings.interest-amount.head.individual = Enter the amount you have received from gilt-edged or accrued income securities. This is the amount before any tax deductions. If you have joint income, only tell us your share.
+savings.interest-amount.head.agent = Enter the amount your client has received from gilt-edged or accrued income securities. This is the amount before any tax deductions. If your client has joint income, only tell us their share.
+savings.interest-amount.bullet.head.individual = If you:
+savings.interest-amount.bullet.head.agent = If your client:
+savings.interest-amount.bullet.1.individual = want to claim bad debt relief on a peer-to-peer loan, deduct the total bad debt from the interest you receive
+savings.interest-amount.bullet.2.individual = invest in deeply discounted securities, enter the difference between what you paid for the bond and what you redeem or sell it for
+savings.interest-amount.bullet.1.agent = wants to claim bad debt relief on a peer-to-peer loan, deduct the total bad debt from the interest your client received
+savings.interest-amount.bullet.2.agent = invests in deeply discounted securities, enter the difference between what your client paid for the bond and what they redeemed or sold it for
+savings.interest-amount.sub-heading.individual = How much interest did you get?
+savings.interest-amount.sub-heading.agent = How much interest did your client get?
+savings.interest-amount.currency.hint = For example, £1935.46
 
-savings.interest-amount.heading.individual = How much interest did you get?
-savings.interest-amount.heading.agent = How much interest did your client get?
-savings.interest-amount.head.individual = Enter the amount before any deductions. Only tell us your share if you have joint income.
-savings.interest-amount.head.agent = Enter the amount before any deductions. Only tell us your client’s share if they have joint income.
-savings.interest-amount.errors.no-entry = Enter the amount of interest received
-savings.interest-amount.error.maximum = Amount of interest must be less than £100,000,000,000
-savings.interest-amount.error.wrong-format = Amount of interest must be a number, like 600 or 193.54
-savings.interest-amount.error.too-many-decimals = Amount of interest can only include pounds and pence, like 600 or 193.54
+savings.interest-amount.errors.no-entry.individual = Enter the interest you got. For example, £1935.46
+savings.interest-amount.errors.no-entry.agent = Enter the interest your client got. For example, £1935.46
+savings.interest-amount.error.maximum.individual  = The amount of your interest must be less than £100,000,000,000
+savings.interest-amount.error.maximum.agent = The amount of your client’s interest must be less than £100,000,000,000
+savings.interest-amount.error.wrong-format.individual = Enter the interest you got in the correct format. For example, £1935.46
+savings.interest-amount.error.wrong-format.agent = Enter the interest your client got in the correct format. For example, £1935.46
 
 savings.gateway.heading = Interest from gilt-edged or accrued income securities
 savings.gateway.radio.heading.individual = Did you get any interest from gilt-edged or accrued income securities?

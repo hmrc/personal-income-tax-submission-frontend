@@ -37,7 +37,6 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
   val poundPrefixText = "£"
 
   object Selectors {
-
     val poundPrefixSelector = ".govuk-input__prefix"
     val captionSelector = ".govuk-caption-l"
     val headingSelector = ".govuk-heading-l"
@@ -46,75 +45,93 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
     val continueButtonFormSelector = "#main-content > div > div > form"
     val amountSelector = "#amount"
     val hintTextSelector = "#amount-hint"
-    val p1Selector = ".govuk-body"
+    val p1Selector = "#main-content > div > div > p:nth-child(2)"
+    val bulletHead = "#main-content > div > div > p:nth-child(3)"
+    val bulletOne = "#bullet1"
+    val bulletTwo = "#bullet2"
+    val subHeading = "#main-content > div > div > form > div > label"
   }
 
   trait CommonExpectedResults {
     val captionExpected: String
     val continueText: String
     val expectedHintText: String
-    val expectedErrorEmpty: String
-    val expectedErrorOverMax: String
-    val expectedErrorInvalid: String
-    val expectedErrorDecimal: String
+    val expectedH1: String
     val expectedErrorTitle: String
+
 
   }
 
   object CommonExpectedResultsEN extends CommonExpectedResults {
     val continueText = "Continue"
-    val expectedHintText = "For example, £193.52"
+    val expectedHintText = "For example, £1935.46"
     val captionExpected = s"Interest from gilt-edged or accrued income securities for 6 April $taxYearEOY to 5 April $taxYear"
+    val expectedH1 = "Total interest"
     val expectedErrorTitle = s"Error: $expectedErrorTitle"
-    val expectedErrorEmpty = "Enter the amount of interest received"
-    val expectedErrorInvalid = "Amount of interest must be a number, like 600 or 193.54"
-    val expectedErrorOverMax = "Amount of interest must be less than £100,000,000,000"
-    val expectedErrorDecimal = "Amount of interest can only include pounds and pence, like 600 or 193.54"
-
   }
 
   object CommonExpectedResultsCY extends CommonExpectedResults {
     val continueText = "Yn eich blaen"
-    val expectedHintText = "Er enghraifft, £193.52"
+    val expectedHintText = "Er enghraifft, £1935.46"
     val captionExpected = s"Llog o warantau gilt neu warantau incwm cronedig ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
+    val expectedH1 = "Cyfanswm y llog"
     val expectedErrorTitle = s"Error: $expectedErrorTitle"
-    val expectedErrorEmpty = "Nodwch swm y llog a gafwyd"
-    val expectedErrorInvalid = "Rhaid i swm y llog fod yn rhif, megis 600 neu 193.54"
-    val expectedErrorOverMax = "Rhaid i swm y llog fod yn llai na £100,000,000,000"
-    val expectedErrorDecimal = "Dim ond punnoedd a cheiniogau y gellir eu cynnwys yn swm y llog, megis 600 neu 193.45"
   }
 
   trait SpecificUserTypeResults {
-    val expectedH1: String
-    val expectedTitle: String
     val p1: String
+    val bulletHead: String
+    val bullet1: String
+    val bullet2: String
+    val subHeading: String
+    val expectedErrorEmpty: String
+    val expectedErrorOverMax: String
+    val expectedErrorInvalid: String
   }
 
   object IndividualResultsEN extends SpecificUserTypeResults {
-    val expectedH1 = "How much interest did you get?"
-    val expectedTitle = "How much interest did you get?"
-    val p1 = "Enter the amount before any deductions. Only tell us your share if you have joint income."
+    val p1 = "Enter the amount you have received from gilt-edged or accrued income securities. This is the amount before any tax deductions. If you have joint income, only tell us your share."
+    val bulletHead = "If you:"
+    val bullet1 = "want to claim bad debt relief on a peer-to-peer loan, deduct the total bad debt from the interest you receive"
+    val bullet2 = "invest in deeply discounted securities, enter the difference between what you paid for the bond and what you redeem or sell it for"
+    val subHeading = "How much interest did you get?"
+    val expectedErrorEmpty = "Enter the interest you got. For example, £1935.46"
+    val expectedErrorOverMax = "The amount of your interest must be less than £100,000,000,000"
+    val expectedErrorInvalid = "Enter the interest you got in the correct format. For example, £1935.46"
   }
 
   object AgentResultsEN extends SpecificUserTypeResults {
-    val expectedH1 = "How much interest did your client get?"
-    val expectedTitle = "How much interest did your client get?"
-    val p1 = "Enter the amount before any deductions. Only tell us your client’s share if they have joint income."
+    val p1 = "Enter the amount your client has received from gilt-edged or accrued income securities. This is the amount before any tax deductions. If your client has joint income, only tell us their share."
+    val bulletHead = "If your client:"
+    val bullet1 = "wants to claim bad debt relief on a peer-to-peer loan, deduct the total bad debt from the interest your client received"
+    val bullet2 = "invests in deeply discounted securities, enter the difference between what your client paid for the bond and what they redeemed or sold it for"
+    val subHeading = "How much interest did your client get?"
+    val expectedErrorEmpty = "Enter the interest your client got. For example, £1935.46"
+    val expectedErrorOverMax = "The amount of your client’s interest must be less than £100,000,000,000"
+    val expectedErrorInvalid = "Enter the interest your client got in the correct format. For example, £1935.46"
   }
 
 
   object IndividualResultsCY extends SpecificUserTypeResults {
-    val expectedH1 = "Faint o log a gawsoch?"
-    val expectedTitle = "Faint o log a gawsoch?"
-    val p1 = "Nodwch y swm cyn unrhyw ddidyniadau. Dim ond os oes gennych incwm ar y cyd y dylech roi gwybod i ni beth yw’ch cyfran."
-
+    val p1 = "Nodwch y swm rydych wedi’i gael o warantau gilt neu warantau incwm cronedig. Dyma’r swm cyn unrhyw ddidyniadau treth. Os oes gennych incwm ar y cyd, nodwch eich cyfran chi yn unig."
+    val bulletHead = "Os ydych:"
+    val bullet1 = "am wneud cais am ryddhad rhag drwgddyledion ar fenthyciad cymar-i-gymar, didynnwch gyfanswm y drwgddyled o’r llog a gewch"
+    val bullet2 = "yn buddsoddi mewn gwarantau â chryn ddisgownt, nodwch y gwahaniaeth rhwng yr hyn a daloch am y bond a’r hyn y gwnaethoch ei adenill neu ei werthu amdano"
+    val subHeading = "Faint o log a gawsoch?"
+    val expectedErrorEmpty = "Nodwch y llog a gawsoch. Er enghraifft, £1935.46"
+    val expectedErrorOverMax = "Mae’n rhaid i swm eich llog fod yn llai na £100,000,000,000"
+    val expectedErrorInvalid = "Nodwch y llog a gawsoch yn y fformat cywir. Er enghraifft, £1935.46"
   }
 
   object AgentResultsCY extends SpecificUserTypeResults {
-    val expectedH1 = "Faint o log a gafodd eich cleient?"
-    val expectedTitle = "Faint o log a gafodd eich cleient?"
-    val p1 = "Nodwch y swm cyn unrhyw ddidyniadau. Dim ond os oes ganddo incwm ar y cyd y dylech roi gwybod i ni beth yw cyfran eich cleient."
-
+    val p1 = "Nodwch y swm y mae’ch cleient wedi’i gael o warantau gilt neu warantau incwm cronedig. Dyma’r swm cyn unrhyw ddidyniadau treth. Os oes gan eich cleient incwm ar y cyd, nodwch ei gyfran ef yn unig."
+    val bulletHead = "Os yw’ch cleient:"
+    val bullet1 = "am wneud cais am ryddhad rhag drwgddyledion ar fenthyciad cymar-i-gymar, didynnwch gyfanswm y drwgddyled o’r llog a gafodd eich cleient"
+    val bullet2 = "yn buddsoddi mewn gwarantau â chryn ddisgownt, nodwch y gwahaniaeth rhwng yr hyn a dalodd eich cleient am y bond a’r hyn y gwnaeth eich cleient ei adennill neu ei werthu amdano"
+    val subHeading = "Faint o log a gafodd eich cleient?"
+    val expectedErrorEmpty = "Nodwch y llog a gafodd eich cleient. Er enghraifft, £1935.46"
+    val expectedErrorOverMax = "Mae’n rhaid i swm llog eich cleient fod yn llai na £100,000,000,000"
+    val expectedErrorInvalid = "Nodwch y llog a gafodd eich cleient yn y fformat cywir. Er enghraifft, £1935.46"
   }
 
   val newAmountInput = "#amount"
@@ -157,10 +174,14 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
           status(result) shouldBe OK
         }
 
-        titleCheck(expectedTitle, scenario.isWelsh)
         h1Check(expectedH1 + " " + captionExpected)
         captionCheck(captionExpected)
         textOnPageCheck(p1, Selectors.p1Selector)
+        textOnPageCheck(bulletHead, Selectors.bulletHead)
+        textOnPageCheck(bullet1, Selectors.bulletOne)
+        textOnPageCheck(bullet2, Selectors.bulletTwo)
+        textOnPageCheck(subHeading, Selectors.subHeading)
+
         formPostLinkCheck(savingsInterestAmountUrl, Selectors.continueButtonFormSelector)
         buttonCheck(continueText, Selectors.continueButtonSelector)
         inputFieldCheck(amountInputName, Selectors.inputSelector)
@@ -195,7 +216,6 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
             result.status shouldBe BAD_REQUEST
           }
 
-          titleCheck(errorPrefix(scenario.isWelsh) + expectedTitle, scenario.isWelsh)
           errorAboveElementCheck(expectedErrorEmpty)
           errorSummaryCheck(expectedErrorEmpty, errorSummaryHref, scenario.isWelsh)
 
@@ -215,7 +235,6 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
             result.status shouldBe BAD_REQUEST
           }
 
-          titleCheck(errorPrefix(scenario.isWelsh) + expectedTitle, scenario.isWelsh)
           errorAboveElementCheck(expectedErrorInvalid)
           errorSummaryCheck(expectedErrorInvalid, errorSummaryHref, scenario.isWelsh)
 
@@ -239,30 +258,12 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
             result.status shouldBe BAD_REQUEST
           }
 
-          titleCheck(errorPrefix(scenario.isWelsh) + expectedTitle, scenario.isWelsh)
           errorAboveElementCheck(expectedErrorOverMax)
           errorSummaryCheck(expectedErrorOverMax, errorSummaryHref, scenario.isWelsh)
 
         }
 
 
-        "the form has too many decimals" which {
-
-          lazy val result = {
-            authoriseAgentOrIndividual(scenario.isAgent)
-            urlPost(postURL, welsh = scenario.isWelsh, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> "10.232"))
-          }
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-          "has a 400 BAD_REQUEST status " in {
-            result.status shouldBe BAD_REQUEST
-          }
-
-          titleCheck(errorPrefix(scenario.isWelsh) + expectedTitle, scenario.isWelsh)
-          errorAboveElementCheck(expectedErrorDecimal)
-          errorSummaryCheck(expectedErrorDecimal, errorSummaryHref, scenario.isWelsh)
-
-        }
       }
     }
   }

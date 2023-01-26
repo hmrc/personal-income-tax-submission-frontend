@@ -546,15 +546,25 @@ charity.gateway.error.agent = Dewiswch ‘Iawn’ os gwnaeth eich cleient gyfran
 
 # Interest from gilt-edged or accrued income securities pages
 # -----------------------------------------------------------
+savings.interest-amount.heading = Cyfanswm y llog
+savings.interest-amount.head.individual = Nodwch y swm rydych wedi’i gael o warantau gilt neu warantau incwm cronedig. Dyma’r swm cyn unrhyw ddidyniadau treth. Os oes gennych incwm ar y cyd, nodwch eich cyfran chi yn unig.
+savings.interest-amount.head.agent = Nodwch y swm y mae’ch cleient wedi’i gael o warantau gilt neu warantau incwm cronedig. Dyma’r swm cyn unrhyw ddidyniadau treth. Os oes gan eich cleient incwm ar y cyd, nodwch ei gyfran ef yn unig.
+savings.interest-amount.bullet.head.individual = Os ydych:
+savings.interest-amount.bullet.head.agent = Os yw’ch cleient:
+savings.interest-amount.bullet.1.individual = am wneud cais am ryddhad rhag drwgddyledion ar fenthyciad cymar-i-gymar, didynnwch gyfanswm y drwgddyled o’r llog a gewch
+savings.interest-amount.bullet.2.individual = yn buddsoddi mewn gwarantau â chryn ddisgownt, nodwch y gwahaniaeth rhwng yr hyn a daloch am y bond a’r hyn y gwnaethoch ei adenill neu ei werthu amdano
+savings.interest-amount.bullet.1.agent = am wneud cais am ryddhad rhag drwgddyledion ar fenthyciad cymar-i-gymar, didynnwch gyfanswm y drwgddyled o’r llog a gafodd eich cleient
+savings.interest-amount.bullet.2.agent = yn buddsoddi mewn gwarantau â chryn ddisgownt, nodwch y gwahaniaeth rhwng yr hyn a dalodd eich cleient am y bond a’r hyn y gwnaeth eich cleient ei adennill neu ei werthu amdano
+savings.interest-amount.sub-heading.individual = Faint o log a gawsoch?
+savings.interest-amount.sub-heading.agent = Faint o log a gafodd eich cleient?
+savings.interest-amount.currency.hint = Er enghraifft, £1935.46
 
-savings.interest-amount.heading.individual = Faint o log a gawsoch?
-savings.interest-amount.heading.agent = Faint o log a gafodd eich cleient?
-savings.interest-amount.head.individual = Nodwch y swm cyn unrhyw ddidyniadau. Dim ond os oes gennych incwm ar y cyd y dylech roi gwybod i ni beth yw’ch cyfran.
-savings.interest-amount.head.agent = Nodwch y swm cyn unrhyw ddidyniadau. Dim ond os oes ganddo incwm ar y cyd y dylech roi gwybod i ni beth yw cyfran eich cleient.
-savings.interest-amount.errors.no-entry = Nodwch swm y llog a gafwyd
-savings.interest-amount.error.maximum = Rhaid i swm y llog fod yn llai na £100,000,000,000
-savings.interest-amount.error.wrong-format = Rhaid i swm y llog fod yn rhif, megis 600 neu 193.54
-savings.interest-amount.error.too-many-decimals = Dim ond punnoedd a cheiniogau y gellir eu cynnwys yn swm y llog, megis 600 neu 193.45
+savings.interest-amount.errors.no-entry.individual = Nodwch y llog a gawsoch. Er enghraifft, £1935.46
+savings.interest-amount.errors.no-entry.agent = Nodwch y llog a gafodd eich cleient. Er enghraifft, £1935.46
+savings.interest-amount.error.maximum.individual  = Mae’n rhaid i swm eich llog fod yn llai na £100,000,000,000
+savings.interest-amount.error.maximum.agent = Mae’n rhaid i swm llog eich cleient fod yn llai na £100,000,000,000
+savings.interest-amount.error.wrong-format.individual = Nodwch y llog a gawsoch yn y fformat cywir. Er enghraifft, £1935.46
+savings.interest-amount.error.wrong-format.agent = Nodwch y llog a gafodd eich cleient yn y fformat cywir. Er enghraifft, £1935.46
 
 savings.gateway.heading = Llog o warantau gilt neu warantau incwm cronedig
 savings.gateway.radio.heading.individual = A gawsoch unrhyw log o warantau gilt neu warantau incwm cronedig?

@@ -42,10 +42,9 @@ class SavingsInterestAmountController @Inject()(
                                         ) extends FrontendController(mcc) with I18nSupport {
 
   def form(implicit isAgent: Boolean, taxYear: Int): Form[BigDecimal] = AmountForm.amountForm(
-      emptyFieldKey = "savings.interest-amount.errors.no-entry",
-      wrongFormatKey = "savings.interest-amount.error.wrong-format",
-      exceedsMaxAmountKey = "savings.interest-amount.error.maximum",
-      tooManyDecimalsKey = Some("savings.interest-amount.error.too-many-decimals"),
+      emptyFieldKey = s"savings.interest-amount.errors.no-entry.${if (isAgent) "agent" else "individual"}",
+      wrongFormatKey = s"savings.interest-amount.error.wrong-format.${if (isAgent) "agent" else "individual"}",
+      exceedsMaxAmountKey = s"savings.interest-amount.error.maximum.${if (isAgent) "agent" else "individual"}",
       emptyFieldArguments = Seq(taxYear.toString)
     )
   def show(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit user =>
