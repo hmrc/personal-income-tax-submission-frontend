@@ -39,13 +39,13 @@
 @(form: Form[BigDecimal], taxYear: Int)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
 @titleForUse = @{
-    messages(s"savings.interest-amount.heading.${if(user.isAgent) "agent" else "individual"}")
+    messages(s"savings.interest-amount.heading")
 }
 
 @headingForUse = @{(titleForUse)}
 
 @hintText = @{
-    Some(messages("common.currency.hint"))
+    Some(messages("savings.interest-amount.currency.hint"))
 }
 
 @currencyFormHtml(formInput: Form[BigDecimal]) = {
@@ -53,8 +53,9 @@
         formInput,
         id = "amount",
         name = "amount",
-        label = headingForUse,
-        labelHidden = true,
+        label = messages(s"savings.interest-amount.sub-heading.${if(user.isAgent) "agent" else "individual"}"),
+        labelClasses = Some("govuk-label--m"),
+        labelHidden = false,
         currency = true,
         hint = hintText
     )
@@ -64,26 +65,26 @@
     form.hasErrors
 }
 
-@contentHtml = @{
-
-
-}
-
 @layout(pageTitle = titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors, isAgent = user.isAgent) {
 
-    @errorSummary(form.errors)
+    @errorSummary(form.errors.distinct)
 
-    @heading(headingForUse, Some(messages("savings.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
-    @p(Html(messages(s"savings.interest-amount.head.${if(user.isAgent) "agent" else "individual"}")),
-        classes = "govuk-body govuk-!-margin-bottom-5")
+    @heading(headingForUse, Some(messages("savings.caption", (taxYear - 1).toString, taxYear.toString)))
 
+    <p class="govuk-body">@messages(s"savings.interest-amount.head.${if(user.isAgent) "agent" else "individual"}")</p>
 
+    <p class="govuk-body">@messages(s"savings.interest-amount.bullet.head.${if(user.isAgent) "agent" else "individual"}")</p>
 
-    @contentHtml
+    <ul class="govuk-list govuk-list--bullet">
+        <li id="bullet1">@messages(s"savings.interest-amount.bullet.1.${if(user.isAgent) "agent" else "individual"}")</li>
+        <li id="bullet2">@messages(s"savings.interest-amount.bullet.2.${if(user.isAgent) "agent" else "individual"}")</li>
+    </ul>
 
     @formWithCSRF(action = controllers.savings.routes.SavingsInterestAmountController.submit(taxYear)) {
         @currencyFormHtml(form)
+
         @button()
+
     }
 }
 
