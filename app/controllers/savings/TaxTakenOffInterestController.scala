@@ -19,9 +19,11 @@ import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import forms.AmountForm
+import models.savings.SavingsIncomeCYAModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.SavingsSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.savings.TaxTakenOffInterestView
 
@@ -30,6 +32,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class TaxTakenOffInterestController @Inject()(
                                           view: TaxTakenOffInterestView,
+                                          savingsSessionService: SavingsSessionService,
                                           errorHandler: ErrorHandler
                                         )
                                         (
@@ -49,15 +52,36 @@ class TaxTakenOffInterestController @Inject()(
     emptyFieldArguments = Seq(taxYear.toString))
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear,INTEREST).async { implicit user =>
-    Future.successful(Ok(view(form(user.isAgent, taxYear), taxYear)))
+    savingsSessionService.getSessionData(taxYear).flatMap {
+      case Left(_) => Future.successful(errorHandler.internalServerError())
+      case Right(cya) =>
+        Future.successful(cya.fold(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))) {
+          cyaData =>
+            cyaData.savingsIncome.fold(Ok(view(form(user.isAgent, taxYear), taxYear))) {
+              data =>
+                data.taxTakenOffAmount match {
+                  case None => Ok(view(form(user.isAgent, taxYear), taxYear))
+                  case Some(value) => Ok(view(form(user.isAgent, taxYear).fill(value), taxYear))
+                }
+            }
+        })
+    }
   }
 
   def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
     form(user.isAgent, taxYear).bindFromRequest().fold(formWithErrors => {
       Future.successful(BadRequest(view(formWithErrors, taxYear)))
     }, {
-      yesNoValue =>
-        Future.successful(Ok)
+      amount =>
+        savingsSessionService.getSessionData(taxYear).map {
+          case Left(_) => Future.successful(errorHandler.internalServerError())
+          case Right(cya) =>
+            val newData = cya.flatMap(_.savingsIncome).getOrElse(
+              SavingsIncomeCYAModel(taxTakenOffAmount = Some(amount))).copy(gateway = Some(true), taxTakenOff = Some(true), taxTakenOffAmount = Some(amount))
+            savingsSessionService.updateSessionData(newData, taxYear)(errorHandler.internalServerError()) {
+              Redirect(controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear))
+            }
+        }.flatten
     })
 
   }

@@ -22,6 +22,8 @@ import models.interest.{EncryptedInterestAccountModel, EncryptedInterestCYAModel
 import models.mongo._
 import utils.AesGcmAdCrypto
 import utils.CypherSyntax.{DecryptableOps, EncryptableOps}
+import models.savings.{EncryptedSavingsIncomeCYAModel, SavingsIncomeCYAModel}
+
 
 import javax.inject.Inject
 
@@ -231,6 +233,52 @@ class EncryptionService @Inject()(implicit encryptionService: AesGcmAdCrypto) {
       interestAccount.untaxedAmount.map(_.decrypted[BigDecimal]),
       interestAccount.taxedAmount.map(_.decrypted[BigDecimal]),
       interestAccount.uniqueSessionId.map(_.decrypted[String])
+    )
+  }
+
+  private def encryptSavingsIncomeCheckYourAnswersModel(savings: SavingsIncomeCYAModel)
+                                                       (implicit associatedText: String): EncryptedSavingsIncomeCYAModel = {
+    EncryptedSavingsIncomeCYAModel(
+      savings.gateway.map(_.encrypted),
+      savings.grossAmount.map(_.encrypted),
+      savings.taxTakenOff.map(_.encrypted),
+      savings.taxTakenOffAmount.map(_.encrypted)
+    )
+  }
+
+  private def decryptSavingsIncomeCheckYourAnswersModel(savings: EncryptedSavingsIncomeCYAModel)
+                                                       (implicit associatedText: String): SavingsIncomeCYAModel = {
+    SavingsIncomeCYAModel(
+      savings.gateway.map(_.decrypted[Boolean]),
+      savings.grossAmount.map(_.decrypted[BigDecimal]),
+      savings.taxTakenOff.map(_.decrypted[Boolean]),
+      savings.taxTakenOffAmount.map(_.decrypted[BigDecimal])
+    )
+  }
+
+  def encryptSavingsIncomeUserData(savingsIncomeUserDataModel: SavingsIncomeUserDataModel): EncryptedSavingsIncomeUserDataModel = {
+    implicit val associatedText: String = savingsIncomeUserDataModel.mtdItId
+
+    EncryptedSavingsIncomeUserDataModel(
+      sessionId = savingsIncomeUserDataModel.sessionId,
+      mtdItId = savingsIncomeUserDataModel.mtdItId,
+      nino = savingsIncomeUserDataModel.nino,
+      taxYear = savingsIncomeUserDataModel.taxYear,
+      savingsIncome = savingsIncomeUserDataModel.savingsIncome.map(encryptSavingsIncomeCheckYourAnswersModel),
+      lastUpdated = savingsIncomeUserDataModel.lastUpdated
+    )
+  }
+
+  def decryptSavingsIncomeUserData(encryptedSavingsIncomeUserDataModel: EncryptedSavingsIncomeUserDataModel): SavingsIncomeUserDataModel = {
+    implicit val associatedText: String = encryptedSavingsIncomeUserDataModel.mtdItId
+
+    SavingsIncomeUserDataModel(
+      sessionId = encryptedSavingsIncomeUserDataModel.sessionId,
+      mtdItId = encryptedSavingsIncomeUserDataModel.mtdItId,
+      nino = encryptedSavingsIncomeUserDataModel.nino,
+      taxYear = encryptedSavingsIncomeUserDataModel.taxYear,
+      savingsIncome = encryptedSavingsIncomeUserDataModel.savingsIncome.map(decryptSavingsIncomeCheckYourAnswersModel),
+      lastUpdated = encryptedSavingsIncomeUserDataModel.lastUpdated
     )
   }
 

@@ -116,7 +116,11 @@ class InterestCYAController @Inject()(
     }).flatMap {
       case Right(_) =>
         interestSessionService.clear(taxYear)(errorHandler.internalServerError())(
-          Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+        if (appConfig.interestSavingsEnabled) {
+          Redirect(controllers.routes.InterestFromSavingsAndSecuritiesSummaryController.show(taxYear))
+        }else {
+            Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+          }
         )
       case Left(error) => Future.successful(errorHandler.handleError(error.status))
     }

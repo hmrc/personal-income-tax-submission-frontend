@@ -19,12 +19,8 @@ package utils
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import helpers.WireMockHelper
 import org.jsoup.nodes.{Document, Element}
-import org.jsoup.select.Elements
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
-import play.api.http.HeaderNames
-import play.api.libs.ws.{BodyWritable, WSClient, WSResponse}
-import play.api.test.Helpers.{await, defaultAwaitTimeout}
 
 
 trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>

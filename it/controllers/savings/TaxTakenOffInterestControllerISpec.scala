@@ -16,6 +16,7 @@
 
 package controllers.savings
 
+import models.savings.SavingsIncomeCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
@@ -23,15 +24,18 @@ import play.api.http.Status._
 import play.api.libs.ws.DefaultBodyWritables
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
-import utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
+import utils.{IntegrationTest, SavingsDatabaseHelper, ViewHelpers}
 
-class TaxTakenOffInterestControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables {
+class TaxTakenOffInterestControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables with SavingsDatabaseHelper {
 
   val amount: BigDecimal = 500
-  val taxTakenOffInterestAmountUrl: String = s"/update-and-submit-income-tax-return/personal-income/2023/interest/how-much-tax-taken-off-interest"
-  val postURL: String = s"$appUrl/2023/interest/how-much-tax-taken-off-interest"
+  val taxTakenOffInterestAmountUrl: String = s"/update-and-submit-income-tax-return/personal-income/2023/interest/tax-taken-off-interest"
+  val postURL: String = s"$appUrl/2023/interest/tax-taken-off-interest"
   val errorSummaryHref = "#amount"
   val poundPrefixText = "£"
+
+  val cyaDataComplete: Option[SavingsIncomeCYAModel] = Some(SavingsIncomeCYAModel(Some(true), Some(100.00), Some(true), Some(50.00)))
+  val cyaDataValid: Option[SavingsIncomeCYAModel] = Some(SavingsIncomeCYAModel(Some(true), Some(100.00), Some(true)))
 
   object Selectors {
 
@@ -137,6 +141,9 @@ class TaxTakenOffInterestControllerISpec extends IntegrationTest with ViewHelper
 
         lazy val result = {
           authoriseAgentOrIndividual(scenario.isAgent)
+          dropSavingsDB()
+          emptyUserDataStub()
+          insertSavingsCyaData(cyaDataValid)
           route(app, request, "{}").get
         }
 
@@ -154,22 +161,113 @@ class TaxTakenOffInterestControllerISpec extends IntegrationTest with ViewHelper
         inputFieldCheck(amountInputName, Selectors.inputSelector)
         hintTextCheck(expectedHintText, Selectors.hintTextSelector)
       }
+      "display the tax amount page prefilled" which {
+
+        lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+        lazy val request = FakeRequest("GET", taxTakenOffInterestAmountUrl).withHeaders(headers: _*)
+
+        lazy val result = {
+          authoriseAgentOrIndividual(scenario.isAgent)
+          dropSavingsDB()
+          emptyUserDataStub()
+          insertSavingsCyaData(cyaDataComplete)
+          route(app, request, "{}").get
+        }
+
+        implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+        "has a status of OK(200)" in {
+          status(result) shouldBe OK
+        }
+
+        titleCheck(expectedTitle, scenario.isWelsh)
+        h1Check(expectedH1 + " " + captionExpected)
+        captionCheck(captionExpected)
+        formPostLinkCheck(taxTakenOffInterestAmountUrl, Selectors.continueButtonFormSelector)
+        buttonCheck(continueText, Selectors.continueButtonSelector)
+        inputFieldCheck(amountInputName, Selectors.inputSelector)
+        hintTextCheck(expectedHintText, Selectors.hintTextSelector)
+        inputFieldValueCheck("50", Selectors.amountSelector)
+      }
+      "Redirect to overview page without cyadata" which {
+
+        lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+        lazy val request = FakeRequest("GET", taxTakenOffInterestAmountUrl).withHeaders(headers: _*)
+
+        lazy val result = {
+          authoriseAgentOrIndividual(scenario.isAgent)
+          dropSavingsDB()
+          emptyUserDataStub()
+          route(app, request, "{}").get
+        }
+
+        implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+        "has a status of REDIRECT(303)" in {
+          status(result) shouldBe SEE_OTHER
+          await(result).header.headers("Location") shouldBe s"${appConfig.incomeTaxSubmissionOverviewUrl(taxYear)}"
+        }
+
+      }
+      "Display the page when cyadata is present but empty" which {
+
+        lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+        lazy val request = FakeRequest("GET", taxTakenOffInterestAmountUrl).withHeaders(headers: _*)
+
+        lazy val result = {
+          authoriseAgentOrIndividual(scenario.isAgent)
+          dropSavingsDB()
+          emptyUserDataStub()
+          insertSavingsCyaData(None)
+          route(app, request, "{}").get
+        }
+
+        implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+        "has a status of OK(200)" in {
+          status(result) shouldBe OK
+          }
+
+      }
+
     }
 
     s".submit when $testNameWelsh and the user is $testNameAgent" should {
 
-      "return a 200 status" in {
+      "return a 303 status" in {
 
         lazy val headers = playSessionCookie(scenario.isAgent) ++ Map(csrfContent) ++
           (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
 
         lazy val result = {
           authoriseAgentOrIndividual(scenario.isAgent)
+          dropSavingsDB()
+          emptyUserDataStub()
+          insertSavingsCyaData(cyaDataValid)
           urlPost(postURL, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> "123"))
 
         }
 
-        result.status shouldBe OK
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear)}"
+
+      }
+      "return a 303 status with empty cyaData" in {
+
+        lazy val headers = playSessionCookie(scenario.isAgent) ++ Map(csrfContent) ++
+          (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+
+        lazy val result = {
+          authoriseAgentOrIndividual(scenario.isAgent)
+          dropSavingsDB()
+          emptyUserDataStub()
+          insertSavingsCyaData(None)
+          urlPost(postURL, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> "123"))
+
+        }
+
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear)}"
 
       }
       "return a error" when {
@@ -181,6 +279,9 @@ class TaxTakenOffInterestControllerISpec extends IntegrationTest with ViewHelper
 
           lazy val result = {
             authoriseAgentOrIndividual(scenario.isAgent)
+            dropSavingsDB()
+            emptyUserDataStub()
+            insertSavingsCyaData(cyaDataValid)
             urlPost(postURL,welsh = scenario.isWelsh, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> ""))
           }
           implicit val document: () => Document = () => Jsoup.parse(result.body)
@@ -204,6 +305,9 @@ class TaxTakenOffInterestControllerISpec extends IntegrationTest with ViewHelper
 
           lazy val result = {
             authoriseAgentOrIndividual(scenario.isAgent)
+            dropSavingsDB()
+            emptyUserDataStub()
+            insertSavingsCyaData(cyaDataValid)
             urlPost(postURL, welsh = scenario.isWelsh, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> "$$$"))
           }
           implicit val document: () => Document = () => Jsoup.parse(result.body)
@@ -227,6 +331,9 @@ class TaxTakenOffInterestControllerISpec extends IntegrationTest with ViewHelper
 
           lazy val result = {
             authoriseAgentOrIndividual(scenario.isAgent)
+            dropSavingsDB()
+            emptyUserDataStub()
+            insertSavingsCyaData(cyaDataValid)
             urlPost(postURL, welsh = scenario.isWelsh, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> "103242424234242342423423"))
           }
           implicit val document: () => Document = () => Jsoup.parse(result.body)
@@ -249,6 +356,9 @@ class TaxTakenOffInterestControllerISpec extends IntegrationTest with ViewHelper
 
           lazy val result = {
             authoriseAgentOrIndividual(scenario.isAgent)
+            dropSavingsDB()
+            emptyUserDataStub()
+            insertSavingsCyaData(cyaDataValid)
             urlPost(postURL, welsh = scenario.isWelsh, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> "10.232"))
           }
           implicit val document: () => Document = () => Jsoup.parse(result.body)

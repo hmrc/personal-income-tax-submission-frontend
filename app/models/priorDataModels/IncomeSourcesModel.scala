@@ -18,12 +18,14 @@ package models.priorDataModels
 
 import models.charity.prior.GiftAidSubmissionModel
 import models.dividends.DividendsPriorSubmission
+import models.savings.SavingsIncomeDataModel
 import play.api.libs.json.{Json, OFormat}
 
 case class IncomeSourcesModel(
                                dividends: Option[DividendsPriorSubmission] = None,
                                interest: Option[Seq[InterestModel]] = None,
-                               giftAid: Option[GiftAidSubmissionModel] = None
+                               giftAid: Option[GiftAidSubmissionModel] = None,
+                               interestSavings: Option[SavingsIncomeDataModel] = None
                              )
 
 object IncomeSourcesModel {

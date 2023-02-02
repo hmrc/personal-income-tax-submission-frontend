@@ -9,6 +9,11 @@ betaBar.banner.message.1 = This is a new service – your
 betaBar.banner.message.2 = feedback
 betaBar.banner.message.3 = will help us to improve it.
 
+summary.todo = To do
+summary.updated = Updated
+summary.cannotUpdate = Cannot update
+summary.updateTaxCalculation = Update tax calculation
+
 common.back = Back
 common.yes = Yes
 common.no = No

@@ -111,7 +111,7 @@ class DividendsCYAController @Inject()(
       case response => response
     }
     case _ =>
-      logger.info("[InterestCYAController][submit] CYA data or NINO missing from session.")
+      logger.info("[DividendsCYAController][submit] CYA data or NINO missing from session.")
       Future.successful(Left(APIErrorModel(BAD_REQUEST, APIErrorBodyModel("MISSING_DATA", "CYA data or NINO missing from session."))))
   }).flatMap {
       case Right(_) =>

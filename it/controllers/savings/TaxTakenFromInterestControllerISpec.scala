@@ -16,17 +16,20 @@
 
 package controllers.savings
 
+import models.savings.SavingsIncomeCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
-import utils.{IntegrationTest, ViewHelpers}
+import utils.{IntegrationTest, SavingsDatabaseHelper, ViewHelpers}
 
-class TaxTakenFromInterestControllerISpec extends IntegrationTest with ViewHelpers {
+class TaxTakenFromInterestControllerISpec extends IntegrationTest with ViewHelpers with SavingsDatabaseHelper {
 
   val relativeUrl: String = s"/update-and-submit-income-tax-return/personal-income/2023/interest/tax-taken-from-interest"
+
+  val cyaDataValid: Option[SavingsIncomeCYAModel] = Some(SavingsIncomeCYAModel(Some(true), Some(100.00)))
 
   object Selectors {
     val captionSelector = ".govuk-caption-l"
@@ -98,15 +101,18 @@ class TaxTakenFromInterestControllerISpec extends IntegrationTest with ViewHelpe
     val testNameWelsh = if (scenario.isWelsh) "in Welsh" else "in English"
     val testNameAgent = if (scenario.isAgent) "an agent" else "an individual"
 
-    s".show when $testNameWelsh and the user is $testNameAgent" when {
+    s".show when $testNameWelsh and the user is $testNameAgent" should {
 
-      "display the tax taken from interest page" which {
+      "display the tax taken from interest page without prefill" which {
 
         lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
         lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
 
         lazy val result = {
           authoriseAgentOrIndividual(scenario.isAgent)
+          dropSavingsDB()
+          emptyUserDataStub()
+          insertSavingsCyaData(Some(SavingsIncomeCYAModel(Some(true), Some(100.00), Some(false))))
           route(app, request, "{}").get
         }
 
@@ -126,27 +132,122 @@ class TaxTakenFromInterestControllerISpec extends IntegrationTest with ViewHelpe
         buttonCheck(continueText, Selectors.continueSelector)
 
       }
+      "display the tax taken from interest page prefilled" which {
+
+        lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+        lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
+        lazy val result = {
+          authoriseAgentOrIndividual(scenario.isAgent)
+          dropSavingsDB()
+          emptyUserDataStub()
+          insertSavingsCyaData(cyaDataValid)
+          route(app, request, "{}").get
+        }
+
+        implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+        "has a status of OK(200)" in {
+          status(result) shouldBe OK
+        }
+
+        titleCheck(specificResults.heading, scenario.isWelsh)
+        welshToggleCheck(scenario.isWelsh)
+        h1Check(specificResults.heading + " " + expectedCaption)
+        textOnPageCheck(expectedCaption, Selectors.captionSelector)
+
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
+        buttonCheck(continueText, Selectors.continueSelector)
+
+      }
+      "display the tax taken from interest page when cyaData is empty" which {
+
+        lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+        lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
+        lazy val result = {
+          authoriseAgentOrIndividual(scenario.isAgent)
+          dropSavingsDB()
+          emptyUserDataStub()
+          insertSavingsCyaData(None)
+          route(app, request, "{}").get
+        }
+
+        implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+        "has a status of OK(200)" in {
+          status(result) shouldBe OK
+        }
+
+        titleCheck(specificResults.heading, scenario.isWelsh)
+        welshToggleCheck(scenario.isWelsh)
+        h1Check(specificResults.heading + " " + expectedCaption)
+        textOnPageCheck(expectedCaption, Selectors.captionSelector)
+
+        radioButtonCheck(yesText, 1)
+        radioButtonCheck(noText, 2)
+        buttonCheck(continueText, Selectors.continueSelector)
+
+      }
+      "redirect to the overview page" which {
+
+        lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+        lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
+        lazy val result = {
+          authoriseAgentOrIndividual(scenario.isAgent)
+          dropSavingsDB()
+          emptyUserDataStub()
+          route(app, request, "{}").get
+        }
+
+        implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+        "has a status of Redirect(303)" in {
+          status(result) shouldBe SEE_OTHER
+          await(result).header.headers("Location") shouldBe s"${appConfig.incomeTaxSubmissionOverviewUrl(taxYear)}"
+        }
+
+      }
 
     }
 
-    s".submit when $testNameWelsh and the user is $testNameAgent" when {
+    s".submit when $testNameWelsh and the user is $testNameAgent" should {
       lazy val headers = playSessionCookie(scenario.isAgent) ++ Map(csrfContent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
       lazy val request = FakeRequest("POST", relativeUrl).withHeaders(headers: _*)
 
-      "the feature switch is on and user submits correct data" should {
-
-        "display success" which {
+        "redirect to cya" which {
 
           lazy val result = {
             authoriseAgentOrIndividual(scenario.isAgent)
+            dropSavingsDB()
+            emptyUserDataStub()
+            insertSavingsCyaData(cyaDataValid)
+            route(app, request, Map("value" -> Seq("false"))).get
+          }
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+          "has a status of Redirect(303)" in {
+            status(result) shouldBe SEE_OTHER
+            await(result).header.headers("Location") shouldBe s"${controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear)}"
+          }
+      }
+        "redirect to next taxTakenAmount page" which {
+
+          lazy val result = {
+            authoriseAgentOrIndividual(scenario.isAgent)
+            dropSavingsDB()
+            emptyUserDataStub()
+            insertSavingsCyaData(cyaDataValid)
             route(app, request, Map("value" -> Seq("true"))).get
           }
           implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
 
-          "has a status of OK(200)" in {
-            status(result) shouldBe OK
+          "has a status of Redirect(303)" in {
+            status(result) shouldBe SEE_OTHER
+            await(result).header.headers("Location") shouldBe s"${controllers.savings.routes.TaxTakenOffInterestController.show(taxYear)}"
           }
-        }
       }
 
       "the feature switch is on and user submits incorrect data" should {
@@ -155,6 +256,9 @@ class TaxTakenFromInterestControllerISpec extends IntegrationTest with ViewHelpe
 
           lazy val result = {
             authoriseAgentOrIndividual(scenario.isAgent)
+            dropSavingsDB()
+            emptyUserDataStub()
+            insertSavingsCyaData(cyaDataValid)
             route(app, request, Map("value" -> Seq("error"))).get
           }
           implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))

@@ -9,6 +9,11 @@ betaBar.banner.message.1 = Gwasanaeth newydd yw hwn – bydd eich
 betaBar.banner.message.2 = adborth
 betaBar.banner.message.3 = yn ein helpu i’w wella.
 
+summary.todo = I’w gwneud
+summary.updated = Wedi diweddaru
+summary.cannotUpdate = Methu diweddaru
+summary.updateTaxCalculation = Diweddaru cyfrifiad treth
+
 common.back = Yn ôl
 common.yes = Iawn
 common.no = Na
