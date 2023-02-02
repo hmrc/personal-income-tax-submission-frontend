@@ -16,20 +16,23 @@
 
 package controllers.savings
 
+import models.savings.SavingsIncomeCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
-import play.api.http.Status.{BAD_REQUEST, OK}
+import play.api.http.Status._
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
 import utils.{IntegrationTest, ViewHelpers}
+import utils.{IntegrationTest, SavingsDatabaseHelper, ViewHelpers}
 
 
-class SavingsGatewayControllerISpec extends IntegrationTest with ViewHelpers{
+class SavingsGatewayControllerISpec extends IntegrationTest with ViewHelpers with SavingsDatabaseHelper{
 
   val relativeUrl: String = s"/update-and-submit-income-tax-return/personal-income/2023/interest/interest-from-securities"
   val errorSummaryHref = "#value"
 
+  val cyaDataComplete: Option[SavingsIncomeCYAModel] = Some(SavingsIncomeCYAModel(Some(true), Some(100.00), Some(true), Some(100.00)))
   object Selectors {
     val errorSummarySelector = "#main-content > div > div > div.govuk-error-summary"
     val yesSelector = "#main-content > div > div > form > div > fieldset > div > div:nth-child(1)"
@@ -155,6 +158,8 @@ class SavingsGatewayControllerISpec extends IntegrationTest with ViewHelpers{
 
           lazy val result = {
             authoriseAgentOrIndividual(scenario.isAgent)
+            emptyUserDataStub()
+            dropSavingsDB()
             route(app, request, "{}").get
           }
 
@@ -184,11 +189,70 @@ class SavingsGatewayControllerISpec extends IntegrationTest with ViewHelpers{
           textOnPageCheck(detailsText3, Selectors.detailsText3)
         }
 
+        "display the gateway page with cyadata filled" which {
+
+          lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
+          lazy val result = {
+            authoriseAgentOrIndividual(scenario.isAgent)
+            emptyUserDataStub()
+            dropSavingsDB()
+            insertSavingsCyaData(cyaDataComplete)
+            route(app, request, "{}").get
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+          "has a status of OK(200)" in {
+            status(result) shouldBe OK
+          }
+        }
+        "display the gateway page with cyadata filled no gateway" which {
+
+          lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
+          lazy val result = {
+            authoriseAgentOrIndividual(scenario.isAgent)
+            emptyUserDataStub()
+            dropSavingsDB()
+            insertSavingsCyaData(Some(SavingsIncomeCYAModel()))
+            route(app, request, "{}").get
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+          "has a status of OK(200)" in {
+            status(result) shouldBe OK
+          }
+        }
+
+        "display the gateway page with cyadata empty" which {
+
+          lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
+          lazy val result = {
+            authoriseAgentOrIndividual(scenario.isAgent)
+            emptyUserDataStub()
+            dropSavingsDB()
+            insertSavingsCyaData(None)
+            route(app, request, "{}").get
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+          "has a status of OK(200)" in {
+            status(result) shouldBe OK
+          }
+        }
+
     }
 
     s".submit when $testNameWelsh and the user is $testNameAgent" should {
 
-        "return a 200 status" in {
+        "redirect to total amount page" in {
 
           lazy val headers = playSessionCookie(scenario.isAgent) ++ Map(csrfContent) ++
             (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
@@ -196,10 +260,48 @@ class SavingsGatewayControllerISpec extends IntegrationTest with ViewHelpers{
 
           lazy val result = {
             authoriseAgentOrIndividual(scenario.isAgent)
+            dropSavingsDB()
+            emptyUserDataStub()
             route(app, request, Map("value" -> Seq("true"))).get
           }
 
-            status(result) shouldBe OK
+          status(result) shouldBe SEE_OTHER
+          await(result).header.headers("Location") shouldBe controllers.savings.routes.SavingsInterestAmountController.show(taxYear).url
+
+        }
+        "redirect to cya page with cyaData" in {
+
+          lazy val headers = playSessionCookie(scenario.isAgent) ++ Map(csrfContent) ++
+            (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("POST", relativeUrl).withHeaders(headers: _*)
+
+          lazy val result = {
+            authoriseAgentOrIndividual(scenario.isAgent)
+            dropSavingsDB()
+            emptyUserDataStub()
+            insertSavingsCyaData(cyaDataComplete)
+            route(app, request, Map("value" -> Seq("false"))).get
+          }
+
+          status(result) shouldBe SEE_OTHER
+          await(result).header.headers("Location") shouldBe controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear).url
+
+        }
+      "redirect to cya page" in {
+
+          lazy val headers = playSessionCookie(scenario.isAgent) ++ Map(csrfContent) ++
+            (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("POST", relativeUrl).withHeaders(headers: _*)
+
+          lazy val result = {
+            authoriseAgentOrIndividual(scenario.isAgent)
+            dropSavingsDB()
+            emptyUserDataStub()
+            route(app, request, Map("value" -> Seq("false"))).get
+          }
+
+          status(result) shouldBe SEE_OTHER
+          await(result).header.headers("Location") shouldBe controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear).url
 
         }
         "return a error" which {

@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package controllers.interest
+package controllers
 
+import models.interest.InterestCYAModel
+import models.priorDataModels.IncomeSourcesModel
+import models.savings.SavingsIncomeCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
@@ -23,14 +26,21 @@ import play.api.http.Status._
 import play.api.libs.ws.DefaultBodyWritables
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
-import utils.{IntegrationTest, ViewHelpers}
+import utils.{IntegrationTest, InterestDatabaseHelper, SavingsDatabaseHelper, ViewHelpers}
 
 
-class InterestFromSavingsAndSecuritiesSummaryControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables {
+class InterestFromSavingsAndSecuritiesSummaryControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables
+  with SavingsDatabaseHelper with InterestDatabaseHelper {
   val relativeUrl: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/interest-summary"
-  val link1Url : String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/check-interest"
+  val link1Url : String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/untaxed-uk-interest"
   val link2Url : String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/interest-from-securities"
 
+  val cyaDataComplete: Option[SavingsIncomeCYAModel] = Some(SavingsIncomeCYAModel(Some(true), Some(100.00), Some(true), Some(100.00)))
+  val cyaModel: InterestCYAModel = InterestCYAModel(
+    None,
+    untaxedUkInterest = Some(false),
+    taxedUkInterest = Some(true)
+  )
   object Selectors {
     val captionSelector = ".govuk-caption-l"
     val headingSelector = ".govuk-heading-l"
@@ -115,9 +125,12 @@ class InterestFromSavingsAndSecuritiesSummaryControllerISpec extends Integration
 
         lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
         lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+        val data = IncomeSourcesModel()
 
         lazy val result = {
           authoriseAgentOrIndividual(scenario.isAgent)
+          emptyUserDataStub(nino, taxYear)
+          userDataStub(data, nino, taxYear)
           route(app, request, "{}").get
         }
 

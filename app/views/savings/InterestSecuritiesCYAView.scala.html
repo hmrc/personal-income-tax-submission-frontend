@@ -15,7 +15,7 @@
  *@
 
 @import views.html.headerFooterTemplate.Layout
-@import models.interest.InterestSecuritiesCYAModel
+@import models.savings.SavingsIncomeCYAModel
 @import views.html.templates.helpers.Button
 @import views.html.templates.helpers.Heading
 @import utils.ViewUtils.summaryListRow
@@ -28,7 +28,7 @@
         heading: Heading,
         govukSummaryList: GovukSummaryList
 )
-@(cyaModel: InterestSecuritiesCYAModel, taxYear: Int)(implicit user: User[AnyContent], messages: Messages, appConfig: AppConfig)
+@(cyaModel: SavingsIncomeCYAModel, taxYear: Int)(implicit user: User[AnyContent], messages: Messages, appConfig: AppConfig)
 
 @trueFalseToYesNo(input: Boolean) = @{
     if(input) messages("common.yes") else messages("common.no")
@@ -42,33 +42,35 @@
         govukSummaryList(SummaryList(Seq(
             Some(summaryListRow(
                 HtmlContent(messages("savings.gateway.heading")),
-                HtmlContent(trueFalseToYesNo(cyaModel.interestFromGiltEdgedOrAccruedIncomeSecurities.contains(true))),
+                HtmlContent(trueFalseToYesNo(cyaModel.gateway.contains(true))),
                 keyClasses = "govuk-!-width-one-half",
-                actions = Seq((controllers.interest.routes.InterestSecuritiesCYAController.show(taxYear), messages("common.change"), Some(messages("interest.securities.cya.questions.1.hiddenChange"))))
+                actions = Seq((controllers.savings.routes.SavingsGatewayController.show(taxYear), messages("common.change"), Some(messages("interest.securities.cya.questions.1.hiddenChange"))))
             )),
-            if(cyaModel.interestFromGiltEdgedOrAccruedIncomeSecurities.contains(true)) {
-                cyaModel.amountOfInterest.map { amount =>
+            if(cyaModel.gateway.contains(true)) {
+                cyaModel.grossAmount.map { amount =>
                     summaryListRow(
                         HtmlContent(messages("interest.securities.cya.questions.2")),
                         HtmlContent(bigDecimalCurrency(amount.toString)),
                         keyClasses = "govuk-!-width-one-half",
-                        actions = Seq((controllers.interest.routes.InterestSecuritiesCYAController.show(taxYear), messages("common.change"), Some(messages("interest.securities.cya.questions.2.hiddenChange"))))
+                        actions = Seq((controllers.savings.routes.SavingsInterestAmountController.show(taxYear), messages("common.change"), Some(messages("interest.securities.cya.questions.2.hiddenChange"))))
                     )
                 }
             } else { None },
+            if(cyaModel.gateway.contains(true)) {
             Some(summaryListRow(
                 HtmlContent(messages("interest.securities.cya.questions.3")),
                 HtmlContent(trueFalseToYesNo(cyaModel.taxTakenOff.contains(true))),
                 keyClasses = "govuk-!-width-one-half",
-                actions = Seq((controllers.interest.routes.InterestSecuritiesCYAController.show(taxYear), messages("common.change"), Some(messages("interest.securities.cya.questions.3.hiddenChange"))))
-            )),
+                actions = Seq((controllers.savings.routes.TaxTakenFromInterestController.show(taxYear), messages("common.change"), Some(messages("interest.securities.cya.questions.3.hiddenChange"))))
+            ))
+            }else { None },
             if(cyaModel.taxTakenOff.contains(true)) {
-                cyaModel.amountOfTaxTakenOff.map { amount =>
+                cyaModel.taxTakenOffAmount.map { amount =>
                     summaryListRow(
                         HtmlContent(messages("interest.securities.cya.questions.4")),
                         HtmlContent(bigDecimalCurrency(amount.toString)),
                         keyClasses = "govuk-!-width-one-half",
-                        actions = Seq((controllers.interest.routes.InterestSecuritiesCYAController.show(taxYear), messages("common.change"), Some(messages("interest.securities.cya.questions.4.hiddenChange"))))
+                        actions = Seq((controllers.savings.routes.TaxTakenOffInterestController.show(taxYear), messages("common.change"), Some(messages("interest.securities.cya.questions.4.hiddenChange"))))
                     )
                 }
             } else { None },
@@ -76,7 +78,7 @@
     }
 
 
-    @formWithCSRF(action = controllers.interest.routes.InterestSecuritiesCYAController.submit(taxYear)) {
+    @formWithCSRF(action = controllers.savings.routes.InterestSecuritiesCYAController.submit(taxYear)) {
         @button("common.saveAndContinue", classes = Some("govuk-!-margin-top-6"))
     }
 }

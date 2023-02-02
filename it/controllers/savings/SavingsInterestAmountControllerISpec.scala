@@ -17,24 +17,27 @@
 package controllers.savings
 
 
+import models.savings.SavingsIncomeCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
-import play.api.http.Status.{BAD_REQUEST, _}
+import play.api.http.Status._
+import play.api.libs.ws.DefaultBodyWritables
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
-import utils.{IntegrationTest, ViewHelpers}
+import utils.{IntegrationTest, SavingsDatabaseHelper, ViewHelpers}
 
 import play.api.libs.ws.DefaultBodyWritables
 
+class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables with SavingsDatabaseHelper {
 
-class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables {
-
-  val amount: BigDecimal = 500
-  val savingsInterestAmountUrl: String = s"/update-and-submit-income-tax-return/personal-income/2023/interest/securities-gilt-edged-interest-amount"
-  val postURL: String = s"$appUrl/2023/interest/securities-gilt-edged-interest-amount"
+  val savingsInterestAmountUrl: String = s"/update-and-submit-income-tax-return/personal-income/2023/interest/interest-amount"
+  val postURL: String = s"$appUrl/2023/interest/interest-amount  "
   val errorSummaryHref = "#amount"
   val poundPrefixText = "£"
+
+  val cyaDataComplete: Option[SavingsIncomeCYAModel] = Some(SavingsIncomeCYAModel(Some(true), Some(100.00), Some(true), Some(50.00)))
+  val cyaDataValid: Option[SavingsIncomeCYAModel] = Some(SavingsIncomeCYAModel(Some(true)))
 
   object Selectors {
     val poundPrefixSelector = ".govuk-input__prefix"
@@ -165,6 +168,9 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
         lazy val result = {
           authoriseAgentOrIndividual(scenario.isAgent)
+          dropSavingsDB()
+          emptyUserDataStub()
+          insertSavingsCyaData(cyaDataValid)
           route(app, request, "{}").get
         }
 
@@ -187,27 +193,145 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
         inputFieldCheck(amountInputName, Selectors.inputSelector)
         hintTextCheck(expectedHintText, Selectors.hintTextSelector)
       }
+      "display the interest amount page prefilled" which {
+
+        lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+        lazy val request = FakeRequest("GET", savingsInterestAmountUrl).withHeaders(headers: _*)
+
+        lazy val result = {
+          authoriseAgentOrIndividual(scenario.isAgent)
+          dropSavingsDB()
+          emptyUserDataStub()
+          insertSavingsCyaData(cyaDataComplete)
+          route(app, request, "{}").get
+        }
+
+        implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+        "has a status of OK(200)" in {
+          status(result) shouldBe OK
+        }
+
+        h1Check(expectedH1 + " " + captionExpected)
+        captionCheck(captionExpected)
+        textOnPageCheck(p1, Selectors.p1Selector)
+        formPostLinkCheck(savingsInterestAmountUrl, Selectors.continueButtonFormSelector)
+        buttonCheck(continueText, Selectors.continueButtonSelector)
+        inputFieldCheck(amountInputName, Selectors.inputSelector)
+        hintTextCheck(expectedHintText, Selectors.hintTextSelector)
+        inputFieldValueCheck("100", Selectors.amountSelector)
+      }
+      "display the interest amount page when savingsIncome is empty" which {
+
+        lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+        lazy val request = FakeRequest("GET", savingsInterestAmountUrl).withHeaders(headers: _*)
+
+        lazy val result = {
+          authoriseAgentOrIndividual(scenario.isAgent)
+          dropSavingsDB()
+          emptyUserDataStub()
+          insertSavingsCyaData(None)
+          route(app, request, "{}").get
+        }
+
+        implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+        "has a status of OK(200)" in {
+          status(result) shouldBe OK
+        }
+
+        h1Check(expectedH1 + " " + captionExpected)
+        captionCheck(captionExpected)
+        textOnPageCheck(p1, Selectors.p1Selector)
+        formPostLinkCheck(savingsInterestAmountUrl, Selectors.continueButtonFormSelector)
+        buttonCheck(continueText, Selectors.continueButtonSelector)
+        inputFieldCheck(amountInputName, Selectors.inputSelector)
+        hintTextCheck(expectedHintText, Selectors.hintTextSelector)
+      }
+      "redirect to overview page when there is no cyaData" which {
+
+        lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+        lazy val request = FakeRequest("GET", savingsInterestAmountUrl).withHeaders(headers: _*)
+
+        lazy val result = {
+          authoriseAgentOrIndividual(scenario.isAgent)
+          dropSavingsDB()
+          emptyUserDataStub()
+          route(app, request, "{}").get
+        }
+
+        implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+        "has a status of REDIRECT(303)" in {
+          status(result) shouldBe SEE_OTHER
+        }
+
+      }
     }
 
     s".submit when $testNameWelsh and the user is $testNameAgent" should {
 
-      "return a 200 status" in {
+      "return a 303 status with correct redirect when successful without previous amount" in {
+
+        lazy val headers = playSessionCookie(scenario.isAgent) ++ Map(csrfContent) ++
+          (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
 
         lazy val result = {
           authoriseAgentOrIndividual(scenario.isAgent)
+          dropSavingsDB()
+          emptyUserDataStub()
+          insertSavingsCyaData(cyaDataValid)
           urlPost(postURL, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> "123"))
 
         }
 
-        result.status shouldBe OK
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.savings.routes.TaxTakenFromInterestController.show(taxYear)}"
+
+      }
+      "return a 303 status with correct redirect when successful with previous amount" in {
+
+        lazy val headers = playSessionCookie(scenario.isAgent) ++ Map(csrfContent) ++
+          (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+
+        lazy val result = {
+          authoriseAgentOrIndividual(scenario.isAgent)
+          dropSavingsDB()
+          emptyUserDataStub()
+          insertSavingsCyaData(cyaDataComplete)
+          urlPost(postURL, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> "123"))
+
+        }
+
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear)}"
+
+      }
+      "return a to CYA page when there is no cyaData" in {
+
+        lazy val result = {
+          authoriseAgentOrIndividual(scenario.isAgent)
+          dropSavingsDB()
+          urlPost(postURL, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> "123"))
+
+        }
+
+        result.status shouldBe SEE_OTHER
+        result.headers("Location").head shouldBe s"${controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear)}"
 
       }
       "return a error" when {
 
         "the form is empty" which {
 
+          lazy val headers = playSessionCookie(scenario.isAgent) ++ Map(csrfContent) ++
+            (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+
           lazy val result = {
             authoriseAgentOrIndividual(scenario.isAgent)
+            dropSavingsDB()
+            emptyUserDataStub()
+            insertSavingsCyaData(cyaDataValid)
             urlPost(postURL, welsh = scenario.isWelsh, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> ""))
           }
           implicit val document: () => Document = () => Jsoup.parse(result.body)
@@ -227,6 +351,9 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
           lazy val result = {
             authoriseAgentOrIndividual(scenario.isAgent)
+            dropSavingsDB()
+            emptyUserDataStub()
+            insertSavingsCyaData(cyaDataValid)
             urlPost(postURL, welsh = scenario.isWelsh, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> "$$$"))
           }
           implicit val document: () => Document = () => Jsoup.parse(result.body)
@@ -246,11 +373,10 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
           lazy val result = {
             authoriseAgentOrIndividual(scenario.isAgent)
-            urlPost(postURL,
-              welsh = scenario.isWelsh,
-              follow = false,
-              headers = playSessionCookie(scenario.isAgent),
-              body = Map("amount" -> "103242424234242342423423"))
+            dropSavingsDB()
+            emptyUserDataStub()
+            insertSavingsCyaData(cyaDataValid)
+            urlPost(postURL, welsh = scenario.isWelsh, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> "103242424234242342423423"))
           }
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 

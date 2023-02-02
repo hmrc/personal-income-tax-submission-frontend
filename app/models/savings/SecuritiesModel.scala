@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,18 +12,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import uk.gov.hmrc.govukfrontend.views.html.components._
+package models.savings
 
-@this(govukButton : GovukButton)
+import play.api.libs.json.{Json, OFormat}
 
-@(alternativeText: String = "common.continue", classes: Option[String] = None, href: Option[String] = None)(implicit messages: Messages)
+case class SecuritiesModel(
+                            taxTakenOff: Option[BigDecimal],
+                            grossAmount: BigDecimal,
+                            netAmount: Option[BigDecimal]
+                          )
 
-@govukButton(Button(
-    attributes = Map("id" -> "continue"),
-    preventDoubleClick = Some(true),
-    content = Text(messages(alternativeText)),
-    classes = classes.getOrElse(""),
-    href = href
-))
+object SecuritiesModel{
+  implicit val formats: OFormat[SecuritiesModel] = Json.format[SecuritiesModel]
+}

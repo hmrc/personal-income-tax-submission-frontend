@@ -28,8 +28,9 @@ import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, Gifts
 import models.charity.{CharityNameModel, GiftAidCYAModel}
 import models.dividends.DividendsCheckYourAnswersModel
 import models.interest.{InterestAccountModel, InterestCYAModel}
-import models.mongo.{DividendsUserDataModel, GiftAidUserDataModel, InterestUserDataModel}
+import models.mongo.{DividendsUserDataModel, GiftAidUserDataModel, InterestUserDataModel, SavingsIncomeUserDataModel}
 import models.priorDataModels.IncomeSourcesModel
+import models.savings.SavingsIncomeCYAModel
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
@@ -117,6 +118,13 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     ))
   )
 
+  val completeSavingsCYAModel: SavingsIncomeCYAModel = SavingsIncomeCYAModel(
+    gateway = Some(true),
+    grossAmount = Some(2000.00),
+    taxTakenOff = Some(true),
+    taxTakenOffAmount = Some(500.00)
+  )
+
   val priorDataMax: GiftAidSubmissionModel = GiftAidSubmissionModel(
     Some(GiftAidPaymentsModel(
       Some(1111.00),
@@ -172,7 +180,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   )
 
   def config(tailoring: Boolean = false, interestTailoring: Boolean = false, dividendsTailoring: Boolean = false,
-             charityTailoringEnabled:Boolean = false): Map[String, Any] = commonConfig ++ Map(
+             charityTailoringEnabled:Boolean = false, InterestSavings: Boolean = false, nrsEnabled: Boolean = true): Map[String, Any] = commonConfig ++ Map(
     "taxYearChangeResetsSession" -> false,
     "useEncryption" -> true,
     "defaultTaxYear" -> taxYear,
@@ -180,7 +188,9 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "feature-switch.tailoringEnabled" -> tailoring,
     "feature-switch.tailoring.interest" -> interestTailoring,
     "feature-switch.tailoring.dividends"-> dividendsTailoring,
-    "feature-switch.tailoring.charity"-> charityTailoringEnabled
+    "feature-switch.tailoring.charity"-> charityTailoringEnabled,
+    "feature-switch.interestSavings"-> InterestSavings,
+    "feature-switch.nrsEnabled"-> InterestSavings,
   )
 
   def invalidEncryptionConfig: Map[String, Any] = commonConfig ++ Map(
@@ -200,6 +210,11 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   lazy val appWithTailoring: Application = new GuiceApplicationBuilder()
     .in(Environment.simple(mode = Mode.Dev))
     .configure(config(tailoring = true, interestTailoring = true, dividendsTailoring = true, charityTailoringEnabled = true))
+    .build()
+
+  lazy val appWithInterestSavings: Application = new GuiceApplicationBuilder()
+    .in(Environment.simple(mode = Mode.Dev))
+    .configure(config(interestTailoring = true, nrsEnabled = false))
     .build()
 
   lazy val appWithInvalidEncryptionKey: Application = GuiceApplicationBuilder()
@@ -345,5 +360,12 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "AA123456A",
     taxYear,
     Some(completeGiftAidCYAModel)
+  )
+  val CompletedSavingsUserData: SavingsIncomeUserDataModel = SavingsIncomeUserDataModel(
+    "sessionId-1618a1e8-4979-41d8-a32e-5ffbe69fac81",
+    "1234567890",
+    "AA123456A",
+    taxYear,
+    Some(completeSavingsCYAModel)
   )
 }

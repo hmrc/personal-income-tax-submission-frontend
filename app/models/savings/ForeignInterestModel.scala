@@ -14,9 +14,18 @@
  * limitations under the License.
  */
 
-package models.interest
+package models.savings
 
-case class InterestSecuritiesCYAModel(interestFromGiltEdgedOrAccruedIncomeSecurities: Option[Boolean] = None,
-                                      amountOfInterest: Option[BigDecimal] = None,
-                                      taxTakenOff: Option[Boolean] = None,
-                                      amountOfTaxTakenOff: Option[BigDecimal] = None)
+import play.api.libs.json.{Json, OFormat}
+
+case class ForeignInterestModel(
+  countryCode: String,
+  amountBeforeTax: Option[BigDecimal],
+  taxTakenOff: Option[BigDecimal],
+  specialWithholdingTax: Option[BigDecimal],
+  foreignTaxCreditRelief: Option[Boolean],
+  taxableAmount: BigDecimal)
+
+object ForeignInterestModel{
+  implicit val formats: OFormat[ForeignInterestModel] = Json.format[ForeignInterestModel]
+}
