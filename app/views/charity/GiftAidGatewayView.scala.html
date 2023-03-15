@@ -39,7 +39,9 @@
             form = form,
             name = "value",
             inline = true,
-            hint = Some(Html(messages("charity.gateway.hint")))
+            hint = Some(Html(messages("charity.gateway.hint"))),
+            legendHeading = Some(Html(messages("charity.gateway.heading." + agentOrIndividual))),
+            legendHidden = true
         )
         @button()
     }
