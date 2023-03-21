@@ -39,7 +39,9 @@
             form = form,
             name = "value",
             inline = true,
-            hint = Some(Html(messages("dividends.gateway.hint")))
+            hint = Some(Html(messages("dividends.gateway.hint"))),
+            legendHeading = Some(Html(messages("dividends.gateway.heading." + agentOrIndividual))),
+            legendHidden = true
         )
         @button()
     }
