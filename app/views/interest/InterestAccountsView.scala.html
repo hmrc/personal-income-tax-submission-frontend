@@ -22,6 +22,7 @@
 @import views.html.templates.helpers.Heading
 @import views.html.templates.helpers.InputRadio
 @import views.html.templates.helpers.ErrorSummary
+@import utils.ViewUtils.summaryListRow
 
 @this(
     layout: Layout,
@@ -29,7 +30,8 @@
     button: Button,
     heading: Heading,
     inputRadio: InputRadio,
-    errorSummary: ErrorSummary
+    errorSummary: ErrorSummary,
+    govukSummaryList: GovukSummaryList
 )
 
 @(form: Form[Boolean], taxYear: Int, accounts: Seq[InterestAccountModel], taxType: String, isAgent: Boolean, priorSubmission: Option[InterestPriorSubmission] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
@@ -78,34 +80,6 @@ val identifier = account.id.getOrElse(account.uniqueSessionId.getOrElse(""))
     }
 }
 
-@accountRow(account: InterestAccountModel, changeLink: Call, removeLink: Call) = {
-    <li class="hmrc-add-to-a-list__contents">
-        <span class="hmrc-add-to-a-list__identifier hmrc-add-to-a-list__identifier--light">
-            @account.accountName
-        </span>
-
-        @{taxType match {
-            case `UNTAXED` =>
-                if(priorSubmission.exists(_.submissions.exists(prior => prior.id.equals(account.id) && prior.hasUntaxed))) {
-                    emptyChangeColumn
-                }
-            case `TAXED` =>
-                if(priorSubmission.exists(_.submissions.exists(prior => prior.id.equals(account.id) && prior.hasTaxed))) {
-                    emptyChangeColumn
-                }
-        }}
-
-        <span class="hmrc-add-to-a-list__change">
-            <a class="govuk-link" href="@changeLink">
-                <span aria-hidden="true">@messages("common.change")</span>
-                <span class="govuk-visually-hidden">@messages("common.change") @account.accountName @messages("common.account-details")</span>
-            </a>
-        </span>
-
-        @removeColumn(account,priorSubmission,taxType,removeLink)
-    </li>
-}
-
 @removeColumn(account: InterestAccountModel, priorSubmission: Option[InterestPriorSubmission], taxType: String, removeLink: Call) = @{
 
     if(account.id.isEmpty){
@@ -125,16 +99,9 @@ val identifier = account.id.getOrElse(account.uniqueSessionId.getOrElse(""))
 }
 
 @removeColumnHtml(account: InterestAccountModel, removeLink: Call) = {
-    <span class="hmrc-add-to-a-list__remove">
-        <a class="govuk-link" href="@removeLink">
-            <span aria-hidden="true">@messages("common.remove")</span>
-            <span class="govuk-visually-hidden">@messages("common.remove") @account.accountName @messages("common.account")</span>
-        </a>
-    </span>
-}
-
-@emptyChangeColumn = {
-    <span class="hmrc-add-to-a-list__change"></span>
+    <li class='govuk-summary-list__actions-list-item'>
+        <a class='govuk-link' href=@removeLink>@messages("common.remove")<span class='govuk-visually-hidden'>@messages("common.remove") @account.accountName @messages("common.account")</span></a>
+    </li>
 }
 
 @hint = {
@@ -149,36 +116,59 @@ val identifier = account.id.getOrElse(account.uniqueSessionId.getOrElse(""))
     messages("interest.account.add-another")
 }
 
+@actionsHtml(
+             account: InterestAccountModel,
+             changeLink: Call,
+             removeLink: Call
+             ) = {
+        <ul class='govuk-summary-list__actions-list'>
+            <li class='govuk-summary-list__actions-list-item'>
+                <a class='govuk-link' href=@changeLink>@messages("common.change")<span class='govuk-visually-hidden'>@messages("common.change") @account.accountName @messages("common.account-details")</span></a>
+            </li>
+
+            @removeColumn(account,priorSubmission,taxType,removeLink)
+        </ul>
+}
+
 @layout(titleText, taxYear = Some(taxYear), hasErrors = hasFormErrors, isAgent = isAgent) {
 
-@errorSummary(form.errors.distinct)
+    @errorSummary(form.errors.distinct)
 
-@heading(h1Text, Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
+    @heading(h1Text, Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 
-@if(accounts.nonEmpty) {
-    <div class="govuk-form-group">
-        <ul class="hmrc-add-to-a-list hmrc-add-to-a-list--short">
-            @accounts.map { account =>
-                @accountRow(account, accountChangeCall(account), accountRemoveCall(account))
-            }
-        </ul>
-    </div>
-}
+    @{
+        def accountRow(account: InterestAccountModel, changeLink: Call, removeLink: Call): SummaryListRow  = {
+            summaryListRow(
+                key = HtmlContent(account.accountName),
+                value = HtmlContent(
+                    actionsHtml(
+                        account,
+                        changeLink,
+                        removeLink
+                    )
+                ),
+                keyClasses = "govuk-!-width-one-half govuk-!-font-weight-regular",
+                valueClasses = "govuk-!-width-one-half govuk-summary-list__actions",
+                actionClasses = "govuk-!-width-one-third",
+                actions = Seq()
+            )
+        }
+        if(accounts.nonEmpty) govukSummaryList(SummaryList(accounts.map(account => accountRow(account, accountChangeCall(account), accountRemoveCall(account)))))
+    }
 
+    @formWithCSRF(controllers.interest.routes.AccountsController.submit(taxYear, taxType)) {
+        @inputRadio(
+            form = form,
+            heading = secondHeader,
+            legendAsHeading = false,
+            hint = Some(hint),
+            inline = true,
+            subheading = None,
+            classes = "govuk-fieldset__legend--m"
+        )
 
-@formWithCSRF(controllers.interest.routes.AccountsController.submit(taxYear, taxType)) {
-@inputRadio(
-    form = form,
-    heading = secondHeader,
-    legendAsHeading = false,
-    hint = Some(hint),
-    inline = true,
-    subheading = None,
-    classes = "govuk-fieldset__legend--m"
-)
-
-@button()
-}
+        @button()
+    }
 }
 
 @{

@@ -38,15 +38,13 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
   val taxedUrl = s"$appUrl/$taxYear/interest/accounts-with-taxed-uk-interest"
 
   object Selectors {
-    val accountRow: Int => String = rowNumber => s".govuk-form-group > ul > li:nth-child($rowNumber)"
-    val accountRowName: Int => String = rowNumber => accountRow(rowNumber) + " > span:nth-child(1)"
-    val accountRowChange: Int => String = rowNumber => accountRow(rowNumber) + " > span:nth-child(2) > a"
-    val accountRowChangeHidden: Int => String = rowNumber => accountRow(rowNumber) + " > span:nth-child(2) > a > span.govuk-visually-hidden"
-    val accountRowRemove: Int => String = rowNumber => accountRow(rowNumber) + " > span:nth-child(3) > a"
-    val accountRowRemoveHidden: Int => String = rowNumber => accountRow(rowNumber) + " > span:nth-child(3) > a > span.govuk-visually-hidden"
+    val accountRow: Int => String = rowNumber => s"#main-content > div > div > dl > div:nth-child($rowNumber)"
+    val accountRowName: Int => String = rowNumber => accountRow(rowNumber) + " > dt"
+    val accountRowChange: Int => String = rowNumber => accountRow(rowNumber) + " > dd > ul > li:nth-child(1) > a"
+    val accountRowChangeHidden: Int => String = rowNumber => accountRow(rowNumber) + " > dd > ul > li:nth-child(1) > a > span.govuk-visually-hidden"
+    val accountRowRemove: Int => String = rowNumber => accountRow(rowNumber) + " > dd > ul > li:nth-child(2) > a"
 
-    val accountRowChangePriorSubmission: Int => String = rowNumber => accountRow(rowNumber) + " > span:nth-child(3) > a"
-    val accountRowChangePriorSubmissionHidden: Int => String = rowNumber => accountRow(rowNumber) + " > span:nth-child(3) > a > span.govuk-visually-hidden"
+    val accountRowChangePriorSubmission: Int => String = rowNumber => accountRow(rowNumber) + " > dd > ul > li:nth-child(1) > a"
 
     val captionSelector = ".govuk-caption-l"
     val continueSelector = "#continue"
@@ -107,8 +105,8 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
     val doYouNeedText = "Do you need to add another account?"
     val yesText = "Yes"
     val noText = "No"
-    val removeAccountHiddenText: String => String = (account: String) => s"$removeText $account account"
-    val changeAccountHiddenText: String => String = (account: String) => s"$changeText $account account details"
+    val removeAccountHiddenText: String => String = (account: String) => s"$removeText$removeText $account account"
+    val changeAccountHiddenText: String => String = (account: String) => s"$changeText$changeText $account account details"
     val expectedErrorText = "Select yes to add another account"
   }
 
@@ -132,8 +130,8 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
     val doYouNeedText = "A oes angen i chi ychwanegu cyfrif arall?"
     val yesText = "Iawn"
     val noText = "Na"
-    val removeAccountHiddenText: String => String = (account: String) => s"$removeText $account cyfrif"
-    val changeAccountHiddenText: String => String = (account: String) => s"$changeText $account manylion y cyfrif"
+    val removeAccountHiddenText: String => String = (account: String) => s"$removeText$removeText $account cyfrif"
+    val changeAccountHiddenText: String => String = (account: String) => s"$changeText$changeText $account manylion y cyfrif"
     val expectedErrorText = "Dewiswch ‘Iawn’ er mwyn ychwanegu cyfrif arall"
   }
 
@@ -201,32 +199,8 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           textOnPageCheck(captionText, captionSelector)
           h1Check(untaxedH1 + " " + captionText)
           textOnPageCheck("Bank of UK", accountRowName(1))
-
-          "has a link for changing the account" which {
-            "has the correct text" in {
-              element(accountRowChange(1)).child(0).text shouldBe changeText
-            }
-
-            "has the correct hidden text" in {
-              element(accountRowChangeHidden(1)).text shouldBe changeAccountHiddenText("Bank of UK")
-            }
-
-            "has the correct link" in {
-              element(accountRowChange(1)).attr("href") shouldBe changeUntaxedHref
-            }
-          }
-
-          "has a link for removing the account" which {
-            s"has the text $removeText" in {
-              element(accountRowRemove(1)).child(0).text() shouldBe removeText
-            }
-            s"has the correct hidden text" in {
-              element(accountRowRemoveHidden(1)).text shouldBe removeAccountHiddenText("Bank of UK")
-            }
-            s"has the correct link" in {
-              element(accountRowRemove(1)).attr("href") shouldBe removeUntaxedHref
-            }
-          }
+          linkCheck(changeAccountHiddenText("Bank of UK"), accountRowChange(1), changeUntaxedHref)
+          linkCheck(removeAccountHiddenText("Bank of UK"), accountRowRemove(1), removeUntaxedHref)
 
           textOnPageCheck(doYouNeedText, doYouNeedSelector)
           textOnPageCheck(specific.youMustTellTextUntaxed, youMustTellSelector)
@@ -265,43 +239,12 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           textOnPageCheck(captionText, captionSelector)
 
           "have an area for the first row" which {
-            "has a link for changing the account" which {
-              "has the correct text" in {
-                element(accountRowChange(1)).child(0).text shouldBe changeText
-              }
-              "has the correct hidden text" in {
-                element(accountRowChangeHidden(1)).text shouldBe changeAccountHiddenText("Bank of UK")
-              }
-              "has the correct link" in {
-                element(accountRowChange(1)).attr("href") shouldBe changeUntaxedHref
-              }
-            }
-
-            "has a link for removing the account" which {
-              s"has the text $removeText" in {
-                element(accountRowRemove(1)).child(0).text() shouldBe removeText
-              }
-              s"has the correct hidden text" in {
-                element(accountRowRemoveHidden(1)).text shouldBe removeAccountHiddenText("Bank of UK")
-              }
-              s"has the correct link" in {
-                element(accountRowRemove(1)).attr("href") shouldBe removeUntaxedHref
-              }
-            }
+            linkCheck(changeAccountHiddenText("Bank of UK"), accountRowChange(1), changeUntaxedHref)
+            linkCheck(removeAccountHiddenText("Bank of UK"), accountRowRemove(1), removeUntaxedHref)
           }
 
           "have an area for the second row" which {
-            "has a link for changing the account" which {
-              "has the correct text" in {
-                element(accountRowChangePriorSubmission(2)).child(0).text shouldBe changeText
-              }
-              "has the correct hidden text" in {
-                element(accountRowChangePriorSubmissionHidden(2)).text shouldBe changeAccountHiddenText("Bank of EU")
-              }
-              "has the correct link" in {
-                element(accountRowChangePriorSubmission(2)).attr("href") shouldBe changePriorUntaxedHref
-              }
-            }
+            linkCheck(changeAccountHiddenText("Bank of EU"), accountRowChangePriorSubmission(2), changePriorUntaxedHref)
           }
           textOnPageCheck(doYouNeedText, doYouNeedSelector)
           textOnPageCheck(specific.youMustTellTextUntaxed, youMustTellSelector)
@@ -380,31 +323,8 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           h1Check(taxedH1 + " " + captionText)
           textOnPageCheck("Bank of UK", accountRowName(1))
 
-          "has a link for changing the account" which {
-            "has the correct text" in {
-              element(accountRowChange(1)).child(0).text shouldBe changeText
-            }
-
-            "has the correct hidden text" in {
-              element(accountRowChangeHidden(1)).text shouldBe changeAccountHiddenText("Bank of UK")
-            }
-
-            "has the correct link" in {
-              element(accountRowChange(1)).attr("href") shouldBe changeTaxedHref
-            }
-          }
-
-          "has a link for removing the account" which {
-            s"has the text $removeText" in {
-              element(accountRowRemove(1)).child(0).text() shouldBe removeText
-            }
-            s"has the correct hidden text" in {
-              element(accountRowRemoveHidden(1)).text shouldBe removeAccountHiddenText("Bank of UK")
-            }
-            s"has the correct link" in {
-              element(accountRowRemove(1)).attr("href") shouldBe removeTaxedHref
-            }
-          }
+          linkCheck(changeAccountHiddenText("Bank of UK"), accountRowChange(1), changeTaxedHref)
+          linkCheck(removeAccountHiddenText("Bank of UK"), accountRowRemove(1), removeTaxedHref)
 
           textOnPageCheck(doYouNeedText, doYouNeedSelector)
           textOnPageCheck(specific.youMustTellTextTaxed, youMustTellSelector)
@@ -443,43 +363,12 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           textOnPageCheck(captionText, captionSelector)
 
           "have an area for the first row" which {
-            "has a link for changing the account" which {
-              "has the correct text" in {
-                element(accountRowChange(1)).child(0).text shouldBe changeText
-              }
-              "has the correct hidden text" in {
-                element(accountRowChangeHidden(1)).text shouldBe changeAccountHiddenText("Bank of UK")
-              }
-              "has the correct link" in {
-                element(accountRowChange(1)).attr("href") shouldBe changeTaxedHref
-              }
-            }
-
-            "has a link for removing the account" which {
-              s"has the text $removeText" in {
-                element(accountRowRemove(1)).child(0).text() shouldBe removeText
-              }
-              s"has the correct hidden text" in {
-                element(accountRowRemoveHidden(1)).text shouldBe removeAccountHiddenText("Bank of UK")
-              }
-              s"has the correct link" in {
-                element(accountRowRemove(1)).attr("href") shouldBe removeTaxedHref
-              }
-            }
+            linkCheck(changeAccountHiddenText("Bank of UK"), accountRowChange(1), changeTaxedHref)
+            linkCheck(removeAccountHiddenText("Bank of UK"), accountRowRemove(1), removeTaxedHref)
           }
 
           "have an area for the second row" which {
-            "has a link for changing the account" which {
-              "has the correct text" in {
-                element(accountRowChangePriorSubmission(2)).child(0).text shouldBe changeText
-              }
-              "has the correct hidden text" in {
-                element(accountRowChangePriorSubmissionHidden(2)).text shouldBe changeAccountHiddenText("Bank of EU")
-              }
-              "has the correct link" in {
-                element(accountRowChangePriorSubmission(2)).attr("href") shouldBe changePriorTaxedHref
-              }
-            }
+            linkCheck(changeAccountHiddenText("Bank of EU"), accountRowChangePriorSubmission(2), changePriorTaxedHref)
           }
           textOnPageCheck(doYouNeedText, doYouNeedSelector)
           textOnPageCheck(specific.youMustTellTextTaxed, youMustTellSelector)
@@ -658,29 +547,8 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           errorSummaryCheck(expectedErrorText, "#value", us.isWelsh)
           errorAboveElementCheck(expectedErrorText)
 
-          "has a link for changing the account" which {
-            "has the correct text" in {
-              element(accountRowChange(1)).child(0).text shouldBe changeText
-            }
-            "has the correct hidden text" in {
-              element(accountRowChangeHidden(1)).text shouldBe changeAccountHiddenText("Untaxed Account")
-            }
-            "has the correct link" in {
-              element(accountRowChange(1)).attr("href") shouldBe changeUntaxedHref
-            }
-          }
-
-          "has a link for removing the account" which {
-            s"has the text $removeText" in {
-              element(accountRowRemove(1)).child(0).text() shouldBe removeText
-            }
-            s"has the correct hidden text" in {
-              element(accountRowRemoveHidden(1)).text shouldBe removeAccountHiddenText("Untaxed Account")
-            }
-            s"has the correct" in {
-              element(accountRowRemove(1)).attr("href") shouldBe removeUntaxedHref
-            }
-          }
+          linkCheck(changeAccountHiddenText("Untaxed Account"), accountRowChange(1), changeUntaxedHref)
+          linkCheck(removeAccountHiddenText("Untaxed Account"), accountRowRemove(1), removeUntaxedHref)
 
           textOnPageCheck(doYouNeedText, doYouNeedSelector)
           textOnPageCheck(specific.youMustTellTextUntaxed, youMustTellSelector)
@@ -804,29 +672,8 @@ class AccountsControllerISpec extends IntegrationTest with InterestDatabaseHelpe
           errorSummaryCheck(expectedErrorText, "#value", us.isWelsh)
           errorAboveElementCheck(expectedErrorText)
 
-          "has a link for changing the account" which {
-            "has the correct text" in {
-              element(accountRowChange(1)).child(0).text shouldBe changeText
-            }
-            "has the correct hidden text" in {
-              element(accountRowChangeHidden(1)).text shouldBe changeAccountHiddenText("Taxed Account")
-            }
-            "has the correct link" in {
-              element(accountRowChange(1)).attr("href") shouldBe changeTaxedHref
-            }
-          }
-
-          "has a link for removing the account" which {
-            s"has the text $removeText" in {
-              element(accountRowRemove(1)).child(0).text() shouldBe removeText
-            }
-            s"has the correct hidden text" in {
-              element(accountRowRemoveHidden(1)).text shouldBe removeAccountHiddenText("Taxed Account")
-            }
-            s"has the correct" in {
-              element(accountRowRemove(1)).attr("href") shouldBe removeTaxedHref
-            }
-          }
+          linkCheck(changeAccountHiddenText("Taxed Account"), accountRowChange(1), changeTaxedHref)
+          linkCheck(removeAccountHiddenText("Taxed Account"), accountRowRemove(1), removeTaxedHref)
 
           textOnPageCheck(doYouNeedText, doYouNeedSelector)
           textOnPageCheck(specific.youMustTellTextTaxed, youMustTellSelector)
