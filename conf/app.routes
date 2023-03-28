@@ -28,6 +28,9 @@ POST        /:taxYear/dividends/check-income-from-dividends                     
 GET         /:taxYear/dividends/dividends-from-stocks-and-shares                                              controllers.dividends.DividendsGatewayController.show(taxYear: Int)
 POST        /:taxYear/dividends/dividends-from-stocks-and-shares                                              controllers.dividends.DividendsGatewayController.submit(taxYear: Int)
 
+GET         /:taxYear/dividends/stock-dividend-status                                                         controllers.dividends.ReceiveUkStockDividendsController.show(taxYear: Int)
+POST        /:taxYear/dividends/stock-dividend-status                                                         controllers.dividends.ReceiveUkStockDividendsController.submit(taxYear: Int)
+
 # Interest routes
 
 GET         /:taxYear/interest/interest-from-UK                                                               controllers.interest.InterestGatewayController.show(taxYear: Int)
