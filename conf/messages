@@ -191,6 +191,14 @@ dividends.stock-dividend-amount.error.empty.agent = Enter the amount of stock di
 dividends.stock-dividend-amount.invalidFormat.agent = Enter the amount  of stock dividends your client received in the correct format. For example, £193.54
 dividends.stock-dividend-amount.error.amountMaxLimit.agent = The amount of your client''s stock dividends must be less than £100,000,000,000
 
+dividends.close-company-loan-amount.heading.individual = How much did the close company write off or release from your loan?
+dividends.close-company-loan-amount.heading.agent = How much did the close company write off or release from your client''s loan?
+
+dividends.close-company-loan-amount.error.empty.individual = Enter the amount written off or released from your loan
+dividends.close-company-loan-amount.error.empty.agent = Enter the amount written off or released from your client''s loan
+
+dividends.close-company-loan-amount.invalidFormat = Enter the amount in the correct format. For example, £193.52
+
 # Interest
 # ----------------------------------------------------------
 

@@ -32,6 +32,10 @@ POST        /:taxYear/dividends/dividends-from-stocks-and-shares                
 GET         /:taxYear/dividends/stock-dividend-amount                                                         controllers.dividends.StockDividendAmountController.show(taxYear: Int)
 POST        /:taxYear/dividends/stock-dividend-amount                                                         controllers.dividends.StockDividendAmountController.submit(taxYear: Int)
 
+GET         /:taxYear/dividends/close-company-loan-amount                                                     controllers.dividends.CloseCompanyLoanAmountController.show(taxYear: Int)
+POST        /:taxYear/dividends/close-company-loan-amount                                                     controllers.dividends.CloseCompanyLoanAmountController.submit(taxYear: Int)
+
+
 # Interest routes
 
 GET         /:taxYear/interest/interest-from-UK                                                               controllers.interest.InterestGatewayController.show(taxYear: Int)
