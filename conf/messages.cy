@@ -191,6 +191,14 @@ dividends.stock-dividend-amount.error.empty.agent = Nodwch swm y difidendau stoc
 dividends.stock-dividend-amount.invalidFormat.agent = Nodwch swm y difidendau stoc a gafodd eich cleient yn y fformat cywir. Er enghraifft, £193.54
 dividends.stock-dividend-amount.error.amountMaxLimit.agent = Mae’n rhaid i swm difidendau stoc eich cleient fod yn llai na £100,000,000,000
 
+dividends.close-company-loan-amount.heading.individual = Faint gwnaeth y cwmni caeedig ei ddileu neu ei ryddhau o’ch benthyciad?
+dividends.close-company-loan-amount.heading.agent = Faint gwnaeth y cwmni caeedig ei ddileu neu ei ryddhau o fenthyciad eich cleient?
+
+dividends.close-company-loan-amount.error.empty.individual = Nodwch y swm a gafodd ei ddileu neu ei ryddhau o’ch benthyciad
+dividends.close-company-loan-amount.invalidFormat = Nodwch y swm yn y fformat cywir. Er enghraifft, £193.52
+
+dividends.close-company-loan-amount.error.empty.agent = Nodwch y swm a gafodd ei ddileu neu ei ryddhau o fenthyciad eich cleient
+
 # Interest
 # ----------------------------------------------------------
 
