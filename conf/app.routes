@@ -28,9 +28,6 @@ POST        /:taxYear/dividends/check-income-from-dividends                     
 GET         /:taxYear/dividends/dividends-from-stocks-and-shares                                              controllers.dividends.DividendsGatewayController.show(taxYear: Int)
 POST        /:taxYear/dividends/dividends-from-stocks-and-shares                                              controllers.dividends.DividendsGatewayController.submit(taxYear: Int)
 
-GET         /:taxYear/dividends/redeemable-shares-status                                                      controllers.dividends.RedeemableSharesStatusController.show(taxYear: Int)
-POST        /:taxYear/dividends/redeemable-shares-status                                                      controllers.dividends.RedeemableSharesStatusController.submit(taxYear: Int)
-
 # Stock Dividends routes
 
 GET         /:taxYear/dividends/stock-dividend-amount                                                         controllers.dividends.StockDividendAmountController.show(taxYear: Int)
@@ -44,6 +41,9 @@ POST        /:taxYear/dividends/stock-dividend-status                           
 
 GET         /:taxYear/dividends/redeemable-shares-amount                                                      controllers.dividends.RedeemableSharesAmountController.show(taxYear: Int)
 POST        /:taxYear/dividends/redeemable-shares-amount                                                      controllers.dividends.RedeemableSharesAmountController.submit(taxYear: Int)
+
+GET         /:taxYear/dividends/redeemable-shares-status                                                      controllers.dividends.RedeemableSharesStatusController.show(taxYear: Int)
+POST        /:taxYear/dividends/redeemable-shares-status                                                      controllers.dividends.RedeemableSharesStatusController.submit(taxYear: Int)
 
 # Interest routes
 

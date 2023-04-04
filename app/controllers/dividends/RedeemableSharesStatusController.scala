@@ -16,7 +16,7 @@
 
 package controllers.dividends
 
-import config.{AppConfig, DIVIDENDS, ErrorHandler}
+import config.{AppConfig, DIVIDENDS}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import forms.YesNoForm
@@ -35,23 +35,20 @@ class RedeemableSharesStatusController @Inject()(
                                                   implicit val cc: MessagesControllerComponents,
                                                   authAction: AuthorisedAction,
                                                   view: RedeemableSharesStatusView,
-                                                  errorHandler: ErrorHandler,
                                                   implicit val appConfig: AppConfig,
                                                   ec: ExecutionContext
                                                 ) extends FrontendController(cc) with I18nSupport {
 
-  def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
-
-  def form(implicit isAgent: Boolean, taxYear: Int): Form[Boolean] = YesNoForm.yesNoForm(
+  def form(implicit isAgent: Boolean): Form[Boolean] = YesNoForm.yesNoForm(
     s"dividends.redeemable-shares-status.errors.noChoice.${if (isAgent) "agent" else "individual"}")
 
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
-    Future.successful(Ok(view(form(user.isAgent, taxYear), taxYear)))
+    Future.successful(Ok(view(form(user.isAgent), taxYear)))
   }
 
   def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
-    form(user.isAgent, taxYear).bindFromRequest().fold(
+    form(user.isAgent).bindFromRequest().fold(
       formWithErrors =>
         Future.successful(BadRequest(view(formWithErrors, taxYear))),
       _ =>

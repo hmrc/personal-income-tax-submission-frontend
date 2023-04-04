@@ -28,8 +28,7 @@
     button: Button,
     heading: Heading,
     inputRadio: InputRadio,
-    p: P,
-    link: String
+    p: P
 )
 
 @(form: Form[Boolean], taxYear: Int)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
@@ -39,23 +38,21 @@
      if(user.isAgent) "agent" else "individual"
 }
 
-@titleForUse = {}
-
 @headingForUse = @{messages(s"dividends.redeemable-shares-status.title." + agentOrIndividual)}
 
 @hasFormErrors = @{form.hasErrors}
 
 @detailsHtml = {
      @p(Html(messages("dividends.redeemable-shares-status.paragraph.1." + agentOrIndividual)),
-     classes = "govuk-body govuk-!-margin-bottom-3",
+     classes = "govuk-body",
      id = Some("p1"))
 
      @p(Html(messages("dividends.redeemable-shares-status.paragraph.2")),
-     classes = "govuk-body govuk-!-margin-bottom-4",
+     classes = "govuk-body",
      id = Some("p2"))
 
      @p(Html(messages("dividends.redeemable-shares-status.paragraph.3")),
-     classes = "govuk-body govuk-!-margin-bottom-3",
+     classes = "govuk-body",
      id = Some("p3"))
 }
 
@@ -72,7 +69,6 @@
     @inputRadio(
         form = form,
         heading = "",
-        classes = "govuk-fieldset__legend--m",
         inline = true
     )
 

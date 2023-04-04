@@ -97,7 +97,6 @@ class RedeemableSharesStatusControllerISpec extends IntegrationTest with ViewHel
     val p2Selector = "#p2"
     val p3Selector = "#p3"
     val continueButtonSelector = "#continue"
-    val continueButtonFormSelector = "#main-content > div > div > form"
     val formSelector = "#main-content > div > div > form"
     val errorSummaryHref = "#value"
     val errorSelector = "#main-content > div > div > div.govuk-error-summary > div > h2"

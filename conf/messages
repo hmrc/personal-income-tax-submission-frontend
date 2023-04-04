@@ -222,7 +222,6 @@ dividends.redeemable-shares-status.paragraph.3 = Free additional shares are also
 dividends.redeemable-shares-status.errors.noChoice.individual = Select Yes if you got free or redeemable shares
 dividends.redeemable-shares-status.errors.noChoice.agent = Select Yes if your client got free or redeemable shares
 
-
 # Interest
 # ----------------------------------------------------------
 
