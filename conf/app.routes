@@ -29,14 +29,18 @@ GET         /:taxYear/dividends/dividends-from-stocks-and-shares                
 POST        /:taxYear/dividends/dividends-from-stocks-and-shares                                              controllers.dividends.DividendsGatewayController.submit(taxYear: Int)
 
 # Stock Dividends routes
+
 GET         /:taxYear/dividends/stock-dividend-amount                                                         controllers.dividends.StockDividendAmountController.show(taxYear: Int)
 POST        /:taxYear/dividends/stock-dividend-amount                                                         controllers.dividends.StockDividendAmountController.submit(taxYear: Int)
 
 GET         /:taxYear/dividends/close-company-loan-amount                                                     controllers.dividends.CloseCompanyLoanAmountController.show(taxYear: Int)
 POST        /:taxYear/dividends/close-company-loan-amount                                                     controllers.dividends.CloseCompanyLoanAmountController.submit(taxYear: Int)
 
-GET         /:taxYear/dividends/stock-dividend-status                                                         controllers.dividends.ReceiveUkStockDividendsController.show(taxYear: Int)
-POST        /:taxYear/dividends/stock-dividend-status                                                         controllers.dividends.ReceiveUkStockDividendsController.submit(taxYear: Int)
+GET         /:taxYear/dividends/stock-dividend-status                                                         controllers.dividends.StockDividendStatusController.show(taxYear: Int)
+POST        /:taxYear/dividends/stock-dividend-status                                                         controllers.dividends.StockDividendStatusController.submit(taxYear: Int)
+
+GET         /:taxYear/dividends/redeemable-shares-amount                                                      controllers.dividends.RedeemableSharesAmountController.show(taxYear: Int)
+POST        /:taxYear/dividends/redeemable-shares-amount                                                      controllers.dividends.RedeemableSharesAmountController.submit(taxYear: Int)
 
 # Interest routes
 

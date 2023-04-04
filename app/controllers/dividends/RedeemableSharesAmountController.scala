@@ -24,29 +24,29 @@ import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import views.html.dividends.CloseCompanyLoanAmountView
+import views.html.dividends.RedeemableSharesAmountView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class CloseCompanyLoanAmountController @Inject()(
+class RedeemableSharesAmountController @Inject()(
                                                   implicit val cc: MessagesControllerComponents,
                                                   authAction: AuthorisedAction,
-                                                  view: CloseCompanyLoanAmountView,
+                                                  view: RedeemableSharesAmountView,
                                                   implicit val appConfig: AppConfig,
                                                   ec: ExecutionContext
-                                           ) extends FrontendController(cc) with I18nSupport {
+                                                ) extends FrontendController(cc) with I18nSupport {
 
   def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
 
   def form(implicit isAgent: Boolean, taxYear: Int): Form[BigDecimal] = AmountForm.amountForm(
-    emptyFieldKey = "dividends.close-company-loan-amount.error.empty." + agentOrIndividual,
-    wrongFormatKey = "dividends.close-company-loan-amount.invalidFormat",
+    emptyFieldKey = "dividends.redeemable-shares-amount.error.empty." + agentOrIndividual,
+    wrongFormatKey = "dividends.redeemable-shares-amount.error.invalidFormat." + agentOrIndividual,
     emptyFieldArguments = Seq(taxYear.toString)
   )
 
-  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async {implicit user =>
-      Future.successful(Ok(view(form(user.isAgent, taxYear), taxYear)))
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
+    Future.successful(Ok(view(form(user.isAgent, taxYear), taxYear)))
   }
 
   def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
