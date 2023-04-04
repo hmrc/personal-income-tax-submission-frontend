@@ -213,6 +213,15 @@ dividends.stock-dividend-status.question.radio.heading.agent = Did your client g
 dividends.stock-dividend-status.errors.noChoice.individual = Select Yes if you got stock dividends
 dividends.stock-dividend-status.errors.noChoice.agent = Select Yes if your client got stock dividends
 
+dividends.redeemable-shares-status.title.individual = Did you get free or redeemable shares?
+dividends.redeemable-shares-status.title.agent = Did your client get free or redeemable shares?
+dividends.redeemable-shares-status.paragraph.1.individual = You can hold both free and redeemable shares.
+dividends.redeemable-shares-status.paragraph.1.agent = Your client can hold both free and redeemable shares.
+dividends.redeemable-shares-status.paragraph.2 = Redeemable shares are ones a company can buy back at an agreed price on a future date.
+dividends.redeemable-shares-status.paragraph.3 = Free additional shares are also known as ''bonus issues of securities''.
+dividends.redeemable-shares-status.errors.noChoice.individual = Select Yes if you got free or redeemable shares
+dividends.redeemable-shares-status.errors.noChoice.agent = Select Yes if your client got free or redeemable shares
+
 # Interest
 # ----------------------------------------------------------
 
