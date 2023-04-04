@@ -181,6 +181,33 @@ dividends.gateway.hint = For example, dividends from UK companies, authorised un
 dividends.gateway.error.individual = Select yes if you got dividends from shares
 dividends.gateway.error.agent = Select yes if your client got dividends from shares
 
+# Stock Dividends Messages
+# ----------------------------------------------------------
+dividends.stock-dividend-amount.heading = Stock dividends amount
+dividends.stock-dividend-amount.paragraph.1.individual = This is the cash value of the stock dividends you received.
+dividends.stock-dividend-amount.paragraph.2.individual = Your dividend statements should show ''the appropriate amount in cash'', or the ''cash equivalent in share capital''.
+dividends.stock-dividend-amount.question.individual = How much did you get?
+
+dividends.stock-dividend-amount.paragraph.1.agent = This is the cash value of the stock dividends your client received.
+dividends.stock-dividend-amount.paragraph.2.agent = Your client''s dividend statements should show ''the appropriate amount in cash'', or the ''cash equivalent in share capital''.
+dividends.stock-dividend-amount.question.agent = How much did your client get?
+
+dividends.stock-dividend-amount.error.empty.individual = Enter the amount of stock dividends you got
+dividends.stock-dividend-amount.invalidFormat.individual = Enter the amount of stock dividends you received in the correct format. For example, £193.54
+dividends.stock-dividend-amount.error.amountMaxLimit.individual = The amount of your stock dividends must be less than £100,000,000,000
+
+dividends.stock-dividend-amount.error.empty.agent = Enter the amount of stock dividends your client got
+dividends.stock-dividend-amount.invalidFormat.agent = Enter the amount  of stock dividends your client received in the correct format. For example, £193.54
+dividends.stock-dividend-amount.error.amountMaxLimit.agent = The amount of your client''s stock dividends must be less than £100,000,000,000
+
+dividends.close-company-loan-amount.heading.individual = How much did the close company write off or release from your loan?
+dividends.close-company-loan-amount.heading.agent = How much did the close company write off or release from your client''s loan?
+
+dividends.close-company-loan-amount.error.empty.individual = Enter the amount written off or released from your loan
+dividends.close-company-loan-amount.error.empty.agent = Enter the amount written off or released from your client''s loan
+
+dividends.close-company-loan-amount.invalidFormat = Enter the amount in the correct format. For example, £193.52
+
 # Interest
 # ----------------------------------------------------------
 
