@@ -118,6 +118,15 @@ dividends.uk-dividends.sub-heading.individual = Your dividend voucher will tell 
 dividends.uk-dividends.errors.noChoice.individual = Select yes if you got dividends from UK-based companies
 dividends.uk-dividends.errors.noChoice.agent = Select yes if your client got dividends from UK-based companies
 
+dividends.uk-stock-dividends.title = Stock dividends
+dividends.uk-stock-dividends.paragraph.1.individual = If you chose shares instead of cash dividends, that is a stock dividend.
+dividends.uk-stock-dividends.paragraph.1.agent = If your client chose shares instead of cash dividends, that is a stock dividend.
+dividends.uk-stock-dividends.paragraph.2 = Find out more about stock dividends (opens in a new window)
+dividends.uk-stock-dividends.question.radio.heading.individual = Did you get stock dividends?
+dividends.uk-stock-dividends.question.radio.heading.agent = Did your client get stock dividends?
+dividends.uk-stock-dividends.errors.noChoice.individual = Select Yes if you got stock dividends
+dividends.uk-stock-dividends.errors.noChoice.agent = Select Yes if your client got stock dividends
+
 dividends.uk-dividends-amount.title.individual = How much did you get in dividends from UK-based companies?
 dividends.uk-dividends-amount.title.agent = How much did your client get in dividends from UK-based companies?
 dividends.uk-dividends-amount.error.empty.individual = Enter how much you got in dividends from UK-based companies

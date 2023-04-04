@@ -118,6 +118,15 @@ dividends.uk-dividends.sub-heading.individual = Bydd eich taleb ddifidend yn rho
 dividends.uk-dividends.errors.noChoice.individual = Dewiswch ‘Iawn’ os cawsoch ddifidendau gan gwmnïau yn y DU
 dividends.uk-dividends.errors.noChoice.agent = Dewiswch ‘Iawn’ os cafodd eich cleient ddifidendau gan gwmnïau yn y DU
 
+dividends.uk-stock-dividends.title = Difidendau stoc
+dividends.uk-stock-dividends.paragraph.1.individual = Os dewisoch gyfranddaliadau yn lle difidendau ar ffurf arian parod, mae''n golygu y cawsoch ddifidend stoc.
+dividends.uk-stock-dividends.paragraph.1.agent = Os gwnaeth eich cleient ddewis cyfranddaliadau yn lle difidendau ar ffurf arian parod, mae''n golygu y cafodd eich cleient ddifidend stoc.
+dividends.uk-stock-dividends.paragraph.2 = Dysgwch ragor am ddifidendau stoc (yn agor ffenestr newydd)
+dividends.uk-stock-dividends.question.radio.heading.individual = A gawsoch ddifidendau stoc?
+dividends.uk-stock-dividends.question.radio.heading.agent = A gafodd eich cleient ddifidendau stoc?
+dividends.uk-stock-dividends.errors.noChoice.individual = Dewiswch ''Iawn'' os cawsoch ddifidendau stoc
+dividends.uk-stock-dividends.errors.noChoice.agent = Dewiswch ''Iawn'' os cafodd eich cleient ddifidendau stoc
+
 dividends.uk-dividends-amount.title.individual = Faint a gawsoch mewn difidendau gan gwmnïau yn y DU?
 dividends.uk-dividends-amount.title.agent = Faint gafodd eich cleient mewn difidendau gan gwmnïau yn y DU?
 dividends.uk-dividends-amount.error.empty.individual = Nodwch faint a gawsoch mewn difidendau gan gwmnïau yn y DU
