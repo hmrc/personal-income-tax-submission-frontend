@@ -118,15 +118,6 @@ dividends.uk-dividends.sub-heading.individual = Your dividend voucher will tell 
 dividends.uk-dividends.errors.noChoice.individual = Select yes if you got dividends from UK-based companies
 dividends.uk-dividends.errors.noChoice.agent = Select yes if your client got dividends from UK-based companies
 
-dividends.uk-stock-dividends.title = Stock dividends
-dividends.uk-stock-dividends.paragraph.1.individual = If you chose shares instead of cash dividends, that is a stock dividend.
-dividends.uk-stock-dividends.paragraph.1.agent = If your client chose shares instead of cash dividends, that is a stock dividend.
-dividends.uk-stock-dividends.paragraph.2 = Find out more about stock dividends (opens in a new window)
-dividends.uk-stock-dividends.question.radio.heading.individual = Did you get stock dividends?
-dividends.uk-stock-dividends.question.radio.heading.agent = Did your client get stock dividends?
-dividends.uk-stock-dividends.errors.noChoice.individual = Select Yes if you got stock dividends
-dividends.uk-stock-dividends.errors.noChoice.agent = Select Yes if your client got stock dividends
-
 dividends.uk-dividends-amount.title.individual = How much did you get in dividends from UK-based companies?
 dividends.uk-dividends-amount.title.agent = How much did your client get in dividends from UK-based companies?
 dividends.uk-dividends-amount.error.empty.individual = Enter how much you got in dividends from UK-based companies
@@ -183,30 +174,44 @@ dividends.gateway.error.agent = Select yes if your client got dividends from sha
 
 # Stock Dividends Messages
 # ----------------------------------------------------------
+
 dividends.stock-dividend-amount.heading = Stock dividends amount
 dividends.stock-dividend-amount.paragraph.1.individual = This is the cash value of the stock dividends you received.
 dividends.stock-dividend-amount.paragraph.2.individual = Your dividend statements should show ''the appropriate amount in cash'', or the ''cash equivalent in share capital''.
 dividends.stock-dividend-amount.question.individual = How much did you get?
-
 dividends.stock-dividend-amount.paragraph.1.agent = This is the cash value of the stock dividends your client received.
 dividends.stock-dividend-amount.paragraph.2.agent = Your client''s dividend statements should show ''the appropriate amount in cash'', or the ''cash equivalent in share capital''.
 dividends.stock-dividend-amount.question.agent = How much did your client get?
-
 dividends.stock-dividend-amount.error.empty.individual = Enter the amount of stock dividends you got
 dividends.stock-dividend-amount.invalidFormat.individual = Enter the amount of stock dividends you received in the correct format. For example, £193.54
 dividends.stock-dividend-amount.error.amountMaxLimit.individual = The amount of your stock dividends must be less than £100,000,000,000
-
 dividends.stock-dividend-amount.error.empty.agent = Enter the amount of stock dividends your client got
 dividends.stock-dividend-amount.invalidFormat.agent = Enter the amount  of stock dividends your client received in the correct format. For example, £193.54
 dividends.stock-dividend-amount.error.amountMaxLimit.agent = The amount of your client''s stock dividends must be less than £100,000,000,000
 
+dividends.redeemable-shares-amount.heading.individual = How much did you get in free or redeemable shares?
+dividends.redeemable-shares-amount.hint.individual = Enter the sum of all the shares. You can find this information on your dividend vouchers.
+dividends.redeemable-shares-amount.heading.agent = How much did your client get in free or redeemable shares?
+dividends.redeemable-shares-amount.hint.agent = Enter the sum of all the shares. You can find this information on your client''s dividend vouchers.
+dividends.redeemable-shares-amount.error.empty.individual = Enter the amount you got in free or redeemable shares
+dividends.redeemable-shares-amount.error.invalidFormat.individual = Enter the amount you received in the correct format. For example, £193.54
+dividends.redeemable-shares-amount.error.empty.agent = Enter the amount your client got in free or redeemable shares
+dividends.redeemable-shares-amount.error.invalidFormat.agent = Enter the amount your client received in the correct format. For example, £193.54
+
 dividends.close-company-loan-amount.heading.individual = How much did the close company write off or release from your loan?
 dividends.close-company-loan-amount.heading.agent = How much did the close company write off or release from your client''s loan?
-
 dividends.close-company-loan-amount.error.empty.individual = Enter the amount written off or released from your loan
 dividends.close-company-loan-amount.error.empty.agent = Enter the amount written off or released from your client''s loan
-
 dividends.close-company-loan-amount.invalidFormat = Enter the amount in the correct format. For example, £193.52
+
+dividends.stock-dividend-status.title = Stock dividends
+dividends.stock-dividend-status.paragraph.1.individual = If you chose shares instead of cash dividends, that is a stock dividend.
+dividends.stock-dividend-status.paragraph.1.agent = If your client chose shares instead of cash dividends, that is a stock dividend.
+dividends.stock-dividend-status.paragraph.2 = Find out more about stock dividends (opens in a new window)
+dividends.stock-dividend-status.question.radio.heading.individual = Did you get stock dividends?
+dividends.stock-dividend-status.question.radio.heading.agent = Did your client get stock dividends?
+dividends.stock-dividend-status.errors.noChoice.individual = Select Yes if you got stock dividends
+dividends.stock-dividend-status.errors.noChoice.agent = Select Yes if your client got stock dividends
 
 # Interest
 # ----------------------------------------------------------

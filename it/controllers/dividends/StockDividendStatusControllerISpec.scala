@@ -25,9 +25,9 @@ import utils.{IntegrationTest, ViewHelpers}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
 
-class ReceiveUkStockDividendsControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables {
+class StockDividendStatusControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables {
 
-  val receiveUkStockDividendUrl: String = s"/update-and-submit-income-tax-return/personal-income/2023/dividends/stock-dividend-status"
+  val stockDividendStatusUrl: String = s"/update-and-submit-income-tax-return/personal-income/2023/dividends/stock-dividend-status"
   val postURL: String = s"$appUrl/2023/dividends/stock-dividend-status"
 
   trait SpecificExpectedResults {
@@ -96,11 +96,9 @@ class ReceiveUkStockDividendsControllerISpec extends IntegrationTest with ViewHe
     val p1Selector = "#p1"
     val p2Selector = "#p2"
     val continueButtonSelector = "#continue"
-    val continueButtonFormSelector = "#main-content > div > div > form"
     val formSelector = "#main-content > div > div > form"
     val errorSummaryHref = "#value"
     val errorSelector = "#main-content > div > div > div.govuk-error-summary > div > h2"
-
   }
 
   protected val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = Seq(
@@ -122,7 +120,7 @@ class ReceiveUkStockDividendsControllerISpec extends IntegrationTest with ViewHe
 
       "display the stock dividend status page" which {
         lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-        lazy val request = FakeRequest("GET", receiveUkStockDividendUrl).withHeaders(headers: _*)
+        lazy val request = FakeRequest("GET", stockDividendStatusUrl).withHeaders(headers: _*)
 
         lazy val result = {
           authoriseAgentOrIndividual(scenario.isAgent)
@@ -138,7 +136,7 @@ class ReceiveUkStockDividendsControllerISpec extends IntegrationTest with ViewHe
         titleCheck(expectedTitle, scenario.isWelsh)
         h1Check(expectedHeading + " " + captionExpected)
         captionCheck(captionExpected)
-        formPostLinkCheck(receiveUkStockDividendUrl, Selectors.formSelector)
+        formPostLinkCheck(stockDividendStatusUrl, Selectors.formSelector)
         textOnPageCheck(expectedP1, Selectors.p1Selector)
         textOnPageCheck(expectedP2, Selectors.p2Selector)
         buttonCheck(continueText, Selectors.continueButtonSelector)

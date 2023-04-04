@@ -16,9 +16,9 @@
 
 package controllers.dividends
 
-import config.{AppConfig, DIVIDENDS, ErrorHandler}
-import controllers.predicates.CommonPredicates.commonPredicates
+import config.{AppConfig, DIVIDENDS}
 import controllers.predicates.AuthorisedAction
+import controllers.predicates.CommonPredicates.commonPredicates
 import forms.AmountForm
 import play.api.data.Form
 import play.api.i18n.I18nSupport
@@ -33,7 +33,6 @@ class StockDividendAmountController @Inject()(
                                                   implicit val cc: MessagesControllerComponents,
                                                   authAction: AuthorisedAction,
                                                   view: StockDividendAmountView,
-                                                  errorHandler: ErrorHandler,
                                                   implicit val appConfig: AppConfig,
                                                   ec: ExecutionContext
                                            ) extends FrontendController(cc) with I18nSupport {

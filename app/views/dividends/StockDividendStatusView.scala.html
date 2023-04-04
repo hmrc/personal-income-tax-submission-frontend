@@ -28,31 +28,29 @@
     button: Button,
     heading: Heading,
     inputRadio: InputRadio,
-    p: P,
-    link: String
+    p: P
 )
 
 @(form: Form[Boolean], taxYear: Int)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
-
 @agentOrIndividual = @{
-if(user.isAgent) "agent" else "individual"
+    if(user.isAgent) "agent" else "individual"
 }
 
-@titleForUse = @{messages(s"dividends.uk-stock-dividends.question.radio.heading." + agentOrIndividual)}
+@titleForUse = @{messages(s"dividends.stock-dividend-status.question.radio.heading." + agentOrIndividual)}
 
-@headingForUse = @{messages(s"dividends.uk-stock-dividends.title")}
+@headingForUse = @{messages(s"dividends.stock-dividend-status.title")}
 
 @hasFormErrors = @{form.hasErrors}
 
 @detailsHtml = {
-    @p(Html(messages("dividends.uk-stock-dividends.paragraph.1." + agentOrIndividual)),
+    @p(Html(messages("dividends.stock-dividend-status.paragraph.1." + agentOrIndividual)),
         classes = "govuk-body govuk-!-margin-bottom-5",
         id = Some("p1")
     )
 
     <p class="govuk-body">
-        <a id="p2" href="https://www.gov.uk/hmrc-internal-manuals/savings-and-investment-manual/saim5150" class="govuk-link govuk-link--no-visited-state" target="_blank">@messages("dividends.uk-stock-dividends.paragraph.2")</a>
+        <a id="p2" href="https://www.gov.uk/hmrc-internal-manuals/savings-and-investment-manual/saim5150" class="govuk-link govuk-link--no-visited-state" target="_blank">@messages("dividends.stock-dividend-status.paragraph.2")</a>
     </p>
 }
 
@@ -60,15 +58,15 @@ if(user.isAgent) "agent" else "individual"
 
     @errorSummary(form.errors.distinct)
 
-    @heading(headingForUse, Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-4")
+    @heading(headingForUse, Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
 
     @detailsHtml
 
-    @formWithCsrf(action = controllers.dividends.routes.ReceiveUkStockDividendsController.submit(taxYear)) {
+    @formWithCsrf(action = controllers.dividends.routes.StockDividendStatusController.submit(taxYear)) {
 
         @inputRadio(
             form = form,
-            heading = messages(s"dividends.uk-stock-dividends.question.radio.heading." + agentOrIndividual),
+            heading = messages(s"dividends.stock-dividend-status.question.radio.heading." + agentOrIndividual),
             classes = "govuk-fieldset__legend--m",
             inline = true
         )

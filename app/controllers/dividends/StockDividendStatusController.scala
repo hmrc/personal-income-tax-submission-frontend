@@ -16,7 +16,7 @@
 
 package controllers.dividends
 
-import config.{AppConfig, DIVIDENDS, ErrorHandler}
+import config.{AppConfig, DIVIDENDS}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import forms.YesNoForm
@@ -24,34 +24,30 @@ import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import views.html.dividends.ReceiveUkStockDividendsView
+import views.html.dividends.StockDividendStatusView
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ReceiveUkStockDividendsController @Inject()(
+class StockDividendStatusController @Inject()(
+                                               implicit val cc: MessagesControllerComponents,
+                                               authAction: AuthorisedAction,
+                                               view: StockDividendStatusView,
+                                               implicit val appConfig: AppConfig,
+                                               ec: ExecutionContext
+                                             ) extends FrontendController(cc) with I18nSupport {
 
-                                                   implicit val cc: MessagesControllerComponents,
-                                                   authAction: AuthorisedAction,
-                                                   view: ReceiveUkStockDividendsView,
-                                                   errorHandler: ErrorHandler,
-                                                   implicit val appConfig: AppConfig,
-                                                   ec: ExecutionContext
-                                                 ) extends FrontendController(cc) with I18nSupport {
-
-  def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
-
-  def form(implicit isAgent: Boolean, taxYear: Int): Form[Boolean] = YesNoForm.yesNoForm(
-    s"dividends.uk-stock-dividends.errors.noChoice.${if (isAgent) "agent" else "individual"}")
+  def form(implicit isAgent: Boolean): Form[Boolean] = YesNoForm.yesNoForm(
+    s"dividends.stock-dividend-status.errors.noChoice.${if (isAgent) "agent" else "individual"}")
 
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
-    Future.successful(Ok(view(form(user.isAgent, taxYear), taxYear)))
-}
+    Future.successful(Ok(view(form(user.isAgent), taxYear)))
+  }
 
   def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
-    form(user.isAgent, taxYear).bindFromRequest().fold(
+    form(user.isAgent).bindFromRequest().fold(
       formWithErrors =>
         Future.successful(BadRequest(view(formWithErrors, taxYear))),
       _ =>

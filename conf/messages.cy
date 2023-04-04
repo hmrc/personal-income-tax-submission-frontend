@@ -118,15 +118,6 @@ dividends.uk-dividends.sub-heading.individual = Bydd eich taleb ddifidend yn rho
 dividends.uk-dividends.errors.noChoice.individual = Dewiswch ‘Iawn’ os cawsoch ddifidendau gan gwmnïau yn y DU
 dividends.uk-dividends.errors.noChoice.agent = Dewiswch ‘Iawn’ os cafodd eich cleient ddifidendau gan gwmnïau yn y DU
 
-dividends.uk-stock-dividends.title = Difidendau stoc
-dividends.uk-stock-dividends.paragraph.1.individual = Os dewisoch gyfranddaliadau yn lle difidendau ar ffurf arian parod, mae''n golygu y cawsoch ddifidend stoc.
-dividends.uk-stock-dividends.paragraph.1.agent = Os gwnaeth eich cleient ddewis cyfranddaliadau yn lle difidendau ar ffurf arian parod, mae''n golygu y cafodd eich cleient ddifidend stoc.
-dividends.uk-stock-dividends.paragraph.2 = Dysgwch ragor am ddifidendau stoc (yn agor ffenestr newydd)
-dividends.uk-stock-dividends.question.radio.heading.individual = A gawsoch ddifidendau stoc?
-dividends.uk-stock-dividends.question.radio.heading.agent = A gafodd eich cleient ddifidendau stoc?
-dividends.uk-stock-dividends.errors.noChoice.individual = Dewiswch ''Iawn'' os cawsoch ddifidendau stoc
-dividends.uk-stock-dividends.errors.noChoice.agent = Dewiswch ''Iawn'' os cafodd eich cleient ddifidendau stoc
-
 dividends.uk-dividends-amount.title.individual = Faint a gawsoch mewn difidendau gan gwmnïau yn y DU?
 dividends.uk-dividends-amount.title.agent = Faint gafodd eich cleient mewn difidendau gan gwmnïau yn y DU?
 dividends.uk-dividends-amount.error.empty.individual = Nodwch faint a gawsoch mewn difidendau gan gwmnïau yn y DU
@@ -183,30 +174,44 @@ dividends.gateway.error.agent = Dewiswch ‘Iawn’ os cafodd eich cleient ddifi
 
 # Stock Dividends Messages
 # ----------------------------------------------------------
+
 dividends.stock-dividend-amount.heading = Swm y difidendau stoc
 dividends.stock-dividend-amount.paragraph.1.individual = Dyma werth ariannol y difidendau stoc a gawsoch.
 dividends.stock-dividend-amount.paragraph.2.individual = Dylai’ch datganiadau difidendau ddangos y swm priodol mewn arian parod, neu’r cyfwerth mewn arian parod o gyfranddaliadau cyfalaf.
 dividends.stock-dividend-amount.question.individual = Faint gawsoch chi?
-
 dividends.stock-dividend-amount.paragraph.1.agent = Dyma werth ariannol y difidendau stoc a gafodd eich cleient.
 dividends.stock-dividend-amount.paragraph.2.agent = Dylai datganiadau difidend eich cleient ddangos y swm priodol mewn arian parod, neu’r cyfwerth mewn arian parod o gyfranddaliadau cyfalaf.
 dividends.stock-dividend-amount.question.agent = Faint gafodd eich cleient?
-
 dividends.stock-dividend-amount.error.empty.individual = Nodwch swm y difidendau stoc a gawsoch
 dividends.stock-dividend-amount.invalidFormat.individual = Nodwch swm y difidendau stoc a gawsoch yn y fformat cywir. Er enghraifft, £193.54
 dividends.stock-dividend-amount.error.amountMaxLimit.individual = Mae’n rhaid i swm eich difidendau stoc fod yn llai na £100,000,000,000
-
 dividends.stock-dividend-amount.error.empty.agent = Nodwch swm y difidendau stoc a gafodd eich cleient
 dividends.stock-dividend-amount.invalidFormat.agent = Nodwch swm y difidendau stoc a gafodd eich cleient yn y fformat cywir. Er enghraifft, £193.54
 dividends.stock-dividend-amount.error.amountMaxLimit.agent = Mae’n rhaid i swm difidendau stoc eich cleient fod yn llai na £100,000,000,000
 
+dividends.redeemable-shares-amount.heading.individual = Faint gawsoch chi mewn cyfranddaliadau adbryn neu mewn cyfranddaliadau yn rhad ac am ddim?
+dividends.redeemable-shares-amount.hint.individual = Nodwch swm yr holl gyfranddaliadau. Gallwch ddod o hyd i’r wybodaeth hon ar eich talebau difidend.
+dividends.redeemable-shares-amount.heading.agent = Faint gafodd eich cleient mewn cyfranddaliadau adbryn neu mewn cyfranddaliadau yn rhad ac am ddim?
+dividends.redeemable-shares-amount.hint.agent = Nodwch swm yr holl gyfranddaliadau. Gallwch ddod o hyd i’r wybodaeth hon ar dalebau difidend eich cleient.
+dividends.redeemable-shares-amount.error.empty.individual = Nodwch y swm a gawsoch mewn cyfranddaliadau adbryn neu mewn cyfranddaliadau yn rhad ac am ddim
+dividends.redeemable-shares-amount.error.invalidFormat.individual = Nodwch y swm a gawsoch yn y fformat cywir. Er enghraifft, £193.54
+dividends.redeemable-shares-amount.error.empty.agent = Nodwch y swm a gafodd eich cleient mewn cyfranddaliadau adbryn neu mewn cyfranddaliadau yn rhad ac am ddim
+dividends.redeemable-shares-amount.error.invalidFormat.agent = Nodwch y swm a gafodd eich cleient yn y fformat cywir. Er enghraifft, £193.54
+
 dividends.close-company-loan-amount.heading.individual = Faint gwnaeth y cwmni caeedig ei ddileu neu ei ryddhau o’ch benthyciad?
 dividends.close-company-loan-amount.heading.agent = Faint gwnaeth y cwmni caeedig ei ddileu neu ei ryddhau o fenthyciad eich cleient?
-
 dividends.close-company-loan-amount.error.empty.individual = Nodwch y swm a gafodd ei ddileu neu ei ryddhau o’ch benthyciad
 dividends.close-company-loan-amount.invalidFormat = Nodwch y swm yn y fformat cywir. Er enghraifft, £193.52
-
 dividends.close-company-loan-amount.error.empty.agent = Nodwch y swm a gafodd ei ddileu neu ei ryddhau o fenthyciad eich cleient
+
+dividends.stock-dividend-status.title = Difidendau stoc
+dividends.stock-dividend-status.paragraph.1.individual = Os dewisoch gyfranddaliadau yn lle difidendau ar ffurf arian parod, mae''n golygu y cawsoch ddifidend stoc.
+dividends.stock-dividend-status.paragraph.1.agent = Os gwnaeth eich cleient ddewis cyfranddaliadau yn lle difidendau ar ffurf arian parod, mae''n golygu y cafodd eich cleient ddifidend stoc.
+dividends.stock-dividend-status.paragraph.2 = Dysgwch ragor am ddifidendau stoc (yn agor ffenestr newydd)
+dividends.stock-dividend-status.question.radio.heading.individual = A gawsoch ddifidendau stoc?
+dividends.stock-dividend-status.question.radio.heading.agent = A gafodd eich cleient ddifidendau stoc?
+dividends.stock-dividend-status.errors.noChoice.individual = Dewiswch ''Iawn'' os cawsoch ddifidendau stoc
+dividends.stock-dividend-status.errors.noChoice.agent = Dewiswch ''Iawn'' os cafodd eich cleient ddifidendau stoc
 
 # Interest
 # ----------------------------------------------------------
