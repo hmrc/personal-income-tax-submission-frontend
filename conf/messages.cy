@@ -213,6 +213,15 @@ dividends.stock-dividend-status.question.radio.heading.agent = A gafodd eich cle
 dividends.stock-dividend-status.errors.noChoice.individual = Dewiswch ''Iawn'' os cawsoch ddifidendau stoc
 dividends.stock-dividend-status.errors.noChoice.agent = Dewiswch ''Iawn'' os cafodd eich cleient ddifidendau stoc
 
+dividends.redeemable-shares-status.title.individual = A gawsoch chi gyfranddaliadau adbryn neu gyfranddaliadau yn rhad ac am ddim?
+dividends.redeemable-shares-status.title.agent = A gafodd eich cleient gyfranddaliadau adbryn neu gyfranddaliadau yn rhad ac am ddim?
+dividends.redeemable-shares-status.paragraph.1.individual = Gallwch ddal cyfranddaliadau adbryn a chyfranddaliadau a gawsoch yn rhad ac am ddim.
+dividends.redeemable-shares-status.paragraph.1.agent = Gall eich cleient ddal cyfranddaliadau adbryn a chyfranddaliadau a gafodd yn rhad ac am ddim.
+dividends.redeemable-shares-status.paragraph.2 = Cyfranddaliadau y mae cwmnïau’n gallu prynu’n ôl yn y dyfodol am bris y cytunwyd arno yw ‘cyfranddaliadau adbryn’.
+dividends.redeemable-shares-status.paragraph.3 = Enw arall ar gyfranddaliadau ychwanegol a gawsoch yn rhad ac am ddim yw ‘dyroddiadau bonws o warantau’.
+dividends.redeemable-shares-status.errors.noChoice.individual = Dewiswch ‘Iawn’ os cawsoch gyfranddaliadau adbryn neu gyfranddaliadau yn rhad ac am ddim
+dividends.redeemable-shares-status.errors.noChoice.agent = Dewiswch ‘Iawn’ os cafodd eich cleient gyfranddaliadau adbryn neu gyfranddaliadau yn rhad ac am ddim
+
 # Interest
 # ----------------------------------------------------------
 

@@ -42,6 +42,9 @@ POST        /:taxYear/dividends/stock-dividend-status                           
 GET         /:taxYear/dividends/redeemable-shares-amount                                                      controllers.dividends.RedeemableSharesAmountController.show(taxYear: Int)
 POST        /:taxYear/dividends/redeemable-shares-amount                                                      controllers.dividends.RedeemableSharesAmountController.submit(taxYear: Int)
 
+GET         /:taxYear/dividends/redeemable-shares-status                                                      controllers.dividends.RedeemableSharesStatusController.show(taxYear: Int)
+POST        /:taxYear/dividends/redeemable-shares-status                                                      controllers.dividends.RedeemableSharesStatusController.submit(taxYear: Int)
+
 # Interest routes
 
 GET         /:taxYear/interest/interest-from-UK                                                               controllers.interest.InterestGatewayController.show(taxYear: Int)
