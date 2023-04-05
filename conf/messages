@@ -222,6 +222,17 @@ dividends.redeemable-shares-status.paragraph.3 = Free additional shares are also
 dividends.redeemable-shares-status.errors.noChoice.individual = Select Yes if you got free or redeemable shares
 dividends.redeemable-shares-status.errors.noChoice.agent = Select Yes if your client got free or redeemable shares
 
+dividends.close-company-loan-status.title = Close company loans written off
+dividends.close-company-loan-status.1 = A ''close company'' is a limited company with 5 or fewer shareholders or one managed by shareholders who are also directors.
+dividends.close-company-loan-status.2.individual = Money you take from your company, but not as salary or dividends, is normally considered a loan.
+dividends.close-company-loan-status.2.agent = Money your client takes from their company, but not as salary or dividends, is normally considered a loan.
+dividends.close-company-loan-status.3.individual = If your company writes off the loan, the company will get a repayment of the tax previously paid.
+dividends.close-company-loan-status.3.agent = If your client''s company writes off the loan, the company will get a repayment of the tax previously paid.
+dividends.close-company-loan-status.question.radio.heading.individual = Did you have a close company loan written off or released?
+dividends.close-company-loan-status.question.radio.heading.agent = Did your client have a close company loan written off or released?
+dividends.close-company-loan-status.errors.noChoice.individual = Select Yes if you had a close company loan written off or released
+dividends.close-company-loan-status.errors.noChoice.agent = Select Yes if your client had a close company loan written off or released
+
 # Interest
 # ----------------------------------------------------------
 
