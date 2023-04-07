@@ -31,8 +31,8 @@ import play.api.libs.ws.DefaultBodyWritables
 
 class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables with SavingsDatabaseHelper {
 
-  val savingsInterestAmountUrl: String = s"/update-and-submit-income-tax-return/personal-income/2023/interest/interest-amount"
-  val postURL: String = s"$appUrl/2023/interest/interest-amount  "
+  val savingsInterestAmountUrl: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/interest-amount"
+  val postURL: String = s"$appUrl/$taxYear/interest/interest-amount"
   val errorSummaryHref = "#amount"
   val poundPrefixText = "£"
 

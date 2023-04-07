@@ -27,9 +27,9 @@ import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
 
 class RedeemableSharesStatusControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables {
 
-  val redeemableSharesStatusUrl: String = s"/update-and-submit-income-tax-return/personal-income/2023/dividends/redeemable-shares-status"
+  val redeemableSharesStatusUrl: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/redeemable-shares-status"
 
-  val postURL: String = s"$appUrl/2023/dividends/redeemable-shares-status"
+  val postURL: String = s"$appUrl/$taxYear/dividends/redeemable-shares-status"
 
   trait SpecificExpectedResults {
     val expectedTitle: String

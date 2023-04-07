@@ -29,8 +29,8 @@ import utils.{IntegrationTest, SavingsDatabaseHelper, ViewHelpers}
 class TaxTakenOffInterestControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables with SavingsDatabaseHelper {
 
   val amount: BigDecimal = 500
-  val taxTakenOffInterestAmountUrl: String = s"/update-and-submit-income-tax-return/personal-income/2023/interest/tax-taken-off-interest"
-  val postURL: String = s"$appUrl/2023/interest/tax-taken-off-interest"
+  val taxTakenOffInterestAmountUrl: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/tax-taken-off-interest"
+  val postURL: String = s"$appUrl/$taxYear/interest/tax-taken-off-interest"
   val errorSummaryHref = "#amount"
   val poundPrefixText = "£"
 

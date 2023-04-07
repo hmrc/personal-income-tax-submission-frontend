@@ -29,7 +29,7 @@ import utils.{IntegrationTest, SavingsDatabaseHelper, ViewHelpers}
 
 class SavingsGatewayControllerISpec extends IntegrationTest with ViewHelpers with SavingsDatabaseHelper{
 
-  val relativeUrl: String = s"/update-and-submit-income-tax-return/personal-income/2023/interest/interest-from-securities"
+  val relativeUrl: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/interest-from-securities"
   val errorSummaryHref = "#value"
 
   val cyaDataComplete: Option[SavingsIncomeCYAModel] = Some(SavingsIncomeCYAModel(Some(true), Some(100.00), Some(true), Some(100.00)))

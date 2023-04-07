@@ -27,8 +27,8 @@ import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
 
 class StockDividendStatusControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables {
 
-  val stockDividendStatusUrl: String = s"/update-and-submit-income-tax-return/personal-income/2023/dividends/stock-dividend-status"
-  val postURL: String = s"$appUrl/2023/dividends/stock-dividend-status"
+  val stockDividendStatusUrl: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/stock-dividend-status"
+  val postURL: String = s"$appUrl/$taxYear/dividends/stock-dividend-status"
 
   trait SpecificExpectedResults {
     val expectedTitle: String

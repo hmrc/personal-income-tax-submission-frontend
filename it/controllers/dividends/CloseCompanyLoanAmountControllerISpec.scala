@@ -28,8 +28,8 @@ import utils.{IntegrationTest, ViewHelpers}
 class CloseCompanyLoanAmountControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables {
 
   val amount: BigDecimal = 500
-  val closeCompanyLoanAmountUrl: String = s"/update-and-submit-income-tax-return/personal-income/2023/dividends/close-company-loan-amount"
-  val postURL: String = s"$appUrl/2023/dividends/close-company-loan-amount"
+  val closeCompanyLoanAmountUrl: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/close-company-loan-amount"
+  val postURL: String = s"$appUrl/$taxYear/dividends/close-company-loan-amount"
   val poundPrefixText = "£"
 
   trait SpecificExpectedResults {

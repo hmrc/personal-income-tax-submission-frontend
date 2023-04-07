@@ -27,7 +27,7 @@ import utils.{IntegrationTest, SavingsDatabaseHelper, ViewHelpers}
 
 class TaxTakenFromInterestControllerISpec extends IntegrationTest with ViewHelpers with SavingsDatabaseHelper {
 
-  val relativeUrl: String = s"/update-and-submit-income-tax-return/personal-income/2023/interest/tax-taken-from-interest"
+  val relativeUrl: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/tax-taken-from-interest"
 
   val cyaDataValid: Option[SavingsIncomeCYAModel] = Some(SavingsIncomeCYAModel(Some(true), Some(100.00)))
 

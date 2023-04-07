@@ -27,9 +27,9 @@ import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
 
 class CloseCompanyLoanStatusControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables {
 
-  val closeCompanyLoanStatusUrl: String = s"/update-and-submit-income-tax-return/personal-income/2024/dividends/close-company-loan-status"
+  val closeCompanyLoanStatusUrl: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/close-company-loan-status"
 
-  val postURL: String = s"$appUrl/2024/dividends/close-company-loan-status"
+  val postURL: String = s"$appUrl/$taxYear/dividends/close-company-loan-status"
 
   trait SpecificExpectedResults {
     val expectedHeading: String
