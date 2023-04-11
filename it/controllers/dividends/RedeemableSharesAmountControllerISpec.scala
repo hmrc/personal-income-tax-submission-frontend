@@ -28,8 +28,8 @@ import utils.{IntegrationTest, ViewHelpers}
 class RedeemableSharesAmountControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables {
 
   val amount: BigDecimal = 500
-  val redeemableSharesAmountUrl: String = s"/update-and-submit-income-tax-return/personal-income/2023/dividends/redeemable-shares-amount"
-  val postURL: String = s"$appUrl/2023/dividends/redeemable-shares-amount"
+  val redeemableSharesAmountUrl: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/redeemable-shares-amount"
+  val postURL: String = s"$appUrl/$taxYear/dividends/redeemable-shares-amount"
   val poundPrefixText = "£"
 
   trait SpecificExpectedResults {

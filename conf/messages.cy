@@ -222,6 +222,17 @@ dividends.redeemable-shares-status.paragraph.3 = Enw arall ar gyfranddaliadau yc
 dividends.redeemable-shares-status.errors.noChoice.individual = Dewiswch ‘Iawn’ os cawsoch gyfranddaliadau adbryn neu gyfranddaliadau yn rhad ac am ddim
 dividends.redeemable-shares-status.errors.noChoice.agent = Dewiswch ‘Iawn’ os cafodd eich cleient gyfranddaliadau adbryn neu gyfranddaliadau yn rhad ac am ddim
 
+dividends.close-company-loan-status.title = Benthyciadau gan gwmnïau caeedig a ddilëwyd
+dividends.close-company-loan-status.1 = ‘Cwmni caeedig’ yw cwmni cyfyngedig sydd â 5 o gyfranddalwyr neu lai, neu sy’n cael ei reoli gan gyfranddalwyr sydd hefyd yn gyfarwyddwyr.
+dividends.close-company-loan-status.2.individual = Fel arfer, ystyrir arian rydych chi’n ei gymryd o’ch cwmni – ond nid fel cyflog neu ddifidendau – yn fenthyciad.
+dividends.close-company-loan-status.2.agent = Fel arfer, ystyrir arian mae’ch cleient yn ei gymryd o’i gwmni – ond nid fel cyflog neu ddifidendau – yn fenthyciad.
+dividends.close-company-loan-status.3.individual = Os bydd eich cwmni yn dileu’r benthyciad, bydd y cwmni’n cael ad-daliad o’r dreth a dalwyd yn flaenorol.
+dividends.close-company-loan-status.3.agent = Os bydd cwmni eich cleient yn dileu’r benthyciad, bydd y cwmni’n cael ad-daliad o’r dreth a dalwyd yn flaenorol.
+dividends.close-company-loan-status.question.radio.heading.individual = A gawsoch fenthyciad gan gwmni caeedig a gafodd ei ddileu neu ei ryddhau?
+dividends.close-company-loan-status.question.radio.heading.agent = A gafodd eich cleient fenthyciad gan gwmni caeedig a gafodd ei ddileu neu ei ryddhau?
+dividends.close-company-loan-status.errors.noChoice.individual = Dewiswch ‘Iawn’ os cafodd benthyciad a gawsoch gan gwmni caeedig ei ddileu neu ei ryddhau
+dividends.close-company-loan-status.errors.noChoice.agent = Dewiswch ‘Iawn’ os oedd gan eich cleient fenthyciad gan gwmni caeedig a gafodd ei ddileu neu ei ryddhau
+
 # Interest
 # ----------------------------------------------------------
 

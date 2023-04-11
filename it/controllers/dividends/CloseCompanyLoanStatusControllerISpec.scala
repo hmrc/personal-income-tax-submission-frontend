@@ -25,77 +25,83 @@ import utils.{IntegrationTest, ViewHelpers}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
 
-class StockDividendStatusControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables {
+class CloseCompanyLoanStatusControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables {
 
-  val stockDividendStatusUrl: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/stock-dividend-status"
-  val postURL: String = s"$appUrl/$taxYear/dividends/stock-dividend-status"
+  val closeCompanyLoanStatusUrl: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/close-company-loan-status"
+
+  val postURL: String = s"$appUrl/$taxYear/dividends/close-company-loan-status"
 
   trait SpecificExpectedResults {
-    val expectedTitle: String
-    val expectedErrorTitle: String
-    val expectedP1: String
+    val expectedHeading: String
+    val expectedP2: String
+    val expectedP3: String
     val expectedErrorText: String
   }
 
   trait CommonExpectedResults {
-    val expectedHeading: String
-    val expectedP2: String
+    val expectedTitle: String
+    val expectedErrorTitle: String
+    val expectedP1: String
     val captionExpected: String
     val yesNo: Boolean => String
     val continueText: String
   }
 
   object AllExpectedEnglish extends CommonExpectedResults {
-    val expectedHeading = "Stock dividends"
-    val expectedP2 = "Find out more about stock dividends (opens in a new window)"
+    val expectedTitle = "Close company loans written off"
+    val expectedErrorTitle = s"Error: $expectedTitle"
+    val expectedP1 = "A 'close company' is a limited company with 5 or fewer shareholders or one managed by shareholders who are also directors."
     val captionExpected = s"Dividends for 6 April $taxYearEOY to 5 April $taxYear"
     val yesNo: Boolean => String = isYes => if (isYes) "Yes" else "No"
     val continueText = "Continue"
   }
 
   object AllExpectedWelsh extends CommonExpectedResults {
-    val expectedHeading = "Difidendau stoc"
-    val expectedP2 = "Dysgwch ragor am ddifidendau stoc (yn agor ffenestr newydd)"
+    val expectedTitle = "Benthyciadau gan gwmnïau caeedig a ddilëwyd"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
+    val expectedP1 = "‘Cwmni caeedig’ yw cwmni cyfyngedig sydd â 5 o gyfranddalwyr neu lai, neu sy’n cael ei reoli gan gyfranddalwyr sydd hefyd yn gyfarwyddwyr."
     val captionExpected = s"Difidendau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val yesNo: Boolean => String = isYes => if (isYes) "Iawn" else "Na"
     val continueText = "Yn eich blaen"
   }
 
   object IndividualExpectedEnglish extends SpecificExpectedResults {
-    val expectedP1 = "If you chose shares instead of cash dividends, that is a stock dividend."
-    val expectedTitle = "Did you get stock dividends?"
-    val expectedErrorTitle = s"Error: $expectedTitle"
-    val expectedErrorText = "Select Yes if you got stock dividends"
+    val expectedHeading = "Did you have a close company loan written off or released?"
+    val expectedP2 = "Money you take from your company, but not as salary or dividends, is normally considered a loan."
+    val expectedP3 = "If your company writes off the loan, the company will get a repayment of the tax previously paid."
+    val expectedErrorText = "Select Yes if you had a close company loan written off or released"
   }
 
   object IndividualExpectedWelsh extends SpecificExpectedResults {
-    val expectedP1 = "Os dewisoch gyfranddaliadau yn lle difidendau ar ffurf arian parod, mae'n golygu y cawsoch ddifidend stoc."
-    val expectedTitle = "A gawsoch ddifidendau stoc?"
-    val expectedErrorTitle = s"Gwall: $expectedTitle"
-    val expectedErrorText = "Dewiswch 'Iawn' os cawsoch ddifidendau stoc"
+    val expectedHeading= "A gawsoch fenthyciad gan gwmni caeedig a gafodd ei ddileu neu ei ryddhau?"
+    val expectedP2 = "Fel arfer, ystyrir arian rydych chi’n ei gymryd o’ch cwmni – ond nid fel cyflog neu ddifidendau – yn fenthyciad."
+    val expectedP3 = "Os bydd eich cwmni yn dileu’r benthyciad, bydd y cwmni’n cael ad-daliad o’r dreth a dalwyd yn flaenorol."
+    val expectedErrorText = "Dewiswch ‘Iawn’ os cafodd benthyciad a gawsoch gan gwmni caeedig ei ddileu neu ei ryddhau"
   }
 
   object AgentExpectedEnglish extends SpecificExpectedResults {
-    val expectedP1 = "If your client chose shares instead of cash dividends, that is a stock dividend."
-    val expectedErrorText = "Select Yes if your client got stock dividends"
-    val expectedErrorTitle = s"Error: $expectedTitle"
-    val expectedTitle = "Did your client get stock dividends?"
+    val expectedHeading = "Did your client have a close company loan written off or released?"
+    val expectedP2 = "Money your client takes from their company, but not as salary or dividends, is normally considered a loan."
+    val expectedP3 = "If your client's company writes off the loan, the company will get a repayment of the tax previously paid."
+    val expectedErrorText = "Select Yes if your client had a close company loan written off or released"
   }
 
   object AgentExpectedWelsh extends SpecificExpectedResults {
-    val expectedP1 = "Os gwnaeth eich cleient ddewis cyfranddaliadau yn lle difidendau ar ffurf arian parod, mae'n golygu y cafodd eich cleient ddifidend stoc."
-    val expectedErrorText = "Dewiswch 'Iawn' os cafodd eich cleient ddifidendau stoc"
-    val expectedTitle = "A gafodd eich cleient ddifidendau stoc?"
-    val expectedErrorTitle = s"Gwall: $expectedTitle"
+    val expectedHeading = "A gafodd eich cleient fenthyciad gan gwmni caeedig a gafodd ei ddileu neu ei ryddhau?"
+    val expectedP2 = "Fel arfer, ystyrir arian mae’ch cleient yn ei gymryd o’i gwmni – ond nid fel cyflog neu ddifidendau – yn fenthyciad."
+    val expectedP3 = "Os bydd cwmni eich cleient yn dileu’r benthyciad, bydd y cwmni’n cael ad-daliad o’r dreth a dalwyd yn flaenorol."
+    val expectedErrorText = "Dewiswch ‘Iawn’ os oedd gan eich cleient fenthyciad gan gwmni caeedig a gafodd ei ddileu neu ei ryddhau"
   }
 
   object Selectors {
-    val headingSelector = "#main-content > div > div > h1"
-    val titleSelector = "#main-content > div > div > form > div > fieldset > legend"
+    val titleSelector = "#main-content > div > div > h1"
+    val headingSelector = "#main-content > div > div > form > div > fieldset > legend"
     val captionSelector = ".govuk-caption-l"
     val p1Selector = "#p1"
     val p2Selector = "#p2"
+    val p3Selector = "#p3"
     val continueButtonSelector = "#continue"
+    val continueButtonFormSelector = "#main-content > div > div > form"
     val formSelector = "#main-content > div > div > form"
     val errorSummaryHref = "#value"
     val errorSelector = "#main-content > div > div > div.govuk-error-summary > div > h2"
@@ -118,9 +124,9 @@ class StockDividendStatusControllerISpec extends IntegrationTest with ViewHelper
 
     s".show when $testNameWelsh and the user is $testNameAgent" should {
 
-      "display the stock dividend status page" which {
+      "display the close company loan status page" which {
         lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-        lazy val request = FakeRequest("GET", stockDividendStatusUrl).withHeaders(headers: _*)
+        lazy val request = FakeRequest("GET", closeCompanyLoanStatusUrl).withHeaders(headers: _*)
 
         lazy val result = {
           authoriseAgentOrIndividual(scenario.isAgent)
@@ -133,12 +139,12 @@ class StockDividendStatusControllerISpec extends IntegrationTest with ViewHelper
           status(result) shouldBe OK
         }
 
-        titleCheck(expectedTitle, scenario.isWelsh)
-        h1Check(expectedHeading + " " + captionExpected)
+        h1Check(expectedTitle + " " + captionExpected)
         captionCheck(captionExpected)
-        formPostLinkCheck(stockDividendStatusUrl, Selectors.formSelector)
+        formPostLinkCheck(closeCompanyLoanStatusUrl, Selectors.formSelector)
         textOnPageCheck(expectedP1, Selectors.p1Selector)
         textOnPageCheck(expectedP2, Selectors.p2Selector)
+        textOnPageCheck(expectedP3, Selectors.p3Selector)
         buttonCheck(continueText, Selectors.continueButtonSelector)
         radioButtonCheck(yesNo(true), 1)
         radioButtonCheck(yesNo(false), 2)

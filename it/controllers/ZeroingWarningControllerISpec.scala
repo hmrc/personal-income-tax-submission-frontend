@@ -49,9 +49,9 @@ class ZeroingWarningControllerISpec extends IntegrationTest
   }
 
   private object CommonResultsEn extends CommonResults {
-    private val captionDividends: String = "Dividends for 6 April 2021 to 5 April 2022"
-    private val captionInterest: String = "Interest for 6 April 2021 to 5 April 2022"
-    private val captionGiftAid: String = "Donations to charity for 6 April 2021 to 5 April 2022"
+    private val captionDividends: String = s"Dividends for 6 April $taxYearEndOfYearMinusOne to 5 April $taxYearEOY"
+    private val captionInterest: String = s"Interest for 6 April $taxYearEndOfYearMinusOne to 5 April $taxYearEOY"
+    private val captionGiftAid: String = s"Donations to charity for 6 April $taxYearEndOfYearMinusOne to 5 April $taxYearEOY"
 
     override def caption(journeyKey: String): String = {
       journeyKey match {
@@ -68,10 +68,9 @@ class ZeroingWarningControllerISpec extends IntegrationTest
   }
 
   private object CommonResultsCy extends CommonResults {
-    private val captionDividends: String = "Difidendau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
-    private val captionInterest: String = "Llog ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
-    private val captionGiftAid: String = "Rhoddion i elusennau ar gyfer 6 Ebrill 2021 i 5 Ebrill 2022"
-
+    private val captionDividends: String = s"Difidendau ar gyfer 6 Ebrill $taxYearEndOfYearMinusOne i 5 Ebrill $taxYearEOY"
+    private val captionInterest: String = s"Llog ar gyfer 6 Ebrill $taxYearEndOfYearMinusOne i 5 Ebrill $taxYearEOY"
+    private val captionGiftAid: String = s"Rhoddion i elusennau ar gyfer 6 Ebrill $taxYearEndOfYearMinusOne i 5 Ebrill $taxYearEOY"
     override def caption(journeyKey: String): String = {
       journeyKey match {
         case "dividends" => captionDividends
@@ -183,9 +182,9 @@ class ZeroingWarningControllerISpec extends IntegrationTest
 
               lazy val cancelLink = {
                 journeyKey match {
-                  case "dividends" => "/update-and-submit-income-tax-return/personal-income/2022/dividends/dividends-from-stocks-and-shares"
-                  case "interest" => "/update-and-submit-income-tax-return/personal-income/2022/interest/interest-from-UK"
-                  case "charity" => "/update-and-submit-income-tax-return/personal-income/2022/charity/charity-donations-to-charity"
+                  case "dividends" => s"/update-and-submit-income-tax-return/personal-income/$taxYearEOY/dividends/dividends-from-stocks-and-shares"
+                  case "interest" => s"/update-and-submit-income-tax-return/personal-income/$taxYearEOY/interest/interest-from-UK"
+                  case "charity" => s"/update-and-submit-income-tax-return/personal-income/$taxYearEOY/charity/charity-donations-to-charity"
                 }
               }
 
@@ -283,7 +282,7 @@ class ZeroingWarningControllerISpec extends IntegrationTest
         }
 
         "has a redirect location set to the interest cya page" in {
-          await(result).header.headers("Location") shouldBe "/update-and-submit-income-tax-return/personal-income/2022/interest/check-interest"
+          await(result).header.headers("Location") shouldBe s"/update-and-submit-income-tax-return/personal-income/$taxYearEOY/interest/check-interest"
         }
       }
 
