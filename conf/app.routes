@@ -48,6 +48,8 @@ POST        /:taxYear/dividends/redeemable-shares-status                        
 GET         /:taxYear/dividends/close-company-loan-status                                                     controllers.dividends.CloseCompanyLoanStatusController.show(taxYear: Int)
 POST        /:taxYear/dividends/close-company-loan-status                                                     controllers.dividends.CloseCompanyLoanStatusController.submit(taxYear: Int)
 
+GET         /:taxYear/dividends/summary                                                                       controllers.dividends.DividendsSummaryController.show(taxYear: Int)
+
 # Interest routes
 
 GET         /:taxYear/interest/interest-from-UK                                                               controllers.interest.InterestGatewayController.show(taxYear: Int)

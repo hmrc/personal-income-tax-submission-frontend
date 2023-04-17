@@ -55,7 +55,7 @@
             if(prior.exists(priorData => priorData.ukDividends.isEmpty) || prior.isEmpty) {
                 if(!appConfig.dividendsTailoringEnabled || (appConfig.dividendsTailoringEnabled && cya.gateway.contains(true))) {
                     Some(summaryListRow(
-                        HtmlContent(messages("dividends.cya.questions.2")),
+                        HtmlContent(messages("dividends.common.from-uk-companies")),
                         HtmlContent(trueFalseToYesNo(cya.ukDividends.contains(true))),
                         actions = Seq((controllers.dividends.routes.ReceiveUkDividendsController.show(taxYear), messages("common.change"), Some(messages(s"dividends.cya.changeUkDividends.${if(user.isAgent) "agent" else "individual"}"))))
                     ))

@@ -135,7 +135,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
     val continueButtonLink = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends"
     val changeLinkExpected = "Change"
     val shareDividendsText = "Dividends from shares"
-    val UkDividendsText = "Dividends from UK-based companies"
+    val UkDividendsText = "Dividends from UK companies"
     val ukDividendsAmountText = "Value of dividends from UK-based companies"
     val otherDividendsText = "Dividends from UK-based unit trusts or open-ended investment companies"
     val otherDividendsAmountText = "Value of dividends from UK-based unit trusts or open-ended investment companies"
