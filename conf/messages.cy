@@ -104,6 +104,7 @@ taxYear-error-template.paragraph.2 = Gwiriwch eich bod wedi nodi’r cyfeiriad g
 
 # Common Dividends Messages
 # ----------------------------------------------------------
+dividends.common.from-uk-companies = Difidendau o gwmnïau yn y DU
 
 dividends.common.error.invalidFormat.individual = Nodwch faint a gawsoch mewn difidendau yn y fformat cywir
 dividends.common.error.invalidFormat.agent =  Nodwch faint gafodd eich cleient mewn difidendau yn y fformat cywir
@@ -151,7 +152,6 @@ dividends.other-dividends-amount.error.amountMaxLimit = Mae’n rhaid i swm y di
 dividends.cya.title.individual = Gwiriwch eich incwm o ddifidendau
 dividends.cya.title.agent = Gwiriwch incwm eich cleient o ddifidendau
 dividends.cya.questions.1 = Difidendau o gyfranddaliadau
-dividends.cya.questions.2 = Difidendau o gwmnïau yn y DU
 dividends.cya.questions.3 = Swm difidendau o gwmnïau yn y DU
 dividends.cya.questions.4 = Difidendau gan ymddiriedolaethau unedol yn y DU neu gwmnïau buddsoddi penagored
 dividends.cya.questions.5 = Swm difidendau gan ymddiriedolaethau unedol yn y DU neu gwmnïau buddsoddi penagored
@@ -174,6 +174,7 @@ dividends.gateway.error.agent = Dewiswch ‘Iawn’ os cafodd eich cleient ddifi
 
 # Stock Dividends Messages
 # ----------------------------------------------------------
+dividends.common.stock-dividends = Difidendau stoc
 
 dividends.stock-dividend-amount.heading = Swm y difidendau stoc
 dividends.stock-dividend-amount.paragraph.1.individual = Dyma werth ariannol y difidendau stoc a gawsoch.
@@ -204,7 +205,6 @@ dividends.close-company-loan-amount.error.empty.individual = Nodwch y swm a gafo
 dividends.close-company-loan-amount.invalidFormat = Nodwch y swm yn y fformat cywir. Er enghraifft, £193.52
 dividends.close-company-loan-amount.error.empty.agent = Nodwch y swm a gafodd ei ddileu neu ei ryddhau o fenthyciad eich cleient
 
-dividends.stock-dividend-status.title = Difidendau stoc
 dividends.stock-dividend-status.paragraph.1.individual = Os dewisoch gyfranddaliadau yn lle difidendau ar ffurf arian parod, mae''n golygu y cawsoch ddifidend stoc.
 dividends.stock-dividend-status.paragraph.1.agent = Os gwnaeth eich cleient ddewis cyfranddaliadau yn lle difidendau ar ffurf arian parod, mae''n golygu y cafodd eich cleient ddifidend stoc.
 dividends.stock-dividend-status.paragraph.2 = Dysgwch ragor am ddifidendau stoc (yn agor ffenestr newydd)
@@ -232,6 +232,30 @@ dividends.close-company-loan-status.question.radio.heading.individual = A gawsoc
 dividends.close-company-loan-status.question.radio.heading.agent = A gafodd eich cleient fenthyciad gan gwmni caeedig a gafodd ei ddileu neu ei ryddhau?
 dividends.close-company-loan-status.errors.noChoice.individual = Dewiswch ‘Iawn’ os cafodd benthyciad a gawsoch gan gwmni caeedig ei ddileu neu ei ryddhau
 dividends.close-company-loan-status.errors.noChoice.agent = Dewiswch ‘Iawn’ os oedd gan eich cleient fenthyciad gan gwmni caeedig a gafodd ei ddileu neu ei ryddhau
+
+dividends.summary.title.individual = Gwirio’ch difidendau
+dividends.summary.title.agent = Gwiriwch ddifidendau eich cleient
+dividends.summary.list.stocks-and-shares = Difidendau o stociau a chyfranddaliadau
+dividends.summary.list.amount-of-dividends = Swm y difidendau o gwmnïau yn DU
+dividends.summary.list.from-unit-trusts-or-investment-companies = Difidendau o ymddiriedolaethau unedol neu gwmnïau buddsoddi
+dividends.summary.list.amount-from-unit-trusts-or-investment-companies = Swm y difidendau o ymddiriedolaethau unedol neu gwmnïau buddsoddi
+dividends.summary.list.value-of-stock-dividends = Gwerth y difidendau stoc
+dividends.summary.list.free-or-redeemable-shares = Difidendau adbryn neu ddifidendau sy’n rhad ac am ddim
+dividends.summary.list.value-of-free-or-redeemable-shares = Gwerth y difidendau adbryn neu’r difidendau sy’n rhad ac am ddim
+dividends.summary.list.close-company-loan = Benthyciadau gan gwmnïau caeedig a ddilëwyd neu a ryddhawyd
+dividends.summary.list.value-of-close-company-loan = Gwerth benthyciadau gan gwmnïau caeedig a ddilëwyd neu a ryddhawyd
+
+dividends.summary.list.hidden.text.stocks-and-shares = Newid statws difidendau
+dividends.summary.list.hidden.text.from-uk-companies = Newid statws difidendau o gwmnïau yn y DU
+dividends.summary.list.hidden.text.amount-of-dividends = Newid swm y difidendau o gwmnïau yn y DU
+dividends.summary.list.hidden.text.from-unit-trusts-or-investment-companies = Newid statws difidendau o ymddiriedolaethau unedol neu gwmnïau buddsoddi
+dividends.summary.list.hidden.text.amount-from-unit-trusts-or-investment-companies = Newid swm y difidendau o ymddiriedolaethau unedol neu gwmnïau buddsoddi
+dividends.summary.list.hidden.text.stock-dividends = Newid statws y difidendau stoc
+dividends.summary.list.hidden.text.value-of-stock-dividends = Newid gwerth y difidendau stoc
+dividends.summary.list.hidden.text.free-or-redeemable-shares = Newid statws difidendau adbryn neu ddifidendau sy’n rhad ac am ddim
+dividends.summary.list.hidden.text.value-of-free-or-redeemable-shares = Newid gwerth y difidendau adbryn neu’r difidendau sy’n rhad ac am ddim
+dividends.summary.list.hidden.text.close-company-loan = Newid statws benthyciadau gan gwmnïau caeedig a ddilëwyd neu a ryddhawyd
+dividends.summary.list.hidden.text.value-of-close-company-loan = Newid gwerth benthyciadau gan gwmnïau caeedig a ddilëwyd neu a ryddhawyd
 
 # Interest
 # ----------------------------------------------------------
