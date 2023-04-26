@@ -66,7 +66,7 @@ class InterestFromSavingsAndSecuritiesSummaryControllerISpec extends Integration
   }
 
   object CommonExpectedResultsCY extends CommonExpectedResults {
-    val link1ExpectedText = "llog y DU"
+    val link1ExpectedText = "Llog y DU"
     val link2ExpectedText = "Llog o warantau gilt neu warantau incwm cronedig"
     val captionExpectedText = s"Llog ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val returnToOverviewExpectedText = "Yn ôl i’r trosolwg"
