@@ -33,7 +33,7 @@ common.confirm = Cadarnhau
 common.cancel = Canslo
 common.return.to.overview = Yn ôl i’r trosolwg
 common.not-started = Heb ddechrau
-common.uk-interest = llog y DU
+common.uk-interest = Llog y DU
 
 common.currency.hint = Er enghraifft, £193.52
 
