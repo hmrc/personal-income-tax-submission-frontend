@@ -17,20 +17,19 @@
 package services
 
 import models.charity.{CharityNameModel, EncryptedCharityNameModel, EncryptedGiftAidCYAModel, GiftAidCYAModel}
-import models.dividends.{DividendsCheckYourAnswersModel, EncryptedDividendsCheckYourAnswersModel}
+import models.dividends.{DividendsCheckYourAnswersModel, EncryptedDividendsCheckYourAnswersModel, EncryptedStockDividendsCheckYourAnswersModel, StockDividendsCheckYourAnswersModel}
 import models.interest.{EncryptedInterestAccountModel, EncryptedInterestCYAModel, InterestAccountModel, InterestCYAModel}
 import models.mongo._
+import models.savings.{EncryptedSavingsIncomeCYAModel, SavingsIncomeCYAModel}
 import utils.AesGcmAdCrypto
 import utils.CypherSyntax.{DecryptableOps, EncryptableOps}
-import models.savings.{EncryptedSavingsIncomeCYAModel, SavingsIncomeCYAModel}
-
 
 import javax.inject.Inject
 
 class EncryptionService @Inject()(implicit encryptionService: AesGcmAdCrypto) {
 
   // DIVIDENDS
-  def encryptDividendsUserData(dividendsUserDataModel: DividendsUserDataModel): EncryptedDividendsUserDataModel ={
+  def encryptDividendsUserData(dividendsUserDataModel: DividendsUserDataModel): EncryptedDividendsUserDataModel = {
     implicit val associatedText: String = dividendsUserDataModel.mtdItId
 
     EncryptedDividendsUserDataModel(
@@ -42,7 +41,8 @@ class EncryptionService @Inject()(implicit encryptionService: AesGcmAdCrypto) {
       lastUpdated = dividendsUserDataModel.lastUpdated
     )
   }
-  def decryptDividendsUserData(encryptedDividendsUserDataModel: EncryptedDividendsUserDataModel): DividendsUserDataModel ={
+
+  def decryptDividendsUserData(encryptedDividendsUserDataModel: EncryptedDividendsUserDataModel): DividendsUserDataModel = {
     implicit val associatedText: String = encryptedDividendsUserDataModel.mtdItId
 
     DividendsUserDataModel(
@@ -56,7 +56,7 @@ class EncryptionService @Inject()(implicit encryptionService: AesGcmAdCrypto) {
   }
 
   private def encryptDividendsCheckYourAnswersModel(dividends: DividendsCheckYourAnswersModel)
-                                                   (implicit associatedText: String): EncryptedDividendsCheckYourAnswersModel ={
+                                                   (implicit associatedText: String): EncryptedDividendsCheckYourAnswersModel = {
     EncryptedDividendsCheckYourAnswersModel(
       dividends.gateway.map(_.encrypted),
       dividends.ukDividends.map(_.encrypted),
@@ -67,7 +67,7 @@ class EncryptionService @Inject()(implicit encryptionService: AesGcmAdCrypto) {
   }
 
   private def decryptDividendsCheckYourAnswersModel(dividends: EncryptedDividendsCheckYourAnswersModel)
-                                                   (implicit associatedText: String): DividendsCheckYourAnswersModel ={
+                                                   (implicit associatedText: String): DividendsCheckYourAnswersModel = {
     DividendsCheckYourAnswersModel(
       dividends.gateway.map(_.decrypted[Boolean]),
       dividends.ukDividends.map(_.decrypted[Boolean]),
@@ -77,8 +77,69 @@ class EncryptionService @Inject()(implicit encryptionService: AesGcmAdCrypto) {
     )
   }
 
+  //StockDividends
+  def encryptStockDividendsUserData(stockDividendsUserDataModel: StockDividendsUserDataModel): EncryptedStockDividendsUserDataModel = {
+    implicit val associatedText: String = stockDividendsUserDataModel.mtdItId
+
+    EncryptedStockDividendsUserDataModel(
+      sessionId = stockDividendsUserDataModel.sessionId,
+      mtdItId = stockDividendsUserDataModel.mtdItId,
+      nino = stockDividendsUserDataModel.nino,
+      taxYear = stockDividendsUserDataModel.taxYear,
+      stockDividends = stockDividendsUserDataModel.stockDividends.map(encryptStockDividendsCheckYourAnswersModel),
+      lastUpdated = stockDividendsUserDataModel.lastUpdated
+    )
+  }
+
+  def decryptStockDividendsUserData(encryptedStockDividendsUserDataModel: EncryptedStockDividendsUserDataModel): StockDividendsUserDataModel = {
+    implicit val associatedText: String = encryptedStockDividendsUserDataModel.mtdItId
+
+    StockDividendsUserDataModel(
+      sessionId = encryptedStockDividendsUserDataModel.sessionId,
+      mtdItId = encryptedStockDividendsUserDataModel.mtdItId,
+      nino = encryptedStockDividendsUserDataModel.nino,
+      taxYear = encryptedStockDividendsUserDataModel.taxYear,
+      stockDividends = encryptedStockDividendsUserDataModel.stockDividends.map(decryptStockDividendsCheckYourAnswersModel),
+      lastUpdated = encryptedStockDividendsUserDataModel.lastUpdated
+    )
+  }
+
+  private def encryptStockDividendsCheckYourAnswersModel(stockDividends: StockDividendsCheckYourAnswersModel)
+                                                        (implicit associatedText: String): EncryptedStockDividendsCheckYourAnswersModel = {
+    EncryptedStockDividendsCheckYourAnswersModel(
+      stockDividends.gateway.map(_.encrypted),
+      stockDividends.ukDividends.map(_.encrypted),
+      stockDividends.ukDividendsAmount.map(_.encrypted),
+      stockDividends.otherUkDividends.map(_.encrypted),
+      stockDividends.otherUkDividendsAmount.map(_.encrypted),
+      stockDividends.stockDividends.map(_.encrypted),
+      stockDividends.stockDividendsAmount.map(_.encrypted),
+      stockDividends.redeemableShares.map(_.encrypted),
+      stockDividends.redeemableSharesAmount.map(_.encrypted),
+      stockDividends.closeCompanyLoansWrittenOff.map(_.encrypted),
+      stockDividends.closeCompanyLoansWrittenOffAmount.map(_.encrypted)
+    )
+  }
+
+  private def decryptStockDividendsCheckYourAnswersModel(stockDividends: EncryptedStockDividendsCheckYourAnswersModel)
+                                                        (implicit associatedText: String): StockDividendsCheckYourAnswersModel = {
+    StockDividendsCheckYourAnswersModel(
+      stockDividends.gateway.map(_.decrypted[Boolean]),
+      stockDividends.ukDividends.map(_.decrypted[Boolean]),
+      stockDividends.ukDividendsAmount.map(_.decrypted[BigDecimal]),
+      stockDividends.otherUkDividends.map(_.decrypted[Boolean]),
+      stockDividends.otherUkDividendsAmount.map(_.decrypted[BigDecimal]),
+      stockDividends.stockDividends.map(_.decrypted[Boolean]),
+      stockDividends.stockDividendsAmount.map(_.decrypted[BigDecimal]),
+      stockDividends.redeemableShares.map(_.decrypted[Boolean]),
+      stockDividends.redeemableSharesAmount.map(_.decrypted[BigDecimal]),
+      stockDividends.closeCompanyLoansWrittenOff.map(_.decrypted[Boolean]),
+      stockDividends.closeCompanyLoansWrittenOffAmount.map(_.decrypted[BigDecimal])
+    )
+  }
+
   // GiftAid/Charity
-  def encryptGiftAidUserData(giftAidUserDataModel: GiftAidUserDataModel): EncryptedGiftAidUserDataModel ={
+  def encryptGiftAidUserData(giftAidUserDataModel: GiftAidUserDataModel): EncryptedGiftAidUserDataModel = {
     implicit val associatedText: String = giftAidUserDataModel.mtdItId
 
     EncryptedGiftAidUserDataModel(
@@ -91,7 +152,7 @@ class EncryptionService @Inject()(implicit encryptionService: AesGcmAdCrypto) {
     )
   }
 
-  def decryptGiftAidUserData(giftAidUserDataModel: EncryptedGiftAidUserDataModel): GiftAidUserDataModel ={
+  def decryptGiftAidUserData(giftAidUserDataModel: EncryptedGiftAidUserDataModel): GiftAidUserDataModel = {
     implicit val associatedText: String = giftAidUserDataModel.mtdItId
 
     GiftAidUserDataModel(
@@ -105,7 +166,7 @@ class EncryptionService @Inject()(implicit encryptionService: AesGcmAdCrypto) {
   }
 
   private def encryptGiftAidCheckYourAnswersModel(giftAid: GiftAidCYAModel)
-                                                   (implicit associatedText: String): EncryptedGiftAidCYAModel ={
+                                                 (implicit associatedText: String): EncryptedGiftAidCYAModel = {
     EncryptedGiftAidCYAModel(
       giftAid.gateway.map(_.encrypted),
       giftAid.donationsViaGiftAid.map(_.encrypted),
@@ -130,7 +191,7 @@ class EncryptionService @Inject()(implicit encryptionService: AesGcmAdCrypto) {
   }
 
   private def decryptGiftAidCheckYourAnswersModel(giftAid: EncryptedGiftAidCYAModel)
-                                                   (implicit associatedText: String): GiftAidCYAModel ={
+                                                 (implicit associatedText: String): GiftAidCYAModel = {
     GiftAidCYAModel(
       giftAid.gateway.map(_.decrypted[Boolean]),
       giftAid.donationsViaGiftAid.map(_.decrypted[Boolean]),
@@ -155,14 +216,15 @@ class EncryptionService @Inject()(implicit encryptionService: AesGcmAdCrypto) {
   }
 
   private def encryptCharityNameModel(charityNameModel: CharityNameModel)
-                                                 (implicit associatedText: String): EncryptedCharityNameModel ={
+                                     (implicit associatedText: String): EncryptedCharityNameModel = {
     EncryptedCharityNameModel(
       charityNameModel.name.encrypted,
       charityNameModel.id.encrypted
     )
   }
+
   private def decryptCharityNameModel(charityNameModel: EncryptedCharityNameModel)
-                                                 (implicit associatedText: String): CharityNameModel ={
+                                     (implicit associatedText: String): CharityNameModel = {
     CharityNameModel(
       charityNameModel.name.decrypted[String],
       charityNameModel.id.decrypted[String]
@@ -170,7 +232,7 @@ class EncryptionService @Inject()(implicit encryptionService: AesGcmAdCrypto) {
   }
 
   // INTERESTS
-  def encryptInterestUserData(interestUserDataModel: InterestUserDataModel): EncryptedInterestUserDataModel ={
+  def encryptInterestUserData(interestUserDataModel: InterestUserDataModel): EncryptedInterestUserDataModel = {
     implicit val associatedText: String = interestUserDataModel.mtdItId
 
     EncryptedInterestUserDataModel(
@@ -182,7 +244,8 @@ class EncryptionService @Inject()(implicit encryptionService: AesGcmAdCrypto) {
       lastUpdated = interestUserDataModel.lastUpdated
     )
   }
-  def decryptInterestUserData(encryptedinterestUserDataModel: EncryptedInterestUserDataModel): InterestUserDataModel ={
+
+  def decryptInterestUserData(encryptedinterestUserDataModel: EncryptedInterestUserDataModel): InterestUserDataModel = {
     implicit val associatedText: String = encryptedinterestUserDataModel.mtdItId
 
     InterestUserDataModel(
@@ -196,7 +259,7 @@ class EncryptionService @Inject()(implicit encryptionService: AesGcmAdCrypto) {
   }
 
   private def encryptInterestCheckYourAnswersModel(interests: InterestCYAModel)
-                                                   (implicit associatedText: String): EncryptedInterestCYAModel ={
+                                                  (implicit associatedText: String): EncryptedInterestCYAModel = {
     EncryptedInterestCYAModel(
       interests.gateway.map(_.encrypted),
       interests.untaxedUkInterest.map(_.encrypted),
@@ -206,7 +269,7 @@ class EncryptionService @Inject()(implicit encryptionService: AesGcmAdCrypto) {
   }
 
   private def decryptInterestCheckYourAnswersModel(interests: EncryptedInterestCYAModel)
-                                                   (implicit associatedText: String): InterestCYAModel ={
+                                                  (implicit associatedText: String): InterestCYAModel = {
     InterestCYAModel(
       interests.gateway.map(_.decrypted[Boolean]),
       interests.untaxedUkInterest.map(_.decrypted[Boolean]),
@@ -216,7 +279,7 @@ class EncryptionService @Inject()(implicit encryptionService: AesGcmAdCrypto) {
   }
 
   private def encryptInterestAccountModel(interestAccount: InterestAccountModel)
-                                     (implicit associatedText: String): EncryptedInterestAccountModel ={
+                                         (implicit associatedText: String): EncryptedInterestAccountModel = {
     EncryptedInterestAccountModel(
       interestAccount.id.map(_.encrypted),
       interestAccount.accountName.encrypted,
@@ -225,8 +288,9 @@ class EncryptionService @Inject()(implicit encryptionService: AesGcmAdCrypto) {
       interestAccount.uniqueSessionId.map(_.encrypted)
     )
   }
+
   private def decryptInterestAccountModel(interestAccount: EncryptedInterestAccountModel)
-                                     (implicit associatedText: String): InterestAccountModel ={
+                                         (implicit associatedText: String): InterestAccountModel = {
     InterestAccountModel(
       interestAccount.id.map(_.decrypted[String]),
       interestAccount.accountName.decrypted[String],

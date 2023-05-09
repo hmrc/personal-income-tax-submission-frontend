@@ -16,7 +16,7 @@
 
 package controllers.dividends
 
-import config.{AppConfig, DIVIDENDS}
+import config.{AppConfig, DIVIDENDS, ErrorHandler}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import forms.YesNoForm
@@ -35,12 +35,12 @@ class StockDividendStatusController @Inject()(
                                                authAction: AuthorisedAction,
                                                view: StockDividendStatusView,
                                                implicit val appConfig: AppConfig,
-                                               ec: ExecutionContext
+                                               ec: ExecutionContext,
+                                               errorHandler : ErrorHandler
                                              ) extends FrontendController(cc) with I18nSupport {
 
   def form(implicit isAgent: Boolean): Form[Boolean] = YesNoForm.yesNoForm(
     s"dividends.stock-dividend-status.errors.noChoice.${if (isAgent) "agent" else "individual"}")
-
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
     Future.successful(Ok(view(form(user.isAgent), taxYear)))

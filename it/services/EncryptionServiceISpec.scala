@@ -16,10 +16,10 @@
 
 package services
 
+import models.mongo._
 import utils.{AesGcmAdCrypto, IntegrationTest}
-import models.mongo.{EncryptedDividendsUserDataModel, EncryptedGiftAidUserDataModel, EncryptedInterestUserDataModel, EncryptedSavingsIncomeUserDataModel}
 
-class EncryptionServiceISpec extends IntegrationTest{
+class EncryptionServiceISpec extends IntegrationTest {
 
   val service: EncryptionService = app.injector.instanceOf[EncryptionService]
   val encryption: AesGcmAdCrypto = app.injector.instanceOf[AesGcmAdCrypto]
@@ -43,6 +43,30 @@ class EncryptionServiceISpec extends IntegrationTest{
     "encrypt the data and decrypt it back to the initial model" in {
       val encryptResult = service.encryptDividendsUserData(data)
       val decryptResult = service.decryptDividendsUserData(encryptResult)
+
+      decryptResult shouldBe data
+    }
+  }
+
+  "encryptStockDividendsUserData" should {
+
+    val data = CompleteStockDividendsUserData
+
+    "encrypt all the user data apart from the look up ids and timestamp" in {
+      val result = service.encryptStockDividendsUserData(data)
+      result shouldBe EncryptedStockDividendsUserDataModel(
+        sessionId = data.sessionId,
+        mtdItId = data.mtdItId,
+        nino = data.nino,
+        taxYear = data.taxYear,
+        stockDividends = result.stockDividends,
+        lastUpdated = data.lastUpdated
+      )
+    }
+
+    "encrypt the data and decrypt it back to the initial model" in {
+      val encryptResult = service.encryptStockDividendsUserData(data)
+      val decryptResult = service.decryptStockDividendsUserData(encryptResult)
 
       decryptResult shouldBe data
     }
