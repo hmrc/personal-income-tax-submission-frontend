@@ -16,7 +16,6 @@
 
 package utils
 
-import java.time.LocalDate
 import akka.actor.ActorSystem
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import common.SessionValues
@@ -26,9 +25,9 @@ import helpers.{PlaySessionCookieBaker, WireMockHelper}
 import models.User
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
 import models.charity.{CharityNameModel, GiftAidCYAModel}
-import models.dividends.DividendsCheckYourAnswersModel
+import models.dividends.{DividendsCheckYourAnswersModel, StockDividendsCheckYourAnswersModel, StockDividendsPriorSubmission}
 import models.interest.{InterestAccountModel, InterestCYAModel}
-import models.mongo.{DividendsUserDataModel, GiftAidUserDataModel, InterestUserDataModel, SavingsIncomeUserDataModel}
+import models.mongo._
 import models.priorDataModels.IncomeSourcesModel
 import models.savings.SavingsIncomeCYAModel
 import org.scalatest.BeforeAndAfterAll
@@ -51,6 +50,7 @@ import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import views.html.authErrorPages.AgentAuthErrorPageView
 
+import java.time.LocalDate
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
 
@@ -104,6 +104,19 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     ukDividendsAmount = Some(50.00),
     otherUkDividends = Some(true),
     otherUkDividendsAmount = Some(50.00)
+  )
+
+  val completeStockDividendsCYAModel: StockDividendsCheckYourAnswersModel = StockDividendsCheckYourAnswersModel(
+    ukDividends = Some(true),
+    ukDividendsAmount = Some(50.00),
+    otherUkDividends = Some(true),
+    otherUkDividendsAmount = Some(50.00),
+    stockDividends = Some(true),
+    stockDividendsAmount = Some(50.00),
+    redeemableShares = Some(true),
+    redeemableSharesAmount = Some(50.00),
+    closeCompanyLoansWrittenOff = Some(true),
+    closeCompanyLoansWrittenOffAmount = Some(50.00),
   )
 
   val completeInterestCYAModel: InterestCYAModel = InterestCYAModel(
@@ -340,12 +353,29 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     userDataStub(IncomeSourcesModel(), nino, taxYear)
   }
 
+  def stockDividendsUserDataStub(userData: StockDividendsPriorSubmission, nino: String, taxYear: Int): StubMapping = {
+    stubGetWithHeadersCheck(
+      s"/income-tax-dividends/income-tax/income/dividends/${user.nino}/$taxYear", OK,
+      Json.toJson(userData).toString(), "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
+  }
+
+  def emptyStockDividendsUserDataStub(nino: String = nino, taxYear: Int = taxYear): StubMapping = {
+    stockDividendsUserDataStub(StockDividendsPriorSubmission(), nino, taxYear)
+  }
+
   val CompleteDividendsUserData: DividendsUserDataModel = DividendsUserDataModel(
     "sessionId-1618a1e8-4979-41d8-a32e-5ffbe69fac81",
     "1234567890",
     "AA123456A",
     taxYear,
     Some(completeDividendsCYAModel)
+  )
+  val CompleteStockDividendsUserData: StockDividendsUserDataModel = StockDividendsUserDataModel(
+    "sessionId-1618a1e8-4979-41d8-a32e-5ffbe69fac81",
+    "1234567890",
+    "AA123456A",
+    taxYear,
+    Some(completeStockDividendsCYAModel)
   )
   val CompletedInterestsUserData: InterestUserDataModel = InterestUserDataModel(
     "sessionId-1618a1e8-4979-41d8-a32e-5ffbe69fac81",
