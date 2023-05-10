@@ -20,9 +20,11 @@ import config.{AppConfig, DIVIDENDS, ErrorHandler}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import forms.YesNoForm
+import models.dividends.StockDividendsCheckYourAnswersModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
+import services.StockDividendsSubmissionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.StockDividendStatusView
 
@@ -36,13 +38,16 @@ class StockDividendStatusController @Inject()(
                                                view: StockDividendStatusView,
                                                implicit val appConfig: AppConfig,
                                                ec: ExecutionContext,
-                                               errorHandler : ErrorHandler
+                                               errorHandler : ErrorHandler,
+                                               stockDividendsSubmissionService: StockDividendsSubmissionService
                                              ) extends FrontendController(cc) with I18nSupport {
 
   def form(implicit isAgent: Boolean): Form[Boolean] = YesNoForm.yesNoForm(
     s"dividends.stock-dividend-status.errors.noChoice.${if (isAgent) "agent" else "individual"}")
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
+    val cyaModel: StockDividendsCheckYourAnswersModel = StockDividendsCheckYourAnswersModel(ukDividendsAmount = Some(500.00), stockDividendsAmount = Some(600.00))
+    stockDividendsSubmissionService.submitDividends(cyaModel, user.nino, taxYear)
     Future.successful(Ok(view(form(user.isAgent), taxYear)))
   }
 
