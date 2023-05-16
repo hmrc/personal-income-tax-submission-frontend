@@ -31,7 +31,13 @@ case class StockDividendsCheckYourAnswersModel(
                                                 redeemableSharesAmount: Option[BigDecimal] = None,
                                                 closeCompanyLoansWrittenOff: Option[Boolean] = None,
                                                 closeCompanyLoansWrittenOffAmount: Option[BigDecimal] = None
-                                              )
+                                              ){
+  def toDividendsSubmissionModel: DividendsSubmissionModel = {
+    DividendsSubmissionModel(
+      ukDividends = this.ukDividendsAmount,
+      otherUkDividends = this.otherUkDividendsAmount)
+  }
+}
 
 object StockDividendsCheckYourAnswersModel {
 

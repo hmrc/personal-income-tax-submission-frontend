@@ -24,7 +24,19 @@ case class StockDividendsPriorSubmission(submittedOn: Option[String] = None,
                                          stockDividend: Option[StockDividendModel] = None,
                                          redeemableShares: Option[StockDividendModel] = None,
                                          bonusIssuesOfSecurities: Option[StockDividendModel] = None,
-                                         closeCompanyLoansWrittenOff: Option[StockDividendModel] = None)
+                                         closeCompanyLoansWrittenOff: Option[StockDividendModel] = None){
+
+  def toSubmission(cya: StockDividendsCheckYourAnswersModel): StockDividendsSubmissionModel = {
+    StockDividendsSubmissionModel(
+      foreignDividend = this.foreignDividend,
+      dividendIncomeReceivedWhilstAbroad = this.dividendIncomeReceivedWhilstAbroad,
+      stockDividend = cya.stockDividendsAmount.map(amount => StockDividendModel(None, amount)),
+      redeemableShares = cya.redeemableSharesAmount.map(amount => StockDividendModel(None, amount)),
+      bonusIssuesOfSecurities = this.bonusIssuesOfSecurities,
+      closeCompanyLoansWrittenOff = cya.closeCompanyLoansWrittenOffAmount.map(amount => StockDividendModel(None, amount))
+    )
+  }
+}
 
 object StockDividendsPriorSubmission {
   implicit val formats: OFormat[StockDividendsPriorSubmission] = Json.format[StockDividendsPriorSubmission]
