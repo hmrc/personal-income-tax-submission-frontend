@@ -16,6 +16,7 @@
 
 package controllers.dividends
 
+import models.dividends.StockDividendsCheckYourAnswersModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
@@ -23,14 +24,31 @@ import play.api.http.Status._
 import play.api.libs.ws.DefaultBodyWritables
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
-import utils.{IntegrationTest, ViewHelpers}
+import utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 
-class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables {
+class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables with DividendsDatabaseHelper {
 
   val amount: BigDecimal = 500
-  val stockDividendAmountUrl: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/stock-dividend-amount"
+  val stockDividendAmountUrl: String = routes.StockDividendAmountController.show(taxYear).url
+  val redeemableSharesStatusUrl: String = routes.RedeemableSharesStatusController.show(taxYear).url
+  val dividendsSummaryUrl: String = routes.DividendsSummaryController.show(taxYear).url
   val postURL: String = s"$appUrl/$taxYear/dividends/stock-dividend-amount"
   val poundPrefixText = "£"
+
+  val cyaModel: StockDividendsCheckYourAnswersModel =
+    StockDividendsCheckYourAnswersModel(
+      gateway = Some(true),
+      ukDividends = Some(true),
+      ukDividendsAmount = Some(amount),
+      otherUkDividends = Some(true),
+      otherUkDividendsAmount = Some(amount),
+      stockDividends = Some(true),
+      stockDividendsAmount = Some(amount),
+      redeemableShares = Some(true),
+      redeemableSharesAmount = Some(amount),
+      closeCompanyLoansWrittenOff = Some(true),
+      closeCompanyLoansWrittenOffAmount = Some(amount)
+    )
 
   trait SpecificExpectedResults {
     val expectedTitle: String
@@ -146,6 +164,37 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
         lazy val request = FakeRequest("GET", stockDividendAmountUrl).withHeaders(headers: _*)
 
         lazy val result = {
+          dropStockDividendsDB()
+          emptyStockDividendsUserDataStub()
+          authoriseAgentOrIndividual(scenario.isAgent)
+          route(app, request, "{}").get
+        }
+
+        implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+        "has a status of OK(200)" in {
+          status(result) shouldBe OK
+        }
+
+        titleCheck(expectedTitle, scenario.isWelsh)
+        h1Check(expectedH1 + " " + captionExpected)
+        captionCheck(captionExpected)
+        formPostLinkCheck(stockDividendAmountUrl, Selectors.formSelector)
+        textOnPageCheck(expectedParagraph1, Selectors.paragraph1)
+        textOnPageCheck(expectedParagraph2, Selectors.paragraph2)
+        textOnPageCheck(expectedLabel, Selectors.label)
+        buttonCheck(continueText, Selectors.continueButtonSelector)
+        inputFieldCheck(amountInputName, Selectors.inputSelector)
+      }
+
+      "display the stock dividend amount page with session data" which {
+        lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+        lazy val request = FakeRequest("GET", stockDividendAmountUrl).withHeaders(headers: _*)
+
+        lazy val result = {
+          dropStockDividendsDB()
+          insertStockDividendsCyaData(Some(cyaModel))
+          emptyStockDividendsUserDataStub()
           authoriseAgentOrIndividual(scenario.isAgent)
           route(app, request, "{}").get
         }
@@ -170,21 +219,35 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
 
     s".submit when $testNameWelsh and the user is $testNameAgent" should {
 
-      "return a 200 status" in {
+      "return a 303 status and redirect to next status page" in {
         lazy val result = {
+          dropStockDividendsDB()
+          insertStockDividendsCyaData(Some(cyaModel.copy(None, None, None, None, None, None, None, None, None, None)))
           authoriseAgentOrIndividual(scenario.isAgent)
           urlPost(postURL, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> "123"))
         }
+        result.status shouldBe SEE_OTHER
+        result.headers(HeaderNames.LOCATION).head shouldBe redeemableSharesStatusUrl
+      }
 
-        result.status shouldBe OK
+      "return a 303 status and redirect to cya page when isFinished is true" in {
+        lazy val result = {
+          dropStockDividendsDB()
+          insertStockDividendsCyaData(Some(cyaModel))
+          authoriseAgentOrIndividual(scenario.isAgent)
+          urlPost(postURL, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> "123"))
+        }
+        result.status shouldBe SEE_OTHER
+        result.headers(HeaderNames.LOCATION).head shouldBe dividendsSummaryUrl
       }
 
       "return a error" when {
         "the form is empty" which {
 
           lazy val result = {
+            dropStockDividendsDB()
             authoriseAgentOrIndividual(scenario.isAgent)
-            urlPost(postURL, welsh = scenario.isWelsh, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> ""))
+            urlPost(postURL, welsh = scenario.isWelsh, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map[String, String]())
           }
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
@@ -237,4 +300,5 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
   }
 
 }
+
 

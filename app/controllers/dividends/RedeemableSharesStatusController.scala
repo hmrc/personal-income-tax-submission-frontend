@@ -16,13 +16,15 @@
 
 package controllers.dividends
 
-import config.{AppConfig, DIVIDENDS}
+import config.{AppConfig, DIVIDENDS, ErrorHandler}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import forms.YesNoForm
+import models.dividends.StockDividendsCheckYourAnswersModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
+import services.StockDividendsSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.RedeemableSharesStatusView
 
@@ -35,6 +37,8 @@ class RedeemableSharesStatusController @Inject()(
                                                   implicit val cc: MessagesControllerComponents,
                                                   authAction: AuthorisedAction,
                                                   view: RedeemableSharesStatusView,
+                                                  errorHandler: ErrorHandler,
+                                                  session: StockDividendsSessionService,
                                                   implicit val appConfig: AppConfig,
                                                   ec: ExecutionContext
                                                 ) extends FrontendController(cc) with I18nSupport {
@@ -44,14 +48,47 @@ class RedeemableSharesStatusController @Inject()(
 
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
-    Future.successful(Ok(view(form(user.isAgent), taxYear)))
+    session.getSessionData(taxYear).map {
+      case Left(_) => errorHandler.internalServerError()
+      case Right(sessionData) =>
+        val valueCheck: Option[Boolean] = sessionData.flatMap(_.stockDividends.flatMap(_.redeemableShares))
+
+        valueCheck match {
+          case None => Ok(view(form(user.isAgent), taxYear))
+          case Some(value) => Ok(view(form(user.isAgent).fill(value), taxYear))
+        }
+    }
   }
 
   def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
-    form(user.isAgent).bindFromRequest().fold(
-      formWithErrors =>
-        Future.successful(BadRequest(view(formWithErrors, taxYear))),
-      _ =>
-        Future.successful(Ok))
+    form(user.isAgent).bindFromRequest().fold(formWithErrors => {
+      Future.successful(BadRequest(view(formWithErrors, taxYear)))
+    }, {
+      yesNoValue =>
+        session.getSessionData(taxYear).flatMap {
+          case Left(_) => Future.successful(errorHandler.internalServerError())
+          case Right(sessionData) =>
+            val dividendsCya = if (yesNoValue) {
+              sessionData.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel()).copy(redeemableShares = Some(yesNoValue))
+            } else {
+              sessionData.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel())
+                .copy(redeemableShares = Some(yesNoValue), redeemableSharesAmount = None)
+            }
+            val update = sessionData.fold(true)(data => data.stockDividends.isEmpty)
+
+            session.updateSessionData(dividendsCya, taxYear, update)(errorHandler.internalServerError())(
+              if (dividendsCya.isFinished) {
+                Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear))
+              } else {
+                if (yesNoValue) {
+                  Redirect(controllers.dividends.routes.RedeemableSharesAmountController.show(taxYear))
+                } else {
+                  Redirect(controllers.dividends.routes.CloseCompanyLoanStatusController.show(taxYear))
+                }
+              }
+            )
+        }
+    })
+
   }
 }

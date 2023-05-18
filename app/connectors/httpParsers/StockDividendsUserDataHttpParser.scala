@@ -34,7 +34,7 @@ object StockDividendsUserDataHttpParser extends APIParser {
 
       response.status match {
         case OK => response.json.validate[StockDividendsPriorSubmission].fold[StockDividendsUserDataResponse](
-          jsonError => badSuccessJsonFromAPI,
+          _ => badSuccessJsonFromAPI,
           parserModel => Right(parserModel)
         )
         case NOT_FOUND =>

@@ -16,19 +16,42 @@
 
 package controllers.dividends
 
+import models.dividends.StockDividendsCheckYourAnswersModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.DefaultBodyWritables
-import utils.{IntegrationTest, ViewHelpers}
+import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
+import utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 
-class StockDividendStatusControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables {
+import scala.concurrent.Future
 
-  val stockDividendStatusUrl: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/stock-dividend-status"
+class StockDividendStatusControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables with DividendsDatabaseHelper {
+
+  val amount: BigDecimal = 123.45
+  val stockDividendStatusUrl: String = routes.StockDividendStatusController.show(taxYear).url
+  val stockDividendAmountUrl: String = routes.StockDividendAmountController.show(taxYear).url
+  val redeemableSharesStatusUrl: String = routes.RedeemableSharesStatusController.show(taxYear).url
+  val dividendsSummaryUrl: String = routes.DividendsSummaryController.show(taxYear).url
   val postURL: String = s"$appUrl/$taxYear/dividends/stock-dividend-status"
+
+  val cyaModel: StockDividendsCheckYourAnswersModel =
+    StockDividendsCheckYourAnswersModel(
+      gateway = Some(true),
+      ukDividends = Some(true),
+      ukDividendsAmount = Some(amount),
+      otherUkDividends = Some(true),
+      otherUkDividendsAmount = Some(amount),
+      stockDividends = Some(true),
+      stockDividendsAmount = Some(amount),
+      redeemableShares = Some(true),
+      redeemableSharesAmount = Some(amount),
+      closeCompanyLoansWrittenOff = Some(true),
+      closeCompanyLoansWrittenOffAmount = Some(amount)
+    )
 
   trait SpecificExpectedResults {
     val expectedTitle: String
@@ -78,8 +101,8 @@ class StockDividendStatusControllerISpec extends IntegrationTest with ViewHelper
   object AgentExpectedEnglish extends SpecificExpectedResults {
     val expectedP1 = "If your client chose shares instead of cash dividends, that is a stock dividend."
     val expectedErrorText = "Select Yes if your client got stock dividends"
-    val expectedErrorTitle = s"Error: $expectedTitle"
     val expectedTitle = "Did your client get stock dividends?"
+    val expectedErrorTitle = s"Error: $expectedTitle"
   }
 
   object AgentExpectedWelsh extends SpecificExpectedResults {
@@ -122,8 +145,10 @@ class StockDividendStatusControllerISpec extends IntegrationTest with ViewHelper
         lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
         lazy val request = FakeRequest("GET", stockDividendStatusUrl).withHeaders(headers: _*)
 
-        lazy val result = {
+        lazy val result: Future[Result] = {
           authoriseAgentOrIndividual(scenario.isAgent)
+          dropStockDividendsDB()
+          emptyUserDataStub()
           route(app, request, "{}").get
         }
 
@@ -145,17 +170,69 @@ class StockDividendStatusControllerISpec extends IntegrationTest with ViewHelper
         welshToggleCheck(scenario.isWelsh)
       }
 
+      "display the stock dividend status page with session data" which {
+        lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+        lazy val request = FakeRequest("GET", stockDividendStatusUrl).withHeaders(headers: _*)
+
+        lazy val result: Future[Result] = {
+          authoriseAgentOrIndividual(scenario.isAgent)
+          dropStockDividendsDB()
+          insertStockDividendsCyaData(Some(cyaModel))
+          route(app, request, "{}").get
+        }
+
+        implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+        "has a status of OK(200)" in {
+          status(result) shouldBe OK
+        }
+
+        titleCheck(expectedTitle, scenario.isWelsh)
+        h1Check(expectedHeading + " " + captionExpected)
+        captionCheck(captionExpected)
+        formPostLinkCheck(stockDividendStatusUrl, Selectors.formSelector)
+        textOnPageCheck(expectedP1, Selectors.p1Selector)
+        textOnPageCheck(expectedP2, Selectors.p2Selector)
+        buttonCheck(continueText, Selectors.continueButtonSelector)
+        radioButtonCheck(yesNo(true), 1)
+        radioButtonCheck(yesNo(false), 2)
+        welshToggleCheck(scenario.isWelsh)
+      }
     }
 
     s".submit when $testNameWelsh and the user is $testNameAgent" should {
 
-      "return a 200 status" in {
+      "return a 303 status and redirect to amount page when true selected" in {
         lazy val result = {
+          dropStockDividendsDB()
           authoriseAgentOrIndividual(scenario.isAgent)
           urlPost(postURL, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("value" -> Seq("true")))
         }
-        result.status shouldBe OK
+        result.status shouldBe SEE_OTHER
+        result.headers(HeaderNames.LOCATION).head shouldBe stockDividendAmountUrl
       }
+
+      "return a 303 status and redirect to next status page when false selected" in {
+        lazy val result = {
+          authoriseAgentOrIndividual(scenario.isAgent)
+          urlPost(postURL, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("value" -> Seq("false")))
+        }
+        result.status shouldBe SEE_OTHER
+        result.headers(HeaderNames.LOCATION).head shouldBe redeemableSharesStatusUrl
+      }
+
+      "return a 303 status and redirect to cya page when isFinished is true" in {
+        lazy val result = {
+          authoriseIndividual()
+          dropStockDividendsDB()
+          emptyStockDividendsUserDataStub()
+          insertStockDividendsCyaData(Some(cyaModel))
+          urlPost(postURL, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("value" -> Seq("false")))
+        }
+        result.status shouldBe SEE_OTHER
+        result.headers(HeaderNames.LOCATION).head shouldBe dividendsSummaryUrl
+      }
+
       "return a error" when {
         "the form is empty" which {
 
@@ -174,10 +251,8 @@ class StockDividendStatusControllerISpec extends IntegrationTest with ViewHelper
           errorAboveElementCheck(expectedErrorText)
           errorSummaryCheck(expectedErrorText, Selectors.errorSummaryHref, scenario.isWelsh)
         }
-
       }
-
     }
-
   }
+
 }

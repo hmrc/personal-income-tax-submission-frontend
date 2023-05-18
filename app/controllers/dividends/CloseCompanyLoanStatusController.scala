@@ -16,13 +16,15 @@
 
 package controllers.dividends
 
-import config.{AppConfig, DIVIDENDS}
+import config.{AppConfig, DIVIDENDS, ErrorHandler}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import forms.YesNoForm
+import models.dividends.StockDividendsCheckYourAnswersModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
+import services.StockDividendsSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.CloseCompanyLoanStatusView
 
@@ -32,12 +34,14 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class CloseCompanyLoanStatusController @Inject()(
 
-                                                   implicit val cc: MessagesControllerComponents,
-                                                   authAction: AuthorisedAction,
-                                                   view: CloseCompanyLoanStatusView,
-                                                   implicit val appConfig: AppConfig,
-                                                   ec: ExecutionContext
-                                                 ) extends FrontendController(cc) with I18nSupport {
+                                                  implicit val cc: MessagesControllerComponents,
+                                                  authAction: AuthorisedAction,
+                                                  view: CloseCompanyLoanStatusView,
+                                                  implicit val appConfig: AppConfig,
+                                                  ec: ExecutionContext,
+                                                  errorHandler: ErrorHandler,
+                                                  session: StockDividendsSessionService
+                                                ) extends FrontendController(cc) with I18nSupport {
 
 
   def form(implicit isAgent: Boolean): Form[Boolean] = YesNoForm.yesNoForm(
@@ -45,14 +49,44 @@ class CloseCompanyLoanStatusController @Inject()(
 
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
-    Future.successful(Ok(view(form(user.isAgent), taxYear)))
+    session.getSessionData(taxYear).map {
+      case Left(_) => errorHandler.internalServerError()
+      case Right(sessionData) =>
+        val valueCheck: Option[Boolean] = sessionData.flatMap(_.stockDividends.flatMap(_.closeCompanyLoansWrittenOff))
+
+        valueCheck match {
+          case None => Ok(view(form(user.isAgent), taxYear))
+          case Some(value) => Ok(view(form(user.isAgent).fill(value), taxYear))
+        }
+    }
   }
 
   def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
-    form(user.isAgent).bindFromRequest().fold(
-      formWithErrors =>
-        Future.successful(BadRequest(view(formWithErrors, taxYear))),
-      _ =>
-        Future.successful(Ok))
+    form(user.isAgent).bindFromRequest().fold(formWithErrors => {
+      Future.successful(BadRequest(view(formWithErrors, taxYear)))
+    }, {
+      yesNoValue =>
+        session.getSessionData(taxYear).flatMap {
+          case Left(_) => Future.successful(errorHandler.internalServerError())
+          case Right(sessionData) =>
+            val dividendsCya = if (yesNoValue) {
+              sessionData.flatMap(_.stockDividends)
+                .getOrElse(StockDividendsCheckYourAnswersModel()).copy(closeCompanyLoansWrittenOff = Some(yesNoValue))
+            } else {
+              sessionData.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel())
+                .copy(closeCompanyLoansWrittenOff = Some(yesNoValue), closeCompanyLoansWrittenOffAmount = None)
+            }
+            val update = sessionData.fold(true)(data => data.stockDividends.isEmpty)
+
+            session.updateSessionData(dividendsCya, taxYear, update)(errorHandler.internalServerError())(
+              if (dividendsCya.isFinished || !yesNoValue) {
+                Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear))
+              } else {
+                Redirect(controllers.dividends.routes.CloseCompanyLoanAmountController.show(taxYear))
+              }
+            )
+        }
+    })
+
   }
 }

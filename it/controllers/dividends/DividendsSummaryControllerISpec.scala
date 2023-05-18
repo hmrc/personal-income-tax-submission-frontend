@@ -16,16 +16,16 @@
 
 package controllers.dividends
 
-import play.api.http.HeaderNames
-import play.api.http.Status.OK
-import utils.IntegrationTest
-import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
+import models.dividends._
 import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import play.api.http.HeaderNames
+import play.api.http.Status.{INTERNAL_SERVER_ERROR, NO_CONTENT, OK, SEE_OTHER}
+import play.api.libs.ws.WSResponse
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
-import utils.{DividendsDatabaseHelper, ViewHelpers}
+import utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 
 class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers with DividendsDatabaseHelper {
 
@@ -33,16 +33,17 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
   val ukDividends: BigDecimal = 10
   val otherDividends: BigDecimal = 10.50
 
-  val relativeUrl: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/summary"
+  val amount: BigDecimal = 123.45
+  val relativeUrl: String = routes.DividendsSummaryController.show(taxYear).url
 
   val dividendsSummaryUrl = s"$appUrl/$taxYear/dividends/summary"
 
   val dividendsFromStocksAndSharesHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/dividends-from-stocks-and-shares"
   val dividendsStatusHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/dividends-from-uk-companies"
   val dividendsAmountHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-companies"
-  val dividendsOtherStatusHref : String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends" +
+  val dividendsOtherStatusHref: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends" +
     "/dividends-from-uk-trusts-or-open-ended-investment-companies"
-  val dividendsOtherAmountHref : String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends" +
+  val dividendsOtherAmountHref: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends" +
     "/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
   val stockDividendsStatusHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/stock-dividend-status"
   val stockDividendsAmountHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/stock-dividend-amount"
@@ -58,12 +59,22 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
   )
   lazy val dividendsNoModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(Some(false), Some(false), None, Some(false))
 
-  lazy val priorData: IncomeSourcesModel = IncomeSourcesModel(
-    dividends = Some(DividendsPriorSubmission(
-      Some(ukDividends),
-      Some(otherDividends)
-    ))
-  )
+  val cyaModel: StockDividendsCheckYourAnswersModel =
+    StockDividendsCheckYourAnswersModel(
+      gateway = Some(true),
+      ukDividends = Some(true),
+      ukDividendsAmount = Some(amount),
+      otherUkDividends = Some(true),
+      otherUkDividendsAmount = Some(amount),
+      stockDividends = Some(true),
+      stockDividendsAmount = Some(amount),
+      redeemableShares = Some(true),
+      redeemableSharesAmount = Some(amount),
+      closeCompanyLoansWrittenOff = Some(true),
+      closeCompanyLoansWrittenOffAmount = Some(amount)
+    )
+
+  val stockDividend: Option[StockDividendModel] = Some(StockDividendModel(customerReference = Some("ref"), grossAmount = amount))
 
   object Selectors {
 
@@ -225,10 +236,11 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
 
           lazy val result = {
             authoriseAgentOrIndividual(us.isAgent)
-            dropDividendsDB()
             emptyUserDataStub()
-            insertDividendsCyaData(Some(dividendsCyaModel))
-            route(appWithTailoring, request, "{}").get
+            dropStockDividendsDB()
+            emptyStockDividendsUserDataStub()
+            insertStockDividendsCyaData(Some(cyaModel))
+            route(app, request, "{}").get
           }
 
           "has an OK(200) status" in {
@@ -299,8 +311,290 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
           welshToggleCheck(us.isWelsh)
 
         }
+
+        "render Dividends summary page with correct content when there is data with false values in session" which {
+
+          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
+          lazy val result = {
+            authoriseAgentOrIndividual(us.isAgent)
+            dropStockDividendsDB()
+            emptyUserDataStub()
+            emptyStockDividendsUserDataStub()
+            insertStockDividendsCyaData(Some(cyaModel.copy(
+              None,
+              ukDividends = Some(false),
+              None,
+              otherUkDividends = Some(false),
+              None,
+              stockDividends = Some(false),
+              None,
+              redeemableShares = Some(false),
+              None,
+              closeCompanyLoansWrittenOff = Some(false),
+              None
+            )))
+            route(app, request, "{}").get
+          }
+
+          "has an OK(200) status" in {
+            status(result) shouldBe OK
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+          h1Check(get.headingExpected + " " + captionExpected)
+          textOnPageCheck(captionExpected, Selectors.captionSelector)
+          "has an area for section 1" which {
+            textOnPageCheck(dividendsFromStocksAndSharesText, Selectors.cyaTitle(CYA_TITLE_1))
+            linkCheck(s"$changeLinkExpected $dividendsFromStocksAndSharesHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_1), dividendsFromStocksAndSharesHref)
+          }
+          "has an area for section 2" which {
+            textOnPageCheck(dividendsStatusText, Selectors.cyaTitle(CYA_TITLE_2))
+            linkCheck(s"$changeLinkExpected $dividendsStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_2), dividendsStatusHref)
+          }
+          "has an area for section 4" which {
+            textOnPageCheck(dividendsOtherStatusText, Selectors.cyaTitle(CYA_TITLE_3))
+            linkCheck(s"$changeLinkExpected $dividendsOtherStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_3), dividendsOtherStatusHref)
+          }
+          "has an area for section 6" which {
+            textOnPageCheck(stockDividendsStatusText, Selectors.cyaTitle(CYA_TITLE_4))
+            linkCheck(s"$changeLinkExpected $stockDividendsStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_4), stockDividendsStatusHref)
+          }
+          "has an area for section 8" which {
+            textOnPageCheck(redeemableSharesStatusText, Selectors.cyaTitle(CYA_TITLE_5))
+            linkCheck(s"$changeLinkExpected $redeemableSharesStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_5), redeemableSharesStatusHref)
+          }
+          "has an area for section 10" which {
+            textOnPageCheck(closeCompanyLoanStatusText, Selectors.cyaTitle(CYA_TITLE_6))
+            linkCheck(s"$changeLinkExpected $closeCompanyLoanStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_6), closeCompanyLoanStatusHref)
+          }
+
+          buttonCheck(continueButtonText, continueButtonSelector)
+          welshToggleCheck(us.isWelsh)
+
+        }
+
+        "renders Dividends summary page with correct content from prior data" which {
+
+          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
+          lazy val result = {
+            authoriseAgentOrIndividual(us.isAgent)
+            dropStockDividendsDB()
+            userDataStub(IncomeSourcesModel(Some(DividendsPriorSubmission(
+              ukDividends = Some(amount), otherUkDividends = Some(amount)
+            ))), nino, taxYear)
+            stockDividendsUserDataStub(StockDividendsPriorSubmission(
+              submittedOn = Some(""),
+              foreignDividend = None,
+              dividendIncomeReceivedWhilstAbroad = None,
+              stockDividend = stockDividend,
+              redeemableShares = stockDividend,
+              bonusIssuesOfSecurities = None,
+              closeCompanyLoansWrittenOff = stockDividend
+            ), nino, taxYear)
+            route(app, request, "{}").get
+          }
+
+          "has an OK(200) status" in {
+            status(result) shouldBe OK
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+          h1Check(get.headingExpected + " " + captionExpected)
+          textOnPageCheck(captionExpected, Selectors.captionSelector)
+          "has an area for section 1" which {
+            textOnPageCheck(dividendsFromStocksAndSharesText, Selectors.cyaTitle(CYA_TITLE_1))
+            linkCheck(s"$changeLinkExpected $dividendsFromStocksAndSharesHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_1), dividendsFromStocksAndSharesHref)
+          }
+          "has an area for section 2" which {
+            textOnPageCheck(dividendsStatusText, Selectors.cyaTitle(CYA_TITLE_2))
+            linkCheck(s"$changeLinkExpected $dividendsStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_2), dividendsStatusHref)
+          }
+          "has an area for section 3" which {
+            textOnPageCheck(dividendsAmountText, Selectors.cyaTitle(CYA_TITLE_3))
+            linkCheck(s"$changeLinkExpected $dividendsAmountHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_3), dividendsAmountHref)
+          }
+          "has an area for section 4" which {
+            textOnPageCheck(dividendsOtherStatusText, Selectors.cyaTitle(CYA_TITLE_4))
+            linkCheck(s"$changeLinkExpected $dividendsOtherStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_4), dividendsOtherStatusHref)
+          }
+          "has an area for section 5" which {
+            textOnPageCheck(dividendsOtherAmountText, Selectors.cyaTitle(CYA_TITLE_5))
+            linkCheck(s"$changeLinkExpected $dividendsOtherAmountHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_5), dividendsOtherAmountHref)
+          }
+          "has an area for section 6" which {
+            textOnPageCheck(stockDividendsStatusText, Selectors.cyaTitle(CYA_TITLE_6))
+            linkCheck(s"$changeLinkExpected $stockDividendsStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_6), stockDividendsStatusHref)
+          }
+          "has an area for section 7" which {
+            textOnPageCheck(stockDividendsAmountText, Selectors.cyaTitle(CYA_TITLE_7))
+            linkCheck(s"$changeLinkExpected $stockDividendsAmountHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_7), stockDividendsAmountHref)
+          }
+          "has an area for section 8" which {
+            textOnPageCheck(redeemableSharesStatusText, Selectors.cyaTitle(CYA_TITLE_8))
+            linkCheck(s"$changeLinkExpected $redeemableSharesStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_8), redeemableSharesStatusHref)
+          }
+          "has an area for section 9" which {
+            textOnPageCheck(redeemableSharesAmountText, Selectors.cyaTitle(CYA_TITLE_9))
+            linkCheck(s"$changeLinkExpected $redeemableSharesAmountHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_9), redeemableSharesAmountHref)
+          }
+          "has an area for section 10" which {
+            textOnPageCheck(closeCompanyLoanStatusText, Selectors.cyaTitle(CYA_TITLE_10))
+            linkCheck(s"$changeLinkExpected $closeCompanyLoanStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_10), closeCompanyLoanStatusHref)
+          }
+          "has an area for section 11" which {
+            textOnPageCheck(closeCompanyLoanAmountText, Selectors.cyaTitle(CYA_TITLE_11))
+            linkCheck(s"$changeLinkExpected $closeCompanyLoanAmountHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_11), closeCompanyLoanAmountHref)
+          }
+
+          buttonCheck(continueButtonText, continueButtonSelector)
+          welshToggleCheck(us.isWelsh)
+
+        }
+
+//        "redirect to overview when no cya data found" which {
+//
+//          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+//          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+//
+//          lazy val result = {
+//            authoriseAgentOrIndividual(us.isAgent)
+//            dropStockDividendsDB()
+//            route(app, request, "{}").get
+//          }
+//
+//          "has an SEE_OTHER(303) status" in {
+//            status(result) shouldBe SEE_OTHER
+//            result.map(_.header.headers.get(HeaderNames.LOCATION).contains(overviewUrl)) shouldBe true
+//          }
+//        }
+
+        "redirect to close company loan amount when unfinished" which {
+
+          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
+          lazy val result = {
+            authoriseAgentOrIndividual(us.isAgent)
+            dropStockDividendsDB()
+            emptyUserDataStub()
+            emptyStockDividendsUserDataStub()
+            insertStockDividendsCyaData(Some(cyaModel.copy(closeCompanyLoansWrittenOff = Some(true), closeCompanyLoansWrittenOffAmount = None)))
+            route(app, request, "{}").get
+          }
+
+          "has an SEE_OTHER(303) status" in {
+            status(result) shouldBe SEE_OTHER
+          }
+        }
+
+        "redirect to redeemable shares amount when unfinished" which {
+
+          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
+          lazy val result = {
+            authoriseAgentOrIndividual(us.isAgent)
+            dropStockDividendsDB()
+            emptyUserDataStub()
+            emptyStockDividendsUserDataStub()
+            insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel(
+              redeemableShares = Some(true), redeemableSharesAmount = None,
+              closeCompanyLoansWrittenOff = None, closeCompanyLoansWrittenOffAmount = None)))
+            route(app, request, "{}").get
+          }
+
+          "has an SEE_OTHER(303) status" in {
+            status(result) shouldBe SEE_OTHER
+          }
+        }
+
+        "redirect to stock dividends amount when unfinished" which {
+
+          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
+          lazy val result = {
+            authoriseAgentOrIndividual(us.isAgent)
+            dropStockDividendsDB()
+            emptyUserDataStub()
+            emptyStockDividendsUserDataStub()
+            insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel(
+              stockDividends = Some(true))))
+            route(app, request, "{}").get
+          }
+
+          "has an SEE_OTHER(303) status" in {
+            status(result) shouldBe SEE_OTHER
+          }
+        }
+
       }
     }
+  }
+
+  ".submit" should {
+
+    s"redirect to the overview page when there is valid session data " when {
+
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        dropStockDividendsDB()
+        emptyUserDataStub()
+        emptyStockDividendsUserDataStub()
+        insertStockDividendsCyaData(Some(cyaModel))
+        stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "")
+        stubPut(s"/income-tax-dividends/income-tax/income/dividends/$nino/$taxYear", NO_CONTENT, "")
+        urlPost(dividendsSummaryUrl, follow = false, headers = playSessionCookie(), body = "")
+      }
+      s"has a status of 303" in {
+        result.status shouldBe SEE_OTHER
+      }
+
+      "has the correct title" in {
+        result.headers("Location").head shouldBe
+          s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view"
+      }
+    }
+
+    s"return 500 when there is a problem posting data" when {
+
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        dropStockDividendsDB()
+        emptyStockDividendsUserDataStub()
+        insertStockDividendsCyaData(Some(cyaModel))
+        stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", INTERNAL_SERVER_ERROR, "")
+        urlPost(dividendsSummaryUrl, follow = false, headers = playSessionCookie(), body = "")
+      }
+
+      "has a status of 500" in {
+        result.status shouldBe INTERNAL_SERVER_ERROR
+      }
+    }
+
   }
 }
 
