@@ -17,13 +17,16 @@
 package controllers.dividends
 
 import config.{AppConfig, DIVIDENDS, ErrorHandler}
-import controllers.predicates.AuthorisedAction
+import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import controllers.predicates.CommonPredicates.commonPredicates
 import forms.YesNoForm
+import models.dividends.StockDividendsCheckYourAnswersModel
+import models.question.QuestionsJourney
 import models.dividends.StockDividendsCheckYourAnswersModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
+import services.StockDividendsSessionService
 import services.StockDividendsSubmissionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.StockDividendStatusView
@@ -39,23 +42,58 @@ class StockDividendStatusController @Inject()(
                                                implicit val appConfig: AppConfig,
                                                ec: ExecutionContext,
                                                errorHandler : ErrorHandler,
-                                               stockDividendsSubmissionService: StockDividendsSubmissionService
+                                               stockDividendsSubmissionService: StockDividendsSubmissionService,
+                                               session: StockDividendsSessionService
                                              ) extends FrontendController(cc) with I18nSupport {
 
   def form(implicit isAgent: Boolean): Form[Boolean] = YesNoForm.yesNoForm(
     s"dividends.stock-dividend-status.errors.noChoice.${if (isAgent) "agent" else "individual"}")
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
+    session.getSessionData(taxYear).map {
+      case Left(_) => errorHandler.internalServerError()
+      case Right(sessionData) =>
+        val valueCheck: Option[Boolean] = sessionData.flatMap(_.stockDividends.flatMap(_.stockDividends))
+
+        valueCheck match {
+          case None => Ok(view(form(user.isAgent), taxYear))
+          case Some(value) => Ok(view(form(user.isAgent).fill(value), taxYear))
+        }
+    }
     val cyaModel: StockDividendsCheckYourAnswersModel = StockDividendsCheckYourAnswersModel(ukDividendsAmount = Some(500.00), stockDividendsAmount = Some(600.00))
     stockDividendsSubmissionService.submitDividends(cyaModel, user.nino, taxYear)
     Future.successful(Ok(view(form(user.isAgent), taxYear)))
   }
 
   def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
-    form(user.isAgent).bindFromRequest().fold(
-      formWithErrors =>
-        Future.successful(BadRequest(view(formWithErrors, taxYear))),
-      _ =>
-        Future.successful(Ok))
+    form(user.isAgent).bindFromRequest().fold(formWithErrors => {
+      Future.successful(BadRequest(view(formWithErrors, taxYear)))
+    }, {
+      yesNoValue =>
+        session.getSessionData(taxYear).flatMap {
+          case Left(_) => Future.successful(errorHandler.internalServerError())
+          case Right(sessionData) =>
+            val dividendsCya = if (yesNoValue) {
+              sessionData.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel()).copy(stockDividends = Some(yesNoValue))
+            } else {
+              sessionData.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel())
+                .copy(stockDividends = Some(yesNoValue), stockDividendsAmount = None)
+            }
+            val update = sessionData.fold(true)(data => data.stockDividends.isEmpty)
+
+            session.updateSessionData(dividendsCya, taxYear, update)(errorHandler.internalServerError())(
+              if (dividendsCya.isFinished) {
+                Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear))
+              } else {
+                if (yesNoValue) {
+                  Redirect(controllers.dividends.routes.StockDividendAmountController.show(taxYear))
+                } else {
+                  Redirect(controllers.dividends.routes.RedeemableSharesStatusController.show(taxYear))
+                }
+              }
+            )
+        }
+    })
+
   }
 }

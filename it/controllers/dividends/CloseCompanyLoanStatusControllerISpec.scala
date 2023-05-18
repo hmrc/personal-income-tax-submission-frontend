@@ -16,20 +16,41 @@
 
 package controllers.dividends
 
+import models.dividends.StockDividendsCheckYourAnswersModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.DefaultBodyWritables
-import utils.{IntegrationTest, ViewHelpers}
+import play.api.mvc.Result
+import utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
 
-class CloseCompanyLoanStatusControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables {
+import scala.concurrent.Future
 
-  val closeCompanyLoanStatusUrl: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/close-company-loan-status"
+class CloseCompanyLoanStatusControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables with DividendsDatabaseHelper{
 
+  val amount: BigDecimal = 123.45
+  val closeCompanyLoanStatusUrl: String = routes.CloseCompanyLoanStatusController.show(taxYear).url
+  val closeCompanyLoansAmountUrl: String = routes.CloseCompanyLoanAmountController.show(taxYear).url
+  val dividendsSummaryUrl: String = routes.DividendsSummaryController.show(taxYear).url
   val postURL: String = s"$appUrl/$taxYear/dividends/close-company-loan-status"
+
+  val cyaModel: StockDividendsCheckYourAnswersModel =
+    StockDividendsCheckYourAnswersModel(
+      gateway = Some(true),
+      ukDividends = Some(true),
+      ukDividendsAmount = Some(amount),
+      otherUkDividends = Some(true),
+      otherUkDividendsAmount = Some(amount),
+      stockDividends = Some(true),
+      stockDividendsAmount = Some(amount),
+      redeemableShares = Some(true),
+      redeemableSharesAmount = Some(amount),
+      closeCompanyLoansWrittenOff = Some(true),
+      closeCompanyLoansWrittenOffAmount = Some(amount)
+    )
 
   trait SpecificExpectedResults {
     val expectedHeading: String
@@ -73,7 +94,7 @@ class CloseCompanyLoanStatusControllerISpec extends IntegrationTest with ViewHel
   }
 
   object IndividualExpectedWelsh extends SpecificExpectedResults {
-    val expectedHeading= "A gawsoch fenthyciad gan gwmni caeedig a gafodd ei ddileu neu ei ryddhau?"
+    val expectedHeading = "A gawsoch fenthyciad gan gwmni caeedig a gafodd ei ddileu neu ei ryddhau?"
     val expectedP2 = "Fel arfer, ystyrir arian rydych chi’n ei gymryd o’ch cwmni – ond nid fel cyflog neu ddifidendau – yn fenthyciad."
     val expectedP3 = "Os bydd eich cwmni yn dileu’r benthyciad, bydd y cwmni’n cael ad-daliad o’r dreth a dalwyd yn flaenorol."
     val expectedErrorText = "Dewiswch ‘Iawn’ os cafodd benthyciad a gawsoch gan gwmni caeedig ei ddileu neu ei ryddhau"
@@ -129,6 +150,8 @@ class CloseCompanyLoanStatusControllerISpec extends IntegrationTest with ViewHel
         lazy val request = FakeRequest("GET", closeCompanyLoanStatusUrl).withHeaders(headers: _*)
 
         lazy val result = {
+          dropStockDividendsDB()
+          emptyStockDividendsUserDataStub()
           authoriseAgentOrIndividual(scenario.isAgent)
           route(app, request, "{}").get
         }
@@ -151,17 +174,69 @@ class CloseCompanyLoanStatusControllerISpec extends IntegrationTest with ViewHel
         welshToggleCheck(scenario.isWelsh)
       }
 
+      "display the redeemable shares status page with session data" which {
+        lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+        lazy val request = FakeRequest("GET", closeCompanyLoanStatusUrl).withHeaders(headers: _*)
+
+        lazy val result: Future[Result] = {
+          authoriseAgentOrIndividual(scenario.isAgent)
+          dropStockDividendsDB()
+          insertStockDividendsCyaData(Some(cyaModel))
+          route(app, request, "{}").get
+        }
+
+        implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+        "has a status of OK(200)" in {
+          status(result) shouldBe OK
+        }
+
+        h1Check(expectedTitle + " " + captionExpected)
+        captionCheck(captionExpected)
+        formPostLinkCheck(closeCompanyLoanStatusUrl, Selectors.formSelector)
+        textOnPageCheck(expectedP1, Selectors.p1Selector)
+        textOnPageCheck(expectedP2, Selectors.p2Selector)
+        textOnPageCheck(expectedP3, Selectors.p3Selector)
+        buttonCheck(continueText, Selectors.continueButtonSelector)
+        radioButtonCheck(yesNo(true), 1)
+        radioButtonCheck(yesNo(false), 2)
+        welshToggleCheck(scenario.isWelsh)
+      }
     }
 
     s".submit when $testNameWelsh and the user is $testNameAgent" should {
 
-      "return a 200 status" in {
+      "return a 303 status and redirect to amount page when true selected" in {
         lazy val result = {
+          dropStockDividendsDB()
           authoriseAgentOrIndividual(scenario.isAgent)
           urlPost(postURL, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("value" -> Seq("true")))
         }
-        result.status shouldBe OK
+        result.status shouldBe SEE_OTHER
+        result.headers(HeaderNames.LOCATION).head shouldBe closeCompanyLoansAmountUrl
       }
+
+      "return a 303 status and redirect to cya page when false selected" in {
+        lazy val result = {
+          authoriseAgentOrIndividual(scenario.isAgent)
+          urlPost(postURL, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("value" -> Seq("false")))
+        }
+        result.status shouldBe SEE_OTHER
+        result.headers(HeaderNames.LOCATION).head shouldBe dividendsSummaryUrl
+      }
+
+      "return a 303 status and redirect to cya page when isFinished is true" in {
+        lazy val result = {
+          authoriseIndividual()
+          dropStockDividendsDB()
+          emptyStockDividendsUserDataStub()
+          insertStockDividendsCyaData(Some(cyaModel))
+          urlPost(postURL, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("value" -> Seq("false")))
+        }
+        result.status shouldBe SEE_OTHER
+        result.headers(HeaderNames.LOCATION).head shouldBe dividendsSummaryUrl
+      }
+
       "return a error" when {
         "the form is empty" which {
 
