@@ -16,17 +16,20 @@
 
 package controllers.savings
 
+import audit.{AuditModel, AuditService, CreateOrAmendDividendsAuditDetail, CreateOrAmendSavingsAuditDetail}
 import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import models.User
-import models.savings.{SavingsIncomeCYAModel, SavingsIncomeDataModel}
+import models.dividends.DecodedDividendsSubmissionPayload
+import models.savings.{DecodedSavingsSubmissionPayload, SavingsIncomeCYAModel, SavingsIncomeDataModel}
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import services.{SavingsSessionService, SavingsSubmissionService}
+import services.{NrsService, SavingsSessionService, SavingsSubmissionService}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.savings.InterestSecuritiesCYAView
@@ -37,7 +40,9 @@ import scala.concurrent.{ExecutionContext, Future}
 class InterestSecuritiesCYAController @Inject()(interestSecuritiesCYAView: InterestSecuritiesCYAView,
                                                 savingsSessionService: SavingsSessionService,
                                                 savingsSubmissionService: SavingsSubmissionService,
-                                                errorHandler: ErrorHandler
+                                                auditService: AuditService,
+                                                errorHandler: ErrorHandler,
+                                                nrsService: NrsService
                                                )
                                                (
                                                  implicit appConfig: AppConfig,
@@ -103,9 +108,23 @@ class InterestSecuritiesCYAController @Inject()(interestSecuritiesCYAView: Inter
     savingsSubmissionService.submitSavings(cyaData, prior, user.nino, user.mtditid, taxYear).flatMap {
       case Left(error) => Future.successful(errorHandler.handleError(error.status))
       case Right(_) =>
+        val model = CreateOrAmendSavingsAuditDetail(
+          cyaData, prior.flatMap(_.securities), prior.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase, taxYear
+        )
+        auditSubmission(model)
+        if (appConfig.nrsEnabled) {
+          nrsService.submit(user.nino, new DecodedSavingsSubmissionPayload(cyaData, prior.flatMap(_.securities)), user.mtditid)
+        }
         savingsSessionService.clear(taxYear)(errorHandler.internalServerError())(
         Redirect(controllers.routes.InterestFromSavingsAndSecuritiesSummaryController.show(taxYear))
       )
     }
+  }
+
+  private def auditSubmission(details: CreateOrAmendSavingsAuditDetail)
+                             (implicit hc: HeaderCarrier,
+                              executionContext: ExecutionContext): Future[AuditResult] = {
+    val event = AuditModel("CreateOrAmendInterestSavingsUpdate", "createOrAmendInterestSavingsUpdate", details)
+    auditService.auditModel(event)
   }
 }
