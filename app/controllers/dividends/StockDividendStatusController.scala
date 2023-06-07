@@ -16,18 +16,15 @@
 
 package controllers.dividends
 
-import config.{AppConfig, DIVIDENDS, ErrorHandler}
-import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
+import config.{AppConfig, DIVIDENDS, ErrorHandler, STOCK_DIVIDENDS}
+import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import forms.YesNoForm
-import models.dividends.StockDividendsCheckYourAnswersModel
-import models.question.QuestionsJourney
 import models.dividends.StockDividendsCheckYourAnswersModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import services.StockDividendsSessionService
-import services.StockDividendsSubmissionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.StockDividendStatusView
 
@@ -41,15 +38,15 @@ class StockDividendStatusController @Inject()(
                                                view: StockDividendStatusView,
                                                implicit val appConfig: AppConfig,
                                                ec: ExecutionContext,
-                                               errorHandler : ErrorHandler,
-                                               stockDividendsSubmissionService: StockDividendsSubmissionService,
+                                               errorHandler: ErrorHandler,
                                                session: StockDividendsSessionService
                                              ) extends FrontendController(cc) with I18nSupport {
+
 
   def form(implicit isAgent: Boolean): Form[Boolean] = YesNoForm.yesNoForm(
     s"dividends.stock-dividend-status.errors.noChoice.${if (isAgent) "agent" else "individual"}")
 
-  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, STOCK_DIVIDENDS).async { implicit user =>
     session.getSessionData(taxYear).map {
       case Left(_) => errorHandler.internalServerError()
       case Right(sessionData) =>
@@ -60,9 +57,6 @@ class StockDividendStatusController @Inject()(
           case Some(value) => Ok(view(form(user.isAgent).fill(value), taxYear))
         }
     }
-    val cyaModel: StockDividendsCheckYourAnswersModel = StockDividendsCheckYourAnswersModel(ukDividendsAmount = Some(500.00), stockDividendsAmount = Some(600.00))
-    stockDividendsSubmissionService.submitDividends(cyaModel, user.nino, taxYear)
-    Future.successful(Ok(view(form(user.isAgent), taxYear)))
   }
 
   def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>

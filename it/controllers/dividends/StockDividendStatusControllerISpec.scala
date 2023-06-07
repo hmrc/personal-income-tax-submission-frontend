@@ -149,7 +149,7 @@ class StockDividendStatusControllerISpec extends IntegrationTest with ViewHelper
           authoriseAgentOrIndividual(scenario.isAgent)
           dropStockDividendsDB()
           emptyUserDataStub()
-          route(app, request, "{}").get
+          route(appWithStockDividends, request, "{}").get
         }
 
         implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
@@ -178,7 +178,7 @@ class StockDividendStatusControllerISpec extends IntegrationTest with ViewHelper
           authoriseAgentOrIndividual(scenario.isAgent)
           dropStockDividendsDB()
           insertStockDividendsCyaData(Some(cyaModel))
-          route(app, request, "{}").get
+          route(appWithStockDividends, request, "{}").get
         }
 
         implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
@@ -203,6 +203,7 @@ class StockDividendStatusControllerISpec extends IntegrationTest with ViewHelper
     s".submit when $testNameWelsh and the user is $testNameAgent" should {
 
       "return a 303 status and redirect to amount page when true selected" in {
+
         lazy val result = {
           dropStockDividendsDB()
           authoriseAgentOrIndividual(scenario.isAgent)

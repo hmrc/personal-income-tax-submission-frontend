@@ -167,7 +167,7 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
           dropStockDividendsDB()
           emptyStockDividendsUserDataStub()
           authoriseAgentOrIndividual(scenario.isAgent)
-          route(app, request, "{}").get
+          route(appWithStockDividends, request, "{}").get
         }
 
         implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
@@ -196,7 +196,7 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
           insertStockDividendsCyaData(Some(cyaModel))
           emptyStockDividendsUserDataStub()
           authoriseAgentOrIndividual(scenario.isAgent)
-          route(app, request, "{}").get
+          route(appWithStockDividends, request, "{}").get
         }
 
         implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))

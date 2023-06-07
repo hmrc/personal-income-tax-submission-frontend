@@ -16,7 +16,7 @@
 
 package models.priorDataModels
 
-import models.dividends.{StockDividendsCheckYourAnswersModel, StockDividendsPriorSubmission, StockDividendsSubmissionModel}
+import models.dividends.StockDividendsPriorSubmission
 import play.api.libs.json.{Json, OFormat}
 
 case class StockDividendsPriorDataModel(

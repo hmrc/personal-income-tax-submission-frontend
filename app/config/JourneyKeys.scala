@@ -24,6 +24,10 @@ case object DIVIDENDS extends JourneyKey {
   override val stringify: String = "dividends"
 }
 
+case object STOCK_DIVIDENDS extends JourneyKey {
+  override val stringify: String = "stock-dividends"
+}
+
 case object INTEREST extends JourneyKey {
   override val stringify: String = "interest"
 }

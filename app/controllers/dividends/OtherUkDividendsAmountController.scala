@@ -16,19 +16,19 @@
 
 package controllers.dividends
 
-import config.{AppConfig, DIVIDENDS, ErrorHandler}
+import config.{AppConfig, DIVIDENDS, ErrorHandler, JourneyKey, STOCK_DIVIDENDS}
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.AmountForm
 import models.User
-import models.dividends.DividendsCheckYourAnswersModel
+import models.dividends.{DividendsCheckYourAnswersModel, StockDividendsCheckYourAnswersModel}
 import models.question.QuestionsJourney
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import play.twirl.api.Html
-import services.DividendsSessionService
+import services.{DividendsSessionService, StockDividendsSessionService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.dividends.OtherUkDividendsAmountView
@@ -42,10 +42,13 @@ class OtherUkDividendsAmountController @Inject()(
                                                   otherDividendsAmountView: OtherUkDividendsAmountView,
                                                   questionHelper: QuestionsJourneyValidator,
                                                   dividendsSessionService: DividendsSessionService,
+                                                  stockDividendsSessionService: StockDividendsSessionService,
                                                   errorHandler: ErrorHandler,
                                                   implicit val appConfig: AppConfig,
                                                   ec: ExecutionContext
                                            ) extends FrontendController(cc) with I18nSupport with SessionHelper {
+
+  val journeyKey: JourneyKey = if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) STOCK_DIVIDENDS else DIVIDENDS
 
   def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
 
@@ -71,29 +74,30 @@ class OtherUkDividendsAmountController @Inject()(
 
   }
 
-  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
-    implicit val questionsJourney: QuestionsJourney[DividendsCheckYourAnswersModel] = DividendsCheckYourAnswersModel.journey(taxYear)
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, journeyKey).async { implicit user =>
+    if (journeyKey.stringify == DIVIDENDS.stringify) {
+      implicit val questionsJourney: QuestionsJourney[DividendsCheckYourAnswersModel] = DividendsCheckYourAnswersModel.journey(taxYear)
 
 
+      dividendsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
+        Future.successful(questionHelper.validate(controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear), cya, taxYear) {
+          val cyaOtherDividendAmount: Option[BigDecimal] = cya.flatMap(_.otherUkDividendsAmount)
 
-    dividendsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
-      Future.successful(questionHelper.validate(controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear), cya, taxYear) {
-        val cyaOtherDividendAmount: Option[BigDecimal] = cya.flatMap(_.otherUkDividendsAmount)
+          val amountForm = cyaOtherDividendAmount match {
+            case Some(cyaAmount) => form(user.isAgent, taxYear).fill(cyaAmount)
+            case _ => form(user.isAgent, taxYear)
+          }
 
-        val amountForm = cyaOtherDividendAmount match {
-          case Some(cyaAmount) => form(user.isAgent, taxYear).fill(cyaAmount)
-          case _ => form(user.isAgent, taxYear)
-        }
-
-        cya match {
-          case Some(cya) => Ok(view(amountForm, taxYear = taxYear, preAmount = cya.otherUkDividendsAmount))
-          case _ => Ok(view(form(user.isAgent, taxYear), taxYear = taxYear))
-        }
-      })
-    }
+          cya match {
+            case Some(cya) => Ok(view(amountForm, taxYear = taxYear, preAmount = cya.otherUkDividendsAmount))
+            case _ => Ok(view(form(user.isAgent, taxYear), taxYear = taxYear))
+          }
+        })
+      }
+    } else { showStockDividends(taxYear, form(user.isAgent, taxYear)) }
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, DIVIDENDS)).async { implicit user =>
+  def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, journeyKey)).async { implicit user =>
       dividendsSessionService.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
       val previousAmount: Option[BigDecimal] = cya.flatMap(_.otherUkDividendsAmount)
 
@@ -111,12 +115,46 @@ class OtherUkDividendsAmountController @Inject()(
                 dividendsSessionService.updateSessionData(cyaModel.copy(otherUkDividendsAmount = Some(bigDecimal)), taxYear)(
                   Future.successful(InternalServerError(errorHandler.internalServerErrorTemplate))
                 )(
-                  Future.successful(Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear)))
+                  if (journeyKey.stringify == STOCK_DIVIDENDS.stringify) {
+                    submitStockDividends(taxYear, bigDecimal, stockDividendsSessionService)
+                  } else {
+                    Future.successful(Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear)))
+                  }
                 )
             }
         }
       )
     }.flatten
+  }
+
+  private def showStockDividends(taxYear: Int, form: Form[BigDecimal])(implicit user: User[AnyContent]): Future[Result] = {
+    stockDividendsSessionService.getSessionData(taxYear).map {
+      case Left(_) => errorHandler.internalServerError()
+      case Right(sessionData) =>
+        val valueCheck: Option[BigDecimal] = sessionData.flatMap(_.stockDividends.flatMap(_.otherUkDividendsAmount))
+
+        valueCheck match {
+          case Some(value) => Ok(view(form, taxYear = taxYear, preAmount = Some(value)))
+          case _ => Ok(view(form, taxYear = taxYear))
+        }
+    }
+  }
+
+  private def submitStockDividends(taxYear: Int, bigDecimal: BigDecimal, session: StockDividendsSessionService)(implicit user: User[AnyContent]) = {
+    session.getSessionData(taxYear).flatMap {
+      case Left(_) => Future.successful(errorHandler.internalServerError())
+      case Right(sessionData) =>
+        val dividendsCya = sessionData.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel())
+          .copy(otherUkDividendsAmount = Some(bigDecimal))
+        session.updateSessionData(dividendsCya, taxYear)(errorHandler.internalServerError())(
+          if (dividendsCya.isFinished) {
+            Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear))
+          }
+          else {
+            Redirect(controllers.dividends.routes.StockDividendStatusController.show(taxYear))
+          }
+        )
+    }
   }
 
 }

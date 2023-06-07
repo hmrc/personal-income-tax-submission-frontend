@@ -20,14 +20,14 @@ import config.{AppConfig, ErrorHandler}
 import controllers.predicates.AuthorisedAction
 import models.dividends.StockDividendsCheckYourAnswersModel
 import play.api.i18n.I18nSupport
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import play.api.i18n.Lang.logger
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import services.{StockDividendsSessionService, StockDividendsSubmissionService}
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import views.html.dividends.DividendsSummaryView
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{StockDividendsSessionService, StockDividendsSubmissionService}
-import views.html.dividends.DividendsSummaryView
 
 @Singleton
 class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
@@ -58,15 +58,21 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
       case Left(_) => Future(errorHandler.internalServerError())
       case Right(data) =>
         val cya = data.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel())
-        submissionService.submitDividends(cya, request.nino, taxYear).map {
-          case Left(error) => errorHandler.handleError(error.status)
-          case Right(_) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+        if (cya == StockDividendsCheckYourAnswersModel(Some(true),Some(false),None,Some(false),None,Some(false),None,Some(false),None,Some(false),None)) {
+          Future(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+        } else {
+          submissionService.submitDividends(cya, request.nino, taxYear).map {
+            case Left(error) => errorHandler.handleError(error.status)
+            case Right(_) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+          }
         }
     }
   }
 
   private[dividends] def handleUnfinishedRedirect(cya: StockDividendsCheckYourAnswersModel, taxYear: Int): Result = {
     StockDividendsCheckYourAnswersModel.unapply(cya).getOrElse((None, None, None, None, None, None, None, None, None, None, None)) match {
+      case (_, Some(true), None, _, _, _, _, _, _, _, _) => Redirect(controllers.dividends.routes.UkDividendsAmountController.show(taxYear))
+      case (_, _, _, Some(true), None, _, _, _, _, _, _) => Redirect(controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear))
       case (_, _, _, _, _, Some(true), None, _, _, _, _) => Redirect(controllers.dividends.routes.StockDividendAmountController.show(taxYear))
       case (_, _, _, _, _, _, _, Some(true), None, _, _) => Redirect(controllers.dividends.routes.RedeemableSharesAmountController.show(taxYear))
       case (_, _, _, _, _, _, _, _, _, Some(true), None) => Redirect(controllers.dividends.routes.CloseCompanyLoanAmountController.show(taxYear))
