@@ -17,7 +17,7 @@
 package controllers.dividends
 
 import audit.{AuditModel, AuditService, CreateOrAmendDividendsAuditDetail, TailorRemoveIncomeSourcesAuditDetail, TailorRemoveIncomeSourcesBody}
-import config.{AppConfig, DIVIDENDS, ErrorHandler}
+import config.{AppConfig, DIVIDENDS, ErrorHandler, STOCK_DIVIDENDS}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
@@ -56,16 +56,20 @@ class DividendsCYAController @Inject()(
 
   //noinspection ScalaStyle
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
-    session.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
-      DividendsCheckYourAnswersModel.getCyaModel(cya, prior) match {
-        case Some(cyaData) if !cyaData.isFinished => Future.successful(handleUnfinishedRedirect(cyaData, taxYear))
-        case Some(cyaData) =>
-          session.updateSessionData(cyaData, taxYear, cya.isEmpty)(errorHandler.internalServerError())(
-            Ok(dividendsCyaView(cyaData, prior, taxYear))
-          )
-        case _ =>
-          logger.info("[DividendsCYAController][show] No CYA data in session. Redirecting to the overview page.")
-          Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+    if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) {
+      Future.successful(Redirect(routes.DividendsSummaryController.show(taxYear)))
+    } else {
+      session.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
+        DividendsCheckYourAnswersModel.getCyaModel(cya, prior) match {
+          case Some(cyaData) if !cyaData.isFinished => Future.successful(handleUnfinishedRedirect(cyaData, taxYear))
+          case Some(cyaData) =>
+            session.updateSessionData(cyaData, taxYear, cya.isEmpty)(errorHandler.internalServerError())(
+              Ok(dividendsCyaView(cyaData, prior, taxYear))
+            )
+          case _ =>
+            logger.info("[DividendsCYAController][show] No CYA data in session. Redirecting to the overview page.")
+            Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+        }
       }
     }
   }

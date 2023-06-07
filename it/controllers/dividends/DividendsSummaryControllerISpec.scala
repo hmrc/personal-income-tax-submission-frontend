@@ -240,7 +240,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
             dropStockDividendsDB()
             emptyStockDividendsUserDataStub()
             insertStockDividendsCyaData(Some(cyaModel))
-            route(app, request, "{}").get
+            route(appWithStockDividends, request, "{}").get
           }
 
           "has an OK(200) status" in {
@@ -335,7 +335,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
               closeCompanyLoansWrittenOff = Some(false),
               None
             )))
-            route(app, request, "{}").get
+            route(appWithStockDividends, request, "{}").get
           }
 
           "has an OK(200) status" in {
@@ -402,7 +402,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
               bonusIssuesOfSecurities = None,
               closeCompanyLoansWrittenOff = stockDividend
             ), nino, taxYear)
-            route(app, request, "{}").get
+            route(appWithStockDividends, request, "{}").get
           }
 
           "has an OK(200) status" in {
@@ -502,7 +502,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
             emptyUserDataStub()
             emptyStockDividendsUserDataStub()
             insertStockDividendsCyaData(Some(cyaModel.copy(closeCompanyLoansWrittenOff = Some(true), closeCompanyLoansWrittenOffAmount = None)))
-            route(app, request, "{}").get
+            route(appWithStockDividends, request, "{}").get
           }
 
           "has an SEE_OTHER(303) status" in {
@@ -523,7 +523,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
             insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel(
               redeemableShares = Some(true), redeemableSharesAmount = None,
               closeCompanyLoansWrittenOff = None, closeCompanyLoansWrittenOffAmount = None)))
-            route(app, request, "{}").get
+            route(appWithStockDividends, request, "{}").get
           }
 
           "has an SEE_OTHER(303) status" in {
@@ -543,7 +543,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
             emptyStockDividendsUserDataStub()
             insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel(
               stockDividends = Some(true))))
-            route(app, request, "{}").get
+            route(appWithStockDividends, request, "{}").get
           }
 
           "has an SEE_OTHER(303) status" in {

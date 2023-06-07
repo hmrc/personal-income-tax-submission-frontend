@@ -17,13 +17,11 @@
 package services
 
 import config.AppConfig
-import connectors.{DividendsSubmissionConnector, IncomeTaxUserDataConnector, StockDividendsSubmissionConnector, StockDividendsUserDataConnector}
 import connectors.httpParsers.StockDividendsSubmissionHttpParser._
+import connectors.{DividendsSubmissionConnector, StockDividendsSubmissionConnector, StockDividendsUserDataConnector}
 import models.User
-import models.dividends.{StockDividendsCheckYourAnswersModel, StockDividendsSubmissionModel}
-import models.priorDataModels.StockDividendsPriorDataModel
-import play.api.libs.json.Json
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import models.dividends.StockDividendsCheckYourAnswersModel
+import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

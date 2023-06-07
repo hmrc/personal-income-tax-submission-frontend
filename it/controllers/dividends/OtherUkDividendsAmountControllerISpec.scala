@@ -23,6 +23,8 @@ import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.WSResponse
+import play.api.test.FakeRequest
+import play.api.test.Helpers.route
 import utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 
 class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers with DividendsDatabaseHelper {
@@ -132,7 +134,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
 
 
   ".show" when {
-    
+
     userScenarios.foreach { us =>
       s"language is ${welshTest(us.isWelsh)} and request is from an ${agentTest(us.isAgent)}" should {
 
@@ -268,6 +270,45 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
 
       inputFieldValueCheck("", "#amount")
     }
+
+    "display the stock dividend other uk dividends amount page" which {
+      lazy val headers = playSessionCookie(userScenarios.head.isAgent) ++ (if (userScenarios.head.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+      lazy val request = FakeRequest(
+        "GET", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies")
+        .withHeaders(headers: _*)
+
+      lazy val result = {
+        dropStockDividendsDB()
+        emptyStockDividendsUserDataStub()
+        authoriseAgentOrIndividual(userScenarios.head.isAgent)
+        route(appWithStockDividends, request, "{}").get
+      }
+
+
+      "has a status of OK(200)" in {
+        status(result) shouldBe OK
+      }
+    }
+
+    "display the stock dividend other uk dividends amount page with session data" which {
+      lazy val headers = playSessionCookie(userScenarios.head.isAgent) ++ (if (userScenarios.head.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+      lazy val request = FakeRequest(
+        "GET", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
+      ).withHeaders(headers: _*)
+
+      lazy val result = {
+        dropStockDividendsDB()
+        insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
+        emptyStockDividendsUserDataStub()
+        authoriseAgentOrIndividual(userScenarios.head.isAgent)
+        route(appWithStockDividends, request, "{}").get
+      }
+
+
+      "has a status of OK(200)" in {
+        status(result) shouldBe OK
+      }
+    }
   }
 
   ".submit" when {
@@ -281,7 +322,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
         s"return a BAD_REQUEST($BAD_REQUEST) status with an Empty Error" which {
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(us.isAgent)
-            urlPost(otherUkDividendsAmountUrl, welsh=us.isWelsh, headers = playSessionCookie(us.isAgent), body = Map[String, String]())
+            urlPost(otherUkDividendsAmountUrl, welsh = us.isWelsh, headers = playSessionCookie(us.isAgent), body = Map[String, String]())
           }
 
           "has the correct status" in {
@@ -294,7 +335,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
         s"return a BAD_REQUEST($BAD_REQUEST) status with an Invalid Error" which {
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(us.isAgent)
-            urlPost(otherUkDividendsAmountUrl, welsh=us.isWelsh, headers = playSessionCookie(us.isAgent), body = Map("amount" -> "|"))
+            urlPost(otherUkDividendsAmountUrl, welsh = us.isWelsh, headers = playSessionCookie(us.isAgent), body = Map("amount" -> "|"))
           }
 
           "has the correct status" in {
@@ -307,7 +348,7 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
         s"return a BAD_REQUEST($BAD_REQUEST) status with an OverMax Error" which {
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(us.isAgent)
-            urlPost(otherUkDividendsAmountUrl, welsh=us.isWelsh, headers = playSessionCookie(us.isAgent),
+            urlPost(otherUkDividendsAmountUrl, welsh = us.isWelsh, headers = playSessionCookie(us.isAgent),
               body = Map("amount" -> "9999999999999999999999999999"))
           }
 
@@ -348,8 +389,8 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
         authoriseIndividual()
         dropDividendsDB()
         emptyUserDataStub()
-        insertDividendsCyaData(Some(DividendsCheckYourAnswersModel(None, Some(true), Some(amount),Some(true))))
-        urlPost(otherUkDividendsAmountUrl, follow=false, headers = playSessionCookie(), body = Map("amount" -> "123"))
+        insertDividendsCyaData(Some(DividendsCheckYourAnswersModel(None, Some(true), Some(amount), Some(true))))
+        urlPost(otherUkDividendsAmountUrl, follow = false, headers = playSessionCookie(), body = Map("amount" -> "123"))
       }
 
       "has a SEE_OTHER(303) status" in {
@@ -359,6 +400,52 @@ class OtherUkDividendsAmountControllerISpec extends IntegrationTest with ViewHel
       "have the correct redirect URL" in {
         result.header(HeaderNames.LOCATION) shouldBe Some(routes.DividendsCYAController.show(taxYear).url)
       }
+    }
+
+    "return a 303 status and redirect to next status page" in {
+      lazy val headers = playSessionCookie(userScenarios.head.isAgent) ++
+        (if (userScenarios.head.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq()) ++
+        Seq("Csrf-Token" -> "nocheck")
+
+      lazy val request = FakeRequest(
+        "POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
+      ).withHeaders(headers: _*)
+
+      lazy val result = {
+        dropStockDividendsDB()
+        insertStockDividendsCyaData(Some(completeStockDividendsCYAModel.copy(None, None, None, None, None, None, None, None, None, None)))
+        authoriseAgentOrIndividual(userScenarios.head.isAgent)
+        emptyStockDividendsUserDataStub()
+        route(appWithStockDividends, request, body = Map("amount" -> Seq("123"))).get
+      }
+      status(result) shouldBe SEE_OTHER
+      await(result).header.headers
+        .get(HeaderNames.LOCATION) shouldBe Some(routes.StockDividendStatusController.show(taxYear).url)
+
+    }
+
+    "return a 303 status and redirect to cya page when isFinished is true" in {
+      lazy val headers = playSessionCookie(userScenarios.head.isAgent) ++
+        (if (userScenarios.head.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq()) ++
+        Seq("Csrf-Token" -> "nocheck")
+
+      lazy val request =
+        FakeRequest(
+          "POST",
+          s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies")
+          .withHeaders(headers: _*)
+
+      lazy val result = {
+        dropStockDividendsDB()
+        insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
+        authoriseAgentOrIndividual(userScenarios.head.isAgent)
+        emptyStockDividendsUserDataStub()
+        route(appWithStockDividends, request, body = Map("amount" -> Seq("123"))).get
+      }
+      status(result) shouldBe SEE_OTHER
+      await(result).header.headers
+        .get(HeaderNames.LOCATION) shouldBe Some(routes.DividendsSummaryController.show(taxYear).url)
+
     }
   }
 

@@ -40,10 +40,9 @@ case class StockDividendsCheckYourAnswersModel(
   }
 
   def isFinished: Boolean = {
-    // TODO: uncomment when journey completed
-    //    checkState(ukDividends, ukDividendsAmount) &&
-    //      checkState(otherUkDividends, otherUkDividendsAmount) &&
-    checkState(stockDividends, stockDividendsAmount) &&
+    checkState(ukDividends, ukDividendsAmount) &&
+      checkState(otherUkDividends, otherUkDividendsAmount) &&
+      checkState(stockDividends, stockDividendsAmount) &&
       checkState(redeemableShares, redeemableSharesAmount) &&
       checkState(closeCompanyLoansWrittenOff, closeCompanyLoansWrittenOffAmount)
   }

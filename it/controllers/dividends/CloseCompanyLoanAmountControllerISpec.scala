@@ -148,7 +148,7 @@ class CloseCompanyLoanAmountControllerISpec extends IntegrationTest with ViewHel
           dropStockDividendsDB()
           emptyStockDividendsUserDataStub()
           authoriseAgentOrIndividual(scenario.isAgent)
-          route(app, request, "{}").get
+          route(appWithStockDividends, request, "{}").get
         }
 
         implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
@@ -166,7 +166,7 @@ class CloseCompanyLoanAmountControllerISpec extends IntegrationTest with ViewHel
         inputFieldCheck(amountInputName, Selectors.inputSelector)
       }
 
-      "display the redeemable shares amount page with session data" which {
+      "display the close company loan amount page with session data" which {
         lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
         lazy val request = FakeRequest("GET", closeCompanyLoanAmountUrl).withHeaders(headers: _*)
 
@@ -175,7 +175,7 @@ class CloseCompanyLoanAmountControllerISpec extends IntegrationTest with ViewHel
           insertStockDividendsCyaData(Some(cyaModel))
           emptyStockDividendsUserDataStub()
           authoriseAgentOrIndividual(scenario.isAgent)
-          route(app, request, "{}").get
+          route(appWithStockDividends, request, "{}").get
         }
 
         implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
@@ -192,6 +192,7 @@ class CloseCompanyLoanAmountControllerISpec extends IntegrationTest with ViewHel
         buttonCheck(continueText, Selectors.continueButtonSelector)
         inputFieldCheck(amountInputName, Selectors.inputSelector)
       }
+
     }
 
     s".submit when $testNameWelsh and the user is $testNameAgent" should {

@@ -16,18 +16,18 @@
 
 package controllers.dividends
 
-import config.{AppConfig, DIVIDENDS, ErrorHandler}
+import config._
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.YesNoForm
 import models.User
-import models.dividends.DividendsCheckYourAnswersModel
+import models.dividends.{DividendsCheckYourAnswersModel, StockDividendsCheckYourAnswersModel}
 import models.question.QuestionsJourney
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import services.DividendsSessionService
+import services.{DividendsSessionService, StockDividendsSessionService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.dividends.ReceiveUkDividendsView
@@ -43,66 +43,113 @@ class ReceiveUkDividendsController @Inject()(
                                               errorHandler: ErrorHandler,
                                               appConfig: AppConfig,
                                               dividendsSessionService: DividendsSessionService,
+                                              stockDividendsSessionService: StockDividendsSessionService,
                                               ec: ExecutionContext
                                             ) extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
+  val journeyKey: JourneyKey = if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) STOCK_DIVIDENDS else DIVIDENDS
+
   def yesNoForm(isAgent: Boolean): Form[Boolean] = YesNoForm.yesNoForm(s"dividends.uk-dividends.errors.noChoice.${if (isAgent) "agent" else "individual"}")
 
-  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
-    implicit val questionsJourney: QuestionsJourney[DividendsCheckYourAnswersModel] = DividendsCheckYourAnswersModel.journey(taxYear)
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, journeyKey).async { implicit user =>
+    if (journeyKey.stringify == DIVIDENDS.stringify) {
+      implicit val questionsJourney: QuestionsJourney[DividendsCheckYourAnswersModel] = DividendsCheckYourAnswersModel.journey(taxYear)
 
-    dividendsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
-      Future(prior match {
-        case Some(prior) if prior.ukDividends.nonEmpty => Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))
-        case _ =>
-          questionHelper.validate(routes.ReceiveUkDividendsController.show(taxYear), cya, taxYear) {
-            Ok(receiveUkDividendsView(cya.flatMap(_.ukDividends).fold(yesNoForm(user.isAgent))(yesNoForm(user.isAgent).fill), taxYear))
-          }
-      })
+      dividendsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
+        Future(prior match {
+          case Some(prior) if prior.ukDividends.nonEmpty => Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))
+          case _ =>
+            questionHelper.validate(routes.ReceiveUkDividendsController.show(taxYear), cya, taxYear) {
+              Ok(receiveUkDividendsView(cya.flatMap(_.ukDividends).fold(yesNoForm(user.isAgent))(yesNoForm(user.isAgent).fill), taxYear))
+            }
+        })
+      }
+    } else {
+      stockDividendsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
+        Future(prior match {
+          case Some(prior) if prior.ukDividendsAmount.nonEmpty => Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear))
+          case _ => Ok(
+            receiveUkDividendsView(cya.flatMap(_.stockDividends.flatMap(_.ukDividends)).fold(yesNoForm(user.isAgent))(yesNoForm(user.isAgent).fill), taxYear)
+          )
+        })
+      }
     }
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, DIVIDENDS)).async { implicit user =>
+  def submit(taxYear: Int): Action[AnyContent] = (authAction andThen journeyFilterAction(taxYear, journeyKey)).async { implicit user =>
     yesNoForm(user.isAgent).bindFromRequest().fold(
       {
         formWithErrors =>
           Future.successful(BadRequest(
-            receiveUkDividendsView(formWithErrors, taxYear)
+              receiveUkDividendsView(formWithErrors, taxYear)
           ))
       },
       {
         yesNoModel =>
-          dividendsSessionService.getSessionData(taxYear).map {
-            case Left(_) => Future.successful(errorHandler.internalServerError())
-            case Right(cya) =>
-              val gateway = if(appConfig.dividendsTailoringEnabled) None else Some(true)
-
-            if (yesNoModel) {
-              val update = cya.nonEmpty
-              val cyaModel = {
-                cya.flatMap(_.dividends).getOrElse(DividendsCheckYourAnswersModel(gateway = gateway)).copy(ukDividends = Some(true))
-                }
-
-                if (update) {
-                  updateAndRedirect(cyaModel, taxYear, routes.UkDividendsAmountController.show(taxYear))
-                } else {
-                  newAndRedirect(cyaModel, taxYear, routes.UkDividendsAmountController.show(taxYear))
-                }
-              } else {
-                cya.flatMap(_.dividends) match {
-                  case Some(model) if model.isFinished =>
-                    updateAndRedirect(model.copy(ukDividends = Some(false), ukDividendsAmount = None), taxYear, routes.DividendsCYAController.show(taxYear))
-                  case Some(model) =>
-                    updateAndRedirect(
-                      model.copy(ukDividends = Some(false), ukDividendsAmount = None), taxYear, routes.ReceiveOtherUkDividendsController.show(taxYear)
-                    )
-                  case _ =>
-                    newAndRedirect(DividendsCheckYourAnswersModel(gateway, Some(false)), taxYear, routes.ReceiveOtherUkDividendsController.show(taxYear))
-                }
-              }
-          }.flatten
+          if (journeyKey.stringify == DIVIDENDS.stringify) {
+            submitDividends(yesNoModel, taxYear)
+          } else {
+            submitStockDividends(yesNoModel, taxYear)
+          }
       }
     )
+  }
+
+  private def submitDividends(yesNoModel: Boolean, taxYear: Int)(implicit user: User[_]): Future[Result] = {
+    dividendsSessionService.getSessionData(taxYear).map {
+      case Left(_) => Future.successful(errorHandler.internalServerError())
+      case Right(cya) =>
+        val gateway = if (appConfig.dividendsTailoringEnabled) None else Some(true)
+
+        if (yesNoModel) {
+          val update = cya.nonEmpty
+          val cyaModel = {
+            cya.flatMap(_.dividends).getOrElse(DividendsCheckYourAnswersModel(gateway = gateway)).copy(ukDividends = Some(true))
+          }
+
+          if (update) {
+            updateAndRedirect(cyaModel, taxYear, routes.UkDividendsAmountController.show(taxYear))
+          } else {
+            newAndRedirect(cyaModel, taxYear, routes.UkDividendsAmountController.show(taxYear))
+          }
+        } else {
+          cya.flatMap(_.dividends) match {
+            case Some(model) if model.isFinished =>
+              updateAndRedirect(model.copy(ukDividends = Some(false), ukDividendsAmount = None), taxYear, routes.DividendsCYAController.show(taxYear))
+            case Some(model) =>
+              updateAndRedirect(
+                model.copy(ukDividends = Some(false), ukDividendsAmount = None), taxYear, routes.ReceiveOtherUkDividendsController.show(taxYear)
+              )
+            case _ =>
+              newAndRedirect(DividendsCheckYourAnswersModel(gateway, Some(false)), taxYear, routes.ReceiveOtherUkDividendsController.show(taxYear))
+          }
+        }
+    }.flatten
+  }
+
+  private def submitStockDividends(yesNoModel: Boolean, taxYear: Int)(implicit user: User[_]): Future[Result] = {
+    stockDividendsSessionService.getSessionData(taxYear).flatMap {
+      case Left(_) => Future.successful(errorHandler.internalServerError())
+      case Right(sessionData) =>
+        val dividendsCya = if (yesNoModel) {
+          sessionData.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel()).copy(gateway = Some(true), ukDividends = Some(yesNoModel))
+        } else {
+          sessionData.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel())
+            .copy(gateway = Some(true), ukDividends = Some(yesNoModel), ukDividendsAmount = None)
+        }
+        val update = sessionData.fold(true)(data => data.stockDividends.isEmpty)
+          stockDividendsSessionService.updateSessionData(dividendsCya, taxYear, update)(errorHandler.internalServerError())(
+            if (dividendsCya.isFinished) {
+              Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear))
+            } else {
+              if (yesNoModel) {
+                Redirect(controllers.dividends.routes.UkDividendsAmountController.show(taxYear))
+              } else {
+                Redirect(controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear))
+              }
+            }
+          )
+    }
   }
 
   private def newAndRedirect(cyaModel: DividendsCheckYourAnswersModel, taxYear: Int, redirectCall: Call)(implicit user: User[_]): Future[Result] = {

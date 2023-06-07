@@ -74,7 +74,7 @@
             if (cya.otherUkDividends.contains(true)) {
                  Some(summaryListRow(
                     HtmlContent(messages("dividends.summary.list.amount-from-unit-trusts-or-investment-companies")),
-                    HtmlContent(s"£${cya.otherUkDividends.getOrElse("").toString}"),
+                    HtmlContent(s"£${cya.otherUkDividendsAmount.getOrElse("").toString}"),
                     actions = Seq((controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear), messages("common.change"), Some(messages("dividends.summary.list.hidden.text.amount-from-unit-trusts-or-investment-companies"))))
                 ))
             } else { None },

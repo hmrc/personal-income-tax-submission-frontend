@@ -16,7 +16,7 @@
 
 package controllers.dividends
 
-import config.{AppConfig, DIVIDENDS, ErrorHandler}
+import config.{AppConfig, DIVIDENDS, ErrorHandler, JourneyKey, STOCK_DIVIDENDS}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import forms.AmountForm
@@ -41,6 +41,7 @@ class StockDividendAmountController @Inject()(
                                                ec: ExecutionContext
                                              ) extends FrontendController(cc) with I18nSupport {
 
+  val journeyKey: JourneyKey = if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) STOCK_DIVIDENDS else DIVIDENDS
   def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
 
   def form(implicit isAgent: Boolean, taxYear: Int): Form[BigDecimal] = AmountForm.amountForm(
@@ -50,7 +51,7 @@ class StockDividendAmountController @Inject()(
     emptyFieldArguments = Seq(taxYear.toString)
   )
 
-  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, journeyKey).async { implicit user =>
     session.getSessionData(taxYear).map {
       case Left(_) => errorHandler.internalServerError()
       case Right(sessionData) =>
@@ -63,7 +64,7 @@ class StockDividendAmountController @Inject()(
     }
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
+  def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, journeyKey).async { implicit user =>
     form(user.isAgent, taxYear).bindFromRequest().fold(
       {
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, taxYear)))
