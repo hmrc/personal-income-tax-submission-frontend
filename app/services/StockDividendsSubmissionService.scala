@@ -36,14 +36,33 @@ class StockDividendsSubmissionService @Inject()(
 
   def submitDividends(cya: StockDividendsCheckYourAnswersModel, nino: String, taxYear: Int)
                      (implicit hc: HeaderCarrier, user: User[_], ec: ExecutionContext): Future[StockDividendsSubmissionResponse] = {
-    stockDividendsUserDataConnector.getUserData(taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid)).map {
+    stockDividendsUserDataConnector.getUserData(taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid)).flatMap {
       case Left(error) => Future.successful(Left(error))
       case Right(result) =>
-        dividendsSubmissionConnector.submitDividends(cya.toDividendsSubmissionModel, nino, taxYear)(hc.withExtraHeaders("mtditid" -> user.mtditid)).flatMap {
-          case Left(error) => Future.successful(Left(error))
-          case Right(value) =>
+        Future.sequence(Seq(
+          if (cya.hasDividendsData) {
+            dividendsSubmissionConnector.submitDividends(cya.toDividendsSubmissionModel, nino, taxYear)(hc.withExtraHeaders("mtditid" -> user.mtditid)).map {
+              case Right(_) => Right(true)
+              case Left(_) => Right(false)
+            }
+          } else {
+            Future.successful(Right(true))
+          },
+          if (cya.hasStockDividendsData) {
             stockDividendsSubmissionConnector.submitDividends(result.toSubmission(cya), nino, taxYear)(hc.withExtraHeaders("mtditid" -> user.mtditid))
+          } else {
+            Future.successful(Right(true))
+          }
+        )).map { results => {
+          val response = results.filter(_.isLeft)
+          if (response.isEmpty) {
+            Right(true)
+          } else {
+            response.head
+          }
         }
-    }.flatten
+        }
+    }
   }
 }
+

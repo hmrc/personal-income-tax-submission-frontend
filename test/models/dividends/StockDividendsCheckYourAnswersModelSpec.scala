@@ -105,6 +105,15 @@ class StockDividendsCheckYourAnswersModelSpec extends UnitTest {
 
     }
 
+    "correctly establish if model has data to submit" in {
+      modelMax.hasStockDividendsData shouldBe true
+      modelMax.hasDividendsData shouldBe true
+    }
+
+    "correctly establish if model has no data to submit" in {
+      modelMin.hasStockDividendsData shouldBe false
+      modelMin.hasDividendsData shouldBe false
+    }
   }
 
 }
