@@ -24,7 +24,7 @@ import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
-import utils.{IntegrationTest, InterestDatabaseHelper, SavingsDatabaseHelper, ViewHelpers}
+import utils.{IntegrationTest, SavingsDatabaseHelper, ViewHelpers}
 
 class InterestSecuritiesCYAControllerISpec extends IntegrationTest with SavingsDatabaseHelper with ViewHelpers {
 

@@ -37,7 +37,7 @@ class UserDataRepositoryISpec extends IntegrationTest with FutureAwaits with Def
 
   class EmptyDatabase {
     await(dividendsRepo.collection.drop().toFuture())
-    await(dividendsRepo.ensureIndexes)
+    await(dividendsRepo.ensureIndexes())
   }
 
   val dividendsUserData: DividendsUserDataModel = DividendsUserDataModel(

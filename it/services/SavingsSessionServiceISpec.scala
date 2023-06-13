@@ -37,7 +37,7 @@ class SavingsSessionServiceISpec extends IntegrationTest{
     }
     "return true when successful and false when adding a duplicate" in {
       await(savingsUserDataRepository.collection.drop().toFuture())
-      await(savingsUserDataRepository.ensureIndexes)
+      await(savingsUserDataRepository.ensureIndexes())
       val initialResult = await(savingsSessionService.createSessionData(completeSavingsCYAModel, taxYear)(false)(true))
       val duplicateResult = await(savingsSessionService.createSessionData(completeSavingsCYAModel, taxYear)(false)(true))
       initialResult shouldBe true

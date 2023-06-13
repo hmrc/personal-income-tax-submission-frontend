@@ -19,7 +19,7 @@ package connectors
 import com.github.tomakehurst.wiremock.http.HttpHeader
 import config.{AppConfig, FrontendAppConfig}
 import connectors.httpParsers.StockDividendsSubmissionHttpParser.StockDividendsSubmissionResponse
-import models.dividends.{DividendsResponseModel, ForeignDividendModel, StockDividendModel, StockDividendsSubmissionModel}
+import models.dividends.{ForeignDividendModel, StockDividendModel, StockDividendsSubmissionModel}
 import models.{APIErrorBodyModel, APIErrorModel}
 import play.api.http.Status._
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, SessionId}

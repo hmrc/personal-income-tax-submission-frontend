@@ -16,13 +16,12 @@
 
 package controllers.savings
 
-import audit.{AuditModel, AuditService, CreateOrAmendDividendsAuditDetail, CreateOrAmendSavingsAuditDetail}
+import audit.{AuditModel, AuditService, CreateOrAmendSavingsAuditDetail}
 import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import models.User
-import models.dividends.DecodedDividendsSubmissionPayload
 import models.savings.{DecodedSavingsSubmissionPayload, SavingsIncomeCYAModel, SavingsIncomeDataModel}
 import play.api.Logging
 import play.api.i18n.I18nSupport

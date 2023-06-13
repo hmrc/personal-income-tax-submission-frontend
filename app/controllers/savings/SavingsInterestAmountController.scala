@@ -17,11 +17,9 @@
 package controllers.savings
 
 
-import config.{AppConfig, ErrorHandler, INTEREST}
+import config.{AppConfig, ErrorHandler}
 import controllers.predicates.AuthorisedAction
-import controllers.predicates.CommonPredicates.commonPredicates
-import forms.{AmountForm, YesNoForm}
-import models.savings.SavingsIncomeCYAModel
+import forms.AmountForm
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

@@ -43,13 +43,13 @@ class IncomeSourceConnectorSpec extends IntegrationTest {
       "submission returns a 204" in {
         stubPutWithRequestBody(url, NO_CONTENT, requestBodyJson, headers)
 
-        Await.result(connector.put(taxYear, nino, incomeSource), Duration.Inf) shouldBe Right()
+        Await.result(connector.put(taxYear, nino, incomeSource), Duration.Inf) shouldBe Right(())
       }
 
       "submission returns a 404" in {
         stubPutWithRequestBody(url, NO_CONTENT, requestBodyJson, headers)
 
-        Await.result(connector.put(taxYear, nino, incomeSource), Duration.Inf) shouldBe Right()
+        Await.result(connector.put(taxYear, nino, incomeSource), Duration.Inf) shouldBe Right(())
       }
     }
 

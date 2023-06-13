@@ -16,7 +16,6 @@
 
 package services
 
-import config.ErrorHandler
 import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector}
 import repositories.DividendsUserDataRepository
 import utils.IntegrationTest
@@ -38,7 +37,7 @@ class DividendsSessionServiceISpec extends IntegrationTest{
     }
     "return true when successful and false when adding a duplicate" in {
       await(dividendsUserDataRepository.collection.drop().toFuture())
-      await(dividendsUserDataRepository.ensureIndexes)
+      await(dividendsUserDataRepository.ensureIndexes())
       val initialResult = await(dividendsSessionService.createSessionData(completeDividendsCYAModel, taxYear)(false)(true))
       val duplicateResult = await(dividendsSessionService.createSessionData(completeDividendsCYAModel, taxYear)(false)(true))
       initialResult shouldBe true

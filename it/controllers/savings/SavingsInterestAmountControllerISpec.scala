@@ -27,8 +27,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
 import utils.{IntegrationTest, SavingsDatabaseHelper, ViewHelpers}
 
-import play.api.libs.ws.DefaultBodyWritables
-
 class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables with SavingsDatabaseHelper {
 
   val savingsInterestAmountUrl: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/interest-amount"

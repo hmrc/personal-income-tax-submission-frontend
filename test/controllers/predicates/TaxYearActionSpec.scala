@@ -21,7 +21,6 @@ import config.{AppConfig, ErrorHandler}
 import models.User
 import play.api.http.Status.SEE_OTHER
 import play.api.i18n.MessagesApi
-import play.api.test.FakeRequest
 import play.api.test.Helpers.stubMessagesControllerComponents
 import utils.UnitTest
 
@@ -99,15 +98,15 @@ class TaxYearActionSpec extends UnitTest {
         }
 
         "has a status of SEE_OTHER (303)" in {
-          status(result.map(_.left.get)) shouldBe SEE_OTHER
+          status(result.map(_.left.toOption.get)) shouldBe SEE_OTHER
         }
 
         "has the overview page redirect url" in {
-          redirectUrl(result.map(_.left.get)) shouldBe "/overview"
+          redirectUrl(result.map(_.left.toOption.get)) shouldBe "/overview"
         }
 
         "has an updated tax year session value" in {
-          await(result.map(_.left.get)).session.get(SessionValues.TAX_YEAR).get shouldBe (validTaxYear + 1).toString
+          await(result.map(_.left.toOption.get)).session.get(SessionValues.TAX_YEAR).get shouldBe (validTaxYear + 1).toString
         }
       }
 
@@ -123,11 +122,11 @@ class TaxYearActionSpec extends UnitTest {
         }
 
         "has a status of SEE_OTHER (303)" in {
-          status(result.map(_.left.get)) shouldBe SEE_OTHER
+          status(result.map(_.left.toOption.get)) shouldBe SEE_OTHER
         }
 
         "has the TaxYearError redirect url" in {
-          redirectUrl(result.map(_.left.get)) shouldBe controllers.routes.TaxYearErrorController.show.url
+          redirectUrl(result.map(_.left.toOption.get)) shouldBe controllers.routes.TaxYearErrorController.show.url
         }
 
       }
@@ -147,11 +146,11 @@ class TaxYearActionSpec extends UnitTest {
         }
 
         "has a status of SEE_OTHER (303)" in {
-          status(result.map(_.left.get)) shouldBe SEE_OTHER
+          status(result.map(_.left.toOption.get)) shouldBe SEE_OTHER
         }
 
         "has the start page redirect url" in {
-          redirectUrl(result.map(_.left.get)) shouldBe "/start"
+          redirectUrl(result.map(_.left.toOption.get)) shouldBe "/start"
         }
 
       }
@@ -168,11 +167,11 @@ class TaxYearActionSpec extends UnitTest {
         }
 
         "has a status of SEE_OTHER (303)" in {
-          status(result.map(_.left.get)) shouldBe SEE_OTHER
+          status(result.map(_.left.toOption.get)) shouldBe SEE_OTHER
         }
 
         "has the TaxYearError redirect url" in {
-          redirectUrl(result.map(_.left.get)) shouldBe controllers.routes.TaxYearErrorController.show.url
+          redirectUrl(result.map(_.left.toOption.get)) shouldBe controllers.routes.TaxYearErrorController.show.url
         }
       }
 
@@ -189,15 +188,15 @@ class TaxYearActionSpec extends UnitTest {
         }
 
         "has a status of SEE_OTHER (303)" in {
-          status(result.map(_.left.get)) shouldBe SEE_OTHER
+          status(result.map(_.left.toOption.get)) shouldBe SEE_OTHER
         }
 
         "has the overview page redirect url" in {
-          redirectUrl(result.map(_.left.get)) shouldBe "/overview"
+          redirectUrl(result.map(_.left.toOption.get)) shouldBe "/overview"
         }
 
         "has the updated TAX_YEAR session value" in {
-          await(result.map(_.left.get)).session.get(SessionValues.TAX_YEAR).get shouldBe (validTaxYear - 1).toString
+          await(result.map(_.left.toOption.get)).session.get(SessionValues.TAX_YEAR).get shouldBe (validTaxYear - 1).toString
         }
       }
     }

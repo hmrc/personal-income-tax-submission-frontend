@@ -17,7 +17,6 @@
 package controllers.interest
 
 import config.{AppConfig, ErrorHandler, INTEREST}
-import connectors.ExcludeJourneyConnector
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.YesNoForm
@@ -33,7 +32,6 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.interest.InterestGatewayView
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
-import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -135,9 +133,9 @@ class InterestGatewayController @Inject()(
                                 (redirect: Result)(implicit user: User[_]): Future[Result] = {
 
     if (isUpdate) {
-      interestSessionService.updateSessionData(interestCYAModel, taxYear)(errorHandler.internalServerError)(redirect)
+      interestSessionService.updateSessionData(interestCYAModel, taxYear)(errorHandler.internalServerError())(redirect)
     } else {
-      interestSessionService.updateSessionData(interestCYAModel, taxYear, needsCreating = true)(errorHandler.internalServerError)(redirect)
+      interestSessionService.updateSessionData(interestCYAModel, taxYear, needsCreating = true)(errorHandler.internalServerError())(redirect)
     }
   }
 

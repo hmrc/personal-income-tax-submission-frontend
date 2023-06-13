@@ -17,8 +17,7 @@
 package services
 
 import connectors.{DividendsSubmissionConnector, StockDividendsSubmissionConnector, StockDividendsUserDataConnector}
-import connectors.httpParsers.DividendsSubmissionHttpParser.DividendsSubmissionsResponse
-import models.dividends.{DividendsCheckYourAnswersModel, DividendsResponseModel, DividendsSubmissionModel, StockDividendModel, StockDividendsCheckYourAnswersModel, StockDividendsPriorSubmission, StockDividendsSubmissionModel}
+import models.dividends.{DividendsResponseModel, DividendsSubmissionModel, StockDividendModel, StockDividendsCheckYourAnswersModel, StockDividendsPriorSubmission, StockDividendsSubmissionModel}
 import models.{APIErrorBodyModel, APIErrorModel, User}
 import play.api.http.Status._
 import uk.gov.hmrc.auth.core.AuthConnector

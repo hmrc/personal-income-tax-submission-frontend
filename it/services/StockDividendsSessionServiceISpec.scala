@@ -44,7 +44,7 @@ class StockDividendsSessionServiceISpec extends IntegrationTest{
     }
     "return true when successful and false when adding a duplicate" in {
       await(stockDividendsUserDataRepository.collection.drop().toFuture())
-      await(stockDividendsUserDataRepository.ensureIndexes)
+      await(stockDividendsUserDataRepository.ensureIndexes())
       val initialResult = await(stockDividendsSessionService.createSessionData(completeStockDividendsCYAModel, taxYear)(false)(true))
       val duplicateResult = await(stockDividendsSessionService.createSessionData(completeStockDividendsCYAModel, taxYear)(false)(true))
       initialResult shouldBe true
