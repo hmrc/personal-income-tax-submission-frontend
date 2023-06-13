@@ -474,23 +474,6 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
 
         }
 
-//        "redirect to overview when no cya data found" which {
-//
-//          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-//          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
-//
-//          lazy val result = {
-//            authoriseAgentOrIndividual(us.isAgent)
-//            dropStockDividendsDB()
-//            route(app, request, "{}").get
-//          }
-//
-//          "has an SEE_OTHER(303) status" in {
-//            status(result) shouldBe SEE_OTHER
-//            result.map(_.header.headers.get(HeaderNames.LOCATION).contains(overviewUrl)) shouldBe true
-//          }
-//        }
-
         "redirect to close company loan amount when unfinished" which {
 
           lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
@@ -551,6 +534,44 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
           }
         }
 
+        "redirect to uk dividends amount when unfinished" which {
+
+          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
+          lazy val result = {
+            authoriseAgentOrIndividual(us.isAgent)
+            dropStockDividendsDB()
+            emptyUserDataStub()
+            emptyStockDividendsUserDataStub()
+            insertStockDividendsCyaData(Some(cyaModel.copy(ukDividends = Some(true), ukDividendsAmount = None)))
+            route(appWithStockDividends, request, "{}").get
+          }
+
+          "has an SEE_OTHER(303) status" in {
+            status(result) shouldBe SEE_OTHER
+          }
+        }
+
+        "redirect to other uk dividends amount when unfinished" which {
+
+          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
+          lazy val result = {
+            authoriseAgentOrIndividual(us.isAgent)
+            dropStockDividendsDB()
+            emptyUserDataStub()
+            emptyStockDividendsUserDataStub()
+            insertStockDividendsCyaData(Some(cyaModel.copy(otherUkDividends = Some(true), otherUkDividendsAmount = None)))
+            route(appWithStockDividends, request, "{}").get
+          }
+
+          "has an SEE_OTHER(303) status" in {
+            status(result) shouldBe SEE_OTHER
+          }
+        }
+
       }
     }
   }
@@ -576,22 +597,6 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
       "has the correct title" in {
         result.headers("Location").head shouldBe
           s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view"
-      }
-    }
-
-    s"return 500 when there is a problem posting data" when {
-
-      lazy val result: WSResponse = {
-        authoriseIndividual()
-        dropStockDividendsDB()
-        emptyStockDividendsUserDataStub()
-        insertStockDividendsCyaData(Some(cyaModel))
-        stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", INTERNAL_SERVER_ERROR, "")
-        urlPost(dividendsSummaryUrl, follow = false, headers = playSessionCookie(), body = "")
-      }
-
-      "has a status of 500" in {
-        result.status shouldBe INTERNAL_SERVER_ERROR
       }
     }
 

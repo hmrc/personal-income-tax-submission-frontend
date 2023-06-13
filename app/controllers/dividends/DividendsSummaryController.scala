@@ -58,13 +58,9 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
       case Left(_) => Future(errorHandler.internalServerError())
       case Right(data) =>
         val cya = data.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel())
-        if (cya == StockDividendsCheckYourAnswersModel(Some(true),Some(false),None,Some(false),None,Some(false),None,Some(false),None,Some(false),None)) {
-          Future(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
-        } else {
-          submissionService.submitDividends(cya, request.nino, taxYear).map {
-            case Left(error) => errorHandler.handleError(error.status)
-            case Right(_) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-          }
+        submissionService.submitDividends(cya, request.nino, taxYear).map {
+          case Left(error) => errorHandler.handleError(error.status)
+          case Right(_) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
         }
     }
   }

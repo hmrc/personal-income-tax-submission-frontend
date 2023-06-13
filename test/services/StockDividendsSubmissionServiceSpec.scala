@@ -17,7 +17,7 @@
 package services
 
 import connectors.{DividendsSubmissionConnector, StockDividendsSubmissionConnector, StockDividendsUserDataConnector}
-import models.dividends.{DividendsResponseModel, DividendsSubmissionModel, StockDividendModel, StockDividendsCheckYourAnswersModel, StockDividendsPriorSubmission, StockDividendsSubmissionModel}
+import models.dividends._
 import models.{APIErrorBodyModel, APIErrorModel, User}
 import play.api.http.Status._
 import uk.gov.hmrc.auth.core.AuthConnector
@@ -103,6 +103,10 @@ class StockDividendsSubmissionServiceSpec extends UnitTest {
         (dividendsSubmissionConnector.submitDividends(_: DividendsSubmissionModel, _: String, _: Int)(_: HeaderCarrier))
           .expects(dsmData, nino, taxYear, emptyHeaderCarrier.withExtraHeaders("mtditid" -> mtdItid))
           .returning(Future.successful(Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("test","test")))))
+
+        (stockDividendsSubmissionConnector.submitDividends(_: StockDividendsSubmissionModel, _: String, _: Int)(_: HeaderCarrier))
+          .expects(stockSubmissionModel, nino, taxYear, emptyHeaderCarrier.withExtraHeaders("mtditid" -> mtdItid))
+          .returning(Future.successful(Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("test", "test")))))
 
         val result = await(service.submitDividends(cyaData, nino, taxYear))
           result.isLeft shouldBe true
