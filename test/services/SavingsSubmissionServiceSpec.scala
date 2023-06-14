@@ -17,7 +17,6 @@
 package services
 
 import connectors.SavingsSubmissionConnector
-import connectors.httpParsers.SavingsSubmissionHttpParser.SavingsSubmissionResponse
 import models.savings.{ForeignInterestModel, SavingsIncomeCYAModel, SavingsSubmissionModel, SecuritiesModel}
 import models.{APIErrorBodyModel, APIErrorModel}
 import play.api.http.Status._

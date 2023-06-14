@@ -24,7 +24,7 @@ import play.api.http.Status._
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
 import utils.{IntegrationTest, ViewHelpers}
-import utils.{IntegrationTest, SavingsDatabaseHelper, ViewHelpers}
+import utils. SavingsDatabaseHelper
 
 
 class SavingsGatewayControllerISpec extends IntegrationTest with ViewHelpers with SavingsDatabaseHelper{

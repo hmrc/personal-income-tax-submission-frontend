@@ -55,11 +55,11 @@ class JourneyFilterActionSpec extends UnitTest {
         }
 
         "has a status of 303" in {
-          result.left.get.header.status shouldBe SEE_OTHER
+          result.left.toOption.get.header.status shouldBe SEE_OTHER
         }
 
         "has a redirect URL to the overview page" in {
-          result.left.get.header.headers("Location") shouldBe "/overview"
+          result.left.toOption.get.header.headers("Location") shouldBe "/overview"
         }
       }
 

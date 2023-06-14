@@ -219,7 +219,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
     .in(Environment.simple(mode = Mode.Dev))
     .configure(config())
-    .build
+    .build()
 
   lazy val appWithTailoring: Application = new GuiceApplicationBuilder()
     .in(Environment.simple(mode = Mode.Dev))
@@ -238,7 +238,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   lazy val appWithInvalidEncryptionKey: Application = GuiceApplicationBuilder()
     .configure(invalidEncryptionConfig)
-    .build
+    .build()
 
   implicit lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
 

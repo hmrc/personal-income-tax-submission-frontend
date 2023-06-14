@@ -16,7 +16,6 @@
 
 package services
 
-import config.ErrorHandler
 import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector}
 import repositories.GiftAidUserDataRepository
 import utils.IntegrationTest
@@ -38,7 +37,7 @@ class GiftAidSessionServiceISpec extends IntegrationTest{
     }
     "return true when succesful and false when adding a duplicate" in {
       await(giftAidUserDataRepository.collection.drop().toFuture())
-      await(giftAidUserDataRepository.ensureIndexes)
+      await(giftAidUserDataRepository.ensureIndexes())
       val initialResult = await(giftAidSessionService.createSessionData(completeGiftAidCYAModel, taxYear)(false)(true))
       val duplicateResult = await(giftAidSessionService.createSessionData(completeGiftAidCYAModel, taxYear)(false)(true))
       initialResult shouldBe true

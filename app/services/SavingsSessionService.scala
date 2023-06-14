@@ -54,7 +54,7 @@ class SavingsSessionService @Inject()(
       DateTime.now(DateTimeZone.UTC)
     )
 
-    savingsUserDataRepository.create(userData).map {
+    savingsUserDataRepository.create(userData)().map {
       case Right(_) => onSuccess
       case Left(_) => onFail
     }
@@ -82,7 +82,7 @@ class SavingsSessionService @Inject()(
     )
 
     if (needsCreating) {
-      savingsUserDataRepository.create(userData).map {
+      savingsUserDataRepository.create(userData)().map {
         case Right(_) => onSuccess
         case Left(_) => onFail
       }

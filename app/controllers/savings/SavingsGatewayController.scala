@@ -21,7 +21,7 @@ import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import forms.YesNoForm
-import models.savings.{SavingsIncomeCYAModel, SavingsIncomeDataModel}
+import models.savings.SavingsIncomeCYAModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}

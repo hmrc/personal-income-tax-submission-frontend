@@ -94,6 +94,7 @@ val identifier = account.id.getOrElse(account.uniqueSessionId.getOrElse(""))
                 if(priorSubmission.exists(_.submissions.exists(prior => prior.id.equals(account.id) && !prior.hasTaxed))) {
                     removeColumnHtml(account, removeLink)
                 }
+            case _ => removeColumnHtml(account, removeLink)
         }
     }
 }

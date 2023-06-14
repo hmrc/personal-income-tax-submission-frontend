@@ -40,6 +40,7 @@
     taxType match {
         case `TAXED`=> messages("interest.remove-account.taxed-hint")
         case `UNTAXED` => messages("interest.remove-account.untaxed-hint")
+        case _ => ""
     }
 }
 

@@ -30,7 +30,7 @@ trait GiftAidDatabaseHelper {
   //noinspection ScalaStyle
   def dropGiftAidDB() = {
     await(giftAidDatabase.collection.drop().toFutureOption())
-    await(giftAidDatabase.ensureIndexes)
+    await(giftAidDatabase.ensureIndexes())
   }
 
   //noinspection ScalaStyle

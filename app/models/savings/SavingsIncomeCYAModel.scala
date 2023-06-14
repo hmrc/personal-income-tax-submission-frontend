@@ -22,8 +22,6 @@ import play.api.mvc.Result
 import play.api.mvc.Results.Redirect
 import uk.gov.hmrc.crypto.EncryptedValue
 
-import scala.concurrent.Future
-
 case class SavingsIncomeCYAModel(
                              gateway: Option[Boolean] = None,
                              grossAmount: Option[BigDecimal] = None,

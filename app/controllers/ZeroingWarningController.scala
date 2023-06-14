@@ -19,12 +19,9 @@ package controllers
 import config._
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
-import forms.interest.TaxedInterestAmountForm.taxedAmount
-import forms.interest.UntaxedInterestAmountForm.untaxedAmount
 import models.User
 import models.dividends.DividendsCheckYourAnswersModel
 import models.interest.InterestCYAModel
-import models.charity.GiftAidCYAModel
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import services.{DividendsSessionService, GiftAidSessionService, InterestSessionService}
@@ -88,9 +85,9 @@ class ZeroingWarningController @Inject()(
 
   def submit(taxYear: Int, journeyKey: String): Action[AnyContent] = zeroingPredicates(taxYear, journeyKey).async { implicit user =>
     if (appConfig.interestTailoringEnabled || appConfig.dividendsTailoringEnabled) {
-      def onSuccess(key: String): Result = {
+/*      def onSuccess(key: String): Result = {
         Redirect(s"/$key")
-      }
+      }*/
 
       journeyKey match {
         case key@"dividends" => handleDividends(taxYear)
