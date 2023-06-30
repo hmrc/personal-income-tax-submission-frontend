@@ -22,11 +22,11 @@ import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import models.{APIErrorBodyModel, APIErrorModel, User}
-import models.dividends.{DecodedDividendsSubmissionPayload, DividendsCheckYourAnswersModel, DividendsPriorSubmission}
+import models.dividends.{DecodedDividendsSubmissionPayload, DividendsCheckYourAnswersModel, DividendsPriorSubmission, StockDividendsCheckYourAnswersModel}
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{DividendsSessionService, DividendsSubmissionService, ExcludeJourneyService, NrsService}
+import services.{DividendsSessionService, DividendsSubmissionService, ExcludeJourneyService, NrsService, StockDividendsSessionService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -40,6 +40,7 @@ class DividendsCYAController @Inject()(
                                         dividendsCyaView: DividendsCYAView,
                                         dividendsSubmissionService: DividendsSubmissionService,
                                         session: DividendsSessionService,
+                                        stockDividendsSession: StockDividendsSessionService,
                                         auditService: AuditService,
                                         errorHandler: ErrorHandler,
                                         nrsService: NrsService,
@@ -57,7 +58,16 @@ class DividendsCYAController @Inject()(
   //noinspection ScalaStyle
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
     if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) {
-      Future.successful(Redirect(routes.DividendsSummaryController.show(taxYear)))
+      stockDividendsSession.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
+        StockDividendsCheckYourAnswersModel.getCyaModel(cya.flatMap(_.stockDividends), prior) match {
+          case Some(cyaData) =>
+            stockDividendsSession.createSessionData(cyaData, taxYear)(errorHandler.internalServerError())(
+            Redirect(routes.DividendsSummaryController.show(taxYear)))
+          case _ =>
+            logger.info("[DividendsCYAController][show] No CYA data in session. Redirecting to the overview page.")
+            Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+        }
+      }
     } else {
       session.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
         DividendsCheckYourAnswersModel.getCyaModel(cya, prior) match {
@@ -76,48 +86,48 @@ class DividendsCYAController @Inject()(
 
 
   def submit(taxYear: Int): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, DIVIDENDS)).async { implicit user =>
-      session.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cyaData, priorData) =>
-          if (appConfig.dividendsTailoringEnabled && cyaData.flatMap(_.gateway).contains(false)) {
-            auditTailorRemoveIncomeSources(TailorRemoveIncomeSourcesAuditDetail(
-              nino = user.nino,
-              mtditid = user.mtditid,
-              userType = user.affinityGroup.toLowerCase,
-              taxYear = taxYear,
-              body = TailorRemoveIncomeSourcesBody(Seq(DIVIDENDS.stringify))
-            ))
-            if (appConfig.nrsEnabled) {
-              nrsService.submit(user.nino, TailorRemoveIncomeSourcesBody(Seq(DIVIDENDS.stringify)), user.mtditid)
-            }
-            excludeJourneyService.excludeJourney(DIVIDENDS.stringify, taxYear, user.nino).flatMap {
-              case Right(_) => performSubmission(taxYear, cyaData, priorData)
-              case Left(_) => errorHandler.futureInternalServerError()
-            }
-          } else {
-            performSubmission(taxYear, cyaData, priorData)
-          }
+    session.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cyaData, priorData) =>
+      if (appConfig.dividendsTailoringEnabled && cyaData.flatMap(_.gateway).contains(false)) {
+        auditTailorRemoveIncomeSources(TailorRemoveIncomeSourcesAuditDetail(
+          nino = user.nino,
+          mtditid = user.mtditid,
+          userType = user.affinityGroup.toLowerCase,
+          taxYear = taxYear,
+          body = TailorRemoveIncomeSourcesBody(Seq(DIVIDENDS.stringify))
+        ))
+        if (appConfig.nrsEnabled) {
+          nrsService.submit(user.nino, TailorRemoveIncomeSourcesBody(Seq(DIVIDENDS.stringify)), user.mtditid)
         }
+        excludeJourneyService.excludeJourney(DIVIDENDS.stringify, taxYear, user.nino).flatMap {
+          case Right(_) => performSubmission(taxYear, cyaData, priorData)
+          case Left(_) => errorHandler.futureInternalServerError()
+        }
+      } else {
+        performSubmission(taxYear, cyaData, priorData)
+      }
     }
+  }
 
   private[controllers] def performSubmission(taxYear: Int, cya: Option[DividendsCheckYourAnswersModel], priorData: Option[DividendsPriorSubmission])
                                             (implicit user: User[_], hc: HeaderCarrier): Future[Result] = {
     (cya match {
       case Some(cyaData) =>
-    dividendsSubmissionService.submitDividends(cya, user.nino, user.mtditid, taxYear).map {
-      case response@Right(_) =>
-        val model = CreateOrAmendDividendsAuditDetail(
-          Some(cyaData), priorData, priorData.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase, taxYear
-        )
-        auditSubmission(model)
-        if (appConfig.nrsEnabled) {
-          nrsService.submit(user.nino, new DecodedDividendsSubmissionPayload(cya, priorData), user.mtditid)
+        dividendsSubmissionService.submitDividends(cya, user.nino, user.mtditid, taxYear).map {
+          case response@Right(_) =>
+            val model = CreateOrAmendDividendsAuditDetail(
+              Some(cyaData), priorData, priorData.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase, taxYear
+            )
+            auditSubmission(model)
+            if (appConfig.nrsEnabled) {
+              nrsService.submit(user.nino, new DecodedDividendsSubmissionPayload(cya, priorData), user.mtditid)
+            }
+            response
+          case response => response
         }
-        response
-      case response => response
-    }
-    case _ =>
-      logger.info("[DividendsCYAController][submit] CYA data or NINO missing from session.")
-      Future.successful(Left(APIErrorModel(BAD_REQUEST, APIErrorBodyModel("MISSING_DATA", "CYA data or NINO missing from session."))))
-  }).flatMap {
+      case _ =>
+        logger.info("[DividendsCYAController][submit] CYA data or NINO missing from session.")
+        Future.successful(Left(APIErrorModel(BAD_REQUEST, APIErrorBodyModel("MISSING_DATA", "CYA data or NINO missing from session."))))
+    }).flatMap {
       case Right(_) =>
         session.clear(taxYear)(errorHandler.internalServerError())(
           Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
@@ -125,7 +135,6 @@ class DividendsCYAController @Inject()(
       case Left(error) => Future.successful(errorHandler.handleError(error.status))
     }
   }
-
 
 
   private def auditSubmission(details: CreateOrAmendDividendsAuditDetail)

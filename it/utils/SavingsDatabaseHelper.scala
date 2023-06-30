@@ -16,10 +16,9 @@
 
 package utils
 
-import models.dividends.DividendsCheckYourAnswersModel
-import models.mongo.{DividendsUserDataModel, SavingsIncomeUserDataModel}
+import models.mongo.SavingsIncomeUserDataModel
 import models.savings.SavingsIncomeCYAModel
-import repositories.{DividendsUserDataRepository, SavingsUserDataRepository}
+import repositories.SavingsUserDataRepository
 import services.EncryptionService
 
 trait SavingsDatabaseHelper {
@@ -31,7 +30,7 @@ trait SavingsDatabaseHelper {
   //noinspection ScalaStyle
   def dropSavingsDB(): Seq[String] = {
     await(savingsDatabase.collection.drop().toFutureOption())
-    await(savingsDatabase.ensureIndexes)
+    await(savingsDatabase.ensureIndexes())
   }
 
   //noinspection ScalaStyle
@@ -44,7 +43,7 @@ trait SavingsDatabaseHelper {
 
     await(savingsDatabase.create(
       SavingsIncomeUserDataModel(sessionId, overrideMtditid.fold(mtditid)(value => value), overrideNino.fold(nino)(value => value), taxYear, cya)
-    )) match {
+    )()) match {
       case Right(value) => value
       case Left(_) => false
     }

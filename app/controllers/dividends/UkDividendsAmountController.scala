@@ -48,8 +48,8 @@ class UkDividendsAmountController @Inject()(
                                              ec: ExecutionContext
                                            ) extends FrontendController(cc) with I18nSupport with SessionHelper {
 
-  val journeyKey: JourneyKey = if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) STOCK_DIVIDENDS else DIVIDENDS
-
+  private val journeyKey: JourneyKey = if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) STOCK_DIVIDENDS else DIVIDENDS
+  private val isStockDividends: Boolean = appConfig.isJourneyAvailable(STOCK_DIVIDENDS)
   def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
 
   def form(implicit isAgent: Boolean, taxYear: Int): Form[BigDecimal] = AmountForm.amountForm(
@@ -75,7 +75,7 @@ class UkDividendsAmountController @Inject()(
   }
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, journeyKey).async { implicit user =>
-    if (journeyKey.stringify == DIVIDENDS.stringify) {
+    if (!isStockDividends) {
       implicit val questionsJourney: QuestionsJourney[DividendsCheckYourAnswersModel] = DividendsCheckYourAnswersModel.journey(taxYear)
 
       dividendsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (optionalCya, optionalPrior) =>
@@ -110,7 +110,7 @@ class UkDividendsAmountController @Inject()(
           },
           {
             bigDecimal =>
-              if (journeyKey.stringify == DIVIDENDS.stringify) {
+              if (!isStockDividends) {
                 optionalCya.fold {
                   Future(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
                 } {
@@ -121,7 +121,7 @@ class UkDividendsAmountController @Inject()(
                       Redirect(redirectLocation(taxYear, Some(cyaModel.copy(ukDividends = Some(true), ukDividendsAmount = Some(bigDecimal))))(optionalPrior))
                     )
                 }
-              } else { submitStockDividends(taxYear, bigDecimal, stockDividendsSessionService) }
+              } else { submitStockDividends(taxYear, bigDecimal) }
           }
         ))
       }.flatten
@@ -154,13 +154,13 @@ class UkDividendsAmountController @Inject()(
     }
   }
 
-  private def submitStockDividends(taxYear: Int, bigDecimal: BigDecimal, session: StockDividendsSessionService)(implicit user: User[AnyContent]) = {
-    session.getSessionData(taxYear).flatMap {
+  private def submitStockDividends(taxYear: Int, bigDecimal: BigDecimal)(implicit user: User[AnyContent]) = {
+    stockDividendsSessionService.getSessionData(taxYear).flatMap {
       case Left(_) => Future.successful(errorHandler.internalServerError())
       case Right(sessionData) =>
         val dividendsCya = sessionData.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel())
           .copy(ukDividendsAmount = Some(bigDecimal))
-        session.updateSessionData(dividendsCya, taxYear)(errorHandler.internalServerError())(
+        stockDividendsSessionService.updateSessionData(dividendsCya, taxYear)(errorHandler.internalServerError())(
           if (dividendsCya.isFinished) {
             Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear))
           }

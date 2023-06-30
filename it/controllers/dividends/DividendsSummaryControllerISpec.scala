@@ -21,7 +21,7 @@ import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
-import play.api.http.Status.{INTERNAL_SERVER_ERROR, NO_CONTENT, OK, SEE_OTHER}
+import play.api.http.Status.{NO_CONTENT, OK, SEE_OTHER}
 import play.api.libs.ws.WSResponse
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
@@ -323,7 +323,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
             emptyUserDataStub()
             emptyStockDividendsUserDataStub()
             insertStockDividendsCyaData(Some(cyaModel.copy(
-              None,
+              gateway = Some(true),
               ukDividends = Some(false),
               None,
               otherUkDividends = Some(false),
@@ -474,6 +474,42 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
 
         }
 
+        "renders Dividends summary page with correct content when gateway is false" which {
+
+          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
+          lazy val result = {
+            authoriseAgentOrIndividual(us.isAgent)
+            dropStockDividendsDB()
+            insertStockDividendsCyaData(Some(cyaModel.copy(
+              gateway = Some(false),
+              None, None, None, None, None, None, None, None, None, None
+            )))
+            emptyUserDataStub()
+            emptyStockDividendsUserDataStub()
+            route(appWithStockDividends, request, "{}").get
+          }
+
+          "has an OK(200) status" in {
+            status(result) shouldBe OK
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+          h1Check(get.headingExpected + " " + captionExpected)
+          textOnPageCheck(captionExpected, Selectors.captionSelector)
+          "has an area for section 1" which {
+            textOnPageCheck(dividendsFromStocksAndSharesText, Selectors.cyaTitle(CYA_TITLE_1))
+            linkCheck(s"$changeLinkExpected $dividendsFromStocksAndSharesHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_1), dividendsFromStocksAndSharesHref)
+          }
+
+          buttonCheck(continueButtonText, continueButtonSelector)
+          welshToggleCheck(us.isWelsh)
+
+        }
+
         "redirect to close company loan amount when unfinished" which {
 
           lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
@@ -600,6 +636,26 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
       }
     }
 
+    s"supply empty model if no data found" when {
+
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        dropStockDividendsDB()
+        emptyUserDataStub()
+        emptyStockDividendsUserDataStub()
+        stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "")
+        stubPut(s"/income-tax-dividends/income-tax/income/dividends/$nino/$taxYear", NO_CONTENT, "")
+        urlPost(dividendsSummaryUrl, follow = false, headers = playSessionCookie(), body = "")
+      }
+      s"has a status of 303" in {
+        result.status shouldBe SEE_OTHER
+      }
+
+      "has the correct title" in {
+        result.headers("Location").head shouldBe
+          s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view"
+      }
+    }
   }
 }
 

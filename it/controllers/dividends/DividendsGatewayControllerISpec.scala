@@ -16,7 +16,7 @@
 
 package controllers.dividends
 
-import models.dividends.DividendsCheckYourAnswersModel
+import models.dividends.{DividendsCheckYourAnswersModel, StockDividendsCheckYourAnswersModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
@@ -144,6 +144,63 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
           buttonCheck(continueText)
         }
 
+        "display the gateway page for stock dividends" which {
+
+          lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
+          lazy val result = {
+            authoriseAgentOrIndividual(scenario.isAgent)
+            dropStockDividendsDB()
+            emptyStockDividendsUserDataStub()
+            route(appWithStockDividends, request, "{}").get
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+          "has a status of OK(200)" in {
+            status(result) shouldBe OK
+          }
+
+          titleCheck(heading, scenario.isWelsh)
+          h1Check(s"$heading $caption")
+          captionCheck(caption)
+          hintTextCheck(hintText)
+          formPostLinkCheck(relativeUrl, Selectors.formSelector)
+          textOnPageCheck(yesText, Selectors.yesSelector)
+          textOnPageCheck(noText, Selectors.noSelector)
+          buttonCheck(continueText)
+        }
+
+        "display the gateway page for stock dividends with pre-filled value" which {
+
+          lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
+          lazy val result = {
+            authoriseAgentOrIndividual(scenario.isAgent)
+            dropStockDividendsDB()
+            emptyStockDividendsUserDataStub()
+            insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel(gateway = Some(false))))
+            route(appWithStockDividends, request, "{}").get
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+          "has a status of OK(200)" in {
+            status(result) shouldBe OK
+          }
+
+          titleCheck(heading, scenario.isWelsh)
+          h1Check(s"$heading $caption")
+          captionCheck(caption)
+          hintTextCheck(hintText)
+          formPostLinkCheck(relativeUrl, Selectors.formSelector)
+          textOnPageCheck(yesText, Selectors.yesSelector)
+          textOnPageCheck(noText, Selectors.noSelector)
+          buttonCheck(continueText)
+        }
+
       }
 
       "the tailoring is turn off" should {
@@ -227,6 +284,45 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
 
           }
 
+          "redirect the user to the DividendsCYA page" which {
+
+            lazy val result = {
+              authoriseAgentOrIndividual(scenario.isAgent)
+              dropDividendsDB()
+              insertDividendsCyaData(Some(completeDividendsCYAModel))
+              emptyUserDataStub()
+              route(appWithTailoring, request, Map("value" -> Seq("true"))).get
+            }
+
+            "has a status of SEE_OTHER(303)" in {
+              status(result) shouldBe SEE_OTHER
+            }
+
+            "has the correct redirect location" in {
+              await(result).header.headers("Location") shouldBe routes.DividendsCYAController.show(taxYear).url
+            }
+
+          }
+
+          "return a 303 status and redirect to first status page when isFinished is false" which {
+            lazy val result = {
+              authoriseIndividual()
+              dropStockDividendsDB()
+              emptyStockDividendsUserDataStub()
+              insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel()))
+              route(appWithStockDividends, request, body = Map("value" -> Seq("true"))).get
+            }
+
+            "has a status of SEE_OTHER(303)" in {
+              status(result) shouldBe SEE_OTHER
+            }
+
+            "has the correct redirect location" in {
+              await(result).header.headers
+                .get(HeaderNames.LOCATION) shouldBe Some(routes.ReceiveUkDividendsController.show(taxYear).url)
+            }
+          }
+
         }
 
         "the user submits a no" should {
@@ -252,6 +348,43 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
             }
           }
 
+          "return a 303 status and redirect to cya page with session data" which {
+            lazy val result = {
+              authoriseIndividual()
+              dropStockDividendsDB()
+              emptyStockDividendsUserDataStub()
+              insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
+              route(appWithStockDividends, request, body = Map("value" -> Seq("false"))).get
+            }
+
+            "has a status of SEE_OTHER(303)" in {
+              status(result) shouldBe SEE_OTHER
+            }
+
+            "has the correct redirect location" in {
+              await(result).header.headers
+                .get(HeaderNames.LOCATION) shouldBe Some(routes.DividendsSummaryController.show(taxYear).url)
+            }
+          }
+
+          "return a 303 status and redirect to cya page with no session data" which {
+            lazy val result = {
+              authoriseIndividual()
+              dropStockDividendsDB()
+              emptyStockDividendsUserDataStub()
+              insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel()))
+              route(appWithStockDividends, request, body = Map("value" -> Seq("false"))).get
+            }
+
+            "has a status of SEE_OTHER(303)" in {
+              status(result) shouldBe SEE_OTHER
+            }
+
+            "has the correct redirect location" in {
+              await(result).header.headers
+                .get(HeaderNames.LOCATION) shouldBe Some(routes.DividendsSummaryController.show(taxYear).url)
+            }
+          }
         }
 
         "the user submits incorrect data" should {
@@ -305,9 +438,7 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
             request.header("Location") shouldBe Some(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
           }
         }
-
       }
-
     }
   }
 

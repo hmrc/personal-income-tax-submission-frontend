@@ -48,11 +48,12 @@ class ReceiveOtherUkDividendsController @Inject()(
                                                  ) extends FrontendController(cc) with I18nSupport with SessionHelper {
 
   val journeyKey: JourneyKey = if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) STOCK_DIVIDENDS else DIVIDENDS
+  private val isStockDividends = appConfig.isJourneyAvailable(STOCK_DIVIDENDS)
 
   def yesNoForm(isAgent: Boolean): Form[Boolean] = YesNoForm.yesNoForm(s"dividends.other-dividends.errors.noChoice.${if (isAgent) "agent" else "individual"}")
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, journeyKey).async { implicit user =>
-    if (journeyKey.stringify == DIVIDENDS.stringify) {
+    if (!isStockDividends) {
       dividendsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
         Future(
           prior match {
@@ -69,14 +70,20 @@ class ReceiveOtherUkDividendsController @Inject()(
       }
     } else {
       stockDividendsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
-        Future(prior match {
-          case Some(prior) if prior.ukDividendsAmount.nonEmpty => Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear))
-          case _ => Ok(
-            receiveOtherDividendsView(
+        (cya, prior) match {
+          case (Some(cyaData), _) => if (cya.flatMap(_.stockDividends.flatMap(_.otherUkDividends)).nonEmpty) {
+            Future.successful(Ok(
+             receiveOtherDividendsView(yesNoForm(user.isAgent).fill(cyaData.stockDividends.flatMap(_.otherUkDividends).contains(true)), taxYear)
+            ))
+          } else {
+            Future.successful(Ok(receiveOtherDividendsView(yesNoForm(user.isAgent), taxYear)))
+          }
+          case (_, Some(priorData)) if priorData.otherUkDividendsAmount.nonEmpty =>
+            Future.successful(Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear)))
+          case _ => Future(Ok(receiveOtherDividendsView(
               cya.flatMap(_.stockDividends.flatMap(_.otherUkDividends)).fold(yesNoForm(user.isAgent))(yesNoForm(user.isAgent).fill), taxYear
-            )
-          )
-        })
+            )))
+        }
       }
     }
   }
@@ -90,7 +97,7 @@ class ReceiveOtherUkDividendsController @Inject()(
           ))
       }, {
         yesNoModel =>
-          if (journeyKey.stringify == DIVIDENDS.stringify) {
+          if (!isStockDividends) {
             submitDividends(yesNoModel, taxYear)
           } else {
             submitStockDividends(yesNoModel, taxYear)
