@@ -43,9 +43,7 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
     session.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
       StockDividendsCheckYourAnswersModel.getCyaModel(cya.flatMap(_.stockDividends), prior) match {
         case Some(cyaData) if !cyaData.isFinished => Future.successful(handleUnfinishedRedirect(cyaData, taxYear))
-        case Some(cyaData) => session.updateSessionData(cyaData, taxYear, cya.isEmpty)(errorHandler.internalServerError())(
-          Ok(view(cyaData, taxYear))
-        )
+        case Some(cyaData) => Future.successful(Ok(view(cyaData, taxYear)))
         case _ =>
           logger.info("[DividendsSummaryController][show] No CYA data in session. Redirecting to the overview page.")
           Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))

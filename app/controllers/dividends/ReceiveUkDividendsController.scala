@@ -47,12 +47,12 @@ class ReceiveUkDividendsController @Inject()(
                                               ec: ExecutionContext
                                             ) extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
-  val journeyKey: JourneyKey = if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) STOCK_DIVIDENDS else DIVIDENDS
-
+  private val journeyKey: JourneyKey = if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) STOCK_DIVIDENDS else DIVIDENDS
+  private val isStockDividends: Boolean = appConfig.isJourneyAvailable(STOCK_DIVIDENDS)
   def yesNoForm(isAgent: Boolean): Form[Boolean] = YesNoForm.yesNoForm(s"dividends.uk-dividends.errors.noChoice.${if (isAgent) "agent" else "individual"}")
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, journeyKey).async { implicit user =>
-    if (journeyKey.stringify == DIVIDENDS.stringify) {
+    if (!isStockDividends) {
       implicit val questionsJourney: QuestionsJourney[DividendsCheckYourAnswersModel] = DividendsCheckYourAnswersModel.journey(taxYear)
 
       dividendsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
@@ -66,12 +66,20 @@ class ReceiveUkDividendsController @Inject()(
       }
     } else {
       stockDividendsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
-        Future(prior match {
-          case Some(prior) if prior.ukDividendsAmount.nonEmpty => Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear))
-          case _ => Ok(
-            receiveUkDividendsView(cya.flatMap(_.stockDividends.flatMap(_.ukDividends)).fold(yesNoForm(user.isAgent))(yesNoForm(user.isAgent).fill), taxYear)
-          )
-        })
+        (cya, prior) match {
+          case (Some(cyaData), _) => if (cya.flatMap(_.stockDividends.flatMap(_.ukDividends)).nonEmpty) {
+            Future.successful(Ok(
+              receiveUkDividendsView(yesNoForm(user.isAgent).fill(cyaData.stockDividends.flatMap(_.ukDividends).contains(true)), taxYear)
+            ))
+          } else {
+            Future.successful(Ok(receiveUkDividendsView(yesNoForm(user.isAgent), taxYear)))
+          }
+          case (_, Some(priorData)) if priorData.ukDividendsAmount.nonEmpty =>
+            Future.successful(Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear)))
+          case _ => Future(Ok(receiveUkDividendsView(
+            cya.flatMap(_.stockDividends.flatMap(_.otherUkDividends)).fold(yesNoForm(user.isAgent))(yesNoForm(user.isAgent).fill), taxYear
+          )))
+        }
       }
     }
   }
@@ -86,7 +94,7 @@ class ReceiveUkDividendsController @Inject()(
       },
       {
         yesNoModel =>
-          if (journeyKey.stringify == DIVIDENDS.stringify) {
+          if (!isStockDividends) {
             submitDividends(yesNoModel, taxYear)
           } else {
             submitStockDividends(yesNoModel, taxYear)

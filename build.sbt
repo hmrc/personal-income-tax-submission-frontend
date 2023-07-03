@@ -1,5 +1,4 @@
 import uk.gov.hmrc.DefaultBuildSettings.integrationTestSettings
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 
 val appName = "personal-income-tax-submission-frontend"
 
@@ -61,7 +60,6 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     fork in Test := false
   )
-  .settings(publishingSettings: _*)
   .configs(IntegrationTest)
   .settings(integrationTestSettings(): _*)
   .settings(unmanagedResourceDirectories in IntegrationTest += baseDirectory.value / "it" / "resources")

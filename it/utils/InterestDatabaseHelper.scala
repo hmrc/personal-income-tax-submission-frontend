@@ -28,7 +28,7 @@ trait InterestDatabaseHelper { self: IntegrationTest =>
   //noinspection ScalaStyle
   def dropInterestDB() = {
     await(interestDatabase.collection.drop().toFutureOption())
-    await(interestDatabase.ensureIndexes)
+    await(interestDatabase.ensureIndexes())
   }
 
   //noinspection ScalaStyle
