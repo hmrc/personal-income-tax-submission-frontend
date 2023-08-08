@@ -246,17 +246,17 @@ dividends.summary.list.value-of-free-or-redeemable-shares = Value of free or red
 dividends.summary.list.close-company-loan = Close company loan written off or released
 dividends.summary.list.value-of-close-company-loan = Value of close company loan written off or released
 
-dividends.summary.list.hidden.text.stocks-and-shares = Change dividends status
-dividends.summary.list.hidden.text.from-uk-companies = Change status of dividends from UK companies
-dividends.summary.list.hidden.text.amount-of-dividends = Change amount of dividends from UK companies
-dividends.summary.list.hidden.text.from-unit-trusts-or-investment-companies = Change status of dividends from unit trusts or investment companies
-dividends.summary.list.hidden.text.amount-from-unit-trusts-or-investment-companies = Change amount of dividends from unit trusts or investment companies
-dividends.summary.list.hidden.text.stock-dividends = Change stock dividends status
-dividends.summary.list.hidden.text.value-of-stock-dividends = Change value of stock dividends
-dividends.summary.list.hidden.text.free-or-redeemable-shares = Change free or redeemable shares status
-dividends.summary.list.hidden.text.value-of-free-or-redeemable-shares = Change value of free or redeemable shares
-dividends.summary.list.hidden.text.close-company-loan = Change status of close company loan written off or released
-dividends.summary.list.hidden.text.value-of-close-company-loan = Change value of close company loan written off or released
+dividends.summary.list.hidden.text.stocks-and-shares = dividends from stocks and shares
+dividends.summary.list.hidden.text.from-uk-companies = dividends from UK companies
+dividends.summary.list.hidden.text.amount-of-dividends = amount of dividends from UK companies
+dividends.summary.list.hidden.text.from-unit-trusts-or-investment-companies = dividends from unit trusts or investment companies
+dividends.summary.list.hidden.text.amount-from-unit-trusts-or-investment-companies = amount of dividends from unit trusts or investment companies
+dividends.summary.list.hidden.text.stock-dividends = stock dividends
+dividends.summary.list.hidden.text.value-of-stock-dividends = value of stock dividends
+dividends.summary.list.hidden.text.free-or-redeemable-shares = free or redeemable shares
+dividends.summary.list.hidden.text.value-of-free-or-redeemable-shares = value of free or redeemable shares
+dividends.summary.list.hidden.text.close-company-loan = close company loan written off or released
+dividends.summary.list.hidden.text.value-of-close-company-loan = value of close company loan written off or released
 
 # Interest
 # ----------------------------------------------------------
