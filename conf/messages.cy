@@ -647,14 +647,14 @@ savings.interest-amount.bullet.1.agent = am wneud cais am ryddhad rhag drwgddyle
 savings.interest-amount.bullet.2.agent = yn buddsoddi mewn gwarantau â chryn ddisgownt, nodwch y gwahaniaeth rhwng yr hyn a dalodd eich cleient am y bond a’r hyn y gwnaeth eich cleient ei adennill neu ei werthu amdano
 savings.interest-amount.sub-heading.individual = Faint o log a gawsoch?
 savings.interest-amount.sub-heading.agent = Faint o log a gafodd eich cleient?
-savings.interest-amount.currency.hint = Er enghraifft, £1935.46
+savings.interest-amount.currency.hint = Er enghraifft, £193.54
 
-savings.interest-amount.errors.no-entry.individual = Nodwch y llog a gawsoch. Er enghraifft, £1935.46
-savings.interest-amount.errors.no-entry.agent = Nodwch y llog a gafodd eich cleient. Er enghraifft, £1935.46
+savings.interest-amount.errors.no-entry.individual = Nodwch y llog a gawsoch.
+savings.interest-amount.errors.no-entry.agent = Nodwch y llog a gafodd eich cleient.
 savings.interest-amount.error.maximum.individual  = Mae’n rhaid i swm eich llog fod yn llai na £100,000,000,000
 savings.interest-amount.error.maximum.agent = Mae’n rhaid i swm llog eich cleient fod yn llai na £100,000,000,000
-savings.interest-amount.error.wrong-format.individual = Nodwch y llog a gawsoch yn y fformat cywir. Er enghraifft, £1935.46
-savings.interest-amount.error.wrong-format.agent = Nodwch y llog a gafodd eich cleient yn y fformat cywir. Er enghraifft, £1935.46
+savings.interest-amount.error.wrong-format.individual = Nodwch y llog a gawsoch yn y fformat cywir.
+savings.interest-amount.error.wrong-format.agent = Nodwch y llog a gafodd eich cleient yn y fformat cywir.
 
 savings.gateway.heading = Llog o warantau gilt neu warantau incwm cronedig
 savings.gateway.radio.heading.individual = A gawsoch unrhyw log o warantau gilt neu warantau incwm cronedig?

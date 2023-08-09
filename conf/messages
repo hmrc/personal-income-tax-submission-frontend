@@ -648,14 +648,14 @@ savings.interest-amount.bullet.1.agent = wants to claim bad debt relief on a pee
 savings.interest-amount.bullet.2.agent = invests in deeply discounted securities, enter the difference between what your client paid for the bond and what they redeemed or sold it for
 savings.interest-amount.sub-heading.individual = How much interest did you get?
 savings.interest-amount.sub-heading.agent = How much interest did your client get?
-savings.interest-amount.currency.hint = For example, £1935.46
+savings.interest-amount.currency.hint = For example, £193.54
 
-savings.interest-amount.errors.no-entry.individual = Enter the interest you got. For example, £1935.46
-savings.interest-amount.errors.no-entry.agent = Enter the interest your client got. For example, £1935.46
+savings.interest-amount.errors.no-entry.individual = Enter the interest you got.
+savings.interest-amount.errors.no-entry.agent = Enter the interest your client got.
 savings.interest-amount.error.maximum.individual  = The amount of your interest must be less than £100,000,000,000
 savings.interest-amount.error.maximum.agent = The amount of your client’s interest must be less than £100,000,000,000
-savings.interest-amount.error.wrong-format.individual = Enter the interest you got in the correct format. For example, £1935.46
-savings.interest-amount.error.wrong-format.agent = Enter the interest your client got in the correct format. For example, £1935.46
+savings.interest-amount.error.wrong-format.individual = Enter the interest you got in the correct format.
+savings.interest-amount.error.wrong-format.agent = Enter the interest your client got in the correct format.
 
 savings.gateway.heading = Interest from gilt-edged or accrued income securities
 savings.gateway.radio.heading.individual = Did you get any interest from gilt-edged or accrued income securities?

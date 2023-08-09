@@ -65,7 +65,7 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
   object CommonExpectedResultsEN extends CommonExpectedResults {
     val continueText = "Continue"
-    val expectedHintText = "For example, £1935.46"
+    val expectedHintText = "For example, £193.54"
     val captionExpected = s"Interest from gilt-edged or accrued income securities for 6 April $taxYearEOY to 5 April $taxYear"
     val expectedH1 = "Total interest"
     val expectedErrorTitle = s"Error: $expectedErrorTitle"
@@ -73,7 +73,7 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
   object CommonExpectedResultsCY extends CommonExpectedResults {
     val continueText = "Yn eich blaen"
-    val expectedHintText = "Er enghraifft, £1935.46"
+    val expectedHintText = "Er enghraifft, £193.54"
     val captionExpected = s"Llog o warantau gilt neu warantau incwm cronedig ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val expectedH1 = "Cyfanswm y llog"
     val expectedErrorTitle = s"Error: $expectedErrorTitle"
@@ -96,9 +96,9 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
     val bullet1 = "want to claim bad debt relief on a peer-to-peer loan, deduct the total bad debt from the interest you receive"
     val bullet2 = "invest in deeply discounted securities, enter the difference between what you paid for the bond and what you redeem or sell it for"
     val subHeading = "How much interest did you get?"
-    val expectedErrorEmpty = "Enter the interest you got. For example, £1935.46"
+    val expectedErrorEmpty = "Enter the interest you got."
     val expectedErrorOverMax = "The amount of your interest must be less than £100,000,000,000"
-    val expectedErrorInvalid = "Enter the interest you got in the correct format. For example, £1935.46"
+    val expectedErrorInvalid = "Enter the interest you got in the correct format."
   }
 
   object AgentResultsEN extends SpecificUserTypeResults {
@@ -107,9 +107,9 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
     val bullet1 = "wants to claim bad debt relief on a peer-to-peer loan, deduct the total bad debt from the interest your client received"
     val bullet2 = "invests in deeply discounted securities, enter the difference between what your client paid for the bond and what they redeemed or sold it for"
     val subHeading = "How much interest did your client get?"
-    val expectedErrorEmpty = "Enter the interest your client got. For example, £1935.46"
+    val expectedErrorEmpty = "Enter the interest your client got."
     val expectedErrorOverMax = "The amount of your client’s interest must be less than £100,000,000,000"
-    val expectedErrorInvalid = "Enter the interest your client got in the correct format. For example, £1935.46"
+    val expectedErrorInvalid = "Enter the interest your client got in the correct format."
   }
 
 
@@ -119,9 +119,9 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
     val bullet1 = "am wneud cais am ryddhad rhag drwgddyledion ar fenthyciad cymar-i-gymar, didynnwch gyfanswm y drwgddyled o’r llog a gewch"
     val bullet2 = "yn buddsoddi mewn gwarantau â chryn ddisgownt, nodwch y gwahaniaeth rhwng yr hyn a daloch am y bond a’r hyn y gwnaethoch ei adenill neu ei werthu amdano"
     val subHeading = "Faint o log a gawsoch?"
-    val expectedErrorEmpty = "Nodwch y llog a gawsoch. Er enghraifft, £1935.46"
+    val expectedErrorEmpty = "Nodwch y llog a gawsoch."
     val expectedErrorOverMax = "Mae’n rhaid i swm eich llog fod yn llai na £100,000,000,000"
-    val expectedErrorInvalid = "Nodwch y llog a gawsoch yn y fformat cywir. Er enghraifft, £1935.46"
+    val expectedErrorInvalid = "Nodwch y llog a gawsoch yn y fformat cywir."
   }
 
   object AgentResultsCY extends SpecificUserTypeResults {
@@ -130,9 +130,9 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
     val bullet1 = "am wneud cais am ryddhad rhag drwgddyledion ar fenthyciad cymar-i-gymar, didynnwch gyfanswm y drwgddyled o’r llog a gafodd eich cleient"
     val bullet2 = "yn buddsoddi mewn gwarantau â chryn ddisgownt, nodwch y gwahaniaeth rhwng yr hyn a dalodd eich cleient am y bond a’r hyn y gwnaeth eich cleient ei adennill neu ei werthu amdano"
     val subHeading = "Faint o log a gafodd eich cleient?"
-    val expectedErrorEmpty = "Nodwch y llog a gafodd eich cleient. Er enghraifft, £1935.46"
+    val expectedErrorEmpty = "Nodwch y llog a gafodd eich cleient."
     val expectedErrorOverMax = "Mae’n rhaid i swm llog eich cleient fod yn llai na £100,000,000,000"
-    val expectedErrorInvalid = "Nodwch y llog a gafodd eich cleient yn y fformat cywir. Er enghraifft, £1935.46"
+    val expectedErrorInvalid = "Nodwch y llog a gafodd eich cleient yn y fformat cywir."
   }
 
   val newAmountInput = "#amount"
