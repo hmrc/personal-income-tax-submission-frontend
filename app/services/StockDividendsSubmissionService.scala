@@ -16,12 +16,14 @@
 
 package services
 
+import audit.{AuditModel, AuditService, CreateOrAmendStockDividendsAuditDetail}
 import config.AppConfig
 import connectors.httpParsers.StockDividendsSubmissionHttpParser._
 import connectors.{DividendsSubmissionConnector, StockDividendsSubmissionConnector, StockDividendsUserDataConnector}
 import models.User
-import models.dividends.StockDividendsCheckYourAnswersModel
+import models.dividends.{StockDividendsCheckYourAnswersModel, StockDividendsPriorSubmission}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -30,7 +32,9 @@ class StockDividendsSubmissionService @Inject()(
                                                  appConfig: AppConfig,
                                                  stockDividendsSubmissionConnector: StockDividendsSubmissionConnector,
                                                  stockDividendsUserDataConnector: StockDividendsUserDataConnector,
-                                                 dividendsSubmissionConnector: DividendsSubmissionConnector
+                                                 dividendsSessionService: DividendsSessionService,
+                                                 dividendsSubmissionConnector: DividendsSubmissionConnector,
+                                                 auditService: AuditService
                                                )
                                                (implicit ec: ExecutionContext) {
 
@@ -39,30 +43,49 @@ class StockDividendsSubmissionService @Inject()(
     stockDividendsUserDataConnector.getUserData(taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid)).flatMap {
       case Left(error) => Future.successful(Left(error))
       case Right(result) =>
-        Future.sequence(Seq(
-          if (cya.hasDividendsData) {
-            dividendsSubmissionConnector.submitDividends(cya.toDividendsSubmissionModel, nino, taxYear)(hc.withExtraHeaders("mtditid" -> user.mtditid)).map {
-              case Right(_) => Right(true)
-              case Left(_) => Right(false)
+        dividendsSessionService.getPriorData(taxYear)(user, hc).flatMap {
+          case Left(error) => Future.successful(Left(error))
+          case Right(priorDividends) =>
+            auditSubmission(CreateOrAmendStockDividendsAuditDetail(
+              Some(cya), priorDividends.dividends, Some(result), (result.stockDividend.isDefined | priorDividends.dividends.isDefined),
+              user.nino, user.mtditid, user.affinityGroup, taxYear))
+            performSubmissions(cya, nino, taxYear, hc, user, result).map { results => {
+              val response = results.filter(_.isLeft)
+              if (response.isEmpty) {
+                Right(true)
+              } else {
+                response.head
+              }
             }
-          } else {
-            Future.successful(Right(true))
-          },
-          if (cya.hasStockDividendsData) {
-            stockDividendsSubmissionConnector.submitDividends(result.toSubmission(cya), nino, taxYear)(hc.withExtraHeaders("mtditid" -> user.mtditid))
-          } else {
-            Future.successful(Right(true))
-          }
-        )).map { results => {
-          val response = results.filter(_.isLeft)
-          if (response.isEmpty) {
-            Right(true)
-          } else {
-            response.head
-          }
-        }
+            }
         }
     }
+  }
+
+  private def performSubmissions(cya: StockDividendsCheckYourAnswersModel, nino: String, taxYear: Int, hc: HeaderCarrier, user: User[_],
+                                 result: StockDividendsPriorSubmission) = {
+    Future.sequence(Seq(
+      if (cya.hasDividendsData) {
+        dividendsSubmissionConnector
+          .submitDividends(cya.toDividendsSubmissionModel, nino, taxYear)(hc.withExtraHeaders("mtditid" -> user.mtditid)).map {
+          case Right(_) => Right(true)
+          case Left(_) => Right(false)
+        }
+      } else {
+        Future.successful(Right(true))
+      },
+      if (cya.hasStockDividendsData) {
+        stockDividendsSubmissionConnector.submitDividends(result.toSubmission(cya), nino, taxYear)(hc.withExtraHeaders("mtditid" -> user.mtditid))
+      } else {
+        Future.successful(Right(true))
+      }
+    ))
+  }
+
+  private def auditSubmission(details: CreateOrAmendStockDividendsAuditDetail)
+                             (implicit hc: HeaderCarrier): Future[AuditResult] = {
+    val event = AuditModel("CreateOrAmendDividendsUpdate", "createOrAmendDividendsUpdate", details)
+    auditService.auditModel(event)
   }
 }
 

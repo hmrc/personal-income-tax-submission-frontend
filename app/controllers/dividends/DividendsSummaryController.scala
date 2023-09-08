@@ -16,6 +16,7 @@
 
 package controllers.dividends
 
+import audit.CreateOrAmendStockDividendsAuditDetail
 import config.{AppConfig, ErrorHandler}
 import controllers.predicates.AuthorisedAction
 import models.dividends.StockDividendsCheckYourAnswersModel
@@ -23,6 +24,8 @@ import play.api.i18n.I18nSupport
 import play.api.i18n.Lang.logger
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.{StockDividendsSessionService, StockDividendsSubmissionService}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.DividendsSummaryView
 
@@ -56,6 +59,7 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
       case Left(_) => Future(errorHandler.internalServerError())
       case Right(data) =>
         val cya = data.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel())
+
         submissionService.submitDividends(cya, request.nino, taxYear).map {
           case Left(error) => errorHandler.handleError(error.status)
           case Right(_) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
@@ -73,5 +77,4 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
       case _ => Redirect(controllers.dividends.routes.DividendsGatewayController.show(taxYear))
     }
   }
-
 }

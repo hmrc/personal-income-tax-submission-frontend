@@ -16,7 +16,7 @@
 
 package controllers.dividends
 
-import audit.{AuditModel, AuditService, CreateOrAmendDividendsAuditDetail, TailorRemoveIncomeSourcesAuditDetail, TailorRemoveIncomeSourcesBody}
+import audit.{AuditModel, AuditService, CreateOrAmendDividendsAuditDetail, CreateOrAmendStockDividendsAuditDetail, TailorRemoveIncomeSourcesAuditDetail, TailorRemoveIncomeSourcesBody}
 import config.{AppConfig, DIVIDENDS, ErrorHandler, STOCK_DIVIDENDS}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
