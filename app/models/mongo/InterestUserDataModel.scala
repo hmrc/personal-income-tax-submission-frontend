@@ -17,10 +17,9 @@
 package models.mongo
 
 import models.interest.{EncryptedInterestCYAModel, InterestCYAModel}
-import models.mongo.EncryptedInterestUserDataModel.dateTimeFormat
-import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json._
-import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
+
+import java.time.Instant
 
 case class InterestUserDataModel(
                                   sessionId: String,
@@ -28,11 +27,10 @@ case class InterestUserDataModel(
                                   nino: String,
                                   taxYear: Int,
                                   interest: Option[InterestCYAModel] = None,
-                                  lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC)
+                                  lastUpdated: Instant = Instant.now()
                                 ) extends UserDataTemplate
 
 object InterestUserDataModel {
-  implicit val mongoJodaDateTimeFormats: Format[DateTime] = dateTimeFormat
 
   implicit lazy val formats: OFormat[InterestUserDataModel] = Json.format[InterestUserDataModel]
 
@@ -44,11 +42,10 @@ case class EncryptedInterestUserDataModel(
                                   nino: String,
                                   taxYear: Int,
                                   interest: Option[EncryptedInterestCYAModel] = None,
-                                  lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC)
+                                  lastUpdated: Instant = Instant.now()
                                 ) extends UserDataTemplate
 
-object EncryptedInterestUserDataModel extends MongoJodaFormats {
-  implicit val mongoJodaDateTimeFormats: Format[DateTime] = dateTimeFormat
+object EncryptedInterestUserDataModel{
 
   implicit lazy val formats: OFormat[EncryptedInterestUserDataModel] = Json.format[EncryptedInterestUserDataModel]
 }

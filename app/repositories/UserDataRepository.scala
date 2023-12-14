@@ -19,17 +19,16 @@ package repositories
 import com.mongodb.client.model.ReturnDocument
 import models.User
 import models.mongo._
-import org.joda.time.{DateTime, DateTimeZone}
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.Filters.{and, equal}
 import org.mongodb.scala.model.Updates.set
 import org.mongodb.scala.model.{FindOneAndReplaceOptions, FindOneAndUpdateOptions}
 import uk.gov.hmrc.mongo.play.json.Codecs.{logger, toBson}
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
-import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
 import utils.PagerDutyHelper.PagerDutyKeys.{ENCRYPTION_DECRYPTION_ERROR, FAILED_TO_CREATE_DATA, FAILED_TO_FIND_DATA, FAILED_TO_UPDATE_DATA}
 import utils.PagerDutyHelper.pagerDutyLog
 
+import java.time.Instant
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
@@ -66,7 +65,7 @@ trait UserDataRepository[C <: UserDataTemplate] {
 
     val userData = collection.findOneAndUpdate(
       filter = filter(user.sessionId, user.mtditid, user.nino, taxYear),
-      update = set("lastUpdated", toBson(DateTime.now(DateTimeZone.UTC))(MongoJodaFormats.dateTimeWrites)),
+      update = set("lastUpdated", toBson(Instant.now())),
       options = FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
     ).toFutureOption().map {
       case Some(data) => Right(Some(data))

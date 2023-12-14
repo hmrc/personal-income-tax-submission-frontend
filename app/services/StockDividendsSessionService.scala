@@ -22,11 +22,11 @@ import models.dividends.StockDividendsCheckYourAnswersModel
 import models.mongo.{DatabaseError, StockDividendsUserDataModel}
 import models.priorDataModels.StockDividendsPriorDataModel
 import models.{APIErrorModel, User}
-import org.joda.time.{DateTime, DateTimeZone}
 import play.api.Logger
 import repositories.StockDividendsUserDataRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -62,7 +62,7 @@ class StockDividendsSessionService @Inject()(
       user.nino,
       taxYear,
       Some(cyaModel),
-      DateTime.now(DateTimeZone.UTC)
+      Instant.now()
     )
 
     stockDividendsUserDataRepository.create(userData)().map {
@@ -90,7 +90,7 @@ class StockDividendsSessionService @Inject()(
       user.nino,
       taxYear,
       Some(cyaModel),
-      DateTime.now(DateTimeZone.UTC)
+      Instant.now()
     )
 
     if (needsCreating) {

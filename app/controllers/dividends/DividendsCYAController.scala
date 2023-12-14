@@ -16,17 +16,17 @@
 
 package controllers.dividends
 
-import audit.{AuditModel, AuditService, CreateOrAmendDividendsAuditDetail, CreateOrAmendStockDividendsAuditDetail, TailorRemoveIncomeSourcesAuditDetail, TailorRemoveIncomeSourcesBody}
+import audit._
 import config.{AppConfig, DIVIDENDS, ErrorHandler, STOCK_DIVIDENDS}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
-import models.{APIErrorBodyModel, APIErrorModel, User}
 import models.dividends.{DecodedDividendsSubmissionPayload, DividendsCheckYourAnswersModel, DividendsPriorSubmission, StockDividendsCheckYourAnswersModel}
+import models.{APIErrorBodyModel, APIErrorModel, User}
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{DividendsSessionService, DividendsSubmissionService, ExcludeJourneyService, NrsService, StockDividendsSessionService}
+import services._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -114,8 +114,9 @@ class DividendsCYAController @Inject()(
       case Some(cyaData) =>
         dividendsSubmissionService.submitDividends(cya, user.nino, user.mtditid, taxYear).map {
           case response@Right(_) =>
-            val model = CreateOrAmendDividendsAuditDetail(
-              Some(cyaData), priorData, priorData.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase, taxYear
+            val model = CreateOrAmendDividendsAuditDetail.createFromCyaData(
+              cyaData, priorData, None,
+              priorData.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase, taxYear
             )
             auditSubmission(model)
             if (appConfig.nrsEnabled) {

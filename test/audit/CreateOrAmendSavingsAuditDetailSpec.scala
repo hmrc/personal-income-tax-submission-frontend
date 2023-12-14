@@ -44,11 +44,9 @@ class CreateOrAmendSavingsAuditDetailSpec extends UnitTest {
     "passed an audit detail model with success tax calculation field" should {
       "produce valid json" in {
         val json = Json.obj(
-  "body" -> Json.obj(
             "grossAmount" -> 856.23,
             "taxTakenOff" -> true,
-            "taxTakenOffAmount" -> 741.12
-          ),
+            "taxTakenOffAmount" -> 741.12,
           "prior" -> Json.obj(
             "taxTakenOff" -> 856.23,
             "grossAmount" -> 741.12,
@@ -61,7 +59,7 @@ class CreateOrAmendSavingsAuditDetailSpec extends UnitTest {
           "taxYear" -> 2020
         )
 
-          val model = CreateOrAmendSavingsAuditDetail(Some(body), Some(prior), true, nino, mtditid, userType, taxYear)
+          val model = CreateOrAmendSavingsAuditDetail(None, Some(856.23), Some(true), Some(741.12), Some(prior), true, nino, mtditid, userType, taxYear)
         Json.toJson(model) shouldBe json
         }
       }

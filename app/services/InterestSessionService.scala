@@ -23,11 +23,11 @@ import models.User
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
 import models.mongo.{DatabaseError, InterestUserDataModel}
 import models.priorDataModels.InterestModel
-import org.joda.time.{DateTime, DateTimeZone}
 import play.api.i18n.Lang.logger
 import repositories.InterestUserDataRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -60,7 +60,7 @@ class InterestSessionService @Inject()(
       user.nino,
       taxYear,
       Some(cyaModel),
-      DateTime.now(DateTimeZone.UTC)
+      Instant.now()
     )
 
     if (needsCreating) {

@@ -1,6 +1,5 @@
 # Add all the application routes to the app.routes file
 
 ->         /update-and-submit-income-tax-return/personal-income/        app.Routes
-->         /                                                       health.Routes
+->         /                                                            health.Routes
 
-GET        /admin/metrics                                          com.kenshoo.play.metrics.MetricsController.metrics

@@ -16,7 +16,7 @@
 
 package services
 
-import audit.{AuditModel, CreateOrAmendStockDividendsAuditDetail}
+import audit.{AuditModel, CreateOrAmendDividendsAuditDetail}
 import config.MockAuditService
 import connectors.{DividendsSubmissionConnector, StockDividendsSubmissionConnector, StockDividendsUserDataConnector}
 import models.dividends._
@@ -90,8 +90,8 @@ class StockDividendsSubmissionServiceSpec extends UnitTest with MockAuditService
         (stockDividendsSubmissionConnector.submitDividends(_: StockDividendsSubmissionModel, _: String, _: Int)(_: HeaderCarrier))
           .expects(stockSubmissionModel, nino, taxYear, emptyHeaderCarrier.withExtraHeaders("mtditid" -> mtdItid)).returning(Future.successful(Right(true)))
 
-        verifyAuditEvent[CreateOrAmendStockDividendsAuditDetail](AuditModel("CreateOrAmendDividendsUpdate", "createOrAmendDividendsUpdate",
-          CreateOrAmendStockDividendsAuditDetail(Some(cyaData), IncomeSourcesModel().dividends, Some(StockDividendsPriorSubmission()),
+        verifyAuditEvent[CreateOrAmendDividendsAuditDetail](AuditModel("CreateOrAmendDividendsUpdate", "createOrAmendDividendsUpdate",
+          CreateOrAmendDividendsAuditDetail.createFromStockCyaData(cyaData, IncomeSourcesModel().dividends, Some(StockDividendsPriorSubmission()),
             isUpdate = false, nino, mtdItid, Individual.toString, taxYear)))
 
         val result = await(service.submitDividends(cyaData, nino, taxYear))
@@ -124,8 +124,8 @@ class StockDividendsSubmissionServiceSpec extends UnitTest with MockAuditService
           .expects(stockSubmissionModel, nino, taxYear, emptyHeaderCarrier.withExtraHeaders("mtditid" -> mtdItid))
           .returning(Future.successful(Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("test", "test")))))
 
-        verifyAuditEvent[CreateOrAmendStockDividendsAuditDetail](AuditModel("CreateOrAmendDividendsUpdate", "createOrAmendDividendsUpdate",
-          CreateOrAmendStockDividendsAuditDetail(Some(cyaData), IncomeSourcesModel().dividends, Some(StockDividendsPriorSubmission()),
+        verifyAuditEvent[CreateOrAmendDividendsAuditDetail](AuditModel("CreateOrAmendDividendsUpdate", "createOrAmendDividendsUpdate",
+          CreateOrAmendDividendsAuditDetail.createFromStockCyaData(cyaData, IncomeSourcesModel().dividends, Some(StockDividendsPriorSubmission()),
             isUpdate = false, nino, mtdItid, Individual.toString, taxYear)))
 
         val result = await(service.submitDividends(cyaData, nino, taxYear))
@@ -147,8 +147,8 @@ class StockDividendsSubmissionServiceSpec extends UnitTest with MockAuditService
           .expects(stockSubmissionModel, nino, taxYear, emptyHeaderCarrier.withExtraHeaders("mtditid" -> mtdItid))
           .returning(Future.successful(Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("test", "test")))))
 
-        verifyAuditEvent[CreateOrAmendStockDividendsAuditDetail](AuditModel("CreateOrAmendDividendsUpdate", "createOrAmendDividendsUpdate",
-          CreateOrAmendStockDividendsAuditDetail(Some(cyaData), IncomeSourcesModel().dividends, Some(StockDividendsPriorSubmission()),
+        verifyAuditEvent[CreateOrAmendDividendsAuditDetail](AuditModel("CreateOrAmendDividendsUpdate", "createOrAmendDividendsUpdate",
+          CreateOrAmendDividendsAuditDetail.createFromStockCyaData(cyaData, IncomeSourcesModel().dividends, Some(StockDividendsPriorSubmission()),
             isUpdate = false, nino, mtdItid, Individual.toString, taxYear)))
 
         val result = await(service.submitDividends(cyaData, nino, taxYear))

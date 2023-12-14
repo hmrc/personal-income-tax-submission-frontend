@@ -23,11 +23,11 @@ import models.User
 import models.charity.GiftAidCYAModel
 import models.charity.prior.GiftAidSubmissionModel
 import models.mongo.{DatabaseError, GiftAidUserDataModel}
-import org.joda.time.{DateTime, DateTimeZone}
 import play.api.i18n.Lang.logger
 import repositories.GiftAidUserDataRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -50,7 +50,7 @@ class GiftAidSessionService @Inject()(
       user.nino,
       taxYear,
       Some(cyaModel),
-      DateTime.now(DateTimeZone.UTC)
+      Instant.now()
     )
 
     giftAidUserDataRepository.create(userData)().map {
@@ -79,7 +79,7 @@ class GiftAidSessionService @Inject()(
       user.nino,
       taxYear,
       Some(cyaModel),
-      DateTime.now(DateTimeZone.UTC)
+      Instant.now()
     )
 
     giftAidUserDataRepository.update(userData).map {

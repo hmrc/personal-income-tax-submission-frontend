@@ -16,7 +16,6 @@
 
 package controllers.dividends
 
-import audit.CreateOrAmendStockDividendsAuditDetail
 import config.{AppConfig, ErrorHandler}
 import controllers.predicates.AuthorisedAction
 import models.dividends.StockDividendsCheckYourAnswersModel
@@ -24,8 +23,6 @@ import play.api.i18n.I18nSupport
 import play.api.i18n.Lang.logger
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.{StockDividendsSessionService, StockDividendsSubmissionService}
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.DividendsSummaryView
 

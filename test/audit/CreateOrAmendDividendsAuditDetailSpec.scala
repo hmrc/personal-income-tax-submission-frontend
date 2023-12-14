@@ -44,12 +44,10 @@ class CreateOrAmendDividendsAuditDetailSpec extends UnitTest {
     "passed an audit detail model with success tax calculation field" should {
       "produce valid json" in {
         val json = Json.obj(
-  "body" -> Json.obj(
     "ukDividends" -> true,
             "ukDividendsAmount" -> 856.23,
             "otherUkDividends" -> true,
-            "otherUkDividendsAmount" -> 741.12
-          ),
+            "otherUkDividendsAmount" -> 741.12,
           "prior" -> Json.obj(
             "ukDividends" -> 856.23,
             "otherUkDividends" -> 741.12
@@ -61,7 +59,7 @@ class CreateOrAmendDividendsAuditDetailSpec extends UnitTest {
           "taxYear" -> 2020
         )
 
-          val model = CreateOrAmendDividendsAuditDetail(Some(body), Some(prior), true, nino, mtditid, userType, taxYear)
+          val model = CreateOrAmendDividendsAuditDetail.createFromCyaData(body, Some(prior), None, true, nino, mtditid, userType, taxYear)
         Json.toJson(model) shouldBe json
         }
       }
