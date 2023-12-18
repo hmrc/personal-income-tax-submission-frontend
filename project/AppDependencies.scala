@@ -24,10 +24,10 @@ object AppDependencies {
   private val hmrcPlayFrontend = "7.29.0-play-28"
 
   val compile: Seq[ModuleID] = Seq(
-    "uk.gov.hmrc"             %% "bootstrap-frontend-play-28" % bootstrapPlay28Version,
-    "uk.gov.hmrc"             %% "play-frontend-hmrc"         % hmrcPlayFrontend,
-    "uk.gov.hmrc.mongo"       %% "hmrc-mongo-play-28"         % hmrcMongoPlay28Version,
-    "com.fasterxml.jackson.module"  %% "jackson-module-scala"           % "2.14.2"
+    "uk.gov.hmrc"                   %% "bootstrap-frontend-play-28" % bootstrapPlay28Version,
+    "uk.gov.hmrc"                   %% "play-frontend-hmrc"         % hmrcPlayFrontend,
+    "uk.gov.hmrc.mongo"             %% "hmrc-mongo-play-28"         % hmrcMongoPlay28Version,
+    "com.fasterxml.jackson.module"  %% "jackson-module-scala"       % "2.14.2"
   )
 
   val test: Seq[ModuleID] = Seq(
