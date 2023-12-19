@@ -22,11 +22,11 @@ import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector}
 import models.User
 import models.mongo.{DatabaseError, SavingsIncomeUserDataModel}
 import models.savings.{SavingsIncomeCYAModel, SavingsIncomeDataModel}
-import org.joda.time.{DateTime, DateTimeZone}
 import play.api.Logger
 import repositories.SavingsUserDataRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -51,7 +51,7 @@ class SavingsSessionService @Inject()(
       user.nino,
       taxYear,
       Some(cyaModel),
-      DateTime.now(DateTimeZone.UTC)
+      Instant.now()
     )
 
     savingsUserDataRepository.create(userData)().map {
@@ -78,7 +78,7 @@ class SavingsSessionService @Inject()(
       user.nino,
       taxYear,
       Some(cyaModel),
-      DateTime.now(DateTimeZone.UTC)
+      Instant.now()
     )
 
     if (needsCreating) {

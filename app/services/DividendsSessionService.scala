@@ -22,11 +22,11 @@ import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector}
 import models.User
 import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
 import models.mongo.{DatabaseError, DividendsUserDataModel}
-import org.joda.time.{DateTime, DateTimeZone}
 import play.api.Logger
 import repositories.DividendsUserDataRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -51,7 +51,7 @@ class DividendsSessionService @Inject()(
       user.nino,
       taxYear,
       Some(cyaModel),
-      DateTime.now(DateTimeZone.UTC)
+      Instant.now()
     )
 
     dividendsUserDataRepository.create(userData)().map {
@@ -79,7 +79,7 @@ class DividendsSessionService @Inject()(
       user.nino,
       taxYear,
       Some(cyaModel),
-      DateTime.now(DateTimeZone.UTC)
+      Instant.now()
     )
 
     if (needsCreating) {

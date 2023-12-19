@@ -103,12 +103,14 @@ class InterestSecuritiesCYAController @Inject()(interestSecuritiesCYAView: Inter
   }
 
   def handleSubmissionRedirect(taxYear: Int, cyaData: Option[SavingsIncomeCYAModel], prior: Option[SavingsIncomeDataModel] = None)(
-    implicit user: User[_], hc: HeaderCarrier): Future[Result] ={
+    implicit user: User[_], hc: HeaderCarrier): Future[Result] = {
     savingsSubmissionService.submitSavings(cyaData, prior, user.nino, user.mtditid, taxYear).flatMap {
       case Left(error) => Future.successful(errorHandler.handleError(error.status))
       case Right(_) =>
         val model = CreateOrAmendSavingsAuditDetail(
-          cyaData, prior.flatMap(_.securities), prior.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase, taxYear
+          cyaData.flatMap(_.gateway), cyaData.flatMap(_.grossAmount),
+          cyaData.flatMap(_.taxTakenOff), cyaData.flatMap(_.taxTakenOffAmount),
+          prior.flatMap(_.securities), prior.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase, taxYear
         )
         auditSubmission(model)
         if (appConfig.nrsEnabled) {

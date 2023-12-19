@@ -17,9 +17,9 @@
 package models.mongo
 
 import models.savings.{EncryptedSavingsIncomeCYAModel, SavingsIncomeCYAModel}
-import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json._
-import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
+
+import java.time.Instant
 
 case class SavingsIncomeUserDataModel(
                                    sessionId: String,
@@ -27,11 +27,10 @@ case class SavingsIncomeUserDataModel(
                                    nino: String,
                                    taxYear: Int,
                                    savingsIncome: Option[SavingsIncomeCYAModel] = None,
-                                   lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC)
+                                   lastUpdated: Instant = Instant.now()
                                  ) extends UserDataTemplate
 
-object SavingsIncomeUserDataModel extends MongoJodaFormats {
-  implicit val mongoJodaDateTimeFormats: Format[DateTime] = dateTimeFormat
+object SavingsIncomeUserDataModel{
 
   implicit lazy val formats: OFormat[SavingsIncomeUserDataModel] = Json.format[SavingsIncomeUserDataModel]
 
@@ -43,11 +42,10 @@ case class EncryptedSavingsIncomeUserDataModel(
                                                 nino: String,
                                                 taxYear: Int,
                                                 savingsIncome: Option[EncryptedSavingsIncomeCYAModel] = None,
-                                                lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC)
+                                                lastUpdated: Instant = Instant.now()
                                  ) extends UserDataTemplate
 
-object EncryptedSavingsIncomeUserDataModel extends MongoJodaFormats {
-  implicit val mongoJodaDateTimeFormats: Format[DateTime] = dateTimeFormat
+object EncryptedSavingsIncomeUserDataModel{
 
   implicit lazy val formats: OFormat[EncryptedSavingsIncomeUserDataModel] = Json.format[EncryptedSavingsIncomeUserDataModel]
 }

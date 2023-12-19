@@ -39,13 +39,22 @@ class SavingsSubmissionService @Inject()(savingsSubmissionConnector: SavingsSubm
           "Not submitting data to DES.")
         Future(Right(true))
       case _ =>
-        val newSecurities = Some(SecuritiesModel(
-          nonOptBody.taxTakenOffAmount,
-          nonOptBody.grossAmount.get,
-          Some(nonOptBody.grossAmount.get - nonOptBody.taxTakenOffAmount.getOrElse(BigDecimal(0)))
-        ))
-        val newBody =  SavingsSubmissionModel(newSecurities, priorData.flatMap(_.foreignInterest).fold(Some(Seq[ForeignInterestModel]()))(data => Some(data)))
-        savingsSubmissionConnector.submitSavings(newBody, nino, taxYear)(hc.withExtraHeaders("mtditid" -> mtditid), ec)
+        nonOptBody.grossAmount match {
+          case Some(grossAmount) =>
+            val newSecurities =
+            Some(SecuritiesModel(
+              nonOptBody.taxTakenOffAmount,
+              grossAmount,
+              Some(grossAmount - nonOptBody.taxTakenOffAmount.getOrElse(BigDecimal(0)))
+            ))
+            val newBody = SavingsSubmissionModel(newSecurities, priorData.flatMap(_.foreignInterest).fold(Some(Seq[ForeignInterestModel]()))(data => Some(data)))
+            savingsSubmissionConnector.submitSavings(newBody, nino, taxYear)(hc.withExtraHeaders("mtditid" -> mtditid), ec)
+          case None =>
+            logger.info("[SavingsSubmissionService][submitSavings] User is missing grossAmount" +
+              "Not submitting data to DES.")
+            Future(Right(true))
+        }
+
     }
   }
 

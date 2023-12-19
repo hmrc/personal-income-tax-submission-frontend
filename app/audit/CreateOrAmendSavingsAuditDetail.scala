@@ -16,16 +16,20 @@
 
 package audit
 
-import models.savings.{SavingsIncomeCYAModel, SecuritiesModel}
+import models.savings.SecuritiesModel
 import play.api.libs.json.{Json, OWrites}
 
-case class CreateOrAmendSavingsAuditDetail(body: Option[SavingsIncomeCYAModel],
-                                           prior: Option[SecuritiesModel],
-                                           isUpdate: Boolean,
-                                           nino: String,
-                                           mtditid: String,
-                                           userType: String,
-                                           taxYear: Int)
+case class CreateOrAmendSavingsAuditDetail(
+                                            gateway: Option[Boolean] = None,
+                                            grossAmount: Option[BigDecimal] = None,
+                                            taxTakenOff: Option[Boolean] = None,
+                                            taxTakenOffAmount: Option[BigDecimal] = None,
+                                            prior: Option[SecuritiesModel],
+                                            isUpdate: Boolean,
+                                            nino: String,
+                                            mtditid: String,
+                                            userType: String,
+                                            taxYear: Int)
 
 object CreateOrAmendSavingsAuditDetail {
   implicit def writes: OWrites[CreateOrAmendSavingsAuditDetail] = Json.writes[CreateOrAmendSavingsAuditDetail]

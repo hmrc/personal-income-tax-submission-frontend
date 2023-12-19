@@ -17,9 +17,9 @@
 package models.mongo
 
 import models.dividends.{EncryptedStockDividendsCheckYourAnswersModel, StockDividendsCheckYourAnswersModel}
-import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json._
-import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
+
+import java.time.Instant
 
 case class StockDividendsUserDataModel(
                                         sessionId: String,
@@ -27,11 +27,10 @@ case class StockDividendsUserDataModel(
                                         nino: String,
                                         taxYear: Int,
                                         stockDividends: Option[StockDividendsCheckYourAnswersModel] = None,
-                                        lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC)
+                                        lastUpdated: Instant = Instant.now()
                                       ) extends UserDataTemplate
 
-object StockDividendsUserDataModel extends MongoJodaFormats {
-  implicit val mongoJodaDateTimeFormats: Format[DateTime] = dateTimeFormat
+object StockDividendsUserDataModel {
 
   implicit lazy val formats: OFormat[StockDividendsUserDataModel] = Json.format[StockDividendsUserDataModel]
 
@@ -43,11 +42,10 @@ case class EncryptedStockDividendsUserDataModel(
                                                  nino: String,
                                                  taxYear: Int,
                                                  stockDividends: Option[EncryptedStockDividendsCheckYourAnswersModel] = None,
-                                                 lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC)
+                                                 lastUpdated: Instant = Instant.now()
                                                ) extends UserDataTemplate
 
-object EncryptedStockDividendsUserDataModel extends MongoJodaFormats {
-  implicit val mongoJodaDateTimeFormats: Format[DateTime] = dateTimeFormat
+object EncryptedStockDividendsUserDataModel{
 
   implicit lazy val formats: OFormat[EncryptedStockDividendsUserDataModel] = Json.format[EncryptedStockDividendsUserDataModel]
 }

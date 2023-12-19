@@ -17,9 +17,9 @@
 package models.mongo
 
 import models.dividends.{DividendsCheckYourAnswersModel, EncryptedDividendsCheckYourAnswersModel}
-import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json._
-import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
+
+import java.time.Instant
 
 case class DividendsUserDataModel(
                                    sessionId: String,
@@ -27,11 +27,10 @@ case class DividendsUserDataModel(
                                    nino: String,
                                    taxYear: Int,
                                    dividends: Option[DividendsCheckYourAnswersModel] = None,
-                                   lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC)
+                                   lastUpdated: Instant = Instant.now()
                                  ) extends UserDataTemplate
 
-object DividendsUserDataModel extends MongoJodaFormats {
-  implicit val mongoJodaDateTimeFormats: Format[DateTime] = dateTimeFormat
+object DividendsUserDataModel {
 
   implicit lazy val formats: OFormat[DividendsUserDataModel] = Json.format[DividendsUserDataModel]
 
@@ -43,11 +42,10 @@ case class EncryptedDividendsUserDataModel(
                                    nino: String,
                                    taxYear: Int,
                                    dividends: Option[EncryptedDividendsCheckYourAnswersModel] = None,
-                                   lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC)
+                                   lastUpdated: Instant = Instant.now()
                                  ) extends UserDataTemplate
 
-object EncryptedDividendsUserDataModel extends MongoJodaFormats {
-  implicit val mongoJodaDateTimeFormats: Format[DateTime] = dateTimeFormat
+object EncryptedDividendsUserDataModel {
 
   implicit lazy val formats: OFormat[EncryptedDividendsUserDataModel] = Json.format[EncryptedDividendsUserDataModel]
 }

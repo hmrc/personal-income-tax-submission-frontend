@@ -16,7 +16,7 @@
 
 package services
 
-import audit.{AuditModel, AuditService, CreateOrAmendStockDividendsAuditDetail}
+import audit.{AuditModel, AuditService, CreateOrAmendDividendsAuditDetail}
 import config.AppConfig
 import connectors.httpParsers.StockDividendsSubmissionHttpParser._
 import connectors.{DividendsSubmissionConnector, StockDividendsSubmissionConnector, StockDividendsUserDataConnector}
@@ -46,8 +46,8 @@ class StockDividendsSubmissionService @Inject()(
         dividendsSessionService.getPriorData(taxYear)(user, hc).flatMap {
           case Left(error) => Future.successful(Left(error))
           case Right(priorDividends) =>
-            auditSubmission(CreateOrAmendStockDividendsAuditDetail(
-              Some(cya), priorDividends.dividends, Some(result), (result.stockDividend.isDefined | priorDividends.dividends.isDefined),
+            auditSubmission(CreateOrAmendDividendsAuditDetail.createFromStockCyaData(
+              cya, priorDividends.dividends, Some(result), result.stockDividend.isDefined || priorDividends.dividends.isDefined,
               user.nino, user.mtditid, user.affinityGroup, taxYear))
             performSubmissions(cya, nino, taxYear, hc, user, result).map { results => {
               val response = results.filter(_.isLeft)
@@ -82,7 +82,7 @@ class StockDividendsSubmissionService @Inject()(
     ))
   }
 
-  private def auditSubmission(details: CreateOrAmendStockDividendsAuditDetail)
+  private def auditSubmission(details: CreateOrAmendDividendsAuditDetail)
                              (implicit hc: HeaderCarrier): Future[AuditResult] = {
     val event = AuditModel("CreateOrAmendDividendsUpdate", "createOrAmendDividendsUpdate", details)
     auditService.auditModel(event)

@@ -17,9 +17,9 @@
 package models.mongo
 
 import models.charity.{EncryptedGiftAidCYAModel, GiftAidCYAModel}
-import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json._
-import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
+
+import java.time.Instant
 
 case class GiftAidUserDataModel(
                                  sessionId: String,
@@ -27,12 +27,11 @@ case class GiftAidUserDataModel(
                                  nino: String,
                                  taxYear: Int,
                                  giftAid: Option[GiftAidCYAModel] = None,
-                                 lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC)
+                                 lastUpdated: Instant = Instant.now()
                                ) extends UserDataTemplate
 
 
-object GiftAidUserDataModel extends MongoJodaFormats {
-  implicit val mongoJodaDateTimeFormats: Format[DateTime] = dateTimeFormat
+object GiftAidUserDataModel {
 
   implicit lazy val formats: OFormat[GiftAidUserDataModel] = Json.format[GiftAidUserDataModel]
 }
@@ -43,11 +42,10 @@ case class EncryptedGiftAidUserDataModel(
                                           nino: String,
                                           taxYear: Int,
                                           giftAid: Option[EncryptedGiftAidCYAModel] = None,
-                                          lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC)
+                                          lastUpdated:Instant = Instant.now()
                                         ) extends UserDataTemplate
 
-object EncryptedGiftAidUserDataModel extends MongoJodaFormats {
-  implicit val mongoJodaDateTimeFormats: Format[DateTime] = dateTimeFormat
+object EncryptedGiftAidUserDataModel {
 
   implicit lazy val formats: OFormat[EncryptedGiftAidUserDataModel] = Json.format[EncryptedGiftAidUserDataModel]
 }
