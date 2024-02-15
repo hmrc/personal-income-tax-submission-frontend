@@ -47,7 +47,9 @@ class SavingsSubmissionService @Inject()(savingsSubmissionConnector: SavingsSubm
               grossAmount,
               Some(grossAmount - nonOptBody.taxTakenOffAmount.getOrElse(BigDecimal(0)))
             ))
-            val newBody = SavingsSubmissionModel(newSecurities, priorData.flatMap(_.foreignInterest).fold(Some(Seq[ForeignInterestModel]()))(data => Some(data)))
+            val foreignInterestModel: Option[Seq[ForeignInterestModel]] = priorData.flatMap(_.foreignInterest)
+
+            val newBody = SavingsSubmissionModel(newSecurities, foreignInterestModel)
             savingsSubmissionConnector.submitSavings(newBody, nino, taxYear)(hc.withExtraHeaders("mtditid" -> mtditid), ec)
           case None =>
             logger.info("[SavingsSubmissionService][submitSavings] User is missing grossAmount" +

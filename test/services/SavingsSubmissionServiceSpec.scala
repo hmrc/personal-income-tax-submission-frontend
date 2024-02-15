@@ -44,7 +44,7 @@ class SavingsSubmissionServiceSpec extends UnitTest {
       )
       val smData = SavingsSubmissionModel(
         securities = Some(SecuritiesModel(Some(500.00),1000.00,Some(500.00))),
-        foreignInterest = Some(Seq[ForeignInterestModel]())
+        foreignInterest = None
       )
       val nino = "AA123456A"
       val mtdItid = "SomeMtdItid"
