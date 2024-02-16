@@ -25,7 +25,7 @@ import models.charity.{CharityNameModel, DecodedGiftAidSubmissionPayload, GiftAi
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.{ExcludeJourneyService, GiftAidSessionService, GiftAidSubmissionService, NrsService}
+import services.{ExcludeJourneyService, GiftAidSessionService, GiftAidSubmissionService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -43,7 +43,6 @@ class GiftAidCYAController @Inject()(implicit mcc: MessagesControllerComponents,
                                       giftAidSubmissionService: GiftAidSubmissionService,
                                       errorHandler: ErrorHandler,
                                       giftAidSessionService: GiftAidSessionService,
-                                      nrsService: NrsService,
                                       excludeJourneyService: ExcludeJourneyService
                                     ) extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
@@ -81,9 +80,6 @@ class GiftAidCYAController @Inject()(implicit mcc: MessagesControllerComponents,
             taxYear = taxYear,
             body = TailorRemoveIncomeSourcesBody(Seq(GIFT_AID.stringify))
           ))
-          if (appConfig.nrsEnabled) {
-            nrsService.submit(user.nino, TailorRemoveIncomeSourcesBody(Seq(GIFT_AID.stringify)), user.mtditid)
-          }
           excludeJourneyService.excludeJourney(GIFT_AID.stringify, taxYear, user.nino)
         }
         val submissionModel = createNewSubmissionModel(model)
@@ -95,10 +91,6 @@ class GiftAidCYAController @Inject()(implicit mcc: MessagesControllerComponents,
               auditSubmission(CreateOrAmendGiftAidAuditDetail(
                 prior, Some(submissionModel), prior.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase(), taxYear)
               )
-
-              if (appConfig.nrsEnabled) {
-                nrsService.submit(user.nino, new DecodedGiftAidSubmissionPayload(prior, Some(submissionModel)), user.mtditid)
-              }
 
               giftAidSessionService.clear(taxYear)(errorHandler.internalServerError())(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
             case Left(error) => Future.successful(errorHandler.handleError(error.status))

@@ -26,7 +26,7 @@ import models.savings.{DecodedSavingsSubmissionPayload, SavingsIncomeCYAModel, S
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import services.{NrsService, SavingsSessionService, SavingsSubmissionService}
+import services.{SavingsSessionService, SavingsSubmissionService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -40,8 +40,7 @@ class InterestSecuritiesCYAController @Inject()(interestSecuritiesCYAView: Inter
                                                 savingsSessionService: SavingsSessionService,
                                                 savingsSubmissionService: SavingsSubmissionService,
                                                 auditService: AuditService,
-                                                errorHandler: ErrorHandler,
-                                                nrsService: NrsService
+                                                errorHandler: ErrorHandler
                                                )
                                                (
                                                  implicit appConfig: AppConfig,
@@ -113,9 +112,6 @@ class InterestSecuritiesCYAController @Inject()(interestSecuritiesCYAView: Inter
           prior.flatMap(_.securities), prior.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase, taxYear
         )
         auditSubmission(model)
-        if (appConfig.nrsEnabled) {
-          nrsService.submit(user.nino, new DecodedSavingsSubmissionPayload(cyaData, prior.flatMap(_.securities)), user.mtditid)
-        }
         savingsSessionService.clear(taxYear)(errorHandler.internalServerError())(
         Redirect(controllers.routes.InterestFromSavingsAndSecuritiesSummaryController.show(taxYear))
       )

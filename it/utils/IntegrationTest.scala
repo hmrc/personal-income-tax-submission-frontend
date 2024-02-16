@@ -187,13 +187,11 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "microservice.services.income-tax-dividends.url" -> s"http://$wiremockHost:$wiremockPort",
     "microservice.services.income-tax-interest.url" -> s"http://$wiremockHost:$wiremockPort",
     "microservice.services.income-tax-gift-aid.url" -> s"http://$wiremockHost:$wiremockPort",
-    "microservice.services.income-tax-nrs-proxy.url" -> s"http://$wiremockHost:$wiremockPort",
-    "microservice.services.income-tax-nrs-proxy.url" -> s"http://$wiremockHost:$wiremockPort",
     "microservice.services.sign-in.url" -> s"/auth-login-stub/gg-sign-in"
   )
 
   def config(tailoring: Boolean = false, interestTailoring: Boolean = false, dividendsTailoring: Boolean = false,
-             charityTailoringEnabled:Boolean = false, InterestSavings: Boolean = false, stockDividends: Boolean = false, nrsEnabled: Boolean = true): Map[String, Any] = commonConfig ++ Map(
+             charityTailoringEnabled:Boolean = false, InterestSavings: Boolean = false, stockDividends: Boolean = false): Map[String, Any] = commonConfig ++ Map(
     "taxYearChangeResetsSession" -> false,
     "useEncryption" -> true,
     "defaultTaxYear" -> taxYear,
@@ -203,8 +201,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "feature-switch.tailoring.interest" -> interestTailoring,
     "feature-switch.tailoring.dividends"-> dividendsTailoring,
     "feature-switch.tailoring.charity"-> charityTailoringEnabled,
-    "feature-switch.interestSavings"-> InterestSavings,
-    "feature-switch.nrsEnabled"-> InterestSavings,
+    "feature-switch.interestSavings"-> InterestSavings
   )
 
   def invalidEncryptionConfig: Map[String, Any] = commonConfig ++ Map(
@@ -228,7 +225,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   lazy val appWithInterestSavings: Application = new GuiceApplicationBuilder()
     .in(Environment.simple(mode = Mode.Dev))
-    .configure(config(interestTailoring = true, nrsEnabled = false))
+    .configure(config(interestTailoring = true))
     .build()
 
   lazy val appWithStockDividends: Application = new GuiceApplicationBuilder()

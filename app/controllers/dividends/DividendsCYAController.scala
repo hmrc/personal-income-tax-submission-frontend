@@ -43,7 +43,6 @@ class DividendsCYAController @Inject()(
                                         stockDividendsSession: StockDividendsSessionService,
                                         auditService: AuditService,
                                         errorHandler: ErrorHandler,
-                                        nrsService: NrsService,
                                         excludeJourneyService: ExcludeJourneyService
                                       )
                                       (
@@ -95,9 +94,6 @@ class DividendsCYAController @Inject()(
           taxYear = taxYear,
           body = TailorRemoveIncomeSourcesBody(Seq(DIVIDENDS.stringify))
         ))
-        if (appConfig.nrsEnabled) {
-          nrsService.submit(user.nino, TailorRemoveIncomeSourcesBody(Seq(DIVIDENDS.stringify)), user.mtditid)
-        }
         excludeJourneyService.excludeJourney(DIVIDENDS.stringify, taxYear, user.nino).flatMap {
           case Right(_) => performSubmission(taxYear, cyaData, priorData)
           case Left(_) => errorHandler.futureInternalServerError()
@@ -119,9 +115,6 @@ class DividendsCYAController @Inject()(
               priorData.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase, taxYear
             )
             auditSubmission(model)
-            if (appConfig.nrsEnabled) {
-              nrsService.submit(user.nino, new DecodedDividendsSubmissionPayload(cya, priorData), user.mtditid)
-            }
             response
           case response => response
         }

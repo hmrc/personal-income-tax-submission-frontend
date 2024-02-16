@@ -26,7 +26,7 @@ import models.{APIErrorBodyModel, APIErrorModel, User}
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import services.{ExcludeJourneyService, InterestSessionService, InterestSubmissionService, NrsService}
+import services.{ExcludeJourneyService, InterestSessionService, InterestSubmissionService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -43,7 +43,6 @@ class InterestCYAController @Inject()(
                                        auditService: AuditService,
                                        errorHandler: ErrorHandler,
                                        interestSessionService: InterestSessionService,
-                                       nrsService: NrsService,
                                        excludeJourneyService: ExcludeJourneyService
                                      )
                                      (
@@ -80,9 +79,6 @@ class InterestCYAController @Inject()(
           taxYear = taxYear,
           body = TailorRemoveIncomeSourcesBody(Seq(INTEREST.stringify))
         ))
-        if (appConfig.nrsEnabled) {
-          nrsService.submit(user.nino, TailorRemoveIncomeSourcesBody(Seq(INTEREST.stringify)), user.mtditid)
-        }
         excludeJourneyService.excludeJourney(INTEREST.stringify, taxYear, user.nino).flatMap {
           case Right(_) => performSubmission(taxYear, cya, prior)
           case Left(_) => errorHandler.futureInternalServerError()
@@ -102,10 +98,6 @@ class InterestCYAController @Inject()(
             Some(cyaData), prior, prior.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase, taxYear
           )
           auditSubmission(model)
-
-          if (appConfig.nrsEnabled) {
-            nrsService.submit(user.nino, new DecodedInterestSubmissionPayload(Some(cyaData), prior), user.mtditid)
-          }
 
           response
         case response => response
