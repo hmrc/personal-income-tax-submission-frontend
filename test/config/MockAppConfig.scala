@@ -28,7 +28,6 @@ class MockAppConfig extends AppConfig with MockFactory {
   override val interestBaseUrl: String = "/interest"
   override val giftAidBaseUrl: String = "/giftAid"
   override val incomeTaxSubmissionBEBaseUrl: String = "/incomeTaxSubmissionBaseUrl"
-  override val nrsProxyBaseUrl: String = "/nrsProxyBaseUrl"
 
   override def defaultTaxYear: Int = 2022
 
@@ -74,8 +73,6 @@ class MockAppConfig extends AppConfig with MockFactory {
   override val encryptionKey: String = "1234556"
 
   override def mongoTTL: Long = 15
-
-  override val nrsEnabled: Boolean = true
 
   override val tailoringEnabled: Boolean = false
   override val interestTailoringEnabled: Boolean = false
