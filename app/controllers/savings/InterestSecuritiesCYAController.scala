@@ -121,7 +121,7 @@ class InterestSecuritiesCYAController @Inject()(interestSecuritiesCYAView: Inter
   private def auditSubmission(details: CreateOrAmendSavingsAuditDetail)
                              (implicit hc: HeaderCarrier,
                               executionContext: ExecutionContext): Future[AuditResult] = {
-    val event = AuditModel("CreateOrAmendInterestSavingsUpdate", "createOrAmendInterestSavingsUpdate", details)
+    val event = AuditModel("CreateOrAmendInterestSavingsUpdate", "create-or-amend-interest-savings-update", details)
     auditService.auditModel(event)
   }
 }
