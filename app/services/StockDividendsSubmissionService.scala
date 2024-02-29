@@ -84,7 +84,7 @@ class StockDividendsSubmissionService @Inject()(
 
   private def auditSubmission(details: CreateOrAmendDividendsAuditDetail)
                              (implicit hc: HeaderCarrier): Future[AuditResult] = {
-    val event = AuditModel("CreateOrAmendDividendsUpdate", "createOrAmendDividendsUpdate", details)
+    val event = AuditModel("CreateOrAmendDividendsUpdate", "create-or-amend-dividends-update", details)
     auditService.auditModel(event)
   }
 }
