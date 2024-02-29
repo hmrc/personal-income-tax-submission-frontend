@@ -124,7 +124,7 @@ class StockDividendsSubmissionServiceSpec extends UnitTest with MockAuditService
           .expects(stockSubmissionModel, nino, taxYear, emptyHeaderCarrier.withExtraHeaders("mtditid" -> mtdItid))
           .returning(Future.successful(Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("test", "test")))))
 
-        verifyAuditEvent[CreateOrAmendDividendsAuditDetail](AuditModel("CreateOrAmendDividendsUpdate", "createOrAmendDividendsUpdate",
+        verifyAuditEvent[CreateOrAmendDividendsAuditDetail](AuditModel("CreateOrAmendDividendsUpdate", "create-or-amend-dividends-update",
           CreateOrAmendDividendsAuditDetail.createFromStockCyaData(cyaData, IncomeSourcesModel().dividends, Some(StockDividendsPriorSubmission()),
             isUpdate = false, nino, mtdItid, Individual.toString, taxYear)))
 
@@ -147,7 +147,7 @@ class StockDividendsSubmissionServiceSpec extends UnitTest with MockAuditService
           .expects(stockSubmissionModel, nino, taxYear, emptyHeaderCarrier.withExtraHeaders("mtditid" -> mtdItid))
           .returning(Future.successful(Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("test", "test")))))
 
-        verifyAuditEvent[CreateOrAmendDividendsAuditDetail](AuditModel("CreateOrAmendDividendsUpdate", "createOrAmendDividendsUpdate",
+        verifyAuditEvent[CreateOrAmendDividendsAuditDetail](AuditModel("CreateOrAmendDividendsUpdate", "create-or-amend-dividends-update",
           CreateOrAmendDividendsAuditDetail.createFromStockCyaData(cyaData, IncomeSourcesModel().dividends, Some(StockDividendsPriorSubmission()),
             isUpdate = false, nino, mtdItid, Individual.toString, taxYear)))
 
