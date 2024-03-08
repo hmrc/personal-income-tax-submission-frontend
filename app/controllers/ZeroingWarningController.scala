@@ -131,7 +131,7 @@ class ZeroingWarningController @Inject()(
     }
   }
 
-  private[controllers] def zeroInterestData(data: InterestCYAModel, priorIds: Seq[String]): InterestCYAModel = {
+  def zeroInterestData(data: InterestCYAModel, priorIds: Seq[String]): InterestCYAModel = {
     val zeroedData = data.copy(accounts = data.accounts.filter(account => account.id.fold(false)(priorIds.contains)).map { account =>
       account.copy(
         untaxedAmount = account.untaxedAmount.map(_ => 0),

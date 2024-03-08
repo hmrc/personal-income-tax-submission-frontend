@@ -15,30 +15,30 @@
  */
 
 import play.core.PlayVersion.current
-import sbt._
+import sbt.*
 
 object AppDependencies {
 
-  private val bootstrapPlay28Version = "8.2.0"
-  private val hmrcMongoPlay28Version = "1.6.0"
+  private val bootstrapPlay30Version = "8.5.0"
+  private val hmrcMongoPlay30Version = "1.7.0"
   private val hmrcPlayFrontend = "8.5.0"
 
   val compile: Seq[ModuleID] = Seq(
-    "uk.gov.hmrc"                   %% "bootstrap-frontend-play-28" % bootstrapPlay28Version,
-    "uk.gov.hmrc"                   %% "play-frontend-hmrc-play-28" % hmrcPlayFrontend,
-    "uk.gov.hmrc.mongo"             %% "hmrc-mongo-play-28"         % hmrcMongoPlay28Version,
-    "com.fasterxml.jackson.module"  %% "jackson-module-scala"       % "2.14.2"
+    "uk.gov.hmrc"                   %% "bootstrap-frontend-play-30" % bootstrapPlay30Version,
+    "uk.gov.hmrc"                   %% "play-frontend-hmrc-play-30" % hmrcPlayFrontend,
+    "uk.gov.hmrc.mongo"             %% "hmrc-mongo-play-30"         % hmrcMongoPlay30Version,
+    "com.fasterxml.jackson.module"  %% "jackson-module-scala"       % "2.16.1"
   )
 
   val test: Seq[ModuleID] = Seq(
-    "uk.gov.hmrc"             %% "bootstrap-test-play-28"   % bootstrapPlay28Version    % Test,
-    "org.scalatest"           %% "scalatest"                % "3.2.15"                  % Test,
-    "org.jsoup"               %  "jsoup"                    % "1.15.4"                  % Test,
-    "com.typesafe.play"       %% "play-test"                % current                   % Test,
-    "org.scalatestplus.play"  %% "scalatestplus-play"       % "5.1.0"                   % "test, it",
-    "com.github.tomakehurst"  %  "wiremock-jre8"            % "2.35.0"                  % "test, it",
-    "org.scalamock"           %% "scalamock"                % "5.2.0"                   % Test,
-    "uk.gov.hmrc.mongo"       %% "hmrc-mongo-test-play-28"  % hmrcMongoPlay28Version    % "test, it",
-    "com.vladsch.flexmark"     %  "flexmark-all"              % "0.64.8"                  % Test
-  )
+    "uk.gov.hmrc"             %% "bootstrap-test-play-30"   % bootstrapPlay30Version,
+    "org.jsoup"               %  "jsoup"                    % "1.17.2",
+    "org.playframework"       %% "play-test"                % current,
+    "org.mockito"             %% "mockito-scala-scalatest"  % "1.17.30",
+    "org.scalamock"           %% "scalamock"                % "5.2.0",
+    "uk.gov.hmrc.mongo"       %% "hmrc-mongo-test-play-30"  % hmrcMongoPlay30Version,
+  ).map(_ % "test")
+
+  // Only add additional dependencies here as Integration tests already inherit Test dependencies above
+  val itDependencies: Seq[ModuleID] = Seq()
 }
