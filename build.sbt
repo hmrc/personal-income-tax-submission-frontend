@@ -8,28 +8,13 @@ val appName = "personal-income-tax-submission-frontend"
 
 lazy val coverageSettings: Seq[Setting[_]] = {
 
-  val excludedPackages = Seq(
-    "<empty>",
-    ".*Reverse.*",
-    ".*standardError*.*",
-    ".*govuk_wrapper*.*",
-    ".*main_template*.*",
-    "uk.gov.hmrc.BuildInfo",
-    "app.*",
-    "prod.*",
-    "config.*",
-    "testOnly.*",
-    "testOnlyDoNotUseInAppConf.*",
-    ".*feedback*.*",
-    "partials.*",
-    "controllers.testOnly.*",
-    "views.html.*[Tt]emplate.*",
-    "views.html.views.templates.helpers*",
-    "views.html.views.templates.inputs*",
-    "views.headerFooterTemplate"
-  )
+  val excludedPackages =
+    "<empty>;Reverse.*;.*standardError*.*;.*govuk_wrapper*.*;.*main_template*.*;.*govuk_wrapper*.*;" +
+      ".*main_template*.*;.*controllers.testonly.*;uk.gov.hmrc.BuildInfo;app.*;prod.*;config.*;models.*;" +
+      ".*feedback*.*;partials.*;testOnly.*;testOnlyDoNotUseInAppConf.*;views.*;"
 
   Seq(
+    ScoverageKeys.coverageExcludedPackages := excludedPackages,
     ScoverageKeys.coverageMinimumStmtTotal := 90,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true
@@ -78,3 +63,5 @@ lazy val it = project
   .enablePlugins(PlayScala)
   .dependsOn(microservice % "test->test") // the "test->test" allows reusing test code and test dependencies
   .settings(DefaultBuildSettings.itSettings())
+
+addCommandAlias("runAllChecks", "clean;compile;scalastyle;coverage;test;it/test;coverageReport")

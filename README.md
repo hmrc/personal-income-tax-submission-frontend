@@ -24,6 +24,8 @@ This service runs on port: `localhost:9308`
 - Run Unit Tests:  `sbt test`
 - Run Integration Tests: `sbt it/test`
 - Run Unit and Integration Tests: `sbt test it/test`
+- Run Unit and Integration Tests with coverage report: `sbt runAllChecks`<br/> 
+  which runs `clean compile scalastyle coverage test it/test coverageReport`
 
 ### Feature Switches
 
