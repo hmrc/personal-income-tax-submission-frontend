@@ -35,8 +35,10 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test ++ AppDependencies.itDependencies,
     TwirlKeys.templateImports ++= twirlImports,
+    // only required for frontends
     scalacOptions += "-Wconf:cat=unused-imports&src=html/.*:s",
-    scalacOptions += "-Wconf:src=routes/.*:s"
+    // for all services
+    scalacOptions += "-Wconf:cat=unused-imports&src=routes/.*:s"
   )
   .settings(Test / fork := false)
   .settings(
