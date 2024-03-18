@@ -17,6 +17,7 @@
 package test.controllers
 
 import controllers.ZeroingWarningController
+import models.dividends.DividendsCheckYourAnswersModel
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -25,8 +26,7 @@ import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.libs.ws.WSResponse
 import play.api.test.FakeRequest
 import play.api.test.Helpers.route
-import test.utils.{DividendsDatabaseHelper, GiftAidDatabaseHelper, IntegrationTest, InterestDatabaseHelper, ViewHelpers}
-import utils._
+import test.utils._
 
 class ZeroingWarningControllerISpec extends IntegrationTest
   with DividendsDatabaseHelper with InterestDatabaseHelper with GiftAidDatabaseHelper with ViewHelpers {
@@ -289,6 +289,44 @@ class ZeroingWarningControllerISpec extends IntegrationTest
       }
 
     }
+
+    "redirect to the dividends CYA page" when {
+
+      "the feature switch is on and session data exists" which {
+        val ukDividendsAmount: BigDecimal = 1000
+        val otherDividendsAmount: BigDecimal = 0
+
+        lazy val result = {
+          dropInterestDB()
+          insertDividendsCyaData(
+            Some(DividendsCheckYourAnswersModel(Some(true), Some(true), Some(ukDividendsAmount), Some(true), Some(otherDividendsAmount))),
+            taxYearEOY,
+            Some(mtditid),
+            None
+          )
+          emptyUserDataStub(taxYear = taxYearEOY)
+
+          authoriseIndividual()
+
+          val request = FakeRequest(
+            "POST",
+            url("dividends", needExplicit = false)
+          ).withHeaders(playSessionCookie(isEoy = true) ++ Seq("Csrf-Token" -> "nocheck"): _*)
+
+          route(appWithTailoring, request, "{}").get
+        }
+
+        "has a status of SEE_OTHER(303)" in {
+          status(result) shouldBe SEE_OTHER
+        }
+
+        "has a redirect location set to the dividends cya page" in {
+          await(result).header.headers("Location") shouldBe
+            s"/update-and-submit-income-tax-return/personal-income/$taxYearEOY/dividends/check-income-from-dividends"
+        }
+      }
+
+    }
   }
 
   ".zeroInterestData" should {
@@ -325,6 +363,46 @@ class ZeroingWarningControllerISpec extends IntegrationTest
       controller.zeroInterestData(cya, Seq("anId", "anId2")) shouldBe expectedCya
     }
 
+  }
+
+  ".zeroDividendsData" should {
+    lazy val controller = app.injector.instanceOf[ZeroingWarningController]
+
+    "return a Dividends Check Your Answers Model with an updated ukDividendsAmount value when ukDividends flag is set to true" in {
+      val ukDividendsAmount: BigDecimal = 1000
+
+      val cya = DividendsCheckYourAnswersModel(None, Some(true), Some(ukDividendsAmount), None, None)
+      val expectedCya = DividendsCheckYourAnswersModel(None, Some(true), Some(0), None, None)
+
+      controller.zeroDividendsData(cya) shouldBe expectedCya
+    }
+
+    "return a Dividends Check Your Answers Model with an updated ukDividendsAmount value when ukDividends flag is set to false" in {
+      val ukDividendsAmount: BigDecimal = 0
+
+      val cya = DividendsCheckYourAnswersModel(None, Some(false), Some(ukDividendsAmount), None, None)
+      val expectedCya = DividendsCheckYourAnswersModel(None, Some(false), None, None, None)
+
+      controller.zeroDividendsData(cya) shouldBe expectedCya
+    }
+
+    "return a Dividends Check Your Answers Model with an updated otherUkDividendsAmount value when otherUkDividends flag is set to true" in {
+      val otherDividendsAmount: BigDecimal = 1000
+
+      val cya = DividendsCheckYourAnswersModel(None, None, None, Some(true), Some(otherDividendsAmount))
+      val expectedCya = DividendsCheckYourAnswersModel(None, None, None, Some(true), Some(0))
+
+      controller.zeroDividendsData(cya) shouldBe expectedCya
+    }
+
+    "return a Dividends Check Your Answers Model with an updated otherUkDividendsAmount value when otherUkDividends flag is set to false" in {
+      val otherDividendsAmount: BigDecimal = 0
+
+      val cya = DividendsCheckYourAnswersModel(None, None, None, Some(false), Some(otherDividendsAmount))
+      val expectedCya = DividendsCheckYourAnswersModel(None, None, None, Some(false), None)
+
+      controller.zeroDividendsData(cya) shouldBe expectedCya
+    }
   }
 
 }
