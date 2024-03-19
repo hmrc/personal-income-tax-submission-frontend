@@ -8,13 +8,30 @@ val appName = "personal-income-tax-submission-frontend"
 
 lazy val coverageSettings: Seq[Setting[_]] = {
 
-  val excludedPackages =
-    "<empty>;Reverse.*;.*standardError*.*;.*govuk_wrapper*.*;.*main_template*.*;.*govuk_wrapper*.*;" +
-      ".*main_template*.*;.*controllers.testonly.*;uk.gov.hmrc.BuildInfo;app.*;prod.*;config.*;models.*;" +
-      ".*feedback*.*;partials.*;testOnly.*;testOnlyDoNotUseInAppConf.*;views.*;"
+  val excludedPackages = Seq(
+    "<empty>",
+    ".*Reverse.*",
+    ".*standardError*.*",
+    ".*govuk_wrapper*.*",
+    ".*main_template*.*",
+    "uk.gov.hmrc.BuildInfo",
+    "app.*",
+    "prod.*",
+    "config.*",
+    "testOnly.*",
+    "testOnlyDoNotUseInAppConf.*",
+    ".*feedback*.*",
+    "partials.*",
+    "controllers.testOnly.*",
+    "views.html.*[Tt]emplate*",
+    "views.html.templates.helpers.*",
+    "views.html.views.templates.helpers*",
+    "views.html.views.templates.inputs*",
+    "views.headerFooterTemplate"
+  )
 
   Seq(
-    ScoverageKeys.coverageExcludedPackages := excludedPackages,
+    ScoverageKeys.coverageExcludedPackages := excludedPackages.mkString(";"),
     ScoverageKeys.coverageMinimumStmtTotal := 90,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true
