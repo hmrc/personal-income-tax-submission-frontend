@@ -20,7 +20,7 @@ import sbt.*
 object AppDependencies {
 
   private val bootstrapPlay30Version = "8.5.0"
-  private val hmrcMongoPlay30Version = "1.7.0"
+  private val hmrcMongoPlay30Version = "1.8.0"
   private val hmrcPlayFrontend = "8.5.0"
 
   val compile: Seq[ModuleID] = Seq(
@@ -39,6 +39,4 @@ object AppDependencies {
     "uk.gov.hmrc.mongo"       %% "hmrc-mongo-test-play-30"  % hmrcMongoPlay30Version,
   ).map(_ % "test")
 
-  // Only add additional dependencies here as Integration tests already inherit Test dependencies above
-  val itDependencies: Seq[ModuleID] = Seq()
 }

@@ -50,7 +50,7 @@ lazy val microservice = Project(appName, file("."))
   .disablePlugins(JUnitXmlReportPlugin)
   .settings(PlayKeys.playDefaultPort := 9308)
   .settings(
-    libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test ++ AppDependencies.itDependencies,
+    libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
     TwirlKeys.templateImports ++= twirlImports,
     // only required for frontends
     scalacOptions += "-Wconf:cat=unused-imports&src=html/.*:s",
