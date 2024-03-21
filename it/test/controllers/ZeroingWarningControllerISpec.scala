@@ -21,6 +21,7 @@ import models.dividends.DividendsCheckYourAnswersModel
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.scalatest.PrivateMethodTester
 import play.api.http.HeaderNames
 import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.libs.ws.WSResponse
@@ -29,7 +30,7 @@ import play.api.test.Helpers.route
 import test.utils._
 
 class ZeroingWarningControllerISpec extends IntegrationTest
-  with DividendsDatabaseHelper with InterestDatabaseHelper with GiftAidDatabaseHelper with ViewHelpers {
+  with DividendsDatabaseHelper with InterestDatabaseHelper with GiftAidDatabaseHelper with ViewHelpers with PrivateMethodTester  {
 
   private def url(journeyKey: String, needExplicit: Boolean = true) = {
     (if (needExplicit) appUrl else "/update-and-submit-income-tax-return/personal-income") +
@@ -332,6 +333,8 @@ class ZeroingWarningControllerISpec extends IntegrationTest
   ".zeroInterestData" should {
     lazy val controller = app.injector.instanceOf[ZeroingWarningController]
 
+    val privateZeroInterestData = PrivateMethod[InterestCYAModel](Symbol("zeroInterestData"))
+
     "zero data that exists in prior, and remove that which doesn't" in {
       val defaultAmount = 100000
 
@@ -346,7 +349,7 @@ class ZeroingWarningControllerISpec extends IntegrationTest
         InterestAccountModel(Some("anId2"), "This is an account", untaxedAmount = Some(0))
       ))
 
-      controller.zeroInterestData(cya, Seq("anId", "anId2")) shouldBe expectedCya
+      controller invokePrivate privateZeroInterestData(cya, Seq("anId", "anId2")) shouldBe expectedCya
     }
 
     "set the 'do you have' fields to false if no more accounts remain for them" in {
@@ -360,13 +363,14 @@ class ZeroingWarningControllerISpec extends IntegrationTest
 
       val expectedCya = InterestCYAModel(Some(false), Some(false), Some(false), Seq())
 
-      controller.zeroInterestData(cya, Seq("anId", "anId2")) shouldBe expectedCya
+      controller invokePrivate privateZeroInterestData(cya, Seq("anId", "anId2")) shouldBe expectedCya
     }
 
   }
 
   ".zeroDividendsData" should {
     lazy val controller = app.injector.instanceOf[ZeroingWarningController]
+    val privateZeroDividendsData = PrivateMethod[InterestCYAModel](Symbol("zeroDividendsData"))
 
     "return a Dividends Check Your Answers Model with an updated ukDividendsAmount value when ukDividends flag is set to true" in {
       val ukDividendsAmount: BigDecimal = 1000
@@ -374,7 +378,7 @@ class ZeroingWarningControllerISpec extends IntegrationTest
       val cya = DividendsCheckYourAnswersModel(None, Some(true), Some(ukDividendsAmount), None, None)
       val expectedCya = DividendsCheckYourAnswersModel(None, Some(true), Some(0), None, None)
 
-      controller.zeroDividendsData(cya) shouldBe expectedCya
+      controller invokePrivate privateZeroDividendsData(cya) shouldBe expectedCya
     }
 
     "return a Dividends Check Your Answers Model with an updated ukDividendsAmount value when ukDividends flag is set to false" in {
@@ -383,7 +387,7 @@ class ZeroingWarningControllerISpec extends IntegrationTest
       val cya = DividendsCheckYourAnswersModel(None, Some(false), Some(ukDividendsAmount), None, None)
       val expectedCya = DividendsCheckYourAnswersModel(None, Some(false), None, None, None)
 
-      controller.zeroDividendsData(cya) shouldBe expectedCya
+      controller invokePrivate privateZeroDividendsData(cya) shouldBe expectedCya
     }
 
     "return a Dividends Check Your Answers Model with an updated otherUkDividendsAmount value when otherUkDividends flag is set to true" in {
@@ -392,7 +396,7 @@ class ZeroingWarningControllerISpec extends IntegrationTest
       val cya = DividendsCheckYourAnswersModel(None, None, None, Some(true), Some(otherDividendsAmount))
       val expectedCya = DividendsCheckYourAnswersModel(None, None, None, Some(true), Some(0))
 
-      controller.zeroDividendsData(cya) shouldBe expectedCya
+      controller invokePrivate privateZeroDividendsData(cya) shouldBe expectedCya
     }
 
     "return a Dividends Check Your Answers Model with an updated otherUkDividendsAmount value when otherUkDividends flag is set to false" in {
@@ -401,7 +405,7 @@ class ZeroingWarningControllerISpec extends IntegrationTest
       val cya = DividendsCheckYourAnswersModel(None, None, None, Some(false), Some(otherDividendsAmount))
       val expectedCya = DividendsCheckYourAnswersModel(None, None, None, Some(false), None)
 
-      controller.zeroDividendsData(cya) shouldBe expectedCya
+      controller invokePrivate privateZeroDividendsData(cya) shouldBe expectedCya
     }
   }
 

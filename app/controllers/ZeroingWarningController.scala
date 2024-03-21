@@ -108,7 +108,7 @@ class ZeroingWarningController @Inject()(
     }
   }
 
-  def zeroDividendsData(cyaData: DividendsCheckYourAnswersModel): DividendsCheckYourAnswersModel = {
+  private[controllers] def zeroDividendsData(cyaData: DividendsCheckYourAnswersModel): DividendsCheckYourAnswersModel = {
     cyaData.copy(
       ukDividendsAmount = if (cyaData.ukDividends.contains(true)) Some(0) else None,
       otherUkDividendsAmount = if (cyaData.otherUkDividends.contains(true)) Some(0) else None
@@ -128,7 +128,7 @@ class ZeroingWarningController @Inject()(
     }
   }
 
-  def zeroInterestData(data: InterestCYAModel, priorIds: Seq[String]): InterestCYAModel = {
+  private[controllers] def zeroInterestData(data: InterestCYAModel, priorIds: Seq[String]): InterestCYAModel = {
     val zeroedData = data.copy(accounts = data.accounts.filter(account => account.id.fold(false)(priorIds.contains)).map { account =>
       account.copy(
         untaxedAmount = account.untaxedAmount.map(_ => 0),
