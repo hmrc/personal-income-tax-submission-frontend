@@ -1,5 +1,6 @@
 
 # personal-income-tax-submission-fronted
+
 This is where users can review and make changes to the dividends, Interest and gift aid sections of their income tax return.
 
 ## Running the service locally
@@ -18,6 +19,14 @@ Run the following command to start the remaining services locally:
 
 This service runs on port: `localhost:9308`
 
+### Running Tests
+
+- Run Unit Tests:  `sbt test`
+- Run Integration Tests: `sbt it/test`
+- Run Unit and Integration Tests: `sbt test it/test`
+- Run Unit and Integration Tests with coverage report: `sbt runAllChecks`<br/> 
+  which runs `clean compile scalastyle coverage test it/test coverageReport`
+
 ### Feature Switches
 
 | Feature        | Environments Enabled In        |
@@ -31,8 +40,8 @@ This service runs on port: `localhost:9308`
 | Tailoring      | Local                          |
 
 ## How to access this service
-Each of the journeys contained in this service can be access through [income-tax-submission-frontend](https://github.com/hmrc/income-tax-submission-frontend).
 
+Each of the journeys contained in this service can be access through [income-tax-submission-frontend](https://github.com/hmrc/income-tax-submission-frontend).
 
 # Journeys
 

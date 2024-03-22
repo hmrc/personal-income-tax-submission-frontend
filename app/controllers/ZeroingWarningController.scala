@@ -85,10 +85,6 @@ class ZeroingWarningController @Inject()(
 
   def submit(taxYear: Int, journeyKey: String): Action[AnyContent] = zeroingPredicates(taxYear, journeyKey).async { implicit user =>
     if (appConfig.interestTailoringEnabled || appConfig.dividendsTailoringEnabled) {
-/*      def onSuccess(key: String): Result = {
-        Redirect(s"/$key")
-      }*/
-
       journeyKey match {
         case key@"dividends" => handleDividends(taxYear)
         case "interest" => handleInterest(taxYear)
@@ -115,7 +111,8 @@ class ZeroingWarningController @Inject()(
   private[controllers] def zeroDividendsData(cyaData: DividendsCheckYourAnswersModel): DividendsCheckYourAnswersModel = {
     cyaData.copy(
       ukDividendsAmount = if (cyaData.ukDividends.contains(true)) Some(0) else None,
-      otherUkDividendsAmount = if (cyaData.otherUkDividends.contains(true)) Some(0) else None)
+      otherUkDividendsAmount = if (cyaData.otherUkDividends.contains(true)) Some(0) else None
+    )
   }
 
   private[controllers] def handleInterest(taxYear: Int)(implicit user: User[_]): Future[Result] = {
