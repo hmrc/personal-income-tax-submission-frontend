@@ -64,7 +64,7 @@ class DividendsCYAController @Inject()(
               stockDividendsSession.updateSessionData(cyaData, taxYear)(errorHandler.internalServerError())(
                 Redirect(routes.DividendsSummaryController.show(taxYear))
               )
-            }else{
+            } else {
               stockDividendsSession.createSessionData(cyaData, taxYear)(errorHandler.internalServerError())(
                 Redirect(routes.DividendsSummaryController.show(taxYear)))
             }
