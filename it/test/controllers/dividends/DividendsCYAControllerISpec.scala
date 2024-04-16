@@ -16,7 +16,7 @@
 
 package test.controllers.dividends
 
-import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, StockDividendsPriorSubmission}
+import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, StockDividendsCheckYourAnswersModel, StockDividendsPriorSubmission}
 import models.priorDataModels.IncomeSourcesModel
 import models.priorDataModels.StockDividendsPriorDataModel
 import org.jsoup.Jsoup
@@ -453,6 +453,35 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
         }
 
+        "redirect to the overview page" when {
+          "there is no session data and Stock dividends is enabled" in {
+
+            lazy val result = {
+              authoriseIndividual()
+              dropStockDividendsDB()
+              emptyStockDividendsUserDataStub(nino, taxYear)
+              stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", SEE_OTHER, "overview")
+              urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie())
+
+
+              val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends",
+                Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
+
+              await(route(appWithStockDividends, request, "{}").get)
+            }
+
+            "has a status of SEE_OTHER(303)" in {
+              result.header.status shouldBe SEE_OTHER
+            }
+
+
+            "has the redirect location of the overview page" in {
+              result.header.headers("Location") shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+
+            }
+
+          }
+        }
         "redirect the user to the most relevant page in the user journey if CYA is part completed" should {
 
           "Uk dividends yesNo question has been answered" when {
@@ -543,6 +572,26 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
             "has the redirect location of the overview page" in {
               result.header.headers("Location") shouldBe controllers.dividends.routes.DividendsGatewayController.show(taxYear).url
+            }
+          }
+
+          "redirect the user to dividends summary page if cya data is empty and stock dividends is enabled" which {
+            lazy val result = {
+              dropStockDividendsDB()
+              emptyStockDividendsUserDataStub()
+              authoriseIndividual()
+              val request = FakeRequest("GET", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends",
+                Headers.apply(playSessionCookie(): _*), "{}")
+
+              await(route(appWithStockDividends, request, "{}").get)
+            }
+
+            "has a status of SEE_OTHER(303)" in {
+              result.header.status shouldBe SEE_OTHER
+            }
+
+            "has the redirect location of the summary page" in {
+              result.header.headers("Location") shouldBe controllers.dividends.routes.DividendsSummaryController.show(taxYear).url
             }
           }
 
