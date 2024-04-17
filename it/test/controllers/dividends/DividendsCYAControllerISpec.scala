@@ -62,7 +62,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
     ))
   )
 
-  lazy val stockDividendsPriorData: StockDividendsPriorDataModel = StockDividendsPriorDataModel.getFromPrior(priorData, StockDividendsPriorSubmission())
+
 
 
   object Selectors {
@@ -405,6 +405,25 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           welshToggleCheck(us.isWelsh)
         }
 
+        "redirects to overview for stock dividends" which {
+          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
+          lazy val result = {
+            authoriseAgentOrIndividual(us.isAgent)
+            dropDividendsDB()
+            dropStockDividendsDB()
+            emptyUserDataStub()
+            emptyStockDividendsUserDataStub()
+            route(appWithStockDividends, request, "{}").get
+          }
+
+          "has an SEE_OTHER (303) status" in {
+            status(result) shouldBe SEE_OTHER
+            await(result).header.headers.getOrElse("Location", "").contains("/view") shouldBe true
+          }
+        }
+
         "renders CYA with new amounts if they have been updated in session compared to prior submission when STOCK DIVIDENDS ENABLED" which {
 
           val ukDividends1 = 100
@@ -417,7 +436,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
             authoriseAgentOrIndividual(us.isAgent)
             dropStockDividendsDB()
             insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
-            stockDividendsUserDataStub(StockDividendsPriorSubmission(), nino, taxYear)
+            stockDividendsUserDataStub(Some(StockDividendsPriorSubmission()), nino, taxYear)
             insertDividendsCyaData(Some(DividendsCheckYourAnswersModel(
               Some(true),
               Some(true), Some(ukDividends1),
@@ -453,35 +472,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
         }
 
-        "redirect to the overview page" when {
-          "there is no session data and Stock dividends is enabled" in {
 
-            lazy val result = {
-              authoriseIndividual()
-              dropStockDividendsDB()
-              emptyStockDividendsUserDataStub(nino, taxYear)
-              stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", SEE_OTHER, "overview")
-              urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie())
-
-
-              val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends",
-                Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
-
-              await(route(appWithStockDividends, request, "{}").get)
-            }
-
-            "has a status of SEE_OTHER(303)" in {
-              result.header.status shouldBe SEE_OTHER
-            }
-
-
-            "has the redirect location of the overview page" in {
-              result.header.headers("Location") shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
-
-            }
-
-          }
-        }
         "redirect the user to the most relevant page in the user journey if CYA is part completed" should {
 
           "Uk dividends yesNo question has been answered" when {
@@ -578,7 +569,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           "redirect the user to dividends summary page if cya data is empty and stock dividends is enabled" which {
             lazy val result = {
               dropStockDividendsDB()
-              emptyStockDividendsUserDataStub()
+              stockDividendsUserDataStub(Some(StockDividendsPriorSubmission()), nino , taxYear)
               authoriseIndividual()
               val request = FakeRequest("GET", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends",
                 Headers.apply(playSessionCookie(): _*), "{}")

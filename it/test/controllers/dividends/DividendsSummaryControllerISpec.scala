@@ -394,7 +394,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
             userDataStub(IncomeSourcesModel(Some(DividendsPriorSubmission(
               ukDividends = Some(amount), otherUkDividends = Some(amount)
             ))), nino, taxYear)
-            stockDividendsUserDataStub(StockDividendsPriorSubmission(
+            stockDividendsUserDataStub(Some(StockDividendsPriorSubmission(
               submittedOn = Some(""),
               foreignDividend = None,
               dividendIncomeReceivedWhilstAbroad = None,
@@ -402,7 +402,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
               redeemableShares = stockDividend,
               bonusIssuesOfSecurities = None,
               closeCompanyLoansWrittenOff = stockDividend
-            ), nino, taxYear)
+            )), nino, taxYear)
             route(appWithStockDividends, request, "{}").get
           }
 

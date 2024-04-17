@@ -34,6 +34,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.http.HeaderNames
+import play.api.http.Status.NOT_FOUND
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
@@ -356,14 +357,16 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     userDataStub(IncomeSourcesModel(), nino, taxYear)
   }
 
-  def stockDividendsUserDataStub(userData: StockDividendsPriorSubmission, nino: String, taxYear: Int): StubMapping = {
+  def stockDividendsUserDataStub(userData: Option[StockDividendsPriorSubmission], nino: String, taxYear: Int): StubMapping = {
     stubGetWithHeadersCheck(
       s"/income-tax-dividends/income-tax/income/dividends/${user.nino}/$taxYear", OK,
       Json.toJson(userData).toString(), "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
   }
 
   def emptyStockDividendsUserDataStub(nino: String = nino, taxYear: Int = taxYear): StubMapping = {
-    stockDividendsUserDataStub(StockDividendsPriorSubmission(), nino, taxYear)
+    stubGetWithHeadersCheck(
+      s"/income-tax-dividends/income-tax/income/dividends/${user.nino}/$taxYear", NOT_FOUND,
+      "", "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
   }
 
   val CompleteDividendsUserData: DividendsUserDataModel = DividendsUserDataModel(

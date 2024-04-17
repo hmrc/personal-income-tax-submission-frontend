@@ -79,7 +79,7 @@ class StockDividendsSubmissionServiceSpec extends UnitTest with MockAuditService
       "Given connector returns a right" in {
 
         (stockDividendsUserDataConnector.getUserData(_: Int)(_: User[_], _: HeaderCarrier))
-          .expects(taxYear, user, emptyHeaderCarrier.withExtraHeaders("mtditid" -> mtdItid)).returning(Future.successful(Right(StockDividendsPriorSubmission())))
+          .expects(taxYear, user, emptyHeaderCarrier.withExtraHeaders("mtditid" -> mtdItid)).returning(Future.successful(Right(Some(StockDividendsPriorSubmission()))))
 
         (dividendsSessionService.getPriorData(_: Int)(_: User[_], _: HeaderCarrier))
           .expects(taxYear, user, emptyHeaderCarrier).returning(Future.successful(Right(IncomeSourcesModel())))
@@ -111,7 +111,7 @@ class StockDividendsSubmissionServiceSpec extends UnitTest with MockAuditService
       "Given ukDividends connector returns a left" in {
 
         (stockDividendsUserDataConnector.getUserData(_: Int)(_: User[_], _: HeaderCarrier))
-          .expects(taxYear, user, emptyHeaderCarrier.withExtraHeaders("mtditid" -> mtdItid)).returning(Future.successful(Right(StockDividendsPriorSubmission())))
+          .expects(taxYear, user, emptyHeaderCarrier.withExtraHeaders("mtditid" -> mtdItid)).returning(Future.successful(Right(Some(StockDividendsPriorSubmission()))))
 
         (dividendsSessionService.getPriorData(_: Int)(_: User[_], _: HeaderCarrier))
           .expects(taxYear, user, emptyHeaderCarrier).returning(Future.successful(Right(IncomeSourcesModel())))
@@ -135,7 +135,7 @@ class StockDividendsSubmissionServiceSpec extends UnitTest with MockAuditService
       "Given Stock Dividends connector returns a left" in {
 
         (stockDividendsUserDataConnector.getUserData(_: Int)(_: User[_], _: HeaderCarrier))
-          .expects(taxYear, user, emptyHeaderCarrier.withExtraHeaders("mtditid" -> mtdItid)).returning(Future.successful(Right(StockDividendsPriorSubmission())))
+          .expects(taxYear, user, emptyHeaderCarrier.withExtraHeaders("mtditid" -> mtdItid)).returning(Future.successful(Right(Some(StockDividendsPriorSubmission()))))
 
         (dividendsSessionService.getPriorData(_: Int)(_: User[_], _: HeaderCarrier))
           .expects(taxYear, user, emptyHeaderCarrier).returning(Future.successful(Right(IncomeSourcesModel())))

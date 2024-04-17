@@ -47,7 +47,7 @@ class StockDividendsSubmissionService @Inject()(
           case Left(error) => Future.successful(Left(error))
           case Right(priorDividends) =>
             auditSubmission(CreateOrAmendDividendsAuditDetail.createFromStockCyaData(
-              cya, priorDividends.dividends, Some(result), result.stockDividend.isDefined || priorDividends.dividends.isDefined,
+              cya, priorDividends.dividends, result, result.exists(_.stockDividend.isDefined) || priorDividends.dividends.isDefined,
               user.nino, user.mtditid, user.affinityGroup, taxYear))
             performSubmissions(cya, nino, taxYear, hc, user, result).map { results => {
               val response = results.filter(_.isLeft)
@@ -63,7 +63,11 @@ class StockDividendsSubmissionService @Inject()(
   }
 
   private def performSubmissions(cya: StockDividendsCheckYourAnswersModel, nino: String, taxYear: Int, hc: HeaderCarrier, user: User[_],
-                                 result: StockDividendsPriorSubmission) = {
+                                 result: Option[StockDividendsPriorSubmission]) = {
+    val prior = result match {
+      case Some(value) => value
+      case None => StockDividendsPriorSubmission()
+    }
     Future.sequence(Seq(
       if (cya.hasDividendsData) {
         dividendsSubmissionConnector
@@ -75,7 +79,7 @@ class StockDividendsSubmissionService @Inject()(
         Future.successful(Right(true))
       },
       if (cya.hasStockDividendsData) {
-        stockDividendsSubmissionConnector.submitDividends(result.toSubmission(cya), nino, taxYear)(hc.withExtraHeaders("mtditid" -> user.mtditid))
+        stockDividendsSubmissionConnector.submitDividends(prior.toSubmission(cya), nino, taxYear)(hc.withExtraHeaders("mtditid" -> user.mtditid))
       } else {
         Future.successful(Right(true))
       }

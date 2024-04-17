@@ -50,7 +50,7 @@ class StockDividendsUserDataConnectorISpec extends IntegrationTest {
         stubGetWithHeadersCheck(url, NOT_FOUND,"{}", xSessionId, "mtditid" -> mtditid)
 
         val result: StockDividendsUserDataResponse = Await.result(connector.getUserData(taxYear)(testUser, headerCarrier), Duration.Inf)
-        result shouldBe Right(StockDividendsPriorSubmission())
+        result shouldBe Right(None)
       }
 
       "submission returns a 200" in {
@@ -65,10 +65,10 @@ class StockDividendsUserDataConnectorISpec extends IntegrationTest {
           closeCompanyLoansWrittenOff = Some(StockDividendModel(Some("Close Company Loans WrittenOff Customer Reference"), 6743.23))
         )
 
-        stockDividendsUserDataStub(stockDividendsPriorSubmission, nino, taxYear)
+        stockDividendsUserDataStub(Some(stockDividendsPriorSubmission), nino, taxYear)
 
         val result: StockDividendsUserDataResponse = Await.result(connector.getUserData(taxYear)(testUser, headerCarrier), Duration.Inf)
-        result shouldBe Right(stockDividendsPriorSubmission)
+        result shouldBe Right(Some(stockDividendsPriorSubmission))
       }
     }
 
