@@ -62,9 +62,6 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
     ))
   )
 
-
-
-
   object Selectors {
     def cyaTitle(i: Int): String = s"#main-content > div > div > dl > div:nth-child($i) > dt"
 
@@ -455,9 +452,8 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
       ".show" should {
 
-
-        "redirect to the overview page" when {
-          "there is no session data" in {
+    "redirect to the overview page" when {
+      "there is no session data" in {
 
             val result: WSResponse = {
               authoriseIndividual()
