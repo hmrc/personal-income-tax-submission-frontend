@@ -24,7 +24,7 @@ import utils.PagerDutyHelper.PagerDutyKeys._
 import utils.PagerDutyHelper.pagerDutyLog
 
 object StockDividendsUserDataHttpParser extends APIParser {
-  type StockDividendsUserDataResponse = Either[APIErrorModel, StockDividendsPriorSubmission]
+  type StockDividendsUserDataResponse = Either[APIErrorModel, Option[StockDividendsPriorSubmission]]
 
   override val parserName: String = "StockDividendsUserDataHttpParser"
   override val service: String = "income-tax-dividends"
@@ -35,10 +35,10 @@ object StockDividendsUserDataHttpParser extends APIParser {
       response.status match {
         case OK => response.json.validate[StockDividendsPriorSubmission].fold[StockDividendsUserDataResponse](
           _ => badSuccessJsonFromAPI,
-          parserModel => Right(parserModel)
+          parserModel => Right(Some(parserModel))
         )
         case NOT_FOUND =>
-          Right(StockDividendsPriorSubmission())
+          Right(None)
         case BAD_REQUEST | UNPROCESSABLE_ENTITY =>
           pagerDutyLog(FOURXX_RESPONSE_FROM_API, logMessage(response))
           handleAPIError(response)

@@ -42,6 +42,7 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
   def show(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit request =>
     session.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
       StockDividendsCheckYourAnswersModel.getCyaModel(cya.flatMap(_.stockDividends), prior) match {
+        case Some(cyaData) if cyaData.gateway.contains(false) => Future.successful(Ok(view(cyaData, taxYear)))
         case Some(cyaData) if !cyaData.isFinished => Future.successful(handleUnfinishedRedirect(cyaData, taxYear))
         case Some(cyaData) => Future.successful(Ok(view(cyaData, taxYear)))
         case _ =>

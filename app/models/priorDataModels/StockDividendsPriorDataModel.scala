@@ -31,13 +31,14 @@ object StockDividendsPriorDataModel {
 
   implicit val formats: OFormat[StockDividendsPriorDataModel] = Json.format[StockDividendsPriorDataModel]
 
-  def getFromPrior(ukDividends: IncomeSourcesModel, stockDividends: StockDividendsPriorSubmission): StockDividendsPriorDataModel = {
+  def getFromPrior(ukDividends: IncomeSourcesModel, stockDividends: Option[StockDividendsPriorSubmission]): StockDividendsPriorDataModel = {
+    val maybeStockDividends = stockDividends.getOrElse(StockDividendsPriorSubmission())
     StockDividendsPriorDataModel(
       ukDividendsAmount = ukDividends.dividends.flatMap(_.ukDividends),
       otherUkDividendsAmount = ukDividends.dividends.flatMap(_.otherUkDividends),
-      stockDividendsAmount = stockDividends.stockDividend.map(_.grossAmount),
-      redeemableSharesAmount = stockDividends.redeemableShares.map(_.grossAmount),
-      closeCompanyLoansWrittenOffAmount = stockDividends.closeCompanyLoansWrittenOff.map(_.grossAmount)
+      stockDividendsAmount = maybeStockDividends.stockDividend.map(_.grossAmount),
+      redeemableSharesAmount = maybeStockDividends.redeemableShares.map(_.grossAmount),
+      closeCompanyLoansWrittenOffAmount = maybeStockDividends.closeCompanyLoansWrittenOff.map(_.grossAmount)
     )
   }
 }

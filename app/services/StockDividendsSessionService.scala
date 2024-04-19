@@ -37,7 +37,7 @@ class StockDividendsSessionService @Inject()(
                                               incomeSourceConnector: IncomeSourceConnector
                                        ) {
 
-  type StockDividendsPriorDataResponse = Either[APIErrorModel, StockDividendsPriorDataModel]
+  type StockDividendsPriorDataResponse = Either[APIErrorModel, Option[StockDividendsPriorDataModel]]
 
   lazy val logger: Logger = Logger(this.getClass)
 
@@ -48,8 +48,11 @@ class StockDividendsSessionService @Inject()(
         stockDividendsUserDataConnector.getUserData(taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid)).map{
           case Left(error) => Left(error)
           case Right(stockDividends) =>
-            Right(StockDividendsPriorDataModel.getFromPrior(ukDividends, stockDividends))
-        }
+            if (ukDividends.dividends.isDefined || stockDividends.isDefined) {
+              Right(Some(StockDividendsPriorDataModel.getFromPrior(ukDividends, stockDividends)))
+            } else {
+              Right(None)
+            }        }
     }
   }
 
@@ -115,7 +118,7 @@ class StockDividendsSessionService @Inject()(
       priorDataResponse match {
         case Right(prior) => optionalCya match {
           case Left(_) =>  Future(onFail)
-          case Right(cyaData) => block(cyaData, Some(prior))
+          case Right(cyaData) => block(cyaData, prior)
         }
         case Left(_) =>  Future(onFail)
       }
