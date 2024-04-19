@@ -16,13 +16,19 @@
 
 package controllers.dividends
 
-import config.{AppConfig, ErrorHandler}
+import audit._
+import config.{AppConfig, DIVIDENDS, ErrorHandler}
 import controllers.predicates.AuthorisedAction
-import models.dividends.StockDividendsCheckYourAnswersModel
+import models.dividends.{DividendsPriorSubmission, StockDividendModel, StockDividendsCheckYourAnswersModel, StockDividendsPriorSubmission}
+import models.mongo.StockDividendsUserDataModel
+import models.priorDataModels.StockDividendsPriorDataModel
+import models.{APIErrorBodyModel, APIErrorModel, User}
 import play.api.i18n.I18nSupport
 import play.api.i18n.Lang.logger
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{StockDividendsSessionService, StockDividendsSubmissionService}
+import services.{ExcludeJourneyService, StockDividendsSessionService, StockDividendsSubmissionService}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.DividendsSummaryView
 
@@ -34,7 +40,9 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
                                            view: DividendsSummaryView,
                                            errorHandler: ErrorHandler,
                                            session: StockDividendsSessionService,
-                                           submissionService: StockDividendsSubmissionService)
+                                           auditService: AuditService,
+                                           submissionService: StockDividendsSubmissionService,
+                                           excludeJourneyService: ExcludeJourneyService)
                                           (implicit appConfig: AppConfig, mcc: MessagesControllerComponents, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport {
 
@@ -53,16 +61,65 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit request =>
-    session.getSessionData(taxYear).flatMap {
-      case Left(_) => Future(errorHandler.internalServerError())
-      case Right(data) =>
-        val cya = data.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel())
-
-        submissionService.submitDividends(cya, request.nino, taxYear).map {
-          case Left(error) => errorHandler.handleError(error.status)
-          case Right(_) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+    session.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cyaData, priorData) =>
+        if (appConfig.dividendsTailoringEnabled && cyaData.flatMap(_.stockDividends).flatMap(_.gateway).contains(false)) {
+          auditTailorRemoveIncomeSources(TailorRemoveIncomeSourcesAuditDetail(
+            nino = request.nino,
+            mtditid = request.mtditid,
+            userType = request.affinityGroup.toLowerCase,
+            taxYear = taxYear,
+            body = TailorRemoveIncomeSourcesBody(Seq(DIVIDENDS.stringify))
+          ))
+          excludeJourneyService.excludeJourney(DIVIDENDS.stringify, taxYear, request.nino).flatMap {
+            case Right(_) => performSubmission(taxYear, cyaData, priorData)
+            case Left(_) => errorHandler.futureInternalServerError()
+          }
+        } else {
+          performSubmission(taxYear, cyaData, priorData)
         }
     }
+  }
+
+  private[controllers] def performSubmission(taxYear: Int, data: Option[StockDividendsUserDataModel], priorData: Option[StockDividendsPriorDataModel])
+                               (implicit hc: HeaderCarrier, request: User[AnyContent]): Future[Result]  = {
+    (data match {
+      case Some(data) =>
+        val cya = data.stockDividends.getOrElse(StockDividendsCheckYourAnswersModel())
+        val stockDividendsSubmission = priorData.getOrElse(StockDividendsPriorDataModel())
+        submissionService.submitDividends(cya, request.nino, taxYear).map {
+          case response@Right(_) =>
+            val model = CreateOrAmendDividendsAuditDetail.createFromStockCyaData(
+              cya, Some(DividendsPriorSubmission(stockDividendsSubmission.ukDividendsAmount,stockDividendsSubmission.otherUkDividendsAmount)),
+              Some(StockDividendsPriorSubmission(None, None, None, Some(StockDividendModel(None,stockDividendsSubmission.stockDividendsAmount.getOrElse(0))),
+                Some(StockDividendModel(None,stockDividendsSubmission.redeemableSharesAmount.getOrElse(0))), None,
+                Some(StockDividendModel(None,stockDividendsSubmission.closeCompanyLoansWrittenOffAmount.getOrElse(0))))),
+              priorData.isDefined, request.nino, request.mtditid, request.affinityGroup.toLowerCase, taxYear
+            )
+            auditSubmission(model)
+            response
+          case response => response
+        }
+      case _ =>
+        logger.info("[DividendsSummaryController][submit] CYA data or NINO missing from session.")
+        Future.successful(Left(APIErrorModel(BAD_REQUEST, APIErrorBodyModel("MISSING_DATA", "CYA data or NINO missing from session."))))
+    }).flatMap {
+      case Right(_) =>
+        session.clear(taxYear)(errorHandler.internalServerError())(
+          Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+        )
+      case Left(error) => Future.successful(errorHandler.handleError(error.status))
+    }
+  }
+  private def auditSubmission(details: CreateOrAmendDividendsAuditDetail)
+                             (implicit hc: HeaderCarrier): Future[AuditResult] = {
+    val event = AuditModel("CreateOrAmendDividendsUpdate", "create-or-amend-dividends-update", details)
+    auditService.auditModel(event)
+  }
+
+  private def auditTailorRemoveIncomeSources(details: TailorRemoveIncomeSourcesAuditDetail)
+                                            (implicit hc: HeaderCarrier): Future[AuditResult] = {
+    val event = AuditModel("TailorRemoveIncomeSources", "tailorRemoveIncomeSources", details)
+    auditService.auditModel(event)
   }
 
   private[dividends] def handleUnfinishedRedirect(cya: StockDividendsCheckYourAnswersModel, taxYear: Int): Result = {
