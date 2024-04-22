@@ -611,6 +611,24 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
           }
         }
 
+        "redirect to the overview page" when {
+          "there is no session data or prior data" in {
+
+            val result: WSResponse = {
+              authoriseIndividual()
+              dropDividendsDB()
+              dropStockDividendsDB()
+              emptyUserDataStub()
+              emptyStockDividendsUserDataStub()
+              stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", SEE_OTHER, "overview")
+              urlGet(dividendsSummaryUrl, follow = false, headers = playSessionCookie())
+            }
+
+            result.status shouldBe SEE_OTHER
+          }
+
+        }
+
       }
     }
   }
