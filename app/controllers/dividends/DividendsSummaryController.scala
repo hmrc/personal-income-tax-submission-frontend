@@ -49,43 +49,39 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
 
   def show(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit request =>
     session.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
-      if(cya.isEmpty){
-        Future.successful(Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear)))
-      } else {
       StockDividendsCheckYourAnswersModel.getCyaModel(cya.flatMap(_.stockDividends), prior) match {
-        case Some(cyaData) if cyaData.gateway.contains(false) => Future.successful(Ok(view(cyaData, taxYear)))
+        case Some(cyaData) if cyaData.gateway.contains(false) => handleSession(cya, cyaData, taxYear)
         case Some(cyaData) if !cyaData.isFinished => Future.successful(handleUnfinishedRedirect(cyaData, taxYear))
-        case Some(cyaData) => Future.successful(Ok(view(cyaData, taxYear)))
+        case Some(cyaData) => handleSession(cya, cyaData, taxYear)
         case _ =>
           logger.info("[DividendsSummaryController][show] No CYA data in session. Redirecting to the overview page.")
           Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
-      }
       }
     }
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit request =>
     session.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cyaData, priorData) =>
-        if (appConfig.dividendsTailoringEnabled && cyaData.flatMap(_.stockDividends).flatMap(_.gateway).contains(false)) {
-          auditTailorRemoveIncomeSources(TailorRemoveIncomeSourcesAuditDetail(
-            nino = request.nino,
-            mtditid = request.mtditid,
-            userType = request.affinityGroup.toLowerCase,
-            taxYear = taxYear,
-            body = TailorRemoveIncomeSourcesBody(Seq(DIVIDENDS.stringify))
-          ))
-          excludeJourneyService.excludeJourney(DIVIDENDS.stringify, taxYear, request.nino).flatMap {
-            case Right(_) => performSubmission(taxYear, cyaData, priorData)
-            case Left(_) => errorHandler.futureInternalServerError()
-          }
-        } else {
-          performSubmission(taxYear, cyaData, priorData)
+      if (appConfig.dividendsTailoringEnabled && cyaData.flatMap(_.stockDividends).flatMap(_.gateway).contains(false)) {
+        auditTailorRemoveIncomeSources(TailorRemoveIncomeSourcesAuditDetail(
+          nino = request.nino,
+          mtditid = request.mtditid,
+          userType = request.affinityGroup.toLowerCase,
+          taxYear = taxYear,
+          body = TailorRemoveIncomeSourcesBody(Seq(DIVIDENDS.stringify))
+        ))
+        excludeJourneyService.excludeJourney(DIVIDENDS.stringify, taxYear, request.nino).flatMap {
+          case Right(_) => performSubmission(taxYear, cyaData, priorData)
+          case Left(_) => errorHandler.futureInternalServerError()
         }
+      } else {
+        performSubmission(taxYear, cyaData, priorData)
+      }
     }
   }
 
   private[controllers] def performSubmission(taxYear: Int, data: Option[StockDividendsUserDataModel], priorData: Option[StockDividendsPriorDataModel])
-                               (implicit hc: HeaderCarrier, request: User[AnyContent]): Future[Result]  = {
+                                            (implicit hc: HeaderCarrier, request: User[AnyContent]): Future[Result] = {
     (data match {
       case Some(data) =>
         val cya = data.stockDividends.getOrElse(StockDividendsCheckYourAnswersModel())
@@ -93,10 +89,10 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
         submissionService.submitDividends(cya, request.nino, taxYear).map {
           case response@Right(_) =>
             val model = CreateOrAmendDividendsAuditDetail.createFromStockCyaData(
-              cya, Some(DividendsPriorSubmission(stockDividendsSubmission.ukDividendsAmount,stockDividendsSubmission.otherUkDividendsAmount)),
-              Some(StockDividendsPriorSubmission(None, None, None, Some(StockDividendModel(None,stockDividendsSubmission.stockDividendsAmount.getOrElse(0))),
-                Some(StockDividendModel(None,stockDividendsSubmission.redeemableSharesAmount.getOrElse(0))), None,
-                Some(StockDividendModel(None,stockDividendsSubmission.closeCompanyLoansWrittenOffAmount.getOrElse(0))))),
+              cya, Some(DividendsPriorSubmission(stockDividendsSubmission.ukDividendsAmount, stockDividendsSubmission.otherUkDividendsAmount)),
+              Some(StockDividendsPriorSubmission(None, None, None, Some(StockDividendModel(None, stockDividendsSubmission.stockDividendsAmount.getOrElse(0))),
+                Some(StockDividendModel(None, stockDividendsSubmission.redeemableSharesAmount.getOrElse(0))), None,
+                Some(StockDividendModel(None, stockDividendsSubmission.closeCompanyLoansWrittenOffAmount.getOrElse(0))))),
               priorData.isDefined, request.nino, request.mtditid, request.affinityGroup.toLowerCase, taxYear
             )
             auditSubmission(model)
@@ -114,6 +110,7 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
       case Left(error) => Future.successful(errorHandler.handleError(error.status))
     }
   }
+
   private def auditSubmission(details: CreateOrAmendDividendsAuditDetail)
                              (implicit hc: HeaderCarrier): Future[AuditResult] = {
     val event = AuditModel("CreateOrAmendDividendsUpdate", "create-or-amend-dividends-update", details)
@@ -124,6 +121,19 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
                                             (implicit hc: HeaderCarrier): Future[AuditResult] = {
     val event = AuditModel("TailorRemoveIncomeSources", "tailorRemoveIncomeSources", details)
     auditService.auditModel(event)
+  }
+
+  private def handleSession(sessionData: Option[StockDividendsUserDataModel], cyaData: StockDividendsCheckYourAnswersModel, taxYear: Int)
+                           (implicit request: User[AnyContent]): Future[Result] = {
+    if (sessionData.isDefined) {
+      session.updateSessionData(cyaData, taxYear)(errorHandler.internalServerError())(
+        Ok(view(cyaData, taxYear))
+      )
+    } else {
+      session.createSessionData(cyaData, taxYear)(errorHandler.internalServerError())(
+        Ok(view(cyaData, taxYear))
+      )
+    }
   }
 
   private[dividends] def handleUnfinishedRedirect(cya: StockDividendsCheckYourAnswersModel, taxYear: Int): Result = {

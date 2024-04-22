@@ -59,15 +59,7 @@ class DividendsCYAController @Inject()(
     if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) {
       stockDividendsSession.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
         StockDividendsCheckYourAnswersModel.getCyaModel(cya.flatMap(_.stockDividends), prior) match {
-          case Some(cyaData) =>
-            if(cya.isDefined){
-              stockDividendsSession.updateSessionData(cyaData, taxYear)(errorHandler.internalServerError())(
-                Redirect(routes.DividendsSummaryController.show(taxYear))
-              )
-            } else {
-              stockDividendsSession.createSessionData(cyaData, taxYear)(errorHandler.internalServerError())(
-                Redirect(routes.DividendsSummaryController.show(taxYear)))
-            }
+          case Some(cyaData) => Future.successful(Redirect(routes.DividendsSummaryController.show(taxYear)))
           case _ =>
             logger.info("[DividendsCYAController][show] No CYA data in session. Redirecting to the overview page.")
             Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))

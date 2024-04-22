@@ -40,6 +40,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
   val relativeUrl: String = routes.DividendsSummaryController.show(taxYear).url
 
   val dividendsSummaryUrl = s"$appUrl/$taxYear/dividends/summary"
+  val dividendsCheckYourAnswersUrl = s"$appUrl/$taxYear/dividends/check-income-from-dividends"
 
   val dividendsFromStocksAndSharesHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/dividends-from-stocks-and-shares"
   val dividendsStatusHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/dividends-from-uk-companies"
@@ -609,6 +610,22 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
           "has an SEE_OTHER(303) status" in {
             status(result) shouldBe SEE_OTHER
           }
+        }
+
+        "redirect to the overview page" when {
+          "there is no session data" in {
+
+            val result: WSResponse = {
+              authoriseIndividual()
+              dropDividendsDB()
+              emptyUserDataStub()
+              stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", SEE_OTHER, "overview")
+              urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie())
+            }
+
+            result.status shouldBe SEE_OTHER
+          }
+
         }
 
       }
