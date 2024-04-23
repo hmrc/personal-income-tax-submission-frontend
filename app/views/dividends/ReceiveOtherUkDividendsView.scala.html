@@ -17,7 +17,7 @@
 @import views.html.headerFooterTemplate.Layout
 @import views.html.templates.helpers.Button
 @import views.html.templates.helpers.ErrorSummary
-@import views.html.templates.helpers.InputRadioAlt
+@import views.html.templates.helpers.InputRadio
 @import views.html.templates.helpers.Details
 @import views.html.templates.helpers.Heading
 @import views.html.templates.helpers.P
@@ -27,7 +27,7 @@
     formWithCsrf: FormWithCSRF,
     errorSummary: ErrorSummary,
     button: Button,
-    inputRadio: InputRadioAlt,
+    inputRadio: InputRadio,
     heading: Heading,
     details: Details,
     p: P
@@ -89,18 +89,19 @@
 
     @heading(headingForUse, Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-4")
 
+    @details("dividends.other-dividends.details.title", detailsHtml)
+    @details("dividends.other-dividends.details2.title", secondDetailsHtml)
+
     @contentHtml
 
     @formWithCsrf(action = controllers.dividends.routes.ReceiveOtherUkDividendsController.submit(taxYear)) {
 
         @inputRadio(
             form = form,
-            legendHeading = Some(Html(headingForUse)),
-            legendHidden = true,
+            heading = messages(s"dividends.other-dividends.title.${if(user.isAgent) "agent" else "individual"}"),
+            classes = "govuk-fieldset__legend--m",
             inline = true
         )
-        @details("dividends.other-dividends.details.title", detailsHtml)
-        @details("dividends.other-dividends.details2.title", secondDetailsHtml)
         @button()
 
     }

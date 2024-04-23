@@ -19,9 +19,11 @@
 @import views.html.templates.helpers.Button
 @import views.html.templates.helpers.InputRadio
 @import views.html.templates.helpers.Details
+@import views.html.templates.helpers.Heading
 
 @this(
     layout: Layout,
+    heading: Heading,
     formWithCsrf: FormWithCSRF,
     errorSummary: ErrorSummary,
     button: Button,
@@ -37,9 +39,10 @@
 
 @hasFormErrors = @{form.hasErrors}
 
+
 @detailsHtml = {
     <p class="govuk-body">
-    @messages("charity.qualifying-shares.disclosure.p")
+        @messages("charity.qualifying-shares.disclosure.p")
     </p>
     <ul class="govuk-list govuk-list--bullet">
         <li>@messages("charity.qualifying-shares.disclosure.bullet.1")</li>
@@ -48,21 +51,23 @@
         <li>@messages("charity.qualifying-shares.disclosure.bullet.4")</li>
     </ul>
 }
-    
+
 @layout(pageTitle = titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors) {
 
     @errorSummary(form.errors.distinct)
 
     @formWithCsrf(action = controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.submit(taxYear)) {
 
+    @heading(headingForUse, Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-4")
+
+    @details("charity.qualifying-shares.disclosure.title", detailsHtml)
+
         @inputRadio(
             form = form,
-            heading = headingForUse,
-            inline = true,
-            subheading = Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString))
+            heading = messages(s"charity.qualifying-shares-or-securities.title.${if(user.isAgent) "agent" else "individual"}"),
+            classes = "govuk-fieldset__legend--m",
+            inline = true
         )
-
-        @details("charity.qualifying-shares.disclosure.title", detailsHtml)
 
         @button()
     }
