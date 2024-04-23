@@ -66,20 +66,19 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
   object Selectors {
     val youMustAlsoSelector = "#p1"
-
     def listContentSelector(i: Int): String = s"#main-content > div > div > ul > li:nth-child($i)"
 
     val youDoNotNeedSelector = "#p2"
 
-    def investmentTitleSelector(i: Int = 3): String = s"#main-content > div > div > form > details:nth-child($i) > summary > span"
+    val investmentTitleSelector =  "#main-content > div > div > details:nth-child(2) > summary"
+    val investmentTitleErrorSelector =  "#main-content > div > div > details:nth-child(3) > summary"
+    val investmentsContentP1Selector = "#p3"
+    val investmentsContentP2Selector = "#p4"
+    val investmentsContentP3Selector = "#p5"
 
-    def investmentsContentSelector(i: Int = 3)(j: Int): String = s"#main-content > div > div > form > details:nth-child($i) > div > p:nth-child($j)"
-
-    //noinspection ScalaStyle
-    def equalisationTitleSelector(i: Int = 4): String = s"#main-content > div > div > form > details:nth-child($i) > summary > span"
-
-    //noinspection ScalaStyle
-    def equalisationContentSelector(i: Int = 4): String = s"#main-content > div > div > form > details:nth-child($i) > div > p"
+    val equalisationTitleSelector = "#main-content > div > div > details:nth-child(3) > summary"
+    val equalisationTitleErrorSelector = "#main-content > div > div > details:nth-child(4) > summary"
+    val equalisationContentSelector = "#p6"
 
     val continueButtonSelector = "#continue"
     val continueButtonFormSelector = "#main-content > div > div > form"
@@ -233,12 +232,12 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
           textOnPageCheck(get.youDoNotNeedText, youDoNotNeedSelector)
           radioButtonCheck(yesNo(true), 1)
           radioButtonCheck(yesNo(false), 2)
-          textOnPageCheck(whatAreInvestmentText, investmentTitleSelector())
-          textOnPageCheck(investmentTrustText, investmentsContentSelector()(1))
-          textOnPageCheck(unitTrustsText, investmentsContentSelector()(2))
-          textOnPageCheck(openEndedText, investmentsContentSelector()(3))
-          textOnPageCheck(whatAreEqualisationText, equalisationTitleSelector())
-          textOnPageCheck(equalisationPaymentsText, equalisationContentSelector())
+          textOnPageCheck(whatAreInvestmentText, investmentTitleSelector)
+          textOnPageCheck(investmentTrustText, investmentsContentP1Selector)
+          textOnPageCheck(unitTrustsText, investmentsContentP2Selector)
+          textOnPageCheck(openEndedText, investmentsContentP3Selector)
+          textOnPageCheck(whatAreEqualisationText, equalisationTitleSelector)
+          textOnPageCheck(equalisationPaymentsText, equalisationContentSelector)
 
           buttonCheck(continueButtonText, continueButtonSelector)
           formPostLinkCheck(continueLink, continueButtonFormSelector)
@@ -370,12 +369,12 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
             textOnPageCheck(get.youDoNotNeedText, youDoNotNeedSelector)
             radioButtonCheck(yesNo(true), 1)
             radioButtonCheck(yesNo(false), 2)
-            textOnPageCheck(whatAreInvestmentText, investmentTitleSelector(2))
-            textOnPageCheck(investmentTrustText, investmentsContentSelector(2)(1))
-            textOnPageCheck(unitTrustsText, investmentsContentSelector(2)(2))
-            textOnPageCheck(openEndedText, investmentsContentSelector(2)(3))
-            textOnPageCheck(whatAreEqualisationText, equalisationTitleSelector(3))
-            textOnPageCheck(equalisationPaymentsText, equalisationContentSelector(3))
+            textOnPageCheck(whatAreInvestmentText, investmentTitleErrorSelector)
+            textOnPageCheck(investmentTrustText, investmentsContentP1Selector)
+            textOnPageCheck(unitTrustsText, investmentsContentP2Selector)
+            textOnPageCheck(openEndedText, investmentsContentP3Selector)
+            textOnPageCheck(whatAreEqualisationText, equalisationTitleErrorSelector)
+            textOnPageCheck(equalisationPaymentsText, equalisationContentSelector)
 
             welshToggleCheck(us.isWelsh)
           }
