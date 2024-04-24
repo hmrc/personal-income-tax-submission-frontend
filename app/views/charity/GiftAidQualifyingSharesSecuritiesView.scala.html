@@ -33,7 +33,7 @@
 
 @(form: Form[Boolean], taxYear: Int, checked: String = "")(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
-@titleForUse = @{messages(s"charity.qualifying-shares-or-securities.title.${if(user.isAgent) "agent" else "individual"}")}
+@titleForUse = @{messages(s"charity.qualifying-shares-or-securities.title")}
 
 @headingForUse = @{(titleForUse)}
 
@@ -64,7 +64,7 @@
 
         @inputRadio(
             form = form,
-            heading = messages(s"charity.qualifying-shares-or-securities.title.${if(user.isAgent) "agent" else "individual"}"),
+            heading = messages(s"charity.qualifying-shares-or-securities.radio.heading.${if(user.isAgent) "agent" else "individual"}"),
             classes = "govuk-fieldset__legend--m",
             inline = true
         )

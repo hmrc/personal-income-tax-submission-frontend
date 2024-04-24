@@ -125,8 +125,9 @@ dividends.uk-dividends-amount.error.empty.individual = Nodwch faint a gawsoch me
 dividends.uk-dividends-amount.error.empty.agent = Nodwch faint gafodd eich cleient mewn difidendau gan gwmnïau yn y DU
 dividends.uk-dividends-amount.error.amountMaxLimit = Mae’n rhaid i swm y difidendau gan gwmnïau yn y DU fod yn llai na £100,000,000,000
 
-dividends.other-dividends.title.individual = A gawsoch ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored?
-dividends.other-dividends.title.agent = A gafodd eich cleient ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored?
+dividends.other-dividends.title = Dividends from UK-based trusts or open-ended investment companies
+dividends.other-dividends.radio.heading.individual = A gawsoch ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored?
+dividends.other-dividends.radio.heading.agent = A gafodd eich cleient ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored?
 dividends.other-dividends.errors.noChoice.individual = Dewiswch ‘Iawn’ os cawsoch ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored
 dividends.other-dividends.errors.noChoice.agent = Dewiswch ‘Iawn’ os cafodd eich cleient ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored
 dividends.other-dividends.paragraph.1 = Mae’n rhaid i chi hefyd rhoi gwybod i ni am y canlynol:
@@ -519,8 +520,9 @@ charity.add-to-current-tax-year-amount.errors.wrong-format = Nodwch y swm rydych
 charity.add-to-current-tax-year-amount.errors.max-amount.individual = Mae’n rhaid i swm eich rhodd a wnaed ar ôl 5 Ebrill {0} a ychwanegwch at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000
 charity.add-to-current-tax-year-amount.errors.max-amount.agent = Mae’n rhaid i swm rhodd eich cleient a wnaed ar ôl 5 Ebrill {0} a ychwanegwch at y flwyddyn dreth ddiwethaf fod yn llai na £100,000,000,000
 
-charity.qualifying-shares-or-securities.title.individual = A wnaethoch roi cyfranddaliadau neu warantau cymwys i elusen?
-charity.qualifying-shares-or-securities.title.agent = A wnaeth eich cleient rhoi cyfranddaliadau neu warantau cymwys i elusen?
+charity.qualifying-shares-or-securities.title = Qualifying shares and securities
+charity.qualifying-shares-or-securities.radio.heading.individual = A wnaethoch roi cyfranddaliadau neu warantau cymwys i elusen?
+charity.qualifying-shares-or-securities.radio.heading.agent = A wnaeth eich cleient rhoi cyfranddaliadau neu warantau cymwys i elusen?
 charity.qualifying-shares-or-securities.errors.noChoice.individual = Dewiswch ‘Iawn’ os wnaethoch roi cyfranddaliadau neu warantau cymwys i elusen
 charity.qualifying-shares-or-securities.errors.noChoice.agent = Dewiswch ‘Iawn’ os wnaeth eich cleient rhoi cyfranddaliadau neu warantau cymwys i elusen
 

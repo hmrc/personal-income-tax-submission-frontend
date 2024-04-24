@@ -87,9 +87,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
   }
 
   trait SpecificExpectedResults {
-    val expectedH1: String
-    val expectedTitle: String
-    val expectedErrorTitle: String
+    val radioHeading: String
     val youDoNotNeedText: String
     val expectedErrorText: String
     val redirectTitle: String
@@ -98,6 +96,8 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
   trait CommonExpectedResults {
     val captionExpected: String
+    val expectedTitle: String
+    val expectedErrorTitle: String
     val yesNo: Boolean => String
     val continueButtonText: String
     val continueLink: String
@@ -115,9 +115,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
 
   object IndividualExpectedEnglish extends SpecificExpectedResults {
-    val expectedH1 = "Did you get dividends from UK-based trusts or open-ended investment companies?"
-    val expectedTitle = "Did you get dividends from UK-based trusts or open-ended investment companies?"
-    val expectedErrorTitle = s"Error: $expectedTitle"
+    val radioHeading = "Did you get dividends from UK-based trusts or open-ended investment companies?"
     val youDoNotNeedText = "You do not need to tell us about amounts shown as 'equalisation' on your dividend voucher."
     val expectedErrorText = "Select yes if you got dividends from UK-based trusts or open-ended investment companies"
     val redirectTitle = "Check your income from dividends"
@@ -125,9 +123,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
   }
 
   object AgentExpectedEnglish extends SpecificExpectedResults {
-    val expectedH1 = "Did your client get dividends from UK-based trusts or open-ended investment companies?"
-    val expectedTitle = "Did your client get dividends from UK-based trusts or open-ended investment companies?"
-    val expectedErrorTitle = s"Error: $expectedTitle"
+    val radioHeading = "Did your client get dividends from UK-based trusts or open-ended investment companies?"
     val youDoNotNeedText = "You do not need to tell us about amounts shown as 'equalisation' on your client’s dividend voucher."
     val expectedErrorText = "Select yes if your client got dividends from UK-based trusts or open-ended investment companies"
     val redirectTitle = "Check your client’s income from dividends"
@@ -136,6 +132,8 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
   object AllExpectedEnglish extends CommonExpectedResults {
     val captionExpected = s"Dividends for 6 April $taxYearEOY to 5 April $taxYear"
+    val expectedTitle = "Dividends from UK-based trusts or open-ended investment companies"
+    val expectedErrorTitle = s"Error: $expectedTitle"
     val youMustAlsoText = "You must also tell us about:"
     val authorisedBulletText = "authorised unit trusts"
     val investmentBulletText = "investment trusts"
@@ -154,9 +152,8 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
   }
 
   object IndividualExpectedWelsh extends SpecificExpectedResults {
-    val expectedH1 = "A gawsoch ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored?"
+    val radioHeading = "A gawsoch ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored?"
     val expectedTitle = "A gawsoch ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored?"
-    val expectedErrorTitle = s"Gwall: $expectedTitle"
     val youDoNotNeedText = "Nid oes angen i chi roi gwybod i ni am symiau a ddangosir fel 'cyfartaliad' ar eich taleb ddifidend."
     val expectedErrorText = "Dewiswch ‘Iawn’ os cawsoch ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored"
     val redirectTitle = "Gwiriwch eich incwm o ddifidendau"
@@ -164,9 +161,8 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
   }
 
   object AgentExpectedWelsh extends SpecificExpectedResults {
-    val expectedH1 = "A gafodd eich cleient ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored?"
+    val radioHeading = "A gafodd eich cleient ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored?"
     val expectedTitle = "A gafodd eich cleient ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored?"
-    val expectedErrorTitle = s"Gwall: $expectedTitle"
     val youDoNotNeedText = "Nid oes angen i chi roi gwybod i ni am symiau a ddangosir fel 'cyfartaliad' ar daleb ddifidend eich cleient."
     val expectedErrorText = "Dewiswch ‘Iawn’ os cafodd eich cleient ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored"
     val redirectTitle = "Gwiriwch incwm eich cleient o ddifidendau"
@@ -175,6 +171,8 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
   object AllExpectedWelsh extends CommonExpectedResults {
     val captionExpected = s"Difidendau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
+    val expectedTitle = "Dividends from UK-based trusts or open-ended investment companies"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
     val youMustAlsoText = "Mae’n rhaid i chi hefyd rhoi gwybod i ni am y canlynol:"
     val authorisedBulletText = "ymddiriedolaethau unedol awdurdodedig"
     val investmentBulletText = "ymddiriedolaethau buddsoddi"
@@ -223,8 +221,8 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(get.expectedTitle, us.isWelsh)
-          h1Check(get.expectedH1 + " " + captionExpected)
+          titleCheck(expectedTitle, us.isWelsh)
+          h1Check(expectedTitle + " " + captionExpected)
           textOnPageCheck(youMustAlsoText, youMustAlsoSelector)
           textOnPageCheck(authorisedBulletText, listContentSelector(1))
           textOnPageCheck(investmentBulletText, listContentSelector(2))
@@ -359,8 +357,8 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
             implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(get.expectedErrorTitle, us.isWelsh)
-            h1Check(get.expectedH1 + " " + captionExpected)
+            titleCheck(expectedErrorTitle, us.isWelsh)
+            h1Check(expectedTitle + " " + captionExpected)
             errorSummaryCheck(get.expectedErrorText, expectedErrorHref, us.isWelsh)
             textOnPageCheck(youMustAlsoText, youMustAlsoSelector)
             textOnPageCheck(authorisedBulletText, listContentSelector(1))

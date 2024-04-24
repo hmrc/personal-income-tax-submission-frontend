@@ -125,8 +125,9 @@ dividends.uk-dividends-amount.error.empty.individual = Enter how much you got in
 dividends.uk-dividends-amount.error.empty.agent = Enter how much your client got in dividends from UK-based companies
 dividends.uk-dividends-amount.error.amountMaxLimit = The amount of dividends from UK-based companies must be less than £100,000,000,000
 
-dividends.other-dividends.title.individual = Did you get dividends from UK-based trusts or open-ended investment companies?
-dividends.other-dividends.title.agent = Did your client get dividends from UK-based trusts or open-ended investment companies?
+dividends.other-dividends.title = Dividends from UK-based trusts or open-ended investment companies
+dividends.other-dividends.radio.heading.individual = Did you get dividends from UK-based trusts or open-ended investment companies?
+dividends.other-dividends.radio.heading.agent = Did your client get dividends from UK-based trusts or open-ended investment companies?
 dividends.other-dividends.errors.noChoice.individual = Select yes if you got dividends from UK-based trusts or open-ended investment companies
 dividends.other-dividends.errors.noChoice.agent = Select yes if your client got dividends from UK-based trusts or open-ended investment companies
 dividends.other-dividends.paragraph.1 = You must also tell us about:
@@ -520,8 +521,9 @@ charity.add-to-current-tax-year-amount.errors.wrong-format = Enter the amount yo
 charity.add-to-current-tax-year-amount.errors.max-amount.individual = The amount of your donation made after 5 April {0} you add to the last tax year must be less than £100,000,000,000
 charity.add-to-current-tax-year-amount.errors.max-amount.agent = The amount of your client’s donation made after 5 April {0} you add to the last tax year must be less than £100,000,000,000
 
-charity.qualifying-shares-or-securities.title.individual = Did you donate qualifying shares or securities to charity?
-charity.qualifying-shares-or-securities.title.agent = Did your client donate qualifying shares or securities to charity?
+charity.qualifying-shares-or-securities.title = Qualifying shares and securities
+charity.qualifying-shares-or-securities.radio.heading.individual = Did you donate qualifying shares or securities to charity?
+charity.qualifying-shares-or-securities.radio.heading.agent = Did your client donate qualifying shares or securities to charity?
 charity.qualifying-shares-or-securities.errors.noChoice.individual = Select yes if you donated shares or securities to charity
 charity.qualifying-shares-or-securities.errors.noChoice.agent = Select yes if your client donated shares or securities to charity
 
