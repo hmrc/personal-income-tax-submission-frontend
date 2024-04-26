@@ -77,7 +77,7 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val expectedTitle = "Qualifying shares and securities"
+    val expectedTitle = "Cyfranddaliadau a gwarantau cymhwysol"
     val captionText = s"Rhoddion i elusennau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val yesText = "Iawn"
     val noText = "Na"

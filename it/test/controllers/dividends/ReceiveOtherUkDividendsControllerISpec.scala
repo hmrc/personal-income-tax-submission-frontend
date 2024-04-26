@@ -171,7 +171,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
   object AllExpectedWelsh extends CommonExpectedResults {
     val captionExpected = s"Difidendau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
-    val expectedTitle = "Dividends from UK-based trusts or open-ended investment companies"
+    val expectedTitle = "Difidendau gan ymddiriedolaethau neu gwmnïau buddsoddi penagored yn y DU"
     val expectedErrorTitle = s"Gwall: $expectedTitle"
     val youMustAlsoText = "Mae’n rhaid i chi hefyd rhoi gwybod i ni am y canlynol:"
     val authorisedBulletText = "ymddiriedolaethau unedol awdurdodedig"
