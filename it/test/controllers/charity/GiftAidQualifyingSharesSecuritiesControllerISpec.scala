@@ -43,12 +43,13 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends CharityITHelper {
   }
 
   trait SpecificExpectedResults {
-    val expectedH1: String
-    val expectedTitle: String
+    val radioHeading: String
     val expectedError: String
+
   }
 
   trait CommonExpectedResults {
+    val expectedTitle: String
     val captionText: String
     val yesText: String
     val noText: String
@@ -62,6 +63,7 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
+    val expectedTitle = "Qualifying shares and securities"
     val captionText = s"Donations to charity for 6 April $taxYearEOY to 5 April $taxYear"
     val yesText = "Yes"
     val noText = "No"
@@ -75,6 +77,7 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends CharityITHelper {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
+    val expectedTitle = "Cyfranddaliadau a gwarantau cymhwysol"
     val captionText = s"Rhoddion i elusennau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val yesText = "Iawn"
     val noText = "Na"
@@ -88,26 +91,22 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends CharityITHelper {
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
-    val expectedH1 = "Did you donate qualifying shares or securities to charity?"
-    val expectedTitle = "Did you donate qualifying shares or securities to charity?"
+    val radioHeading = "Did you donate qualifying shares or securities to charity?"
     val expectedError: String = "Select yes if you donated shares or securities to charity"
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
-    val expectedH1 = "Did your client donate qualifying shares or securities to charity?"
-    val expectedTitle = "Did your client donate qualifying shares or securities to charity?"
+    val radioHeading = "Did your client donate qualifying shares or securities to charity?"
     val expectedError: String = "Select yes if your client donated shares or securities to charity"
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    val expectedH1 = "A wnaethoch roi cyfranddaliadau neu warantau cymwys i elusen?"
-    val expectedTitle = "A wnaethoch roi cyfranddaliadau neu warantau cymwys i elusen?"
+    val radioHeading = "A wnaethoch roi cyfranddaliadau neu warantau cymwys i elusen?"
     val expectedError: String = "Dewiswch ‘Iawn’ os wnaethoch roi cyfranddaliadau neu warantau cymwys i elusen"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    val expectedH1 = "A wnaeth eich cleient rhoi cyfranddaliadau neu warantau cymwys i elusen?"
-    val expectedTitle = "A wnaeth eich cleient rhoi cyfranddaliadau neu warantau cymwys i elusen?"
+    val radioHeading = "A wnaeth eich cleient rhoi cyfranddaliadau neu warantau cymwys i elusen?"
     val expectedError: String = "Dewiswch ‘Iawn’ os wnaeth eich cleient rhoi cyfranddaliadau neu warantau cymwys i elusen"
   }
 
@@ -146,9 +145,9 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends CharityITHelper {
             result.status shouldBe OK
           }
 
-          titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
+          titleCheck(user.commonExpectedResults.expectedTitle, user.isWelsh)
           welshToggleCheck(user.isWelsh)
-          h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)
+          h1Check(user.commonExpectedResults.expectedTitle + " " + captionText)
           textOnPageCheck(captionText, captionSelector)
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
@@ -174,9 +173,9 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends CharityITHelper {
             result.status shouldBe OK
           }
 
-          titleCheck(user.specificExpectedResults.get.expectedTitle, user.isWelsh)
+          titleCheck(user.commonExpectedResults.expectedTitle, user.isWelsh)
           welshToggleCheck(user.isWelsh)
-          h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)
+          h1Check(user.commonExpectedResults.expectedTitle + " " + captionText)
           textOnPageCheck(captionText, captionSelector)
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)
@@ -255,9 +254,9 @@ class GiftAidQualifyingSharesSecuritiesControllerISpec extends CharityITHelper {
           import Selectors._
           import user.commonExpectedResults._
 
-          titleCheck(errorPrefix(user.isWelsh) + user.specificExpectedResults.get.expectedTitle, user.isWelsh)
+          titleCheck(errorPrefix(user.isWelsh) + user.commonExpectedResults.expectedTitle, user.isWelsh)
           welshToggleCheck(user.isWelsh)
-          h1Check(user.specificExpectedResults.get.expectedH1 + " " + captionText)
+          h1Check(user.commonExpectedResults.expectedTitle + " " + captionText)
           textOnPageCheck(captionText, captionSelector)
           radioButtonCheck(yesText, 1)
           radioButtonCheck(noText, 2)

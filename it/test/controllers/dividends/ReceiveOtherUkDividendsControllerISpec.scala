@@ -66,20 +66,19 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
   object Selectors {
     val youMustAlsoSelector = "#p1"
-
     def listContentSelector(i: Int): String = s"#main-content > div > div > ul > li:nth-child($i)"
 
     val youDoNotNeedSelector = "#p2"
 
-    def investmentTitleSelector(i: Int = 3): String = s"#main-content > div > div > form > details:nth-child($i) > summary > span"
+    val investmentTitleSelector =  "#main-content > div > div > details:nth-child(2) > summary"
+    val investmentTitleErrorSelector =  "#main-content > div > div > details:nth-child(3) > summary"
+    val investmentsContentP1Selector = "#p3"
+    val investmentsContentP2Selector = "#p4"
+    val investmentsContentP3Selector = "#p5"
 
-    def investmentsContentSelector(i: Int = 3)(j: Int): String = s"#main-content > div > div > form > details:nth-child($i) > div > p:nth-child($j)"
-
-    //noinspection ScalaStyle
-    def equalisationTitleSelector(i: Int = 4): String = s"#main-content > div > div > form > details:nth-child($i) > summary > span"
-
-    //noinspection ScalaStyle
-    def equalisationContentSelector(i: Int = 4): String = s"#main-content > div > div > form > details:nth-child($i) > div > p"
+    val equalisationTitleSelector = "#main-content > div > div > details:nth-child(3) > summary"
+    val equalisationTitleErrorSelector = "#main-content > div > div > details:nth-child(4) > summary"
+    val equalisationContentSelector = "#p6"
 
     val continueButtonSelector = "#continue"
     val continueButtonFormSelector = "#main-content > div > div > form"
@@ -88,9 +87,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
   }
 
   trait SpecificExpectedResults {
-    val expectedH1: String
-    val expectedTitle: String
-    val expectedErrorTitle: String
+    val radioHeading: String
     val youDoNotNeedText: String
     val expectedErrorText: String
     val redirectTitle: String
@@ -99,6 +96,8 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
   trait CommonExpectedResults {
     val captionExpected: String
+    val expectedTitle: String
+    val expectedErrorTitle: String
     val yesNo: Boolean => String
     val continueButtonText: String
     val continueLink: String
@@ -116,9 +115,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
 
   object IndividualExpectedEnglish extends SpecificExpectedResults {
-    val expectedH1 = "Did you get dividends from UK-based trusts or open-ended investment companies?"
-    val expectedTitle = "Did you get dividends from UK-based trusts or open-ended investment companies?"
-    val expectedErrorTitle = s"Error: $expectedTitle"
+    val radioHeading = "Did you get dividends from UK-based trusts or open-ended investment companies?"
     val youDoNotNeedText = "You do not need to tell us about amounts shown as 'equalisation' on your dividend voucher."
     val expectedErrorText = "Select yes if you got dividends from UK-based trusts or open-ended investment companies"
     val redirectTitle = "Check your income from dividends"
@@ -126,9 +123,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
   }
 
   object AgentExpectedEnglish extends SpecificExpectedResults {
-    val expectedH1 = "Did your client get dividends from UK-based trusts or open-ended investment companies?"
-    val expectedTitle = "Did your client get dividends from UK-based trusts or open-ended investment companies?"
-    val expectedErrorTitle = s"Error: $expectedTitle"
+    val radioHeading = "Did your client get dividends from UK-based trusts or open-ended investment companies?"
     val youDoNotNeedText = "You do not need to tell us about amounts shown as 'equalisation' on your client’s dividend voucher."
     val expectedErrorText = "Select yes if your client got dividends from UK-based trusts or open-ended investment companies"
     val redirectTitle = "Check your client’s income from dividends"
@@ -137,6 +132,8 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
   object AllExpectedEnglish extends CommonExpectedResults {
     val captionExpected = s"Dividends for 6 April $taxYearEOY to 5 April $taxYear"
+    val expectedTitle = "Dividends from UK-based trusts or open-ended investment companies"
+    val expectedErrorTitle = s"Error: $expectedTitle"
     val youMustAlsoText = "You must also tell us about:"
     val authorisedBulletText = "authorised unit trusts"
     val investmentBulletText = "investment trusts"
@@ -155,9 +152,8 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
   }
 
   object IndividualExpectedWelsh extends SpecificExpectedResults {
-    val expectedH1 = "A gawsoch ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored?"
+    val radioHeading = "A gawsoch ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored?"
     val expectedTitle = "A gawsoch ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored?"
-    val expectedErrorTitle = s"Gwall: $expectedTitle"
     val youDoNotNeedText = "Nid oes angen i chi roi gwybod i ni am symiau a ddangosir fel 'cyfartaliad' ar eich taleb ddifidend."
     val expectedErrorText = "Dewiswch ‘Iawn’ os cawsoch ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored"
     val redirectTitle = "Gwiriwch eich incwm o ddifidendau"
@@ -165,9 +161,8 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
   }
 
   object AgentExpectedWelsh extends SpecificExpectedResults {
-    val expectedH1 = "A gafodd eich cleient ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored?"
+    val radioHeading = "A gafodd eich cleient ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored?"
     val expectedTitle = "A gafodd eich cleient ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored?"
-    val expectedErrorTitle = s"Gwall: $expectedTitle"
     val youDoNotNeedText = "Nid oes angen i chi roi gwybod i ni am symiau a ddangosir fel 'cyfartaliad' ar daleb ddifidend eich cleient."
     val expectedErrorText = "Dewiswch ‘Iawn’ os cafodd eich cleient ddifidendau gan ymddiriedolaethau yn y DU neu gwmnïau buddsoddi penagored"
     val redirectTitle = "Gwiriwch incwm eich cleient o ddifidendau"
@@ -176,6 +171,8 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
   object AllExpectedWelsh extends CommonExpectedResults {
     val captionExpected = s"Difidendau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
+    val expectedTitle = "Difidendau gan ymddiriedolaethau neu gwmnïau buddsoddi penagored yn y DU"
+    val expectedErrorTitle = s"Gwall: $expectedTitle"
     val youMustAlsoText = "Mae’n rhaid i chi hefyd rhoi gwybod i ni am y canlynol:"
     val authorisedBulletText = "ymddiriedolaethau unedol awdurdodedig"
     val investmentBulletText = "ymddiriedolaethau buddsoddi"
@@ -224,8 +221,8 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(get.expectedTitle, us.isWelsh)
-          h1Check(get.expectedH1 + " " + captionExpected)
+          titleCheck(expectedTitle, us.isWelsh)
+          h1Check(expectedTitle + " " + captionExpected)
           textOnPageCheck(youMustAlsoText, youMustAlsoSelector)
           textOnPageCheck(authorisedBulletText, listContentSelector(1))
           textOnPageCheck(investmentBulletText, listContentSelector(2))
@@ -233,12 +230,12 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
           textOnPageCheck(get.youDoNotNeedText, youDoNotNeedSelector)
           radioButtonCheck(yesNo(true), 1)
           radioButtonCheck(yesNo(false), 2)
-          textOnPageCheck(whatAreInvestmentText, investmentTitleSelector())
-          textOnPageCheck(investmentTrustText, investmentsContentSelector()(1))
-          textOnPageCheck(unitTrustsText, investmentsContentSelector()(2))
-          textOnPageCheck(openEndedText, investmentsContentSelector()(3))
-          textOnPageCheck(whatAreEqualisationText, equalisationTitleSelector())
-          textOnPageCheck(equalisationPaymentsText, equalisationContentSelector())
+          textOnPageCheck(whatAreInvestmentText, investmentTitleSelector)
+          textOnPageCheck(investmentTrustText, investmentsContentP1Selector)
+          textOnPageCheck(unitTrustsText, investmentsContentP2Selector)
+          textOnPageCheck(openEndedText, investmentsContentP3Selector)
+          textOnPageCheck(whatAreEqualisationText, equalisationTitleSelector)
+          textOnPageCheck(equalisationPaymentsText, equalisationContentSelector)
 
           buttonCheck(continueButtonText, continueButtonSelector)
           formPostLinkCheck(continueLink, continueButtonFormSelector)
@@ -360,8 +357,8 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
             implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(get.expectedErrorTitle, us.isWelsh)
-            h1Check(get.expectedH1 + " " + captionExpected)
+            titleCheck(expectedErrorTitle, us.isWelsh)
+            h1Check(expectedTitle + " " + captionExpected)
             errorSummaryCheck(get.expectedErrorText, expectedErrorHref, us.isWelsh)
             textOnPageCheck(youMustAlsoText, youMustAlsoSelector)
             textOnPageCheck(authorisedBulletText, listContentSelector(1))
@@ -370,12 +367,12 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
             textOnPageCheck(get.youDoNotNeedText, youDoNotNeedSelector)
             radioButtonCheck(yesNo(true), 1)
             radioButtonCheck(yesNo(false), 2)
-            textOnPageCheck(whatAreInvestmentText, investmentTitleSelector(2))
-            textOnPageCheck(investmentTrustText, investmentsContentSelector(2)(1))
-            textOnPageCheck(unitTrustsText, investmentsContentSelector(2)(2))
-            textOnPageCheck(openEndedText, investmentsContentSelector(2)(3))
-            textOnPageCheck(whatAreEqualisationText, equalisationTitleSelector(3))
-            textOnPageCheck(equalisationPaymentsText, equalisationContentSelector(3))
+            textOnPageCheck(whatAreInvestmentText, investmentTitleErrorSelector)
+            textOnPageCheck(investmentTrustText, investmentsContentP1Selector)
+            textOnPageCheck(unitTrustsText, investmentsContentP2Selector)
+            textOnPageCheck(openEndedText, investmentsContentP3Selector)
+            textOnPageCheck(whatAreEqualisationText, equalisationTitleErrorSelector)
+            textOnPageCheck(equalisationPaymentsText, equalisationContentSelector)
 
             welshToggleCheck(us.isWelsh)
           }
