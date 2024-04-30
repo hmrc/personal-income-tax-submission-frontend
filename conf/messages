@@ -170,8 +170,8 @@ dividends.cya.changeOtherDividendsAmount.agent = Change how much your client got
 dividends.gateway.heading.individual = Did you get dividends from shares?
 dividends.gateway.heading.agent = Did your client get dividends from shares?
 dividends.gateway.hint = For example, dividends from UK companies, authorised unit trusts or open ended investment companies.
-dividends.gateway.error.individual = Select yes if you got dividends from shares
-dividends.gateway.error.agent = Select yes if your client got dividends from shares
+dividends.gateway.error.individual = Error: Select yes if you got dividends from shares
+dividends.gateway.error.agent = Error: Select yes if your client got dividends from shares
 
 # Stock Dividends Messages
 # ----------------------------------------------------------
@@ -634,8 +634,8 @@ charity.shares-and-land-summary.title.multiple.agent.hidden = Change the names o
 charity.gateway.heading.individual = Did you make donations to charity?
 charity.gateway.heading.agent = Did your client make donations to charity?
 charity.gateway.hint = This includes donations to overseas charities and donations of land, property, shares and securities.
-charity.gateway.error.individual = Select yes if you made donations to charity
-charity.gateway.error.agent = Select yes if your client made donations to charity
+charity.gateway.error.individual = Error: Select yes if you made donations to charity
+charity.gateway.error.agent = Error: Select yes if your client made donations to charity
 
 # Interest from gilt-edged or accrued income securities pages
 # -----------------------------------------------------------
