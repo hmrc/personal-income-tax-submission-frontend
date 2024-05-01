@@ -45,7 +45,8 @@ case class StockDividendsCheckYourAnswersModel(
   def toDividendsSubmissionModel: DividendsSubmissionModel = {
     DividendsSubmissionModel(
       ukDividends = this.ukDividendsAmount,
-      otherUkDividends = this.otherUkDividendsAmount)
+      otherUkDividends = this.otherUkDividendsAmount
+    )
   }
 
   def isFinished: Boolean = {
@@ -143,8 +144,6 @@ case class EncryptedStockDividendsCheckYourAnswersModel(
                                                        )
 
 object EncryptedStockDividendsCheckYourAnswersModel {
-
   implicit lazy val encryptedValueOFormat: OFormat[EncryptedValue] = Json.format[EncryptedValue]
   implicit val formats: Format[EncryptedStockDividendsCheckYourAnswersModel] = Json.format[EncryptedStockDividendsCheckYourAnswersModel]
-
 }
