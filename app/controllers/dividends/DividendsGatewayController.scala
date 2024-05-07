@@ -16,13 +16,13 @@
 
 package controllers.dividends
 
-import config.{AppConfig, DIVIDENDS, ErrorHandler, JourneyKey, STOCK_DIVIDENDS}
+import config._
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.YesNoForm
 import models.User
 import models.dividends.{DividendsCheckYourAnswersModel, StockDividendsCheckYourAnswersModel}
-import models.mongo.{DividendsUserDataModel, StockDividendsUserDataModel}
+import models.mongo.DividendsUserDataModel
 import models.question.QuestionsJourney
 import play.api.data.Form
 import play.api.i18n.I18nSupport
@@ -148,10 +148,13 @@ class DividendsGatewayController @Inject()(
             if (!appConfig.dividendsTailoringEnabled || (appConfig.dividendsTailoringEnabled && sessionData.isEmpty)) {
               Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))
             } else {
-              val hasNonZeroData: Boolean =
-                stockDividendsCya.ukDividendsAmount.exists(_ != 0) || stockDividendsCya.otherUkDividendsAmount.exists(_ != 0) ||
-                stockDividendsCya.stockDividendsAmount.exists(_ != 0) || stockDividendsCya.redeemableSharesAmount.exists(_ != 0) ||
-                stockDividendsCya.closeCompanyLoansWrittenOffAmount.exists(_ != 0)
+              val hasNonZeroData = Seq(
+                stockDividendsCya.ukDividendsAmount,
+                stockDividendsCya.otherUkDividendsAmount,
+                stockDividendsCya.stockDividendsAmount,
+                stockDividendsCya.redeemableSharesAmount,
+                stockDividendsCya.closeCompanyLoansWrittenOffAmount
+              ).exists(_.exists(_ != 0))
 
               if (!yesNoValue && hasNonZeroData) {
                 Redirect(controllers.routes.ZeroingWarningController.show(taxYear, STOCK_DIVIDENDS.stringify))
