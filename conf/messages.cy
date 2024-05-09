@@ -170,8 +170,8 @@ dividends.cya.changeOtherDividendsAmount.agent = Newidiwch faint a gafodd eich c
 dividends.gateway.heading.individual = A gawsoch ddifidendau o gyfranddaliadau?
 dividends.gateway.heading.agent = A gafodd eich cleient ddifidendau o gyfranddaliadau?
 dividends.gateway.hint = Er enghraifft, difidendau gan gwmnïau, ymddiriedolaethau unedol awdurdodedig neu gwmnïau buddsoddi penagored yn y DU.
-dividends.gateway.error.individual = Gwall: Dewiswch ‘Iawn’ os cawsoch ddifidendau o gyfranddaliadau
-dividends.gateway.error.agent = Gwall: Dewiswch ‘Iawn’ os cafodd eich cleient ddifidendau o gyfranddaliadau
+dividends.gateway.error.individual = Dewiswch ‘Iawn’ os cawsoch ddifidendau o gyfranddaliadau
+dividends.gateway.error.agent = Dewiswch ‘Iawn’ os cafodd eich cleient ddifidendau o gyfranddaliadau
 
 # Stock Dividends Messages
 # ----------------------------------------------------------
@@ -633,8 +633,8 @@ charity.shares-and-land-summary.title.multiple.agent.hidden = Newidiwch enwau el
 charity.gateway.heading.individual = A wnaethoch gyfrannu at elusen?
 charity.gateway.heading.agent = A wnaeth eich cleient gyfrannu at elusen?
 charity.gateway.hint = Mae hyn yn cynnwys rhoddion i elusennau tramor a rhoddion o dir, eiddo, cyfraniadau a gwarannau.
-charity.gateway.error.individual = Gwall: Dewiswch ‘Iawn’ os gwnaethoch gyfrannu at elusen
-charity.gateway.error.agent = Gwall: Dewiswch ‘Iawn’ os gwnaeth eich cleient gyfrannu at elusen
+charity.gateway.error.individual = Dewiswch ‘Iawn’ os gwnaethoch gyfrannu at elusen
+charity.gateway.error.agent = Dewiswch ‘Iawn’ os gwnaeth eich cleient gyfrannu at elusen
 
 # Interest from gilt-edged or accrued income securities pages
 # -----------------------------------------------------------

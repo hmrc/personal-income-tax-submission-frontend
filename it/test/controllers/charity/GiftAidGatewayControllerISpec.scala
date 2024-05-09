@@ -94,22 +94,22 @@ class GiftAidGatewayControllerISpec extends IntegrationTest with ViewHelpers wit
 
   object IndividualResultsEN extends SpecificUserTypeResults {
     override val heading: String = "Did you make donations to charity?"
-    override val errorText: String = "Error: Select yes if you made donations to charity"
+    override val errorText: String = "Select yes if you made donations to charity"
   }
 
   object AgentResultsEN extends SpecificUserTypeResults {
     override val heading: String = "Did your client make donations to charity?"
-    override val errorText: String = "Error: Select yes if your client made donations to charity"
+    override val errorText: String = "Select yes if your client made donations to charity"
   }
 
   object IndividualResultsCY extends SpecificUserTypeResults {
     override val heading: String = "A wnaethoch gyfrannu at elusen?"
-    override val errorText: String = "Gwall: Dewiswch ‘Iawn’ os gwnaethoch gyfrannu at elusen"
+    override val errorText: String = "Dewiswch ‘Iawn’ os gwnaethoch gyfrannu at elusen"
   }
 
   object AgentResultsCY extends SpecificUserTypeResults {
     override val heading: String = "A wnaeth eich cleient gyfrannu at elusen?"
-    override val errorText: String = "Gwall: Dewiswch ‘Iawn’ os gwnaeth eich cleient gyfrannu at elusen"
+    override val errorText: String = "Dewiswch ‘Iawn’ os gwnaeth eich cleient gyfrannu at elusen"
   }
 
   private val userScenarios = Seq(

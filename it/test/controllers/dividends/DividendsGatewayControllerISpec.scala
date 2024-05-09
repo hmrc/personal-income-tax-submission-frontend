@@ -78,22 +78,22 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
 
   object IndividualResultsEN extends SpecificUserTypeResults {
     override val heading: String = "Did you get dividends from shares?"
-    override val errorText: String = "Error: Select yes if you got dividends from shares"
+    override val errorText: String = "Select yes if you got dividends from shares"
   }
 
   object AgentResultsEN extends SpecificUserTypeResults {
     override val heading: String = "Did your client get dividends from shares?"
-    override val errorText: String = "Error: Select yes if your client got dividends from shares"
+    override val errorText: String = "Select yes if your client got dividends from shares"
   }
 
   object IndividualResultsCY extends SpecificUserTypeResults {
     override val heading: String = "A gawsoch ddifidendau o gyfranddaliadau?"
-    override val errorText: String = "Gwall: Dewiswch ‘Iawn’ os cawsoch ddifidendau o gyfranddaliadau"
+    override val errorText: String = "Dewiswch ‘Iawn’ os cawsoch ddifidendau o gyfranddaliadau"
   }
 
   object AgentResultsCY extends SpecificUserTypeResults {
     override val heading: String = "A gafodd eich cleient ddifidendau o gyfranddaliadau?"
-    override val errorText: String = "Gwall: Dewiswch ‘Iawn’ os cafodd eich cleient ddifidendau o gyfranddaliadau"
+    override val errorText: String = "Dewiswch ‘Iawn’ os cafodd eich cleient ddifidendau o gyfranddaliadau"
   }
 
   private val userScenarios = Seq(

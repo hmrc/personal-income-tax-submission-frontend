@@ -27,8 +27,10 @@
 @content = {
     @heading(messages("dividends.gateway.heading." + agentOrIndividual), Some(messages("dividends.caption", (taxYear-1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
 }
+
+@hasFormErrors = @{form.hasErrors}
     
-@layout(messages("dividends.gateway.heading." + agentOrIndividual)) {
+@layout(messages("dividends.gateway.heading." + agentOrIndividual), hasErrors = hasFormErrors) {
     
     @errorSummary(form.errors)
     
