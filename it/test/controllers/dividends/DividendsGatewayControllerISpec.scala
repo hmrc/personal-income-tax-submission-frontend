@@ -55,6 +55,14 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
 
   }
 
+
+  trait SpecificUserTypeResults {
+    val heading: String
+    val errorText: String
+    val errorTitle: String
+  }
+
+
   object CommonExpectedResultsEN extends CommonExpectedResults {
     override val hintText = "For example, dividends from UK companies, authorised unit trusts or open ended investment companies."
     override val continueText: String = "Continue"
@@ -71,29 +79,32 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
     override val caption: String = s"Difidendau ar gyfer 6 Ebrill ${(taxYear - 1).toString} i 5 Ebrill ${taxYear.toString}"
   }
 
-  trait SpecificUserTypeResults {
-    val heading: String
-    val errorText: String
-  }
-
   object IndividualResultsEN extends SpecificUserTypeResults {
     override val heading: String = "Did you get dividends from shares?"
     override val errorText: String = "Select yes if you got dividends from shares"
+    override val errorTitle: String = "Error: Did you get dividends from shares?"
+
   }
 
   object AgentResultsEN extends SpecificUserTypeResults {
     override val heading: String = "Did your client get dividends from shares?"
     override val errorText: String = "Select yes if your client got dividends from shares"
+    override val errorTitle: String = "Error: Did your client get dividends from shares?"
+
   }
 
   object IndividualResultsCY extends SpecificUserTypeResults {
     override val heading: String = "A gawsoch ddifidendau o gyfranddaliadau?"
     override val errorText: String = "Dewiswch ‘Iawn’ os cawsoch ddifidendau o gyfranddaliadau"
+    override val errorTitle: String = "Gwall: A gawsoch ddifidendau o gyfranddaliadau?"
+
   }
 
   object AgentResultsCY extends SpecificUserTypeResults {
     override val heading: String = "A gafodd eich cleient ddifidendau o gyfranddaliadau?"
     override val errorText: String = "Dewiswch ‘Iawn’ os cafodd eich cleient ddifidendau o gyfranddaliadau"
+    override val errorTitle: String = "Gwall: A gafodd eich cleient ddifidendau o gyfranddaliadau?"
+
   }
 
   private val userScenarios = Seq(
@@ -406,7 +417,7 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
             }
 
             errorSummaryCheck(errorText, "#value", scenario.isWelsh)
-            titleCheck(heading, scenario.isWelsh)
+            titleCheck(errorTitle, scenario.isWelsh)
             h1Check(s"$heading $caption")
             captionCheck(caption)
             hintTextCheck(hintText)

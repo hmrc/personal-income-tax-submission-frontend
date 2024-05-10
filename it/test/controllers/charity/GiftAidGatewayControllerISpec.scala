@@ -90,25 +90,30 @@ class GiftAidGatewayControllerISpec extends IntegrationTest with ViewHelpers wit
   trait SpecificUserTypeResults {
     val heading: String
     val errorText: String
+    val errorTitle: String
   }
 
   object IndividualResultsEN extends SpecificUserTypeResults {
     override val heading: String = "Did you make donations to charity?"
+    override val errorTitle: String = "Error: Did you make donations to charity?"
     override val errorText: String = "Select yes if you made donations to charity"
   }
 
   object AgentResultsEN extends SpecificUserTypeResults {
     override val heading: String = "Did your client make donations to charity?"
+    override val errorTitle: String = "Error: Did your client make donations to charity?"
     override val errorText: String = "Select yes if your client made donations to charity"
   }
 
   object IndividualResultsCY extends SpecificUserTypeResults {
     override val heading: String = "A wnaethoch gyfrannu at elusen?"
+    override val errorTitle: String = "Gwall: A wnaethoch gyfrannu at elusen?"
     override val errorText: String = "Dewiswch ‘Iawn’ os gwnaethoch gyfrannu at elusen"
   }
 
   object AgentResultsCY extends SpecificUserTypeResults {
     override val heading: String = "A wnaeth eich cleient gyfrannu at elusen?"
+    override val errorTitle: String = "Gwall: A wnaeth eich cleient gyfrannu at elusen?"
     override val errorText: String = "Dewiswch ‘Iawn’ os gwnaeth eich cleient gyfrannu at elusen"
   }
 
@@ -329,7 +334,7 @@ class GiftAidGatewayControllerISpec extends IntegrationTest with ViewHelpers wit
             }
 
             errorSummaryCheck(errorText, "#value", scenario.isWelsh)
-            titleCheck(heading, scenario.isWelsh)
+            titleCheck(errorTitle, scenario.isWelsh)
             h1Check(s"$heading $caption")
             captionCheck(caption)
             hintTextCheck(hintText)

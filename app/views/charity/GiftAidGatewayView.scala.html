@@ -27,13 +27,15 @@
 @content = {
     @heading(messages("charity.gateway.heading." + agentOrIndividual), Some(messages("charity.caption", (taxYear-1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
 }
-    
-@layout(messages("charity.gateway.heading." + agentOrIndividual)) {
-    
-    @errorSummary(form.errors)
-    
-    @content
-    
+
+@hasFormErrors = @{form.hasErrors}
+
+@layout(messages("charity.gateway.heading." + agentOrIndividual), hasErrors = hasFormErrors) {
+
+@errorSummary(form.errors)
+
+@content
+
     @formWithCSRF(controllers.charity.routes.GiftAidGatewayController.submit(taxYear)) {
         @radio(
             form = form,
