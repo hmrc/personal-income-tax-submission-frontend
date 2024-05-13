@@ -16,12 +16,13 @@
 
 package controllers.dividends
 
-import config.{AppConfig, DIVIDENDS, ErrorHandler, JourneyKey, STOCK_DIVIDENDS}
+import config._
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.YesNoForm
 import models.User
 import models.dividends.{DividendsCheckYourAnswersModel, StockDividendsCheckYourAnswersModel}
+import models.mongo.DividendsUserDataModel
 import models.question.QuestionsJourney
 import play.api.data.Form
 import play.api.i18n.I18nSupport
@@ -59,7 +60,7 @@ class DividendsGatewayController @Inject()(
       if (!isStockDividends) {
         session.getSessionData(taxYear).map {
           case Left(_) => errorHandler.internalServerError()
-          case Right(sessionData) =>
+          case Right(sessionData: Option[DividendsUserDataModel]) =>
 
             questionsJourneyValidator.validate(routes.DividendsGatewayController.show(taxYear), sessionData.flatMap(_.dividends), taxYear) {
               val gatewayCheck: Option[Boolean] = sessionData.flatMap(_.dividends.flatMap(_.gateway))
@@ -134,37 +135,42 @@ class DividendsGatewayController @Inject()(
     }
   }
 
-  private def submitStockDividends(yesNoModel: Boolean, taxYear: Int)(implicit user: User[_]): Future[Result] = {
+  private def submitStockDividends(yesNoValue: Boolean, taxYear: Int)(implicit user: User[_]): Future[Result] = {
     stockDividendsSessionService.getSessionData(taxYear).flatMap {
-      case Left(_) => Future.successful(errorHandler.internalServerError())
+      case Left(_) =>
+        Future.successful(errorHandler.internalServerError())
       case Right(sessionData) =>
-        val dividendsCya = if (yesNoModel) {
-          sessionData.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel())
-            .copy(gateway = Some(yesNoModel))
-        } else {
-          sessionData.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel())
-            .copy(
-              gateway = Some(yesNoModel),
-              ukDividends = None,
-              ukDividendsAmount = None,
-              otherUkDividends = None,
-              otherUkDividendsAmount = None,
-              stockDividends = None,
-              stockDividendsAmount = None,
-              redeemableShares = None,
-              redeemableSharesAmount = None,
-              closeCompanyLoansWrittenOff = None,
-              closeCompanyLoansWrittenOffAmount = None
-            )
-        }
+        val stockDividendsCya = sessionData.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel()).copy(gateway = Some(yesNoValue))
         val update = sessionData.fold(true)(data => data.stockDividends.isEmpty)
-        stockDividendsSessionService.updateSessionData(dividendsCya, taxYear, update)(errorHandler.internalServerError())(
-          if (yesNoModel) {
-            Redirect(controllers.dividends.routes.ReceiveUkDividendsController.show(taxYear))
+
+        stockDividendsSessionService.updateSessionData(stockDividendsCya, taxYear, update)(errorHandler.internalServerError())(
+          if (stockDividendsCya.isFinished) {
+            if (!appConfig.dividendsTailoringEnabled || (appConfig.dividendsTailoringEnabled && sessionData.isEmpty)) {
+              Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))
+            } else {
+              val hasNonZeroData = Seq(
+                stockDividendsCya.ukDividendsAmount,
+                stockDividendsCya.otherUkDividendsAmount,
+                stockDividendsCya.stockDividendsAmount,
+                stockDividendsCya.redeemableSharesAmount,
+                stockDividendsCya.closeCompanyLoansWrittenOffAmount
+              ).exists(_.exists(_ != 0))
+
+              if (!yesNoValue && hasNonZeroData) {
+                Redirect(controllers.routes.ZeroingWarningController.show(taxYear, STOCK_DIVIDENDS.stringify))
+              } else {
+                Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))
+              }
+            }
           } else {
-            Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear))
+            if (yesNoValue) {
+              Redirect(controllers.dividends.routes.ReceiveUkDividendsController.show(taxYear))
+            } else {
+              Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))
+            }
           }
         )
     }
   }
+
 }

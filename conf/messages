@@ -38,6 +38,7 @@ common.uk-interest = UK Interest
 common.currency.hint = For example, £193.52
 
 dividends.caption = Dividends for 6 April {0} to 5 April {1}
+stock-dividends.caption = Stock dividends for 6 April {0} to 5 April {1}
 interest.caption = Interest for 6 April {0} to 5 April {1}
 charity.caption = Donations to charity for 6 April {0} to 5 April {1}
 savings.caption = Interest from gilt-edged or accrued income securities for 6 April {0} to 5 April {1}

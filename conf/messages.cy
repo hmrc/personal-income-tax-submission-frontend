@@ -38,6 +38,7 @@ common.uk-interest = Llog y DU
 common.currency.hint = Er enghraifft, £193.52
 
 dividends.caption = Difidendau ar gyfer 6 Ebrill {0} i 5 Ebrill {1}
+stock-dividends.caption = Difidendau stoc ar gyfer 6 Ebrill {0} i 5 Ebrill {1}
 interest.caption = Llog ar gyfer 6 Ebrill {0} i 5 Ebrill {1}
 charity.caption = Rhoddion i elusennau ar gyfer 6 Ebrill {0} i 5 Ebrill {1}
 savings.caption = Llog o warantau gilt neu warantau incwm cronedig ar gyfer 6 Ebrill {0} i 5 Ebrill {1}

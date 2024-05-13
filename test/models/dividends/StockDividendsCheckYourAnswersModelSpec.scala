@@ -22,7 +22,6 @@ import utils.UnitTest
 
 class StockDividendsCheckYourAnswersModelSpec extends UnitTest {
 
-
   object TailoringAppConfig extends MockAppConfig {
     override val tailoringEnabled: Boolean = true
     override val interestTailoringEnabled: Boolean = true
@@ -76,15 +75,11 @@ class StockDividendsCheckYourAnswersModelSpec extends UnitTest {
     "correctly parse to Json" when {
 
       "all fields are populated" in {
-
         Json.toJson(modelMax) shouldBe jsonMax
-
       }
 
       "all optional fields are empty" in {
-
         Json.toJson(modelMin) shouldBe jsonMin
-
       }
 
     }
@@ -92,15 +87,11 @@ class StockDividendsCheckYourAnswersModelSpec extends UnitTest {
     "correctly parse from Json" when {
 
       "all fields are populated" in {
-
         jsonMax.as[StockDividendsCheckYourAnswersModel] shouldBe modelMax
-
       }
 
       "all optional fields are empty" in {
-
         jsonMin.as[StockDividendsCheckYourAnswersModel] shouldBe modelMin
-
       }
 
     }

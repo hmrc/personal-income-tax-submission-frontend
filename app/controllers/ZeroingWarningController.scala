@@ -20,11 +20,13 @@ import config._
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import models.User
-import models.dividends.DividendsCheckYourAnswersModel
+import models.charity.GiftAidCYAModel
+import models.dividends.{DividendsCheckYourAnswersModel, StockDividendsCheckYourAnswersModel}
 import models.interest.InterestCYAModel
+import models.mongo.{GiftAidUserDataModel, StockDividendsUserDataModel}
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import services.{DividendsSessionService, GiftAidSessionService, InterestSessionService}
+import services.{DividendsSessionService, GiftAidSessionService, InterestSessionService, StockDividendsSessionService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.ZeroingWarningView
 
@@ -34,6 +36,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class ZeroingWarningController @Inject()(
                                           view: ZeroingWarningView,
                                           dividendsSession: DividendsSessionService,
+                                          stockDividendsSession: StockDividendsSessionService,
                                           interestSession: InterestSessionService,
                                           giftAidSession: GiftAidSessionService,
                                           errorHandler: ErrorHandler
@@ -49,6 +52,10 @@ class ZeroingWarningController @Inject()(
       journeyKey match {
         case "dividends" => (
           controllers.routes.ZeroingWarningController.submit(taxYear, DIVIDENDS.stringify),
+          controllers.dividends.routes.DividendsGatewayController.show(taxYear).url
+        )
+        case "stock-dividends" => (
+          controllers.routes.ZeroingWarningController.submit(taxYear, STOCK_DIVIDENDS.stringify),
           controllers.dividends.routes.DividendsGatewayController.show(taxYear).url
         )
         case "interest" =>
@@ -69,6 +76,7 @@ class ZeroingWarningController @Inject()(
     commonPredicates(taxYear, {
       journeyKey match {
         case "dividends" => DIVIDENDS
+        case "stock-dividends" => STOCK_DIVIDENDS
         case "interest" => INTEREST
         case "gift-aid" => GIFT_AID
       }
@@ -87,6 +95,7 @@ class ZeroingWarningController @Inject()(
     if (appConfig.interestTailoringEnabled || appConfig.dividendsTailoringEnabled) {
       journeyKey match {
         case key@"dividends" => handleDividends(taxYear)
+        case key@"stock-dividends" => handleStockDividends(taxYear)
         case "interest" => handleInterest(taxYear)
         case key@"gift-aid" => handleCharity(taxYear)
       }
@@ -112,6 +121,35 @@ class ZeroingWarningController @Inject()(
     cyaData.copy(
       ukDividendsAmount = if (cyaData.ukDividends.contains(true)) Some(0) else None,
       otherUkDividendsAmount = if (cyaData.otherUkDividends.contains(true)) Some(0) else None
+    )
+  }
+
+  private[controllers] def handleStockDividends(taxYear: Int)(implicit user: User[_]): Future[Result] = {
+    stockDividendsSession.getAndHandle(taxYear)(errorHandler.internalServerError()) { case (cya, prior) =>
+      cya match {
+        case Some(cyaData: StockDividendsUserDataModel) =>
+          val newSessionData = zeroStockDividendsData(cyaData.stockDividends.getOrElse(
+            StockDividendsCheckYourAnswersModel(
+              ukDividends = Some(true), otherUkDividends = Some(true), stockDividends = Some(true),
+              redeemableShares = Some(true), closeCompanyLoansWrittenOff = Some(true)
+            )
+          ))
+          stockDividendsSession.updateSessionData(newSessionData, taxYear)(errorHandler.internalServerError()) {
+            Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))
+          }
+        case _ =>
+          Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+      }
+    }
+  }
+
+  private[controllers] def zeroStockDividendsData(cyaData: StockDividendsCheckYourAnswersModel): StockDividendsCheckYourAnswersModel = {
+    cyaData.copy(
+      ukDividendsAmount = if (cyaData.ukDividends.contains(true)) Some(0) else None,
+      otherUkDividendsAmount = if (cyaData.otherUkDividends.contains(true)) Some(0) else None,
+      stockDividendsAmount = if (cyaData.stockDividends.contains(true)) Some(0) else None,
+      redeemableSharesAmount = if (cyaData.redeemableShares.contains(true)) Some(0) else None,
+      closeCompanyLoansWrittenOffAmount = if (cyaData.closeCompanyLoansWrittenOff.contains(true)) Some(0) else None
     )
   }
 

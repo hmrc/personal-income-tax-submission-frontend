@@ -16,6 +16,7 @@
 
 package test.controllers.dividends
 
+import config.STOCK_DIVIDENDS
 import controllers.dividends.routes
 import models.dividends.{DividendsCheckYourAnswersModel, StockDividendsCheckYourAnswersModel}
 import org.jsoup.Jsoup
@@ -375,7 +376,7 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
 
             "has the correct redirect location" in {
               await(result).header.headers
-                .get(HeaderNames.LOCATION) shouldBe Some(routes.DividendsSummaryController.show(taxYear).url)
+                .get(HeaderNames.LOCATION) shouldBe Some(controllers.routes.ZeroingWarningController.show(taxYear, STOCK_DIVIDENDS.stringify).url)
             }
           }
 
@@ -394,7 +395,7 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
 
             "has the correct redirect location" in {
               await(result).header.headers
-                .get(HeaderNames.LOCATION) shouldBe Some(routes.DividendsSummaryController.show(taxYear).url)
+                .get(HeaderNames.LOCATION) shouldBe Some(routes.DividendsCYAController.show(taxYear).url)
             }
           }
         }
