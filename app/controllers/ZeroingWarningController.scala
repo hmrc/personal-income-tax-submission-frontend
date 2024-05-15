@@ -97,7 +97,7 @@ class ZeroingWarningController @Inject()(
         case key@"dividends" => handleDividends(taxYear)
         case key@"stock-dividends" => handleStockDividends(taxYear)
         case "interest" => handleInterest(taxYear)
-        case key@"gift-aid" => handleCharity(taxYear)
+        case key@"gift-aid" => handleCharity(taxYear)//TODO why gift aid dependent on interest and dividends?
       }
     } else {
       Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))

@@ -28,11 +28,11 @@ case class StockDividendsPriorSubmission(submittedOn: Option[String] = None,
 
   def toSubmission(cya: StockDividendsCheckYourAnswersModel): StockDividendsSubmissionModel = {
     StockDividendsSubmissionModel(
-      foreignDividend = this.foreignDividend,
-      dividendIncomeReceivedWhilstAbroad = this.dividendIncomeReceivedWhilstAbroad,
+      foreignDividend = this.foreignDividend,//This is not in our journey we get from IFS and pass it back
+      dividendIncomeReceivedWhilstAbroad = this.dividendIncomeReceivedWhilstAbroad,//This is not in our journey we get from IFS and pass it back
       stockDividend = cya.stockDividendsAmount.map(amount => StockDividendModel(None, amount)),
       redeemableShares = cya.redeemableSharesAmount.map(amount => StockDividendModel(None, amount)),
-      bonusIssuesOfSecurities = this.bonusIssuesOfSecurities,
+      bonusIssuesOfSecurities = this.bonusIssuesOfSecurities,//This is not in our journey we get from IFS and pass it back
       closeCompanyLoansWrittenOff = cya.closeCompanyLoansWrittenOffAmount.map(amount => StockDividendModel(None, amount))
     )
   }
