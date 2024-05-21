@@ -23,34 +23,34 @@ import play.api.mvc.Results.Redirect
 import uk.gov.hmrc.crypto.EncryptedValue
 
 case class SavingsIncomeCYAModel(
-                             gateway: Option[Boolean] = None,
-                             grossAmount: Option[BigDecimal] = None,
-                             taxTakenOff: Option[Boolean] = None,
-                             taxTakenOffAmount: Option[BigDecimal] = None
-                           ){
+  gateway: Option[Boolean] = None,
+  grossAmount: Option[BigDecimal] = None,
+  taxTakenOff: Option[Boolean] = None,
+  taxTakenOffAmount: Option[BigDecimal] = None
+){
   def fixGatewayData: SavingsIncomeCYAModel = {
     gateway.fold(this){ gatewayValue =>
       if (gatewayValue) this else SavingsIncomeCYAModel(Some(false), None, None, None)
     }
   }
+
   def fixTaxTakenOffData: SavingsIncomeCYAModel = {
     if (taxTakenOff.contains(false)) this.copy(taxTakenOffAmount = None) else this
   }
 
   def isFinished: Boolean = {
-    (((taxTakenOff.contains(false) && taxTakenOffAmount.isEmpty) ||
-    (taxTakenOff.contains(true) && taxTakenOffAmount.isDefined)) &&
-    (gateway.contains(true) && grossAmount.isDefined)) ||
-      (gateway.contains(false) && taxTakenOff.contains(false) && taxTakenOffAmount.isEmpty && grossAmount.isEmpty)
+    (grossAmount.isDefined && taxTakenOff.contains(true) && taxTakenOffAmount.isDefined) ||
+      (grossAmount.isDefined && taxTakenOff.contains(false) && taxTakenOffAmount.isEmpty)
   }
 
-  def getNextInJourney(taxYear: Int)(implicit appConfig: AppConfig): Result = {this match {
-    case SavingsIncomeCYAModel(None, _, _, _) => Redirect(controllers.savings.routes.SavingsGatewayController.show(taxYear))
-    case SavingsIncomeCYAModel(Some(value), None, _, _) => Redirect(controllers.savings.routes.SavingsInterestAmountController.show(taxYear))
-    case SavingsIncomeCYAModel(Some(_), Some(_), None, _) => Redirect(controllers.savings.routes.TaxTakenFromInterestController.show(taxYear))
-    case SavingsIncomeCYAModel(Some(_), Some(_), Some(true), None) => Redirect(controllers.savings.routes.TaxTakenOffInterestController.show(taxYear))
-    case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-  }
+  def getNextInJourney(taxYear: Int)(implicit appConfig: AppConfig): Result = {
+    this match {
+      case SavingsIncomeCYAModel(None, _, _, _) => Redirect(controllers.savings.routes.SavingsGatewayController.show(taxYear))
+      case SavingsIncomeCYAModel(Some(value), None, _, _) => Redirect(controllers.savings.routes.SavingsInterestAmountController.show(taxYear))
+      case SavingsIncomeCYAModel(Some(_), Some(_), None, _) => Redirect(controllers.savings.routes.TaxTakenFromInterestController.show(taxYear))
+      case SavingsIncomeCYAModel(Some(_), Some(_), Some(true), None) => Redirect(controllers.savings.routes.TaxTakenOffInterestController.show(taxYear))
+      case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+    }
   }
 
 }

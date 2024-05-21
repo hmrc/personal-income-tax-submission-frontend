@@ -36,6 +36,6 @@ case object GIFT_AID extends JourneyKey {
   override val stringify: String = "gift-aid"
 }
 
-case object INTEREST_SAVINGS extends JourneyKey {
-  override val stringify: String = "interest-savings"
+case object SAVINGS extends JourneyKey {
+  override val stringify: String = "savings"
 }

@@ -21,33 +21,36 @@ import utils.UnitTest
 
 class InterestAccountModelSpec extends UnitTest {
 
-  val validJsonStandardReadsMax: JsObject = Json.obj(
-    "id" -> "qwerty",
-    "accountName" -> "TSB",
-    "untaxedAmount" -> 500,
-    "taxedAmount" -> 500,
-    "uniqueSessionId" -> "ytrewq"
-  )
+  val validJsonStandardReadsMax: JsObject =
+    Json.obj(
+      "id" -> "qwerty",
+      "accountName" -> "TSB",
+      "untaxedAmount" -> 500,
+      "taxedAmount" -> 500,
+      "uniqueSessionId" -> "ytrewq"
+    )
 
-  val validModelStandardReadsMax: InterestAccountModel = InterestAccountModel(
-    Some("qwerty"),
-    "TSB",
-    Some(500.00),
-    Some(500.00),
-    Some("ytrewq")
-  )
+  val validModelStandardReadsMax: InterestAccountModel =
+    InterestAccountModel(
+      Some("qwerty"),
+      "TSB",
+      Some(500.00),
+      Some(500.00),
+      Some("ytrewq")
+    )
 
   val validJsonStandardReadsMin: JsObject = Json.obj(
     "accountName" -> "TSB"
   )
 
-  val validModelStandardReadsMin: InterestAccountModel = InterestAccountModel(
-    None,
-    "TSB",
-    None,
-    None,
-    None
-  )
+  val validModelStandardReadsMin: InterestAccountModel =
+    InterestAccountModel(
+      None,
+      "TSB",
+      None,
+      None,
+      None
+    )
 
   "using the normal json parsing" should {
 
@@ -101,6 +104,9 @@ class InterestAccountModelSpec extends UnitTest {
     taxedAmount = Some(300.00)
   )
 
+  val validModelZeroedInterestAccountModel: InterestAccountModel =
+    validModelStandardReadsMax.copy(Some(""), "", Some(0), Some(0), Some(""))
+
   "using alternative json reads" should {
 
     "correctly read json into model" when {
@@ -133,6 +139,34 @@ class InterestAccountModelSpec extends UnitTest {
             "untaxedUkInterest" -> 300.00
           ).as[InterestAccountModel](InterestAccountModel.priorSubmissionReads)
         )
+      }
+
+    }
+
+  }
+
+  "InterestAccountModel.hasNonZeroData" should {
+
+    "return true" when {
+
+      "taxedAmount has non zero data" in {
+        validModelStandardReadsMin.copy(taxedAmount = Some(500.00)).hasNonZeroData shouldBe true
+      }
+
+      "untaxedAmount has non zero data" in {
+        validModelStandardReadsMin.copy(untaxedAmount = Some(500.00)).hasNonZeroData shouldBe true
+      }
+
+      "all fields have no values" in {
+        validModelStandardReadsMin.copy(accountName = "").hasNonZeroData shouldBe true
+      }
+
+    }
+
+    "return false" when {
+
+      "all fields have zero values" in {
+        validModelZeroedInterestAccountModel.hasNonZeroData shouldBe false
       }
 
     }

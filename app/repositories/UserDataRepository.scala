@@ -97,14 +97,16 @@ trait UserDataRepository[C <: UserDataTemplate] {
     Try {
       encryptionMethod.apply(userData)
     }.toEither match {
-      case Left(exception: Exception) => Future.successful(handleEncryptionDecryptionException(exception, start))
+      case Left(exception: Exception) =>
+        Future.successful(handleEncryptionDecryptionException(exception, start))
       case Right(encryptedData) =>
         collection.findOneAndReplace(
           filter = filter(encryptedData.sessionId, encryptedData.mtdItId, encryptedData.nino, encryptedData.taxYear),
           replacement = encryptedData,
           options = FindOneAndReplaceOptions().returnDocument(ReturnDocument.AFTER)
         ).toFutureOption().map {
-          case Some(_) => Right(true)
+          case Some(_) =>
+            Right(true)
         }.recover {
           case exception: Exception =>
             pagerDutyLog(FAILED_TO_UPDATE_DATA, Some(s"$start Failed to update user data. Exception: ${exception.getMessage}"))

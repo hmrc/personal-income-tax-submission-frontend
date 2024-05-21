@@ -191,8 +191,14 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "microservice.services.sign-in.url" -> s"/auth-login-stub/gg-sign-in"
   )
 
-  def config(tailoring: Boolean = false, interestTailoring: Boolean = false, dividendsTailoring: Boolean = false,
-             charityTailoringEnabled:Boolean = false, InterestSavings: Boolean = false, stockDividends: Boolean = false): Map[String, Any] = commonConfig ++ Map(
+  def config(
+    tailoring: Boolean = false,
+    interestTailoring: Boolean = false,
+    dividendsTailoring: Boolean = false,
+    charityTailoringEnabled:Boolean = false,
+    interestSavings: Boolean = false,
+    stockDividends: Boolean = false
+  ): Map[String, Any] = commonConfig ++ Map(
     "taxYearChangeResetsSession" -> false,
     "useEncryption" -> true,
     "defaultTaxYear" -> taxYear,
@@ -202,7 +208,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "feature-switch.tailoring.interest" -> interestTailoring,
     "feature-switch.tailoring.dividends"-> dividendsTailoring,
     "feature-switch.tailoring.charity"-> charityTailoringEnabled,
-    "feature-switch.interestSavings"-> InterestSavings
+    "feature-switch.journeys.interestSavings"-> interestSavings
   )
 
   def invalidEncryptionConfig: Map[String, Any] = commonConfig ++ Map(
@@ -366,6 +372,12 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   def emptyStockDividendsUserDataStub(nino: String = nino, taxYear: Int = taxYear): StubMapping = {
     stubGetWithHeadersCheck(
       s"/income-tax-dividends/income-tax/income/dividends/${user.nino}/$taxYear", NOT_FOUND,
+      "", "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
+  }
+
+  def emptySavingsUserDataStub(nino: String = nino, taxYear: Int = taxYear): StubMapping = {
+    stubGetWithHeadersCheck(
+      s"/income-tax-interest/income-tax/income/savings/${user.nino}/$taxYear", NOT_FOUND,
       "", "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
   }
 

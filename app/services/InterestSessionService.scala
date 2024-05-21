@@ -53,7 +53,6 @@ class InterestSessionService @Inject()(
 
   def updateSessionData[A](cyaModel: InterestCYAModel, taxYear: Int, needsCreating: Boolean = false)(onFail: A)(onSuccess: A)
                           (implicit user: User[_], ec: ExecutionContext): Future[A] = {
-
     val userData = InterestUserDataModel(
       user.sessionId,
       user.mtditid,
@@ -74,13 +73,9 @@ class InterestSessionService @Inject()(
         case Left(_) => onFail
       }
     }
-
-
-
   }
 
   private[services] def interestModelToInterestAccount(input: InterestModel): InterestAccountModel = {
-
     InterestAccountModel(
       Some(input.incomeSourceId),
       input.accountName,
@@ -91,14 +86,14 @@ class InterestSessionService @Inject()(
 
   def getAndHandle[R](taxYear: Int)(onFail: R)(block: (Option[InterestCYAModel], Option[InterestPriorSubmission]) => Future[R])
                      (implicit executionContext: ExecutionContext, user: User[_], hc: HeaderCarrier): Future[R] = {
+
     val result = for {
       optionalCya <- getSessionData(taxYear)
       priorDataResponse <- getPriorData(taxYear)
     } yield {
 
       val interestAccountsResponse = priorDataResponse.map(_.interest).map {
-        priorSubmission =>
-          priorSubmission.getOrElse(Seq.empty[InterestModel]).map(interestModelToInterestAccount)
+        priorSubmission => priorSubmission.getOrElse(Seq.empty[InterestModel]).map(interestModelToInterestAccount)
       }
 
       interestAccountsResponse match {

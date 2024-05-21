@@ -634,7 +634,7 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
           }
 
           "has the redirect location of the overview page" in {
-            result.header.headers("Location") shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+            result.header.headers("Location") shouldBe controllers.routes.InterestFromSavingsAndSecuritiesSummaryController.show(taxYear).url
           }
         }
 

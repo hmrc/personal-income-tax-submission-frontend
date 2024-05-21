@@ -17,7 +17,7 @@
 package controllers.savings
 
 
-import config.{AppConfig, ErrorHandler, INTEREST}
+import config.{AppConfig, ErrorHandler, SAVINGS}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import forms.YesNoForm
@@ -48,7 +48,7 @@ class SavingsGatewayController @Inject()(
     s"savings.gateway.error.${if (isAgent) "agent" else "individual"}")
 
 
-  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, SAVINGS).async { implicit user =>
     savingsSessionService.getSessionData(taxYear).flatMap {
       case Left(_) => Future.successful(errorHandler.internalServerError())
       case Right(cya) =>
@@ -65,32 +65,46 @@ class SavingsGatewayController @Inject()(
     }
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
-    form(user.isAgent).bindFromRequest().fold(formWithErrors => {
-      Future.successful(BadRequest(view(formWithErrors, taxYear)))
-    }, {
+  def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, SAVINGS).async { implicit user =>
+    form(user.isAgent).bindFromRequest().fold(
+      formWithErrors => {
+        Future.successful(BadRequest(view(formWithErrors, taxYear)))
+      }, {
       yesNoValue =>
         savingsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
           (cya, prior) match {
             case (cya, prior) =>
-              val newData = cya.getOrElse(SavingsIncomeCYAModel()).copy(gateway = Some(yesNoValue)).fixGatewayData
-
+              val savingsCya = cya.getOrElse(SavingsIncomeCYAModel()).copy(gateway = Some(yesNoValue))
 
               if (cya.nonEmpty) {
-                savingsSessionService.updateSessionData(newData, taxYear)(errorHandler.internalServerError()) {
-                  redirectToNext(yesNoValue, taxYear, newData.isFinished)
+                savingsSessionService.updateSessionData(savingsCya, taxYear)(errorHandler.internalServerError()) {
+                  if(savingsCya.isFinished) {
+                    if (!appConfig.interestSavingsEnabled) {
+                      Redirect(controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear))
+                    } else {
+                      val hasNonZeroData = Seq(savingsCya.grossAmount, savingsCya.taxTakenOffAmount).exists(_.exists(_ != 0))
+
+                      if (!yesNoValue && hasNonZeroData) {
+                        Redirect(controllers.routes.ZeroingWarningController.show(taxYear, SAVINGS.stringify))
+                      } else {
+                        Redirect(controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear))
+                      }
+                    }
+                  } else {
+                    redirectToNext(yesNoValue, taxYear, savingsCya.isFinished)
+                  }
                 }
               } else {
-                savingsSessionService.createSessionData(newData, taxYear)(errorHandler.internalServerError()) {
-                  redirectToNext(yesNoValue, taxYear, newData.isFinished)
+                savingsSessionService.createSessionData(savingsCya, taxYear)(errorHandler.internalServerError()) {
+                  redirectToNext(yesNoValue, taxYear, savingsCya.isFinished)
                 }
               }
-            case _ => Future.successful(Redirect(controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear)))
+            case _ =>
+              Future.successful(Redirect(controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear)))
           }
         }
-    })
-
-
+      }
+    )
   }
 
   def redirectToNext(yesNoValue: Boolean, taxYear: Int, isFinished: Boolean): Result = {
