@@ -370,7 +370,7 @@ class ZeroingWarningControllerISpec extends IntegrationTest
     "the feature switch is on and session data exists" which {
       lazy val result = {
         dropSavingsDB()
-        emptySavingsUserDataStub()
+        emptyUserDataStub()
         insertSavingsCyaData(Some(completeSavingsCYAModel.copy(gateway = Some(true))), taxYearEOY)
         authoriseIndividual()
 

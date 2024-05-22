@@ -28,12 +28,6 @@ case class SavingsIncomeCYAModel(
   taxTakenOff: Option[Boolean] = None,
   taxTakenOffAmount: Option[BigDecimal] = None
 ){
-  def fixGatewayData: SavingsIncomeCYAModel = {
-    gateway.fold(this){ gatewayValue =>
-      if (gatewayValue) this else SavingsIncomeCYAModel(Some(false), None, None, None)
-    }
-  }
-
   def fixTaxTakenOffData: SavingsIncomeCYAModel = {
     if (taxTakenOff.contains(false)) this.copy(taxTakenOffAmount = None) else this
   }

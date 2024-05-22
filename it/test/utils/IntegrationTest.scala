@@ -375,12 +375,6 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
       "", "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
   }
 
-  def emptySavingsUserDataStub(nino: String = nino, taxYear: Int = taxYear): StubMapping = {
-    stubGetWithHeadersCheck(
-      s"/income-tax-interest/income-tax/income/savings/${user.nino}/$taxYear", NOT_FOUND,
-      "", "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
-  }
-
   val CompleteDividendsUserData: DividendsUserDataModel = DividendsUserDataModel(
     "sessionId-1618a1e8-4979-41d8-a32e-5ffbe69fac81",
     "1234567890",
