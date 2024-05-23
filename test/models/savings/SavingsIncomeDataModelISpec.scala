@@ -112,13 +112,13 @@ class SavingsIncomeDataModelISpec extends UnitTest {
         securities.hasNonZeroData shouldBe true
       }
 
-      "all fields have no values" in {
-        securities.copy(None, 0, None).hasNonZeroData shouldBe true
-      }
-
     }
 
     "return false" when {
+
+      "all fields have no values" in {
+        securities.copy(None, 0, None).hasNonZeroData shouldBe false
+      }
 
       "all fields have zero values" in {
         securities.copy(Some(0), 0, Some(0)).hasNonZeroData shouldBe false
@@ -148,13 +148,13 @@ class SavingsIncomeDataModelISpec extends UnitTest {
         foreignInterest.exists(_.copy("GB", None, None, None, None, 2).hasNonZeroData) shouldBe true
       }
 
-      "all fields except countryCode and taxableAmount have no values" in {
-        foreignInterest.exists(_.copy("GB", None, None, None, None, 0).hasNonZeroData) shouldBe true
-      }
-
     }
 
     "return false" when {
+
+      "all fields except countryCode and taxableAmount have no values" in {
+        foreignInterest.exists(_.copy("GB", None, None, None, None, 0).hasNonZeroData) shouldBe false
+      }
 
       "all fields except countryCode have zero values" in {
         foreignInterest.exists(_.copy("GB", Some(0), Some(0), Some(0), None, 0).hasNonZeroData) shouldBe false

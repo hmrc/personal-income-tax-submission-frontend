@@ -27,10 +27,7 @@ case class ForeignInterestModel(
   taxableAmount: BigDecimal
 ) {
   val hasNonZeroData: Boolean =
-    amountBeforeTax.exists(_ != 0) || amountBeforeTax.isEmpty ||
-    taxTakenOff.exists(_ != 0) || taxTakenOff.isEmpty ||
-    specialWithholdingTax.exists(_ != 0) || specialWithholdingTax.isEmpty ||
-    taxableAmount != 0
+    amountBeforeTax.exists(_ != 0) || taxTakenOff.exists(_ != 0) || specialWithholdingTax.exists(_ != 0) || taxableAmount != 0
 }
 
 object ForeignInterestModel{

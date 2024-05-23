@@ -24,9 +24,7 @@ case class SecuritiesModel(
   netAmount: Option[BigDecimal]
 ) {
   val hasNonZeroData: Boolean =
-    taxTakenOff.exists(_ != 0) || taxTakenOff.isEmpty ||
-    netAmount.exists(_ != 0) || netAmount.isEmpty ||
-    grossAmount != 0
+    taxTakenOff.exists(_ != 0) || grossAmount != 0 || netAmount.exists(_ != 0)
 }
 
 object SecuritiesModel{

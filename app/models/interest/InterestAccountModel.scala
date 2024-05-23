@@ -32,9 +32,7 @@ case class InterestAccountModel(
 
   def hasUntaxed: Boolean = untaxedAmount.isDefined
 
-  val hasNonZeroData: Boolean =
-    !hasTaxed || taxedAmount.exists(_ != 0) ||
-    !hasUntaxed || untaxedAmount.exists(_ != 0)
+  val hasNonZeroData: Boolean = taxedAmount.exists(_ != 0) ||  untaxedAmount.exists(_ != 0)
 }
 
 object InterestAccountModel {

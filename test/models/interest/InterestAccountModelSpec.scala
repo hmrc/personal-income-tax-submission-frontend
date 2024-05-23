@@ -157,13 +157,13 @@ class InterestAccountModelSpec extends UnitTest {
         validModelStandardReadsMin.copy(untaxedAmount = Some(500.00)).hasNonZeroData shouldBe true
       }
 
-      "all fields have no values" in {
-        validModelStandardReadsMin.copy(accountName = "").hasNonZeroData shouldBe true
-      }
-
     }
 
     "return false" when {
+
+      "all fields have no values" in {
+        validModelStandardReadsMin.copy(accountName = "").hasNonZeroData shouldBe false
+      }
 
       "all fields have zero values" in {
         validModelZeroedInterestAccountModel.hasNonZeroData shouldBe false
