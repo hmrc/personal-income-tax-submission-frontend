@@ -38,7 +38,7 @@ class StockDividendsSubmissionServiceSpec extends UnitTest with MockAuditService
   val dividendsSubmissionConnector: DividendsSubmissionConnector = mock[DividendsSubmissionConnector]
   val auth: AuthConnector = mock[AuthConnector]
   val service =
-    new StockDividendsSubmissionService(mockAppConfig, stockDividendsSubmissionConnector,
+    new StockDividendsSubmissionService(stockDividendsSubmissionConnector,
       stockDividendsUserDataConnector, dividendsSessionService, dividendsSubmissionConnector, mockAuditService)
 
   ".submitDividends" should {

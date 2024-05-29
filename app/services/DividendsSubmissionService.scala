@@ -30,27 +30,15 @@ import play.api.http.Status.NO_CONTENT
 class DividendsSubmissionService @Inject()(dividendsSubmissionConnector: DividendsSubmissionConnector)(
   implicit val ec: ExecutionContext
 ) {
-
-  def submitDividends(body: Option[DividendsCheckYourAnswersModel], nino: String, mtditid: String, taxYear: Int)
+  def submitDividends(dividendsCYA: DividendsCheckYourAnswersModel, nino: String, mtditid: String, taxYear: Int)
                      (implicit hc: HeaderCarrier): Future[DividendsSubmissionsResponse] = {
 
     lazy val logger: Logger = Logger(this.getClass.getName)
 
-    val nonOptBody: DividendsCheckYourAnswersModel = body.getOrElse(DividendsCheckYourAnswersModel(None, Some(false), None, Some(false), None))
+    val dividendsSubmission = new DividendsSubmissionModel(dividendsCYA.ukDividendsAmount, dividendsCYA.otherUkDividendsAmount)
 
-    nonOptBody match {
-      case DividendsCheckYourAnswersModel(_, Some(false), _, Some(false), _) =>
-        logger.info("[DividendsSubmissionService][submitDividends] User has entered No & No to both dividends questions. " +
-          "Not submitting data to DES.")
-        Future(Right(DividendsResponseModel(NO_CONTENT)))
-      case DividendsCheckYourAnswersModel(Some(false), None, None, None, None) =>
-        logger.info("[DividendsSubmissionService][submitDividends] User has entered No to gateway quest and no CheckYourAnswer data " +
-          "Not submitting data to DES.")
-        Future(Right(DividendsResponseModel(NO_CONTENT)))
-      case _ =>
-        val newBody = new DividendsSubmissionModel(nonOptBody.ukDividendsAmount, nonOptBody.otherUkDividendsAmount)
-        dividendsSubmissionConnector.submitDividends(newBody, nino, taxYear)(hc.withExtraHeaders("mtditid" -> mtditid))
-    }
+    logger.info("[DividendsSubmissionService][submitDividends] User has updated CheckYourAnswers, submitting data to DES.")
+
+    dividendsSubmissionConnector.submitDividends(dividendsSubmission, nino, taxYear)(hc.withExtraHeaders("mtditid" -> mtditid))
   }
-
 }

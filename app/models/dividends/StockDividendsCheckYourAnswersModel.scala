@@ -21,27 +21,18 @@ import play.api.libs.json.{Format, Json, OFormat}
 import uk.gov.hmrc.crypto.EncryptedValue
 
 case class StockDividendsCheckYourAnswersModel(
-                                                gateway: Option[Boolean] = None,
-                                                ukDividends: Option[Boolean] = None,
-                                                ukDividendsAmount: Option[BigDecimal] = None,
-                                                otherUkDividends: Option[Boolean] = None,
-                                                otherUkDividendsAmount: Option[BigDecimal] = None,
-                                                stockDividends: Option[Boolean] = None,
-                                                stockDividendsAmount: Option[BigDecimal] = None,
-                                                redeemableShares: Option[Boolean] = None,
-                                                redeemableSharesAmount: Option[BigDecimal] = None,
-                                                closeCompanyLoansWrittenOff: Option[Boolean] = None,
-                                                closeCompanyLoansWrittenOffAmount: Option[BigDecimal] = None
-                                              ) {
-
-  def hasDividendsData: Boolean = {
-    if (this.ukDividendsAmount.nonEmpty | this.otherUkDividendsAmount.nonEmpty) true else false
-  }
-
-  def hasStockDividendsData: Boolean = {
-    if (this.stockDividendsAmount.nonEmpty | this.redeemableSharesAmount.nonEmpty | this.closeCompanyLoansWrittenOffAmount.nonEmpty) true else false
-  }
-
+  gateway: Option[Boolean] = None,
+  ukDividends: Option[Boolean] = None,
+  ukDividendsAmount: Option[BigDecimal] = None,
+  otherUkDividends: Option[Boolean] = None,
+  otherUkDividendsAmount: Option[BigDecimal] = None,
+  stockDividends: Option[Boolean] = None,
+  stockDividendsAmount: Option[BigDecimal] = None,
+  redeemableShares: Option[Boolean] = None,
+  redeemableSharesAmount: Option[BigDecimal] = None,
+  closeCompanyLoansWrittenOff: Option[Boolean] = None,
+  closeCompanyLoansWrittenOffAmount: Option[BigDecimal] = None
+) {
   def toDividendsSubmissionModel: DividendsSubmissionModel = {
     DividendsSubmissionModel(
       ukDividends = this.ukDividendsAmount,
@@ -130,18 +121,18 @@ object StockDividendsCheckYourAnswersModel {
 }
 
 case class EncryptedStockDividendsCheckYourAnswersModel(
-                                                         gateway: Option[EncryptedValue] = None,
-                                                         ukDividends: Option[EncryptedValue] = None,
-                                                         ukDividendsAmount: Option[EncryptedValue] = None,
-                                                         otherUkDividends: Option[EncryptedValue] = None,
-                                                         otherUkDividendsAmount: Option[EncryptedValue] = None,
-                                                         stockDividends: Option[EncryptedValue] = None,
-                                                         stockDividendsAmount: Option[EncryptedValue] = None,
-                                                         redeemableShares: Option[EncryptedValue] = None,
-                                                         redeemableSharesAmount: Option[EncryptedValue] = None,
-                                                         closeCompanyLoansWrittenOff: Option[EncryptedValue] = None,
-                                                         closeCompanyLoansWrittenOffAmount: Option[EncryptedValue] = None
-                                                       )
+  gateway: Option[EncryptedValue] = None,
+  ukDividends: Option[EncryptedValue] = None,
+  ukDividendsAmount: Option[EncryptedValue] = None,
+  otherUkDividends: Option[EncryptedValue] = None,
+  otherUkDividendsAmount: Option[EncryptedValue] = None,
+  stockDividends: Option[EncryptedValue] = None,
+  stockDividendsAmount: Option[EncryptedValue] = None,
+  redeemableShares: Option[EncryptedValue] = None,
+  redeemableSharesAmount: Option[EncryptedValue] = None,
+  closeCompanyLoansWrittenOff: Option[EncryptedValue] = None,
+  closeCompanyLoansWrittenOffAmount: Option[EncryptedValue] = None
+)
 
 object EncryptedStockDividendsCheckYourAnswersModel {
   implicit lazy val encryptedValueOFormat: OFormat[EncryptedValue] = Json.format[EncryptedValue]

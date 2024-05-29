@@ -29,14 +29,12 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class StockDividendsSubmissionService @Inject()(
-                                                 appConfig: AppConfig,
-                                                 stockDividendsSubmissionConnector: StockDividendsSubmissionConnector,
-                                                 stockDividendsUserDataConnector: StockDividendsUserDataConnector,
-                                                 dividendsSessionService: DividendsSessionService,
-                                                 dividendsSubmissionConnector: DividendsSubmissionConnector,
-                                                 auditService: AuditService
-                                               )
-                                               (implicit ec: ExecutionContext) {
+  stockDividendsSubmissionConnector: StockDividendsSubmissionConnector,
+  stockDividendsUserDataConnector: StockDividendsUserDataConnector,
+  dividendsSessionService: DividendsSessionService,
+  dividendsSubmissionConnector: DividendsSubmissionConnector,
+  auditService: AuditService
+) (implicit ec: ExecutionContext) {
 
   def submitDividends(cya: StockDividendsCheckYourAnswersModel, nino: String, taxYear: Int)
                      (implicit hc: HeaderCarrier, user: User[_], ec: ExecutionContext): Future[StockDividendsSubmissionResponse] = {
@@ -56,34 +54,28 @@ class StockDividendsSubmissionService @Inject()(
               } else {
                 response.head
               }
-            }
-            }
+            }}
         }
     }
   }
 
   private def performSubmissions(cya: StockDividendsCheckYourAnswersModel, nino: String, taxYear: Int, hc: HeaderCarrier, user: User[_],
-                                 result: Option[StockDividendsPriorSubmission]) = {
+                                 result: Option[StockDividendsPriorSubmission]): Future[Seq[StockDividendsSubmissionResponse]] = {
     val prior = result match {
       case Some(value) => value
       case None => StockDividendsPriorSubmission()
     }
-    Future.sequence(Seq(
-      if (cya.hasDividendsData) {
+
+    Future.sequence(
+      Seq(
         dividendsSubmissionConnector
           .submitDividends(cya.toDividendsSubmissionModel, nino, taxYear)(hc.withExtraHeaders("mtditid" -> user.mtditid)).map {
           case Right(_) => Right(true)
           case Left(_) => Right(false)
-        }
-      } else {
-        Future.successful(Right(true))
-      },
-      if (cya.hasStockDividendsData) {
-        stockDividendsSubmissionConnector.submitDividends(prior.toSubmission(cya), nino, taxYear)(hc.withExtraHeaders("mtditid" -> user.mtditid))
-      } else {
-        Future.successful(Right(true))
-      }
-    ))
+        },
+      stockDividendsSubmissionConnector.submitDividends(prior.toSubmission(cya), nino, taxYear)(hc.withExtraHeaders("mtditid" -> user.mtditid))
+      )
+    )
   }
 
   private def auditSubmission(details: CreateOrAmendDividendsAuditDetail)
