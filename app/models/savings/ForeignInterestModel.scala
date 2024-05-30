@@ -24,7 +24,11 @@ case class ForeignInterestModel(
   taxTakenOff: Option[BigDecimal],
   specialWithholdingTax: Option[BigDecimal],
   foreignTaxCreditRelief: Option[Boolean],
-  taxableAmount: BigDecimal)
+  taxableAmount: BigDecimal
+) {
+  val hasNonZeroData: Boolean =
+    amountBeforeTax.exists(_ != 0) || taxTakenOff.exists(_ != 0) || specialWithholdingTax.exists(_ != 0) || taxableAmount != 0
+}
 
 object ForeignInterestModel{
   implicit val formats: OFormat[ForeignInterestModel] = Json.format[ForeignInterestModel]

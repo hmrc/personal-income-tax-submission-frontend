@@ -16,6 +16,7 @@
 
 package test.controllers.savings
 
+import config.SAVINGS
 import models.savings.SavingsIncomeCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -28,9 +29,9 @@ import test.utils.{IntegrationTest, SavingsDatabaseHelper, ViewHelpers}
 class SavingsGatewayControllerISpec extends IntegrationTest with ViewHelpers with SavingsDatabaseHelper{
 
   val relativeUrl: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/interest-from-securities"
+  val absoluteUrl: String = appUrl + s"/$taxYear/interest/interest-from-securities"
   val errorSummaryHref = "#value"
 
-  val cyaDataComplete: Option[SavingsIncomeCYAModel] = Some(SavingsIncomeCYAModel(Some(true), Some(100.00), Some(true), Some(100.00)))
   object Selectors {
     val errorSummarySelector = "#main-content > div > div > div.govuk-error-summary"
     val yesSelector = "#main-content > div > div > form > div > fieldset > div > div:nth-child(1)"
@@ -196,7 +197,7 @@ class SavingsGatewayControllerISpec extends IntegrationTest with ViewHelpers wit
             authoriseAgentOrIndividual(scenario.isAgent)
             emptyUserDataStub()
             dropSavingsDB()
-            insertSavingsCyaData(cyaDataComplete)
+            insertSavingsCyaData(Some(completeSavingsCYAModel))
             route(app, request, "{}").get
           }
 
@@ -206,6 +207,7 @@ class SavingsGatewayControllerISpec extends IntegrationTest with ViewHelpers wit
             status(result) shouldBe OK
           }
         }
+
         "display the gateway page with cyadata filled no gateway" which {
 
           lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
@@ -250,77 +252,169 @@ class SavingsGatewayControllerISpec extends IntegrationTest with ViewHelpers wit
 
     s".submit when $testNameWelsh and the user is $testNameAgent" should {
 
-        "redirect to total amount page" in {
+      lazy val headers = playSessionCookie(scenario.isAgent) ++ Map(csrfContent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+      lazy val request = FakeRequest("POST", relativeUrl).withHeaders(headers: _*)
 
-          lazy val headers = playSessionCookie(scenario.isAgent) ++ Map(csrfContent) ++
-            (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-          lazy val request = FakeRequest("POST", relativeUrl).withHeaders(headers: _*)
+      "the user submits a yes, when no previous data exists" should {
 
+        "redirect the user to the SavingsInterestAmount page" which {
           lazy val result = {
             authoriseAgentOrIndividual(scenario.isAgent)
             dropSavingsDB()
             emptyUserDataStub()
-            route(app, request, Map("value" -> Seq("true"))).get
+            route(appWithInterestSavings, request, Map("value" -> Seq("true"))).get
           }
 
-          status(result) shouldBe SEE_OTHER
-          await(result).header.headers("Location") shouldBe controllers.savings.routes.SavingsInterestAmountController.show(taxYear).url
+          "has a status of SEE_OTHER(303)" in {
+            status(result) shouldBe SEE_OTHER
+          }
 
+          "has the correct redirect location" in {
+            await(result).header.headers
+              .get(HeaderNames.LOCATION) shouldBe Some(controllers.savings.routes.SavingsInterestAmountController.show(taxYear).url)
+          }
         }
-        "redirect to cya page with cyaData" in {
 
-          lazy val headers = playSessionCookie(scenario.isAgent) ++ Map(csrfContent) ++
-            (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-          lazy val request = FakeRequest("POST", relativeUrl).withHeaders(headers: _*)
+      }
 
+      "the user submits a yes, when previous data exists" should {
+
+        "redirect the user to the SavingsInterestAmount page" which {
+          lazy val result = {
+            authoriseAgentOrIndividual(scenario.isAgent)
+            dropSavingsDB()
+            insertSavingsCyaData(Some(SavingsIncomeCYAModel(gateway = Some(false))))
+            emptyUserDataStub()
+            route(appWithInterestSavings, request, Map("value" -> Seq("true"))).get
+          }
+
+          "has a status of SEE_OTHER(303)" in {
+            status(result) shouldBe SEE_OTHER
+          }
+
+          "has the correct redirect location" in {
+            await(result).header.headers
+              .get(HeaderNames.LOCATION) shouldBe Some(controllers.savings.routes.SavingsInterestAmountController.show(taxYear).url)
+          }
+        }
+
+        "redirect the user to the SavingsIncomeCYA page" which {
+          lazy val result = {
+            authoriseAgentOrIndividual(scenario.isAgent)
+            dropSavingsDB()
+            insertSavingsCyaData(Some(completeSavingsCYAModel))
+            emptyUserDataStub()
+            route(appWithInterestSavings, request, Map("value" -> Seq("true"))).get
+          }
+
+          "has a status of SEE_OTHER(303)" in {
+            status(result) shouldBe SEE_OTHER
+          }
+
+          "has the correct redirect location" in {
+            await(result).header.headers
+              .get(HeaderNames.LOCATION) shouldBe Some(controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear).url)
+          }
+        }
+
+        "return a 303 status and redirect to first status page when isFinished is false" which {
+          lazy val result = {
+            authoriseAgentOrIndividual(scenario.isAgent)
+            dropSavingsDB()
+            emptyStockDividendsUserDataStub()
+            insertSavingsCyaData(Some(SavingsIncomeCYAModel()))
+            route(appWithStockDividends, request, body = Map("value" -> Seq("true"))).get
+          }
+
+          "has a status of SEE_OTHER(303)" in {
+            status(result) shouldBe SEE_OTHER
+          }
+
+          "has the correct redirect location" in {
+            await(result).header.headers
+              .get(HeaderNames.LOCATION) shouldBe Some(controllers.savings.routes.SavingsInterestAmountController.show(taxYear).url)
+          }
+        }
+
+      }
+
+      "the user submits a no" should {
+
+        "redirect the user to the zero warning page" which {
+          lazy val result = {
+            authoriseAgentOrIndividual(scenario.isAgent)
+            dropSavingsDB()
+            insertSavingsCyaData(Some(completeSavingsCYAModel))
+            route(appWithInterestSavings, request, Map("value" -> Seq("false"))).get
+          }
+
+          "has a status of SEE_OTHER(303)" in {
+            status(result) shouldBe SEE_OTHER
+          }
+
+          "has the correct redirect location" in {
+            await(result).header.headers
+              .get(HeaderNames.LOCATION) shouldBe Some(controllers.routes.ZeroingWarningController.show(taxYear, SAVINGS.stringify).url)
+          }
+        }
+
+        "return a 303 status and redirect to CYA page with no session data" which {
           lazy val result = {
             authoriseAgentOrIndividual(scenario.isAgent)
             dropSavingsDB()
             emptyUserDataStub()
-            insertSavingsCyaData(cyaDataComplete)
-            route(app, request, Map("value" -> Seq("false"))).get
+            route(appWithInterestSavings, request, Map("value" -> Seq("false"))).get
           }
 
-          status(result) shouldBe SEE_OTHER
-          await(result).header.headers("Location") shouldBe controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear).url
+          "has a status of SEE_OTHER(303)" in {
+            status(result) shouldBe SEE_OTHER
+          }
 
+          "has the correct redirect location" in {
+            await(result).header.headers
+              .get(HeaderNames.LOCATION) shouldBe Some(controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear).url)
+          }
         }
-      "redirect to cya page" in {
 
-          lazy val headers = playSessionCookie(scenario.isAgent) ++ Map(csrfContent) ++
-            (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-          lazy val request = FakeRequest("POST", relativeUrl).withHeaders(headers: _*)
-
+        "return a 303 status and redirect to CYA page with Session data with all zero amounts" which {
           lazy val result = {
             authoriseAgentOrIndividual(scenario.isAgent)
             dropSavingsDB()
             emptyUserDataStub()
-            route(app, request, Map("value" -> Seq("false"))).get
+            insertSavingsCyaData(
+              Some(completeSavingsCYAModel.copy(gateway = Some(false), grossAmount = Some(0), taxTakenOff = Some(true), taxTakenOffAmount = Some(0)))
+            )
+            route(appWithInterestSavings, request, Map("value" -> Seq("false"))).get
           }
 
-          status(result) shouldBe SEE_OTHER
-          await(result).header.headers("Location") shouldBe controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear).url
+          "has a status of SEE_OTHER(303)" in {
+            status(result) shouldBe SEE_OTHER
+          }
 
+          "has the correct redirect location" in {
+            await(result).header.headers
+              .get(HeaderNames.LOCATION) shouldBe Some(controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear).url)
+          }
         }
-        "return a error" which {
 
-          lazy val headers = playSessionCookie(scenario.isAgent) ++ Map(csrfContent) ++
-            (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-          lazy val request = FakeRequest("POST", relativeUrl).withHeaders(headers: _*)
+      }
 
-          lazy val result = {
-            authoriseAgentOrIndividual(scenario.isAgent)
-            route(app, request, Map("value" -> Seq(""))).get
-          }
-          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
-
-          "has a 400 BAD_REQUEST status " in{
-            status(result) shouldBe BAD_REQUEST
-          }
-          titleCheck(errorPrefix(scenario.isWelsh) + title, scenario.isWelsh)
-          errorAboveElementCheck(errorText)
-          errorSummaryCheck(errorText, errorSummaryHref, scenario.isWelsh)
+      "return a error when YesNoValue was not submitted" which {
+        lazy val result = {
+          authoriseAgentOrIndividual(scenario.isAgent)
+          route(appWithInterestSavings, request, Map("value" -> Seq(""))).get
         }
+
+        implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+        "has a 400 BAD_REQUEST status" in{
+          status(result) shouldBe BAD_REQUEST
+        }
+
+        titleCheck(errorPrefix(scenario.isWelsh) + title, scenario.isWelsh)
+        errorAboveElementCheck(errorText)
+        errorSummaryCheck(errorText, errorSummaryHref, scenario.isWelsh)
+      }
 
     }
 

@@ -19,10 +19,13 @@ package models.savings
 import play.api.libs.json.{Json, OFormat}
 
 case class SecuritiesModel(
-                            taxTakenOff: Option[BigDecimal],
-                            grossAmount: BigDecimal,
-                            netAmount: Option[BigDecimal]
-                          )
+  taxTakenOff: Option[BigDecimal],
+  grossAmount: BigDecimal,
+  netAmount: Option[BigDecimal]
+) {
+  val hasNonZeroData: Boolean =
+    taxTakenOff.exists(_ != 0) || grossAmount != 0 || netAmount.exists(_ != 0)
+}
 
 object SecuritiesModel{
   implicit val formats: OFormat[SecuritiesModel] = Json.format[SecuritiesModel]

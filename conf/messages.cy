@@ -10,6 +10,7 @@ betaBar.banner.message.2 = adborth
 betaBar.banner.message.3 = yn ein helpu i’w wella.
 
 summary.todo = I’w gwneud
+summary.excluded = Eithriwyd
 summary.updated = Wedi diweddaru
 summary.cannotUpdate = Methu diweddaru
 summary.updateTaxCalculation = Diweddaru cyfrifiad treth

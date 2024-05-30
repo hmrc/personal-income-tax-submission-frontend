@@ -17,12 +17,12 @@
 package controllers.savings
 
 import audit.{AuditModel, AuditService, CreateOrAmendSavingsAuditDetail}
-import config.{AppConfig, ErrorHandler, INTEREST}
+import config.{AppConfig, ErrorHandler, SAVINGS}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import models.User
-import models.savings.{DecodedSavingsSubmissionPayload, SavingsIncomeCYAModel, SavingsIncomeDataModel}
+import models.savings.{SavingsIncomeCYAModel, SavingsIncomeDataModel}
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc._
@@ -36,21 +36,21 @@ import views.html.savings.InterestSecuritiesCYAView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class InterestSecuritiesCYAController @Inject()(interestSecuritiesCYAView: InterestSecuritiesCYAView,
-                                                savingsSessionService: SavingsSessionService,
-                                                savingsSubmissionService: SavingsSubmissionService,
-                                                auditService: AuditService,
-                                                errorHandler: ErrorHandler
-                                               )
-                                               (
-                                                 implicit appConfig: AppConfig,
-                                                 authorisedAction: AuthorisedAction,
-                                                 val mcc: MessagesControllerComponents
-                                               ) extends FrontendController(mcc) with I18nSupport with SessionHelper with Logging {
+class InterestSecuritiesCYAController @Inject()(
+  interestSecuritiesCYAView: InterestSecuritiesCYAView,
+  savingsSessionService: SavingsSessionService,
+  savingsSubmissionService: SavingsSubmissionService,
+  auditService: AuditService,
+  errorHandler: ErrorHandler
+) (
+ implicit appConfig: AppConfig,
+ authorisedAction: AuthorisedAction,
+ val mcc: MessagesControllerComponents
+) extends FrontendController(mcc) with I18nSupport with SessionHelper with Logging {
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
 
-  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, SAVINGS).async { implicit user =>
     savingsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
       (cya, prior) match {
         case (Some(cya), Some(prior)) =>
@@ -69,20 +69,18 @@ class InterestSecuritiesCYAController @Inject()(interestSecuritiesCYAView: Inter
         case _ =>
           Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
       }
-
-
     }
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
+  def submit(taxYear: Int): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, SAVINGS)).async { implicit user =>
     savingsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
-    if (cya.flatMap(_.gateway).contains(false)){
-      //must exclude journey here
-      submitSavings(taxYear, cya, prior)
-    }
-    else {
-      submitSavings(taxYear, cya, prior)
-    }
+      if (cya.flatMap(_.gateway).contains(false)){
+        // Exclude journey would be implemented here, but may not be required due to new GDS statuses. Ref: SASS-8192
+        submitSavings(taxYear, cya, prior)
+      }
+      else {
+        submitSavings(taxYear, cya, prior)
+      }
     }
   }
 
@@ -104,7 +102,8 @@ class InterestSecuritiesCYAController @Inject()(interestSecuritiesCYAView: Inter
   def handleSubmissionRedirect(taxYear: Int, cyaData: Option[SavingsIncomeCYAModel], prior: Option[SavingsIncomeDataModel] = None)(
     implicit user: User[_], hc: HeaderCarrier): Future[Result] = {
     savingsSubmissionService.submitSavings(cyaData, prior, user.nino, user.mtditid, taxYear).flatMap {
-      case Left(error) => Future.successful(errorHandler.handleError(error.status))
+      case Left(error) =>
+        Future.successful(errorHandler.handleError(error.status))
       case Right(_) =>
         val model = CreateOrAmendSavingsAuditDetail(
           cyaData.flatMap(_.gateway), cyaData.flatMap(_.grossAmount),
@@ -121,7 +120,7 @@ class InterestSecuritiesCYAController @Inject()(interestSecuritiesCYAView: Inter
   private def auditSubmission(details: CreateOrAmendSavingsAuditDetail)
                              (implicit hc: HeaderCarrier,
                               executionContext: ExecutionContext): Future[AuditResult] = {
-    val event = AuditModel("CreateOrAmendInterestSavingsUpdate", "create-or-amend-interest-savings-update", details)
+    val event = AuditModel("CreateOrAmendSavingsUpdate", "create-or-amend-savings-update", details)
     auditService.auditModel(event)
   }
 }

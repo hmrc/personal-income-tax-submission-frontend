@@ -22,11 +22,12 @@ import controllers.predicates.CommonPredicates.commonPredicates
 import models.User
 import models.charity.GiftAidCYAModel
 import models.dividends.{DividendsCheckYourAnswersModel, StockDividendsCheckYourAnswersModel}
-import models.interest.InterestCYAModel
+import models.interest.{InterestCYAModel, InterestPriorSubmission}
 import models.mongo.{GiftAidUserDataModel, StockDividendsUserDataModel}
+import models.savings.{SavingsIncomeCYAModel, SavingsIncomeDataModel}
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import services.{DividendsSessionService, GiftAidSessionService, InterestSessionService, StockDividendsSessionService}
+import services.{DividendsSessionService, GiftAidSessionService, InterestSessionService, SavingsSessionService, StockDividendsSessionService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.ZeroingWarningView
 
@@ -38,6 +39,7 @@ class ZeroingWarningController @Inject()(
                                           dividendsSession: DividendsSessionService,
                                           stockDividendsSession: StockDividendsSessionService,
                                           interestSession: InterestSessionService,
+                                          savingsSession: SavingsSessionService,
                                           giftAidSession: GiftAidSessionService,
                                           errorHandler: ErrorHandler
                                         )(
@@ -47,7 +49,7 @@ class ZeroingWarningController @Inject()(
                                           ec: ExecutionContext
                                         ) extends FrontendController(mcc) with I18nSupport {
 
-  private def page(taxYear: Int, journeyKey: String)(implicit user: User[_]) = {
+  private def page(taxYear: Int, journeyKey: String)(implicit user: User[_]): Result = {
     val (continueCall, cancelHref): (Call, String) = {
       journeyKey match {
         case "dividends" => (
@@ -62,6 +64,11 @@ class ZeroingWarningController @Inject()(
           (
             controllers.routes.ZeroingWarningController.submit(taxYear, INTEREST.stringify),
             controllers.interest.routes.InterestGatewayController.show(taxYear).url
+          )
+        case "savings" =>
+          (
+            controllers.routes.ZeroingWarningController.submit(taxYear, SAVINGS.stringify),
+            controllers.savings.routes.SavingsGatewayController.show(taxYear).url
           )
         case "gift-aid" => (
           controllers.routes.ZeroingWarningController.submit(taxYear, GIFT_AID.stringify),
@@ -78,6 +85,7 @@ class ZeroingWarningController @Inject()(
         case "dividends" => DIVIDENDS
         case "stock-dividends" => STOCK_DIVIDENDS
         case "interest" => INTEREST
+        case "savings" => SAVINGS
         case "gift-aid" => GIFT_AID
       }
     })
@@ -97,6 +105,7 @@ class ZeroingWarningController @Inject()(
         case key@"dividends" => handleDividends(taxYear)
         case key@"stock-dividends" => handleStockDividends(taxYear)
         case "interest" => handleInterest(taxYear)
+        case "savings" => handleSavings(taxYear)
         case key@"gift-aid" => handleCharity(taxYear)//TODO why gift aid dependent on interest and dividends?
       }
     } else {
@@ -177,6 +186,27 @@ class ZeroingWarningController @Inject()(
     zeroedData.copy(
       untaxedUkInterest = Some(zeroedData.accounts.flatMap(_.untaxedAmount).nonEmpty),
       taxedUkInterest = Some(zeroedData.accounts.flatMap(_.taxedAmount).nonEmpty)
+    )
+  }
+
+  private[controllers] def handleSavings(taxYear: Int)(implicit user: User[_]): Future[Result] = {
+    savingsSession.getAndHandle(taxYear)(errorHandler.internalServerError()) { case (cya, prior) =>
+      cya match {
+        case Some(cyaData: SavingsIncomeCYAModel) =>
+          val newSessionData = zeroSavingsData(cyaData)
+          savingsSession.updateSessionData(newSessionData, taxYear)(errorHandler.internalServerError()) {
+            Redirect(controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear))
+          }
+        case _ =>
+          Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+      }
+    }
+  }
+
+  private[controllers] def zeroSavingsData(cyaData: SavingsIncomeCYAModel): SavingsIncomeCYAModel = {
+    cyaData.copy(
+      grossAmount = Some(0),
+      taxTakenOffAmount = if (cyaData.taxTakenOff.contains(true)) Some(0) else None
     )
   }
 

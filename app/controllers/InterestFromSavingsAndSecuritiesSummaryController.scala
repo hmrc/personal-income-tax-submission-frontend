@@ -29,23 +29,22 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class InterestFromSavingsAndSecuritiesSummaryController @Inject()(
-                                          view: InterestFromSavingsAndSecuritiesSummaryView,
-                                          savingsSessionService: SavingsSessionService,
-                                          interestSessionService: InterestSessionService,
-                                          errorHandler: ErrorHandler
-                                        )
-                                                                 (
-                                          implicit appConfig: AppConfig,
-                                          mcc: MessagesControllerComponents,
-                                          ec: ExecutionContext,
-                                          authorisedAction: AuthorisedAction
-                                        ) extends FrontendController(mcc) with I18nSupport {
+  view: InterestFromSavingsAndSecuritiesSummaryView,
+  savingsSessionService: SavingsSessionService,
+  interestSessionService: InterestSessionService,
+  errorHandler: ErrorHandler
+) (
+  implicit appConfig: AppConfig,
+  mcc: MessagesControllerComponents,
+  ec: ExecutionContext,
+  authorisedAction: AuthorisedAction
+) extends FrontendController(mcc) with I18nSupport {
 
-      def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear,INTEREST).async { implicit user =>
-        savingsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, savingsPrior) =>
-          interestSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, interestPrior) =>
-            Future.successful(Ok(view(taxYear, interestPrior, savingsPrior)))
-          }
-        }
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear,INTEREST).async { implicit user =>
+    savingsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, savingsPrior) =>
+      interestSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, interestPrior) =>
+        Future.successful(Ok(view(taxYear, interestPrior, savingsPrior)))
       }
+    }
+  }
 }

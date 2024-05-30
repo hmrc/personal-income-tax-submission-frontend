@@ -19,19 +19,26 @@ package models.savings
 import play.api.libs.json.{Json, OFormat}
 
 
-case class SavingsIncomeDataModel(submittedOn: Option[String],
-                                  securities: Option[SecuritiesModel],
-                                  foreignInterest: Option[Seq[ForeignInterestModel]]){
+case class SavingsIncomeDataModel(
+  submittedOn: Option[String],
+  securities: Option[SecuritiesModel],
+  foreignInterest: Option[Seq[ForeignInterestModel]]
+) {
   def toCYAModel: SavingsIncomeCYAModel = {
-    securities.fold(SavingsIncomeCYAModel())(securities =>
-      SavingsIncomeCYAModel(
-        gateway = Some(true),
-        grossAmount = Some(securities.grossAmount),
-        taxTakenOff = Some(securities.taxTakenOff.nonEmpty),
-        taxTakenOffAmount = securities.taxTakenOff)
+    securities.fold(SavingsIncomeCYAModel())(
+      securities =>
+        SavingsIncomeCYAModel(
+          gateway = Some(true),
+          grossAmount = Some(securities.grossAmount),
+          taxTakenOff = Some(securities.taxTakenOff.nonEmpty),
+          taxTakenOffAmount = securities.taxTakenOff
+        )
     )
-
   }
+
+  val hasNonZeroData: Boolean =
+    securities.exists(_.hasNonZeroData) ||
+    foreignInterest.exists(foreignInterestModel => foreignInterestModel.exists(_.hasNonZeroData))
 }
 
 object SavingsIncomeDataModel{

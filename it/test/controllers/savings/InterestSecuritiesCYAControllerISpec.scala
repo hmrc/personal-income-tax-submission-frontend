@@ -30,7 +30,10 @@ class InterestSecuritiesCYAControllerISpec extends IntegrationTest with SavingsD
 
   val relativeUrl: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/check-interest-from-securities"
 
-  val cyaDataComplete: Option[SavingsIncomeCYAModel] = Some(SavingsIncomeCYAModel(Some(true), Some(100.00), Some(true), Some(100.00)))
+  val monetaryValue = 100.00
+
+  val cyaDataComplete: Option[SavingsIncomeCYAModel] = Some(SavingsIncomeCYAModel(Some(true), Some(monetaryValue), Some(true), Some(monetaryValue)))
+
   object Selectors {
     val titleSelector = "title"
     val h1Selector = "h1"
@@ -218,6 +221,7 @@ class InterestSecuritiesCYAControllerISpec extends IntegrationTest with SavingsD
               Selectors.questionChangeLinkSelector(4), controllers.savings.routes.TaxTakenOffInterestController.show(taxYear).url)
           }
         }
+
         "renders a page with all the fields from priorData only" which {
           lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
           lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
@@ -226,8 +230,7 @@ class InterestSecuritiesCYAControllerISpec extends IntegrationTest with SavingsD
             dropSavingsDB()
             emptyUserDataStub()
             userDataStub(IncomeSourcesModel(interestSavings = Some(SavingsIncomeDataModel(None,
-              Some(SecuritiesModel(Some(100), 100.00, Some(100.00))),None))), nino, taxYear)
-
+              Some(SecuritiesModel(Some(monetaryValue), monetaryValue, Some(monetaryValue))),None))), nino, taxYear)
             authoriseAgentOrIndividual(us.isAgent)
             route(app, request, "{}").get
           }
@@ -274,6 +277,7 @@ class InterestSecuritiesCYAControllerISpec extends IntegrationTest with SavingsD
               Selectors.questionChangeLinkSelector(4), controllers.savings.routes.TaxTakenOffInterestController.show(taxYear).url)
           }
         }
+
         "renders a page with all the fields from both cya and priorData" which {
           lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
           lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
@@ -283,7 +287,7 @@ class InterestSecuritiesCYAControllerISpec extends IntegrationTest with SavingsD
             emptyUserDataStub()
             insertSavingsCyaData(cyaDataComplete)
             userDataStub(IncomeSourcesModel(interestSavings = Some(SavingsIncomeDataModel(None,
-              Some(SecuritiesModel(Some(100), 100.00, Some(100.00))),None))), nino, taxYear)
+              Some(SecuritiesModel(Some(monetaryValue), monetaryValue, Some(monetaryValue))),None))), nino, taxYear)
 
             authoriseAgentOrIndividual(us.isAgent)
             route(app, request, "{}").get
@@ -343,6 +347,7 @@ class InterestSecuritiesCYAControllerISpec extends IntegrationTest with SavingsD
             result.status shouldBe UNAUTHORIZED
           }
         }
+
         "redirect to overview page" which {
           lazy val result = {
             dropSavingsDB()
@@ -357,13 +362,14 @@ class InterestSecuritiesCYAControllerISpec extends IntegrationTest with SavingsD
             result.headers("Location").head shouldBe s"${appConfig.incomeTaxSubmissionOverviewUrl(taxYear)}"
           }
         }
+
         "redirect to gateway page" which {
           lazy val result = {
             dropSavingsDB()
             emptyUserDataStub()
             insertSavingsCyaData(Some(SavingsIncomeCYAModel()))
             userDataStub(IncomeSourcesModel(interestSavings = Some(SavingsIncomeDataModel(None,
-              Some(SecuritiesModel(Some(100), 100.00, Some(100.00))), None))), nino, taxYear)
+              Some(SecuritiesModel(Some(monetaryValue), monetaryValue, Some(monetaryValue))), None))), nino, taxYear)
 
             authoriseAgentOrIndividual(us.isAgent)
             urlGet(s"$appUrl/$taxYear/interest/check-interest-from-securities", us.isWelsh, follow = false,  playSessionCookie(us.isAgent))
@@ -375,89 +381,143 @@ class InterestSecuritiesCYAControllerISpec extends IntegrationTest with SavingsD
           }
         }
 
-      }
-    }
-  }
+        "redirect to second page" which {
+          lazy val result = {
+            dropSavingsDB()
+            emptyUserDataStub()
+            insertSavingsCyaData(Some(SavingsIncomeCYAModel(Some(true), None)))
+            userDataStub(IncomeSourcesModel(interestSavings = Some(SavingsIncomeDataModel(None, None, None))), nino, taxYear)
 
+            authoriseAgentOrIndividual(us.isAgent)
+            urlGet(s"$appUrl/$taxYear/interest/check-interest-from-securities", us.isWelsh, follow = false,  playSessionCookie(us.isAgent))
+          }
+
+          s"has a SEE_OTHER($SEE_OTHER) status" in {
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe controllers.savings.routes.SavingsInterestAmountController.show(taxYear).url
+          }
+        }
+
+        "redirect to third page" which {
+          lazy val result = {
+            dropSavingsDB()
+            emptyUserDataStub()
+            insertSavingsCyaData(Some(SavingsIncomeCYAModel(Some(true), Some(monetaryValue))))
+            userDataStub(IncomeSourcesModel(interestSavings = Some(SavingsIncomeDataModel(None, None, None))), nino, taxYear)
+
+            authoriseAgentOrIndividual(us.isAgent)
+            urlGet(s"$appUrl/$taxYear/interest/check-interest-from-securities", us.isWelsh, follow = false,  playSessionCookie(us.isAgent))
+          }
+
+          s"has a SEE_OTHER($SEE_OTHER) status" in {
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe controllers.savings.routes.TaxTakenFromInterestController.show(taxYear).url
+          }
+        }
+
+        "redirect to fourth page" which {
+          lazy val result = {
+            dropSavingsDB()
+            emptyUserDataStub()
+            insertSavingsCyaData(Some(SavingsIncomeCYAModel(Some(true), Some(monetaryValue), Some(true))))
+            userDataStub(IncomeSourcesModel(interestSavings = Some(SavingsIncomeDataModel(None, None, None))), nino, taxYear)
+
+            authoriseAgentOrIndividual(us.isAgent)
+            urlGet(s"$appUrl/$taxYear/interest/check-interest-from-securities", us.isWelsh, follow = false,  playSessionCookie(us.isAgent))
+          }
+
+          s"has a SEE_OTHER($SEE_OTHER) status" in {
+            result.status shouldBe SEE_OTHER
+            result.headers("Location").head shouldBe controllers.savings.routes.TaxTakenOffInterestController.show(taxYear).url
+          }
+        }
+
+      }
+
+    }
+
+  }
 
   ".submit" should {
 
       s"attempt to return the Interest Summary page" which {
-          lazy val result = {
-            authoriseIndividual()
-            dropSavingsDB()
-            emptyUserDataStub()
-            insertSavingsCyaData(cyaDataComplete)
-            stubPut(s"/income-tax-interest/income-tax/nino/AA123456A/savings\\?taxYear=$taxYear", NO_CONTENT, "")
-            urlPost(s"$appUrl/$taxYear/interest/check-interest-from-securities", "{}", welsh = false, follow = false, playSessionCookie())
-          }
+        lazy val result = {
+          authoriseIndividual()
+          dropSavingsDB()
+          emptyUserDataStub()
+          insertSavingsCyaData(cyaDataComplete)
+          stubPut(s"/income-tax-interest/income-tax/nino/AA123456A/savings\\?taxYear=$taxYear", NO_CONTENT, "")
+          urlPost(s"$appUrl/$taxYear/interest/check-interest-from-securities", "{}", welsh = false, follow = false, playSessionCookie())
+        }
 
-          "has a status of SEE_OTHER(303)" in {
-            result.status shouldBe SEE_OTHER
-          }
+        "has a status of SEE_OTHER(303)" in {
+          result.status shouldBe SEE_OTHER
+        }
 
-          "has the correct redirect location" in {
-            result.header("location") shouldBe Some(controllers.routes.InterestFromSavingsAndSecuritiesSummaryController.show(taxYear).url)
-          }
+        "has the correct redirect location" in {
+          result.header("location") shouldBe Some(controllers.routes.InterestFromSavingsAndSecuritiesSummaryController.show(taxYear).url)
+        }
       }
 
       s"attempt to return the Interest Summary page when gateway is false" which {
-          lazy val result = {
-            authoriseIndividual()
-            dropSavingsDB()
-            emptyUserDataStub()
-            insertSavingsCyaData(Some(SavingsIncomeCYAModel(Some(false))))
-            stubPut(s"/income-tax-interest/income-tax/nino/AA123456A/savings\\?taxYear=$taxYear", NO_CONTENT, "")
-            urlPost(s"$appUrl/$taxYear/interest/check-interest-from-securities", "{}", welsh = false, follow = false, playSessionCookie())
-          }
+        lazy val result = {
+          authoriseIndividual()
+          dropSavingsDB()
+          emptyUserDataStub()
+          insertSavingsCyaData(Some(SavingsIncomeCYAModel(Some(false))))
+          stubPut(s"/income-tax-interest/income-tax/nino/AA123456A/savings\\?taxYear=$taxYear", NO_CONTENT, "")
+          urlPost(s"$appUrl/$taxYear/interest/check-interest-from-securities", "{}", welsh = false, follow = false, playSessionCookie())
+        }
 
-          "has a status of SEE_OTHER(303)" in {
-            result.status shouldBe SEE_OTHER
-          }
+        "has a status of SEE_OTHER(303)" in {
+          result.status shouldBe SEE_OTHER
+        }
 
-          "has the correct redirect location" in {
-            result.header("location") shouldBe Some(controllers.routes.InterestFromSavingsAndSecuritiesSummaryController.show(taxYear).url)
-          }
+        "has the correct redirect location" in {
+          result.header("location") shouldBe Some(controllers.routes.InterestFromSavingsAndSecuritiesSummaryController.show(taxYear).url)
+        }
       }
+
       s"attempt to return the Interest Summary page when prior data exists and is different" which {
-          lazy val result = {
-            authoriseIndividual()
-            dropSavingsDB()
-            emptyUserDataStub()
-            insertSavingsCyaData(Some(SavingsIncomeCYAModel(Some(false))))
-            userDataStub(IncomeSourcesModel(interestSavings = Some(SavingsIncomeDataModel(None,
-              Some(SecuritiesModel(Some(100), 100.00, Some(0.00))), None))), nino, taxYear)
-            stubPut(s"/income-tax-interest/income-tax/nino/AA123456A/savings\\?taxYear=$taxYear", NO_CONTENT, "")
-            urlPost(s"$appUrl/$taxYear/interest/check-interest-from-securities", "{}", false, follow = false, playSessionCookie(false))
-          }
+        lazy val result = {
+          authoriseIndividual()
+          dropSavingsDB()
+          emptyUserDataStub()
+          insertSavingsCyaData(Some(SavingsIncomeCYAModel(Some(false))))
+          userDataStub(IncomeSourcesModel(interestSavings = Some(SavingsIncomeDataModel(None,
+            Some(SecuritiesModel(Some(monetaryValue), monetaryValue, Some(monetaryValue))), None))), nino, taxYear)
+          stubPut(s"/income-tax-interest/income-tax/nino/AA123456A/savings\\?taxYear=$taxYear", NO_CONTENT, "")
+          urlPost(s"$appUrl/$taxYear/interest/check-interest-from-securities", "{}", false, follow = false, playSessionCookie(false))
+        }
 
-          "has a status of SEE_OTHER(303)" in {
-            result.status shouldBe SEE_OTHER
-          }
+        "has a status of SEE_OTHER(303)" in {
+          result.status shouldBe SEE_OTHER
+        }
 
-          "has the correct redirect location" in {
-            result.header("location") shouldBe Some(controllers.routes.InterestFromSavingsAndSecuritiesSummaryController.show(taxYear).url)
-          }
+        "has the correct redirect location" in {
+          result.header("location") shouldBe Some(controllers.routes.InterestFromSavingsAndSecuritiesSummaryController.show(taxYear).url)
+        }
       }
-    s"attempt to return the Interest Summary page when prior data exists and is the same" which {
-          lazy val result = {
-            authoriseIndividual()
-            dropSavingsDB()
-            emptyUserDataStub()
-            insertSavingsCyaData(Some(SavingsIncomeCYAModel(Some(true), Some(100.00), Some(true), Some(100.00))))
-            userDataStub(IncomeSourcesModel(interestSavings = Some(SavingsIncomeDataModel(None,
-              Some(SecuritiesModel(Some(100), 100.00, Some(0.00))), None))), nino, taxYear)
-            stubPut(s"/income-tax-interest/income-tax/nino/AA123456A/savings\\?taxYear=$taxYear", NO_CONTENT, "")
-            urlPost(s"$appUrl/$taxYear/interest/check-interest-from-securities", "{}", false, follow = false, playSessionCookie(false))
-          }
 
-          "has a status of SEE_OTHER(303)" in {
-            result.status shouldBe SEE_OTHER
-          }
+      s"attempt to return the Interest Summary page when prior data exists and is the same" which {
+        lazy val result = {
+          authoriseIndividual()
+          dropSavingsDB()
+          emptyUserDataStub()
+          insertSavingsCyaData(Some(SavingsIncomeCYAModel(Some(true), Some(monetaryValue), Some(true), Some(monetaryValue))))
+          userDataStub(IncomeSourcesModel(interestSavings = Some(SavingsIncomeDataModel(None,
+            Some(SecuritiesModel(Some(monetaryValue), monetaryValue, Some(monetaryValue))), None))), nino, taxYear)
+          stubPut(s"/income-tax-interest/income-tax/nino/AA123456A/savings\\?taxYear=$taxYear", NO_CONTENT, "")
+          urlPost(s"$appUrl/$taxYear/interest/check-interest-from-securities", "{}", false, follow = false, playSessionCookie())
+        }
 
-          "has the correct redirect location" in {
-            result.header("location") shouldBe Some(controllers.routes.InterestFromSavingsAndSecuritiesSummaryController.show(taxYear).url)
-          }
+        "has a status of SEE_OTHER(303)" in {
+          result.status shouldBe SEE_OTHER
+        }
+
+        "has the correct redirect location" in {
+          result.header("location") shouldBe Some(controllers.routes.InterestFromSavingsAndSecuritiesSummaryController.show(taxYear).url)
+        }
       }
 
       "the authorization fails" in {
@@ -469,7 +529,8 @@ class InterestSecuritiesCYAControllerISpec extends IntegrationTest with SavingsD
         }
 
         result.status shouldBe UNAUTHORIZED
-
       }
+
   }
+
 }

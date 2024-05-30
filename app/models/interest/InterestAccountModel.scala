@@ -18,17 +18,21 @@ package models.interest
 
 import play.api.libs.json._
 import uk.gov.hmrc.crypto.EncryptedValue
-case class InterestAccountModel(id: Option[String],
-                                accountName: String,
-                                untaxedAmount: Option[BigDecimal] = None,
-                                taxedAmount: Option[BigDecimal] = None,
-                                uniqueSessionId: Option[String] = None) {
 
-  def getPrimaryId(): Option[String] = {
-    if(id.nonEmpty) id else uniqueSessionId
-  }
+case class InterestAccountModel(
+  id: Option[String],
+  accountName: String,
+  untaxedAmount: Option[BigDecimal] = None,
+  taxedAmount: Option[BigDecimal] = None,
+  uniqueSessionId: Option[String] = None
+) {
+  def getPrimaryId(): Option[String] = if (id.nonEmpty) id else uniqueSessionId
+
   def hasTaxed: Boolean = taxedAmount.isDefined
+
   def hasUntaxed: Boolean = untaxedAmount.isDefined
+
+  val hasNonZeroData: Boolean = taxedAmount.exists(_ != 0) ||  untaxedAmount.exists(_ != 0)
 }
 
 object InterestAccountModel {
@@ -61,7 +65,5 @@ case class EncryptedInterestAccountModel(id: Option[EncryptedValue],
 
 object EncryptedInterestAccountModel {
   implicit lazy val encryptedValueOFormat: OFormat[EncryptedValue] = Json.format[EncryptedValue]
-
   implicit val formats: Format[EncryptedInterestAccountModel] = Json.format[EncryptedInterestAccountModel]
-
 }

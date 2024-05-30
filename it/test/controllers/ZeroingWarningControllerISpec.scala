@@ -19,6 +19,7 @@ package test.controllers
 import controllers.ZeroingWarningController
 import models.dividends.{DividendsCheckYourAnswersModel, StockDividendsCheckYourAnswersModel}
 import models.interest.{InterestAccountModel, InterestCYAModel}
+import models.savings.SavingsIncomeCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalatest.PrivateMethodTester
@@ -30,7 +31,12 @@ import play.api.test.Helpers.route
 import test.utils._
 
 class ZeroingWarningControllerISpec extends IntegrationTest
-  with DividendsDatabaseHelper with InterestDatabaseHelper with GiftAidDatabaseHelper with ViewHelpers with PrivateMethodTester  {
+  with DividendsDatabaseHelper
+  with InterestDatabaseHelper
+  with SavingsDatabaseHelper
+  with GiftAidDatabaseHelper
+  with ViewHelpers
+  with PrivateMethodTester  {
 
   private def url(journeyKey: String, needExplicit: Boolean = true) = {
     (if (needExplicit) appUrl else "/update-and-submit-income-tax-return/personal-income") +
@@ -359,6 +365,35 @@ class ZeroingWarningControllerISpec extends IntegrationTest
 
   }
 
+  "redirect to the Savings CYA page" when {
+
+    "the feature switch is on and session data exists" which {
+      lazy val result = {
+        dropSavingsDB()
+        emptyUserDataStub()
+        insertSavingsCyaData(Some(completeSavingsCYAModel.copy(gateway = Some(true))), taxYearEOY)
+        authoriseIndividual()
+
+        val request = FakeRequest(
+          "POST",
+          url("savings", needExplicit = false)
+        ).withHeaders(playSessionCookie(isEoy = true) ++ Seq("Csrf-Token" -> "nocheck"): _*)
+
+        route(appWithInterestSavings, request, "{}").get
+      }
+
+      "has a status of SEE_OTHER(303)" in {
+        status(result) shouldBe SEE_OTHER
+      }
+
+      "has a redirect location set to the savings summary page" in {
+        await(result).header.headers("Location") shouldBe
+          s"/update-and-submit-income-tax-return/personal-income/$taxYearEOY/interest/check-interest-from-securities"
+      }
+    }
+
+  }
+
   ".zeroInterestData" should {
     lazy val controller = app.injector.instanceOf[ZeroingWarningController]
 
@@ -394,7 +429,6 @@ class ZeroingWarningControllerISpec extends IntegrationTest
 
       controller invokePrivate privateZeroInterestData(cya, Seq("anId", "anId2")) shouldBe expectedCya
     }
-
   }
 
   ".zeroDividendsData" should {
@@ -528,6 +562,49 @@ class ZeroingWarningControllerISpec extends IntegrationTest
       )
 
       controller invokePrivate privateZeroStockDividendsData(updatedStockDividendsCYAModel) shouldBe expectedStockDividendsCya
+    }
+
+  }
+
+  ".zeroSavingsData" should {
+    lazy val controller = app.injector.instanceOf[ZeroingWarningController]
+
+    val privateZeroSavingsData = PrivateMethod[SavingsIncomeCYAModel](Symbol("zeroSavingsData"))
+
+    "zero all the data that exists in prior" in {
+      val expectedSavingsCya = completeSavingsCYAModel.copy(grossAmount = Some(0), taxTakenOffAmount = Some(0))
+
+      controller invokePrivate privateZeroSavingsData(completeSavingsCYAModel) shouldBe expectedSavingsCya
+    }
+
+    "zero the data that exists in prior except Tax Taken Off Amount which has no value set" in {
+      val updatedSavingsCYAModel =
+        completeSavingsCYAModel.copy(taxTakenOff = Some(false), taxTakenOffAmount = None)
+
+      val expectedSavingsCya =
+        completeSavingsCYAModel.copy(grossAmount = Some(0), taxTakenOff = Some(false), taxTakenOffAmount = None)
+
+      controller invokePrivate privateZeroSavingsData(updatedSavingsCYAModel) shouldBe expectedSavingsCya
+    }
+
+    "zero the data that exists in prior when Gross Amount has more than zero and Tax Taken Off Amount is zero" in {
+      val updatedSavingsCYAModel =
+        completeSavingsCYAModel.copy(taxTakenOff = Some(true), taxTakenOffAmount = Some(0))
+
+      val expectedSavingsCya =
+        completeSavingsCYAModel.copy(grossAmount = Some(0), taxTakenOff = Some(true), taxTakenOffAmount = Some(0))
+
+      controller invokePrivate privateZeroSavingsData(updatedSavingsCYAModel) shouldBe expectedSavingsCya
+    }
+
+    "zero the data that exists in prior when Gross Amount is zero and Tax Taken Off Amount is more than zero" in {
+      val updatedSavingsCYAModel =
+        completeSavingsCYAModel.copy(grossAmount = Some(0))
+
+      val expectedSavingsCya =
+        completeSavingsCYAModel.copy(grossAmount = Some(0), taxTakenOff = Some(true), taxTakenOffAmount = Some(0))
+
+      controller invokePrivate privateZeroSavingsData(updatedSavingsCYAModel) shouldBe expectedSavingsCya
     }
 
   }

@@ -19,7 +19,14 @@ package models.interest
 import common.InterestTaxTypes.{TAXED, UNTAXED}
 import play.api.libs.json._
 
-case class InterestPriorSubmission(hasUntaxed: Boolean, hasTaxed: Boolean, submissions: Seq[InterestAccountModel] = Seq.empty)
+case class InterestPriorSubmission(
+  hasUntaxed: Boolean,
+  hasTaxed: Boolean,
+  submissions: Seq[InterestAccountModel] = Seq.empty
+) {
+  val hasNonZeroData: Boolean =
+    submissions.exists(interestAccount => interestAccount.hasNonZeroData)
+}
 
 object InterestPriorSubmission {
   implicit val writes: OWrites[InterestPriorSubmission] = OWrites[InterestPriorSubmission] { model =>
