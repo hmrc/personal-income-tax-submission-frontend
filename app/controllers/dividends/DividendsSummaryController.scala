@@ -21,7 +21,7 @@ import config.{AppConfig, DIVIDENDS, ErrorHandler}
 import controllers.predicates.AuthorisedAction
 import models.dividends.{DividendsPriorSubmission, StockDividendModel, StockDividendsCheckYourAnswersModel, StockDividendsPriorSubmission}
 import models.mongo.StockDividendsUserDataModel
-import models.priorDataModels.StockDividendsPriorDataModel
+import models.priorDataModels.{IncomeSourcesModel, StockDividendsPriorDataModel}
 import models.{APIErrorBodyModel, APIErrorModel, User}
 import play.api.i18n.I18nSupport
 import play.api.i18n.Lang.logger
@@ -52,31 +52,32 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
   def show(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit request =>
     dividendsSession.getPriorData(taxYear)(user, hc).flatMap {
       case Left(_) => Future.successful(errorHandler.internalServerError())
-      case Right(dividendsPrior) => dividendsPrior.dividends match {
-            case Some(dividendsPriorData) =>
-              stockDividendsSession.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, stockDividendsPrior) =>
-                val mergedDividends = stockDividendsPrior match {
-                  case Some(stockDividendsPriorData) => stockDividendsPriorData.copy(
-                    ukDividendsAmount = dividendsPriorData.ukDividends,
-                    otherUkDividendsAmount = dividendsPriorData.otherUkDividends
-                  )
-                  case None => StockDividendsPriorDataModel()
-                }
-                getStockDividendsCya(taxYear, cya, Some(mergedDividends))
-              }
-            case None =>
-              getStockDividends(taxYear)
-          }
+      case Right(dividendsPrior: IncomeSourcesModel) =>
+        //in case of no data `dividendsPrior.dividends` will be None
+        getStockDividends(taxYear,dividendsPrior.dividends)
     }
   }
 
-  private def getStockDividends(taxYear: Int) = {
+  private def getStockDividends(taxYear: Int,dividendsPriorData: Option[DividendsPriorSubmission])
+                               (implicit request: User[AnyContent]) = {
     stockDividendsSession.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, stockDividendsPrior) =>
-      getStockDividendsCya(taxYear, cya, stockDividendsPrior)
+      val mergedDividends = stockDividendsPrior match {
+        case Some(stockDividendsPriorData) => stockDividendsPriorData.copy(
+          ukDividendsAmount = dividendsPriorData.flatMap(_.ukDividends),
+          otherUkDividendsAmount = dividendsPriorData.flatMap(_.otherUkDividends)
+        )
+        case None =>
+          StockDividendsPriorDataModel(ukDividendsAmount = dividendsPriorData.flatMap(_.ukDividends),
+            otherUkDividendsAmount = dividendsPriorData.flatMap(_.otherUkDividends))
+      }
+      getStockDividendsCya(taxYear, cya, Some(mergedDividends))
     }
   }
 
-  private def getStockDividendsCya(taxYear: Int, cya: Option[StockDividendsUserDataModel], prior: Option[StockDividendsPriorDataModel]) = {
+  private def getStockDividendsCya(taxYear: Int,
+                                   cya: Option[StockDividendsUserDataModel],
+                                   prior: Option[StockDividendsPriorDataModel])
+                                  (implicit request: User[AnyContent]) = {
     StockDividendsCheckYourAnswersModel.getCyaModel(cya.flatMap(_.stockDividends), prior) match {
       case Some(cyaData) if cyaData.gateway.contains(false) => handleSession(cya, cyaData, taxYear)
       case Some(cyaData) if !cyaData.isFinished => Future.successful(handleUnfinishedRedirect(cyaData, taxYear))
@@ -113,7 +114,6 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
       case Some(data) =>
         val cya = data.stockDividends.getOrElse(StockDividendsCheckYourAnswersModel())
         val stockDividendsSubmission = priorData.getOrElse(StockDividendsPriorDataModel())
-        print("********cya: "+cya)
         submissionService.submitDividends(cya, request.nino, taxYear).map {
           case response@Right(_) =>
             val model = CreateOrAmendDividendsAuditDetail.createFromStockCyaData(
