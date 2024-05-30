@@ -58,10 +58,6 @@ lazy val microservice = Project(appName, file("."))
     scalacOptions += "-Wconf:cat=unused-imports&src=routes/.*:s"
   )
   .settings(Test / fork := false)
-  .settings(
-    DefaultBuildSettings.itSettings() ++
-      Seq(unmanagedResourceDirectories.withRank(KeyRanks.Invisible) := Seq(baseDirectory.value / "it" / "resources")
-  ))
   .settings(resolvers += Resolver.jcenterRepo)
   .settings(coverageSettings: _*)
   .settings(
