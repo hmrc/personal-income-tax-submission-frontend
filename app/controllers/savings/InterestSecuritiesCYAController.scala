@@ -75,7 +75,7 @@ class InterestSecuritiesCYAController @Inject()(
   def submit(taxYear: Int): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, SAVINGS)).async { implicit user =>
     savingsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
       if (cya.flatMap(_.gateway).contains(false)){
-        //must exclude journey here
+        // Exclude journey would be implemented here, but may not be required due to new GDS statuses. Ref: SASS-8192
         submitSavings(taxYear, cya, prior)
       }
       else {
