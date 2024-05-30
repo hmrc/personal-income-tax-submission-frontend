@@ -44,13 +44,12 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
                                            auditService: AuditService,
                                            submissionService: StockDividendsSubmissionService,
                                            excludeJourneyService: ExcludeJourneyService)
-                                          (implicit appConfig: AppConfig, user: User[_],
-                                           hc: HeaderCarrier, mcc: MessagesControllerComponents, ec: ExecutionContext)
+                                          (implicit appConfig: AppConfig, mcc: MessagesControllerComponents, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport {
 
 
   def show(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit request =>
-    dividendsSession.getPriorData(taxYear)(user, hc).flatMap {
+    dividendsSession.getPriorData(taxYear).flatMap {
       case Left(_) => Future.successful(errorHandler.internalServerError())
       case Right(dividendsPrior: IncomeSourcesModel) =>
         //in case of no data `dividendsPrior.dividends` will be None
@@ -66,11 +65,13 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
           ukDividendsAmount = dividendsPriorData.flatMap(_.ukDividends),
           otherUkDividendsAmount = dividendsPriorData.flatMap(_.otherUkDividends)
         )
-        case None =>
-          StockDividendsPriorDataModel(ukDividendsAmount = dividendsPriorData.flatMap(_.ukDividends),
+        case None => StockDividendsPriorDataModel(ukDividendsAmount = dividendsPriorData.flatMap(_.ukDividends),
             otherUkDividendsAmount = dividendsPriorData.flatMap(_.otherUkDividends))
       }
-      getStockDividendsCya(taxYear, cya, Some(mergedDividends))
+      if(mergedDividends.ukDividendsAmount.isDefined || mergedDividends.otherUkDividendsAmount.isDefined)
+        getStockDividendsCya(taxYear, cya, Some(mergedDividends))
+      else
+        getStockDividendsCya(taxYear, cya, None)
     }
   }
 

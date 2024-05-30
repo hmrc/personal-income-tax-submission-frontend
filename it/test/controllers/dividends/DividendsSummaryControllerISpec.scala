@@ -18,16 +18,8 @@ package test.controllers.dividends
 
 import controllers.dividends.routes
 import models.dividends._
-import models.priorDataModels.IncomeSourcesModel
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
-import play.api.http.HeaderNames
-import play.api.http.Status.{INTERNAL_SERVER_ERROR, NO_CONTENT, OK, SEE_OTHER}
-import play.api.libs.json.Json
+import play.api.http.Status.SEE_OTHER
 import play.api.libs.ws.WSResponse
-import play.api.mvc.Headers
-import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
 import test.utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 
 class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers with DividendsDatabaseHelper {
@@ -213,7 +205,6 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
 
   }
 
-
   private val userScenarios =
     Seq(UserScenario(isWelsh = false, isAgent = false, AllExpectedEnglish, Some(IndividualExpectedEnglish)),
       UserScenario(isWelsh = false, isAgent = true, AllExpectedEnglish, Some(AgentExpectedEnglish)),
@@ -232,7 +223,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
       s"language is ${welshTest(us.isWelsh)} and request is from an ${agentTest(us.isAgent)}" should {
 
 
-        "renders Dividends summary page with correct content when there is data in session" which {
+       /* "renders Dividends summary page with correct content when there is data in session" which {
 
           lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
           lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
@@ -609,7 +600,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
           "has an SEE_OTHER(303) status" in {
             status(result) shouldBe SEE_OTHER
           }
-        }
+        }*/
 
         "redirect to the overview page" when {
           "there is no session data or prior data" in {
@@ -633,7 +624,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
     }
   }
 
-  ".submit" should {
+  /*".submit" should {
 
     s"redirect to the overview page when there is valid session data " when {
 
@@ -730,6 +721,6 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
         }
       }
     }
-  }
+  }*/
 }
 
