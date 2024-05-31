@@ -25,7 +25,13 @@ case class StockDividendsPriorDataModel(
                                          stockDividendsAmount: Option[BigDecimal] = None,
                                          redeemableSharesAmount: Option[BigDecimal] = None,
                                          closeCompanyLoansWrittenOffAmount: Option[BigDecimal] = None
-                                       )
+                                       ) {
+  def isDefined: Boolean = {
+    this.ukDividendsAmount.isDefined || this.otherUkDividendsAmount.isDefined ||
+      this.stockDividendsAmount.isDefined || this.redeemableSharesAmount.isDefined ||
+      this.closeCompanyLoansWrittenOffAmount.isDefined
+  }
+}
 
 object StockDividendsPriorDataModel {
 

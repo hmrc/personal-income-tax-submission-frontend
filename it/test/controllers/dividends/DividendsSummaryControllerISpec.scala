@@ -18,8 +18,16 @@ package test.controllers.dividends
 
 import controllers.dividends.routes
 import models.dividends._
-import play.api.http.Status.SEE_OTHER
+import models.priorDataModels.IncomeSourcesModel
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import play.api.http.HeaderNames
+import play.api.http.Status.{INTERNAL_SERVER_ERROR, NO_CONTENT, OK, SEE_OTHER}
+import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
+import play.api.mvc.Headers
+import play.api.test.FakeRequest
+import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
 import test.utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 
 class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers with DividendsDatabaseHelper {
@@ -223,7 +231,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
       s"language is ${welshTest(us.isWelsh)} and request is from an ${agentTest(us.isAgent)}" should {
 
 
-       /* "renders Dividends summary page with correct content when there is data in session" which {
+       "renders Dividends summary page with correct content when there is data in session" which {
 
           lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
           lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
@@ -468,6 +476,112 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
 
         }
 
+        "renders Dividends summary page with correct content when dividends prior data exists and no stock dividends prior data" which {
+
+          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
+          lazy val result = {
+            authoriseAgentOrIndividual(us.isAgent)
+            dropDividendsDB()
+            emptyUserDataStub()
+            dropStockDividendsDB()
+            emptyStockDividendsUserDataStub()
+            userDataStub(IncomeSourcesModel(Some(DividendsPriorSubmission(
+              ukDividends = Some(amount), otherUkDividends = Some(amount)
+            ))), nino, taxYear)
+            route(appWithStockDividends, request, "{}").get
+          }
+
+          "has an OK(200) status" in {
+            status(result) shouldBe OK
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+          h1Check(get.headingExpected + " " + captionExpected)
+          textOnPageCheck(captionExpected, Selectors.captionSelector)
+          "has an area for section 1" which {
+            textOnPageCheck(dividendsFromStocksAndSharesText, Selectors.cyaTitle(CYA_TITLE_1))
+            linkCheck(s"$changeLinkExpected $dividendsFromStocksAndSharesHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_1), dividendsFromStocksAndSharesHref)
+          }
+          "has an area for section 2" which {
+            textOnPageCheck(dividendsStatusText, Selectors.cyaTitle(CYA_TITLE_2))
+            linkCheck(s"$changeLinkExpected $dividendsStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_2), dividendsStatusHref)
+          }
+          "has an area for section 3" which {
+            textOnPageCheck(dividendsAmountText, Selectors.cyaTitle(CYA_TITLE_3))
+            linkCheck(s"$changeLinkExpected $dividendsAmountHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_3), dividendsAmountHref)
+          }
+          "has an area for section 4" which {
+            textOnPageCheck(dividendsOtherStatusText, Selectors.cyaTitle(CYA_TITLE_4))
+            linkCheck(s"$changeLinkExpected $dividendsOtherStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_4), dividendsOtherStatusHref)
+          }
+          "has an area for section 5" which {
+            textOnPageCheck(dividendsOtherAmountText, Selectors.cyaTitle(CYA_TITLE_5))
+            linkCheck(s"$changeLinkExpected $dividendsOtherAmountHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_5), dividendsOtherAmountHref)
+          }
+        }
+
+        "renders internal server error page when error in getting dividends prior data" which {
+
+          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
+          lazy val result = {
+            authoriseAgentOrIndividual(us.isAgent)
+            dropDividendsDB()
+            emptyUserDataStub()
+            dropStockDividendsDB()
+            emptyStockDividendsUserDataStub()
+            userDataStubWithError(nino, taxYear)
+            route(appWithStockDividends, request, "{}").get
+          }
+
+          "has an Internal server error(500) status" in {
+            status(result) shouldBe INTERNAL_SERVER_ERROR
+          }
+
+        }
+
+        "renders Dividends summary page with correct content when only stock dividends prior data exists and no dividends data" which {
+
+          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
+          lazy val result = {
+            authoriseAgentOrIndividual(us.isAgent)
+            dropDividendsDB()
+            emptyUserDataStub()
+            dropStockDividendsDB()
+            emptyStockDividendsUserDataStub()
+            stockDividendsUserDataStub(Some(StockDividendsPriorSubmission(
+              submittedOn = Some(""),
+              foreignDividend = None,
+              dividendIncomeReceivedWhilstAbroad = None,
+              stockDividend = stockDividend,
+              redeemableShares = stockDividend,
+              bonusIssuesOfSecurities = None,
+              closeCompanyLoansWrittenOff = stockDividend
+            )), nino, taxYear)
+            route(appWithStockDividends, request, "{}").get
+          }
+
+          "has an OK(200) status" in {
+            status(result) shouldBe OK
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+          h1Check(get.headingExpected + " " + captionExpected)
+          textOnPageCheck(captionExpected, Selectors.captionSelector)
+        }
+
         "renders Dividends summary page with correct content when gateway is false" which {
 
           lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
@@ -600,7 +714,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
           "has an SEE_OTHER(303) status" in {
             status(result) shouldBe SEE_OTHER
           }
-        }*/
+        }
 
         "redirect to the overview page" when {
           "there is no session data or prior data" in {
@@ -624,7 +738,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
     }
   }
 
-  /*".submit" should {
+  ".submit" should {
 
     s"redirect to the overview page when there is valid session data " when {
 
@@ -721,6 +835,6 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
         }
       }
     }
-  }*/
+  }
 }
 

@@ -68,10 +68,11 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
         case None => StockDividendsPriorDataModel(ukDividendsAmount = dividendsPriorData.flatMap(_.ukDividends),
             otherUkDividendsAmount = dividendsPriorData.flatMap(_.otherUkDividends))
       }
-      if(mergedDividends.ukDividendsAmount.isDefined || mergedDividends.otherUkDividendsAmount.isDefined)
+      if (mergedDividends.isDefined) {
         getStockDividendsCya(taxYear, cya, Some(mergedDividends))
-      else
+      } else {
         getStockDividendsCya(taxYear, cya, None)
+      }
     }
   }
 
