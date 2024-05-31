@@ -21,12 +21,12 @@ import config.{AppConfig, DIVIDENDS, ErrorHandler}
 import controllers.predicates.AuthorisedAction
 import models.dividends.{DividendsPriorSubmission, StockDividendModel, StockDividendsCheckYourAnswersModel, StockDividendsPriorSubmission}
 import models.mongo.StockDividendsUserDataModel
-import models.priorDataModels.StockDividendsPriorDataModel
+import models.priorDataModels.{IncomeSourcesModel, StockDividendsPriorDataModel}
 import models.{APIErrorBodyModel, APIErrorModel, User}
 import play.api.i18n.I18nSupport
 import play.api.i18n.Lang.logger
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{ExcludeJourneyService, StockDividendsSessionService, StockDividendsSubmissionService}
+import services.{DividendsSessionService, ExcludeJourneyService, StockDividendsSessionService, StockDividendsSubmissionService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -39,7 +39,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
                                            view: DividendsSummaryView,
                                            errorHandler: ErrorHandler,
-                                           session: StockDividendsSessionService,
+                                           dividendsSession: DividendsSessionService,
+                                           stockDividendsSession: StockDividendsSessionService,
                                            auditService: AuditService,
                                            submissionService: StockDividendsSubmissionService,
                                            excludeJourneyService: ExcludeJourneyService)
@@ -48,20 +49,49 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
 
 
   def show(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit request =>
-    session.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
-      StockDividendsCheckYourAnswersModel.getCyaModel(cya.flatMap(_.stockDividends), prior) match {
-        case Some(cyaData) if cyaData.gateway.contains(false) => handleSession(cya, cyaData, taxYear)
-        case Some(cyaData) if !cyaData.isFinished => Future.successful(handleUnfinishedRedirect(cyaData, taxYear))
-        case Some(cyaData) => handleSession(cya, cyaData, taxYear)
-        case _ =>
-          logger.info("[DividendsSummaryController][show] No CYA data in session. Redirecting to the overview page.")
-          Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+    dividendsSession.getPriorData(taxYear).flatMap {
+      case Left(_) => Future.successful(errorHandler.internalServerError())
+      case Right(dividendsPrior: IncomeSourcesModel) =>
+        //in case of no data `dividendsPrior.dividends` will be None
+        getStockDividends(taxYear,dividendsPrior.dividends)
+    }
+  }
+
+  private def getStockDividends(taxYear: Int,dividendsPriorData: Option[DividendsPriorSubmission])
+                               (implicit request: User[AnyContent]) = {
+    stockDividendsSession.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, stockDividendsPrior) =>
+      val mergedDividends = stockDividendsPrior match {
+        case Some(stockDividendsPriorData) => stockDividendsPriorData.copy(
+          ukDividendsAmount = dividendsPriorData.flatMap(_.ukDividends),
+          otherUkDividendsAmount = dividendsPriorData.flatMap(_.otherUkDividends)
+        )
+        case None => StockDividendsPriorDataModel(ukDividendsAmount = dividendsPriorData.flatMap(_.ukDividends),
+            otherUkDividendsAmount = dividendsPriorData.flatMap(_.otherUkDividends))
+      }
+      if (mergedDividends.isDefined) {
+        getStockDividendsCya(taxYear, cya, Some(mergedDividends))
+      } else {
+        getStockDividendsCya(taxYear, cya, None)
       }
     }
   }
 
+  private def getStockDividendsCya(taxYear: Int,
+                                   cya: Option[StockDividendsUserDataModel],
+                                   prior: Option[StockDividendsPriorDataModel])
+                                  (implicit request: User[AnyContent]) = {
+    StockDividendsCheckYourAnswersModel.getCyaModel(cya.flatMap(_.stockDividends), prior) match {
+      case Some(cyaData) if cyaData.gateway.contains(false) => handleSession(cya, cyaData, taxYear)
+      case Some(cyaData) if !cyaData.isFinished => Future.successful(handleUnfinishedRedirect(cyaData, taxYear))
+      case Some(cyaData) => handleSession(cya, cyaData, taxYear)
+      case _ =>
+        logger.info("[DividendsSummaryController][show] No CYA data in session. Redirecting to the overview page.")
+        Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+    }
+  }
+
   def submit(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit request =>
-    session.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cyaData, priorData) =>
+    stockDividendsSession.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cyaData, priorData) =>
       if (appConfig.dividendsTailoringEnabled && cyaData.flatMap(_.stockDividends).flatMap(_.gateway).contains(false)) {
         auditTailorRemoveIncomeSources(TailorRemoveIncomeSourcesAuditDetail(
           nino = request.nino,
@@ -104,7 +134,7 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
         Future.successful(Left(APIErrorModel(BAD_REQUEST, APIErrorBodyModel("MISSING_DATA", "CYA data or NINO missing from session."))))
     }).flatMap {
       case Right(_) =>
-        session.clear(taxYear)(errorHandler.internalServerError())(
+        stockDividendsSession.clear(taxYear)(errorHandler.internalServerError())(
           Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
         )
       case Left(error) => Future.successful(errorHandler.handleError(error.status))
@@ -126,11 +156,11 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
   private def handleSession(sessionData: Option[StockDividendsUserDataModel], cyaData: StockDividendsCheckYourAnswersModel, taxYear: Int)
                            (implicit request: User[AnyContent]): Future[Result] = {
     if (sessionData.isDefined) {
-      session.updateSessionData(cyaData, taxYear)(errorHandler.internalServerError())(
+      stockDividendsSession.updateSessionData(cyaData, taxYear)(errorHandler.internalServerError())(
         Ok(view(cyaData, taxYear))
       )
     } else {
-      session.createSessionData(cyaData, taxYear)(errorHandler.internalServerError())(
+      stockDividendsSession.createSessionData(cyaData, taxYear)(errorHandler.internalServerError())(
         Ok(view(cyaData, taxYear))
       )
     }

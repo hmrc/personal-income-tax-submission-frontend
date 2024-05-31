@@ -34,7 +34,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.http.HeaderNames
-import play.api.http.Status.NOT_FOUND
+import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND}
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
@@ -357,6 +357,12 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     stubGetWithHeadersCheck(
       s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", OK,
       Json.toJson(userData).toString(), "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
+  }
+
+  def userDataStubWithError(nino: String, taxYear: Int): StubMapping = {
+    stubGetWithHeadersCheck(
+      s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", INTERNAL_SERVER_ERROR,
+      "Error parsing response from API", "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
   }
 
   def emptyUserDataStub(nino: String = nino, taxYear: Int = taxYear): StubMapping = {
