@@ -134,9 +134,12 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
         Future.successful(Left(APIErrorModel(BAD_REQUEST, APIErrorBodyModel("MISSING_DATA", "CYA data or NINO missing from session."))))
     }).flatMap {
       case Right(_) =>
-        stockDividendsSession.clear(taxYear)(errorHandler.internalServerError())(
-          Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-        )
+        for {
+          dividends <- dividendsSession.clear(taxYear)(errorHandler.internalServerError())(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+          stockDividends <- stockDividendsSession.clear(taxYear)(errorHandler.internalServerError())(dividends)
+        } yield {
+          stockDividends
+        }
       case Left(error) => Future.successful(errorHandler.handleError(error.status))
     }
   }
