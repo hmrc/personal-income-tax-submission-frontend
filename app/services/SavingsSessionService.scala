@@ -112,7 +112,7 @@ class SavingsSessionService @Inject()(
   }
 
   def clear[R](taxYear: Int)(onFail: R)(onSuccess: R)(implicit user: User[_], ec: ExecutionContext, hc: HeaderCarrier): Future[R] = {
-    incomeSourceConnector.put(taxYear, user.nino, IncomeSources.INTEREST)(hc.withExtraHeaders("mtditid" -> user.mtditid)).flatMap {
+    incomeSourceConnector.put(taxYear, user.nino, IncomeSources.INTEREST_SAVINGS)(hc.withExtraHeaders("mtditid" -> user.mtditid)).flatMap {
       case Left(_) => Future.successful(onFail)
       case _ =>
         savingsUserDataRepository.clear(taxYear).map {
