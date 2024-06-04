@@ -50,6 +50,9 @@ case class DividendsCheckYourAnswersModel(
     }
   }
 
+  def hasNoValues: Boolean =
+    this.ukDividendsAmount.isEmpty && this.otherUkDividendsAmount.isEmpty
+
 }
 
 object DividendsCheckYourAnswersModel {

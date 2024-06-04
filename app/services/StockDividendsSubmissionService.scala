@@ -73,7 +73,7 @@ class StockDividendsSubmissionService @Inject()(
           case Right(_) => Right(true)
           case Left(_) => Right(false)
         },
-      stockDividendsSubmissionConnector.submitDividends(prior.toSubmission(cya), nino, taxYear)(hc.withExtraHeaders("mtditid" -> user.mtditid))
+        stockDividendsSubmissionConnector.submitDividends(prior.toSubmission(cya), nino, taxYear)(hc.withExtraHeaders("mtditid" -> user.mtditid))
       )
     )
   }
@@ -84,4 +84,3 @@ class StockDividendsSubmissionService @Inject()(
     auditService.auditModel(event)
   }
 }
-

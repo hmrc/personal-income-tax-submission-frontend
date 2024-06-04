@@ -82,22 +82,29 @@ class DividendsCYAController @Inject()(
 
 
   def submit(taxYear: Int): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, DIVIDENDS)).async { implicit user =>
-    session.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cyaData, priorData) =>
-      if (appConfig.dividendsTailoringEnabled && cyaData.flatMap(_.gateway).contains(false)) {
-        auditTailorRemoveIncomeSources(TailorRemoveIncomeSourcesAuditDetail(
-          nino = user.nino,
-          mtditid = user.mtditid,
-          userType = user.affinityGroup.toLowerCase,
-          taxYear = taxYear,
-          body = TailorRemoveIncomeSourcesBody(Seq(DIVIDENDS.stringify))
-        ))
-        excludeJourneyService.excludeJourney(DIVIDENDS.stringify, taxYear, user.nino).flatMap {
-          case Right(_) => performSubmission(taxYear, cyaData, priorData)
-          case Left(_) => errorHandler.futureInternalServerError()
+    session.getAndHandle(taxYear)(errorHandler.internalServerError()) {
+      (cyaData: Option[DividendsCheckYourAnswersModel], priorData: Option[DividendsPriorSubmission]) =>
+        if (appConfig.dividendsTailoringEnabled && cyaData.flatMap(_.gateway).contains(false)) {
+          auditTailorRemoveIncomeSources(
+            TailorRemoveIncomeSourcesAuditDetail(
+              nino = user.nino,
+              mtditid = user.mtditid,
+              userType = user.affinityGroup.toLowerCase,
+              taxYear = taxYear,
+              body = TailorRemoveIncomeSourcesBody(Seq(DIVIDENDS.stringify))
+            )
+          )
+          excludeJourneyService.excludeJourney(DIVIDENDS.stringify, taxYear, user.nino).flatMap {
+            case Right(_) => performSubmission(taxYear, cyaData, priorData)
+            case Left(_) => errorHandler.futureInternalServerError()
+          }
+        } else {
+          if (cyaData.exists(_.hasNoValues)){
+            Future.successful(Redirect(controllers.routes.ZeroingWarningController.show(taxYear, DIVIDENDS.stringify)))
+          } else {
+            performSubmission(taxYear, cyaData, priorData)
+          }
         }
-      } else {
-        performSubmission(taxYear, cyaData, priorData)
-      }
     }
   }
 

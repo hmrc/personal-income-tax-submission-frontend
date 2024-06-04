@@ -17,7 +17,7 @@
 package controllers.dividends
 
 import audit._
-import config.{AppConfig, DIVIDENDS, ErrorHandler}
+import config.{AppConfig, DIVIDENDS, ErrorHandler, STOCK_DIVIDENDS}
 import controllers.predicates.AuthorisedAction
 import models.dividends.{DividendsPriorSubmission, StockDividendModel, StockDividendsCheckYourAnswersModel, StockDividendsPriorSubmission}
 import models.mongo.StockDividendsUserDataModel
@@ -25,6 +25,7 @@ import models.priorDataModels.{IncomeSourcesModel, StockDividendsPriorDataModel}
 import models.{APIErrorBodyModel, APIErrorModel, User}
 import play.api.i18n.I18nSupport
 import play.api.i18n.Lang.logger
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.{DividendsSessionService, ExcludeJourneyService, StockDividendsSessionService, StockDividendsSubmissionService}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -93,19 +94,27 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
   def submit(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit request =>
     stockDividendsSession.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cyaData, priorData) =>
       if (appConfig.dividendsTailoringEnabled && cyaData.flatMap(_.stockDividends).flatMap(_.gateway).contains(false)) {
-        auditTailorRemoveIncomeSources(TailorRemoveIncomeSourcesAuditDetail(
-          nino = request.nino,
-          mtditid = request.mtditid,
-          userType = request.affinityGroup.toLowerCase,
-          taxYear = taxYear,
-          body = TailorRemoveIncomeSourcesBody(Seq(DIVIDENDS.stringify))
-        ))
+        auditTailorRemoveIncomeSources(
+          TailorRemoveIncomeSourcesAuditDetail(
+            nino = request.nino,
+            mtditid = request.mtditid,
+            userType = request.affinityGroup.toLowerCase,
+            taxYear = taxYear,
+            body = TailorRemoveIncomeSourcesBody(Seq(DIVIDENDS.stringify))
+          )
+        )
         excludeJourneyService.excludeJourney(DIVIDENDS.stringify, taxYear, request.nino).flatMap {
           case Right(_) => performSubmission(taxYear, cyaData, priorData)
           case Left(_) => errorHandler.futureInternalServerError()
         }
       } else {
-        performSubmission(taxYear, cyaData, priorData)
+        val hasNoStockDividendsData = cyaData.flatMap(_.stockDividends.map(_.hasNoStockDividendsData)).getOrElse(false)
+
+        if (hasNoStockDividendsData){
+          Future.successful(Redirect(controllers.routes.ZeroingWarningController.show(taxYear, STOCK_DIVIDENDS.stringify)))
+        } else {
+          performSubmission(taxYear, cyaData, priorData)
+        }
       }
     }
   }

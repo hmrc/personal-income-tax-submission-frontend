@@ -16,6 +16,7 @@
 
 package test.controllers.dividends
 
+import config.STOCK_DIVIDENDS
 import controllers.dividends.routes
 import models.dividends._
 import models.priorDataModels.IncomeSourcesModel
@@ -61,6 +62,9 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
     Some(true), Some(otherDividends)
   )
   lazy val dividendsNoModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(Some(false), Some(false), None, Some(false))
+
+  lazy val zeroedStockDividendsModel: StockDividendsCheckYourAnswersModel =
+    StockDividendsCheckYourAnswersModel(Some(true), Some(false), Some(0), Some(false), Some(0))
 
   val cyaModel: StockDividendsCheckYourAnswersModel =
     StockDividendsCheckYourAnswersModel(
@@ -791,6 +795,33 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
       }
 
     }
+
+    "redirect the user to the zeroing warning page" when {
+
+      "gateway is true and remaining questions are false or zero" which {
+        lazy val result = {
+          authoriseIndividual()
+          dropStockDividendsDB()
+          emptyUserDataStub()
+          emptyStockDividendsUserDataStub()
+          insertStockDividendsCyaData(Some(zeroedStockDividendsModel), taxYear, Some(mtditid), None)
+
+          val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/summary",
+            Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
+
+          await(route(appWithStockDividends, request, "{}").get)
+        }
+
+        "has a status of SEE_OTHER(303)" in {
+          result.header.status shouldBe SEE_OTHER
+        }
+
+        "has the correct redirect location" in {
+          result.header.headers("Location") shouldBe Some(controllers.routes.ZeroingWarningController.show(taxYear, STOCK_DIVIDENDS.stringify).url)
+        }
+      }
+    }
+
     s"supply empty model if no data found" when {
 
       lazy val result: WSResponse = {

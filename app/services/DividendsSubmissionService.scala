@@ -18,14 +18,12 @@ package services
 
 import connectors.DividendsSubmissionConnector
 import connectors.httpParsers.DividendsSubmissionHttpParser.DividendsSubmissionsResponse
-import javax.inject.Inject
-import models.dividends.{DividendsCheckYourAnswersModel, DividendsResponseModel, DividendsSubmissionModel}
+import models.dividends.{DividendsCheckYourAnswersModel, DividendsSubmissionModel}
 import play.api.Logger
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext
-import play.api.http.Status.NO_CONTENT
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
 class DividendsSubmissionService @Inject()(dividendsSubmissionConnector: DividendsSubmissionConnector)(
   implicit val ec: ExecutionContext

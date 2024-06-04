@@ -19,6 +19,7 @@ package test.controllers
 import controllers.ZeroingWarningController
 import models.dividends.{DividendsCheckYourAnswersModel, StockDividendsCheckYourAnswersModel}
 import models.interest.{InterestAccountModel, InterestCYAModel}
+import models.priorDataModels.StockDividendsPriorDataModel
 import models.savings.SavingsIncomeCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -554,6 +555,13 @@ class ZeroingWarningControllerISpec extends IntegrationTest
       val updatedStockDividendsCYAModel =
         completeStockDividendsCYAModel.copy(closeCompanyLoansWrittenOff = None, closeCompanyLoansWrittenOffAmount = None)
 
+      val priorCya = StockDividendsPriorDataModel(
+        ukDividendsAmount = Some(50.00),
+        otherUkDividendsAmount = Some(50.00),
+        stockDividendsAmount = Some(50.00),
+        closeCompanyLoansWrittenOffAmount = Some(50.00)
+      )
+
       val expectedStockDividendsCya = updatedStockDividendsCYAModel.copy(
         ukDividendsAmount = Some(0),
         otherUkDividendsAmount = Some(0),
@@ -561,7 +569,7 @@ class ZeroingWarningControllerISpec extends IntegrationTest
         redeemableSharesAmount = Some(0)
       )
 
-      controller invokePrivate privateZeroStockDividendsData(updatedStockDividendsCYAModel) shouldBe expectedStockDividendsCya
+      controller invokePrivate privateZeroStockDividendsData(priorCya, updatedStockDividendsCYAModel) shouldBe expectedStockDividendsCya
     }
 
   }

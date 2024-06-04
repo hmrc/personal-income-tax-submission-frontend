@@ -23,6 +23,7 @@ import models.mongo.{DatabaseError, StockDividendsUserDataModel}
 import models.priorDataModels.StockDividendsPriorDataModel
 import models.{APIErrorModel, User}
 import play.api.Logger
+import play.api.libs.json.Json
 import repositories.StockDividendsUserDataRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
