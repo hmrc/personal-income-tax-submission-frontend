@@ -163,8 +163,8 @@ class ZeroingWarningController @Inject()(
     prior: Option[StockDividendsPriorDataModel], cyaData: StockDividendsCheckYourAnswersModel
   ): StockDividendsCheckYourAnswersModel = {
 
-    val updatedCYA = zeroDividendsAnswers(prior, cyaData)
-    zeroStockDividendsAnswers(prior, updatedCYA)
+    val updatedCya = zeroDividendsAnswers(prior, cyaData)
+    zeroStockDividendsAnswers(prior, updatedCya)
   }
 
   private[controllers] def zeroDividendsAnswers(
@@ -183,14 +183,11 @@ class ZeroingWarningController @Inject()(
   ): StockDividendsCheckYourAnswersModel = {
     cyaData.copy(
       stockDividends = Some(true),
-      stockDividendsAmount =
-        if (cyaData.stockDividends.contains(true) || prior.exists(_.stockDividendsAmount.isDefined)) Some(0) else None,
+      stockDividendsAmount = if (cyaData.stockDividends.contains(true) || prior.exists(_.stockDividendsAmount.isDefined)) Some(0) else None,
       redeemableShares = Some(true),
-      redeemableSharesAmount =
-        if (cyaData.redeemableShares.contains(true) || prior.exists(_.redeemableSharesAmount.isDefined)) Some(0) else None,
+      redeemableSharesAmount = if (cyaData.redeemableShares.contains(true) || prior.exists(_.redeemableSharesAmount.isDefined)) Some(0) else None,
       closeCompanyLoansWrittenOff = Some(true),
-      closeCompanyLoansWrittenOffAmount =
-        if (cyaData.closeCompanyLoansWrittenOff.contains(true) || prior.exists(_.closeCompanyLoansWrittenOffAmount.isDefined)) Some(0) else None
+      closeCompanyLoansWrittenOffAmount = if (cyaData.closeCompanyLoansWrittenOff.contains(true) || prior.exists(_.closeCompanyLoansWrittenOffAmount.isDefined)) Some(0) else None
     )
   }
 

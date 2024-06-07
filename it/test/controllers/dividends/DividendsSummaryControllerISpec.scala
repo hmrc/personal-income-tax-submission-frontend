@@ -63,9 +63,6 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
   )
   lazy val dividendsNoModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(Some(false), Some(false), None, Some(false))
 
-  lazy val zeroedStockDividendsModel: StockDividendsCheckYourAnswersModel =
-    StockDividendsCheckYourAnswersModel(Some(true), Some(false), Some(0), Some(false), Some(0))
-
   val cyaModel: StockDividendsCheckYourAnswersModel =
     StockDividendsCheckYourAnswersModel(
       gateway = Some(true),
@@ -804,7 +801,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
           dropStockDividendsDB()
           emptyUserDataStub()
           emptyStockDividendsUserDataStub()
-          insertStockDividendsCyaData(Some(zeroedStockDividendsModel), taxYear, Some(mtditid), None)
+          insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel(gateway = Some(true))), taxYear, Some(mtditid), None)
 
           val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/summary",
             Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
@@ -817,7 +814,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
         }
 
         "has the correct redirect location" in {
-          result.header.headers("Location") shouldBe Some(controllers.routes.ZeroingWarningController.show(taxYear, STOCK_DIVIDENDS.stringify).url)
+          result.header.headers("Location") shouldBe controllers.routes.ZeroingWarningController.show(taxYear, STOCK_DIVIDENDS.stringify).url
         }
       }
     }
