@@ -162,7 +162,6 @@ class ZeroingWarningController @Inject()(
   private[controllers] def zeroStockDividendsData(
     prior: Option[StockDividendsPriorDataModel], cyaData: StockDividendsCheckYourAnswersModel
   ): StockDividendsCheckYourAnswersModel = {
-
     val updatedCya = zeroDividendsAnswers(prior, cyaData)
     zeroStockDividendsAnswers(prior, updatedCya)
   }
@@ -171,10 +170,14 @@ class ZeroingWarningController @Inject()(
     prior: Option[StockDividendsPriorDataModel], cyaData: StockDividendsCheckYourAnswersModel
   ): StockDividendsCheckYourAnswersModel = {
     cyaData.copy(
-      ukDividends = Some(true),
-      ukDividendsAmount = if (cyaData.ukDividends.contains(true) || prior.exists(_.ukDividendsAmount.isDefined)) Some(0) else None,
-      otherUkDividends = Some(true),
-      otherUkDividendsAmount = if (cyaData.otherUkDividends.contains(true) || prior.exists(_.otherUkDividendsAmount.isDefined)) Some(0) else None
+      ukDividends =
+        if (prior.exists(_.ukDividendsAmount.isDefined)) Some(true) else Some(false),
+      ukDividendsAmount =
+        if (cyaData.ukDividends.contains(true) || prior.exists(_.ukDividendsAmount.isDefined)) Some(0) else None,
+      otherUkDividends =
+        if (prior.exists(_.otherUkDividendsAmount.isDefined)) Some(true) else Some(false),
+      otherUkDividendsAmount =
+        if (cyaData.otherUkDividends.contains(true) || prior.exists(_.otherUkDividendsAmount.isDefined)) Some(0) else None
     )
   }
 
@@ -182,12 +185,18 @@ class ZeroingWarningController @Inject()(
     prior: Option[StockDividendsPriorDataModel], cyaData: StockDividendsCheckYourAnswersModel
   ): StockDividendsCheckYourAnswersModel = {
     cyaData.copy(
-      stockDividends = Some(true),
-      stockDividendsAmount = if (cyaData.stockDividends.contains(true) || prior.exists(_.stockDividendsAmount.isDefined)) Some(0) else None,
-      redeemableShares = Some(true),
-      redeemableSharesAmount = if (cyaData.redeemableShares.contains(true) || prior.exists(_.redeemableSharesAmount.isDefined)) Some(0) else None,
-      closeCompanyLoansWrittenOff = Some(true),
-      closeCompanyLoansWrittenOffAmount = if (cyaData.closeCompanyLoansWrittenOff.contains(true) || prior.exists(_.closeCompanyLoansWrittenOffAmount.isDefined)) Some(0) else None
+      stockDividends =
+        if (prior.exists(_.stockDividendsAmount.isDefined)) Some(true) else Some(false),
+      stockDividendsAmount =
+        if (cyaData.stockDividends.contains(true) || prior.exists(_.stockDividendsAmount.isDefined)) Some(0) else None,
+      redeemableShares =
+        if (prior.exists(_.stockDividendsAmount.isDefined)) Some(true) else Some(false),
+      redeemableSharesAmount =
+        if (cyaData.redeemableShares.contains(true) || prior.exists(_.redeemableSharesAmount.isDefined)) Some(0) else None,
+      closeCompanyLoansWrittenOff =
+        if (prior.exists(_.closeCompanyLoansWrittenOffAmount.isDefined)) Some(true) else Some(false),
+      closeCompanyLoansWrittenOffAmount =
+        if (cyaData.closeCompanyLoansWrittenOff.contains(true) || prior.exists(_.closeCompanyLoansWrittenOffAmount.isDefined)) Some(0) else None
     )
   }
 

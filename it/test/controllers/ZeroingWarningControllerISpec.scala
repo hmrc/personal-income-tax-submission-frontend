@@ -595,7 +595,7 @@ class ZeroingWarningControllerISpec extends IntegrationTest
 
     val privateZeroStockDividendsAnswers = PrivateMethod[StockDividendsCheckYourAnswersModel](Symbol("zeroStockDividendsAnswers"))
 
-    "zero data that exists in prior except Uk Dividends and Other Uk Dividends amounts which has no value set" in {
+    "zero data that exists in prior except Stock Dividends, Redeemable Shares and Close Company Loans Written Off amounts which have no value set" in {
       val updatedStockDividendsCYAModel = StockDividendsCheckYourAnswersModel(
         gateway = Some(true), ukDividends = Some(true), ukDividendsAmount = Some(0),
         otherUkDividends = Some(true), otherUkDividendsAmount = Some(0)

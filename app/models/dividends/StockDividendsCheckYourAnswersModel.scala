@@ -33,9 +33,15 @@ case class StockDividendsCheckYourAnswersModel(
                                                 closeCompanyLoansWrittenOff: Option[Boolean] = None,
                                                 closeCompanyLoansWrittenOffAmount: Option[BigDecimal] = None
                                               ) {
+  def hasDividendsData: Boolean =
+    this.ukDividendsAmount.nonEmpty || this.otherUkDividendsAmount.nonEmpty
+
+  def hasStockDividendsData: Boolean =
+    this.stockDividendsAmount.nonEmpty || this.redeemableSharesAmount.nonEmpty || this.closeCompanyLoansWrittenOffAmount.nonEmpty
+
   def hasNoStockDividendsData: Boolean =
     this.ukDividendsAmount.isEmpty && this.otherUkDividendsAmount.isEmpty && this.stockDividendsAmount.isEmpty &&
-      this.redeemableSharesAmount.isEmpty && this.closeCompanyLoansWrittenOffAmount.isEmpty
+    this.redeemableSharesAmount.isEmpty && this.closeCompanyLoansWrittenOffAmount.isEmpty
 
   def toDividendsSubmissionModel: DividendsSubmissionModel = {
     DividendsSubmissionModel(

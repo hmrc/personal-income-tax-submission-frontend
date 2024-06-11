@@ -17,11 +17,10 @@
 package services
 
 import audit.{AuditModel, AuditService, CreateOrAmendDividendsAuditDetail}
-import config.AppConfig
 import connectors.httpParsers.StockDividendsSubmissionHttpParser._
 import connectors.{DividendsSubmissionConnector, StockDividendsSubmissionConnector, StockDividendsUserDataConnector}
 import models.User
-import models.dividends.{StockDividendsCheckYourAnswersModel, StockDividendsPriorSubmission}
+import models.dividends.{DividendsPriorSubmission, StockDividendsCheckYourAnswersModel, StockDividendsPriorSubmission}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
@@ -40,42 +39,83 @@ class StockDividendsSubmissionService @Inject()(
                      (implicit hc: HeaderCarrier, user: User[_], ec: ExecutionContext): Future[StockDividendsSubmissionResponse] = {
     stockDividendsUserDataConnector.getUserData(taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid)).flatMap {
       case Left(error) => Future.successful(Left(error))
-      case Right(result) =>
+      case Right(priorStockDividends) =>
         dividendsSessionService.getPriorData(taxYear)(user, hc).flatMap {
           case Left(error) => Future.successful(Left(error))
           case Right(priorDividends) =>
             auditSubmission(CreateOrAmendDividendsAuditDetail.createFromStockCyaData(
-              cya, priorDividends.dividends, result, result.exists(_.stockDividend.isDefined) || priorDividends.dividends.isDefined,
-              user.nino, user.mtditid, user.affinityGroup, taxYear))
-            performSubmissions(cya, nino, taxYear, hc, user, result).map { results => {
-              val response = results.filter(_.isLeft)
-              if (response.isEmpty) {
-                Right(true)
-              } else {
-                response.head
+              cya, priorDividends.dividends, priorStockDividends,
+              priorStockDividends.exists(_.stockDividend.isDefined) || priorDividends.dividends.isDefined,
+              user.nino, user.mtditid, user.affinityGroup, taxYear
+            ))
+            performSubmissions(cya, priorDividends.dividends, nino, taxYear, hc, user, priorStockDividends).map {
+              results => {
+                val response = results.filter(_.isLeft)
+                if (response.isEmpty) {
+                  Right(true)
+                } else {
+                  response.head
+                }
               }
-            }}
+            }
         }
     }
   }
 
-  private def performSubmissions(cya: StockDividendsCheckYourAnswersModel, nino: String, taxYear: Int, hc: HeaderCarrier, user: User[_],
-                                 result: Option[StockDividendsPriorSubmission]): Future[Seq[StockDividendsSubmissionResponse]] = {
-    val prior = result match {
+  private def performSubmissions(cya: StockDividendsCheckYourAnswersModel, priorDividends: Option[DividendsPriorSubmission],
+                                 nino: String, taxYear: Int, hc: HeaderCarrier, user: User[_], result: Option[StockDividendsPriorSubmission]
+                                ): Future[Seq[StockDividendsSubmissionResponse]] = {
+    val priorStockDividends = result match {
       case Some(value) => value
       case None => StockDividendsPriorSubmission()
     }
 
     Future.sequence(
       Seq(
-        dividendsSubmissionConnector
-          .submitDividends(cya.toDividendsSubmissionModel, nino, taxYear)(hc.withExtraHeaders("mtditid" -> user.mtditid)).map {
-          case Right(_) => Right(true)
-          case Left(_) => Right(false)
+        if (cya.hasDividendsData) {
+          val hasUkDividendsChanged = checkUpdatedValues(cya.ukDividendsAmount, priorDividends.flatMap(_.ukDividends))
+          val hasOtherUkDividendsChanged = checkUpdatedValues(cya.otherUkDividendsAmount, priorDividends.flatMap(_.otherUkDividends))
+          val hasDataChanged = Seq(hasUkDividendsChanged, hasOtherUkDividendsChanged).contains(true)
+
+          if (hasDataChanged) {
+            dividendsSubmissionConnector
+              .submitDividends(cya.toDividendsSubmissionModel, nino, taxYear)(hc.withExtraHeaders("mtditid" -> user.mtditid)).map {
+                case Right(_) => Right(true)
+                case Left(error) => Left(error)
+              }
+          } else {
+            Future.successful(Right(true))
+          }
+        } else {
+          Future.successful(Right(true))
         },
-        stockDividendsSubmissionConnector.submitDividends(prior.toSubmission(cya), nino, taxYear)(hc.withExtraHeaders("mtditid" -> user.mtditid))
+        if (cya.hasStockDividendsData) {
+          val hasStocksChanged = checkUpdatedValues(cya.stockDividendsAmount, priorStockDividends.stockDividend.map(_.grossAmount))
+          val hasSharesChanged = checkUpdatedValues(cya.redeemableSharesAmount, priorStockDividends.redeemableShares.map(_.grossAmount))
+          val hasLoansChanged = checkUpdatedValues(cya.closeCompanyLoansWrittenOffAmount, priorStockDividends.closeCompanyLoansWrittenOff.map(_.grossAmount))
+
+          val hasDataChanged = Seq(hasStocksChanged, hasSharesChanged, hasLoansChanged).contains(true)
+
+          if (hasDataChanged) {
+            stockDividendsSubmissionConnector
+              .submitDividends(priorStockDividends.toSubmission(cya), nino, taxYear)(hc.withExtraHeaders("mtditid" -> user.mtditid))
+          } else {
+            Future.successful(Right(true))
+          }
+        } else {
+          Future.successful(Right(true))
+        }
       )
     )
+  }
+
+  private def checkUpdatedValues(cyaData: Option[BigDecimal], priorData: Option[BigDecimal]): Boolean = {
+    (cyaData, priorData) match {
+      case (Some(cyaAmount), Some(grossAmount)) => cyaAmount != grossAmount
+      case (Some(_), None) => true
+      case (None, Some(_)) => true
+      case (_, _) => false
+    }
   }
 
   private def auditSubmission(details: CreateOrAmendDividendsAuditDetail)

@@ -110,7 +110,7 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
       } else {
         val hasNoStockDividendsData = cyaData.flatMap(_.stockDividends.map(_.hasNoStockDividendsData)).getOrElse(false)
 
-        if (hasNoStockDividendsData){
+        if (hasNoStockDividendsData && priorData.isDefined){
           Future.successful(Redirect(controllers.routes.ZeroingWarningController.show(taxYear, STOCK_DIVIDENDS.stringify)))
         } else {
           performSubmission(taxYear, cyaData, priorData)

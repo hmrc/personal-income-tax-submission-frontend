@@ -80,6 +80,16 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
 
   val stockDividend: Option[StockDividendModel] = Some(StockDividendModel(customerReference = Some("ref"), grossAmount = amount))
 
+  val stockDividendsPrior: StockDividendsPriorSubmission = StockDividendsPriorSubmission(
+    submittedOn = Some(""),
+    foreignDividend = None,
+    dividendIncomeReceivedWhilstAbroad = None,
+    stockDividend = stockDividend,
+    redeemableShares = stockDividend,
+    bonusIssuesOfSecurities = None,
+    closeCompanyLoansWrittenOff = stockDividend
+  )
+
   object Selectors {
 
     final val CYA_TITLE_1 = 1
@@ -396,15 +406,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
             userDataStub(IncomeSourcesModel(Some(DividendsPriorSubmission(
               ukDividends = Some(amount), otherUkDividends = Some(amount)
             ))), nino, taxYear)
-            stockDividendsUserDataStub(Some(StockDividendsPriorSubmission(
-              submittedOn = Some(""),
-              foreignDividend = None,
-              dividendIncomeReceivedWhilstAbroad = None,
-              stockDividend = stockDividend,
-              redeemableShares = stockDividend,
-              bonusIssuesOfSecurities = None,
-              closeCompanyLoansWrittenOff = stockDividend
-            )), nino, taxYear)
+            stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
             route(appWithStockDividends, request, "{}").get
           }
 
@@ -561,15 +563,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
             emptyUserDataStub()
             dropStockDividendsDB()
             emptyStockDividendsUserDataStub()
-            stockDividendsUserDataStub(Some(StockDividendsPriorSubmission(
-              submittedOn = Some(""),
-              foreignDividend = None,
-              dividendIncomeReceivedWhilstAbroad = None,
-              stockDividend = stockDividend,
-              redeemableShares = stockDividend,
-              bonusIssuesOfSecurities = None,
-              closeCompanyLoansWrittenOff = stockDividend
-            )), nino, taxYear)
+            stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
             route(appWithStockDividends, request, "{}").get
           }
 
@@ -801,6 +795,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
           dropStockDividendsDB()
           emptyUserDataStub()
           emptyStockDividendsUserDataStub()
+          stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
           insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel(gateway = Some(true))), taxYear, Some(mtditid), None)
 
           val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/summary",
