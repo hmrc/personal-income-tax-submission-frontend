@@ -184,7 +184,7 @@ class ZeroingWarningController @Inject()(
       stockDividendsAmount =
         if (cyaData.stockDividends.contains(true) || prior.exists(_.stockDividendsAmount.isDefined)) Some(0) else None,
       redeemableShares =
-        if (prior.exists(_.stockDividendsAmount.isDefined)) Some(true) else Some(false),
+        if (prior.exists(_.redeemableSharesAmount.isDefined)) Some(true) else Some(false),
       redeemableSharesAmount =
         if (cyaData.redeemableShares.contains(true) || prior.exists(_.redeemableSharesAmount.isDefined)) Some(0) else None,
       closeCompanyLoansWrittenOff =
