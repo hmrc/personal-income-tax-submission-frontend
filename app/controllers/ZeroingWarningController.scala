@@ -20,16 +20,13 @@ import config._
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import models.User
-import models.charity.GiftAidCYAModel
-import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, StockDividendsCheckYourAnswersModel}
-import models.interest.{InterestCYAModel, InterestPriorSubmission}
-import models.mongo.{GiftAidUserDataModel, StockDividendsUserDataModel}
+import models.dividends.{DividendsCheckYourAnswersModel, StockDividendsCheckYourAnswersModel}
+import models.interest.InterestCYAModel
 import models.priorDataModels.StockDividendsPriorDataModel
-import models.savings.{SavingsIncomeCYAModel, SavingsIncomeDataModel}
+import models.savings.SavingsIncomeCYAModel
 import play.api.i18n.I18nSupport
-import play.api.libs.json.Json
 import play.api.mvc._
-import services.{DividendsSessionService, GiftAidSessionService, InterestSessionService, SavingsSessionService, StockDividendsSessionService}
+import services._
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.ZeroingWarningView
 
@@ -160,15 +157,14 @@ class ZeroingWarningController @Inject()(
   }
 
   private[controllers] def zeroStockDividendsData(
-    prior: Option[StockDividendsPriorDataModel], cyaData: StockDividendsCheckYourAnswersModel
-  ): StockDividendsCheckYourAnswersModel = {
+                                                   prior: Option[StockDividendsPriorDataModel],
+                                                   cyaData: StockDividendsCheckYourAnswersModel): StockDividendsCheckYourAnswersModel = {
     val updatedCya = zeroDividendsAnswers(prior, cyaData)
     zeroStockDividendsAnswers(prior, updatedCya)
   }
 
-  private[controllers] def zeroDividendsAnswers(
-    prior: Option[StockDividendsPriorDataModel], cyaData: StockDividendsCheckYourAnswersModel
-  ): StockDividendsCheckYourAnswersModel = {
+  private[controllers] def zeroDividendsAnswers(prior: Option[StockDividendsPriorDataModel],
+                                                cyaData: StockDividendsCheckYourAnswersModel): StockDividendsCheckYourAnswersModel = {
     cyaData.copy(
       ukDividends =
         if (prior.exists(_.ukDividendsAmount.isDefined)) Some(true) else Some(false),
@@ -181,9 +177,7 @@ class ZeroingWarningController @Inject()(
     )
   }
 
-  private[controllers] def zeroStockDividendsAnswers(
-    prior: Option[StockDividendsPriorDataModel], cyaData: StockDividendsCheckYourAnswersModel
-  ): StockDividendsCheckYourAnswersModel = {
+  private[controllers] def zeroStockDividendsAnswers(prior: Option[StockDividendsPriorDataModel], cyaData: StockDividendsCheckYourAnswersModel): StockDividendsCheckYourAnswersModel = {
     cyaData.copy(
       stockDividends =
         if (prior.exists(_.stockDividendsAmount.isDefined)) Some(true) else Some(false),

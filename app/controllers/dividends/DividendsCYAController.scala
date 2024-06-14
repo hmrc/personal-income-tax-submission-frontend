@@ -37,18 +37,19 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DividendsCYAController @Inject()(
-  dividendsCyaView: DividendsCYAView,
-  dividendsSubmissionService: DividendsSubmissionService,
-  session: DividendsSessionService,
-  stockDividendsSession: StockDividendsSessionService,
-  auditService: AuditService,
-  errorHandler: ErrorHandler,
-  excludeJourneyService: ExcludeJourneyService
-)(
-  implicit appConfig: AppConfig,
-  authorisedAction: AuthorisedAction,
-  implicit val mcc: MessagesControllerComponents
-) extends FrontendController(mcc) with I18nSupport with SessionHelper {
+                                        dividendsCyaView: DividendsCYAView,
+                                        dividendsSubmissionService: DividendsSubmissionService,
+                                        session: DividendsSessionService,
+                                        stockDividendsSession: StockDividendsSessionService,
+                                        auditService: AuditService,
+                                        errorHandler: ErrorHandler,
+                                        excludeJourneyService: ExcludeJourneyService
+                                      )
+                                      (
+                                        implicit appConfig: AppConfig,
+                                        authorisedAction: AuthorisedAction,
+                                        implicit val mcc: MessagesControllerComponents
+                                      ) extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
   lazy val logger: Logger = Logger(this.getClass.getName)
   implicit val executionContext: ExecutionContext = mcc.executionContext

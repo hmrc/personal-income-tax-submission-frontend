@@ -25,7 +25,6 @@ import models.priorDataModels.{IncomeSourcesModel, StockDividendsPriorDataModel}
 import models.{APIErrorBodyModel, APIErrorModel, User}
 import play.api.i18n.I18nSupport
 import play.api.i18n.Lang.logger
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.{DividendsSessionService, ExcludeJourneyService, StockDividendsSessionService, StockDividendsSubmissionService}
 import uk.gov.hmrc.http.HeaderCarrier

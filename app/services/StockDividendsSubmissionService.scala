@@ -28,12 +28,13 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class StockDividendsSubmissionService @Inject()(
-  stockDividendsSubmissionConnector: StockDividendsSubmissionConnector,
-  stockDividendsUserDataConnector: StockDividendsUserDataConnector,
-  dividendsSessionService: DividendsSessionService,
-  dividendsSubmissionConnector: DividendsSubmissionConnector,
-  auditService: AuditService
-) (implicit ec: ExecutionContext) {
+                                                 stockDividendsSubmissionConnector: StockDividendsSubmissionConnector,
+                                                 stockDividendsUserDataConnector: StockDividendsUserDataConnector,
+                                                 dividendsSessionService: DividendsSessionService,
+                                                 dividendsSubmissionConnector: DividendsSubmissionConnector,
+                                                 auditService: AuditService
+                                               )
+                                               (implicit ec: ExecutionContext) {
 
   def submitDividends(cya: StockDividendsCheckYourAnswersModel, nino: String, taxYear: Int)
                      (implicit hc: HeaderCarrier, user: User[_], ec: ExecutionContext): Future[StockDividendsSubmissionResponse] = {
