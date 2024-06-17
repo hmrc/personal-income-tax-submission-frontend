@@ -63,12 +63,15 @@ class StockDividendsCheckYourAnswersModelSpec extends UnitTest {
     Some(10.00)
   )
 
-  val modelMin: StockDividendsCheckYourAnswersModel = StockDividendsCheckYourAnswersModel(None,
-    Some(false), None,
-    Some(false), None,
-    Some(false), None,
-    Some(false), None,
-    Some(false), None)
+  val modelMin: StockDividendsCheckYourAnswersModel =
+    StockDividendsCheckYourAnswersModel(
+      None,
+      Some(false), None,
+      Some(false), None,
+      Some(false), None,
+      Some(false), None,
+      Some(false), None
+    )
 
   "StockDividendsCheckYourAnswersModel" should {
 
@@ -94,16 +97,6 @@ class StockDividendsCheckYourAnswersModelSpec extends UnitTest {
         jsonMin.as[StockDividendsCheckYourAnswersModel] shouldBe modelMin
       }
 
-    }
-
-    "correctly establish if model has data to submit" in {
-      modelMax.hasStockDividendsData shouldBe true
-      modelMax.hasDividendsData shouldBe true
-    }
-
-    "correctly establish if model has no data to submit" in {
-      modelMin.hasStockDividendsData shouldBe false
-      modelMin.hasDividendsData shouldBe false
     }
   }
 

@@ -16,6 +16,7 @@
 
 package test.controllers.dividends
 
+import config.STOCK_DIVIDENDS
 import controllers.dividends.routes
 import models.dividends._
 import models.priorDataModels.IncomeSourcesModel
@@ -78,6 +79,16 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
     )
 
   val stockDividend: Option[StockDividendModel] = Some(StockDividendModel(customerReference = Some("ref"), grossAmount = amount))
+
+  val stockDividendsPrior: StockDividendsPriorSubmission = StockDividendsPriorSubmission(
+    submittedOn = Some(""),
+    foreignDividend = None,
+    dividendIncomeReceivedWhilstAbroad = None,
+    stockDividend = stockDividend,
+    redeemableShares = stockDividend,
+    bonusIssuesOfSecurities = None,
+    closeCompanyLoansWrittenOff = stockDividend
+  )
 
   object Selectors {
 
@@ -395,15 +406,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
             userDataStub(IncomeSourcesModel(Some(DividendsPriorSubmission(
               ukDividends = Some(amount), otherUkDividends = Some(amount)
             ))), nino, taxYear)
-            stockDividendsUserDataStub(Some(StockDividendsPriorSubmission(
-              submittedOn = Some(""),
-              foreignDividend = None,
-              dividendIncomeReceivedWhilstAbroad = None,
-              stockDividend = stockDividend,
-              redeemableShares = stockDividend,
-              bonusIssuesOfSecurities = None,
-              closeCompanyLoansWrittenOff = stockDividend
-            )), nino, taxYear)
+            stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
             route(appWithStockDividends, request, "{}").get
           }
 
@@ -560,15 +563,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
             emptyUserDataStub()
             dropStockDividendsDB()
             emptyStockDividendsUserDataStub()
-            stockDividendsUserDataStub(Some(StockDividendsPriorSubmission(
-              submittedOn = Some(""),
-              foreignDividend = None,
-              dividendIncomeReceivedWhilstAbroad = None,
-              stockDividend = stockDividend,
-              redeemableShares = stockDividend,
-              bonusIssuesOfSecurities = None,
-              closeCompanyLoansWrittenOff = stockDividend
-            )), nino, taxYear)
+            stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
             route(appWithStockDividends, request, "{}").get
           }
 
@@ -791,6 +786,34 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
       }
 
     }
+
+    "redirect the user to the zeroing warning page" when {
+
+      "gateway is true and remaining questions are false or zero" which {
+        lazy val result = {
+          authoriseIndividual()
+          dropStockDividendsDB()
+          emptyUserDataStub()
+          emptyStockDividendsUserDataStub()
+          stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
+          insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel(gateway = Some(true))), taxYear, Some(mtditid), None)
+
+          val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/summary",
+            Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
+
+          await(route(appWithStockDividends, request, "{}").get)
+        }
+
+        "has a status of SEE_OTHER(303)" in {
+          result.header.status shouldBe SEE_OTHER
+        }
+
+        "has the correct redirect location" in {
+          result.header.headers("Location") shouldBe controllers.routes.ZeroingWarningController.show(taxYear, STOCK_DIVIDENDS.stringify).url
+        }
+      }
+    }
+
     s"supply empty model if no data found" when {
 
       lazy val result: WSResponse = {

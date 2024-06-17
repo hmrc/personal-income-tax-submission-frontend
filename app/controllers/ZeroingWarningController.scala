@@ -20,14 +20,13 @@ import config._
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import models.User
-import models.charity.GiftAidCYAModel
 import models.dividends.{DividendsCheckYourAnswersModel, StockDividendsCheckYourAnswersModel}
-import models.interest.{InterestCYAModel, InterestPriorSubmission}
-import models.mongo.{GiftAidUserDataModel, StockDividendsUserDataModel}
-import models.savings.{SavingsIncomeCYAModel, SavingsIncomeDataModel}
+import models.interest.InterestCYAModel
+import models.priorDataModels.StockDividendsPriorDataModel
+import models.savings.SavingsIncomeCYAModel
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import services.{DividendsSessionService, GiftAidSessionService, InterestSessionService, SavingsSessionService, StockDividendsSessionService}
+import services._
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.ZeroingWarningView
 
@@ -136,13 +135,18 @@ class ZeroingWarningController @Inject()(
   private[controllers] def handleStockDividends(taxYear: Int)(implicit user: User[_]): Future[Result] = {
     stockDividendsSession.getAndHandle(taxYear)(errorHandler.internalServerError()) { case (cya, prior) =>
       cya match {
-        case Some(cyaData: StockDividendsUserDataModel) =>
-          val newSessionData = zeroStockDividendsData(cyaData.stockDividends.getOrElse(
-            StockDividendsCheckYourAnswersModel(
-              ukDividends = Some(true), otherUkDividends = Some(true), stockDividends = Some(true),
-              redeemableShares = Some(true), closeCompanyLoansWrittenOff = Some(true)
+        case Some(cyaData) =>
+          val newSessionData =
+            zeroStockDividendsData(
+              prior,
+              cyaData.stockDividends.getOrElse(
+                StockDividendsCheckYourAnswersModel(
+                  ukDividends = Some(true), otherUkDividends = Some(true), stockDividends = Some(true),
+                  redeemableShares = Some(true), closeCompanyLoansWrittenOff = Some(true)
+                )
+              )
             )
-          ))
+
           stockDividendsSession.updateSessionData(newSessionData, taxYear)(errorHandler.internalServerError()) {
             Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))
           }
@@ -152,13 +156,41 @@ class ZeroingWarningController @Inject()(
     }
   }
 
-  private[controllers] def zeroStockDividendsData(cyaData: StockDividendsCheckYourAnswersModel): StockDividendsCheckYourAnswersModel = {
+  private[controllers] def zeroStockDividendsData(
+                                                   prior: Option[StockDividendsPriorDataModel],
+                                                   cyaData: StockDividendsCheckYourAnswersModel): StockDividendsCheckYourAnswersModel = {
+    val updatedCya = zeroDividendsAnswers(prior, cyaData)
+    zeroStockDividendsAnswers(prior, updatedCya)
+  }
+
+  private[controllers] def zeroDividendsAnswers(prior: Option[StockDividendsPriorDataModel],
+                                                cyaData: StockDividendsCheckYourAnswersModel): StockDividendsCheckYourAnswersModel = {
     cyaData.copy(
-      ukDividendsAmount = if (cyaData.ukDividends.contains(true)) Some(0) else None,
-      otherUkDividendsAmount = if (cyaData.otherUkDividends.contains(true)) Some(0) else None,
-      stockDividendsAmount = if (cyaData.stockDividends.contains(true)) Some(0) else None,
-      redeemableSharesAmount = if (cyaData.redeemableShares.contains(true)) Some(0) else None,
-      closeCompanyLoansWrittenOffAmount = if (cyaData.closeCompanyLoansWrittenOff.contains(true)) Some(0) else None
+      ukDividends =
+        if (prior.exists(_.ukDividendsAmount.isDefined)) Some(true) else Some(false),
+      ukDividendsAmount =
+        if (cyaData.ukDividends.contains(true) || prior.exists(_.ukDividendsAmount.isDefined)) Some(0) else None,
+      otherUkDividends =
+        if (prior.exists(_.otherUkDividendsAmount.isDefined)) Some(true) else Some(false),
+      otherUkDividendsAmount =
+        if (cyaData.otherUkDividends.contains(true) || prior.exists(_.otherUkDividendsAmount.isDefined)) Some(0) else None
+    )
+  }
+
+  private[controllers] def zeroStockDividendsAnswers(prior: Option[StockDividendsPriorDataModel], cyaData: StockDividendsCheckYourAnswersModel): StockDividendsCheckYourAnswersModel = {
+    cyaData.copy(
+      stockDividends =
+        if (prior.exists(_.stockDividendsAmount.isDefined)) Some(true) else Some(false),
+      stockDividendsAmount =
+        if (cyaData.stockDividends.contains(true) || prior.exists(_.stockDividendsAmount.isDefined)) Some(0) else None,
+      redeemableShares =
+        if (prior.exists(_.redeemableSharesAmount.isDefined)) Some(true) else Some(false),
+      redeemableSharesAmount =
+        if (cyaData.redeemableShares.contains(true) || prior.exists(_.redeemableSharesAmount.isDefined)) Some(0) else None,
+      closeCompanyLoansWrittenOff =
+        if (prior.exists(_.closeCompanyLoansWrittenOffAmount.isDefined)) Some(true) else Some(false),
+      closeCompanyLoansWrittenOffAmount =
+        if (cyaData.closeCompanyLoansWrittenOff.contains(true) || prior.exists(_.closeCompanyLoansWrittenOffAmount.isDefined)) Some(0) else None
     )
   }
 

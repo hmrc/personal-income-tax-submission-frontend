@@ -104,7 +104,9 @@ class DividendsSessionService @Inject()(
       priorDataResponse.map(_.dividends) match {
         case Right(prior) => optionalCya match {
           case Left(_) =>  Future(onFail)
-          case Right(cyaData) => block(cyaData.flatMap(_.dividends), prior)
+          case Right(cyaData) => {
+            block(cyaData.flatMap(_.dividends), prior)
+          }
         }
         case Left(_) =>  Future(onFail)
       }

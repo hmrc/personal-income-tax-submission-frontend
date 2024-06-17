@@ -52,39 +52,25 @@ class DividendsSubmissionServiceSpec extends UnitTest {
       val mtdItid = "SomeMtdItid"
       val taxYear = 2020
 
-      "Given connector returns a right" in  {
-
+      "Given connector returns a Right(DividendsResponseModel) of a Dividends Submission Response" in  {
         (connector.submitDividends(_: DividendsSubmissionModel, _: String, _: Int)(_: HeaderCarrier))
-          .expects(dsmData, nino, taxYear, emptyHeaderCarrier.withExtraHeaders("mtditid"-> mtdItid)).returning(Future.successful(Right(DividendsResponseModel(NO_CONTENT))))
+          .expects(
+            dsmData, nino, taxYear, emptyHeaderCarrier.withExtraHeaders("mtditid"-> mtdItid)
+          ).returning(Future.successful(Right(DividendsResponseModel(NO_CONTENT))))
 
-        val result = await(service.submitDividends(Some(cyaData), nino, mtdItid, taxYear))
+        val result = await(service.submitDividends(cyaData, nino, mtdItid, taxYear))
         result.isRight shouldBe true
-
       }
-      "Given connector returns a left" in {
 
-          (connector.submitDividends(_: DividendsSubmissionModel, _: String, _: Int)(_: HeaderCarrier))
-            .expects(dsmData, nino, taxYear, emptyHeaderCarrier.withExtraHeaders("mtditid"-> mtdItid))
-            .returning(Future.successful(Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("test","test")))))
+      "Given connector returns a Left(APIErrorModel) of a Dividends Submission Response" in {
+        (connector.submitDividends(_: DividendsSubmissionModel, _: String, _: Int)(_: HeaderCarrier))
+          .expects(dsmData, nino, taxYear, emptyHeaderCarrier.withExtraHeaders("mtditid"-> mtdItid))
+          .returning(Future.successful(Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("test","test")))))
 
-          val result = await(service.submitDividends(Some(cyaData), nino, mtdItid, taxYear))
-          result.isLeft shouldBe true
-
-        }
-
-      "Given no model is supplied" in {
-
-       lazy val result: DividendsSubmissionsResponse = {
-          val blankData = DividendsSubmissionModel(None, None)
-
-          (blankData, nino, mtdItid, taxYear, emptyHeaderCarrier.withExtraHeaders("mtditid"-> mtdItid))
-          Future.successful(Right(DividendsResponseModel(NO_CONTENT)))
-
-          await(service.submitDividends(None, nino, mtdItid, taxYear))
-        }
-        result.isRight shouldBe true
-        result shouldBe Right(DividendsResponseModel(NO_CONTENT))
+        val result = await(service.submitDividends(cyaData, nino, mtdItid, taxYear))
+        result.isLeft shouldBe true
       }
+
     }
   }
 }
