@@ -31,32 +31,19 @@ class SavingsSubmissionService @Inject()(savingsSubmissionConnector: SavingsSubm
                      (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[SavingsSubmissionResponse] = {
     lazy val logger: Logger = Logger(this.getClass.getName)
 
-    val nonOptBody: SavingsIncomeCYAModel = body.getOrElse(SavingsIncomeCYAModel(None, None, None, None))
-
-    nonOptBody match {
-      case SavingsIncomeCYAModel(Some(false), _, _, _) =>
-        logger.info("[SavingsSubmissionService][submitSavings] User has entered No to gateway question. " +
+    body match {
+      case Some(SavingsIncomeCYAModel(_, None, _, _)) =>
+        logger.info("[SavingsSubmissionService][submitSavings] User is missing grossAmount" +
           "Not submitting data to DES.")
         Future(Right(true))
       case _ =>
-        nonOptBody.grossAmount match {
-          case Some(grossAmount) =>
-            val newSecurities =
-            Some(SecuritiesModel(
-              nonOptBody.taxTakenOffAmount,
-              grossAmount,
-              Some(grossAmount - nonOptBody.taxTakenOffAmount.getOrElse(BigDecimal(0)))
-            ))
-            val foreignInterestModel: Option[Seq[ForeignInterestModel]] = priorData.flatMap(_.foreignInterest)
+        val grossAmount = body.flatMap(_.grossAmount).getOrElse(BigDecimal(0))
+        val taxTakenOffAmount = body.flatMap(_.taxTakenOffAmount)
+        val newSecurities = Some(SecuritiesModel(taxTakenOffAmount, grossAmount, Some(grossAmount - taxTakenOffAmount.getOrElse(BigDecimal(0)))))
+        val foreignInterestModel: Option[Seq[ForeignInterestModel]] = priorData.flatMap(_.foreignInterest)
+        val newBody = SavingsSubmissionModel(newSecurities, foreignInterestModel)
 
-            val newBody = SavingsSubmissionModel(newSecurities, foreignInterestModel)
-            savingsSubmissionConnector.submitSavings(newBody, nino, taxYear)(hc.withExtraHeaders("mtditid" -> mtditid), ec)
-          case None =>
-            logger.info("[SavingsSubmissionService][submitSavings] User is missing grossAmount" +
-              "Not submitting data to DES.")
-            Future(Right(true))
-        }
-
+        savingsSubmissionConnector.submitSavings(newBody, nino, taxYear)(hc.withExtraHeaders("mtditid" -> mtditid), ec)
     }
   }
 

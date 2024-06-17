@@ -42,6 +42,12 @@ class SavingsSubmissionServiceSpec extends UnitTest {
         Some(true),
         Some(500.00)
       )
+      val cyaNoGrossAmountData = SavingsIncomeCYAModel(
+        Some(true),
+        None,
+        Some(true),
+        Some(500.00)
+      )
       val smData = SavingsSubmissionModel(
         securities = Some(SecuritiesModel(Some(500.00),1000.00,Some(500.00))),
         foreignInterest = None
@@ -56,6 +62,12 @@ class SavingsSubmissionServiceSpec extends UnitTest {
           .expects(smData, nino, taxYear, emptyHeaderCarrier.withExtraHeaders("mtditid"-> mtdItid), *).returning(Future.successful(Right(true)))
 
         val result = await(service.submitSavings(Some(cyaData), None, nino, mtdItid, taxYear))
+        result.isRight shouldBe true
+
+      }
+      "Given connector returns a right and does not send CYA data to DES when grossAmount is not present" in  {
+
+        val result = await(service.submitSavings(Some(cyaNoGrossAmountData), None, nino, mtdItid, taxYear))
         result.isRight shouldBe true
 
       }
