@@ -812,6 +812,86 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
           result.header.headers("Location") shouldBe controllers.routes.ZeroingWarningController.show(taxYear, STOCK_DIVIDENDS.stringify).url
         }
       }
+
+      "gateway and stock dividends data are set to false and not present and remaining questions are true" which {
+        lazy val result = {
+          authoriseIndividual()
+          dropStockDividendsDB()
+          emptyUserDataStub()
+          emptyStockDividendsUserDataStub()
+          stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
+          insertStockDividendsCyaData(Some(cyaModel.copy(stockDividends = None, stockDividendsAmount = None)), taxYear, Some(mtditid), None)
+
+          val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/summary",
+            Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
+
+          await(route(appWithStockDividends, request, "{}").get)
+        }
+
+        "has a status of SEE_OTHER(303)" in {
+          result.header.status shouldBe SEE_OTHER
+        }
+
+        "has the correct redirect location" in {
+          result.header.headers("Location") shouldBe controllers.routes.ZeroingWarningController.show(taxYear, STOCK_DIVIDENDS.stringify).url
+        }
+      }
+
+      "gateway, stock dividends and redeemable shares data are false and not present and remaining questions are true" which {
+        val stockDividendCya = cyaModel.copy(stockDividends = None, stockDividendsAmount = None, redeemableShares = None, redeemableSharesAmount = None)
+
+        lazy val result = {
+          authoriseIndividual()
+          dropStockDividendsDB()
+          emptyUserDataStub()
+          emptyStockDividendsUserDataStub()
+          stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
+          insertStockDividendsCyaData(Some(stockDividendCya), taxYear, Some(mtditid), None)
+
+          val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/summary",
+            Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
+
+          await(route(appWithStockDividends, request, "{}").get)
+        }
+
+        "has a status of SEE_OTHER(303)" in {
+          result.header.status shouldBe SEE_OTHER
+        }
+
+        "has the correct redirect location" in {
+          result.header.headers("Location") shouldBe controllers.routes.ZeroingWarningController.show(taxYear, STOCK_DIVIDENDS.stringify).url
+        }
+      }
+
+      "gateway, stock dividends, redeemable shares and close company loans Written off data are false and not present and remaining questions are true" which {
+        val stockDividendCya = cyaModel.copy(
+          stockDividends = None, stockDividendsAmount = None,
+          redeemableShares = None, redeemableSharesAmount = None,
+          closeCompanyLoansWrittenOff = None, closeCompanyLoansWrittenOffAmount = None
+        )
+
+        lazy val result = {
+          authoriseIndividual()
+          dropStockDividendsDB()
+          emptyUserDataStub()
+          emptyStockDividendsUserDataStub()
+          stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
+          insertStockDividendsCyaData(Some(stockDividendCya), taxYear, Some(mtditid), None)
+
+          val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/summary",
+            Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
+
+          await(route(appWithStockDividends, request, "{}").get)
+        }
+
+        "has a status of SEE_OTHER(303)" in {
+          result.header.status shouldBe SEE_OTHER
+        }
+
+        "has the correct redirect location" in {
+          result.header.headers("Location") shouldBe controllers.routes.ZeroingWarningController.show(taxYear, STOCK_DIVIDENDS.stringify).url
+        }
+      }
     }
 
     s"supply empty model if no data found" when {

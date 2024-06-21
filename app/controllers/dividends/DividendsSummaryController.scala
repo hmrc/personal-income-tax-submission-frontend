@@ -107,9 +107,7 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
           case Left(_) => errorHandler.futureInternalServerError()
         }
       } else {
-        val hasNoStockDividendsData = cyaData.flatMap(_.stockDividends.map(_.hasNoStockDividendsData)).getOrElse(false)
-
-        if (hasNoStockDividendsData && priorData.isDefined){
+        if (hasValuesToBeZeroed(cyaData, priorData)) {
           Future.successful(Redirect(controllers.routes.ZeroingWarningController.show(taxYear, STOCK_DIVIDENDS.stringify)))
         } else {
           performSubmission(taxYear, cyaData, priorData)
@@ -187,4 +185,13 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
       case _ => Redirect(controllers.dividends.routes.DividendsGatewayController.show(taxYear))
     }
   }
+
+  private def hasValuesToBeZeroed(cyaData: Option[StockDividendsUserDataModel], priorData: Option[StockDividendsPriorDataModel]): Boolean = {
+    (priorData.exists(_.ukDividendsAmount.isDefined) && !cyaData.exists(_.stockDividends.exists(_.ukDividendsAmount.isDefined))) ||
+    (priorData.exists(_.otherUkDividendsAmount.isDefined) && !cyaData.exists(_.stockDividends.exists(_.otherUkDividendsAmount.isDefined))) ||
+    (priorData.exists(_.stockDividendsAmount.isDefined) && !cyaData.exists(_.stockDividends.exists(_.stockDividendsAmount.isDefined))) ||
+    (priorData.exists(_.redeemableSharesAmount.isDefined) && !cyaData.exists(_.stockDividends.exists(_.redeemableSharesAmount.isDefined))) ||
+    (priorData.exists(_.closeCompanyLoansWrittenOffAmount.isDefined) && !cyaData.exists(_.stockDividends.exists(_.closeCompanyLoansWrittenOffAmount.isDefined)))
+  }
+
 }
