@@ -156,9 +156,8 @@ class ZeroingWarningController @Inject()(
     }
   }
 
-  private[controllers] def zeroStockDividendsData(
-                                                   prior: Option[StockDividendsPriorDataModel],
-                                                   cyaData: StockDividendsCheckYourAnswersModel): StockDividendsCheckYourAnswersModel = {
+  private[controllers] def zeroStockDividendsData(prior: Option[StockDividendsPriorDataModel],
+                                                  cyaData: StockDividendsCheckYourAnswersModel): StockDividendsCheckYourAnswersModel = {
     val updatedCya = zeroDividendsAnswers(prior, cyaData)
     zeroStockDividendsAnswers(prior, updatedCya)
   }
@@ -166,32 +165,37 @@ class ZeroingWarningController @Inject()(
   private[controllers] def zeroDividendsAnswers(prior: Option[StockDividendsPriorDataModel],
                                                 cyaData: StockDividendsCheckYourAnswersModel): StockDividendsCheckYourAnswersModel = {
     cyaData.copy(
-      ukDividends =
-        if (prior.exists(_.ukDividendsAmount.isDefined)) Some(true) else Some(false),
-      ukDividendsAmount =
-        if (cyaData.ukDividends.contains(true) || prior.exists(_.ukDividendsAmount.isDefined)) Some(0) else None,
-      otherUkDividends =
-        if (prior.exists(_.otherUkDividendsAmount.isDefined)) Some(true) else Some(false),
-      otherUkDividendsAmount =
-        if (cyaData.otherUkDividends.contains(true) || prior.exists(_.otherUkDividendsAmount.isDefined)) Some(0) else None
+      ukDividends = updateQuestion(prior.flatMap(_.ukDividendsAmount)),
+      ukDividendsAmount = updateAmount(prior.flatMap(_.ukDividendsAmount), cyaData.ukDividendsAmount),
+      otherUkDividends = updateQuestion(prior.flatMap(_.otherUkDividendsAmount)),
+      otherUkDividendsAmount = updateAmount(prior.flatMap(_.otherUkDividendsAmount), cyaData.otherUkDividendsAmount)
     )
   }
 
-  private[controllers] def zeroStockDividendsAnswers(prior: Option[StockDividendsPriorDataModel], cyaData: StockDividendsCheckYourAnswersModel): StockDividendsCheckYourAnswersModel = {
+  private[controllers] def zeroStockDividendsAnswers(prior: Option[StockDividendsPriorDataModel],
+                                                     cyaData: StockDividendsCheckYourAnswersModel): StockDividendsCheckYourAnswersModel = {
     cyaData.copy(
-      stockDividends =
-        if (prior.exists(_.stockDividendsAmount.isDefined)) Some(true) else Some(false),
-      stockDividendsAmount =
-        if (cyaData.stockDividends.contains(true) || prior.exists(_.stockDividendsAmount.isDefined)) Some(0) else None,
-      redeemableShares =
-        if (prior.exists(_.redeemableSharesAmount.isDefined)) Some(true) else Some(false),
-      redeemableSharesAmount =
-        if (cyaData.redeemableShares.contains(true) || prior.exists(_.redeemableSharesAmount.isDefined)) Some(0) else None,
-      closeCompanyLoansWrittenOff =
-        if (prior.exists(_.closeCompanyLoansWrittenOffAmount.isDefined)) Some(true) else Some(false),
-      closeCompanyLoansWrittenOffAmount =
-        if (cyaData.closeCompanyLoansWrittenOff.contains(true) || prior.exists(_.closeCompanyLoansWrittenOffAmount.isDefined)) Some(0) else None
+      stockDividends = updateQuestion(prior.flatMap(_.stockDividendsAmount)),
+      stockDividendsAmount = updateAmount(prior.flatMap(_.stockDividendsAmount), cyaData.stockDividendsAmount),
+      redeemableShares = updateQuestion(prior.flatMap(_.redeemableSharesAmount)),
+      redeemableSharesAmount = updateAmount(prior.flatMap(_.redeemableSharesAmount), cyaData.redeemableSharesAmount),
+      closeCompanyLoansWrittenOff = updateQuestion(prior.flatMap(_.closeCompanyLoansWrittenOffAmount)),
+      closeCompanyLoansWrittenOffAmount = updateAmount(prior.flatMap(_.closeCompanyLoansWrittenOffAmount), cyaData.closeCompanyLoansWrittenOffAmount)
     )
+  }
+
+  private[controllers] def updateAmount(priorAmount: Option[BigDecimal], cyaAmount:  Option[BigDecimal]): Option[BigDecimal] = {
+    if(cyaAmount == priorAmount) {
+      priorAmount
+    } else if(priorAmount.isDefined && cyaAmount.isEmpty) {
+      Some(0)
+    } else {
+      cyaAmount
+    }
+  }
+
+  private[controllers] def updateQuestion(currentAnswer: Option[BigDecimal]): Option[Boolean] = {
+    if(currentAnswer.isDefined) Some(true) else Some(false)
   }
 
   private[controllers] def handleInterest(taxYear: Int)(implicit user: User[_]): Future[Result] = {

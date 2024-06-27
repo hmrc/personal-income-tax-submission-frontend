@@ -487,87 +487,128 @@ class ZeroingWarningControllerISpec extends IntegrationTest
     val privateZeroStockDividendsData = PrivateMethod[StockDividendsCheckYourAnswersModel](Symbol("zeroStockDividendsData"))
 
     "zero all data that exists in prior" in {
-      val expectedStockDividendsCya = completeStockDividendsCYAModel.copy(
-        ukDividendsAmount = Some(0),
-        otherUkDividendsAmount = Some(0),
-        stockDividendsAmount = Some(0),
-        redeemableSharesAmount = Some(0),
-        closeCompanyLoansWrittenOffAmount = Some(0)
-      )
-
-      controller invokePrivate privateZeroStockDividendsData(Some(priorStockDividends), completeStockDividendsCYAModel) shouldBe expectedStockDividendsCya
+      controller invokePrivate privateZeroStockDividendsData(Some(priorStockDividends), completeStockDividendsCYAModel) shouldBe completeStockDividendsCYAModel
     }
 
-    "zero data that exists in prior except Uk Dividends Amount which has no value set" in {
+    "zero Uk Dividends data when it has Prior data and no CYA data" in {
       val updatedStockDividendsCYAModel = completeStockDividendsCYAModel.copy(ukDividends = None, ukDividendsAmount = None)
 
       val expectedStockDividendsCya = updatedStockDividendsCYAModel.copy(
         ukDividends = Some(true),
-        ukDividendsAmount = Some(0),
-        otherUkDividendsAmount = Some(0),
-        stockDividendsAmount = Some(0),
-        redeemableSharesAmount = Some(0),
-        closeCompanyLoansWrittenOffAmount = Some(0)
+        ukDividendsAmount = Some(0)
       )
 
       controller invokePrivate privateZeroStockDividendsData(Some(priorStockDividends), updatedStockDividendsCYAModel) shouldBe expectedStockDividendsCya
     }
 
-    "zero data that exists in prior except Other Uk Dividends Amount which has no value set" in {
+    "zero Other Uk Dividends data when it has Prior data and no CYA data" in {
       val updatedStockDividendsCYAModel = completeStockDividendsCYAModel.copy(otherUkDividends = None, otherUkDividendsAmount = None)
 
       val expectedStockDividendsCya = updatedStockDividendsCYAModel.copy(
-        ukDividendsAmount = Some(0),
         otherUkDividends = Some(true),
-        otherUkDividendsAmount = Some(0),
-        stockDividendsAmount = Some(0),
-        redeemableSharesAmount = Some(0),
-        closeCompanyLoansWrittenOffAmount = Some(0)
+        otherUkDividendsAmount = Some(0)
       )
 
       controller invokePrivate privateZeroStockDividendsData(Some(priorStockDividends), updatedStockDividendsCYAModel) shouldBe expectedStockDividendsCya
     }
 
-    "zero data that exists in prior except Stock Dividends which has no value set" in {
+    "zero Uk Dividends and Other Uk Dividends data when it has Prior data and no CYA data" in {
+      val updatedStockDividendsCYAModel = completeStockDividendsCYAModel.copy(
+        ukDividends = None, ukDividendsAmount = None, otherUkDividends = None, otherUkDividendsAmount = None
+      )
+
+      val expectedStockDividendsCya = updatedStockDividendsCYAModel.copy(
+        ukDividends = Some(true),
+        ukDividendsAmount = Some(0),
+        otherUkDividends = Some(true),
+        otherUkDividendsAmount = Some(0)
+      )
+
+      controller invokePrivate privateZeroStockDividendsData(Some(priorStockDividends), updatedStockDividendsCYAModel) shouldBe expectedStockDividendsCya
+    }
+
+    "zero Stock Dividends data when it has Prior data and no CYA data" in {
       val updatedStockDividendsCYAModel = completeStockDividendsCYAModel.copy(stockDividends = None, stockDividendsAmount = None)
 
       val expectedStockDividendsCya = updatedStockDividendsCYAModel.copy(
-        ukDividendsAmount = Some(0),
-        otherUkDividendsAmount = Some(0),
         stockDividends = Some(true),
-        stockDividendsAmount = Some(0),
-        redeemableSharesAmount = Some(0),
-        closeCompanyLoansWrittenOffAmount = Some(0)
+        stockDividendsAmount = Some(0)
       )
 
       controller invokePrivate privateZeroStockDividendsData(Some(priorStockDividends), updatedStockDividendsCYAModel) shouldBe expectedStockDividendsCya
     }
 
-    "zero data that exists in prior except Redeemable Shares which has no value set" in {
+    "zero Redeemable Shares data when it has Prior data and no CYA data" in {
       val updatedStockDividendsCYAModel = completeStockDividendsCYAModel.copy(redeemableShares = None, redeemableSharesAmount = None)
 
       val expectedStockDividendsCya = updatedStockDividendsCYAModel.copy(
-        ukDividendsAmount = Some(0),
-        otherUkDividendsAmount = Some(0),
-        stockDividendsAmount = Some(0),
         redeemableShares = Some(true),
-        redeemableSharesAmount = Some(0),
-        closeCompanyLoansWrittenOffAmount = Some(0)
+        redeemableSharesAmount = Some(0)
       )
 
       controller invokePrivate privateZeroStockDividendsData(Some(priorStockDividends),updatedStockDividendsCYAModel) shouldBe expectedStockDividendsCya
     }
 
-    "zero data that exists in prior except Close Company Loans Written Off which has no value set" in {
+    "zero Close Company Loans Written Off data when it has Prior data and no CYA data" in {
       val updatedStockDividendsCYAModel = completeStockDividendsCYAModel.copy(closeCompanyLoansWrittenOff = None, closeCompanyLoansWrittenOffAmount = None)
 
       val expectedStockDividendsCya = updatedStockDividendsCYAModel.copy(
-        ukDividendsAmount = Some(0),
-        otherUkDividendsAmount = Some(0),
+        closeCompanyLoansWrittenOff = Some(true),
+        closeCompanyLoansWrittenOffAmount = Some(0)
+      )
+
+      controller invokePrivate privateZeroStockDividendsData(Some(priorStockDividends), updatedStockDividendsCYAModel) shouldBe expectedStockDividendsCya
+    }
+
+    "zero Stock Dividends, Redeemable Shares and  Close Company Loans Written Off data when it has Prior data and no CYA data" in {
+      val updatedStockDividendsCYAModel = completeStockDividendsCYAModel.copy(
+        stockDividends = None, stockDividendsAmount = None,
+        redeemableShares = None, redeemableSharesAmount = None,
+        closeCompanyLoansWrittenOff = None, closeCompanyLoansWrittenOffAmount = None
+      )
+
+      val expectedStockDividendsCya = updatedStockDividendsCYAModel.copy(
+        stockDividends = Some(true),
         stockDividendsAmount = Some(0),
+        redeemableShares = Some(true),
         redeemableSharesAmount = Some(0),
         closeCompanyLoansWrittenOff = Some(true),
         closeCompanyLoansWrittenOffAmount = Some(0)
+      )
+
+      controller invokePrivate privateZeroStockDividendsData(Some(priorStockDividends), updatedStockDividendsCYAModel) shouldBe expectedStockDividendsCya
+    }
+
+    "zero Uk Dividends and Close Company Loans Written Off data when it has Prior data and no CYA data" in {
+      val updatedStockDividendsCYAModel = completeStockDividendsCYAModel.copy(
+        ukDividends = None, ukDividendsAmount = None,
+        closeCompanyLoansWrittenOff = None, closeCompanyLoansWrittenOffAmount = None
+      )
+
+      val expectedStockDividendsCya = updatedStockDividendsCYAModel.copy(
+        ukDividends = Some(true),
+        ukDividendsAmount = Some(0),
+        closeCompanyLoansWrittenOff = Some(true),
+        closeCompanyLoansWrittenOffAmount = Some(0)
+      )
+
+      controller invokePrivate privateZeroStockDividendsData(Some(priorStockDividends), updatedStockDividendsCYAModel) shouldBe expectedStockDividendsCya
+    }
+
+    "zero Other Uk Dividends, Stock Dividends and Redeemable Shares data when it has Prior data and no CYA data" in {
+      val updatedStockDividendsCYAModel = completeStockDividendsCYAModel.copy(
+        otherUkDividends = None, otherUkDividendsAmount = None,
+        stockDividends = None, stockDividendsAmount = None,
+        redeemableShares = None, redeemableSharesAmount = None
+      )
+
+      val expectedStockDividendsCya = updatedStockDividendsCYAModel.copy(
+        otherUkDividends = Some(true),
+        otherUkDividendsAmount = Some(0),
+        stockDividends = Some(true),
+        stockDividendsAmount = Some(0),
+        redeemableShares = Some(true),
+        redeemableSharesAmount = Some(0)
       )
 
       controller invokePrivate privateZeroStockDividendsData(Some(priorStockDividends), updatedStockDividendsCYAModel) shouldBe expectedStockDividendsCya
@@ -583,7 +624,7 @@ class ZeroingWarningControllerISpec extends IntegrationTest
       val updatedStockDividendsCYAModel = StockDividendsCheckYourAnswersModel(gateway = Some(true))
 
       val expectedStockDividendsCya = updatedStockDividendsCYAModel.copy(
-        ukDividends = Some(true), ukDividendsAmount = Some(0), otherUkDividends = Some(true), otherUkDividendsAmount = Some(0),
+        ukDividends = Some(true), ukDividendsAmount = Some(0), otherUkDividends = Some(true), otherUkDividendsAmount = Some(0)
       )
 
       controller invokePrivate privateZeroDividendsAnswers(Some(priorStockDividends), updatedStockDividendsCYAModel) shouldBe expectedStockDividendsCya
@@ -608,6 +649,64 @@ class ZeroingWarningControllerISpec extends IntegrationTest
       )
 
       controller invokePrivate privateZeroStockDividendsAnswers(Some(priorStockDividends), updatedStockDividendsCYAModel) shouldBe expectedStockDividendsCya
+    }
+  }
+
+  ".updateAmount" should {
+    lazy val controller = app.injector.instanceOf[ZeroingWarningController]
+
+    val privateUpdateAmount = PrivateMethod[Option[BigDecimal]](Symbol("updateAmount"))
+
+    "return same Uk Dividends Amount if both Prior and CYA data" in {
+      val priorAmount = Some(50.00)
+      val cyaAmount = Some(50.00)
+      val expectedAmount = priorAmount
+
+      controller invokePrivate privateUpdateAmount(priorAmount, cyaAmount) shouldBe expectedAmount
+    }
+
+    "return zero amount when Prior amount exists and CYA amount is None" in {
+      val priorAmount = Some(50.00)
+      val cyaAmount = None
+      val expectedAmount = Some(0)
+
+      controller invokePrivate privateUpdateAmount(priorAmount, cyaAmount) shouldBe expectedAmount
+    }
+
+    "return CYA amount when amount when CYA amount exists and Prior amount is None" in {
+      val priorAmount = None
+      val cyaAmount = Some(50.00)
+      val expectedAmount = Some(50.00)
+
+      controller invokePrivate privateUpdateAmount(priorAmount, cyaAmount) shouldBe expectedAmount
+    }
+
+    "return Prior amount when both CYA and Prior amounts are None" in {
+      val priorAmount = None
+      val cyaAmount = None
+      val expectedAmount = cyaAmount
+
+      controller invokePrivate privateUpdateAmount(priorAmount, cyaAmount) shouldBe expectedAmount
+    }
+  }
+
+  ".updateQuestion" should {
+    lazy val controller = app.injector.instanceOf[ZeroingWarningController]
+
+    val privateUpdateQuestion = PrivateMethod[Option[BigDecimal]](Symbol("updateQuestion"))
+
+    "return Some(true) if the Prior Amount exists" in {
+      val priorAmount = Some(50.00)
+      val expectedAmount = Some(true)
+
+      controller invokePrivate privateUpdateQuestion(priorAmount) shouldBe expectedAmount
+    }
+
+    "return Some(false) if the Prior Amount is not present" in {
+      val priorAmount = None
+      val expectedAmount = Some(false)
+
+      controller invokePrivate privateUpdateQuestion(priorAmount) shouldBe expectedAmount
     }
   }
 
