@@ -688,24 +688,26 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
 
         }
 
-        "redirect to Gift Aid OneOff amount page when it is unfinished" which {
-
-          lazy val result: WSResponse = {
-            dropGiftAidDB()
-            emptyUserDataStub(nino, taxYear)
-            insertGiftAidCyaData(Some(cyaDataMax.copy(oneOffDonationsViaGiftAidAmount  = None)))
-
-            authoriseAgentOrIndividual(user.isAgent)
-            urlGet(url, welsh = user.isWelsh, headers = playSessionCookie(user.isAgent))
-          }
-
-          "redirects to the correct url" in {
-            result
-            verifyGet(s"/update-and-submit-income-tax-return/personal-income/$taxYear/charity/amount-donated-as-one-off")
-          }
-        }
-
         "redirect to the overview page" when {
+
+          "there is incomplete CYA data" which {
+
+            lazy val result: WSResponse = {
+
+              dropGiftAidDB()
+              insertGiftAidCyaData(Some(cyaDataIncomplete))
+              userDataStub(IncomeSourcesModel(), nino, taxYear)
+
+              authoriseAgentOrIndividual(user.isAgent)
+              urlGet(url, welsh = user.isWelsh, headers = playSessionCookie(user.isAgent))
+            }
+
+            "redirects to the correct url" in {
+              result
+              verifyGet(s"/update-and-submit-income-tax-return/$taxYear/view")
+            }
+
+          }
 
           "there is no CYA and no PRIOR data" which {
             lazy val result = {

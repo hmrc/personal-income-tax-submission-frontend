@@ -20,7 +20,6 @@ import audit._
 import config.{AppConfig, ErrorHandler, GIFT_AID}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
-import models.User
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
 import models.charity.{CharityNameModel, GiftAidCYAModel}
 import play.api.Logger
@@ -34,7 +33,6 @@ import utils.SessionHelper
 import views.html.charity.GiftAidCYAView
 
 import javax.inject.Inject
-import scala.collection.immutable.ListMap
 import scala.concurrent.{ExecutionContext, Future}
 
 class GiftAidCYAController @Inject()(implicit mcc: MessagesControllerComponents,
@@ -59,7 +57,7 @@ class GiftAidCYAController @Inject()(implicit mcc: MessagesControllerComponents,
           if (cyaData.isFinished) {
             Future.successful(Ok(view(taxYear, cyaData, potentialPriorData)))
           } else {
-            Future.successful(handleUnfinishedRedirect(cyaData, potentialPriorData, taxYear))
+            Future.successful(Redirect(controllers.charity.routes.GiftAidGatewayController.show(taxYear)))
           }
         case (None, Some(priorData)) =>
           val cyaModel = generateCyaFromPrior(priorData)
@@ -131,41 +129,6 @@ class GiftAidCYAController @Inject()(implicit mcc: MessagesControllerComponents,
         model.donatedSharesOrSecuritiesAmount, model.donatedLandOrPropertyAmount
       ))
     )
-  }
-
-  def handleUnfinishedRedirect(cyaModel: GiftAidCYAModel, priorModel: Option[GiftAidSubmissionModel], taxYear: Int)
-                              (implicit user: User[AnyContent]): Result = {
-
-    val cyaCommon = ListMap[Call, Option[_]](
-      controllers.charity.routes.GiftAidDonationsController.show(taxYear) -> cyaModel.donationsViaGiftAid,
-      controllers.charity.routes.GiftAidDonatedAmountController.show(taxYear) -> cyaModel.donationsViaGiftAidAmount,
-      controllers.charity.routes.GiftAidOneOffController.show(taxYear) -> cyaModel.oneOffDonationsViaGiftAid,
-      controllers.charity.routes.GiftAidOneOffAmountController.show(taxYear) -> cyaModel.oneOffDonationsViaGiftAidAmount,
-      controllers.charity.routes.OverseasGiftAidDonationsController.show(taxYear) -> cyaModel.overseasDonationsViaGiftAid,
-      controllers.charity.routes.GiftAidOverseasAmountController.show(taxYear) -> cyaModel.overseasDonationsViaGiftAidAmount,
-      controllers.charity.routes.GiftAidLastTaxYearController.show(taxYear) -> cyaModel.addDonationToLastYear,
-      controllers.charity.routes.GiftAidLastTaxYearAmountController.show(taxYear) -> cyaModel.addDonationToLastYearAmount,
-      controllers.charity.routes.DonationsToPreviousTaxYearController.show(taxYear, taxYear) -> cyaModel.addDonationToThisYear,
-      controllers.charity.routes.GiftAidAppendNextYearTaxAmountController.show(taxYear, taxYear) -> cyaModel.addDonationToThisYearAmount,
-      controllers.charity.routes.GiftAidQualifyingSharesSecuritiesController.show(taxYear) -> cyaModel.donatedSharesOrSecurities,
-      controllers.charity.routes.GiftAidTotalShareSecurityAmountController.show(taxYear) -> cyaModel.donatedSharesOrSecuritiesAmount,
-      controllers.charity.routes.GiftAidDonateLandOrPropertyController.show(taxYear) -> cyaModel.donatedLandOrProperty,
-      controllers.charity.routes.GiftAidLandOrPropertyAmountController.show(taxYear) -> cyaModel.donatedLandOrPropertyAmount,
-      controllers.charity.routes.GiftAidSharesSecuritiesLandPropertyOverseasController.show(taxYear) -> cyaModel.overseasDonatedSharesSecuritiesLandOrProperty,
-      controllers.charity.routes.OverseasSharesSecuritiesLandPropertyAmountController.show(taxYear)
-        -> cyaModel.overseasDonatedSharesSecuritiesLandOrPropertyAmount,
-      controllers.charity.routes.GiftAidOverseasSharesNameController.show(taxYear,"")
-          -> cyaModel.overseasDonatedSharesSecuritiesLandOrPropertyAmount
-    )
-
-    val cyaNames = ListMap[Call, Seq(_)](
-      cya.find(x => x._2.isEmpty)
-        .fold(Ok(view(taxYear, cyaModel, priorModel)))(emptyValue => Redirect(emptyValue._1))
-    )
-
-    val cya: ListMap[Call, Option[_]] = cyaCommon
-    cya.find(x => x._2.isEmpty)
-      .fold(Ok(view(taxYear, cyaModel, priorModel)))(emptyValue => Redirect(emptyValue._1))
   }
 
   private def auditSubmission(details: CreateOrAmendGiftAidAuditDetail)
