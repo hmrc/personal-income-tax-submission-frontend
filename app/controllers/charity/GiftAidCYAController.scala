@@ -16,15 +16,15 @@
 
 package controllers.charity
 
-import audit.{AuditModel, AuditService, CreateOrAmendGiftAidAuditDetail, TailorRemoveIncomeSourcesAuditDetail, TailorRemoveIncomeSourcesBody}
+import audit._
 import config.{AppConfig, ErrorHandler, GIFT_AID}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
-import models.charity.{CharityNameModel, DecodedGiftAidSubmissionPayload, GiftAidCYAModel}
+import models.charity.{CharityNameModel, GiftAidCYAModel}
 import play.api.Logger
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc._
 import services.{ExcludeJourneyService, GiftAidSessionService, GiftAidSubmissionService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
@@ -57,12 +57,14 @@ class GiftAidCYAController @Inject()(implicit mcc: MessagesControllerComponents,
           if (cyaData.isFinished) {
             Future.successful(Ok(view(taxYear, cyaData, potentialPriorData)))
           } else {
-            Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))) //TODO This should redirect to the last logical position. Sort out during navigation.
+            Future.successful(Redirect(controllers.charity.routes.GiftAidGatewayController.show(taxYear)))
           }
         case (None, Some(priorData)) =>
           val cyaModel = generateCyaFromPrior(priorData)
           giftAidSessionService.createSessionData(cyaModel, taxYear)(errorHandler.internalServerError())(Ok(view(taxYear, cyaModel, Some(priorData))))
-        case _ => Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+        case _ =>
+          logger.info("[GiftAidCYAController][show] No CYA and prior data. Redirecting to the overview page.")
+          Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
       }
     }.flatten
   }

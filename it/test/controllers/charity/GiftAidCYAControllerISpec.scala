@@ -706,6 +706,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
               result
               verifyGet(s"/update-and-submit-income-tax-return/$taxYear/view")
             }
+
           }
 
           "there is no CYA and no PRIOR data" which {
