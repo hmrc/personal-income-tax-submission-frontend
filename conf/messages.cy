@@ -53,6 +53,12 @@ common.error.invalid_number = Nodwch swm gan ddefnyddio’r rhifau 0 i 9
 common.error.amountMaxLimit = Nodwch swm sy’n llai na £100,000,000,000
 common.error.invalid_currency_format = Nodwch y swm yn y fformat cywir
 
+# Section completed
+# ----------------------------------------------------------
+sectionCompletedState.title = TODO add welsh translations
+sectionCompletedState.hint = TODO add welsh translations
+sectionCompletedState.error.required = TODO add welsh translations
+
 # General Service Pages
 # ----------------------------------------------------------
 

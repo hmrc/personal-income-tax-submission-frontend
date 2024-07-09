@@ -1,0 +1,91 @@
+/*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package controllers.dividends
+
+import config.{AppConfig, DIVIDENDS, ErrorHandler}
+import controllers.predicates.AuthorisedAction
+import controllers.predicates.CommonPredicates.commonPredicates
+import forms.YesNoForm
+import models.dividends.Journey
+import models.mongo.JourneyStatus
+import models.mongo.JourneyStatus.{Completed, InProgress}
+import play.api.data.Form
+import play.api.i18n.I18nSupport
+import play.api.mvc._
+import services.StockDividendsSessionService
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import views.html.dividends.SectionCompletedStateView
+
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+
+class SectionCompletedStateController @Inject() (implicit val cc: MessagesControllerComponents,
+                                                  authAction: AuthorisedAction,
+                                                  view: SectionCompletedStateView,
+                                                  errorHandler: ErrorHandler,
+                                                  session: StockDividendsSessionService,
+                                                  implicit val appConfig: AppConfig,
+                                                  ec: ExecutionContext
+                                                ) extends FrontendController(cc) with I18nSupport {
+
+  def form(): Form[Boolean] = YesNoForm.yesNoForm("sectionCompletedState.error.required")
+
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
+
+    //TODO: work on how to get journeyStatus and isAgent in show and submit
+
+    session.getSessionData(taxYear).map {
+      case Left(_) => errorHandler.internalServerError()
+      case Right(sessionData) =>
+        val valueCheck: Option[Boolean] = sessionData.flatMap(_.stockDividends.flatMap(_.stockDividends))
+        valueCheck match {
+          case None => Ok(view(form(), taxYear))
+          case Some(value) => Ok(view(form().fill(value), taxYear))
+        }
+    }
+  }
+
+  def submit(taxYear: Int ): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async {implicit user =>
+    form().bindFromRequest().fold(formWithErrors => {
+      Future.successful(BadRequest(view(formWithErrors, taxYear)))
+    }, {
+      yesNoValue =>
+        session.getSessionData(taxYear).flatMap {
+          case Left(_) => Future.successful(errorHandler.internalServerError())
+          case Right(sessionData) => Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+        }
+      }
+    )
+  }
+
+  private def fill(form: Form[Boolean], status: Option[JourneyStatus]): Form[Boolean] =
+    status match {
+      case Some(Completed)  => form.fill(true)
+      case Some(InProgress) => form.fill(false)
+      case _                => form
+    }
+
+// TODO: Add implementation to change status of this to in progress or completed
+  private def saveAndRedirect(answer: Boolean, taxYear : Int, journey: String)(implicit request: Request[_]): Future[Result] = {
+    val status = if (answer) Completed else InProgress
+    Journey.withName(journey) match {
+      case Right(journey) => Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+      case Left(error)    => errorHandler.onClientError(request, NOT_FOUND, error)
+    }
+  }
+
+}
