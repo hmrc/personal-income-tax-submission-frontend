@@ -17,7 +17,7 @@
 package services
 
 import common.IncomeSources
-import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector, StockDividendsUserDataConnector}
+import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector, StockDividendsBackendConnector, StockDividendsUserDataConnector}
 import models.dividends.StockDividendsCheckYourAnswersModel
 import models.mongo.{DatabaseError, StockDividendsUserDataModel}
 import models.priorDataModels.StockDividendsPriorDataModel
@@ -33,6 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class StockDividendsSessionService @Inject()(
                                               stockDividendsUserDataRepository: StockDividendsUserDataRepository,
                                               stockDividendsUserDataConnector: StockDividendsUserDataConnector,
+                                              stockDividendsBackendConnector: StockDividendsBackendConnector,
                                               incomeTaxUserDataConnector: IncomeTaxUserDataConnector,
                                               incomeSourceConnector: IncomeSourceConnector
                                        ) {
@@ -57,24 +58,16 @@ class StockDividendsSessionService @Inject()(
   }
 
   def createSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int)(onFail: A)(onSuccess: A)
-                          (implicit user: User[_], ec: ExecutionContext): Future[A] = {
+                          (implicit user: User[_], ec: ExecutionContext, hc: HeaderCarrier): Future[A] = {
 
-    val userData = StockDividendsUserDataModel(
-      user.sessionId,
-      user.mtditid,
-      user.nino,
-      taxYear,
-      Some(cyaModel),
-      Instant.now()
-    )
-
-    stockDividendsUserDataRepository.create(userData)().map {
+    stockDividendsBackendConnector.createSessionData(cyaModel, taxYear)(hc).map {
       case Right(_) => onSuccess
       case Left(_) => onFail
     }
   }
 
-  def getSessionData(taxYear: Int)(implicit user: User[_], ec: ExecutionContext): Future[Either[DatabaseError, Option[StockDividendsUserDataModel]]] = {
+  def getSessionData(taxYear: Int)(implicit user: User[_], ec: ExecutionContext, hc: HeaderCarrier):
+    Future[Either[DatabaseError, Option[StockDividendsUserDataModel]]] = {
 
     stockDividendsUserDataRepository.find(taxYear).map {
       case Left(error) =>
@@ -82,27 +75,19 @@ class StockDividendsSessionService @Inject()(
         Left(error)
       case Right(userData) => Right(userData)
     }
+
   }
 
   def updateSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int, needsCreating: Boolean = false)(onFail: A)(onSuccess: A)
-                          (implicit user: User[_], ec: ExecutionContext): Future[A] = {
-
-    val userData = StockDividendsUserDataModel(
-      user.sessionId,
-      user.mtditid,
-      user.nino,
-      taxYear,
-      Some(cyaModel),
-      Instant.now()
-    )
+                          (implicit user: User[_], ec: ExecutionContext, hc: HeaderCarrier): Future[A] = {
 
     if (needsCreating) {
-      stockDividendsUserDataRepository.create(userData)().map {
+      stockDividendsBackendConnector.createSessionData(cyaModel, taxYear)(hc).map {
         case Right(_) => onSuccess
         case Left(_) => onFail
       }
     } else {
-      stockDividendsUserDataRepository.update(userData).map {
+      stockDividendsBackendConnector.updateSessionData(cyaModel, taxYear)(hc).map {
         case Right(_) => onSuccess
         case Left(_) => onFail
       }

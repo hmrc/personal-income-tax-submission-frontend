@@ -16,7 +16,7 @@
 
 package test.services
 
-import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector, StockDividendsUserDataConnector}
+import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector, StockDividendsBackendConnector, StockDividendsUserDataConnector}
 import repositories.StockDividendsUserDataRepository
 import services.StockDividendsSessionService
 import test.utils.IntegrationTest
@@ -26,6 +26,7 @@ class StockDividendsSessionServiceISpec extends IntegrationTest{
 
   val stockDividendsUserDataRepository: StockDividendsUserDataRepository = app.injector.instanceOf[StockDividendsUserDataRepository]
   val stockDividendsUserDataConnector: StockDividendsUserDataConnector = app.injector.instanceOf[StockDividendsUserDataConnector]
+  val stockDividendsBackendConnector: StockDividendsBackendConnector = app.injector.instanceOf[StockDividendsBackendConnector]
   val incomeTaxUserDataConnector: IncomeTaxUserDataConnector = app.injector.instanceOf[IncomeTaxUserDataConnector]
   val incomeSourceConnector: IncomeSourceConnector = app.injector.instanceOf[IncomeSourceConnector]
 
@@ -35,6 +36,7 @@ class StockDividendsSessionServiceISpec extends IntegrationTest{
   val stockDividendsSessionService: StockDividendsSessionService = new StockDividendsSessionService(
     stockDividendsUserDataRepository,
     stockDividendsUserDataConnector,
+    stockDividendsBackendConnector,
     incomeTaxUserDataConnector,
     incomeSourceConnector)
 
