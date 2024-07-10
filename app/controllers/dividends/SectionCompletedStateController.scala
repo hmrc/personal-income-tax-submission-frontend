@@ -51,7 +51,7 @@ class SectionCompletedStateController @Inject() (implicit val cc: MessagesContro
     session.getSessionData(taxYear).map {
       case Left(_) => errorHandler.internalServerError()
       case Right(sessionData) =>
-        val valueCheck: Option[Boolean] = sessionData.flatMap(_.stockDividends.flatMap(_.stockDividends))
+        val valueCheck: Option[Boolean] = None // TODO: get this value from backend mongo session
         valueCheck match {
           case None => Ok(view(form(), taxYear))
           case Some(value) => Ok(view(form().fill(value), taxYear))

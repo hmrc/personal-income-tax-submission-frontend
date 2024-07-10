@@ -129,7 +129,7 @@ class DividendsCYAController @Inject()(
     }).flatMap {
       case Right(_) =>
         session.clear(taxYear)(errorHandler.internalServerError())(
-          Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+          Redirect(routes.SectionCompletedStateController.show(taxYear))
         )
       case Left(error) => Future.successful(errorHandler.handleError(error.status))
     }
