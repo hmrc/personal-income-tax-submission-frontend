@@ -16,7 +16,8 @@
 
 package test.services
 
-import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector, StockDividendsBackendConnector, StockDividendsUserDataConnector}
+import connectors.stockdividends.{CreateStockDividendsBackendConnector, GetStockDividendsBackendConnector, UpdateStockDividendsBackendConnector}
+import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector, StockDividendsUserDataConnector}
 import repositories.StockDividendsUserDataRepository
 import services.StockDividendsSessionService
 import test.utils.IntegrationTest
@@ -26,7 +27,9 @@ class StockDividendsSessionServiceISpec extends IntegrationTest{
 
   val stockDividendsUserDataRepository: StockDividendsUserDataRepository = app.injector.instanceOf[StockDividendsUserDataRepository]
   val stockDividendsUserDataConnector: StockDividendsUserDataConnector = app.injector.instanceOf[StockDividendsUserDataConnector]
-  val stockDividendsBackendConnector: StockDividendsBackendConnector = app.injector.instanceOf[StockDividendsBackendConnector]
+  val createStockDividendsBackendConnector: CreateStockDividendsBackendConnector = app.injector.instanceOf[CreateStockDividendsBackendConnector]
+  val updateStockDividendsBackendConnector: UpdateStockDividendsBackendConnector = app.injector.instanceOf[UpdateStockDividendsBackendConnector]
+  val getStockDividendsBackendConnector: GetStockDividendsBackendConnector = app.injector.instanceOf[GetStockDividendsBackendConnector]
   val incomeTaxUserDataConnector: IncomeTaxUserDataConnector = app.injector.instanceOf[IncomeTaxUserDataConnector]
   val incomeSourceConnector: IncomeSourceConnector = app.injector.instanceOf[IncomeSourceConnector]
 
@@ -36,9 +39,12 @@ class StockDividendsSessionServiceISpec extends IntegrationTest{
   val stockDividendsSessionService: StockDividendsSessionService = new StockDividendsSessionService(
     stockDividendsUserDataRepository,
     stockDividendsUserDataConnector,
-    stockDividendsBackendConnector,
+    createStockDividendsBackendConnector,
+    updateStockDividendsBackendConnector,
+    getStockDividendsBackendConnector,
     incomeTaxUserDataConnector,
-    incomeSourceConnector)
+    incomeSourceConnector
+  )
 
   "create" should{
     "return false when failing to decrypt the model" in {

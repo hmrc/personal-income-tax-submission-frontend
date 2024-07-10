@@ -17,23 +17,25 @@
 package services
 
 import common.IncomeSources
-import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector, StockDividendsBackendConnector, StockDividendsUserDataConnector}
+import connectors.stockdividends.{CreateStockDividendsBackendConnector, GetStockDividendsBackendConnector, UpdateStockDividendsBackendConnector}
+import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector, StockDividendsUserDataConnector}
 import models.dividends.StockDividendsCheckYourAnswersModel
 import models.mongo.{DatabaseError, StockDividendsUserDataModel}
-import models.priorDataModels.StockDividendsPriorDataModel
+import models.priorDataModels.{IncomeSourcesModel, StockDividendsPriorDataModel}
 import models.{APIErrorModel, User}
 import play.api.Logger
 import repositories.StockDividendsUserDataRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
-import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class StockDividendsSessionService @Inject()(
                                               stockDividendsUserDataRepository: StockDividendsUserDataRepository,
                                               stockDividendsUserDataConnector: StockDividendsUserDataConnector,
-                                              stockDividendsBackendConnector: StockDividendsBackendConnector,
+                                              createStockDividendsBackendConnector: CreateStockDividendsBackendConnector,
+                                              updateStockDividendsBackendConnector: UpdateStockDividendsBackendConnector,
+                                              getStockDividendsBackendConnector: GetStockDividendsBackendConnector,
                                               incomeTaxUserDataConnector: IncomeTaxUserDataConnector,
                                               incomeSourceConnector: IncomeSourceConnector
                                        ) {
@@ -45,7 +47,7 @@ class StockDividendsSessionService @Inject()(
   def getPriorData(taxYear: Int)(implicit user: User[_], ec: ExecutionContext, hc: HeaderCarrier): Future[StockDividendsPriorDataResponse] = {
     incomeTaxUserDataConnector.getUserData(taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid)).flatMap {
       case Left(error) => Future.successful(Left(error))
-      case Right(ukDividends) =>
+      case Right(ukDividends: IncomeSourcesModel) =>
         stockDividendsUserDataConnector.getUserData(taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid)).map{
           case Left(error) => Left(error)
           case Right(stockDividends) =>
@@ -58,9 +60,9 @@ class StockDividendsSessionService @Inject()(
   }
 
   def createSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int)(onFail: A)(onSuccess: A)
-                          (implicit user: User[_], ec: ExecutionContext, hc: HeaderCarrier): Future[A] = {
+                          (implicit ec: ExecutionContext, hc: HeaderCarrier): Future[A] = {
 
-    stockDividendsBackendConnector.createSessionData(cyaModel, taxYear)(hc).map {
+    createStockDividendsBackendConnector.createSessionData(cyaModel, taxYear)(hc).map {
       case Right(_) => onSuccess
       case Left(_) => onFail
     }
@@ -79,15 +81,15 @@ class StockDividendsSessionService @Inject()(
   }
 
   def updateSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int, needsCreating: Boolean = false)(onFail: A)(onSuccess: A)
-                          (implicit user: User[_], ec: ExecutionContext, hc: HeaderCarrier): Future[A] = {
+                          (implicit ec: ExecutionContext, hc: HeaderCarrier): Future[A] = {
 
     if (needsCreating) {
-      stockDividendsBackendConnector.createSessionData(cyaModel, taxYear)(hc).map {
+      createStockDividendsBackendConnector.createSessionData(cyaModel, taxYear)(hc).map {
         case Right(_) => onSuccess
         case Left(_) => onFail
       }
     } else {
-      stockDividendsBackendConnector.updateSessionData(cyaModel, taxYear)(hc).map {
+      updateStockDividendsBackendConnector.updateSessionData(cyaModel, taxYear)(hc).map {
         case Right(_) => onSuccess
         case Left(_) => onFail
       }

@@ -16,6 +16,8 @@
 
 package test.services
 
+import connectors.dividends.{CreateDividendsBackendConnector, GetDividendsBackendConnector, UpdateDividendsBackendConnector}
+import connectors.stockdividends.UpdateStockDividendsBackendConnector
 import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector}
 import repositories.DividendsUserDataRepository
 import services.DividendsSessionService
@@ -28,8 +30,16 @@ class DividendsSessionServiceISpec extends IntegrationTest{
   val incomeTaxUserDataConnector: IncomeTaxUserDataConnector = app.injector.instanceOf[IncomeTaxUserDataConnector]
   val incomeSourceConnector: IncomeSourceConnector = app.injector.instanceOf[IncomeSourceConnector]
 
+  val createDividendsBackendConnector: CreateDividendsBackendConnector = app.injector.instanceOf[CreateDividendsBackendConnector]
+  val updateDividendsBackendConnector: UpdateDividendsBackendConnector = app.injector.instanceOf[UpdateDividendsBackendConnector]
+  val getDividendsBackendConnector: GetDividendsBackendConnector = app.injector.instanceOf[GetDividendsBackendConnector]
+
   val dividendsSessionServiceInvalidEncryption: DividendsSessionService = appWithInvalidEncryptionKey.injector.instanceOf[DividendsSessionService]
-  val dividendsSessionService: DividendsSessionService = new DividendsSessionService(dividendsUserDataRepository, incomeTaxUserDataConnector, incomeSourceConnector)
+  val dividendsSessionService: DividendsSessionService =
+    new DividendsSessionService(dividendsUserDataRepository, createDividendsBackendConnector, updateDividendsBackendConnector,
+      getDividendsBackendConnector, incomeTaxUserDataConnector, incomeSourceConnector)
+
+
 
   "create" should{
     "return false when failing to decrypt the model" in {
