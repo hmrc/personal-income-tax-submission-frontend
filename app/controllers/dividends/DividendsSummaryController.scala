@@ -141,7 +141,12 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
     }).flatMap {
       case Right(_) =>
         for {
-          dividends <- dividendsSession.clear(taxYear)(errorHandler.internalServerError())(Redirect(routes.SectionCompletedStateController.show(taxYear)))
+          dividends <- dividendsSession.clear(taxYear)(errorHandler.internalServerError())(
+            if(appConfig.sectionCompleted) {
+              Redirect(routes.SectionCompletedStateController.show(taxYear))
+            } else {
+              Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+            })
           stockDividends <- stockDividendsSession.clear(taxYear)(errorHandler.internalServerError())(dividends)
         } yield {
           stockDividends
