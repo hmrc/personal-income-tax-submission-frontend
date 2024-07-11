@@ -735,7 +735,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
 
   ".submit" should {
 
-    s"redirect to the overview page when there is valid session data " when {
+    s"redirect to the section completed page when there is valid session data " when {
 
       lazy val result: WSResponse = {
         authoriseIndividual()
@@ -753,7 +753,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
 
       "has the correct title" in {
         result.headers("Location").head shouldBe
-          s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view"
+          s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/section-completed"
       }
     }
 
@@ -780,8 +780,8 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
           result.header.status shouldBe SEE_OTHER
         }
 
-        "has the redirect location of the overview page" in {
-          result.header.headers("Location") shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+        "has the redirect location of the section completed page" in {
+          result.header.headers("Location") shouldBe s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/section-completed"
         }
       }
 
