@@ -757,9 +757,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
       }
     }
 
-    //TODO: fix failing test (POST request not redirecting correctly)
-    /*
-    s"redirect to the section completed page when there is valid session data when commonTaskList is on " when {
+    s"redirect to the section completed page when there is valid session data when commonTaskList is on" when {
 
       lazy val result = {
         authoriseIndividual()
@@ -769,7 +767,6 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
         insertStockDividendsCyaData(Some(cyaModel))
         stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "")
         stubPut(s"/income-tax-dividends/income-tax/income/dividends/$nino/$taxYear", NO_CONTENT, "")
-        urlPost(dividendsSummaryUrl, follow = false, headers = playSessionCookie(), body = "")
 
         val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/summary",
           Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
@@ -780,12 +777,12 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
         result.header.status shouldBe SEE_OTHER
       }
 
-      "has the correct title" in {
+      s"has the correct title" in {
         result.header.headers("Location") shouldBe
           s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/section-completed"
       }
     }
-    */
+
     s"redirect to the overview page" when {
 
       "tailoring is on, and the gateway question is false" which {

@@ -641,8 +641,6 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           }
         }
 
-        //TODO: fix failing test (POST request not redirecting correctly)
-        /*
         s"redirect to the section completed page when there is valid session data and commonTaskList is on" when {
 
           lazy val result = {
@@ -654,11 +652,10 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
                 None, Some(true), Some(1000.43), Some(true), Some(9983.21)
               )))
             stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "")
-            urlPost(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie(), body = "")
-            val request = FakeRequest("POST", dividendsCheckYourAnswersUrl,
+            val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends",
               Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
 
-            await(route(appWithCommonTaskListAndTailoring, request, "{}").get)
+            await(route(appWithCommonTaskList, request, "{}").get)
           }
           s"has a status of 303" in {
             result.header.status shouldBe SEE_OTHER
@@ -668,7 +665,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
             result.header.headers("Location") shouldBe
               s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/section-completed"
           }
-        } */
+        }
 
         s"redirect to the 500 unauthorised error template page when there is a problem posting data" when {
 
@@ -707,6 +704,69 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           "has a status of 503" in {
             result.status shouldBe SERVICE_UNAVAILABLE
           }
+        }
+
+        s"redirect to the overview page" when {
+
+          "tailoring is on, and the gateway question is false" which {
+
+            lazy val result = {
+              dropDividendsDB()
+              emptyUserDataStub()
+              insertDividendsCyaData(Some(dividendsCyaModel.copy(gateway = Some(false))), taxYear, Some(mtditid), None)
+              authoriseIndividual()
+              stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "")
+              stubPost(s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear", NO_CONTENT, "{}")
+              stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
+
+              val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends", Headers.apply(
+                playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*
+              ), "{}")
+
+              await(route(appWithTailoring, request, "{}").get)
+            }
+
+            "has a status of SEE_OTHER(303)" in {
+              result.header.status shouldBe SEE_OTHER
+            }
+
+            "has the redirect location of the overview page" in {
+              result.header.headers("Location") shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+            }
+          }
+
+        }
+
+        s"redirect to the overview page" when {
+
+          "tailoring is on, and the gateway question is false and commonTaskList is on" which {
+
+            lazy val result = {
+              dropDividendsDB()
+              emptyUserDataStub()
+              insertDividendsCyaData(Some(dividendsCyaModel.copy(gateway = Some(false))), taxYear, Some(mtditid), None)
+              authoriseIndividual()
+              stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "")
+              stubPost(s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear", NO_CONTENT, "{}")
+              stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
+
+              val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends", Headers.apply(
+                playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*
+              ), "{}")
+
+              await(route(appWithCommonTaskListAndTailoring, request, "{}").get)
+            }
+
+            "has a status of SEE_OTHER(303)" in {
+              result.header.status shouldBe SEE_OTHER
+            }
+
+            "has the redirect location of the overview page" in {
+              result.header.headers("Location") shouldBe
+                s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/section-completed"
+            }
+          }
+
         }
 
         s"return a INTERNAL_SERVER_ERROR" when {

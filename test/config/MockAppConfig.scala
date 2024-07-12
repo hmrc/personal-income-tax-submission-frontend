@@ -88,8 +88,4 @@ class MockAppConfigEncyrptionOff extends MockAppConfig {
   override val useEncryption: Boolean = false
 }
 
-class MockAppConfigCommonTaskListOn extends MockAppConfig {
-  override val commonTaskList: Boolean = true
-}
-
 
