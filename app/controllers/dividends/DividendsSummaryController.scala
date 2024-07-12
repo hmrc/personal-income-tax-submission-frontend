@@ -142,7 +142,7 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
       case Right(_) =>
         for {
           dividends <- dividendsSession.clear(taxYear)(errorHandler.internalServerError())(
-            if(appConfig.sectionCompleted) {
+            if(appConfig.commonTaskList) {
               Redirect(routes.SectionCompletedStateController.show(taxYear))
             } else {
               Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
