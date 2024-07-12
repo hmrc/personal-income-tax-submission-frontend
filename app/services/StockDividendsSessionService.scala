@@ -69,9 +69,8 @@ class StockDividendsSessionService @Inject()(
   }
 
   def getSessionData(taxYear: Int)(implicit user: User[_], ec: ExecutionContext, hc: HeaderCarrier):
-    Future[Either[DatabaseError, Option[StockDividendsUserDataModel]]] = {
-
-    stockDividendsUserDataRepository.find(taxYear).map {
+    Future[Either[APIErrorModel, Option[StockDividendsUserDataModel]]] = {
+    getStockDividendsBackendConnector.getSessionData(taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid), ec).map {
       case Left(error) =>
         logger.error("[StockDividendsSessionService][getSessionData] Could not find user session.")
         Left(error)
