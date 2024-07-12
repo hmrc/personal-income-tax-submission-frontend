@@ -18,10 +18,8 @@ package connectors.stockdividends
 
 import config.AppConfig
 import connectors.RawResponseReads
-import connectors.httpParsers.StockDividendsSubmissionHttpParser._
-import connectors.httpParsers.StockDividendsUserDataHttpParser.{StockDividendsUserDataHttpReads, StockDividendsUserDataResponse}
+import connectors.httpParsers.StockDividendsBackendUserDataHttpParser._
 import models.User
-import models.dividends.StockDividendsCheckYourAnswersModel
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
 import javax.inject.Inject
@@ -30,9 +28,9 @@ import scala.concurrent.{ExecutionContext, Future}
 class GetStockDividendsBackendConnector @Inject()(val http: HttpClient, appConfig: AppConfig)
                                                  (implicit ec: ExecutionContext) extends RawResponseReads {
 
-  def getSessionData(taxYear: Int)(implicit user: User[_], hc: HeaderCarrier, ec: ExecutionContext): Future[StockDividendsUserDataResponse] = {
+  def getSessionData(taxYear: Int)(implicit user: User[_], hc: HeaderCarrier, ec: ExecutionContext): Future[StockDividendsBackendUserDataResponse] = {
     val stockDividendsUserDataUrl: String = appConfig.dividendsBaseUrl + s"/income-tax/income/dividends/$taxYear/stock-dividends/session"
 
-    http.GET[StockDividendsUserDataResponse](stockDividendsUserDataUrl)
+    http.GET[StockDividendsBackendUserDataResponse](stockDividendsUserDataUrl)
   }
 }
