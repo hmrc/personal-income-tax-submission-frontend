@@ -56,8 +56,8 @@ common.error.invalid_currency_format = Nodwch y swm yn y fformat cywir
 # Section completed
 # ----------------------------------------------------------
 sectionCompletedState.title = TODO add welsh translations
-sectionCompletedState.hint = TODO add welsh translations
-sectionCompletedState.error.required = TODO add welsh translations
+sectionCompletedState.hint = TODO add welsh translationss
+sectionCompletedState.error.required = TODO add welsh translationsss
 
 # General Service Pages
 # ----------------------------------------------------------

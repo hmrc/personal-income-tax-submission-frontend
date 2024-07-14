@@ -95,7 +95,7 @@ class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig) extends AppCon
 
   lazy val welshToggleEnabled: Boolean = servicesConfig.getBoolean("feature-switch.welshToggleEnabled")
   lazy val useEncryption: Boolean = servicesConfig.getBoolean("useEncryption")
-  lazy val commonTaskList: Boolean = servicesConfig.getBoolean("feature-switch.commonTaskListcommonTaskList")
+  lazy val commonTaskList: Boolean = servicesConfig.getBoolean("feature-switch.commonTaskList")
 
   def isJourneyAvailable(journeyKey: JourneyKey): Boolean = servicesConfig.getBoolean("feature-switch.journeys." + journeyKey.stringify)
 
