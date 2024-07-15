@@ -16,7 +16,7 @@
 
 package controllers.interest
 
-import config.{AppConfig, ErrorHandler, INTEREST}
+import config.{AppConfig, INTEREST}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import forms.YesNoForm
@@ -25,50 +25,33 @@ import models.mongo.JourneyStatus.{Completed, InProgress}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import services.StockDividendsSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.interest.SectionCompletedStateView
 
 import javax.inject.Inject
+import scala.annotation.unused
 import scala.concurrent.{ExecutionContext, Future}
 
 class SectionCompletedStateController @Inject()(implicit val cc: MessagesControllerComponents,
                                                 authAction: AuthorisedAction,
                                                 view: SectionCompletedStateView,
-                                                errorHandler: ErrorHandler,
-                                                session: StockDividendsSessionService,
                                                 implicit val appConfig: AppConfig,
                                                 ec: ExecutionContext
                                                 ) extends FrontendController(cc) with I18nSupport {
 
   def form(): Form[Boolean] = YesNoForm.yesNoForm("sectionCompletedState.error.required")
 
-  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
-
-    //TODO: work on how to get journeyStatus and isAgent in show and submit
-
-    session.getSessionData(taxYear).map {
-      case Left(_) => errorHandler.internalServerError()
-      case Right(sessionData) =>
-        val valueCheck: Option[Boolean] = None // TODO: get this value from backend mongo session
-        valueCheck match {
-          case None => Ok(view(form(), taxYear))
-          case Some(value) => Ok(view(form().fill(value), taxYear))
-        }
-    }
+  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit request =>
+    Future.successful(Ok(view(form(), taxYear)))
   }
 
   def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async {implicit user =>
-    form().bindFromRequest().fold(formWithErrors => {
-      Future.successful(BadRequest(view(formWithErrors, taxYear)))
-    }, {
-      yesNoValue =>
-        session.getSessionData(taxYear).flatMap {
-          case Left(_) => Future.successful(errorHandler.internalServerError())
-          case Right(sessionData) => Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
-        }
-      }
-    )
+    form()
+      .bindFromRequest()
+      .fold(
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, taxYear))),
+        answer => saveAndRedirect(answer, taxYear)
+      )
   }
 
   private def fill(form: Form[Boolean], status: Option[JourneyStatus]): Form[Boolean] =
@@ -78,8 +61,9 @@ class SectionCompletedStateController @Inject()(implicit val cc: MessagesControl
       case _                => form
     }
 
-// TODO: Add implementation to change status of this to in progress or completed
-  private def saveAndRedirect(answer: Boolean, taxYear : Int, journey: String)(implicit request: Request[_]): Future[Result] = {
+// TODO: Add implementation to change status of this to in progress or completed & Redirect to common tasklist page
+  private def saveAndRedirect(answer: Boolean, taxYear : Int)(implicit request: Request[_]): Future[Result] = {
+    @unused
     val status = if (answer) Completed else InProgress
      Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
   }
