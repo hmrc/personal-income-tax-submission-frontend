@@ -169,8 +169,7 @@ class InterestSectionCompletedControllerISpec extends IntegrationTest with Inter
               authoriseAgentOrIndividual(isAgent = false)
               dropInterestDB()
               emptyUserDataStub()
-              emptyStockDividendsUserDataStub()
-              val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/section-completed",
+              val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/section-completed",
                 Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
 
               await(route(appWithCommonTaskList, request, Map("value" -> Seq("false"))).get)
@@ -190,8 +189,7 @@ class InterestSectionCompletedControllerISpec extends IntegrationTest with Inter
               authoriseAgentOrIndividual(isAgent = false)
               dropInterestDB()
               emptyUserDataStub()
-              emptyStockDividendsUserDataStub()
-              val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/section-completed",
+              val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/section-completed",
                 Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
 
               await(route(appWithCommonTaskList, request, Map("value" -> Seq("true"))).get)
