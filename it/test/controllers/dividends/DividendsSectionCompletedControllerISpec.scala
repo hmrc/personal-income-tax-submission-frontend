@@ -94,9 +94,7 @@ class DividendsSectionCompletedControllerISpec extends IntegrationTest with View
 
   private val userScenarios = Seq(
     UserScenario(isWelsh = false, isAgent = false, commonExpectedResults = CommonExpectedResultsEN, Some(IndividualResultsEN)),
-    UserScenario(isWelsh = false, isAgent = true, commonExpectedResults = CommonExpectedResultsEN, Some(AgentResultsEN)),
-    UserScenario(isWelsh = true, isAgent = false, commonExpectedResults = CommonExpectedResultsCY, Some(IndividualResultsCY)),
-    UserScenario(isWelsh = true, isAgent = true, commonExpectedResults = CommonExpectedResultsCY, Some(AgentResultsCY))
+    UserScenario(isWelsh = true, isAgent = false, commonExpectedResults = CommonExpectedResultsCY, Some(IndividualResultsCY))
   )
 
   userScenarios.foreach { scenario =>
@@ -106,18 +104,17 @@ class DividendsSectionCompletedControllerISpec extends IntegrationTest with View
     import uniqueResults._
 
     val testNameWelsh = if (scenario.isWelsh) "in Welsh" else "in English"
-    val testNameAgent = if (scenario.isAgent) "an agent" else "an individual"
 
 
-    s".show when $testNameWelsh and the user is $testNameAgent" when {
+    s".show when $testNameWelsh" when {
 
-      "display the gateway page" which {
+      s"display the gateway page in $testNameWelsh" which {
 
-        lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+        lazy val headers = playSessionCookie() ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
         lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
 
         lazy val result = {
-          authoriseAgentOrIndividual(scenario.isAgent)
+          authoriseIndividual()
           dropDividendsDB()
           emptyUserDataStub()
           route(appWithCommonTaskList, request, "{}").get
@@ -139,18 +136,18 @@ class DividendsSectionCompletedControllerISpec extends IntegrationTest with View
       }
     }
 
-    s".submit when $testNameWelsh and the user is $testNameAgent" when {
+    s".submit when $testNameWelsh" when {
 
       "redirect to the overview page" which {
         lazy val result = {
-          authoriseAgentOrIndividual(scenario.isAgent)
+          authoriseIndividual()
           dropDividendsDB()
           emptyUserDataStub()
           emptyStockDividendsUserDataStub()
           val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/section-completed",
             Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
 
-          await(route(appWithCommonTaskList, request, "{}").get)
+          await(route(appWithCommonTaskList, request, Map("value" -> Seq("true"))).get)
         }
 
         "has a status of SEE_OTHER(303)" in {
@@ -158,7 +155,7 @@ class DividendsSectionCompletedControllerISpec extends IntegrationTest with View
         }
 
         "have the correct redirect location" in {
-          result.header.headers("location") shouldBe Some(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+          result.header.headers("location") shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
         }
       }
     }
