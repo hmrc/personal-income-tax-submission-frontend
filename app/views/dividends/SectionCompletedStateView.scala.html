@@ -21,21 +21,26 @@
 @this(layout: Layout, heading: Heading, p: P, formWithCSRF: FormWithCSRF, radio: InputRadioAlt, button: Button, errorSummary: ErrorSummary)
 @(form: Form[Boolean], taxYear: Int)(implicit appConfig: AppConfig, messages: Messages, user: User[_])
 
-
 @hasFormErrors = @{form.hasErrors}
-    
-@layout(title(form, messages("sectionCompletedState.title"))) {
+
+@titleForUse = @{messages(s"sectionCompletedState.title")}
+
+@headingForUse = @{(titleForUse)}
+
+@layout(pageTitle = titleForUse) {
     
     @errorSummary(form.errors)
+
+    @heading(headingForUse, None, "govuk-!-margin-bottom-2")
 
     @formWithCSRF(controllers.dividends.routes.SectionCompletedStateController.submit(taxYear)) {
         @radio(
             form = form,
             name = "value",
             inline = true,
-            legendAsHeading = true,
             hint = Some(Html(messages("sectionCompletedState.hint"))),
-            legendHeading = Some(Html(messages("sectionCompletedState.title"))),
+            legendAsHeading = true,
+            legendHeading = Some(Html(messages("sectionCompletedState.title")))
         )
         @button()
     }

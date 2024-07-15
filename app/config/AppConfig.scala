@@ -51,6 +51,9 @@ class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig) extends AppCon
   def incomeTaxSubmissionIvRedirect: String = incomeTaxSubmissionBaseUrl +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.iv-redirect")
 
+  override def incomeTaxSubmissionTaskListUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl +
+    servicesConfig.getString("microservice.services.income-tax-submission-frontend.tasklist")
+
 
   private lazy val vcBaseUrl: String = servicesConfig.getString(ConfigKeys.viewAndChangeUrl)
 
@@ -134,6 +137,8 @@ trait AppConfig {
   def incomeTaxSubmissionStartUrl(taxYear: Int): String
 
   def incomeTaxSubmissionIvRedirect: String
+
+  def incomeTaxSubmissionTaskListUrl(taxYear: Int) : String
 
   def viewAndChangeEnterUtrUrl: String
 

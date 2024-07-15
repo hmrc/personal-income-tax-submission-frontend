@@ -39,6 +39,8 @@ class MockAppConfig extends AppConfig with MockFactory {
 
   override def incomeTaxSubmissionIvRedirect: String = "/update-and-submit-income-tax-return/iv-uplift"
 
+  override def incomeTaxSubmissionTaskListUrl(taxYear: Int): String = "/update-and-submit-income-tax-return/tasklist"
+
   override def viewAndChangeEnterUtrUrl: String = "/report-quarterly/income-and-expenses/view/agents/client-utr"
 
   override def contactFormServiceIdentifier(implicit isAgent: Boolean): String = "contactFormServiceIdentifier"
