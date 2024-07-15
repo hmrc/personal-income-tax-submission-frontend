@@ -55,9 +55,9 @@ common.error.invalid_currency_format = Nodwch y swm yn y fformat cywir
 
 # Section completed
 # ----------------------------------------------------------
-sectionCompletedState.title = TODO add welsh translations
-sectionCompletedState.hint = TODO add welsh translationss
-sectionCompletedState.error.required = TODO add welsh translationsss
+sectionCompletedState.title = A ydych wedi gorffen yr adran hon?
+sectionCompletedState.hint = Byddwch yn dal i allu mynd yn ôl ac adolygu’r wybodaeth rydych wedi’i rhoi i ni.
+sectionCompletedState.error.required = Dewiswch a ydych wedi llenwi’r adran hon
 
 # General Service Pages
 # ----------------------------------------------------------
