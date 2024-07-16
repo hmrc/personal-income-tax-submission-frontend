@@ -20,7 +20,6 @@ import config.{AppConfig, INTEREST}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import forms.YesNoForm
-import models.mongo.JourneyStatus
 import models.mongo.JourneyStatus.{Completed, InProgress}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
@@ -53,13 +52,6 @@ class SectionCompletedStateController @Inject()(implicit val cc: MessagesControl
         answer => saveAndRedirect(answer, taxYear)
       )
   }
-
-  private def fill(form: Form[Boolean], status: Option[JourneyStatus]): Form[Boolean] =
-    status match {
-      case Some(Completed)  => form.fill(true)
-      case Some(InProgress) => form.fill(false)
-      case _                => form
-    }
 
 // TODO: Add implementation to change status of this to in progress or completed & Redirect to common tasklist page
   private def saveAndRedirect(answer: Boolean, taxYear : Int)(implicit request: Request[_]): Future[Result] = {

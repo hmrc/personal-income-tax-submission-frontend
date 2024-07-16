@@ -16,7 +16,6 @@
 
 @import views.html.headerFooterTemplate.Layout
 @import views.html.templates.helpers.{Heading, P, InputRadioAlt, Button, ErrorSummary}
-@import views.ViewUtils.title
 
 @this(layout: Layout, heading: Heading, p: P, formWithCSRF: FormWithCSRF, radio: InputRadioAlt, button: Button, errorSummary: ErrorSummary)
 @(form: Form[Boolean], taxYear: Int)(implicit appConfig: AppConfig, messages: Messages, user: User[_])
