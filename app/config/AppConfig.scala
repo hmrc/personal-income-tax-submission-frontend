@@ -51,10 +51,6 @@ class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig) extends AppCon
   def incomeTaxSubmissionIvRedirect: String = incomeTaxSubmissionBaseUrl +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.iv-redirect")
 
-  override def incomeTaxSubmissionTaskListUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl +
-    servicesConfig.getString("microservice.services.income-tax-submission-frontend.tasklist")
-
-
   private lazy val vcBaseUrl: String = servicesConfig.getString(ConfigKeys.viewAndChangeUrl)
 
   def viewAndChangeEnterUtrUrl: String = s"$vcBaseUrl/report-quarterly/income-and-expenses/view/agents/client-utr"
@@ -138,8 +134,6 @@ trait AppConfig {
 
   def incomeTaxSubmissionIvRedirect: String
 
-  def incomeTaxSubmissionTaskListUrl(taxYear: Int) : String
-
   def viewAndChangeEnterUtrUrl: String
 
   def contactFormServiceIdentifier(implicit isAgent: Boolean): String
@@ -163,7 +157,6 @@ trait AppConfig {
 
   val welshToggleEnabled: Boolean
   val useEncryption: Boolean
-
   val commonTaskList: Boolean
 
   def isJourneyAvailable(journeyKey: JourneyKey): Boolean
