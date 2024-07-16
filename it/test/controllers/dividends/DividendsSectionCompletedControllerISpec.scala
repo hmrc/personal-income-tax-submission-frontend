@@ -139,7 +139,7 @@ class DividendsSectionCompletedControllerISpec extends IntegrationTest with View
                 status(result) shouldBe BAD_REQUEST
               }
 
-              titleCheck(expectedTitle, scenario.isWelsh)
+              titleCheck(expectedErrorTitle, scenario.isWelsh)
               welshToggleCheck(scenario.isWelsh)
               h1Check(s"$expectedTitle")
               hintTextCheck(expectedHint)
