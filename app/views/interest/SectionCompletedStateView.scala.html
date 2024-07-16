@@ -19,13 +19,12 @@
 
 @this(layout: Layout, heading: Heading, p: P, formWithCSRF: FormWithCSRF, radio: InputRadioAlt, button: Button, errorSummary: ErrorSummary)
 @(form: Form[Boolean], taxYear: Int)(implicit appConfig: AppConfig, messages: Messages, user: User[_])
-@hasFormErrors = @{form.hasErrors}
 
 @titleForUse = @{messages(s"sectionCompletedState.title")}
 
 @headingForUse = @{(titleForUse)}
 
-@layout(pageTitle = titleForUse) {
+@layout(pageTitle = titleForUse, hasErrors = form.hasErrors) {
 
     @errorSummary(form.errors)
 

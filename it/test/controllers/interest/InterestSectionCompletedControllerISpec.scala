@@ -151,7 +151,7 @@ class InterestSectionCompletedControllerISpec extends IntegrationTest with Inter
                 status(result) shouldBe BAD_REQUEST
               }
 
-              titleCheck(expectedTitle, scenario.isWelsh)
+              titleCheck(expectedErrorTitle, scenario.isWelsh)
               welshToggleCheck(scenario.isWelsh)
               h1Check(s"$expectedTitle")
               hintTextCheck(expectedHint)
