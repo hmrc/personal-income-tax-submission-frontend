@@ -51,7 +51,6 @@ class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig) extends AppCon
   def incomeTaxSubmissionIvRedirect: String = incomeTaxSubmissionBaseUrl +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.iv-redirect")
 
-
   private lazy val vcBaseUrl: String = servicesConfig.getString(ConfigKeys.viewAndChangeUrl)
 
   def viewAndChangeEnterUtrUrl: String = s"$vcBaseUrl/report-quarterly/income-and-expenses/view/agents/client-utr"
@@ -95,7 +94,7 @@ class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig) extends AppCon
 
   lazy val welshToggleEnabled: Boolean = servicesConfig.getBoolean("feature-switch.welshToggleEnabled")
   lazy val useEncryption: Boolean = servicesConfig.getBoolean("useEncryption")
-  lazy val commonTaskList: Boolean = servicesConfig.getBoolean("feature-switch.commonTaskList")
+  val commonTaskList: Boolean = servicesConfig.getBoolean("feature-switch.commonTaskList")
 
   def isJourneyAvailable(journeyKey: JourneyKey): Boolean = servicesConfig.getBoolean("feature-switch.journeys." + journeyKey.stringify)
 
@@ -158,7 +157,6 @@ trait AppConfig {
 
   val welshToggleEnabled: Boolean
   val useEncryption: Boolean
-
   val commonTaskList: Boolean
 
   def isJourneyAvailable(journeyKey: JourneyKey): Boolean
@@ -176,6 +174,4 @@ trait AppConfig {
   val interestSavingsEnabled: Boolean
   val dividendsTailoringEnabled: Boolean
   val charityTailoringEnabled: Boolean
-
-
 }
