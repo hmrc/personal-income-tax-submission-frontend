@@ -32,8 +32,6 @@ object StockDividendsBackendUserDataHttpParser extends APIParser {
 
   implicit object StockDividendsUserDataHttpReads extends HttpReads[StockDividendsBackendUserDataResponse] {
     override def read(method: String, url: String, response: HttpResponse): StockDividendsBackendUserDataResponse = {
-
-      println("FRONTEND RESPONSE PARSER", response)
       response.status match {
         case OK => response.json.validate[StockDividendsUserDataModel].fold[StockDividendsBackendUserDataResponse](
           _ => badSuccessJsonFromAPI,
