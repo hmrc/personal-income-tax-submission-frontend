@@ -111,11 +111,7 @@ class InterestCYAController @Inject()(
         if (appConfig.interestSavingsEnabled) {
           Redirect(controllers.routes.InterestFromSavingsAndSecuritiesSummaryController.show(taxYear))
         }else {
-          if(appConfig.commonTaskList) {
-            Redirect(routes.SectionCompletedStateController.show(taxYear))
-          } else {
             Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-          }
         })
       case Left(error) => Future.successful(errorHandler.handleError(error.status))
     }

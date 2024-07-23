@@ -640,38 +640,6 @@ class InterestCYAControllerISpec extends IntegrationTest with InterestDatabaseHe
 
       }
 
-      s"redirect to the section completed page - ${welshTest(us.isWelsh)} - ${agentTest(us.isAgent)}" when {
-
-        "tailoring is on, and the gateway question is false" which {
-          lazy val result = {
-            dropInterestDB()
-            emptyUserDataStub()
-            insertInterestCyaData(Some(InterestCYAModel(
-              Some(false), Some(false), Some(false), Seq()
-            )), taxYear, Some(mtditid), None)
-            authoriseIndividual()
-            stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "")
-            stubPost(s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear", NO_CONTENT, "{}")
-            stubPost(s"/income-tax-interest/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
-
-            val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/check-interest", Headers.apply(
-              (playSessionCookie(us.isAgent) :+ ("Csrf-Token" -> "nocheck")): _*
-            ), "{}")
-
-            await(route(appWithTailoring, request, "{}").get)
-          }
-
-          "has a status of SEE_OTHER(303)" in {
-            result.header.status shouldBe SEE_OTHER
-          }
-
-          "has the redirect location of the overview page" in {
-            result.header.headers("Location") shouldBe controllers.routes.InterestFromSavingsAndSecuritiesSummaryController.show(taxYear).url
-          }
-        }
-
-      }
-
       s"return an internal server error - ${welshTest(us.isWelsh)} - ${agentTest(us.isAgent)}}" when {
 
         "the tailoring feature switch is on, but the exclude journey call fails" which {
