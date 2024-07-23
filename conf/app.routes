@@ -95,6 +95,9 @@ POST        /:taxYear/interest/check-interest                                   
 GET         /:taxYear/interest/which-account-did-you-get-taxed-interest-from                                  controllers.interest.ChooseAccountController.show(taxYear:Int, taxType="taxed")
 POST        /:taxYear/interest/which-account-did-you-get-taxed-interest-from                                  controllers.interest.ChooseAccountController.submit(taxYear:Int, taxType="taxed")
 
+GET         /:taxYear/interest/section-completed                                                              controllers.interest.SectionCompletedStateController.show(taxYear: Int)
+POST        /:taxYear/interest/section-completed                                                              controllers.interest.SectionCompletedStateController.submit(taxYear: Int)
+
 # Donations to Charity routes
 
 GET         /:taxYear/charity/charity-donation-using-gift-aid                                                 controllers.charity.GiftAidDonationsController.show(taxYear: Int)
