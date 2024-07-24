@@ -16,12 +16,13 @@
 
 package controllers.interest
 
-import audit.{AuditModel, AuditService, CreateOrAmendInterestAuditDetail, TailorRemoveIncomeSourcesAuditDetail, TailorRemoveIncomeSourcesBody}
+import audit._
+import common.InterestTaxTypes.{TAXED, UNTAXED}
 import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
-import models.interest.{DecodedInterestSubmissionPayload, InterestCYAModel, InterestPriorSubmission}
+import models.interest.{InterestCYAModel, InterestPriorSubmission}
 import models.{APIErrorBodyModel, APIErrorModel, User}
 import play.api.Logging
 import play.api.i18n.I18nSupport
@@ -32,7 +33,6 @@ import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.interest.InterestCYAView
-import common.InterestTaxTypes.{TAXED, UNTAXED}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -112,8 +112,7 @@ class InterestCYAController @Inject()(
           Redirect(controllers.routes.InterestFromSavingsAndSecuritiesSummaryController.show(taxYear))
         }else {
             Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-          }
-        )
+        })
       case Left(error) => Future.successful(errorHandler.handleError(error.status))
     }
   }
