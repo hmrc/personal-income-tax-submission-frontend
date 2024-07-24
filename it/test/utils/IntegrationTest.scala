@@ -208,7 +208,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "feature-switch.tailoring.interest" -> interestTailoring,
     "feature-switch.tailoring.dividends"-> dividendsTailoring,
     "feature-switch.tailoring.charity"-> charityTailoringEnabled,
-    "feature-switch.journeys.interestSavings"-> interestSavings,
+    "feature-switch.journeys.interestSavings"-> interestSavings
   )
 
   def invalidEncryptionConfig: Map[String, Any] = commonConfig ++ Map(
