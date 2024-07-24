@@ -197,7 +197,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     dividendsTailoring: Boolean = false,
     charityTailoringEnabled:Boolean = false,
     interestSavings: Boolean = false,
-    stockDividends: Boolean = false,
+    stockDividends: Boolean = false
     ): Map[String, Any] = commonConfig ++ Map(
     "taxYearChangeResetsSession" -> false,
     "useEncryption" -> true,
