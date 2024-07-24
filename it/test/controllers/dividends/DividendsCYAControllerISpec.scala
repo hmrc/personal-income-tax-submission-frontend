@@ -16,18 +16,17 @@
 
 package test.controllers.dividends
 
-import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, StockDividendsCheckYourAnswersModel, StockDividendsPriorSubmission}
+import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, StockDividendsPriorSubmission}
 import models.priorDataModels.IncomeSourcesModel
-import models.priorDataModels.StockDividendsPriorDataModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import play.api.http.HeaderNames
 import play.api.http.Status._
+import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
+import play.api.mvc.Headers
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
-import play.api.http.HeaderNames
-import play.api.libs.json.Json
-import play.api.mvc.Headers
 import test.utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 
 
@@ -619,7 +618,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
       ".submit" should {
 
-        s"redirect to the overview page when there is valid session data " when {
+        s"redirect to the overview page when there is valid session data" when {
 
           lazy val result: WSResponse = {
             authoriseIndividual()
@@ -684,6 +683,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
         s"redirect to the overview page" when {
 
           "tailoring is on, and the gateway question is false" which {
+
             lazy val result = {
               dropDividendsDB()
               emptyUserDataStub()
@@ -710,6 +710,8 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           }
 
         }
+
+
         s"return a INTERNAL_SERVER_ERROR" when {
 
           "there is no cyaData" which {

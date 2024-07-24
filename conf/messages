@@ -53,6 +53,13 @@ common.error.invalid_number = Enter an amount using numbers 0 to 9
 common.error.amountMaxLimit = Enter an amount less than £100,000,000,000
 common.error.invalid_currency_format = Enter the amount in the correct format
 
+# Section completed
+# ----------------------------------------------------------
+sectionCompletedState.title = Have you finished this section?
+sectionCompletedState.hint = You’ll still be able to go back and review the information that you’ve given us.
+sectionCompletedState.error.required = Select if you’ve completed this section
+
+
 # General Service Pages
 # ----------------------------------------------------------
 

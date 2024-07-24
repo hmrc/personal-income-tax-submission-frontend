@@ -81,8 +81,8 @@ class MockAppConfig extends AppConfig with MockFactory {
   override val interestSavingsEnabled: Boolean = false
 
   override def excludeJourneyUrl(taxYear: Int): String = "/exclude"
-}
 
+}
 class MockAppConfigEncyrptionOff extends MockAppConfig {
   override val useEncryption: Boolean = false
 }

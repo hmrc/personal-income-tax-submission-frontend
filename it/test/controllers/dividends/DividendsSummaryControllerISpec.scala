@@ -735,7 +735,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
 
   ".submit" should {
 
-    s"redirect to the overview page when there is valid session data " when {
+    s"redirect to the overview page when there is valid session data" when {
 
       lazy val result: WSResponse = {
         authoriseIndividual()
@@ -760,12 +760,13 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
     s"redirect to the overview page" when {
 
       "tailoring is on, and the gateway question is false" which {
+
         lazy val result = {
           dropDividendsDB()
           dropStockDividendsDB()
           emptyUserDataStub()
           emptyStockDividendsUserDataStub()
-          insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel(gateway=Some(false))), taxYear, Some(mtditid), None)
+          insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel(gateway = Some(false))), taxYear, Some(mtditid), None)
           authoriseIndividual()
           stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "")
           stubPost(s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear", NO_CONTENT, "{}")
@@ -784,8 +785,8 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
           result.header.headers("Location") shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
         }
       }
-
     }
+
 
     "redirect the user to the zeroing warning page" when {
 
