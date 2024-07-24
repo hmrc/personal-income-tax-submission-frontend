@@ -95,7 +95,7 @@ class DividendsSectionCompletedControllerISpec extends IntegrationTest with View
           authoriseIndividual()
           dropDividendsDB()
           emptyUserDataStub()
-          route(appWithCommonTaskList, request, "{}").get
+          route(appWithTailoring, request, "{}").get
         }
 
         implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
@@ -161,7 +161,7 @@ class DividendsSectionCompletedControllerISpec extends IntegrationTest with View
               val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/section-completed",
                 Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
 
-              await(route(appWithCommonTaskList, request, Map("value" -> Seq("false"))).get)
+              await(route(appWithTailoring, request, Map("value" -> Seq("false"))).get)
             }
 
             "has a status of SEE_OTHER(303)" in {
@@ -182,7 +182,7 @@ class DividendsSectionCompletedControllerISpec extends IntegrationTest with View
               val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/section-completed",
                 Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
 
-              await(route(appWithCommonTaskList, request, Map("value" -> Seq("true"))).get)
+              await(route(appWithTailoring, request, Map("value" -> Seq("true"))).get)
             }
 
             "has a status of SEE_OTHER(303)" in {

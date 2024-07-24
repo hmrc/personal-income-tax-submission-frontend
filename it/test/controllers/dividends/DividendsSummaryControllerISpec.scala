@@ -757,32 +757,6 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
       }
     }
 
-    s"redirect to the section completed page when there is valid session data when commonTaskList is on" when {
-
-      lazy val result = {
-        authoriseIndividual()
-        dropStockDividendsDB()
-        emptyUserDataStub()
-        emptyStockDividendsUserDataStub()
-        insertStockDividendsCyaData(Some(cyaModel))
-        stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "")
-        stubPut(s"/income-tax-dividends/income-tax/income/dividends/$nino/$taxYear", NO_CONTENT, "")
-
-        val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/summary",
-          Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
-
-        await(route(appWithCommonTaskList, request, "{}").get)
-      }
-      s"has a status of 303" in {
-        result.header.status shouldBe SEE_OTHER
-      }
-
-      s"has the correct title" in {
-        result.header.headers("Location") shouldBe
-          s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/section-completed"
-      }
-    }
-
     s"redirect to the overview page" when {
 
       "tailoring is on, and the gateway question is false" which {
@@ -813,36 +787,6 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
       }
     }
 
-    s"redirect to the section completed page" when {
-
-      "tailoring is on, the gateway question is false and commonTaskList is on" which {
-
-        lazy val result = {
-          dropDividendsDB()
-          dropStockDividendsDB()
-          emptyUserDataStub()
-          emptyStockDividendsUserDataStub()
-          insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel(gateway=Some(false))), taxYear, Some(mtditid), None)
-          authoriseIndividual()
-          stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "")
-          stubPost(s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear", NO_CONTENT, "{}")
-          stubPut(s"/income-tax-dividends/income-tax/income/dividends/$nino/$taxYear", NO_CONTENT, "")
-          val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/summary",
-            Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
-
-          await(route(appWithCommonTaskListAndTailoring, request, "{}").get)
-        }
-
-        "has a status of SEE_OTHER(303)" in {
-          result.header.status shouldBe SEE_OTHER
-        }
-
-        "has the redirect location of the section completed page" in {
-          result.header.headers("Location") shouldBe
-            s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/section-completed"
-        }
-      }
-    }
 
     "redirect the user to the zeroing warning page" when {
 
