@@ -38,7 +38,7 @@ class StockDividendsSessionService @Inject()(
                                               getStockDividendsBackendConnector: GetStockDividendsBackendConnector,
                                               incomeTaxUserDataConnector: IncomeTaxUserDataConnector,
                                               incomeSourceConnector: IncomeSourceConnector
-                                       ) {
+                                            ) {
 
   type StockDividendsPriorDataResponse = Either[APIErrorModel, Option[StockDividendsPriorDataModel]]
 
@@ -55,21 +55,22 @@ class StockDividendsSessionService @Inject()(
               Right(Some(StockDividendsPriorDataModel.getFromPrior(ukDividends, stockDividends)))
             } else {
               Right(None)
-            }        }
+            }
+        }
     }
   }
 
   def createSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int)(onFail: A)(onSuccess: A)
-                          (implicit ec: ExecutionContext, hc: HeaderCarrier): Future[A] = {
+                          (implicit user: User[_], ec: ExecutionContext, hc: HeaderCarrier): Future[A] = {
 
-    createStockDividendsBackendConnector.createSessionData(cyaModel, taxYear)(hc).map {
+    createStockDividendsBackendConnector.createSessionData(cyaModel, taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid), ec).map {
       case Right(_) => onSuccess
       case Left(_) => onFail
     }
   }
 
   def getSessionData(taxYear: Int)(implicit user: User[_], ec: ExecutionContext, hc: HeaderCarrier):
-    Future[Either[APIErrorModel, Option[StockDividendsUserDataModel]]] = {
+  Future[Either[APIErrorModel, Option[StockDividendsUserDataModel]]] = {
     getStockDividendsBackendConnector.getSessionData(taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid), ec).map {
       case Left(error) =>
         logger.error("[StockDividendsSessionService][getSessionData] Could not find user session.")
@@ -80,15 +81,15 @@ class StockDividendsSessionService @Inject()(
   }
 
   def updateSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int, needsCreating: Boolean = false)(onFail: A)(onSuccess: A)
-                          (implicit ec: ExecutionContext, hc: HeaderCarrier): Future[A] = {
+                          (implicit user: User[_], ec: ExecutionContext, hc: HeaderCarrier): Future[A] = {
 
     if (needsCreating) {
-      createStockDividendsBackendConnector.createSessionData(cyaModel, taxYear)(hc).map {
+      createStockDividendsBackendConnector.createSessionData(cyaModel, taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid), ec).map {
         case Right(_) => onSuccess
         case Left(_) => onFail
       }
     } else {
-      updateStockDividendsBackendConnector.updateSessionData(cyaModel, taxYear)(hc).map {
+      updateStockDividendsBackendConnector.updateSessionData(cyaModel, taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid), ec).map {
         case Right(_) => onSuccess
         case Left(_) => onFail
       }
@@ -103,10 +104,10 @@ class StockDividendsSessionService @Inject()(
     } yield {
       priorDataResponse match {
         case Right(prior) => optionalCya match {
-          case Left(_) =>  Future(onFail)
+          case Left(_) => Future(onFail)
           case Right(cyaData) => block(cyaData, prior)
         }
-        case Left(_) =>  Future(onFail)
+        case Left(_) => Future(onFail)
       }
     }
     result.flatten

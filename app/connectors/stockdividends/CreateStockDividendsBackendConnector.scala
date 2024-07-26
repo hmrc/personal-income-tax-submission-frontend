@@ -19,6 +19,7 @@ package connectors.stockdividends
 import config.AppConfig
 import connectors.RawResponseReads
 import connectors.httpParsers.StockDividendsSubmissionHttpParser._
+import models.User
 import models.dividends.StockDividendsCheckYourAnswersModel
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
@@ -29,7 +30,7 @@ class CreateStockDividendsBackendConnector @Inject()(val http: HttpClient, appCo
                                                     (implicit ec: ExecutionContext) extends RawResponseReads {
 
   def createSessionData(body: StockDividendsCheckYourAnswersModel, taxYear: Int)
-                       (implicit hc: HeaderCarrier): Future[StockDividendsSubmissionResponse] = {
+                       (implicit user: User[_], hc: HeaderCarrier, ec: ExecutionContext): Future[StockDividendsSubmissionResponse] = {
 
     val stockDividendsUserDataUrl: String = appConfig.dividendsBaseUrl + s"/income-tax/income/dividends/$taxYear/stock-dividends/session"
 
