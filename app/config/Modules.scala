@@ -16,15 +16,28 @@
 
 package config
 
-import com.google.inject.AbstractModule
 import common.UUID
+import play.api.inject.Binding
+import play.api.{Configuration, Environment}
+import services._
 
-class Modules extends AbstractModule {
+class Modules extends play.api.inject.Module {
+
+  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = {
+
+    val sessionBinding: Binding[_] =
+      if (configuration.get[Boolean]("feature-switch.newStockDividendsServiceEnabled")) {
+        bind[StockDividendsSessionServiceProvider].to[NewStockDividendsSessionServiceImpl].eagerly()
+      } else {
+        bind[StockDividendsSessionServiceProvider].to[StockDividendsSessionServiceImpl].eagerly()
+      }
 
 
-  override def configure(): Unit = {
-    bind(classOf[AppConfig]).asEagerSingleton()
-    bind(classOf[UUID]).toInstance(UUID())
+    Seq(
+      sessionBinding,
+      bind[AppConfig].toSelf,
+      bind[UUID].toInstance(UUID())
+    )
   }
 
 }
