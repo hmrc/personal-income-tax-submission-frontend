@@ -17,6 +17,7 @@
 package services
 
 import common.IncomeSources
+import connectors.dividends.{CreateDividendsBackendConnector, GetDividendsBackendConnector, UpdateDividendsBackendConnector}
 import connectors.httpParsers.IncomeTaxUserDataHttpParser.IncomeTaxUserDataResponse
 import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector}
 import models.User
@@ -26,12 +27,14 @@ import play.api.Logger
 import repositories.DividendsUserDataRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
-import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DividendsSessionService @Inject()(
                                          dividendsUserDataRepository: DividendsUserDataRepository,
+                                         createDividendsBackendConnector: CreateDividendsBackendConnector,
+                                         updateDividendsBackendConnector: UpdateDividendsBackendConnector,
+                                         getDividendsBackendConnector: GetDividendsBackendConnector,
                                          incomeTaxUserDataConnector: IncomeTaxUserDataConnector,
                                          incomeSourceConnector: IncomeSourceConnector
                                        ) {
@@ -43,18 +46,9 @@ class DividendsSessionService @Inject()(
   }
 
   def createSessionData[A](cyaModel: DividendsCheckYourAnswersModel, taxYear: Int)(onFail: A)(onSuccess: A)
-                          (implicit user: User[_], ec: ExecutionContext): Future[A] = {
+                          (implicit user: User[_], ec: ExecutionContext, hc: HeaderCarrier): Future[A] = {
 
-    val userData = DividendsUserDataModel(
-      user.sessionId,
-      user.mtditid,
-      user.nino,
-      taxYear,
-      Some(cyaModel),
-      Instant.now()
-    )
-
-    dividendsUserDataRepository.create(userData)().map {
+    createDividendsBackendConnector.createSessionData(cyaModel, taxYear)(hc).map {
       case Right(_) => onSuccess
       case Left(_) => onFail
     }
@@ -71,24 +65,15 @@ class DividendsSessionService @Inject()(
   }
 
   def updateSessionData[A](cyaModel: DividendsCheckYourAnswersModel, taxYear: Int, needsCreating: Boolean = false)(onFail: A)(onSuccess: A)
-                          (implicit user: User[_], ec: ExecutionContext): Future[A] = {
-
-    val userData = DividendsUserDataModel(
-      user.sessionId,
-      user.mtditid,
-      user.nino,
-      taxYear,
-      Some(cyaModel),
-      Instant.now()
-    )
+                          (implicit ec: ExecutionContext, hc: HeaderCarrier): Future[A] = {
 
     if (needsCreating) {
-      dividendsUserDataRepository.create(userData)().map {
+      createDividendsBackendConnector.createSessionData(cyaModel, taxYear)(hc).map {
         case Right(_) => onSuccess
         case Left(_) => onFail
       }
     } else {
-      dividendsUserDataRepository.update(userData).map {
+      updateDividendsBackendConnector.updateSessionData(cyaModel, taxYear)(hc).map {
         case Right(_) => onSuccess
         case Left(_) => onFail
       }

@@ -17,7 +17,7 @@
 package services
 
 import connectors.SavingsSubmissionConnector
-import models.savings.{ForeignInterestModel, SavingsIncomeCYAModel, SavingsSubmissionModel, SecuritiesModel}
+import models.savings.{SavingsIncomeCYAModel, SavingsSubmissionModel, SecuritiesModel}
 import models.{APIErrorBodyModel, APIErrorModel}
 import play.api.http.Status._
 import uk.gov.hmrc.auth.core.AuthConnector
