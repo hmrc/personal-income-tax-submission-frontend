@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,22 +17,22 @@
 package services
 
 import connectors.httpParsers.StockDividendsBackendUserDataHttpParser.StockDividendsBackendUserDataResponse
-import connectors.stockdividends.{CreateStockDividendsBackendConnector, DeleteStockDividendsBackendConnector, GetStockDividendsBackendConnector, UpdateStockDividendsBackendConnector}
+import connectors.stockdividends.GetStockDividendsBackendConnector
 import models.dividends.StockDividendsCheckYourAnswersModel
-import models.mongo.{DataNotFound, DatabaseError, StockDividendsUserDataModel}
+import models.mongo.{DatabaseError, StockDividendsUserDataModel}
 import models.requests.AuthorisationRequest
 import play.api.Logging
+import repositories.StockDividendsUserDataRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class NewStockDividendsSessionServiceImpl @Inject()(
-                                                     createDividendsBackendConnector: CreateStockDividendsBackendConnector,
-                                                     getStockDividendsBackendConnector: GetStockDividendsBackendConnector,
-                                                     updateStockDividendsBackendConnector: UpdateStockDividendsBackendConnector,
-                                                     deleteStockDividendsBackendConnector: DeleteStockDividendsBackendConnector
-                                                   )(implicit correlationId: String, executionContext: ExecutionContext) extends StockDividendsSessionServiceProvider with Logging {
+class StockDividendsSessionServiceImpl @Inject()(
+                                                  stockDividendsUserDataRepository: StockDividendsUserDataRepository,
+                                                  getStockDividendsBackendConnector: GetStockDividendsBackendConnector
+                                       )(implicit correlationId: String, executionContext: ExecutionContext) extends StockDividendsSessionServiceProvider with Logging {
 
   def getPriorData(taxYear: Int)(implicit request: AuthorisationRequest[_], hc: HeaderCarrier): Future[StockDividendsBackendUserDataResponse] = {
     getStockDividendsBackendConnector.getSessionData(taxYear)(hc.withExtraHeaders("mtditid" -> request.user.mtditid))
@@ -40,52 +40,68 @@ class NewStockDividendsSessionServiceImpl @Inject()(
 
   def createSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int)(onFail: A)(onSuccess: A)
                           (implicit request: AuthorisationRequest[_], hc: HeaderCarrier): Future[A] = {
-    createDividendsBackendConnector.createSessionData(cyaModel, taxYear).map {
-      case Right(_) => onSuccess
+
+    val userData = StockDividendsUserDataModel(
+      request.user.sessionId,
+      request.user.mtditid,
+      request.user.nino,
+      taxYear,
+      Some(cyaModel),
+      Instant.now
+    )
+
+    stockDividendsUserDataRepository.create(userData).map {
+      case Right(_) =>
+        onSuccess
       case Left(_) =>
         logger.error(s"[StockDividendsSessionService][createSessionData] session create failed. correlation id: " + correlationId)
         onFail
     }
   }
 
-  def getSessionData(taxYear: Int)
-                       (implicit request: AuthorisationRequest[_], hc: HeaderCarrier): Future[Either[DatabaseError, Option[StockDividendsUserDataModel]]] = {
+  def getSessionData(taxYear: Int)(implicit request: AuthorisationRequest[_], hc: HeaderCarrier): Future[Either[DatabaseError, Option[StockDividendsUserDataModel]]] = {
 
-    getStockDividendsBackendConnector.getSessionData(taxYear)(
-      hc.withExtraHeaders("mtditid" -> request.user.mtditid).withExtraHeaders("X-CorrelationId" -> correlationId)).map {
+    stockDividendsUserDataRepository.find(taxYear)(request.user).map {
+      case Left(error) =>
+        logger.error("[StockDividendsSessionService][getSessionData] Could not find user session. correlation id: " + correlationId)
+        Left(error)
       case Right(userData) =>
         Right(userData)
-      case Left(_) =>
-        logger.error("[StockDividendsSessionService][getSessionData] Could not find user session. correlation id: " + correlationId)
-        Left(DataNotFound)
     }
   }
-
 
   def updateSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int)(onFail: A)(onSuccess: A)
                           (implicit request: AuthorisationRequest[_], hc: HeaderCarrier): Future[A] = {
 
-    updateStockDividendsBackendConnector.updateSessionData(cyaModel, taxYear)(
-      hc.withExtraHeaders("mtditid" -> request.user.mtditid).withExtraHeaders("X-CorrelationId" -> correlationId)).map {
+    val userData = StockDividendsUserDataModel(
+      request.user.sessionId,
+      request.user.mtditid,
+      request.user.nino,
+      taxYear,
+      Some(cyaModel),
+      Instant.now)
+
+    stockDividendsUserDataRepository.update(userData).map {
       case Right(_) =>
         onSuccess
       case Left(_) =>
         logger.error(s"[StockDividendsSessionService][updateSessionData] session update failure. correlation id: " + correlationId)
         onFail
     }
+
   }
 
   def deleteSessionData[A](taxYear: Int)(onFail: A)(onSuccess: A)
                           (implicit request: AuthorisationRequest[_], hc: HeaderCarrier): Future[A] = {
 
-    deleteStockDividendsBackendConnector.deleteSessionData(taxYear)(
-      hc.withExtraHeaders("mtditid" -> request.user.mtditid).withExtraHeaders("X-CorrelationId" -> correlationId)).map {
-      case Right(_) =>
+    stockDividendsUserDataRepository.clear(taxYear)(request.user).map {
+      case true =>
         onSuccess
       case _ =>
         logger.error(s"[StockDividendsSessionService][deleteSessionData] session delete failure. correlation id: " + correlationId)
         onFail
     }
+
   }
 
   def getAndHandle[R](taxYear: Int)(onFail: R)(block: (Option[StockDividendsCheckYourAnswersModel], Option[StockDividendsUserDataModel]) => R)
@@ -107,5 +123,4 @@ class NewStockDividendsSessionServiceImpl @Inject()(
       }
     }
   }
-
 }

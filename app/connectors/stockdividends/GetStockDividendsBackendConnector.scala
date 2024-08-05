@@ -28,7 +28,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class GetStockDividendsBackendConnector @Inject()(val http: HttpClient, appConfig: AppConfig)
                                                  (implicit ec: ExecutionContext) extends RawResponseReads {
 
-  def getSessionData(taxYear: Int)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[StockDividendsBackendUserDataResponse] = {
+  def getSessionData(taxYear: Int)(implicit hc: HeaderCarrier): Future[StockDividendsBackendUserDataResponse] = {
     val stockDividendsUserDataUrl: String = appConfig.dividendsBaseUrl + s"/income-tax/income/dividends/$taxYear/stock-dividends/session"
 
     http.GET[StockDividendsBackendUserDataResponse](stockDividendsUserDataUrl)

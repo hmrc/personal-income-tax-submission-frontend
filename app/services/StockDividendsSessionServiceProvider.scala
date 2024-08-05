@@ -16,22 +16,28 @@
 
 package services
 
-import connectors.httpParsers.DividendsSubmissionHttpParser.DividendsSubmissionsResponse
-import models.User
-import models.dividends.{DividendsCheckYourAnswersModel, StockDividendsCheckYourAnswersModel}
+import models.dividends.StockDividendsCheckYourAnswersModel
 import models.mongo.{DatabaseError, StockDividendsUserDataModel}
 import models.requests.AuthorisationRequest
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 trait StockDividendsSessionServiceProvider {
 
   def createSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int)(onFail: A)(onSuccess: A)
-                          (implicit hc: HeaderCarrier): Future[A]
+                          (implicit request: AuthorisationRequest[_], hc: HeaderCarrier): Future[A]
 
-  def getSessionData[A](taxYear: Int)(implicit request: AuthorisationRequest[_], hc: HeaderCarrier): Future[A]
+  def getSessionData(taxYear: Int)
+                    (implicit request: AuthorisationRequest[_], hc: HeaderCarrier): Future[Either[DatabaseError, Option[StockDividendsUserDataModel]]]
+
 
   def updateSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int)(onFail: A)(onSuccess: A)
                           (implicit request: AuthorisationRequest[_], hc: HeaderCarrier): Future[A]
+
+  def deleteSessionData[A](taxYear: Int)(onFail: A)(onSuccess: A)
+                          (implicit request: AuthorisationRequest[_], hc: HeaderCarrier): Future[A]
+
+  def getAndHandle[R](taxYear: Int)(onFail: R)(block: (Option[StockDividendsCheckYourAnswersModel], Option[StockDividendsUserDataModel]) => R)
+                     (implicit request: AuthorisationRequest[_], hc: HeaderCarrier): Future[R]
 }

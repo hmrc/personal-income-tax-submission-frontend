@@ -63,7 +63,7 @@ class StockDividendsSessionService @Inject()(
   def createSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int)(onFail: A)(onSuccess: A)
                           (implicit user: User[_], ec: ExecutionContext, hc: HeaderCarrier): Future[A] = {
 
-    createStockDividendsBackendConnector.createSessionData(cyaModel, taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid), ec).map {
+    createStockDividendsBackendConnector.createSessionData(cyaModel, taxYear)(hc.withExtraHeaders("mtditid" -> user.mtditid)).map {
       case Right(_) => onSuccess
       case Left(_) => onFail
     }
@@ -71,7 +71,7 @@ class StockDividendsSessionService @Inject()(
 
   def getSessionData(taxYear: Int)(implicit user: User[_], ec: ExecutionContext, hc: HeaderCarrier):
   Future[Either[APIErrorModel, Option[StockDividendsUserDataModel]]] = {
-    getStockDividendsBackendConnector.getSessionData(taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid), ec).map {
+    getStockDividendsBackendConnector.getSessionData(taxYear)(hc.withExtraHeaders("mtditid" -> user.mtditid)).map {
       case Left(error) =>
         logger.error("[StockDividendsSessionService][getSessionData] Could not find user session.")
         Left(error)
@@ -84,12 +84,12 @@ class StockDividendsSessionService @Inject()(
                           (implicit user: User[_], ec: ExecutionContext, hc: HeaderCarrier): Future[A] = {
 
     if (needsCreating) {
-      createStockDividendsBackendConnector.createSessionData(cyaModel, taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid), ec).map {
+      createStockDividendsBackendConnector.createSessionData(cyaModel, taxYear)(hc.withExtraHeaders("mtditid" -> user.mtditid)).map {
         case Right(_) => onSuccess
         case Left(_) => onFail
       }
     } else {
-      updateStockDividendsBackendConnector.updateSessionData(cyaModel, taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid), ec).map {
+      updateStockDividendsBackendConnector.updateSessionData(cyaModel, taxYear)(hc.withExtraHeaders("mtditid" -> user.mtditid)).map {
         case Right(_) => onSuccess
         case Left(_) => onFail
       }

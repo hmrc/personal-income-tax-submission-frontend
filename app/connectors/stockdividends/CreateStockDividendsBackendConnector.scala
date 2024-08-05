@@ -30,7 +30,7 @@ class CreateStockDividendsBackendConnector @Inject()(val http: HttpClient, appCo
                                                     (implicit ec: ExecutionContext) extends RawResponseReads {
 
   def createSessionData(body: StockDividendsCheckYourAnswersModel, taxYear: Int)
-                       (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[StockDividendsSubmissionResponse] = {
+                       (implicit hc: HeaderCarrier): Future[StockDividendsSubmissionResponse] = {
 
     val stockDividendsUserDataUrl: String = appConfig.dividendsBaseUrl + s"/income-tax/income/dividends/$taxYear/stock-dividends/session"
 
