@@ -18,9 +18,9 @@ package services
 
 import connectors.httpParsers.StockDividendsBackendUserDataHttpParser.StockDividendsBackendUserDataResponse
 import connectors.stockdividends.GetStockDividendsBackendConnector
+import models.User
 import models.dividends.StockDividendsCheckYourAnswersModel
 import models.mongo.{DatabaseError, StockDividendsUserDataModel}
-import models.requests.AuthorisationRequest
 import play.api.Logging
 import repositories.StockDividendsUserDataRepository
 import uk.gov.hmrc.http.HeaderCarrier
@@ -34,17 +34,17 @@ class StockDividendsSessionServiceImpl @Inject()(
                                                   getStockDividendsBackendConnector: GetStockDividendsBackendConnector
                                        )(implicit correlationId: String, executionContext: ExecutionContext) extends StockDividendsSessionServiceProvider with Logging {
 
-  def getPriorData(taxYear: Int)(implicit request: AuthorisationRequest[_], hc: HeaderCarrier): Future[StockDividendsBackendUserDataResponse] = {
-    getStockDividendsBackendConnector.getSessionData(taxYear)(hc.withExtraHeaders("mtditid" -> request.user.mtditid))
+  def getPriorData(taxYear: Int)(implicit request: User[_], hc: HeaderCarrier): Future[StockDividendsBackendUserDataResponse] = {
+    getStockDividendsBackendConnector.getSessionData(taxYear)(hc.withExtraHeaders("mtditid" -> request.mtditid))
   }
 
   def createSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int)(onFail: A)(onSuccess: A)
-                          (implicit request: AuthorisationRequest[_], hc: HeaderCarrier): Future[A] = {
+                          (implicit request: User[_], hc: HeaderCarrier): Future[A] = {
 
     val userData = StockDividendsUserDataModel(
-      request.user.sessionId,
-      request.user.mtditid,
-      request.user.nino,
+      request.sessionId,
+      request.mtditid,
+      request.nino,
       taxYear,
       Some(cyaModel),
       Instant.now
@@ -59,9 +59,10 @@ class StockDividendsSessionServiceImpl @Inject()(
     }
   }
 
-  def getSessionData(taxYear: Int)(implicit request: AuthorisationRequest[_], hc: HeaderCarrier): Future[Either[DatabaseError, Option[StockDividendsUserDataModel]]] = {
+  def getSessionData(taxYear: Int)(implicit request: User[_], hc: HeaderCarrier):
+  Future[Either[DatabaseError, Option[StockDividendsUserDataModel]]] = {
 
-    stockDividendsUserDataRepository.find(taxYear)(request.user).map {
+    stockDividendsUserDataRepository.find(taxYear)(request).map {
       case Left(error) =>
         logger.error("[StockDividendsSessionService][getSessionData] Could not find user session. correlation id: " + correlationId)
         Left(error)
@@ -71,12 +72,12 @@ class StockDividendsSessionServiceImpl @Inject()(
   }
 
   def updateSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int)(onFail: A)(onSuccess: A)
-                          (implicit request: AuthorisationRequest[_], hc: HeaderCarrier): Future[A] = {
+                          (implicit request: User[_], hc: HeaderCarrier): Future[A] = {
 
     val userData = StockDividendsUserDataModel(
-      request.user.sessionId,
-      request.user.mtditid,
-      request.user.nino,
+      request.sessionId,
+      request.mtditid,
+      request.nino,
       taxYear,
       Some(cyaModel),
       Instant.now)
@@ -92,9 +93,9 @@ class StockDividendsSessionServiceImpl @Inject()(
   }
 
   def deleteSessionData[A](taxYear: Int)(onFail: A)(onSuccess: A)
-                          (implicit request: AuthorisationRequest[_], hc: HeaderCarrier): Future[A] = {
+                          (implicit request: User[_], hc: HeaderCarrier): Future[A] = {
 
-    stockDividendsUserDataRepository.clear(taxYear)(request.user).map {
+    stockDividendsUserDataRepository.clear(taxYear)(request).map {
       case true =>
         onSuccess
       case _ =>
@@ -105,7 +106,7 @@ class StockDividendsSessionServiceImpl @Inject()(
   }
 
   def getAndHandle[R](taxYear: Int)(onFail: R)(block: (Option[StockDividendsCheckYourAnswersModel], Option[StockDividendsUserDataModel]) => R)
-                     (implicit request: AuthorisationRequest[_], hc: HeaderCarrier): Future[R] = {
+                     (implicit request: User[_], hc: HeaderCarrier): Future[R] = {
     for {
       optionalCya <- getSessionData(taxYear)
       priorDataResponse <- getPriorData(taxYear)

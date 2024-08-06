@@ -24,7 +24,9 @@ import models.dividends.StockDividendsCheckYourAnswersModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.StockDividendsSessionService
+import play.api.routing.Router.RequestImplicits.WithHandlerDef
+import services.{StockDividendsSessionService, StockDividendsSessionServiceImpl, StockDividendsSessionServiceProvider}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.CloseCompanyLoanAmountView
 
@@ -38,7 +40,7 @@ class CloseCompanyLoanAmountController @Inject()(
                                                   implicit val appConfig: AppConfig,
                                                   ec: ExecutionContext,
                                                   errorHandler: ErrorHandler,
-                                                  session: StockDividendsSessionService
+                                                  session: StockDividendsSessionServiceProvider
                                                 ) extends FrontendController(cc) with I18nSupport {
 
   def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"

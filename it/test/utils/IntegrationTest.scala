@@ -197,7 +197,8 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     dividendsTailoring: Boolean = false,
     charityTailoringEnabled:Boolean = false,
     interestSavings: Boolean = false,
-    stockDividends: Boolean = false
+    stockDividends: Boolean = false,
+    newStockDividendsServiceEnabled: Boolean = false
   ): Map[String, Any] = commonConfig ++ Map(
     "taxYearChangeResetsSession" -> false,
     "useEncryption" -> true,
@@ -208,8 +209,8 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "feature-switch.tailoring.interest" -> interestTailoring,
     "feature-switch.tailoring.dividends"-> dividendsTailoring,
     "feature-switch.tailoring.charity"-> charityTailoringEnabled,
-    "feature-switch.journeys.interestSavings"-> interestSavings
-  )
+    "feature-switch.journeys.interestSavings"-> interestSavings,
+    "feature-switch.newStockDividendsServiceEnabled" -> newStockDividendsServiceEnabled)
 
   def invalidEncryptionConfig: Map[String, Any] = commonConfig ++ Map(
     "taxYearChangeResetsSession" -> false,
@@ -238,6 +239,11 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   lazy val appWithStockDividends: Application = new GuiceApplicationBuilder()
     .in(Environment.simple(mode = Mode.Dev))
     .configure(config(dividendsTailoring = true, stockDividends = true))
+    .build()
+
+  lazy val appWithStockDividendsBackendMongo: Application = new GuiceApplicationBuilder()
+    .in(Environment.simple(mode = Mode.Dev))
+    .configure(config(dividendsTailoring = true, stockDividends = true, newStockDividendsServiceEnabled = true))
     .build()
 
   lazy val appWithInvalidEncryptionKey: Application = GuiceApplicationBuilder()

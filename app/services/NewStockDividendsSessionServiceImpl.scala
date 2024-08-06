@@ -18,9 +18,9 @@ package services
 
 import connectors.httpParsers.StockDividendsBackendUserDataHttpParser.StockDividendsBackendUserDataResponse
 import connectors.stockdividends.{CreateStockDividendsBackendConnector, DeleteStockDividendsBackendConnector, GetStockDividendsBackendConnector, UpdateStockDividendsBackendConnector}
+import models.User
 import models.dividends.StockDividendsCheckYourAnswersModel
 import models.mongo.{DataNotFound, DatabaseError, StockDividendsUserDataModel}
-import models.requests.AuthorisationRequest
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -34,12 +34,12 @@ class NewStockDividendsSessionServiceImpl @Inject()(
                                                      deleteStockDividendsBackendConnector: DeleteStockDividendsBackendConnector
                                                    )(implicit correlationId: String, executionContext: ExecutionContext) extends StockDividendsSessionServiceProvider with Logging {
 
-  def getPriorData(taxYear: Int)(implicit request: AuthorisationRequest[_], hc: HeaderCarrier): Future[StockDividendsBackendUserDataResponse] = {
-    getStockDividendsBackendConnector.getSessionData(taxYear)(hc.withExtraHeaders("mtditid" -> request.user.mtditid))
+  def getPriorData(taxYear: Int)(implicit request: User[_], hc: HeaderCarrier): Future[StockDividendsBackendUserDataResponse] = {
+    getStockDividendsBackendConnector.getSessionData(taxYear)(hc.withExtraHeaders("mtditid" -> request.mtditid))
   }
 
   def createSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int)(onFail: A)(onSuccess: A)
-                          (implicit request: AuthorisationRequest[_], hc: HeaderCarrier): Future[A] = {
+                          (implicit request: User[_], hc: HeaderCarrier): Future[A] = {
     createDividendsBackendConnector.createSessionData(cyaModel, taxYear).map {
       case Right(_) => onSuccess
       case Left(_) =>
@@ -49,10 +49,10 @@ class NewStockDividendsSessionServiceImpl @Inject()(
   }
 
   def getSessionData(taxYear: Int)
-                       (implicit request: AuthorisationRequest[_], hc: HeaderCarrier): Future[Either[DatabaseError, Option[StockDividendsUserDataModel]]] = {
+                       (implicit request: User[_], hc: HeaderCarrier): Future[Either[DatabaseError, Option[StockDividendsUserDataModel]]] = {
 
     getStockDividendsBackendConnector.getSessionData(taxYear)(
-      hc.withExtraHeaders("mtditid" -> request.user.mtditid).withExtraHeaders("X-CorrelationId" -> correlationId)).map {
+      hc.withExtraHeaders("mtditid" -> request.mtditid).withExtraHeaders("X-CorrelationId" -> correlationId)).map {
       case Right(userData) =>
         Right(userData)
       case Left(_) =>
@@ -63,10 +63,10 @@ class NewStockDividendsSessionServiceImpl @Inject()(
 
 
   def updateSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int)(onFail: A)(onSuccess: A)
-                          (implicit request: AuthorisationRequest[_], hc: HeaderCarrier): Future[A] = {
+                          (implicit request: User[_], hc: HeaderCarrier): Future[A] = {
 
     updateStockDividendsBackendConnector.updateSessionData(cyaModel, taxYear)(
-      hc.withExtraHeaders("mtditid" -> request.user.mtditid).withExtraHeaders("X-CorrelationId" -> correlationId)).map {
+      hc.withExtraHeaders("mtditid" -> request.mtditid).withExtraHeaders("X-CorrelationId" -> correlationId)).map {
       case Right(_) =>
         onSuccess
       case Left(_) =>
@@ -76,10 +76,10 @@ class NewStockDividendsSessionServiceImpl @Inject()(
   }
 
   def deleteSessionData[A](taxYear: Int)(onFail: A)(onSuccess: A)
-                          (implicit request: AuthorisationRequest[_], hc: HeaderCarrier): Future[A] = {
+                          (implicit request: User[_], hc: HeaderCarrier): Future[A] = {
 
     deleteStockDividendsBackendConnector.deleteSessionData(taxYear)(
-      hc.withExtraHeaders("mtditid" -> request.user.mtditid).withExtraHeaders("X-CorrelationId" -> correlationId)).map {
+      hc.withExtraHeaders("mtditid" -> request.mtditid).withExtraHeaders("X-CorrelationId" -> correlationId)).map {
       case Right(_) =>
         onSuccess
       case _ =>
@@ -89,7 +89,7 @@ class NewStockDividendsSessionServiceImpl @Inject()(
   }
 
   def getAndHandle[R](taxYear: Int)(onFail: R)(block: (Option[StockDividendsCheckYourAnswersModel], Option[StockDividendsUserDataModel]) => R)
-                     (implicit request: AuthorisationRequest[_], hc: HeaderCarrier): Future[R] = {
+                     (implicit request: User[_], hc: HeaderCarrier): Future[R] = {
     for {
       optionalCya <- getSessionData(taxYear)
       priorDataResponse <- getPriorData(taxYear)
