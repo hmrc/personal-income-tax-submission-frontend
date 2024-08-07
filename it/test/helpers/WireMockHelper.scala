@@ -24,9 +24,12 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import com.github.tomakehurst.wiremock.http.HttpHeader
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import common.{EnrolmentIdentifiers, EnrolmentKeys}
+import play.api.http.ContentTypes.JSON
 import play.api.http.Status._
 import play.api.libs.json.{JsObject, Json}
+import play.api.test.Helpers.CONTENT_TYPE
 import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel}
+import uk.gov.hmrc.http.HttpResponse
 
 trait WireMockHelper {
 
@@ -181,6 +184,27 @@ trait WireMockHelper {
         "confidenceLevel" -> confidenceLevel
       )
     }
+  }
+  private def getStubMapping(httpResponse: HttpResponse,
+                             requestHeaders: Seq[HttpHeader],
+                             mappingBuilder: MappingBuilder): StubMapping = {
+    val responseBuilder = aResponse()
+      .withStatus(httpResponse.status)
+      .withBody(httpResponse.body)
+      .withHeader(CONTENT_TYPE, JSON)
+
+    val mappingBuilderWithHeaders: MappingBuilder = requestHeaders
+      .foldLeft(mappingBuilder)((result, nxt) => result.withHeader(nxt.key(), equalTo(nxt.firstValue())))
+
+    stubFor(mappingBuilderWithHeaders.willReturn(responseBuilder))
+  }
+
+  protected def createUpdateUserSessionDataStub(url: String,
+                                          httpRequestBodyJson: String,
+                                          httpResponse: HttpResponse,
+                                          requestHeaders: Seq[HttpHeader] = Seq.empty): StubMapping = {
+    val mappingBuilder = post(urlMatching(url)).withRequestBody(equalToJson(httpRequestBodyJson))
+    getStubMapping(httpResponse, requestHeaders, mappingBuilder)
   }
 
   def authoriseIndividual(nino: Option[String] = Some("AA123456A")): StubMapping = {
