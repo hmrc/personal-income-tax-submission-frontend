@@ -23,30 +23,18 @@ import services.StockDividendsSessionService
 import test.utils.IntegrationTest
 
 
-class StockDividendsSessionServiceISpec extends IntegrationTest{
+class StockDividendsSessionServiceISpec extends IntegrationTest {
 
-  val stockDividendsUserDataRepository: StockDividendsUserDataRepository = app.injector.instanceOf[StockDividendsUserDataRepository]
-  val stockDividendsUserDataConnector: StockDividendsUserDataConnector = app.injector.instanceOf[StockDividendsUserDataConnector]
+  /*val stockDividendsUserDataConnector: StockDividendsUserDataConnector = app.injector.instanceOf[StockDividendsUserDataConnector]
   val createStockDividendsBackendConnector: CreateStockDividendsBackendConnector = app.injector.instanceOf[CreateStockDividendsBackendConnector]
   val updateStockDividendsBackendConnector: UpdateStockDividendsBackendConnector = app.injector.instanceOf[UpdateStockDividendsBackendConnector]
-  val getStockDividendsBackendConnector: GetStockDividendsBackendConnector = app.injector.instanceOf[GetStockDividendsBackendConnector]
   val incomeTaxUserDataConnector: IncomeTaxUserDataConnector = app.injector.instanceOf[IncomeTaxUserDataConnector]
-  val incomeSourceConnector: IncomeSourceConnector = app.injector.instanceOf[IncomeSourceConnector]
+  val incomeSourceConnector: IncomeSourceConnector = app.injector.instanceOf[IncomeSourceConnector]*/
 
   val stockDividendsSessionServiceInvalidEncryption: StockDividendsSessionService =
     appWithInvalidEncryptionKey.injector.instanceOf[StockDividendsSessionService]
 
-  val stockDividendsSessionService: StockDividendsSessionService = new StockDividendsSessionService(
-    stockDividendsUserDataRepository,
-    stockDividendsUserDataConnector,
-    createStockDividendsBackendConnector,
-    updateStockDividendsBackendConnector,
-    getStockDividendsBackendConnector,
-    incomeTaxUserDataConnector,
-    incomeSourceConnector
-  )
-
-  "create" should{
+  "create" should {
     "return false when failing to decrypt the model" in {
       val result = await(stockDividendsSessionServiceInvalidEncryption.createSessionData(completeStockDividendsCYAModel, taxYear)(false)(true))
       result shouldBe false
@@ -61,7 +49,7 @@ class StockDividendsSessionServiceISpec extends IntegrationTest{
     }
   }
 
-  "update" should{
+  "update" should {
     "return false when failing to decrypt the model" in {
       val result = await(stockDividendsSessionServiceInvalidEncryption.updateSessionData(completeStockDividendsCYAModel, taxYear)(false)(true))
       result shouldBe false

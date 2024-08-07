@@ -19,6 +19,9 @@ package test.utils
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import common.SessionValues
 import config.AppConfig
+import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector}
+import connectors.dividends.{CreateDividendsBackendConnector, GetDividendsBackendConnector, UpdateDividendsBackendConnector}
+import connectors.stockdividends.GetStockDividendsBackendConnector
 import controllers.predicates.AuthorisedAction
 import models.User
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
@@ -43,7 +46,8 @@ import play.api.mvc.{AnyContent, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.OK
 import play.api.{Application, Environment, Mode}
-import services.AuthService
+import repositories.{DividendsUserDataRepository, StockDividendsUserDataRepository}
+import services.{AuthService, DividendsSessionService, StockDividendsSessionServiceImpl}
 import test.helpers.{PlaySessionCookieBaker, WireMockHelper}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.~
@@ -52,6 +56,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import views.html.authErrorPages.AgentAuthErrorPageView
 
 import java.time.LocalDate
+import java.util.UUID
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
 
@@ -161,6 +166,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   lazy val welshMessages: Messages = messagesApi.preferred(Seq(Lang("cy")))
 
   implicit lazy val user: User[AnyContent] = new User[AnyContent](mtditid, None, nino, affinityGroup, sessionId)(FakeRequest())
+  implicit val correlationId: String = UUID.randomUUID().toString
 
   implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
   implicit val headerCarrier: HeaderCarrier = HeaderCarrier().withExtraHeaders("mtditid" -> mtditid)
@@ -192,14 +198,14 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   )
 
   def config(
-    tailoring: Boolean = false,
-    interestTailoring: Boolean = false,
-    dividendsTailoring: Boolean = false,
-    charityTailoringEnabled:Boolean = false,
-    interestSavings: Boolean = false,
-    stockDividends: Boolean = false,
-    newStockDividendsServiceEnabled: Boolean = false
-  ): Map[String, Any] = commonConfig ++ Map(
+              tailoring: Boolean = false,
+              interestTailoring: Boolean = false,
+              dividendsTailoring: Boolean = false,
+              charityTailoringEnabled: Boolean = false,
+              interestSavings: Boolean = false,
+              stockDividends: Boolean = false,
+              newStockDividendsServiceEnabled: Boolean = false
+            ): Map[String, Any] = commonConfig ++ Map(
     "taxYearChangeResetsSession" -> false,
     "useEncryption" -> true,
     "defaultTaxYear" -> taxYear,
@@ -207,9 +213,9 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "feature-switch.journeys.stock-dividends" -> stockDividends,
     "feature-switch.tailoringEnabled" -> tailoring,
     "feature-switch.tailoring.interest" -> interestTailoring,
-    "feature-switch.tailoring.dividends"-> dividendsTailoring,
-    "feature-switch.tailoring.charity"-> charityTailoringEnabled,
-    "feature-switch.journeys.interestSavings"-> interestSavings,
+    "feature-switch.tailoring.dividends" -> dividendsTailoring,
+    "feature-switch.tailoring.charity" -> charityTailoringEnabled,
+    "feature-switch.journeys.interestSavings" -> interestSavings,
     "feature-switch.newStockDividendsServiceEnabled" -> newStockDividendsServiceEnabled)
 
   def invalidEncryptionConfig: Map[String, Any] = commonConfig ++ Map(
@@ -290,13 +296,13 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   }
 
   //noinspection ScalaStyle
-  def playSessionCookie(agent: Boolean = false, extraData: Map[String, String] = Map.empty, validTaxYears:Seq[Int] = validTaxYearList, isEoy: Boolean = false): Seq[(String, String)] = {
+  def playSessionCookie(agent: Boolean = false, extraData: Map[String, String] = Map.empty, validTaxYears: Seq[Int] = validTaxYearList, isEoy: Boolean = false): Seq[(String, String)] = {
     {
       if (agent) {
         Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(extraData ++ Map(
           SessionKeys.sessionId -> sessionId,
           SessionKeys.authToken -> "mock-bearer-token",
-          SessionValues.TAX_YEAR -> (if(isEoy) taxYearEOY else taxYear).toString,
+          SessionValues.TAX_YEAR -> (if (isEoy) taxYearEOY else taxYear).toString,
           SessionValues.VALID_TAX_YEARS -> validTaxYears.mkString(","),
           SessionValues.CLIENT_NINO -> "AA123456A",
           SessionValues.CLIENT_MTDITID -> mtditid))
@@ -305,7 +311,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
         Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(extraData ++ Map(
           SessionKeys.sessionId -> sessionId,
           SessionKeys.authToken -> "mock-bearer-token",
-          SessionValues.TAX_YEAR -> (if(isEoy) taxYearEOY else taxYear).toString,
+          SessionValues.TAX_YEAR -> (if (isEoy) taxYearEOY else taxYear).toString,
           SessionValues.VALID_TAX_YEARS -> validTaxYears.mkString(","))),
           "mtditid" -> mtditid
         )
@@ -313,6 +319,21 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     } ++
       Seq(xSessionId)
   }
+
+  val stockDividendsUserDataRepository: StockDividendsUserDataRepository = app.injector.instanceOf[StockDividendsUserDataRepository]
+  val getStockDividendsBackendConnector: GetStockDividendsBackendConnector = app.injector.instanceOf[GetStockDividendsBackendConnector]
+  val stockDividendsSessionService: StockDividendsSessionServiceImpl = new StockDividendsSessionServiceImpl(
+    stockDividendsUserDataRepository, getStockDividendsBackendConnector)
+
+  val dividendsUserDataRepository: DividendsUserDataRepository = app.injector.instanceOf[DividendsUserDataRepository]
+  val incomeTaxUserDataConnector: IncomeTaxUserDataConnector = app.injector.instanceOf[IncomeTaxUserDataConnector]
+  val incomeSourceConnector: IncomeSourceConnector = app.injector.instanceOf[IncomeSourceConnector]
+  val createDividendsBackendConnector: CreateDividendsBackendConnector = app.injector.instanceOf[CreateDividendsBackendConnector]
+  val updateDividendsBackendConnector: UpdateDividendsBackendConnector = app.injector.instanceOf[UpdateDividendsBackendConnector]
+  val getDividendsBackendConnector: GetDividendsBackendConnector = app.injector.instanceOf[GetDividendsBackendConnector]
+  val dividendsSessionService: DividendsSessionService = new DividendsSessionService(
+    dividendsUserDataRepository, createDividendsBackendConnector, updateDividendsBackendConnector,
+    getDividendsBackendConnector, incomeTaxUserDataConnector, incomeSourceConnector)
 
   val defaultAcceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq(
     ConfidenceLevel.L250,

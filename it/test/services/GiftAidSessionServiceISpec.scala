@@ -16,7 +16,6 @@
 
 package test.services
 
-import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector}
 import repositories.GiftAidUserDataRepository
 import services.GiftAidSessionService
 import test.utils.IntegrationTest
@@ -25,8 +24,6 @@ import test.utils.IntegrationTest
 class GiftAidSessionServiceISpec extends IntegrationTest{
 
   val giftAidUserDataRepository: GiftAidUserDataRepository = app.injector.instanceOf[GiftAidUserDataRepository]
-  val incomeTaxUserDataConnector: IncomeTaxUserDataConnector = app.injector.instanceOf[IncomeTaxUserDataConnector]
-  val incomeSourceConnector: IncomeSourceConnector = app.injector.instanceOf[IncomeSourceConnector]
 
   val giftAidSessionServiceInvalidEncryption: GiftAidSessionService = appWithInvalidEncryptionKey.injector.instanceOf[GiftAidSessionService]
   val giftAidSessionService: GiftAidSessionService = new GiftAidSessionService(giftAidUserDataRepository, incomeTaxUserDataConnector, incomeSourceConnector)
