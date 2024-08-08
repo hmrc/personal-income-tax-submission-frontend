@@ -16,7 +16,7 @@
 
 package controllers.dividends
 
-import config.{AppConfig, DIVIDENDS, ErrorHandler, JourneyKey, STOCK_DIVIDENDS}
+import config._
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import forms.AmountForm
@@ -24,7 +24,7 @@ import models.dividends.StockDividendsCheckYourAnswersModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.StockDividendsSessionService
+import services.StockDividendsSessionServiceProvider
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.StockDividendAmountView
 
@@ -36,12 +36,13 @@ class StockDividendAmountController @Inject()(
                                                authAction: AuthorisedAction,
                                                view: StockDividendAmountView,
                                                errorHandler: ErrorHandler,
-                                               session: StockDividendsSessionService,
+                                               session: StockDividendsSessionServiceProvider,
                                                implicit val appConfig: AppConfig,
                                                ec: ExecutionContext
                                              ) extends FrontendController(cc) with I18nSupport {
 
   val journeyKey: JourneyKey = if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) STOCK_DIVIDENDS else DIVIDENDS
+
   def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
 
   def form(implicit isAgent: Boolean, taxYear: Int): Form[BigDecimal] = AmountForm.amountForm(
@@ -72,15 +73,16 @@ class StockDividendAmountController @Inject()(
       {
         bigDecimal =>
           session.getSessionData(taxYear).flatMap {
-            case Left(_) => Future.successful(errorHandler.internalServerError())
+            case Left(_) =>
+              Future.successful(errorHandler.internalServerError())
             case Right(sessionData) =>
               val dividendsCya = sessionData.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel())
                 .copy(stockDividendsAmount = Some(bigDecimal))
+
               session.updateSessionData(dividendsCya, taxYear)(errorHandler.internalServerError())(
                 if (dividendsCya.isFinished) {
                   Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear))
-                }
-                else {
+                } else {
                   Redirect(controllers.dividends.routes.RedeemableSharesStatusController.show(taxYear))
                 }
               )

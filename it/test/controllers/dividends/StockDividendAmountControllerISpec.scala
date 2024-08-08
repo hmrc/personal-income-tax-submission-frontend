@@ -20,11 +20,13 @@ import controllers.dividends.routes
 import models.dividends.StockDividendsCheckYourAnswersModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import play.api.{Environment, Mode}
 import play.api.http.HeaderNames
 import play.api.http.Status._
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.DefaultBodyWritables
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
+import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, redirectLocation, route, running, writeableOf_AnyContentAsFormUrlEncoded}
 import test.utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 
 class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables with DividendsDatabaseHelper {
@@ -33,7 +35,7 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
   val stockDividendAmountUrl: String = routes.StockDividendAmountController.show(taxYear).url
   val redeemableSharesStatusUrl: String = routes.RedeemableSharesStatusController.show(taxYear).url
   val dividendsSummaryUrl: String = routes.DividendsSummaryController.show(taxYear).url
-  val postURL: String = s"$appUrl/$taxYear/dividends/stock-dividend-amount"
+  val postURL: String = routes.StockDividendAmountController.submit(taxYear).url
   val poundPrefixText = "£"
 
   val cyaModel: StockDividendsCheckYourAnswersModel =
@@ -165,11 +167,16 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
         lazy val request = FakeRequest("GET", stockDividendAmountUrl).withHeaders(headers: _*)
 
         lazy val result = {
-          dropStockDividendsDB()
+          authoriseAgentOrIndividual(scenario.isAgent)
+          route(appWithStockDividendsBackendMongo, request, "{}").get
+        }
+
+        /*lazy val result = {
+          getSessionData("url-to-update", cyaModel)
           emptyStockDividendsUserDataStub()
           authoriseAgentOrIndividual(scenario.isAgent)
-          route(appWithStockDividends, request, "{}").get
-        }
+          route(appWithStockDividendsBackendMongo, request, "{}").get
+        }*/
 
         implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
 
@@ -197,7 +204,7 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
           insertStockDividendsCyaData(Some(cyaModel))
           emptyStockDividendsUserDataStub()
           authoriseAgentOrIndividual(scenario.isAgent)
-          route(appWithStockDividends, request, "{}").get
+          route(appWithStockDividendsBackendMongo, request, "{}").get
         }
 
         implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
@@ -216,6 +223,7 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
         buttonCheck(continueText, Selectors.continueButtonSelector)
         inputFieldCheck(amountInputName, Selectors.inputSelector)
       }
+
     }
 
     s".submit when $testNameWelsh and the user is $testNameAgent" should {
@@ -225,10 +233,17 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
           dropStockDividendsDB()
           insertStockDividendsCyaData(Some(cyaModel.copy(None, None, None, None, None, None, None, None, None, None)))
           authoriseAgentOrIndividual(scenario.isAgent)
-          urlPost(postURL, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> "123"))
+
+          val url = s"/income-tax-dividends/income-tax/income/dividends/$taxYear/stock-dividends/session"
+
+          updateSessionData(url, "")
+
+          val headers = ("Csrf-Token" -> "nocheck") +: playSessionCookie(scenario.isAgent)
+          val request = FakeRequest("POST", postURL).withHeaders(headers: _*).withFormUrlEncodedBody("amount" -> "123")
+          route(appWithStockDividendsBackendMongo, request).get
         }
-        result.status shouldBe SEE_OTHER
-        result.headers(HeaderNames.LOCATION).head shouldBe redeemableSharesStatusUrl
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result).value shouldBe redeemableSharesStatusUrl
       }
 
       "return a 303 status and redirect to cya page when isFinished is true" in {

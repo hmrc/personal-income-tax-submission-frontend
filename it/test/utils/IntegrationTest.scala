@@ -32,12 +32,12 @@ import models.mongo._
 import models.priorDataModels.IncomeSourcesModel
 import models.savings.SavingsIncomeCYAModel
 import org.apache.pekko.actor.ActorSystem
-import org.scalatest.BeforeAndAfterAll
+import org.scalatest.{BeforeAndAfterAll, OptionValues}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.http.HeaderNames
-import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND}
+import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, NO_CONTENT}
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
@@ -59,9 +59,10 @@ import java.time.LocalDate
 import java.util.UUID
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
+import com.github.tomakehurst.wiremock.http.HttpHeader
 
 trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerPerSuite with WireMockHelper
-  with BeforeAndAfterAll {
+  with BeforeAndAfterAll with OptionValues {
 
   val authorizationHeader: (String, String) = HeaderNames.AUTHORIZATION -> "mock-bearer-token"
   private val dateNow: LocalDate = LocalDate.now()
@@ -385,6 +386,23 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
       s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", OK,
       Json.toJson(userData).toString(), "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
   }
+
+  def getSessionData(url: String, userData: StockDividendsCheckYourAnswersModel): StubMapping = {
+    stubGetWithHeadersCheck(
+      url,
+      OK,
+      Json.toJson(userData).toString(), "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
+  }
+
+  def updateSessionData(url: String, responseBody: String): StubMapping = {
+    stubPut(
+      url,
+      NO_CONTENT,
+      responseBody,
+      Seq(new HttpHeader("X-Session-ID", sessionId), new HttpHeader("mtditid", mtditid))
+    )
+  }
+
 
   def userDataStubWithError(nino: String, taxYear: Int): StubMapping = {
     stubGetWithHeadersCheck(

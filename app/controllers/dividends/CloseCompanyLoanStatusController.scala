@@ -24,7 +24,7 @@ import models.dividends.StockDividendsCheckYourAnswersModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import services.StockDividendsSessionService
+import services.{StockDividendsSessionService, StockDividendsSessionServiceProvider}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.CloseCompanyLoanStatusView
 
@@ -40,7 +40,7 @@ class CloseCompanyLoanStatusController @Inject()(
                                                   implicit val appConfig: AppConfig,
                                                   ec: ExecutionContext,
                                                   errorHandler: ErrorHandler,
-                                                  session: StockDividendsSessionService
+                                                  session: StockDividendsSessionServiceProvider
                                                 ) extends FrontendController(cc) with I18nSupport {
 
 
@@ -76,9 +76,10 @@ class CloseCompanyLoanStatusController @Inject()(
               sessionData.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel())
                 .copy(closeCompanyLoansWrittenOff = Some(yesNoValue), closeCompanyLoansWrittenOffAmount = None)
             }
-            val update = sessionData.fold(true)(data => data.stockDividends.isEmpty)
-
-            session.updateSessionData(dividendsCya, taxYear, update)(errorHandler.internalServerError())(
+            // TODO
+            // val update = sessionData.fold(true)(data => data.stockDividends.isEmpty)
+            // Maybe need to include needsCreating boolean
+            session.updateSessionData(dividendsCya, taxYear)(errorHandler.internalServerError())(
               if (dividendsCya.isFinished || !yesNoValue) {
                 Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear))
               } else {
