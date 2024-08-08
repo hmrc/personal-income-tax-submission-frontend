@@ -431,19 +431,19 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   def updateSession(taxYear: Int = taxYear, status: Int = NO_CONTENT, responseBody: String = ""): StubMapping =
     createUpdateUserSessionDataStub(s"/income-tax-dividends/income-tax/income/dividends/$taxYear/stock-dividends/session",responseBody, HttpResponse(status,body = ""))
 
-  val amount: BigDecimal = 500
+  val stockDividendsAmount: BigDecimal = 500
   val stockDividendsUserDataModel: StockDividendsUserDataModel =
     StockDividendsUserDataModel(sessionId, mtditid, nino, taxYear, Some(StockDividendsCheckYourAnswersModel( gateway = Some(true),
       ukDividends = Some(true),
-      ukDividendsAmount = Some(amount),
+      ukDividendsAmount = Some(stockDividendsAmount),
       otherUkDividends = Some(true),
-      otherUkDividendsAmount = Some(amount),
+      otherUkDividendsAmount = Some(stockDividendsAmount),
       stockDividends = Some(true),
-      stockDividendsAmount = Some(amount),
+      stockDividendsAmount = Some(stockDividendsAmount),
       redeemableShares = Some(true),
-      redeemableSharesAmount = Some(amount),
+      redeemableSharesAmount = Some(stockDividendsAmount),
       closeCompanyLoansWrittenOff = Some(true),
-      closeCompanyLoansWrittenOffAmount = Some(amount))))
+      closeCompanyLoansWrittenOffAmount = Some(stockDividendsAmount))))
 
   def populateSessionData(taxYear: Int = taxYear, status: Int = NO_CONTENT, responseBody: String = ""): StubMapping =
     createUpdateUserSessionDataStub(s"/income-tax-dividends/income-tax/income/dividends/$taxYear/stock-dividends/session", responseBody, HttpResponse(status,body = ""))
