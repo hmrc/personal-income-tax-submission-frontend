@@ -52,7 +52,7 @@ import test.helpers.{PlaySessionCookieBaker, WireMockHelper}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
-import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionKeys}
 import views.html.authErrorPages.AgentAuthErrorPageView
 
 import java.time.LocalDate
@@ -424,6 +424,35 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     stubGetWithHeadersCheck(
       s"/income-tax-dividends/income-tax/income/dividends/${user.nino}/$taxYear", NOT_FOUND,
       "", "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
+  }
+
+  def clearSession(): Boolean = await(stockDividendsUserDataRepository.clear(taxYear))
+
+  def updateSession(taxYear: Int = taxYear, status: Int = NO_CONTENT, responseBody: String = ""): StubMapping =
+    createUpdateUserSessionDataStub(s"/income-tax-dividends/income-tax/income/dividends/$taxYear/stock-dividends/session",responseBody, HttpResponse(status,body = ""))
+
+  val amount: BigDecimal = 500
+  val stockDividendsUserDataModel: StockDividendsUserDataModel =
+    StockDividendsUserDataModel(sessionId, mtditid, nino, taxYear, Some(StockDividendsCheckYourAnswersModel( gateway = Some(true),
+      ukDividends = Some(true),
+      ukDividendsAmount = Some(amount),
+      otherUkDividends = Some(true),
+      otherUkDividendsAmount = Some(amount),
+      stockDividends = Some(true),
+      stockDividendsAmount = Some(amount),
+      redeemableShares = Some(true),
+      redeemableSharesAmount = Some(amount),
+      closeCompanyLoansWrittenOff = Some(true),
+      closeCompanyLoansWrittenOffAmount = Some(amount))))
+
+  def populateSessionData(taxYear: Int = taxYear, status: Int = NO_CONTENT, responseBody: String = ""): StubMapping =
+    createUpdateUserSessionDataStub(s"/income-tax-dividends/income-tax/income/dividends/$taxYear/stock-dividends/session", responseBody, HttpResponse(status,body = ""))
+
+  def getSessionDataStub(userData: Option[StockDividendsUserDataModel] = Some(stockDividendsUserDataModel),
+                         taxYear: Int = taxYear, status: Int = OK): StubMapping = {
+    stubGetWithHeadersCheck(
+      s"/income-tax-dividends/income-tax/income/dividends/$taxYear/stock-dividends/session", status,
+      Json.toJson(userData).toString(), "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
   }
 
   val CompleteDividendsUserData: DividendsUserDataModel = DividendsUserDataModel(
