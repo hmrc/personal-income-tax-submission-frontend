@@ -24,30 +24,33 @@ import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.DefaultBodyWritables
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
 import test.utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
+import play.api.Application
+import play.api.mvc.Result
+import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, redirectLocation, route, writeableOf_AnyContentAsFormUrlEncoded}
+import scala.concurrent.Future
 
 class CloseCompanyLoanAmountControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables with DividendsDatabaseHelper {
 
-  val amount: BigDecimal = 500
   val closeCompanyLoanAmountUrl: String = routes.CloseCompanyLoanAmountController.show(taxYear).url
   val dividendsSummaryUrl: String = routes.DividendsSummaryController.show(taxYear).url
-  val postURL: String = s"$appUrl/$taxYear/dividends/close-company-loan-amount"
+  val relativepostURL: String = routes.CloseCompanyLoanAmountController.submit(taxYear).url
   val poundPrefixText = "£"
+  val stockDividendsSessionUrl: String = s"/income-tax-dividends/income-tax/income/dividends/$taxYear/stock-dividends/session"
 
   val cyaModel: StockDividendsCheckYourAnswersModel =
     StockDividendsCheckYourAnswersModel(
       gateway = Some(true),
       ukDividends = Some(true),
-      ukDividendsAmount = Some(amount),
+      ukDividendsAmount = Some(stockDividendsAmount),
       otherUkDividends = Some(true),
-      otherUkDividendsAmount = Some(amount),
+      otherUkDividendsAmount = Some(stockDividendsAmount),
       stockDividends = Some(true),
-      stockDividendsAmount = Some(amount),
+      stockDividendsAmount = Some(stockDividendsAmount),
       redeemableShares = Some(true),
-      redeemableSharesAmount = Some(amount),
+      redeemableSharesAmount = Some(stockDividendsAmount),
       closeCompanyLoansWrittenOff = Some(true),
-      closeCompanyLoansWrittenOffAmount = Some(amount)
+      closeCompanyLoansWrittenOffAmount = Some(stockDividendsAmount)
     )
 
   trait SpecificExpectedResults {
@@ -132,6 +135,25 @@ class CloseCompanyLoanAmountControllerISpec extends IntegrationTest with ViewHel
 
   userScenarios.foreach { scenario =>
 
+    def postCloseCompanyLoanAmount(body: Seq[(String, String)],
+                                   application: Application): Future[Result] = {
+      val headers = Seq("Csrf-Token" -> "nocheck") ++
+        Option.when(scenario.isWelsh)(HeaderNames.ACCEPT_LANGUAGE -> "cy").toSeq ++
+        playSessionCookie(scenario.isAgent)
+      val request = FakeRequest("POST", relativepostURL).withHeaders(headers: _*).withFormUrlEncodedBody(body: _*)
+
+      authoriseAgentOrIndividual(scenario.isAgent)
+      route(application, request).get
+    }
+
+    def getCloseCompanyLoanAmount(application: Application): Future[Result] = {
+      val headers = Option.when(scenario.isWelsh)(HeaderNames.ACCEPT_LANGUAGE -> "cy").toSeq ++ playSessionCookie(scenario.isAgent)
+      lazy val request = FakeRequest("GET", closeCompanyLoanAmountUrl).withHeaders(headers: _*)
+
+      authoriseAgentOrIndividual(scenario.isAgent)
+      route(application, request, "{}").get
+    }
+
     lazy val uniqueResults = scenario.specificExpectedResults.get
     import scenario.commonExpectedResults._
     import uniqueResults._
@@ -141,17 +163,10 @@ class CloseCompanyLoanAmountControllerISpec extends IntegrationTest with ViewHel
 
     s".show when $testNameWelsh and the user is $testNameAgent" should {
 
-      "display close company loan amount page" which {
-        lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-        lazy val request = FakeRequest("GET", closeCompanyLoanAmountUrl).withHeaders(headers: _*)
+      "display close company loan amount page with appWithStockDividends" which {
+        implicit lazy val app: Application = appWithStockDividends
 
-        lazy val result = {
-          dropStockDividendsDB()
-          emptyStockDividendsUserDataStub()
-          authoriseAgentOrIndividual(scenario.isAgent)
-          route(appWithStockDividends, request, "{}").get
-        }
-
+        lazy val result = getCloseCompanyLoanAmount(app)
         implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
 
         "has a status of OK(200)" in {
@@ -167,18 +182,29 @@ class CloseCompanyLoanAmountControllerISpec extends IntegrationTest with ViewHel
         inputFieldCheck(amountInputName, Selectors.inputSelector)
       }
 
-      "display the close company loan amount page with session data" which {
-        lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-        lazy val request = FakeRequest("GET", closeCompanyLoanAmountUrl).withHeaders(headers: _*)
+      "display close company loan amount page with appWithStockDividendsBackendMongo" which {
+        implicit lazy val app: Application = appWithStockDividendsBackendMongo
 
-        lazy val result = {
-          dropStockDividendsDB()
-          insertStockDividendsCyaData(Some(cyaModel))
-          emptyStockDividendsUserDataStub()
-          authoriseAgentOrIndividual(scenario.isAgent)
-          route(appWithStockDividends, request, "{}").get
+        lazy val resultBackEnd = getCloseCompanyLoanAmount(app)
+        implicit val document: () => Document = () => Jsoup.parse(contentAsString(resultBackEnd))
+
+        "has a status of OK(200)" in {
+          status(resultBackEnd) shouldBe OK
         }
 
+        titleCheck(expectedTitle, scenario.isWelsh)
+        h1Check(expectedH1 + " " + captionExpected)
+        captionCheck(captionExpected)
+        formPostLinkCheck(closeCompanyLoanAmountUrl, Selectors.formSelector)
+        textOnPageCheck(hintText, Selectors.hint)
+        buttonCheck(continueText, Selectors.continueButtonSelector)
+        inputFieldCheck(amountInputName, Selectors.inputSelector)
+      }
+
+      "display the close company loan amount page with appWithStockDividends" which {
+        implicit lazy val app: Application = appWithStockDividends
+
+        lazy val result = getCloseCompanyLoanAmount(app)
         implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
 
         "has a status of OK(200)" in {
@@ -194,61 +220,118 @@ class CloseCompanyLoanAmountControllerISpec extends IntegrationTest with ViewHel
         inputFieldCheck(amountInputName, Selectors.inputSelector)
       }
 
-    }
+      s".submit when $testNameWelsh and the user is $testNameAgent" should {
 
-    s".submit when $testNameWelsh and the user is $testNameAgent" should {
-
-      "return a 303 status and redirect to next status page" in {
-        lazy val result = {
-          dropStockDividendsDB()
-          insertStockDividendsCyaData(Some(cyaModel.copy(None, None, None, None, None, None, None, None, None, None)))
-          authoriseAgentOrIndividual(scenario.isAgent)
-          urlPost(postURL, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> "123"))
-        }
-        result.status shouldBe SEE_OTHER
-        result.headers(HeaderNames.LOCATION).head shouldBe dividendsSummaryUrl
-      }
-
-      "return a 303 status and redirect to cya page when isFinished is true" in {
-        lazy val result = {
-          dropStockDividendsDB()
-          insertStockDividendsCyaData(Some(cyaModel))
-          authoriseAgentOrIndividual(scenario.isAgent)
-          urlPost(postURL, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> "123"))
-        }
-        result.status shouldBe SEE_OTHER
-        result.headers(HeaderNames.LOCATION).head shouldBe dividendsSummaryUrl
-      }
-
-      "return a error" when {
-        "the form is empty" which {
+        "return a 303 status and redirect to next status page with appWithStockDividends" in {
+          implicit lazy val app: Application = appWithStockDividends
 
           lazy val result = {
-            authoriseAgentOrIndividual(scenario.isAgent)
-            urlPost(postURL, welsh = scenario.isWelsh, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> ""))
+            dropStockDividendsDB()
+            insertStockDividendsCyaData(Some(cyaModel.copy(None, None, None, None, None, None, None, None, None, None)))
+            postCloseCompanyLoanAmount(Seq("amount" -> "123"), app)
           }
-
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
-
-          "has a 400 BAD_REQUEST status " in {
-            result.status shouldBe BAD_REQUEST
-          }
-
-          titleCheck(errorPrefix(scenario.isWelsh) + expectedTitle, scenario.isWelsh)
-          errorAboveElementCheck(expectedErrorEmpty)
-          errorSummaryCheck(expectedErrorEmpty, Selectors.errorSummaryHref, scenario.isWelsh)
+          status(result) shouldBe SEE_OTHER
+          redirectLocation(result).value shouldBe dividendsSummaryUrl
         }
 
-        "the form is invalid" which {
+        "return a 303 status and redirect to next status page with appWithStockDividendsBackendMongo" in {
+          implicit lazy val app: Application = appWithStockDividendsBackendMongo
+
+          lazy val resultBackEnd = {
+            updateSessionData(stockDividendsSessionUrl)
+            postCloseCompanyLoanAmount(Seq("amount" -> "123"), app)
+          }
+          status(resultBackEnd) shouldBe SEE_OTHER
+          redirectLocation(resultBackEnd).value shouldBe dividendsSummaryUrl
+        }
+
+
+        "return a 303 status and redirect to cya page when isFinished is true with appWithStockDividends" in {
+          implicit lazy val app: Application = appWithStockDividends
+
           lazy val result = {
-            authoriseAgentOrIndividual(scenario.isAgent)
-            urlPost(postURL, welsh = scenario.isWelsh, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> "$$$"))
+            dropStockDividendsDB()
+            insertStockDividendsCyaData(Some(cyaModel))
+            postCloseCompanyLoanAmount(Seq("amount" -> "123"), app)
+          }
+          status(result) shouldBe SEE_OTHER
+          redirectLocation(result).value shouldBe dividendsSummaryUrl
+        }
+
+
+        "return a 303 status and redirect to cya page when isFinished is true with appWithStockDividendsBackendMongo" in {
+          implicit lazy val app: Application = appWithStockDividendsBackendMongo
+
+          lazy val result = {
+            getSessionData(closeCompanyLoanAmountUrl, stockDividendsUserDataModel)
+            updateSessionData(stockDividendsSessionUrl)
+            postCloseCompanyLoanAmount(Seq("amount" -> "123"), app)
+          }
+          status(result) shouldBe SEE_OTHER
+          redirectLocation(result).value shouldBe dividendsSummaryUrl
+
+        }
+
+        "return a error" when {
+          "the form is empty appWithStockDividends" which {
+            implicit lazy val app: Application = appWithStockDividends
+
+            lazy val result = postCloseCompanyLoanAmount(Seq.empty, app)
+
+            implicit val document: () => Document = () => Jsoup.parse(bodyOf(result))
+
+            "has a 400 BAD_REQUEST status " in {
+              status(result) shouldBe BAD_REQUEST
+            }
+
+            titleCheck(errorPrefix(scenario.isWelsh) + expectedTitle, scenario.isWelsh)
+            errorAboveElementCheck(expectedErrorEmpty)
+            errorSummaryCheck(expectedErrorEmpty, Selectors.errorSummaryHref, scenario.isWelsh)
           }
 
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
+          "the form is empty with appWithStockDividendsBackendMongo" which {
+            implicit lazy val app: Application = appWithStockDividendsBackendMongo
+
+            lazy val resultBackEnd = postCloseCompanyLoanAmount(Seq.empty, app)
+
+            implicit val document: () => Document = () => Jsoup.parse(bodyOf(resultBackEnd))
+
+            "has a 400 BAD_REQUEST status " in {
+              status(resultBackEnd) shouldBe BAD_REQUEST
+            }
+
+            titleCheck(errorPrefix(scenario.isWelsh) + expectedTitle, scenario.isWelsh)
+            errorAboveElementCheck(expectedErrorEmpty)
+            errorSummaryCheck(expectedErrorEmpty, Selectors.errorSummaryHref, scenario.isWelsh)
+          }
+
+          }
+
+          "the form is invalid with appWithStockDividends" which {
+            implicit lazy val app: Application = appWithStockDividends
+
+            lazy val result = postCloseCompanyLoanAmount(Seq("amount" -> "$$$"), app)
+
+            implicit val document: () => Document = () => Jsoup.parse(bodyOf(result))
+
+            "has a 400 BAD_REQUEST status " in {
+              status(result) shouldBe BAD_REQUEST
+            }
+
+            titleCheck(errorPrefix(scenario.isWelsh) + expectedTitle, scenario.isWelsh)
+            errorAboveElementCheck(expectedErrorInvalid)
+            errorSummaryCheck(expectedErrorInvalid, Selectors.errorSummaryHref, scenario.isWelsh)
+          }
+
+        "the form is invalid with appWithStockDividendsBackendMongo" which {
+          implicit lazy val app: Application = appWithStockDividendsBackendMongo
+
+          lazy val resultBackEnd = postCloseCompanyLoanAmount(Seq("amount" -> "$$$"), app)
+
+          implicit val document: () => Document = () => Jsoup.parse(bodyOf(resultBackEnd))
 
           "has a 400 BAD_REQUEST status " in {
-            result.status shouldBe BAD_REQUEST
+            status(resultBackEnd) shouldBe BAD_REQUEST
           }
 
           titleCheck(errorPrefix(scenario.isWelsh) + expectedTitle, scenario.isWelsh)
@@ -256,26 +339,40 @@ class CloseCompanyLoanAmountControllerISpec extends IntegrationTest with ViewHel
           errorSummaryCheck(expectedErrorInvalid, Selectors.errorSummaryHref, scenario.isWelsh)
         }
 
-        "the form is overmax" which {
-          lazy val result = {
-            authoriseAgentOrIndividual(scenario.isAgent)
-            urlPost(postURL, welsh = scenario.isWelsh, follow = false,
-              headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> "103242424234242342423423"))
-          }
+        "the form is overmax with appWithStockDividends" which {
+          implicit lazy val app: Application = appWithStockDividends
 
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
+          lazy val result = postCloseCompanyLoanAmount(Seq("amount" -> "103242424234242342423423"), app)
+
+          implicit val document: () => Document = () => Jsoup.parse(bodyOf(result))
 
           "has a 400 BAD_REQUEST status " in {
-            result.status shouldBe BAD_REQUEST
+            status(result) shouldBe BAD_REQUEST
           }
 
           titleCheck(errorPrefix(scenario.isWelsh) + expectedTitle, scenario.isWelsh)
           errorAboveElementCheck(expectedErrorOverMax)
           errorSummaryCheck(expectedErrorOverMax, Selectors.errorSummaryHref, scenario.isWelsh)
         }
+
+        "the form is overmax with appWithStockDividendsBackendMongo" which {
+          implicit lazy val app: Application = appWithStockDividendsBackendMongo
+
+          lazy val resultBackEnd = postCloseCompanyLoanAmount(Seq("amount" -> "103242424234242342423423"), app)
+
+          implicit val document: () => Document = () => Jsoup.parse(bodyOf(resultBackEnd))
+
+          "has a 400 BAD_REQUEST status " in {
+            status(resultBackEnd) shouldBe BAD_REQUEST
+          }
+
+          titleCheck(errorPrefix(scenario.isWelsh) + expectedTitle, scenario.isWelsh)
+          errorAboveElementCheck(expectedErrorOverMax)
+          errorSummaryCheck(expectedErrorOverMax, Selectors.errorSummaryHref, scenario.isWelsh)
+        }
+
+
+        }
       }
     }
   }
-
-}
-
