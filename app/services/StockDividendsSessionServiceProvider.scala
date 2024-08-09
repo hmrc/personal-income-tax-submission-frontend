@@ -41,4 +41,10 @@ trait StockDividendsSessionServiceProvider {
 
   def getAndHandle[R](taxYear: Int)(onFail: R)(block: (Option[StockDividendsCheckYourAnswersModel], Option[StockDividendsUserDataModel]) => R)
                      (implicit request: User[_], hc: HeaderCarrier): Future[R]
+
+  def createOrUpdateSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int, needsCreating: Boolean)(onFail: A)(onSuccess: A)
+                          (implicit request: User[_], hc: HeaderCarrier): Future[A] = {
+    if (needsCreating) createSessionData(cyaModel, taxYear)(onFail)(onSuccess)
+    else updateSessionData(cyaModel, taxYear)(onFail)(onSuccess)
+  }
 }

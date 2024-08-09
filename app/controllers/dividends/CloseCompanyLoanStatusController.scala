@@ -76,10 +76,9 @@ class CloseCompanyLoanStatusController @Inject()(
               sessionData.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel())
                 .copy(closeCompanyLoansWrittenOff = Some(yesNoValue), closeCompanyLoansWrittenOffAmount = None)
             }
-            // TODO
-            // val update = sessionData.fold(true)(data => data.stockDividends.isEmpty)
-            // Maybe need to include needsCreating boolean
-            session.updateSessionData(dividendsCya, taxYear)(errorHandler.internalServerError())(
+            val needsCreating: Boolean = sessionData.forall(_.stockDividends.isEmpty)
+
+            session.createOrUpdateSessionData(dividendsCya, taxYear, needsCreating)(errorHandler.internalServerError())(
               if (dividendsCya.isFinished || !yesNoValue) {
                 Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear))
               } else {
