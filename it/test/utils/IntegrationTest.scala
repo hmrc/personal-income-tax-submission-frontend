@@ -32,7 +32,7 @@ import models.mongo._
 import models.priorDataModels.IncomeSourcesModel
 import models.savings.SavingsIncomeCYAModel
 import org.apache.pekko.actor.ActorSystem
-import org.scalatest.{BeforeAndAfterAll, OptionValues}
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, OptionValues}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
@@ -62,7 +62,7 @@ import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
 import com.github.tomakehurst.wiremock.http.HttpHeader
 
 trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerPerSuite with WireMockHelper
-  with BeforeAndAfterAll with OptionValues {
+  with BeforeAndAfterAll with OptionValues with BeforeAndAfterEach {
 
   val authorizationHeader: (String, String) = HeaderNames.AUTHORIZATION -> "mock-bearer-token"
   private val dateNow: LocalDate = LocalDate.now()
@@ -262,6 +262,11 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   override def beforeAll(): Unit = {
     super.beforeAll()
     startWiremock()
+  }
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    resetWiremock()
   }
 
   override def afterAll(): Unit = {
