@@ -392,23 +392,6 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
       Json.toJson(userData).toString(), "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
   }
 
-  def getSessionData(url: String, userData: StockDividendsUserDataModel): StubMapping = {
-    stubGetWithHeadersCheck(
-      url,
-      OK,
-      Json.toJson(userData).toString(), "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
-  }
-
-  def updateSessionData(url: String, responseBody: String = ""): StubMapping = {
-    stubPut(
-      url,
-      NO_CONTENT,
-      responseBody,
-      Seq(new HttpHeader("X-Session-ID", sessionId), new HttpHeader("mtditid", mtditid))
-    )
-  }
-
-
   def userDataStubWithError(nino: String, taxYear: Int): StubMapping = {
     stubGetWithHeadersCheck(
       s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", INTERNAL_SERVER_ERROR,
@@ -461,6 +444,16 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
       s"/income-tax-dividends/income-tax/income/dividends/$taxYear/stock-dividends/session", status,
       Json.toJson(userData).toString(), "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
   }
+
+  def updateSessionDataStub(taxYear: Int = taxYear, responseBody: String = "", status: Int = NO_CONTENT): StubMapping = {
+    stubPut(
+      s"/income-tax-dividends/income-tax/income/dividends/$taxYear/stock-dividends/session",
+      status,
+      responseBody,
+      Seq(new HttpHeader("X-Session-ID", sessionId), new HttpHeader("mtditid", mtditid))
+    )
+  }
+
 
   val CompleteDividendsUserData: DividendsUserDataModel = DividendsUserDataModel(
     "sessionId-1618a1e8-4979-41d8-a32e-5ffbe69fac81",

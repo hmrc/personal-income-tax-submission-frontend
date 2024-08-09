@@ -55,8 +55,6 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
       closeCompanyLoansWrittenOffAmount = Some(amount)
     )
 
-  val stockDividendsSessionUrl: String = s"/income-tax-dividends/income-tax/income/dividends/$taxYear/stock-dividends/session"
-
   trait SpecificExpectedResults {
     val expectedTitle: String
     val expectedErrorTitle: String
@@ -186,12 +184,13 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
     s".show when $testNameWelsh and the user is $testNameAgent" should {
 
       "display the stock dividend amount page with appWithStockDividendsBackendMongo" which {
-        implicit lazy val app: Application = appWithStockDividendsBackendMongo
+        implicit lazy val application: Application = appWithStockDividendsBackendMongo
 
-        lazy val result = getStockDividendAmount(app)
+        lazy val result = getStockDividendAmount(application)
         implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
 
         "has a status of OK(200)" in {
+          getSessionDataStub()
           status(result) shouldBe OK
         }
 
@@ -207,9 +206,9 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
       }
 
       "display the stock dividend amount page with appWithStockDividends" which {
-        implicit lazy val app: Application = appWithStockDividends
+        implicit lazy val application: Application = appWithStockDividends
 
-        lazy val result = getStockDividendAmount(app)
+        lazy val result = getStockDividendAmount(application)
         implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
 
         "has a status of OK(200)" in {
@@ -228,12 +227,13 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
       }
 
       "display the stock dividend amount page with session data with appWithStockDividendsBackendMongo" which {
-        implicit lazy val app: Application = appWithStockDividendsBackendMongo
+        implicit lazy val application: Application = appWithStockDividendsBackendMongo
 
-        lazy val result = getStockDividendAmount(app)
+        lazy val result = getStockDividendAmount(application)
         implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
 
         "has a status of OK(200)" in {
+          getSessionDataStub()
           status(result) shouldBe OK
         }
 
@@ -249,9 +249,9 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
       }
 
       "display the stock dividend amount page with session data with appWithStockDividends" which {
-        implicit lazy val app: Application = appWithStockDividends
+        implicit lazy val application: Application = appWithStockDividends
 
-        lazy val result = getStockDividendAmount(app)
+        lazy val result = getStockDividendAmount(application)
         implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
 
         "has a status of OK(200)" in {
@@ -273,47 +273,49 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
     s".submit when $testNameWelsh and the user is $testNameAgent" should {
 
       "return a 303 status and redirect to next status page with appWithStockDividendsBackendMongo" in {
-        implicit lazy val app: Application = appWithStockDividendsBackendMongo
+        implicit lazy val application: Application = appWithStockDividendsBackendMongo
 
         lazy val result = {
-          updateSessionData(stockDividendsSessionUrl)
-          postStockDividendAmount(Seq("amount" -> "123"), app)
+          getSessionDataStub(Some(stockDividendsUserDataModel.copy(
+            stockDividends = Some(StockDividendsCheckYourAnswersModel()))))
+          updateSessionDataStub()
+          postStockDividendAmount(Seq("amount" -> "123"), application)
         }
         status(result) shouldBe SEE_OTHER
         redirectLocation(result).value shouldBe redeemableSharesStatusUrl
       }
 
       "return a 303 status and redirect to next status page with appWithStockDividends" in {
-        implicit lazy val app: Application = appWithStockDividends
+        implicit lazy val application: Application = appWithStockDividends
 
         lazy val result = {
           dropStockDividendsDB()
-          insertStockDividendsCyaData(Some(cyaModel.copy(None, None, None, None, None, None, None, None, None, None)))
-          postStockDividendAmount(Seq("amount" -> "123"), app)
+          insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel()))
+          postStockDividendAmount(Seq("amount" -> "123"), application)
         }
         status(result) shouldBe SEE_OTHER
         redirectLocation(result).value shouldBe redeemableSharesStatusUrl
       }
 
       "return a 303 status and redirect to cya page when isFinished is true with appWithStockDividendsBackendMongo" in {
-        implicit lazy val app: Application = appWithStockDividendsBackendMongo
+        implicit lazy val application: Application = appWithStockDividendsBackendMongo
 
         lazy val result = {
-          getSessionData(stockDividendsSessionUrl, stockDividendsUserDataModel)
-          updateSessionData(stockDividendsSessionUrl)
-          postStockDividendAmount(Seq("amount" -> "123"), app)
+          getSessionDataStub()
+          updateSessionDataStub()
+          postStockDividendAmount(Seq("amount" -> "123"), application)
         }
         status(result) shouldBe SEE_OTHER
         redirectLocation(result).value shouldBe dividendsSummaryUrl
       }
 
       "return a 303 status and redirect to cya page when isFinished is true with appWithStockDividends" in {
-        implicit lazy val app: Application = appWithStockDividends
+        implicit lazy val application: Application = appWithStockDividends
 
         lazy val result = {
           dropStockDividendsDB()
           insertStockDividendsCyaData(Some(cyaModel))
-          postStockDividendAmount(Seq("amount" -> "123"), app)
+          postStockDividendAmount(Seq("amount" -> "123"), application)
         }
         status(result) shouldBe SEE_OTHER
         redirectLocation(result).value shouldBe dividendsSummaryUrl
@@ -321,9 +323,9 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
 
       "return a error" when {
         "the form is empty with appWithStockDividendsBackendMongo" which {
-          implicit lazy val app: Application = appWithStockDividendsBackendMongo
+          implicit lazy val application: Application = appWithStockDividendsBackendMongo
 
-          lazy val result = postStockDividendAmount(Seq.empty, app)
+          lazy val result = postStockDividendAmount(Seq.empty, application)
 
           implicit val document: () => Document = () => Jsoup.parse(bodyOf(result))
 
@@ -337,9 +339,9 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
         }
 
         "the form is empty with appWithStockDividends" which {
-          implicit lazy val app: Application = appWithStockDividends
+          implicit lazy val application: Application = appWithStockDividends
 
-          lazy val result = postStockDividendAmount(Seq.empty, app)
+          lazy val result = postStockDividendAmount(Seq.empty, application)
 
           implicit val document: () => Document = () => Jsoup.parse(bodyOf(result))
 
@@ -353,9 +355,9 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
         }
 
         "the form is invalid with appWithStockDividendsBackendMongo" which {
-          implicit lazy val app: Application = appWithStockDividendsBackendMongo
+          implicit lazy val application: Application = appWithStockDividendsBackendMongo
 
-          lazy val result = postStockDividendAmount(Seq("amount" -> "$$$"), app)
+          lazy val result = postStockDividendAmount(Seq("amount" -> "$$$"), application)
 
           implicit val document: () => Document = () => Jsoup.parse(bodyOf(result))
 
@@ -369,9 +371,9 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
         }
 
         "the form is invalid with appWithStockDividends" which {
-          implicit lazy val app: Application = appWithStockDividends
+          implicit lazy val application: Application = appWithStockDividends
 
-          lazy val result = postStockDividendAmount(Seq("amount" -> "$$$"), app)
+          lazy val result = postStockDividendAmount(Seq("amount" -> "$$$"), application)
 
           implicit val document: () => Document = () => Jsoup.parse(bodyOf(result))
 
@@ -385,9 +387,9 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
         }
 
         "the form is overmax with appWithStockDividendsBackendMongo" which {
-          implicit lazy val app: Application = appWithStockDividendsBackendMongo
+          implicit lazy val application: Application = appWithStockDividendsBackendMongo
 
-          lazy val result = postStockDividendAmount(Seq("amount" -> "103242424234242342423423"), app)
+          lazy val result = postStockDividendAmount(Seq("amount" -> "103242424234242342423423"), application)
 
           implicit val document: () => Document = () => Jsoup.parse(bodyOf(result))
 
@@ -401,9 +403,9 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
         }
 
         "the form is overmax with appWithStockDividends" which {
-          implicit lazy val app: Application = appWithStockDividends
+          implicit lazy val application: Application = appWithStockDividends
 
-          lazy val result = postStockDividendAmount(Seq("amount" -> "103242424234242342423423"), app)
+          lazy val result = postStockDividendAmount(Seq("amount" -> "103242424234242342423423"), application)
 
           implicit val document: () => Document = () => Jsoup.parse(bodyOf(result))
 
@@ -419,5 +421,3 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
     }
   }
 }
-
-
