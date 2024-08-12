@@ -36,7 +36,6 @@ class CloseCompanyLoanAmountControllerISpec extends IntegrationTest with ViewHel
   val dividendsSummaryUrl: String = routes.DividendsSummaryController.show(taxYear).url
   val relativepostURL: String = routes.CloseCompanyLoanAmountController.submit(taxYear).url
   val poundPrefixText = "£"
-  val stockDividendsSessionUrl: String = s"/income-tax-dividends/income-tax/income/dividends/$taxYear/stock-dividends/session"
 
   val cyaModel: StockDividendsCheckYourAnswersModel =
     StockDividendsCheckYourAnswersModel(
@@ -189,6 +188,7 @@ class CloseCompanyLoanAmountControllerISpec extends IntegrationTest with ViewHel
         implicit val document: () => Document = () => Jsoup.parse(contentAsString(resultBackEnd))
 
         "has a status of OK(200)" in {
+          getSessionDataStub()
           status(resultBackEnd) shouldBe OK
         }
 
@@ -227,7 +227,7 @@ class CloseCompanyLoanAmountControllerISpec extends IntegrationTest with ViewHel
 
           lazy val result = {
             dropStockDividendsDB()
-            insertStockDividendsCyaData(Some(cyaModel.copy(None, None, None, None, None, None, None, None, None, None)))
+            insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel()))
             postCloseCompanyLoanAmount(Seq("amount" -> "123"), app)
           }
           status(result) shouldBe SEE_OTHER
@@ -238,7 +238,9 @@ class CloseCompanyLoanAmountControllerISpec extends IntegrationTest with ViewHel
           implicit lazy val app: Application = appWithStockDividendsBackendMongo
 
           lazy val resultBackEnd = {
-            updateSessionData(stockDividendsSessionUrl)
+            getSessionDataStub(Some(stockDividendsUserDataModel.copy(
+              stockDividends = Some(StockDividendsCheckYourAnswersModel()))))
+            updateSessionDataStub()
             postCloseCompanyLoanAmount(Seq("amount" -> "123"), app)
           }
           status(resultBackEnd) shouldBe SEE_OTHER
@@ -263,8 +265,8 @@ class CloseCompanyLoanAmountControllerISpec extends IntegrationTest with ViewHel
           implicit lazy val app: Application = appWithStockDividendsBackendMongo
 
           lazy val result = {
-            getSessionData(closeCompanyLoanAmountUrl, stockDividendsUserDataModel)
-            updateSessionData(stockDividendsSessionUrl)
+            getSessionDataStub()
+            updateSessionDataStub()
             postCloseCompanyLoanAmount(Seq("amount" -> "123"), app)
           }
           status(result) shouldBe SEE_OTHER
@@ -305,23 +307,23 @@ class CloseCompanyLoanAmountControllerISpec extends IntegrationTest with ViewHel
             errorSummaryCheck(expectedErrorEmpty, Selectors.errorSummaryHref, scenario.isWelsh)
           }
 
+        }
+
+        "the form is invalid with appWithStockDividends" which {
+          implicit lazy val app: Application = appWithStockDividends
+
+          lazy val result = postCloseCompanyLoanAmount(Seq("amount" -> "$$$"), app)
+
+          implicit val document: () => Document = () => Jsoup.parse(bodyOf(result))
+
+          "has a 400 BAD_REQUEST status " in {
+            status(result) shouldBe BAD_REQUEST
           }
 
-          "the form is invalid with appWithStockDividends" which {
-            implicit lazy val app: Application = appWithStockDividends
-
-            lazy val result = postCloseCompanyLoanAmount(Seq("amount" -> "$$$"), app)
-
-            implicit val document: () => Document = () => Jsoup.parse(bodyOf(result))
-
-            "has a 400 BAD_REQUEST status " in {
-              status(result) shouldBe BAD_REQUEST
-            }
-
-            titleCheck(errorPrefix(scenario.isWelsh) + expectedTitle, scenario.isWelsh)
-            errorAboveElementCheck(expectedErrorInvalid)
-            errorSummaryCheck(expectedErrorInvalid, Selectors.errorSummaryHref, scenario.isWelsh)
-          }
+          titleCheck(errorPrefix(scenario.isWelsh) + expectedTitle, scenario.isWelsh)
+          errorAboveElementCheck(expectedErrorInvalid)
+          errorSummaryCheck(expectedErrorInvalid, Selectors.errorSummaryHref, scenario.isWelsh)
+        }
 
         "the form is invalid with appWithStockDividendsBackendMongo" which {
           implicit lazy val app: Application = appWithStockDividendsBackendMongo
@@ -372,7 +374,7 @@ class CloseCompanyLoanAmountControllerISpec extends IntegrationTest with ViewHel
         }
 
 
-        }
       }
     }
   }
+}
