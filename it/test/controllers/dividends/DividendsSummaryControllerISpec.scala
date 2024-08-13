@@ -22,14 +22,16 @@ import models.dividends._
 import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import play.api.Application
 import play.api.http.HeaderNames
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, NO_CONTENT, OK, SEE_OTHER}
 import play.api.libs.json.Json
-import play.api.libs.ws.WSResponse
-import play.api.mvc.Headers
+import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
+import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, headers, route, writeableOf_AnyContentAsFormUrlEncoded}
 import test.utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
+
+import scala.concurrent.Future
 
 class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers with DividendsDatabaseHelper {
 
@@ -38,9 +40,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
   val otherDividends: BigDecimal = 10.50
 
   val amount: BigDecimal = 123.45
-  val relativeUrl: String = routes.DividendsSummaryController.show(taxYear).url
-
-  val dividendsSummaryUrl = s"$appUrl/$taxYear/dividends/summary"
+  val dividendsSummaryUrl: String = routes.DividendsSummaryController.show(taxYear).url
 
   val dividendsFromStocksAndSharesHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/dividends-from-stocks-and-shares"
   val dividendsStatusHref = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/dividends-from-uk-companies"
@@ -233,27 +233,32 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
   ".show" when {
 
 
-    userScenarios.foreach { us =>
+    userScenarios.foreach { scenario =>
 
       import Selectors._
-      import us.commonExpectedResults._
-      import us.specificExpectedResults._
+      import scenario.commonExpectedResults._
+      import scenario.specificExpectedResults._
 
-      s"language is ${welshTest(us.isWelsh)} and request is from an ${agentTest(us.isAgent)}" should {
+      def getDividendsSummary(application: Application): Future[Result] = {
+        val headers = Option.when(scenario.isWelsh)(HeaderNames.ACCEPT_LANGUAGE -> "cy").toSeq ++ playSessionCookie(scenario.isAgent)
+        lazy val request = FakeRequest("GET", dividendsSummaryUrl).withHeaders(headers: _*)
 
+        authoriseAgentOrIndividual(scenario.isAgent)
+        route(application, request, "{}").get
+      }
 
-       "renders Dividends summary page with correct content when there is data in session" which {
+      s"language is ${welshTest(scenario.isWelsh)} and request is from an ${agentTest(scenario.isAgent)}" should {
 
-          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+        "renders Dividends summary page with correct content when there is data in session with appWithStockDividends" which {
+          implicit lazy val application: Application = appWithStockDividends
 
           lazy val result = {
-            authoriseAgentOrIndividual(us.isAgent)
+            getSessionDataStub()
             emptyUserDataStub()
             dropStockDividendsDB()
             emptyStockDividendsUserDataStub()
             insertStockDividendsCyaData(Some(cyaModel))
-            route(appWithStockDividends, request, "{}").get
+            getDividendsSummary(application)
           }
 
           "has an OK(200) status" in {
@@ -321,17 +326,95 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
           }
 
           buttonCheck(continueButtonText, continueButtonSelector)
-          welshToggleCheck(us.isWelsh)
+          welshToggleCheck(scenario.isWelsh)
 
         }
 
-        "render Dividends summary page with correct content when there is data with false values in session" which {
-
-          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+        "renders Dividends summary page with correct content when there is data in session with appWithStockDividendsBackendMongo" which {
+          implicit lazy val application: Application = appWithStockDividendsBackendMongo
 
           lazy val result = {
-            authoriseAgentOrIndividual(us.isAgent)
+            getSessionDataStub()
+            updateSessionDataStub()
+            emptyUserDataStub()
+            emptyStockDividendsUserDataStub()
+            getDividendsSummary(application)
+          }
+
+          "has an OK(200) status" in {
+            status(result) shouldBe OK
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+          h1Check(get.headingExpected + " " + captionExpected)
+          textOnPageCheck(captionExpected, Selectors.captionSelector)
+          "has an area for section 1" which {
+            textOnPageCheck(dividendsFromStocksAndSharesText, Selectors.cyaTitle(CYA_TITLE_1))
+            linkCheck(s"$changeLinkExpected $dividendsFromStocksAndSharesHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_1), dividendsFromStocksAndSharesHref)
+          }
+          "has an area for section 2" which {
+            textOnPageCheck(dividendsStatusText, Selectors.cyaTitle(CYA_TITLE_2))
+            linkCheck(s"$changeLinkExpected $dividendsStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_2), dividendsStatusHref)
+          }
+          "has an area for section 3" which {
+            textOnPageCheck(dividendsAmountText, Selectors.cyaTitle(CYA_TITLE_3))
+            linkCheck(s"$changeLinkExpected $dividendsAmountHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_3), dividendsAmountHref)
+          }
+          "has an area for section 4" which {
+            textOnPageCheck(dividendsOtherStatusText, Selectors.cyaTitle(CYA_TITLE_4))
+            linkCheck(s"$changeLinkExpected $dividendsOtherStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_4), dividendsOtherStatusHref)
+          }
+          "has an area for section 5" which {
+            textOnPageCheck(dividendsOtherAmountText, Selectors.cyaTitle(CYA_TITLE_5))
+            linkCheck(s"$changeLinkExpected $dividendsOtherAmountHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_5), dividendsOtherAmountHref)
+          }
+          "has an area for section 6" which {
+            textOnPageCheck(stockDividendsStatusText, Selectors.cyaTitle(CYA_TITLE_6))
+            linkCheck(s"$changeLinkExpected $stockDividendsStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_6), stockDividendsStatusHref)
+          }
+          "has an area for section 7" which {
+            textOnPageCheck(stockDividendsAmountText, Selectors.cyaTitle(CYA_TITLE_7))
+            linkCheck(s"$changeLinkExpected $stockDividendsAmountHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_7), stockDividendsAmountHref)
+          }
+          "has an area for section 8" which {
+            textOnPageCheck(redeemableSharesStatusText, Selectors.cyaTitle(CYA_TITLE_8))
+            linkCheck(s"$changeLinkExpected $redeemableSharesStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_8), redeemableSharesStatusHref)
+          }
+          "has an area for section 9" which {
+            textOnPageCheck(redeemableSharesAmountText, Selectors.cyaTitle(CYA_TITLE_9))
+            linkCheck(s"$changeLinkExpected $redeemableSharesAmountHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_9), redeemableSharesAmountHref)
+          }
+          "has an area for section 10" which {
+            textOnPageCheck(closeCompanyLoanStatusText, Selectors.cyaTitle(CYA_TITLE_10))
+            linkCheck(s"$changeLinkExpected $closeCompanyLoanStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_10), closeCompanyLoanStatusHref)
+          }
+          "has an area for section 11" which {
+            textOnPageCheck(closeCompanyLoanAmountText, Selectors.cyaTitle(CYA_TITLE_11))
+            linkCheck(s"$changeLinkExpected $closeCompanyLoanAmountHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_11), closeCompanyLoanAmountHref)
+          }
+
+          buttonCheck(continueButtonText, continueButtonSelector)
+          welshToggleCheck(scenario.isWelsh)
+
+        }
+
+        "render Dividends summary page with correct content when there is data with false values in session with appWithStockDividends" which {
+          implicit lazy val application: Application = appWithStockDividends
+
+          lazy val result = {
+            getSessionDataStub()
             dropStockDividendsDB()
             emptyUserDataStub()
             emptyStockDividendsUserDataStub()
@@ -348,7 +431,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
               closeCompanyLoansWrittenOff = Some(false),
               None
             )))
-            route(appWithStockDividends, request, "{}").get
+            getDividendsSummary(application)
           }
 
           "has an OK(200) status" in {
@@ -391,23 +474,89 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
           }
 
           buttonCheck(continueButtonText, continueButtonSelector)
-          welshToggleCheck(us.isWelsh)
+          welshToggleCheck(scenario.isWelsh)
 
         }
 
-        "renders Dividends summary page with correct content from prior data" which {
-
-          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+        "render Dividends summary page with correct content when there is data with false values in session with appWithStockDividendsBackendMongo" which {
+          implicit lazy val application: Application = appWithStockDividendsBackendMongo
 
           lazy val result = {
-            authoriseAgentOrIndividual(us.isAgent)
+            val updatedCyaModel = cyaModel.copy(
+              gateway = Some(true),
+              ukDividends = Some(false),
+              None,
+              otherUkDividends = Some(false),
+              None,
+              stockDividends = Some(false),
+              None,
+              redeemableShares = Some(false),
+              None,
+              closeCompanyLoansWrittenOff = Some(false),
+              None
+            )
+            getSessionDataStub(Some(stockDividendsUserDataModel.copy(stockDividends = Some(updatedCyaModel))))
+            updateSessionDataStub()
+            emptyUserDataStub()
+            emptyStockDividendsUserDataStub()
+            getDividendsSummary(application)
+          }
+
+          "has an OK(200) status" in {
+            status(result) shouldBe OK
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+          h1Check(get.headingExpected + " " + captionExpected)
+          textOnPageCheck(captionExpected, Selectors.captionSelector)
+          "has an area for section 1" which {
+            textOnPageCheck(dividendsFromStocksAndSharesText, Selectors.cyaTitle(CYA_TITLE_1))
+            linkCheck(s"$changeLinkExpected $dividendsFromStocksAndSharesHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_1), dividendsFromStocksAndSharesHref)
+          }
+          "has an area for section 2" which {
+            textOnPageCheck(dividendsStatusText, Selectors.cyaTitle(CYA_TITLE_2))
+            linkCheck(s"$changeLinkExpected $dividendsStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_2), dividendsStatusHref)
+          }
+          "has an area for section 4" which {
+            textOnPageCheck(dividendsOtherStatusText, Selectors.cyaTitle(CYA_TITLE_3))
+            linkCheck(s"$changeLinkExpected $dividendsOtherStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_3), dividendsOtherStatusHref)
+          }
+          "has an area for section 6" which {
+            textOnPageCheck(stockDividendsStatusText, Selectors.cyaTitle(CYA_TITLE_4))
+            linkCheck(s"$changeLinkExpected $stockDividendsStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_4), stockDividendsStatusHref)
+          }
+          "has an area for section 8" which {
+            textOnPageCheck(redeemableSharesStatusText, Selectors.cyaTitle(CYA_TITLE_5))
+            linkCheck(s"$changeLinkExpected $redeemableSharesStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_5), redeemableSharesStatusHref)
+          }
+          "has an area for section 10" which {
+            textOnPageCheck(closeCompanyLoanStatusText, Selectors.cyaTitle(CYA_TITLE_6))
+            linkCheck(s"$changeLinkExpected $closeCompanyLoanStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_6), closeCompanyLoanStatusHref)
+          }
+
+          buttonCheck(continueButtonText, continueButtonSelector)
+          welshToggleCheck(scenario.isWelsh)
+
+        }
+
+        "renders Dividends summary page with correct content from prior data with appWithStockDividends" which {
+          implicit lazy val application: Application = appWithStockDividends
+
+          lazy val result = {
+            getSessionDataStub()
             dropStockDividendsDB()
             userDataStub(IncomeSourcesModel(Some(DividendsPriorSubmission(
               ukDividends = Some(amount), otherUkDividends = Some(amount)
             ))), nino, taxYear)
             stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
-            route(appWithStockDividends, request, "{}").get
+            getDividendsSummary(application)
           }
 
           "has an OK(200) status" in {
@@ -475,17 +624,95 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
           }
 
           buttonCheck(continueButtonText, continueButtonSelector)
-          welshToggleCheck(us.isWelsh)
-
+          welshToggleCheck(scenario.isWelsh)
         }
 
-        "renders Dividends summary page with correct content when dividends prior data exists and no stock dividends prior data" which {
-
-          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+        "renders Dividends summary page with correct content from prior data with appWithStockDividendsBackendMongo" which {
+          implicit lazy val application: Application = appWithStockDividendsBackendMongo
 
           lazy val result = {
-            authoriseAgentOrIndividual(us.isAgent)
+            getSessionDataStub()
+            updateSessionDataStub()
+            userDataStub(IncomeSourcesModel(Some(DividendsPriorSubmission(
+              ukDividends = Some(amount), otherUkDividends = Some(amount)
+            ))), nino, taxYear)
+            stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
+            getDividendsSummary(application)
+          }
+
+          "has an OK(200) status" in {
+            status(result) shouldBe OK
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+          h1Check(get.headingExpected + " " + captionExpected)
+          textOnPageCheck(captionExpected, Selectors.captionSelector)
+          "has an area for section 1" which {
+            textOnPageCheck(dividendsFromStocksAndSharesText, Selectors.cyaTitle(CYA_TITLE_1))
+            linkCheck(s"$changeLinkExpected $dividendsFromStocksAndSharesHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_1), dividendsFromStocksAndSharesHref)
+          }
+          "has an area for section 2" which {
+            textOnPageCheck(dividendsStatusText, Selectors.cyaTitle(CYA_TITLE_2))
+            linkCheck(s"$changeLinkExpected $dividendsStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_2), dividendsStatusHref)
+          }
+          "has an area for section 3" which {
+            textOnPageCheck(dividendsAmountText, Selectors.cyaTitle(CYA_TITLE_3))
+            linkCheck(s"$changeLinkExpected $dividendsAmountHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_3), dividendsAmountHref)
+          }
+          "has an area for section 4" which {
+            textOnPageCheck(dividendsOtherStatusText, Selectors.cyaTitle(CYA_TITLE_4))
+            linkCheck(s"$changeLinkExpected $dividendsOtherStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_4), dividendsOtherStatusHref)
+          }
+          "has an area for section 5" which {
+            textOnPageCheck(dividendsOtherAmountText, Selectors.cyaTitle(CYA_TITLE_5))
+            linkCheck(s"$changeLinkExpected $dividendsOtherAmountHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_5), dividendsOtherAmountHref)
+          }
+          "has an area for section 6" which {
+            textOnPageCheck(stockDividendsStatusText, Selectors.cyaTitle(CYA_TITLE_6))
+            linkCheck(s"$changeLinkExpected $stockDividendsStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_6), stockDividendsStatusHref)
+          }
+          "has an area for section 7" which {
+            textOnPageCheck(stockDividendsAmountText, Selectors.cyaTitle(CYA_TITLE_7))
+            linkCheck(s"$changeLinkExpected $stockDividendsAmountHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_7), stockDividendsAmountHref)
+          }
+          "has an area for section 8" which {
+            textOnPageCheck(redeemableSharesStatusText, Selectors.cyaTitle(CYA_TITLE_8))
+            linkCheck(s"$changeLinkExpected $redeemableSharesStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_8), redeemableSharesStatusHref)
+          }
+          "has an area for section 9" which {
+            textOnPageCheck(redeemableSharesAmountText, Selectors.cyaTitle(CYA_TITLE_9))
+            linkCheck(s"$changeLinkExpected $redeemableSharesAmountHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_9), redeemableSharesAmountHref)
+          }
+          "has an area for section 10" which {
+            textOnPageCheck(closeCompanyLoanStatusText, Selectors.cyaTitle(CYA_TITLE_10))
+            linkCheck(s"$changeLinkExpected $closeCompanyLoanStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_10), closeCompanyLoanStatusHref)
+          }
+          "has an area for section 11" which {
+            textOnPageCheck(closeCompanyLoanAmountText, Selectors.cyaTitle(CYA_TITLE_11))
+            linkCheck(s"$changeLinkExpected $closeCompanyLoanAmountHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_11), closeCompanyLoanAmountHref)
+          }
+
+          buttonCheck(continueButtonText, continueButtonSelector)
+          welshToggleCheck(scenario.isWelsh)
+        }
+
+        "renders Dividends summary page with correct content when dividends prior data exists and no stock dividends prior data with appWithStockDividends" which {
+          implicit lazy val application: Application = appWithStockDividends
+
+          lazy val result = {
+            getSessionDataStub()
             dropDividendsDB()
             emptyUserDataStub()
             dropStockDividendsDB()
@@ -493,7 +720,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
             userDataStub(IncomeSourcesModel(Some(DividendsPriorSubmission(
               ukDividends = Some(amount), otherUkDividends = Some(amount)
             ))), nino, taxYear)
-            route(appWithStockDividends, request, "{}").get
+            getDividendsSummary(application)
           }
 
           "has an OK(200) status" in {
@@ -531,19 +758,65 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
           }
         }
 
-        "renders internal server error page when error in getting dividends prior data" which {
-
-          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+        "renders Dividends summary page with correct content when dividends prior data exists and no stock dividends prior data with appWithStockDividendsBackendMongo" which {
+          implicit lazy val application: Application = appWithStockDividendsBackendMongo
 
           lazy val result = {
-            authoriseAgentOrIndividual(us.isAgent)
+            getSessionDataStub()
+            updateSessionDataStub()
+            emptyUserDataStub()
+            emptyStockDividendsUserDataStub()
+            userDataStub(IncomeSourcesModel(Some(DividendsPriorSubmission(
+              ukDividends = Some(amount), otherUkDividends = Some(amount)
+            ))), nino, taxYear)
+            getDividendsSummary(application)
+          }
+
+          "has an OK(200) status" in {
+            status(result) shouldBe OK
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+          h1Check(get.headingExpected + " " + captionExpected)
+          textOnPageCheck(captionExpected, Selectors.captionSelector)
+          "has an area for section 1" which {
+            textOnPageCheck(dividendsFromStocksAndSharesText, Selectors.cyaTitle(CYA_TITLE_1))
+            linkCheck(s"$changeLinkExpected $dividendsFromStocksAndSharesHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_1), dividendsFromStocksAndSharesHref)
+          }
+          "has an area for section 2" which {
+            textOnPageCheck(dividendsStatusText, Selectors.cyaTitle(CYA_TITLE_2))
+            linkCheck(s"$changeLinkExpected $dividendsStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_2), dividendsStatusHref)
+          }
+          "has an area for section 3" which {
+            textOnPageCheck(dividendsAmountText, Selectors.cyaTitle(CYA_TITLE_3))
+            linkCheck(s"$changeLinkExpected $dividendsAmountHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_3), dividendsAmountHref)
+          }
+          "has an area for section 4" which {
+            textOnPageCheck(dividendsOtherStatusText, Selectors.cyaTitle(CYA_TITLE_4))
+            linkCheck(s"$changeLinkExpected $dividendsOtherStatusHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_4), dividendsOtherStatusHref)
+          }
+          "has an area for section 5" which {
+            textOnPageCheck(dividendsOtherAmountText, Selectors.cyaTitle(CYA_TITLE_5))
+            linkCheck(s"$changeLinkExpected $dividendsOtherAmountHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_5), dividendsOtherAmountHref)
+          }
+        }
+
+        "renders internal server error page when error in getting dividends prior data with appWithStockDividends" which {
+          implicit lazy val application: Application = appWithStockDividends
+
+          lazy val result = {
+            getSessionDataStub(status = INTERNAL_SERVER_ERROR)
             dropDividendsDB()
             emptyUserDataStub()
             dropStockDividendsDB()
             emptyStockDividendsUserDataStub()
-            userDataStubWithError(nino, taxYear)
-            route(appWithStockDividends, request, "{}").get
+            getDividendsSummary(application)
           }
 
           "has an Internal server error(500) status" in {
@@ -552,19 +825,32 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
 
         }
 
-        "renders Dividends summary page with correct content when only stock dividends prior data exists and no dividends data" which {
-
-          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+        "renders internal server error page when error in getting dividends prior data with appWithStockDividendsBackendMongo" which {
+          implicit lazy val application: Application = appWithStockDividendsBackendMongo
 
           lazy val result = {
-            authoriseAgentOrIndividual(us.isAgent)
+            getSessionDataStub(status = INTERNAL_SERVER_ERROR)
+            emptyUserDataStub()
+            emptyStockDividendsUserDataStub()
+            getDividendsSummary(application)
+          }
+
+          "has an Internal server error(500) status" in {
+            status(result) shouldBe INTERNAL_SERVER_ERROR
+          }
+
+        }
+
+        "renders Dividends summary page with correct content when only stock dividends prior data exists and no dividends data with appWithStockDividends" which {
+          implicit lazy val application: Application = appWithStockDividends
+
+          lazy val result = {
+            getSessionDataStub()
             dropDividendsDB()
             emptyUserDataStub()
             dropStockDividendsDB()
             emptyStockDividendsUserDataStub()
-            stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
-            route(appWithStockDividends, request, "{}").get
+            getDividendsSummary(application)
           }
 
           "has an OK(200) status" in {
@@ -577,21 +863,38 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
           textOnPageCheck(captionExpected, Selectors.captionSelector)
         }
 
-        "renders Dividends summary page with correct content when gateway is false" which {
-
-          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+        "renders Dividends summary page with correct content when only stock dividends prior data exists and no dividends data with appWithStockDividendsBackendMongo" which {
+          implicit lazy val application: Application = appWithStockDividendsBackendMongo
 
           lazy val result = {
-            authoriseAgentOrIndividual(us.isAgent)
-            dropStockDividendsDB()
-            insertStockDividendsCyaData(Some(cyaModel.copy(
-              gateway = Some(false),
-              None, None, None, None, None, None, None, None, None, None
-            )))
+            getSessionDataStub()
+            updateSessionDataStub()
             emptyUserDataStub()
             emptyStockDividendsUserDataStub()
-            route(appWithStockDividends, request, "{}").get
+            getDividendsSummary(application)
+          }
+
+          "has an OK(200) status" in {
+            status(result) shouldBe OK
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+          h1Check(get.headingExpected + " " + captionExpected)
+          textOnPageCheck(captionExpected, Selectors.captionSelector)
+        }
+
+        "renders Dividends summary page with correct content when gateway is false with appWithStockDividends" which {
+          implicit lazy val application: Application = appWithStockDividends
+
+          lazy val result = {
+            val updatedCyaModel = StockDividendsCheckYourAnswersModel(gateway = Some(false))
+            getSessionDataStub(userData = Some(stockDividendsUserDataModel.copy(stockDividends = Some(updatedCyaModel))))
+            dropStockDividendsDB()
+            insertStockDividendsCyaData(Some(updatedCyaModel))
+            emptyUserDataStub()
+            emptyStockDividendsUserDataStub()
+            getDividendsSummary(application)
           }
 
           "has an OK(200) status" in {
@@ -609,22 +912,51 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
           }
 
           buttonCheck(continueButtonText, continueButtonSelector)
-          welshToggleCheck(us.isWelsh)
-
+          welshToggleCheck(scenario.isWelsh)
         }
 
-        "redirect to close company loan amount when unfinished" which {
-
-          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+        "renders Dividends summary page with correct content when gateway is false with appWithStockDividendsBackendMongo" which {
+          implicit lazy val application: Application = appWithStockDividendsBackendMongo
 
           lazy val result = {
-            authoriseAgentOrIndividual(us.isAgent)
+            val updatedCyaModel = StockDividendsCheckYourAnswersModel(gateway = Some(false))
+            getSessionDataStub(userData = Some(stockDividendsUserDataModel.copy(stockDividends = Some(updatedCyaModel))))
+            updateSessionDataStub()
+            insertStockDividendsCyaData(Some(updatedCyaModel))
+            emptyUserDataStub()
+            emptyStockDividendsUserDataStub()
+            getDividendsSummary(application)
+          }
+
+          "has an OK(200) status" in {
+            status(result) shouldBe OK
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+          h1Check(get.headingExpected + " " + captionExpected)
+          textOnPageCheck(captionExpected, Selectors.captionSelector)
+          "has an area for section 1" which {
+            textOnPageCheck(dividendsFromStocksAndSharesText, Selectors.cyaTitle(CYA_TITLE_1))
+            linkCheck(s"$changeLinkExpected $dividendsFromStocksAndSharesHiddenText",
+              Selectors.cyaChangeLink(CYA_TITLE_1), dividendsFromStocksAndSharesHref)
+          }
+
+          buttonCheck(continueButtonText, continueButtonSelector)
+          welshToggleCheck(scenario.isWelsh)
+        }
+
+        "redirect to close company loan amount when unfinished with appWithStockDividends" which {
+          implicit lazy val application: Application = appWithStockDividends
+
+          lazy val result = {
+            val updatedCyaModel = stockDividendsCheckYourAnswersModel.copy(closeCompanyLoansWrittenOff = Some(true), closeCompanyLoansWrittenOffAmount = None)
+            getSessionDataStub(userData = Some(stockDividendsUserDataModel.copy(stockDividends = Some(updatedCyaModel))))
             dropStockDividendsDB()
             emptyUserDataStub()
             emptyStockDividendsUserDataStub()
-            insertStockDividendsCyaData(Some(cyaModel.copy(closeCompanyLoansWrittenOff = Some(true), closeCompanyLoansWrittenOffAmount = None)))
-            route(appWithStockDividends, request, "{}").get
+            insertStockDividendsCyaData(Some(updatedCyaModel))
+            getDividendsSummary(application)
           }
 
           "has an SEE_OTHER(303) status" in {
@@ -632,20 +964,17 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
           }
         }
 
-        "redirect to redeemable shares amount when unfinished" which {
-
-          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+        "redirect to close company loan amount when unfinished with appWithStockDividendsBackendMongo" which {
+          implicit lazy val application: Application = appWithStockDividendsBackendMongo
 
           lazy val result = {
-            authoriseAgentOrIndividual(us.isAgent)
-            dropStockDividendsDB()
+            val updatedCyaModel = stockDividendsCheckYourAnswersModel.copy(closeCompanyLoansWrittenOff = Some(true), closeCompanyLoansWrittenOffAmount = None)
+            getSessionDataStub(userData = Some(stockDividendsUserDataModel.copy(stockDividends = Some(updatedCyaModel))))
+            updateSessionDataStub()
             emptyUserDataStub()
             emptyStockDividendsUserDataStub()
-            insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel(
-              redeemableShares = Some(true), redeemableSharesAmount = None,
-              closeCompanyLoansWrittenOff = None, closeCompanyLoansWrittenOffAmount = None)))
-            route(appWithStockDividends, request, "{}").get
+            insertStockDividendsCyaData(Some(updatedCyaModel))
+            getDividendsSummary(application)
           }
 
           "has an SEE_OTHER(303) status" in {
@@ -653,19 +982,21 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
           }
         }
 
-        "redirect to stock dividends amount when unfinished" which {
-
-          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+        "redirect to redeemable shares amount when unfinished with appWithStockDividends" which {
+          implicit lazy val application: Application = appWithStockDividends
 
           lazy val result = {
-            authoriseAgentOrIndividual(us.isAgent)
+            val updatedCyaModel = StockDividendsCheckYourAnswersModel(
+              redeemableShares = Some(true),
+              redeemableSharesAmount = None,
+              closeCompanyLoansWrittenOff = None,
+              closeCompanyLoansWrittenOffAmount = None)
+            getSessionDataStub(userData = Some(stockDividendsUserDataModel.copy(stockDividends = Some(updatedCyaModel))))
             dropStockDividendsDB()
             emptyUserDataStub()
             emptyStockDividendsUserDataStub()
-            insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel(
-              stockDividends = Some(true))))
-            route(appWithStockDividends, request, "{}").get
+            insertStockDividendsCyaData(Some(updatedCyaModel))
+            getDividendsSummary(application)
           }
 
           "has an SEE_OTHER(303) status" in {
@@ -673,18 +1004,21 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
           }
         }
 
-        "redirect to uk dividends amount when unfinished" which {
-
-          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+        "redirect to redeemable shares amount when unfinished with appWithStockDividendsBackendMongo" which {
+          implicit lazy val application: Application = appWithStockDividendsBackendMongo
 
           lazy val result = {
-            authoriseAgentOrIndividual(us.isAgent)
-            dropStockDividendsDB()
+            val updatedCyaModel = StockDividendsCheckYourAnswersModel(
+              redeemableShares = Some(true),
+              redeemableSharesAmount = None,
+              closeCompanyLoansWrittenOff = None,
+              closeCompanyLoansWrittenOffAmount = None)
+            getSessionDataStub(userData = Some(stockDividendsUserDataModel.copy(stockDividends = Some(updatedCyaModel))))
+            updateSessionDataStub()
             emptyUserDataStub()
             emptyStockDividendsUserDataStub()
-            insertStockDividendsCyaData(Some(cyaModel.copy(ukDividends = Some(true), ukDividendsAmount = None)))
-            route(appWithStockDividends, request, "{}").get
+            insertStockDividendsCyaData(Some(updatedCyaModel))
+            getDividendsSummary(application)
           }
 
           "has an SEE_OTHER(303) status" in {
@@ -692,18 +1026,107 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
           }
         }
 
-        "redirect to other uk dividends amount when unfinished" which {
-
-          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+        "redirect to stock dividends amount when unfinished with appWithStockDividends" which {
+          implicit lazy val application: Application = appWithStockDividends
 
           lazy val result = {
-            authoriseAgentOrIndividual(us.isAgent)
+            val updatedCyaModel = StockDividendsCheckYourAnswersModel(stockDividends = Some(true))
+            getSessionDataStub(userData = Some(stockDividendsUserDataModel.copy(stockDividends = Some(updatedCyaModel))))
             dropStockDividendsDB()
             emptyUserDataStub()
             emptyStockDividendsUserDataStub()
-            insertStockDividendsCyaData(Some(cyaModel.copy(otherUkDividends = Some(true), otherUkDividendsAmount = None)))
-            route(appWithStockDividends, request, "{}").get
+            insertStockDividendsCyaData(Some(updatedCyaModel))
+            getDividendsSummary(application)
+          }
+
+          "has an SEE_OTHER(303) status" in {
+            status(result) shouldBe SEE_OTHER
+          }
+        }
+
+        "redirect to stock dividends amount when unfinished with appWithStockDividendsBackendMongo" which {
+          implicit lazy val application: Application = appWithStockDividendsBackendMongo
+
+          lazy val result = {
+            val updatedCyaModel = StockDividendsCheckYourAnswersModel(stockDividends = Some(true))
+            getSessionDataStub(userData = Some(stockDividendsUserDataModel.copy(stockDividends = Some(updatedCyaModel))))
+            updateSessionDataStub()
+            emptyUserDataStub()
+            emptyStockDividendsUserDataStub()
+            insertStockDividendsCyaData(Some(updatedCyaModel))
+            getDividendsSummary(application)
+          }
+
+          "has an SEE_OTHER(303) status" in {
+            status(result) shouldBe SEE_OTHER
+          }
+        }
+
+        "redirect to uk dividends amount when unfinished with appWithStockDividends" which {
+          implicit lazy val application: Application = appWithStockDividends
+
+          lazy val result = {
+            val updatedCyaModel = cyaModel.copy(ukDividends = Some(true), ukDividendsAmount = None)
+            getSessionDataStub(userData = Some(stockDividendsUserDataModel.copy(stockDividends = Some(updatedCyaModel))))
+            dropStockDividendsDB()
+            emptyUserDataStub()
+            emptyStockDividendsUserDataStub()
+            insertStockDividendsCyaData(Some(updatedCyaModel))
+            getDividendsSummary(application)
+          }
+
+          "has an SEE_OTHER(303) status" in {
+            status(result) shouldBe SEE_OTHER
+          }
+        }
+
+        "redirect to uk dividends amount when unfinished with appWithStockDividendsBackendMongo" which {
+          implicit lazy val application: Application = appWithStockDividendsBackendMongo
+
+          lazy val result = {
+            val updatedCyaModel = cyaModel.copy(ukDividends = Some(true), ukDividendsAmount = None)
+            getSessionDataStub(userData = Some(stockDividendsUserDataModel.copy(stockDividends = Some(updatedCyaModel))))
+            updateSessionDataStub()
+            emptyUserDataStub()
+            emptyStockDividendsUserDataStub()
+            insertStockDividendsCyaData(Some(updatedCyaModel))
+            getDividendsSummary(application)
+          }
+
+          "has an SEE_OTHER(303) status" in {
+            status(result) shouldBe SEE_OTHER
+          }
+        }
+
+        "redirect to other uk dividends amount when unfinished with appWithStockDividends" which {
+          implicit lazy val application: Application = appWithStockDividends
+
+          lazy val result = {
+            val updatedCyaModel = cyaModel.copy(ukDividends = Some(true), otherUkDividendsAmount = None)
+            getSessionDataStub(userData = Some(stockDividendsUserDataModel.copy(stockDividends = Some(updatedCyaModel))))
+            dropStockDividendsDB()
+            emptyUserDataStub()
+            emptyStockDividendsUserDataStub()
+            insertStockDividendsCyaData(Some(updatedCyaModel))
+            getDividendsSummary(application)
+          }
+
+          "has an SEE_OTHER(303) status" in {
+            status(result) shouldBe SEE_OTHER
+          }
+        }
+
+        "redirect to other uk dividends amount when unfinished with appWithStockDividendsBackendMongo" which {
+          implicit lazy val application: Application = appWithStockDividendsBackendMongo
+
+          lazy val result = {
+            val updatedCyaModel = cyaModel.copy(ukDividends = Some(true), otherUkDividendsAmount = None)
+            getSessionDataStub(userData = Some(stockDividendsUserDataModel.copy(stockDividends = Some(updatedCyaModel))))
+            updateSessionDataStub()
+            emptyUserDataStub()
+            emptyStockDividendsUserDataStub()
+            insertStockDividendsCyaData(Some(updatedCyaModel))
+            getDividendsSummary(application)
           }
 
           "has an SEE_OTHER(303) status" in {
@@ -712,19 +1135,34 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
         }
 
         "redirect to the overview page" when {
-          "there is no session data or prior data" in {
+          "there is no session data or prior data with appWithStockDividends" in {
+            implicit lazy val application: Application = appWithStockDividends
 
-            val result: WSResponse = {
-              authoriseIndividual()
+            val result = {
+              getSessionDataStub(userData = Some(stockDividendsUserDataModel.copy(stockDividends = None)))
               dropDividendsDB()
               dropStockDividendsDB()
               emptyUserDataStub()
               emptyStockDividendsUserDataStub()
               stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", SEE_OTHER, "overview")
-              urlGet(dividendsSummaryUrl, follow = false, headers = playSessionCookie())
+              getDividendsSummary(application)
             }
 
-            result.status shouldBe SEE_OTHER
+            status(result) shouldBe SEE_OTHER
+          }
+
+          "there is no session data or prior data with appWithStockDividendsBackendMongo" in {
+            implicit lazy val application: Application = appWithStockDividendsBackendMongo
+
+            val result = {
+              getSessionDataStub(userData = Some(stockDividendsUserDataModel.copy(stockDividends = None)))
+              emptyUserDataStub()
+              emptyStockDividendsUserDataStub()
+              stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", SEE_OTHER, "overview")
+              getDividendsSummary(application)
+            }
+
+            status(result) shouldBe SEE_OTHER
           }
 
         }
@@ -735,24 +1173,35 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
 
   ".submit" should {
 
-    s"redirect to the overview page when there is valid session data " when {
+    def postDividendsSummary(body: Seq[(String, String)],
+                             application: Application): Future[Result] = {
+      val headers = Seq("Csrf-Token" -> "nocheck") ++ playSessionCookie()
+      val request = FakeRequest("POST", dividendsSummaryUrl).withHeaders(headers: _*).withFormUrlEncodedBody(body: _*)
 
-      lazy val result: WSResponse = {
-        authoriseIndividual()
+      authoriseIndividual()
+      route(application, request).get
+    }
+
+    s"redirect to the overview page when there is valid session data with appWithStockDividends" when {
+      implicit lazy val application: Application = appWithStockDividends
+
+      lazy val result = {
+        getSessionDataStub()
         dropStockDividendsDB()
         emptyUserDataStub()
         emptyStockDividendsUserDataStub()
         insertStockDividendsCyaData(Some(cyaModel))
+        stubPut(s"/income-tax-submission-service/income-tax/nino/AA123456A/sources/session\\?taxYear=$taxYear", NO_CONTENT, "")
         stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "")
         stubPut(s"/income-tax-dividends/income-tax/income/dividends/$nino/$taxYear", NO_CONTENT, "")
-        urlPost(dividendsSummaryUrl, follow = false, headers = playSessionCookie(), body = "")
+        postDividendsSummary(Seq.empty, application)
       }
       s"has a status of 303" in {
-        result.status shouldBe SEE_OTHER
+        status(result) shouldBe SEE_OTHER
       }
 
       "has the correct title" in {
-        result.headers("Location").head shouldBe
+        headers(result).get("Location").value shouldBe
           s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view"
       }
     }
@@ -760,28 +1209,29 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
     s"redirect to the overview page" when {
 
       "tailoring is on, and the gateway question is false" which {
+        implicit lazy val application: Application = appWithTailoring
+
         lazy val result = {
+          getSessionDataStub()
           dropDividendsDB()
           dropStockDividendsDB()
           emptyUserDataStub()
           emptyStockDividendsUserDataStub()
-          insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel(gateway=Some(false))), taxYear, Some(mtditid), None)
+          insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel(gateway = Some(false))), taxYear, Some(mtditid), None)
           authoriseIndividual()
           stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "")
+          stubPut(s"/income-tax-submission-service/income-tax/nino/AA123456A/sources/session\\?taxYear=$taxYear", NO_CONTENT, "")
           stubPost(s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear", NO_CONTENT, "{}")
           stubPut(s"/income-tax-dividends/income-tax/income/dividends/$nino/$taxYear", NO_CONTENT, "")
-          val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/summary",
-            Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
-
-          await(route(appWithTailoring, request, "{}").get)
+          postDividendsSummary(Seq.empty, application)
         }
 
         "has a status of SEE_OTHER(303)" in {
-          result.header.status shouldBe SEE_OTHER
+          status(result) shouldBe SEE_OTHER
         }
 
         "has the redirect location of the overview page" in {
-          result.header.headers("Location") shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+          headers(result).get("Location").value shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
         }
       }
 
@@ -790,80 +1240,73 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
     "redirect the user to the zeroing warning page" when {
 
       "gateway is true and remaining questions are false or zero" which {
+        implicit lazy val application: Application = appWithStockDividends
+
         lazy val result = {
-          authoriseIndividual()
+          getSessionDataStub()
           dropStockDividendsDB()
           emptyUserDataStub()
           emptyStockDividendsUserDataStub()
-          stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
           insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel(gateway = Some(true))), taxYear, Some(mtditid), None)
-
-          val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/summary",
-            Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
-
-          await(route(appWithStockDividends, request, "{}").get)
+          postDividendsSummary(Seq.empty, application)
         }
 
         "has a status of SEE_OTHER(303)" in {
-          result.header.status shouldBe SEE_OTHER
+          status(result) shouldBe SEE_OTHER
         }
 
         "has the correct redirect location" in {
-          result.header.headers("Location") shouldBe controllers.routes.ZeroingWarningController.show(taxYear, STOCK_DIVIDENDS.stringify).url
+          headers(result).get("Location").value shouldBe controllers.routes.ZeroingWarningController.show(taxYear, STOCK_DIVIDENDS.stringify).url
         }
       }
 
       "gateway and stock dividends data are set to false and not present and remaining questions are true" which {
+        implicit lazy val application: Application = appWithStockDividends
+
         lazy val result = {
-          authoriseIndividual()
+          getSessionDataStub()
           dropStockDividendsDB()
           emptyUserDataStub()
           emptyStockDividendsUserDataStub()
-          stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
           insertStockDividendsCyaData(Some(cyaModel.copy(stockDividends = None, stockDividendsAmount = None)), taxYear, Some(mtditid), None)
-
-          val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/summary",
-            Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
-
-          await(route(appWithStockDividends, request, "{}").get)
+          postDividendsSummary(Seq.empty, application)
         }
 
         "has a status of SEE_OTHER(303)" in {
-          result.header.status shouldBe SEE_OTHER
+          status(result) shouldBe SEE_OTHER
         }
 
         "has the correct redirect location" in {
-          result.header.headers("Location") shouldBe controllers.routes.ZeroingWarningController.show(taxYear, STOCK_DIVIDENDS.stringify).url
+          headers(result).get("Location").value shouldBe controllers.routes.ZeroingWarningController.show(taxYear, STOCK_DIVIDENDS.stringify).url
         }
       }
 
       "gateway, stock dividends and redeemable shares data are false and not present and remaining questions are true" which {
+        implicit lazy val application: Application = appWithStockDividends
+
         val stockDividendCya = cyaModel.copy(stockDividends = None, stockDividendsAmount = None, redeemableShares = None, redeemableSharesAmount = None)
 
         lazy val result = {
-          authoriseIndividual()
+          getSessionDataStub()
           dropStockDividendsDB()
           emptyUserDataStub()
           emptyStockDividendsUserDataStub()
-          stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
           insertStockDividendsCyaData(Some(stockDividendCya), taxYear, Some(mtditid), None)
-
-          val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/summary",
-            Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
-
-          await(route(appWithStockDividends, request, "{}").get)
+          postDividendsSummary(Seq.empty, application)
         }
 
         "has a status of SEE_OTHER(303)" in {
-          result.header.status shouldBe SEE_OTHER
+          status(result) shouldBe SEE_OTHER
         }
 
         "has the correct redirect location" in {
-          result.header.headers("Location") shouldBe controllers.routes.ZeroingWarningController.show(taxYear, STOCK_DIVIDENDS.stringify).url
+          headers(result).get("Location").value shouldBe controllers.routes.ZeroingWarningController.show(taxYear, STOCK_DIVIDENDS.stringify).url
         }
       }
 
       "gateway, stock dividends, redeemable shares and close company loans Written off data are false and not present and remaining questions are true" which {
+        implicit lazy val application: Application = appWithStockDividends
+
         val stockDividendCya = cyaModel.copy(
           stockDividends = None, stockDividendsAmount = None,
           redeemableShares = None, redeemableSharesAmount = None,
@@ -871,54 +1314,54 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
         )
 
         lazy val result = {
-          authoriseIndividual()
+          getSessionDataStub()
           dropStockDividendsDB()
           emptyUserDataStub()
           emptyStockDividendsUserDataStub()
-          stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
           insertStockDividendsCyaData(Some(stockDividendCya), taxYear, Some(mtditid), None)
-
-          val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/summary",
-            Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
-
-          await(route(appWithStockDividends, request, "{}").get)
+          postDividendsSummary(Seq.empty, application)
         }
 
         "has a status of SEE_OTHER(303)" in {
-          result.header.status shouldBe SEE_OTHER
+          status(result) shouldBe SEE_OTHER
         }
 
         "has the correct redirect location" in {
-          result.header.headers("Location") shouldBe controllers.routes.ZeroingWarningController.show(taxYear, STOCK_DIVIDENDS.stringify).url
+          headers(result).get("Location").value shouldBe controllers.routes.ZeroingWarningController.show(taxYear, STOCK_DIVIDENDS.stringify).url
         }
       }
     }
 
     s"supply empty model if no data found" when {
+      implicit lazy val application: Application = appWithStockDividends
 
-      lazy val result: WSResponse = {
-        authoriseIndividual()
+      lazy val result = {
+        getSessionDataStub(userData = Some(stockDividendsUserDataModel.copy(stockDividends = None)))
         dropStockDividendsDB()
         emptyUserDataStub()
         emptyStockDividendsUserDataStub()
+        stubPut(s"/income-tax-submission-service/income-tax/nino/AA123456A/sources/session\\?taxYear=$taxYear", NO_CONTENT, "")
         stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "")
         stubPut(s"/income-tax-dividends/income-tax/income/dividends/$nino/$taxYear", NO_CONTENT, "")
-        urlPost(dividendsSummaryUrl, follow = false, headers = playSessionCookie(), body = "")
+        postDividendsSummary(Seq.empty, application)
       }
-      s"has a status of 500" in {
-        result.status shouldBe INTERNAL_SERVER_ERROR
+      s"has a status of SEE_OTHER(303)" in {
+        status(result) shouldBe SEE_OTHER
       }
 
-      /*"has the correct title" in {
-        result.headers("Location").head shouldBe
+      "has the correct title" in {
+        headers(result).get("Location").value shouldBe
           s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view"
-      }*/
+      }
     }
 
     s"return an internal server error" when {
 
       "the tailoring feature switch is on, but the exclude journey call fails" which {
+        implicit lazy val application: Application = appWithTailoring
+
         lazy val result = {
+          getSessionDataStub(userData = Some(stockDividendsUserDataModel.copy(stockDividends = None)))
           dropDividendsDB()
           dropStockDividendsDB()
           emptyUserDataStub()
@@ -927,17 +1370,13 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
           stubPost(s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear", INTERNAL_SERVER_ERROR,
             Json.stringify(Json.obj("code" -> "failed", "reason" -> "I made it fail"))
           )
-          val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/summary",
-            Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
-
-          await(route(appWithTailoring, request, "{}").get)
+          postDividendsSummary(Seq.empty, application)
         }
 
         "has a status of 500" in {
-          result.header.status shouldBe INTERNAL_SERVER_ERROR
+          status(result) shouldBe INTERNAL_SERVER_ERROR
         }
       }
     }
   }
 }
-

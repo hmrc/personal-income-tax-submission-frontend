@@ -16,6 +16,8 @@
 
 package services
 
+import common.IncomeSources
+import connectors.IncomeSourceConnector
 import connectors.httpParsers.StockDividendsBackendUserDataHttpParser.StockDividendsBackendUserDataResponse
 import connectors.stockdividends.{CreateStockDividendsBackendConnector, DeleteStockDividendsBackendConnector, GetStockDividendsBackendConnector, UpdateStockDividendsBackendConnector}
 import models.User
@@ -31,7 +33,8 @@ class NewStockDividendsSessionServiceImpl @Inject()(
                                                      createDividendsBackendConnector: CreateStockDividendsBackendConnector,
                                                      getStockDividendsBackendConnector: GetStockDividendsBackendConnector,
                                                      updateStockDividendsBackendConnector: UpdateStockDividendsBackendConnector,
-                                                     deleteStockDividendsBackendConnector: DeleteStockDividendsBackendConnector
+                                                     deleteStockDividendsBackendConnector: DeleteStockDividendsBackendConnector,
+                                                     incomeSourceConnector: IncomeSourceConnector
                                                    )(implicit correlationId: String, executionContext: ExecutionContext) extends StockDividendsSessionServiceProvider with Logging {
 
   def getPriorData(taxYear: Int)(implicit request: User[_], hc: HeaderCarrier): Future[StockDividendsBackendUserDataResponse] = {
@@ -76,10 +79,10 @@ class NewStockDividendsSessionServiceImpl @Inject()(
   }
 
   def deleteSessionData[A](taxYear: Int)(onFail: A)(onSuccess: A)
-                          (implicit request: User[_], hc: HeaderCarrier): Future[A] = {
+                          (implicit user: User[_], hc: HeaderCarrier): Future[A] = {
 
     deleteStockDividendsBackendConnector.deleteSessionData(taxYear)(
-      hc.withExtraHeaders("mtditid" -> request.mtditid).withExtraHeaders("X-CorrelationId" -> correlationId)).map {
+      hc.withExtraHeaders("mtditid" -> user.mtditid).withExtraHeaders("X-CorrelationId" -> correlationId)).map {
       case Right(_) =>
         onSuccess
       case _ =>
@@ -105,6 +108,13 @@ class NewStockDividendsSessionServiceImpl @Inject()(
           logger.error(s"[StockDividendsSessionService][getAndHandle] No prior data. correlation id: " + correlationId)
           onFail
       }
+    }
+  }
+
+  def clear[R](taxYear: Int)(onFail: R)(onSuccess: R)(implicit user: User[_], hc: HeaderCarrier): Future[R] = {
+    incomeSourceConnector.put(taxYear, user.nino, IncomeSources.STOCK_DIVIDENDS)(hc.withExtraHeaders("mtditid" -> user.mtditid)).flatMap {
+      case Left(_) => Future.successful(onFail)
+      case _ => deleteSessionData(taxYear)(onFail)(onSuccess)
     }
   }
 

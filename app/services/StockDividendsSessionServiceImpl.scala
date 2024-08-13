@@ -16,6 +16,8 @@
 
 package services
 
+import common.IncomeSources
+import connectors.IncomeSourceConnector
 import connectors.httpParsers.StockDividendsBackendUserDataHttpParser.StockDividendsBackendUserDataResponse
 import connectors.stockdividends.GetStockDividendsBackendConnector
 import models.User
@@ -31,7 +33,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class StockDividendsSessionServiceImpl @Inject()(
                                                   stockDividendsUserDataRepository: StockDividendsUserDataRepository,
-                                                  getStockDividendsBackendConnector: GetStockDividendsBackendConnector
+                                                  getStockDividendsBackendConnector: GetStockDividendsBackendConnector,
+                                                  incomeSourceConnector: IncomeSourceConnector
                                        )(implicit correlationId: String, executionContext: ExecutionContext) extends StockDividendsSessionServiceProvider with Logging {
 
   def getPriorData(taxYear: Int)(implicit request: User[_], hc: HeaderCarrier): Future[StockDividendsBackendUserDataResponse] = {
@@ -40,7 +43,6 @@ class StockDividendsSessionServiceImpl @Inject()(
 
   def createSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int)(onFail: A)(onSuccess: A)
                           (implicit request: User[_], hc: HeaderCarrier): Future[A] = {
-
     val userData = StockDividendsUserDataModel(
       request.sessionId,
       request.mtditid,
@@ -73,7 +75,6 @@ class StockDividendsSessionServiceImpl @Inject()(
 
   def updateSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int)(onFail: A)(onSuccess: A)
                           (implicit request: User[_], hc: HeaderCarrier): Future[A] = {
-
     val userData = StockDividendsUserDataModel(
       request.sessionId,
       request.mtditid,
@@ -122,6 +123,17 @@ class StockDividendsSessionServiceImpl @Inject()(
           logger.error(s"[StockDividendsSessionService][getAndHandle] No prior data. correlation id: " + correlationId)
           onFail
       }
+    }
+  }
+
+  def clear[R](taxYear: Int)(onFail: R)(onSuccess: R)(implicit user: User[_], hc: HeaderCarrier): Future[R] = {
+    incomeSourceConnector.put(taxYear, user.nino, IncomeSources.STOCK_DIVIDENDS)(hc.withExtraHeaders("mtditid" -> user.mtditid)).flatMap {
+      case Left(_) => Future.successful(onFail)
+      case _ =>
+        stockDividendsUserDataRepository.clear(taxYear).map {
+          case true => onSuccess
+          case false => onFail
+        }
     }
   }
 }

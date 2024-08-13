@@ -326,14 +326,15 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
       Seq(xSessionId)
   }
 
+  val incomeSourceConnector: IncomeSourceConnector = app.injector.instanceOf[IncomeSourceConnector]
   val stockDividendsUserDataRepository: StockDividendsUserDataRepository = app.injector.instanceOf[StockDividendsUserDataRepository]
   val getStockDividendsBackendConnector: GetStockDividendsBackendConnector = app.injector.instanceOf[GetStockDividendsBackendConnector]
   val stockDividendsSessionService: StockDividendsSessionServiceImpl = new StockDividendsSessionServiceImpl(
-    stockDividendsUserDataRepository, getStockDividendsBackendConnector)
+    stockDividendsUserDataRepository, getStockDividendsBackendConnector, incomeSourceConnector)
 
   val dividendsUserDataRepository: DividendsUserDataRepository = app.injector.instanceOf[DividendsUserDataRepository]
   val incomeTaxUserDataConnector: IncomeTaxUserDataConnector = app.injector.instanceOf[IncomeTaxUserDataConnector]
-  val incomeSourceConnector: IncomeSourceConnector = app.injector.instanceOf[IncomeSourceConnector]
+
   val createDividendsBackendConnector: CreateDividendsBackendConnector = app.injector.instanceOf[CreateDividendsBackendConnector]
   val updateDividendsBackendConnector: UpdateDividendsBackendConnector = app.injector.instanceOf[UpdateDividendsBackendConnector]
   val getDividendsBackendConnector: GetDividendsBackendConnector = app.injector.instanceOf[GetDividendsBackendConnector]
@@ -420,9 +421,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     createUpdateUserSessionDataStub(s"/income-tax-dividends/income-tax/income/dividends/$taxYear/stock-dividends/session", responseBody, HttpResponse(status, body = ""))
 
   val stockDividendsAmount: BigDecimal = 500
-  val stockDividendsUserDataModel: StockDividendsUserDataModel =
-    StockDividendsUserDataModel(sessionId, mtditid, nino, taxYear, Some(
-      StockDividendsCheckYourAnswersModel(
+  val stockDividendsCheckYourAnswersModel: StockDividendsCheckYourAnswersModel = StockDividendsCheckYourAnswersModel(
         gateway = Some(true),
         ukDividends = Some(true),
         ukDividendsAmount = Some(stockDividendsAmount),
@@ -433,7 +432,9 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
         redeemableShares = Some(true),
         redeemableSharesAmount = Some(stockDividendsAmount),
         closeCompanyLoansWrittenOff = Some(true),
-        closeCompanyLoansWrittenOffAmount = Some(stockDividendsAmount))))
+        closeCompanyLoansWrittenOffAmount = Some(stockDividendsAmount))
+  val stockDividendsUserDataModel: StockDividendsUserDataModel =
+    StockDividendsUserDataModel(sessionId, mtditid, nino, taxYear, Some(stockDividendsCheckYourAnswersModel))
 
   def populateSessionData(taxYear: Int = taxYear, status: Int = NO_CONTENT, responseBody: String = ""): StubMapping =
     createUpdateUserSessionDataStub(s"/income-tax-dividends/income-tax/income/dividends/$taxYear/stock-dividends/session", responseBody, HttpResponse(status, body = ""))
