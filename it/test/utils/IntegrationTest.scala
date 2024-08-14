@@ -339,8 +339,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   val updateDividendsBackendConnector: UpdateDividendsBackendConnector = app.injector.instanceOf[UpdateDividendsBackendConnector]
   val getDividendsBackendConnector: GetDividendsBackendConnector = app.injector.instanceOf[GetDividendsBackendConnector]
   val dividendsSessionService: DividendsSessionService = new DividendsSessionService(
-    dividendsUserDataRepository, createDividendsBackendConnector, updateDividendsBackendConnector,
-    getDividendsBackendConnector, incomeTaxUserDataConnector, incomeSourceConnector)
+    dividendsUserDataRepository, incomeTaxUserDataConnector, incomeSourceConnector)
 
   val defaultAcceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq(
     ConfidenceLevel.L250,

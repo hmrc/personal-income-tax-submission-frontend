@@ -21,17 +21,22 @@ import controllers.dividends.routes
 import models.dividends.{DividendsCheckYourAnswersModel, StockDividendsCheckYourAnswersModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import play.api.Application
 import play.api.http.HeaderNames
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
-import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
+import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
+import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, headers, route, writeableOf_AnyContentAsFormUrlEncoded}
 import test.utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
+
+import scala.concurrent.Future
 
 class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers with DividendsDatabaseHelper {
 
   lazy val tailoringWsClient: WSClient = appWithTailoring.injector.instanceOf[WSClient]
+
+  val dividendsGatewayUrl: String = routes.DividendsGatewayController.show(taxYear).url
 
   val relativeUrl: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/dividends-from-stocks-and-shares"
   val absoluteUrl: String = appUrl + s"/$taxYear/dividends/dividends-from-stocks-and-shares"
@@ -125,20 +130,36 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
     val testNameAgent = if (scenario.isAgent) "an agent" else "an individual"
 
 
+    def getDividendsGateway(application: Application): Future[Result] = {
+      val headers = Option.when(scenario.isWelsh)(HeaderNames.ACCEPT_LANGUAGE -> "cy").toSeq ++ playSessionCookie(scenario.isAgent)
+      lazy val request = FakeRequest("GET", dividendsGatewayUrl).withHeaders(headers: _*)
+
+      authoriseAgentOrIndividual(scenario.isAgent)
+      route(application, request, "{}").get
+    }
+
+
+    def postDividendsGateway(body: Seq[(String, String)], application: Application): Future[Result] = {
+      val headers = Seq("Csrf-Token" -> "nocheck") ++
+        Option.when(scenario.isWelsh)(HeaderNames.ACCEPT_LANGUAGE -> "cy").toSeq ++
+        playSessionCookie(scenario.isAgent)
+      lazy val request = FakeRequest("POST", dividendsGatewayUrl).withHeaders(headers: _*).withFormUrlEncodedBody(body: _*)
+
+      authoriseAgentOrIndividual(scenario.isAgent)
+      route(application, request).get
+    }
+
     s".show when $testNameWelsh and the user is $testNameAgent" when {
 
       "the tailoring is turned on" should {
 
         "display the gateway page" which {
-
-          lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+          implicit lazy val application: Application = appWithTailoring
 
           lazy val result = {
-            authoriseAgentOrIndividual(scenario.isAgent)
             dropDividendsDB()
             emptyUserDataStub()
-            route(appWithTailoring, request, "{}").get
+            getDividendsGateway(application)
           }
 
           implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
@@ -158,15 +179,13 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
         }
 
         "display the gateway page for stock dividends" which {
-
-          lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+          implicit lazy val application: Application = appWithStockDividends
 
           lazy val result = {
-            authoriseAgentOrIndividual(scenario.isAgent)
+            getSessionDataStub()
             dropStockDividendsDB()
             emptyStockDividendsUserDataStub()
-            route(appWithStockDividends, request, "{}").get
+            getDividendsGateway(application)
           }
 
           implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
@@ -186,16 +205,14 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
         }
 
         "display the gateway page for stock dividends with pre-filled value" which {
-
-          lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+          implicit lazy val application: Application = appWithStockDividends
 
           lazy val result = {
-            authoriseAgentOrIndividual(scenario.isAgent)
+            getSessionDataStub()
             dropStockDividendsDB()
             emptyStockDividendsUserDataStub()
             insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel(gateway = Some(false))))
-            route(appWithStockDividends, request, "{}").get
+            getDividendsGateway(application)
           }
 
           implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
@@ -219,20 +236,20 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
       "the tailoring is turn off" should {
 
         "redirect the user to the overview page" which {
+          implicit lazy val application: Application = app
 
           lazy val request = {
-            authoriseAgentOrIndividual(scenario.isAgent)
             dropDividendsDB()
             emptyUserDataStub()
-            urlGet(absoluteUrl, follow = false, headers = playSessionCookie(scenario.isAgent))
+            getDividendsGateway(application)
           }
 
           "has a status of SEE_OTHER(303)" in {
-            request.status shouldBe SEE_OTHER
+            status(request) shouldBe SEE_OTHER
           }
 
           "have the correct redirect location" in {
-            request.header("Location") shouldBe Some(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+            headers(request).get("Location").value shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
           }
 
         }
@@ -242,23 +259,21 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
     }
 
     s".submit when $testNameWelsh and the user is $testNameAgent" when {
-      lazy val headers = playSessionCookie(scenario.isAgent) ++ Map(csrfContent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-      lazy val request = FakeRequest("POST", relativeUrl).withHeaders(headers: _*)
 
       "the feature switch is turned on" when {
 
         "the user submits a yes, when no previous data exists" should {
 
           "redirect the user to the ReceiveUkDividends page" which {
+            implicit lazy val application: Application = appWithTailoring
 
             lazy val result = {
-              authoriseAgentOrIndividual(scenario.isAgent)
               dropDividendsDB()
               emptyUserDataStub()
               insertDividendsCyaData(Some(DividendsCheckYourAnswersModel(
                 gateway = Some(true)
               )))
-              route(appWithTailoring, request, Map("value" -> Seq("true"))).get
+              postDividendsGateway(Seq("value" -> "true"), application)
             }
 
             "has a status of SEE_OTHER(303)" in {
@@ -276,15 +291,17 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
         "the user submits a yes, when previous data exists" should {
 
           "redirect the user to the ReceiveUkDividends page" which {
+            implicit lazy val application: Application = appWithTailoring
 
             lazy val result = {
-              authoriseAgentOrIndividual(scenario.isAgent)
+              getSessionDataStub()
+              updateSessionDataStub()
               dropDividendsDB()
               insertDividendsCyaData(Some(DividendsCheckYourAnswersModel(
                 gateway = Some(false)
               )))
               emptyUserDataStub()
-              route(appWithTailoring, request, Map("value" -> Seq("true"))).get
+              postDividendsGateway(Seq("value" -> "true"), application)
             }
 
             "has a status of SEE_OTHER(303)" in {
@@ -298,13 +315,13 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
           }
 
           "redirect the user to the DividendsCYA page" which {
+            implicit lazy val application: Application = appWithTailoring
 
             lazy val result = {
-              authoriseAgentOrIndividual(scenario.isAgent)
               dropDividendsDB()
               insertDividendsCyaData(Some(completeDividendsCYAModel))
               emptyUserDataStub()
-              route(appWithTailoring, request, Map("value" -> Seq("true"))).get
+              postDividendsGateway(Seq("value" -> "true"), application)
             }
 
             "has a status of SEE_OTHER(303)" in {
@@ -318,12 +335,13 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
           }
 
           "return a 303 status and redirect to first status page when isFinished is false" which {
+            implicit lazy val application: Application = appWithStockDividends
+
             lazy val result = {
-              authoriseIndividual()
               dropStockDividendsDB()
               emptyStockDividendsUserDataStub()
               insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel()))
-              route(appWithStockDividends, request, body = Map("value" -> Seq("true"))).get
+              postDividendsGateway(Seq("value" -> "true"), application)
             }
 
             "has a status of SEE_OTHER(303)" in {
@@ -341,15 +359,16 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
         "the user submits a no" should {
 
           "redirect the user to the zero warning page" which { //needs to redirect to the zero warning page when it is built
+            implicit lazy val application: Application = appWithTailoring
+
             lazy val result = {
-              authoriseAgentOrIndividual(scenario.isAgent)
               dropDividendsDB()
               insertDividendsCyaData(
                 Some(DividendsCheckYourAnswersModel(
                   ukDividends = Some(true),
                   ukDividendsAmount = Some(100),
                   gateway = Some(true))))
-              route(appWithTailoring, request, Map("value" -> Seq("false"))).get
+              postDividendsGateway(Seq("value" -> "false"), application)
             }
 
             "has a status of SEE_OTHER(303)" in {
@@ -362,12 +381,13 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
           }
 
           "return a 303 status and redirect to cya page with session data" which {
+            implicit lazy val application: Application = appWithStockDividends
+
             lazy val result = {
-              authoriseIndividual()
               dropStockDividendsDB()
               emptyStockDividendsUserDataStub()
               insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
-              route(appWithStockDividends, request, body = Map("value" -> Seq("false"))).get
+              postDividendsGateway(Seq("value" -> "false"), application)
             }
 
             "has a status of SEE_OTHER(303)" in {
@@ -381,12 +401,13 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
           }
 
           "return a 303 status and redirect to cya page with no session data" which {
+            implicit lazy val application: Application = appWithStockDividends
+
             lazy val result = {
-              authoriseIndividual()
               dropStockDividendsDB()
               emptyStockDividendsUserDataStub()
               insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel()))
-              route(appWithStockDividends, request, body = Map("value" -> Seq("false"))).get
+              postDividendsGateway(Seq("value" -> "false"), application)
             }
 
             "has a status of SEE_OTHER(303)" in {
@@ -403,12 +424,12 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
         "the user submits incorrect data" should {
 
           "display an error on the form" which {
+            implicit lazy val application: Application = appWithTailoring
 
             lazy val result = {
-              authoriseAgentOrIndividual(scenario.isAgent)
               dropDividendsDB()
               emptyUserDataStub()
-              route(appWithTailoring, request, Json.obj("value" -> "oops").toString()).get
+              postDividendsGateway(Seq("value" -> "oops"), application)
             }
 
             implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
@@ -436,19 +457,20 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
       "the feature switch is turned off" should {
 
         "redirect to the overview page" which {
+          implicit lazy val application: Application = app
+
           lazy val request = {
-            authoriseAgentOrIndividual(scenario.isAgent)
             dropDividendsDB()
             emptyUserDataStub()
-            urlPost(absoluteUrl, follow = false, headers = playSessionCookie(scenario.isAgent), body = "{}")
+            postDividendsGateway(Seq.empty, application)
           }
 
           "has a status of SEE_OTHER(303)" in {
-            request.status shouldBe SEE_OTHER
+            status(request) shouldBe SEE_OTHER
           }
 
           "have the correct redirect location" in {
-            request.header("Location") shouldBe Some(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+            headers(request).get("Location").value shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
           }
         }
       }
