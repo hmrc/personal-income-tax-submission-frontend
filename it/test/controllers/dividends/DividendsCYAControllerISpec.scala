@@ -17,19 +17,18 @@
 package test.controllers.dividends
 
 import controllers.dividends.routes
-import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, StockDividendsCheckYourAnswersModel, StockDividendsPriorSubmission}
+import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, StockDividendsPriorSubmission}
 import models.priorDataModels.IncomeSourcesModel
-import models.priorDataModels.StockDividendsPriorDataModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
+import play.api.http.HeaderNames
 import play.api.http.Status._
+import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
+import play.api.mvc.{Headers, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, headers, route}
-import play.api.http.HeaderNames
-import play.api.libs.json.Json
-import play.api.mvc.{Headers, Result}
 import test.utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 
 import scala.concurrent.Future
@@ -213,7 +212,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
       s"language is ${welshTest(scenario.isWelsh)} and request is from an ${agentTest(scenario.isAgent)}" should {
 
 
-        " renders CYA page with correct content when there is data in session" which {
+        "renders CYA page with correct content when there is data in session" which {
           implicit lazy val application: Application = appWithTailoring
 
           lazy val result = {
@@ -282,6 +281,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
             insertDividendsCyaData(Some(dividendsCyaModel))
             stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "")
+            authoriseAgentOrIndividual(scenario.isAgent)
             urlPost(s"$appUrl/$taxYear/dividends/dividends-from-stocks-and-shares", "{}", scenario.isWelsh, follow = true, playSessionCookie(scenario.isAgent))
             getDividendsCYA(application)
           }
@@ -428,6 +428,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           val otherDividends1 = 200
 
           lazy val result = {
+            getSessionDataStub()
             dropStockDividendsDB()
             insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
             stockDividendsUserDataStub(Some(StockDividendsPriorSubmission()), nino, taxYear)
@@ -451,7 +452,6 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
     "redirect to the overview page" when {
       "there is no session data" in {
-
         val result: WSResponse = {
           authoriseIndividual()
           dropDividendsDB()
@@ -602,6 +602,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
         }
       }
     }
+
     "the authorization fails" which {
       lazy val result = {
         authoriseAgentUnauthorized()
@@ -618,8 +619,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
   ".submit" should {
 
     s"redirect to the overview page when there is valid session data " when {
-
-      lazy val result: WSResponse = {
+      lazy val result = {
         authoriseIndividual()
         dropDividendsDB()
         emptyUserDataStub()
@@ -627,6 +627,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           Some(DividendsCheckYourAnswersModel(
             None, Some(true), Some(1000.43), Some(true), Some(9983.21)
           )))
+        stubPut(s"/income-tax-submission-service/income-tax/nino/AA123456A/sources/session\\?taxYear=$taxYear", NO_CONTENT, "")
         stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "")
         urlPost(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie(), body = "")
       }
@@ -689,6 +690,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           authoriseIndividual()
           stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "")
           stubPost(s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear", NO_CONTENT, "{}")
+          stubPut(s"/income-tax-submission-service/income-tax/nino/AA123456A/sources/session\\?taxYear=$taxYear", NO_CONTENT, "")
           stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
 
           val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends", Headers.apply(
@@ -708,6 +710,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
       }
 
     }
+
     s"return a INTERNAL_SERVER_ERROR" when {
 
       "there is no cyaData" which {
