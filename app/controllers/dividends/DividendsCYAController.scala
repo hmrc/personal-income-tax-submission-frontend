@@ -22,6 +22,7 @@ import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, StockDividendsCheckYourAnswersModel}
+import models.mongo.StockDividendsUserDataModel
 import models.{APIErrorBodyModel, APIErrorModel, User}
 import play.api.Logger
 import play.api.i18n.I18nSupport
@@ -40,7 +41,7 @@ class DividendsCYAController @Inject()(
                                         dividendsCyaView: DividendsCYAView,
                                         dividendsSubmissionService: DividendsSubmissionService,
                                         session: DividendsSessionService,
-                                        stockDividendsSession: StockDividendsSessionService,
+                                        stockDividendsSession: StockDividendsSessionServiceProvider,
                                         auditService: AuditService,
                                         errorHandler: ErrorHandler,
                                         excludeJourneyService: ExcludeJourneyService
@@ -57,15 +58,15 @@ class DividendsCYAController @Inject()(
   //noinspection ScalaStyle
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
     if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) {
-      stockDividendsSession.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
-        StockDividendsCheckYourAnswersModel.getCyaModel(cya.flatMap(_.stockDividends), prior) match {
-          case Some(cyaData) => Future.successful(Redirect(routes.DividendsSummaryController.show(taxYear)))
+      stockDividendsSession.getAndHandle(taxYear)(Future.successful(errorHandler.internalServerError())) { (cya, stockDividendsUserDataModel: Option[StockDividendsUserDataModel]) =>
+        StockDividendsCheckYourAnswersModel.getCyaModel(cya, stockDividendsUserDataModel.flatMap(_.stockDividends.map(_.toStockDividendsPriorDataModel))) match {
+          case Some(_) => Future.successful(Redirect(routes.DividendsSummaryController.show(taxYear)))
           case _ =>
             logger.info("[DividendsCYAController][show] No CYA data in session. Redirecting to the overview page.")
             Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
         }
       }
-    } else {
+    }.flatten else {
       session.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
         DividendsCheckYourAnswersModel.getCyaModel(cya, prior) match {
           case Some(cyaData) if !cyaData.isFinished => Future.successful(handleUnfinishedRedirect(cyaData, taxYear))

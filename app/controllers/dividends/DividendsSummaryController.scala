@@ -59,15 +59,10 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
   private def getStockDividends(taxYear: Int, dividendsPriorData: Option[DividendsPriorSubmission])
                                (implicit request: User[AnyContent]): Future[Result] = {
     stockDividendsSession.getAndHandle(taxYear)(Future.successful(errorHandler.internalServerError())) { (cya, stockDividendsUserDataModel) =>
-      val stockDividends = stockDividendsUserDataModel.flatMap(_.stockDividends).map { stockDividends: StockDividendsCheckYourAnswersModel =>
-        StockDividendsPriorDataModel(
-          stockDividends.ukDividendsAmount,
-          stockDividends.otherUkDividendsAmount,
-          stockDividends.stockDividendsAmount,
-          stockDividends.redeemableSharesAmount,
-          stockDividends.closeCompanyLoansWrittenOffAmount
-        )
-      }.getOrElse(StockDividendsPriorDataModel())
+      val stockDividends = stockDividendsUserDataModel
+        .flatMap(_.stockDividends)
+        .map(_.toStockDividendsPriorDataModel)
+        .getOrElse(StockDividendsPriorDataModel())
 
       val mergedDividends = stockDividends.copy(
         ukDividendsAmount = dividendsPriorData.flatMap(_.ukDividends),

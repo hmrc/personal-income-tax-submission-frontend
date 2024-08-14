@@ -40,6 +40,16 @@ case class StockDividendsCheckYourAnswersModel(
     )
   }
 
+  def toStockDividendsPriorDataModel: StockDividendsPriorDataModel = {
+    StockDividendsPriorDataModel(
+      ukDividendsAmount,
+      otherUkDividendsAmount,
+      stockDividendsAmount,
+      redeemableSharesAmount,
+      closeCompanyLoansWrittenOffAmount
+    )
+  }
+
   def isFinished: Boolean = {
     checkState(ukDividends, ukDividendsAmount) &&
       checkState(otherUkDividends, otherUkDividendsAmount) &&
