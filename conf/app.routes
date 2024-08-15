@@ -51,6 +51,9 @@ POST        /:taxYear/dividends/close-company-loan-status                       
 GET         /:taxYear/dividends/summary                                                                       controllers.dividends.DividendsSummaryController.show(taxYear: Int)
 POST        /:taxYear/dividends/summary                                                                       controllers.dividends.DividendsSummaryController.submit(taxYear: Int)
 
+GET         /:taxYear/dividends/section-completed                                                             controllers.dividends.SectionCompletedStateController.show(taxYear: Int)
+POST        /:taxYear/dividends/section-completed                                                             controllers.dividends.SectionCompletedStateController.submit(taxYear: Int)
+
 # Interest routes
 
 GET         /:taxYear/interest/interest-from-UK                                                               controllers.interest.InterestGatewayController.show(taxYear: Int)
@@ -94,6 +97,9 @@ POST        /:taxYear/interest/check-interest                                   
 
 GET         /:taxYear/interest/which-account-did-you-get-taxed-interest-from                                  controllers.interest.ChooseAccountController.show(taxYear:Int, taxType="taxed")
 POST        /:taxYear/interest/which-account-did-you-get-taxed-interest-from                                  controllers.interest.ChooseAccountController.submit(taxYear:Int, taxType="taxed")
+
+GET         /:taxYear/interest/section-completed                                                              controllers.interest.SectionCompletedStateController.show(taxYear: Int)
+POST        /:taxYear/interest/section-completed                                                              controllers.interest.SectionCompletedStateController.submit(taxYear: Int)
 
 # Donations to Charity routes
 

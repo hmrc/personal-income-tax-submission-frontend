@@ -1177,8 +1177,6 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
                              application: Application): Future[Result] = {
       val headers = Seq("Csrf-Token" -> "nocheck") ++ playSessionCookie()
       val request = FakeRequest("POST", dividendsSummaryUrl).withHeaders(headers: _*).withFormUrlEncodedBody(body: _*)
-
-      authoriseIndividual()
       route(application, request).get
     }
 
@@ -1234,8 +1232,8 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
           headers(result).get("Location").value shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
         }
       }
-
     }
+
 
     "redirect the user to the zeroing warning page" when {
 

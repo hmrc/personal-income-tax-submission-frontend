@@ -17,18 +17,22 @@
 package test.controllers.dividends
 
 import controllers.dividends.routes
+
 import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, StockDividendsPriorSubmission}
 import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import play.api.Application
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.json.Json
+import play.api.Application
 import play.api.libs.ws.WSResponse
 import play.api.mvc.{Headers, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, headers, route}
+import play.api.mvc.Headers
+import play.api.test.FakeRequest
+import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
 import test.utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 
 import scala.concurrent.Future
@@ -465,13 +469,11 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
     }
 
-
     "redirect the user to the most relevant page in the user journey if CYA is part completed" should {
 
       "Uk dividends yesNo question has been answered" when {
 
         "redirect to How much Uk dividends page if the answer is Yes" which {
-
           lazy val result: WSResponse = {
             authoriseIndividual()
             dropDividendsDB()
@@ -512,6 +514,89 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           "has the correct title" in {
             result.headers("Location").head shouldBe
               s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
+          }
+        }
+
+        s"redirect to the overview page" when {
+
+          "tailoring is on, and the gateway question is false" which {
+
+            lazy val result = {
+              dropDividendsDB()
+              emptyUserDataStub()
+              insertDividendsCyaData(Some(dividendsCyaModel.copy(gateway = Some(false))), taxYear, Some(mtditid), None)
+              authoriseIndividual()
+              stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "")
+              stubPost(s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear", NO_CONTENT, "{}")
+              stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
+
+              val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends", Headers.apply(
+                playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*
+              ), "{}")
+
+              await(route(appWithTailoring, request, "{}").get)
+            }
+
+            "has a status of SEE_OTHER(303)" in {
+              result.header.status shouldBe SEE_OTHER
+            }
+
+            "has the redirect location of the overview page" in {
+              result.header.headers("Location") shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+            }
+          }
+
+        }
+
+
+        s"return a INTERNAL_SERVER_ERROR" when {
+
+          "there is no cyaData" which {
+            lazy val result = {
+              dropDividendsDB()
+              emptyUserDataStub()
+              authoriseIndividual()
+              stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "")
+              stubPost(s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear", NO_CONTENT, "{}")
+              stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
+
+              val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends", Headers.apply(
+                playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*
+              ), "{}")
+
+              await(route(appWithTailoring, request, "{}").get)
+            }
+
+            "has a status of SEE_OTHER(303)" in {
+              result.header.status shouldBe INTERNAL_SERVER_ERROR
+            }
+          }
+
+        }
+
+        s"return an internal server error" when {
+
+          "the tailoring feature switch is on, but the exclude journey call fails" which {
+            lazy val result = {
+              dropDividendsDB()
+              emptyUserDataStub()
+              insertDividendsCyaData(
+                Some(DividendsCheckYourAnswersModel(
+                  Some(false), Some(true), Some(1000.43), Some(true), Some(9983.21)
+                )))
+              authoriseIndividual()
+              stubPost(s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear", INTERNAL_SERVER_ERROR,
+                Json.stringify(Json.obj("code" -> "failed", "reason" -> "I made it fail"))
+              )
+              val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends",
+                Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
+
+              await(route(appWithTailoring, request, "{}").get)
+            }
+
+            "has a status of 500" in {
+              result.header.status shouldBe INTERNAL_SERVER_ERROR
+            }
           }
         }
       }

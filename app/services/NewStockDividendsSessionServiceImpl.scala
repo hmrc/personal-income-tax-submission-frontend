@@ -43,7 +43,8 @@ class NewStockDividendsSessionServiceImpl @Inject()(
 
   def createSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int)(onFail: A)(onSuccess: A)
                           (implicit request: User[_], hc: HeaderCarrier): Future[A] = {
-    createDividendsBackendConnector.createSessionData(cyaModel, taxYear).map {
+    createDividendsBackendConnector.createSessionData(cyaModel, taxYear)(
+      hc.withExtraHeaders("mtditid" -> request.mtditid).withExtraHeaders("X-CorrelationId" -> correlationId)).map {
       case Right(_) => onSuccess
       case Left(_) =>
         logger.error(s"[StockDividendsSessionService][createSessionData] session create failed. correlation id: " + correlationId)

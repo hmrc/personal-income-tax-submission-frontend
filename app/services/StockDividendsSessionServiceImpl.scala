@@ -23,6 +23,7 @@ import connectors.stockdividends.GetStockDividendsBackendConnector
 import models.User
 import models.dividends.StockDividendsCheckYourAnswersModel
 import models.mongo.{DatabaseError, StockDividendsUserDataModel}
+import models.priorDataModels.{IncomeSourcesModel, StockDividendsPriorDataModel}
 import play.api.Logging
 import repositories.StockDividendsUserDataRepository
 import uk.gov.hmrc.http.HeaderCarrier
