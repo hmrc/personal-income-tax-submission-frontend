@@ -47,7 +47,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.OK
 import play.api.{Application, Environment, Mode}
 import repositories.{DividendsUserDataRepository, StockDividendsUserDataRepository}
-import services.{AuthService, DividendsSessionService, StockDividendsSessionServiceImpl}
+import services.{AuthService, DividendsSessionService, StockDividendsPriorDataService, StockDividendsSessionServiceImpl}
 import test.helpers.{PlaySessionCookieBaker, WireMockHelper}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.~
@@ -329,8 +329,9 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   val incomeSourceConnector: IncomeSourceConnector = app.injector.instanceOf[IncomeSourceConnector]
   val stockDividendsUserDataRepository: StockDividendsUserDataRepository = app.injector.instanceOf[StockDividendsUserDataRepository]
   val getStockDividendsBackendConnector: GetStockDividendsBackendConnector = app.injector.instanceOf[GetStockDividendsBackendConnector]
+  val stockDividendsPriorDataService: StockDividendsPriorDataService = app.injector.instanceOf[StockDividendsPriorDataService]
   val stockDividendsSessionService: StockDividendsSessionServiceImpl = new StockDividendsSessionServiceImpl(
-    stockDividendsUserDataRepository, getStockDividendsBackendConnector, incomeSourceConnector)
+    stockDividendsUserDataRepository, incomeSourceConnector, stockDividendsPriorDataService)
 
   val dividendsUserDataRepository: DividendsUserDataRepository = app.injector.instanceOf[DividendsUserDataRepository]
   val incomeTaxUserDataConnector: IncomeTaxUserDataConnector = app.injector.instanceOf[IncomeTaxUserDataConnector]

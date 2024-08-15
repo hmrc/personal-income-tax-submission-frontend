@@ -58,8 +58,8 @@ class DividendsCYAController @Inject()(
   //noinspection ScalaStyle
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
     if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) {
-      stockDividendsSession.getAndHandle(taxYear)(Future.successful(errorHandler.internalServerError())) { (cya, stockDividendsUserDataModel: Option[StockDividendsUserDataModel]) =>
-        StockDividendsCheckYourAnswersModel.getCyaModel(cya, stockDividendsUserDataModel.flatMap(_.stockDividends.map(_.toStockDividendsPriorDataModel))) match {
+      stockDividendsSession.getAndHandle(taxYear)(Future.successful(errorHandler.internalServerError())) { (cya, prior) =>
+        StockDividendsCheckYourAnswersModel.getCyaModel(cya, prior) match {
           case Some(_) => Future.successful(Redirect(routes.DividendsSummaryController.show(taxYear)))
           case _ =>
             logger.info("[DividendsCYAController][show] No CYA data in session. Redirecting to the overview page.")

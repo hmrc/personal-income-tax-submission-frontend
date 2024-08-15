@@ -17,12 +17,13 @@
 package services
 
 import common.IncomeSources
-import connectors.IncomeSourceConnector
+import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector, StockDividendsUserDataConnector}
 import connectors.httpParsers.StockDividendsBackendUserDataHttpParser.StockDividendsBackendUserDataResponse
 import connectors.stockdividends.{CreateStockDividendsBackendConnector, DeleteStockDividendsBackendConnector, GetStockDividendsBackendConnector, UpdateStockDividendsBackendConnector}
-import models.User
+import models.{APIErrorModel, User}
 import models.dividends.StockDividendsCheckYourAnswersModel
 import models.mongo.{DataNotFound, DatabaseError, StockDividendsUserDataModel}
+import models.priorDataModels.{IncomeSourcesModel, StockDividendsPriorDataModel}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -34,12 +35,9 @@ class NewStockDividendsSessionServiceImpl @Inject()(
                                                      getStockDividendsBackendConnector: GetStockDividendsBackendConnector,
                                                      updateStockDividendsBackendConnector: UpdateStockDividendsBackendConnector,
                                                      deleteStockDividendsBackendConnector: DeleteStockDividendsBackendConnector,
-                                                     incomeSourceConnector: IncomeSourceConnector
+                                                     incomeSourceConnector: IncomeSourceConnector,
+                                                     stockDividendsPriorDataService: StockDividendsPriorDataService
                                                    )(implicit correlationId: String, executionContext: ExecutionContext) extends StockDividendsSessionServiceProvider with Logging {
-
-  def getPriorData(taxYear: Int)(implicit request: User[_], hc: HeaderCarrier): Future[StockDividendsBackendUserDataResponse] = {
-    getStockDividendsBackendConnector.getSessionData(taxYear)(hc.withExtraHeaders("mtditid" -> request.mtditid))
-  }
 
   def createSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int)(onFail: A)(onSuccess: A)
                           (implicit request: User[_], hc: HeaderCarrier): Future[A] = {
@@ -53,7 +51,7 @@ class NewStockDividendsSessionServiceImpl @Inject()(
   }
 
   def getSessionData(taxYear: Int)
-                       (implicit request: User[_], hc: HeaderCarrier): Future[Either[DatabaseError, Option[StockDividendsUserDataModel]]] = {
+                    (implicit request: User[_], hc: HeaderCarrier): Future[Either[DatabaseError, Option[StockDividendsUserDataModel]]] = {
 
     getStockDividendsBackendConnector.getSessionData(taxYear)(
       hc.withExtraHeaders("mtditid" -> request.mtditid).withExtraHeaders("X-CorrelationId" -> correlationId)).map {
@@ -92,11 +90,11 @@ class NewStockDividendsSessionServiceImpl @Inject()(
     }
   }
 
-  def getAndHandle[R](taxYear: Int)(onFail: R)(block: (Option[StockDividendsCheckYourAnswersModel], Option[StockDividendsUserDataModel]) => R)
+  def getAndHandle[R](taxYear: Int)(onFail: R)(block: (Option[StockDividendsCheckYourAnswersModel], Option[StockDividendsPriorDataModel]) => R)
                      (implicit request: User[_], hc: HeaderCarrier): Future[R] = {
     for {
       optionalCya <- getSessionData(taxYear)
-      priorDataResponse <- getPriorData(taxYear)
+      priorDataResponse <- stockDividendsPriorDataService.getPriorData(taxYear)
     } yield {
       priorDataResponse match {
         case Right(prior) => optionalCya match {
@@ -118,5 +116,4 @@ class NewStockDividendsSessionServiceImpl @Inject()(
       case _ => deleteSessionData(taxYear)(onFail)(onSuccess)
     }
   }
-
 }

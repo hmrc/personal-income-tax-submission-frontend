@@ -19,6 +19,7 @@ package services
 import models.User
 import models.dividends.StockDividendsCheckYourAnswersModel
 import models.mongo.{DatabaseError, StockDividendsUserDataModel}
+import models.priorDataModels.StockDividendsPriorDataModel
 import models.requests.AuthorisationRequest
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -39,7 +40,7 @@ trait StockDividendsSessionServiceProvider {
   def deleteSessionData[A](taxYear: Int)(onFail: A)(onSuccess: A)
                           (implicit request: User[_], hc: HeaderCarrier): Future[A]
 
-  def getAndHandle[R](taxYear: Int)(onFail: R)(block: (Option[StockDividendsCheckYourAnswersModel], Option[StockDividendsUserDataModel]) => R)
+  def getAndHandle[R](taxYear: Int)(onFail: R)(block: (Option[StockDividendsCheckYourAnswersModel], Option[StockDividendsPriorDataModel]) => R)
                      (implicit request: User[_], hc: HeaderCarrier): Future[R]
 
   def clear[R](taxYear: Int)(onFail: R)(onSuccess: R)(implicit user: User[_], hc: HeaderCarrier): Future[R]

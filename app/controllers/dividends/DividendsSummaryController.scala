@@ -58,17 +58,15 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
 
   private def getStockDividends(taxYear: Int, dividendsPriorData: Option[DividendsPriorSubmission])
                                (implicit request: User[AnyContent]): Future[Result] = {
-    stockDividendsSession.getAndHandle(taxYear)(Future.successful(errorHandler.internalServerError())) { (cya, stockDividendsUserDataModel) =>
-      val stockDividends = stockDividendsUserDataModel
-        .flatMap(_.stockDividends)
-        .map(_.toStockDividendsPriorDataModel)
-        .getOrElse(StockDividendsPriorDataModel())
-
-      val mergedDividends = stockDividends.copy(
-        ukDividendsAmount = dividendsPriorData.flatMap(_.ukDividends),
-        otherUkDividendsAmount = dividendsPriorData.flatMap(_.otherUkDividends)
-      )
-
+    stockDividendsSession.getAndHandle(taxYear)(Future.successful(errorHandler.internalServerError())) { (cya, stockDividendsPrior) =>
+      val mergedDividends = stockDividendsPrior match {
+        case Some(stockDividendsPriorData) => stockDividendsPriorData.copy(
+          ukDividendsAmount = dividendsPriorData.flatMap(_.ukDividends),
+          otherUkDividendsAmount = dividendsPriorData.flatMap(_.otherUkDividends)
+        )
+        case None => StockDividendsPriorDataModel(ukDividendsAmount = dividendsPriorData.flatMap(_.ukDividends),
+          otherUkDividendsAmount = dividendsPriorData.flatMap(_.otherUkDividends))
+      }
       if (mergedDividends.isDefined) {
         getStockDividendsCya(taxYear, cya, Some(mergedDividends))
       } else {
@@ -104,23 +102,24 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
           )
         )
         excludeJourneyService.excludeJourney(DIVIDENDS.stringify, taxYear, request.nino).flatMap {
-          case Right(_) => performSubmission(taxYear, cyaData, priorData.flatMap(_.stockDividends))
+          case Right(_) => performSubmission(taxYear, cyaData, priorData)
           case Left(_) => errorHandler.futureInternalServerError()
         }
       } else {
-        if (hasValuesToBeZeroed(cyaData, priorData.flatMap(_.stockDividends))) {
+        if (hasValuesToBeZeroed(cyaData, priorData)) {
           Future.successful(Redirect(controllers.routes.ZeroingWarningController.show(taxYear, STOCK_DIVIDENDS.stringify)))
         } else {
-          performSubmission(taxYear, cyaData, priorData.flatMap(_.stockDividends))
+          performSubmission(taxYear, cyaData, priorData)
         }
       }
     }.flatten
   }
 
-  private[controllers] def performSubmission(taxYear: Int, data: Option[StockDividendsCheckYourAnswersModel], priorData: Option[StockDividendsCheckYourAnswersModel])
+  private[controllers] def performSubmission(taxYear: Int, data: Option[StockDividendsCheckYourAnswersModel], priorData: Option[StockDividendsPriorDataModel])
                                             (implicit hc: HeaderCarrier, request: User[AnyContent]): Future[Result] = {
+
     val cya = data.getOrElse(StockDividendsCheckYourAnswersModel())
-    val stockDividendsSubmission = priorData.getOrElse(StockDividendsCheckYourAnswersModel())
+    val stockDividendsSubmission = priorData.getOrElse(StockDividendsPriorDataModel())
     submissionService.submitDividends(cya, request.nino, taxYear).map {
       case response@Right(_) =>
         val model = CreateOrAmendDividendsAuditDetail.createFromStockCyaData(
@@ -137,8 +136,8 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
       case Right(_) =>
         for {
           dividends <- dividendsSession.clear(taxYear)(errorHandler.internalServerError())(
-              Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-            )
+            Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+          )
           stockDividends <- stockDividendsSession.clear(taxYear)(errorHandler.internalServerError())(dividends)
         } yield {
           stockDividends
@@ -177,7 +176,7 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
     }
   }
 
-  private def hasValuesToBeZeroed(cyaData: Option[StockDividendsCheckYourAnswersModel], priorData: Option[StockDividendsCheckYourAnswersModel]): Boolean = {
+  private def hasValuesToBeZeroed(cyaData: Option[StockDividendsCheckYourAnswersModel], priorData: Option[StockDividendsPriorDataModel]): Boolean = {
     (priorData.exists(_.ukDividendsAmount.isDefined) && !cyaData.exists(_.ukDividendsAmount.isDefined)) ||
       (priorData.exists(_.otherUkDividendsAmount.isDefined) && !cyaData.exists(_.otherUkDividendsAmount.isDefined)) ||
       (priorData.exists(_.stockDividendsAmount.isDefined) && !cyaData.exists(_.stockDividendsAmount.isDefined)) ||

@@ -18,12 +18,10 @@ package services
 
 import common.IncomeSources
 import connectors.IncomeSourceConnector
-import connectors.httpParsers.StockDividendsBackendUserDataHttpParser.StockDividendsBackendUserDataResponse
-import connectors.stockdividends.GetStockDividendsBackendConnector
 import models.User
 import models.dividends.StockDividendsCheckYourAnswersModel
 import models.mongo.{DatabaseError, StockDividendsUserDataModel}
-import models.priorDataModels.{IncomeSourcesModel, StockDividendsPriorDataModel}
+import models.priorDataModels.StockDividendsPriorDataModel
 import play.api.Logging
 import repositories.StockDividendsUserDataRepository
 import uk.gov.hmrc.http.HeaderCarrier
@@ -34,13 +32,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class StockDividendsSessionServiceImpl @Inject()(
                                                   stockDividendsUserDataRepository: StockDividendsUserDataRepository,
-                                                  getStockDividendsBackendConnector: GetStockDividendsBackendConnector,
-                                                  incomeSourceConnector: IncomeSourceConnector
-                                       )(implicit correlationId: String, executionContext: ExecutionContext) extends StockDividendsSessionServiceProvider with Logging {
-
-  def getPriorData(taxYear: Int)(implicit request: User[_], hc: HeaderCarrier): Future[StockDividendsBackendUserDataResponse] = {
-    getStockDividendsBackendConnector.getSessionData(taxYear)(hc.withExtraHeaders("mtditid" -> request.mtditid))
-  }
+                                                  incomeSourceConnector: IncomeSourceConnector,
+                                                  stockDividendsPriorDataService: StockDividendsPriorDataService
+                                                )(implicit correlationId: String, executionContext: ExecutionContext) extends StockDividendsSessionServiceProvider with Logging {
 
   def createSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int)(onFail: A)(onSuccess: A)
                           (implicit request: User[_], hc: HeaderCarrier): Future[A] = {
@@ -107,11 +101,11 @@ class StockDividendsSessionServiceImpl @Inject()(
 
   }
 
-  def getAndHandle[R](taxYear: Int)(onFail: R)(block: (Option[StockDividendsCheckYourAnswersModel], Option[StockDividendsUserDataModel]) => R)
+  def getAndHandle[R](taxYear: Int)(onFail: R)(block: (Option[StockDividendsCheckYourAnswersModel], Option[StockDividendsPriorDataModel]) => R)
                      (implicit request: User[_], hc: HeaderCarrier): Future[R] = {
     for {
       optionalCya <- getSessionData(taxYear)
-      priorDataResponse <- getPriorData(taxYear)
+      priorDataResponse <- stockDividendsPriorDataService.getPriorData(taxYear)
     } yield {
       priorDataResponse match {
         case Right(prior) => optionalCya match {
