@@ -230,20 +230,9 @@ class RedeemableSharesAmountControllerISpec extends IntegrationTest with ViewHel
       "return a 303 status and redirect to next status page with appWithStockDividends" in {
         implicit lazy val app: Application = appWithStockDividends
 
-        /*        lazy val result = {
-          dropStockDividendsDB()
-          insertStockDividendsCyaData(Some(cyaModel.copy(None, None, None, None, None, None, None, None, None, None)))
-          authoriseAgentOrIndividual(scenario.isAgent)
-          urlPost(postURL, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> "123"))
-        }
-        result.status shouldBe SEE_OTHER
-        result.headers(HeaderNames.LOCATION).head shouldBe closeCompanyLoansStatusUrl
-      }*/
-
         lazy val result = {
           dropStockDividendsDB()
           insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel()))
-          //insertStockDividendsCyaData(Some(cyaModel.copy(None, None, None, None, None, None, None, None, None, None)))
           postRedeemableSharesAmount(Seq("amount" -> "123"), app)
         }
         status(result) shouldBe SEE_OTHER

@@ -346,7 +346,7 @@ class CloseCompanyLoanStatusControllerISpec extends IntegrationTest with ViewHel
       }
 
       "return a error" when {
-        "the form is empty with appWithStockDividends with appWithStockDividends" which {
+        "the form is empty with appWithStockDividends" which {
 
           implicit lazy val application: Application = appWithStockDividends
 
