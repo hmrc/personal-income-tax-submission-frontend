@@ -28,7 +28,7 @@ import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import play.twirl.api.Html
-import services.{DividendsSessionService, StockDividendsSessionService}
+import services.{DividendsSessionService, StockDividendsSessionService, StockDividendsSessionServiceProvider}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.dividends.OtherUkDividendsAmountView
@@ -42,7 +42,7 @@ class OtherUkDividendsAmountController @Inject()(
                                                   otherDividendsAmountView: OtherUkDividendsAmountView,
                                                   questionHelper: QuestionsJourneyValidator,
                                                   dividendsSessionService: DividendsSessionService,
-                                                  stockDividendsSessionService: StockDividendsSessionService,
+                                                  stockDividendsSessionService: StockDividendsSessionServiceProvider,
                                                   errorHandler: ErrorHandler,
                                                   implicit val appConfig: AppConfig,
                                                   ec: ExecutionContext

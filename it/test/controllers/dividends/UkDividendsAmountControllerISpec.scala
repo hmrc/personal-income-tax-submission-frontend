@@ -257,8 +257,11 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
         getUkDividendsAmount(application)
       }
 
-      "has an OK(200) status" in {
+      "has a SEE_OTHER(303) status" in {
         status(result) shouldBe SEE_OTHER
+      }
+
+      "have the correct redirect URL" in {
         headers(result).get(HeaderNames.LOCATION).value shouldBe s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view"
       }
     }
