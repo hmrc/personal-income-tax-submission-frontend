@@ -811,11 +811,11 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
           implicit lazy val application: Application = appWithStockDividends
 
           lazy val result = {
-            getSessionDataStub(status = INTERNAL_SERVER_ERROR)
             dropDividendsDB()
             emptyUserDataStub()
             dropStockDividendsDB()
             emptyStockDividendsUserDataStub()
+            userDataStubWithError(nino, taxYear)
             getDividendsSummary(application)
           }
 
@@ -845,11 +845,11 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
           implicit lazy val application: Application = appWithStockDividends
 
           lazy val result = {
-            getSessionDataStub()
             dropDividendsDB()
             emptyUserDataStub()
             dropStockDividendsDB()
             emptyStockDividendsUserDataStub()
+            stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
             getDividendsSummary(application)
           }
 
@@ -1177,14 +1177,14 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
                              application: Application): Future[Result] = {
       val headers = Seq("Csrf-Token" -> "nocheck") ++ playSessionCookie()
       val request = FakeRequest("POST", dividendsSummaryUrl).withHeaders(headers: _*).withFormUrlEncodedBody(body: _*)
+      authoriseIndividual()
       route(application, request).get
     }
 
-    s"redirect to the overview page when there is valid session data with appWithStockDividends" when {
+    "redirect to the overview page when there is valid session data with appWithStockDividends" when {
       implicit lazy val application: Application = appWithStockDividends
 
       lazy val result = {
-        getSessionDataStub()
         dropStockDividendsDB()
         emptyUserDataStub()
         emptyStockDividendsUserDataStub()
@@ -1204,7 +1204,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
       }
     }
 
-    s"redirect to the overview page" when {
+    "redirect to the overview page" when {
 
       "tailoring is on, and the gateway question is false" which {
         implicit lazy val application: Application = appWithTailoring
@@ -1241,10 +1241,10 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
         implicit lazy val application: Application = appWithStockDividends
 
         lazy val result = {
-          getSessionDataStub()
           dropStockDividendsDB()
           emptyUserDataStub()
           emptyStockDividendsUserDataStub()
+          stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
           insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel(gateway = Some(true))), taxYear, Some(mtditid), None)
           postDividendsSummary(Seq.empty, application)
         }
@@ -1262,10 +1262,10 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
         implicit lazy val application: Application = appWithStockDividends
 
         lazy val result = {
-          getSessionDataStub()
           dropStockDividendsDB()
           emptyUserDataStub()
           emptyStockDividendsUserDataStub()
+          stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
           insertStockDividendsCyaData(Some(cyaModel.copy(stockDividends = None, stockDividendsAmount = None)), taxYear, Some(mtditid), None)
           postDividendsSummary(Seq.empty, application)
         }
@@ -1285,10 +1285,10 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
         val stockDividendCya = cyaModel.copy(stockDividends = None, stockDividendsAmount = None, redeemableShares = None, redeemableSharesAmount = None)
 
         lazy val result = {
-          getSessionDataStub()
           dropStockDividendsDB()
           emptyUserDataStub()
           emptyStockDividendsUserDataStub()
+          stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
           insertStockDividendsCyaData(Some(stockDividendCya), taxYear, Some(mtditid), None)
           postDividendsSummary(Seq.empty, application)
         }
@@ -1312,10 +1312,10 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
         )
 
         lazy val result = {
-          getSessionDataStub()
           dropStockDividendsDB()
           emptyUserDataStub()
           emptyStockDividendsUserDataStub()
+          stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
           insertStockDividendsCyaData(Some(stockDividendCya), taxYear, Some(mtditid), None)
           postDividendsSummary(Seq.empty, application)
         }
@@ -1330,11 +1330,10 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
       }
     }
 
-    s"supply empty model if no data found" when {
+    "supply empty model if no data found" when {
       implicit lazy val application: Application = appWithStockDividends
 
       lazy val result = {
-        getSessionDataStub(userData = Some(stockDividendsUserDataModel.copy(stockDividends = None)))
         dropStockDividendsDB()
         emptyUserDataStub()
         emptyStockDividendsUserDataStub()
@@ -1343,7 +1342,7 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
         stubPut(s"/income-tax-dividends/income-tax/income/dividends/$nino/$taxYear", NO_CONTENT, "")
         postDividendsSummary(Seq.empty, application)
       }
-      s"has a status of SEE_OTHER(303)" in {
+      "has a status of SEE_OTHER(303)" in {
         status(result) shouldBe SEE_OTHER
       }
 
@@ -1353,16 +1352,16 @@ class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers w
       }
     }
 
-    s"return an internal server error" when {
+    "return an internal server error" when {
 
       "the tailoring feature switch is on, but the exclude journey call fails" which {
         implicit lazy val application: Application = appWithTailoring
 
         lazy val result = {
-          getSessionDataStub(userData = Some(stockDividendsUserDataModel.copy(stockDividends = None)))
           dropDividendsDB()
           dropStockDividendsDB()
           emptyUserDataStub()
+          emptyStockDividendsUserDataStub()
           insertStockDividendsCyaData(Some(cyaModel.copy(gateway = Some(false))))
           authoriseIndividual()
           stubPost(s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear", INTERNAL_SERVER_ERROR,
