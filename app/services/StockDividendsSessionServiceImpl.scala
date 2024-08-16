@@ -101,8 +101,9 @@ class StockDividendsSessionServiceImpl @Inject()(
 
   }
 
-  def getAndHandle[R](taxYear: Int)(onFail: R)(block: (Option[StockDividendsCheckYourAnswersModel], Option[StockDividendsPriorDataModel]) => R)
-                     (implicit request: User[_], hc: HeaderCarrier): Future[R] = {
+  def getAndHandle[R](taxYear: Int)(onFail: Future[R])(block: (Option[StockDividendsCheckYourAnswersModel], Option[StockDividendsPriorDataModel]) => Future[R])
+                     (implicit user: User[_], hc: HeaderCarrier): Future[R] = {
+    println("------------ in getAndHandle")
     for {
       optionalCya <- getSessionData(taxYear)
       priorDataResponse <- stockDividendsPriorDataService.getPriorData(taxYear)
@@ -119,7 +120,7 @@ class StockDividendsSessionServiceImpl @Inject()(
           onFail
       }
     }
-  }
+  }.flatten
 
   def clear[R](taxYear: Int)(onFail: R)(onSuccess: R)(implicit user: User[_], hc: HeaderCarrier): Future[R] = {
     incomeSourceConnector.put(taxYear, user.nino, IncomeSources.STOCK_DIVIDENDS)(hc.withExtraHeaders("mtditid" -> user.mtditid)).flatMap {

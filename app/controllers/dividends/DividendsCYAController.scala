@@ -45,8 +45,7 @@ class DividendsCYAController @Inject()(
                                         auditService: AuditService,
                                         errorHandler: ErrorHandler,
                                         excludeJourneyService: ExcludeJourneyService
-                                      )
-                                      (
+                                      )(
                                         implicit appConfig: AppConfig,
                                         authorisedAction: AuthorisedAction,
                                         implicit val mcc: MessagesControllerComponents
@@ -59,6 +58,7 @@ class DividendsCYAController @Inject()(
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
     if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) {
       stockDividendsSession.getAndHandle(taxYear)(Future.successful(errorHandler.internalServerError())) { (cya, prior) =>
+        println("Inside getAndHandle!!")
         StockDividendsCheckYourAnswersModel.getCyaModel(cya, prior) match {
           case Some(_) => Future.successful(Redirect(routes.DividendsSummaryController.show(taxYear)))
           case _ =>
@@ -66,7 +66,7 @@ class DividendsCYAController @Inject()(
             Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
         }
       }
-    }.flatten else {
+    } else {
       session.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
         DividendsCheckYourAnswersModel.getCyaModel(cya, prior) match {
           case Some(cyaData) if !cyaData.isFinished => Future.successful(handleUnfinishedRedirect(cyaData, taxYear))
@@ -101,7 +101,7 @@ class DividendsCYAController @Inject()(
             case Left(_) => errorHandler.futureInternalServerError()
           }
         } else {
-          if (cyaData.exists(_.hasNoValues)){
+          if (cyaData.exists(_.hasNoValues)) {
             Future.successful(Redirect(controllers.routes.ZeroingWarningController.show(taxYear, DIVIDENDS.stringify)))
           } else {
             performSubmission(taxYear, cyaData, priorData)
@@ -130,7 +130,7 @@ class DividendsCYAController @Inject()(
     }).flatMap {
       case Right(_) =>
         session.clear(taxYear)(errorHandler.internalServerError())(
-            Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+          Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
         )
       case Left(error) => Future.successful(errorHandler.handleError(error.status))
     }

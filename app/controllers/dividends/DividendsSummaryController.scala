@@ -72,7 +72,7 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
       } else {
         getStockDividendsCya(taxYear, cya, None)
       }
-    }.flatten
+    }
   }
 
   private def getStockDividendsCya(taxYear: Int,
@@ -112,7 +112,7 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
           performSubmission(taxYear, cyaData, priorData)
         }
       }
-    }.flatten
+    }
   }
 
   private[controllers] def performSubmission(taxYear: Int, data: Option[StockDividendsCheckYourAnswersModel], priorData: Option[StockDividendsPriorDataModel])
