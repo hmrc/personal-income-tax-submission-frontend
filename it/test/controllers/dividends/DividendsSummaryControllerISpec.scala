@@ -35,7 +35,6 @@ import scala.concurrent.Future
 
 class DividendsSummaryControllerISpec extends IntegrationTest with ViewHelpers with DividendsDatabaseHelper {
 
-
   val ukDividends: BigDecimal = 10
   val otherDividends: BigDecimal = 10.50
 
