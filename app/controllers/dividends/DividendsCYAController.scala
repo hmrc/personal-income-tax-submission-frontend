@@ -58,7 +58,6 @@ class DividendsCYAController @Inject()(
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
     if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) {
       stockDividendsSession.getAndHandle(taxYear)(Future.successful(errorHandler.internalServerError())) { (cya, prior) =>
-        println("Inside getAndHandle!!")
         StockDividendsCheckYourAnswersModel.getCyaModel(cya, prior) match {
           case Some(_) => Future.successful(Redirect(routes.DividendsSummaryController.show(taxYear)))
           case _ =>

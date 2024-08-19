@@ -16,7 +16,7 @@
 
 package test.controllers
 
-import controllers.ZeroingWarningController
+import controllers.{ZeroingWarningController, routes}
 import models.dividends.{DividendsCheckYourAnswersModel, StockDividendsCheckYourAnswersModel}
 import models.interest.{InterestAccountModel, InterestCYAModel}
 import models.priorDataModels.StockDividendsPriorDataModel
@@ -24,12 +24,15 @@ import models.savings.SavingsIncomeCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalatest.PrivateMethodTester
+import play.api.Application
 import play.api.http.HeaderNames
 import play.api.http.Status.{OK, SEE_OTHER}
-import play.api.libs.ws.WSResponse
+import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.route
+import play.api.test.Helpers.{defaultAwaitTimeout, headers, route, writeableOf_AnyContentAsFormUrlEncoded}
 import test.utils._
+
+import scala.concurrent.Future
 
 class ZeroingWarningControllerISpec extends IntegrationTest
   with DividendsDatabaseHelper
@@ -37,12 +40,9 @@ class ZeroingWarningControllerISpec extends IntegrationTest
   with SavingsDatabaseHelper
   with GiftAidDatabaseHelper
   with ViewHelpers
-  with PrivateMethodTester  {
+  with PrivateMethodTester {
 
-  private def url(journeyKey: String, needExplicit: Boolean = true) = {
-    (if (needExplicit) appUrl else "/update-and-submit-income-tax-return/personal-income") +
-      s"/$taxYearEOY/$journeyKey/change-information"
-  }
+  private def zeroingWarningUrl(journeyKey: String): String = routes.ZeroingWarningController.show(taxYearEOY, journeyKey).url
 
   private trait CommonResults {
     def caption(journeyKey: String): String
@@ -67,7 +67,7 @@ class ZeroingWarningControllerISpec extends IntegrationTest
       journeyKey match {
         case "dividends" => captionDividends
         case "interest" => captionInterest
-        case "charity" => captionGiftAid
+        case "gift-aid" => captionGiftAid
       }
     }
 
@@ -81,11 +81,12 @@ class ZeroingWarningControllerISpec extends IntegrationTest
     private val captionDividends: String = s"Difidendau ar gyfer 6 Ebrill $taxYearEndOfYearMinusOne i 5 Ebrill $taxYearEOY"
     private val captionInterest: String = s"Llog ar gyfer 6 Ebrill $taxYearEndOfYearMinusOne i 5 Ebrill $taxYearEOY"
     private val captionGiftAid: String = s"Rhoddion i elusennau ar gyfer 6 Ebrill $taxYearEndOfYearMinusOne i 5 Ebrill $taxYearEOY"
+
     override def caption(journeyKey: String): String = {
       journeyKey match {
         case "dividends" => captionDividends
         case "interest" => captionInterest
-        case "charity" => captionGiftAid
+        case "gift-aid" => captionGiftAid
       }
     }
 
@@ -141,9 +142,32 @@ class ZeroingWarningControllerISpec extends IntegrationTest
     closeCompanyLoansWrittenOffAmount = Some(50.00)
   )
 
+  def getZeroingWarning(application: Application, journeyKey: String, isEoy: Boolean = false): Future[Result] = {
+    val headers = playSessionCookie(isEoy = isEoy)
+    lazy val request = FakeRequest("GET", zeroingWarningUrl(journeyKey)).withHeaders(headers: _*)
+
+    authoriseIndividual()
+    route(application, request, "{}").get
+  }
+
+  def postZeroingWarning(application: Application, body: Seq[(String, String)], journeyKey: String, isEoy: Boolean = false): Future[Result] = {
+    val headers = Seq("Csrf-Token" -> "nocheck") ++ playSessionCookie(isEoy = isEoy)
+    val request = FakeRequest("POST", zeroingWarningUrl(journeyKey)).withHeaders(headers: _*).withFormUrlEncodedBody(body: _*)
+    authoriseIndividual()
+    route(application, request).get
+  }
+
   ".show" when {
 
     userScenarios.foreach { scenario =>
+
+      def getScenarioZeroingWarning(application: Application, journeyKey: String, isEoy: Boolean = false): Future[Result] = {
+        val headers = Option.when(scenario.isWelsh)(HeaderNames.ACCEPT_LANGUAGE -> "cy").toSeq ++ playSessionCookie(scenario.isAgent, isEoy = isEoy)
+        lazy val request = FakeRequest("GET", zeroingWarningUrl(journeyKey)).withHeaders(headers: _*)
+
+        authoriseAgentOrIndividual(scenario.isAgent)
+        route(application, request, "{}").get
+      }
 
       s"the user is ${if (scenario.isAgent) "an agent" else "an individual"} and is viewing the " +
         s"page in ${if (scenario.isWelsh) "Welsh" else "English"}" should {
@@ -151,22 +175,22 @@ class ZeroingWarningControllerISpec extends IntegrationTest
         "redirect the user to the overview page" when {
 
           "the tailoring feature switch is turned off" which {
-            lazy val result: WSResponse = {
+            implicit lazy val application: Application = app
+
+            lazy val result = {
               dropDividendsDB()
               dropInterestDB()
               dropGiftAidDB()
 
-              authoriseAgentOrIndividual(scenario.isAgent)
-
-              urlGet(url("interest"), scenario.isWelsh, follow = false, playSessionCookie(scenario.isAgent))
+              getScenarioZeroingWarning(application, "interest")
             }
 
             "should have a status of SEE_OTHER(303)" in {
-              result.status shouldBe SEE_OTHER
+              status(result) shouldBe SEE_OTHER
             }
 
             "should have redirected to the correct location" in {
-              result.headers("Location").head shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY)
+              headers(result).get("Location").value shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY)
             }
 
           }
@@ -174,8 +198,10 @@ class ZeroingWarningControllerISpec extends IntegrationTest
         }
 
         "show the page" when {
-          Seq("interest", "dividends", "charity").foreach { journeyKey =>
+          Seq("interest", "dividends", "gift-aid").foreach { journeyKey =>
             s"the feature switch is turned on and the journey key is $journeyKey" which {
+              implicit lazy val application: Application = appWithTailoring
+
               lazy val specificResults = scenario.specificExpectedResults.get
 
               import scenario.commonExpectedResults._
@@ -186,23 +212,14 @@ class ZeroingWarningControllerISpec extends IntegrationTest
                 dropInterestDB()
                 dropGiftAidDB()
 
-                authoriseAgentOrIndividual(scenario.isAgent)
-
-                val headers = (if(scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq()) ++ playSessionCookie(
-                  agent = scenario.isAgent,
-                  isEoy = true
-                )
-
-                val request = FakeRequest("GET", url(journeyKey, needExplicit = false)).withHeaders(headers: _*)
-
-                route(appWithTailoring, request, "").get
+                getScenarioZeroingWarning(application, journeyKey, isEoy = true)
               }
 
               lazy val cancelLink = {
                 journeyKey match {
                   case "dividends" => s"/update-and-submit-income-tax-return/personal-income/$taxYearEOY/dividends/dividends-from-stocks-and-shares"
                   case "interest" => s"/update-and-submit-income-tax-return/personal-income/$taxYearEOY/interest/interest-from-UK"
-                  case "charity" => s"/update-and-submit-income-tax-return/personal-income/$taxYearEOY/charity/charity-donations-to-charity"
+                  case "gift-aid" => s"/update-and-submit-income-tax-return/personal-income/$taxYearEOY/charity/charity-donations-to-charity"
                 }
               }
 
@@ -229,39 +246,32 @@ class ZeroingWarningControllerISpec extends IntegrationTest
   ".submit" should {
 
     "redirect to the overview page" when {
-
       "the feature switch is off" which {
+        implicit lazy val application: Application = app
+
         lazy val result = {
           dropDividendsDB()
           dropInterestDB()
           dropGiftAidDB()
-
-          authoriseIndividual()
-
-          urlGet(url("interest"), follow = false, headers = playSessionCookie())
+          getZeroingWarning(application, "interest")
         }
 
         "has a status of SEE_OTHER(303)" in {
-          result.status shouldBe SEE_OTHER
+          status(result) shouldBe SEE_OTHER
         }
 
         "has the correct redirect location" in {
-          result.headers("Location").head shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY)
+          headers(result).get("Location").value shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY)
         }
       }
 
       "there is no CYA data" which {
+        implicit lazy val application: Application = appWithTailoring
+
         lazy val result = {
           dropInterestDB()
           emptyUserDataStub(taxYear = taxYearEOY)
-          authoriseIndividual()
-
-          val request = FakeRequest(
-            "POST",
-            url("interest", needExplicit = false)
-          ).withHeaders(playSessionCookie(isEoy = true) ++ Seq("Csrf-Token" -> "nocheck"): _*)
-
-          route(appWithTailoring, request, "{}").get
+          postZeroingWarning(application, Seq.empty, "interest", isEoy = true)
         }
 
         "has a status of SEE_OTHER(303)" in {
@@ -269,7 +279,7 @@ class ZeroingWarningControllerISpec extends IntegrationTest
         }
 
         "has a redirect URL for the overview page" in {
-          await(result).header.headers("Location") shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY)
+          headers(result).get("Location").value shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY)
         }
       }
 
@@ -278,21 +288,15 @@ class ZeroingWarningControllerISpec extends IntegrationTest
     "redirect to the interest CYA page" when {
 
       "the feature switch is on and session data exists" which {
+        implicit lazy val application: Application = appWithTailoring
+
         lazy val result = {
           dropInterestDB()
           insertInterestCyaData(Some(InterestCYAModel(
             gateway = Some(false)
           )), taxYearEOY)
           emptyUserDataStub(taxYear = taxYearEOY)
-
-          authoriseIndividual()
-
-          val request = FakeRequest(
-            "POST",
-            url("interest", needExplicit = false)
-          ).withHeaders(playSessionCookie(isEoy = true) ++ Seq("Csrf-Token" -> "nocheck"): _*)
-
-          route(appWithTailoring, request, "{}").get
+          postZeroingWarning(application, Seq.empty, "interest", isEoy = true)
         }
 
         "has a status of SEE_OTHER(303)" in {
@@ -300,7 +304,7 @@ class ZeroingWarningControllerISpec extends IntegrationTest
         }
 
         "has a redirect location set to the interest cya page" in {
-          await(result).header.headers("Location") shouldBe s"/update-and-submit-income-tax-return/personal-income/$taxYearEOY/interest/check-interest"
+          headers(result).get("Location").value shouldBe s"/update-and-submit-income-tax-return/personal-income/$taxYearEOY/interest/check-interest"
         }
       }
 
@@ -309,6 +313,8 @@ class ZeroingWarningControllerISpec extends IntegrationTest
     "redirect to the dividends CYA page" when {
 
       "the feature switch is on and session data exists" which {
+        implicit lazy val application: Application = appWithTailoring
+
         val ukDividendsAmount: BigDecimal = 1000
         val otherDividendsAmount: BigDecimal = 0
 
@@ -322,14 +328,7 @@ class ZeroingWarningControllerISpec extends IntegrationTest
           )
           emptyUserDataStub(taxYear = taxYearEOY)
 
-          authoriseIndividual()
-
-          val request = FakeRequest(
-            "POST",
-            url("dividends", needExplicit = false)
-          ).withHeaders(playSessionCookie(isEoy = true) ++ Seq("Csrf-Token" -> "nocheck"): _*)
-
-          route(appWithTailoring, request, "{}").get
+          postZeroingWarning(application, Seq.empty, "dividends", isEoy = true)
         }
 
         "has a status of SEE_OTHER(303)" in {
@@ -337,7 +336,7 @@ class ZeroingWarningControllerISpec extends IntegrationTest
         }
 
         "has a redirect location set to the dividends cya page" in {
-          await(result).header.headers("Location") shouldBe
+          headers(result).get("Location").value shouldBe
             s"/update-and-submit-income-tax-return/personal-income/$taxYearEOY/dividends/check-income-from-dividends"
         }
       }
@@ -347,19 +346,15 @@ class ZeroingWarningControllerISpec extends IntegrationTest
 
   "redirect to the stock dividends CYA page" when {
 
-    "the feature switch is on and session data exists" which {
+    "the feature switch is on and session data exists with appWithStockDividends" which {
+      implicit lazy val application: Application = appWithStockDividends
+
       lazy val result = {
         dropStockDividendsDB()
-        emptyStockDividendsUserDataStub()
+        emptyStockDividendsUserDataStub(taxYear = taxYearEOY)
         insertStockDividendsCyaData(Some(completeStockDividendsCYAModel.copy(gateway = Some(true))), taxYearEOY)
-        authoriseIndividual()
-
-        val request = FakeRequest(
-          "POST",
-          url("stock-dividends", needExplicit = false)
-        ).withHeaders(playSessionCookie(isEoy = true) ++ Seq("Csrf-Token" -> "nocheck"): _*)
-
-        route(appWithStockDividends, request, "{}").get
+        emptyUserDataStub(taxYear = taxYearEOY)
+        postZeroingWarning(application, Seq.empty, "stock-dividends", isEoy = true)
       }
 
       "has a status of SEE_OTHER(303)" in {
@@ -367,28 +362,43 @@ class ZeroingWarningControllerISpec extends IntegrationTest
       }
 
       "has a redirect location set to the dividends summary page" in {
-        await(result).header.headers("Location") shouldBe
+        headers(result).get("Location").value shouldBe
           s"/update-and-submit-income-tax-return/personal-income/$taxYearEOY/dividends/check-income-from-dividends"
       }
     }
 
+    "the feature switch is on and session data exists with appWithStockDividendsBackendMongo" which {
+      implicit lazy val application: Application = appWithStockDividendsBackendMongo
+
+      lazy val result = {
+        getSessionDataStub(taxYear = taxYearEOY)
+        updateSessionDataStub(taxYear = taxYearEOY)
+        emptyStockDividendsUserDataStub(taxYear = taxYearEOY)
+        emptyUserDataStub(taxYear = taxYearEOY)
+        postZeroingWarning(application, Seq.empty, "stock-dividends", isEoy = true)
+      }
+
+      "has a status of SEE_OTHER(303)" in {
+        status(result) shouldBe SEE_OTHER
+      }
+
+      "has a redirect location set to the dividends summary page" in {
+        headers(result).get("Location").value shouldBe
+          s"/update-and-submit-income-tax-return/personal-income/$taxYearEOY/dividends/check-income-from-dividends"
+      }
+    }
   }
 
   "redirect to the Savings CYA page" when {
 
     "the feature switch is on and session data exists" which {
+      implicit lazy val application: Application = appWithInterestSavings
+
       lazy val result = {
         dropSavingsDB()
-        emptyUserDataStub()
+        emptyUserDataStub(taxYear = taxYearEOY)
         insertSavingsCyaData(Some(completeSavingsCYAModel.copy(gateway = Some(true))), taxYearEOY)
-        authoriseIndividual()
-
-        val request = FakeRequest(
-          "POST",
-          url("savings", needExplicit = false)
-        ).withHeaders(playSessionCookie(isEoy = true) ++ Seq("Csrf-Token" -> "nocheck"): _*)
-
-        route(appWithInterestSavings, request, "{}").get
+        postZeroingWarning(application, Seq.empty, "savings", isEoy = true)
       }
 
       "has a status of SEE_OTHER(303)" in {
@@ -396,7 +406,7 @@ class ZeroingWarningControllerISpec extends IntegrationTest
       }
 
       "has a redirect location set to the savings summary page" in {
-        await(result).header.headers("Location") shouldBe
+        headers(result).get("Location").value shouldBe
           s"/update-and-submit-income-tax-return/personal-income/$taxYearEOY/interest/check-interest-from-securities"
       }
     }
@@ -546,7 +556,7 @@ class ZeroingWarningControllerISpec extends IntegrationTest
         redeemableSharesAmount = Some(0)
       )
 
-      controller invokePrivate privateZeroStockDividendsData(Some(priorStockDividends),updatedStockDividendsCYAModel) shouldBe expectedStockDividendsCya
+      controller invokePrivate privateZeroStockDividendsData(Some(priorStockDividends), updatedStockDividendsCYAModel) shouldBe expectedStockDividendsCya
     }
 
     "zero Close Company Loans Written Off data when it has Prior data and no CYA data" in {

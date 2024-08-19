@@ -103,7 +103,6 @@ class StockDividendsSessionServiceImpl @Inject()(
 
   def getAndHandle[R](taxYear: Int)(onFail: Future[R])(block: (Option[StockDividendsCheckYourAnswersModel], Option[StockDividendsPriorDataModel]) => Future[R])
                      (implicit user: User[_], hc: HeaderCarrier): Future[R] = {
-    println("------------ in getAndHandle")
     for {
       optionalCya <- getSessionData(taxYear)
       priorDataResponse <- stockDividendsPriorDataService.getPriorData(taxYear)
