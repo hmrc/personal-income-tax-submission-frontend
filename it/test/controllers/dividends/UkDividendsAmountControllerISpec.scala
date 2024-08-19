@@ -289,11 +289,25 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
       }
     }
 
-    "display the stock dividend uk dividends amount page" which {
+    "display the stock dividend uk dividends amount page with appWithStockDividends" which {
       implicit lazy val application: Application = appWithStockDividends
 
       lazy val result = {
         dropStockDividendsDB()
+        emptyStockDividendsUserDataStub()
+        getUkDividendsAmount(application)
+      }
+
+      "has a status of OK(200)" in {
+        status(result) shouldBe OK
+      }
+    }
+
+    "display the stock dividend uk dividends amount page with appWithStockDividendsBackendMongo" which {
+      implicit lazy val application: Application = appWithStockDividendsBackendMongo
+
+      lazy val result = {
+        getSessionDataStub()
         emptyStockDividendsUserDataStub()
         getUkDividendsAmount(application)
       }
@@ -456,7 +470,7 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
       }
     }
 
-    "return a 303 status and redirect to next status page" in {
+    "return a 303 status and redirect to next status page with appWithStockDividends" in {
       implicit lazy val application: Application = appWithStockDividends
 
       lazy val result = {
@@ -471,12 +485,44 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
       headers(result).get(HeaderNames.LOCATION).value shouldBe routes.ReceiveOtherUkDividendsController.show(taxYear).url
     }
 
-    "return a 303 status and redirect to cya page when isFinished is true" in {
+    "return a 303 status and redirect to next status page with appWithStockDividendsBackendMongo" in {
+      implicit lazy val application: Application = appWithStockDividendsBackendMongo
+
+      lazy val result = {
+        getSessionDataStub(Some(stockDividendsUserDataModel.copy(
+          stockDividends = Some(StockDividendsCheckYourAnswersModel()))))
+        updateSessionDataStub()
+        emptyStockDividendsUserDataStub()
+        emptyUserDataStub()
+        postUkDividendsAmount(Seq("amount" -> "123"), application)
+      }
+
+      status(result) shouldBe SEE_OTHER
+      headers(result).get(HeaderNames.LOCATION).value shouldBe routes.ReceiveOtherUkDividendsController.show(taxYear).url
+    }
+
+    "return a 303 status and redirect to cya page when isFinished is true with appWithStockDividends" in {
       implicit lazy val application: Application = appWithStockDividends
 
       lazy val result = {
         dropStockDividendsDB()
         insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
+        emptyUserDataStub()
+        emptyStockDividendsUserDataStub()
+        postUkDividendsAmount(Seq("amount" -> "123"), application)
+      }
+
+      status(result) shouldBe SEE_OTHER
+      headers(result).get(HeaderNames.LOCATION).value shouldBe routes.DividendsSummaryController.show(taxYear).url
+    }
+
+    "return a 303 status and redirect to cya page when isFinished is true with appWithStockDividendsBackendMongo" in {
+      implicit lazy val application: Application = appWithStockDividendsBackendMongo
+
+      lazy val result = {
+        getSessionDataStub(Some(stockDividendsUserDataModel.copy(
+          stockDividends = Some(completeStockDividendsCYAModel))))
+        updateSessionDataStub()
         emptyUserDataStub()
         emptyStockDividendsUserDataStub()
         postUkDividendsAmount(Seq("amount" -> "123"), application)
