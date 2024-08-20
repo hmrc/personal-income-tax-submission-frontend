@@ -200,8 +200,8 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
     userScenarios.foreach { us =>
 
       import Selectors._
-      import us.specificExpectedResults._
       import us.commonExpectedResults._
+      import us.specificExpectedResults._
 
       s"language is ${welshTest(us.isWelsh)} and request is from an ${agentTest(us.isAgent)}" should {
 
@@ -303,6 +303,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
         authoriseAgentOrIndividual(userScenarios.head.isAgent)
         dropStockDividendsDB()
         emptyUserDataStub()
+        emptyStockDividendsUserDataStub()
         route(appWithStockDividends, request, "{}").get
       }
 
@@ -320,6 +321,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
       lazy val result: Future[Result] = {
         authoriseAgentOrIndividual(userScenarios.head.isAgent)
         emptyUserDataStub()
+        emptyStockDividendsUserDataStub()
         dropStockDividendsDB()
         insertStockDividendsCyaData(Some(stockCyaModel))
         route(appWithStockDividends, request, "{}").get
@@ -333,12 +335,12 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
   ".submit" when {
 
-    userScenarios.foreach { us =>
+    userScenarios.foreach { scenario =>
 
-      import us.specificExpectedResults._
-      import us.commonExpectedResults._
+      import scenario.commonExpectedResults._
+      import scenario.specificExpectedResults._
 
-      s"language is ${welshTest(us.isWelsh)} and request is from an ${agentTest(us.isAgent)}" should {
+      s"language is ${welshTest(scenario.isWelsh)} and request is from an ${agentTest(scenario.isAgent)}" should {
 
         "when form is invalid - no radio button clicked. Show page with Error text" should {
 
@@ -347,8 +349,8 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
           "in English" when {
 
             lazy val result: WSResponse = {
-              authoriseAgentOrIndividual(us.isAgent)
-              urlPost(receivedOtherDividendsUrl, welsh = us.isWelsh, headers = playSessionCookie(us.isAgent), body = Map[String, String]())
+              authoriseAgentOrIndividual(scenario.isAgent)
+              urlPost(receivedOtherDividendsUrl, welsh = scenario.isWelsh, headers = playSessionCookie(scenario.isAgent), body = Map[String, String]())
             }
 
             "has an BAD_REQUEST(400) status" in {
@@ -358,9 +360,9 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
             implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-            titleCheck(expectedErrorTitle, us.isWelsh)
+            titleCheck(expectedErrorTitle, scenario.isWelsh)
             h1Check(expectedTitle + " " + captionExpected)
-            errorSummaryCheck(get.expectedErrorText, expectedErrorHref, us.isWelsh)
+            errorSummaryCheck(get.expectedErrorText, expectedErrorHref, scenario.isWelsh)
             textOnPageCheck(youMustAlsoText, youMustAlsoSelector)
             textOnPageCheck(authorisedBulletText, listContentSelector(1))
             textOnPageCheck(investmentBulletText, listContentSelector(2))
@@ -375,13 +377,12 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
             textOnPageCheck(whatAreEqualisationText, equalisationTitleErrorSelector)
             textOnPageCheck(equalisationPaymentsText, equalisationContentSelector)
 
-            welshToggleCheck(us.isWelsh)
+            welshToggleCheck(scenario.isWelsh)
           }
         }
       }
     }
   }
-
 
   ".submit" should {
 
