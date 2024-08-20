@@ -319,6 +319,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
       lazy val result: Future[Result] = {
         authoriseAgentOrIndividual(userScenarios.head.isAgent)
+        emptyUserDataStub()
         dropStockDividendsDB()
         insertStockDividendsCyaData(Some(stockCyaModel))
         route(appWithStockDividends, request, "{}").get
