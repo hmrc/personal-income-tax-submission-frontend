@@ -337,6 +337,7 @@ class TaxedInterestControllerISpec extends IntegrationTest with InterestDatabase
                 Some(true), Seq(InterestAccountModel(Some("TaxedId"), "Taxed Account", None, Some(25.00)))
               )
 
+              emptyUserDataStub()
               dropInterestDB()
               insertInterestCyaData(Some(interestCYA))
 
