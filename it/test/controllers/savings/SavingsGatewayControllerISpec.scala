@@ -321,6 +321,7 @@ class SavingsGatewayControllerISpec extends IntegrationTest with ViewHelpers wit
           lazy val result = {
             authoriseAgentOrIndividual(scenario.isAgent)
             dropSavingsDB()
+            emptyUserDataStub()
             emptyStockDividendsUserDataStub()
             insertSavingsCyaData(Some(SavingsIncomeCYAModel()))
             route(appWithStockDividends, request, body = Map("value" -> Seq("true"))).get
@@ -343,6 +344,7 @@ class SavingsGatewayControllerISpec extends IntegrationTest with ViewHelpers wit
         "redirect the user to the zero warning page" which {
           lazy val result = {
             authoriseAgentOrIndividual(scenario.isAgent)
+            emptyUserDataStub()
             dropSavingsDB()
             insertSavingsCyaData(Some(completeSavingsCYAModel))
             route(appWithInterestSavings, request, Map("value" -> Seq("false"))).get
