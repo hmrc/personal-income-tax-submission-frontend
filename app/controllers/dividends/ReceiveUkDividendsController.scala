@@ -27,7 +27,7 @@ import models.question.QuestionsJourney
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import services.{DividendsSessionService, StockDividendsSessionService}
+import services.{DividendsSessionService, StockDividendsSessionService, StockDividendsSessionServiceProvider}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.dividends.ReceiveUkDividendsView
@@ -43,7 +43,7 @@ class ReceiveUkDividendsController @Inject()(
                                               errorHandler: ErrorHandler,
                                               appConfig: AppConfig,
                                               dividendsSessionService: DividendsSessionService,
-                                              stockDividendsSessionService: StockDividendsSessionService,
+                                              stockDividendsSessionServiceProvider: StockDividendsSessionServiceProvider,
                                               ec: ExecutionContext
                                             ) extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
@@ -65,11 +65,11 @@ class ReceiveUkDividendsController @Inject()(
         })
       }
     } else {
-      stockDividendsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
+      stockDividendsSessionServiceProvider.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
         (cya, prior) match {
-          case (Some(cyaData), _) => if (cya.flatMap(_.stockDividends.flatMap(_.ukDividends)).nonEmpty) {
+          case (Some(cyaData), _) => if (cyaData.ukDividends.nonEmpty) {
             Future.successful(Ok(
-              receiveUkDividendsView(yesNoForm(user.isAgent).fill(cyaData.stockDividends.flatMap(_.ukDividends).contains(true)), taxYear)
+              receiveUkDividendsView(yesNoForm(user.isAgent).fill(cyaData.ukDividends.contains(true)), taxYear)
             ))
           } else {
             Future.successful(Ok(receiveUkDividendsView(yesNoForm(user.isAgent), taxYear)))
@@ -77,7 +77,7 @@ class ReceiveUkDividendsController @Inject()(
           case (_, Some(priorData)) if priorData.ukDividendsAmount.nonEmpty =>
             Future.successful(Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear)))
           case _ => Future(Ok(receiveUkDividendsView(
-            cya.flatMap(_.stockDividends.flatMap(_.otherUkDividends)).fold(yesNoForm(user.isAgent))(yesNoForm(user.isAgent).fill), taxYear
+            cya.flatMap(_.otherUkDividends).fold(yesNoForm(user.isAgent))(yesNoForm(user.isAgent).fill), taxYear
           )))
         }
       }
@@ -136,7 +136,7 @@ class ReceiveUkDividendsController @Inject()(
   }
 
   private def submitStockDividends(yesNoModel: Boolean, taxYear: Int)(implicit user: User[_]): Future[Result] = {
-    stockDividendsSessionService.getSessionData(taxYear).flatMap {
+    stockDividendsSessionServiceProvider.getSessionData(taxYear).flatMap {
       case Left(_) => Future.successful(errorHandler.internalServerError())
       case Right(sessionData) =>
         val dividendsCya = if (yesNoModel) {
@@ -145,8 +145,8 @@ class ReceiveUkDividendsController @Inject()(
           sessionData.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel())
             .copy(gateway = Some(true), ukDividends = Some(yesNoModel), ukDividendsAmount = None)
         }
-        val update = sessionData.fold(true)(data => data.stockDividends.isEmpty)
-          stockDividendsSessionService.updateSessionData(dividendsCya, taxYear, update)(errorHandler.internalServerError())(
+        val needsCreating = sessionData.fold(true)(data => data.stockDividends.isEmpty)
+        stockDividendsSessionServiceProvider.createOrUpdateSessionData(dividendsCya, taxYear, needsCreating)(errorHandler.internalServerError())(
             if (dividendsCya.isFinished) {
               Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear))
             } else {
