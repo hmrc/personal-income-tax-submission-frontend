@@ -24,7 +24,7 @@ import models.dividends.StockDividendsCheckYourAnswersModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import services.StockDividendsSessionService
+import services.StockDividendsSessionServiceProvider
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.StockDividendStatusView
 
@@ -39,7 +39,7 @@ class StockDividendStatusController @Inject()(
                                                implicit val appConfig: AppConfig,
                                                ec: ExecutionContext,
                                                errorHandler: ErrorHandler,
-                                               session: StockDividendsSessionService
+                                               session: StockDividendsSessionServiceProvider
                                              ) extends FrontendController(cc) with I18nSupport {
 
 
@@ -73,9 +73,9 @@ class StockDividendStatusController @Inject()(
               sessionData.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel())
                 .copy(stockDividends = Some(yesNoValue), stockDividendsAmount = None)
             }
-            val update = sessionData.fold(true)(data => data.stockDividends.isEmpty)
+            val needsCreating = sessionData.fold(true)(data => data.stockDividends.isEmpty)
 
-            session.updateSessionData(dividendsCya, taxYear, update)(errorHandler.internalServerError())(
+            session.createOrUpdateSessionData(dividendsCya, taxYear, needsCreating)(errorHandler.internalServerError())(
               if (dividendsCya.isFinished) {
                 Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear))
               } else {

@@ -142,7 +142,7 @@ class StockDividendStatusControllerISpec extends IntegrationTest with ViewHelper
 
     s".show when $testNameWelsh and the user is $testNameAgent" should {
 
-      "display the stock dividend status page" which {
+      "display the stock dividend status page with appWithStockDividends" which {
         lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
         lazy val request = FakeRequest("GET", stockDividendStatusUrl).withHeaders(headers: _*)
 
@@ -171,7 +171,37 @@ class StockDividendStatusControllerISpec extends IntegrationTest with ViewHelper
         welshToggleCheck(scenario.isWelsh)
       }
 
-      "display the stock dividend status page with session data" which {
+      "display the stock dividend status page with appWithStockDividendsBackendMongo" which {
+        lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+        lazy val request = FakeRequest("GET", stockDividendStatusUrl).withHeaders(headers: _*)
+
+        lazy val result: Future[Result] = {
+          authoriseAgentOrIndividual(scenario.isAgent)
+          getSessionDataStub()
+          dropStockDividendsDB()
+          emptyUserDataStub()
+          route(appWithStockDividendsBackendMongo, request, "{}").get
+        }
+
+        implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+        "has a status of OK(200)" in {
+          status(result) shouldBe OK
+        }
+
+        titleCheck(expectedTitle, scenario.isWelsh)
+        h1Check(expectedHeading + " " + captionExpected)
+        captionCheck(captionExpected)
+        formPostLinkCheck(stockDividendStatusUrl, Selectors.formSelector)
+        textOnPageCheck(expectedP1, Selectors.p1Selector)
+        textOnPageCheck(expectedP2, Selectors.p2Selector)
+        buttonCheck(continueText, Selectors.continueButtonSelector)
+        radioButtonCheck(yesNo(true), 1)
+        radioButtonCheck(yesNo(false), 2)
+        welshToggleCheck(scenario.isWelsh)
+      }
+
+      "display the stock dividend status page with session data with appWithStockDividends" which {
         lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
         lazy val request = FakeRequest("GET", stockDividendStatusUrl).withHeaders(headers: _*)
 
@@ -180,6 +210,36 @@ class StockDividendStatusControllerISpec extends IntegrationTest with ViewHelper
           dropStockDividendsDB()
           insertStockDividendsCyaData(Some(cyaModel))
           route(appWithStockDividends, request, "{}").get
+        }
+
+        implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+        "has a status of OK(200)" in {
+          status(result) shouldBe OK
+        }
+
+        titleCheck(expectedTitle, scenario.isWelsh)
+        h1Check(expectedHeading + " " + captionExpected)
+        captionCheck(captionExpected)
+        formPostLinkCheck(stockDividendStatusUrl, Selectors.formSelector)
+        textOnPageCheck(expectedP1, Selectors.p1Selector)
+        textOnPageCheck(expectedP2, Selectors.p2Selector)
+        buttonCheck(continueText, Selectors.continueButtonSelector)
+        radioButtonCheck(yesNo(true), 1)
+        radioButtonCheck(yesNo(false), 2)
+        welshToggleCheck(scenario.isWelsh)
+      }
+
+      "display the stock dividend status page with session data with appWithStockDividendsBackendMongo" which {
+        lazy val headers = playSessionCookie(scenario.isAgent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+        lazy val request = FakeRequest("GET", stockDividendStatusUrl).withHeaders(headers: _*)
+
+        lazy val result: Future[Result] = {
+          authoriseAgentOrIndividual(scenario.isAgent)
+          getSessionDataStub()
+          dropStockDividendsDB()
+          insertStockDividendsCyaData(Some(cyaModel))
+          route(appWithStockDividendsBackendMongo, request, "{}").get
         }
 
         implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
