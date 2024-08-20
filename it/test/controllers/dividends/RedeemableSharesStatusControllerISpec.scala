@@ -207,7 +207,7 @@ class RedeemableSharesStatusControllerISpec extends IntegrationTest with ViewHel
 
     s".submit when $testNameWelsh and the user is $testNameAgent" should {
 
-      def getCloseCompanyLoanAmount(application: Application): Future[Result] = {
+      def getRedeemableSharesStatus(application: Application): Future[Result] = {
         val headers = Option.when(scenario.isWelsh)(HeaderNames.ACCEPT_LANGUAGE -> "cy").toSeq ++ playSessionCookie(scenario.isAgent)
         lazy val request = FakeRequest("GET", redeemableSharesStatusUrl).withHeaders(headers: _*)
 
