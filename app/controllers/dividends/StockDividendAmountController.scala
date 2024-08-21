@@ -73,8 +73,7 @@ class StockDividendAmountController @Inject()(
       {
         bigDecimal =>
           session.getSessionData(taxYear).flatMap {
-            case Left(_) =>
-              Future.successful(errorHandler.internalServerError())
+            case Left(_) => errorHandler.futureInternalServerError()
             case Right(sessionData) =>
               val dividendsCya = sessionData.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel())
                 .copy(stockDividendsAmount = Some(bigDecimal))

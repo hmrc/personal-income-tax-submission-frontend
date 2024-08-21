@@ -58,7 +58,7 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
 
   private def getStockDividends(taxYear: Int, dividendsPriorData: Option[DividendsPriorSubmission])
                                (implicit request: User[AnyContent]): Future[Result] = {
-    stockDividendsSession.getAndHandle(taxYear)(Future.successful(errorHandler.internalServerError())) { (cya, stockDividendsPrior) =>
+    stockDividendsSession.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, stockDividendsPrior) =>
       val mergedDividends = stockDividendsPrior match {
         case Some(stockDividendsPriorData) => stockDividendsPriorData.copy(
           ukDividendsAmount = dividendsPriorData.flatMap(_.ukDividends),
@@ -90,7 +90,7 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit request =>
-    stockDividendsSession.getAndHandle(taxYear)(Future.successful(errorHandler.internalServerError())) { (cyaData, priorData) =>
+    stockDividendsSession.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cyaData, priorData) =>
       if (appConfig.dividendsTailoringEnabled && cyaData.flatMap(_.gateway).contains(false)) {
         auditTailorRemoveIncomeSources(
           TailorRemoveIncomeSourcesAuditDetail(

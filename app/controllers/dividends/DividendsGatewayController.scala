@@ -143,7 +143,7 @@ class DividendsGatewayController @Inject()(
         Future.successful(errorHandler.internalServerError())
       case Right(sessionData) =>
         val stockDividendsCya = sessionData.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel()).copy(gateway = Some(yesNoValue))
-        val needsCreating = sessionData.fold(true)(data => data.stockDividends.isEmpty)
+        val needsCreating = sessionData.forall(_.stockDividends.isEmpty)
 
         stockDividendsSessionService.createOrUpdateSessionData(stockDividendsCya, taxYear, needsCreating)(errorHandler.internalServerError())(
           if (stockDividendsCya.isFinished) {

@@ -56,9 +56,7 @@ class StockDividendsSessionServiceImpl @Inject()(
     }
   }
 
-  def getSessionData(taxYear: Int)(implicit request: User[_], hc: HeaderCarrier):
-  Future[Either[DatabaseError, Option[StockDividendsUserDataModel]]] = {
-
+  def getSessionData(taxYear: Int)(implicit request: User[_], hc: HeaderCarrier): Future[Either[DatabaseError, Option[StockDividendsUserDataModel]]] = {
     stockDividendsUserDataRepository.find(taxYear)(request).map {
       case Left(error) =>
         logger.error("[StockDividendsSessionService][getSessionData] Could not find user session. correlation id: " + correlationId)
@@ -90,7 +88,6 @@ class StockDividendsSessionServiceImpl @Inject()(
 
   def deleteSessionData[A](taxYear: Int)(onFail: A)(onSuccess: A)
                           (implicit request: User[_], hc: HeaderCarrier): Future[A] = {
-
     stockDividendsUserDataRepository.clear(taxYear)(request).map {
       case true =>
         onSuccess
@@ -98,7 +95,6 @@ class StockDividendsSessionServiceImpl @Inject()(
         logger.error(s"[StockDividendsSessionService][deleteSessionData] session delete failure. correlation id: " + correlationId)
         onFail
     }
-
   }
 
   def getAndHandle[R](taxYear: Int)(onFail: Future[R])(block: (Option[StockDividendsCheckYourAnswersModel], Option[StockDividendsPriorDataModel]) => Future[R])

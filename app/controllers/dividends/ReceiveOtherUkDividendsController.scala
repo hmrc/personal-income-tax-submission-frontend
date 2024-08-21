@@ -150,7 +150,7 @@ class ReceiveOtherUkDividendsController @Inject()(
           sessionData.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel())
             .copy(otherUkDividends = Some(yesNoModel), otherUkDividendsAmount = None)
         }
-        val needsCreating = sessionData.fold(true)(data => data.stockDividends.isEmpty)
+        val needsCreating = sessionData.forall(_.stockDividends.isEmpty)
         stockDividendsSessionServiceProvider.createOrUpdateSessionData(dividendsCya, taxYear, needsCreating)(errorHandler.internalServerError())(
           if (dividendsCya.isFinished) {
             Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear))

@@ -347,7 +347,6 @@ class CloseCompanyLoanStatusControllerISpec extends IntegrationTest with ViewHel
 
       "return a error" when {
         "the form is empty with appWithStockDividends" which {
-
           implicit lazy val application: Application = appWithStockDividends
 
           lazy val result = postCloseCompanyLoanStatus(Seq("value" -> ""), application)
@@ -364,7 +363,6 @@ class CloseCompanyLoanStatusControllerISpec extends IntegrationTest with ViewHel
         }
 
         "the form is empty with appWithStockDividends with appWithStockDividendsBackendMongo" which {
-
           implicit lazy val application: Application = appWithStockDividendsBackendMongo
 
           lazy val result = postCloseCompanyLoanStatus(Seq("value" -> ""), application)
@@ -379,10 +377,7 @@ class CloseCompanyLoanStatusControllerISpec extends IntegrationTest with ViewHel
           errorAboveElementCheck(expectedErrorText)
           errorSummaryCheck(expectedErrorText, Selectors.errorSummaryHref, scenario.isWelsh)
         }
-
       }
-
     }
-
   }
 }

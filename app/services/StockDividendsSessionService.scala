@@ -48,7 +48,7 @@ class StockDividendsSessionService @Inject()(
     incomeTaxUserDataConnector.getUserData(taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid)).flatMap {
       case Left(error) => Future.successful(Left(error))
       case Right(ukDividends: IncomeSourcesModel) =>
-        stockDividendsUserDataConnector.getUserData(taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid)).map{
+        stockDividendsUserDataConnector.getUserData(taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid)).map {
           case Left(error) => Left(error)
           case Right(stockDividends) =>
             if (ukDividends.dividends.isDefined || stockDividends.isDefined) {

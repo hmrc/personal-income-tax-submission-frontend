@@ -20,14 +20,15 @@ import controllers.dividends.routes
 import models.dividends.StockDividendsCheckYourAnswersModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import play.api.Application
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.DefaultBodyWritables
-import play.api.test.FakeRequest
-import test.utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
-import play.api.Application
 import play.api.mvc.Result
+import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, redirectLocation, route, writeableOf_AnyContentAsFormUrlEncoded}
+import test.utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
+
 import scala.concurrent.Future
 
 class CloseCompanyLoanAmountControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables with DividendsDatabaseHelper {
@@ -372,8 +373,6 @@ class CloseCompanyLoanAmountControllerISpec extends IntegrationTest with ViewHel
           errorAboveElementCheck(expectedErrorOverMax)
           errorSummaryCheck(expectedErrorOverMax, Selectors.errorSummaryHref, scenario.isWelsh)
         }
-
-
       }
     }
   }

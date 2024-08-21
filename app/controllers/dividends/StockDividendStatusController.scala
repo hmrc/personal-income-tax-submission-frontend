@@ -73,7 +73,7 @@ class StockDividendStatusController @Inject()(
               sessionData.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel())
                 .copy(stockDividends = Some(yesNoValue), stockDividendsAmount = None)
             }
-            val needsCreating = sessionData.fold(true)(data => data.stockDividends.isEmpty)
+            val needsCreating = sessionData.forall(_.stockDividends.isEmpty)
 
             session.createOrUpdateSessionData(dividendsCya, taxYear, needsCreating)(errorHandler.internalServerError())(
               if (dividendsCya.isFinished) {
