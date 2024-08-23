@@ -40,13 +40,13 @@ class CreateStockDividendsSessionConnectorISpec extends IntegrationTest {
   "CreateStockDividendsSessionConnector" should {
 
     "include internal headers" when {
-      val headersSentToGainsSubmission = Seq(new HttpHeader("X-Session-Id", "sessionIdValue"), new HttpHeader("mtditid", mtditid))
+      val headers = Seq(new HttpHeader("X-Session-Id", "sessionIdValue"), new HttpHeader("mtditid", mtditid))
 
       "the host is 'Internal'" in {
         implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("sessionIdValue"))).withExtraHeaders("mtditid" -> mtditid)
         val connector = new CreateStockDividendsSessionConnector(httpClient, appConfig)
 
-        stubPost(url, NO_CONTENT, "{}", headersSentToGainsSubmission)
+        stubPost(url, NO_CONTENT, "{}", headers)
 
         val result: CreateStockDividendsSessionResponse =
           Await.result(connector.createSessionData(stockDividendsCheckYourAnswersModel, taxYear)(hc), Duration.Inf)
