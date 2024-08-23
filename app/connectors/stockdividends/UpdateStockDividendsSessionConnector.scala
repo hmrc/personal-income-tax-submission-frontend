@@ -18,21 +18,19 @@ package connectors.stockdividends
 
 import config.AppConfig
 import connectors.RawResponseReads
-import connectors.httpParsers.StockDividendsSubmissionHttpParser._
+import connectors.httpParsers.stockdividends.UpdateStockDividendsSessionHttpParser._
+import models.dividends.StockDividendsCheckYourAnswersModel
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
-
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class DeleteStockDividendsBackendConnector @Inject()(val http: HttpClient, appConfig: AppConfig)
-                                                    (implicit ec: ExecutionContext) extends RawResponseReads {
+class UpdateStockDividendsBackendConnector @Inject()(val http: HttpClient, appConfig: AppConfig)(implicit ec: ExecutionContext) extends RawResponseReads {
 
-  def deleteSessionData(taxYear: Int)
-                       (implicit hc: HeaderCarrier): Future[StockDividendsSubmissionResponse] = {
+  def updateSessionData(body: StockDividendsCheckYourAnswersModel, taxYear: Int)(implicit hc: HeaderCarrier): Future[UpdateStockDividendsSessionResponse] = {
 
-    val deleteStockDividendsUserDataUrl: String = appConfig.dividendsBaseUrl + s"/income-tax/income/dividends/$taxYear/stock-dividends/session"
+    val stockDividendsUserDataUrl: String = appConfig.dividendsBaseUrl + s"/income-tax/income/dividends/$taxYear/stock-dividends/session"
 
-    http.DELETE[StockDividendsSubmissionResponse](deleteStockDividendsUserDataUrl)
+    http.PUT[StockDividendsCheckYourAnswersModel, UpdateStockDividendsSessionResponse](stockDividendsUserDataUrl, body)
   }
 }

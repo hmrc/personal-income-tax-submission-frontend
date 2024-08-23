@@ -17,27 +17,26 @@
 package services
 
 import common.IncomeSources
-import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector, StockDividendsUserDataConnector}
-import connectors.httpParsers.StockDividendsBackendUserDataHttpParser.StockDividendsBackendUserDataResponse
+import connectors.IncomeSourceConnector
 import connectors.stockdividends.{CreateStockDividendsBackendConnector, DeleteStockDividendsBackendConnector, GetStockDividendsBackendConnector, UpdateStockDividendsBackendConnector}
-import models.{APIErrorModel, User}
+import models.User
 import models.dividends.StockDividendsCheckYourAnswersModel
 import models.mongo.{DataNotFound, DatabaseError, StockDividendsUserDataModel}
-import models.priorDataModels.{IncomeSourcesModel, StockDividendsPriorDataModel}
+import models.priorDataModels.StockDividendsPriorDataModel
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class NewStockDividendsSessionServiceImpl @Inject()(
-                                                     createDividendsBackendConnector: CreateStockDividendsBackendConnector,
-                                                     getStockDividendsBackendConnector: GetStockDividendsBackendConnector,
-                                                     updateStockDividendsBackendConnector: UpdateStockDividendsBackendConnector,
-                                                     deleteStockDividendsBackendConnector: DeleteStockDividendsBackendConnector,
-                                                     incomeSourceConnector: IncomeSourceConnector,
-                                                     stockDividendsPriorDataService: StockDividendsPriorDataService
-                                                   )(implicit correlationId: String, executionContext: ExecutionContext) extends StockDividendsSessionServiceProvider with Logging {
+class NewStockDividendsSessionServiceImpl @Inject()(createDividendsBackendConnector: CreateStockDividendsBackendConnector,
+                                                    getStockDividendsBackendConnector: GetStockDividendsBackendConnector,
+                                                    updateStockDividendsBackendConnector: UpdateStockDividendsBackendConnector,
+                                                    deleteStockDividendsBackendConnector: DeleteStockDividendsBackendConnector,
+                                                    incomeSourceConnector: IncomeSourceConnector,
+                                                    stockDividendsPriorDataService: StockDividendsPriorDataService)
+                                                   (implicit correlationId: String, executionContext: ExecutionContext)
+  extends StockDividendsSessionServiceProvider with Logging {
 
   def createSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int)(onFail: A)(onSuccess: A)
                           (implicit request: User[_], hc: HeaderCarrier): Future[A] = {
