@@ -16,7 +16,6 @@
 
 package test.services
 
-import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector}
 import repositories.InterestUserDataRepository
 import services.InterestSessionService
 import test.utils.IntegrationTest
@@ -25,8 +24,6 @@ import test.utils.IntegrationTest
 class InterestSessionServiceISpec extends IntegrationTest{
 
   val interestUserDataRepository: InterestUserDataRepository = app.injector.instanceOf[InterestUserDataRepository]
-  val incomeTaxUserDataConnector: IncomeTaxUserDataConnector = app.injector.instanceOf[IncomeTaxUserDataConnector]
-  val incomeSourceConnector: IncomeSourceConnector = app.injector.instanceOf[IncomeSourceConnector]
 
   val interestSessionServiceInvalidEncryption: InterestSessionService = appWithInvalidEncryptionKey.injector.instanceOf[InterestSessionService]
   val interestSessionService: InterestSessionService = new InterestSessionService(interestUserDataRepository, incomeTaxUserDataConnector, incomeSourceConnector)

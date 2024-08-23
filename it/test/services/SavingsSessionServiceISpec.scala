@@ -16,17 +16,13 @@
 
 package test.services
 
-import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector}
 import repositories.SavingsUserDataRepository
 import services.SavingsSessionService
 import test.utils.IntegrationTest
 
-
 class SavingsSessionServiceISpec extends IntegrationTest{
 
   val savingsUserDataRepository: SavingsUserDataRepository = app.injector.instanceOf[SavingsUserDataRepository]
-  val incomeTaxUserDataConnector: IncomeTaxUserDataConnector = app.injector.instanceOf[IncomeTaxUserDataConnector]
-  val incomeSourceConnector: IncomeSourceConnector = app.injector.instanceOf[IncomeSourceConnector]
 
   val savingsSessionServiceInvalidEncryption: SavingsSessionService = appWithInvalidEncryptionKey.injector.instanceOf[SavingsSessionService]
   val savingsSessionService: SavingsSessionService = new SavingsSessionService(savingsUserDataRepository, incomeTaxUserDataConnector, incomeSourceConnector)

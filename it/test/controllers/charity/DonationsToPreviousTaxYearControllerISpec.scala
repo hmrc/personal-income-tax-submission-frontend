@@ -300,6 +300,7 @@ class DonationsToPreviousTaxYearControllerISpec extends CharityITHelper with Gif
 
           lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
+            emptyUserDataStub()
             urlPost(url(taxYear), body = form, follow = false, welsh = user.isWelsh, headers =  playSessionCookie(user.isAgent))
           }
 

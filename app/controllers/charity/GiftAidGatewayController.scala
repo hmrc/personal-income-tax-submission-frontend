@@ -84,7 +84,7 @@ class GiftAidGatewayController @Inject()(
         Future.successful(BadRequest(view(formWithErrors, taxYear)))
       }, {
         yesNoValue =>
-          session.getAndHandle(taxYear)(Future.successful(errorHandler.internalServerError())) {
+          session.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) {
             case (sessionData, prior) =>
               val update = sessionData.nonEmpty
               val giftAidCya = { if (prior.isEmpty && !yesNoValue) {GiftAidCYAModel().copy(gateway = Some(yesNoValue))}

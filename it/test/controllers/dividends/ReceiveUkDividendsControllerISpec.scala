@@ -134,20 +134,20 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
       UserScenario(isWelsh = true, isAgent = true, AllExpectedWelsh, Some(AgentExpectedWelsh)))
 
   ".show" when {
-    userScenarios.foreach { us =>
+    userScenarios.foreach { scenario =>
 
       import Selectors._
-      import us.commonExpectedResults._
-      import us.specificExpectedResults._
+      import scenario.commonExpectedResults._
+      import scenario.specificExpectedResults._
 
-      s"language is ${welshTest(us.isWelsh)} and request is from an ${agentTest(us.isAgent)}" should {
+      s"language is ${welshTest(scenario.isWelsh)} and request is from an ${agentTest(scenario.isAgent)}" should {
 
         "return the uk dividends page when there is no priorSubmission data and no cyaData in session" which {
           lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(us.isAgent)
+            authoriseAgentOrIndividual(scenario.isAgent)
             dropDividendsDB()
             emptyUserDataStub()
-            urlGet(receiveUkDividendsUrl, us.isWelsh, headers = playSessionCookie(us.isAgent))
+            urlGet(receiveUkDividendsUrl, scenario.isWelsh, headers = playSessionCookie(scenario.isAgent))
           }
 
           "has an OK(200) status" in {
@@ -156,7 +156,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(get.expectedTitle, us.isWelsh)
+          titleCheck(get.expectedTitle, scenario.isWelsh)
           h1Check(s"${get.expectedH1} ${captionExpected}")
           textOnPageCheck(get.yourDividendsText, yourDividendsSelector)
           radioButtonCheck(yesNo(true), 1)
@@ -164,16 +164,16 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           buttonCheck(continueText, continueSelector)
           formPostLinkCheck(continueLink, continueButtonFormSelector)
 
-          welshToggleCheck(us.isWelsh)
+          welshToggleCheck(scenario.isWelsh)
         }
 
         "return the uk dividends page when there is cyaData in session" which {
           lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(us.isAgent)
+            authoriseAgentOrIndividual(scenario.isAgent)
             dropDividendsDB()
             emptyUserDataStub()
             insertDividendsCyaData(Some(cyaModel))
-            urlGet(receiveUkDividendsUrl, us.isWelsh, headers = playSessionCookie(us.isAgent))
+            urlGet(receiveUkDividendsUrl, scenario.isWelsh, headers = playSessionCookie(scenario.isAgent))
           }
 
           "has an OK(200) status" in {
@@ -182,7 +182,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
 
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
-          titleCheck(get.expectedTitle, us.isWelsh)
+          titleCheck(get.expectedTitle, scenario.isWelsh)
           h1Check(s"${get.expectedH1} ${captionExpected}")
           textOnPageCheck(get.yourDividendsText, yourDividendsSelector)
           radioButtonCheck(yesNo(true), 1)
@@ -190,7 +190,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           buttonCheck(continueText, continueSelector)
           formPostLinkCheck(continueLink, continueButtonFormSelector)
 
-          welshToggleCheck(us.isWelsh)
+          welshToggleCheck(scenario.isWelsh)
         }
       }
     }
@@ -238,6 +238,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
         authoriseAgentOrIndividual(userScenarios.head.isAgent)
         dropStockDividendsDB()
         emptyUserDataStub()
+        emptyStockDividendsUserDataStub()
         route(appWithStockDividends, request, "{}").get
       }
 
@@ -253,6 +254,8 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
 
       lazy val result: Future[Result] = {
         authoriseAgentOrIndividual(userScenarios.head.isAgent)
+        emptyUserDataStub()
+        emptyStockDividendsUserDataStub()
         dropStockDividendsDB()
         insertStockDividendsCyaData(Some(stockCyaModel))
         route(appWithStockDividends, request, "{}").get

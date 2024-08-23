@@ -36,20 +36,16 @@ import views.html.dividends.DividendsCYAView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class DividendsCYAController @Inject()(
-                                        dividendsCyaView: DividendsCYAView,
-                                        dividendsSubmissionService: DividendsSubmissionService,
-                                        session: DividendsSessionService,
-                                        stockDividendsSession: StockDividendsSessionService,
-                                        auditService: AuditService,
-                                        errorHandler: ErrorHandler,
-                                        excludeJourneyService: ExcludeJourneyService
-                                      )
-                                      (
-                                        implicit appConfig: AppConfig,
-                                        authorisedAction: AuthorisedAction,
-                                        implicit val mcc: MessagesControllerComponents
-                                      ) extends FrontendController(mcc) with I18nSupport with SessionHelper {
+class DividendsCYAController @Inject()(dividendsCyaView: DividendsCYAView,
+                                       dividendsSubmissionService: DividendsSubmissionService,
+                                       session: DividendsSessionService,
+                                       stockDividendsSession: StockDividendsSessionServiceProvider,
+                                       auditService: AuditService,
+                                       errorHandler: ErrorHandler,
+                                       excludeJourneyService: ExcludeJourneyService)
+                                      (implicit appConfig: AppConfig,
+                                       authorisedAction: AuthorisedAction,
+                                       implicit val mcc: MessagesControllerComponents) extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
   lazy val logger: Logger = Logger(this.getClass.getName)
   implicit val executionContext: ExecutionContext = mcc.executionContext
@@ -57,9 +53,9 @@ class DividendsCYAController @Inject()(
   //noinspection ScalaStyle
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
     if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) {
-      stockDividendsSession.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
-        StockDividendsCheckYourAnswersModel.getCyaModel(cya.flatMap(_.stockDividends), prior) match {
-          case Some(cyaData) => Future.successful(Redirect(routes.DividendsSummaryController.show(taxYear)))
+      stockDividendsSession.getAndHandle(taxYear)(Future.successful(errorHandler.internalServerError())) { (cya, prior) =>
+        StockDividendsCheckYourAnswersModel.getCyaModel(cya, prior) match {
+          case Some(_) => Future.successful(Redirect(routes.DividendsSummaryController.show(taxYear)))
           case _ =>
             logger.info("[DividendsCYAController][show] No CYA data in session. Redirecting to the overview page.")
             Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
@@ -100,7 +96,7 @@ class DividendsCYAController @Inject()(
             case Left(_) => errorHandler.futureInternalServerError()
           }
         } else {
-          if (cyaData.exists(_.hasNoValues)){
+          if (cyaData.exists(_.hasNoValues)) {
             Future.successful(Redirect(controllers.routes.ZeroingWarningController.show(taxYear, DIVIDENDS.stringify)))
           } else {
             performSubmission(taxYear, cyaData, priorData)

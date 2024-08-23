@@ -24,7 +24,7 @@ import models.dividends.StockDividendsCheckYourAnswersModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import services.StockDividendsSessionService
+import services.StockDividendsSessionServiceProvider
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.RedeemableSharesStatusView
 
@@ -32,16 +32,13 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class RedeemableSharesStatusController @Inject()(
-
-                                                  implicit val cc: MessagesControllerComponents,
-                                                  authAction: AuthorisedAction,
-                                                  view: RedeemableSharesStatusView,
-                                                  errorHandler: ErrorHandler,
-                                                  session: StockDividendsSessionService,
-                                                  implicit val appConfig: AppConfig,
-                                                  ec: ExecutionContext
-                                                ) extends FrontendController(cc) with I18nSupport {
+class RedeemableSharesStatusController @Inject()(implicit val cc: MessagesControllerComponents,
+                                                 authAction: AuthorisedAction,
+                                                 view: RedeemableSharesStatusView,
+                                                 errorHandler: ErrorHandler,
+                                                 session: StockDividendsSessionServiceProvider,
+                                                 implicit val appConfig: AppConfig,
+                                                 ec: ExecutionContext) extends FrontendController(cc) with I18nSupport {
 
   def form(implicit isAgent: Boolean): Form[Boolean] = YesNoForm.yesNoForm(
     s"dividends.redeemable-shares-status.errors.noChoice.${if (isAgent) "agent" else "individual"}")
@@ -76,7 +73,7 @@ class RedeemableSharesStatusController @Inject()(
             }
             val update = sessionData.fold(true)(data => data.stockDividends.isEmpty)
 
-            session.updateSessionData(dividendsCya, taxYear, update)(errorHandler.internalServerError())(
+            session.createOrUpdateSessionData(dividendsCya, taxYear, update)(errorHandler.internalServerError())(
               if (dividendsCya.isFinished) {
                 Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear))
               } else {
