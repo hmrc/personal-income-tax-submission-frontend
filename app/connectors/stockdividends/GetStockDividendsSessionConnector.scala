@@ -24,7 +24,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class GetStockDividendsBackendConnector @Inject()(val http: HttpClient, appConfig: AppConfig)(implicit ec: ExecutionContext) extends RawResponseReads {
+class GetStockDividendsSessionConnector @Inject()(val http: HttpClient, appConfig: AppConfig)(implicit ec: ExecutionContext) extends RawResponseReads {
 
   def getSessionData(taxYear: Int)(implicit hc: HeaderCarrier): Future[GetStockDividendsSessionResponse] = {
     val stockDividendsUserDataUrl: String = appConfig.dividendsBaseUrl + s"/income-tax/income/dividends/$taxYear/stock-dividends/session"

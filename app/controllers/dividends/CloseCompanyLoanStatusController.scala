@@ -24,7 +24,7 @@ import models.dividends.StockDividendsCheckYourAnswersModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import services.{StockDividendsSessionService, StockDividendsSessionServiceProvider}
+import services.StockDividendsSessionServiceProvider
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.CloseCompanyLoanStatusView
 
@@ -32,16 +32,13 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class CloseCompanyLoanStatusController @Inject()(
-
-                                                  implicit val cc: MessagesControllerComponents,
+class CloseCompanyLoanStatusController @Inject()(implicit val cc: MessagesControllerComponents,
                                                   authAction: AuthorisedAction,
                                                   view: CloseCompanyLoanStatusView,
                                                   implicit val appConfig: AppConfig,
                                                   ec: ExecutionContext,
                                                   errorHandler: ErrorHandler,
-                                                  session: StockDividendsSessionServiceProvider
-                                                ) extends FrontendController(cc) with I18nSupport {
+                                                  session: StockDividendsSessionServiceProvider) extends FrontendController(cc) with I18nSupport {
 
 
   def form(implicit isAgent: Boolean): Form[Boolean] = YesNoForm.yesNoForm(

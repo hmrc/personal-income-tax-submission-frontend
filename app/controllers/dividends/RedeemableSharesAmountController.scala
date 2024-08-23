@@ -24,22 +24,20 @@ import models.dividends.StockDividendsCheckYourAnswersModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.{StockDividendsSessionService, StockDividendsSessionServiceProvider}
+import services.StockDividendsSessionServiceProvider
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.RedeemableSharesAmountView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class RedeemableSharesAmountController @Inject()(
-                                                  implicit val cc: MessagesControllerComponents,
-                                                  authAction: AuthorisedAction,
-                                                  view: RedeemableSharesAmountView,
-                                                  implicit val appConfig: AppConfig,
-                                                  ec: ExecutionContext,
-                                                  errorHandler: ErrorHandler,
-                                                  session: StockDividendsSessionServiceProvider
-                                                ) extends FrontendController(cc) with I18nSupport {
+class RedeemableSharesAmountController @Inject()(implicit val cc: MessagesControllerComponents,
+                                                 authAction: AuthorisedAction,
+                                                 view: RedeemableSharesAmountView,
+                                                 implicit val appConfig: AppConfig,
+                                                 ec: ExecutionContext,
+                                                 errorHandler: ErrorHandler,
+                                                 session: StockDividendsSessionServiceProvider) extends FrontendController(cc) with I18nSupport {
 
   def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
 

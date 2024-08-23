@@ -28,7 +28,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
-class GetStockDividendsBackendConnectorISpec extends IntegrationTest {
+class GetStockDividendsSessionConnectorISpec extends IntegrationTest {
 
   val connector: GetStockDividendsSessionConnector = app.injector.instanceOf[GetStockDividendsSessionConnector]
 
@@ -36,7 +36,7 @@ class GetStockDividendsBackendConnectorISpec extends IntegrationTest {
 
   private val url = s"/income-tax-dividends/income-tax/income/dividends/$taxYear/stock-dividends/session"
 
-  "GetStockDividendsBackendConnector" should {
+  "GetStockDividendsSessionConnectorISpec" should {
     "Return a success result" when {
       "request returns a 404" in {
         stubGetWithHeadersCheck(url, NOT_FOUND, "{}", "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
@@ -100,5 +100,4 @@ class GetStockDividendsBackendConnectorISpec extends IntegrationTest {
       }
     }
   }
-
 }

@@ -106,7 +106,7 @@ class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig) extends AppCon
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.exclude")
 
   lazy val tailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoringEnabled")
-  lazy val newStockDividendsServiceEnabled: Boolean = servicesConfig.getBoolean("feature-switch.newStockDividendsServiceEnabled")
+  lazy val backendSessionEnabled: Boolean = servicesConfig.getBoolean("feature-switch.backendSessionEnabled")
   lazy val interestTailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoring.interest")
   lazy val interestSavingsEnabled: Boolean = servicesConfig.getBoolean("feature-switch.journeys.savings")
   lazy val dividendsTailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoring.dividends")

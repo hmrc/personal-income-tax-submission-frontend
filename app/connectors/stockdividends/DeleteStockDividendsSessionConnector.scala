@@ -24,7 +24,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class DeleteStockDividendsBackendConnector @Inject()(val http: HttpClient, appConfig: AppConfig)(implicit ec: ExecutionContext) extends RawResponseReads {
+class DeleteStockDividendsSessionConnector @Inject()(val http: HttpClient, appConfig: AppConfig)(implicit ec: ExecutionContext) extends RawResponseReads {
 
   def deleteSessionData(taxYear: Int)(implicit hc: HeaderCarrier): Future[DeleteStockDividendsSessionResponse] = {
 

@@ -26,12 +26,11 @@ class Modules extends play.api.inject.Module {
   override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = {
 
     val sessionBinding: Binding[_] =
-      if (configuration.get[Boolean]("feature-switch.newStockDividendsServiceEnabled")) {
-        bind[StockDividendsSessionServiceProvider].to[NewStockDividendsSessionServiceImpl].eagerly()
+      if (configuration.get[Boolean]("feature-switch.backendSessionEnabled")) {
+        bind[StockDividendsSessionServiceProvider].to[StockDividendsBackendSessionServiceImpl].eagerly()
       } else {
         bind[StockDividendsSessionServiceProvider].to[StockDividendsSessionServiceImpl].eagerly()
       }
-
 
     Seq(
       sessionBinding,
@@ -39,5 +38,4 @@ class Modules extends play.api.inject.Module {
       bind[UUID].toInstance(UUID())
     )
   }
-
 }

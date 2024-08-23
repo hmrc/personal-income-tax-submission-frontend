@@ -20,7 +20,6 @@ import models.User
 import models.dividends.StockDividendsCheckYourAnswersModel
 import models.mongo.{DatabaseError, StockDividendsUserDataModel}
 import models.priorDataModels.StockDividendsPriorDataModel
-import models.requests.AuthorisationRequest
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
@@ -35,9 +34,6 @@ trait StockDividendsSessionServiceProvider {
 
 
   def updateSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int)(onFail: A)(onSuccess: A)
-                          (implicit request: User[_], hc: HeaderCarrier): Future[A]
-
-  def deleteSessionData[A](taxYear: Int)(onFail: A)(onSuccess: A)
                           (implicit request: User[_], hc: HeaderCarrier): Future[A]
 
   def getAndHandle[R](taxYear: Int)(onFail: Future[R])(block: (Option[StockDividendsCheckYourAnswersModel], Option[StockDividendsPriorDataModel]) => Future[R])

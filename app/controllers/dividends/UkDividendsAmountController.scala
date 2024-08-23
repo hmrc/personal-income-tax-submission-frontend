@@ -16,7 +16,7 @@
 
 package controllers.dividends
 
-import config.{AppConfig, DIVIDENDS, ErrorHandler, JourneyKey, STOCK_DIVIDENDS}
+import config._
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
@@ -28,7 +28,7 @@ import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import play.twirl.api.Html
-import services.{DividendsSessionService, StockDividendsSessionService, StockDividendsSessionServiceProvider}
+import services.{DividendsSessionService, StockDividendsSessionServiceProvider}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.dividends.UkDividendsAmountView
@@ -36,17 +36,15 @@ import views.html.dividends.UkDividendsAmountView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class UkDividendsAmountController @Inject()(
-                                             implicit val cc: MessagesControllerComponents,
-                                             authAction: AuthorisedAction,
-                                             ukDividendsAmountView: UkDividendsAmountView,
-                                             questionHelper: QuestionsJourneyValidator,
-                                             dividendsSessionService: DividendsSessionService,
-                                             stockDividendsSessionService: StockDividendsSessionServiceProvider,
-                                             errorHandler: ErrorHandler,
-                                             implicit val appConfig: AppConfig,
-                                             ec: ExecutionContext
-                                           ) extends FrontendController(cc) with I18nSupport with SessionHelper {
+class UkDividendsAmountController @Inject()(implicit val cc: MessagesControllerComponents,
+                                            authAction: AuthorisedAction,
+                                            ukDividendsAmountView: UkDividendsAmountView,
+                                            questionHelper: QuestionsJourneyValidator,
+                                            dividendsSessionService: DividendsSessionService,
+                                            stockDividendsSessionService: StockDividendsSessionServiceProvider,
+                                            errorHandler: ErrorHandler,
+                                            implicit val appConfig: AppConfig,
+                                            ec: ExecutionContext) extends FrontendController(cc) with I18nSupport with SessionHelper {
 
   private val journeyKey: JourneyKey = if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) STOCK_DIVIDENDS else DIVIDENDS
   private val isStockDividends: Boolean = appConfig.isJourneyAvailable(STOCK_DIVIDENDS)

@@ -14,37 +14,74 @@
  * limitations under the License.
  */
 
-package test.services
+package services
 
-import services.StockDividendsSessionServiceImpl
+import play.api.http.Status.{INTERNAL_SERVER_ERROR, NO_CONTENT, OK}
+import play.api.libs.json.Json
 import test.utils.IntegrationTest
 
 
-class StockDividendsSessionServiceImplISpec extends IntegrationTest {
+class StockDividendsBackendSessionServiceImplISpec extends IntegrationTest {
 
-  val stockDividendsSessionServiceInvalidEncryption: StockDividendsSessionServiceImpl =
-    appWithInvalidEncryptionKey.injector.instanceOf[StockDividendsSessionServiceImpl]
+  val service: StockDividendsBackendSessionServiceImpl =
+    appWithStockDividendsBackendMongo.injector.instanceOf[StockDividendsBackendSessionServiceImpl]
+
+  private val url = s"/income-tax-dividends/income-tax/income/dividends/$taxYear/stock-dividends/session"
 
   "create" should {
-    "return false when failing to decrypt the model" in {
-      val result = await(stockDividendsSessionServiceInvalidEncryption.createSessionData(completeStockDividendsCYAModel, taxYear)(false)(true))
-      result shouldBe false
+
+    "return true when successful" in {
+      stubPost(url, NO_CONTENT, Json.toJson(completeStockDividendsCYAModel).toString())
+      val result = await(service.createSessionData(completeStockDividendsCYAModel, taxYear)(false)(true))
+      result shouldBe true
     }
-    "return true when successful and false when adding a duplicate" in {
-      await(stockDividendsUserDataRepository.collection.drop().toFuture())
-      await(stockDividendsUserDataRepository.ensureIndexes())
-      val initialResult = await(stockDividendsSessionService.createSessionData(completeStockDividendsCYAModel, taxYear)(false)(true))
-      val duplicateResult = await(stockDividendsSessionService.createSessionData(completeStockDividendsCYAModel, taxYear)(false)(true))
-      initialResult shouldBe true
-      duplicateResult shouldBe false
+
+    "return false when fails" in {
+      stubPost(url, INTERNAL_SERVER_ERROR, Json.toJson(completeStockDividendsCYAModel).toString())
+      val result = await(service.createSessionData(completeStockDividendsCYAModel, taxYear)(false)(true))
+      result shouldBe false
     }
   }
 
   "update" should {
-    "return false when failing to decrypt the model" in {
-      val result = await(stockDividendsSessionServiceInvalidEncryption.updateSessionData(completeStockDividendsCYAModel, taxYear)(false)(true))
+    "return true when success" in {
+      stubPutWithRequestBody(url, NO_CONTENT, Json.toJson(completeStockDividendsCYAModel).toString())
+      val result = await(service.updateSessionData(completeStockDividendsCYAModel, taxYear)(false)(true))
+      result shouldBe true
+    }
+
+    "return false when fails" in {
+      stubPutWithRequestBody(url, INTERNAL_SERVER_ERROR, Json.toJson(completeStockDividendsCYAModel).toString())
+      val result = await(service.updateSessionData(completeStockDividendsCYAModel, taxYear)(false)(true))
       result shouldBe false
     }
   }
 
+  "delete" should {
+    "return true when success" in {
+      stubDelete(url, NO_CONTENT, "{}")
+      val result = await(service.deleteSessionData(taxYear)(false)(true))
+      result shouldBe true
+    }
+
+    "return false when fails" in {
+      stubDelete(url, INTERNAL_SERVER_ERROR, "{}")
+      val result = await(service.deleteSessionData(taxYear)(false)(true))
+      result shouldBe false
+    }
+  }
+
+  "clear" should {
+    "return true when success" in {
+      stubDelete(url, NO_CONTENT, "{}")
+      val result = await(service.clear(taxYear)(false)(true))
+      result shouldBe true
+    }
+
+    "return false when fails" in {
+      stubDelete(url, INTERNAL_SERVER_ERROR, "{}")
+      val result = await(service.clear(taxYear)(false)(true))
+      result shouldBe false
+    }
+  }
 }

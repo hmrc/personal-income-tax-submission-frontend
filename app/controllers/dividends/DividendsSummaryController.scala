@@ -19,14 +19,13 @@ package controllers.dividends
 import audit._
 import config.{AppConfig, DIVIDENDS, ErrorHandler, STOCK_DIVIDENDS}
 import controllers.predicates.AuthorisedAction
+import models.User
 import models.dividends.{DividendsPriorSubmission, StockDividendModel, StockDividendsCheckYourAnswersModel, StockDividendsPriorSubmission}
-import models.mongo.StockDividendsUserDataModel
 import models.priorDataModels.{IncomeSourcesModel, StockDividendsPriorDataModel}
-import models.{APIErrorBodyModel, APIErrorModel, User}
 import play.api.i18n.I18nSupport
 import play.api.i18n.Lang.logger
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{DividendsSessionService, ExcludeJourneyService, StockDividendsSessionService, StockDividendsSessionServiceProvider, StockDividendsSubmissionService}
+import services.{DividendsSessionService, ExcludeJourneyService, StockDividendsSessionServiceProvider, StockDividendsSubmissionService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController

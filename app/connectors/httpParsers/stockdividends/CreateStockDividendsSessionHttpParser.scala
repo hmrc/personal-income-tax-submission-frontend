@@ -14,36 +14,36 @@
  * limitations under the License.
  */
 
-package connectors.httpParsers
+package connectors.httpParsers.stockdividends
 
-import connectors.Parser
-import connectors.errors.ApiError
+import connectors.httpParsers.APIParser
+import models.APIErrorModel
 import play.api.http.Status._
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 import utils.PagerDutyHelper.PagerDutyKeys._
 import utils.PagerDutyHelper.pagerDutyLog
 
-object CreateGainsSessionHttpParser extends Parser{
-  type CreateGainsSessionResponse = Either[ApiError, Int]
+object CreateStockDividendsSessionHttpParser extends APIParser {
+  type CreateStockDividendsSessionResponse = Either[APIErrorModel, Int]
 
   override val parserName: String = "CreateGainsSessionHttpParser"
-  override val service: String = "income-tax-additional-information"
+  override val service: String = "personal-income-tax-submission-frontend"
 
-  implicit object CreateGainsSessionResponseResponseReads extends HttpReads[CreateGainsSessionResponse] {
-    override def read(method: String, url: String, response: HttpResponse): CreateGainsSessionResponse = response.status match{
+  implicit object CreateGainsSessionResponseResponseReads extends HttpReads[CreateStockDividendsSessionResponse] {
+    override def read(method: String, url: String, response: HttpResponse): CreateStockDividendsSessionResponse = response.status match{
       case NO_CONTENT => Right(NO_CONTENT)
       case BAD_REQUEST | FORBIDDEN | NOT_FOUND | UNPROCESSABLE_ENTITY =>
-        pagerDutyLog(FOURXX_RESPONSE_FROM_IF, logMessage(response).get)
-        handleError(response, BAD_REQUEST)
+        pagerDutyLog(FOURXX_RESPONSE_FROM_API, logMessage(response))
+        handleAPIError(response, Some(BAD_REQUEST))
       case INTERNAL_SERVER_ERROR =>
-        pagerDutyLog(INTERNAL_SERVER_ERROR_FROM_IF, logMessage(response).get)
-        handleError(response, INTERNAL_SERVER_ERROR)
+        pagerDutyLog(INTERNAL_SERVER_ERROR_FROM_API, logMessage(response))
+        handleAPIError(response, Some(INTERNAL_SERVER_ERROR))
       case SERVICE_UNAVAILABLE =>
-        pagerDutyLog(SERVICE_UNAVAILABLE_FROM_IF, logMessage(response).get)
-        handleError(response, INTERNAL_SERVER_ERROR)
+        pagerDutyLog(SERVICE_UNAVAILABLE_FROM_API, logMessage(response))
+        handleAPIError(response, Some(INTERNAL_SERVER_ERROR))
       case _ =>
-        pagerDutyLog(UNEXPECTED_RESPONSE_FROM_IF, logMessage(response).get)
-        handleError(response, INTERNAL_SERVER_ERROR)
+        pagerDutyLog(UNEXPECTED_RESPONSE_FROM_API, logMessage(response))
+        handleAPIError(response, Some(INTERNAL_SERVER_ERROR))
     }
   }
 }

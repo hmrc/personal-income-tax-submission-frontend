@@ -255,6 +255,10 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
         implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
 
         "has a status of OK(200)" in {
+          clearSession()
+          emptyUserDataStub()
+          emptyStockDividendsUserDataStub()
+          insertStockDividendsCyaData(Some(cyaModel))
           status(result) shouldBe OK
         }
 

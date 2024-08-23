@@ -16,8 +16,6 @@
 
 package test.controllers.dividends
 
-import controllers.dividends.routes
-
 import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, StockDividendsPriorSubmission}
 import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
@@ -25,25 +23,17 @@ import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.json.Json
-import play.api.Application
 import play.api.libs.ws.WSResponse
-import play.api.mvc.{Headers, Result}
-import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, headers, route}
 import play.api.mvc.Headers
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
 import test.utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
-
-import scala.concurrent.Future
 
 
 class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with DividendsDatabaseHelper {
 
   val ukDividends: BigDecimal = 10
   val otherDividends: BigDecimal = 10.50
-
-  val dividendsCYAUrl: String = routes.DividendsCYAController.show(taxYear).url
 
   val relativeUrl: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends"
 
@@ -192,38 +182,33 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
   private val userScenarios =
     Seq(UserScenario(isWelsh = false, isAgent = false, AllExpectedEnglish, Some(IndividualExpectedEnglish)),
-      UserScenario(isWelsh = false, isAgent = true, AllExpectedEnglish, Some(AgentExpectedEnglish)),
+      UserScenario(isWelsh = false, isAgent = true,AllExpectedEnglish, Some(AgentExpectedEnglish)),
       UserScenario(isWelsh = true, isAgent = false, AllExpectedWelsh, Some(IndividualExpectedWelsh)),
-      UserScenario(isWelsh = true, isAgent = true, AllExpectedWelsh, Some(AgentExpectedWelsh)))
+      UserScenario(isWelsh = true, isAgent = true,  AllExpectedWelsh, Some(AgentExpectedWelsh)))
 
   ".show" when {
 
 
-    userScenarios.foreach { scenario =>
+    userScenarios.foreach { us =>
 
       import Selectors._
-      import scenario.commonExpectedResults._
-      import scenario.specificExpectedResults._
+      import us.commonExpectedResults._
+      import us.specificExpectedResults._
 
-      def getDividendsCYA(application: Application): Future[Result] = {
-        val headers = Option.when(scenario.isWelsh)(HeaderNames.ACCEPT_LANGUAGE -> "cy").toSeq ++ playSessionCookie(scenario.isAgent)
-        lazy val request = FakeRequest("GET", dividendsCYAUrl).withHeaders(headers: _*)
-
-        authoriseAgentOrIndividual(scenario.isAgent)
-        route(application, request, "{}").get
-      }
-
-      s"language is ${welshTest(scenario.isWelsh)} and request is from an ${agentTest(scenario.isAgent)}" should {
+      s"language is ${welshTest(us.isWelsh)} and request is from an ${agentTest(us.isAgent)}" should {
 
 
-        "renders CYA page with correct content when there is data in session" which {
-          implicit lazy val application: Application = appWithTailoring
+        " renders CYA page with correct content when there is data in session" which {
+
+          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
 
           lazy val result = {
+            authoriseAgentOrIndividual(us.isAgent)
             dropDividendsDB()
             emptyUserDataStub()
             insertDividendsCyaData(Some(dividendsCyaModel))
-            getDividendsCYA(application)
+            route(appWithTailoring, request, "{}").get
           }
 
           "has an OK(200) status" in {
@@ -232,7 +217,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
           implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
 
-          titleCheck(get.titleExpected, scenario.isWelsh)
+          titleCheck(get.titleExpected, us.isWelsh)
           h1Check(get.h1Expected + " " + captionExpected)
           textOnPageCheck(captionExpected, Selectors.captionSelector)
           "has an area for section 1" which {
@@ -270,23 +255,26 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           buttonCheck(continueButtonText, continueButtonSelector)
           formPostLinkCheck(continueButtonLink, continueButtonFormSelector)
 
-          welshToggleCheck(scenario.isWelsh)
+          welshToggleCheck(us.isWelsh)
 
         }
 
+
         "renders CYA page without yesNo Content when there is a prior submission" which {
-          implicit lazy val application: Application = appWithTailoring
+
+          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
 
           lazy val result = {
+            authoriseAgentOrIndividual(us.isAgent)
             dropDividendsDB()
             emptyUserDataStub()
             userDataStub(priorData, nino, taxYear)
 
             insertDividendsCyaData(Some(dividendsCyaModel))
             stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "")
-            authoriseAgentOrIndividual(scenario.isAgent)
-            urlPost(s"$appUrl/$taxYear/dividends/dividends-from-stocks-and-shares", "{}", scenario.isWelsh, follow = true, playSessionCookie(scenario.isAgent))
-            getDividendsCYA(application)
+            urlPost(s"$appUrl/$taxYear/dividends/dividends-from-stocks-and-shares", "{}", us.isWelsh, follow = true, playSessionCookie(us.isAgent))
+            route(appWithTailoring, request, "{}").get
           }
 
           "has an OK (200) status" in {
@@ -295,7 +283,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
           implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
 
-          titleCheck(get.titleExpected, scenario.isWelsh)
+          titleCheck(get.titleExpected, us.isWelsh)
           h1Check(get.h1Expected + " " + captionExpected)
           textOnPageCheck(captionExpected, Selectors.captionSelector)
           "has an area for section 1" which {
@@ -320,17 +308,20 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           buttonCheck(continueButtonText, continueButtonSelector)
           formPostLinkCheck(continueButtonLink, continueButtonFormSelector)
 
-          welshToggleCheck(scenario.isWelsh)
+          welshToggleCheck(us.isWelsh)
         }
 
         "renders CYA page without amount when cyaModels boolean answers are false" which {
-          implicit lazy val application: Application = appWithTailoring
+
+          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
 
           lazy val result = {
+            authoriseAgentOrIndividual(us.isAgent)
             dropDividendsDB()
             emptyUserDataStub()
             insertDividendsCyaData(Some(dividendsNoModel))
-            getDividendsCYA(application)
+            route(appWithTailoring, request, "{}").get
           }
 
           "has an OK (200) status" in {
@@ -339,7 +330,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
           implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
 
-          titleCheck(get.titleExpected, scenario.isWelsh)
+          titleCheck(get.titleExpected, us.isWelsh)
           h1Check(get.h1Expected + " " + captionExpected)
           textOnPageCheck(captionExpected, Selectors.captionSelector)
           "has an area for section 1" which {
@@ -352,16 +343,19 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           buttonCheck(continueButtonText, continueButtonSelector)
           formPostLinkCheck(continueButtonLink, continueButtonFormSelector)
 
-          welshToggleCheck(scenario.isWelsh)
+          welshToggleCheck(us.isWelsh)
         }
 
         "renders CYA with new amounts if they have been updated in session compared to prior submission" which {
-          implicit lazy val application: Application = appWithTailoring
 
           val ukDividends1 = 100
           val otherDividends1 = 200
 
+          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
           lazy val result = {
+            authoriseAgentOrIndividual(us.isAgent)
             dropDividendsDB()
             emptyUserDataStub()
             userDataStub(priorData, nino, taxYear)
@@ -370,7 +364,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
               Some(true), Some(ukDividends1),
               Some(true), Some(otherDividends1)
             )))
-            getDividendsCYA(application)
+            route(appWithTailoring, request, "{}").get
           }
 
           "has an OK (200) status" in {
@@ -379,7 +373,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
           implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
 
-          titleCheck(get.titleExpected, scenario.isWelsh)
+          titleCheck(get.titleExpected, us.isWelsh)
           h1Check(get.h1Expected + " " + captionExpected)
           textOnPageCheck(captionExpected, Selectors.captionSelector)
           "has an area for section 1" which {
@@ -404,43 +398,48 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           buttonCheck(continueButtonText, continueButtonSelector)
           formPostLinkCheck(continueButtonLink, continueButtonFormSelector)
 
-          welshToggleCheck(scenario.isWelsh)
+          welshToggleCheck(us.isWelsh)
         }
 
         "redirects to overview for stock dividends" which {
-          implicit lazy val application: Application = appWithTailoring
+          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
 
           lazy val result = {
+            authoriseAgentOrIndividual(us.isAgent)
             dropDividendsDB()
             dropStockDividendsDB()
             emptyUserDataStub()
             emptyStockDividendsUserDataStub()
-            getDividendsCYA(application)
+            route(appWithStockDividends, request, "{}").get
           }
 
           "has an SEE_OTHER (303) status" in {
             status(result) shouldBe SEE_OTHER
-            headers(result).get("Location").value.contains("/view") shouldBe true
+            await(result).header.headers.getOrElse("Location", "").contains("/view") shouldBe true
           }
         }
 
         "renders CYA with new amounts if they have been updated in session compared to prior submission when STOCK DIVIDENDS ENABLED" which {
-          implicit lazy val application: Application = appWithStockDividends
 
           val ukDividends1 = 100
           val otherDividends1 = 200
 
+          lazy val headers = playSessionCookie(us.isAgent) ++ (if (us.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+
           lazy val result = {
+            authoriseAgentOrIndividual(us.isAgent)
             dropStockDividendsDB()
             insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
-            stockDividendsUserDataStub(Some(StockDividendsPriorSubmission()), nino, taxYear)
             emptyUserDataStub()
+            stockDividendsUserDataStub(Some(StockDividendsPriorSubmission()), nino, taxYear)
             insertDividendsCyaData(Some(DividendsCheckYourAnswersModel(
               Some(true),
               Some(true), Some(ukDividends1),
               Some(true), Some(otherDividends1)
             )))
-            getDividendsCYA(application)
+            route(appWithStockDividends, request, "{}").get
           }
 
           "has an OK (200) status" in {
@@ -455,6 +454,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
     "redirect to the overview page" when {
       "there is no session data" in {
+
         val result: WSResponse = {
           authoriseIndividual()
           dropDividendsDB()
@@ -468,11 +468,13 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
 
     }
 
+
     "redirect the user to the most relevant page in the user journey if CYA is part completed" should {
 
       "Uk dividends yesNo question has been answered" when {
 
         "redirect to How much Uk dividends page if the answer is Yes" which {
+
           lazy val result: WSResponse = {
             authoriseIndividual()
             dropDividendsDB()
@@ -484,7 +486,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
             urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie())
           }
 
-          "has a status of 303" in {
+          s"has a status of 303" in {
             result.status shouldBe SEE_OTHER
           }
 
@@ -513,90 +515,6 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           "has the correct title" in {
             result.headers("Location").head shouldBe
               s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies"
-          }
-        }
-
-        "redirect to the overview page" when {
-
-          "tailoring is on, and the gateway question is false" which {
-
-            lazy val result = {
-              dropDividendsDB()
-              emptyUserDataStub()
-              insertDividendsCyaData(Some(dividendsCyaModel.copy(gateway = Some(false))), taxYear, Some(mtditid), None)
-              authoriseIndividual()
-              //stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "")
-              stubPost(s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear", NO_CONTENT, "{}")
-              stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
-              stubPut(s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", NO_CONTENT, "{}")
-
-              val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends", Headers.apply(
-                playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*
-              ), "{}")
-
-              await(route(appWithTailoring, request, "{}").get)
-            }
-
-            "has a status of SEE_OTHER(303)" in {
-              result.header.status shouldBe SEE_OTHER
-            }
-
-            "has the redirect location of the overview page" in {
-              result.header.headers("Location") shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
-            }
-          }
-
-        }
-
-
-        "return a INTERNAL_SERVER_ERROR" when {
-
-          "there is no cyaData" which {
-            lazy val result = {
-              dropDividendsDB()
-              emptyUserDataStub()
-              authoriseIndividual()
-              stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "")
-              stubPost(s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear", NO_CONTENT, "{}")
-              stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
-
-              val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends", Headers.apply(
-                playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*
-              ), "{}")
-
-              await(route(appWithTailoring, request, "{}").get)
-            }
-
-            "has a status of SEE_OTHER(303)" in {
-              result.header.status shouldBe INTERNAL_SERVER_ERROR
-            }
-          }
-
-        }
-
-        "return an internal server error" when {
-
-          "the tailoring feature switch is on, but the exclude journey call fails" which {
-            lazy val result = {
-              dropDividendsDB()
-              emptyUserDataStub()
-              insertDividendsCyaData(
-                Some(DividendsCheckYourAnswersModel(
-                  Some(false), Some(true), Some(1000.43), Some(true), Some(9983.21)
-                )))
-              authoriseIndividual()
-              stubPost(s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear", INTERNAL_SERVER_ERROR,
-                Json.stringify(Json.obj("code" -> "failed", "reason" -> "I made it fail"))
-              )
-              val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends",
-                Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
-
-              await(route(appWithTailoring, request, "{}").get)
-            }
-
-            "has a status of 500" in {
-              result.header.status shouldBe INTERNAL_SERVER_ERROR
-            }
           }
         }
       }
@@ -648,21 +566,20 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
         lazy val result = {
           dropStockDividendsDB()
           emptyUserDataStub()
-          stockDividendsUserDataStub(Some(StockDividendsPriorSubmission()), nino, taxYear)
-
+          stockDividendsUserDataStub(Some(StockDividendsPriorSubmission()), nino , taxYear)
           authoriseIndividual()
           val request = FakeRequest("GET", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends",
             Headers.apply(playSessionCookie(): _*), "{}")
 
-          route(appWithStockDividends, request, "{}").get
+          await(route(appWithStockDividends, request, "{}").get)
         }
 
         "has a status of SEE_OTHER(303)" in {
-          status(result) shouldBe SEE_OTHER
+          result.header.status shouldBe SEE_OTHER
         }
 
         "has the redirect location of the summary page" in {
-          headers(result).get("Location").value shouldBe controllers.dividends.routes.DividendsSummaryController.show(taxYear).url
+          result.header.headers("Location") shouldBe controllers.dividends.routes.DividendsSummaryController.show(taxYear).url
         }
       }
 
@@ -678,7 +595,7 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
           urlGet(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie())
         }
 
-        "has a status of 303" in {
+        s"has a status of 303" in {
           result.status shouldBe SEE_OTHER
         }
 
@@ -688,7 +605,6 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
         }
       }
     }
-
     "the authorization fails" which {
       lazy val result = {
         authoriseAgentUnauthorized()
@@ -700,151 +616,154 @@ class DividendsCYAControllerISpec extends IntegrationTest with ViewHelpers with 
         result.status shouldBe UNAUTHORIZED
       }
     }
+  }
 
+  ".submit" should {
 
-    ".submit" should {
+    s"redirect to the overview page when there is valid session data" when {
 
-      "redirect to the overview page when there is valid session data" when {
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        dropDividendsDB()
+        emptyUserDataStub()
+        insertDividendsCyaData(
+          Some(DividendsCheckYourAnswersModel(
+            None, Some(true), Some(1000.43), Some(true), Some(9983.21)
+          )))
+        stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "")
+        urlPost(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie(), body = "")
+      }
+      s"has a status of 303" in {
+        result.status shouldBe SEE_OTHER
+      }
+
+      "has the correct title" in {
+        result.headers("Location").head shouldBe
+          s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view"
+      }
+    }
+
+    s"redirect to the 500 unauthorised error template page when there is a problem posting data" when {
+
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        dropDividendsDB()
+        emptyUserDataStub()
+
+        insertDividendsCyaData(
+          Some(DividendsCheckYourAnswersModel(
+            None, Some(true), Some(1000.43), Some(true), Some(9983.21)
+          )))
+        stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", INTERNAL_SERVER_ERROR, "")
+        urlPost(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie(), body = "")
+      }
+
+      "has a status of 500" in {
+        result.status shouldBe INTERNAL_SERVER_ERROR
+      }
+    }
+
+    s"redirect to the 503 service unavailable page when the service is unavailable" when {
+      lazy val result: WSResponse = {
+        authoriseIndividual()
+        dropDividendsDB()
+        emptyUserDataStub()
+
+        insertDividendsCyaData(
+          Some(DividendsCheckYourAnswersModel(
+            None, Some(true), Some(1000.43), Some(true), Some(9983.21)
+          )))
+        stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", SERVICE_UNAVAILABLE, "")
+        urlPost(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie(), body = "")
+      }
+
+      "has a status of 503" in {
+        result.status shouldBe SERVICE_UNAVAILABLE
+      }
+    }
+
+    s"redirect to the overview page" when {
+
+      "tailoring is on, and the gateway question is false" which {
+
         lazy val result = {
-          authoriseIndividual()
           dropDividendsDB()
           emptyUserDataStub()
-          insertDividendsCyaData(
-            Some(DividendsCheckYourAnswersModel(
-              None, Some(true), Some(1000.43), Some(true), Some(9983.21)
-            )))
-          stubPut(s"/income-tax-submission-service/income-tax/nino/AA123456A/sources/session\\?taxYear=$taxYear", NO_CONTENT, "")
-          stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "")
-          urlPost(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie(), body = "")
-        }
-        "has a status of 303" in {
-          result.status shouldBe SEE_OTHER
+          insertDividendsCyaData(Some(dividendsCyaModel.copy(gateway = Some(false))), taxYear, Some(mtditid), None)
+          authoriseIndividual()
+          stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "")
+          stubPost(s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear", NO_CONTENT, "{}")
+          stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
+
+          val request = FakeRequest(
+            "POST",
+            s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends",
+            Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*),
+            "{}"
+          )
+
+          await(route(appWithTailoring, request, "{}").get)
         }
 
-        "has the correct title" in {
-          result.headers("Location").head shouldBe
-            s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view"
+        "has a status of SEE_OTHER(303)" in {
+          result.header.status shouldBe SEE_OTHER
+        }
+
+        "has the redirect location of the overview page" in {
+          result.header.headers("Location") shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
         }
       }
 
-      "redirect to the 500 unauthorised error template page when there is a problem posting data" when {
+    }
 
-        lazy val result: WSResponse = {
-          authoriseIndividual()
+
+    s"return a INTERNAL_SERVER_ERROR" when {
+
+      "there is no cyaData" which {
+        lazy val result = {
           dropDividendsDB()
           emptyUserDataStub()
+          authoriseIndividual()
+          stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "")
+          stubPost(s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear", NO_CONTENT, "{}")
+          stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
 
+          val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends", Headers.apply(
+            playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*
+          ), "{}")
+
+          await(route(appWithTailoring, request, "{}").get)
+        }
+
+        "has a status of SEE_OTHER(303)" in {
+          result.header.status shouldBe INTERNAL_SERVER_ERROR
+        }
+      }
+
+    }
+
+    s"return an internal server error" when {
+
+      "the tailoring feature switch is on, but the exclude journey call fails" which {
+        lazy val result = {
+          dropDividendsDB()
+          emptyUserDataStub()
           insertDividendsCyaData(
             Some(DividendsCheckYourAnswersModel(
-              None, Some(true), Some(1000.43), Some(true), Some(9983.21)
+              Some(false), Some(true), Some(1000.43), Some(true), Some(9983.21)
             )))
-          stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", INTERNAL_SERVER_ERROR, "")
-          urlPost(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie(), body = "")
+          authoriseIndividual()
+          stubPost(s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear", INTERNAL_SERVER_ERROR,
+            Json.stringify(Json.obj("code" -> "failed", "reason" -> "I made it fail"))
+          )
+          val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends",
+            Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
+
+          await(route(appWithTailoring, request, "{}").get)
         }
 
         "has a status of 500" in {
-          result.status shouldBe INTERNAL_SERVER_ERROR
-        }
-      }
-
-      "redirect to the 503 service unavailable page when the service is unavailable" when {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          dropDividendsDB()
-          emptyUserDataStub()
-
-          insertDividendsCyaData(
-            Some(DividendsCheckYourAnswersModel(
-              None, Some(true), Some(1000.43), Some(true), Some(9983.21)
-            )))
-          stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", SERVICE_UNAVAILABLE, "")
-          urlPost(dividendsCheckYourAnswersUrl, follow = false, headers = playSessionCookie(), body = "")
-        }
-
-        "has a status of 503" in {
-          result.status shouldBe SERVICE_UNAVAILABLE
-        }
-      }
-
-      "redirect to the overview page" when {
-
-        "tailoring is on, and the gateway question is false" which {
-          lazy val result = {
-            dropDividendsDB()
-            emptyUserDataStub()
-            insertDividendsCyaData(Some(dividendsCyaModel.copy(gateway = Some(false))), taxYear, Some(mtditid), None)
-            authoriseIndividual()
-            stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "")
-            stubPost(s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear", NO_CONTENT, "{}")
-            stubPut(s"/income-tax-submission-service/income-tax/nino/AA123456A/sources/session\\?taxYear=$taxYear", NO_CONTENT, "")
-            stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
-
-            val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends", Headers.apply(
-              playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*
-            ), "{}")
-
-            await(route(appWithTailoring, request, "{}").get)
-          }
-
-          "has a status of SEE_OTHER(303)" in {
-            result.header.status shouldBe SEE_OTHER
-          }
-
-          "has the redirect location of the overview page" in {
-            result.header.headers("Location") shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
-          }
-        }
-
-      }
-
-      "return a INTERNAL_SERVER_ERROR" when {
-
-        "there is no cyaData" which {
-          lazy val result = {
-            dropDividendsDB()
-            emptyUserDataStub()
-            authoriseIndividual()
-            stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "")
-            stubPost(s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear", NO_CONTENT, "{}")
-            stubPut(s"/income-tax-dividends/income-tax/nino/AA123456A/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
-
-            val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends", Headers.apply(
-              playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*
-            ), "{}")
-
-            await(route(appWithTailoring, request, "{}").get)
-          }
-
-          "has a status of SEE_OTHER(303)" in {
-            result.header.status shouldBe INTERNAL_SERVER_ERROR
-          }
-        }
-
-      }
-
-      "return an internal server error" when {
-
-        "the tailoring feature switch is on, but the exclude journey call fails" which {
-          lazy val result = {
-            dropDividendsDB()
-            emptyUserDataStub()
-            insertDividendsCyaData(
-              Some(DividendsCheckYourAnswersModel(
-                Some(false), Some(true), Some(1000.43), Some(true), Some(9983.21)
-              )))
-            authoriseIndividual()
-            stubPost(s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear", INTERNAL_SERVER_ERROR,
-              Json.stringify(Json.obj("code" -> "failed", "reason" -> "I made it fail"))
-            )
-            val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-income-from-dividends",
-              Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
-
-            await(route(appWithTailoring, request, "{}").get)
-          }
-
-          "has a status of 500" in {
-            result.header.status shouldBe INTERNAL_SERVER_ERROR
-          }
+          result.header.status shouldBe INTERNAL_SERVER_ERROR
         }
       }
     }

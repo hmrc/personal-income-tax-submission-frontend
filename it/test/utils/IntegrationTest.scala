@@ -16,12 +16,12 @@
 
 package test.utils
 
+import com.github.tomakehurst.wiremock.http.HttpHeader
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import common.SessionValues
 import config.AppConfig
-import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector}
-import connectors.dividends.{CreateDividendsBackendConnector, GetDividendsBackendConnector, UpdateDividendsBackendConnector}
-import connectors.stockdividends.GetStockDividendsBackendConnector
+import connectors.stockdividends.GetStockDividendsSessionConnector
+import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector, StockDividendsUserDataConnector}
 import controllers.predicates.AuthorisedAction
 import models.User
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
@@ -32,9 +32,9 @@ import models.mongo._
 import models.priorDataModels.IncomeSourcesModel
 import models.savings.SavingsIncomeCYAModel
 import org.apache.pekko.actor.ActorSystem
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, OptionValues}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, OptionValues}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.http.HeaderNames
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, NO_CONTENT}
@@ -47,7 +47,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.OK
 import play.api.{Application, Environment, Mode}
 import repositories.{DividendsUserDataRepository, StockDividendsUserDataRepository}
-import services.{AuthService, DividendsSessionService, StockDividendsPriorDataService, StockDividendsSessionServiceImpl}
+import services.{AuthService, DividendsSessionService, StockDividendsSessionServiceImpl}
 import test.helpers.{PlaySessionCookieBaker, WireMockHelper}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.~
@@ -59,7 +59,6 @@ import java.time.LocalDate
 import java.util.UUID
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
-import com.github.tomakehurst.wiremock.http.HttpHeader
 
 trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerPerSuite with WireMockHelper
   with BeforeAndAfterAll with OptionValues with BeforeAndAfterEach {
@@ -205,7 +204,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
               charityTailoringEnabled: Boolean = false,
               interestSavings: Boolean = false,
               stockDividends: Boolean = false,
-              newStockDividendsServiceEnabled: Boolean = false
+              backendSessionEnabled: Boolean = false
             ): Map[String, Any] = commonConfig ++ Map(
     "taxYearChangeResetsSession" -> false,
     "useEncryption" -> true,
@@ -217,7 +216,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "feature-switch.tailoring.dividends" -> dividendsTailoring,
     "feature-switch.tailoring.charity" -> charityTailoringEnabled,
     "feature-switch.journeys.interestSavings" -> interestSavings,
-    "feature-switch.newStockDividendsServiceEnabled" -> newStockDividendsServiceEnabled)
+    "feature-switch.backendSessionEnabled" -> backendSessionEnabled)
 
   def invalidEncryptionConfig: Map[String, Any] = commonConfig ++ Map(
     "taxYearChangeResetsSession" -> false,
@@ -250,7 +249,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   lazy val appWithStockDividendsBackendMongo: Application = new GuiceApplicationBuilder()
     .in(Environment.simple(mode = Mode.Dev))
-    .configure(config(dividendsTailoring = true, stockDividends = true, newStockDividendsServiceEnabled = true))
+    .configure(config(dividendsTailoring = true, stockDividends = true, backendSessionEnabled = true))
     .build()
 
   lazy val appWithInvalidEncryptionKey: Application = GuiceApplicationBuilder()
@@ -328,17 +327,15 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   val incomeSourceConnector: IncomeSourceConnector = app.injector.instanceOf[IncomeSourceConnector]
   val stockDividendsUserDataRepository: StockDividendsUserDataRepository = app.injector.instanceOf[StockDividendsUserDataRepository]
-  val getStockDividendsBackendConnector: GetStockDividendsBackendConnector = app.injector.instanceOf[GetStockDividendsBackendConnector]
-  val stockDividendsPriorDataService: StockDividendsPriorDataService = app.injector.instanceOf[StockDividendsPriorDataService]
-  val stockDividendsSessionService: StockDividendsSessionServiceImpl = new StockDividendsSessionServiceImpl(
-    stockDividendsUserDataRepository, incomeSourceConnector, stockDividendsPriorDataService)
-
-  val dividendsUserDataRepository: DividendsUserDataRepository = app.injector.instanceOf[DividendsUserDataRepository]
+  val stockDividendsUserDataConnector: StockDividendsUserDataConnector = app.injector.instanceOf[StockDividendsUserDataConnector]
+  val getStockDividendsBackendConnector: GetStockDividendsSessionConnector = app.injector.instanceOf[GetStockDividendsSessionConnector]
   val incomeTaxUserDataConnector: IncomeTaxUserDataConnector = app.injector.instanceOf[IncomeTaxUserDataConnector]
 
-  val createDividendsBackendConnector: CreateDividendsBackendConnector = app.injector.instanceOf[CreateDividendsBackendConnector]
-  val updateDividendsBackendConnector: UpdateDividendsBackendConnector = app.injector.instanceOf[UpdateDividendsBackendConnector]
-  val getDividendsBackendConnector: GetDividendsBackendConnector = app.injector.instanceOf[GetDividendsBackendConnector]
+  val stockDividendsSessionService: StockDividendsSessionServiceImpl = new StockDividendsSessionServiceImpl(
+    stockDividendsUserDataRepository, stockDividendsUserDataConnector, incomeTaxUserDataConnector, incomeSourceConnector)
+
+  val dividendsUserDataRepository: DividendsUserDataRepository = app.injector.instanceOf[DividendsUserDataRepository]
+
   val dividendsSessionService: DividendsSessionService = new DividendsSessionService(
     dividendsUserDataRepository, incomeTaxUserDataConnector, incomeSourceConnector)
 

@@ -18,7 +18,7 @@ package services
 
 import common.IncomeSources
 import connectors.IncomeSourceConnector
-import connectors.stockdividends.{CreateStockDividendsBackendConnector, DeleteStockDividendsBackendConnector, GetStockDividendsBackendConnector, UpdateStockDividendsBackendConnector}
+import connectors.stockdividends.{CreateStockDividendsSessionConnector, DeleteStockDividendsSessionConnector, GetStockDividendsSessionConnector, UpdateStockDividendsSessionConnector}
 import models.User
 import models.dividends.StockDividendsCheckYourAnswersModel
 import models.mongo.{DataNotFound, DatabaseError, StockDividendsUserDataModel}
@@ -29,13 +29,13 @@ import uk.gov.hmrc.http.HeaderCarrier
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class NewStockDividendsSessionServiceImpl @Inject()(createDividendsBackendConnector: CreateStockDividendsBackendConnector,
-                                                    getStockDividendsBackendConnector: GetStockDividendsBackendConnector,
-                                                    updateStockDividendsBackendConnector: UpdateStockDividendsBackendConnector,
-                                                    deleteStockDividendsBackendConnector: DeleteStockDividendsBackendConnector,
-                                                    incomeSourceConnector: IncomeSourceConnector,
-                                                    stockDividendsPriorDataService: StockDividendsPriorDataService)
-                                                   (implicit correlationId: String, executionContext: ExecutionContext)
+class StockDividendsBackendSessionServiceImpl @Inject()(createDividendsBackendConnector: CreateStockDividendsSessionConnector,
+                                                        getStockDividendsBackendConnector: GetStockDividendsSessionConnector,
+                                                        updateStockDividendsBackendConnector: UpdateStockDividendsSessionConnector,
+                                                        deleteStockDividendsBackendConnector: DeleteStockDividendsSessionConnector,
+                                                        incomeSourceConnector: IncomeSourceConnector,
+                                                        stockDividendsPriorDataService: StockDividendsPriorDataService)
+                                                       (implicit correlationId: String, executionContext: ExecutionContext)
   extends StockDividendsSessionServiceProvider with Logging {
 
   def createSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int)(onFail: A)(onSuccess: A)

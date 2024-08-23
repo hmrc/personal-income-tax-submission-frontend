@@ -24,14 +24,14 @@ import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 import utils.PagerDutyHelper.PagerDutyKeys._
 import utils.PagerDutyHelper._
 
-object DeleteGainsSessionHttpParser extends APIParser with Logging {
-  type DeleteGainsSessionResponse = Either[APIErrorModel, Boolean]
+object DeleteStockDividendsSessionHttpParser extends APIParser with Logging {
+  type DeleteStockDividendsSessionResponse = Either[APIErrorModel, Boolean]
 
-  override val parserName: String = "DeleteGainsSessionHttpParser"
-  override val service: String = "income-tax-additional-information"
+  override val parserName: String = "DeleteStockDividendsSessionHttpParser"
+  override val service: String = "personal-income-tax-submission-frontend"
 
-  implicit object DeleteGainsHttpReads extends HttpReads[DeleteGainsSessionResponse] {
-    override def read(method: String, url: String, response: HttpResponse): DeleteGainsSessionResponse = response.status match {
+  implicit object DeleteGainsHttpReads extends HttpReads[DeleteStockDividendsSessionResponse] {
+    override def read(method: String, url: String, response: HttpResponse): DeleteStockDividendsSessionResponse = response.status match {
       case NO_CONTENT => Right(true)
       case INTERNAL_SERVER_ERROR =>
         pagerDutyLog(INTERNAL_SERVER_ERROR_FROM_API, Some(response.body))

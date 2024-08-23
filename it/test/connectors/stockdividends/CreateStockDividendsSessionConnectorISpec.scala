@@ -27,7 +27,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, SessionId}
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
-class CreateStockDividendsBackendConnectorISpec extends IntegrationTest {
+class CreateStockDividendsSessionConnectorISpec extends IntegrationTest {
 
   private val connector: CreateStockDividendsSessionConnector = app.injector.instanceOf[CreateStockDividendsSessionConnector]
 
@@ -37,7 +37,7 @@ class CreateStockDividendsBackendConnectorISpec extends IntegrationTest {
 
   private val url = s"/income-tax-dividends/income-tax/income/dividends/$taxYear/stock-dividends/session"
 
-  "CreateStockDividendsBackendConnector" should {
+  "CreateStockDividendsSessionConnector" should {
 
     "include internal headers" when {
       val headersSentToGainsSubmission = Seq(new HttpHeader("X-Session-Id", "sessionIdValue"), new HttpHeader("mtditid", mtditid))

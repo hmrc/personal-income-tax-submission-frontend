@@ -16,14 +16,13 @@
 
 package connectors.stockdividends
 
-import connectors.httpParsers.stockdividends.DeleteStockDividendsSessionHttpParser
 import connectors.httpParsers.stockdividends.DeleteStockDividendsSessionHttpParser.DeleteStockDividendsSessionResponse
 import models.{APIErrorBodyModel, APIErrorModel}
 import play.api.http.Status._
 import test.utils.IntegrationTest
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, SessionId}
 
-class DeleteStockDividendsBackendConnectorISpec extends IntegrationTest {
+class DeleteStockDividendsSessionConnectorISpec extends IntegrationTest {
 
   private val connector: DeleteStockDividendsSessionConnector = app.injector.instanceOf[DeleteStockDividendsSessionConnector]
   private val httpClient: HttpClient = app.injector.instanceOf[HttpClient]
@@ -31,11 +30,11 @@ class DeleteStockDividendsBackendConnectorISpec extends IntegrationTest {
   private val url = s"/income-tax-dividends/income-tax/income/dividends/$taxYear/stock-dividends/session"
 
 
-  "DeleteGainsConnector " should {
+  "DeleteStockDividendsSessionConnectorISpec " should {
 
     "include internal headers" when {
 
-      "the host for IF is 'Internal'" in {
+      "the host is 'Internal'" in {
         implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("sessionIdValue")))
         val connector = new DeleteStockDividendsSessionConnector(httpClient, appConfig)
 
@@ -46,7 +45,7 @@ class DeleteStockDividendsBackendConnectorISpec extends IntegrationTest {
         result shouldBe Right(true)
       }
 
-      "the host for IF is 'External'" in {
+      "the host is 'External'" in {
         implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("sessionIdValue")))
         val connector = new DeleteStockDividendsSessionConnector(httpClient, appConfig)
 
@@ -66,7 +65,6 @@ class DeleteStockDividendsBackendConnectorISpec extends IntegrationTest {
 
         s"The endpoint returns $status" in {
           val ifError = APIErrorModel(status, errorBodyModel)
-          implicit val hc: HeaderCarrier = HeaderCarrier()
 
           stubDelete(url, status, ifError.toJson.toString())
 
@@ -78,7 +76,6 @@ class DeleteStockDividendsBackendConnectorISpec extends IntegrationTest {
 
       "The endpoint returns an unexpected error code - 502" in {
         val ifError = APIErrorModel(BAD_GATEWAY, errorBodyModel)
-        implicit val hc: HeaderCarrier = HeaderCarrier()
 
         stubDelete(url, BAD_GATEWAY, ifError.toJson.toString())
 

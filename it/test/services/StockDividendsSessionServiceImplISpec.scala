@@ -16,11 +16,17 @@
 
 package test.services
 
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar.mock
+import repositories.StockDividendsUserDataRepository
 import services.StockDividendsSessionServiceImpl
 import test.utils.IntegrationTest
 
+import scala.concurrent.Future
 
-class StockDividendsSessionServiceISpec extends IntegrationTest {
+
+class StockDividendsSessionServiceImplISpec extends IntegrationTest {
 
   val stockDividendsSessionServiceInvalidEncryption: StockDividendsSessionServiceImpl =
     appWithInvalidEncryptionKey.injector.instanceOf[StockDividendsSessionServiceImpl]
@@ -47,4 +53,22 @@ class StockDividendsSessionServiceISpec extends IntegrationTest {
     }
   }
 
+  "clear" should {
+    "return true when success" in {
+      val result = await(stockDividendsSessionService.clear(taxYear)(false)(true))
+      result shouldBe true
+    }
+
+    "return false when failure" in {
+      val mockRepo = mock[StockDividendsUserDataRepository]
+
+      val service = new StockDividendsSessionServiceImpl(mockRepo, stockDividendsUserDataConnector , incomeTaxUserDataConnector ,incomeSourceConnector)
+
+      when(mockRepo.clear(any())(any())).thenReturn(
+        Future.successful(false)
+      )
+      val result = await(service.clear(taxYear)(false)(true))
+      result shouldBe false
+    }
+  }
 }

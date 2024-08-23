@@ -22,7 +22,6 @@ import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, StockDividendsCheckYourAnswersModel}
-import models.mongo.StockDividendsUserDataModel
 import models.{APIErrorBodyModel, APIErrorModel, User}
 import play.api.Logger
 import play.api.i18n.I18nSupport
@@ -37,19 +36,16 @@ import views.html.dividends.DividendsCYAView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class DividendsCYAController @Inject()(
-                                        dividendsCyaView: DividendsCYAView,
-                                        dividendsSubmissionService: DividendsSubmissionService,
-                                        session: DividendsSessionService,
-                                        stockDividendsSession: StockDividendsSessionServiceProvider,
-                                        auditService: AuditService,
-                                        errorHandler: ErrorHandler,
-                                        excludeJourneyService: ExcludeJourneyService
-                                      )(
-                                        implicit appConfig: AppConfig,
-                                        authorisedAction: AuthorisedAction,
-                                        implicit val mcc: MessagesControllerComponents
-                                      ) extends FrontendController(mcc) with I18nSupport with SessionHelper {
+class DividendsCYAController @Inject()(dividendsCyaView: DividendsCYAView,
+                                       dividendsSubmissionService: DividendsSubmissionService,
+                                       session: DividendsSessionService,
+                                       stockDividendsSession: StockDividendsSessionServiceProvider,
+                                       auditService: AuditService,
+                                       errorHandler: ErrorHandler,
+                                       excludeJourneyService: ExcludeJourneyService)
+                                      (implicit appConfig: AppConfig,
+                                       authorisedAction: AuthorisedAction,
+                                       implicit val mcc: MessagesControllerComponents) extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
   lazy val logger: Logger = Logger(this.getClass.getName)
   implicit val executionContext: ExecutionContext = mcc.executionContext

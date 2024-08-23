@@ -28,7 +28,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, SessionId}
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
-class UpdateStockDividendsBackendConnectorISpec extends IntegrationTest {
+class UpdateStockDividendsSessionConnectorISpec extends IntegrationTest {
 
   lazy val connector: UpdateStockDividendsSessionConnector = app.injector.instanceOf[UpdateStockDividendsSessionConnector]
 
@@ -38,7 +38,7 @@ class UpdateStockDividendsBackendConnectorISpec extends IntegrationTest {
 
   private val url = s"/income-tax-dividends/income-tax/income/dividends/$taxYear/stock-dividends/session"
   
-  "UpdateStockDividendsBackendConnector" should {
+  "UpdateStockDividendsSessionConnectorISpec" should {
 
     "include internal headers" when {
       val headersSentToGainsSubmission= Seq(new HttpHeader(HeaderNames.xSessionId, "sessionIdValue"), new HttpHeader("mtditid", mtditid))
@@ -58,28 +58,28 @@ class UpdateStockDividendsBackendConnectorISpec extends IntegrationTest {
     }
 
     "Return a success result" when {
-      "Gains submission returns a 204" in {
+      "update returns a 204" in {
         stubPut(url, NO_CONTENT, "{}")
         val result: UpdateStockDividendsSessionResponse =
           Await.result(connector.updateSessionData(stockDividendsCheckYourAnswersModel, taxYear)(hc), Duration.Inf)
         result shouldBe Right(NO_CONTENT)
       }
 
-      "Gains submission returns a 400" in {
+      "update returns a 400" in {
         stubPut(url, BAD_REQUEST, "{}")
         val result: UpdateStockDividendsSessionResponse =
           Await.result(connector.updateSessionData(stockDividendsCheckYourAnswersModel, taxYear)(hc), Duration.Inf)
         result shouldBe Left(APIErrorModel(BAD_REQUEST, APIErrorBodyModel("PARSING_ERROR", "Error parsing response from API")))
       }
 
-      "Gains submission returns an error parsing from API 500 response" in {
+      "update returns an error parsing from API 500 response" in {
         stubPut(url, INTERNAL_SERVER_ERROR, "{}")
         val result: UpdateStockDividendsSessionResponse =
           Await.result(connector.updateSessionData(stockDividendsCheckYourAnswersModel, taxYear)(hc), Duration.Inf)
         result shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("PARSING_ERROR", "Error parsing response from API")))
       }
 
-      "Gains submission returns an unexpected status error 500 response" in {
+      "update returns an unexpected status error 500 response" in {
         val responseBody = Json.obj(
           "code" -> "INTERNAL_SERVER_ERROR",
           "reason" -> "Unexpected status returned from API"
@@ -91,7 +91,7 @@ class UpdateStockDividendsBackendConnectorISpec extends IntegrationTest {
         result shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("INTERNAL_SERVER_ERROR", "Unexpected status returned from API")))
       }
 
-      "Gains submission returns a 500 when service is unavailable" in {
+      "update returns a 500 when service is unavailable" in {
         val responseBody = Json.obj(
           "code" -> "SERVICE_UNAVAILABLE",
           "reason" -> "the service is currently unavailable"
@@ -102,7 +102,6 @@ class UpdateStockDividendsBackendConnectorISpec extends IntegrationTest {
           Await.result(connector.updateSessionData(stockDividendsCheckYourAnswersModel, taxYear)(hc), Duration.Inf)
         result shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("SERVICE_UNAVAILABLE", "the service is currently unavailable")))
       }
-
     }
   }
 }

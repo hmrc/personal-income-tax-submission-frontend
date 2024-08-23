@@ -24,9 +24,7 @@ import models.dividends.StockDividendsCheckYourAnswersModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import play.api.routing.Router.RequestImplicits.WithHandlerDef
-import services.{StockDividendsSessionService, StockDividendsSessionServiceImpl, StockDividendsSessionServiceProvider}
-import uk.gov.hmrc.http.HeaderCarrier
+import services.StockDividendsSessionServiceProvider
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.CloseCompanyLoanAmountView
 

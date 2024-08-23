@@ -27,7 +27,7 @@ import models.question.QuestionsJourney
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import services.{DividendsSessionService, StockDividendsSessionService, StockDividendsSessionServiceProvider}
+import services.{DividendsSessionService, StockDividendsSessionServiceProvider}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.dividends.ReceiveUkDividendsView
@@ -35,20 +35,19 @@ import views.html.dividends.ReceiveUkDividendsView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class ReceiveUkDividendsController @Inject()(
-                                              implicit mcc: MessagesControllerComponents,
-                                              authAction: AuthorisedAction,
-                                              receiveUkDividendsView: ReceiveUkDividendsView,
-                                              questionHelper: QuestionsJourneyValidator,
-                                              errorHandler: ErrorHandler,
-                                              appConfig: AppConfig,
-                                              dividendsSessionService: DividendsSessionService,
-                                              stockDividendsSessionServiceProvider: StockDividendsSessionServiceProvider,
-                                              ec: ExecutionContext
-                                            ) extends FrontendController(mcc) with I18nSupport with SessionHelper {
+class ReceiveUkDividendsController @Inject()(implicit mcc: MessagesControllerComponents,
+                                             authAction: AuthorisedAction,
+                                             receiveUkDividendsView: ReceiveUkDividendsView,
+                                             questionHelper: QuestionsJourneyValidator,
+                                             errorHandler: ErrorHandler,
+                                             appConfig: AppConfig,
+                                             dividendsSessionService: DividendsSessionService,
+                                             stockDividendsSessionServiceProvider: StockDividendsSessionServiceProvider,
+                                             ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
   private val journeyKey: JourneyKey = if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) STOCK_DIVIDENDS else DIVIDENDS
   private val isStockDividends: Boolean = appConfig.isJourneyAvailable(STOCK_DIVIDENDS)
+
   def yesNoForm(isAgent: Boolean): Form[Boolean] = YesNoForm.yesNoForm(s"dividends.uk-dividends.errors.noChoice.${if (isAgent) "agent" else "individual"}")
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, journeyKey).async { implicit user =>
@@ -89,7 +88,7 @@ class ReceiveUkDividendsController @Inject()(
       {
         formWithErrors =>
           Future.successful(BadRequest(
-              receiveUkDividendsView(formWithErrors, taxYear)
+            receiveUkDividendsView(formWithErrors, taxYear)
           ))
       },
       {
@@ -147,16 +146,16 @@ class ReceiveUkDividendsController @Inject()(
         }
         val needsCreating = sessionData.forall(_.stockDividends.isEmpty)
         stockDividendsSessionServiceProvider.createOrUpdateSessionData(dividendsCya, taxYear, needsCreating)(errorHandler.internalServerError())(
-            if (dividendsCya.isFinished) {
-              Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear))
+          if (dividendsCya.isFinished) {
+            Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear))
+          } else {
+            if (yesNoModel) {
+              Redirect(controllers.dividends.routes.UkDividendsAmountController.show(taxYear))
             } else {
-              if (yesNoModel) {
-                Redirect(controllers.dividends.routes.UkDividendsAmountController.show(taxYear))
-              } else {
-                Redirect(controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear))
-              }
+              Redirect(controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear))
             }
-          )
+          }
+        )
     }
   }
 
