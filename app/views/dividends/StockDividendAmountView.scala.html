@@ -53,7 +53,7 @@
 
     @heading(headingForUse, Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
 
-    @formWithCSRF(action = controllers.dividends.routes.StockDividendAmountController.submit(taxYear)) {
+    @formWithCSRF(action = controllers.dividendsBase.routes.StockDividendAmountBaseController.submit(taxYear)) {
 
         @p(Html(messages(s"dividends.stock-dividend-amount.paragraph.1.${if(user.isAgent) "agent" else "individual"}")),
             classes = "govuk-body",

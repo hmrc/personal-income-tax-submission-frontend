@@ -30,7 +30,7 @@ import test.utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables with DividendsDatabaseHelper {
 
   val amount: BigDecimal = 500
-  val stockDividendAmountUrl: String = routes.StockDividendAmountController.show(taxYear).url
+  val stockDividendAmountUrl: String = controllers.dividendsBase.routes.StockDividendAmountBaseController.show(taxYear).url
   val redeemableSharesStatusUrl: String = routes.RedeemableSharesStatusController.show(taxYear).url
   val dividendsSummaryUrl: String = routes.DividendsSummaryController.show(taxYear).url
   val postURL: String = s"$appUrl/$taxYear/dividends/stock-dividend-amount"

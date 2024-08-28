@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.dividends
+package controllers.dividendsSplit
 
 import config._
 import controllers.predicates.AuthorisedAction
@@ -32,13 +32,13 @@ import views.html.dividends.StockDividendAmountView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class StockDividendAmountController @Inject()(implicit val cc: MessagesControllerComponents,
-                                              authAction: AuthorisedAction,
-                                              view: StockDividendAmountView,
-                                              errorHandler: ErrorHandler,
-                                              session: StockDividendsSessionService,
-                                              implicit val appConfig: AppConfig,
-                                              ec: ExecutionContext) extends FrontendController(cc) with I18nSupport {
+class StockDividendAmountSplitController @Inject()(implicit val cc: MessagesControllerComponents,
+                                                   authAction: AuthorisedAction,
+                                                   view: StockDividendAmountView,
+                                                   errorHandler: ErrorHandler,
+                                                   session: StockDividendsSessionService,
+                                                   implicit val appConfig: AppConfig,
+                                                   ec: ExecutionContext) extends FrontendController(cc) with I18nSupport {
 
   val journeyKey: JourneyKey = if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) STOCK_DIVIDENDS else DIVIDENDS
 
@@ -52,18 +52,24 @@ class StockDividendAmountController @Inject()(implicit val cc: MessagesControlle
   )
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, journeyKey).async { implicit user =>
-
-    session.getSessionData(taxYear).map {
-      case Left(_) => errorHandler.internalServerError()
+    session.getSessionData(taxYear).flatMap {
+      case Left(_) => Future.successful(errorHandler.internalServerError())
       case Right(sessionData) =>
-        val valueCheck: Option[BigDecimal] = sessionData.flatMap(_.stockDividends.flatMap(_.stockDividendsAmount))
+        if (sessionData.isDefined) {
+          val valueCheck: Option[BigDecimal] = sessionData.flatMap(_.stockDividends.flatMap(_.stockDividendsAmount))
 
-        valueCheck match {
-          case None => Ok(view(form(user.isAgent, taxYear), taxYear))
-          case Some(value) => Ok(view(form(user.isAgent, taxYear).fill(value), taxYear))
+          valueCheck match {
+            case None => Future.successful(Ok(view(form(user.isAgent, taxYear), taxYear)))
+            case Some(value) => Future.successful(Ok(view(form(user.isAgent, taxYear).fill(value), taxYear)))
+          }
+        } else {
+          session.createSessionData(StockDividendsCheckYourAnswersModel(), taxYear)(errorHandler.internalServerError()) {
+            Ok(view(form(user.isAgent, taxYear), taxYear))
+          }
         }
     }
   }
+
 
   def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, journeyKey).async { implicit user =>
     form(user.isAgent, taxYear).bindFromRequest().fold(
@@ -78,12 +84,7 @@ class StockDividendAmountController @Inject()(implicit val cc: MessagesControlle
               val dividendsCya = sessionData.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel())
                 .copy(stockDividendsAmount = Some(bigDecimal))
               session.updateSessionData(dividendsCya, taxYear)(errorHandler.internalServerError())(
-                if (dividendsCya.isFinished) {
-                  Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear))
-                }
-                else {
-                  Redirect(controllers.dividends.routes.RedeemableSharesStatusController.show(taxYear))
-                }
+                Redirect(controllers.dividendsSplit.routes.CheckStockDividendsAmountController.show(taxYear))
               )
           }
       })

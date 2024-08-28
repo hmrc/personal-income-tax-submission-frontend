@@ -191,25 +191,25 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "microservice.services.sign-in.url" -> s"/auth-login-stub/gg-sign-in"
   )
 
-  def config(
-    tailoring: Boolean = false,
-    interestTailoring: Boolean = false,
-    dividendsTailoring: Boolean = false,
-    charityTailoringEnabled:Boolean = false,
-    interestSavings: Boolean = false,
-    stockDividends: Boolean = false
-    ): Map[String, Any] = commonConfig ++ Map(
-    "taxYearChangeResetsSession" -> false,
-    "useEncryption" -> true,
-    "defaultTaxYear" -> taxYear,
-    "useEncryption" -> true,
-    "feature-switch.journeys.stock-dividends" -> stockDividends,
-    "feature-switch.tailoringEnabled" -> tailoring,
-    "feature-switch.tailoring.interest" -> interestTailoring,
-    "feature-switch.tailoring.dividends"-> dividendsTailoring,
-    "feature-switch.tailoring.charity"-> charityTailoringEnabled,
-    "feature-switch.journeys.interestSavings"-> interestSavings
-  )
+  def config(tailoring: Boolean = false,
+             interestTailoring: Boolean = false,
+             dividendsTailoring: Boolean = false,
+             charityTailoringEnabled: Boolean = false,
+             interestSavings: Boolean = false,
+             stockDividends: Boolean = false,
+             splitStockDividends: Boolean = false): Map[String, Any] =
+    commonConfig ++ Map(
+      "taxYearChangeResetsSession" -> false,
+      "defaultTaxYear" -> taxYear,
+      "useEncryption" -> true,
+      "feature-switch.journeys.stock-dividends" -> stockDividends,
+      "feature-switch.tailoringEnabled" -> tailoring,
+      "feature-switch.tailoring.interest" -> interestTailoring,
+      "feature-switch.tailoring.dividends" -> dividendsTailoring,
+      "feature-switch.tailoring.charity" -> charityTailoringEnabled,
+      "feature-switch.journeys.interestSavings" -> interestSavings,
+      "feature-switch.journeys.split-dividends" -> splitStockDividends
+    )
 
   def invalidEncryptionConfig: Map[String, Any] = commonConfig ++ Map(
     "taxYearChangeResetsSession" -> false,
@@ -284,13 +284,13 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
   }
 
   //noinspection ScalaStyle
-  def playSessionCookie(agent: Boolean = false, extraData: Map[String, String] = Map.empty, validTaxYears:Seq[Int] = validTaxYearList, isEoy: Boolean = false): Seq[(String, String)] = {
+  def playSessionCookie(agent: Boolean = false, extraData: Map[String, String] = Map.empty, validTaxYears: Seq[Int] = validTaxYearList, isEoy: Boolean = false): Seq[(String, String)] = {
     {
       if (agent) {
         Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(extraData ++ Map(
           SessionKeys.sessionId -> sessionId,
           SessionKeys.authToken -> "mock-bearer-token",
-          SessionValues.TAX_YEAR -> (if(isEoy) taxYearEOY else taxYear).toString,
+          SessionValues.TAX_YEAR -> (if (isEoy) taxYearEOY else taxYear).toString,
           SessionValues.VALID_TAX_YEARS -> validTaxYears.mkString(","),
           SessionValues.CLIENT_NINO -> "AA123456A",
           SessionValues.CLIENT_MTDITID -> mtditid))
@@ -299,7 +299,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
         Seq(HeaderNames.COOKIE -> PlaySessionCookieBaker.bakeSessionCookie(extraData ++ Map(
           SessionKeys.sessionId -> sessionId,
           SessionKeys.authToken -> "mock-bearer-token",
-          SessionValues.TAX_YEAR -> (if(isEoy) taxYearEOY else taxYear).toString,
+          SessionValues.TAX_YEAR -> (if (isEoy) taxYearEOY else taxYear).toString,
           SessionValues.VALID_TAX_YEARS -> validTaxYears.mkString(","))),
           "mtditid" -> mtditid
         )

@@ -30,9 +30,13 @@ POST        /:taxYear/dividends/dividends-from-stocks-and-shares                
 
 # Stock Dividends routes
 
-GET         /:taxYear/dividends/stock-dividend-amount                                                         controllers.dividends.StockDividendAmountController.show(taxYear: Int)
-POST        /:taxYear/dividends/stock-dividend-amount                                                         controllers.dividends.StockDividendAmountController.submit(taxYear: Int)
+GET         /:taxYear/dividends/stock-dividend-amount                                                         controllers.dividendsBase.StockDividendAmountBaseController.show(taxYear: Int)
+POST        /:taxYear/dividends/stock-dividend-amount                                                         controllers.dividendsBase.StockDividendAmountBaseController.submit(taxYear: Int)
 
+GET         /:taxYear/dividends/check-stock-dividend-amount                                                   controllers.dividendsSplit.CheckStockDividendsAmountController.show(taxYear: Int)
+POST        /:taxYear/dividends/check-stock-dividend-amount                                                   controllers.dividendsSplit.CheckStockDividendsAmountController.submit(taxYear: Int)
+
+####
 GET         /:taxYear/dividends/close-company-loan-amount                                                     controllers.dividends.CloseCompanyLoanAmountController.show(taxYear: Int)
 POST        /:taxYear/dividends/close-company-loan-amount                                                     controllers.dividends.CloseCompanyLoanAmountController.submit(taxYear: Int)
 

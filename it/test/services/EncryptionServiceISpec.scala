@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package test.services
+package services
 
 import models.mongo._
-import services.EncryptionService
 import test.utils.IntegrationTest
-import utils.{AesGcmAdCrypto}
+import utils.AesGcmAdCrypto
 
 class EncryptionServiceISpec extends IntegrationTest {
 
