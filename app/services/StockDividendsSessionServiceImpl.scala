@@ -19,7 +19,7 @@ package services
 import common.IncomeSources
 import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector, StockDividendsUserDataConnector}
 import models.dividends.StockDividendsCheckYourAnswersModel
-import models.mongo.{DatabaseError, StockDividendsUserDataModel}
+import models.mongo.{DataNotFound, DatabaseError, StockDividendsUserDataModel}
 import models.priorDataModels.StockDividendsPriorDataModel
 import models.{APIErrorModel, User}
 import play.api.Logger
