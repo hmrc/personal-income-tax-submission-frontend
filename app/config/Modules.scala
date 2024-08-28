@@ -17,11 +17,11 @@
 package config
 
 import common.UUID
-import play.api.inject.Binding
+import play.api.inject.{Binding, Module}
 import play.api.{Configuration, Environment}
 import services._
 
-class Modules extends play.api.inject.Module {
+class Modules extends Module {
 
   override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = {
 

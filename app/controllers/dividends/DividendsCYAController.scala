@@ -53,7 +53,7 @@ class DividendsCYAController @Inject()(dividendsCyaView: DividendsCYAView,
   //noinspection ScalaStyle
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
     if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) {
-      stockDividendsSession.getAndHandle(taxYear)(Future.successful(errorHandler.internalServerError())) { (cya, prior) =>
+      stockDividendsSession.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, prior) =>
         StockDividendsCheckYourAnswersModel.getCyaModel(cya, prior) match {
           case Some(_) => Future.successful(Redirect(routes.DividendsSummaryController.show(taxYear)))
           case _ =>
