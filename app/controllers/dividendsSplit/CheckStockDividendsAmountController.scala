@@ -65,12 +65,12 @@ class CheckStockDividendsAmountController @Inject()(authorisedAction: Authorised
   private def getStockDividendsCya(taxYear: Int,
                                    cya: Option[StockDividendsUserDataModel],
                                    prior: Option[StockDividendsPriorDataModel])
-                                  (implicit request: User[AnyContent]) = {
+                                  (implicit request: User[AnyContent]): Future[Result] = {
     StockDividendsCheckYourAnswersModel.getCyaModel(cya.flatMap(_.stockDividends), prior) match {
       case Some(cyaData) => handleSession(cya, cyaData, taxYear)
       case _ =>
-        logger.info("[DividendsSummaryController][show] No CYA data in session. Redirecting to the overview page.")
-        Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+        logger.info("[DividendsSummaryController][show] No CYA data in session. Redirecting to the task list.")
+        Future.successful(Redirect(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist"))
     }
   }
 
@@ -80,9 +80,9 @@ class CheckStockDividendsAmountController @Inject()(authorisedAction: Authorised
     }
   }
 
-  private[controllers] def performSubmission(taxYear: Int, data: Option[StockDividendsUserDataModel], priorData: Option[StockDividendsPriorDataModel])
+  private[controllers] def performSubmission(taxYear: Int, cyaData: Option[StockDividendsUserDataModel], priorData: Option[StockDividendsPriorDataModel])
                                             (implicit hc: HeaderCarrier, request: User[AnyContent]): Future[Result] = {
-    (data match {
+    (cyaData match {
       case Some(data) =>
         val cya = data.stockDividends.getOrElse(StockDividendsCheckYourAnswersModel())
         val stockDividendsSubmission = priorData.getOrElse(StockDividendsPriorDataModel())
@@ -100,13 +100,13 @@ class CheckStockDividendsAmountController @Inject()(authorisedAction: Authorised
           case response => response
         }
       case _ =>
-        logger.info("[DividendsSummaryController][submit] CYA data or NINO missing from session.")
+        logger.info("[CheckStockDividendsAmountController][submit] CYA data or NINO missing from session.")
         Future.successful(Left(APIErrorModel(BAD_REQUEST, APIErrorBodyModel("MISSING_DATA", "CYA data or NINO missing from session."))))
     }).flatMap {
       case Right(_) =>
         for {
           dividends <-
-            dividendsSession.clear(taxYear)(errorHandler.internalServerError())(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+            dividendsSession.clear(taxYear)(errorHandler.internalServerError())(Redirect(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist"))
             stockDividends <- stockDividendsSession.clear(taxYear)(errorHandler.internalServerError())(dividends)
         } yield {
           stockDividends

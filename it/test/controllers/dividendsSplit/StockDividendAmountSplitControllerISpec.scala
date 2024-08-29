@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.dividends
+package controllers.dividendsSplit
 
 import models.mongo.DataNotFound
 import org.mockito.ArgumentMatchers.any
@@ -23,11 +23,11 @@ import org.scalatest.OptionValues.convertOptionToValuable
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.inject.bind
-import play.api.{Environment, Mode}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.DefaultBodyWritables
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import play.api.{Environment, Mode}
 import services.StockDividendsSessionService
 import test.utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 
