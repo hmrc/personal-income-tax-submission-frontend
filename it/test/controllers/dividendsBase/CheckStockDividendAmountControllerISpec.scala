@@ -60,7 +60,7 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
       }
     }
 
-    "redirect to overview when no cya or prior exists" in {
+    "redirect to task list when no cya or prior exists" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true, splitStockDividends = true))
@@ -168,7 +168,7 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
   }
 
   "StockDividendAmountBaseController.submit" should {
-    "submit data and redirect to overview" in {
+    "submit data and redirect to task list" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true, splitStockDividends = true))

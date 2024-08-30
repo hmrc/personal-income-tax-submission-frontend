@@ -69,7 +69,7 @@ class CheckStockDividendsAmountController @Inject()(authorisedAction: Authorised
     StockDividendsCheckYourAnswersModel.getCyaModel(cya.flatMap(_.stockDividends), prior) match {
       case Some(cyaData) => handleSession(cya, cyaData, taxYear)
       case _ =>
-        logger.info("[DividendsSummaryController][show] No CYA data in session. Redirecting to the task list.")
+        logger.info("[CheckStockDividendsAmountController][show] No CYA data in session. Redirecting to the task list.")
         Future.successful(Redirect(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist"))
     }
   }
