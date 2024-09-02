@@ -26,7 +26,7 @@ import models.{APIErrorBodyModel, APIErrorModel, User}
 import play.api.i18n.I18nSupport
 import play.api.i18n.Lang.logger
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{DividendsSessionService, StockDividendsSessionService, StockDividendsSubmissionService}
+import services.{DividendsSessionService, StockDividendsSessionServiceProvider, StockDividendsSubmissionService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -40,7 +40,7 @@ class CheckStockDividendsAmountController @Inject()(authorisedAction: Authorised
                                                     view: CheckStockDividendsAmountView,
                                                     errorHandler: ErrorHandler,
                                                     dividendsSession: DividendsSessionService,
-                                                    stockDividendsSession: StockDividendsSessionService,
+                                                    stockDividendsSession: StockDividendsSessionServiceProvider,
                                                     auditService: AuditService,
                                                     submissionService: StockDividendsSubmissionService)
                                                    (implicit appConfig: AppConfig, mcc: MessagesControllerComponents, ec: ExecutionContext)
@@ -48,12 +48,12 @@ class CheckStockDividendsAmountController @Inject()(authorisedAction: Authorised
 
 
   def show(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit request =>
-        getStockDividends(taxYear)
-    }
+    getStockDividends(taxYear)
+  }
 
   private def getStockDividends(taxYear: Int)
                                (implicit request: User[AnyContent]): Future[Result] = {
-    stockDividendsSession.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, stockDividendsPrior) =>
+    stockDividendsSession.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, stockDividendsPrior) =>
       if (stockDividendsPrior.isDefined) {
         getStockDividendsCya(taxYear, cya, stockDividendsPrior)
       } else {
@@ -63,10 +63,10 @@ class CheckStockDividendsAmountController @Inject()(authorisedAction: Authorised
   }
 
   private def getStockDividendsCya(taxYear: Int,
-                                   cya: Option[StockDividendsUserDataModel],
+                                   cya: Option[StockDividendsCheckYourAnswersModel],
                                    prior: Option[StockDividendsPriorDataModel])
                                   (implicit request: User[AnyContent]): Future[Result] = {
-    StockDividendsCheckYourAnswersModel.getCyaModel(cya.flatMap(_.stockDividends), prior) match {
+    StockDividendsCheckYourAnswersModel.getCyaModel(cya, prior) match {
       case Some(cyaData) => handleSession(cya, cyaData, taxYear)
       case _ =>
         logger.info("[CheckStockDividendsAmountController][show] No CYA data in session. Redirecting to the task list.")
@@ -75,16 +75,17 @@ class CheckStockDividendsAmountController @Inject()(authorisedAction: Authorised
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit request =>
-    stockDividendsSession.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cyaData, priorData) =>
+    stockDividendsSession.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cyaData, priorData) =>
       performSubmission(taxYear, cyaData, priorData)
     }
   }
 
-  private[controllers] def performSubmission(taxYear: Int, cyaData: Option[StockDividendsUserDataModel], priorData: Option[StockDividendsPriorDataModel])
+  private[controllers] def performSubmission(taxYear: Int,
+                                             cyaData: Option[StockDividendsCheckYourAnswersModel],
+                                             priorData: Option[StockDividendsPriorDataModel])
                                             (implicit hc: HeaderCarrier, request: User[AnyContent]): Future[Result] = {
     (cyaData match {
-      case Some(data) =>
-        val cya = data.stockDividends.getOrElse(StockDividendsCheckYourAnswersModel())
+      case Some(cya) =>
         val stockDividendsSubmission = priorData.getOrElse(StockDividendsPriorDataModel())
         submissionService.submitDividends(cya, request.nino, taxYear).map {
           case response@Right(_) =>
@@ -107,7 +108,7 @@ class CheckStockDividendsAmountController @Inject()(authorisedAction: Authorised
         for {
           dividends <-
             dividendsSession.clear(taxYear)(errorHandler.internalServerError())(Redirect(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist"))
-            stockDividends <- stockDividendsSession.clear(taxYear)(errorHandler.internalServerError())(dividends)
+          stockDividends <- stockDividendsSession.clear(taxYear)(errorHandler.internalServerError())(dividends)
         } yield {
           stockDividends
         }
@@ -121,7 +122,7 @@ class CheckStockDividendsAmountController @Inject()(authorisedAction: Authorised
     auditService.auditModel(event)
   }
 
-  private def handleSession(sessionData: Option[StockDividendsUserDataModel], cyaData: StockDividendsCheckYourAnswersModel, taxYear: Int)
+  private def handleSession(sessionData: Option[StockDividendsCheckYourAnswersModel], cyaData: StockDividendsCheckYourAnswersModel, taxYear: Int)
                            (implicit request: User[AnyContent]): Future[Result] = {
     if (sessionData.isDefined) {
       stockDividendsSession.updateSessionData(cyaData, taxYear)(errorHandler.internalServerError())(

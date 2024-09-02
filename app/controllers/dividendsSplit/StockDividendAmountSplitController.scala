@@ -25,7 +25,7 @@ import models.dividends.StockDividendsCheckYourAnswersModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.StockDividendsSessionService
+import services.StockDividendsSessionServiceProvider
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.StockDividendAmountView
 
@@ -36,7 +36,7 @@ class StockDividendAmountSplitController @Inject()(implicit val cc: MessagesCont
                                                    authAction: AuthorisedAction,
                                                    view: StockDividendAmountView,
                                                    errorHandler: ErrorHandler,
-                                                   session: StockDividendsSessionService,
+                                                   session: StockDividendsSessionServiceProvider,
                                                    implicit val appConfig: AppConfig,
                                                    ec: ExecutionContext) extends FrontendController(cc) with I18nSupport {
 

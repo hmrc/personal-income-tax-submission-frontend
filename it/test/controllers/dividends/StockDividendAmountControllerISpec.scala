@@ -37,7 +37,7 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
   val stockDividendAmountUrl: String = controllers.dividendsBase.routes.StockDividendAmountBaseController.show(taxYear).url
   val redeemableSharesStatusUrl: String = routes.RedeemableSharesStatusController.show(taxYear).url
   val dividendsSummaryUrl: String = routes.DividendsSummaryController.show(taxYear).url
-  val postURL: String = routes.StockDividendAmountController.submit(taxYear).url
+  val postURL: String = controllers.dividendsBase.routes.StockDividendAmountBaseController.submit(taxYear).url
   val poundPrefixText = "£"
 
   val cyaModel: StockDividendsCheckYourAnswersModel =
