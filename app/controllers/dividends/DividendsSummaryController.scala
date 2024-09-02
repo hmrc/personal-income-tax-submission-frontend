@@ -19,14 +19,13 @@ package controllers.dividends
 import audit._
 import config.{AppConfig, DIVIDENDS, ErrorHandler, STOCK_DIVIDENDS}
 import controllers.predicates.AuthorisedAction
+import models.User
 import models.dividends.{DividendsPriorSubmission, StockDividendModel, StockDividendsCheckYourAnswersModel, StockDividendsPriorSubmission}
-import models.mongo.StockDividendsUserDataModel
 import models.priorDataModels.{IncomeSourcesModel, StockDividendsPriorDataModel}
-import models.{APIErrorBodyModel, APIErrorModel, User}
 import play.api.i18n.I18nSupport
 import play.api.i18n.Lang.logger
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{DividendsSessionService, ExcludeJourneyService, StockDividendsSessionService, StockDividendsSubmissionService}
+import services.{DividendsSessionService, ExcludeJourneyService, StockDividendsSessionServiceProvider, StockDividendsSubmissionService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -40,33 +39,32 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
                                            view: DividendsSummaryView,
                                            errorHandler: ErrorHandler,
                                            dividendsSession: DividendsSessionService,
-                                           stockDividendsSession: StockDividendsSessionService,
+                                           stockDividendsSession: StockDividendsSessionServiceProvider,
                                            auditService: AuditService,
                                            submissionService: StockDividendsSubmissionService,
                                            excludeJourneyService: ExcludeJourneyService)
                                           (implicit appConfig: AppConfig, mcc: MessagesControllerComponents, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport {
 
-
   def show(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit request =>
     dividendsSession.getPriorData(taxYear).flatMap {
       case Left(_) => Future.successful(errorHandler.internalServerError())
       case Right(dividendsPrior: IncomeSourcesModel) =>
         //in case of no data `dividendsPrior.dividends` will be None
-        getStockDividends(taxYear,dividendsPrior.dividends)
+        getStockDividends(taxYear, dividendsPrior.dividends)
     }
   }
 
-  private def getStockDividends(taxYear: Int,dividendsPriorData: Option[DividendsPriorSubmission])
-                               (implicit request: User[AnyContent]) = {
-    stockDividendsSession.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, stockDividendsPrior) =>
+  private def getStockDividends(taxYear: Int, dividendsPriorData: Option[DividendsPriorSubmission])
+                               (implicit request: User[AnyContent]): Future[Result] = {
+    stockDividendsSession.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, stockDividendsPrior) =>
       val mergedDividends = stockDividendsPrior match {
         case Some(stockDividendsPriorData) => stockDividendsPriorData.copy(
           ukDividendsAmount = dividendsPriorData.flatMap(_.ukDividends),
           otherUkDividendsAmount = dividendsPriorData.flatMap(_.otherUkDividends)
         )
         case None => StockDividendsPriorDataModel(ukDividendsAmount = dividendsPriorData.flatMap(_.ukDividends),
-            otherUkDividendsAmount = dividendsPriorData.flatMap(_.otherUkDividends))
+          otherUkDividendsAmount = dividendsPriorData.flatMap(_.otherUkDividends))
       }
       if (mergedDividends.isDefined) {
         getStockDividendsCya(taxYear, cya, Some(mergedDividends))
@@ -77,13 +75,13 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
   }
 
   private def getStockDividendsCya(taxYear: Int,
-                                   cya: Option[StockDividendsUserDataModel],
+                                   stockDividendsCheckYourAnswersModel: Option[StockDividendsCheckYourAnswersModel],
                                    prior: Option[StockDividendsPriorDataModel])
-                                  (implicit request: User[AnyContent]) = {
-    StockDividendsCheckYourAnswersModel.getCyaModel(cya.flatMap(_.stockDividends), prior) match {
-      case Some(cyaData) if cyaData.gateway.contains(false) => handleSession(cya, cyaData, taxYear)
+                                  (implicit request: User[AnyContent]): Future[Result] = {
+    StockDividendsCheckYourAnswersModel.getCyaModel(stockDividendsCheckYourAnswersModel, prior) match {
+      case Some(cyaData) if cyaData.gateway.contains(false) => handleSession(cyaData, taxYear, needsCreating = stockDividendsCheckYourAnswersModel.isEmpty)
       case Some(cyaData) if !cyaData.isFinished => Future.successful(handleUnfinishedRedirect(cyaData, taxYear))
-      case Some(cyaData) => handleSession(cya, cyaData, taxYear)
+      case Some(cyaData) => handleSession(cyaData, taxYear, needsCreating = stockDividendsCheckYourAnswersModel.isEmpty)
       case _ =>
         logger.info("[DividendsSummaryController][show] No CYA data in session. Redirecting to the overview page.")
         Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
@@ -91,8 +89,8 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit request =>
-    stockDividendsSession.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cyaData, priorData) =>
-      if (appConfig.dividendsTailoringEnabled && cyaData.flatMap(_.stockDividends).flatMap(_.gateway).contains(false)) {
+    stockDividendsSession.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cyaData, priorData) =>
+      if (appConfig.dividendsTailoringEnabled && cyaData.flatMap(_.gateway).contains(false)) {
         auditTailorRemoveIncomeSources(
           TailorRemoveIncomeSourcesAuditDetail(
             nino = request.nino,
@@ -116,34 +114,29 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
     }
   }
 
-  private[controllers] def performSubmission(taxYear: Int, data: Option[StockDividendsUserDataModel], priorData: Option[StockDividendsPriorDataModel])
+  private[controllers] def performSubmission(taxYear: Int, data: Option[StockDividendsCheckYourAnswersModel], priorData: Option[StockDividendsPriorDataModel])
                                             (implicit hc: HeaderCarrier, request: User[AnyContent]): Future[Result] = {
-    (data match {
-      case Some(data) =>
-        val cya = data.stockDividends.getOrElse(StockDividendsCheckYourAnswersModel())
-        val stockDividendsSubmission = priorData.getOrElse(StockDividendsPriorDataModel())
-        submissionService.submitDividends(cya, request.nino, taxYear).map {
-          case response@Right(_) =>
-            val model = CreateOrAmendDividendsAuditDetail.createFromStockCyaData(
-              cya, Some(DividendsPriorSubmission(stockDividendsSubmission.ukDividendsAmount, stockDividendsSubmission.otherUkDividendsAmount)),
-              Some(StockDividendsPriorSubmission(None, None, None, Some(StockDividendModel(None, stockDividendsSubmission.stockDividendsAmount.getOrElse(0))),
-                Some(StockDividendModel(None, stockDividendsSubmission.redeemableSharesAmount.getOrElse(0))), None,
-                Some(StockDividendModel(None, stockDividendsSubmission.closeCompanyLoansWrittenOffAmount.getOrElse(0))))),
-              priorData.isDefined, request.nino, request.mtditid, request.affinityGroup.toLowerCase, taxYear
-            )
-            auditSubmission(model)
-            response
-          case response => response
-        }
-      case _ =>
-        logger.info("[DividendsSummaryController][submit] CYA data or NINO missing from session.")
-        Future.successful(Left(APIErrorModel(BAD_REQUEST, APIErrorBodyModel("MISSING_DATA", "CYA data or NINO missing from session."))))
-    }).flatMap {
+
+    val cya = data.getOrElse(StockDividendsCheckYourAnswersModel())
+    val stockDividendsSubmission = priorData.getOrElse(StockDividendsPriorDataModel())
+    submissionService.submitDividends(cya, request.nino, taxYear).map {
+      case response@Right(_) =>
+        val model = CreateOrAmendDividendsAuditDetail.createFromStockCyaData(
+          cya, Some(DividendsPriorSubmission(stockDividendsSubmission.ukDividendsAmount, stockDividendsSubmission.otherUkDividendsAmount)),
+          Some(StockDividendsPriorSubmission(None, None, None, Some(StockDividendModel(None, stockDividendsSubmission.stockDividendsAmount.getOrElse(0))),
+            Some(StockDividendModel(None, stockDividendsSubmission.redeemableSharesAmount.getOrElse(0))), None,
+            Some(StockDividendModel(None, stockDividendsSubmission.closeCompanyLoansWrittenOffAmount.getOrElse(0))))),
+          priorData.isDefined, request.nino, request.mtditid, request.affinityGroup.toLowerCase, taxYear
+        )
+        auditSubmission(model)
+        response
+      case response => response
+    }.flatMap {
       case Right(_) =>
         for {
           dividends <- dividendsSession.clear(taxYear)(errorHandler.internalServerError())(
-              Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-            )
+            Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+          )
           stockDividends <- stockDividendsSession.clear(taxYear)(errorHandler.internalServerError())(dividends)
         } yield {
           stockDividends
@@ -164,17 +157,11 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
     auditService.auditModel(event)
   }
 
-  private def handleSession(sessionData: Option[StockDividendsUserDataModel], cyaData: StockDividendsCheckYourAnswersModel, taxYear: Int)
+  private def handleSession(cyaData: StockDividendsCheckYourAnswersModel, taxYear: Int, needsCreating: Boolean)
                            (implicit request: User[AnyContent]): Future[Result] = {
-    if (sessionData.isDefined) {
-      stockDividendsSession.updateSessionData(cyaData, taxYear)(errorHandler.internalServerError())(
-        Ok(view(cyaData, taxYear))
-      )
-    } else {
-      stockDividendsSession.createSessionData(cyaData, taxYear)(errorHandler.internalServerError())(
-        Ok(view(cyaData, taxYear))
-      )
-    }
+    stockDividendsSession.createOrUpdateSessionData(cyaData, taxYear, needsCreating)(errorHandler.internalServerError())(
+      Ok(view(cyaData, taxYear))
+    )
   }
 
   private[dividends] def handleUnfinishedRedirect(cya: StockDividendsCheckYourAnswersModel, taxYear: Int): Result = {
@@ -188,12 +175,12 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
     }
   }
 
-  private def hasValuesToBeZeroed(cyaData: Option[StockDividendsUserDataModel], priorData: Option[StockDividendsPriorDataModel]): Boolean = {
-    (priorData.exists(_.ukDividendsAmount.isDefined) && !cyaData.exists(_.stockDividends.exists(_.ukDividendsAmount.isDefined))) ||
-    (priorData.exists(_.otherUkDividendsAmount.isDefined) && !cyaData.exists(_.stockDividends.exists(_.otherUkDividendsAmount.isDefined))) ||
-    (priorData.exists(_.stockDividendsAmount.isDefined) && !cyaData.exists(_.stockDividends.exists(_.stockDividendsAmount.isDefined))) ||
-    (priorData.exists(_.redeemableSharesAmount.isDefined) && !cyaData.exists(_.stockDividends.exists(_.redeemableSharesAmount.isDefined))) ||
-    (priorData.exists(_.closeCompanyLoansWrittenOffAmount.isDefined) && !cyaData.exists(_.stockDividends.exists(_.closeCompanyLoansWrittenOffAmount.isDefined)))
+  private def hasValuesToBeZeroed(cyaData: Option[StockDividendsCheckYourAnswersModel], priorData: Option[StockDividendsPriorDataModel]): Boolean = {
+    (priorData.exists(_.ukDividendsAmount.isDefined) && !cyaData.exists(_.ukDividendsAmount.isDefined)) ||
+      (priorData.exists(_.otherUkDividendsAmount.isDefined) && !cyaData.exists(_.otherUkDividendsAmount.isDefined)) ||
+      (priorData.exists(_.stockDividendsAmount.isDefined) && !cyaData.exists(_.stockDividendsAmount.isDefined)) ||
+      (priorData.exists(_.redeemableSharesAmount.isDefined) && !cyaData.exists(_.redeemableSharesAmount.isDefined)) ||
+      (priorData.exists(_.closeCompanyLoansWrittenOffAmount.isDefined) && !cyaData.exists(_.closeCompanyLoansWrittenOffAmount.isDefined))
   }
 
 }

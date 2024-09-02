@@ -36,7 +36,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class ZeroingWarningController @Inject()(
                                           view: ZeroingWarningView,
                                           dividendsSession: DividendsSessionService,
-                                          stockDividendsSession: StockDividendsSessionService,
+                                          stockDividendsSession: StockDividendsSessionServiceProvider,
                                           interestSession: InterestSessionService,
                                           savingsSession: SavingsSessionService,
                                           giftAidSession: GiftAidSessionService,
@@ -133,20 +133,10 @@ class ZeroingWarningController @Inject()(
   }
 
   private[controllers] def handleStockDividends(taxYear: Int)(implicit user: User[_]): Future[Result] = {
-    stockDividendsSession.getAndHandle(taxYear)(errorHandler.internalServerError()) { case (cya, prior) =>
+    stockDividendsSession.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { case (cya, prior) =>
       cya match {
         case Some(cyaData) =>
-          val newSessionData =
-            zeroStockDividendsData(
-              prior,
-              cyaData.stockDividends.getOrElse(
-                StockDividendsCheckYourAnswersModel(
-                  ukDividends = Some(true), otherUkDividends = Some(true), stockDividends = Some(true),
-                  redeemableShares = Some(true), closeCompanyLoansWrittenOff = Some(true)
-                )
-              )
-            )
-
+          val newSessionData = zeroStockDividendsData(prior, cyaData)
           stockDividendsSession.updateSessionData(newSessionData, taxYear)(errorHandler.internalServerError()) {
             Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))
           }

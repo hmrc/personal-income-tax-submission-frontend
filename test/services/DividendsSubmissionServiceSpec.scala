@@ -17,7 +17,6 @@
 package services
 
 import connectors.DividendsSubmissionConnector
-import connectors.httpParsers.DividendsSubmissionHttpParser.DividendsSubmissionsResponse
 import models.dividends.{DividendsCheckYourAnswersModel, DividendsResponseModel, DividendsSubmissionModel}
 import models.{APIErrorBodyModel, APIErrorModel}
 import play.api.http.Status._

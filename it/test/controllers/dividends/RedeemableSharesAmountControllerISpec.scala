@@ -20,12 +20,16 @@ import controllers.dividends.routes
 import models.dividends.StockDividendsCheckYourAnswersModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import play.api.Application
 import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.ws.DefaultBodyWritables
+import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
+import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, redirectLocation, route, writeableOf_AnyContentAsFormUrlEncoded}
 import test.utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
+
+import scala.concurrent.Future
 
 class RedeemableSharesAmountControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables with DividendsDatabaseHelper {
 
@@ -33,6 +37,8 @@ class RedeemableSharesAmountControllerISpec extends IntegrationTest with ViewHel
   val redeemableSharesAmountUrl: String = routes.RedeemableSharesAmountController.show(taxYear).url
   val closeCompanyLoansStatusUrl: String = routes.CloseCompanyLoanStatusController.show(taxYear).url
   val dividendsSummaryUrl: String = routes.DividendsSummaryController.show(taxYear).url
+  val relativepostURL: String = routes.RedeemableSharesAmountController.submit(taxYear).url
+
   val postURL: String = s"$appUrl/$taxYear/dividends/redeemable-shares-amount"
   val poundPrefixText = "£"
 
@@ -137,6 +143,25 @@ class RedeemableSharesAmountControllerISpec extends IntegrationTest with ViewHel
 
   userScenarios.foreach { scenario =>
 
+    def postRedeemableSharesAmount(body: Seq[(String, String)],
+                                   application: Application): Future[Result] = {
+      val headers = Seq("Csrf-Token" -> "nocheck") ++
+        Option.when(scenario.isWelsh)(HeaderNames.ACCEPT_LANGUAGE -> "cy").toSeq ++
+        playSessionCookie(scenario.isAgent)
+      val request = FakeRequest("POST", relativepostURL).withHeaders(headers: _*).withFormUrlEncodedBody(body: _*)
+
+      authoriseAgentOrIndividual(scenario.isAgent)
+      route(application, request).get
+    }
+
+    def getRedeemableSharesAmount(application: Application): Future[Result] = {
+      val headers = Option.when(scenario.isWelsh)(HeaderNames.ACCEPT_LANGUAGE -> "cy").toSeq ++ playSessionCookie(scenario.isAgent)
+      lazy val request = FakeRequest("GET", redeemableSharesAmountUrl).withHeaders(headers: _*)
+
+      authoriseAgentOrIndividual(scenario.isAgent)
+      route(application, request, "{}").get
+    }
+
     lazy val uniqueResults = scenario.specificExpectedResults.get
     import scenario.commonExpectedResults._
     import uniqueResults._
@@ -202,40 +227,67 @@ class RedeemableSharesAmountControllerISpec extends IntegrationTest with ViewHel
 
     s".submit when $testNameWelsh and the user is $testNameAgent" should {
 
-      "return a 303 status and redirect to next status page" in {
+      "return a 303 status and redirect to next status page with appWithStockDividends" in {
+        implicit lazy val app: Application = appWithStockDividends
+
         lazy val result = {
           dropStockDividendsDB()
-          insertStockDividendsCyaData(Some(cyaModel.copy(None, None, None, None, None, None, None, None, None, None)))
-          authoriseAgentOrIndividual(scenario.isAgent)
-          urlPost(postURL, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> "123"))
+          insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel()))
+          postRedeemableSharesAmount(Seq("amount" -> "123"), app)
         }
-        result.status shouldBe SEE_OTHER
-        result.headers(HeaderNames.LOCATION).head shouldBe closeCompanyLoansStatusUrl
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result).value shouldBe closeCompanyLoansStatusUrl
       }
 
-      "return a 303 status and redirect to cya page when isFinished is true" in {
+      "return a 303 status and redirect to next status page with appWithStockDividendsBackendMongo" in {
+        implicit lazy val app: Application = appWithStockDividendsBackendMongo
+
+        lazy val resultBackEnd = {
+          getSessionDataStub(Some(stockDividendsUserDataModel.copy(
+            stockDividends = Some(StockDividendsCheckYourAnswersModel()))))
+          updateSessionDataStub()
+          postRedeemableSharesAmount(Seq("amount" -> "123"), app)
+        }
+        status(resultBackEnd) shouldBe SEE_OTHER
+        redirectLocation(resultBackEnd).value shouldBe closeCompanyLoansStatusUrl
+      }
+
+
+      "return a 303 status and redirect to cya page when isFinished is true with appWithStockDividends" in {
+        implicit lazy val app: Application = appWithStockDividends
+
         lazy val result = {
           dropStockDividendsDB()
           insertStockDividendsCyaData(Some(cyaModel))
-          authoriseAgentOrIndividual(scenario.isAgent)
-          urlPost(postURL, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> "123"))
+          postRedeemableSharesAmount(Seq("amount" -> "123"), app)
         }
-        result.status shouldBe SEE_OTHER
-        result.headers(HeaderNames.LOCATION).head shouldBe dividendsSummaryUrl
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result).value shouldBe dividendsSummaryUrl
+      }
+
+      "return a 303 status and redirect to cya page when isFinished is true with appWithStockDividendsBackendMongo" in {
+        implicit lazy val app: Application = appWithStockDividendsBackendMongo
+
+        lazy val result = {
+          getSessionDataStub()
+          updateSessionDataStub()
+          postRedeemableSharesAmount(Seq("amount" -> "123"), app)
+        }
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result).value shouldBe dividendsSummaryUrl
+
       }
 
       "return a error" when {
-        "the form is empty" which {
+        "the form is empty appWithStockDividends" which {
+          implicit lazy val app: Application = appWithStockDividends
 
-          lazy val result = {
-            authoriseAgentOrIndividual(scenario.isAgent)
-            urlPost(postURL, welsh = scenario.isWelsh, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> ""))
-          }
+          lazy val result = postRedeemableSharesAmount(Seq.empty, app)
 
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
+          implicit val document: () => Document = () => Jsoup.parse(bodyOf(result))
 
           "has a 400 BAD_REQUEST status " in {
-            result.status shouldBe BAD_REQUEST
+            status(result) shouldBe BAD_REQUEST
           }
 
           titleCheck(errorPrefix(scenario.isWelsh) + expectedTitle, scenario.isWelsh)
@@ -243,16 +295,31 @@ class RedeemableSharesAmountControllerISpec extends IntegrationTest with ViewHel
           errorSummaryCheck(expectedErrorEmpty, Selectors.errorSummaryHref, scenario.isWelsh)
         }
 
-        "the form is invalid" which {
-          lazy val result = {
-            authoriseAgentOrIndividual(scenario.isAgent)
-            urlPost(postURL, welsh = scenario.isWelsh, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> "$$$"))
-          }
+        "the form is empty with appWithStockDividendsBackendMongo" which {
+          implicit lazy val app: Application = appWithStockDividendsBackendMongo
 
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
+          lazy val resultBackEnd = postRedeemableSharesAmount(Seq.empty, app)
+
+          implicit val document: () => Document = () => Jsoup.parse(bodyOf(resultBackEnd))
 
           "has a 400 BAD_REQUEST status " in {
-            result.status shouldBe BAD_REQUEST
+            status(resultBackEnd) shouldBe BAD_REQUEST
+          }
+
+          titleCheck(errorPrefix(scenario.isWelsh) + expectedTitle, scenario.isWelsh)
+          errorAboveElementCheck(expectedErrorEmpty)
+          errorSummaryCheck(expectedErrorEmpty, Selectors.errorSummaryHref, scenario.isWelsh)
+        }
+
+        "the form is invalid with appWithStockDividends" which {
+          implicit lazy val app: Application = appWithStockDividends
+
+          lazy val result = postRedeemableSharesAmount(Seq("amount" -> "$$$"), app)
+
+          implicit val document: () => Document = () => Jsoup.parse(bodyOf(result))
+
+          "has a 400 BAD_REQUEST status " in {
+            status(result) shouldBe BAD_REQUEST
           }
 
           titleCheck(errorPrefix(scenario.isWelsh) + expectedTitle, scenario.isWelsh)
@@ -260,17 +327,30 @@ class RedeemableSharesAmountControllerISpec extends IntegrationTest with ViewHel
           errorSummaryCheck(expectedErrorInvalid, Selectors.errorSummaryHref, scenario.isWelsh)
         }
 
-        "the form is overmax" which {
-          lazy val result = {
-            authoriseAgentOrIndividual(scenario.isAgent)
-            urlPost(postURL, welsh = scenario.isWelsh, follow = false,
-              headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> "103242424234242342423423"))
-          }
+        "the form is overmax with appWithStockDividends" which {
+          implicit lazy val app: Application = appWithStockDividends
 
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
+          lazy val result = postRedeemableSharesAmount(Seq("amount" -> "103242424234242342423423"), app)
+
+          implicit val document: () => Document = () => Jsoup.parse(bodyOf(result))
 
           "has a 400 BAD_REQUEST status " in {
-            result.status shouldBe BAD_REQUEST
+            status(result) shouldBe BAD_REQUEST
+          }
+          titleCheck(errorPrefix(scenario.isWelsh) + expectedTitle, scenario.isWelsh)
+          errorAboveElementCheck(expectedErrorOverMax)
+          errorSummaryCheck(expectedErrorOverMax, Selectors.errorSummaryHref, scenario.isWelsh)
+        }
+
+        "the form is overmax with appWithStockDividendsBackendMongo" which {
+          implicit lazy val app: Application = appWithStockDividendsBackendMongo
+
+          lazy val resultBackEnd = postRedeemableSharesAmount(Seq("amount" -> "103242424234242342423423"), app)
+
+          implicit val document: () => Document = () => Jsoup.parse(bodyOf(resultBackEnd))
+
+          "has a 400 BAD_REQUEST status " in {
+            status(resultBackEnd) shouldBe BAD_REQUEST
           }
 
           titleCheck(errorPrefix(scenario.isWelsh) + expectedTitle, scenario.isWelsh)
@@ -279,6 +359,4 @@ class RedeemableSharesAmountControllerISpec extends IntegrationTest with ViewHel
         }
       }
     }
-  }
-
-}
+  }}

@@ -24,7 +24,7 @@ import models.dividends.StockDividendsCheckYourAnswersModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import services.StockDividendsSessionService
+import services.StockDividendsSessionServiceProvider
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.CloseCompanyLoanStatusView
 
@@ -32,16 +32,13 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class CloseCompanyLoanStatusController @Inject()(
-
-                                                  implicit val cc: MessagesControllerComponents,
+class CloseCompanyLoanStatusController @Inject()(implicit val cc: MessagesControllerComponents,
                                                   authAction: AuthorisedAction,
                                                   view: CloseCompanyLoanStatusView,
                                                   implicit val appConfig: AppConfig,
                                                   ec: ExecutionContext,
                                                   errorHandler: ErrorHandler,
-                                                  session: StockDividendsSessionService
-                                                ) extends FrontendController(cc) with I18nSupport {
+                                                  session: StockDividendsSessionServiceProvider) extends FrontendController(cc) with I18nSupport {
 
 
   def form(implicit isAgent: Boolean): Form[Boolean] = YesNoForm.yesNoForm(
@@ -76,9 +73,9 @@ class CloseCompanyLoanStatusController @Inject()(
               sessionData.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel())
                 .copy(closeCompanyLoansWrittenOff = Some(yesNoValue), closeCompanyLoansWrittenOffAmount = None)
             }
-            val update = sessionData.fold(true)(data => data.stockDividends.isEmpty)
+            val needsCreating: Boolean = sessionData.forall(_.stockDividends.isEmpty)
 
-            session.updateSessionData(dividendsCya, taxYear, update)(errorHandler.internalServerError())(
+            session.createOrUpdateSessionData(dividendsCya, taxYear, needsCreating)(errorHandler.internalServerError())(
               if (dividendsCya.isFinished || !yesNoValue) {
                 Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear))
               } else {

@@ -27,7 +27,7 @@ import models.question.QuestionsJourney
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{DividendsSessionService, StockDividendsSessionService}
+import services.{DividendsSessionService, StockDividendsSessionServiceProvider}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.dividends.DividendsGatewayView
 
@@ -37,7 +37,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class DividendsGatewayController @Inject()(
                                             view: DividendsGatewayView,
                                             session: DividendsSessionService,
-                                            stockDividendsSessionService: StockDividendsSessionService,
+                                            stockDividendsSessionService: StockDividendsSessionServiceProvider,
                                             errorHandler: ErrorHandler,
                                             questionsJourneyValidator: QuestionsJourneyValidator
                                           )
@@ -71,7 +71,9 @@ class DividendsGatewayController @Inject()(
               }
             }
         }
-      } else { showStockDividends(taxYear, form(user.isAgent)) }
+      } else {
+        showStockDividends(taxYear, form(user.isAgent))
+      }
     } else {
       Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
     }
@@ -141,9 +143,9 @@ class DividendsGatewayController @Inject()(
         Future.successful(errorHandler.internalServerError())
       case Right(sessionData) =>
         val stockDividendsCya = sessionData.flatMap(_.stockDividends).getOrElse(StockDividendsCheckYourAnswersModel()).copy(gateway = Some(yesNoValue))
-        val update = sessionData.fold(true)(data => data.stockDividends.isEmpty)
+        val needsCreating = sessionData.forall(_.stockDividends.isEmpty)
 
-        stockDividendsSessionService.updateSessionData(stockDividendsCya, taxYear, update)(errorHandler.internalServerError())(
+        stockDividendsSessionService.createOrUpdateSessionData(stockDividendsCya, taxYear, needsCreating)(errorHandler.internalServerError())(
           if (stockDividendsCya.isFinished) {
             if (!appConfig.dividendsTailoringEnabled || (appConfig.dividendsTailoringEnabled && sessionData.isEmpty)) {
               Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))

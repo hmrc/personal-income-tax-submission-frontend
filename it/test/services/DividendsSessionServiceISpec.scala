@@ -16,22 +16,15 @@
 
 package test.services
 
-import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector}
-import repositories.DividendsUserDataRepository
+import models.dividends.DividendsCheckYourAnswersModel
 import services.DividendsSessionService
 import test.utils.IntegrationTest
 
-
-class DividendsSessionServiceISpec extends IntegrationTest{
-
-  val dividendsUserDataRepository: DividendsUserDataRepository = app.injector.instanceOf[DividendsUserDataRepository]
-  val incomeTaxUserDataConnector: IncomeTaxUserDataConnector = app.injector.instanceOf[IncomeTaxUserDataConnector]
-  val incomeSourceConnector: IncomeSourceConnector = app.injector.instanceOf[IncomeSourceConnector]
-
+class DividendsSessionServiceISpec extends IntegrationTest {
   val dividendsSessionServiceInvalidEncryption: DividendsSessionService = appWithInvalidEncryptionKey.injector.instanceOf[DividendsSessionService]
-  val dividendsSessionService: DividendsSessionService = new DividendsSessionService(dividendsUserDataRepository, incomeTaxUserDataConnector, incomeSourceConnector)
+  dividendsSessionService.createSessionData(DividendsCheckYourAnswersModel(), taxYear)(false)(true)
 
-  "create" should{
+  "create" should {
     "return false when failing to decrypt the model" in {
       val result = await(dividendsSessionServiceInvalidEncryption.createSessionData(completeDividendsCYAModel, taxYear)(false)(true))
       result shouldBe false
@@ -46,7 +39,7 @@ class DividendsSessionServiceISpec extends IntegrationTest{
     }
   }
 
-  "update" should{
+  "update" should {
     "return false when failing to decrypt the model" in {
       val result = await(dividendsSessionServiceInvalidEncryption.updateSessionData(completeDividendsCYAModel, taxYear)(false)(true))
       result shouldBe false
