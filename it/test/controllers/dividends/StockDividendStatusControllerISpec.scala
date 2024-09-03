@@ -34,7 +34,7 @@ class StockDividendStatusControllerISpec extends IntegrationTest with ViewHelper
 
   val amount: BigDecimal = 123.45
   val stockDividendStatusUrl: String = routes.StockDividendStatusController.show(taxYear).url
-  val stockDividendAmountUrl: String = routes.StockDividendAmountController.show(taxYear).url
+  val stockDividendAmountUrl: String = controllers.dividendsBase.routes.StockDividendAmountBaseController.show(taxYear).url
   val redeemableSharesStatusUrl: String = routes.RedeemableSharesStatusController.show(taxYear).url
   val dividendsSummaryUrl: String = routes.DividendsSummaryController.show(taxYear).url
   val postURL: String = s"$appUrl/$taxYear/dividends/stock-dividend-status"

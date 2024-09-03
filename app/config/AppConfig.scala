@@ -95,6 +95,8 @@ class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig) extends AppCon
   lazy val welshToggleEnabled: Boolean = servicesConfig.getBoolean("feature-switch.welshToggleEnabled")
   lazy val useEncryption: Boolean = servicesConfig.getBoolean("useEncryption")
 
+  val isSplitDividends: Boolean = servicesConfig.getBoolean("feature-switch.journeys.split-dividends")
+
   def isJourneyAvailable(journeyKey: JourneyKey): Boolean = servicesConfig.getBoolean("feature-switch.journeys." + journeyKey.stringify)
 
   def taxYearSwitchResetsSession: Boolean = servicesConfig.getBoolean("taxYearChangeResetsSession")
@@ -168,9 +170,11 @@ trait AppConfig {
 
   def excludeJourneyUrl(taxYear: Int): String
 
-  val tailoringEnabled: Boolean
-  val interestTailoringEnabled: Boolean
-  val interestSavingsEnabled: Boolean
-  val dividendsTailoringEnabled: Boolean
-  val charityTailoringEnabled: Boolean
+  def tailoringEnabled: Boolean
+  def interestTailoringEnabled: Boolean
+  def interestSavingsEnabled: Boolean
+  def dividendsTailoringEnabled: Boolean
+  def charityTailoringEnabled: Boolean
+
+  def isSplitDividends: Boolean
 }

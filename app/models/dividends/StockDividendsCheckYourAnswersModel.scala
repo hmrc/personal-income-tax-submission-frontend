@@ -73,11 +73,12 @@ object StockDividendsCheckYourAnswersModel {
   : Option[StockDividendsCheckYourAnswersModel] = {
     (cya, prior) match {
       case (Some(cyaData), Some(priorData)) =>
-        val ukDividendsExist = cyaData.ukDividends.getOrElse(priorData.ukDividendsAmount.nonEmpty)
-        val otherDividendsExist = cyaData.otherUkDividends.getOrElse(priorData.otherUkDividendsAmount.nonEmpty)
-        val stockDividendsExist = cyaData.stockDividends.getOrElse(priorData.stockDividendsAmount.nonEmpty)
-        val redeemableSharesExist = cyaData.redeemableShares.getOrElse(priorData.redeemableSharesAmount.nonEmpty)
-        val closeCompanyLoansWrittenOffExist = cyaData.closeCompanyLoansWrittenOff.getOrElse(priorData.closeCompanyLoansWrittenOffAmount.nonEmpty)
+        val ukDividendsExist = cyaData.ukDividends.getOrElse(priorData.ukDividendsAmount.nonEmpty) || cyaData.ukDividendsAmount.isDefined
+        val otherDividendsExist = cyaData.otherUkDividends.getOrElse(priorData.otherUkDividendsAmount.nonEmpty) || cyaData.otherUkDividends.isDefined
+        val stockDividendsExist = cyaData.stockDividends.getOrElse(priorData.stockDividendsAmount.nonEmpty) || cyaData.stockDividendsAmount.isDefined
+        val redeemableSharesExist = cyaData.redeemableShares.getOrElse(priorData.redeemableSharesAmount.nonEmpty) || cyaData.redeemableSharesAmount.isDefined
+        val closeCompanyLoansWrittenOffExist = cyaData.closeCompanyLoansWrittenOff
+          .getOrElse(priorData.closeCompanyLoansWrittenOffAmount.nonEmpty) || cyaData.closeCompanyLoansWrittenOffAmount.isDefined
 
         val ukDividendsValue: Option[BigDecimal] = priorityOrderOrNone(cyaData.ukDividendsAmount, priorData.ukDividendsAmount, ukDividendsExist)
         val otherDividendsValue: Option[BigDecimal] = priorityOrderOrNone(cyaData.otherUkDividendsAmount, priorData.otherUkDividendsAmount, otherDividendsExist)

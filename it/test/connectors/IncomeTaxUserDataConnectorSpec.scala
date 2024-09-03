@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package test.connectors
+package connectors
 
-import connectors.IncomeTaxUserDataConnector
 import connectors.httpParsers.IncomeTaxUserDataHttpParser.IncomeTaxUserDataResponse
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
 import models.dividends.DividendsPriorSubmission
