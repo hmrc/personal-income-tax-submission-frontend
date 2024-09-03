@@ -47,7 +47,7 @@
 
     @heading(headingForUse, Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
 
-    @formWithCSRF(action = controllers.dividends.routes.RedeemableSharesAmountController.submit(taxYear)) {
+    @formWithCSRF(action = controllers.dividendsBase.routes.RedeemableSharesAmountBaseController.submit(taxYear)) {
         @inputText(
             form,
             id = "amount",

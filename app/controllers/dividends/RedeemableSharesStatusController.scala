@@ -81,7 +81,7 @@ class RedeemableSharesStatusController @Inject()(
                 Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear))
               } else {
                 if (yesNoValue) {
-                  Redirect(controllers.dividends.routes.RedeemableSharesAmountController.show(taxYear))
+                  Redirect(controllers.dividendsBase.routes.RedeemableSharesAmountBaseController.show(taxYear))
                 } else {
                   Redirect(controllers.dividends.routes.CloseCompanyLoanStatusController.show(taxYear))
                 }

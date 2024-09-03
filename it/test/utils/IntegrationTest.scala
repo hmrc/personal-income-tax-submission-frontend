@@ -197,7 +197,8 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     dividendsTailoring: Boolean = false,
     charityTailoringEnabled:Boolean = false,
     interestSavings: Boolean = false,
-    stockDividends: Boolean = false
+    stockDividends: Boolean = false,
+    splitStockDividends: Boolean = false
     ): Map[String, Any] = commonConfig ++ Map(
     "taxYearChangeResetsSession" -> false,
     "useEncryption" -> true,
@@ -208,7 +209,8 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "feature-switch.tailoring.interest" -> interestTailoring,
     "feature-switch.tailoring.dividends"-> dividendsTailoring,
     "feature-switch.tailoring.charity"-> charityTailoringEnabled,
-    "feature-switch.journeys.interestSavings"-> interestSavings
+    "feature-switch.journeys.interestSavings"-> interestSavings,
+    "feature-switch.journeys.split-dividends"-> splitStockDividends
   )
 
   def invalidEncryptionConfig: Map[String, Any] = commonConfig ++ Map(
