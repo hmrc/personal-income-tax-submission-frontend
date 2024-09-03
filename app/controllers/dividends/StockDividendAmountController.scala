@@ -20,7 +20,6 @@ import config._
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import forms.AmountForm
-import models.User
 import models.dividends.StockDividendsCheckYourAnswersModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport

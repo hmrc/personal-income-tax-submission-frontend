@@ -27,7 +27,7 @@ class DividendsCheckYourAnswersModeSpec extends UnitTest {
   private val receiveUkDividendsRoute = controllers.dividends.routes.ReceiveUkDividendsController
   private val ukDividendsAmountRoute = controllers.dividends.routes.UkDividendsAmountController
   private val receiveOtherDividendsRoute = controllers.dividends.routes.ReceiveOtherUkDividendsController
-  private val otherDividendsAmountRoute = controllers.dividends.routes.OtherUkDividendsAmountController
+  private val otherDividendsAmountRoute = controllers.dividendsBase.routes.OtherUkDividendsAmountBaseController
 
   object TailoringAppConfig extends MockAppConfig {
     override val tailoringEnabled: Boolean = true

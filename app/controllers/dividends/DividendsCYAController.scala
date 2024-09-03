@@ -152,7 +152,7 @@ class DividendsCYAController @Inject()(dividendsCyaView: DividendsCYAView,
       case (_, Some(true), None, None, None) => Redirect(controllers.dividends.routes.UkDividendsAmountController.show(taxYear))
       case (_, Some(false), None, None, None) => Redirect(controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear))
       case (_, Some(true), Some(_), None, None) => Redirect(controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear))
-      case _ => Redirect(controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear))
+      case _ => Redirect(controllers.dividendsBase.routes.OtherUkDividendsAmountBaseController.show(taxYear))
     }
   }
 }

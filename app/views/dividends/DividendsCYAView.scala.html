@@ -84,7 +84,7 @@
                     summaryListRow(
                         HtmlContent(messages("dividends.cya.questions.5")),
                         HtmlContent(bigDecimalCurrency(amount.toString)),
-                        actions = Seq((controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear), messages("common.change"), Some(messages(s"dividends.cya.changeOtherDividendsAmount.${if(user.isAgent) "agent" else "individual"}"))))
+                        actions = Seq((controllers.dividendsBase.routes.OtherUkDividendsAmountBaseController.show(taxYear), messages("common.change"), Some(messages(s"dividends.cya.changeOtherDividendsAmount.${if(user.isAgent) "agent" else "individual"}"))))
                     )
                 }
             } else { None }

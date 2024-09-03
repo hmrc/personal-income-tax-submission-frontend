@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package controllers.dividendsSplit
 
-import audit._
+import audit.{AuditModel, AuditService, CreateOrAmendDividendsAuditDetail}
 import config.{AppConfig, ErrorHandler}
 import controllers.predicates.AuthorisedAction
 import models.dividends.{DividendsPriorSubmission, StockDividendModel, StockDividendsCheckYourAnswersModel, StockDividendsPriorSubmission}
@@ -29,20 +29,19 @@ import services.{DividendsSessionService, StockDividendsSessionServiceProvider, 
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import views.html.dividends.CheckStockDividendsAmountView
+import views.html.dividends.CheckOtherUkDividendsAmountView
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-@Singleton
-class CheckStockDividendsAmountController @Inject()(authorisedAction: AuthorisedAction,
-                                                    view: CheckStockDividendsAmountView,
-                                                    errorHandler: ErrorHandler,
-                                                    dividendsSession: DividendsSessionService,
-                                                    stockDividendsSession: StockDividendsSessionServiceProvider,
-                                                    auditService: AuditService,
-                                                    submissionService: StockDividendsSubmissionService)
-                                                   (implicit appConfig: AppConfig, mcc: MessagesControllerComponents, ec: ExecutionContext)
+class CheckOtherUkDividendsAmountController @Inject()(authorisedAction: AuthorisedAction,
+                                                      view: CheckOtherUkDividendsAmountView,
+                                                      errorHandler: ErrorHandler,
+                                                      dividendsSession: DividendsSessionService,
+                                                      stockDividendsSession: StockDividendsSessionServiceProvider,
+                                                      auditService: AuditService,
+                                                      submissionService: StockDividendsSubmissionService)
+                                                     (implicit appConfig: AppConfig, mcc: MessagesControllerComponents, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport {
 
 
