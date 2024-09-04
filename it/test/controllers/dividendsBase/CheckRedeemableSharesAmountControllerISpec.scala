@@ -18,7 +18,6 @@ package controllers.dividendsBase
 
 import models.dividends.{DividendsPriorSubmission, StockDividendModel, StockDividendsPriorSubmission}
 import models.priorDataModels.IncomeSourcesModel
-import org.scalatest.OptionValues.convertOptionToValuable
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import play.api.http.Status.{NO_CONTENT, OK, SEE_OTHER}
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -27,7 +26,7 @@ import play.api.test.Helpers._
 import play.api.{Environment, Mode}
 import test.utils.{DividendsDatabaseHelper, IntegrationTest}
 
-class CheckRedeemableSharesAmountBaseControllerISpec extends IntegrationTest with DividendsDatabaseHelper {
+class CheckRedeemableSharesAmountControllerISpec extends IntegrationTest with DividendsDatabaseHelper {
 
   val url: String = controllers.dividendsSplit.routes.CheckRedeemableSharesAmountController.show(taxYear).url
   val headers: Seq[(String, String)] = playSessionCookie() ++ Seq("Csrf-Token" -> "nocheck")

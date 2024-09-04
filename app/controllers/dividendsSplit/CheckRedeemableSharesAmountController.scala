@@ -20,13 +20,12 @@ import audit.{AuditModel, AuditService, CreateOrAmendDividendsAuditDetail}
 import config.{AppConfig, ErrorHandler}
 import controllers.predicates.AuthorisedAction
 import models.dividends.{DividendsPriorSubmission, StockDividendModel, StockDividendsCheckYourAnswersModel, StockDividendsPriorSubmission}
-import models.mongo.StockDividendsUserDataModel
 import models.priorDataModels.StockDividendsPriorDataModel
 import models.{APIErrorBodyModel, APIErrorModel, User}
 import play.api.i18n.I18nSupport
 import play.api.i18n.Lang.logger
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{DividendsSessionService, StockDividendsSessionService, StockDividendsSubmissionService}
+import services.{DividendsSessionService, StockDividendsSessionServiceProvider, StockDividendsSubmissionService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -39,7 +38,7 @@ class CheckRedeemableSharesAmountController @Inject()(authorisedAction: Authoris
                                                       view: CheckRedeemableSharesAmountView,
                                                       errorHandler: ErrorHandler,
                                                       dividendsSession: DividendsSessionService,
-                                                      stockDividendsSession: StockDividendsSessionService,
+                                                      stockDividendsSession: StockDividendsSessionServiceProvider,
                                                       auditService: AuditService,
                                                       submissionService: StockDividendsSubmissionService)
                                                      (implicit appConfig: AppConfig, mcc: MessagesControllerComponents, ec: ExecutionContext)
@@ -50,7 +49,7 @@ class CheckRedeemableSharesAmountController @Inject()(authorisedAction: Authoris
   }
 
   private def getRedeemableShares(taxYear: Int)(implicit request: User[AnyContent]): Future[Result] = {
-    stockDividendsSession.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, stockDividendsPrior) =>
+    stockDividendsSession.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, stockDividendsPrior) =>
       if (stockDividendsPrior.isDefined) {
         getRedeemableSharesCya(taxYear, cya, stockDividendsPrior)
       } else {
@@ -60,10 +59,10 @@ class CheckRedeemableSharesAmountController @Inject()(authorisedAction: Authoris
   }
 
   private def getRedeemableSharesCya(taxYear: Int,
-                                     cya: Option[StockDividendsUserDataModel],
+                                     cya: Option[StockDividendsCheckYourAnswersModel],
                                      prior: Option[StockDividendsPriorDataModel])
                                     (implicit request: User[AnyContent]): Future[Result] = {
-    StockDividendsCheckYourAnswersModel.getCyaModel(cya.flatMap(_.stockDividends), prior) match {
+    StockDividendsCheckYourAnswersModel.getCyaModel(cya, prior) match {
       case Some(cyaData) => handleSession(cya, cyaData, taxYear)
       case _ =>
         logger.info("[CheckStockDividendsAmountController][show] No CYA data in session. Redirecting to the task list.")
@@ -72,16 +71,17 @@ class CheckRedeemableSharesAmountController @Inject()(authorisedAction: Authoris
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit request =>
-    stockDividendsSession.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cyaData, priorData) =>
+    stockDividendsSession.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cyaData, priorData) =>
       performSubmission(taxYear, cyaData, priorData)
     }
   }
 
-  private[controllers] def performSubmission(taxYear: Int, cyaData: Option[StockDividendsUserDataModel], priorData: Option[StockDividendsPriorDataModel])
+  private[controllers] def performSubmission(taxYear: Int,
+                                             cyaData: Option[StockDividendsCheckYourAnswersModel],
+                                             priorData: Option[StockDividendsPriorDataModel])
                                             (implicit hc: HeaderCarrier, request: User[AnyContent]): Future[Result] = {
     (cyaData match {
-      case Some(data) =>
-        val cya = data.stockDividends.getOrElse(StockDividendsCheckYourAnswersModel())
+      case Some(cya) =>
         val stockDividendsSubmission = priorData.getOrElse(StockDividendsPriorDataModel())
         submissionService.submitDividends(cya, request.nino, taxYear).map {
           case response@Right(_) =>
@@ -118,7 +118,7 @@ class CheckRedeemableSharesAmountController @Inject()(authorisedAction: Authoris
     auditService.auditModel(event)
   }
 
-  private def handleSession(sessionData: Option[StockDividendsUserDataModel], cyaData: StockDividendsCheckYourAnswersModel, taxYear: Int)
+  private def handleSession(sessionData: Option[StockDividendsCheckYourAnswersModel], cyaData: StockDividendsCheckYourAnswersModel, taxYear: Int)
                            (implicit request: User[AnyContent]): Future[Result] = {
     if (sessionData.isDefined) {
       stockDividendsSession.updateSessionData(cyaData, taxYear)(errorHandler.internalServerError())(

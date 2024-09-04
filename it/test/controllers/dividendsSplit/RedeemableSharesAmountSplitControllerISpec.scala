@@ -19,7 +19,6 @@ package controllers.dividendsSplit
 import models.mongo.DataNotFound
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import org.scalatest.OptionValues.convertOptionToValuable
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.inject.bind
@@ -28,7 +27,7 @@ import play.api.libs.ws.DefaultBodyWritables
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.api.{Environment, Mode}
-import services.StockDividendsSessionService
+import services.StockDividendsSessionServiceProvider
 import test.utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 
 import scala.concurrent.Future
@@ -131,7 +130,7 @@ class RedeemableSharesAmountSplitControllerISpec extends IntegrationTest with Vi
     }
 
     "return an INTERNAL_SERVER_ERROR" in {
-      val mockService = mock[StockDividendsSessionService]
+      val mockService = mock[StockDividendsSessionServiceProvider]
 
       when(mockService.getSessionData(any())(any(), any())).thenReturn(
         Future.successful(Left(DataNotFound))
@@ -140,7 +139,7 @@ class RedeemableSharesAmountSplitControllerISpec extends IntegrationTest with Vi
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true, splitStockDividends = true))
-        .overrides(bind[StockDividendsSessionService].toInstance(mockService))
+        .overrides(bind[StockDividendsSessionServiceProvider].toInstance(mockService))
         .build()
 
       running(application) {
@@ -207,7 +206,7 @@ class RedeemableSharesAmountSplitControllerISpec extends IntegrationTest with Vi
     }
 
     "return an INTERNAL_SERVER_ERROR" in {
-      val mockService = mock[StockDividendsSessionService]
+      val mockService = mock[StockDividendsSessionServiceProvider]
 
       when(mockService.getSessionData(any())(any(), any())).thenReturn(
         Future.successful(Left(DataNotFound))
@@ -216,7 +215,7 @@ class RedeemableSharesAmountSplitControllerISpec extends IntegrationTest with Vi
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true, splitStockDividends = true))
-        .overrides(bind[StockDividendsSessionService].toInstance(mockService))
+        .overrides(bind[StockDividendsSessionServiceProvider].toInstance(mockService))
         .build()
 
       running(application) {

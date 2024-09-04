@@ -37,7 +37,7 @@ class RedeemableSharesAmountControllerISpec extends IntegrationTest with ViewHel
   val redeemableSharesAmountUrl: String = controllers.dividendsBase.routes.RedeemableSharesAmountBaseController.show(taxYear).url
   val closeCompanyLoansStatusUrl: String = routes.CloseCompanyLoanStatusController.show(taxYear).url
   val dividendsSummaryUrl: String = routes.DividendsSummaryController.show(taxYear).url
-  val relativepostURL: String = routes.RedeemableSharesAmountController.submit(taxYear).url
+  val relativepostURL: String = controllers.dividendsBase.routes.RedeemableSharesAmountBaseController.submit(taxYear).url
 
   val postURL: String = s"$appUrl/$taxYear/dividends/redeemable-shares-amount"
   val poundPrefixText = "£"
