@@ -108,6 +108,7 @@ class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig) extends AppCon
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.exclude")
 
   lazy val tailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoringEnabled")
+  lazy val backendSessionEnabled: Boolean = servicesConfig.getBoolean("feature-switch.backendSessionEnabled")
   lazy val interestTailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoring.interest")
   lazy val interestSavingsEnabled: Boolean = servicesConfig.getBoolean("feature-switch.journeys.savings")
   lazy val dividendsTailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoring.dividends")
@@ -169,11 +170,10 @@ trait AppConfig {
 
   def excludeJourneyUrl(taxYear: Int): String
 
-  val tailoringEnabled: Boolean
-  val interestTailoringEnabled: Boolean
-  val interestSavingsEnabled: Boolean
-  val dividendsTailoringEnabled: Boolean
-  val charityTailoringEnabled: Boolean
-
+  def tailoringEnabled: Boolean
+  def interestTailoringEnabled: Boolean
+  def interestSavingsEnabled: Boolean
+  def dividendsTailoringEnabled: Boolean
+  def charityTailoringEnabled: Boolean
   def isSplitDividends: Boolean
 }

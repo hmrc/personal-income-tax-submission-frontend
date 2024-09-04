@@ -17,21 +17,24 @@
 package test.controllers.dividends
 
 import controllers.dividends.routes
-import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission}
+import models.dividends.{DividendsCheckYourAnswersModel, DividendsPriorSubmission, StockDividendsCheckYourAnswersModel}
 import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import play.api.Application
 import play.api.http.HeaderNames
 import play.api.http.Status._
-import play.api.libs.ws.WSResponse
+import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.route
+import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, headers, route, writeableOf_AnyContentAsFormUrlEncoded}
 import test.utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
+
+import scala.concurrent.Future
 
 class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers with DividendsDatabaseHelper {
 
   val amount: BigDecimal = 500
-  val ukDividendsAmountUrl = s"$appUrl/$taxYear/dividends/how-much-dividends-from-uk-companies"
+  val ukDividendsAmountUrl: String = routes.UkDividendsAmountController.show(taxYear).url
 
   val cyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(ukDividends = Some(true), ukDividendsAmount = None)
   val cyaModelWithAmount: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(ukDividends = Some(true), ukDividendsAmount = Some(amount))
@@ -136,66 +139,73 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
   ".show" should {
 
-    userScenarios.foreach { us =>
+    userScenarios.foreach { scenario =>
+
+      def getUkDividendsAmount(application: Application): Future[Result] = {
+        val headers = Option.when(scenario.isWelsh)(HeaderNames.ACCEPT_LANGUAGE -> "cy").toSeq ++ playSessionCookie(scenario.isAgent)
+        lazy val request = FakeRequest("GET", ukDividendsAmountUrl).withHeaders(headers: _*)
+
+        authoriseAgentOrIndividual(scenario.isAgent)
+        route(application, request, "{}").get
+      }
 
       import Selectors._
-      import us.commonExpectedResults._
-      import us.specificExpectedResults._
+      import scenario.commonExpectedResults._
+      import scenario.specificExpectedResults._
 
-      s"language is ${welshTest(us.isWelsh)} and request is from an ${agentTest(us.isAgent)}" should {
+      s"language is ${welshTest(scenario.isWelsh)} and request is from an ${agentTest(scenario.isAgent)}" should {
 
         "returns uk dividends amount page with empty amount field" which {
+          implicit lazy val application: Application = app
 
-          lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(us.isAgent)
+          lazy val result = {
             dropDividendsDB()
             emptyUserDataStub()
             insertDividendsCyaData(Some(cyaModel))
-            urlGet(ukDividendsAmountUrl, us.isWelsh, headers = playSessionCookie(us.isAgent))
+            getUkDividendsAmount(application)
           }
 
           "has an OK(200) status" in {
-            result.status shouldBe OK
+            status(result) shouldBe OK
           }
 
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
 
-          titleCheck(get.expectedTitle, us.isWelsh)
+          titleCheck(get.expectedTitle, scenario.isWelsh)
           h1Check(get.expectedH1 + " " + captionExpected)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
           textOnPageCheck(get.tellUsTheValue, tellUsTheValueSelector)
           inputFieldCheck(amountInputName, inputSelector)
           inputFieldValueCheck("", inputAmountField)
           buttonCheck(continueText, continueButtonSelector)
-          formPostLinkCheck(us.commonExpectedResults.continueLink, continueButtonFormSelector)
-          welshToggleCheck(us.isWelsh)
+          formPostLinkCheck(scenario.commonExpectedResults.continueLink, continueButtonFormSelector)
+          welshToggleCheck(scenario.isWelsh)
         }
 
         "returns uk dividends amount page with pre-filled amount" which {
+          implicit lazy val application: Application = app
 
-
-          lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(us.isAgent)
+          lazy val result = {
             dropDividendsDB()
             emptyUserDataStub()
             insertDividendsCyaData(Some(cyaModelWithAmount))
-            urlGet(ukDividendsAmountUrl, us.isWelsh, headers = playSessionCookie(us.isAgent))
+            getUkDividendsAmount(application)
           }
 
           "has an OK(200) status" in {
-            result.status shouldBe OK
+            status(result) shouldBe OK
           }
 
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
 
-          titleCheck(get.expectedTitle, us.isWelsh)
+          titleCheck(get.expectedTitle, scenario.isWelsh)
           h1Check(get.expectedH1 + " " + captionExpected)
           textOnPageCheck(poundPrefixText, poundPrefixSelector)
           inputFieldCheck(amountInputName, inputSelector)
           inputFieldValueCheck(amount.toString(), inputAmountField)
           buttonCheck(continueText, continueButtonSelector)
-          formPostLinkCheck(us.commonExpectedResults.continueLink, continueButtonFormSelector)
-          welshToggleCheck(us.isWelsh)
+          formPostLinkCheck(scenario.commonExpectedResults.continueLink, continueButtonFormSelector)
+          welshToggleCheck(scenario.isWelsh)
         }
       }
     }
@@ -203,10 +213,18 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
   ".show" should {
 
-    "returns uk dividends amount page with cya amount pre-filled even if there is prior submission" which {
+    def getUkDividendsAmount(application: Application): Future[Result] = {
+      val headers = playSessionCookie()
+      lazy val request = FakeRequest("GET", ukDividendsAmountUrl).withHeaders(headers: _*)
 
-      lazy val result: WSResponse = {
-        authoriseIndividual()
+      authoriseIndividual()
+      route(application, request, "{}").get
+    }
+
+    "returns uk dividends amount page with cya amount pre-filled even if there is prior submission" which {
+      implicit lazy val application: Application = app
+
+      lazy val result = {
         dropDividendsDB()
         emptyUserDataStub()
         insertDividendsCyaData(Some(cyaModelWithAmount))
@@ -216,36 +234,42 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
             None
           ))), nino, taxYear)
 
-        urlGet(ukDividendsAmountUrl, headers = playSessionCookie())
+        getUkDividendsAmount(application)
       }
 
       "has an OK(200) status" in {
-        result.status shouldBe OK
+        status(result) shouldBe OK
       }
 
-      implicit val document: () => Document = () => Jsoup.parse(result.body)
+      implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
 
       inputFieldValueCheck(amount.toString(), "#amount")
     }
 
     "redirects user to overview page when there is no data in session" which {
-      lazy val result: WSResponse = {
+      implicit lazy val application: Application = app
+
+      lazy val result = {
         authoriseIndividual()
         dropDividendsDB()
         emptyUserDataStub()
         stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", OK, "overview page content")
-        urlGet(ukDividendsAmountUrl, headers = playSessionCookie())
+        getUkDividendsAmount(application)
       }
 
-      "has an OK(200) status" in {
-        result.status shouldBe OK
-        result.body shouldBe "overview page content"
+      "has a SEE_OTHER(303) status" in {
+        status(result) shouldBe SEE_OTHER
+      }
+
+      "have the correct redirect URL" in {
+        headers(result).get(HeaderNames.LOCATION).value shouldBe s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view"
       }
     }
 
     "redirects user to overview page when there is prior submission data and no cya data in session" which {
-      lazy val result: WSResponse = {
-        authoriseIndividual()
+      implicit lazy val application: Application = app
+
+      lazy val result = {
         dropDividendsDB()
         emptyUserDataStub()
         userDataStub(IncomeSourcesModel(Some(
@@ -253,31 +277,40 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
         )), nino, taxYear)
         insertDividendsCyaData(None)
         stubGet(s"/update-and-submit-income-tax-return/$taxYear/view", SEE_OTHER, "overview page content")
-        urlGet(ukDividendsAmountUrl, follow = false, headers = playSessionCookie())
+        getUkDividendsAmount(application)
       }
 
       "has a SEE_OTHER(303) status" in {
-        result.status shouldBe SEE_OTHER
+        status(result) shouldBe SEE_OTHER
       }
 
       "have the correct redirect URL" in {
-        result.headers(HeaderNames.LOCATION).head shouldBe s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view"
+        headers(result).get(HeaderNames.LOCATION).value shouldBe s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view"
       }
     }
 
-    "display the stock dividend uk dividends amount page" which {
-      lazy val headers = playSessionCookie(userScenarios.head.isAgent) ++ (if (userScenarios.head.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-      lazy val request = FakeRequest(
-        "GET", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-companies")
-        .withHeaders(headers: _*)
+    "display the stock dividend uk dividends amount page with appWithStockDividends" which {
+      implicit lazy val application: Application = appWithStockDividends
 
       lazy val result = {
         dropStockDividendsDB()
         emptyStockDividendsUserDataStub()
-        authoriseAgentOrIndividual(userScenarios.head.isAgent)
-        route(appWithStockDividends, request, "{}").get
+        getUkDividendsAmount(application)
       }
 
+      "has a status of OK(200)" in {
+        status(result) shouldBe OK
+      }
+    }
+
+    "display the stock dividend uk dividends amount page with appWithStockDividendsBackendMongo" which {
+      implicit lazy val application: Application = appWithStockDividendsBackendMongo
+
+      lazy val result = {
+        getSessionDataStub()
+        emptyStockDividendsUserDataStub()
+        getUkDividendsAmount(application)
+      }
 
       "has a status of OK(200)" in {
         status(result) shouldBe OK
@@ -285,19 +318,14 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
     }
 
     "display the stock dividend uk dividends amount page with session data" which {
-      lazy val headers = playSessionCookie(userScenarios.head.isAgent) ++ (if (userScenarios.head.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-      lazy val request = FakeRequest(
-        "GET", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-companies"
-      ).withHeaders(headers: _*)
+      implicit lazy val application: Application = appWithStockDividends
 
       lazy val result = {
         dropStockDividendsDB()
         insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
         emptyStockDividendsUserDataStub()
-        authoriseAgentOrIndividual(userScenarios.head.isAgent)
-        route(appWithStockDividends, request, "{}").get
+        getUkDividendsAmount(application)
       }
-
 
       "has a status of OK(200)" in {
         status(result) shouldBe OK
@@ -308,52 +336,72 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
   ".submit" when {
 
 
-    userScenarios.foreach { us =>
+    userScenarios.foreach { scenario =>
 
       import Selectors._
-      import us.specificExpectedResults._
+      import scenario.specificExpectedResults._
 
-      s"language is ${welshTest(us.isWelsh)} and request is from an ${agentTest(us.isAgent)}" should {
+      def postUkDividendsAmount(body: Seq[(String, String)],
+                                application: Application): Future[Result] = {
+        val headers = Seq("Csrf-Token" -> "nocheck") ++
+          Option.when(scenario.isWelsh)(HeaderNames.ACCEPT_LANGUAGE -> "cy").toSeq ++
+          playSessionCookie(scenario.isAgent)
+        val request = FakeRequest("POST", ukDividendsAmountUrl).withHeaders(headers: _*).withFormUrlEncodedBody(body: _*)
+        authoriseAgentOrIndividual(scenario.isAgent)
+        route(application, request).get
+      }
+
+      s"language is ${welshTest(scenario.isWelsh)} and request is from an ${agentTest(scenario.isAgent)}" should {
 
 
         s"return a BAD_REQUEST($BAD_REQUEST) status with an empty error" which {
-          lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(us.isAgent)
-            urlPost(ukDividendsAmountUrl, welsh = us.isWelsh, headers = playSessionCookie(us.isAgent), body = Map[String, String]())
+          implicit lazy val application: Application = app
+
+          lazy val result = {
+            emptyUserDataStub()
+            postUkDividendsAmount(Seq.empty, application)
           }
 
           "return the correct status" in {
-            result.status shouldBe BAD_REQUEST
+            status(result) shouldBe BAD_REQUEST
           }
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
-          errorSummaryCheck(get.expectedErrorEmpty, expectedErrorLink, us.isWelsh)
+
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+          errorSummaryCheck(get.expectedErrorEmpty, expectedErrorLink, scenario.isWelsh)
           errorAboveElementCheck(get.expectedErrorEmpty)
         }
+
         s"return a BAD_REQUEST($BAD_REQUEST) status with an invalid error" which {
-          lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(us.isAgent)
-            urlPost(ukDividendsAmountUrl, welsh = us.isWelsh, headers = playSessionCookie(us.isAgent), body = Map("amount" -> "|"))
+          implicit lazy val application: Application = app
+
+          lazy val result = {
+            emptyUserDataStub()
+            postUkDividendsAmount(Seq("amount" -> "|"), application)
           }
 
           "return the correct status" in {
-            result.status shouldBe BAD_REQUEST
+            status(result) shouldBe BAD_REQUEST
           }
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
-          errorSummaryCheck(get.expectedErrorInvalid, expectedErrorLink, us.isWelsh)
+
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+          errorSummaryCheck(get.expectedErrorInvalid, expectedErrorLink, scenario.isWelsh)
           errorAboveElementCheck(get.expectedErrorInvalid)
         }
+
         s"return a BAD_REQUEST($BAD_REQUEST) status with an OverMax error" which {
-          lazy val result: WSResponse = {
-            authoriseAgentOrIndividual(us.isAgent)
-            urlPost(ukDividendsAmountUrl, welsh =
-              us.isWelsh, headers = playSessionCookie(us.isAgent), body = Map("amount" -> "9999999999999999999999999"))
+          implicit lazy val application: Application = app
+
+          lazy val result = {
+            emptyUserDataStub()
+            postUkDividendsAmount(Seq("amount" -> "9999999999999999999999999"), application)
           }
 
           "return the correct status" in {
-            result.status shouldBe BAD_REQUEST
+            status(result) shouldBe BAD_REQUEST
           }
-          implicit val document: () => Document = () => Jsoup.parse(result.body)
-          errorSummaryCheck(get.expectedErrorOverMax, expectedErrorLink, us.isWelsh)
+
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+          errorSummaryCheck(get.expectedErrorOverMax, expectedErrorLink, scenario.isWelsh)
           errorAboveElementCheck(get.expectedErrorOverMax)
         }
 
@@ -363,99 +411,125 @@ class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers 
 
   ".submit" should {
 
+    def postUkDividendsAmount(body: Seq[(String, String)],
+                              application: Application): Future[Result] = {
+      val headers = Seq("Csrf-Token" -> "nocheck") ++ playSessionCookie()
+      val request = FakeRequest("POST", ukDividendsAmountUrl).withHeaders(headers: _*).withFormUrlEncodedBody(body: _*)
+      authoriseIndividual()
+      route(application, request).get
+    }
+
     "redirects User to overview page if no CYA data is in session" when {
-      lazy val result: WSResponse = {
-        authoriseIndividual()
+      implicit lazy val application: Application = app
+
+      lazy val result = {
         dropDividendsDB()
         emptyUserDataStub()
-        urlGet(ukDividendsAmountUrl, follow = false, headers = playSessionCookie())
-        urlPost(ukDividendsAmountUrl, follow = false, headers = playSessionCookie(), body = Map("amount" -> "123"))
+        postUkDividendsAmount(Seq("amount" -> "123"), application)
       }
+
       "has a SEE_OTHER(303) status" in {
-        result.status shouldBe SEE_OTHER
+        status(result) shouldBe SEE_OTHER
       }
 
       "have the correct redirect URL" in {
-        result.headers(HeaderNames.LOCATION).head shouldBe s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view"
+        headers(result).get(HeaderNames.LOCATION).value shouldBe s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view"
       }
     }
 
-
     "redirect to Did you receive other dividends page if form is valid and there is incomplete cya data and Did you receive uk dividends is yes" when {
-      lazy val result: WSResponse = {
-        authoriseIndividual()
+      implicit lazy val application: Application = app
+
+      lazy val result = {
         dropDividendsDB()
         emptyUserDataStub()
         insertDividendsCyaData(Some(cyaModel))
-        urlPost(ukDividendsAmountUrl, follow = false, headers = playSessionCookie(), body = Map("amount" -> "123"))
+        postUkDividendsAmount(Seq("amount" -> "123"), application)
       }
 
       s"has a $SEE_OTHER(303) status" in {
-        result.status shouldBe SEE_OTHER
-        result.header(HeaderNames.LOCATION) shouldBe Some(routes.ReceiveOtherUkDividendsController.show(taxYear).url)
+        status(result) shouldBe SEE_OTHER
+        headers(result).get(HeaderNames.LOCATION).value shouldBe routes.ReceiveOtherUkDividendsController.show(taxYear).url
       }
     }
 
     "redirect to Dividends CYA page if form is valid and there is complete cya data" when {
-      lazy val result: WSResponse = {
-        authoriseIndividual()
+      implicit lazy val application: Application = app
+
+      lazy val result = {
         dropDividendsDB()
         emptyUserDataStub()
         userDataStub(priorData, nino, taxYear)
         insertDividendsCyaData(Some(DividendsCheckYourAnswersModel(None, Some(true), Some(amount), Some(true), Some(amount))))
-        urlPost(ukDividendsAmountUrl, follow = false, headers = playSessionCookie(), body = Map("amount" -> "123"))
+        postUkDividendsAmount(Seq("amount" -> "123"), application)
       }
 
       s"has a $SEE_OTHER(303) status" in {
-        result.status shouldBe SEE_OTHER
-        result.header(HeaderNames.LOCATION) shouldBe Some(routes.DividendsCYAController.show(taxYear).url)
+        status(result) shouldBe SEE_OTHER
+        headers(result).get(HeaderNames.LOCATION).value shouldBe routes.DividendsCYAController.show(taxYear).url
       }
     }
 
-    "return a 303 status and redirect to next status page" in {
-      lazy val headers = playSessionCookie(userScenarios.head.isAgent) ++
-        (if (userScenarios.head.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq()) ++
-        Seq("Csrf-Token" -> "nocheck")
-
-      lazy val request = FakeRequest(
-        "POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-companies"
-      ).withHeaders(headers: _*)
+    "return a 303 status and redirect to next status page with appWithStockDividends" in {
+      implicit lazy val application: Application = appWithStockDividends
 
       lazy val result = {
         dropStockDividendsDB()
-        insertStockDividendsCyaData(Some(completeStockDividendsCYAModel.copy(None, None, None, None, None, None, None, None, None, None)))
-        authoriseAgentOrIndividual(userScenarios.head.isAgent)
+        insertStockDividendsCyaData(Some(StockDividendsCheckYourAnswersModel()))
         emptyStockDividendsUserDataStub()
-        route(appWithStockDividends, request, body = Map("amount" -> Seq("123"))).get
+        emptyUserDataStub()
+        postUkDividendsAmount(Seq("amount" -> "123"), application)
       }
-      status(result) shouldBe SEE_OTHER
-      await(result).header.headers
-        .get(HeaderNames.LOCATION) shouldBe Some(routes.ReceiveOtherUkDividendsController.show(taxYear).url)
 
+      status(result) shouldBe SEE_OTHER
+      headers(result).get(HeaderNames.LOCATION).value shouldBe routes.ReceiveOtherUkDividendsController.show(taxYear).url
     }
 
-    "return a 303 status and redirect to cya page when isFinished is true" in {
-      lazy val headers = playSessionCookie(userScenarios.head.isAgent) ++
-        (if (userScenarios.head.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq()) ++
-        Seq("Csrf-Token" -> "nocheck")
+    "return a 303 status and redirect to next status page with appWithStockDividendsBackendMongo" in {
+      implicit lazy val application: Application = appWithStockDividendsBackendMongo
 
-      lazy val request =
-        FakeRequest(
-          "POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/how-much-dividends-from-uk-companies")
-          .withHeaders(headers: _*)
+      lazy val result = {
+        getSessionDataStub(Some(stockDividendsUserDataModel.copy(
+          stockDividends = Some(StockDividendsCheckYourAnswersModel()))))
+        updateSessionDataStub()
+        emptyStockDividendsUserDataStub()
+        emptyUserDataStub()
+        postUkDividendsAmount(Seq("amount" -> "123"), application)
+      }
+
+      status(result) shouldBe SEE_OTHER
+      headers(result).get(HeaderNames.LOCATION).value shouldBe routes.ReceiveOtherUkDividendsController.show(taxYear).url
+    }
+
+    "return a 303 status and redirect to cya page when isFinished is true with appWithStockDividends" in {
+      implicit lazy val application: Application = appWithStockDividends
 
       lazy val result = {
         dropStockDividendsDB()
         insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
-        authoriseAgentOrIndividual(userScenarios.head.isAgent)
+        emptyUserDataStub()
         emptyStockDividendsUserDataStub()
-        route(appWithStockDividends, request, body = Map("amount" -> Seq("123"))).get
+        postUkDividendsAmount(Seq("amount" -> "123"), application)
       }
-      status(result) shouldBe SEE_OTHER
-      await(result).header.headers
-        .get(HeaderNames.LOCATION) shouldBe Some(routes.DividendsSummaryController.show(taxYear).url)
 
+      status(result) shouldBe SEE_OTHER
+      headers(result).get(HeaderNames.LOCATION).value shouldBe routes.DividendsSummaryController.show(taxYear).url
     }
 
+    "return a 303 status and redirect to cya page when isFinished is true with appWithStockDividendsBackendMongo" in {
+      implicit lazy val application: Application = appWithStockDividendsBackendMongo
+
+      lazy val result = {
+        getSessionDataStub(Some(stockDividendsUserDataModel.copy(
+          stockDividends = Some(completeStockDividendsCYAModel))))
+        updateSessionDataStub()
+        emptyUserDataStub()
+        emptyStockDividendsUserDataStub()
+        postUkDividendsAmount(Seq("amount" -> "123"), application)
+      }
+
+      status(result) shouldBe SEE_OTHER
+      headers(result).get(HeaderNames.LOCATION).value shouldBe routes.DividendsSummaryController.show(taxYear).url
+    }
   }
 }

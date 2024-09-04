@@ -19,7 +19,7 @@ package services
 import common.IncomeSources
 import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector, StockDividendsUserDataConnector}
 import models.dividends.StockDividendsCheckYourAnswersModel
-import models.mongo.{DatabaseError, StockDividendsUserDataModel}
+import models.mongo.{DataNotFound, DatabaseError, StockDividendsUserDataModel}
 import models.priorDataModels.StockDividendsPriorDataModel
 import models.{APIErrorModel, User}
 import play.api.Logger
@@ -30,12 +30,11 @@ import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class StockDividendsSessionService @Inject()(
-                                              stockDividendsUserDataRepository: StockDividendsUserDataRepository,
-                                              stockDividendsUserDataConnector: StockDividendsUserDataConnector,
-                                              incomeTaxUserDataConnector: IncomeTaxUserDataConnector,
-                                              incomeSourceConnector: IncomeSourceConnector
-                                       ) {
+class StockDividendsSessionServiceImpl @Inject()(stockDividendsUserDataRepository: StockDividendsUserDataRepository,
+                                                 stockDividendsUserDataConnector: StockDividendsUserDataConnector,
+                                                 incomeTaxUserDataConnector: IncomeTaxUserDataConnector,
+                                                 incomeSourceConnector: IncomeSourceConnector)
+                                                (implicit ec: ExecutionContext) extends StockDividendsSessionServiceProvider {
 
   type StockDividendsPriorDataResponse = Either[APIErrorModel, Option[StockDividendsPriorDataModel]]
 
@@ -45,19 +44,20 @@ class StockDividendsSessionService @Inject()(
     incomeTaxUserDataConnector.getUserData(taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid)).flatMap {
       case Left(error) => Future.successful(Left(error))
       case Right(ukDividends) =>
-        stockDividendsUserDataConnector.getUserData(taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid)).map{
+        stockDividendsUserDataConnector.getUserData(taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid)).map {
           case Left(error) => Left(error)
           case Right(stockDividends) =>
             if (ukDividends.dividends.isDefined || stockDividends.isDefined) {
               Right(Some(StockDividendsPriorDataModel.getFromPrior(ukDividends, stockDividends)))
             } else {
               Right(None)
-            }        }
+            }
+        }
     }
   }
 
   def createSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int)(onFail: A)(onSuccess: A)
-                          (implicit user: User[_], ec: ExecutionContext): Future[A] = {
+                          (implicit user: User[_], hc: HeaderCarrier): Future[A] = {
 
     val userData = StockDividendsUserDataModel(
       user.sessionId,
@@ -74,7 +74,7 @@ class StockDividendsSessionService @Inject()(
     }
   }
 
-  def getSessionData(taxYear: Int)(implicit user: User[_], ec: ExecutionContext): Future[Either[DatabaseError, Option[StockDividendsUserDataModel]]] = {
+  def getSessionData(taxYear: Int)(implicit request: User[_], hc: HeaderCarrier): Future[Either[DatabaseError, Option[StockDividendsUserDataModel]]]  = {
 
     stockDividendsUserDataRepository.find(taxYear).map {
       case Left(error) =>
@@ -84,8 +84,8 @@ class StockDividendsSessionService @Inject()(
     }
   }
 
-  def updateSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int, needsCreating: Boolean = false)(onFail: A)(onSuccess: A)
-                          (implicit user: User[_], ec: ExecutionContext): Future[A] = {
+  def updateSessionData[A](cyaModel: StockDividendsCheckYourAnswersModel, taxYear: Int)(onFail: A)(onSuccess: A)
+                          (implicit user: User[_], hc: HeaderCarrier): Future[A] = {
 
     val userData = StockDividendsUserDataModel(
       user.sessionId,
@@ -96,37 +96,29 @@ class StockDividendsSessionService @Inject()(
       Instant.now()
     )
 
-    if (needsCreating) {
-      stockDividendsUserDataRepository.create(userData)().map {
-        case Right(_) => onSuccess
-        case Left(_) => onFail
-      }
-    } else {
-      stockDividendsUserDataRepository.update(userData).map {
-        case Right(_) => onSuccess
-        case Left(_) => onFail
-      }
+    stockDividendsUserDataRepository.update(userData).map {
+      case Right(_) => onSuccess
+      case Left(_) => onFail
     }
   }
 
-  def getAndHandle[R](taxYear: Int)(onFail: R)(block: (Option[StockDividendsUserDataModel], Option[StockDividendsPriorDataModel]) => Future[R])
-                     (implicit executionContext: ExecutionContext, user: User[_], hc: HeaderCarrier): Future[R] = {
-    val result = for {
+  def getAndHandle[R](taxYear: Int)(onFail: Future[R])(block: (Option[StockDividendsCheckYourAnswersModel], Option[StockDividendsPriorDataModel]) => Future[R])
+                     (implicit request: User[_], hc: HeaderCarrier): Future[R] = {
+    for {
       optionalCya <- getSessionData(taxYear)
       priorDataResponse <- getPriorData(taxYear)
     } yield {
       priorDataResponse match {
         case Right(prior) => optionalCya match {
-          case Left(_) =>  Future(onFail)
-          case Right(cyaData) => block(cyaData, prior)
+          case Left(_) => onFail
+          case Right(cyaData) => block(cyaData.flatMap(_.stockDividends), prior)
         }
-        case Left(_) =>  Future(onFail)
+        case Left(_) => onFail
       }
     }
-    result.flatten
-  }
+  }.flatten
 
-  def clear[R](taxYear: Int)(onFail: R)(onSuccess: R)(implicit user: User[_], ec: ExecutionContext, hc: HeaderCarrier): Future[R] = {
+  def clear[R](taxYear: Int)(onFail: R)(onSuccess: R)(implicit user: User[_], hc: HeaderCarrier): Future[R] = {
     incomeSourceConnector.put(taxYear, user.nino, IncomeSources.STOCK_DIVIDENDS)(hc.withExtraHeaders("mtditid" -> user.mtditid)).flatMap {
       case Left(_) => Future.successful(onFail)
       case _ =>
@@ -136,5 +128,4 @@ class StockDividendsSessionService @Inject()(
         }
     }
   }
-
 }

@@ -308,6 +308,7 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
 
         lazy val result = {
           authoriseAgentOrIndividual(scenario.isAgent)
+          emptyUserDataStub()
           dropSavingsDB()
           urlPost(postURL, follow = false, headers = playSessionCookie(scenario.isAgent), body = Map("amount" -> "123"))
 

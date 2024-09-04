@@ -16,29 +16,22 @@
 
 package test.services
 
-import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector, StockDividendsUserDataConnector}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar.mock
 import repositories.StockDividendsUserDataRepository
-import services.StockDividendsSessionService
+import services.StockDividendsSessionServiceImpl
 import test.utils.IntegrationTest
 
+import scala.concurrent.Future
 
-class StockDividendsSessionServiceISpec extends IntegrationTest{
 
-  val stockDividendsUserDataRepository: StockDividendsUserDataRepository = app.injector.instanceOf[StockDividendsUserDataRepository]
-  val stockDividendsUserDataConnector: StockDividendsUserDataConnector = app.injector.instanceOf[StockDividendsUserDataConnector]
-  val incomeTaxUserDataConnector: IncomeTaxUserDataConnector = app.injector.instanceOf[IncomeTaxUserDataConnector]
-  val incomeSourceConnector: IncomeSourceConnector = app.injector.instanceOf[IncomeSourceConnector]
+class StockDividendsSessionServiceImplISpec extends IntegrationTest {
 
-  val stockDividendsSessionServiceInvalidEncryption: StockDividendsSessionService =
-    appWithInvalidEncryptionKey.injector.instanceOf[StockDividendsSessionService]
+  val stockDividendsSessionServiceInvalidEncryption: StockDividendsSessionServiceImpl =
+    appWithInvalidEncryptionKey.injector.instanceOf[StockDividendsSessionServiceImpl]
 
-  val stockDividendsSessionService: StockDividendsSessionService = new StockDividendsSessionService(
-    stockDividendsUserDataRepository,
-    stockDividendsUserDataConnector,
-    incomeTaxUserDataConnector,
-    incomeSourceConnector)
-
-  "create" should{
+  "create" should {
     "return false when failing to decrypt the model" in {
       val result = await(stockDividendsSessionServiceInvalidEncryption.createSessionData(completeStockDividendsCYAModel, taxYear)(false)(true))
       result shouldBe false
@@ -53,11 +46,29 @@ class StockDividendsSessionServiceISpec extends IntegrationTest{
     }
   }
 
-  "update" should{
+  "update" should {
     "return false when failing to decrypt the model" in {
       val result = await(stockDividendsSessionServiceInvalidEncryption.updateSessionData(completeStockDividendsCYAModel, taxYear)(false)(true))
       result shouldBe false
     }
   }
 
+  "clear" should {
+    "return true when success" in {
+      val result = await(stockDividendsSessionService.clear(taxYear)(false)(true))
+      result shouldBe true
+    }
+
+    "return false when failure" in {
+      val mockRepo = mock[StockDividendsUserDataRepository]
+
+      val service = new StockDividendsSessionServiceImpl(mockRepo, stockDividendsUserDataConnector , incomeTaxUserDataConnector ,incomeSourceConnector)
+
+      when(mockRepo.clear(any())(any())).thenReturn(
+        Future.successful(false)
+      )
+      val result = await(service.clear(taxYear)(false)(true))
+      result shouldBe false
+    }
+  }
 }
