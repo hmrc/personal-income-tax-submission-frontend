@@ -65,7 +65,7 @@
                  Some(summaryListRow(
                     HtmlContent(messages("dividends.summary.list.amount-of-dividends")),
                     HtmlContent(s"£${cya.ukDividendsAmount.getOrElse("").toString}"),
-                    actions = Seq((controllers.dividends.routes.UkDividendsAmountController.show(taxYear), messages("common.change"), Some(messages("dividends.summary.list.hidden.text.amount-of-dividends"))))
+                    actions = Seq((controllers.dividendsBase.routes.UkDividendsAmountBaseController.show(taxYear), messages("common.change"), Some(messages("dividends.summary.list.hidden.text.amount-of-dividends"))))
                 ))
             } else { None },
             if (cya.gateway.contains(true)) {

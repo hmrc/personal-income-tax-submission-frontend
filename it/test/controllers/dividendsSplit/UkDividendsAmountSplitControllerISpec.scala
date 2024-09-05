@@ -14,37 +14,37 @@
  * limitations under the License.
  */
 
-package controllers.dividendsBase
+package controllers.dividendsSplit
 
-import models.dividends.{DividendsPriorSubmission, StockDividendModel, StockDividendsPriorSubmission}
-import models.priorDataModels.IncomeSourcesModel
-import org.scalatest.OptionValues.convertOptionToValuable
+import models.mongo.DataNotFound
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
-import play.api.http.Status.{NO_CONTENT, OK, SEE_OTHER}
+import org.scalatestplus.mockito.MockitoSugar.mock
+import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.ws.DefaultBodyWritables
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.api.{Environment, Mode}
-import test.utils.{DividendsDatabaseHelper, IntegrationTest}
+import services.StockDividendsSessionServiceProvider
+import test.utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 
-class CheckStockDividendAmountControllerISpec extends IntegrationTest with DividendsDatabaseHelper {
+import scala.concurrent.Future
 
-  val url: String = controllers.dividendsSplit.routes.CheckStockDividendsAmountController.show(taxYear).url
+class UkDividendsAmountSplitControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables with DividendsDatabaseHelper {
+
+  val url: String = controllers.dividendsBase.routes.UkDividendsAmountBaseController.show(taxYear).url
   val headers: Seq[(String, String)] = playSessionCookie() ++ Seq("Csrf-Token" -> "nocheck")
-  val monetaryValue: BigDecimal = 123.45
-  val stockDividendsPrior: StockDividendsPriorSubmission =
-    StockDividendsPriorSubmission(None, None, None, Some(StockDividendModel(None, grossAmount = monetaryValue)), None, None, None)
-  val dividendsPrior: IncomeSourcesModel = IncomeSourcesModel(Some(DividendsPriorSubmission(Some(monetaryValue), Some(monetaryValue))))
 
-  "CheckStockDividendAmountController.show" should {
-    "render the page when a session exists" in {
+  ".show" should {
+    "render the page" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true, splitStockDividends = true))
         .build()
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         emptyUserDataStub()
@@ -52,188 +52,160 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
         insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) contains completeStockDividendsCYAModel.stockDividendsAmount.get.toString()
+        contentAsString(result) contains completeStockDividendsCYAModel.ukDividendsAmount.get.toString()
       }
     }
 
-    "redirect to task list when no cya or prior exists" in {
+    "render the page for an agent" in {
+      val application = GuiceApplicationBuilder()
+        .in(Environment.simple(mode = Mode.Dev))
+        .configure(config(stockDividends = true, splitStockDividends = true))
+        .build()
+
+      val headers = playSessionCookie(agent = true)
+
+      running(application) {
+        authoriseAgentOrIndividual(isAgent = true)
+        dropStockDividendsDB()
+        emptyUserDataStub()
+        emptyStockDividendsUserDataStub()
+        insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
+
+        val request = FakeRequest(GET, url).withHeaders(headers: _*)
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) contains completeStockDividendsCYAModel.ukDividendsAmount.get.toString()
+      }
+    }
+
+    "render the page when no session is defined" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true, splitStockDividends = true))
         .build()
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         emptyUserDataStub()
         emptyStockDividendsUserDataStub()
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result) mustBe Some(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist")
-      }
-    }
-
-    "render the page when a new session needs to be created from prior data" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
-        .build()
-
-      running(application) {
-
-        authoriseIndividual(Some(nino))
-        dropStockDividendsDB()
-        userDataStub(dividendsPrior, nino, taxYear)
-        stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
-
-        val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
       }
     }
 
-    "render the page when a new session needs to be created from prior data with only dividends" in {
+    "render the page when session is defined without UK dividends amount" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true, splitStockDividends = true))
         .build()
 
       running(application) {
-
-        authoriseIndividual(Some(nino))
-        dropStockDividendsDB()
-        userDataStub(dividendsPrior, nino, taxYear)
-        emptyStockDividendsUserDataStub()
-
-        val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual OK
-      }
-    }
-
-    "render the page when a new session needs to be created from prior data with only stock dividends" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
-        .build()
-
-      running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         emptyUserDataStub()
-        stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
+        emptyStockDividendsUserDataStub()
+        insertStockDividendsCyaData(Some(completeStockDividendsCYAModel.copy(None, None, None, None, None, None, Some(123.45), None, None, None, None)))
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
       }
     }
 
-    "return an error when downstream service returns INTERNAL_SERVER_ERROR" in {
+    "return an INTERNAL_SERVER_ERROR" in {
+      val mockService = mock[StockDividendsSessionServiceProvider]
+
+      when(mockService.getSessionData(any())(any(), any())).thenReturn(Future.successful(Left(DataNotFound)))
+
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true, splitStockDividends = true))
+        .overrides(bind[StockDividendsSessionServiceProvider].toInstance(mockService))
         .build()
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
-        userDataStubWithError(nino, taxYear)
+        emptyUserDataStub()
         emptyStockDividendsUserDataStub()
+        insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual INTERNAL_SERVER_ERROR
       }
+
     }
   }
 
-  "StockDividendAmountBaseController.submit" should {
-    "submit data and redirect to task list" in {
+  ".submit" should {
+
+    "direct to the new check other UK dividends amount controller" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true, splitStockDividends = true))
         .build()
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
-        emptyUserDataStub()
-        emptyStockDividendsUserDataStub()
         insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
-        stubPut(s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", NO_CONTENT, "")
-        stubPut(s"/income-tax-dividends/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "")
-        stubPut(s"/income-tax-dividends/income-tax/income/dividends/$nino/$taxYear", NO_CONTENT, "")
 
-        val request = FakeRequest(POST, url).withHeaders(headers: _*)
-
+        val request = FakeRequest(POST, url).withHeaders(headers: _*).withFormUrlEncodedBody("amount" -> "123")
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result) mustBe Some(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist")
+        redirectLocation(result) mustBe Some(
+          s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-how-much-dividends-from-uk-companies"
+        )
       }
     }
 
-    "return SERVICE_UNAVAILABLE when API is unavailable" in {
+    "return BAD_REQUEST with invalid body" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true, splitStockDividends = true))
         .build()
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
-        emptyUserDataStub()
-        emptyStockDividendsUserDataStub()
         insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
-        stubPut(s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", NO_CONTENT, "")
-        stubPut(s"/income-tax-dividends/income-tax/nino/$nino/sources\\?taxYear=$taxYear", SERVICE_UNAVAILABLE, "")
-        stubPut(s"/income-tax-dividends/income-tax/income/dividends/$nino/$taxYear", SERVICE_UNAVAILABLE, "")
 
-        val request = FakeRequest(POST, url).withHeaders(headers: _*)
-
+        val request = FakeRequest(POST, url).withHeaders(headers: _*).withFormUrlEncodedBody("invalid" -> "123")
         val result = route(application, request).value
 
-        status(result) mustEqual SERVICE_UNAVAILABLE
+        status(result) mustEqual BAD_REQUEST
       }
     }
 
-    "return INTERNAL_SERVER_ERROR due to no session data" in {
+    "return an INTERNAL_SERVER_ERROR" in {
+      val mockService = mock[StockDividendsSessionServiceProvider]
+
+      when(mockService.getSessionData(any())(any(), any())).thenReturn(Future.successful(Left(DataNotFound)))
+
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true, splitStockDividends = true))
+        .overrides(bind[StockDividendsSessionServiceProvider].toInstance(mockService))
         .build()
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
-        emptyUserDataStub()
-        emptyStockDividendsUserDataStub()
+        insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
 
-        val request = FakeRequest(POST, url).withHeaders(headers: _*)
-
+        val request = FakeRequest(POST, url).withHeaders(headers: _*).withFormUrlEncodedBody("amount" -> "123")
         val result = route(application, request).value
 
         status(result) mustEqual INTERNAL_SERVER_ERROR

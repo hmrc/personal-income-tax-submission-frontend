@@ -74,7 +74,7 @@ class StockDividendsSessionServiceImpl @Inject()(stockDividendsUserDataRepositor
     }
   }
 
-  def getSessionData(taxYear: Int)(implicit request: User[_], hc: HeaderCarrier): Future[Either[DatabaseError, Option[StockDividendsUserDataModel]]]  = {
+  def getSessionData(taxYear: Int)(implicit request: User[_], hc: HeaderCarrier): Future[Either[DatabaseError, Option[StockDividendsUserDataModel]]] = {
 
     stockDividendsUserDataRepository.find(taxYear).map {
       case Left(error) =>
