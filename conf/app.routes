@@ -43,8 +43,11 @@ POST        /:taxYear/dividends/close-company-loan-amount                       
 GET         /:taxYear/dividends/stock-dividend-status                                                         controllers.dividends.StockDividendStatusController.show(taxYear: Int)
 POST        /:taxYear/dividends/stock-dividend-status                                                         controllers.dividends.StockDividendStatusController.submit(taxYear: Int)
 
-GET         /:taxYear/dividends/redeemable-shares-amount                                                      controllers.dividends.RedeemableSharesAmountController.show(taxYear: Int)
-POST        /:taxYear/dividends/redeemable-shares-amount                                                      controllers.dividends.RedeemableSharesAmountController.submit(taxYear: Int)
+GET         /:taxYear/dividends/redeemable-shares-amount                                                      controllers.dividendsBase.RedeemableSharesAmountBaseController.show(taxYear: Int)
+POST        /:taxYear/dividends/redeemable-shares-amount                                                      controllers.dividendsBase.RedeemableSharesAmountBaseController.submit(taxYear: Int)
+
+GET         /:taxYear/dividends/check-redeemable-shares-amount                                                controllers.dividendsSplit.CheckRedeemableSharesAmountController.show(taxYear: Int)
+POST        /:taxYear/dividends/check-redeemable-shares-amount                                                controllers.dividendsSplit.CheckRedeemableSharesAmountController.submit(taxYear: Int)
 
 GET         /:taxYear/dividends/redeemable-shares-status                                                      controllers.dividends.RedeemableSharesStatusController.show(taxYear: Int)
 POST        /:taxYear/dividends/redeemable-shares-status                                                      controllers.dividends.RedeemableSharesStatusController.submit(taxYear: Int)

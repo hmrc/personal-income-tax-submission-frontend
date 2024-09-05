@@ -83,6 +83,7 @@ class MockAppConfig extends AppConfig with MockFactory {
   override def excludeJourneyUrl(taxYear: Int): String = "/exclude"
 
   override def isSplitDividends: Boolean = false
+
 }
 class MockAppConfigEncyrptionOff extends MockAppConfig {
   override val useEncryption: Boolean = false

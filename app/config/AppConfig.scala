@@ -175,6 +175,5 @@ trait AppConfig {
   def interestSavingsEnabled: Boolean
   def dividendsTailoringEnabled: Boolean
   def charityTailoringEnabled: Boolean
-
   def isSplitDividends: Boolean
 }
