@@ -104,7 +104,7 @@ class OtherUkDividendsAmountBaseControllerISpec extends IntegrationTest with Div
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result) mustBe Some(
-          s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-dividends-from-uk-trusts-and-open-ended-investment-companies"
+          s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/check-how-much-dividends-from-uk-trusts-and-open-ended-investment-companies"
         )
       }
     }
