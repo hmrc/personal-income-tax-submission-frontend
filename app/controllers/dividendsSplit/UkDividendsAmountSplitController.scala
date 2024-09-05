@@ -28,7 +28,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import services.StockDividendsSessionServiceProvider
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import views.html.dividends.{OtherUkDividendsAmountView, UkDividendsAmountView}
+import views.html.dividends.UkDividendsAmountView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

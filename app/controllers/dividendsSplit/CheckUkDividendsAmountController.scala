@@ -58,7 +58,6 @@ class CheckUkDividendsAmountController @Inject()(authorisedAction: AuthorisedAct
       case Left(_) => Future.successful(errorHandler.internalServerError())
       case Right(_) =>
         stockDividendsSession.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, stockDividendsPrior) =>
-          println("********" + stockDividendsPrior)
           if (stockDividendsPrior.isDefined) {
             getStockDividendsCya(taxYear, cya, stockDividendsPrior)
           } else {
@@ -73,10 +72,7 @@ class CheckUkDividendsAmountController @Inject()(authorisedAction: AuthorisedAct
                                    prior: Option[StockDividendsPriorDataModel])
                                   (implicit request: User[AnyContent]): Future[Result] = {
     StockDividendsCheckYourAnswersModel.getCyaModel(cya, prior) match {
-      case Some(cyaData) =>
-        println("&&&&&&&&&&&&" + prior)
-        println("@@@@@@@@@@@@@@" + cyaData)
-        handleSession(cya, cyaData, taxYear)
+      case Some(cyaData) => handleSession(cya, cyaData, taxYear)
       case _ =>
         logger.info("[CheckStockDividendsAmountController][show] No CYA data in session. Redirecting to the task list.")
         Future.successful(Redirect(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist"))

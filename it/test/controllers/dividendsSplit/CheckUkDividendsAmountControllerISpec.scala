@@ -254,5 +254,4 @@ class CheckUkDividendsAmountControllerISpec extends IntegrationTest with Dividen
       }
     }
   }
-
 }

@@ -150,7 +150,7 @@ class UkDividendsAmountSplitControllerISpec extends IntegrationTest with ViewHel
 
   ".submit" should {
 
-    "direct to the new check other UK dividends amount controller" in {
+    "direct to the new check UK dividends amount controller" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true, splitStockDividends = true))

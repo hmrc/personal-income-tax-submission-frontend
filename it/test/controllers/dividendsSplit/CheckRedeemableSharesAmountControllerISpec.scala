@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.dividendsBase
+package controllers.dividendsSplit
 
 import models.dividends.{DividendsPriorSubmission, StockDividendModel, StockDividendsPriorSubmission}
 import models.priorDataModels.IncomeSourcesModel
