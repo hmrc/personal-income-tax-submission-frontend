@@ -16,15 +16,23 @@
 
 package controllers.dividendsBase
 
+import connectors.IncomeSourceConnector
 import models.dividends.{DividendsPriorSubmission, StockDividendModel, StockDividendsPriorSubmission}
 import models.priorDataModels.IncomeSourcesModel
+import models.{APIErrorBodyModel, APIErrorModel}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.http.Status.{NO_CONTENT, OK, SEE_OTHER}
+import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.api.{Environment, Mode}
 import test.utils.{DividendsDatabaseHelper, IntegrationTest}
+
+import scala.concurrent.Future
 
 class CheckOtherUkDividendsAmountControllerISpec extends IntegrationTest with DividendsDatabaseHelper {
 
@@ -137,6 +145,32 @@ class CheckOtherUkDividendsAmountControllerISpec extends IntegrationTest with Di
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true, splitStockDividends = true))
+        .build()
+
+      running(application) {
+        authoriseIndividual(Some(nino))
+        dropStockDividendsDB()
+        userDataStubWithError(nino, taxYear)
+        emptyStockDividendsUserDataStub()
+
+        val request = FakeRequest(GET, url).withHeaders(headers: _*)
+        val result = route(application, request).value
+
+        status(result) mustEqual INTERNAL_SERVER_ERROR
+      }
+    }
+
+    "return an error when refresh cache service returns INTERNAL_SERVER_ERROR" in {
+      val mockRefreshCache = mock[IncomeSourceConnector]
+
+      when(mockRefreshCache.put(any(), any(), any())(any())).thenReturn(
+        Future.successful(Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("INTERNAL_SERVER_ERROR", "reason"))))
+      )
+
+      val application = GuiceApplicationBuilder()
+        .in(Environment.simple(mode = Mode.Dev))
+        .configure(config(stockDividends = true, splitStockDividends = true))
+        .overrides(bind[IncomeSourceConnector].toInstance(mockRefreshCache))
         .build()
 
       running(application) {

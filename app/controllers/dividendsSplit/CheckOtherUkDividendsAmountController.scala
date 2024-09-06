@@ -17,7 +17,9 @@
 package controllers.dividendsSplit
 
 import audit.{AuditModel, AuditService, CreateOrAmendDividendsAuditDetail}
+import common.IncomeSources
 import config.{AppConfig, ErrorHandler}
+import connectors.IncomeSourceConnector
 import controllers.predicates.AuthorisedAction
 import models.dividends.{DividendsPriorSubmission, StockDividendModel, StockDividendsCheckYourAnswersModel, StockDividendsPriorSubmission}
 import models.priorDataModels.StockDividendsPriorDataModel
@@ -40,7 +42,8 @@ class CheckOtherUkDividendsAmountController @Inject()(authorisedAction: Authoris
                                                       dividendsSession: DividendsSessionService,
                                                       stockDividendsSession: StockDividendsSessionServiceProvider,
                                                       auditService: AuditService,
-                                                      submissionService: StockDividendsSubmissionService)
+                                                      submissionService: StockDividendsSubmissionService,
+                                                      incomeSourceConnector: IncomeSourceConnector)
                                                      (implicit appConfig: AppConfig, mcc: MessagesControllerComponents, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport {
 
@@ -51,12 +54,17 @@ class CheckOtherUkDividendsAmountController @Inject()(authorisedAction: Authoris
 
   private def getStockDividends(taxYear: Int)
                                (implicit request: User[AnyContent]): Future[Result] = {
-    stockDividendsSession.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, stockDividendsPrior) =>
-      if (stockDividendsPrior.isDefined) {
-        getStockDividendsCya(taxYear, cya, stockDividendsPrior)
-      } else {
-        getStockDividendsCya(taxYear, cya, None)
-      }
+    incomeSourceConnector.put(taxYear, request.nino, IncomeSources.DIVIDENDS)(hc.withExtraHeaders("mtditid" -> request.mtditid)).flatMap {
+      case Left(_) =>
+        Future.successful(errorHandler.internalServerError())
+      case Right(_) =>
+        stockDividendsSession.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, stockDividendsPrior) =>
+          if (stockDividendsPrior.isDefined) {
+            getStockDividendsCya(taxYear, cya, stockDividendsPrior)
+          } else {
+            getStockDividendsCya(taxYear, cya, None)
+          }
+        }
     }
   }
 
