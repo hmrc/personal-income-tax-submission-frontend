@@ -50,8 +50,10 @@ class SavingsInterestAmountSplitController @Inject()(
   )
 
   def show(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit user =>
+
     savingsSessionService.getSessionData(taxYear).flatMap {
-      case Left(_) => Future.successful(errorHandler.internalServerError())
+      case Left(_) =>
+        Future.successful(errorHandler.internalServerError())
       case Right(cya) =>
         if (cya.isDefined) {
           val valueCheck = cya.flatMap(_.savingsIncome.flatMap(_.grossAmount))
