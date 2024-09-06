@@ -337,7 +337,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
 
       s"has a $SEE_OTHER(303) status" in {
         result.status shouldBe SEE_OTHER
-        result.header(HeaderNames.LOCATION) shouldBe Some(routes.UkDividendsAmountController.show(taxYear).url)
+        result.header(HeaderNames.LOCATION) shouldBe Some(controllers.dividendsBase.routes.UkDividendsAmountBaseController.show(taxYear).url)
       }
     }
 
@@ -352,7 +352,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
 
       s"has a $SEE_OTHER(303) status" in {
         result.status shouldBe SEE_OTHER
-        result.header(HeaderNames.LOCATION) shouldBe Some(routes.UkDividendsAmountController.show(taxYear).url)
+        result.header(HeaderNames.LOCATION) shouldBe Some(controllers.dividendsBase.routes.UkDividendsAmountBaseController.show(taxYear).url)
       }
     }
 

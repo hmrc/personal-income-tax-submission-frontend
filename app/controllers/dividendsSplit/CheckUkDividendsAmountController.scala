@@ -31,20 +31,20 @@ import services.{DividendsSessionService, StockDividendsSessionServiceProvider, 
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import views.html.dividends.CheckOtherUkDividendsAmountView
+import views.html.dividends.CheckUkDividendsAmountView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class CheckOtherUkDividendsAmountController @Inject()(authorisedAction: AuthorisedAction,
-                                                      view: CheckOtherUkDividendsAmountView,
-                                                      errorHandler: ErrorHandler,
-                                                      dividendsSession: DividendsSessionService,
-                                                      stockDividendsSession: StockDividendsSessionServiceProvider,
-                                                      auditService: AuditService,
-                                                      submissionService: StockDividendsSubmissionService,
-                                                      incomeSourceConnector: IncomeSourceConnector)
-                                                     (implicit appConfig: AppConfig, mcc: MessagesControllerComponents, ec: ExecutionContext)
+class CheckUkDividendsAmountController @Inject()(authorisedAction: AuthorisedAction,
+                                                 view: CheckUkDividendsAmountView,
+                                                 errorHandler: ErrorHandler,
+                                                 dividendsSession: DividendsSessionService,
+                                                 stockDividendsSession: StockDividendsSessionServiceProvider,
+                                                 auditService: AuditService,
+                                                 submissionService: StockDividendsSubmissionService,
+                                                 incomeSourceConnector: IncomeSourceConnector)
+                                                (implicit appConfig: AppConfig, mcc: MessagesControllerComponents, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport {
 
 
@@ -55,8 +55,7 @@ class CheckOtherUkDividendsAmountController @Inject()(authorisedAction: Authoris
   private def getStockDividends(taxYear: Int)
                                (implicit request: User[AnyContent]): Future[Result] = {
     incomeSourceConnector.put(taxYear, request.nino, IncomeSources.DIVIDENDS)(hc.withExtraHeaders("mtditid" -> request.mtditid)).flatMap {
-      case Left(_) =>
-        Future.successful(errorHandler.internalServerError())
+      case Left(_) => Future.successful(errorHandler.internalServerError())
       case Right(_) =>
         stockDividendsSession.getAndHandle(taxYear)(errorHandler.futureInternalServerError()) { (cya, stockDividendsPrior) =>
           if (stockDividendsPrior.isDefined) {
@@ -75,7 +74,7 @@ class CheckOtherUkDividendsAmountController @Inject()(authorisedAction: Authoris
     StockDividendsCheckYourAnswersModel.getCyaModel(cya, prior) match {
       case Some(cyaData) => handleSession(cya, cyaData, taxYear)
       case _ =>
-        logger.info("[CheckOtherUkDividendsAmountController][show] No CYA data in session. Redirecting to the task list.")
+        logger.info("[CheckUkDividendsAmountController][show] No CYA data in session. Redirecting to the task list.")
         Future.successful(Redirect(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist"))
     }
   }
@@ -107,13 +106,14 @@ class CheckOtherUkDividendsAmountController @Inject()(authorisedAction: Authoris
           case response => response
         }
       case _ =>
-        logger.info("[CheckOtherUkDividendsAmountController][submit] CYA data or NINO missing from session.")
+        logger.info("[CheckUkDividendsAmountController][submit] CYA data or NINO missing from session.")
         Future.successful(Left(APIErrorModel(BAD_REQUEST, APIErrorBodyModel("MISSING_DATA", "CYA data or NINO missing from session."))))
     }).flatMap {
       case Right(_) =>
         for {
-          dividends <-
-            dividendsSession.clear(taxYear)(errorHandler.internalServerError())(Redirect(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist"))
+          dividends <- dividendsSession.clear(taxYear)(errorHandler.internalServerError())(
+            Redirect(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist")
+          )
           stockDividends <- stockDividendsSession.clear(taxYear)(errorHandler.internalServerError())(dividends)
         } yield {
           stockDividends

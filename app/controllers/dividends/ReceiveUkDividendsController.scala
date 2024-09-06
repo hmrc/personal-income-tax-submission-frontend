@@ -115,9 +115,9 @@ class ReceiveUkDividendsController @Inject()(implicit mcc: MessagesControllerCom
           }
 
           if (update) {
-            updateAndRedirect(cyaModel, taxYear, routes.UkDividendsAmountController.show(taxYear))
+            updateAndRedirect(cyaModel, taxYear, controllers.dividendsBase.routes.UkDividendsAmountBaseController.show(taxYear))
           } else {
-            newAndRedirect(cyaModel, taxYear, routes.UkDividendsAmountController.show(taxYear))
+            newAndRedirect(cyaModel, taxYear, controllers.dividendsBase.routes.UkDividendsAmountBaseController.show(taxYear))
           }
         } else {
           cya.flatMap(_.dividends) match {
@@ -150,7 +150,7 @@ class ReceiveUkDividendsController @Inject()(implicit mcc: MessagesControllerCom
             Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear))
           } else {
             if (yesNoModel) {
-              Redirect(controllers.dividends.routes.UkDividendsAmountController.show(taxYear))
+              Redirect(controllers.dividendsBase.routes.UkDividendsAmountBaseController.show(taxYear))
             } else {
               Redirect(controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear))
             }

@@ -67,7 +67,7 @@ class UkDividendsAmountController @Inject()(implicit val cc: MessagesControllerC
     ukDividendsAmountView(
       form = preAmount.fold(formInput)(formInput.fill),
       taxYear = taxYear,
-      postAction = controllers.dividends.routes.UkDividendsAmountController.submit(taxYear),
+      postAction = controllers.dividendsBase.routes.UkDividendsAmountBaseController.submit(taxYear),
       preAmount = preAmount
     )
 
@@ -79,7 +79,7 @@ class UkDividendsAmountController @Inject()(implicit val cc: MessagesControllerC
 
       dividendsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (optionalCya, _) =>
         Future {
-          questionHelper.validate(controllers.dividends.routes.UkDividendsAmountController.show(taxYear), optionalCya, taxYear) {
+          questionHelper.validate(controllers.dividendsBase.routes.UkDividendsAmountBaseController.show(taxYear), optionalCya, taxYear) {
             val cyaUkDividendAmount: Option[BigDecimal] = optionalCya.flatMap(_.ukDividendsAmount)
 
             val amountForm = cyaUkDividendAmount match {

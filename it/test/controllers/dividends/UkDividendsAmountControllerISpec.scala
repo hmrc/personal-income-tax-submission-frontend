@@ -34,7 +34,7 @@ import scala.concurrent.Future
 class UkDividendsAmountControllerISpec extends IntegrationTest with ViewHelpers with DividendsDatabaseHelper {
 
   val amount: BigDecimal = 500
-  val ukDividendsAmountUrl: String = routes.UkDividendsAmountController.show(taxYear).url
+  val ukDividendsAmountUrl: String = controllers.dividendsBase.routes.UkDividendsAmountBaseController.show(taxYear).url
 
   val cyaModel: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(ukDividends = Some(true), ukDividendsAmount = None)
   val cyaModelWithAmount: DividendsCheckYourAnswersModel = DividendsCheckYourAnswersModel(ukDividends = Some(true), ukDividendsAmount = Some(amount))

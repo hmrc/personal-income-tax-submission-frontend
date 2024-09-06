@@ -149,7 +149,7 @@ class DividendsCYAController @Inject()(dividendsCyaView: DividendsCYAView,
   private[dividends] def handleUnfinishedRedirect(cya: DividendsCheckYourAnswersModel, taxYear: Int): Result = {
     DividendsCheckYourAnswersModel.unapply(cya).getOrElse((None, None, None, None, None)) match {
       case (None, _, _, _, _) if appConfig.dividendsTailoringEnabled => Redirect(controllers.dividends.routes.DividendsGatewayController.show(taxYear))
-      case (_, Some(true), None, None, None) => Redirect(controllers.dividends.routes.UkDividendsAmountController.show(taxYear))
+      case (_, Some(true), None, None, None) => Redirect(controllers.dividendsBase.routes.UkDividendsAmountBaseController.show(taxYear))
       case (_, Some(false), None, None, None) => Redirect(controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear))
       case (_, Some(true), Some(_), None, None) => Redirect(controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear))
       case _ => Redirect(controllers.dividendsBase.routes.OtherUkDividendsAmountBaseController.show(taxYear))

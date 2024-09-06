@@ -14,29 +14,36 @@
  * limitations under the License.
  */
 
-package controllers.dividendsBase
+package controllers.dividendsSplit
 
+import connectors.IncomeSourceConnector
+import models.{APIErrorBodyModel, APIErrorModel}
 import models.dividends.{DividendsPriorSubmission, StockDividendModel, StockDividendsPriorSubmission}
 import models.priorDataModels.IncomeSourcesModel
-import org.scalatest.OptionValues.convertOptionToValuable
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
-import play.api.http.Status.{NO_CONTENT, OK, SEE_OTHER}
+import org.scalatestplus.mockito.MockitoSugar.mock
+import play.api.http.Status.{INTERNAL_SERVER_ERROR, NO_CONTENT, OK, SEE_OTHER}
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.api.{Environment, Mode}
 import test.utils.{DividendsDatabaseHelper, IntegrationTest}
 
-class CheckStockDividendAmountControllerISpec extends IntegrationTest with DividendsDatabaseHelper {
+import scala.concurrent.Future
 
-  val url: String = controllers.dividendsSplit.routes.CheckStockDividendsAmountController.show(taxYear).url
+class CheckUkDividendsAmountControllerISpec extends IntegrationTest with DividendsDatabaseHelper {
+
+  val url: String = controllers.dividendsSplit.routes.CheckUkDividendsAmountController.show(taxYear).url
   val headers: Seq[(String, String)] = playSessionCookie() ++ Seq("Csrf-Token" -> "nocheck")
   val monetaryValue: BigDecimal = 123.45
   val stockDividendsPrior: StockDividendsPriorSubmission =
     StockDividendsPriorSubmission(None, None, None, Some(StockDividendModel(None, grossAmount = monetaryValue)), None, None, None)
   val dividendsPrior: IncomeSourcesModel = IncomeSourcesModel(Some(DividendsPriorSubmission(Some(monetaryValue), Some(monetaryValue))))
 
-  "CheckStockDividendAmountController.show" should {
+  ".show" should {
     "render the page when a session exists" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
@@ -44,7 +51,6 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
         .build()
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         emptyUserDataStub()
@@ -52,11 +58,10 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
         insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) contains completeStockDividendsCYAModel.stockDividendsAmount.get.toString()
+        contentAsString(result) contains completeStockDividendsCYAModel.otherUkDividendsAmount.get.toString()
       }
     }
 
@@ -67,14 +72,12 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
         .build()
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         emptyUserDataStub()
         emptyStockDividendsUserDataStub()
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -85,18 +88,15 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
     "render the page when a new session needs to be created from prior data" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(splitStockDividends = true))
         .build()
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         userDataStub(dividendsPrior, nino, taxYear)
-        stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -110,14 +110,12 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
         .build()
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         userDataStub(dividendsPrior, nino, taxYear)
         emptyStockDividendsUserDataStub()
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -131,14 +129,12 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
         .build()
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         emptyUserDataStub()
         stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -152,14 +148,38 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
         .build()
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         userDataStubWithError(nino, taxYear)
         emptyStockDividendsUserDataStub()
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
+        val result = route(application, request).value
 
+        status(result) mustEqual INTERNAL_SERVER_ERROR
+      }
+    }
+
+    "return an error when refresh cache service returns INTERNAL_SERVER_ERROR" in {
+      val mockRefreshCache = mock[IncomeSourceConnector]
+
+      when(mockRefreshCache.put(any(), any(), any())(any())).thenReturn(
+        Future.successful(Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("INTERNAL_SERVER_ERROR", "reason"))))
+      )
+
+      val application = GuiceApplicationBuilder()
+        .in(Environment.simple(mode = Mode.Dev))
+        .configure(config(stockDividends = true, splitStockDividends = true))
+        .overrides(bind[IncomeSourceConnector].toInstance(mockRefreshCache))
+        .build()
+
+      running(application) {
+        authoriseIndividual(Some(nino))
+        dropStockDividendsDB()
+        userDataStubWithError(nino, taxYear)
+        emptyStockDividendsUserDataStub()
+
+        val request = FakeRequest(GET, url).withHeaders(headers: _*)
         val result = route(application, request).value
 
         status(result) mustEqual INTERNAL_SERVER_ERROR
@@ -167,7 +187,7 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
     }
   }
 
-  "StockDividendAmountBaseController.submit" should {
+  ".submit" should {
     "submit data and redirect to task list" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
@@ -175,7 +195,6 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
         .build()
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         emptyUserDataStub()
@@ -186,7 +205,6 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
         stubPut(s"/income-tax-dividends/income-tax/income/dividends/$nino/$taxYear", NO_CONTENT, "")
 
         val request = FakeRequest(POST, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -201,7 +219,6 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
         .build()
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         emptyUserDataStub()
@@ -212,7 +229,6 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
         stubPut(s"/income-tax-dividends/income-tax/income/dividends/$nino/$taxYear", SERVICE_UNAVAILABLE, "")
 
         val request = FakeRequest(POST, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual SERVICE_UNAVAILABLE
@@ -226,14 +242,12 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
         .build()
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         emptyUserDataStub()
         emptyStockDividendsUserDataStub()
 
         val request = FakeRequest(POST, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual INTERNAL_SERVER_ERROR

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.dividendsBase
+package controllers.dividendsSplit
 
 import models.dividends.{DividendsPriorSubmission, StockDividendModel, StockDividendsPriorSubmission}
 import models.priorDataModels.IncomeSourcesModel
@@ -26,16 +26,16 @@ import play.api.test.Helpers._
 import play.api.{Environment, Mode}
 import test.utils.{DividendsDatabaseHelper, IntegrationTest}
 
-class CheckRedeemableSharesAmountControllerISpec extends IntegrationTest with DividendsDatabaseHelper {
+class CheckStockDividendAmountControllerISpec extends IntegrationTest with DividendsDatabaseHelper {
 
-  val url: String = controllers.dividendsSplit.routes.CheckRedeemableSharesAmountController.show(taxYear).url
+  val url: String = controllers.dividendsSplit.routes.CheckStockDividendsAmountController.show(taxYear).url
   val headers: Seq[(String, String)] = playSessionCookie() ++ Seq("Csrf-Token" -> "nocheck")
   val monetaryValue: BigDecimal = 123.45
-  val redeemableSharesPrior: StockDividendsPriorSubmission =
-    StockDividendsPriorSubmission(None, None, None, None, Some(StockDividendModel(None, grossAmount = monetaryValue)), None, None)
+  val stockDividendsPrior: StockDividendsPriorSubmission =
+    StockDividendsPriorSubmission(None, None, None, Some(StockDividendModel(None, grossAmount = monetaryValue)), None, None, None)
   val dividendsPrior: IncomeSourcesModel = IncomeSourcesModel(Some(DividendsPriorSubmission(Some(monetaryValue), Some(monetaryValue))))
 
-  "CheckRedeemableSharesAmountController.show" should {
+  "CheckStockDividendAmountController.show" should {
     "render the page when a session exists" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
@@ -55,7 +55,7 @@ class CheckRedeemableSharesAmountControllerISpec extends IntegrationTest with Di
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) contains completeStockDividendsCYAModel.redeemableSharesAmount.get.toString()
+        contentAsString(result) contains completeStockDividendsCYAModel.stockDividendsAmount.get.toString()
       }
     }
 
@@ -92,7 +92,7 @@ class CheckRedeemableSharesAmountControllerISpec extends IntegrationTest with Di
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         userDataStub(dividendsPrior, nino, taxYear)
-        stockDividendsUserDataStub(Some(redeemableSharesPrior), nino, taxYear)
+        stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
 
@@ -123,7 +123,7 @@ class CheckRedeemableSharesAmountControllerISpec extends IntegrationTest with Di
       }
     }
 
-    "render the page when a new session needs to be created from prior data with only redeemable shares" in {
+    "render the page when a new session needs to be created from prior data with only stock dividends" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true, splitStockDividends = true))
@@ -134,7 +134,7 @@ class CheckRedeemableSharesAmountControllerISpec extends IntegrationTest with Di
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         emptyUserDataStub()
-        stockDividendsUserDataStub(Some(redeemableSharesPrior), nino, taxYear)
+        stockDividendsUserDataStub(Some(stockDividendsPrior), nino, taxYear)
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
 

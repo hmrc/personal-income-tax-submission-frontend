@@ -166,7 +166,7 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
 
   private[dividends] def handleUnfinishedRedirect(cya: StockDividendsCheckYourAnswersModel, taxYear: Int): Result = {
     StockDividendsCheckYourAnswersModel.unapply(cya).getOrElse((None, None, None, None, None, None, None, None, None, None, None)) match {
-      case (_, Some(true), None, _, _, _, _, _, _, _, _) => Redirect(controllers.dividends.routes.UkDividendsAmountController.show(taxYear))
+      case (_, Some(true), None, _, _, _, _, _, _, _, _) => Redirect(controllers.dividendsBase.routes.UkDividendsAmountBaseController.show(taxYear))
       case (_, _, _, Some(true), None, _, _, _, _, _, _) => Redirect(controllers.dividendsBase.routes.OtherUkDividendsAmountBaseController.show(taxYear))
       case (_, _, _, _, _, Some(true), None, _, _, _, _) => Redirect(controllers.dividendsBase.routes.StockDividendAmountBaseController.show(taxYear))
       case (_, _, _, _, _, _, _, Some(true), None, _, _) => Redirect(controllers.dividendsBase.routes.RedeemableSharesAmountBaseController.show(taxYear))
