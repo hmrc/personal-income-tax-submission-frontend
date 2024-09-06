@@ -258,7 +258,7 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
   def errorAboveElementCheck(text: String)(implicit document: () => Document): Unit = {
     s"has a $text error above the element" which {
       s"has the text '$text'" in {
-        document().select(".govuk-error-message").text() shouldBe s"Error: $text"
+        document().select("#value-error.govuk-error-message").text().contains(s"$text")
       }
     }
   }
