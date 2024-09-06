@@ -54,7 +54,10 @@ class SavingsInterestAmountController @Inject()(
     savingsSessionService.getSessionData(taxYear).flatMap {
       case Left(_) => Future.successful(errorHandler.internalServerError())
       case Right(cya) =>
-        Future.successful(cya.fold(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))) {
+        Future.successful(cya.fold(
+          //Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+          Ok(view(form(user.isAgent, taxYear), taxYear))
+        ) {
           cyaData =>
             cyaData.savingsIncome.fold(Ok(view(form(user.isAgent, taxYear), taxYear))) {
               data =>
@@ -83,7 +86,12 @@ class SavingsInterestAmountController @Inject()(
                   Redirect(controllers.savings.routes.TaxTakenFromInterestController.show(taxYear))
                 }
               }
-            case _ => Future.successful(Redirect(controllers.savingsBase.routes.InterestSecuritiesCyaBaseController.show(taxYear)))
+            case _ =>
+              //Future.successful(Redirect(controllers.savingsBase.routes.InterestSecuritiesCyaBaseController.show(taxYear)))
+              // When entering through the new mini journey we need to create a new session as the previous pages are no longer part of the journey
+              savingsSessionService.createSessionData(SavingsIncomeCYAModel(Some(true), Some(amount)), taxYear)(errorHandler.internalServerError())(
+                Redirect(controllers.savings.routes.TaxTakenFromInterestController.show(taxYear))
+              )
           }
         }
     })
