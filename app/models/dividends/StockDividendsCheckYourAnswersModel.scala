@@ -74,7 +74,7 @@ object StockDividendsCheckYourAnswersModel {
     (cya, prior) match {
       case (Some(cyaData), Some(priorData)) =>
         val ukDividendsExist = cyaData.ukDividends.getOrElse(priorData.ukDividendsAmount.nonEmpty) || cyaData.ukDividendsAmount.isDefined
-        val otherDividendsExist = cyaData.otherUkDividends.getOrElse(priorData.otherUkDividendsAmount.nonEmpty) || cyaData.otherUkDividends.isDefined
+        val otherDividendsExist = cyaData.otherUkDividends.getOrElse(priorData.otherUkDividendsAmount.nonEmpty) || cyaData.otherUkDividendsAmount.isDefined
         val stockDividendsExist = cyaData.stockDividends.getOrElse(priorData.stockDividendsAmount.nonEmpty) || cyaData.stockDividendsAmount.isDefined
         val redeemableSharesExist = cyaData.redeemableShares.getOrElse(priorData.redeemableSharesAmount.nonEmpty) || cyaData.redeemableSharesAmount.isDefined
         val closeCompanyLoansWrittenOffExist = cyaData.closeCompanyLoansWrittenOff

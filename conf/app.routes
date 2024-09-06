@@ -19,8 +19,11 @@ POST        /:taxYear/dividends/how-much-dividends-from-uk-companies            
 GET         /:taxYear/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies                   controllers.dividends.ReceiveOtherUkDividendsController.show(taxYear: Int)
 POST        /:taxYear/dividends/dividends-from-uk-trusts-or-open-ended-investment-companies                   controllers.dividends.ReceiveOtherUkDividendsController.submit(taxYear: Int)
 
-GET         /:taxYear/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies         controllers.dividends.OtherUkDividendsAmountController.show(taxYear: Int)
-POST        /:taxYear/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies         controllers.dividends.OtherUkDividendsAmountController.submit(taxYear: Int)
+GET         /:taxYear/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies         controllers.dividendsBase.OtherUkDividendsAmountBaseController.show(taxYear: Int)
+POST        /:taxYear/dividends/how-much-dividends-from-uk-trusts-and-open-ended-investment-companies         controllers.dividendsBase.OtherUkDividendsAmountBaseController.submit(taxYear: Int)
+
+GET         /:taxYear/dividends/check-how-much-dividends-from-uk-trusts-and-open-ended-investment-companies   controllers.dividendsSplit.CheckOtherUkDividendsAmountController.show(taxYear: Int)
+POST        /:taxYear/dividends/check-how-much-dividends-from-uk-trusts-and-open-ended-investment-companies   controllers.dividendsSplit.CheckOtherUkDividendsAmountController.submit(taxYear: Int)
 
 GET         /:taxYear/dividends/check-income-from-dividends                                                   controllers.dividends.DividendsCYAController.show(taxYear: Int)
 POST        /:taxYear/dividends/check-income-from-dividends                                                   controllers.dividends.DividendsCYAController.submit(taxYear: Int)

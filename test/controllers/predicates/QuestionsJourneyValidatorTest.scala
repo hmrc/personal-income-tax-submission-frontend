@@ -32,7 +32,7 @@ class QuestionsJourneyValidatorTest extends UnitTest with DefaultAwaitTimeout {
   private val receiveUkDividendsRoute = controllers.dividends.routes.ReceiveUkDividendsController
   private val ukDividendsAmountRoute = controllers.dividends.routes.UkDividendsAmountController
   private val receiveOtherDividendsRoute = controllers.dividends.routes.ReceiveOtherUkDividendsController
-  private val otherDividendsAmountRoute = controllers.dividends.routes.OtherUkDividendsAmountController
+  private val otherDividendsAmountRoute = controllers.dividendsBase.routes.OtherUkDividendsAmountBaseController
   
   "validateQuestion()" when {
 

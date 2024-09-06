@@ -59,7 +59,7 @@ object DividendsCheckYourAnswersModel {
   private val receiveUkDividendsControllerRoute = controllers.dividends.routes.ReceiveUkDividendsController
   private val ukDividendsAmountControllerRoute = controllers.dividends.routes.UkDividendsAmountController
   private val receiveOtherUkDividendsControllerRoute = controllers.dividends.routes.ReceiveOtherUkDividendsController
-  private val otherUkDividendsAmountControllerRoute = controllers.dividends.routes.OtherUkDividendsAmountController
+  private val otherUkDividendsAmountControllerRoute = controllers.dividendsBase.routes.OtherUkDividendsAmountBaseController
   private val gatewayControllerRoute = controllers.dividends.routes.DividendsGatewayController
   
   implicit val formats: OFormat[DividendsCheckYourAnswersModel] = Json.format[DividendsCheckYourAnswersModel]

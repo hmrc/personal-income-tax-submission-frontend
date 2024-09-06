@@ -127,7 +127,7 @@ class ReceiveOtherUkDividendsController @Inject()(
               updateAndRedirect(
                 cyaModel.copy(otherUkDividends = Some(true)),
                 taxYear,
-                controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear)
+                controllers.dividendsBase.routes.OtherUkDividendsAmountBaseController.show(taxYear)
               )
             } else {
               updateAndRedirect(
@@ -156,7 +156,7 @@ class ReceiveOtherUkDividendsController @Inject()(
             Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear))
           } else {
             if (yesNoModel) {
-              Redirect(controllers.dividends.routes.OtherUkDividendsAmountController.show(taxYear))
+              Redirect(controllers.dividendsBase.routes.OtherUkDividendsAmountBaseController.show(taxYear))
             } else {
               Redirect(controllers.dividends.routes.StockDividendStatusController.show(taxYear))
             }

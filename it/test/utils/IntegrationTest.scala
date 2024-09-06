@@ -410,7 +410,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   def emptyStockDividendsUserDataStub(nino: String = nino, taxYear: Int = taxYear): StubMapping = {
     stubGetWithHeadersCheck(
-      s"/income-tax-dividends/income-tax/income/dividends/${user.nino}/$taxYear", NOT_FOUND,
+      s"/income-tax-dividends/income-tax/income/dividends/$nino/$taxYear", NOT_FOUND,
       "", "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
   }
 

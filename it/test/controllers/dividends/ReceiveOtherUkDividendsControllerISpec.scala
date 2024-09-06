@@ -417,7 +417,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
       s"return a Redirect to the other uk dividend amount page" in {
         result.status shouldBe SEE_OTHER
-        result.header(HeaderNames.LOCATION) shouldBe Some(routes.OtherUkDividendsAmountController.show(taxYear).url)
+        result.header(HeaderNames.LOCATION) shouldBe Some(controllers.dividendsBase.routes.OtherUkDividendsAmountBaseController.show(taxYear).url)
       }
     }
 
@@ -468,7 +468,7 @@ class ReceiveOtherUkDividendsControllerISpec extends IntegrationTest with ViewHe
 
       status(result) shouldBe SEE_OTHER
       await(result).header.headers
-        .get(HeaderNames.LOCATION) shouldBe Some(routes.OtherUkDividendsAmountController.show(taxYear).url)
+        .get(HeaderNames.LOCATION) shouldBe Some(controllers.dividendsBase.routes.OtherUkDividendsAmountBaseController.show(taxYear).url)
     }
 
     "return a 303 status and redirect to next status page when false selected" in {
