@@ -30,7 +30,7 @@ class OtherUkDividendsAmountBaseControllerISpec extends IntegrationTest with Div
   val headers: Seq[(String, String)] = playSessionCookie() ++ Seq("Csrf-Token" -> "nocheck")
 
   ".show" should {
-    "direct to the original stock dividend amount controller when 'split-dividends' is false" in {
+    "direct to the original other uk dividends amount controller when 'split-dividends' is false" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true))
@@ -46,7 +46,7 @@ class OtherUkDividendsAmountBaseControllerISpec extends IntegrationTest with Div
       }
     }
 
-    "direct to the new stock dividend amount controller when 'split-dividends' is true" in {
+    "direct to the new other uk dividends amount controller when 'split-dividends' is true" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true, splitStockDividends = true))
@@ -75,7 +75,6 @@ class OtherUkDividendsAmountBaseControllerISpec extends IntegrationTest with Div
         dropStockDividendsDB()
         emptyUserDataStub()
         emptyStockDividendsUserDataStub()
-
         insertStockDividendsCyaData(
           Some(completeStockDividendsCYAModel.copy(Some(true), Some(false), None, Some(true), None, None, None, None, None, None, None))
         )
@@ -88,7 +87,7 @@ class OtherUkDividendsAmountBaseControllerISpec extends IntegrationTest with Div
       }
     }
 
-    "direct to the new check stock dividend amount controller when 'split-dividends' is true" in {
+    "direct to the new check other uk dividends amount controller when 'split-dividends' is true" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(splitStockDividends = true))
@@ -109,4 +108,5 @@ class OtherUkDividendsAmountBaseControllerISpec extends IntegrationTest with Div
       }
     }
   }
+
 }

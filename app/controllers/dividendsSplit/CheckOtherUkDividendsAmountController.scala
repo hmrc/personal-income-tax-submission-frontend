@@ -140,4 +140,5 @@ class CheckOtherUkDividendsAmountController @Inject()(authorisedAction: Authoris
       )
     }
   }
+
 }

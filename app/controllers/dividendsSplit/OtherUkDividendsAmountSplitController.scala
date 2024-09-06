@@ -100,4 +100,5 @@ class OtherUkDividendsAmountSplitController @Inject()(implicit val cc: MessagesC
       }
     )
   }
+
 }

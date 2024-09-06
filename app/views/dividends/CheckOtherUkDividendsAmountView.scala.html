@@ -39,22 +39,25 @@
 @layout(pageTitle = titleForUse, taxYear = Some(taxYear)) {
 
 @heading(headingForUse, Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)))
+    @{
+        govukSummaryList(
+            SummaryList(
+                Seq(
+                    summaryListRow(
+                        HtmlContent(messages("dividends.summary.list.amount-from-unit-trusts-or-investment-companies")),
+                        HtmlContent(s"£${cya.otherUkDividendsAmount.getOrElse("").toString}"),
+                        actions = Seq((controllers.dividendsBase.routes.OtherUkDividendsAmountBaseController.show(taxYear), messages("common.change"), Some(messages("dividends.summary.list.hidden.text.amount-from-unit-trusts-or-investment-companies"))))
+                    )
+                )
+            )
+        )
+    }
+
+    @formWithCSRF(action = controllers.dividendsSplit.routes.CheckOtherUkDividendsAmountController.submit(taxYear)) {
+        @button("common.saveAndContinue", classes = Some("govuk-!-margin-top-6"))
+    }
+}
 
 @{
-    govukSummaryList(SummaryList(Seq(
-    summaryListRow(
-    HtmlContent(messages("dividends.summary.list.amount-from-unit-trusts-or-investment-companies")),
-    HtmlContent(s"£${cya.otherUkDividendsAmount.getOrElse("").toString}"),
-    actions = Seq((controllers.dividendsBase.routes.OtherUkDividendsAmountBaseController.show(taxYear), messages("common.change"), Some(messages("dividends.summary.list.hidden.text.amount-from-unit-trusts-or-investment-companies"))))
-    )
-)))
-}
-
-@formWithCSRF(action = controllers.dividendsSplit.routes.CheckOtherUkDividendsAmountController.submit(taxYear)) {
-@button("common.saveAndContinue", classes = Some("govuk-!-margin-top-6"))
-}
-}
-
-@{
-// $COVERAGE-OFF$
+    // $COVERAGE-OFF$
 }

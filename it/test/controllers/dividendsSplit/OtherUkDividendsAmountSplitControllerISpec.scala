@@ -144,7 +144,6 @@ class OtherUkDividendsAmountSplitControllerISpec extends IntegrationTest with Vi
 
         status(result) mustEqual INTERNAL_SERVER_ERROR
       }
-
     }
   }
 
@@ -212,4 +211,5 @@ class OtherUkDividendsAmountSplitControllerISpec extends IntegrationTest with Vi
       }
     }
   }
+
 }
