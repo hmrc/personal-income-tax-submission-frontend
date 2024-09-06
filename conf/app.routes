@@ -190,8 +190,8 @@ POST        /:taxYear/charity/charity-donations-to-charity                      
 
 # Interest from gilt-edged or accrued income securities pages
 
-GET         /:taxYear/interest/interest-amount                                                                controllers.savings.SavingsInterestAmountController.show(taxYear:Int)
-POST        /:taxYear/interest/interest-amount                                                                controllers.savings.SavingsInterestAmountController.submit(taxYear:Int)
+GET         /:taxYear/interest/interest-amount                                                                controllers.savingsBase.SavingsInterestAmountBaseController.show(taxYear:Int)
+POST        /:taxYear/interest/interest-amount                                                                controllers.savingsBase.SavingsInterestAmountBaseController.submit(taxYear:Int)
 
 GET         /:taxYear/interest/interest-from-securities                                                       controllers.savings.SavingsGatewayController.show(taxYear:Int)
 POST        /:taxYear/interest/interest-from-securities                                                       controllers.savings.SavingsGatewayController.submit(taxYear:Int)

@@ -33,9 +33,6 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
   val errorSummaryHref = "#amount"
   val poundPrefixText = "£"
 
-  val cyaDataComplete: Option[SavingsIncomeCYAModel] = Some(SavingsIncomeCYAModel(Some(true), Some(100.00), Some(true), Some(50.00)))
-  val cyaDataValid: Option[SavingsIncomeCYAModel] = Some(SavingsIncomeCYAModel(Some(true)))
-
   object Selectors {
     val poundPrefixSelector = ".govuk-input__prefix"
     val captionSelector = ".govuk-caption-l"

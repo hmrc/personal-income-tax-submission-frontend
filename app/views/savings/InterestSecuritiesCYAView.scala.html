@@ -52,7 +52,7 @@
                         HtmlContent(messages("interest.securities.cya.questions.2")),
                         HtmlContent(bigDecimalCurrency(amount.toString)),
                         keyClasses = "govuk-!-width-one-half",
-                        actions = Seq((controllers.savings.routes.SavingsInterestAmountController.show(taxYear), messages("common.change"), Some(messages("interest.securities.cya.questions.2.hiddenChange"))))
+                        actions = Seq((controllers.savingsBase.routes.SavingsInterestAmountBaseController.show(taxYear), messages("common.change"), Some(messages("interest.securities.cya.questions.2.hiddenChange"))))
                     )
                 }
             } else { None },

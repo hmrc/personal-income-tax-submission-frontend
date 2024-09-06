@@ -30,9 +30,7 @@ class InterestSecuritiesCYAControllerISpec extends IntegrationTest with SavingsD
 
   val relativeUrl: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/check-interest-from-securities"
 
-  val monetaryValue = 100.00
-
-  val cyaDataComplete: Option[SavingsIncomeCYAModel] = Some(SavingsIncomeCYAModel(Some(true), Some(monetaryValue), Some(true), Some(monetaryValue)))
+  val monetaryValue: BigDecimal = 100.00
 
   object Selectors {
     val titleSelector = "title"
@@ -204,7 +202,7 @@ class InterestSecuritiesCYAControllerISpec extends IntegrationTest with SavingsD
             textOnPageCheck(questionAmountOfInterestExpected, Selectors.questionTextSelector(2))
             textOnPageCheck("£100", Selectors.yesNoQuestionAnswer(2))
             linkCheck(s"$changeLinkExpected ${us.commonExpectedResults.changeAmountOfInterestHiddenText}",
-              Selectors.questionChangeLinkSelector(2), controllers.savings.routes.SavingsInterestAmountController.show(taxYear).url)
+              Selectors.questionChangeLinkSelector(2), controllers.savingsBase.routes.SavingsInterestAmountBaseController.show(taxYear).url)
           }
 
           "has an area for section 3" which {
@@ -216,7 +214,7 @@ class InterestSecuritiesCYAControllerISpec extends IntegrationTest with SavingsD
 
           "has an area for section 4" which {
             textOnPageCheck(questionAmountOfTaxTakenOffExpected, Selectors.questionTextSelector(4))
-            textOnPageCheck("£100", Selectors.yesNoQuestionAnswer(4))
+            textOnPageCheck("£50", Selectors.yesNoQuestionAnswer(4))
             linkCheck(s"$changeLinkExpected ${us.commonExpectedResults.changeAmountOfTaxTakenOffHiddenText}",
               Selectors.questionChangeLinkSelector(4), controllers.savings.routes.TaxTakenOffInterestController.show(taxYear).url)
           }
@@ -260,7 +258,7 @@ class InterestSecuritiesCYAControllerISpec extends IntegrationTest with SavingsD
             textOnPageCheck(questionAmountOfInterestExpected, Selectors.questionTextSelector(2))
             textOnPageCheck("£100", Selectors.yesNoQuestionAnswer(2))
             linkCheck(s"$changeLinkExpected ${us.commonExpectedResults.changeAmountOfInterestHiddenText}",
-              Selectors.questionChangeLinkSelector(2), controllers.savings.routes.SavingsInterestAmountController.show(taxYear).url)
+              Selectors.questionChangeLinkSelector(2), controllers.savingsBase.routes.SavingsInterestAmountBaseController.show(taxYear).url)
           }
 
           "has an area for section 3" which {
@@ -318,7 +316,7 @@ class InterestSecuritiesCYAControllerISpec extends IntegrationTest with SavingsD
             textOnPageCheck(questionAmountOfInterestExpected, Selectors.questionTextSelector(2))
             textOnPageCheck("£100", Selectors.yesNoQuestionAnswer(2))
             linkCheck(s"$changeLinkExpected ${us.commonExpectedResults.changeAmountOfInterestHiddenText}",
-              Selectors.questionChangeLinkSelector(2), controllers.savings.routes.SavingsInterestAmountController.show(taxYear).url)
+              Selectors.questionChangeLinkSelector(2), controllers.savingsBase.routes.SavingsInterestAmountBaseController.show(taxYear).url)
           }
 
           "has an area for section 3" which {
@@ -330,7 +328,7 @@ class InterestSecuritiesCYAControllerISpec extends IntegrationTest with SavingsD
 
           "has an area for section 4" which {
             textOnPageCheck(questionAmountOfTaxTakenOffExpected, Selectors.questionTextSelector(4))
-            textOnPageCheck("£100", Selectors.yesNoQuestionAnswer(4))
+            textOnPageCheck("£50", Selectors.yesNoQuestionAnswer(4))
             linkCheck(s"$changeLinkExpected ${us.commonExpectedResults.changeAmountOfTaxTakenOffHiddenText}",
               Selectors.questionChangeLinkSelector(4), controllers.savings.routes.TaxTakenOffInterestController.show(taxYear).url)
           }
@@ -394,7 +392,7 @@ class InterestSecuritiesCYAControllerISpec extends IntegrationTest with SavingsD
 
           s"has a SEE_OTHER($SEE_OTHER) status" in {
             result.status shouldBe SEE_OTHER
-            result.headers("Location").head shouldBe controllers.savings.routes.SavingsInterestAmountController.show(taxYear).url
+            result.headers("Location").head shouldBe controllers.savingsBase.routes.SavingsInterestAmountBaseController.show(taxYear).url
           }
         }
 

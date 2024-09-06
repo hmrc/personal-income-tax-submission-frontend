@@ -35,7 +35,6 @@ class InterestFromSavingsAndSecuritiesSummaryControllerISpec extends Integration
   val link1Url : String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/untaxed-uk-interest"
   val link2Url : String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/interest-from-securities"
 
-  val cyaDataComplete: Option[SavingsIncomeCYAModel] = Some(SavingsIncomeCYAModel(Some(true), Some(100.00), Some(true), Some(100.00)))
   val cyaModel: InterestCYAModel = InterestCYAModel(
     None,
     untaxedUkInterest = Some(false),

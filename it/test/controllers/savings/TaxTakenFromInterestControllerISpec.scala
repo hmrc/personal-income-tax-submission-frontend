@@ -29,8 +29,6 @@ class TaxTakenFromInterestControllerISpec extends IntegrationTest with ViewHelpe
 
   val relativeUrl: String = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/tax-taken-from-interest"
 
-  val cyaDataValid: Option[SavingsIncomeCYAModel] = Some(SavingsIncomeCYAModel(Some(true), Some(100.00)))
-
   object Selectors {
     val captionSelector = ".govuk-caption-l"
     val yesSelector = "#main-content > div > div > form > div > fieldset > div > div:nth-child(1)"

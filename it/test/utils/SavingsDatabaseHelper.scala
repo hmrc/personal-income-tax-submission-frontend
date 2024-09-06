@@ -27,6 +27,9 @@ trait SavingsDatabaseHelper {
   lazy val savingsDatabase: SavingsUserDataRepository = app.injector.instanceOf[SavingsUserDataRepository]
   val encryptionService: EncryptionService = app.injector.instanceOf[EncryptionService]
 
+  val cyaDataComplete: Option[SavingsIncomeCYAModel] = Some(SavingsIncomeCYAModel(Some(true), Some(100.00), Some(true), Some(50.00)))
+  val cyaDataValid: Option[SavingsIncomeCYAModel] = Some(SavingsIncomeCYAModel(Some(true)))
+
   //noinspection ScalaStyle
   def dropSavingsDB(): Seq[String] = {
     await(savingsDatabase.collection.drop().toFutureOption())

@@ -109,7 +109,7 @@ class SavingsGatewayController @Inject()(
 
   def redirectToNext(yesNoValue: Boolean, taxYear: Int, isFinished: Boolean): Result = {
     if (yesNoValue && !isFinished) {
-      Redirect(controllers.savings.routes.SavingsInterestAmountController.show(taxYear))
+      Redirect(controllers.savingsBase.routes.SavingsInterestAmountBaseController.show(taxYear))
     } else {
       Redirect(controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear))
     }

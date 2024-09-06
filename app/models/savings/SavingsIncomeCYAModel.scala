@@ -40,7 +40,7 @@ case class SavingsIncomeCYAModel(
   def getNextInJourney(taxYear: Int)(implicit appConfig: AppConfig): Result = {
     this match {
       case SavingsIncomeCYAModel(None, _, _, _) => Redirect(controllers.savings.routes.SavingsGatewayController.show(taxYear))
-      case SavingsIncomeCYAModel(Some(value), None, _, _) => Redirect(controllers.savings.routes.SavingsInterestAmountController.show(taxYear))
+      case SavingsIncomeCYAModel(Some(value), None, _, _) => Redirect(controllers.savingsBase.routes.SavingsInterestAmountBaseController.show(taxYear))
       case SavingsIncomeCYAModel(Some(_), Some(_), None, _) => Redirect(controllers.savings.routes.TaxTakenFromInterestController.show(taxYear))
       case SavingsIncomeCYAModel(Some(_), Some(_), Some(true), None) => Redirect(controllers.savings.routes.TaxTakenOffInterestController.show(taxYear))
       case _ => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
