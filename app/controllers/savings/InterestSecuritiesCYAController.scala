@@ -53,7 +53,7 @@ class InterestSecuritiesCYAController @Inject()(
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, SAVINGS).async { implicit user =>
     savingsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
       (cya, prior) match {
-        case (Some(cya), Some(prior)) =>
+        case (Some(cya), Some(_)) =>
           if (cya.isFinished){
             Future.successful(Ok(interestSecuritiesCYAView(cya, taxYear)))
           }

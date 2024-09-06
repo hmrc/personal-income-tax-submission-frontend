@@ -20,6 +20,7 @@ package controllers.savings
 import config.{AppConfig, ErrorHandler}
 import controllers.predicates.AuthorisedAction
 import forms.AmountForm
+import models.savings.SavingsIncomeCYAModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -53,7 +54,10 @@ class SavingsInterestAmountController @Inject()(
     savingsSessionService.getSessionData(taxYear).flatMap {
       case Left(_) => Future.successful(errorHandler.internalServerError())
       case Right(cya) =>
-        Future.successful(cya.fold(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))) {
+        Future.successful(cya.fold(
+          //Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+          Ok(view(form(user.isAgent, taxYear), taxYear))
+        ) {
           cyaData =>
             cyaData.savingsIncome.fold(Ok(view(form(user.isAgent, taxYear), taxYear))) {
               data =>
@@ -71,8 +75,8 @@ class SavingsInterestAmountController @Inject()(
       Future.successful(BadRequest(view(formWithErrors, taxYear)))
     }, {
       amount =>
-        savingsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
-          (cya, prior) match {
+        savingsSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (optionalCya, prior) =>
+          (optionalCya, prior) match {
             case (Some(cya), _) =>
               val newData = cya.copy(grossAmount = Some(amount))
               savingsSessionService.updateSessionData(newData, taxYear)(errorHandler.internalServerError()) {
@@ -82,12 +86,15 @@ class SavingsInterestAmountController @Inject()(
                   Redirect(controllers.savings.routes.TaxTakenFromInterestController.show(taxYear))
                 }
               }
-            case _ => Future.successful(Redirect(controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear)))
+            case _ =>
+              //Future.successful(Redirect(controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear)))
+              // When entering through the new mini journey we need to create a new session as the previous pages are no longer part of the journey
+              savingsSessionService.createSessionData(SavingsIncomeCYAModel(Some(true), Some(amount)), taxYear)(errorHandler.internalServerError())(
+                Redirect(controllers.savings.routes.TaxTakenFromInterestController.show(taxYear))
+              )
           }
         }
     })
 
   }
-
-
 }
