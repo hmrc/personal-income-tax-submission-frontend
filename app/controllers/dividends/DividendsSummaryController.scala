@@ -170,7 +170,7 @@ class DividendsSummaryController @Inject()(authorisedAction: AuthorisedAction,
       case (_, _, _, Some(true), None, _, _, _, _, _, _) => Redirect(controllers.dividendsBase.routes.OtherUkDividendsAmountBaseController.show(taxYear))
       case (_, _, _, _, _, Some(true), None, _, _, _, _) => Redirect(controllers.dividendsBase.routes.StockDividendAmountBaseController.show(taxYear))
       case (_, _, _, _, _, _, _, Some(true), None, _, _) => Redirect(controllers.dividendsBase.routes.RedeemableSharesAmountBaseController.show(taxYear))
-      case (_, _, _, _, _, _, _, _, _, Some(true), None) => Redirect(controllers.dividends.routes.CloseCompanyLoanAmountController.show(taxYear))
+      case (_, _, _, _, _, _, _, _, _, Some(true), None) => Redirect(controllers.dividendsBase.routes.CloseCompanyLoanAmountBaseController.show(taxYear))
       case _ => Redirect(controllers.dividends.routes.DividendsGatewayController.show(taxYear))
     }
   }

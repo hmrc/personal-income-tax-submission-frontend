@@ -79,7 +79,7 @@ class CloseCompanyLoanStatusController @Inject()(implicit val cc: MessagesContro
               if (dividendsCya.isFinished || !yesNoValue) {
                 Redirect(controllers.dividends.routes.DividendsSummaryController.show(taxYear))
               } else {
-                Redirect(controllers.dividends.routes.CloseCompanyLoanAmountController.show(taxYear))
+                Redirect(controllers.dividendsBase.routes.CloseCompanyLoanAmountBaseController.show(taxYear))
               }
             )
         }

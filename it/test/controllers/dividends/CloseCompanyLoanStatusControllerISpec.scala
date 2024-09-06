@@ -35,7 +35,7 @@ class CloseCompanyLoanStatusControllerISpec extends IntegrationTest with ViewHel
 
   val amount: BigDecimal = 123.45
   val closeCompanyLoanStatusUrl: String = routes.CloseCompanyLoanStatusController.show(taxYear).url
-  val closeCompanyLoansAmountUrl: String = routes.CloseCompanyLoanAmountController.show(taxYear).url
+  val closeCompanyLoansAmountUrl: String = controllers.dividendsBase.routes.CloseCompanyLoanAmountBaseController.show(taxYear).url
   val dividendsSummaryUrl: String = routes.DividendsSummaryController.show(taxYear).url
   val postURL: String = s"$appUrl/$taxYear/dividends/close-company-loan-status"
 
