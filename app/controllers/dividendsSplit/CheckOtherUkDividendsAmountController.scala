@@ -75,7 +75,7 @@ class CheckOtherUkDividendsAmountController @Inject()(authorisedAction: Authoris
     StockDividendsCheckYourAnswersModel.getCyaModel(cya, prior) match {
       case Some(cyaData) => handleSession(cya, cyaData, taxYear)
       case _ =>
-        logger.info("[CheckStockDividendsAmountController][show] No CYA data in session. Redirecting to the task list.")
+        logger.info("[CheckOtherUkDividendsAmountController][show] No CYA data in session. Redirecting to the task list.")
         Future.successful(Redirect(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist"))
     }
   }
@@ -107,7 +107,7 @@ class CheckOtherUkDividendsAmountController @Inject()(authorisedAction: Authoris
           case response => response
         }
       case _ =>
-        logger.info("[CheckStockDividendsAmountController][submit] CYA data or NINO missing from session.")
+        logger.info("[CheckOtherUkDividendsAmountController][submit] CYA data or NINO missing from session.")
         Future.successful(Left(APIErrorModel(BAD_REQUEST, APIErrorBodyModel("MISSING_DATA", "CYA data or NINO missing from session."))))
     }).flatMap {
       case Right(_) =>
@@ -140,5 +140,4 @@ class CheckOtherUkDividendsAmountController @Inject()(authorisedAction: Authoris
       )
     }
   }
-
 }
