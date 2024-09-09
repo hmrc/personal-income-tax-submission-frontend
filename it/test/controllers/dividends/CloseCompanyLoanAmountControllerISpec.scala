@@ -33,9 +33,9 @@ import scala.concurrent.Future
 
 class CloseCompanyLoanAmountControllerISpec extends IntegrationTest with ViewHelpers with DefaultBodyWritables with DividendsDatabaseHelper {
 
-  val closeCompanyLoanAmountUrl: String = routes.CloseCompanyLoanAmountController.show(taxYear).url
+  val closeCompanyLoanAmountUrl: String = controllers.dividendsBase.routes.CloseCompanyLoanAmountBaseController.show(taxYear).url
   val dividendsSummaryUrl: String = routes.DividendsSummaryController.show(taxYear).url
-  val relativepostURL: String = routes.CloseCompanyLoanAmountController.submit(taxYear).url
+  val relativepostURL: String = controllers.dividendsBase.routes.CloseCompanyLoanAmountBaseController.submit(taxYear).url
   val poundPrefixText = "£"
 
   val cyaModel: StockDividendsCheckYourAnswersModel =

@@ -121,7 +121,7 @@
                 Some(summaryListRow(
                     HtmlContent(messages("dividends.summary.list.value-of-close-company-loan")),
                     HtmlContent(s"£${cya.closeCompanyLoansWrittenOffAmount.getOrElse("").toString}"),
-                    actions = Seq((controllers.dividends.routes.CloseCompanyLoanAmountController.show(taxYear), messages("common.change"), Some(messages("dividends.summary.list.hidden.text.value-of-close-company-loan"))))
+                    actions = Seq((controllers.dividendsBase.routes.CloseCompanyLoanAmountBaseController.show(taxYear), messages("common.change"), Some(messages("dividends.summary.list.hidden.text.value-of-close-company-loan"))))
                 ))
             } else { None }
         ).flatten))
