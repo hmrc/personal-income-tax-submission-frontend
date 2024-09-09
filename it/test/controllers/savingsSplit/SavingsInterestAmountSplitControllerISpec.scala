@@ -199,7 +199,7 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
   }
 
   "SavingsInterestAmountSplitController.submit" should {
-    "direct to the new check savings interest amount controller when CYA data is finished" in {
+    "direct to the check savings interest amount controller when CYA data is finished" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true, splitStockDividends = true))
@@ -222,7 +222,7 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
       }
     }
 
-    "create a new session and direct to the next page of the journey where no session exists" in {
+    "direct to the check savings interest amount controller when no session or prior are found" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true, splitStockDividends = true))
@@ -240,7 +240,7 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result) mustBe Some(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/tax-taken-from-interest")
+        redirectLocation(result) mustBe Some(s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/check-interest-from-securities")
       }
     }
 

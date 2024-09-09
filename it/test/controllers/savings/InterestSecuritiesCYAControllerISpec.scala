@@ -20,10 +20,13 @@ import models.priorDataModels.IncomeSourcesModel
 import models.savings.{SavingsIncomeCYAModel, SavingsIncomeDataModel, SecuritiesModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
+import play.api.{Environment, Mode}
 import play.api.http.HeaderNames
 import play.api.http.Status._
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
+import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, running, writeableOf_AnyContentAsEmpty}
 import test.utils.{IntegrationTest, SavingsDatabaseHelper, ViewHelpers}
 
 class InterestSecuritiesCYAControllerISpec extends IntegrationTest with SavingsDatabaseHelper with ViewHelpers {
@@ -434,6 +437,32 @@ class InterestSecuritiesCYAControllerISpec extends IntegrationTest with SavingsD
 
     }
 
+    "render the page without gateway row when 'miniJourneyEnabled' is true" in {
+      val url: String = controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear).url
+      val headers: Seq[(String, String)] = playSessionCookie() ++ Seq("Csrf-Token" -> "nocheck")
+
+      val application = GuiceApplicationBuilder()
+        .in(Environment.simple(mode = Mode.Dev))
+        .configure(config(stockDividends = true, splitStockDividends = true))
+        .build()
+
+      running(application) {
+
+        authoriseIndividual(Some(nino))
+        dropSavingsDB()
+        emptyUserDataStub()
+        insertSavingsCyaData(cyaDataComplete)
+
+        val request = FakeRequest(GET, url).withHeaders(headers: _*)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) contains "<dt class=\"govuk-summary-list__key govuk-!-width-one-half\">\n        " +
+          "Interest from gilt-edged or accrued income securities\n      </dt>" shouldBe false
+
+      }
+    }
   }
 
   ".submit" should {
