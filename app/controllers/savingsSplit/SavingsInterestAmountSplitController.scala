@@ -31,38 +31,41 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class SavingsInterestAmountSplitController @Inject()(
-                                                 view: SavingsInterestAmountView,
-                                                 savingsSessionService: SavingsSessionService,
-                                                 errorHandler: ErrorHandler
-                                               )
+                                                      view: SavingsInterestAmountView,
+                                                      savingsSessionService: SavingsSessionService,
+                                                      errorHandler: ErrorHandler
+                                                    )
                                                     (
-                                                 implicit appConfig: AppConfig,
-                                                 mcc: MessagesControllerComponents,
-                                                 ec: ExecutionContext,
-                                                 authorisedAction: AuthorisedAction
-                                               ) extends FrontendController(mcc) with I18nSupport {
+                                                      implicit appConfig: AppConfig,
+                                                      mcc: MessagesControllerComponents,
+                                                      ec: ExecutionContext,
+                                                      authorisedAction: AuthorisedAction
+                                                    ) extends FrontendController(mcc) with I18nSupport {
 
   def form(implicit isAgent: Boolean, taxYear: Int): Form[BigDecimal] = AmountForm.amountForm(
-      emptyFieldKey = s"savings.interest-amount.errors.no-entry.${if (isAgent) "agent" else "individual"}",
-      wrongFormatKey = s"savings.interest-amount.error.wrong-format.${if (isAgent) "agent" else "individual"}",
-      exceedsMaxAmountKey = s"savings.interest-amount.error.maximum.${if (isAgent) "agent" else "individual"}",
-      emptyFieldArguments = Seq(taxYear.toString)
-    )
+    emptyFieldKey = s"savings.interest-amount.errors.no-entry.${if (isAgent) "agent" else "individual"}",
+    wrongFormatKey = s"savings.interest-amount.error.wrong-format.${if (isAgent) "agent" else "individual"}",
+    exceedsMaxAmountKey = s"savings.interest-amount.error.maximum.${if (isAgent) "agent" else "individual"}",
+    emptyFieldArguments = Seq(taxYear.toString)
+  )
+
   def show(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit user =>
 
     savingsSessionService.getSessionData(taxYear).flatMap {
       case Left(_) => Future.successful(errorHandler.internalServerError())
       case Right(cya) =>
-        Future.successful(cya.fold(Ok(view(form(user.isAgent, taxYear), taxYear))) {
-          cyaData =>
-            cyaData.savingsIncome.fold(Ok(view(form(user.isAgent, taxYear), taxYear))) {
-              data =>
-                data.grossAmount match {
-                  case None => Ok(view(form(user.isAgent, taxYear), taxYear))
-                  case Some(value) => Ok(view(form(user.isAgent, taxYear).fill(value), taxYear))
-                }
-            }
-        })
+        if (cya.isDefined) {
+          val valueCheck = cya.flatMap(_.savingsIncome.flatMap(_.grossAmount))
+
+          valueCheck match {
+            case None => Future.successful(Ok(view(form(user.isAgent, taxYear), taxYear)))
+            case Some(value) => Future.successful(Ok(view(form(user.isAgent, taxYear).fill(value), taxYear)))
+          }
+        } else {
+          savingsSessionService.createSessionData(SavingsIncomeCYAModel(Some(true)), taxYear)(errorHandler.internalServerError())(
+            Ok(view(form(user.isAgent, taxYear), taxYear))
+          )
+        }
     }
   }
 
@@ -76,17 +79,13 @@ class SavingsInterestAmountSplitController @Inject()(
             case (Some(cya), _) =>
               val newData = cya.copy(grossAmount = Some(amount))
               savingsSessionService.updateSessionData(newData, taxYear)(errorHandler.internalServerError()) {
-                if(newData.isFinished) {
+                if (newData.isFinished) {
                   Redirect(controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear))
                 } else {
                   Redirect(controllers.savings.routes.TaxTakenFromInterestController.show(taxYear))
                 }
               }
-            case _ =>
-              // When entering through the new mini journey we need to create a new session as the previous pages are no longer part of the journey
-              savingsSessionService.createSessionData(SavingsIncomeCYAModel(Some(true), Some(amount)), taxYear)(errorHandler.internalServerError())(
-                Redirect(controllers.savings.routes.TaxTakenFromInterestController.show(taxYear))
-              )
+            case _ => Future.successful(Redirect(controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear)))
           }
         }
     })
