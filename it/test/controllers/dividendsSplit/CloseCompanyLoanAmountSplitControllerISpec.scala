@@ -119,7 +119,7 @@ class CloseCompanyLoanAmountSplitControllerISpec extends IntegrationTest with Vi
         dropStockDividendsDB()
         emptyUserDataStub()
         emptyStockDividendsUserDataStub()
-        insertStockDividendsCyaData(Some(completeStockDividendsCYAModel.copy(None, None, None, None, None, None, None, None, None, None, Some(123.45))))
+        insertStockDividendsCyaData(Some(completeStockDividendsCYAModel.copy(None, None, None, None, None, None, None, None, None, None, None)))
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
 

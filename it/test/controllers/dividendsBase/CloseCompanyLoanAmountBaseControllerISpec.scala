@@ -94,7 +94,7 @@ class CloseCompanyLoanAmountBaseControllerISpec extends IntegrationTest with Div
       }
     }
 
-    "direct to the new check stock dividend amount controller when 'split-dividends' is true" in {
+    "direct to the new check close company amount controller when 'split-dividends' is true" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true, splitStockDividends = true))
