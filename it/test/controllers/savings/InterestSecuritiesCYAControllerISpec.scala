@@ -440,7 +440,6 @@ class InterestSecuritiesCYAControllerISpec extends IntegrationTest with SavingsD
       val application = buildApplication()
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropSavingsDB()
         emptyUserDataStub()
@@ -453,7 +452,6 @@ class InterestSecuritiesCYAControllerISpec extends IntegrationTest with SavingsD
         status(result) mustEqual OK
         contentAsString(result) contains "<dt class=\"govuk-summary-list__key govuk-!-width-one-half\">\n        " +
           "Interest from gilt-edged or accrued income securities\n      </dt>" shouldBe true
-
       }
     }
   }
