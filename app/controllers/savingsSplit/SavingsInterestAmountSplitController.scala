@@ -79,12 +79,12 @@ class SavingsInterestAmountSplitController @Inject()(
               val newData = cya.copy(grossAmount = Some(amount))
               savingsSessionService.updateSessionData(newData, taxYear)(errorHandler.internalServerError()) {
                 if (newData.isFinished) {
-                  Redirect(controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear))
+                  Redirect(controllers.savingsBase.routes.InterestSecuritiesCyaBaseController.show(taxYear))
                 } else {
                   Redirect(controllers.savings.routes.TaxTakenFromInterestController.show(taxYear))
                 }
               }
-            case _ => Future.successful(Redirect(controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear)))
+            case _ => Future.successful(Redirect(controllers.savingsBase.routes.InterestSecuritiesCyaBaseController.show(taxYear)))
           }
         }
     })

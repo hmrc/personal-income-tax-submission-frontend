@@ -438,7 +438,7 @@ class InterestSecuritiesCYAControllerISpec extends IntegrationTest with SavingsD
     }
 
     "render the page without gateway row when 'miniJourneyEnabled' is true" in {
-      val url: String = controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear).url
+      val url: String = controllers.savingsBase.routes.InterestSecuritiesCyaBaseController.show(taxYear).url
       val headers: Seq[(String, String)] = playSessionCookie() ++ Seq("Csrf-Token" -> "nocheck")
 
       val application = GuiceApplicationBuilder()

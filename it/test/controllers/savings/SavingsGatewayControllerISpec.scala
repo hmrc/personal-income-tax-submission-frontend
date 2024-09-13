@@ -313,7 +313,7 @@ class SavingsGatewayControllerISpec extends IntegrationTest with ViewHelpers wit
 
           "has the correct redirect location" in {
             await(result).header.headers
-              .get(HeaderNames.LOCATION) shouldBe Some(controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear).url)
+              .get(HeaderNames.LOCATION) shouldBe Some(controllers.savingsBase.routes.InterestSecuritiesCyaBaseController.show(taxYear).url)
           }
         }
 
@@ -374,7 +374,7 @@ class SavingsGatewayControllerISpec extends IntegrationTest with ViewHelpers wit
 
           "has the correct redirect location" in {
             await(result).header.headers
-              .get(HeaderNames.LOCATION) shouldBe Some(controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear).url)
+              .get(HeaderNames.LOCATION) shouldBe Some(controllers.savingsBase.routes.InterestSecuritiesCyaBaseController.show(taxYear).url)
           }
         }
 
@@ -395,7 +395,7 @@ class SavingsGatewayControllerISpec extends IntegrationTest with ViewHelpers wit
 
           "has the correct redirect location" in {
             await(result).header.headers
-              .get(HeaderNames.LOCATION) shouldBe Some(controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear).url)
+              .get(HeaderNames.LOCATION) shouldBe Some(controllers.savingsBase.routes.InterestSecuritiesCyaBaseController.show(taxYear).url)
           }
         }
 

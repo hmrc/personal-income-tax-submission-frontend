@@ -228,7 +228,7 @@ class TaxTakenFromInterestControllerISpec extends IntegrationTest with ViewHelpe
 
           "has a status of Redirect(303)" in {
             status(result) shouldBe SEE_OTHER
-            await(result).header.headers("Location") shouldBe s"${controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear)}"
+            await(result).header.headers("Location") shouldBe s"${controllers.savingsBase.routes.InterestSecuritiesCyaBaseController.show(taxYear)}"
           }
       }
         "redirect to next taxTakenAmount page" which {

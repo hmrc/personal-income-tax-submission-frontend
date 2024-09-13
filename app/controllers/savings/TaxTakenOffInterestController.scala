@@ -79,7 +79,7 @@ class TaxTakenOffInterestController @Inject()(
             val newData = cya.flatMap(_.savingsIncome).getOrElse(
               SavingsIncomeCYAModel(taxTakenOffAmount = Some(amount))).copy(gateway = Some(true), taxTakenOff = Some(true), taxTakenOffAmount = Some(amount))
             savingsSessionService.updateSessionData(newData, taxYear)(errorHandler.internalServerError()) {
-              Redirect(controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear))
+              Redirect(controllers.savingsBase.routes.InterestSecuritiesCyaBaseController.show(taxYear))
             }
         }.flatten
     })

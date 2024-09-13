@@ -221,7 +221,7 @@ class ZeroingWarningController @Inject()(
         case Some(cyaData: SavingsIncomeCYAModel) =>
           val newSessionData = zeroSavingsData(cyaData)
           savingsSession.updateSessionData(newSessionData, taxYear)(errorHandler.internalServerError()) {
-            Redirect(controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear))
+            Redirect(controllers.savingsBase.routes.InterestSecuritiesCyaBaseController.show(taxYear))
           }
         case _ =>
           Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))

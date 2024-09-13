@@ -85,7 +85,7 @@ class TaxTakenFromInterestController @Inject()(
     if (yesNoValue && !isFinished) {
       Redirect(controllers.savings.routes.TaxTakenOffInterestController.show(taxYear))
     } else {
-      Redirect(controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear))
+      Redirect(controllers.savingsBase.routes.InterestSecuritiesCyaBaseController.show(taxYear))
     }
   }
 }

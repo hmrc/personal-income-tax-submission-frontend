@@ -18,7 +18,6 @@ package test.controllers
 
 import models.interest.InterestCYAModel
 import models.priorDataModels.IncomeSourcesModel
-import models.savings.SavingsIncomeCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames

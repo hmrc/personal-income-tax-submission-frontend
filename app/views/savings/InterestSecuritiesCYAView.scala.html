@@ -82,7 +82,7 @@
     }
 
 
-    @formWithCSRF(action = controllers.savings.routes.InterestSecuritiesCYAController.submit(taxYear)) {
+    @formWithCSRF(action = controllers.savingsBase.routes.InterestSecuritiesCyaBaseController.submit(taxYear)) {
         @button("common.saveAndContinue", classes = Some("govuk-!-margin-top-6"))
     }
 }

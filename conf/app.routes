@@ -202,8 +202,8 @@ POST        /:taxYear/interest/tax-taken-from-interest                          
 GET         /:taxYear/interest/tax-taken-off-interest                                                         controllers.savings.TaxTakenOffInterestController.show(taxYear: Int)
 POST        /:taxYear/interest/tax-taken-off-interest                                                         controllers.savings.TaxTakenOffInterestController.submit(taxYear: Int)
 
-GET         /:taxYear/interest/check-interest-from-securities                                                 controllers.savings.InterestSecuritiesCYAController.show(taxYear: Int)
-POST        /:taxYear/interest/check-interest-from-securities                                                 controllers.savings.InterestSecuritiesCYAController.submit(taxYear: Int)
+GET         /:taxYear/interest/check-interest-from-securities                                                 controllers.savingsBase.InterestSecuritiesCyaBaseController.show(taxYear: Int)
+POST        /:taxYear/interest/check-interest-from-securities                                                 controllers.savingsBase.InterestSecuritiesCyaBaseController.submit(taxYear: Int)
 
 GET         /:taxYear/interest/interest-summary                                                               controllers.InterestFromSavingsAndSecuritiesSummaryController.show(taxYear: Int)
 

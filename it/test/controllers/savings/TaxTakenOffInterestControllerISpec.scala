@@ -246,7 +246,7 @@ class TaxTakenOffInterestControllerISpec extends IntegrationTest with ViewHelper
         }
 
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear)}"
+        result.headers("Location").head shouldBe s"${controllers.savingsBase.routes.InterestSecuritiesCyaBaseController.show(taxYear)}"
 
       }
       "return a 303 status with empty cyaData" in {
@@ -264,7 +264,7 @@ class TaxTakenOffInterestControllerISpec extends IntegrationTest with ViewHelper
         }
 
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear)}"
+        result.headers("Location").head shouldBe s"${controllers.savingsBase.routes.InterestSecuritiesCyaBaseController.show(taxYear)}"
 
       }
       "return a error" when {
