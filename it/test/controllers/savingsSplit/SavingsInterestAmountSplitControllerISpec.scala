@@ -42,7 +42,7 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
     "render the page" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {
@@ -63,7 +63,7 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
     "render the page for an agent" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       val headers = playSessionCookie(agent = true)
@@ -86,7 +86,7 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
     "render the page with value from session" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {
@@ -108,7 +108,7 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
     "render the page when session is 'None'" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {
@@ -129,7 +129,7 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
     "render the page when no session is defined" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {
@@ -149,7 +149,7 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
     "render the page when session is defined without savings interest amount" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {
@@ -177,7 +177,7 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
 
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .overrides(bind[SavingsSessionService].toInstance(mockService))
         .build()
 
@@ -202,7 +202,7 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
     "direct to the check savings interest amount controller when CYA data is finished" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {
@@ -225,7 +225,7 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
     "direct to the check savings interest amount controller when no session or prior are found" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {
@@ -247,7 +247,7 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
     "return BAD_REQUEST with invalid body" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {
@@ -275,7 +275,7 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
 
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .overrides(bind[StockDividendsSessionServiceProvider].toInstance(mockService))
         .build()
 

@@ -40,7 +40,7 @@
 
     @{
         govukSummaryList(SummaryList(Seq(
-            if (!appConfig.isSplitDividends) {
+            if (!appConfig.miniJourneyEnabled) {
                 Some(summaryListRow(
                     HtmlContent(messages("savings.gateway.heading")),
                     HtmlContent(trueFalseToYesNo(cyaModel.gateway.contains(true))),

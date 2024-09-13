@@ -41,7 +41,7 @@ class UkDividendsAmountSplitControllerISpec extends IntegrationTest with ViewHel
     "render the page" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {
@@ -62,7 +62,7 @@ class UkDividendsAmountSplitControllerISpec extends IntegrationTest with ViewHel
     "render the page for an agent" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       val headers = playSessionCookie(agent = true)
@@ -85,7 +85,7 @@ class UkDividendsAmountSplitControllerISpec extends IntegrationTest with ViewHel
     "render the page when no session is defined" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {
@@ -104,7 +104,7 @@ class UkDividendsAmountSplitControllerISpec extends IntegrationTest with ViewHel
     "render the page when session is defined without UK dividends amount" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {
@@ -128,7 +128,7 @@ class UkDividendsAmountSplitControllerISpec extends IntegrationTest with ViewHel
 
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .overrides(bind[StockDividendsSessionServiceProvider].toInstance(mockService))
         .build()
 
@@ -153,7 +153,7 @@ class UkDividendsAmountSplitControllerISpec extends IntegrationTest with ViewHel
     "direct to the new check UK dividends amount controller" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {
@@ -174,7 +174,7 @@ class UkDividendsAmountSplitControllerISpec extends IntegrationTest with ViewHel
     "return BAD_REQUEST with invalid body" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {
@@ -196,7 +196,7 @@ class UkDividendsAmountSplitControllerISpec extends IntegrationTest with ViewHel
 
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .overrides(bind[StockDividendsSessionServiceProvider].toInstance(mockService))
         .build()
 

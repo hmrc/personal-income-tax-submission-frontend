@@ -31,7 +31,7 @@ class StockDividendAmountBaseControllerISpec extends IntegrationTest with Divide
   val headers: Seq[(String, String)] = playSessionCookie() ++ Seq("Csrf-Token" -> "nocheck")
 
   "StockDividendAmountBaseController.show" should {
-    "direct to the original stock dividend amount controller when 'split-dividends' is false" in {
+    "direct to the original stock dividend amount controller when 'miniJourneyEnabled' is false" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true))
@@ -49,10 +49,10 @@ class StockDividendAmountBaseControllerISpec extends IntegrationTest with Divide
       }
     }
 
-    "direct to the new stock dividend amount controller when 'split-dividends' is true" in {
+    "direct to the new stock dividend amount controller when 'miniJourneyEnabled' is true" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {
@@ -69,7 +69,7 @@ class StockDividendAmountBaseControllerISpec extends IntegrationTest with Divide
   }
 
   "StockDividendAmountBaseController.submit" should {
-    "direct to next page of the journey when 'split-dividends' is false" in {
+    "direct to next page of the journey when 'miniJourneyEnabled' is false" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true))
@@ -94,10 +94,10 @@ class StockDividendAmountBaseControllerISpec extends IntegrationTest with Divide
       }
     }
 
-    "direct to the new check stock dividend amount controller when 'split-dividends' is true" in {
+    "direct to the new check stock dividend amount controller when 'miniJourneyEnabled' is true" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {

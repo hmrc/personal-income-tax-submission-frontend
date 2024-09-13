@@ -31,7 +31,7 @@ class SavingsInterestAmountBaseControllerISpec extends IntegrationTest with Savi
   private val headers: Seq[(String, String)] = playSessionCookie() ++ Seq("Csrf-Token" -> "nocheck")
 
   "SavingsInterestAmountBaseController.show" should {
-    "direct to the original savings interest amount controller when 'split-dividends' is false" in {
+    "direct to the original savings interest amount controller when 'miniJourneyEnabled' is false" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true))
@@ -49,10 +49,10 @@ class SavingsInterestAmountBaseControllerISpec extends IntegrationTest with Savi
       }
     }
 
-    "direct to the new savings interest amount controller when 'split-dividends' is true" in {
+    "direct to the new savings interest amount controller when 'miniJourneyEnabled' is true" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {
@@ -69,7 +69,7 @@ class SavingsInterestAmountBaseControllerISpec extends IntegrationTest with Savi
   }
 
   "SavingsInterestAmountBaseController.submit" should {
-    "direct to next page of the journey when 'split-dividends' is false and CYA is incomplete" in {
+    "direct to next page of the journey when 'miniJourneyEnabled' is false and CYA is incomplete" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true))
@@ -94,10 +94,10 @@ class SavingsInterestAmountBaseControllerISpec extends IntegrationTest with Savi
       }
     }
 
-    "direct to next page of the journey when 'split-dividends' is true and CYA is incomplete" in {
+    "direct to next page of the journey when 'miniJourneyEnabled' is true and CYA is incomplete" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {
@@ -119,10 +119,10 @@ class SavingsInterestAmountBaseControllerISpec extends IntegrationTest with Savi
       }
     }
 
-    "direct to the CYA page controller when 'split-dividends' is true and CYA data is finished" in {
+    "direct to the CYA page controller when 'miniJourneyEnabled' is true and CYA data is finished" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {

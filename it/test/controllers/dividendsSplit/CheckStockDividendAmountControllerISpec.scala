@@ -39,7 +39,7 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
     "render the page when a session exists" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {
@@ -62,7 +62,7 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
     "redirect to task list when no cya or prior exists" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {
@@ -84,7 +84,7 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
     "render the page when a new session needs to be created from prior data" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {
@@ -105,7 +105,7 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
     "render the page when a new session needs to be created from prior data with only dividends" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {
@@ -126,7 +126,7 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
     "render the page when a new session needs to be created from prior data with only stock dividends" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {
@@ -147,7 +147,7 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
     "return an error when downstream service returns INTERNAL_SERVER_ERROR" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {
@@ -170,7 +170,7 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
     "submit data and redirect to task list" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {
@@ -196,7 +196,7 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
     "return SERVICE_UNAVAILABLE when API is unavailable" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {
@@ -221,7 +221,7 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
     "return INTERNAL_SERVER_ERROR due to no session data" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {

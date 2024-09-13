@@ -443,7 +443,7 @@ class InterestSecuritiesCYAControllerISpec extends IntegrationTest with SavingsD
 
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {

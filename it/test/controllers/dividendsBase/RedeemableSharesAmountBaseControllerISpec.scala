@@ -31,7 +31,7 @@ class RedeemableSharesAmountBaseControllerISpec extends IntegrationTest with Div
   val headers: Seq[(String, String)] = playSessionCookie() ++ Seq("Csrf-Token" -> "nocheck")
 
   "RedeemableSharesAmountBaseController.show" should {
-    "direct to the original redeemable shares amount controller when 'split-dividends' is false" in {
+    "direct to the original redeemable shares amount controller when 'miniJourneyEnabled' is false" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true))
@@ -49,10 +49,10 @@ class RedeemableSharesAmountBaseControllerISpec extends IntegrationTest with Div
       }
     }
 
-    "direct to the new redeemable shares amount controller when 'split-dividends' is true" in {
+    "direct to the new redeemable shares amount controller when 'miniJourneyEnabled' is true" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {
@@ -69,7 +69,7 @@ class RedeemableSharesAmountBaseControllerISpec extends IntegrationTest with Div
   }
 
   "RedeemableSharesAmountBaseController.submit" should {
-    "direct to next page of the journey when 'split-dividends' is false" in {
+    "direct to next page of the journey when 'miniJourneyEnabled' is false" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true))
@@ -94,10 +94,10 @@ class RedeemableSharesAmountBaseControllerISpec extends IntegrationTest with Div
       }
     }
 
-    "direct to the new check redeemable shares amount controller when 'split-dividends' is true" in {
+    "direct to the new check redeemable shares amount controller when 'miniJourneyEnabled' is true" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {

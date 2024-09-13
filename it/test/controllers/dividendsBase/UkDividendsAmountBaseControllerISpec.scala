@@ -30,7 +30,7 @@ class UkDividendsAmountBaseControllerISpec extends IntegrationTest with Dividend
   val headers: Seq[(String, String)] = playSessionCookie() ++ Seq("Csrf-Token" -> "nocheck")
 
   ".show" should {
-    "direct to the original uk dividend amount controller when 'split-dividends' is false" in {
+    "direct to the original uk dividend amount controller when 'miniJourneyEnabled' is false" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true))
@@ -46,10 +46,10 @@ class UkDividendsAmountBaseControllerISpec extends IntegrationTest with Dividend
       }
     }
 
-    "direct to the new uk dividend amount controller when 'split-dividends' is true" in {
+    "direct to the new uk dividend amount controller when 'miniJourneyEnabled' is true" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .build()
 
       running(application) {
@@ -64,7 +64,7 @@ class UkDividendsAmountBaseControllerISpec extends IntegrationTest with Dividend
   }
 
   ".submit" should {
-    "direct to next page of the journey when 'split-dividends' is false" in {
+    "direct to next page of the journey when 'miniJourneyEnabled' is false" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
         .configure(config(stockDividends = true))
@@ -89,10 +89,10 @@ class UkDividendsAmountBaseControllerISpec extends IntegrationTest with Dividend
       }
     }
 
-    "direct to the new check uk dividend amount controller when 'split-dividends' is true" in {
+    "direct to the new check uk dividend amount controller when 'miniJourneyEnabled' is true" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(splitStockDividends = true))
+        .configure(config(miniJourneyEnabled = true))
         .build()
 
       running(application) {

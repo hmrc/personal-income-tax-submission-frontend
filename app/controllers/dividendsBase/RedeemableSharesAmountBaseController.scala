@@ -28,7 +28,7 @@ class RedeemableSharesAmountBaseController @Inject()(linearController: Redeemabl
                                                      appConfig: AppConfig) {
 
   def show(taxYear: Int): Action[AnyContent] = {
-    if (appConfig.isSplitDividends) {
+    if (appConfig.miniJourneyEnabled) {
       splitController.show(taxYear)
     } else {
       linearController.show(taxYear)
@@ -36,7 +36,7 @@ class RedeemableSharesAmountBaseController @Inject()(linearController: Redeemabl
   }
 
   def submit(taxYear: Int): Action[AnyContent] = {
-    if (appConfig.isSplitDividends) {
+    if (appConfig.miniJourneyEnabled) {
       splitController.submit(taxYear)
     } else {
       linearController.submit(taxYear)

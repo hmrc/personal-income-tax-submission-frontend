@@ -82,7 +82,7 @@ class MockAppConfig extends AppConfig with MockFactory {
 
   override def excludeJourneyUrl(taxYear: Int): String = "/exclude"
 
-  override def isSplitDividends: Boolean = false
+  override def miniJourneyEnabled: Boolean = false
 
 }
 class MockAppConfigEncyrptionOff extends MockAppConfig {
