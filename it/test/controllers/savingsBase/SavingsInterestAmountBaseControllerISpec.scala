@@ -16,14 +16,11 @@
 
 package controllers.savingsBase
 
-import models.savings.SavingsIncomeCYAModel
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import play.api.http.Status.{OK, SEE_OTHER}
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.{Environment, Mode}
-import test.utils.{DividendsDatabaseHelper, IntegrationTest, SavingsDatabaseHelper}
+import test.utils.{IntegrationTest, SavingsDatabaseHelper}
 
 class SavingsInterestAmountBaseControllerISpec extends IntegrationTest with SavingsDatabaseHelper {
 
@@ -32,17 +29,12 @@ class SavingsInterestAmountBaseControllerISpec extends IntegrationTest with Savi
 
   "SavingsInterestAmountBaseController.show" should {
     "direct to the original savings interest amount controller when 'miniJourneyEnabled' is false" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true))
-        .build()
+      val application = buildApplication()
 
       running(application) {
-
         authoriseIndividual(Some(nino))
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -50,17 +42,12 @@ class SavingsInterestAmountBaseControllerISpec extends IntegrationTest with Savi
     }
 
     "direct to the new savings interest amount controller when 'miniJourneyEnabled' is true" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, miniJourneyEnabled = true))
-        .build()
+      val application = buildApplication(interestSavings = true, miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -70,23 +57,15 @@ class SavingsInterestAmountBaseControllerISpec extends IntegrationTest with Savi
 
   "SavingsInterestAmountBaseController.submit" should {
     "direct to next page of the journey when 'miniJourneyEnabled' is false and CYA is incomplete" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true))
-        .build()
+      val application = buildApplication(interestSavings = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
-
         emptyUserDataStub()
-
         dropSavingsDB()
-
         insertSavingsCyaData(cyaDataValid)
 
         val request = FakeRequest(POST, url).withHeaders(headers: _*).withFormUrlEncodedBody("amount" -> "123")
-
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -95,23 +74,15 @@ class SavingsInterestAmountBaseControllerISpec extends IntegrationTest with Savi
     }
 
     "direct to next page of the journey when 'miniJourneyEnabled' is true and CYA is incomplete" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, miniJourneyEnabled = true))
-        .build()
+      val application = buildApplication(interestSavings = true, miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
-
         emptyUserDataStub()
-
         dropSavingsDB()
-
         insertSavingsCyaData(cyaDataValid)
 
         val request = FakeRequest(POST, url).withHeaders(headers: _*).withFormUrlEncodedBody("amount" -> "123")
-
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -120,23 +91,15 @@ class SavingsInterestAmountBaseControllerISpec extends IntegrationTest with Savi
     }
 
     "direct to the CYA page controller when 'miniJourneyEnabled' is true and CYA data is finished" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, miniJourneyEnabled = true))
-        .build()
+      val application = buildApplication(interestSavings = true, miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
-
         emptyUserDataStub()
-
         dropSavingsDB()
-
         insertSavingsCyaData(cyaDataComplete)
 
         val request = FakeRequest(POST, url).withHeaders(headers: _*).withFormUrlEncodedBody("amount" -> "123")
-
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER

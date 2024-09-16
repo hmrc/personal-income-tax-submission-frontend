@@ -39,10 +39,7 @@ class OtherUkDividendsAmountSplitControllerISpec extends IntegrationTest with Vi
 
   ".show" should {
     "render the page" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, miniJourneyEnabled = true))
-        .build()
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
         authoriseIndividual(Some(nino))
@@ -60,12 +57,7 @@ class OtherUkDividendsAmountSplitControllerISpec extends IntegrationTest with Vi
     }
 
     "render the page for an agent" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, miniJourneyEnabled = true))
-        .build()
-
-      val headers = playSessionCookie(agent = true)
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
         authoriseAgentOrIndividual(isAgent = true)
@@ -74,6 +66,7 @@ class OtherUkDividendsAmountSplitControllerISpec extends IntegrationTest with Vi
         emptyStockDividendsUserDataStub()
         insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
 
+        val headers = playSessionCookie(agent = true)
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
         val result = route(application, request).value
 
@@ -83,10 +76,7 @@ class OtherUkDividendsAmountSplitControllerISpec extends IntegrationTest with Vi
     }
 
     "render the page when no session is defined" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, miniJourneyEnabled = true))
-        .build()
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
         authoriseIndividual(Some(nino))
@@ -102,10 +92,7 @@ class OtherUkDividendsAmountSplitControllerISpec extends IntegrationTest with Vi
     }
 
     "render the page when session is defined without other UK dividends amount" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, miniJourneyEnabled = true))
-        .build()
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
         authoriseIndividual(Some(nino))
@@ -150,10 +137,7 @@ class OtherUkDividendsAmountSplitControllerISpec extends IntegrationTest with Vi
   ".submit" should {
 
     "direct to the new check other UK dividends amount controller" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, miniJourneyEnabled = true))
-        .build()
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
         authoriseIndividual(Some(nino))
@@ -171,10 +155,7 @@ class OtherUkDividendsAmountSplitControllerISpec extends IntegrationTest with Vi
     }
 
     "return BAD_REQUEST with invalid body" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, miniJourneyEnabled = true))
-        .build()
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
         authoriseIndividual(Some(nino))

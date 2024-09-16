@@ -28,7 +28,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.api.{Environment, Mode}
 import services.{SavingsSessionService, StockDividendsSessionServiceProvider}
-import test.utils.{DividendsDatabaseHelper, IntegrationTest, SavingsDatabaseHelper, ViewHelpers}
+import test.utils.{IntegrationTest, SavingsDatabaseHelper, ViewHelpers}
 
 import scala.concurrent.Future
 
@@ -40,19 +40,14 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
 
   "SavingsInterestAmountSplitController.show" should {
     "render the page" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, miniJourneyEnabled = true))
-        .build()
+      val application = buildApplication( miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropSavingsDB()
         emptyUserDataStub()
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -61,21 +56,15 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
     }
 
     "render the page for an agent" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, miniJourneyEnabled = true))
-        .build()
-
-      val headers = playSessionCookie(agent = true)
+      val application = buildApplication( miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseAgentOrIndividual(isAgent = true)
         dropSavingsDB()
         emptyUserDataStub()
 
+        val headers = playSessionCookie(agent = true)
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -84,20 +73,15 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
     }
 
     "render the page with value from session" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, miniJourneyEnabled = true))
-        .build()
+      val application = buildApplication( miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropSavingsDB()
         emptyUserDataStub()
         insertSavingsCyaData(Some(cyaDataValid.get.copy(grossAmount = Some(monetaryValue))))
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -106,20 +90,15 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
     }
 
     "render the page when session is 'None'" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, miniJourneyEnabled = true))
-        .build()
+      val application = buildApplication( miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropSavingsDB()
         emptyUserDataStub()
         insertSavingsCyaData(None)
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -127,19 +106,14 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
     }
 
     "render the page when no session is defined" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, miniJourneyEnabled = true))
-        .build()
+      val application = buildApplication( miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropSavingsDB()
         emptyUserDataStub()
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -147,13 +121,9 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
     }
 
     "render the page when session is defined without savings interest amount" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, miniJourneyEnabled = true))
-        .build()
+      val application = buildApplication( miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropSavingsDB()
         emptyUserDataStub()
@@ -161,7 +131,6 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
         insertSavingsCyaData(cyaDataValid)
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -171,9 +140,7 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
     "return an INTERNAL_SERVER_ERROR" in {
       val mockService = mock[SavingsSessionService]
 
-      when(mockService.getSessionData(any())(any(), any())).thenReturn(
-        Future.successful(Left(DataNotFound))
-      )
+      when(mockService.getSessionData(any())(any(), any())).thenReturn(Future.successful(Left(DataNotFound)))
 
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
@@ -182,7 +149,6 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
         .build()
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropSavingsDB()
         emptyUserDataStub()
@@ -190,7 +156,6 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
         insertSavingsCyaData(cyaDataValid)
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual INTERNAL_SERVER_ERROR
@@ -200,21 +165,15 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
 
   "SavingsInterestAmountSplitController.submit" should {
     "direct to the check savings interest amount controller when CYA data is finished" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, miniJourneyEnabled = true))
-        .build()
+      val application = buildApplication( miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
-
         dropSavingsDB()
         emptyUserDataStub()
         insertSavingsCyaData(cyaDataComplete)
 
         val request = FakeRequest(POST, url).withHeaders(headers: _*).withFormUrlEncodedBody("amount" -> "123")
-
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -223,20 +182,14 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
     }
 
     "direct to the check savings interest amount controller when no session or prior are found" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, miniJourneyEnabled = true))
-        .build()
+      val application = buildApplication( miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
-
         dropSavingsDB()
         emptyUserDataStub()
 
         val request = FakeRequest(POST, url).withHeaders(headers: _*).withFormUrlEncodedBody("amount" -> "123")
-
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -245,21 +198,14 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
     }
 
     "return BAD_REQUEST with invalid body" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, miniJourneyEnabled = true))
-        .build()
+      val application = buildApplication( miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
-
         dropSavingsDB()
-
         insertSavingsCyaData(cyaDataValid)
 
         val request = FakeRequest(POST, url).withHeaders(headers: _*).withFormUrlEncodedBody("invalid" -> "123")
-
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
@@ -269,9 +215,7 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
     "return an INTERNAL_SERVER_ERROR" in {
       val mockService = mock[StockDividendsSessionServiceProvider]
 
-      when(mockService.getSessionData(any())(any(), any())).thenReturn(
-        Future.successful(Left(DataNotFound))
-      )
+      when(mockService.getSessionData(any())(any(), any())).thenReturn(Future.successful(Left(DataNotFound)))
 
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
@@ -280,15 +224,11 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
         .build()
 
       running(application) {
-
         authoriseIndividual(Some(nino))
-
         dropSavingsDB()
-
         insertSavingsCyaData(cyaDataValid)
 
         val request = FakeRequest(POST, url).withHeaders(headers: _*).withFormUrlEncodedBody("amount" -> "123")
-
         val result = route(application, request).value
 
         status(result) mustEqual INTERNAL_SERVER_ERROR

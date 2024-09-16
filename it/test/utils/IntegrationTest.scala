@@ -197,6 +197,24 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     "microservice.services.sign-in.url" -> s"/auth-login-stub/gg-sign-in"
   )
 
+  def buildApplication(tailoring: Boolean = false,
+                       interestTailoring: Boolean = false,
+                       dividendsTailoring: Boolean = false,
+                       charityTailoringEnabled: Boolean = false,
+                       interestSavings: Boolean = false,
+                       stockDividends: Boolean = false,
+                       backendSessionEnabled: Boolean = false,
+                       miniJourneyEnabled: Boolean = false): Application =
+    GuiceApplicationBuilder()
+      .in(Environment.simple(mode = Mode.Dev))
+      .configure(
+        config(
+          tailoring, interestTailoring, dividendsTailoring, charityTailoringEnabled,
+          interestSavings, stockDividends, backendSessionEnabled, miniJourneyEnabled
+        )
+      )
+      .build()
+
   def config(
               tailoring: Boolean = false,
               interestTailoring: Boolean = false,
@@ -259,6 +277,12 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     .build()
 
   implicit lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
+
+//  def buildApplication(miniJourneyEnabled: Boolean): Application =
+//    GuiceApplicationBuilder()
+//      .in(Environment.simple(mode = Mode.Dev))
+//      .configure(config(miniJourneyEnabled = miniJourneyEnabled))
+//      .build()
 
   override def beforeAll(): Unit = {
     super.beforeAll()

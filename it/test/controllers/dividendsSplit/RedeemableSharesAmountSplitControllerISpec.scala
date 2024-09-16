@@ -39,13 +39,9 @@ class RedeemableSharesAmountSplitControllerISpec extends IntegrationTest with Vi
 
   "RedeemableSharesAmountSplitController.show" should {
     "render the page" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, miniJourneyEnabled = true))
-        .build()
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         emptyUserDataStub()
@@ -62,15 +58,11 @@ class RedeemableSharesAmountSplitControllerISpec extends IntegrationTest with Vi
     }
 
     "render the page for an agent" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, miniJourneyEnabled = true))
-        .build()
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       val headers = playSessionCookie(agent = true)
 
       running(application) {
-
         authoriseAgentOrIndividual(isAgent = true)
         dropStockDividendsDB()
         emptyUserDataStub()
@@ -87,13 +79,9 @@ class RedeemableSharesAmountSplitControllerISpec extends IntegrationTest with Vi
     }
 
     "render the page when no session is defined" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, miniJourneyEnabled = true))
-        .build()
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         emptyUserDataStub()
@@ -108,13 +96,9 @@ class RedeemableSharesAmountSplitControllerISpec extends IntegrationTest with Vi
     }
 
     "render the page when session is defined without redeemable shares amount" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, miniJourneyEnabled = true))
-        .build()
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         emptyUserDataStub()
@@ -161,21 +145,14 @@ class RedeemableSharesAmountSplitControllerISpec extends IntegrationTest with Vi
 
   "RedeemableSharesAmountSplitController.submit" should {
     "direct to the new check redeemable shares amount controller" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, miniJourneyEnabled = true))
-        .build()
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
-
         dropStockDividendsDB()
-
         insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
 
         val request = FakeRequest(POST, url).withHeaders(headers: _*).withFormUrlEncodedBody("amount" -> "123")
-
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -184,21 +161,14 @@ class RedeemableSharesAmountSplitControllerISpec extends IntegrationTest with Vi
     }
 
     "return BAD_REQUEST with invalid body" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, miniJourneyEnabled = true))
-        .build()
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
-
         dropStockDividendsDB()
-
         insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
 
         val request = FakeRequest(POST, url).withHeaders(headers: _*).withFormUrlEncodedBody("invalid" -> "123")
-
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
@@ -219,15 +189,11 @@ class RedeemableSharesAmountSplitControllerISpec extends IntegrationTest with Vi
         .build()
 
       running(application) {
-
         authoriseIndividual(Some(nino))
-
         dropStockDividendsDB()
-
         insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
 
         val request = FakeRequest(POST, url).withHeaders(headers: _*).withFormUrlEncodedBody("amount" -> "123")
-
         val result = route(application, request).value
 
         status(result) mustEqual INTERNAL_SERVER_ERROR

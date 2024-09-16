@@ -38,11 +38,16 @@ import views.html.savings.InterestSecuritiesCYAView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class InterestSecuritiesCyaSplitController @Inject()(interestSecuritiesCYAView: InterestSecuritiesCYAView, savingsSessionService: SavingsSessionService,
-                                                     savingsSubmissionService: SavingsSubmissionService, incomeSourceConnector: IncomeSourceConnector,
-                                                     auditService: AuditService, errorHandler: ErrorHandler)
-                                                    (implicit appConfig: AppConfig, authorisedAction: AuthorisedAction, val mcc: MessagesControllerComponents)
-                                                     extends FrontendController(mcc) with I18nSupport with SessionHelper with Logging {
+class InterestSecuritiesCyaSplitController @Inject()(interestSecuritiesCYAView: InterestSecuritiesCYAView,
+                                                     savingsSessionService: SavingsSessionService,
+                                                     savingsSubmissionService: SavingsSubmissionService,
+                                                     incomeSourceConnector: IncomeSourceConnector,
+                                                     auditService: AuditService,
+                                                     errorHandler: ErrorHandler
+                                                    )(implicit appConfig: AppConfig,
+                                                      authorisedAction: AuthorisedAction,
+                                                      val mcc: MessagesControllerComponents
+                                                    ) extends FrontendController(mcc) with I18nSupport with SessionHelper with Logging {
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
 
@@ -91,7 +96,7 @@ class InterestSecuritiesCyaSplitController @Inject()(interestSecuritiesCYAView: 
       case Some(cya) =>
         priorData.fold(handleSubmissionRedirect(taxYear, cyaData))(
           prior => if (prior.toCYAModel == cya) {
-            Future.successful(Redirect(controllers.routes.InterestFromSavingsAndSecuritiesSummaryController.show(taxYear)))
+            Future.successful(Redirect(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist"))
           } else {
             handleSubmissionRedirect(taxYear, cyaData, priorData)
           }
@@ -113,7 +118,7 @@ class InterestSecuritiesCyaSplitController @Inject()(interestSecuritiesCYAView: 
         )
         auditSubmission(model)
         savingsSessionService.clear(taxYear)(errorHandler.internalServerError())(
-          Redirect(controllers.routes.InterestFromSavingsAndSecuritiesSummaryController.show(taxYear))
+          Redirect(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist")
         )
     }
   }
