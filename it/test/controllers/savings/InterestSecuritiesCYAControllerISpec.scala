@@ -23,7 +23,6 @@ import org.jsoup.nodes.Document
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import play.api.http.HeaderNames
 import play.api.http.Status._
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, route, running, writeableOf_AnyContentAsEmpty}
 import test.utils.{IntegrationTest, SavingsDatabaseHelper, ViewHelpers}

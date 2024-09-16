@@ -16,15 +16,11 @@
 
 package controllers.savingsBase
 
-import models.savings.SavingsIncomeCYAModel
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import play.api.http.Status.{OK, SEE_OTHER}
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import test.utils.{IntegrationTest, SavingsDatabaseHelper}
-import play.api.{Environment, Mode}
-import test.utils.{DividendsDatabaseHelper, IntegrationTest, SavingsDatabaseHelper}
 
 class SavingsInterestAmountBaseControllerISpec extends IntegrationTest with SavingsDatabaseHelper {
 

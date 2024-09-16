@@ -65,7 +65,6 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
 
         val headers = playSessionCookie(agent = true)
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -110,7 +109,6 @@ class SavingsInterestAmountSplitControllerISpec extends IntegrationTest with Vie
       val application = buildApplication( miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropSavingsDB()
         emptyUserDataStub()
