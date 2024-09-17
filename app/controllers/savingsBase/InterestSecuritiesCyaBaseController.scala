@@ -18,8 +18,8 @@ package controllers.savingsBase
 
 import com.google.inject.Inject
 import config._
-import controllers.savings.{InterestSecuritiesCYAController, SavingsInterestAmountController}
-import controllers.savingsSplit.{InterestSecuritiesCyaSplitController, SavingsInterestAmountSplitController}
+import controllers.savings.InterestSecuritiesCYAController
+import controllers.savingsSplit.InterestSecuritiesCyaSplitController
 import play.api.mvc.{Action, AnyContent}
 
 class InterestSecuritiesCyaBaseController @Inject()(linearController: InterestSecuritiesCYAController,
