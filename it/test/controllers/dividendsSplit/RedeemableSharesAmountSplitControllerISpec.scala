@@ -116,9 +116,7 @@ class RedeemableSharesAmountSplitControllerISpec extends IntegrationTest with Vi
     "return an INTERNAL_SERVER_ERROR" in {
       val mockService = mock[StockDividendsSessionServiceProvider]
 
-      when(mockService.getSessionData(any())(any(), any())).thenReturn(
-        Future.successful(Left(DataNotFound))
-      )
+      when(mockService.getSessionData(any())(any(), any())).thenReturn(Future.successful(Left(DataNotFound)))
 
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
@@ -127,7 +125,6 @@ class RedeemableSharesAmountSplitControllerISpec extends IntegrationTest with Vi
         .build()
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         emptyUserDataStub()
@@ -178,9 +175,7 @@ class RedeemableSharesAmountSplitControllerISpec extends IntegrationTest with Vi
     "return an INTERNAL_SERVER_ERROR" in {
       val mockService = mock[StockDividendsSessionServiceProvider]
 
-      when(mockService.getSessionData(any())(any(), any())).thenReturn(
-        Future.successful(Left(DataNotFound))
-      )
+      when(mockService.getSessionData(any())(any(), any())).thenReturn(Future.successful(Left(DataNotFound)))
 
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
