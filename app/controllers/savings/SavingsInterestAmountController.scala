@@ -20,7 +20,6 @@ package controllers.savings
 import config.{AppConfig, ErrorHandler}
 import controllers.predicates.AuthorisedAction
 import forms.AmountForm
-import models.savings.SavingsIncomeCYAModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

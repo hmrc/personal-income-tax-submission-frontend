@@ -127,7 +127,6 @@ class RedeemableSharesAmountSplitControllerISpec extends IntegrationTest with Vi
         .build()
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         emptyUserDataStub()

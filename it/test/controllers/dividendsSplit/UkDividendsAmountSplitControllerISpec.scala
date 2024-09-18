@@ -131,7 +131,6 @@ class UkDividendsAmountSplitControllerISpec extends IntegrationTest with ViewHel
 
         status(result) mustEqual INTERNAL_SERVER_ERROR
       }
-
     }
   }
 
