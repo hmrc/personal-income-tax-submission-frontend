@@ -30,7 +30,7 @@ class CloseCompanyLoanAmountBaseControllerISpec extends IntegrationTest with Div
   val headers: Seq[(String, String)] = playSessionCookie() ++ Seq("Csrf-Token" -> "nocheck")
 
   "CloseCompanyLoanAmountBaseController.show" should {
-    "direct to the original close company loan amount controller when 'split-dividends' is false" in {
+    "direct to the original close company loan amount controller when 'miniJourneyEnabled' is false" in {
       val application = buildApplication(stockDividends = true)
 
       running(application) {
@@ -43,7 +43,7 @@ class CloseCompanyLoanAmountBaseControllerISpec extends IntegrationTest with Div
       }
     }
 
-    "direct to the new close company loan amount controller when 'split-dividends' is true" in {
+    "direct to the new close company loan amount controller when 'miniJourneyEnabled' is true" in {
       val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
@@ -58,7 +58,7 @@ class CloseCompanyLoanAmountBaseControllerISpec extends IntegrationTest with Div
   }
 
   "CloseCompanyLoanAmountBaseController.submit" should {
-    "direct to next page of the journey when 'split-dividends' is false" in {
+    "direct to next page of the journey when 'miniJourneyEnabled' is false" in {
       val application = buildApplication(stockDividends = true)
 
       running(application) {
@@ -76,7 +76,7 @@ class CloseCompanyLoanAmountBaseControllerISpec extends IntegrationTest with Div
       }
     }
 
-    "direct to the new check close company amount controller when 'split-dividends' is true" in {
+    "direct to the new check close company amount controller when 'miniJourneyEnabled' is true" in {
       val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
