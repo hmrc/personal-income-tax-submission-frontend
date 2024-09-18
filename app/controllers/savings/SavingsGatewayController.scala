@@ -80,14 +80,14 @@ class SavingsGatewayController @Inject()(
                 savingsSessionService.updateSessionData(savingsCya, taxYear)(errorHandler.internalServerError()) {
                   if(savingsCya.isFinished) {
                     if (!appConfig.interestSavingsEnabled) {
-                      Redirect(controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear))
+                      Redirect(controllers.savingsBase.routes.InterestSecuritiesCyaBaseController.show(taxYear))
                     } else {
                       val hasNonZeroData = Seq(savingsCya.grossAmount, savingsCya.taxTakenOffAmount).exists(_.exists(_ != 0))
 
                       if (!yesNoValue && hasNonZeroData) {
                         Redirect(controllers.routes.ZeroingWarningController.show(taxYear, SAVINGS.stringify))
                       } else {
-                        Redirect(controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear))
+                        Redirect(controllers.savingsBase.routes.InterestSecuritiesCyaBaseController.show(taxYear))
                       }
                     }
                   } else {
@@ -100,7 +100,7 @@ class SavingsGatewayController @Inject()(
                 }
               }
             case _ =>
-              Future.successful(Redirect(controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear)))
+              Future.successful(Redirect(controllers.savingsBase.routes.InterestSecuritiesCyaBaseController.show(taxYear)))
           }
         }
       }
@@ -109,9 +109,9 @@ class SavingsGatewayController @Inject()(
 
   def redirectToNext(yesNoValue: Boolean, taxYear: Int, isFinished: Boolean): Result = {
     if (yesNoValue && !isFinished) {
-      Redirect(controllers.savings.routes.SavingsInterestAmountController.show(taxYear))
+      Redirect(controllers.savingsBase.routes.SavingsInterestAmountBaseController.show(taxYear))
     } else {
-      Redirect(controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear))
+      Redirect(controllers.savingsBase.routes.InterestSecuritiesCyaBaseController.show(taxYear))
     }
   }
 

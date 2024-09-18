@@ -57,7 +57,7 @@
 
 @savingsUrl = @{
     if(savingsData.isDefined){
-        controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear).url
+        controllers.savingsBase.routes.InterestSecuritiesCyaBaseController.show(taxYear).url
     }else {
         controllers.savings.routes.SavingsGatewayController.show(taxYear).url
     }

@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package controllers.dividendsBase
+package controllers.savingsBase
 
 import com.google.inject.Inject
 import config._
-import controllers.dividends.StockDividendAmountController
-import controllers.dividendsSplit.StockDividendAmountSplitController
+import controllers.savings.SavingsInterestAmountController
+import controllers.savingsSplit.SavingsInterestAmountSplitController
 import play.api.mvc.{Action, AnyContent}
 
-class StockDividendAmountBaseController @Inject()(linearController: StockDividendAmountController,
-                                        splitController: StockDividendAmountSplitController,
-                                        appConfig: AppConfig) {
+class SavingsInterestAmountBaseController @Inject()(linearController: SavingsInterestAmountController,
+                                                    splitController: SavingsInterestAmountSplitController,
+                                                    appConfig: AppConfig) {
 
   def show(taxYear: Int): Action[AnyContent] = {
     if (appConfig.miniJourneyEnabled) {
@@ -42,5 +42,3 @@ class StockDividendAmountBaseController @Inject()(linearController: StockDividen
     }
   }
 }
-
-

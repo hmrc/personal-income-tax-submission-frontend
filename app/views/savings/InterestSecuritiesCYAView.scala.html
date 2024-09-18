@@ -40,19 +40,23 @@
 
     @{
         govukSummaryList(SummaryList(Seq(
-            Some(summaryListRow(
-                HtmlContent(messages("savings.gateway.heading")),
-                HtmlContent(trueFalseToYesNo(cyaModel.gateway.contains(true))),
-                keyClasses = "govuk-!-width-one-half",
-                actions = Seq((controllers.savings.routes.SavingsGatewayController.show(taxYear), messages("common.change"), Some(messages("interest.securities.cya.questions.1.hiddenChange"))))
-            )),
+            if (!appConfig.miniJourneyEnabled) {
+                Some(summaryListRow(
+                    HtmlContent(messages("savings.gateway.heading")),
+                    HtmlContent(trueFalseToYesNo(cyaModel.gateway.contains(true))),
+                    keyClasses = "govuk-!-width-one-half",
+                    actions = Seq((controllers.savings.routes.SavingsGatewayController.show(taxYear), messages("common.change"), Some(messages("interest.securities.cya.questions.1.hiddenChange"))))
+                ))
+            } else {
+                None
+            },
             if(cyaModel.gateway.contains(true)) {
                 cyaModel.grossAmount.map { amount =>
                     summaryListRow(
                         HtmlContent(messages("interest.securities.cya.questions.2")),
                         HtmlContent(bigDecimalCurrency(amount.toString)),
                         keyClasses = "govuk-!-width-one-half",
-                        actions = Seq((controllers.savings.routes.SavingsInterestAmountController.show(taxYear), messages("common.change"), Some(messages("interest.securities.cya.questions.2.hiddenChange"))))
+                        actions = Seq((controllers.savingsBase.routes.SavingsInterestAmountBaseController.show(taxYear), messages("common.change"), Some(messages("interest.securities.cya.questions.2.hiddenChange"))))
                     )
                 }
             } else { None },
@@ -78,7 +82,7 @@
     }
 
 
-    @formWithCSRF(action = controllers.savings.routes.InterestSecuritiesCYAController.submit(taxYear)) {
+    @formWithCSRF(action = controllers.savingsBase.routes.InterestSecuritiesCyaBaseController.submit(taxYear)) {
         @button("common.saveAndContinue", classes = Some("govuk-!-margin-top-6"))
     }
 }

@@ -16,7 +16,6 @@
 
 package test.controllers.savings
 
-import models.savings.SavingsIncomeCYAModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
@@ -32,9 +31,6 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
   val postURL: String = s"$appUrl/$taxYear/interest/interest-amount"
   val errorSummaryHref = "#amount"
   val poundPrefixText = "£"
-
-  val cyaDataComplete: Option[SavingsIncomeCYAModel] = Some(SavingsIncomeCYAModel(Some(true), Some(100.00), Some(true), Some(50.00)))
-  val cyaDataValid: Option[SavingsIncomeCYAModel] = Some(SavingsIncomeCYAModel(Some(true)))
 
   object Selectors {
     val poundPrefixSelector = ".govuk-input__prefix"
@@ -301,7 +297,7 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
         }
 
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear)}"
+        result.headers("Location").head shouldBe s"${controllers.savingsBase.routes.InterestSecuritiesCyaBaseController.show(taxYear)}"
 
       }
       "return a to CYA page when there is no cyaData" in {
@@ -315,7 +311,7 @@ class SavingsInterestAmountControllerISpec extends IntegrationTest with ViewHelp
         }
 
         result.status shouldBe SEE_OTHER
-        result.headers("Location").head shouldBe s"${controllers.savings.routes.InterestSecuritiesCYAController.show(taxYear)}"
+        result.headers("Location").head shouldBe s"${controllers.savingsBase.routes.InterestSecuritiesCyaBaseController.show(taxYear)}"
 
       }
       "return a error" when {

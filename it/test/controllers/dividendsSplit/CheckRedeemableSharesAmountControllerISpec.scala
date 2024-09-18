@@ -20,10 +20,8 @@ import models.dividends.{DividendsPriorSubmission, StockDividendModel, StockDivi
 import models.priorDataModels.IncomeSourcesModel
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import play.api.http.Status.{NO_CONTENT, OK, SEE_OTHER}
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.{Environment, Mode}
 import test.utils.{DividendsDatabaseHelper, IntegrationTest}
 
 class CheckRedeemableSharesAmountControllerISpec extends IntegrationTest with DividendsDatabaseHelper {
@@ -37,13 +35,9 @@ class CheckRedeemableSharesAmountControllerISpec extends IntegrationTest with Di
 
   "CheckRedeemableSharesAmountController.show" should {
     "render the page when a session exists" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
-        .build()
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         emptyUserDataStub()
@@ -51,7 +45,6 @@ class CheckRedeemableSharesAmountControllerISpec extends IntegrationTest with Di
         insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -60,20 +53,15 @@ class CheckRedeemableSharesAmountControllerISpec extends IntegrationTest with Di
     }
 
     "redirect to task list when no cya or prior exists" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
-        .build()
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         emptyUserDataStub()
         emptyStockDividendsUserDataStub()
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -82,20 +70,15 @@ class CheckRedeemableSharesAmountControllerISpec extends IntegrationTest with Di
     }
 
     "render the page when a new session needs to be created from prior data" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
-        .build()
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         userDataStub(dividendsPrior, nino, taxYear)
         stockDividendsUserDataStub(Some(redeemableSharesPrior), nino, taxYear)
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -103,13 +86,9 @@ class CheckRedeemableSharesAmountControllerISpec extends IntegrationTest with Di
     }
 
     "render the page when a new session needs to be created from prior data with only dividends" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
-        .build()
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         userDataStub(dividendsPrior, nino, taxYear)
@@ -124,20 +103,15 @@ class CheckRedeemableSharesAmountControllerISpec extends IntegrationTest with Di
     }
 
     "render the page when a new session needs to be created from prior data with only redeemable shares" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
-        .build()
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         emptyUserDataStub()
         stockDividendsUserDataStub(Some(redeemableSharesPrior), nino, taxYear)
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -145,20 +119,15 @@ class CheckRedeemableSharesAmountControllerISpec extends IntegrationTest with Di
     }
 
     "return an error when downstream service returns INTERNAL_SERVER_ERROR" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
-        .build()
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         userDataStubWithError(nino, taxYear)
         emptyStockDividendsUserDataStub()
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual INTERNAL_SERVER_ERROR
@@ -168,13 +137,9 @@ class CheckRedeemableSharesAmountControllerISpec extends IntegrationTest with Di
 
   "StockDividendAmountBaseController.submit" should {
     "submit data and redirect to task list" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
-        .build()
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         emptyUserDataStub()
@@ -185,7 +150,6 @@ class CheckRedeemableSharesAmountControllerISpec extends IntegrationTest with Di
         stubPut(s"/income-tax-dividends/income-tax/income/dividends/$nino/$taxYear", NO_CONTENT, "")
 
         val request = FakeRequest(POST, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -194,13 +158,9 @@ class CheckRedeemableSharesAmountControllerISpec extends IntegrationTest with Di
     }
 
     "return SERVICE_UNAVAILABLE when API is unavailable" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
-        .build()
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         emptyUserDataStub()
@@ -211,7 +171,6 @@ class CheckRedeemableSharesAmountControllerISpec extends IntegrationTest with Di
         stubPut(s"/income-tax-dividends/income-tax/income/dividends/$nino/$taxYear", SERVICE_UNAVAILABLE, "")
 
         val request = FakeRequest(POST, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual SERVICE_UNAVAILABLE
@@ -219,20 +178,15 @@ class CheckRedeemableSharesAmountControllerISpec extends IntegrationTest with Di
     }
 
     "return INTERNAL_SERVER_ERROR due to no session data" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
-        .build()
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         emptyUserDataStub()
         emptyStockDividendsUserDataStub()
 
         val request = FakeRequest(POST, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual INTERNAL_SERVER_ERROR

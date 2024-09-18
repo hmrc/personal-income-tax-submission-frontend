@@ -80,7 +80,7 @@
         <li id="bullet2">@messages(s"savings.interest-amount.bullet.2.${if(user.isAgent) "agent" else "individual"}")</li>
     </ul>
 
-    @formWithCSRF(action = controllers.savings.routes.SavingsInterestAmountController.submit(taxYear)) {
+    @formWithCSRF(action = controllers.savingsBase.routes.SavingsInterestAmountBaseController.submit(taxYear)) {
         @currencyFormHtml(form)
 
         @button()

@@ -16,13 +16,10 @@
 
 package controllers.dividendsBase
 
-import org.scalatest.OptionValues.convertOptionToValuable
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import play.api.http.Status.{OK, SEE_OTHER}
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.{Environment, Mode}
 import test.utils.{DividendsDatabaseHelper, IntegrationTest}
 
 class StockDividendAmountBaseControllerISpec extends IntegrationTest with DividendsDatabaseHelper {
@@ -31,36 +28,26 @@ class StockDividendAmountBaseControllerISpec extends IntegrationTest with Divide
   val headers: Seq[(String, String)] = playSessionCookie() ++ Seq("Csrf-Token" -> "nocheck")
 
   "StockDividendAmountBaseController.show" should {
-    "direct to the original stock dividend amount controller when 'split-dividends' is false" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true))
-        .build()
+    "direct to the original stock dividend amount controller when 'miniJourneyEnabled' is false" in {
+      val application = buildApplication(stockDividends = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
       }
     }
 
-    "direct to the new stock dividend amount controller when 'split-dividends' is true" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
-        .build()
+    "direct to the new stock dividend amount controller when 'miniJourneyEnabled' is true" in {
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -69,24 +56,17 @@ class StockDividendAmountBaseControllerISpec extends IntegrationTest with Divide
   }
 
   "StockDividendAmountBaseController.submit" should {
-    "direct to next page of the journey when 'split-dividends' is false" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true))
-        .build()
+    "direct to next page of the journey when 'miniJourneyEnabled' is false" in {
+      val application = buildApplication(stockDividends = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
-
         dropStockDividendsDB()
-
         insertStockDividendsCyaData(Some(completeStockDividendsCYAModel.copy(
           Some(true), Some(false), None, Some(false), None, Some(true), None, None, None, None, None
         )))
 
         val request = FakeRequest(POST, url).withHeaders(headers: _*).withFormUrlEncodedBody("amount" -> "123")
-
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -94,22 +74,15 @@ class StockDividendAmountBaseControllerISpec extends IntegrationTest with Divide
       }
     }
 
-    "direct to the new check stock dividend amount controller when 'split-dividends' is true" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
-        .build()
+    "direct to the new check stock dividend amount controller when 'miniJourneyEnabled' is true" in {
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
-
         dropStockDividendsDB()
-
         insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
 
         val request = FakeRequest(POST, url).withHeaders(headers: _*).withFormUrlEncodedBody("amount" -> "123")
-
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER

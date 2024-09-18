@@ -18,10 +18,8 @@ package controllers.dividendsBase
 
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import play.api.http.Status.{OK, SEE_OTHER}
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.{Environment, Mode}
 import test.utils.{DividendsDatabaseHelper, IntegrationTest}
 
 class OtherUkDividendsAmountBaseControllerISpec extends IntegrationTest with DividendsDatabaseHelper{
@@ -30,11 +28,8 @@ class OtherUkDividendsAmountBaseControllerISpec extends IntegrationTest with Div
   val headers: Seq[(String, String)] = playSessionCookie() ++ Seq("Csrf-Token" -> "nocheck")
 
   ".show" should {
-    "direct to the original other uk dividends amount controller when 'split-dividends' is false" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true))
-        .build()
+    "direct to the original other uk dividends amount controller when 'miniJourneyEnabled' is false" in {
+      val application = buildApplication(stockDividends = true)
 
       running(application) {
         authoriseIndividual(Some(nino))
@@ -46,11 +41,8 @@ class OtherUkDividendsAmountBaseControllerISpec extends IntegrationTest with Div
       }
     }
 
-    "direct to the new other uk dividends amount controller when 'split-dividends' is true" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
-        .build()
+    "direct to the new other uk dividends amount controller when 'miniJourneyEnabled' is true" in {
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
         authoriseIndividual(Some(nino))
@@ -64,11 +56,8 @@ class OtherUkDividendsAmountBaseControllerISpec extends IntegrationTest with Div
   }
 
   ".submit" should {
-    "direct to next page of the journey when 'split-dividends' is false" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true))
-        .build()
+    "direct to next page of the journey when 'miniJourneyEnabled' is false" in {
+      val application = buildApplication(stockDividends = true)
 
       running(application) {
         authoriseIndividual(Some(nino))
@@ -87,11 +76,8 @@ class OtherUkDividendsAmountBaseControllerISpec extends IntegrationTest with Div
       }
     }
 
-    "direct to the new check other uk dividends amount controller when 'split-dividends' is true" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(splitStockDividends = true))
-        .build()
+    "direct to the new check other uk dividends amount controller when 'miniJourneyEnabled' is true" in {
+      val application = buildApplication(miniJourneyEnabled = true)
 
       running(application) {
         authoriseIndividual(Some(nino))

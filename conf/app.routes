@@ -193,8 +193,8 @@ POST        /:taxYear/charity/charity-donations-to-charity                      
 
 # Interest from gilt-edged or accrued income securities pages
 
-GET         /:taxYear/interest/interest-amount                                                                controllers.savings.SavingsInterestAmountController.show(taxYear:Int)
-POST        /:taxYear/interest/interest-amount                                                                controllers.savings.SavingsInterestAmountController.submit(taxYear:Int)
+GET         /:taxYear/interest/interest-amount                                                                controllers.savingsBase.SavingsInterestAmountBaseController.show(taxYear:Int)
+POST        /:taxYear/interest/interest-amount                                                                controllers.savingsBase.SavingsInterestAmountBaseController.submit(taxYear:Int)
 
 GET         /:taxYear/interest/interest-from-securities                                                       controllers.savings.SavingsGatewayController.show(taxYear:Int)
 POST        /:taxYear/interest/interest-from-securities                                                       controllers.savings.SavingsGatewayController.submit(taxYear:Int)
@@ -205,8 +205,8 @@ POST        /:taxYear/interest/tax-taken-from-interest                          
 GET         /:taxYear/interest/tax-taken-off-interest                                                         controllers.savings.TaxTakenOffInterestController.show(taxYear: Int)
 POST        /:taxYear/interest/tax-taken-off-interest                                                         controllers.savings.TaxTakenOffInterestController.submit(taxYear: Int)
 
-GET         /:taxYear/interest/check-interest-from-securities                                                 controllers.savings.InterestSecuritiesCYAController.show(taxYear: Int)
-POST        /:taxYear/interest/check-interest-from-securities                                                 controllers.savings.InterestSecuritiesCYAController.submit(taxYear: Int)
+GET         /:taxYear/interest/check-interest-from-securities                                                 controllers.savingsBase.InterestSecuritiesCyaBaseController.show(taxYear: Int)
+POST        /:taxYear/interest/check-interest-from-securities                                                 controllers.savingsBase.InterestSecuritiesCyaBaseController.submit(taxYear: Int)
 
 GET         /:taxYear/interest/interest-summary                                                               controllers.InterestFromSavingsAndSecuritiesSummaryController.show(taxYear: Int)
 
