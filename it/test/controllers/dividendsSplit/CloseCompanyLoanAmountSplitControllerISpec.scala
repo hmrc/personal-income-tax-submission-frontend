@@ -39,13 +39,9 @@ class CloseCompanyLoanAmountSplitControllerISpec extends IntegrationTest with Vi
 
   "CloseCompanyLoanAmountSplitController.show" should {
     "render the page" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
-        .build()
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         emptyUserDataStub()
@@ -53,7 +49,6 @@ class CloseCompanyLoanAmountSplitControllerISpec extends IntegrationTest with Vi
         insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -62,23 +57,17 @@ class CloseCompanyLoanAmountSplitControllerISpec extends IntegrationTest with Vi
     }
 
     "render the page for an agent" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
-        .build()
-
-      val headers = playSessionCookie(agent = true)
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseAgentOrIndividual(isAgent = true)
         dropStockDividendsDB()
         emptyUserDataStub()
         emptyStockDividendsUserDataStub()
         insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
 
+        val headers = playSessionCookie(agent = true)
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -87,20 +76,15 @@ class CloseCompanyLoanAmountSplitControllerISpec extends IntegrationTest with Vi
     }
 
     "render the page when no session is defined" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
-        .build()
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         emptyUserDataStub()
         emptyStockDividendsUserDataStub()
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -108,13 +92,9 @@ class CloseCompanyLoanAmountSplitControllerISpec extends IntegrationTest with Vi
     }
 
     "render the page when session is defined without close company loan amount" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
-        .build()
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         emptyUserDataStub()
@@ -122,7 +102,6 @@ class CloseCompanyLoanAmountSplitControllerISpec extends IntegrationTest with Vi
         insertStockDividendsCyaData(Some(completeStockDividendsCYAModel.copy(None, None, None, None, None, None, None, None, None, None, None)))
 
         val request = FakeRequest(GET, url).withHeaders(headers: _*)
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -132,18 +111,15 @@ class CloseCompanyLoanAmountSplitControllerISpec extends IntegrationTest with Vi
     "return an INTERNAL_SERVER_ERROR" in {
       val mockService = mock[StockDividendsSessionServiceProvider]
 
-      when(mockService.getSessionData(any())(any(), any())).thenReturn(
-        Future.successful(Left(DataNotFound))
-      )
+      when(mockService.getSessionData(any())(any(), any())).thenReturn(Future.successful(Left(DataNotFound)))
 
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .overrides(bind[StockDividendsSessionServiceProvider].toInstance(mockService))
         .build()
 
       running(application) {
-
         authoriseIndividual(Some(nino))
         dropStockDividendsDB()
         emptyUserDataStub()
@@ -161,21 +137,14 @@ class CloseCompanyLoanAmountSplitControllerISpec extends IntegrationTest with Vi
 
   "CloseCompanyLoanAmountSplitController.submit" should {
     "direct to the new check close company loan amount controller" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
-        .build()
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
-
         dropStockDividendsDB()
-
         insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
 
         val request = FakeRequest(POST, url).withHeaders(headers: _*).withFormUrlEncodedBody("amount" -> "123")
-
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -184,21 +153,14 @@ class CloseCompanyLoanAmountSplitControllerISpec extends IntegrationTest with Vi
     }
 
     "return BAD_REQUEST with invalid body" in {
-      val application = GuiceApplicationBuilder()
-        .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
-        .build()
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
-
         authoriseIndividual(Some(nino))
-
         dropStockDividendsDB()
-
         insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
 
         val request = FakeRequest(POST, url).withHeaders(headers: _*).withFormUrlEncodedBody("invalid" -> "123")
-
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
@@ -208,26 +170,20 @@ class CloseCompanyLoanAmountSplitControllerISpec extends IntegrationTest with Vi
     "return an INTERNAL_SERVER_ERROR" in {
       val mockService = mock[StockDividendsSessionServiceProvider]
 
-      when(mockService.getSessionData(any())(any(), any())).thenReturn(
-        Future.successful(Left(DataNotFound))
-      )
+      when(mockService.getSessionData(any())(any(), any())).thenReturn(Future.successful(Left(DataNotFound)))
 
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
-        .configure(config(stockDividends = true, splitStockDividends = true))
+        .configure(config(stockDividends = true, miniJourneyEnabled = true))
         .overrides(bind[StockDividendsSessionServiceProvider].toInstance(mockService))
         .build()
 
       running(application) {
-
         authoriseIndividual(Some(nino))
-
         dropStockDividendsDB()
-
         insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
 
         val request = FakeRequest(POST, url).withHeaders(headers: _*).withFormUrlEncodedBody("amount" -> "123")
-
         val result = route(application, request).value
 
         status(result) mustEqual INTERNAL_SERVER_ERROR
