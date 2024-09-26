@@ -35,7 +35,7 @@ class ChooseAccountControllerISpec extends IntegrationTest with ViewHelpers with
   def chooseAccountUrl(taxType: String): String = s"$appUrl/$taxYear/interest/which-account-did-you-get-$taxType-interest-from"
 
   object Selectors {
-    val radioDivider = "#main-content > div > div > form > div > div > div.govuk-radios__divider"
+    val radioDivider = "#main-content > div > div > form > div > fieldset > div > div.govuk-radios__divider"
     val continueSelector = "#continue"
     val continueButtonFormSelector = "#main-content > div > div > form"
   }

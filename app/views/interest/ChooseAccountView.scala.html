@@ -35,22 +35,31 @@ govukRadios : GovukRadios
 
 @hasFormErrors = @{form.hasErrors}
 
-@titleText = @{
+@titleForUse = @{
     (taxType) match {
         case(`TAXED`) => messages(s"interest.chooseAccount.title.taxed.${if(user.isAgent) "agent" else "individual"}")
         case(`UNTAXED`) => messages(s"interest.chooseAccount.title.untaxed.${if(user.isAgent) "agent" else "individual"}")
     }
 }
 
-@layout(titleText, taxYear = Some(taxYear), hasErrors = hasFormErrors) {
+@headingForUse = @{(titleForUse)}
+
+@layout(titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors) {
 
     @errorSummary(form.errors.distinct)
 
-    @heading(titleText, Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
+    @heading(headingForUse, Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 
     @formWithCSRF(controllers.interest.routes.ChooseAccountController.submit(taxYear, taxType)){
 
         @govukRadios(Radios(
+            fieldset = Some(Fieldset(
+                legend = Some(Legend(
+                    content = HtmlContent(headingForUse),
+                    isPageHeading = false,
+                    classes = "govuk-visually-hidden govuk-!-display-block"
+                ))
+            )),
             name = "value",
             errorMessage = form("value").error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*)))),
             items = accounts.map { account =>
