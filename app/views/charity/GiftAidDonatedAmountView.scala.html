@@ -15,7 +15,7 @@
  *@
 
 @import views.html.headerFooterTemplate.Layout
-@import views.html.templates.helpers.{Heading, Button, ErrorSummary, InputTextAlt, P}
+@import views.html.templates.helpers.{Heading, Button, ErrorSummary, InputText, P}
 
 @this(
     layout: Layout,
@@ -23,7 +23,7 @@
     heading: Heading,
     button: Button,
     errorSummary: ErrorSummary,
-    inputField: InputTextAlt,
+    inputText: InputText,
     p: P
 )
 
@@ -35,31 +35,31 @@
 
 @headingForUse = @{(titleText)}
 
-@infoParagraph = @{
-    if(!prefill.isDefined) {
-        p(Html(messages(s"charity.amount-via-gift-aid.${if(user.isAgent) "agent" else "individual"}.p")),
-            classes = "govuk-body govuk-!-margin-bottom-3",
-            id = Some("p1")
-        )
-    }
+@contentHtml = @{
+    p(Html(messages(s"charity.amount-via-gift-aid.${if(user.isAgent) "agent" else "individual"}.p")),
+        classes = "govuk-body govuk-!-margin-bottom-3",
+        id = Some("p1")
+    )
+}
+
+@caption = @{
+    Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString))
 }
 
 @layout(pageTitle = titleText, taxYear = Some(taxYear), hasErrors = form.hasErrors) {
     @errorSummary(form.errors)
-
-    @heading(headingForUse, Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
-
-    @infoParagraph
-    @p(Html(messages("charity.common.total.valueInPoundsTaxYear")), id = Some("p2"))
+<!--    @p(Html(messages("charity.common.total.valueInPoundsTaxYear")), id = Some("p2"))-->
 
     @formWithCsrf(controllers.charity.routes.GiftAidDonatedAmountController.submit(taxYear)) {
-        @inputField(
+        @inputText(
             form,
             id = "amount",
             name = "amount",
-            hint = Some(messages("common.currency.hint")),
-            label = headingForUse,
-            labelHidden = true,
+            heading = headingForUse,
+            subheading = caption,
+            content = if(!prefill.isDefined) Some(contentHtml) else None,
+            hint = Some(Html(Some(messages("common.currency.hint")))),
+            isPageHeading = false,
             currency = true
         )
         @button()

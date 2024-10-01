@@ -37,21 +37,6 @@
 
 @(form: Form[TaxedInterestModel], taxYear: Int, postAction: Call, isAgent: Boolean)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@contentHtml = @{
-    p(Html(messages("interest.common.sub-heading.2")),
-        classes = "govuk-!-margin-top-1 govuk-!-margin-bottom-4 govuk-body",
-        id = Some("p1")
-    )
-}
-
-@subheading = {
-    <div class="govuk-label--m">@messages("interest.common.sub-heading.1")</div>
-}
-
-@subheading2 = {
-    <div class="govuk-label--m">@messages("interest.taxed-uk-interest.amount.interest.earned")</div>
-}
-
 @hint1 = @{
     Some(messages("interest.common.account.hint"))
 }
@@ -68,10 +53,6 @@
 
         @heading("interest.taxed-uk-interest-details.title", Some(messages("interest.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-5")
 
-        @subheading
-
-        @contentHtml
-
         @formWithCSRF(action = postAction) {
 
         @inputText(
@@ -79,22 +60,22 @@
             id = "taxedAccountName",
             name = "taxedAccountName",
             label = "interest.common.sub-heading.1",
-            labelHidden = true,
+            labelHidden = false,
             currency = false,
             classes = Some("govuk-input--width-20"),
-            hint = hint1
+            hint = hint1,
+            labelClasses = true
         )
-
-        @subheading2
 
         @inputText(
             form,
             id = "taxedAmount",
             name = "taxedAmount",
             label = "interest.taxed-uk-interest.amount.interest.earned",
-            labelHidden = true,
+            labelHidden = false,
             currency = true,
-            hint = hint2
+            hint = hint2,
+            labelClasses = true
         )
 
         @button()

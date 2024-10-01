@@ -40,8 +40,8 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
     " lacinia maximus. Nullam facilisis nunc vel sapien facilisis tincidunt. Sed odio."
 
   object Selectors {
-    val accountName: String = "#main-content > div > div > div.govuk-label--m"
-    val interestEarned: String = "#main-content > div > div > form > div.govuk-label--m"
+    val accountName: String = "#main-content > div > div > form > div:first-of-type > label"
+    val interestEarned: String = "#main-content > div > div > form > div:last-of-type > label"
     val accountNameInput: String = "#taxedAccountName"
     val eachAccount = "#p1"
     val amountInput: String = "#taxedAmount"
@@ -79,7 +79,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
     val accountName: String = "What do you want to name this account?"
     val eachAccount = "Give each account a different name."
     val interestEarned: String = "Amount of taxed UK interest"
-    val hint: String = "For example, ‘HSBC savings account’. " + "For example, £193.52"
+    val hint: String = "Give each account a different name for example, ‘HSBC savings account’. " + "For example, £193.52"
     val button: String = "Continue"
     val noNameEntryError: String = "Enter a name for this account"
     val invalidCharEntry: String = "Name of account with taxed UK interest must only include numbers 0-9, " +
@@ -97,7 +97,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
     val accountName: String = "Beth yw’r enw rydych am roi i’r cyfrif hwn?"
     val eachAccount = "Rhowch enw gwahanol i bob cyfrif."
     val interestEarned: String = "Swm y llog y DU a drethwyd"
-    val hint: String = "Er enghraifft, ‘cyfrif cynilo HSBC’. " + "Er enghraifft, £193.52"
+    val hint: String = "Rhowch enw gwahanol i bob cyfrif er enghraifft, ‘cyfrif cynilo HSBC’. " + "Er enghraifft, £193.52"
     val button: String = "Yn eich blaen"
     val noNameEntryError: String = "Nodwch enw ar gyfer y cyfrif hwn"
     val invalidCharEntry: String = "Rhaid i enw’r cyfrif, sydd â llog y DU a drethwyd, gynnwys y rhifau 0-9, " +
@@ -169,7 +169,6 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           h1Check(s"$heading $caption")
           captionCheck(caption)
           textOnPageCheck(accountName, Selectors.accountName)
-          textOnPageCheck(eachAccount, Selectors.eachAccount)
           inputFieldCheck(TaxedInterestAmountForm.taxedAccountName, Selectors.accountNameInput)
           textOnPageCheck(interestEarned, Selectors.interestEarned)
           hintTextCheck(hint)
