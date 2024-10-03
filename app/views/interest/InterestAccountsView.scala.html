@@ -101,7 +101,7 @@ val identifier = account.id.getOrElse(account.uniqueSessionId.getOrElse(""))
 
 @removeColumnHtml(account: InterestAccountModel, removeLink: Call) = {
     <li class='govuk-summary-list__actions-list-item'>
-        <a class='govuk-link' href=@removeLink>@messages("common.remove")<span class='govuk-visually-hidden'>@messages("common.remove") @account.accountName @messages("common.account")</span></a>
+        <a class='govuk-link' href='@removeLink'>@messages("common.remove")<span class='govuk-visually-hidden'>@messages("common.remove") @account.accountName @messages("common.account")</span></a>
     </li>
 }
 
@@ -124,7 +124,7 @@ val identifier = account.id.getOrElse(account.uniqueSessionId.getOrElse(""))
              ) = {
         <ul class='govuk-summary-list__actions-list'>
             <li class='govuk-summary-list__actions-list-item'>
-                <a class='govuk-link' href=@changeLink>@messages("common.change")<span class='govuk-visually-hidden'>@messages("common.change") @account.accountName @messages("common.account-details")</span></a>
+                <a class='govuk-link' href='@changeLink'>@messages("common.change")<span class='govuk-visually-hidden'>@messages("common.change") @account.accountName @messages("common.account-details")</span></a>
             </li>
 
             @removeColumn(account,priorSubmission,taxType,removeLink)
