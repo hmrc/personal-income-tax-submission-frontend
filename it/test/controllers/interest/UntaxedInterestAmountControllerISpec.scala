@@ -40,7 +40,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
     " lacinia maximus. Nullam facilisis nunc vel sapien facilisis tincidunt. Sed odio."
 
   object Selectors {
-    val accountName: String = "#main-content > div > div > form > div:first-of-type > label"
+    val accountName: String = "#main-content > div > div > form > div:first-of-type > label > .govuk-label"
     val interestEarned: String = "#main-content > div > div > form > div:last-of-type > label"
     val accountNameInput: String = "#untaxedAccountName"
     val eachAccount = "#p1"
@@ -79,7 +79,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
     val accountName: String = "What do you want to name this account?"
     val eachAccount = "Give each account a different name."
     val interestEarned: String = "Amount of untaxed UK interest"
-    val hint: String = "Give each account a different name for example, ‘HSBC savings account’. " + "For example, £193.52"
+    val hint: String = "For example, ‘HSBC savings account’. " + "For example, £193.52"
     val button: String = "Continue"
     val noNameEntryError: String = "Enter a name for this account"
     val invalidCharEntry: String = "Name of account with untaxed UK interest must only include numbers 0-9, " +
@@ -97,7 +97,7 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
     val accountName: String = "Beth yw’r enw rydych am roi i’r cyfrif hwn?"
     val eachAccount = "Rhowch enw gwahanol i bob cyfrif."
     val interestEarned: String = "Swm y llog y DU sydd heb ei drethu"
-    val hint: String = "Rhowch enw gwahanol i bob cyfrif er enghraifft, ‘cyfrif cynilo HSBC’. " + "Er enghraifft, £193.52"
+    val hint: String = "Er enghraifft, ‘cyfrif cynilo HSBC’. " + "Er enghraifft, £193.52"
     val button: String = "Yn eich blaen"
     val noNameEntryError: String = "Nodwch enw ar gyfer y cyfrif hwn"
     val invalidCharEntry: String = "Rhaid i enw’r cyfrif, sydd â llog y DU heb ei drethu, gynnwys y rhifau 0-9, " +

@@ -22,6 +22,7 @@
 @import views.html.templates.helpers.ErrorSummary
 @import views.html.templates.helpers.Button
 @import views.html.templates.helpers.Heading
+@import views.html.templates.helpers.InputText
 @import views.html.templates.helpers.InputTextAlt
 @import views.html.templates.helpers.P
 
@@ -30,6 +31,7 @@
    formWithCSRF: FormWithCSRF,
    errorSummary: ErrorSummary,
    inputText: InputTextAlt,
+   inputField: InputText,
    button: Button,
    heading: Heading,
    p: P
@@ -45,6 +47,17 @@
     Some(messages("common.currency.hint"))
 }
 
+@contentHtml = @{
+    p(Html(messages("interest.common.sub-heading.2")),
+        classes = "govuk-!-margin-top-1 govuk-!-margin-bottom-4 govuk-body",
+        id = Some("p1")
+    )
+}
+
+@headingForUse = @{
+    messages("interest.taxed-uk-interest-details.title")
+}
+
 @hasFormErrors = @{form.hasErrors}
 
 @layout(pageTitle = messages("interest.taxed-uk-interest-details.title"), taxYear = Some(taxYear), hasErrors = hasFormErrors, isAgent = isAgent) {
@@ -55,16 +68,16 @@
 
         @formWithCSRF(action = postAction) {
 
-        @inputText(
+        @inputField(
             form,
             id = "taxedAccountName",
             name = "taxedAccountName",
-            label = "interest.common.sub-heading.1",
-            labelHidden = false,
-            currency = false,
+            heading = "interest.common.sub-heading.1",
+            isPageHeading = false,
             classes = Some("govuk-input--width-20"),
-            hint = hint1,
-            labelClasses = true
+            hint = Some(Html(messages("interest.common.account.hint"))),
+            headingClasses = "govuk-label govuk-label--m",
+            content = Some(contentHtml)
         )
 
         @inputText(

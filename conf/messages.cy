@@ -284,7 +284,7 @@ interest.common.sub-heading.2 = Rhowch enw gwahanol i bob cyfrif.
 interest.common.error.name.empty = Nodwch enw ar gyfer y cyfrif hwn
 interest.common.error.name.duplicate = Ni allwch ychwanegu 2 gyfrif gyda’r un enw
 
-interest.common.account.hint = Rhowch enw gwahanol i bob cyfrif er enghraifft, ‘cyfrif cynilo HSBC’.
+interest.common.account.hint = Er enghraifft, ‘cyfrif cynilo HSBC’.
 
 interest.uk-interest.paragraph.individual = Peidiwch â chynnwys llog a gawsoch gan Gyfrif Cynilo Unigol (ISA) neu giltiau.
 interest.uk-interest.paragraph.agent = Peidiwch â chynnwys llog a gafodd eich cleient gan Gyfrif Cynilo Unigol (ISA) neu giltiau.

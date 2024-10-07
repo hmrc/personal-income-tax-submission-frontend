@@ -18,13 +18,14 @@
 @import play.api.i18n.Messages
 @import play.api.mvc.Request
 @import views.html.headerFooterTemplate.Layout
-@import views.html.templates.helpers.{Button, ErrorSummary, InputTextAlt, Heading, P}
+@import views.html.templates.helpers.{Button, ErrorSummary, InputText, InputTextAlt, Heading, P}
 
 @this(
    layout: Layout,
    errorSummary: ErrorSummary,
    formWithCsrf: FormWithCSRF,
    inputText: InputTextAlt,
+   inputField: InputText,
    button: Button,
    heading: Heading,
    p: P
@@ -40,6 +41,13 @@
     Some(messages("common.currency.hint"))
 }
 
+@contentHtml = @{
+    p(Html(messages("interest.common.sub-heading.2")),
+        classes = "govuk-!-margin-top-1 govuk-!-margin-bottom-4 govuk-body",
+        id = Some("p1")
+    )
+}
+
 @hasFormErrors = @{form.hasErrors}
 
 @layout(pageTitle = messages("interest.untaxed-uk-interest-details.title"), taxYear = Some(taxYear), hasErrors = hasFormErrors, isAgent = isAgent) {
@@ -50,16 +58,16 @@
 
         @formWithCsrf(action = postAction) {
 
-        @inputText(
+        @inputField(
             form,
             id = "untaxedAccountName",
             name = "untaxedAccountName",
-            hint = hint1,
-            label =  "interest.common.sub-heading.1",
-            labelHidden = false,
-            currency = false,
+            heading = "interest.common.sub-heading.1",
+            isPageHeading = false,
             classes = Some("govuk-input--width-20"),
-            labelClasses = true
+            hint = Some(Html(messages("interest.common.account.hint"))),
+            headingClasses = "govuk-label govuk-label--m",
+            content = Some(contentHtml)
         )
 
         @inputText(
