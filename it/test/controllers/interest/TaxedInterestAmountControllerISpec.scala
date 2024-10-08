@@ -169,6 +169,7 @@ class TaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelper
           h1Check(s"$heading $caption")
           captionCheck(caption)
           textOnPageCheck(accountName, Selectors.accountName)
+          textOnPageCheck(eachAccount, Selectors.eachAccount)
           inputFieldCheck(TaxedInterestAmountForm.taxedAccountName, Selectors.accountNameInput)
           textOnPageCheck(interestEarned, Selectors.interestEarned)
           hintTextCheck(hint)
