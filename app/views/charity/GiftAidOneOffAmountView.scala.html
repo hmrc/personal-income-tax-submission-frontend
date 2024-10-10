@@ -23,7 +23,7 @@
     heading: Heading,
     button: Button,
     errorSummary: ErrorSummary,
-    inputField: InputTextAlt,
+    inputText: InputTextAlt,
     p: P
 )
 
@@ -44,7 +44,6 @@
     }
 }
 
-
 @layout(pageTitle = titleText, taxYear = Some(taxYear), hasErrors = form.hasErrors) {
     @errorSummary(form.errors)
 
@@ -54,7 +53,7 @@
     @p(Html(messages("charity.common.total.valueInPoundsTaxYear")), id = Some("p2"))
 
     @formWithCsrf(controllers.charity.routes.GiftAidOneOffAmountController.submit(taxYear)) {
-        @inputField(
+        @inputText(
             form,
             id = "amount",
             name = "amount",

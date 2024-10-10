@@ -16,7 +16,7 @@
 
 @import play.api.i18n.Messages
 @import views.html.headerFooterTemplate.Layout
-@import views.html.templates.helpers.{Heading, Button, ErrorSummary, InputTextAlt, P}
+@import views.html.templates.helpers.{Heading, Button, ErrorSummary, InputText, P}
 
 @this(
     layout: Layout,
@@ -24,7 +24,7 @@
     heading: Heading,
     button: Button,
     errorSummary: ErrorSummary,
-    inputField: InputTextAlt,
+    inputText: InputText,
     p: P
 )
 
@@ -34,24 +34,26 @@
 
 @headingForUse = @{(titleText)}
 
-@charityNameParagraph = @{
+@contentHtml = @{
     p(Html(messages(s"charity.gift-aid-account.${if(user.isAgent) "agent" else "individual"}.hint")), id = Some("p1"))
+}
+
+@caption = @{
+    Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString))
 }
 
 @layout(pageTitle = titleText, taxYear = Some(taxYear), hasErrors = form.hasErrors) {
     @errorSummary(form.errors)
 
-    @heading(headingForUse, Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
-
-    @charityNameParagraph
-
     @formWithCsrf(controllers.charity.routes.GiftAidOverseasNameController.submit(taxYear, changeCharityId)) {
-        @inputField(
+        @inputText(
             form,
             id = "name",
             name = "name",
-            label = headingForUse,
-            labelHidden = true,
+            heading = headingForUse,
+            subheading = caption,
+            isPageHeading = false,
+            content = Some(contentHtml),
             classes = Some("govuk-input--width-20")
         )
 

@@ -40,8 +40,8 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
     " lacinia maximus. Nullam facilisis nunc vel sapien facilisis tincidunt. Sed odio."
 
   object Selectors {
-    val accountName: String = "#main-content > div > div > div.govuk-label--m"
-    val interestEarned: String = "#main-content > div > div > form > div.govuk-label--m"
+    val accountName: String = "#main-content > div > div > form > div:first-of-type > label > .govuk-label"
+    val interestEarned: String = "#main-content > div > div > form > div:last-of-type > label"
     val accountNameInput: String = "#untaxedAccountName"
     val eachAccount = "#p1"
     val amountInput: String = "#untaxedAmount"
