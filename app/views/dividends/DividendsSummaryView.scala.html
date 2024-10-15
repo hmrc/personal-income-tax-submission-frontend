@@ -49,7 +49,7 @@
              Some(summaryListRow(
                 HtmlContent(messages("dividends.summary.list.stocks-and-shares")),
                 HtmlContent(trueFalseToYesNo(cya.gateway.contains(true))),
-                actions = Seq((controllers.dividends.routes.DividendsGatewayController.show(taxYear), messages("common.change"), Some(messages("dividends.summary.list.hidden.text.stocks-and-shares")))),
+                actions = Seq((controllers.dividends.routes.DividendsGatewayController.show(taxYear), messages("common.change"), Some(messages("common.change") + " " + messages("dividends.summary.list.hidden.text.stocks-and-shares")))),
                 keyClasses = "govuk-!-width-one-half",
                 valueClasses = "govuk-!-width-one-quarter",
                 actionClasses = "govuk-!-width-one-quarter"
@@ -58,70 +58,70 @@
                  Some(summaryListRow(
                     HtmlContent(messages("dividends.common.from-uk-companies")),
                     HtmlContent(trueFalseToYesNo(cya.ukDividends.contains(true))),
-                    actions = Seq((controllers.dividends.routes.ReceiveUkDividendsController.show(taxYear), messages("common.change"), Some(messages("dividends.summary.list.hidden.text.from-uk-companies"))))
+                    actions = Seq((controllers.dividends.routes.ReceiveUkDividendsController.show(taxYear), messages("common.change"), Some(messages("common.change") + " " + messages("dividends.summary.list.hidden.text.from-uk-companies"))))
                 ))
             } else { None },
             if (cya.ukDividends.contains(true) && cya.gateway.contains(true)) {
                  Some(summaryListRow(
                     HtmlContent(messages("dividends.summary.list.amount-of-dividends")),
                     HtmlContent(s"£${cya.ukDividendsAmount.getOrElse("").toString}"),
-                    actions = Seq((controllers.dividendsBase.routes.UkDividendsAmountBaseController.show(taxYear), messages("common.change"), Some(messages("dividends.summary.list.hidden.text.amount-of-dividends"))))
+                    actions = Seq((controllers.dividendsBase.routes.UkDividendsAmountBaseController.show(taxYear), messages("common.change"), Some(messages("common.change") + " " + messages("dividends.summary.list.hidden.text.amount-of-dividends"))))
                 ))
             } else { None },
             if (cya.gateway.contains(true)) {
                  Some(summaryListRow(
                     HtmlContent(messages("dividends.summary.list.from-unit-trusts-or-investment-companies")),
                     HtmlContent(trueFalseToYesNo(cya.otherUkDividends.contains(true))),
-                    actions = Seq((controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear), messages("common.change"), Some(messages("dividends.summary.list.hidden.text.from-unit-trusts-or-investment-companies"))))
+                    actions = Seq((controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear), messages("common.change"), Some(messages("common.change") + " " + messages("dividends.summary.list.hidden.text.from-unit-trusts-or-investment-companies"))))
                 ))
             } else { None },
             if (cya.otherUkDividends.contains(true) && cya.gateway.contains(true)) {
                  Some(summaryListRow(
                     HtmlContent(messages("dividends.summary.list.amount-from-unit-trusts-or-investment-companies")),
                     HtmlContent(s"£${cya.otherUkDividendsAmount.getOrElse("").toString}"),
-                    actions = Seq((controllers.dividendsBase.routes.OtherUkDividendsAmountBaseController.show(taxYear), messages("common.change"), Some(messages("dividends.summary.list.hidden.text.amount-from-unit-trusts-or-investment-companies"))))
+                    actions = Seq((controllers.dividendsBase.routes.OtherUkDividendsAmountBaseController.show(taxYear), messages("common.change"), Some(messages("common.change") + " " + messages("dividends.summary.list.hidden.text.amount-from-unit-trusts-or-investment-companies"))))
                 ))
             } else { None },
             if (cya.gateway.contains(true)) {
                 Some(summaryListRow(
                     HtmlContent(messages("dividends.common.stock-dividends")),
                     HtmlContent(trueFalseToYesNo(cya.stockDividends.contains(true))),
-                    actions = Seq((controllers.dividends.routes.StockDividendStatusController.show(taxYear), messages("common.change"), Some(messages("dividends.summary.list.hidden.text.stock-dividends"))))
+                    actions = Seq((controllers.dividends.routes.StockDividendStatusController.show(taxYear), messages("common.change"), Some(messages("common.change") + " " + messages("dividends.summary.list.hidden.text.stock-dividends"))))
                 ))
             } else { None },
             if (cya.stockDividends.contains(true) && cya.gateway.contains(true)) {
                 Some(summaryListRow(
                     HtmlContent(messages("dividends.summary.list.value-of-stock-dividends")),
                     HtmlContent(s"£${cya.stockDividendsAmount.getOrElse("").toString}"),
-                    actions = Seq((controllers.dividendsBase.routes.StockDividendAmountBaseController.show(taxYear), messages("common.change"), Some(messages("dividends.summary.list.hidden.text.value-of-stock-dividends"))))
+                    actions = Seq((controllers.dividendsBase.routes.StockDividendAmountBaseController.show(taxYear), messages("common.change"), Some(messages("common.change") + " " + messages("dividends.summary.list.hidden.text.value-of-stock-dividends"))))
                 ))
             } else { None },
             if (cya.gateway.contains(true)) {
                 Some(summaryListRow(
                     HtmlContent(messages("dividends.summary.list.free-or-redeemable-shares")),
                     HtmlContent(trueFalseToYesNo(cya.redeemableShares.contains(true))),
-                    actions = Seq((controllers.dividends.routes.RedeemableSharesStatusController.show(taxYear), messages("common.change"), Some(messages("dividends.summary.list.hidden.text.free-or-redeemable-shares"))))
+                    actions = Seq((controllers.dividends.routes.RedeemableSharesStatusController.show(taxYear), messages("common.change"), Some(messages("common.change") + " " + messages("dividends.summary.list.hidden.text.free-or-redeemable-shares"))))
                 ))
             } else { None },
             if (cya.redeemableShares.contains(true) && cya.gateway.contains(true)) {
                 Some(summaryListRow(
                     HtmlContent(messages("dividends.summary.list.value-of-free-or-redeemable-shares")),
                     HtmlContent(s"£${cya.redeemableSharesAmount.getOrElse("").toString}"),
-                    actions = Seq((controllers.dividendsBase.routes.RedeemableSharesAmountBaseController.show(taxYear), messages("common.change"), Some(messages("dividends.summary.list.hidden.text.value-of-free-or-redeemable-shares"))))
+                    actions = Seq((controllers.dividendsBase.routes.RedeemableSharesAmountBaseController.show(taxYear), messages("common.change"), Some(messages("common.change") + " " + messages("dividends.summary.list.hidden.text.value-of-free-or-redeemable-shares"))))
                 ))
             } else { None },
             if (cya.gateway.contains(true)) {
                 Some(summaryListRow(
                     HtmlContent(messages("dividends.summary.list.close-company-loan")),
                     HtmlContent(trueFalseToYesNo(cya.closeCompanyLoansWrittenOff.contains(true))),
-                    actions = Seq((controllers.dividends.routes.CloseCompanyLoanStatusController.show(taxYear), messages("common.change"), Some(messages("dividends.summary.list.hidden.text.close-company-loan"))))
+                    actions = Seq((controllers.dividends.routes.CloseCompanyLoanStatusController.show(taxYear), messages("common.change"), Some(messages("common.change") + " " + messages("dividends.summary.list.hidden.text.close-company-loan"))))
                 ))
             } else { None },
             if (cya.closeCompanyLoansWrittenOff.contains(true) && cya.gateway.contains(true)) {
                 Some(summaryListRow(
                     HtmlContent(messages("dividends.summary.list.value-of-close-company-loan")),
                     HtmlContent(s"£${cya.closeCompanyLoansWrittenOffAmount.getOrElse("").toString}"),
-                    actions = Seq((controllers.dividendsBase.routes.CloseCompanyLoanAmountBaseController.show(taxYear), messages("common.change"), Some(messages("dividends.summary.list.hidden.text.value-of-close-company-loan"))))
+                    actions = Seq((controllers.dividendsBase.routes.CloseCompanyLoanAmountBaseController.show(taxYear), messages("common.change"), Some(messages("common.change") + " " + messages("dividends.summary.list.hidden.text.value-of-close-company-loan"))))
                 ))
             } else { None }
         ).flatten))
