@@ -254,17 +254,17 @@ dividends.summary.list.value-of-free-or-redeemable-shares = Gwerth y difidendau 
 dividends.summary.list.close-company-loan = Benthyciadau gan gwmnïau caeedig a ddilëwyd neu a ryddhawyd
 dividends.summary.list.value-of-close-company-loan = Gwerth benthyciadau gan gwmnïau caeedig a ddilëwyd neu a ryddhawyd
 
-dividends.summary.list.hidden.text.stocks-and-shares = difidendau o stociau a chyfranddaliadau
-dividends.summary.list.hidden.text.from-uk-companies = difidendau o gwmnïau yn DU
-dividends.summary.list.hidden.text.amount-of-dividends = swm y difidendau o gwmnïau yn DU
-dividends.summary.list.hidden.text.from-unit-trusts-or-investment-companies = difidendau o ymddiriedolaethau unedol neu gwmnïau buddsoddi
-dividends.summary.list.hidden.text.amount-from-unit-trusts-or-investment-companies = swm y difidendau o ymddiriedolaethau unedol neu gwmnïau buddsoddi
-dividends.summary.list.hidden.text.stock-dividends = difidendau stoc
-dividends.summary.list.hidden.text.value-of-stock-dividends = gwerth y difidendau stoc
-dividends.summary.list.hidden.text.free-or-redeemable-shares = difidendau adbryn neu ddifidendau sy’n rhad ac am ddim
-dividends.summary.list.hidden.text.value-of-free-or-redeemable-shares = gwerth y difidendau adbryn neu’r difidendau sy’n rhad ac am ddim
-dividends.summary.list.hidden.text.close-company-loan = benthyciadau gan gwmnïau caeedig a ddilëwyd neu a ryddhawyd
-dividends.summary.list.hidden.text.value-of-close-company-loan = gwerth benthyciadau gan gwmnïau caeedig a ddilëwyd neu a ryddhawyd
+dividends.summary.list.hidden.text.stocks-and-shares = Newid difidendau o stociau a chyfranddaliadau
+dividends.summary.list.hidden.text.from-uk-companies = Newid difidendau o gwmnïau yn DU
+dividends.summary.list.hidden.text.amount-of-dividends = Newid swm y difidendau o gwmnïau yn DU
+dividends.summary.list.hidden.text.from-unit-trusts-or-investment-companies = Newid difidendau o ymddiriedolaethau unedol neu gwmnïau buddsoddi
+dividends.summary.list.hidden.text.amount-from-unit-trusts-or-investment-companies = Newid swm y difidendau o ymddiriedolaethau unedol neu gwmnïau buddsoddi
+dividends.summary.list.hidden.text.stock-dividends = Newid difidendau stoc
+dividends.summary.list.hidden.text.value-of-stock-dividends = Newid gwerth y difidendau stoc
+dividends.summary.list.hidden.text.free-or-redeemable-shares = Newid difidendau adbryn neu ddifidendau sy’n rhad ac am ddim
+dividends.summary.list.hidden.text.value-of-free-or-redeemable-shares = Newid gwerth y difidendau adbryn neu’r difidendau sy’n rhad ac am ddim
+dividends.summary.list.hidden.text.close-company-loan = Newid benthyciadau gan gwmnïau caeedig a ddilëwyd neu a ryddhawyd
+dividends.summary.list.hidden.text.value-of-close-company-loan = Newid gwerth benthyciadau gan gwmnïau caeedig a ddilëwyd neu a ryddhawyd
 
 # Interest
 # ----------------------------------------------------------
