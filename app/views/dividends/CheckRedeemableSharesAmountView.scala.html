@@ -45,7 +45,7 @@
         summaryListRow(
         HtmlContent(messages("dividends.summary.list.value-of-free-or-redeemable-shares")),
         HtmlContent(s"£${cya.redeemableSharesAmount.getOrElse("").toString}"),
-        actions = Seq((controllers.dividendsBase.routes.RedeemableSharesAmountBaseController.show(taxYear), messages("common.change"), Some(messages("common.change") + " " + messages("dividends.summary.list.hidden.text.value-of-free-or-redeemable-shares"))))
+        actions = Seq((controllers.dividendsBase.routes.RedeemableSharesAmountBaseController.show(taxYear), messages("common.change"), Some(messages("dividends.summary.list.hidden.text.value-of-free-or-redeemable-shares"))))
             )
         )))
     }

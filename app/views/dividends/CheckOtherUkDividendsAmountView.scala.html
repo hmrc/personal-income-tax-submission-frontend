@@ -46,7 +46,7 @@
                     summaryListRow(
                         HtmlContent(messages("dividends.summary.list.amount-from-unit-trusts-or-investment-companies")),
                         HtmlContent(s"£${cya.otherUkDividendsAmount.getOrElse("").toString}"),
-                        actions = Seq((controllers.dividendsBase.routes.OtherUkDividendsAmountBaseController.show(taxYear), messages("common.change"), Some(messages("common.change") + " " + messages("dividends.summary.list.hidden.text.amount-from-unit-trusts-or-investment-companies"))))
+                        actions = Seq((controllers.dividendsBase.routes.OtherUkDividendsAmountBaseController.show(taxYear), messages("common.change"), Some(messages("dividends.summary.list.hidden.text.amount-from-unit-trusts-or-investment-companies"))))
                     )
                 )
             )

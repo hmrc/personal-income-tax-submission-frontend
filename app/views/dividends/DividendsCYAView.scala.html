@@ -49,7 +49,7 @@
                 Some(summaryListRow(
                     HtmlContent(messages("dividends.cya.questions.1")),
                     HtmlContent(trueFalseToYesNo(cya.gateway.contains(true))),
-                    actions = Seq((controllers.dividends.routes.DividendsGatewayController.show(taxYear), messages("common.change"), Some(messages("common.change") + " " + messages(s"dividends.cya.gateway.${if(user.isAgent) "agent" else "individual"}"))))
+                    actions = Seq((controllers.dividends.routes.DividendsGatewayController.show(taxYear), messages("common.change"), Some(messages(s"dividends.cya.gateway.${if(user.isAgent) "agent" else "individual"}"))))
                 ))
             } else { None },
             if(prior.exists(priorData => priorData.ukDividends.isEmpty) || prior.isEmpty) {
@@ -57,7 +57,7 @@
                     Some(summaryListRow(
                         HtmlContent(messages("dividends.common.from-uk-companies")),
                         HtmlContent(trueFalseToYesNo(cya.ukDividends.contains(true))),
-                        actions = Seq((controllers.dividends.routes.ReceiveUkDividendsController.show(taxYear), messages("common.change"), Some(messages("common.change") + " " + messages(s"dividends.cya.changeUkDividends.${if(user.isAgent) "agent" else "individual"}"))))
+                        actions = Seq((controllers.dividends.routes.ReceiveUkDividendsController.show(taxYear), messages("common.change"), Some(messages(s"dividends.cya.changeUkDividends.${if(user.isAgent) "agent" else "individual"}"))))
                     ))
                 } else None
             } else { None },
@@ -66,7 +66,7 @@
                     summaryListRow(
                         HtmlContent(messages("dividends.cya.questions.3")),
                         HtmlContent(bigDecimalCurrency(amount.toString)),
-                        actions = Seq((controllers.dividendsBase.routes.UkDividendsAmountBaseController.show(taxYear), messages("common.change"), Some(messages("common.change") + " " + messages(s"dividends.cya.changeUkDividendsAmount.${if(user.isAgent) "agent" else "individual"}"))))
+                        actions = Seq((controllers.dividendsBase.routes.UkDividendsAmountBaseController.show(taxYear), messages("common.change"), Some(messages(s"dividends.cya.changeUkDividendsAmount.${if(user.isAgent) "agent" else "individual"}"))))
                     )
                 }
             } else { None },
@@ -75,7 +75,7 @@
                         Some(summaryListRow(
                             HtmlContent(messages("dividends.cya.questions.4")),
                             HtmlContent(trueFalseToYesNo(cya.otherUkDividends.contains(true))),
-                            actions = Seq((controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear), messages("common.change"), Some(messages("common.change") + " " + messages(s"dividends.cya.changeOtherDividends.${if(user.isAgent) "agent" else "individual"}"))))
+                            actions = Seq((controllers.dividends.routes.ReceiveOtherUkDividendsController.show(taxYear), messages("common.change"), Some(messages(s"dividends.cya.changeOtherDividends.${if(user.isAgent) "agent" else "individual"}"))))
                         ))
                 } else None
             } else { None },
@@ -84,7 +84,7 @@
                     summaryListRow(
                         HtmlContent(messages("dividends.cya.questions.5")),
                         HtmlContent(bigDecimalCurrency(amount.toString)),
-                        actions = Seq((controllers.dividendsBase.routes.OtherUkDividendsAmountBaseController.show(taxYear), messages("common.change"), Some(messages("common.change") + " " + messages(s"dividends.cya.changeOtherDividendsAmount.${if(user.isAgent) "agent" else "individual"}"))))
+                        actions = Seq((controllers.dividendsBase.routes.OtherUkDividendsAmountBaseController.show(taxYear), messages("common.change"), Some(messages(s"dividends.cya.changeOtherDividendsAmount.${if(user.isAgent) "agent" else "individual"}"))))
                     )
                 }
             } else { None }

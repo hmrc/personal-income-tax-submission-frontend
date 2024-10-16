@@ -45,7 +45,7 @@
                 summaryListRow(
                     HtmlContent(messages("dividends.summary.list.value-of-stock-dividends")),
                     HtmlContent(s"£${cya.stockDividendsAmount.getOrElse("").toString}"),
-                    actions = Seq((controllers.dividendsBase.routes.StockDividendAmountBaseController.show(taxYear), messages("common.change"), Some(messages("common.change") + " " + messages("dividends.summary.list.hidden.text.value-of-stock-dividends"))))
+                    actions = Seq((controllers.dividendsBase.routes.StockDividendAmountBaseController.show(taxYear), messages("common.change"), Some(messages("dividends.summary.list.hidden.text.value-of-stock-dividends"))))
                 )
         )))
     }
