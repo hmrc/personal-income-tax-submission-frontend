@@ -26,7 +26,7 @@ import play.api.data.validation.Constraint
 object GiftAidOverseasNameForm extends InputFilters {
 
   val giftAidOverseasName: String = "name"
-  val charLimit: Int = 75
+  val charLimit: Int = 500
 
   def notEmpty(isAgent: Boolean): Constraint[String] =
     nonEmpty(if(isAgent) "charity.gift-aid-overseas-name.error.empty.agent" else "charity.gift-aid-overseas-name.error.empty.individual")

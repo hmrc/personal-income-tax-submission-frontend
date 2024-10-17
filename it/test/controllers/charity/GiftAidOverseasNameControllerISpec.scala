@@ -71,7 +71,7 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
     val govUkExtension = "GOV.UK"
     val expectedInvalidError: String = "Name of overseas charity must only include numbers 0-9, letters a to z," +
       " hyphens, spaces, apostrophes, commas, full stops, round brackets and the special characters, &, /, @, £, *"
-    val expectedLengthError: String = "The name of the overseas charity must be 75 characters or fewer"
+    val expectedLengthError: String = "The name of the overseas charity must be 500 characters or fewer"
     val expectedDuplicateError: String = "You cannot add 2 charities with the same name"
   }
 
@@ -83,7 +83,7 @@ class GiftAidOverseasNameControllerISpec extends CharityITHelper {
     val govUkExtension = "GOV.UK"
     val expectedInvalidError: String = "Mae’n rhaid i enw’r elusen o dramor gynnwys rhifau 0-9, llythrennau a i z," +
       " cysylltnodau, bylchau, collnodau, comas, atalnodau llawn, cromfachau crwn, a’r cymeriadau arbennig &, /, @, £, * yn unig"
-    val expectedLengthError: String = "Mae’n rhaid i enw’r elusen o dramor fod yn 75 o gymeriadau neu’n llai"
+    val expectedLengthError: String = "Mae’n rhaid i enw’r elusen o dramor fod yn 500 o gymeriadau neu’n llai"
     val expectedDuplicateError: String = "Ni allwch ychwanegu 2 elusen gyda’r un enw"
   }
 

@@ -62,6 +62,5 @@
     autocomplete = autocomplete.map(value => value),
     inputType = inputType,
     errorMessage = form(name).error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*)))),
-    prefix = if(currency) Some(PrefixOrSuffix(content = Text("£"))) else None,
-    attributes = Map("maxlength" -> "500")
+    prefix = if(currency) Some(PrefixOrSuffix(content = Text("£"))) else None
 ))
