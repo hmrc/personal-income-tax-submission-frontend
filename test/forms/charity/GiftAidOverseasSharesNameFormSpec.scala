@@ -30,7 +30,7 @@ class GiftAidOverseasSharesNameFormSpec extends UnitTest {
   lazy val testNameValid = "john"
   lazy val testNameEmpty = ""
   lazy val testNameInvalidChar = "%"
-  lazy val testNameTooBig = "ukHzoBYHkKGGk2V5iuYgS137gN7EB7LRw3uDjvujYg00ZtHwo3sokyOOCEoAK9vuPiP374QKOelo"
+  lazy val testNameTooBig = "ugpoiuj123ansuzkuvpgxfkwnbsclxosxbfcbeycsrqypfnuicqklcwyvduyagxncmgaitwfamvqtqjwicdqeqwsnyokxrwlpggijbbwznkbgaxszxddanmcpxxiunjwstsvquyeazlnantegbjtmtgxwgklwndxprnxhcrmcmmedoxxmmgmpjcaetikkdqeorvsjtyshvkojvqksmfdzdxxqwknpibisgvlfoydthhieuhyvbkzvngtzuztuqgpnxlbpktzmmldneucmqlyrjlrolqwrpcggteirxhjitleiidrjmvyhfaervlghwpyjetdtgctpypznfpsyxhgldgyabvciobwnltgmduilnfgqhlacspxlddmelkrslshlpmizeuwqqaedureoapmfcvlyybasevqjdeppltkqepqkdusakbqmekxngubvzgndzrztotruddbblskonoevspyfqvqgdvxynatkogiccqszfeynjepd"
   lazy val emptyPreviousNames = List("")
   lazy val previousNames = List("john")
 

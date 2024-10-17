@@ -419,7 +419,7 @@ charity.common.add.overseas.question = Do you need to add another overseas chari
 charity.gift-aid-account.individual.hint = If you donated to more than one charity, you can add them later.
 charity.gift-aid-account.agent.hint = If your client donated to more than one charity, you can add them later.
 
-charity.common.name.error.limit = The name of the overseas charity must be 75 characters or fewer
+charity.common.name.error.limit = The name of the overseas charity must be 500 characters or fewer
 charity.common.name.error.invalid = Name of overseas charity must only include numbers 0-9, letters a to z, hyphens, spaces, apostrophes, commas, full stops, round brackets and the special characters, &, /, @, £, *
 charity.common.name.error.duplicate = You cannot add 2 charities with the same name
 

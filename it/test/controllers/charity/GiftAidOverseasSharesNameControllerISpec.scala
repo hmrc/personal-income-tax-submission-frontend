@@ -66,7 +66,7 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
     val expectedCaption: String = s"Donations to charity for 6 April $taxYearEOY to 5 April $taxYear"
     val expectedInputName: String = "name"
     val expectedButtonText: String = "Continue"
-    val expectedCharLimitError: String = "The name of the overseas charity must be 75 characters or fewer"
+    val expectedCharLimitError: String = "The name of the overseas charity must be 500 characters or fewer"
     val expectedInvalidCharError: String = "Name of overseas charity must only include numbers 0-9, letters a " +
       "to z, hyphens, spaces, apostrophes, commas, full stops, round brackets and the special characters, &, /, @, £, *"
     val expectedDuplicateError: String = "You cannot add 2 charities with the same name"
@@ -76,7 +76,7 @@ class GiftAidOverseasSharesNameControllerISpec extends CharityITHelper {
     val expectedCaption: String = s"Rhoddion i elusennau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val expectedInputName: String = "name"
     val expectedButtonText: String = "Yn eich blaen"
-    val expectedCharLimitError: String = "Mae’n rhaid i enw’r elusen o dramor fod yn 75 o gymeriadau neu’n llai"
+    val expectedCharLimitError: String = "Mae’n rhaid i enw’r elusen o dramor fod yn 500 o gymeriadau neu’n llai"
     val expectedInvalidCharError: String = "Mae’n rhaid i enw’r elusen o dramor gynnwys rhifau 0-9, llythrennau a i z," +
       " cysylltnodau, bylchau, collnodau, comas, atalnodau llawn, cromfachau crwn, a’r cymeriadau arbennig &, /, @, £, * yn unig"
     val expectedDuplicateError: String = "Ni allwch ychwanegu 2 elusen gyda’r un enw"

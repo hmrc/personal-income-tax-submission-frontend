@@ -51,8 +51,7 @@
         content = Text(messages(err.message, err.args:_*)),
         visuallyHiddenText = Some(messages("govukErrorMessage.visuallyHiddenText"))
     )),
-    prefix = if(currency) Some(PrefixOrSuffix(content = Text("£"))) else None,
-    attributes = Map("maxlength" -> "500")
+    prefix = if(currency) Some(PrefixOrSuffix(content = Text("£"))) else None
 ))
 
 @{
