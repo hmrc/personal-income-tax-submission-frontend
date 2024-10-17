@@ -67,8 +67,8 @@ POST        /:taxYear/dividends/close-company-loan-status                       
 GET         /:taxYear/dividends/summary                                                                       controllers.dividends.DividendsSummaryController.show(taxYear: Int)
 POST        /:taxYear/dividends/summary                                                                       controllers.dividends.DividendsSummaryController.submit(taxYear: Int)
 
-GET         /:taxYear/dividends/section-completed                                                             controllers.dividends.SectionCompletedStateController.show(taxYear: Int)
-POST        /:taxYear/dividends/section-completed                                                             controllers.dividends.SectionCompletedStateController.submit(taxYear: Int)
+GET         /:taxYear/:journeyKey/section-completed                                                             controllers.dividends.SectionCompletedStateController.show(taxYear: Int,journeyKey)
+POST        /:taxYear/:journeyKey/section-completed                                                             controllers.dividends.SectionCompletedStateController.submit(taxYear: Int,journeyKey)
 
 # Interest routes
 

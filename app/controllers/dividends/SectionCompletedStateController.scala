@@ -16,9 +16,10 @@
 
 package controllers.dividends
 
-import config.{AppConfig, DIVIDENDS}
+import config.{AppConfig, DIVIDENDS, JourneyKey}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
+import controllers.predicates.TaxYearAction.taxYearAction
 import forms.YesNoForm
 import models.mongo.JourneyStatus.{Completed, InProgress}
 import play.api.data.Form
@@ -39,11 +40,12 @@ class SectionCompletedStateController @Inject()(implicit val cc: MessagesControl
 
   def form(): Form[Boolean] = YesNoForm.yesNoForm("sectionCompletedState.error.required")
 
-  def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
+  def show(taxYear: Int,miniJourneyKey: JourneyKey): Action[AnyContent] =
+    (authAction andThen taxYearAction(taxYear)).async{ implicit user =>
     Future.successful(Ok(view(form(), taxYear)))
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
+  def submit(taxYear: Int,journeyKey: String): Action[AnyContent] = commonPredicates(taxYear,DIVIDENDS).async { implicit user =>
     form()
       .bindFromRequest()
       .fold(
