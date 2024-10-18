@@ -34,11 +34,12 @@ class DividendsUserDataRepository @Inject()(
   mongoComponent = mongo,
   collectionName = "dividendsUserData",
   domainFormat = EncryptedDividendsUserDataModel.formats,
-  indexes = RepositoryIndexes.indexes()(appConfig)
+  indexes = RepositoryIndexes.indexes()(appConfig),
+  replaceIndexes = appConfig.replaceIndexes
 ) with UserDataRepository[EncryptedDividendsUserDataModel]{
   override val repoName = "dividendsUserData"
   override type UserData = DividendsUserDataModel
+
   override def encryptionMethod: DividendsUserDataModel => EncryptedDividendsUserDataModel = encryptionService.encryptDividendsUserData
   override def decryptionMethod: EncryptedDividendsUserDataModel => DividendsUserDataModel = encryptionService.decryptDividendsUserData
-
 }

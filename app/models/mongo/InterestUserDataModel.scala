@@ -18,6 +18,7 @@ package models.mongo
 
 import models.interest.{EncryptedInterestCYAModel, InterestCYAModel}
 import play.api.libs.json._
+import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.Instant
 
@@ -31,9 +32,8 @@ case class InterestUserDataModel(
                                 ) extends UserDataTemplate
 
 object InterestUserDataModel {
-
+  implicit val instantFormat: Format[Instant] = MongoJavatimeFormats.instantFormat
   implicit lazy val formats: OFormat[InterestUserDataModel] = Json.format[InterestUserDataModel]
-
 }
 
 case class EncryptedInterestUserDataModel(
@@ -46,7 +46,7 @@ case class EncryptedInterestUserDataModel(
                                 ) extends UserDataTemplate
 
 object EncryptedInterestUserDataModel{
-
+  implicit val instantFormat: Format[Instant] = MongoJavatimeFormats.instantFormat
   implicit lazy val formats: OFormat[EncryptedInterestUserDataModel] = Json.format[EncryptedInterestUserDataModel]
 }
 
