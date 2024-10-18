@@ -103,6 +103,7 @@ class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig) extends AppCon
 
   lazy val encryptionKey: String = servicesConfig.getString("mongodb.encryption.key")
   def mongoTTL: Long = Duration(servicesConfig.getString("mongodb.timeToLive")).toMinutes.toInt
+  def replaceIndexes: Boolean = servicesConfig.getBoolean("mongodb.replaceIndexes")
 
   def excludeJourneyUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.exclude")
@@ -167,6 +168,7 @@ trait AppConfig {
   val encryptionKey: String
 
   def mongoTTL: Long
+  def replaceIndexes: Boolean
 
   def excludeJourneyUrl(taxYear: Int): String
 

@@ -18,6 +18,7 @@ package models.mongo
 
 import models.savings.{EncryptedSavingsIncomeCYAModel, SavingsIncomeCYAModel}
 import play.api.libs.json._
+import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.Instant
 
@@ -31,9 +32,8 @@ case class SavingsIncomeUserDataModel(
                                  ) extends UserDataTemplate
 
 object SavingsIncomeUserDataModel{
-
+  implicit val instantFormat: Format[Instant] = MongoJavatimeFormats.instantFormat
   implicit lazy val formats: OFormat[SavingsIncomeUserDataModel] = Json.format[SavingsIncomeUserDataModel]
-
 }
 
 case class EncryptedSavingsIncomeUserDataModel(
@@ -46,6 +46,6 @@ case class EncryptedSavingsIncomeUserDataModel(
                                  ) extends UserDataTemplate
 
 object EncryptedSavingsIncomeUserDataModel{
-
+  implicit val instantFormat: Format[Instant] = MongoJavatimeFormats.instantFormat
   implicit lazy val formats: OFormat[EncryptedSavingsIncomeUserDataModel] = Json.format[EncryptedSavingsIncomeUserDataModel]
 }

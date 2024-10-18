@@ -278,12 +278,6 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   implicit lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
-//  def buildApplication(miniJourneyEnabled: Boolean): Application =
-//    GuiceApplicationBuilder()
-//      .in(Environment.simple(mode = Mode.Dev))
-//      .configure(config(miniJourneyEnabled = miniJourneyEnabled))
-//      .build()
-
   override def beforeAll(): Unit = {
     super.beforeAll()
     startWiremock()

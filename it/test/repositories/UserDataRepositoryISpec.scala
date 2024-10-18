@@ -90,14 +90,14 @@ class UserDataRepositoryISpec extends IntegrationTest with FutureAwaits with Def
 
       val res: Boolean = await(dividendsRepo.update(newUserData).map {
         case Right(value) => value
-        case Left(value) => false
+        case Left(_) => false
       })
       res mustBe true
       count mustBe 1
 
       val data: Option[DividendsUserDataModel] = await(dividendsRepo.find(taxYear)(testUser).map {
         case Right(value) => value
-        case Left(value) => None
+        case Left(_) => None
       })
 
       data.get.dividends.get.ukDividendsAmount.get shouldBe 100.00
