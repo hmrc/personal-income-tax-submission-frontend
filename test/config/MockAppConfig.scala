@@ -20,6 +20,8 @@ import org.scalamock.scalatest.MockFactory
 import play.api.i18n.Lang
 import play.api.mvc.{Call, RequestHeader}
 
+import scala.concurrent.duration.Duration
+
 class MockAppConfig extends AppConfig with MockFactory {
   override val signInBaseUrl: String = "/signInBase"
   override val signInContinueUrl: String = "/continue"
@@ -72,7 +74,8 @@ class MockAppConfig extends AppConfig with MockFactory {
 
   override val encryptionKey: String = "1234556"
 
-  override def mongoTTL: Long = 15
+  override def mongoTTL: Long = Duration("15").toMinutes
+  override def replaceIndexes: Boolean = false
 
   override val tailoringEnabled: Boolean = false
   override val interestTailoringEnabled: Boolean = false
@@ -83,10 +86,8 @@ class MockAppConfig extends AppConfig with MockFactory {
   override def excludeJourneyUrl(taxYear: Int): String = "/exclude"
 
   override def miniJourneyEnabled: Boolean = false
-
 }
+
 class MockAppConfigEncyrptionOff extends MockAppConfig {
   override val useEncryption: Boolean = false
 }
-
-

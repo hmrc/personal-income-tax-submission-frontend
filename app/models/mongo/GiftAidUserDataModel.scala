@@ -18,6 +18,7 @@ package models.mongo
 
 import models.charity.{EncryptedGiftAidCYAModel, GiftAidCYAModel}
 import play.api.libs.json._
+import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.Instant
 
@@ -32,7 +33,7 @@ case class GiftAidUserDataModel(
 
 
 object GiftAidUserDataModel {
-
+  implicit val instantFormat: Format[Instant] = MongoJavatimeFormats.instantFormat
   implicit lazy val formats: OFormat[GiftAidUserDataModel] = Json.format[GiftAidUserDataModel]
 }
 
@@ -46,6 +47,6 @@ case class EncryptedGiftAidUserDataModel(
                                         ) extends UserDataTemplate
 
 object EncryptedGiftAidUserDataModel {
-
+  implicit val instantFormat: Format[Instant] = MongoJavatimeFormats.instantFormat
   implicit lazy val formats: OFormat[EncryptedGiftAidUserDataModel] = Json.format[EncryptedGiftAidUserDataModel]
 }

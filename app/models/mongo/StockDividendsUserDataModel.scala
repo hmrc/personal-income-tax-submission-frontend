@@ -18,6 +18,7 @@ package models.mongo
 
 import models.dividends.{EncryptedStockDividendsCheckYourAnswersModel, StockDividendsCheckYourAnswersModel}
 import play.api.libs.json._
+import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.Instant
 
@@ -31,9 +32,8 @@ case class StockDividendsUserDataModel(
                                       ) extends UserDataTemplate
 
 object StockDividendsUserDataModel {
-
+  implicit val instantFormat: Format[Instant] = MongoJavatimeFormats.instantFormat
   implicit lazy val formats: OFormat[StockDividendsUserDataModel] = Json.format[StockDividendsUserDataModel]
-
 }
 
 case class EncryptedStockDividendsUserDataModel(
@@ -46,6 +46,6 @@ case class EncryptedStockDividendsUserDataModel(
                                                ) extends UserDataTemplate
 
 object EncryptedStockDividendsUserDataModel{
-
+  implicit val instantFormat: Format[Instant] = MongoJavatimeFormats.instantFormat
   implicit lazy val formats: OFormat[EncryptedStockDividendsUserDataModel] = Json.format[EncryptedStockDividendsUserDataModel]
 }
