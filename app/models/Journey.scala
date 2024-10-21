@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package models.common
+package models
 
-import enumeratum._
 import play.api.mvc.PathBindable
+import enumeratum._
+
 
 sealed abstract class Journey(name: String, val subJourneys: List[SubJourney]) extends EnumEntry {
   override def toString: String = name
 }
 
-object Journey extends Enum[Journey] with utils.PlayJsonEnum[Journey] {
+object Journey extends Enum[Journey] with PlayJsonEnum[Journey] {
   val values: IndexedSeq[Journey] = findValues
 
   implicit def pathBindable(implicit strBinder: PathBindable[String]): PathBindable[Journey] = new PathBindable[Journey] {
@@ -40,7 +41,7 @@ object Journey extends Enum[Journey] with utils.PlayJsonEnum[Journey] {
       strBinder.unbind(key, journeyName.entryName)
   }
 
-  case object CharitableDonations extends Journey("charitableDonations",
+  case object CharitableDonations extends Journey("charitable_donations",
     List(
       SubJourney.DonationsUsingGiftAid,
       SubJourney.GiftsOfLandOrProperty,
@@ -48,7 +49,7 @@ object Journey extends Enum[Journey] with utils.PlayJsonEnum[Journey] {
       SubJourney.GiftsToOverseas
     )
   )
-  case object UKInterest extends Journey("ukInterest",
+  case object UKInterest extends Journey("uk_interest",
     List(
       SubJourney.BanksAndBuilding,
       SubJourney.TrustFundBond,
@@ -70,33 +71,48 @@ sealed abstract class SubJourney(name: String) extends EnumEntry {
   override def toString: String = name
 }
 
-object SubJourney extends Enum[SubJourney] with utils.PlayJsonEnum[SubJourney] {
+object SubJourney extends Enum[SubJourney] with PlayJsonEnum[SubJourney] {
+
+  implicit def pathBindable(implicit strBinder: PathBindable[String]): PathBindable[SubJourney] = new PathBindable[SubJourney] {
+
+    override def bind(key: String, value: String): Either[String, SubJourney] =
+      strBinder.bind(key, value).flatMap { stringValue =>
+        SubJourney.withNameOption(stringValue) match {
+          case Some(subJourneyName) => Right(subJourneyName)
+          case None => Left(s"$stringValue Invalid subjourney name")
+        }
+      }
+
+    override def unbind(key: String, subJourney: SubJourney): String =
+      strBinder.unbind(key, subJourney.entryName)
+  }
+
   val values: IndexedSeq[SubJourney] = findValues
 
   // Charitable Donations
-  case object DonationsUsingGiftAid extends SubJourney("donationsUsingGiftAid")
+  case object DonationsUsingGiftAid extends SubJourney("donations-using-gift-aid")
 
-  case object GiftsOfLandOrProperty extends SubJourney("giftsOfLandOrProperty")
+  case object GiftsOfLandOrProperty extends SubJourney("gifts_of_land_or_property")
 
-  case object GiftsOfShares extends SubJourney("giftsOfShares")
+  case object GiftsOfShares extends SubJourney("gifts_of_shares")
 
-  case object GiftsToOverseas extends SubJourney("giftsToOverseasCharities")
+  case object GiftsToOverseas extends SubJourney("gifts_to_overseas_charities")
 
   // UK interest
-  case object BanksAndBuilding extends SubJourney("banksAndBuildingTitle")
+  case object BanksAndBuilding extends SubJourney("banks_and_building")
 
-  case object TrustFundBond extends SubJourney("trustFundBondTitle")
+  case object TrustFundBond extends SubJourney("trust_fund_bond")
 
-  case object GiltEdged extends SubJourney("giltEdgedTitle")
+  case object GiltEdged extends SubJourney("gilt_edged")
 
   // UK dividends
-  case object CashDividends extends SubJourney("cashDividendsTitle")
+  case object CashDividends extends SubJourney("cash_dividends")
 
-  case object StockDividends extends SubJourney("stockDividendsTitle")
+  case object StockDividends extends SubJourney("stock_dividends")
 
-  case object DividendsFromUnitTrusts extends SubJourney("dividendsFromUnitTrustsTitle")
+  case object DividendsFromUnitTrusts extends SubJourney("dividends_from_unit_trusts")
 
-  case object FreeRedeemableShares extends SubJourney("freeRedeemableSharesTitle")
+  case object FreeRedeemableShares extends SubJourney("free_redeemable_shares")
 
-  case object CloseCompanyLoans extends SubJourney("closeCompanyLoansTitle")
+  case object CloseCompanyLoans extends SubJourney("close_company_loans")
 }

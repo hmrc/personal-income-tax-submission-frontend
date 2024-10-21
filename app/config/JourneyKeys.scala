@@ -18,7 +18,6 @@ package config
 
 sealed trait JourneyKey {
   val stringify: String
-  val subJourneys: List[String] = List.empty
 }
 
 case object DIVIDENDS extends JourneyKey {
@@ -35,7 +34,6 @@ case object INTEREST extends JourneyKey {
 
 case object GIFT_AID extends JourneyKey {
   override val stringify: String = "gift-aid"
-  override val subJourneys: List[String] = List("donations-gift-aid","gifts-land-or-property","gifts-of-Shares","gifts-to-overseas")
 }
 
 case object SAVINGS extends JourneyKey {

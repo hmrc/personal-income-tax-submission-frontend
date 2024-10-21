@@ -18,7 +18,7 @@
 @import views.html.templates.helpers.{Heading, P, InputRadioAlt, Button, ErrorSummary}
 
 @this(layout: Layout, heading: Heading, p: P, formWithCSRF: FormWithCSRF, radio: InputRadioAlt, button: Button, errorSummary: ErrorSummary)
-@(form: Form[Boolean], taxYear: Int,journeyKey:String)(implicit appConfig: AppConfig, messages: Messages, user: User[_])
+@(form: Form[Boolean], taxYear: Int,journeyKey:String,subJourneyKey:String)(implicit appConfig: AppConfig, messages: Messages, user: User[_])
 
 @layout(pageTitle = messages(s"sectionCompletedState.title"), hasErrors = form.hasErrors) {
     
@@ -26,7 +26,7 @@
 
     @heading(messages(s"sectionCompletedState.title"), None, "govuk-!-margin-bottom-2")
 
-    @formWithCSRF(controllers.dividends.routes.SectionCompletedStateController.submit(taxYear,journeyKey)) {
+    @formWithCSRF(controllers.routes.SectionCompletedStateController.submit(taxYear,journeyKey,subJourneyKey)) {
         @radio(
             form = form,
             name = "value",

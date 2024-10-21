@@ -23,21 +23,23 @@ object AppDependencies {
   private val hmrcMongoPlay30Version = "2.2.0"
   private val hmrcPlayFrontend = "10.12.0"
 
-//  val jacksonAndPlayExclusions = Seq(
-//    ExclusionRule(organization = "com.fasterxml.jackson.core"),
-//    ExclusionRule(organization = "com.fasterxml.jackson.datatype"),
-//    ExclusionRule(organization = "com.fasterxml.jackson.module"),
-//    ExclusionRule(organization = "com.fasterxml.jackson.core:jackson-annotations"),
-//    ExclusionRule(organization = "com.typesafe.play")
-//  )
+  val jacksonAndPlayExclusions = Seq(
+    ExclusionRule(organization = "com.fasterxml.jackson.core"),
+    ExclusionRule(organization = "com.fasterxml.jackson.datatype"),
+    ExclusionRule(organization = "com.fasterxml.jackson.module"),
+    ExclusionRule(organization = "com.fasterxml.jackson.core:jackson-annotations"),
+    ExclusionRule(organization = "com.typesafe.play")
+  )
 
   val compile: Seq[ModuleID] = Seq(
     "uk.gov.hmrc"                   %% "bootstrap-frontend-play-30" % bootstrapPlay30Version,
     "uk.gov.hmrc"                   %% "play-frontend-hmrc-play-30" % hmrcPlayFrontend,
     "uk.gov.hmrc.mongo"             %% "hmrc-mongo-play-30"         % hmrcMongoPlay30Version,
-    "com.fasterxml.jackson.module"  %% "jackson-module-scala"       % "2.17.1"
-//    "com.beachape"                  %% "enumeratum"                 % "1.7.3",
-//    "com.beachape"                  %% "enumeratum-play-json"       % "1.7.3" excludeAll (jacksonAndPlayExclusions *)
+    "com.fasterxml.jackson.module"  %% "jackson-module-scala"       % "2.17.1",
+    "uk.gov.hmrc"                   %% "crypto-json-play-30"        % "7.6.0",
+    "com.beachape"                  %% "enumeratum"                 % "1.7.3",
+    "com.beachape"                  %% "enumeratum-play-json"       % "1.7.3" excludeAll (jacksonAndPlayExclusions: _*)
+
   )
 
   val test: Seq[ModuleID] = Seq(

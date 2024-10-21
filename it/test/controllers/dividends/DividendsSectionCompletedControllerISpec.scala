@@ -27,7 +27,7 @@ import test.utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 
 class DividendsSectionCompletedControllerISpec extends IntegrationTest with ViewHelpers with DividendsDatabaseHelper {
 
-  val relativeUrl = s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/section-completed"
+  val relativeUrl = s"/update-and-submit-income-tax-return/personal-income/$taxYear/charitable_donations/donations-using-gift-aid/section-completed"
   val absoluteUrl: String = appUrl + relativeUrl
 
   object Selectors {
@@ -123,8 +123,9 @@ class DividendsSectionCompletedControllerISpec extends IntegrationTest with View
 
             "display an error" which {
               lazy val headers = playSessionCookie() ++ Map(csrfContent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-              lazy val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/section-completed")
+              lazy val request = FakeRequest("POST", relativeUrl)
                 .withHeaders(headers: _*)
+              s"/update-and-submit-income-tax-return/personal-income/$taxYear/charitable_donations/donations-using-gift-aid/section-completed"
 
               lazy val result = {
                 authoriseAgentOrIndividual(isAgent = false)
@@ -158,7 +159,7 @@ class DividendsSectionCompletedControllerISpec extends IntegrationTest with View
               dropStockDividendsDB()
               emptyUserDataStub()
               emptyStockDividendsUserDataStub()
-              val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/section-completed",
+              val request = FakeRequest("POST", relativeUrl,
                 Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
 
               await(route(appWithTailoring, request, Map("value" -> Seq("false"))).get)
@@ -179,7 +180,7 @@ class DividendsSectionCompletedControllerISpec extends IntegrationTest with View
               dropStockDividendsDB()
               emptyUserDataStub()
               emptyStockDividendsUserDataStub()
-              val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/dividends/section-completed",
+              val request = FakeRequest("POST", relativeUrl,
                 Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
 
               await(route(appWithTailoring, request, Map("value" -> Seq("true"))).get)
