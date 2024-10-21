@@ -417,7 +417,7 @@ charity.common.add.overseas.question = A oes angen i chi ychwanegu elusen arall 
 charity.gift-aid-account.individual.hint = Os gwnaethoch roi i fwy nag un elusen, gallwch eu hychwanegu’n ddiweddarach.
 charity.gift-aid-account.agent.hint = Os gwnaeth eich cleient roi i fwy nag un elusen, gallwch eu hychwanegu’n ddiweddarach.
 
-charity.common.name.error.limit = Mae’n rhaid i enw’r elusen o dramor fod yn 75 o gymeriadau neu’n llai
+charity.common.name.error.limit = Mae’n rhaid i enw’r elusen o dramor fod yn 500 o gymeriadau neu’n llai
 charity.common.name.error.invalid = Mae’n rhaid i enw’r elusen o dramor gynnwys rhifau 0-9, llythrennau a i z, cysylltnodau, bylchau, collnodau, comas, atalnodau llawn, cromfachau crwn, a’r cymeriadau arbennig &, /, @, £, * yn unig
 charity.common.name.error.duplicate = Ni allwch ychwanegu 2 elusen gyda’r un enw
 
