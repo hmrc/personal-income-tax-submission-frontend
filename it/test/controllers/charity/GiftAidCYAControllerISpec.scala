@@ -22,13 +22,16 @@ import models.charity.{CharityNameModel, GiftAidCYAModel}
 import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import play.api.http.HeaderNames
 import play.api.http.Status.{BAD_REQUEST, NO_CONTENT, OK, SEE_OTHER}
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
+import play.api.test.Helpers._
+import play.api.{Environment, Mode}
 import test.utils.CharityITHelper
 
 import scala.concurrent.Future
@@ -828,6 +831,32 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
             titleCheck(user.commonExpectedResults.error, user.isWelsh)
           }
         }
+      }
+    }
+  }
+
+  ".submit when 'sectionCompletedQuestionEnabled' is true" when {
+
+    "should redirect to the 'Have you completed this section?' page" in {
+      val application = GuiceApplicationBuilder()
+        .in(Environment.simple(mode = Mode.Dev))
+        .configure(config(sectionCompletedQuestionEnabled = true))
+        .build()
+
+      running(application) {
+
+        dropGiftAidDB()
+        insertGiftAidCyaData(Some(cyaDataMax))
+        userDataStub(IncomeSourcesModel(), nino, taxYear)
+        authoriseAgentOrIndividual(user.isAgent)
+
+        val request = FakeRequest(GET, url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        // update with actual url once page is merged
+        redirectLocation(result) mustEqual ""
       }
     }
   }

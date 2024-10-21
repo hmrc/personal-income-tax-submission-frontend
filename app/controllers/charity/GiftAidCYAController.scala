@@ -103,7 +103,7 @@ class GiftAidCYAController @Inject()(implicit mcc: MessagesControllerComponents,
           auditSubmission(CreateOrAmendGiftAidAuditDetail(
             prior, Some(submissionModel), prior.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase(), taxYear)
           )
-          giftAidSessionService.clear(taxYear)(errorHandler.internalServerError())(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+          giftAidSessionService.clear(taxYear)(errorHandler.internalServerError())(redirect(appConfig.sectionCompletedQuestionEnabled, taxYear))
         }
       }
     }.flatten
@@ -189,5 +189,13 @@ class GiftAidCYAController @Inject()(implicit mcc: MessagesControllerComponents,
         !comparisonCyaData.equals(comparisonCyaFromPrior)
     }
   }
+
+  private def redirect(completedSectionQuestionEnabled: Boolean, taxYear: Int): Result =
+    if (completedSectionQuestionEnabled) {
+      // Update with have you completed this section controller when merged
+      Redirect(routes.OverseasGiftAidSummaryController.show("gift-aid", taxYear))
+    } else {
+      Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+    }
 
 }

@@ -84,6 +84,8 @@ class MockAppConfig extends AppConfig with MockFactory {
 
   override def miniJourneyEnabled: Boolean = false
 
+  override def sectionCompletedQuestionEnabled: Boolean = false
+
 }
 class MockAppConfigEncyrptionOff extends MockAppConfig {
   override val useEncryption: Boolean = false
