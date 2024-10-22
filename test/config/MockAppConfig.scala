@@ -66,7 +66,7 @@ class MockAppConfig extends AppConfig with MockFactory {
   override val welshToggleEnabled: Boolean = true
   override val useEncryption: Boolean = true
 
-  override def isJourneyAvailable(journeyKey: JourneyKey): Boolean = true
+  override def isJourneyAvailable(journeyKey: JourneyFeatureSwitchKeys): Boolean = true
 
   override def taxYearSwitchResetsSession: Boolean = true
 

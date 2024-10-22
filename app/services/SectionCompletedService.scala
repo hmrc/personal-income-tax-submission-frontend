@@ -17,7 +17,7 @@
 package services
 
 import connectors.SectionCompletedConnector
-import models.SubJourney
+import models.Journey
 import models.mongo.JourneyAnswers
 import org.apache.pekko.Done
 import uk.gov.hmrc.http.HeaderCarrier

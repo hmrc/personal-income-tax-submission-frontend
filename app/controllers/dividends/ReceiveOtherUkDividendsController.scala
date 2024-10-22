@@ -16,7 +16,7 @@
 
 package controllers.dividends
 
-import config.{AppConfig, DIVIDENDS, ErrorHandler, JourneyKey, STOCK_DIVIDENDS}
+import config.{AppConfig, DIVIDENDS, ErrorHandler, JourneyFeatureSwitchKeys, STOCK_DIVIDENDS}
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
@@ -47,7 +47,7 @@ class ReceiveOtherUkDividendsController @Inject()(
                                                    ec: ExecutionContext
                                                  ) extends FrontendController(cc) with I18nSupport with SessionHelper {
 
-  val journeyKey: JourneyKey = if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) STOCK_DIVIDENDS else DIVIDENDS
+  val journeyKey: JourneyFeatureSwitchKeys = if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) STOCK_DIVIDENDS else DIVIDENDS
   private val isStockDividends = appConfig.isJourneyAvailable(STOCK_DIVIDENDS)
 
   def yesNoForm(isAgent: Boolean): Form[Boolean] = YesNoForm.yesNoForm(s"dividends.other-dividends.errors.noChoice.${if (isAgent) "agent" else "individual"}")

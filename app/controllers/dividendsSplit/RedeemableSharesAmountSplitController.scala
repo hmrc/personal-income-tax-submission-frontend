@@ -16,7 +16,7 @@
 
 package controllers.dividendsSplit
 
-import config.{AppConfig, DIVIDENDS, ErrorHandler, JourneyKey, STOCK_DIVIDENDS}
+import config.{AppConfig, DIVIDENDS, ErrorHandler, JourneyFeatureSwitchKeys, STOCK_DIVIDENDS}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import forms.AmountForm
@@ -39,7 +39,7 @@ class RedeemableSharesAmountSplitController @Inject()(implicit val cc: MessagesC
                                                     implicit val appConfig: AppConfig,
                                                     ec: ExecutionContext) extends FrontendController(cc) with I18nSupport {
 
-  val journeyKey: JourneyKey = if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) STOCK_DIVIDENDS else DIVIDENDS
+  val journeyKey: JourneyFeatureSwitchKeys = if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) STOCK_DIVIDENDS else DIVIDENDS
 
   def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"
 

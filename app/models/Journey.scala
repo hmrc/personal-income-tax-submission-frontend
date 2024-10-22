@@ -19,13 +19,11 @@ package models
 import play.api.mvc.PathBindable
 import enumeratum._
 
-
-sealed abstract class Journey(name: String, val subJourneys: List[SubJourney]) extends EnumEntry {
+sealed abstract class Journey(name: String) extends EnumEntry {
   override def toString: String = name
 }
 
 object Journey extends Enum[Journey] with PlayJsonEnum[Journey] {
-  val values: IndexedSeq[Journey] = findValues
 
   implicit def pathBindable(implicit strBinder: PathBindable[String]): PathBindable[Journey] = new PathBindable[Journey] {
 
@@ -33,86 +31,40 @@ object Journey extends Enum[Journey] with PlayJsonEnum[Journey] {
       strBinder.bind(key, value).flatMap { stringValue =>
         Journey.withNameOption(stringValue) match {
           case Some(journeyName) => Right(journeyName)
-          case None              => Left(s"$stringValue Invalid journey name")
+          case None => Left(s"$stringValue Invalid journey name")
         }
       }
 
-    override def unbind(key: String, journeyName: Journey): String =
-      strBinder.unbind(key, journeyName.entryName)
+    override def unbind(key: String, journey: Journey): String =
+      strBinder.unbind(key, journey.entryName)
   }
 
-  case object CharitableDonations extends Journey("charitable_donations",
-    List(
-      SubJourney.DonationsUsingGiftAid,
-      SubJourney.GiftsOfLandOrProperty,
-      SubJourney.GiftsOfShares,
-      SubJourney.GiftsToOverseas
-    )
-  )
-  case object UKInterest extends Journey("uk_interest",
-    List(
-      SubJourney.BanksAndBuilding,
-      SubJourney.TrustFundBond,
-      SubJourney.GiltEdged
-    )
-  )
-  case object Dividends extends Journey("dividends",
-    List(
-      SubJourney.CashDividends,
-      SubJourney.StockDividends,
-      SubJourney.DividendsFromUnitTrusts,
-      SubJourney.FreeRedeemableShares,
-      SubJourney.CloseCompanyLoans
-    )
-  )
-}
-
-sealed abstract class SubJourney(name: String) extends EnumEntry {
-  override def toString: String = name
-}
-
-object SubJourney extends Enum[SubJourney] with PlayJsonEnum[SubJourney] {
-
-  implicit def pathBindable(implicit strBinder: PathBindable[String]): PathBindable[SubJourney] = new PathBindable[SubJourney] {
-
-    override def bind(key: String, value: String): Either[String, SubJourney] =
-      strBinder.bind(key, value).flatMap { stringValue =>
-        SubJourney.withNameOption(stringValue) match {
-          case Some(subJourneyName) => Right(subJourneyName)
-          case None => Left(s"$stringValue Invalid subjourney name")
-        }
-      }
-
-    override def unbind(key: String, subJourney: SubJourney): String =
-      strBinder.unbind(key, subJourney.entryName)
-  }
-
-  val values: IndexedSeq[SubJourney] = findValues
+  val values: IndexedSeq[Journey] = findValues
 
   // Charitable Donations
-  case object DonationsUsingGiftAid extends SubJourney("donations-using-gift-aid")
+  case object DonationsUsingGiftAid extends Journey("donations-using-gift-aid")
 
-  case object GiftsOfLandOrProperty extends SubJourney("gifts_of_land_or_property")
+  case object GiftsOfLandOrProperty extends Journey("gifts-of-land-or-property")
 
-  case object GiftsOfShares extends SubJourney("gifts_of_shares")
+  case object GiftsOfShares extends Journey("gifts-of-shares")
 
-  case object GiftsToOverseas extends SubJourney("gifts_to_overseas_charities")
+  case object GiftsToOverseas extends Journey("gifts-to-overseas-charities")
 
   // UK interest
-  case object BanksAndBuilding extends SubJourney("banks_and_building")
+  case object BanksAndBuilding extends Journey("banks-and-building")
 
-  case object TrustFundBond extends SubJourney("trust_fund_bond")
+  case object TrustFundBond extends Journey("trust-fund-bond")
 
-  case object GiltEdged extends SubJourney("gilt_edged")
+  case object GiltEdged extends Journey("gilt-edged")
 
   // UK dividends
-  case object CashDividends extends SubJourney("cash_dividends")
+  case object CashDividends extends Journey("cash-dividends")
 
-  case object StockDividends extends SubJourney("stock_dividends")
+  case object StockDividends extends Journey("stock-dividends")
 
-  case object DividendsFromUnitTrusts extends SubJourney("dividends_from_unit_trusts")
+  case object DividendsFromUnitTrusts extends Journey("dividends-from-unit-trusts")
 
-  case object FreeRedeemableShares extends SubJourney("free_redeemable_shares")
+  case object FreeRedeemableShares extends Journey("free-redeemable-shares")
 
-  case object CloseCompanyLoans extends SubJourney("close_company_loans")
+  case object CloseCompanyLoans extends Journey("close-company-loans")
 }

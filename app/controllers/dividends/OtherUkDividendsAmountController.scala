@@ -46,7 +46,7 @@ class OtherUkDividendsAmountController @Inject()(implicit val cc: MessagesContro
                                                   implicit val appConfig: AppConfig,
                                                   ec: ExecutionContext) extends FrontendController(cc) with I18nSupport with SessionHelper {
 
-  private val journeyKey: JourneyKey = if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) STOCK_DIVIDENDS else DIVIDENDS
+  private val journeyKey: JourneyFeatureSwitchKeys = if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) STOCK_DIVIDENDS else DIVIDENDS
   private val isStockDividends: Boolean = appConfig.isJourneyAvailable(STOCK_DIVIDENDS)
 
   def agentOrIndividual(implicit isAgent: Boolean): String = if (isAgent) "agent" else "individual"

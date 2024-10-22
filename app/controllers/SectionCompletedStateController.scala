@@ -23,15 +23,15 @@ import controllers.predicates.TaxYearAction.taxYearAction
 import forms.YesNoForm
 import models.mongo.{JourneyAnswers, JourneyStatus}
 import models.mongo.JourneyStatus.{Completed, InProgress}
-import models.{Journey, SubJourney}
+import models.Journey
 import play.api.data.Form
 import play.api.i18n.I18nSupport
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{JsObject, JsResult, JsValue, Json}
 import play.api.mvc._
 import services.SectionCompletedService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import views.html.dividends.SectionCompletedStateView
+import views.html.SectionCompletedStateView
 
 import java.time.{Clock, Instant}
 import javax.inject.Inject
@@ -48,42 +48,40 @@ class SectionCompletedStateController @Inject()(implicit val cc: MessagesControl
 
   def form(): Form[Boolean] = YesNoForm.yesNoForm("sectionCompletedState.error.required")
 
-  def show(taxYear: Int,journeyKey: String,subJourneyKey: String): Action[AnyContent] =
-    (authAction andThen taxYearAction(taxYear)).async{ implicit user =>
+  def show(taxYear: Int, journey: String): Action[AnyContent] =
+    (authAction andThen taxYearAction(taxYear)).async { implicit user =>
+      Journey.pathBindable.bind("journey", journey) match {
+        case (Right(journeyType)) =>
+          val journeyName = journeyType.toString
+          sectionCompeltedService.get(user.mtditid, taxYear, journeyName).flatMap {
+            case Some(value) =>
+              value.data("status").validateOpt[JourneyStatus].get match {
+                case Some(JourneyStatus.Completed) =>
+                  Future.successful(Ok(view(form().fill(true), taxYear, journeyName)))
 
-      val maybeJourney: Either[String, Journey] = Journey.pathBindable.bind("journey", journeyKey)
-      val maybeSubJourney: Either[String, SubJourney] = SubJourney.pathBindable.bind("subJourney", subJourneyKey)
+                case Some(JourneyStatus.InProgress) =>
+                  Future.successful(Ok(view(form().fill(false), taxYear, journeyName)))
 
-      (maybeJourney, maybeSubJourney) match {
-        case (Right(journey), Right(subJourney)) =>
-          if (journey.subJourneys.contains(subJourney)){
-            Future.successful(Ok(view(form(), taxYear,journeyKey,subJourneyKey)))
-          } else {
-            Future.successful(errorHandler.handleError(BAD_REQUEST))
-           }
-        case _ =>
-          Future.successful(errorHandler.handleError(BAD_REQUEST))
+                case _ => Future.successful(Ok(view(form(), taxYear, journeyName)))
+              }
+            case None => Future.successful(Ok(view(form(), taxYear, journeyName)))
+          }
+        case _ => Future.successful(errorHandler.handleError(BAD_REQUEST))
       }
-  }
+    }
 
-  def submit(taxYear: Int,journeyKey: String,subJourneyKey: String): Action[AnyContent] = commonPredicates(taxYear,DIVIDENDS).async { implicit user =>
+  def submit(taxYear: Int, journey: String): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
 
 
     form()
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, taxYear,journeyKey,subJourneyKey))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, taxYear, journey))),
         answer => {
-          val maybeJourney: Either[String, Journey] = Journey.pathBindable.bind("journey", journeyKey)
-          val maybeSubJourney: Either[String, SubJourney] = SubJourney.pathBindable.bind("subJourney", subJourneyKey)
+          val maybeJourney: Either[String, Journey] = Journey.pathBindable.bind("journey", journey)
 
-          (maybeJourney, maybeSubJourney) match {
-            case (Right(journey), Right(subJourney)) =>
-              if (journey.subJourneys.contains(subJourney)) {
-                saveAndRedirect(answer, taxYear,subJourneyKey,user.mtditid)
-              } else {
-                Future.successful(errorHandler.handleError(BAD_REQUEST))
-              }
+          maybeJourney match {
+            case (Right(journey)) => saveAndRedirect(answer, taxYear, journey, user.mtditid)
             case _ =>
               Future.successful(errorHandler.handleError(BAD_REQUEST))
           }
@@ -92,11 +90,12 @@ class SectionCompletedStateController @Inject()(implicit val cc: MessagesControl
       )
   }
 
-  // TODO: Add implementation to change status of this to in progress or completed
-  private def saveAndRedirect(answer: Boolean, taxYear: Int,subJourneyKey: String,mtditid:String)(implicit hc:HeaderCarrier): Future[Result] = {
+  private def saveAndRedirect(answer: Boolean, taxYear: Int, journey: Journey, mtditid: String)(implicit hc: HeaderCarrier): Future[Result] = {
     val status: JourneyStatus = if (answer) Completed else InProgress
-
-    sectionCompeltedService.set(JourneyAnswers(mtditid,taxYear,subJourneyKey,Json.obj({"status"-> status.toString}), Instant.now))
+    val model = JourneyAnswers(mtditid, taxYear, journey.toString, Json.obj({
+      "status" -> status
+    }), Instant.now)
+    sectionCompeltedService.set(model)
     Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
   }
 

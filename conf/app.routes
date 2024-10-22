@@ -67,8 +67,8 @@ POST        /:taxYear/dividends/close-company-loan-status                       
 GET         /:taxYear/dividends/summary                                                                       controllers.dividends.DividendsSummaryController.show(taxYear: Int)
 POST        /:taxYear/dividends/summary                                                                       controllers.dividends.DividendsSummaryController.submit(taxYear: Int)
 
-GET         /:taxYear/:journeyKey/:subJourneyKey/section-completed                                            controllers.SectionCompletedStateController.show(taxYear: Int,journeyKey:String,subJourneyKey:String)
-POST        /:taxYear/:journeyKey/:subJourneyKey/section-completed                                            controllers.SectionCompletedStateController.submit(taxYear: Int,journeyKey:String,subJourneyKey:String)
+GET         /:taxYear/:journey/section-completed                                                              controllers.SectionCompletedStateController.show(taxYear: Int,journey:String)
+POST        /:taxYear/:journey/section-completed                                                              controllers.SectionCompletedStateController.submit(taxYear: Int,journey:String)
 
 # Interest routes
 
@@ -113,9 +113,6 @@ POST        /:taxYear/interest/check-interest                                   
 
 GET         /:taxYear/interest/which-account-did-you-get-taxed-interest-from                                  controllers.interest.ChooseAccountController.show(taxYear:Int, taxType="taxed")
 POST        /:taxYear/interest/which-account-did-you-get-taxed-interest-from                                  controllers.interest.ChooseAccountController.submit(taxYear:Int, taxType="taxed")
-
-GET         /:taxYear/interest/section-completed                                                              controllers.interest.SectionCompletedStateController.show(taxYear: Int)
-POST        /:taxYear/interest/section-completed                                                              controllers.interest.SectionCompletedStateController.submit(taxYear: Int)
 
 # Donations to Charity routes
 

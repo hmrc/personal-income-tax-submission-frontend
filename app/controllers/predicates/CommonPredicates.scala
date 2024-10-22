@@ -16,7 +16,7 @@
 
 package controllers.predicates
 
-import config.{AppConfig, JourneyKey}
+import config.{AppConfig, JourneyFeatureSwitchKeys}
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.TaxYearAction.taxYearAction
 import models.User
@@ -24,7 +24,7 @@ import play.api.mvc.{ActionBuilder, AnyContent, MessagesControllerComponents}
 
 import scala.concurrent.ExecutionContext
 
-class CommonPredicates(taxYear: Int, journeyKey: JourneyKey) {
+class CommonPredicates(taxYear: Int, journeyKey: JourneyFeatureSwitchKeys) {
   def predicateList()
                    (implicit authorisedAction: AuthorisedAction,executionContext: ExecutionContext,  appConfig: AppConfig, mcc: MessagesControllerComponents): ActionBuilder[User, AnyContent] =
     authorisedAction andThen
@@ -33,7 +33,7 @@ class CommonPredicates(taxYear: Int, journeyKey: JourneyKey) {
 }
 
 object CommonPredicates {
-  def commonPredicates(taxYear: Int, journeyKey: JourneyKey)(
+  def commonPredicates(taxYear: Int, journeyKey: JourneyFeatureSwitchKeys)(
     implicit authAction: AuthorisedAction, executionContext: ExecutionContext, appConfig: AppConfig, mcc: MessagesControllerComponents
   ): ActionBuilder[User, AnyContent] = new CommonPredicates(taxYear, journeyKey).predicateList()
 }

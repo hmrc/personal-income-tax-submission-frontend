@@ -16,26 +16,26 @@
 
 package config
 
-sealed trait JourneyKey {
+sealed trait JourneyFeatureSwitchKeys {
   val stringify: String
 }
 
-case object DIVIDENDS extends JourneyKey {
+case object DIVIDENDS extends JourneyFeatureSwitchKeys {
   override val stringify: String = "dividends"
 }
 
-case object STOCK_DIVIDENDS extends JourneyKey {
+case object STOCK_DIVIDENDS extends JourneyFeatureSwitchKeys {
   override val stringify: String = "stock-dividends"
 }
 
-case object INTEREST extends JourneyKey {
+case object INTEREST extends JourneyFeatureSwitchKeys {
   override val stringify: String = "interest"
 }
 
-case object GIFT_AID extends JourneyKey {
+case object GIFT_AID extends JourneyFeatureSwitchKeys {
   override val stringify: String = "gift-aid"
 }
 
-case object SAVINGS extends JourneyKey {
+case object SAVINGS extends JourneyFeatureSwitchKeys {
   override val stringify: String = "savings"
 }

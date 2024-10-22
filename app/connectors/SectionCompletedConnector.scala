@@ -18,10 +18,8 @@ package connectors
 
 
 import config.AppConfig
-import models.SubJourney
 import models.mongo.JourneyAnswers
 import org.apache.pekko.Done
-import play.api.Configuration
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.http.client.HttpClientV2
 import play.api.http.Status.NO_CONTENT
@@ -34,15 +32,15 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class SectionCompletedConnector @Inject()(appConfig: AppConfig, httpClient: HttpClientV2)(implicit ec: ExecutionContext) {
 
-  private def keepAliveUrl(subJourneyKey:String, taxYear:Int) =
-    url"${appConfig.giftAidBaseUrl}/income-tax/journey-answers/keep-alive/$subJourneyKey/$taxYear"
+  private def keepAliveUrl(journey: String, taxYear:Int) =
+    url"${appConfig.giftAidBaseUrl}/income-tax/journey-answers/keep-alive/$journey/$taxYear"
 
-  def completedSectionUrl(subJourneyKey: String, taxYear: Int): URL =
-    url"${appConfig.giftAidBaseUrl}/income-tax/journey-answers/$subJourneyKey/$taxYear"
+  def completedSectionUrl(journey: String, taxYear: Int): URL =
+    url"${appConfig.giftAidBaseUrl}/income-tax/journey-answers/$journey/$taxYear"
 
-  def get(mtdItId: String, taxYear: Int,subJourney: String)(implicit hc: HeaderCarrier): Future[Option[JourneyAnswers]] = {
+  def get(mtdItId: String, taxYear: Int, journey: String)(implicit hc: HeaderCarrier): Future[Option[JourneyAnswers]] = {
     httpClient
-      .get(completedSectionUrl(subJourney,taxYear))
+      .get(completedSectionUrl(journey,taxYear))
       .setHeader(("MTDITID", mtdItId))
       .execute[Option[JourneyAnswers]]
       .logFailureReason(connectorName = "JourneyAnswersConnector on get")
@@ -50,7 +48,7 @@ class SectionCompletedConnector @Inject()(appConfig: AppConfig, httpClient: Http
 
   def set(answers: JourneyAnswers)(implicit hc: HeaderCarrier): Future[Done] = {
     val url = url"${appConfig.giftAidBaseUrl}/income-tax/journey-answers"
-    println(s"submitting $url")
+
     val result = httpClient
       .post(url)
       .setHeader(("MTDITID", answers.mtdItId))
@@ -64,13 +62,12 @@ class SectionCompletedConnector @Inject()(appConfig: AppConfig, httpClient: Http
           Future.failed(UpstreamErrorResponse("", response.status))
         }
       }
-    println(s"REsult $result")
     result
   }
 
-  def keepAlive(mtdItId: String, taxYear: Int,subJourney: String)(implicit hc: HeaderCarrier): Future[Done] =
+  def keepAlive(mtdItId: String, taxYear: Int, journey: String)(implicit hc: HeaderCarrier): Future[Done] =
     httpClient
-      .post(keepAliveUrl(subJourney,taxYear))
+      .post(keepAliveUrl(journey, taxYear))
       .setHeader(("MTDITID", mtdItId))
       .execute[HttpResponse]
       .logFailureReason(connectorName = "JourneyAnswersConnector on keepAlive")

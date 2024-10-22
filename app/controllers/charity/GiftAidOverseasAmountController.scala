@@ -85,7 +85,7 @@ class GiftAidOverseasAmountController @Inject()(
 
       cya match {
         case Some(cyaData) => handleRedirect(taxYear, cyaData, prior, fromShow = true)
-        case _ => redirectToOverview(taxYear)
+          redirectToOverview(taxYear)
       }
     }
   }

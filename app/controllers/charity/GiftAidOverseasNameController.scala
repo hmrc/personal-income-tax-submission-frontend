@@ -68,7 +68,7 @@ class GiftAidOverseasNameController @Inject()(
             Redirect(controllers.charity.routes.OverseasGiftAidSummaryController.show(taxYear))
           )(charityName => Ok(view(taxYear, form(user.isAgent, cyaData, Some(id)).fill(charityName), Some(id))))
         case (Some(cyaData), _) => handleRedirect(taxYear, cyaData, prior, fromShow = true)
-        case _ => redirectToOverview(taxYear)
+          redirectToOverview(taxYear)
       }
     }
   }

@@ -97,7 +97,7 @@ class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig) extends AppCon
 
   val miniJourneyEnabled: Boolean = servicesConfig.getBoolean("feature-switch.journeys.miniJourneyEnabled")
 
-  def isJourneyAvailable(journeyKey: JourneyKey): Boolean = servicesConfig.getBoolean("feature-switch.journeys." + journeyKey.stringify)
+  def isJourneyAvailable(journeyKey: JourneyFeatureSwitchKeys): Boolean = servicesConfig.getBoolean("feature-switch.journeys." + journeyKey.stringify)
 
   def taxYearSwitchResetsSession: Boolean = servicesConfig.getBoolean("taxYearChangeResetsSession")
 
@@ -160,7 +160,7 @@ trait AppConfig {
   val welshToggleEnabled: Boolean
   val useEncryption: Boolean
 
-  def isJourneyAvailable(journeyKey: JourneyKey): Boolean
+  def isJourneyAvailable(journeyKey: JourneyFeatureSwitchKeys): Boolean
 
   def taxYearSwitchResetsSession: Boolean
 
