@@ -26,7 +26,7 @@
 
     @heading(messages(s"sectionCompletedState.title"), None, "govuk-!-margin-bottom-2")
 
-    @formWithCSRF(controllers.routes.SectionCompletedStateController.submit(taxYear,journey)) {
+    @formWithCSRF(controllers.routes.SectionCompletedStateController.submit(taxYear, journey)) {
         @radio(
             form = form,
             name = "value",

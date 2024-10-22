@@ -28,7 +28,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class SectionCompletedService @Inject()(connector: SectionCompletedConnector)
                                        (implicit correlationId: String, executionContext: ExecutionContext)
   {
-    def get(mtdItId: String, taxYear: Int,subJourney: String)(implicit hc: HeaderCarrier): Future[Option[JourneyAnswers]] = {
+    def get(mtdItId: String, taxYear: Int, subJourney: String)(implicit hc: HeaderCarrier): Future[Option[JourneyAnswers]] = {
       connector.get(mtdItId, taxYear,subJourney)
     }
 
@@ -37,7 +37,7 @@ class SectionCompletedService @Inject()(connector: SectionCompletedConnector)
       connector.set(answers)
     }
 
-    def keepAlive(mtdItId: String, taxYear: Int,subJourney: String)(implicit hc: HeaderCarrier): Future[Done] = {
+    def keepAlive(mtdItId: String, taxYear: Int, subJourney: String)(implicit hc: HeaderCarrier): Future[Done] = {
       connector.keepAlive(mtdItId, taxYear,subJourney)
     }
 }

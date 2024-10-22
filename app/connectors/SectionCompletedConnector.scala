@@ -40,7 +40,7 @@ class SectionCompletedConnector @Inject()(appConfig: AppConfig, httpClient: Http
 
   def get(mtdItId: String, taxYear: Int, journey: String)(implicit hc: HeaderCarrier): Future[Option[JourneyAnswers]] = {
     httpClient
-      .get(completedSectionUrl(journey,taxYear))
+      .get(completedSectionUrl(journey, taxYear))
       .setHeader(("MTDITID", mtdItId))
       .execute[Option[JourneyAnswers]]
       .logFailureReason(connectorName = "JourneyAnswersConnector on get")

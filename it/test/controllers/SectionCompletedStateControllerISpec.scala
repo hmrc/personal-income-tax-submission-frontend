@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package controllers.interest
+package controllers
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import play.api.http.Status._
+import play.api.http.HeaderNames
+import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.mvc.Headers
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
-import play.mvc.Http.HeaderNames
-import test.utils.{IntegrationTest, InterestDatabaseHelper, ViewHelpers}
+import test.utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
 
+class SectionCompletedStateControllerISpec extends IntegrationTest with ViewHelpers with DividendsDatabaseHelper {
 
-class InterestSectionCompletedControllerISpec extends IntegrationTest with InterestDatabaseHelper with ViewHelpers {
-
-  val relativeUrl = s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/section-completed"
+  val relativeUrl = s"/update-and-submit-income-tax-return/personal-income/$taxYear/donations-using-gift-aid/section-completed"
   val absoluteUrl: String = appUrl + relativeUrl
 
   object Selectors {
@@ -36,8 +35,6 @@ class InterestSectionCompletedControllerISpec extends IntegrationTest with Inter
     val noSelector = "#main-content > div > div > form > div > fieldset > div.govuk-radios.govuk-radios--inline > div:nth-child(2) > label"
 
     val formSelector = "#main-content > div > div > form"
-    val valueHref = "#value"
-    val continueSelector = "#continue"
   }
 
   trait CommonExpectedResults {
@@ -76,58 +73,49 @@ class InterestSectionCompletedControllerISpec extends IntegrationTest with Inter
     override val expectedHint: String = "Byddwch yn dal i allu mynd yn ôl ac adolygu’r wybodaeth rydych wedi’i rhoi i ni."
   }
 
- //TODO: Include agent scenarios (failing as it does not redirect correctly)
+
   private val userScenarios = Seq(
     UserScenario(isWelsh = false, isAgent = false, CommonExpectedResultsEN),
     UserScenario(isWelsh = true, isAgent = false, CommonExpectedResultsCY)
   )
 
-  s".show" when {
-    userScenarios.foreach { scenario =>
-      import scenario.commonExpectedResults._
+  userScenarios.foreach { scenario =>
+    import scenario.commonExpectedResults._
 
-      val testNameWelsh = if (scenario.isWelsh) "in Welsh" else "in English"
-      val testNameAgent = if (scenario.isAgent) "is an Agent" else "is an Individual"
+    val testNameWelsh = if (scenario.isWelsh) "in Welsh" else "in English"
 
-      s"$testNameWelsh and the user $testNameAgent" should {
+    s".show when $testNameWelsh" when {
 
-        "display the section completed page" which {
-          lazy val headers = playSessionCookie() ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-          lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+      s"display the gateway page in $testNameWelsh" which {
 
-          lazy val result = {
-            authoriseAgentOrIndividual(scenario.isAgent)
-            dropInterestDB()
-            emptyUserDataStub()
-            route(appWithTailoring, request, "{}").get
-          }
+        lazy val headers = playSessionCookie() ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+        lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
 
-          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
-
-          "have a status of OK(200)" in {
-            status(result) shouldBe OK
-          }
-
-          titleCheck(expectedTitle, scenario.isWelsh)
-          welshToggleCheck(scenario.isWelsh)
-          h1Check(s"${expectedTitle}")
-          hintTextCheck(expectedHint)
-          formPostLinkCheck(relativeUrl, Selectors.formSelector)
-          textOnPageCheck(yesText, Selectors.yesSelector)
-          textOnPageCheck(noText, Selectors.noSelector)
-          buttonCheck(expectedButtonText)
+        lazy val result = {
+          authoriseIndividual()
+          dropDividendsDB()
+          emptyUserDataStub()
+          route(appWithTailoring, request, "{}").get
         }
+
+        implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+        "has a status of OK(200)" in {
+          status(result) shouldBe OK
+        }
+
+        titleCheck(expectedTitle, scenario.isWelsh)
+        welshToggleCheck(scenario.isWelsh)
+        h1Check(s"${expectedTitle}")
+        hintTextCheck(expectedHint)
+        formPostLinkCheck(relativeUrl, Selectors.formSelector)
+        textOnPageCheck(yesText, Selectors.yesSelector)
+        textOnPageCheck(noText, Selectors.noSelector)
+        buttonCheck(expectedButtonText)
       }
     }
-  }
 
-
-  s".submit" when {
-    userScenarios.foreach {
-      scenario =>
-        import scenario.commonExpectedResults._
-
-        val testNameWelsh = if (scenario.isWelsh) "in Welsh" else "in English"
+    s".submit" when {
 
         s"the request is $testNameWelsh" should {
 
@@ -135,12 +123,13 @@ class InterestSectionCompletedControllerISpec extends IntegrationTest with Inter
 
             "display an error" which {
               lazy val headers = playSessionCookie() ++ Map(csrfContent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-              lazy val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/section-completed")
+              lazy val request = FakeRequest("POST", relativeUrl)
                 .withHeaders(headers: _*)
+
 
               lazy val result = {
                 authoriseAgentOrIndividual(isAgent = false)
-                dropInterestDB()
+                dropStockDividendsDB()
                 emptyUserDataStub()
                 route(appWithTailoring, request, Map("value" -> Seq("error"))).get
               }
@@ -167,9 +156,10 @@ class InterestSectionCompletedControllerISpec extends IntegrationTest with Inter
           "redirect to the overview page if user chooses 'No'" which {
             lazy val result = {
               authoriseAgentOrIndividual(isAgent = false)
-              dropInterestDB()
+              dropStockDividendsDB()
               emptyUserDataStub()
-              val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/section-completed",
+              emptyStockDividendsUserDataStub()
+              val request = FakeRequest("POST", relativeUrl,
                 Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
 
               await(route(appWithTailoring, request, Map("value" -> Seq("false"))).get)
@@ -187,9 +177,10 @@ class InterestSectionCompletedControllerISpec extends IntegrationTest with Inter
           "redirect to the overview page if user chooses 'Yes'" which {
             lazy val result = {
               authoriseAgentOrIndividual(isAgent = false)
-              dropInterestDB()
+              dropStockDividendsDB()
               emptyUserDataStub()
-              val request = FakeRequest("POST", s"/update-and-submit-income-tax-return/personal-income/$taxYear/interest/section-completed",
+              emptyStockDividendsUserDataStub()
+              val request = FakeRequest("POST", relativeUrl,
                 Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
 
               await(route(appWithTailoring, request, Map("value" -> Seq("true"))).get)
@@ -203,7 +194,7 @@ class InterestSectionCompletedControllerISpec extends IntegrationTest with Inter
               result.header.headers("location") shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
             }
           }
+        }
       }
     }
   }
-}
