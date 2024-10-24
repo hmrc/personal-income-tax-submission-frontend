@@ -173,7 +173,6 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   implicit val actorSystem: ActorSystem = ActorSystem()
 
-  val startUrl = s"http://localhost:$port/update-and-submit-income-tax-return/personal-income"
   val overviewUrl = s"http://localhost:11111/update-and-submit-income-tax-return/$taxYear/view"
   val cyaUrl: Int => String = taxYear => s"${controllers.charity.routes.GiftAidCYAController.show(taxYear)}"
 

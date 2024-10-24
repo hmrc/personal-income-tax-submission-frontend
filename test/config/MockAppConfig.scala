@@ -37,6 +37,8 @@ class MockAppConfig extends AppConfig with MockFactory {
 
   override def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = "/overview"
 
+  def commonTaskListUrl(taxYear: Int): String = "/tasklist"
+
   override def incomeTaxSubmissionStartUrl(taxYear: Int): String = "/start"
 
   override def incomeTaxSubmissionIvRedirect: String = "/update-and-submit-income-tax-return/iv-uplift"
@@ -68,7 +70,7 @@ class MockAppConfig extends AppConfig with MockFactory {
   override val welshToggleEnabled: Boolean = true
   override val useEncryption: Boolean = true
 
-  override def isJourneyAvailable(journeyKey: JourneyKey): Boolean = true
+  override def isJourneyAvailable(journeyKey: JourneyFeatureSwitchKeys): Boolean = true
 
   override def taxYearSwitchResetsSession: Boolean = true
 

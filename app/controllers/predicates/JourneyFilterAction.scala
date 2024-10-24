@@ -16,7 +16,7 @@
 
 package controllers.predicates
 
-import config.{AppConfig, JourneyKey}
+import config.{AppConfig, JourneyFeatureSwitchKeys}
 import models.User
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionRefiner, Result}
@@ -24,7 +24,7 @@ import play.api.mvc.{ActionRefiner, Result}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class JourneyFilterAction @Inject()(journeyKey: JourneyKey, taxYear: Int)(
+class JourneyFilterAction @Inject()(journeyKey: JourneyFeatureSwitchKeys, taxYear: Int)(
                                      appConfig: AppConfig,
                                      implicit val executionContext: ExecutionContext
                                    ) extends ActionRefiner[User, User] {
@@ -40,7 +40,7 @@ class JourneyFilterAction @Inject()(journeyKey: JourneyKey, taxYear: Int)(
 }
 
 object JourneyFilterAction {
-  def journeyFilterAction(taxYear: Int, journeyKey: JourneyKey)(implicit appConfig: AppConfig, executionContext: ExecutionContext): JourneyFilterAction = {
+  def journeyFilterAction(taxYear: Int, journeyKey: JourneyFeatureSwitchKeys)(implicit appConfig: AppConfig, executionContext: ExecutionContext): JourneyFilterAction = {
     new JourneyFilterAction(journeyKey, taxYear)(appConfig, executionContext)
   }
 }

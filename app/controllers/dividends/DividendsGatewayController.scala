@@ -49,7 +49,7 @@ class DividendsGatewayController @Inject()(
                                           ) extends FrontendController(mcc) with I18nSupport {
 
   private[dividends] val form: Boolean => Form[Boolean] = isAgent => YesNoForm.yesNoForm("dividends.gateway.error." + (if (isAgent) "agent" else "individual"))
-  val journeyKey: JourneyKey = if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) STOCK_DIVIDENDS else DIVIDENDS
+  val journeyKey: JourneyFeatureSwitchKeys = if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) STOCK_DIVIDENDS else DIVIDENDS
   private val isStockDividends = appConfig.isJourneyAvailable(STOCK_DIVIDENDS)
 
   private def internalError(implicit user: User[_]): Result = errorHandler.internalServerError()

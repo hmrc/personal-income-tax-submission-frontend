@@ -17,7 +17,6 @@
 package services
 
 import common.InterestTaxTypes.TAXED
-import models.User
 import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSubmission}
 
 import javax.inject.Inject
@@ -29,8 +28,7 @@ class RemoveAccountService @Inject() () {
 
   def calculateTaxedUpdate(cyaData: InterestCYAModel,
                                              accounts: Seq[InterestAccountModel],
-                                             accountId: String)
-                                            (implicit user: User[_]): (InterestCYAModel, Seq[InterestAccountModel]) = {
+                                             accountId: String): (InterestCYAModel, Seq[InterestAccountModel]) = {
 
     val accountToUpdate: Option[InterestAccountModel] = accounts.find(account => accountLookup(account, accountId))
     val accountsWithoutCurrentAccount: Seq[InterestAccountModel] = accounts.filterNot(account => accountLookup(account, accountId))
@@ -51,8 +49,7 @@ class RemoveAccountService @Inject() () {
 
   def calculateUntaxedUpdate(cyaData: InterestCYAModel,
                                                accounts: Seq[InterestAccountModel],
-                                               accountId: String)
-                                              (implicit user: User[_]): (InterestCYAModel, Seq[InterestAccountModel]) = {
+                                               accountId: String): (InterestCYAModel, Seq[InterestAccountModel]) = {
 
     val accountToUpdate: Option[InterestAccountModel] = accounts.find(account => accountLookup(account, accountId))
     val accountsWithoutCurrentAccount: Seq[InterestAccountModel] = accounts.filterNot(account => accountLookup(account, accountId))
