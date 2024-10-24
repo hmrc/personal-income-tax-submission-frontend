@@ -17,7 +17,6 @@
 package services
 
 import connectors.SectionCompletedConnector
-import models.Journey
 import models.mongo.JourneyAnswers
 import org.apache.pekko.Done
 import uk.gov.hmrc.http.HeaderCarrier
@@ -26,18 +25,16 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class SectionCompletedService @Inject()(connector: SectionCompletedConnector)
-                                       (implicit correlationId: String, executionContext: ExecutionContext)
   {
-    def get(mtdItId: String, taxYear: Int, subJourney: String)(implicit hc: HeaderCarrier): Future[Option[JourneyAnswers]] = {
-      connector.get(mtdItId, taxYear,subJourney)
+    def get(mtdItId: String, taxYear: Int, journey: String)(implicit hc: HeaderCarrier): Future[Option[JourneyAnswers]] = {
+      connector.get(mtdItId, taxYear,journey)
     }
 
-    //TODO revisit Done
     def set(answers: JourneyAnswers)(implicit hc: HeaderCarrier): Future[Done] = {
       connector.set(answers)
     }
 
-    def keepAlive(mtdItId: String, taxYear: Int, subJourney: String)(implicit hc: HeaderCarrier): Future[Done] = {
-      connector.keepAlive(mtdItId, taxYear,subJourney)
+    def keepAlive(mtdItId: String, taxYear: Int, journey: String)(implicit hc: HeaderCarrier): Future[Done] = {
+      connector.keepAlive(mtdItId, taxYear,journey)
     }
 }

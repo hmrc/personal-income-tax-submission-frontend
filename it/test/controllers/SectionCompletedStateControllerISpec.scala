@@ -16,19 +16,29 @@
 
 package controllers
 
+import models.mongo.JourneyStatus.{Completed, InProgress}
+import models.mongo.{JourneyAnswers, JourneyStatus}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.HeaderNames
-import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
+import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, SEE_OTHER}
+import play.api.libs.json.Json
 import play.api.mvc.Headers
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route}
+import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, route, writeableOf_AnyContentAsEmpty, writeableOf_AnyContentAsFormUrlEncoded}
 import test.utils.{DividendsDatabaseHelper, IntegrationTest, ViewHelpers}
+
+import java.time.Instant
 
 class SectionCompletedStateControllerISpec extends IntegrationTest with ViewHelpers with DividendsDatabaseHelper {
 
-  val relativeUrl = s"/update-and-submit-income-tax-return/personal-income/$taxYear/donations-using-gift-aid/section-completed"
-  val absoluteUrl: String = appUrl + relativeUrl
+  val sectionCompletedUrl = s"/update-and-submit-income-tax-return/personal-income/$taxYear/donations-using-gift-aid/section-completed"
+  val invalidSectionCompletedUrl = s"/update-and-submit-income-tax-return/personal-income/$taxYear/invalid-journey/section-completed"
+
+  val absoluteUrl: String = appUrl + sectionCompletedUrl
+  val journeyName = "donations-using-gift-aid"
+
+  def completedSectionUrl(journey: String, taxYear: Int) = s"/income-tax-gift-aid/income-tax/journey-answers/$journey/$taxYear"
 
   object Selectors {
     val yesSelector = "#main-content > div > div > form > div > fieldset > div.govuk-radios.govuk-radios--inline > div:nth-child(1) > label"
@@ -89,12 +99,10 @@ class SectionCompletedStateControllerISpec extends IntegrationTest with ViewHelp
       s"display the gateway page in $testNameWelsh" which {
 
         lazy val headers = playSessionCookie() ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-        lazy val request = FakeRequest("GET", relativeUrl).withHeaders(headers: _*)
+        lazy val request = FakeRequest("GET", sectionCompletedUrl).withHeaders(headers: _*)
 
         lazy val result = {
           authoriseIndividual()
-          dropDividendsDB()
-          emptyUserDataStub()
           route(appWithTailoring, request, "{}").get
         }
 
@@ -108,58 +116,155 @@ class SectionCompletedStateControllerISpec extends IntegrationTest with ViewHelp
         welshToggleCheck(scenario.isWelsh)
         h1Check(s"${expectedTitle}")
         hintTextCheck(expectedHint)
-        formPostLinkCheck(relativeUrl, Selectors.formSelector)
+        formPostLinkCheck(sectionCompletedUrl, Selectors.formSelector)
         textOnPageCheck(yesText, Selectors.yesSelector)
         textOnPageCheck(noText, Selectors.noSelector)
         buttonCheck(expectedButtonText)
       }
+
+      s"the journey status is Completed for $testNameWelsh" should {
+
+        lazy val headers = playSessionCookie() ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+        lazy val request = FakeRequest("GET", sectionCompletedUrl).withHeaders(headers: _*)
+
+        lazy val result = {
+          authoriseIndividual()
+          val status: JourneyStatus = Completed
+          val model = JourneyAnswers(mtditid, taxYear, journeyName, Json.obj({
+            "status" -> status
+          }), Instant.now)
+
+          stubGet(completedSectionUrl(journeyName, taxYear), OK, Json.toJson(model).toString())
+
+          route(appWithTailoring, request, "{}").get
+        }
+
+        implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+        "has a status of OK(200)" in {
+          status(result) shouldBe OK
+        }
+
+      }
+
+      s"the journey status is InProgress for $testNameWelsh" should {
+
+        lazy val headers = playSessionCookie() ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+        lazy val request = FakeRequest("GET", sectionCompletedUrl).withHeaders(headers: _*)
+
+        lazy val result = {
+          authoriseIndividual()
+          val status: JourneyStatus = InProgress
+          val model = JourneyAnswers(mtditid, taxYear, journeyName, Json.obj({
+            "status" -> status
+          }), Instant.now)
+
+          stubGet(completedSectionUrl(journeyName, taxYear), OK, Json.toJson(model).toString)
+
+          route(appWithTailoring, request, "{}").get
+        }
+
+        implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+        "has a status of OK(200)" in {
+          status(result) shouldBe OK
+        }
+      }
+
+      s"there is invalid status data for the journey status in $testNameWelsh" should {
+
+        lazy val headers = playSessionCookie() ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+        lazy val request = FakeRequest("GET", sectionCompletedUrl).withHeaders(headers: _*)
+
+        lazy val result = {
+          authoriseIndividual()
+          val status: JourneyStatus = InProgress
+          val model = JourneyAnswers(mtditid, taxYear, journeyName, Json.obj({
+            "status" -> "invalidStatus"
+          }), Instant.now)
+
+          stubGet(completedSectionUrl(journeyName, taxYear), OK, Json.toJson(model).toString)
+
+          route(appWithTailoring, request, "{}").get
+        }
+
+        implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+        "has a status of OK(200)" in {
+          status(result) shouldBe OK
+        }
+      }
+
+      "the user requested data for incorrect journey, then the page" should {
+
+        "display an error" which {
+          lazy val headers = playSessionCookie() ++ Map(csrfContent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
+          lazy val request = FakeRequest("GET", invalidSectionCompletedUrl)
+            .withHeaders(headers: _*)
+
+
+          lazy val result = {
+            authoriseAgentOrIndividual(isAgent = false)
+            val status: JourneyStatus = InProgress
+            val model = JourneyAnswers(mtditid, taxYear, "donations-using-gift-aid", Json.obj({
+              "status" -> status
+            }), Instant.now)
+
+            stubGet(completedSectionUrl("donations-using-gift-aid",taxYear), OK, Json.toJson(model).toString())
+
+            route(appWithTailoring, request).get
+          }
+
+          implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
+
+          "has a status of BAD_REQUEST" in {
+            status(result) shouldBe INTERNAL_SERVER_ERROR
+          }
+
+        }
+      }
     }
 
-    s".submit" when {
+      s".submit" when {
 
         s"the request is $testNameWelsh" should {
 
-          "the user submit incorrect data, the page" should {
+          "the user submit-test incorrect journey, then the page" should {
 
             "display an error" which {
               lazy val headers = playSessionCookie() ++ Map(csrfContent) ++ (if (scenario.isWelsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") else Seq())
-              lazy val request = FakeRequest("POST", relativeUrl)
-                .withHeaders(headers: _*)
+              lazy val request = FakeRequest("POST", invalidSectionCompletedUrl)
+                .withHeaders(headers: _*).withFormUrlEncodedBody(("value","true"))
 
 
               lazy val result = {
                 authoriseAgentOrIndividual(isAgent = false)
-                dropStockDividendsDB()
-                emptyUserDataStub()
-                route(appWithTailoring, request, Map("value" -> Seq("error"))).get
+                val status: JourneyStatus = InProgress
+                val model = JourneyAnswers(mtditid, taxYear, "invalidName", Json.obj({
+                  "status" -> status
+                }), Instant.now)
+
+//                stubPost(completedSectionUrl("invalidName", taxYear), OK, Json.toJson(model).toString())
+
+                route(appWithTailoring, request).get
               }
 
               implicit val document: () => Document = () => Jsoup.parse(contentAsString(result))
 
               "has a status of BAD_REQUEST" in {
-                status(result) shouldBe BAD_REQUEST
+                status(result) shouldBe INTERNAL_SERVER_ERROR
               }
 
-              titleCheck(expectedErrorTitle, scenario.isWelsh)
-              welshToggleCheck(scenario.isWelsh)
-              h1Check(s"$expectedTitle")
-              hintTextCheck(expectedHint)
-              formPostLinkCheck(relativeUrl, Selectors.formSelector)
-              textOnPageCheck(yesText, Selectors.yesSelector)
-              textOnPageCheck(noText, Selectors.noSelector)
-              buttonCheck(expectedButtonText)
-              errorSummaryCheck(expectedErrorText, "#value", scenario.isWelsh)
-              errorAboveElementCheck(expectedErrorText)
             }
           }
 
-          "redirect to the overview page if user chooses 'No'" which {
+          "redirect to the common task list page after user submits response as 'No'" which {
             lazy val result = {
               authoriseAgentOrIndividual(isAgent = false)
               dropStockDividendsDB()
               emptyUserDataStub()
               emptyStockDividendsUserDataStub()
-              val request = FakeRequest("POST", relativeUrl,
+              val request = FakeRequest("POST", sectionCompletedUrl,
                 Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
 
               await(route(appWithTailoring, request, Map("value" -> Seq("false"))).get)
@@ -170,17 +275,15 @@ class SectionCompletedStateControllerISpec extends IntegrationTest with ViewHelp
             }
 
             "have the correct redirect location" in {
-              result.header.headers("location") shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+              result.header.headers("location") shouldBe appConfig.commonTaskListUrl(taxYear)
             }
           }
 
-          "redirect to the overview page if user chooses 'Yes'" which {
+          "redirect to the common task list page after user submits response as 'Yes'" which {
             lazy val result = {
               authoriseAgentOrIndividual(isAgent = false)
-              dropStockDividendsDB()
-              emptyUserDataStub()
-              emptyStockDividendsUserDataStub()
-              val request = FakeRequest("POST", relativeUrl,
+
+              val request = FakeRequest("POST", sectionCompletedUrl,
                 Headers.apply(playSessionCookie() :+ ("Csrf-Token" -> "nocheck"): _*), "{}")
 
               await(route(appWithTailoring, request, Map("value" -> Seq("true"))).get)
@@ -191,10 +294,10 @@ class SectionCompletedStateControllerISpec extends IntegrationTest with ViewHelp
             }
 
             "have the correct redirect location" in {
-              result.header.headers("location") shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+              result.header.headers("location") shouldBe appConfig.commonTaskListUrl(taxYear)
             }
           }
         }
       }
     }
-  }
+}

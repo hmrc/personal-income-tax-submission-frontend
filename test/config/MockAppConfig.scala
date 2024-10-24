@@ -35,6 +35,8 @@ class MockAppConfig extends AppConfig with MockFactory {
 
   override def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = "/overview"
 
+  def commonTaskListUrl(taxYear: Int): String = "/tasklist"
+
   override def incomeTaxSubmissionStartUrl(taxYear: Int): String = "/start"
 
   override def incomeTaxSubmissionIvRedirect: String = "/update-and-submit-income-tax-return/iv-uplift"

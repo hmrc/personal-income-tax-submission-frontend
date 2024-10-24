@@ -46,6 +46,7 @@ object AppDependencies {
     "uk.gov.hmrc"             %% "bootstrap-test-play-30"   % bootstrapPlay30Version,
     "org.jsoup"               %  "jsoup"                    % "1.17.2",
     "org.playframework"       %% "play-test"                % current,
+    "org.mockito"             %% "mockito-scala"           % "1.17.31",
     "org.scalamock"           %% "scalamock"                % "5.2.0",
     "uk.gov.hmrc.mongo"       %% "hmrc-mongo-test-play-30"  % hmrcMongoPlay30Version
   ).map(_ % "test")

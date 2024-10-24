@@ -46,6 +46,8 @@ class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig) extends AppCon
   def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.overview")
 
+  def commonTaskListUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear + "/tasklist"
+
   def incomeTaxSubmissionStartUrl(taxYear: Int): String = s"$incomeTaxSubmissionBaseUrl/$taxYear/start"
 
   def incomeTaxSubmissionIvRedirect: String = incomeTaxSubmissionBaseUrl +
@@ -131,6 +133,8 @@ trait AppConfig {
   def incomeTaxSubmissionBaseUrl: String
 
   def incomeTaxSubmissionOverviewUrl(taxYear: Int): String
+
+  def commonTaskListUrl(taxYear: Int) : String
 
   def incomeTaxSubmissionStartUrl(taxYear: Int): String
 

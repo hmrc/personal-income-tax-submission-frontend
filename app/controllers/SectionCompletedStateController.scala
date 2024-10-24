@@ -26,14 +26,14 @@ import models.mongo.JourneyStatus.{Completed, InProgress}
 import models.Journey
 import play.api.data.Form
 import play.api.i18n.I18nSupport
-import play.api.libs.json.{JsObject, JsResult, JsValue, Json}
+import play.api.libs.json.Json
 import play.api.mvc._
 import services.SectionCompletedService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.SectionCompletedStateView
 
-import java.time.{Clock, Instant}
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -47,7 +47,6 @@ class SectionCompletedStateController @Inject()(implicit val cc: MessagesControl
                                                ) extends FrontendController(cc) with I18nSupport {
 
   def form(): Form[Boolean] = YesNoForm.yesNoForm("sectionCompletedState.error.required")
-
   def show(taxYear: Int, journey: String): Action[AnyContent] =
     (authAction andThen taxYearAction(taxYear)).async { implicit user =>
       Journey.pathBindable.bind("journey", journey) match {
@@ -55,7 +54,7 @@ class SectionCompletedStateController @Inject()(implicit val cc: MessagesControl
           val journeyName = journeyType.toString
           sectionCompeltedService.get(user.mtditid, taxYear, journeyName).flatMap {
             case Some(value) =>
-              value.data("status").validateOpt[JourneyStatus].get match {
+              value.data("status").validate[JourneyStatus].asOpt match {
                 case Some(JourneyStatus.Completed) =>
                   Future.successful(Ok(view(form().fill(true), taxYear, journeyName)))
 
@@ -92,11 +91,11 @@ class SectionCompletedStateController @Inject()(implicit val cc: MessagesControl
 
   private def saveAndRedirect(answer: Boolean, taxYear: Int, journey: Journey, mtditid: String)(implicit hc: HeaderCarrier): Future[Result] = {
     val status: JourneyStatus = if (answer) Completed else InProgress
-    val model = JourneyAnswers(mtditid, taxYear, journey.toString, Json.obj({
+    val model = JourneyAnswers(mtditid, taxYear, journey.toString,  Json.obj({
       "status" -> status
     }), Instant.now)
     sectionCompeltedService.set(model)
-    Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+    Future.successful(Redirect(appConfig.commonTaskListUrl(taxYear)))
   }
 
 }
