@@ -42,7 +42,7 @@ class SectionCompletedStateController @Inject()(implicit val cc: MessagesControl
                                                 view: SectionCompletedStateView,
                                                 errorHandler: ErrorHandler,
                                                 implicit val appConfig: AppConfig,
-                                                sectionCompeltedService: SectionCompletedService,
+                                                sectionCompletedService: SectionCompletedService,
                                                 ec: ExecutionContext
                                                ) extends FrontendController(cc) with I18nSupport {
 
@@ -53,7 +53,7 @@ class SectionCompletedStateController @Inject()(implicit val cc: MessagesControl
       Journey.pathBindable.bind("journey", journey) match {
         case (Right(journeyType)) =>
           val journeyName = journeyType.toString
-          sectionCompeltedService.get(user.mtditid, taxYear, journeyName).flatMap {
+          sectionCompletedService.get(user.mtditid, taxYear, journeyName).flatMap {
             case Some(value) =>
               value.data("status").validate[JourneyStatus].asOpt match {
                 case Some(JourneyStatus.Completed) =>
@@ -93,7 +93,7 @@ class SectionCompletedStateController @Inject()(implicit val cc: MessagesControl
     val model = JourneyAnswers(mtditid, taxYear, journey.toString, Json.obj({
       "status" -> status
     }), Instant.now)
-    sectionCompeltedService.set(model)
+    sectionCompletedService.set(model)
     Future.successful(Redirect(appConfig.commonTaskListUrl(taxYear)))
   }
 
