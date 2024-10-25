@@ -24,17 +24,16 @@ import uk.gov.hmrc.http.HeaderCarrier
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class SectionCompletedService @Inject()(connector: SectionCompletedConnector)
-  {
-    def get(mtdItId: String, taxYear: Int, journey: String)(implicit hc: HeaderCarrier): Future[Option[JourneyAnswers]] = {
-      connector.get(mtdItId, taxYear,journey)
-    }
+class SectionCompletedService @Inject()(connector: SectionCompletedConnector) {
+  def get(mtdItId: String, taxYear: Int, journey: String)(implicit hc: HeaderCarrier): Future[Option[JourneyAnswers]] = {
+    connector.get(mtdItId, taxYear, journey)
+  }
 
-    def set(answers: JourneyAnswers)(implicit hc: HeaderCarrier): Future[Done] = {
-      connector.set(answers)
-    }
+  def set(answers: JourneyAnswers)(implicit hc: HeaderCarrier): Future[Done] = {
+    connector.set(answers)
+  }
 
-    def keepAlive(mtdItId: String, taxYear: Int, journey: String)(implicit hc: HeaderCarrier): Future[Done] = {
-      connector.keepAlive(mtdItId, taxYear,journey)
-    }
+  def keepAlive(mtdItId: String, taxYear: Int, journey: String)(implicit hc: HeaderCarrier): Future[Done] = {
+    connector.keepAlive(mtdItId, taxYear, journey)
+  }
 }
