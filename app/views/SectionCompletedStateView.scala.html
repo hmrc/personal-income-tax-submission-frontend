@@ -18,7 +18,7 @@
 @import views.html.templates.helpers.{Heading, P, InputRadioAlt, Button, ErrorSummary}
 
 @this(layout: Layout, heading: Heading, p: P, formWithCSRF: FormWithCSRF, radio: InputRadioAlt, button: Button, errorSummary: ErrorSummary)
-@(form: Form[Boolean], taxYear: Int,journey:String)(implicit appConfig: AppConfig, messages: Messages, user: User[_])
+@(form: Form[Boolean], taxYear: Int, journey:String)(implicit appConfig: AppConfig, messages: Messages, user: User[_])
 
 @layout(pageTitle = messages(s"sectionCompletedState.title"), hasErrors = form.hasErrors) {
     

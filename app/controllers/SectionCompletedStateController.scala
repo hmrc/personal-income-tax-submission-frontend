@@ -47,6 +47,7 @@ class SectionCompletedStateController @Inject()(implicit val cc: MessagesControl
                                                ) extends FrontendController(cc) with I18nSupport {
 
   def form(): Form[Boolean] = YesNoForm.yesNoForm("sectionCompletedState.error.required")
+
   def show(taxYear: Int, journey: String): Action[AnyContent] =
     (authAction andThen taxYearAction(taxYear)).async { implicit user =>
       Journey.pathBindable.bind("journey", journey) match {
@@ -69,9 +70,7 @@ class SectionCompletedStateController @Inject()(implicit val cc: MessagesControl
       }
     }
 
-  def submit(taxYear: Int, journey: String): Action[AnyContent] = commonPredicates(taxYear, DIVIDENDS).async { implicit user =>
-
-
+  def submit(taxYear: Int, journey: String): Action[AnyContent] = (authAction andThen taxYearAction(taxYear)).async { implicit user =>
     form()
       .bindFromRequest()
       .fold(
@@ -91,7 +90,7 @@ class SectionCompletedStateController @Inject()(implicit val cc: MessagesControl
 
   private def saveAndRedirect(answer: Boolean, taxYear: Int, journey: Journey, mtditid: String)(implicit hc: HeaderCarrier): Future[Result] = {
     val status: JourneyStatus = if (answer) Completed else InProgress
-    val model = JourneyAnswers(mtditid, taxYear, journey.toString,  Json.obj({
+    val model = JourneyAnswers(mtditid, taxYear, journey.toString, Json.obj({
       "status" -> status
     }), Instant.now)
     sectionCompeltedService.set(model)
