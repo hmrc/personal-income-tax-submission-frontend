@@ -46,6 +46,8 @@ class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig) extends AppCon
   def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.overview")
 
+  def commonTaskListUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear + "/tasklist"
+
   def incomeTaxSubmissionStartUrl(taxYear: Int): String = s"$incomeTaxSubmissionBaseUrl/$taxYear/start"
 
   def incomeTaxSubmissionIvRedirect: String = incomeTaxSubmissionBaseUrl +
@@ -97,7 +99,7 @@ class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig) extends AppCon
 
   val miniJourneyEnabled: Boolean = servicesConfig.getBoolean("feature-switch.journeys.miniJourneyEnabled")
 
-  def isJourneyAvailable(journeyKey: JourneyKey): Boolean = servicesConfig.getBoolean("feature-switch.journeys." + journeyKey.stringify)
+  def isJourneyAvailable(journeyKey: JourneyFeatureSwitchKeys): Boolean = servicesConfig.getBoolean("feature-switch.journeys." + journeyKey.stringify)
 
   def taxYearSwitchResetsSession: Boolean = servicesConfig.getBoolean("taxYearChangeResetsSession")
 
@@ -133,6 +135,8 @@ trait AppConfig {
 
   def incomeTaxSubmissionOverviewUrl(taxYear: Int): String
 
+  def commonTaskListUrl(taxYear: Int) : String
+
   def incomeTaxSubmissionStartUrl(taxYear: Int): String
 
   def incomeTaxSubmissionIvRedirect: String
@@ -161,7 +165,7 @@ trait AppConfig {
   val welshToggleEnabled: Boolean
   val useEncryption: Boolean
 
-  def isJourneyAvailable(journeyKey: JourneyKey): Boolean
+  def isJourneyAvailable(journeyKey: JourneyFeatureSwitchKeys): Boolean
 
   def taxYearSwitchResetsSession: Boolean
 

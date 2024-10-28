@@ -45,7 +45,7 @@ class ReceiveUkDividendsController @Inject()(implicit mcc: MessagesControllerCom
                                              stockDividendsSessionServiceProvider: StockDividendsSessionServiceProvider,
                                              ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
-  private val journeyKey: JourneyKey = if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) STOCK_DIVIDENDS else DIVIDENDS
+  private val journeyKey: JourneyFeatureSwitchKeys = if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) STOCK_DIVIDENDS else DIVIDENDS
   private val isStockDividends: Boolean = appConfig.isJourneyAvailable(STOCK_DIVIDENDS)
 
   def yesNoForm(isAgent: Boolean): Form[Boolean] = YesNoForm.yesNoForm(s"dividends.uk-dividends.errors.noChoice.${if (isAgent) "agent" else "individual"}")
