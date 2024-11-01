@@ -16,9 +16,8 @@
 
 package controllers
 
-import config.{AppConfig, DIVIDENDS, ErrorHandler}
+import config.{AppConfig, ErrorHandler}
 import controllers.predicates.AuthorisedAction
-import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.TaxYearAction.taxYearAction
 import forms.YesNoForm
 import models.mongo.{JourneyAnswers, JourneyStatus}

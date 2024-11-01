@@ -16,12 +16,18 @@
 
 package test.controllers.charity
 
+import common.SessionValues.TAX_YEAR
+import config.AppConfig
 import models.APIErrorBodyModel
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
 import models.charity.{CharityNameModel, GiftAidCYAModel}
 import models.priorDataModels.IncomeSourcesModel
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchersSugar.eqTo
+import org.mockito.Mockito.when
+import org.mockito.MockitoSugar.mock
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import play.api.http.HeaderNames
 import play.api.http.Status.{BAD_REQUEST, NO_CONTENT, OK, SEE_OTHER}
@@ -31,8 +37,13 @@ import play.api.libs.ws.WSResponse
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.{Environment, Mode}
+import play.api.{Environment, Mode, inject}
+import services.GiftAidSessionService
 import test.utils.CharityITHelper
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{allEnrolments, confidenceLevel, affinityGroup => retrivalAffinitygroup}
+import uk.gov.hmrc.auth.core.retrieve.~
+import uk.gov.hmrc.auth.core._
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
@@ -779,6 +790,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
             }
           }
 
+
           "the user makes no changes and does not submit downstream to des" which {
 
             val form = Map[String, String]()
@@ -835,29 +847,76 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
     }
   }
 
+  private val mtdItId: String = "1234567890"
+  private val activated: String = "Activated"
+
+  private val enrolments: Enrolments = Enrolments(Set(
+    Enrolment(
+      "HMRC-MTD-IT",
+      Seq(EnrolmentIdentifier("MTDITID", mtdItId)),
+      activated
+    ),
+    Enrolment(
+      "HMRC-NI",
+      Seq(EnrolmentIdentifier("NINO", nino)),
+      activated
+    )
+  ))
+
+  implicit val hc = new HeaderCarrier()
+
+  private val authResponse: Enrolments ~ ConfidenceLevel =
+    new ~(
+      enrolments,
+      ConfidenceLevel.L250
+    )
+
+  val mockAppConfig = mock[AppConfig]
+  val mockAuthConnector: AuthConnector = mock[AuthConnector]
+  val mockService:GiftAidSessionService = mock[GiftAidSessionService]
+  when(mockAuthConnector.authorise[Option[AffinityGroup]](any(), eqTo(retrivalAffinitygroup))(any(), any()))
+    .thenReturn(Future.successful(Some(AffinityGroup.Individual)))
+
+  when(mockAuthConnector.authorise[Enrolments ~ ConfidenceLevel](any(), eqTo(allEnrolments and confidenceLevel))(any(), any()))
+    .thenReturn(Future.successful(authResponse))
+
+
   ".submit when 'sectionCompletedQuestionEnabled' is true" when {
 
     "should redirect to the 'Have you completed this section?' page" in {
       val application = GuiceApplicationBuilder()
         .in(Environment.simple(mode = Mode.Dev))
+        .overrides(
+          inject.bind[AuthConnector].toInstance(mockAuthConnector),
+        )
         .configure(config(sectionCompletedQuestionEnabled = true))
         .build()
+
+      val endOfTaxYearRange: Int = taxYear
+      val startOfTaxYearRange: Int = endOfTaxYearRange - 5
+      val taxYears: Seq[Int] = (startOfTaxYearRange to endOfTaxYearRange).toList
+      val validTaxYears: (String, String) = "validTaxYears" -> taxYears.mkString(",")
 
       running(application) {
 
         dropGiftAidDB()
         insertGiftAidCyaData(Some(cyaDataMax))
-        userDataStub(IncomeSourcesModel(), nino, taxYear)
-        authoriseAgentOrIndividual(user.isAgent)
+        userDataStub(IncomeSourcesModel(), user.nino, taxYear)
+        stubPut(s"/income-tax-submission-service/income-tax/nino/${user.nino}/sources/session\\?taxYear=$taxYear", NO_CONTENT, "")
+        stubPost(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
 
-        val request = FakeRequest(GET, url)
+        val request = FakeRequest(POST, "/update-and-submit-income-tax-return/personal-income/2025/charity/check-donations-to-charity")
+          .withSession(validTaxYears)
+          .withSession(TAX_YEAR -> taxYear.toString)
+          .withSession("sessionId" -> sessionId)
 
         val result = route(application, request).value
 
-        status(result) mustEqual OK
-        // update with actual url once page is merged
-        redirectLocation(result) mustEqual ""
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result) mustBe Some("/update-and-submit-income-tax-return/personal-income/2025/gift-aid/section-completed")
       }
     }
   }
+
+
 }

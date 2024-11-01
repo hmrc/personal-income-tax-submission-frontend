@@ -203,13 +203,14 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
                        interestSavings: Boolean = false,
                        stockDividends: Boolean = false,
                        backendSessionEnabled: Boolean = false,
-                       miniJourneyEnabled: Boolean = false): Application =
+                       miniJourneyEnabled: Boolean = false,
+                       sectionCompletedQuestionEnabled: Boolean = false): Application =
     GuiceApplicationBuilder()
       .in(Environment.simple(mode = Mode.Dev))
       .configure(
         config(
           tailoring, interestTailoring, dividendsTailoring, charityTailoringEnabled,
-          interestSavings, stockDividends, backendSessionEnabled, miniJourneyEnabled
+          interestSavings, stockDividends, backendSessionEnabled, miniJourneyEnabled, sectionCompletedQuestionEnabled
         )
       )
       .build()
@@ -257,6 +258,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     .in(Environment.simple(mode = Mode.Dev))
     .configure(config(tailoring = true, interestTailoring = true, dividendsTailoring = true, charityTailoringEnabled = true))
     .build()
+
 
   lazy val appWithInterestSavings: Application = new GuiceApplicationBuilder()
     .in(Environment.simple(mode = Mode.Dev))
@@ -440,17 +442,17 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   val stockDividendsAmount: BigDecimal = 500
   val stockDividendsCheckYourAnswersModel: StockDividendsCheckYourAnswersModel = StockDividendsCheckYourAnswersModel(
-        gateway = Some(true),
-        ukDividends = Some(true),
-        ukDividendsAmount = Some(stockDividendsAmount),
-        otherUkDividends = Some(true),
-        otherUkDividendsAmount = Some(stockDividendsAmount),
-        stockDividends = Some(true),
-        stockDividendsAmount = Some(stockDividendsAmount),
-        redeemableShares = Some(true),
-        redeemableSharesAmount = Some(stockDividendsAmount),
-        closeCompanyLoansWrittenOff = Some(true),
-        closeCompanyLoansWrittenOffAmount = Some(stockDividendsAmount))
+    gateway = Some(true),
+    ukDividends = Some(true),
+    ukDividendsAmount = Some(stockDividendsAmount),
+    otherUkDividends = Some(true),
+    otherUkDividendsAmount = Some(stockDividendsAmount),
+    stockDividends = Some(true),
+    stockDividendsAmount = Some(stockDividendsAmount),
+    redeemableShares = Some(true),
+    redeemableSharesAmount = Some(stockDividendsAmount),
+    closeCompanyLoansWrittenOff = Some(true),
+    closeCompanyLoansWrittenOffAmount = Some(stockDividendsAmount))
   val stockDividendsUserDataModel: StockDividendsUserDataModel =
     StockDividendsUserDataModel(sessionId, mtditid, nino, taxYear, Some(stockDividendsCheckYourAnswersModel))
 

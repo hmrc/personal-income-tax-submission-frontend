@@ -42,6 +42,7 @@ object Journey extends Enum[Journey] with PlayJsonEnum[Journey] {
   val values: IndexedSeq[Journey] = findValues
 
   // Charitable Donations
+  case object GiftAid extends Journey("gift-aid")
   case object DonationsUsingGiftAid extends Journey("donations-using-gift-aid")
 
   case object GiftsOfLandOrProperty extends Journey("gifts-of-land-or-property")

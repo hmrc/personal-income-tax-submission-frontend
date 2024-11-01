@@ -17,12 +17,13 @@
 package models
 
 import models.Journey._
-import play.api.libs.json.{JsSuccess, JsValue, Json}
+import play.api.libs.json.{JsSuccess, Json}
 import utils.UnitTest
 
 class JourneySpec extends UnitTest {
 
   val journeyTypeList = Seq(
+    GiftAid,
     DonationsUsingGiftAid,
     GiftsOfLandOrProperty,
     GiftsOfShares,
@@ -46,12 +47,12 @@ class JourneySpec extends UnitTest {
 
   "Journey values" should {
     "parse to and from json" in {
-      val jsValues = Journey.values.filter(_.equals(DonationsUsingGiftAid)).map(s => Json.toJson(s))
+      val jsValues = Journey.values.filter(_.equals(GiftAid)).map(s => Json.toJson(s))
 
-      jsValues.toList  shouldBe journeyTypeList.filter(_.equals(DonationsUsingGiftAid)).map(s => Json.toJson(s))
+      jsValues.toList  shouldBe journeyTypeList.filter(_.equals(GiftAid)).map(s => Json.toJson(s))
 
       val results = jsValues.map(s => s.validate[Journey])
-      results.toList shouldBe Seq(JsSuccess(DonationsUsingGiftAid))
+      results.toList shouldBe Seq(JsSuccess(GiftAid))
     }
   }
 }
