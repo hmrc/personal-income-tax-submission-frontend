@@ -38,7 +38,7 @@ class GiftAidSessionService @Inject()(
                                      ) {
 
   def getPriorData(taxYear: Int)(implicit user: User[_], hc: HeaderCarrier): Future[IncomeTaxUserDataResponse] = {
-    incomeTaxUserDataConnector.getUserData(taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid))
+   incomeTaxUserDataConnector.getUserData(taxYear)(user, hc.withExtraHeaders("mtditid" -> user.mtditid))
   }
 
   def createSessionData[A](cyaModel: GiftAidCYAModel, taxYear: Int)(onFail: A)(onSuccess: A)
