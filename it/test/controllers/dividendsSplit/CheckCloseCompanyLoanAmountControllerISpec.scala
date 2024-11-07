@@ -237,37 +237,4 @@ class CheckCloseCompanyLoanAmountControllerISpec extends IntegrationTest with Di
     }
   }
 
-  private val mtdItId: String = "1234567890"
-  private val activated: String = "Activated"
-
-  private val enrolments: Enrolments = Enrolments(Set(
-    Enrolment(
-      "HMRC-MTD-IT",
-      Seq(EnrolmentIdentifier("MTDITID", mtdItId)),
-      activated
-    ),
-    Enrolment(
-      "HMRC-NI",
-      Seq(EnrolmentIdentifier("NINO", nino)),
-      activated
-    )
-  ))
-
-  implicit val hc = new HeaderCarrier()
-
-  private val authResponse: Enrolments ~ ConfidenceLevel =
-    new ~(
-      enrolments,
-      ConfidenceLevel.L250
-    )
-
-  val mockAppConfig = mock[AppConfig]
-  val mockAuthConnector: AuthConnector = mock[AuthConnector]
-  val mockService:DividendsSessionService = mock[DividendsSessionService]
-  when(mockAuthConnector.authorise[Option[AffinityGroup]](any(), eqTo(retrivalAffinitygroup))(any(), any()))
-    .thenReturn(Future.successful(Some(AffinityGroup.Individual)))
-
-  when(mockAuthConnector.authorise[Enrolments ~ ConfidenceLevel](any(), eqTo(allEnrolments and confidenceLevel))(any(), any()))
-    .thenReturn(Future.successful(authResponse))
-
 }
