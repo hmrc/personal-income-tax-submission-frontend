@@ -65,7 +65,7 @@ class CheckRedeemableSharesAmountControllerISpec extends IntegrationTest with Di
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result) mustBe Some(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist")
+        redirectLocation(result) mustBe Some(s"/update-and-submit-income-tax-return/personal-income/$taxYear/free-redeemable-shares/section-completed")
       }
     }
 
@@ -153,7 +153,7 @@ class CheckRedeemableSharesAmountControllerISpec extends IntegrationTest with Di
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result) mustBe Some(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist")
+        redirectLocation(result) mustBe Some(s"/update-and-submit-income-tax-return/personal-income/$taxYear/free-redeemable-shares/section-completed")
       }
     }
 

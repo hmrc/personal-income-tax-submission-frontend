@@ -59,6 +59,8 @@ object Journey extends Enum[Journey] with PlayJsonEnum[Journey] {
   case object GiltEdged extends Journey("gilt-edged")
 
   // UK dividends
+  case object Dividends extends Journey("dividends")
+
   case object CashDividends extends Journey("cash-dividends")
 
   case object StockDividends extends Journey("stock-dividends")

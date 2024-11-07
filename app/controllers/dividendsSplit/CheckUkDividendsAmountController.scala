@@ -21,9 +21,10 @@ import common.IncomeSources
 import config.{AppConfig, ErrorHandler}
 import connectors.IncomeSourceConnector
 import controllers.predicates.AuthorisedAction
+import controllers.routes
 import models.dividends.{DividendsPriorSubmission, StockDividendModel, StockDividendsCheckYourAnswersModel, StockDividendsPriorSubmission}
 import models.priorDataModels.StockDividendsPriorDataModel
-import models.{APIErrorBodyModel, APIErrorModel, User}
+import models.{APIErrorBodyModel, APIErrorModel, Journey, User}
 import play.api.i18n.I18nSupport
 import play.api.i18n.Lang.logger
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -75,7 +76,7 @@ class CheckUkDividendsAmountController @Inject()(authorisedAction: AuthorisedAct
       case Some(cyaData) => handleSession(cya, cyaData, taxYear)
       case _ =>
         logger.info("[CheckUkDividendsAmountController][show] No CYA data in session. Redirecting to the task list.")
-        Future.successful(Redirect(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist"))
+        Future.successful(Redirect(routes.SectionCompletedStateController.show(taxYear, Journey.CashDividends.entryName)))
     }
   }
 
@@ -111,9 +112,8 @@ class CheckUkDividendsAmountController @Inject()(authorisedAction: AuthorisedAct
     }).flatMap {
       case Right(_) =>
         for {
-          dividends <- dividendsSession.clear(taxYear)(errorHandler.internalServerError())(
-            Redirect(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist")
-          )
+          dividends <-
+            dividendsSession.clear(taxYear)(errorHandler.internalServerError())(Redirect(routes.SectionCompletedStateController.show(taxYear, Journey.CashDividends.entryName)))
           stockDividends <- stockDividendsSession.clear(taxYear)(errorHandler.internalServerError())(dividends)
         } yield {
           stockDividends
@@ -140,4 +140,5 @@ class CheckUkDividendsAmountController @Inject()(authorisedAction: AuthorisedAct
       )
     }
   }
+
 }

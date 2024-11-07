@@ -75,7 +75,7 @@ class CheckUkDividendsAmountControllerISpec extends IntegrationTest with Dividen
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result) mustBe Some(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist")
+        redirectLocation(result) mustBe Some(s"/update-and-submit-income-tax-return/personal-income/$taxYear/cash-dividends/section-completed")
       }
     }
 
@@ -187,7 +187,7 @@ class CheckUkDividendsAmountControllerISpec extends IntegrationTest with Dividen
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result) mustBe Some(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist")
+        redirectLocation(result) mustBe Some(s"/update-and-submit-income-tax-return/personal-income/$taxYear/cash-dividends/section-completed")
       }
     }
 

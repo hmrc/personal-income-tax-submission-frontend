@@ -20,10 +20,8 @@ import models.dividends.{DividendsPriorSubmission, StockDividendModel, StockDivi
 import models.priorDataModels.IncomeSourcesModel
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import play.api.http.Status.{NO_CONTENT, OK, SEE_OTHER}
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.{Environment, Mode}
 import test.utils.{DividendsDatabaseHelper, IntegrationTest}
 
 class CheckStockDividendAmountControllerISpec extends IntegrationTest with DividendsDatabaseHelper {
@@ -67,7 +65,7 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result) mustBe Some(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist")
+        redirectLocation(result) mustBe Some(s"/update-and-submit-income-tax-return/personal-income/$taxYear/stock-dividends/section-completed")
       }
     }
 
@@ -154,7 +152,7 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result) mustBe Some(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist")
+        redirectLocation(result) mustBe Some(s"/update-and-submit-income-tax-return/personal-income/$taxYear/stock-dividends/section-completed")
       }
     }
 

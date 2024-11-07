@@ -16,11 +16,13 @@
 
 package controllers.dividendsSplit
 
+import config.AppConfig
 import connectors.IncomeSourceConnector
 import models.dividends.{DividendsPriorSubmission, StockDividendModel, StockDividendsPriorSubmission}
 import models.priorDataModels.IncomeSourcesModel
 import models.{APIErrorBodyModel, APIErrorModel}
 import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchersSugar.eqTo
 import org.mockito.Mockito.when
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -30,7 +32,12 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.api.{Environment, Mode}
+import services.DividendsSessionService
 import test.utils.{DividendsDatabaseHelper, IntegrationTest}
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{allEnrolments, confidenceLevel, affinityGroup => retrivalAffinitygroup}
+import uk.gov.hmrc.auth.core.retrieve.~
+import uk.gov.hmrc.auth.core._
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
@@ -189,7 +196,7 @@ class CheckCloseCompanyLoanAmountControllerISpec extends IntegrationTest with Di
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result) mustBe Some(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist")
+        redirectLocation(result) mustBe Some(s"/update-and-submit-income-tax-return/personal-income/$taxYear/close-company-loans/section-completed")
       }
     }
 
@@ -229,4 +236,38 @@ class CheckCloseCompanyLoanAmountControllerISpec extends IntegrationTest with Di
       }
     }
   }
+
+  private val mtdItId: String = "1234567890"
+  private val activated: String = "Activated"
+
+  private val enrolments: Enrolments = Enrolments(Set(
+    Enrolment(
+      "HMRC-MTD-IT",
+      Seq(EnrolmentIdentifier("MTDITID", mtdItId)),
+      activated
+    ),
+    Enrolment(
+      "HMRC-NI",
+      Seq(EnrolmentIdentifier("NINO", nino)),
+      activated
+    )
+  ))
+
+  implicit val hc = new HeaderCarrier()
+
+  private val authResponse: Enrolments ~ ConfidenceLevel =
+    new ~(
+      enrolments,
+      ConfidenceLevel.L250
+    )
+
+  val mockAppConfig = mock[AppConfig]
+  val mockAuthConnector: AuthConnector = mock[AuthConnector]
+  val mockService:DividendsSessionService = mock[DividendsSessionService]
+  when(mockAuthConnector.authorise[Option[AffinityGroup]](any(), eqTo(retrivalAffinitygroup))(any(), any()))
+    .thenReturn(Future.successful(Some(AffinityGroup.Individual)))
+
+  when(mockAuthConnector.authorise[Enrolments ~ ConfidenceLevel](any(), eqTo(allEnrolments and confidenceLevel))(any(), any()))
+    .thenReturn(Future.successful(authResponse))
+
 }
