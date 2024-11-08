@@ -31,7 +31,6 @@ class JourneySpec extends UnitTest {
     BanksAndBuilding,
     TrustFundBond,
     GiltEdged,
-    Dividends,
     CashDividends,
     StockDividends,
     DividendsFromUnitTrusts,
