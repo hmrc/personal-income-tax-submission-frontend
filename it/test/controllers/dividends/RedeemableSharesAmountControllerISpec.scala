@@ -61,7 +61,7 @@ class RedeemableSharesAmountControllerISpec extends IntegrationTest with ViewHel
     val expectedTitle: String
     val expectedErrorTitle: String
     val expectedH1: String
-    val expectedHint: String
+    val tellUsTheValue: String
     val expectedErrorEmpty: String
     val expectedErrorInvalid: String
   }
@@ -69,6 +69,7 @@ class RedeemableSharesAmountControllerISpec extends IntegrationTest with ViewHel
   trait CommonExpectedResults {
     val captionExpected: String
     val continueText: String
+    val expectedHintText: String
     val expectedErrorOverMax: String
   }
 
@@ -76,7 +77,7 @@ class RedeemableSharesAmountControllerISpec extends IntegrationTest with ViewHel
     val expectedTitle = "How much did you get in free or redeemable shares?"
     val expectedErrorTitle = s"Error: $expectedTitle"
     val expectedH1 = s"$expectedTitle"
-    val expectedHint = "Enter the sum of all the shares. You can find this information on your dividend vouchers."
+    val tellUsTheValue = "Enter the sum of all the shares. You can find this information on your dividend vouchers."
     val expectedErrorEmpty = "Enter the amount you got in free or redeemable shares"
     val expectedErrorInvalid = "Enter the amount you received in the correct format. For example, £193.54"
   }
@@ -85,13 +86,14 @@ class RedeemableSharesAmountControllerISpec extends IntegrationTest with ViewHel
     val expectedTitle = "How much did your client get in free or redeemable shares?"
     val expectedErrorTitle = s"Error: $expectedTitle"
     val expectedH1 = s"$expectedTitle"
-    val expectedHint = "Enter the sum of all the shares. You can find this information on your client's dividend vouchers."
+    val tellUsTheValue = "Enter the sum of all the shares. You can find this information on your client's dividend vouchers."
     val expectedErrorEmpty = "Enter the amount your client got in free or redeemable shares"
     val expectedErrorInvalid = "Enter the amount your client received in the correct format. For example, £193.54"
   }
 
   object AllExpectedEnglish extends CommonExpectedResults {
     val continueText = "Continue"
+    val expectedHintText = "For example, £193.52"
     val captionExpected = s"Dividends for 6 April $taxYearEOY to 5 April $taxYear"
     val expectedErrorOverMax = "Enter an amount less than £100,000,000,000"
   }
@@ -100,7 +102,7 @@ class RedeemableSharesAmountControllerISpec extends IntegrationTest with ViewHel
     val expectedTitle = "Faint gawsoch chi mewn cyfranddaliadau adbryn neu mewn cyfranddaliadau yn rhad ac am ddim?"
     val expectedErrorTitle = s"Gwall: $expectedTitle"
     val expectedH1 = s"$expectedTitle"
-    val expectedHint = "Nodwch swm yr holl gyfranddaliadau. Gallwch ddod o hyd i’r wybodaeth hon ar eich talebau difidend."
+    val tellUsTheValue = "Nodwch swm yr holl gyfranddaliadau. Gallwch ddod o hyd i’r wybodaeth hon ar eich talebau difidend."
     val expectedErrorEmpty = "Nodwch y swm a gawsoch mewn cyfranddaliadau adbryn neu mewn cyfranddaliadau yn rhad ac am ddim"
     val expectedErrorInvalid = "Nodwch y swm a gawsoch yn y fformat cywir. Er enghraifft, £193.54"
   }
@@ -109,13 +111,14 @@ class RedeemableSharesAmountControllerISpec extends IntegrationTest with ViewHel
     val expectedTitle = "Faint gafodd eich cleient mewn cyfranddaliadau adbryn neu mewn cyfranddaliadau yn rhad ac am ddim?"
     val expectedErrorTitle: String = s"Gwall: $expectedTitle"
     val expectedH1 = s"$expectedTitle"
-    val expectedHint = "Nodwch swm yr holl gyfranddaliadau. Gallwch ddod o hyd i’r wybodaeth hon ar dalebau difidend eich cleient."
+    val tellUsTheValue = "Nodwch swm yr holl gyfranddaliadau. Gallwch ddod o hyd i’r wybodaeth hon ar dalebau difidend eich cleient."
     val expectedErrorEmpty = "Nodwch y swm a gafodd eich cleient mewn cyfranddaliadau adbryn neu mewn cyfranddaliadau yn rhad ac am ddim"
     val expectedErrorInvalid = "Nodwch y swm a gafodd eich cleient yn y fformat cywir. Er enghraifft, £193.54"
   }
 
   object AllExpectedWelsh extends CommonExpectedResults {
     val continueText = "Yn eich blaen"
+    val expectedHintText = "Er enghraifft, £193.52"
     val captionExpected = s"Difidendau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val expectedErrorOverMax = "Nodwch swm sy’n llai na £100,000,000,000"
   }
@@ -130,6 +133,7 @@ class RedeemableSharesAmountControllerISpec extends IntegrationTest with ViewHel
     val errorSelector = "#amount-error"
     val hintSelector = "#amount-hint"
     val headingSelector = "#main-content > div > div > h1"
+    val tellUsTheValueSelector = "#hint"
   }
 
   val amountInputName = "amount"
@@ -192,7 +196,8 @@ class RedeemableSharesAmountControllerISpec extends IntegrationTest with ViewHel
         h1Check(expectedH1 + " " + captionExpected)
         captionCheck(captionExpected)
         formPostLinkCheck(redeemableSharesAmountUrl, Selectors.formSelector)
-        textOnPageCheck(expectedHint, Selectors.hintSelector)
+        textOnPageCheck(expectedHintText, Selectors.hintSelector)
+        textOnPageCheck(tellUsTheValue, Selectors.tellUsTheValueSelector)
         buttonCheck(continueText, Selectors.continueButtonSelector)
         inputFieldCheck(amountInputName, Selectors.inputSelector)
       }
@@ -219,7 +224,8 @@ class RedeemableSharesAmountControllerISpec extends IntegrationTest with ViewHel
         h1Check(expectedH1 + " " + captionExpected)
         captionCheck(captionExpected)
         formPostLinkCheck(redeemableSharesAmountUrl, Selectors.formSelector)
-        textOnPageCheck(expectedHint, Selectors.hintSelector)
+        textOnPageCheck(expectedHintText, Selectors.hintSelector)
+        textOnPageCheck(tellUsTheValue, Selectors.tellUsTheValueSelector)
         buttonCheck(continueText, Selectors.continueButtonSelector)
         inputFieldCheck(amountInputName, Selectors.inputSelector)
       }
