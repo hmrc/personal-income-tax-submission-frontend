@@ -69,6 +69,7 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
   trait CommonExpectedResults {
     val expectedH1: String
     val captionExpected: String
+    val expectedHintText: String
     val continueText: String
   }
 
@@ -97,6 +98,7 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
   object AllExpectedEnglish extends CommonExpectedResults {
     val expectedH1 = "Stock dividends amount"
     val continueText = "Continue"
+    val expectedHintText = "For example, £193.52"
     val captionExpected = s"Dividends for 6 April $taxYearEOY to 5 April $taxYear"
   }
 
@@ -127,6 +129,7 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
   object AllExpectedWelsh extends CommonExpectedResults {
     val expectedH1 = "Swm y difidendau stoc"
     val continueText = "Yn eich blaen"
+    val expectedHintText = "Er enghraifft, £193.52"
     val captionExpected = s"Difidendau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
   }
 
@@ -140,6 +143,7 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
     val inputSelector = "#amount"
     val errorSummaryHref = "#amount"
     val errorSelector = "#amount-error"
+    val hintSelector = "#amount-hint"
     val label = "#main-content > div > div > form > div > label"
     val headingSelector = "#main-content > div > div > h1"
   }
@@ -201,6 +205,7 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
         textOnPageCheck(expectedParagraph1, Selectors.paragraph1)
         textOnPageCheck(expectedParagraph2, Selectors.paragraph2)
         textOnPageCheck(expectedLabel, Selectors.label)
+        textOnPageCheck(expectedHintText, Selectors.hintSelector)
         buttonCheck(continueText, Selectors.continueButtonSelector)
         inputFieldCheck(amountInputName, Selectors.inputSelector)
       }
@@ -222,6 +227,7 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
         textOnPageCheck(expectedParagraph1, Selectors.paragraph1)
         textOnPageCheck(expectedParagraph2, Selectors.paragraph2)
         textOnPageCheck(expectedLabel, Selectors.label)
+        textOnPageCheck(expectedHintText, Selectors.hintSelector)
         buttonCheck(continueText, Selectors.continueButtonSelector)
         inputFieldCheck(amountInputName, Selectors.inputSelector)
       }
@@ -244,6 +250,7 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
         textOnPageCheck(expectedParagraph1, Selectors.paragraph1)
         textOnPageCheck(expectedParagraph2, Selectors.paragraph2)
         textOnPageCheck(expectedLabel, Selectors.label)
+        textOnPageCheck(expectedHintText, Selectors.hintSelector)
         buttonCheck(continueText, Selectors.continueButtonSelector)
         inputFieldCheck(amountInputName, Selectors.inputSelector)
       }
@@ -269,6 +276,7 @@ class StockDividendAmountControllerISpec extends IntegrationTest with ViewHelper
         textOnPageCheck(expectedParagraph1, Selectors.paragraph1)
         textOnPageCheck(expectedParagraph2, Selectors.paragraph2)
         textOnPageCheck(expectedLabel, Selectors.label)
+        textOnPageCheck(expectedHintText, Selectors.hintSelector)
         buttonCheck(continueText, Selectors.continueButtonSelector)
         inputFieldCheck(amountInputName, Selectors.inputSelector)
       }
