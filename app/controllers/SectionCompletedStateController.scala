@@ -52,7 +52,7 @@ class SectionCompletedStateController @Inject()(implicit val cc: MessagesControl
       Journey.pathBindable.bind("journey", journey) match {
         case (Right(journeyType)) =>
           val journeyName = journeyType.toString
-          sectionCompletedService.get(user.mtditid, taxYear, journeyName).flatMap {
+          sectionCompletedService.get(user.mtditid, taxYear, journeyType).flatMap {
             case Some(value) =>
               value.data("status").validate[JourneyStatus].asOpt match {
                 case Some(JourneyStatus.Completed) =>
@@ -92,7 +92,7 @@ class SectionCompletedStateController @Inject()(implicit val cc: MessagesControl
     val model = JourneyAnswers(mtditid, taxYear, journey.toString, Json.obj({
       "status" -> status
     }), Instant.now)
-    sectionCompletedService.set(model)
+    sectionCompletedService.set(model, journey)
     Future.successful(Redirect(appConfig.commonTaskListUrl(taxYear)))
   }
 
