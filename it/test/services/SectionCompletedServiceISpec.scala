@@ -18,6 +18,7 @@ package services
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import connectors.SectionCompletedConnector
+import models.Journey
 import models.mongo.JourneyAnswers
 import models.mongo.JourneyStatus.Completed
 import org.apache.pekko.Done
@@ -33,12 +34,12 @@ class SectionCompletedServiceISpec extends IntegrationTest {
 
   val mtdItId = "1234567890"
   override val taxYear = 2023
-  val journeyName = "test-journey"
+  val journey = Journey.GiftAid
   val data = Json.obj("status" -> Completed.toString)
   val journeyAnswers = JourneyAnswers(
     mtdItId = mtdItId,
     taxYear = taxYear,
-    journey = journeyName,
+    journey = Journey.GiftAid.entryName,
     data = data,
     lastUpdated = Instant.ofEpochSecond(1)
   )
@@ -48,7 +49,7 @@ class SectionCompletedServiceISpec extends IntegrationTest {
   "SectionCompletedService" should {
 
     "return the correct journey answers from the connector" in {
-      stubFor(get(urlEqualTo(s"/income-tax-gift-aid/income-tax/journey-answers/$journeyName/$taxYear"))
+      stubFor(get(urlEqualTo(s"/income-tax-gift-aid/income-tax/journey-answers/$journey/$taxYear"))
         .withHeader("MTDITID", equalTo(mtdItId))
         .willReturn(
           aResponse()
@@ -57,10 +58,10 @@ class SectionCompletedServiceISpec extends IntegrationTest {
         )
       )
 
-      val result = await(service.get(mtdItId, taxYear, journeyName))
+      val result = await(service.get(mtdItId, taxYear, journey))
       result shouldBe Some(journeyAnswers)
 
-      verify(getRequestedFor(urlEqualTo(s"/income-tax-gift-aid/income-tax/journey-answers/$journeyName/$taxYear"))
+      verify(getRequestedFor(urlEqualTo(s"/income-tax-gift-aid/income-tax/journey-answers/$journey/$taxYear"))
         .withHeader("MTDITID", equalTo(mtdItId)))
     }
 
@@ -71,7 +72,7 @@ class SectionCompletedServiceISpec extends IntegrationTest {
         .willReturn(aResponse().withStatus(NO_CONTENT))
       )
 
-      val result = await(service.set(journeyAnswers))
+      val result = await(service.set(journeyAnswers, journey))
       result shouldBe Done
 
       verify(postRequestedFor(urlEqualTo("/income-tax-gift-aid/income-tax/journey-answers"))
@@ -80,15 +81,15 @@ class SectionCompletedServiceISpec extends IntegrationTest {
     }
 
     "keep journey alive successfully via the connector" in {
-      stubFor(post(urlEqualTo(s"/income-tax-gift-aid/income-tax/journey-answers/keep-alive/$journeyName/$taxYear"))
+      stubFor(post(urlEqualTo(s"/income-tax-gift-aid/income-tax/journey-answers/keep-alive/$journey/$taxYear"))
         .withHeader("MTDITID", equalTo(mtdItId))
         .willReturn(aResponse().withStatus(NO_CONTENT))
       )
 
-      val result = await(service.keepAlive(mtdItId, taxYear, journeyName))
+      val result = await(service.keepAlive(mtdItId, taxYear, journey))
       result shouldBe Done
 
-      verify(postRequestedFor(urlEqualTo(s"/income-tax-gift-aid/income-tax/journey-answers/keep-alive/$journeyName/$taxYear"))
+      verify(postRequestedFor(urlEqualTo(s"/income-tax-gift-aid/income-tax/journey-answers/keep-alive/$journey/$taxYear"))
         .withHeader("MTDITID", equalTo(mtdItId)))
     }
   }

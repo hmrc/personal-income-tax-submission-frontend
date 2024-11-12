@@ -16,6 +16,7 @@
 
 package controllers
 
+import models.Journey
 import models.mongo.JourneyStatus.{Completed, InProgress}
 import models.mongo.{JourneyAnswers, JourneyStatus}
 import org.jsoup.Jsoup
@@ -32,13 +33,15 @@ import java.time.Instant
 
 class SectionCompletedStateControllerISpec extends IntegrationTest with ViewHelpers with DividendsDatabaseHelper {
 
-  val sectionCompletedUrl = s"/update-and-submit-income-tax-return/personal-income/$taxYear/donations-using-gift-aid/section-completed"
+  val journey = Journey.GiftAid
+
+  val sectionCompletedUrl = s"/update-and-submit-income-tax-return/personal-income/$taxYear/$journey/section-completed"
   val invalidSectionCompletedUrl = s"/update-and-submit-income-tax-return/personal-income/$taxYear/invalid-journey/section-completed"
 
   val absoluteUrl: String = appUrl + sectionCompletedUrl
-  val journeyName = "donations-using-gift-aid"
+  val journeyName = journey
 
-  def completedSectionUrl(journey: String, taxYear: Int) = s"/income-tax-gift-aid/income-tax/journey-answers/$journey/$taxYear"
+  def completedSectionUrl(journey: Journey, taxYear: Int) = s"/income-tax-gift-aid/income-tax/journey-answers/$journey/$taxYear"
 
   object Selectors {
     val yesSelector = "#main-content > div > div > form > div > fieldset > div.govuk-radios.govuk-radios--inline > div:nth-child(1) > label"
@@ -130,7 +133,7 @@ class SectionCompletedStateControllerISpec extends IntegrationTest with ViewHelp
         lazy val result = {
           authoriseIndividual()
           val status: JourneyStatus = Completed
-          val model = JourneyAnswers(mtditid, taxYear, journeyName, Json.obj({
+          val model = JourneyAnswers(mtditid, taxYear, journey.entryName, Json.obj({
             "status" -> status
           }), Instant.now)
 
@@ -155,7 +158,7 @@ class SectionCompletedStateControllerISpec extends IntegrationTest with ViewHelp
         lazy val result = {
           authoriseIndividual()
           val status: JourneyStatus = InProgress
-          val model = JourneyAnswers(mtditid, taxYear, journeyName, Json.obj({
+          val model = JourneyAnswers(mtditid, taxYear, journey.entryName, Json.obj({
             "status" -> status
           }), Instant.now)
 
@@ -179,7 +182,7 @@ class SectionCompletedStateControllerISpec extends IntegrationTest with ViewHelp
         lazy val result = {
           authoriseIndividual()
           val status: JourneyStatus = InProgress
-          val model = JourneyAnswers(mtditid, taxYear, journeyName, Json.obj({
+          val model = JourneyAnswers(mtditid, taxYear, journey.entryName, Json.obj({
             "status" -> "invalidStatus"
           }), Instant.now)
 
@@ -206,11 +209,11 @@ class SectionCompletedStateControllerISpec extends IntegrationTest with ViewHelp
           lazy val result = {
             authoriseAgentOrIndividual(isAgent = false)
             val status: JourneyStatus = InProgress
-            val model = JourneyAnswers(mtditid, taxYear, "donations-using-gift-aid", Json.obj({
+            val model = JourneyAnswers(mtditid, taxYear, journey.entryName, Json.obj({
               "status" -> status
             }), Instant.now)
 
-            stubGet(completedSectionUrl("donations-using-gift-aid",taxYear), OK, Json.toJson(model).toString())
+            stubGet(completedSectionUrl(journey, taxYear), OK, Json.toJson(model).toString())
 
             route(appWithTailoring, request).get
           }
