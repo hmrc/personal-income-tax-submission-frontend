@@ -17,12 +17,13 @@
 package controllers.interest
 
 import audit._
+import cats.data.EitherT
 import common.InterestTaxTypes.{TAXED, UNTAXED}
 import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
-import models.interest.{InterestCYAModel, InterestPriorSubmission}
+import models.interest.InterestCYAModel
 import models.{APIErrorBodyModel, APIErrorModel, User}
 import play.api.Logging
 import play.api.i18n.I18nSupport
@@ -36,6 +37,7 @@ import views.html.interest.InterestCYAView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.language.implicitConversions
 
 class InterestCYAController @Inject()(
                                        interestCyaView: InterestCYAView,
@@ -69,51 +71,72 @@ class InterestCYAController @Inject()(
     }
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
-    interestSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cya, prior) =>
-      if(appConfig.interestTailoringEnabled && cya.flatMap(_.gateway).contains(false)) {
-        auditTailorRemoveIncomeSources(TailorRemoveIncomeSourcesAuditDetail(
-          nino = user.nino,
-          mtditid = user.mtditid,
-          userType = user.affinityGroup.toLowerCase,
-          taxYear = taxYear,
-          body = TailorRemoveIncomeSourcesBody(Seq(INTEREST.stringify))
-        ))
-        excludeJourneyService.excludeJourney(INTEREST.stringify, taxYear, user.nino).flatMap {
-          case Right(_) => performSubmission(taxYear, cya, prior)
-          case Left(_) => errorHandler.futureInternalServerError()
-        }
-      } else {
-        performSubmission(taxYear, cya, prior)
-      }
-    }
+  private def handleTailoredRequest(taxYear: Int)(implicit user: User[_]): EitherT[Future, Result, Unit] = {
+    val result = for {
+      _ <- EitherT.right(auditTailorRemoveIncomeSources(TailorRemoveIncomeSourcesAuditDetail(
+        nino = user.nino,
+        mtditid = user.mtditid,
+        userType = user.affinityGroup.toLowerCase,
+        taxYear = taxYear,
+        body = TailorRemoveIncomeSourcesBody(Seq(INTEREST.stringify))
+      )))
+      _ <- EitherT(excludeJourneyService.excludeJourney(INTEREST.stringify, taxYear, user.nino)
+      )
+    } yield ()
+
+    result.leftMap(_ => errorHandler.internalServerError())
   }
 
-  private[controllers] def performSubmission(taxYear: Int, cya: Option[InterestCYAModel], prior: Option[InterestPriorSubmission])
-                                            (implicit user: User[_], hc: HeaderCarrier): Future[Result] = {
-    (cya match {
-      case Some(cyaData) => interestSubmissionService.submit(cyaData, user.nino, taxYear, user.mtditid).map {
-        case response@Right(_) =>
-          val model = CreateOrAmendInterestAuditDetail(
-            Some(cyaData), prior, prior.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase, taxYear
-          )
-          auditSubmission(model)
+  def submit(taxYear: Int): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
+    interestSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cyaOpt, priorOpt) =>
+      val isTailored = appConfig.interestTailoringEnabled && cyaOpt.flatMap(_.gateway).contains(false)
 
-          response
-        case response => response
+      implicit class ResultFactory[T](res: EitherT[Future, APIErrorModel, T]) {
+        def toResultModel: EitherT[Future, Result, T] =
+          res.leftMap(error => errorHandler.handleError(error.status))
       }
-      case _ =>
-        logger.info("[InterestCYAController][submit] CYA data or NINO missing from session.")
-        Future.successful(Left(APIErrorModel(BAD_REQUEST, APIErrorBodyModel("MISSING_DATA", "CYA data or NINO missing from session."))))
-    }).flatMap {
-      case Right(_) =>
-        interestSessionService.clear(taxYear)(errorHandler.internalServerError())(
-        if (appConfig.interestSavingsEnabled) {
+
+      def cyaResult: EitherT[Future, Result, InterestCYAModel] = EitherT(Future.successful(
+        cyaOpt.fold {
+          logger.info("[InterestCYAController][submit] CYA data or NINO missing from session.")
+          Left[APIErrorModel, InterestCYAModel](
+            APIErrorModel(BAD_REQUEST, APIErrorBodyModel("MISSING_DATA", "CYA data or NINO missing from session."))
+          ).withRight
+        }(cya => Right(cya))
+      )).toResultModel
+
+      def redirectResult: Result = {
+        if (appConfig.sectionCompletedQuestionEnabled && isTailored) {
+          Redirect(controllers.routes.SectionCompletedStateController.show(taxYear, "uk-interest"))
+        } else if (appConfig.interestSavingsEnabled) {
           Redirect(controllers.routes.InterestFromSavingsAndSecuritiesSummaryController.show(taxYear))
-        }else {
-            Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-        })
-      case Left(error) => Future.successful(errorHandler.handleError(error.status))
+        } else {
+          Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+        }
+      }
+
+      def auditModel: CreateOrAmendInterestAuditDetail = CreateOrAmendInterestAuditDetail(
+        body = cyaOpt,
+        prior = priorOpt,
+        isUpdate = priorOpt.isDefined,
+        nino = user.nino,
+        mtditid = user.mtditid,
+        userType = user.affinityGroup.toLowerCase,
+        taxYear = taxYear
+      )
+
+      val result: EitherT[Future, Result, Result] = for {
+        _ <- if(isTailored) handleTailoredRequest(taxYear) else EitherT.right(Future.successful())
+        cya <- cyaResult
+        _ <- EitherT(interestSubmissionService.submit(cya, user.nino, taxYear, user.mtditid)).toResultModel
+        _ <- EitherT.right(auditSubmission(auditModel))
+        sessionClearResult <- EitherT(interestSessionService.clear(taxYear)(
+          Left[Result, Result](errorHandler.internalServerError()).withRight
+        )(Right(redirectResult))
+        )
+      } yield sessionClearResult
+
+      result.merge
     }
   }
 

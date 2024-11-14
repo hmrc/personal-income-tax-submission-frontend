@@ -43,6 +43,7 @@ object Journey extends Enum[Journey] with PlayJsonEnum[Journey] {
 
   // Charitable Donations
   case object GiftAid extends Journey("gift-aid")
+
   case object DonationsUsingGiftAid extends Journey("donations-using-gift-aid")
 
   case object GiftsOfLandOrProperty extends Journey("gifts-of-land-or-property")
@@ -52,6 +53,8 @@ object Journey extends Enum[Journey] with PlayJsonEnum[Journey] {
   case object GiftsToOverseas extends Journey("gifts-to-overseas-charities")
 
   // UK interest
+  case object UkInterest extends Journey("uk-interest")
+
   case object BanksAndBuilding extends Journey("banks-and-building")
 
   case object TrustFundBond extends Journey("trust-fund-bond")
