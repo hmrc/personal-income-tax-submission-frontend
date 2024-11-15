@@ -16,13 +16,11 @@
 
 package controllers.dividendsSplit
 
-import config.AppConfig
 import connectors.IncomeSourceConnector
 import models.dividends.{DividendsPriorSubmission, StockDividendModel, StockDividendsPriorSubmission}
 import models.priorDataModels.IncomeSourcesModel
 import models.{APIErrorBodyModel, APIErrorModel}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchersSugar.eqTo
 import org.mockito.Mockito.when
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -32,12 +30,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.api.{Environment, Mode}
-import services.DividendsSessionService
 import test.utils.{DividendsDatabaseHelper, IntegrationTest}
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{allEnrolments, confidenceLevel, affinityGroup => retrivalAffinitygroup}
-import uk.gov.hmrc.auth.core.retrieve.~
-import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
