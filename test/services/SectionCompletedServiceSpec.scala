@@ -17,6 +17,7 @@
 package services
 
 import connectors.SectionCompletedConnector
+import models.Journey
 import models.mongo.JourneyAnswers
 import models.mongo.JourneyStatus.Completed
 import org.apache.pekko.Done
@@ -33,13 +34,13 @@ class SectionCompletedServiceSpec extends UnitTest {
   val mockConnector: SectionCompletedConnector = mock[SectionCompletedConnector]
   val mtdItId = "1234567890"
   val taxYear = 2023
-  val journeyName = "test-journey"
+  val journey = Journey.GiftAid
   val data = Json.obj("status" -> Completed.toString)
   implicit val correlationId: String = "someCorrelationId"
   val journeyAnswers = JourneyAnswers(
     mtdItId = mtdItId,
     taxYear = taxYear,
-    journey = journeyName,
+    journey = journey.entryName,
     data = data,
     lastUpdated = Instant.ofEpochSecond(1))
 
@@ -54,31 +55,31 @@ class SectionCompletedServiceSpec extends UnitTest {
   "SectionCompletedService" should {
 
     "get journey answers" in {
-      (mockConnector.get(_:String, _:Int, _:String)(_: HeaderCarrier))
-        .expects(mtdItId, taxYear, journeyName, *)
+      (mockConnector.get(_: String, _: Int, _: Journey)(_: HeaderCarrier))
+        .expects(mtdItId, taxYear, journey, *)
         .returning(Future.successful(Some(journeyAnswers)))
 
-      val result = await(service.get(mtdItId, taxYear, journeyName))
+      val result = await(service.get(mtdItId, taxYear, journey))
 
       result shouldBe Some(journeyAnswers)
     }
 
     "set journey answers" in {
-      (mockConnector.set(_: JourneyAnswers)(_: HeaderCarrier))
-        .expects(journeyAnswers, *)
+      (mockConnector.set(_: JourneyAnswers, _: Journey)(_: HeaderCarrier))
+        .expects(journeyAnswers, journey, *)
         .returning(Future.successful(Done))
 
-      val result = await(service.set(journeyAnswers))
+      val result = await(service.set(journeyAnswers, journey))
 
       result shouldBe Done
     }
 
     "keep journey alive" in {
-      (mockConnector.keepAlive(_: String, _: Int, _: String)(_: HeaderCarrier))
-        .expects(mtdItId, taxYear, journeyName, *)
+      (mockConnector.keepAlive(_: String, _: Int, _: Journey)(_: HeaderCarrier))
+        .expects(mtdItId, taxYear, journey, *)
         .returning(Future.successful(Done))
 
-      val result = await(service.keepAlive(mtdItId, taxYear, journeyName))
+      val result = await(service.keepAlive(mtdItId, taxYear, journey))
 
       result shouldBe Done
     }

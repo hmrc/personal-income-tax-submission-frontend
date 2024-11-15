@@ -21,9 +21,10 @@ import common.IncomeSources
 import config.{AppConfig, ErrorHandler}
 import connectors.IncomeSourceConnector
 import controllers.predicates.AuthorisedAction
+import controllers.routes
 import models.dividends.{DividendsPriorSubmission, StockDividendModel, StockDividendsCheckYourAnswersModel, StockDividendsPriorSubmission}
 import models.priorDataModels.StockDividendsPriorDataModel
-import models.{APIErrorBodyModel, APIErrorModel, User}
+import models.{APIErrorBodyModel, APIErrorModel, Journey, User}
 import play.api.i18n.I18nSupport
 import play.api.i18n.Lang.logger
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -113,7 +114,7 @@ class CheckOtherUkDividendsAmountController @Inject()(authorisedAction: Authoris
       case Right(_) =>
         for {
           dividends <-
-            dividendsSession.clear(taxYear)(errorHandler.internalServerError())(Redirect(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist"))
+            dividendsSession.clear(taxYear)(errorHandler.internalServerError())(Redirect(routes.SectionCompletedStateController.show(taxYear, Journey.DividendsFromUnitTrusts.entryName)))
           stockDividends <- stockDividendsSession.clear(taxYear)(errorHandler.internalServerError())(dividends)
         } yield {
           stockDividends
@@ -140,4 +141,5 @@ class CheckOtherUkDividendsAmountController @Inject()(authorisedAction: Authoris
       )
     }
   }
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,10 @@ package controllers.dividendsSplit
 import audit._
 import config.{AppConfig, ErrorHandler}
 import controllers.predicates.AuthorisedAction
+import controllers.routes
 import models.dividends.{DividendsPriorSubmission, StockDividendModel, StockDividendsCheckYourAnswersModel, StockDividendsPriorSubmission}
 import models.priorDataModels.StockDividendsPriorDataModel
-import models.{APIErrorBodyModel, APIErrorModel, User}
+import models.{APIErrorBodyModel, APIErrorModel, Journey, User}
 import play.api.i18n.I18nSupport
 import play.api.i18n.Lang.logger
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -69,7 +70,7 @@ class CheckStockDividendsAmountController @Inject()(authorisedAction: Authorised
       case Some(cyaData) => handleSession(cya, cyaData, taxYear)
       case _ =>
         logger.info("[CheckStockDividendsAmountController][show] No CYA data in session. Redirecting to the task list.")
-        Future.successful(Redirect(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist"))
+        Future.successful(Redirect(routes.SectionCompletedStateController.show(taxYear, Journey.StockDividends.entryName)))
     }
   }
 
@@ -106,7 +107,7 @@ class CheckStockDividendsAmountController @Inject()(authorisedAction: Authorised
       case Right(_) =>
         for {
           dividends <-
-            dividendsSession.clear(taxYear)(errorHandler.internalServerError())(Redirect(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist"))
+            dividendsSession.clear(taxYear)(errorHandler.internalServerError())(Redirect(routes.SectionCompletedStateController.show(taxYear, Journey.StockDividends.entryName)))
           stockDividends <- stockDividendsSession.clear(taxYear)(errorHandler.internalServerError())(dividends)
         } yield {
           stockDividends
@@ -133,4 +134,5 @@ class CheckStockDividendsAmountController @Inject()(authorisedAction: Authorised
       )
     }
   }
+
 }
