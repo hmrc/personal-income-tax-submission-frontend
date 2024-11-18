@@ -22,12 +22,12 @@ import utils.UnitTest
 
 class JourneySpec extends UnitTest {
   val journeyTypeList: Seq[Journey] = Seq(
-    UkInterest,
     GiftAid,
     DonationsUsingGiftAid,
     GiftsOfLandOrProperty,
     GiftsOfShares,
     GiftsToOverseas,
+    UkInterest,
     BanksAndBuilding,
     TrustFundBond,
     GiltEdged,
@@ -40,7 +40,7 @@ class JourneySpec extends UnitTest {
 
   "Journey" should {
     "contain the correct values" in {
-      Journey.values shouldEqual(journeyTypeList)
+      Journey.values shouldBe journeyTypeList
     }
   }
 
