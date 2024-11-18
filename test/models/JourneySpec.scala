@@ -21,8 +21,8 @@ import play.api.libs.json.{JsSuccess, Json}
 import utils.UnitTest
 
 class JourneySpec extends UnitTest {
-
-  val journeyTypeList = Seq(
+  val journeyTypeList: Seq[Journey] = Seq(
+    UkInterest,
     GiftAid,
     DonationsUsingGiftAid,
     GiftsOfLandOrProperty,
@@ -37,7 +37,6 @@ class JourneySpec extends UnitTest {
     FreeRedeemableShares,
     CloseCompanyLoans
   )
-
 
   "Journey" should {
     "contain the correct values" in {
