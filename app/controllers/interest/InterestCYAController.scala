@@ -71,7 +71,7 @@ class InterestCYAController @Inject()(
     }
   }
 
-  private def handleTailoredRequest(taxYear: Int)(implicit user: User[_]): EitherT[Future, Result, Unit] = {
+  private def handleTailoredExclusionRequest(taxYear: Int)(implicit user: User[_]): EitherT[Future, Result, Unit] = {
     val result = for {
       _ <- EitherT.right(auditTailorRemoveIncomeSources(TailorRemoveIncomeSourcesAuditDetail(
         nino = user.nino,
@@ -89,7 +89,7 @@ class InterestCYAController @Inject()(
 
   def submit(taxYear: Int): Action[AnyContent] = (authorisedAction andThen journeyFilterAction(taxYear, INTEREST)).async { implicit user =>
     interestSessionService.getAndHandle(taxYear)(errorHandler.internalServerError()) { (cyaOpt, priorOpt) =>
-      val isTailored = appConfig.interestTailoringEnabled && cyaOpt.flatMap(_.gateway).contains(false)
+      val isTailoredExclusion = appConfig.interestTailoringEnabled && cyaOpt.flatMap(_.gateway).contains(false)
 
       implicit class ResultFactory[T](res: EitherT[Future, APIErrorModel, T]) {
         def toResultModel: EitherT[Future, Result, T] =
@@ -105,8 +105,8 @@ class InterestCYAController @Inject()(
         }(cya => Right(cya))
       )).toResultModel
 
-      def redirectResult: Result = {
-        if (appConfig.sectionCompletedQuestionEnabled && isTailored) {
+      def redirectResult(): Result = {
+        if (appConfig.sectionCompletedQuestionEnabled) {
           Redirect(controllers.routes.SectionCompletedStateController.show(taxYear, "uk-interest"))
         } else if (appConfig.interestSavingsEnabled) {
           Redirect(controllers.routes.InterestFromSavingsAndSecuritiesSummaryController.show(taxYear))
@@ -126,13 +126,13 @@ class InterestCYAController @Inject()(
       )
 
       val result: EitherT[Future, Result, Result] = for {
-        _ <- if(isTailored) handleTailoredRequest(taxYear) else EitherT.right(Future.successful())
+        _ <- if(isTailoredExclusion) handleTailoredExclusionRequest(taxYear) else EitherT.right(Future.successful())
         cya <- cyaResult
         _ <- EitherT(interestSubmissionService.submit(cya, user.nino, taxYear, user.mtditid)).toResultModel
         _ <- EitherT.right(auditSubmission(auditModel))
         sessionClearResult <- EitherT(interestSessionService.clear(taxYear)(
           Left[Result, Result](errorHandler.internalServerError()).withRight
-        )(Right(redirectResult))
+        )(Right(redirectResult()))
         )
       } yield sessionClearResult
 
