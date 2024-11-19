@@ -62,7 +62,7 @@ class CheckUkDividendsAmountControllerISpec extends IntegrationTest with Dividen
       }
     }
 
-    "redirect to task list when no cya or prior exists" in {
+    "redirect to task list when no cya or prior exists and sectionCompletedQuestionEnabled" in {
       val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
 
       running(application) {
@@ -75,7 +75,7 @@ class CheckUkDividendsAmountControllerISpec extends IntegrationTest with Dividen
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result) mustBe Some(s"/update-and-submit-income-tax-return/personal-income/$taxYear/cash-dividends/section-completed")
+        redirectLocation(result) mustBe Some(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist")
       }
     }
 
@@ -170,8 +170,29 @@ class CheckUkDividendsAmountControllerISpec extends IntegrationTest with Dividen
   }
 
   ".submit" should {
-    "submit data and redirect to task list" in {
+    "submit data and redirect to task list when sectionCompletedQuestionEnabled is false" in {
       val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
+
+      running(application) {
+        authoriseIndividual(Some(nino))
+        dropStockDividendsDB()
+        emptyUserDataStub()
+        emptyStockDividendsUserDataStub()
+        insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
+        stubPut(s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", NO_CONTENT, "")
+        stubPut(s"/income-tax-dividends/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "")
+        stubPut(s"/income-tax-dividends/income-tax/income/dividends/$nino/$taxYear", NO_CONTENT, "")
+
+        val request = FakeRequest(POST, url).withHeaders(headers: _*)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result) mustBe Some(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist")
+      }
+    }
+
+    "submit data and redirect to task list when sectionCompletedQuestionEnabled is true" in {
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true, sectionCompletedQuestionEnabled = true)
 
       running(application) {
         authoriseIndividual(Some(nino))
