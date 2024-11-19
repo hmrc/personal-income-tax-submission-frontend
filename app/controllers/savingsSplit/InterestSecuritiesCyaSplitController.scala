@@ -90,13 +90,21 @@ class InterestSecuritiesCyaSplitController @Inject()(interestSecuritiesCYAView: 
     }
   }
 
+  private def redirectResult(taxYear: Int): Result = {
+      if (appConfig.sectionCompletedQuestionEnabled) {
+        Redirect(controllers.routes.SectionCompletedStateController.show(taxYear = taxYear, journey = "gilt-edged"))
+      } else {
+        Redirect(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist")
+      }
+  }
+
   def submitSavings(taxYear: Int, cyaData: Option[SavingsIncomeCYAModel],
                     priorData: Option[SavingsIncomeDataModel])(implicit user: User[_], hc: HeaderCarrier): Future[Result] = {
     cyaData match {
       case Some(cya) =>
         priorData.fold(handleSubmissionRedirect(taxYear, cyaData))(
           prior => if (prior.toCYAModel == cya) {
-            Future.successful(Redirect(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist"))
+            Future.successful(redirectResult(taxYear))
           } else {
             handleSubmissionRedirect(taxYear, cyaData, priorData)
           }
@@ -117,9 +125,7 @@ class InterestSecuritiesCyaSplitController @Inject()(interestSecuritiesCYAView: 
           prior.flatMap(_.securities), prior.isDefined, user.nino, user.mtditid, user.affinityGroup.toLowerCase, taxYear
         )
         auditSubmission(model)
-        savingsSessionService.clear(taxYear)(errorHandler.internalServerError())(
-          Redirect(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist")
-        )
+        savingsSessionService.clear(taxYear)(errorHandler.internalServerError())(redirectResult(taxYear))
     }
   }
 
