@@ -48,6 +48,13 @@ class CheckUkDividendsAmountController @Inject()(authorisedAction: AuthorisedAct
                                                 (implicit appConfig: AppConfig, mcc: MessagesControllerComponents, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport {
 
+  private def submissionUrl(taxYear: Int): String = {
+    if (appConfig.sectionCompletedQuestionEnabled) {
+      routes.SectionCompletedStateController.show(taxYear, Journey.CashDividends.entryName).url
+    } else {
+      s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist"
+    }
+  }
 
   def show(taxYear: Int): Action[AnyContent] = authorisedAction.async { implicit request =>
     getStockDividends(taxYear)
@@ -76,7 +83,7 @@ class CheckUkDividendsAmountController @Inject()(authorisedAction: AuthorisedAct
       case Some(cyaData) => handleSession(cya, cyaData, taxYear)
       case _ =>
         logger.info("[CheckUkDividendsAmountController][show] No CYA data in session. Redirecting to the task list.")
-        Future.successful(Redirect(routes.SectionCompletedStateController.show(taxYear, Journey.CashDividends.entryName)))
+        Future.successful(Redirect(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist"))
     }
   }
 
@@ -113,7 +120,7 @@ class CheckUkDividendsAmountController @Inject()(authorisedAction: AuthorisedAct
       case Right(_) =>
         for {
           dividends <-
-            dividendsSession.clear(taxYear)(errorHandler.internalServerError())(Redirect(routes.SectionCompletedStateController.show(taxYear, Journey.CashDividends.entryName)))
+            dividendsSession.clear(taxYear)(errorHandler.internalServerError())(Redirect(submissionUrl(taxYear)))
           stockDividends <- stockDividendsSession.clear(taxYear)(errorHandler.internalServerError())(dividends)
         } yield {
           stockDividends

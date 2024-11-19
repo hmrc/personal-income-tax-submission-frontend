@@ -65,7 +65,7 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result) mustBe Some(s"/update-and-submit-income-tax-return/personal-income/$taxYear/stock-dividends/section-completed")
+        redirectLocation(result) mustBe Some(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist")
       }
     }
 
@@ -135,8 +135,29 @@ class CheckStockDividendAmountControllerISpec extends IntegrationTest with Divid
   }
 
   "StockDividendAmountBaseController.submit" should {
-    "submit data and redirect to task list" in {
+    "submit data and redirect to task list when sectionCompletedQuestionEnabled is false" in {
       val application = buildApplication(stockDividends = true, miniJourneyEnabled = true)
+
+      running(application) {
+        authoriseIndividual(Some(nino))
+        dropStockDividendsDB()
+        emptyUserDataStub()
+        emptyStockDividendsUserDataStub()
+        insertStockDividendsCyaData(Some(completeStockDividendsCYAModel))
+        stubPut(s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", NO_CONTENT, "")
+        stubPut(s"/income-tax-dividends/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "")
+        stubPut(s"/income-tax-dividends/income-tax/income/dividends/$nino/$taxYear", NO_CONTENT, "")
+
+        val request = FakeRequest(POST, url).withHeaders(headers: _*)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result) mustBe Some(s"${appConfig.incomeTaxSubmissionBaseUrl}/$taxYear/tasklist")
+      }
+    }
+
+    "submit data and redirect to task list when sectionCompletedQuestionEnabled is true" in {
+      val application = buildApplication(stockDividends = true, miniJourneyEnabled = true, sectionCompletedQuestionEnabled = true)
 
       running(application) {
         authoriseIndividual(Some(nino))
