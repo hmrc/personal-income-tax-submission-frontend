@@ -91,6 +91,16 @@ class InterestCYAController @Inject()(
 
   private[controllers] def performSubmission(taxYear: Int, cya: Option[InterestCYAModel], prior: Option[InterestPriorSubmission])
                                             (implicit user: User[_], hc: HeaderCarrier): Future[Result] = {
+    def redirectResult(): Result = {
+      if (appConfig.sectionCompletedQuestionEnabled) {
+        Redirect(controllers.routes.SectionCompletedStateController.show(taxYear = taxYear, journey = "uk-interest"))
+      } else if (appConfig.interestSavingsEnabled) {
+        Redirect(controllers.routes.InterestFromSavingsAndSecuritiesSummaryController.show(taxYear))
+      } else {
+        Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+      }
+    }
+
     (cya match {
       case Some(cyaData) => interestSubmissionService.submit(cyaData, user.nino, taxYear, user.mtditid).map {
         case response@Right(_) =>
@@ -107,12 +117,7 @@ class InterestCYAController @Inject()(
         Future.successful(Left(APIErrorModel(BAD_REQUEST, APIErrorBodyModel("MISSING_DATA", "CYA data or NINO missing from session."))))
     }).flatMap {
       case Right(_) =>
-        interestSessionService.clear(taxYear)(errorHandler.internalServerError())(
-        if (appConfig.interestSavingsEnabled) {
-          Redirect(controllers.routes.InterestFromSavingsAndSecuritiesSummaryController.show(taxYear))
-        }else {
-            Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-        })
+        interestSessionService.clear(taxYear)(errorHandler.internalServerError())(redirectResult())
       case Left(error) => Future.successful(errorHandler.handleError(error.status))
     }
   }
