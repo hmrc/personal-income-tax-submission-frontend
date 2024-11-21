@@ -26,7 +26,7 @@ import play.api.http.Status.NO_CONTENT
 import play.api.libs.json.Json
 import ConnectorFailureLogger._
 import models.Journey
-import models.Journey.{CashDividends, CloseCompanyLoans, DividendsFromUnitTrusts, FreeRedeemableShares, GiftAid, StockDividends, UkInterest}
+import models.Journey.{CashDividends, CloseCompanyLoans, DividendsFromUnitTrusts, FreeRedeemableShares, GiftAid, GiltEdged, StockDividends, UkInterest}
 
 import java.net.URL
 import javax.inject.Inject
@@ -83,6 +83,7 @@ class SectionCompletedConnector @Inject()(appConfig: AppConfig, httpClient: Http
 
   private def journeyStringToBaseUrl(journey: Journey): String = journey match {
     case UkInterest => appConfig.interestBaseUrl
+    case GiltEdged => appConfig.interestBaseUrl
     case GiftAid => appConfig.giftAidBaseUrl
     case CashDividends => appConfig.dividendsBaseUrl
     case StockDividends => appConfig.dividendsBaseUrl
