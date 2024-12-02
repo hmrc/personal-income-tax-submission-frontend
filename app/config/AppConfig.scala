@@ -126,7 +126,7 @@ trait AppConfig {
   val signInBaseUrl: String
 
   val signInContinueUrl: String
-  val signInUrl: String
+  def signInUrl: String
   val dividendsBaseUrl: String
   val interestBaseUrl: String
   val giftAidBaseUrl: String
