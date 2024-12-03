@@ -16,7 +16,7 @@
 
 package controllers.predicates
 
-import common.{EnrolmentIdentifiers, EnrolmentKeys, SessionValues}
+import common.{DelegatedAuthRules, EnrolmentIdentifiers, EnrolmentKeys, SessionValues}
 import config.AppConfig
 import models.User
 import play.api.Logger
@@ -119,12 +119,12 @@ class AuthorisedAction @Inject()(
   private def agentAuthPredicate(mtdId: String): Predicate =
     Enrolment(EnrolmentKeys.Individual)
       .withIdentifier(EnrolmentIdentifiers.individualId, mtdId)
-      .withDelegatedAuthRule("mtd-it-auth")
+      .withDelegatedAuthRule(DelegatedAuthRules.agentDelegatedAuthRule)
 
   private def secondaryAgentPredicate(mtdId: String): Predicate =
     Enrolment(EnrolmentKeys.Supporting)
       .withIdentifier(EnrolmentIdentifiers.individualId, mtdId)
-      .withDelegatedAuthRule("mtd-it-auth-supp")
+      .withDelegatedAuthRule(DelegatedAuthRules.supportingAgentDelegatedAuthRule)
 
   private def agentRecovery[A](block: User[A] => Future[Result], mtdItId: String, nino: String)
                                           (implicit request: Request[A], hc: HeaderCarrier): PartialFunction[Throwable, Future[Result]] = {

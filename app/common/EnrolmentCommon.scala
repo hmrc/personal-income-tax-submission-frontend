@@ -28,3 +28,8 @@ object EnrolmentIdentifiers {
   val agentReference = "AgentReferenceNumber"
   val nino = "NINO"
 }
+
+object DelegatedAuthRules {
+  val agentDelegatedAuthRule = "mtd-it-auth"
+  val supportingAgentDelegatedAuthRule = "mtd-it-auth-supp"
+}

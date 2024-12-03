@@ -46,8 +46,7 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite {
   val auth: AuthorisedAction = authorisedAction
   val nino: String = "AA123456A"
 
-  trait Test {
-    val mtdItId: String = "1234567890"
+  trait AgentTest {
     val arn: String = "0987654321"
 
     val baseUrl = "/update-and-submit-income-tax-return/personal-income"
@@ -110,13 +109,9 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite {
         .returning(viewAndChangeUrl)
         .anyNumberOfTimes()
 
-     def setupStubs(): CallHandler0[String] = {
+    def testAuth: AuthorisedAction = {
       mockViewAndChangeUrl()
       mockSignInUrl()
-    }
-
-    def testAuth: AuthorisedAction = {
-      setupStubs()
 
       new AuthorisedAction(
         appConfig = mockAppConfig,
@@ -263,7 +258,7 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite {
 
       "the confidence level is below minimum" which {
         val block: User[AnyContent] => Future[Result] = user => Future.successful(Ok(user.mtditid))
-        val mtditid = "1234567890"
+        val mtditid = mtdItId
         val enrolments = Enrolments(Set(
           Enrolment(EnrolmentKeys.Individual, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.individualId, mtditid)), "Activated"),
           Enrolment(EnrolmentKeys.nino, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.nino, "AA123456A")), "Activated")
@@ -289,7 +284,7 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite {
 
   ".agentAuthenticated" when {
     "MTD ID and/or NINO are not found in the session" should {
-      "return a redirect to View and Change service" in new Test {
+      "return a redirect to View and Change service" in new AgentTest {
         val result: Future[Result] = testAuth.agentAuthentication(testBlock)(
           request = FakeRequest().withSession(fakeRequest.session.data.toSeq :_*),
           hc = emptyHeaderCarrier
@@ -302,7 +297,7 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite {
 
     "NINO and MTD IT ID are present in the session" which {
       "results in a NoActiveSession error to be returned from Auth" should {
-        "return a redirect to the login page" in new Test {
+        "return a redirect to the login page" in new AgentTest {
           object AuthException extends NoActiveSession("Some reason")
           mockAuthReturnException(AuthException, primaryAgentPredicate(mtdItId))
 
@@ -317,7 +312,7 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite {
       }
 
       "[EMA disabled] results in an AuthorisationException error being returned from Auth" should {
-        "return a redirect to the agent error page" in new Test {
+        "return a redirect to the agent error page" in new AgentTest {
           mockMultipleAgentsSwitch(false)
 
           object AuthException extends AuthorisationException("Some reason")
@@ -334,7 +329,7 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite {
       }
 
       "[EMA enabled] results in an AuthorisationException error being returned from Auth" should {
-        "return a redirect to the agent error page when secondary agent auth call also fails" in new Test {
+        "return a redirect to the agent error page when secondary agent auth call also fails" in new AgentTest {
           mockMultipleAgentsSwitch(true)
 
           object AuthException extends AuthorisationException("Some reason")
@@ -350,7 +345,7 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite {
           redirectUrl(result) shouldBe s"$baseUrl/error/you-need-client-authorisation"
         }
 
-        "handle appropriately when a supporting agent is properly authorised" in new Test {
+        "handle appropriately when a supporting agent is properly authorised" in new AgentTest {
           mockMultipleAgentsSwitch(true)
 
           object AuthException extends AuthorisationException("Some reason")
@@ -368,7 +363,7 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite {
       }
 
       "results in successful authorisation for a primary agent" should {
-        "return a redirect to You Need Agent Services page when an ARN cannot be found" in new Test {
+        "return a redirect to You Need Agent Services page when an ARN cannot be found" in new AgentTest {
           val primaryAgentEnrolmentNoArn: Enrolments = Enrolments(Set(
             Enrolment(EnrolmentKeys.Individual, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.individualId, mtdItId)), "Activated"),
             Enrolment(EnrolmentKeys.Agent, Seq.empty, "Activated")
@@ -385,7 +380,7 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite {
           redirectUrl(result) shouldBe s"$baseUrl/error/you-need-agent-services-account"
         }
 
-        "return a redirect to Sign In page when a session ID cannot be found" in new Test {
+        "return a redirect to Sign In page when a session ID cannot be found" in new AgentTest {
           mockAuthReturn(primaryAgentEnrolment, primaryAgentPredicate(mtdItId))
 
           lazy val result: Future[Result] = testAuth.agentAuthentication(testBlock)(
@@ -397,7 +392,7 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite {
           redirectUrl(result) shouldBe s"$baseUrl/signIn"
         }
 
-        "invoke block when the user is properly authenticated" in new Test {
+        "invoke block when the user is properly authenticated" in new AgentTest {
           mockAuthReturn(primaryAgentEnrolment, primaryAgentPredicate(mtdItId))
 
           lazy val result: Future[Result] = testAuth.agentAuthentication(testBlock)(
@@ -428,7 +423,7 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite {
 
         "should return an OK(200) status" in {
           status(result) shouldBe OK
-          bodyOf(result) shouldBe "mtditid: 1234567890 arn: 0987654321"
+          bodyOf(result) shouldBe s"mtditid: $mtdItId arn: 0987654321"
         }
       }
 
@@ -441,7 +436,7 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite {
 
         status(result) shouldBe OK
 
-        bodyOf(result) shouldBe "mtditid: 1234567890"
+        bodyOf(result) shouldBe s"mtditid: $mtdItId"
       }
     }
 

@@ -54,10 +54,12 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
 
   def await[T](awaitable: Awaitable[T]): T = Await.result(awaitable, Duration.Inf)
 
+  val mtdItId: String = "1234567890"
+
   lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders("sessionId" -> sessionId)
   lazy val fakeRequestWithMtditidAndNino: FakeRequest[AnyContentAsEmpty.type] = fakeRequest.withSession(
     SessionValues.TAX_YEAR -> "2022",
-    SessionValues.CLIENT_MTDITID -> "1234567890",
+    SessionValues.CLIENT_MTDITID -> mtdItId,
     SessionValues.CLIENT_NINO -> "A123456A"
   )
   val fakeRequestWithNino: FakeRequest[AnyContentAsEmpty.type] = fakeRequest.withSession(
@@ -78,7 +80,7 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
   implicit val mockErrorHandler: ErrorHandler = mock[ErrorHandler]
 
   implicit lazy val mockMessagesControllerComponents: MessagesControllerComponents = Helpers.stubMessagesControllerComponents()
-  implicit lazy val user: User[AnyContent] = new User[AnyContent]("1234567890", None, "AA123456A", "Individual", sessionId)(fakeRequest)
+  implicit lazy val user: User[AnyContent] = new User[AnyContent](mtdItId, None, "AA123456A", "Individual", sessionId)(fakeRequest)
 
 
   def status(awaitable: Future[Result]): Int = await(awaitable).header.status
@@ -99,7 +101,7 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
   //noinspection ScalaStyle
   def mockAuth(nino: Option[String], returnedConfidenceLevel: ConfidenceLevel = ConfidenceLevel.L250): CallHandler4[Predicate, Retrieval[_], HeaderCarrier, ExecutionContext, Future[Any]] = {
     val enrolments = Enrolments(Set(
-      Enrolment(EnrolmentKeys.Individual, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.individualId, "1234567890")), "Activated"),
+      Enrolment(EnrolmentKeys.Individual, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.individualId, mtdItId)), "Activated"),
       Enrolment(EnrolmentKeys.Agent, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.agentReference, "0987654321")), "Activated")
     ) ++ nino.fold(Seq.empty[Enrolment])(unwrappedNino =>
       Seq(Enrolment(EnrolmentKeys.nino, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.nino, unwrappedNino)), "Activated"))
@@ -117,7 +119,7 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
   //noinspection ScalaStyle
   def mockAuthAsAgent(): CallHandler4[Predicate, Retrieval[_], HeaderCarrier, ExecutionContext, Future[Any]] = {
     val enrolments: Enrolments = Enrolments(Set(
-      Enrolment(EnrolmentKeys.Individual, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.individualId, "1234567890")), "Activated"),
+      Enrolment(EnrolmentKeys.Individual, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.individualId, mtdItId)), "Activated"),
       Enrolment(EnrolmentKeys.Agent, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.agentReference, "0987654321")), "Activated")
     ))
 
