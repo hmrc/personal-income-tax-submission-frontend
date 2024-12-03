@@ -110,13 +110,15 @@ class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig) extends AppCon
   def excludeJourneyUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.exclude")
 
+  // feature switches
   lazy val tailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoringEnabled")
   lazy val backendSessionEnabled: Boolean = servicesConfig.getBoolean("feature-switch.backendSessionEnabled")
   lazy val interestTailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoring.interest")
   lazy val interestSavingsEnabled: Boolean = servicesConfig.getBoolean("feature-switch.journeys.savings")
   lazy val dividendsTailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoring.dividends")
   lazy val charityTailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoring.charity")
-  val sectionCompletedQuestionEnabled: Boolean = servicesConfig.getBoolean("feature-switch.journeys.sectionCompletedQuestionEnabled")
+  lazy val sectionCompletedQuestionEnabled: Boolean = servicesConfig.getBoolean("feature-switch.journeys.sectionCompletedQuestionEnabled")
+  lazy val emaSupportingAgentsEnabled: Boolean = servicesConfig.getBoolean("feature-switch.ema-supporting-agents-enabled")
 }
 
 @ImplementedBy(classOf[FrontendAppConfig])
@@ -124,7 +126,7 @@ trait AppConfig {
   val signInBaseUrl: String
 
   val signInContinueUrl: String
-  val signInUrl: String
+  def signInUrl: String
   val dividendsBaseUrl: String
   val interestBaseUrl: String
   val giftAidBaseUrl: String
@@ -177,6 +179,7 @@ trait AppConfig {
 
   def excludeJourneyUrl(taxYear: Int): String
 
+  // feature switches
   def tailoringEnabled: Boolean
   def interestTailoringEnabled: Boolean
   def interestSavingsEnabled: Boolean
@@ -184,4 +187,6 @@ trait AppConfig {
   def charityTailoringEnabled: Boolean
   def miniJourneyEnabled: Boolean
   def sectionCompletedQuestionEnabled: Boolean
+  def emaSupportingAgentsEnabled: Boolean
+
 }

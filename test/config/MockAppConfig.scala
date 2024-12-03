@@ -91,6 +91,8 @@ class MockAppConfig extends AppConfig with MockFactory {
 
   override def sectionCompletedQuestionEnabled: Boolean = false
 
+  override def emaSupportingAgentsEnabled: Boolean = false
+
 }
 
 class MockAppConfigEncyrptionOff extends MockAppConfig {

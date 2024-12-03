@@ -16,12 +16,14 @@
 
 package controllers.predicates
 
-import common.{EnrolmentIdentifiers, EnrolmentKeys}
+import common.{EnrolmentIdentifiers, EnrolmentKeys, SessionValues}
+import config.AppConfig
 import models.User
+import org.scalamock.handlers.{CallHandler0, CallHandler4}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status._
 import play.api.mvc.Results._
-import play.api.mvc.{AnyContent, Result}
+import play.api.mvc.{AnyContent, AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
@@ -29,7 +31,7 @@ import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{allEnrolments, confidenceLevel}
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 import uk.gov.hmrc.play.bootstrap.tools.Stubs.stubMessagesControllerComponents
 import utils.UnitTest
 import views.html.authErrorPages.AgentAuthErrorPageView
@@ -44,8 +46,90 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite {
   val auth: AuthorisedAction = authorisedAction
   val nino: String = "AA123456A"
 
-  ".enrolmentGetIdentifierValue" should {
+  trait AgentTest {
+    val arn: String = "0987654321"
 
+    val baseUrl = "/update-and-submit-income-tax-return/personal-income"
+
+    val validHeaderCarrier: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("sessionId")))
+
+    val testBlock: User[AnyContent] => Future[Result] = user => Future.successful(Ok(s"${user.mtditid} ${user.arn.get}"))
+
+    val mockAppConfig: AppConfig = mock[AppConfig]
+
+    val viewAndChangeUrl: String = "/report-quarterly/income-and-expenses/view/agents/client-utr"
+    val signInUrl: String = s"$baseUrl/signIn"
+
+    def primaryAgentPredicate(mtdId: String): Predicate =
+      Enrolment("HMRC-MTD-IT")
+        .withIdentifier("MTDITID", mtdId)
+        .withDelegatedAuthRule("mtd-it-auth")
+
+    def secondaryAgentPredicate(mtdId: String): Predicate =
+      Enrolment("HMRC-MTD-IT-SUPP")
+        .withIdentifier("MTDITID", mtdId)
+        .withDelegatedAuthRule("mtd-it-auth-supp")
+
+    def mockMultipleAgentsSwitch(bool: Boolean): CallHandler0[Boolean] =
+      (mockAppConfig.emaSupportingAgentsEnabled _: () => Boolean)
+        .expects()
+        .returning(bool)
+        .anyNumberOfTimes()
+
+    val primaryAgentEnrolment: Enrolments = Enrolments(Set(
+      Enrolment(EnrolmentKeys.Individual, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.individualId, mtdItId)), "Activated"),
+      Enrolment(EnrolmentKeys.Agent, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.agentReference, arn)), "Activated")
+    ))
+
+    val supportingAgentEnrolment: Enrolments = Enrolments(Set(
+      Enrolment(EnrolmentKeys.Supporting, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.individualId, mtdItId)), "Activated"),
+      Enrolment(EnrolmentKeys.Agent, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.agentReference, arn)), "Activated")
+    ))
+
+    def mockAuthReturnException(exception: Exception,
+                                predicate: Predicate): CallHandler4[Predicate, Retrieval[_], HeaderCarrier, ExecutionContext, Future[Any]] =
+      (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
+        .expects(predicate, *, *, *)
+        .returning(Future.failed(exception))
+
+    def mockAuthReturn(enrolments: Enrolments, predicate: Predicate): CallHandler4[Predicate, Retrieval[_], HeaderCarrier, ExecutionContext, Future[Any]] =
+      (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
+      .expects(predicate, *, *, *)
+      .returning(Future.successful(enrolments))
+
+    def mockSignInUrl(): CallHandler0[String] =
+      (mockAppConfig.signInUrl _: () => String)
+        .expects()
+        .returning(signInUrl)
+        .anyNumberOfTimes()
+
+    def mockViewAndChangeUrl(): CallHandler0[String] =
+      (mockAppConfig.viewAndChangeEnterUtrUrl _: () => String)
+        .expects()
+        .returning(viewAndChangeUrl)
+        .anyNumberOfTimes()
+
+    def testAuth: AuthorisedAction = {
+      mockViewAndChangeUrl()
+      mockSignInUrl()
+
+      new AuthorisedAction(
+        appConfig = mockAppConfig,
+        agentAuthErrorPage = agentAuthErrorPageView
+      )(
+        authService = mockAuthService,
+        mcc = stubMessagesControllerComponents()
+      )
+    }
+
+    lazy val fakeRequestWithMtditidAndNino: FakeRequest[AnyContentAsEmpty.type] = fakeRequest.withSession(
+      SessionValues.TAX_YEAR -> "2022",
+      SessionValues.CLIENT_MTDITID -> mtdItId,
+      SessionValues.CLIENT_NINO -> nino
+    )
+  }
+
+  ".enrolmentGetIdentifierValue" should {
     "return the value for the given identifier" in {
       val returnValue = "anIdentifierValue"
       val returnValueAgent = "anAgentIdentifierValue"
@@ -80,9 +164,7 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite {
   }
 
   ".individualAuthentication" should {
-
     "perform the block action" when {
-
       "the correct enrolment exist" which {
         val block: User[AnyContent] => Future[Result] = user => Future.successful(Ok(user.mtditid))
         val mtditid = "AAAAAA"
@@ -176,7 +258,7 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite {
 
       "the confidence level is below minimum" which {
         val block: User[AnyContent] => Future[Result] = user => Future.successful(Ok(user.mtditid))
-        val mtditid = "1234567890"
+        val mtditid = mtdItId
         val enrolments = Enrolments(Set(
           Enrolment(EnrolmentKeys.Individual, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.individualId, mtditid)), "Activated"),
           Enrolment(EnrolmentKeys.nino, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.nino, "AA123456A")), "Activated")
@@ -200,105 +282,129 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite {
     }
   }
 
-  ".agentAuthenticated" should {
+  ".agentAuthenticated" when {
+    "MTD ID and/or NINO are not found in the session" should {
+      "return a redirect to View and Change service" in new AgentTest {
+        val result: Future[Result] = testAuth.agentAuthentication(testBlock)(
+          request = FakeRequest().withSession(fakeRequest.session.data.toSeq :_*),
+          hc = emptyHeaderCarrier
+        )
 
-    val block: User[AnyContent] => Future[Result] = user => Future.successful(Ok(s"${user.mtditid} ${user.arn.get}"))
-
-    "perform the block action" when {
-
-      "the agent is authorised for the given user" which {
-
-        val enrolments = Enrolments(Set(
-          Enrolment(EnrolmentKeys.Individual, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.individualId, "1234567890")), "Activated"),
-          Enrolment(EnrolmentKeys.Agent, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.agentReference, "0987654321")), "Activated")
-        ))
-
-        lazy val result = {
-          (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
-            .expects(*, *, *, *)
-            .returning(Future.successful(enrolments))
-
-          auth.agentAuthentication(block)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
-        }
-
-        "has a status of OK" in {
-          status(result) shouldBe OK
-        }
-
-        "has the correct body" in {
-          bodyOf(result) shouldBe "1234567890 0987654321"
-        }
+        status(result) shouldBe SEE_OTHER
+        redirectUrl(result) shouldBe viewAndChangeUrl
       }
     }
 
-    "return an SEE_OTHER" when {
+    "NINO and MTD IT ID are present in the session" which {
+      "results in a NoActiveSession error to be returned from Auth" should {
+        "return a redirect to the login page" in new AgentTest {
+          object AuthException extends NoActiveSession("Some reason")
+          mockAuthReturnException(AuthException, primaryAgentPredicate(mtdItId))
 
-      "the authorisation service returns an AuthorisationException exception" in {
-        object AuthException extends AuthorisationException("Some reason")
+          val result: Future[Result] = testAuth.agentAuthentication(testBlock)(
+            request = FakeRequest().withSession(fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
+            hc = emptyHeaderCarrier
+          )
 
-        lazy val result = {
-          mockAuthReturnException(AuthException)
-          auth.agentAuthentication(block)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
-        }
-        status(result) shouldBe SEE_OTHER
-      }
-
-      "there is no session id" which {
-        val enrolments = Enrolments(Set(
-          Enrolment(EnrolmentKeys.Individual, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.individualId, "1234567890")), "Activated"),
-          Enrolment(EnrolmentKeys.Agent, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.agentReference, "0987654321")), "Activated")
-        ))
-
-        lazy val result = {
-          (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
-            .expects(*, *, *, *)
-            .returning(Future.successful(enrolments))
-
-          auth.agentAuthentication(block)(FakeRequest().withSession(fakeRequestWithMtditidAndNino.session.-("sessionId").data.toList: _*), emptyHeaderCarrier)
-        }
-
-        "has a status of OK" in {
           status(result) shouldBe SEE_OTHER
-        }
-
-        "has the correct body" in {
-          redirectUrl(result) shouldBe "/signIn"
+          redirectUrl(result) shouldBe s"$baseUrl/signIn"
         }
       }
 
-    }
+      "[EMA disabled] results in an AuthorisationException error being returned from Auth" should {
+        "return a redirect to the agent error page" in new AgentTest {
+          mockMultipleAgentsSwitch(false)
 
-    "redirect to the sign in page" when {
+          object AuthException extends AuthorisationException("Some reason")
+          mockAuthReturnException(AuthException, primaryAgentPredicate(mtdItId))
 
-      "the authorisation service returns a NoActiveSession exception" in {
-        object NoActiveSession extends NoActiveSession("Some reason")
+          val result: Future[Result] = testAuth.agentAuthentication(testBlock)(
+            request = FakeRequest().withSession(fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
+            hc = emptyHeaderCarrier
+          )
 
-        lazy val result = {
-          mockAuthReturnException(NoActiveSession)
-          auth.agentAuthentication(block)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
+          status(result) shouldBe SEE_OTHER
+          redirectUrl(result) shouldBe s"$baseUrl/error/you-need-client-authorisation"
+        }
+      }
+
+      "[EMA enabled] results in an AuthorisationException error being returned from Auth" should {
+        "return a redirect to the agent error page when secondary agent auth call also fails" in new AgentTest {
+          mockMultipleAgentsSwitch(true)
+
+          object AuthException extends AuthorisationException("Some reason")
+          mockAuthReturnException(AuthException, primaryAgentPredicate(mtdItId))
+          mockAuthReturnException(AuthException, secondaryAgentPredicate(mtdItId))
+
+          lazy val result: Future[Result] = testAuth.agentAuthentication(testBlock)(
+            request = FakeRequest().withSession(fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
+            hc = emptyHeaderCarrier
+          )
+
+          status(result) shouldBe SEE_OTHER
+          redirectUrl(result) shouldBe s"$baseUrl/error/you-need-client-authorisation"
         }
 
-        status(result) shouldBe SEE_OTHER
-      }
-    }
+        "handle appropriately when a supporting agent is properly authorised" in new AgentTest {
+          mockMultipleAgentsSwitch(true)
 
-    "return a redirect" when {
+          object AuthException extends AuthorisationException("Some reason")
+          mockAuthReturnException(AuthException, primaryAgentPredicate(mtdItId))
+          mockAuthReturn(supportingAgentEnrolment, secondaryAgentPredicate(mtdItId))
 
-      "the user does not have an enrolment for the agent" in {
-        val enrolments = Enrolments(Set(
-          Enrolment(EnrolmentKeys.Individual, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.individualId, "1234567890")), "Activated")
-        ))
+          lazy val result: Future[Result] = testAuth.agentAuthentication(testBlock)(
+            request = FakeRequest().withSession(fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
+            hc = validHeaderCarrier
+          )
 
-        lazy val result = {
-          (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
-            .expects(*, *, *, *)
-            .returning(Future.successful(enrolments))
-          auth.agentAuthentication(block)(fakeRequestWithMtditidAndNino, emptyHeaderCarrier)
+          status(result) shouldBe OK
+          bodyOf(result) shouldBe s"$mtdItId $arn"
         }
-        status(result) shouldBe SEE_OTHER
+      }
+
+      "results in successful authorisation for a primary agent" should {
+        "return a redirect to You Need Agent Services page when an ARN cannot be found" in new AgentTest {
+          val primaryAgentEnrolmentNoArn: Enrolments = Enrolments(Set(
+            Enrolment(EnrolmentKeys.Individual, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.individualId, mtdItId)), "Activated"),
+            Enrolment(EnrolmentKeys.Agent, Seq.empty, "Activated")
+          ))
+
+          mockAuthReturn(primaryAgentEnrolmentNoArn, primaryAgentPredicate(mtdItId))
+
+          lazy val result: Future[Result] = testAuth.agentAuthentication(testBlock)(
+            request = FakeRequest().withSession(fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
+            hc = validHeaderCarrier
+          )
+
+          status(result) shouldBe SEE_OTHER
+          redirectUrl(result) shouldBe s"$baseUrl/error/you-need-agent-services-account"
+        }
+
+        "return a redirect to Sign In page when a session ID cannot be found" in new AgentTest {
+          mockAuthReturn(primaryAgentEnrolment, primaryAgentPredicate(mtdItId))
+
+          lazy val result: Future[Result] = testAuth.agentAuthentication(testBlock)(
+            request = FakeRequest().withSession(fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
+            hc = emptyHeaderCarrier
+          )
+
+          status(result) shouldBe SEE_OTHER
+          redirectUrl(result) shouldBe s"$baseUrl/signIn"
+        }
+
+        "invoke block when the user is properly authenticated" in new AgentTest {
+          mockAuthReturn(primaryAgentEnrolment, primaryAgentPredicate(mtdItId))
+
+          lazy val result: Future[Result] = testAuth.agentAuthentication(testBlock)(
+            request = FakeRequest().withSession(fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
+            hc = validHeaderCarrier
+          )
+
+          status(result) shouldBe OK
+          bodyOf(result) shouldBe s"$mtdItId $arn"
+        }
       }
     }
-
   }
 
   ".invokeBlock" should {
@@ -317,7 +423,7 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite {
 
         "should return an OK(200) status" in {
           status(result) shouldBe OK
-          bodyOf(result) shouldBe "mtditid: 1234567890 arn: 0987654321"
+          bodyOf(result) shouldBe s"mtditid: $mtdItId arn: 0987654321"
         }
       }
 
@@ -330,7 +436,7 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite {
 
         status(result) shouldBe OK
 
-        bodyOf(result) shouldBe "mtditid: 1234567890"
+        bodyOf(result) shouldBe s"mtditid: $mtdItId"
       }
     }
 

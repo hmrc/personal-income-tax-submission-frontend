@@ -32,7 +32,6 @@ import scala.concurrent.Future
 class SectionCompletedServiceSpec extends UnitTest {
   val auth: AuthConnector = mock[AuthConnector]
   val mockConnector: SectionCompletedConnector = mock[SectionCompletedConnector]
-  val mtdItId = "1234567890"
   val taxYear = 2023
   val journey = Journey.GiftAid
   val data = Json.obj("status" -> Completed.toString)
