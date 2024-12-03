@@ -99,7 +99,9 @@ class AuthorisedAction @Inject()(
           case (Some(mtdItId), Some(nino)) => sessionIdBlock(
             errorLogString = s"[AuthorisedAction][individualAuthentication] - No session id in request",
             errorAction = signInRedirectFutureResult
-          )(sessionId => block(User(mtdItId, None, nino, individualUser.toString, sessionId)))
+          )(
+            sessionId => block(User(mtdItId, None, nino, individualUser.toString, sessionId))
+          )
           case (_, None) =>
             logger.info(s"[AuthorisedAction][individualAuthentication] - No active session. Redirecting to ${appConfig.signInUrl}")
             signInRedirectFutureResult
@@ -131,7 +133,9 @@ class AuthorisedAction @Inject()(
       signInRedirectFutureResult
     case _: AuthorisationException if appConfig.emaSupportingAgentsEnabled =>
       authService.authorised(secondaryAgentPredicate(mtdItId))
-        .retrieve(allEnrolments)(enrolments => handleForValidAgent(block, mtdItId, nino, enrolments))
+        .retrieve(allEnrolments)(
+          enrolments => handleForValidAgent(block, mtdItId, nino, enrolments, isSupportingAgent = true)
+        )
         .recover {
           case _: AuthorisationException =>
             logger.info(s"$agentAuthLogString - Agent does not have delegated primary or secondary authority for Client.")
@@ -143,15 +147,16 @@ class AuthorisedAction @Inject()(
   }
 
   private def handleForValidAgent[A](block: User[A] => Future[Result],
-                                                 mtdItId: String,
-                                                 nino: String,
-                                                 enrolments: Enrolments)
-                                                (implicit request: Request[A], hc: HeaderCarrier): Future[Result] = {
+                                     mtdItId: String,
+                                     nino: String,
+                                     enrolments: Enrolments,
+                                     isSupportingAgent: Boolean)
+                                    (implicit request: Request[A], hc: HeaderCarrier): Future[Result] = {
     enrolmentGetIdentifierValue(EnrolmentKeys.Agent, EnrolmentIdentifiers.agentReference, enrolments) match {
       case Some(arn) => sessionIdBlock(
         errorLogString = s"$agentAuthLogString - No session id in request",
         errorAction = signInRedirectFutureResult
-      )(sessionId => block(User(mtdItId, Some(arn), nino, AffinityGroup.Agent.toString, sessionId)))
+      )(sessionId => block(User(mtdItId, Some(arn), nino, AffinityGroup.Agent.toString, sessionId, isSupportingAgent)))
       case None =>
         logger.info(s"$agentAuthLogString - Agent with no HMRC-AS-AGENT enrolment. Rendering unauthorised view.")
         Future.successful(Redirect(controllers.errors.routes.YouNeedAgentServicesController.show))
@@ -167,7 +172,9 @@ class AuthorisedAction @Inject()(
       case (Some(mtdItId), Some(nino)) =>
         authService
           .authorised(agentAuthPredicate(mtdItId))
-          .retrieve(allEnrolments)(enrolments => handleForValidAgent(block, mtdItId, nino, enrolments))
+          .retrieve(allEnrolments)(
+            enrolments => handleForValidAgent(block, mtdItId, nino, enrolments, isSupportingAgent = false)
+          )
           .recoverWith(agentRecovery(block, mtdItId, nino))
       case (mtdItId, nino) =>
         logger.info(s"[AuthorisedAction][agentAuthentication] - Agent does not have session key values. " +
