@@ -47,8 +47,6 @@
 
         @inputRadio(
             form = form,
-            legendHeading = Some(Html(headingForUse)),
-            legendHidden = true,
             inline = true,
             hint = Some(Html(messages(s"dividends.uk-dividends.sub-heading.${if(user.isAgent) "agent" else "individual"}")))
         )
