@@ -21,6 +21,7 @@
 @import views.html.templates.helpers.InputTextAlt
 @import views.html.templates.helpers.Button
 @import views.html.templates.helpers.Heading
+@import views.html.templates.helpers.P
 
 @this(
         layout: Layout,
@@ -28,7 +29,8 @@
         errorSummary: ErrorSummary,
         button: Button,
         inputText: InputTextAlt,
-        heading: Heading
+        heading: Heading,
+        p: P
 )
 
 @(form: Form[BigDecimal], taxYear: Int)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
@@ -48,6 +50,12 @@
     @heading(headingForUse, Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
 
     @formWithCSRF(action = controllers.dividendsBase.routes.RedeemableSharesAmountBaseController.submit(taxYear)) {
+
+        @p(Html(messages(s"dividends.redeemable-shares-amount.hint.${if(user.isAgent) "agent" else "individual"}")),
+            classes = "govuk-body",
+            id = Some("hint")
+        )
+
         @inputText(
             form,
             id = "amount",
@@ -55,7 +63,7 @@
             label = headingForUse,
             labelHidden = true,
             currency = true,
-            hint = Some(messages(s"dividends.redeemable-shares-amount.hint.${if(user.isAgent) "agent" else "individual"}"))
+            hint = Some(messages("common.currency.hint"))
         )
 
         @button()

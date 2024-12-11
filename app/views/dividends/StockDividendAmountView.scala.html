@@ -72,7 +72,8 @@
             label = messages(s"dividends.stock-dividend-amount.question.${if(user.isAgent) "agent" else "individual"}"),
             labelHidden = false,
             labelClasses = "govuk-label govuk-label--m",
-            currency = true
+            currency = true,
+            hint = Some(messages("common.currency.hint"))
         )
 
         @button()
