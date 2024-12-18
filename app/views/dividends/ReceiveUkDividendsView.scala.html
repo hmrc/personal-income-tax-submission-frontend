@@ -41,12 +41,13 @@
 
     @errorSummary(form.errors.distinct)
 
-    @heading(headingForUse, Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-4")
-
     @formWithCsrf(action = controllers.dividends.routes.ReceiveUkDividendsController.submit(taxYear)) {
 
         @inputRadio(
             form = form,
+            legendHeading = Some(heading(headingForUse, Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-4")),
+            legendAsHeading = true,
+            legendHidden = false,
             inline = true,
             hint = Some(Html(messages(s"dividends.uk-dividends.sub-heading.${if(user.isAgent) "agent" else "individual"}")))
         )
