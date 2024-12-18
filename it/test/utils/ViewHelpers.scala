@@ -94,6 +94,15 @@ trait ViewHelpers { self: AnyWordSpecLike with Matchers with WireMockHelper =>
     }
   }
 
+  def legendHeadingCheck(legend: String, size: String = "l")(implicit document: () => Document): Unit = {
+    s"have a legend of '$legend'" in {
+      val heading = document().select(s"legend h1").first.ownText
+      val caption = document().select(s"legend h1 > span.govuk-caption-$size").text
+
+      s"$heading $caption".trim shouldBe legend
+    }
+  }
+
   def captionCheck(caption: String, selector: String = ".govuk-caption-l")(implicit document: () => Document): Unit = {
     s"have the caption of '$caption'" in {
       document().select(selector).text() shouldBe caption

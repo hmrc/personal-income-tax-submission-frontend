@@ -156,7 +156,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck(get.expectedTitle, scenario.isWelsh)
-          h1Check(s"${get.expectedH1} ${captionExpected}")
+          legendHeadingCheck(s"${get.expectedH1} ${captionExpected}")
           hintTextCheck(get.expectedHintText)
           radioButtonCheck(yesNo(true), 1)
           radioButtonCheck(yesNo(false), 2)
@@ -182,7 +182,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck(get.expectedTitle, scenario.isWelsh)
-          h1Check(s"${get.expectedH1} ${captionExpected}")
+          legendHeadingCheck(s"${get.expectedH1} ${captionExpected}")
           hintTextCheck(get.expectedHintText)
           radioButtonCheck(yesNo(true), 1)
           radioButtonCheck(yesNo(false), 2)
@@ -309,7 +309,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck(get.expectedErrorTitle, us.isWelsh)
-          h1Check(s"${get.expectedH1} ${captionExpected}")
+          legendHeadingCheck(s"${get.expectedH1} ${captionExpected}")
           errorSummaryCheck(get.expectedErrorText, errorSummaryHref, us.isWelsh)
           hintTextCheck(get.expectedHintText)
           radioButtonCheck(yesNo(true), 1)
