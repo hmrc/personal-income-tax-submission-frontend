@@ -24,7 +24,7 @@
     if(user.isAgent) "agent" else "individual"
 }
 
-@content = {
+@legendHeading = {
     <span class="govuk-caption-l">@messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)</span>
     @(messages("dividends.gateway.heading." + agentOrIndividual))
 }
@@ -39,7 +39,7 @@
         @radio(
             form = form,
             name = "value",
-            legendHeading = Some(content),
+            legendHeading = Some(legendHeading),
             legendAsHeading = true,
             inline = true,
             hint = Some(Html(messages("dividends.gateway.hint")))
