@@ -1,5 +1,5 @@
 @*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
 @import views.html.templates.helpers.Button
 @import views.html.templates.helpers.InputRadioAlt
 @import views.html.templates.helpers.Heading
-@import views.html.templates.helpers.P
 
 @this(
     layout: Layout,
@@ -28,7 +27,6 @@
     button: Button,
     heading: Heading,
     inputRadio: InputRadioAlt,
-    p: P
 )
 
 @(form: Form[Boolean], taxYear: Int, checked: String = "")(implicit user: User[_], messages: Messages, appConfig: AppConfig)
@@ -39,28 +37,23 @@
 
 @hasFormErrors = @{form.hasErrors}
 
-@detailsHtml = {
-    @p(Html(messages(s"dividends.uk-dividends.sub-heading.${if(user.isAgent) "agent" else "individual"}")),
-        classes = "govuk-body govuk-!-margin-bottom-5",
-        id = Some("p1")
-    )
+@legendHeading = {
+    <span class="govuk-caption-l">@messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)</span>
+    @headingForUse
 }
 
 @layout(pageTitle = titleForUse, taxYear = Some(taxYear), hasErrors = hasFormErrors, isAgent = user.isAgent) {
 
     @errorSummary(form.errors.distinct)
 
-    @heading(headingForUse, Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-4")
-
-    @detailsHtml
-
     @formWithCsrf(action = controllers.dividends.routes.ReceiveUkDividendsController.submit(taxYear)) {
 
         @inputRadio(
             form = form,
-            legendHeading = Some(Html(headingForUse)),
-            legendHidden = true,
-            inline = true
+            legendHeading = Some(legendHeading),
+            legendAsHeading = true,
+            inline = true,
+            hint = Some(Html(messages(s"dividends.uk-dividends.sub-heading.${if(user.isAgent) "agent" else "individual"}")))
         )
 
         @button()

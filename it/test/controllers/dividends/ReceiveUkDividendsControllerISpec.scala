@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,6 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
     )
 
   object Selectors {
-    val yourDividendsSelector = "#p1"
     val continueSelector = "#continue"
     val continueButtonFormSelector = "#main-content > div > div > form"
   }
@@ -66,8 +65,8 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
     val expectedH1: String
     val expectedTitle: String
     val expectedErrorTitle: String
-    val yourDividendsText: String
     val expectedErrorText: String
+    val expectedHintText: String
   }
 
   trait CommonExpectedResults {
@@ -83,7 +82,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
     val expectedH1 = "Did you get dividends from UK-based companies?"
     val expectedTitle = "Did you get dividends from UK-based companies?"
     val expectedErrorTitle = s"Error: $expectedTitle"
-    val yourDividendsText = "Your dividend voucher will tell you the shares you have in the company and the amount of the dividend you got."
+    val expectedHintText = "Your dividend voucher will tell you the shares you have in the company and the amount of the dividend you got."
     val expectedErrorText = "Select yes if you got dividends from UK-based companies"
   }
 
@@ -91,7 +90,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
     val expectedH1 = "Did your client get dividends from UK-based companies?"
     val expectedTitle = "Did your client get dividends from UK-based companies?"
     val expectedErrorTitle = s"Error: $expectedTitle"
-    val yourDividendsText = "Your client’s dividend voucher will tell you the shares they have in the company and the amount of the dividend they got."
+    val expectedHintText = "Your client’s dividend voucher will tell you the shares they have in the company and the amount of the dividend they got."
     val expectedErrorText = "Select yes if your client got dividends from UK-based companies"
   }
 
@@ -107,7 +106,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
     val expectedH1 = "A gawsoch ddifidendau gan gwmnïau yn y DU?"
     val expectedTitle = "A gawsoch ddifidendau gan gwmnïau yn y DU?"
     val expectedErrorTitle = s"Gwall: $expectedTitle"
-    val yourDividendsText = "Bydd eich taleb ddifidend yn rhoi gwybod i chi am y cyfranddaliadau sydd gennych yn y cwmni a swm y difidend a gawsoch."
+    val expectedHintText = "Bydd eich taleb ddifidend yn rhoi gwybod i chi am y cyfranddaliadau sydd gennych yn y cwmni a swm y difidend a gawsoch."
     val expectedErrorText = "Dewiswch ‘Iawn’ os cawsoch ddifidendau gan gwmnïau yn y DU"
   }
 
@@ -115,7 +114,7 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
     val expectedH1 = "A gafodd eich cleient ddifidendau gan gwmnïau yn y DU?"
     val expectedTitle = "A gafodd eich cleient ddifidendau gan gwmnïau yn y DU?"
     val expectedErrorTitle = s"Gwall: $expectedTitle"
-    val yourDividendsText = "Bydd taleb ddifidend eich cleient yn rhoi gwybod i chi am y cyfranddaliadau sydd ganddynt yn y cwmni a swm y difidend a gafodd."
+    val expectedHintText = "Bydd taleb ddifidend eich cleient yn rhoi gwybod i chi am y cyfranddaliadau sydd ganddynt yn y cwmni a swm y difidend a gafodd."
     val expectedErrorText = "Dewiswch ‘Iawn’ os cafodd eich cleient ddifidendau gan gwmnïau yn y DU"
   }
 
@@ -157,8 +156,8 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck(get.expectedTitle, scenario.isWelsh)
-          h1Check(s"${get.expectedH1} ${captionExpected}")
-          textOnPageCheck(get.yourDividendsText, yourDividendsSelector)
+          legendHeadingCheck(s"${get.expectedH1} ${captionExpected}")
+          hintTextCheck(get.expectedHintText)
           radioButtonCheck(yesNo(true), 1)
           radioButtonCheck(yesNo(false), 2)
           buttonCheck(continueText, continueSelector)
@@ -183,8 +182,8 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck(get.expectedTitle, scenario.isWelsh)
-          h1Check(s"${get.expectedH1} ${captionExpected}")
-          textOnPageCheck(get.yourDividendsText, yourDividendsSelector)
+          legendHeadingCheck(s"${get.expectedH1} ${captionExpected}")
+          hintTextCheck(get.expectedHintText)
           radioButtonCheck(yesNo(true), 1)
           radioButtonCheck(yesNo(false), 2)
           buttonCheck(continueText, continueSelector)
@@ -310,9 +309,9 @@ class ReceiveUkDividendsControllerISpec extends IntegrationTest with ViewHelpers
           implicit val document: () => Document = () => Jsoup.parse(result.body)
 
           titleCheck(get.expectedErrorTitle, us.isWelsh)
-          h1Check(s"${get.expectedH1} ${captionExpected}")
+          legendHeadingCheck(s"${get.expectedH1} ${captionExpected}")
           errorSummaryCheck(get.expectedErrorText, errorSummaryHref, us.isWelsh)
-          textOnPageCheck(get.yourDividendsText, yourDividendsSelector)
+          hintTextCheck(get.expectedHintText)
           radioButtonCheck(yesNo(true), 1)
           radioButtonCheck(yesNo(false), 2)
           buttonCheck(continueText, continueSelector)

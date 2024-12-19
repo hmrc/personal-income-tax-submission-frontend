@@ -169,7 +169,7 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
           }
 
           titleCheck(heading, scenario.isWelsh)
-          h1Check(s"$heading $caption")
+          legendHeadingCheck(s"$heading $caption")
           captionCheck(caption)
           hintTextCheck(hintText)
           formPostLinkCheck(relativeUrl, Selectors.formSelector)
@@ -195,7 +195,7 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
           }
 
           titleCheck(heading, scenario.isWelsh)
-          h1Check(s"$heading $caption")
+          legendHeadingCheck(s"$heading $caption")
           captionCheck(caption)
           hintTextCheck(hintText)
           formPostLinkCheck(relativeUrl, Selectors.formSelector)
@@ -222,7 +222,7 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
           }
 
           titleCheck(heading, scenario.isWelsh)
-          h1Check(s"$heading $caption")
+          legendHeadingCheck(s"$heading $caption")
           captionCheck(caption)
           hintTextCheck(hintText)
           formPostLinkCheck(relativeUrl, Selectors.formSelector)
@@ -440,7 +440,7 @@ class DividendsGatewayControllerISpec extends IntegrationTest with ViewHelpers w
 
             errorSummaryCheck(errorText, "#value", scenario.isWelsh)
             titleCheck(errorTitle, scenario.isWelsh)
-            h1Check(s"$heading $caption")
+            legendHeadingCheck(s"$heading $caption")
             captionCheck(caption)
             hintTextCheck(hintText)
             formPostLinkCheck(relativeUrl, Selectors.formSelector)
