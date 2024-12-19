@@ -25,7 +25,8 @@
 }
 
 @content = {
-    @heading(messages("dividends.gateway.heading." + agentOrIndividual), Some(messages("dividends.caption", (taxYear-1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
+    <span class="govuk-caption-l">@messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)</span>
+    @(messages("dividends.gateway.heading." + agentOrIndividual))
 }
 
 @hasFormErrors = @{form.hasErrors}
@@ -34,12 +35,12 @@
     
     @errorSummary(form.errors)
     
-    @content
-    
     @formWithCSRF(controllers.dividends.routes.DividendsGatewayController.submit(taxYear)) {
         @radio(
             form = form,
             name = "value",
+            legendHeading = Some(content),
+            legendAsHeading = true,
             inline = true,
             hint = Some(Html(messages("dividends.gateway.hint")))
         )
