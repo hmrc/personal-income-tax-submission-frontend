@@ -29,10 +29,10 @@ trait MockErrorHandler extends MockFactory {
   def mockInternalServerError(): Unit =
     (mockErrorHandler.internalServerError()(_: Request[_]))
       .expects(*)
-      .returns(InternalServerError)
+      .returns(InternalServerError("There is a problem."))
 
   def mockFutureInternalServerError(): Unit =
     (mockErrorHandler.futureInternalServerError()(_: Request[_]))
       .expects(*)
-      .returns(Future.successful(InternalServerError))
+      .returns(Future.successful(InternalServerError("There is a problem.")))
 }

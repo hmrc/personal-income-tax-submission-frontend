@@ -326,6 +326,7 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite with MockEr
           )
 
           status(result) shouldBe INTERNAL_SERVER_ERROR
+          bodyOf(result) shouldBe "There is a problem."
         }
       }
 
@@ -360,6 +361,7 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite with MockEr
           )
 
           status(result) shouldBe INTERNAL_SERVER_ERROR
+          bodyOf(result) shouldBe "There is a problem."
         }
 
         "return a redirect to the agent error page when secondary agent auth call also fails" in new AgentTest {
@@ -512,7 +514,20 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite with MockEr
         status(result) shouldBe SEE_OTHER
       }
     }
-  }
 
+    "render ISE" when {
+
+      "Any other type of unexpected exception is caught in the recovery block" in {
+
+        mockAuthReturnException(new Exception("bang"))
+        mockInternalServerError()
+
+        val result = auth.invokeBlock(fakeRequest, block)
+
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+        bodyOf(result) shouldBe "There is a problem."
+      }
+    }
+  }
 }
 
